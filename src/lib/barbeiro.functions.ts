@@ -315,6 +315,7 @@ export type FichaCliente = {
     telefone: string;
     limite_fiado_centavos: number;
     ficha_tecnica: string | null;
+    arquivado_em: string | null;
   };
   emAbertoCentavos: number;
   debitos: Debito[];
@@ -326,7 +327,7 @@ export const listarClientesBarbeiro = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const { db, tenant } = await tenantPadrao(context);
   const [clientesRes, carteirasRes] = await Promise.all([
-    db.from("clientes").select("id, nome, telefone").eq("tenant_id", tenant.id).order("nome"),
+    db.from("clientes").select("id, nome, telefone").eq("tenant_id", tenant.id).is("arquivado_em", null).order("nome"),
     db.from("carteiras").select("cliente_id, saldo_centavos, saldo_creditos").eq("tenant_id", tenant.id),
   ]);
   const mapa = new Map((carteirasRes.data ?? []).map((c) => [c.cliente_id, c]));
@@ -346,7 +347,7 @@ export const getFichaCliente = createServerFn({ method: "GET" })
     const { db, tenant } = await tenantPadrao(context);
     const { data: cliente } = await db
       .from("clientes")
-      .select("id, nome, telefone, limite_fiado_centavos, ficha_tecnica")
+      .select("id, nome, telefone, limite_fiado_centavos, ficha_tecnica, arquivado_em")
       .eq("id", data.clienteId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
