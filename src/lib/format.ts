@@ -22,3 +22,8 @@ export function dataHoraLonga(iso: string): string {
   const d = new Date(iso);
   return `${DIAS[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")} às ${hora(iso)}`;
 }
+
+export function dataCurta(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+}

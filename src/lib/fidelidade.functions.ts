@@ -90,3 +90,31 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
 
     return { ok: true, ativo: data.ativo, alvo: data.alvo };
   });
+
+export const getClientesFidelidade = createServerFn({ method: "GET" }).handler(async () => {
+  const { db, tenantId } = await tenantPadrao();
+  const [regraRes, carteirasRes] = await Promise.all([
+    db
+      .from("regras_de_plano")
+      .select("fidelidade_alvo")
+      .eq("tenant_id", tenantId)
+      .eq("tipo", "fidelidade")
+      .maybeSingle(),
+    db
+      .from("carteiras")
+      .select("cliente_id, fidelidade_progresso, clientes(nome)")
+      .eq("tenant_id", tenantId)
+      .gt("fidelidade_progresso", 0)
+      .order("fidelidade_progresso", { ascending: false }),
+  ]);
+  const alvo = regraRes.data?.fidelidade_alvo ?? 10;
+  return {
+    alvo,
+    clientes: (carteirasRes.data ?? []).map((c) => ({
+      id: c.cliente_id,
+      nome: (c as { clientes?: { nome?: string } | null }).clientes?.nome ?? "Cliente",
+      progresso: c.fidelidade_progresso,
+      elegivel: c.fidelidade_progresso >= alvo,
+    })),
+  };
+});
