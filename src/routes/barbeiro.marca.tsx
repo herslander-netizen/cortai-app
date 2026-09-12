@@ -36,7 +36,7 @@ const temas = [
   { id: "vibrante", nome: "Vibrante", cores: ["#2FC8A0", "#172721", "#F2B84B"] },
   { id: "escura", nome: "Escura", cores: ["#B9C1C9", "#17191B", "#78909C"] },
   { id: "quente", nome: "Quente", cores: ["#D77A61", "#2A1D1A", "#E2B44C"] },
-  { id: "clara", nome: "Clara", cores: ["#80A88A", "#E8E9E4", "#C9785B"] },
+  { id: "clara", nome: "Clara", cores: ["#A9C8B0", "#26302A", "#D79A76"] },
 ] as const;
 
 const fieldClass = "mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none placeholder:text-mute2 focus:border-gold";
@@ -50,7 +50,7 @@ function Secao({ title, children }: { title: string; children: React.ReactNode }
 }
 
 function MarcaPage() {
-  const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca() });
+  const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   if (query.isLoading) return <Screen title="Marca"><p className="text-sm text-mute">Carregando…</p></Screen>;
   if (query.isError) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
   if (!query.data) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
