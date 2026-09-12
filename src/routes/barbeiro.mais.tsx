@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ListOrdered, LogOut, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserSquare2 } from "lucide-react";
+import { ChevronRight, ListOrdered, LogOut, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserRound, UserSquare2 } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { sair } from "@/lib/guarda";
