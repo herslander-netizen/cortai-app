@@ -1,0 +1,640 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+const DIA = 24 * 60 * 60 * 1000;
+
+async function admin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
+
+async function tenantPadrao() {
+  const db = await admin();
+  const { data: tenant } = await db
+    .from("tenants")
+    .select("id, nome, slug, indicacao_ativa, indicacao_codigo, indicacao_recompensa, link_avaliacao_publica")
+    .order("criado_em", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
+  return { db, tenant };
+}
+
+function preferido(valores: string[]): string | null {
+  if (!valores.length) return null;
+  const contagem = new Map<string, number>();
+  for (const v of valores) contagem.set(v, (contagem.get(v) ?? 0) + 1);
+  return [...contagem.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+/* ---------------------------------- CRM ---------------------------------- */
+
+export type ClienteCRM = {
+  id: string;
+  nome: string;
+  telefone: string;
+  visitas: number;
+  ultimaVisita: string | null;
+  diasDesdeUltima: number | null;
+  intervaloMedioDias: number | null;
+  gastoMedioCentavos: number;
+  servicoPreferido: string | null;
+  profissionalPreferido: string | null;
+  saldoCentavos: number;
+  creditos: number;
+  status: "novo" | "recorrente" | "em_retorno" | "inativo";
+  atrasoDias: number | null;
+};
+
+export const getClientesCRM = createServerFn({ method: "GET" }).handler(async () => {
+  const { db, tenant } = await tenantPadrao();
+  const [clientesRes, agRes, carteirasRes] = await Promise.all([
+    db.from("clientes").select("id, nome, telefone, criado_em").eq("tenant_id", tenant.id).order("nome"),
+    db
+      .from("agendamentos")
+      .select("cliente_id, inicio, valor_centavos, status, servicos(nome), profissionais(nome)")
+      .eq("tenant_id", tenant.id)
+      .not("status", "in", "(cancelado,falta)")
+      .order("inicio"),
+    db.from("carteiras").select("cliente_id, saldo_centavos, saldo_creditos").eq("tenant_id", tenant.id),
+  ]);
+
+  const carteiras = new Map((carteirasRes.data ?? []).map((c) => [c.cliente_id, c]));
+  const agora = Date.now();
+
+  const clientes: ClienteCRM[] = (clientesRes.data ?? []).map((c) => {
+    const visitas = (agRes.data ?? []).filter(
+      (a) => a.cliente_id === c.id && new Date(a.inicio).getTime() <= agora,
+    );
+    const datas = visitas.map((v) => new Date(v.inicio).getTime()).sort((a, b) => a - b);
+    const ultima = datas.length ? datas[datas.length - 1]! : null;
+    const diasDesdeUltima = ultima === null ? null : Math.floor((agora - ultima) / DIA);
+
+    let intervalo: number | null = null;
+    if (datas.length >= 2) {
+      let soma = 0;
+      for (let i = 1; i < datas.length; i += 1) soma += datas[i]! - datas[i - 1]!;
+      intervalo = Math.max(1, Math.round(soma / (datas.length - 1) / DIA));
+    }
+
+    const pagos = visitas.filter((v) => v.valor_centavos > 0);
+    const gastoMedio = pagos.length
+      ? Math.round(pagos.reduce((s, v) => s + v.valor_centavos, 0) / pagos.length)
+      : 0;
+
+    const referencia = intervalo ?? 30;
+    const atraso = diasDesdeUltima === null ? null : diasDesdeUltima - referencia;
+
+    let status: ClienteCRM["status"] = "novo";
+    if (visitas.length === 0) status = "novo";
+    else if (diasDesdeUltima !== null && diasDesdeUltima > referencia * 2) status = "inativo";
+    else if (atraso !== null && atraso > 0) status = "em_retorno";
+    else status = "recorrente";
+
+    const carteira = carteiras.get(c.id);
+    return {
+      id: c.id,
+      nome: c.nome,
+      telefone: c.telefone,
+      visitas: visitas.length,
+      ultimaVisita: ultima === null ? null : new Date(ultima).toISOString(),
+      diasDesdeUltima,
+      intervaloMedioDias: intervalo,
+      gastoMedioCentavos: gastoMedio,
+      servicoPreferido: preferido(visitas.map((v) => v.servicos?.nome).filter((n): n is string => !!n)),
+      profissionalPreferido: preferido(
+        visitas.map((v) => v.profissionais?.nome).filter((n): n is string => !!n),
+      ),
+      saldoCentavos: carteira?.saldo_centavos ?? 0,
+      creditos: carteira?.saldo_creditos ?? 0,
+      status,
+      atrasoDias: atraso !== null && atraso > 0 ? atraso : null,
+    };
+  });
+
+  const trazerDeVolta = clientes
+    .filter((c) => c.atrasoDias !== null && c.visitas > 0)
+    .sort((a, b) => (b.atrasoDias ?? 0) - (a.atrasoDias ?? 0))
+    .slice(0, 12);
+
+  return { tenant: { id: tenant.id, nome: tenant.nome, slug: tenant.slug }, clientes, trazerDeVolta };
+});
+
+/* ------------------------------- CRESCIMENTO ------------------------------ */
+
+export type Crescimento = {
+  tenant: { id: string; nome: string; slug: string };
+  novosClientesMes: number;
+  clientesRecorrentes: number;
+  agendamentosPeloLink: number;
+  oportunidadesRetorno: number;
+  indicacoesTotal: number;
+  indicacoesConvertidas: number;
+  ocupacaoPct: number;
+  horariosVagosHoje: number;
+  naFila: number;
+};
+
+export const getCrescimento = createServerFn({ method: "GET" }).handler(async (): Promise<Crescimento> => {
+  const { db, tenant } = await tenantPadrao();
+  const agora = Date.now();
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+  inicioMes.setHours(0, 0, 0, 0);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const amanha = new Date(hoje.getTime() + DIA);
+
+  const [novosRes, origemRes, agHojeRes, agRes, profRes, filaRes, indicacoesRes] =
+    await Promise.all([
+      db.from("clientes").select("id").eq("tenant_id", tenant.id).gte("criado_em", inicioMes.toISOString()),
+      db.from("clientes").select("id").eq("tenant_id", tenant.id).in("origem", ["link", "indicacao"]),
+      db
+        .from("agendamentos")
+        .select("id, status")
+        .eq("tenant_id", tenant.id)
+        .gte("inicio", hoje.toISOString())
+        .lt("inicio", amanha.toISOString()),
+      db
+        .from("agendamentos")
+        .select("cliente_id, inicio")
+        .eq("tenant_id", tenant.id)
+        .not("status", "in", "(cancelado,falta)"),
+      db.from("profissionais").select("id").eq("tenant_id", tenant.id).eq("ativo", true),
+      db.from("fila_de_espera").select("id").eq("tenant_id", tenant.id),
+      db.from("indicacoes").select("id, status").eq("tenant_id", tenant.id),
+    ]);
+
+  const porCliente = new Map<string, number[]>();
+  for (const a of agRes.data ?? []) {
+    const t = new Date(a.inicio).getTime();
+    if (t > agora) continue;
+    const lista = porCliente.get(a.cliente_id) ?? [];
+    lista.push(t);
+    porCliente.set(a.cliente_id, lista);
+  }
+
+  let recorrentes = 0;
+  let oportunidades = 0;
+  for (const datas of porCliente.values()) {
+    datas.sort((a, b) => a - b);
+    if (datas.length >= 2) recorrentes += 1;
+    let intervalo = 30;
+    if (datas.length >= 2) {
+      let soma = 0;
+      for (let i = 1; i < datas.length; i += 1) soma += datas[i]! - datas[i - 1]!;
+      intervalo = Math.max(1, Math.round(soma / (datas.length - 1) / DIA));
+    }
+    const ultima = datas[datas.length - 1]!;
+    if ((agora - ultima) / DIA > intervalo) oportunidades += 1;
+  }
+
+  const ativosHoje = (agHojeRes.data ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
+  const totalSlots = Math.max((profRes.data?.length ?? 1) * 20, 1);
+  const indicacoes = indicacoesRes.data ?? [];
+
+  return {
+    tenant: { id: tenant.id, nome: tenant.nome, slug: tenant.slug },
+    novosClientesMes: novosRes.data?.length ?? 0,
+    clientesRecorrentes: recorrentes,
+    agendamentosPeloLink: origemRes.data?.length ?? 0,
+    oportunidadesRetorno: oportunidades,
+    indicacoesTotal: indicacoes.length,
+    indicacoesConvertidas: indicacoes.filter((i) => i.status === "convertido").length,
+    ocupacaoPct: Math.round((ativosHoje.length / totalSlots) * 100),
+    horariosVagosHoje: Math.max(0, totalSlots - ativosHoje.length),
+    naFila: filaRes.data?.length ?? 0,
+  };
+});
+
+/* -------------------------------- INDICAÇÕES ------------------------------ */
+
+export const getIndicacoes = createServerFn({ method: "GET" }).handler(async () => {
+  const { db, tenant } = await tenantPadrao();
+  const { data } = await db
+    .from("indicacoes")
+    .select("id, indicado_nome, status, recompensa, recompensa_entregue, criado_em, convertido_em, clientes!indicacoes_indicador_cliente_id_fkey(nome)")
+    .eq("tenant_id", tenant.id)
+    .order("criado_em", { ascending: false });
+
+  return {
+    tenant: {
+      id: tenant.id,
+      nome: tenant.nome,
+      slug: tenant.slug,
+      ativa: tenant.indicacao_ativa,
+      codigo: tenant.indicacao_codigo,
+      recompensa: tenant.indicacao_recompensa,
+    },
+    itens: (data ?? []).map((i) => ({
+      id: i.id,
+      indicado: i.indicado_nome,
+      indicador: (i as { clientes?: { nome?: string } | null }).clientes?.nome ?? null,
+      status: i.status,
+      recompensa: i.recompensa,
+      recompensaEntregue: i.recompensa_entregue,
+      criadoEm: i.criado_em,
+      convertidoEm: i.convertido_em,
+    })),
+  };
+});
+
+export const salvarConfigIndicacao = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        ativa: z.boolean(),
+        codigo: z.string().trim().min(3).max(24).regex(/^[a-zA-Z0-9-]+$/),
+        recompensa: z.string().trim().max(120),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { error } = await db
+      .from("tenants")
+      .update({
+        indicacao_ativa: data.ativa,
+        indicacao_codigo: data.codigo.toLowerCase(),
+        indicacao_recompensa: data.recompensa || null,
+      })
+      .eq("id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const registrarIndicacao = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        indicadorClienteId: z.string().uuid().nullable(),
+        indicadoNome: z.string().trim().min(2).max(80),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { error } = await db.from("indicacoes").insert({
+      tenant_id: tenant.id,
+      indicador_cliente_id: data.indicadorClienteId,
+      indicado_nome: data.indicadoNome,
+      recompensa: tenant.indicacao_recompensa,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const atualizarIndicacao = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), acao: z.enum(["converter", "recompensar", "remover"]) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    if (data.acao === "remover") {
+      await db.from("indicacoes").delete().eq("id", data.id).eq("tenant_id", tenant.id);
+      return { ok: true };
+    }
+    const patch =
+      data.acao === "converter"
+        ? { status: "convertido", convertido_em: new Date().toISOString() }
+        : { recompensa_entregue: true };
+    const { error } = await db.from("indicacoes").update(patch).eq("id", data.id).eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* -------------------------------- AVALIAÇÕES ------------------------------ */
+
+export const getAvaliacoes = createServerFn({ method: "GET" }).handler(async () => {
+  const { db, tenant } = await tenantPadrao();
+  const desde = new Date(Date.now() - 30 * DIA).toISOString();
+
+  const [concluidosRes, avaliacoesRes] = await Promise.all([
+    db
+      .from("agendamentos")
+      .select("id, inicio, cliente_id, profissional_id, clientes(nome), servicos(nome)")
+      .eq("tenant_id", tenant.id)
+      .eq("status", "concluido")
+      .gte("inicio", desde)
+      .order("inicio", { ascending: false }),
+    db
+      .from("avaliacoes")
+      .select("id, agendamento_id, nota, comentario, criado_em, clientes(nome)")
+      .eq("tenant_id", tenant.id)
+      .order("criado_em", { ascending: false }),
+  ]);
+
+  const avaliadas = new Set((avaliacoesRes.data ?? []).map((a) => a.agendamento_id));
+  const notas = (avaliacoesRes.data ?? []).map((a) => a.nota);
+
+  return {
+    linkPublico: tenant.link_avaliacao_publica,
+    media: notas.length ? Number((notas.reduce((s, n) => s + n, 0) / notas.length).toFixed(1)) : null,
+    pendentes: (concluidosRes.data ?? [])
+      .filter((a) => !avaliadas.has(a.id))
+      .map((a) => ({
+        id: a.id,
+        inicio: a.inicio,
+        clienteId: a.cliente_id,
+        profissionalId: a.profissional_id,
+        cliente: a.clientes?.nome ?? "Cliente",
+        servico: a.servicos?.nome ?? "Atendimento",
+      })),
+    registradas: (avaliacoesRes.data ?? []).map((a) => ({
+      id: a.id,
+      nota: a.nota,
+      comentario: a.comentario,
+      criadoEm: a.criado_em,
+      cliente: (a as { clientes?: { nome?: string } | null }).clientes?.nome ?? "Cliente",
+    })),
+  };
+});
+
+export const registrarAvaliacao = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        agendamentoId: z.string().uuid(),
+        nota: z.number().int().min(1).max(5),
+        comentario: z.string().trim().max(400).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("id, cliente_id, profissional_id")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!ag) throw new Error("Atendimento não encontrado");
+
+    const { error } = await db.from("avaliacoes").insert({
+      tenant_id: tenant.id,
+      agendamento_id: ag.id,
+      cliente_id: ag.cliente_id,
+      profissional_id: ag.profissional_id,
+      nota: data.nota,
+      comentario: data.comentario ?? null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, convidarPublico: data.nota >= 4, link: tenant.link_avaliacao_publica };
+  });
+
+export const salvarLinkAvaliacao = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ link: z.string().trim().max(300) }).parse(input))
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { error } = await db
+      .from("tenants")
+      .update({ link_avaliacao_publica: data.link || null })
+      .eq("id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ------------------------- RECORRÊNCIA DE AGENDAMENTO --------------------- */
+
+const PERIODOS = { semanal: 7, quinzenal: 14, mensal: 28 } as const;
+
+export const repetirAgendamento = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        agendamentoId: z.string().uuid(),
+        periodicidade: z.enum(["semanal", "quinzenal", "mensal"]),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("*")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!ag) throw new Error("Atendimento não encontrado");
+
+    const dias = PERIODOS[data.periodicidade];
+    const inicio = new Date(new Date(ag.inicio).getTime() + dias * DIA);
+    const fim = new Date(new Date(ag.fim).getTime() + dias * DIA);
+
+    const { data: conflito } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("profissional_id", ag.profissional_id ?? "")
+      .not("status", "in", "(cancelado,falta)")
+      .lt("inicio", fim.toISOString())
+      .gt("fim", inicio.toISOString())
+      .maybeSingle();
+    if (conflito) throw new Error("Esse horário já está ocupado na próxima data.");
+
+    await db.from("agendamentos").update({ recorrencia: data.periodicidade }).eq("id", ag.id);
+
+    const { error } = await db.from("agendamentos").insert({
+      tenant_id: tenant.id,
+      cliente_id: ag.cliente_id,
+      profissional_id: ag.profissional_id,
+      servico_id: ag.servico_id,
+      inicio: inicio.toISOString(),
+      fim: fim.toISOString(),
+      status: "confirmado",
+      forma_pagamento: ag.forma_pagamento === "credito" ? "balcao" : ag.forma_pagamento,
+      valor_centavos: ag.valor_centavos,
+      recorrencia: data.periodicidade,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, inicio: inicio.toISOString() };
+  });
+
+/* ----------------------------- LISTA DE ESPERA ---------------------------- */
+
+export const entrarNaFila = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        nome: z.string().trim().min(2).max(80),
+        telefone: z.string().trim().min(8).max(20),
+        janelaInicio: z.number().int().min(0).max(23).nullable(),
+        janelaFim: z.number().int().min(1).max(24).nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const telefone = data.telefone.replace(/\D/g, "");
+
+    const { data: existente } = await db
+      .from("clientes")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .eq("telefone", telefone)
+      .maybeSingle();
+
+    let clienteId = existente?.id ?? null;
+    if (!clienteId) {
+      const { data: novo, error } = await db
+        .from("clientes")
+        .insert({ tenant_id: tenant.id, nome: data.nome, telefone, origem: "link" })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      clienteId = novo.id;
+    }
+
+    const { data: fila } = await db.from("fila_de_espera").select("posicao").eq("tenant_id", tenant.id);
+    const posicao = (fila ?? []).reduce((max, f) => Math.max(max, f.posicao), 0) + 1;
+
+    const { error: erroFila } = await db.from("fila_de_espera").insert({
+      tenant_id: tenant.id,
+      cliente_id: clienteId,
+      posicao,
+      janela_preferida:
+        data.janelaInicio !== null && data.janelaFim !== null
+          ? { inicio: data.janelaInicio, fim: data.janelaFim }
+          : null,
+    });
+    if (erroFila) throw new Error(erroFila.message);
+    return { ok: true, posicao };
+  });
+
+/* ---------------------------- PERFIL PROFISSIONAL ------------------------- */
+
+export const getProfissionaisPerfil = createServerFn({ method: "GET" }).handler(async () => {
+  const { db, tenant } = await tenantPadrao();
+  const { data } = await db
+    .from("profissionais")
+    .select("id, nome, descricao, portfolio, ativo")
+    .eq("tenant_id", tenant.id)
+    .order("criado_em");
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome,
+    descricao: p.descricao,
+    portfolio: Array.isArray(p.portfolio) ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string") : [],
+    ativo: p.ativo,
+  }));
+});
+
+export const salvarPerfilProfissional = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        descricao: z.string().trim().max(200),
+        portfolio: z.array(z.string().trim().url().max(400)).max(6),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { db, tenant } = await tenantPadrao();
+    const { error } = await db
+      .from("profissionais")
+      .update({ descricao: data.descricao || null, portfolio: data.portfolio })
+      .eq("id", data.id)
+      .eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* -------------------------- OPORTUNIDADES DE HOJE ------------------------- */
+
+export type Oportunidade = {
+  chave: string;
+  titulo: string;
+  detalhe: string;
+  quantidade: number;
+  destino: "/barbeiro/clientes" | "/barbeiro/agenda" | "/barbeiro/produtos" | "/barbeiro/avaliacoes";
+};
+
+export const getOportunidades = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Oportunidade[]> => {
+    const { db, tenant } = await tenantPadrao();
+    const agora = Date.now();
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const amanha = new Date(hoje.getTime() + DIA);
+
+    const [agRes, agHojeRes, profRes, produtosRes, concluidosRes, avaliacoesRes] = await Promise.all([
+      db
+        .from("agendamentos")
+        .select("cliente_id, inicio")
+        .eq("tenant_id", tenant.id)
+        .not("status", "in", "(cancelado,falta)"),
+      db
+        .from("agendamentos")
+        .select("id, status")
+        .eq("tenant_id", tenant.id)
+        .gte("inicio", hoje.toISOString())
+        .lt("inicio", amanha.toISOString()),
+      db.from("profissionais").select("id").eq("tenant_id", tenant.id).eq("ativo", true),
+      db.from("produtos").select("id, nome, quantidade, estoque_minimo").eq("tenant_id", tenant.id).eq("ativo", true),
+      db
+        .from("agendamentos")
+        .select("id")
+        .eq("tenant_id", tenant.id)
+        .eq("status", "concluido")
+        .gte("inicio", new Date(agora - 30 * DIA).toISOString()),
+      db.from("avaliacoes").select("agendamento_id").eq("tenant_id", tenant.id),
+    ]);
+
+    const porCliente = new Map<string, number[]>();
+    for (const a of agRes.data ?? []) {
+      const t = new Date(a.inicio).getTime();
+      if (t > agora) continue;
+      const lista = porCliente.get(a.cliente_id) ?? [];
+      lista.push(t);
+      porCliente.set(a.cliente_id, lista);
+    }
+    let atrasados = 0;
+    for (const datas of porCliente.values()) {
+      datas.sort((a, b) => a - b);
+      let intervalo = 30;
+      if (datas.length >= 2) {
+        let soma = 0;
+        for (let i = 1; i < datas.length; i += 1) soma += datas[i]! - datas[i - 1]!;
+        intervalo = Math.max(1, Math.round(soma / (datas.length - 1) / DIA));
+      }
+      if ((agora - datas[datas.length - 1]!) / DIA > intervalo) atrasados += 1;
+    }
+
+    const ocupadosHoje = (agHojeRes.data ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
+    const vagos = Math.max(0, Math.max((profRes.data?.length ?? 1) * 20, 1) - ocupadosHoje.length);
+    const estoqueBaixo = (produtosRes.data ?? []).filter((p) => p.quantidade <= p.estoque_minimo);
+    const avaliadas = new Set((avaliacoesRes.data ?? []).map((a) => a.agendamento_id));
+    const pendentesAvaliacao = (concluidosRes.data ?? []).filter((a) => !avaliadas.has(a.id)).length;
+
+    return [
+      {
+        chave: "retorno",
+        titulo: "clientes atrasados para voltar",
+        detalhe: "Uma mensagem costuma trazer de volta.",
+        quantidade: atrasados,
+        destino: "/barbeiro/clientes",
+      },
+      {
+        chave: "vagos",
+        titulo: "horários livres hoje",
+        detalhe: "Ofereça para quem está na lista de espera.",
+        quantidade: vagos,
+        destino: "/barbeiro/agenda",
+      },
+      {
+        chave: "estoque",
+        titulo: "produtos com estoque baixo",
+        detalhe: estoqueBaixo.length ? estoqueBaixo.map((p) => p.nome).slice(0, 3).join(", ") : "Estoque em dia.",
+        quantidade: estoqueBaixo.length,
+        destino: "/barbeiro/produtos",
+      },
+      {
+        chave: "avaliacoes",
+        titulo: "atendimentos sem avaliação",
+        detalhe: "Registre a nota enquanto está fresco.",
+        quantidade: pendentesAvaliacao,
+        destino: "/barbeiro/avaliacoes",
+      },
+    ].filter((o) => o.quantidade > 0 || o.chave === "retorno") as Oportunidade[];
+  },
+);

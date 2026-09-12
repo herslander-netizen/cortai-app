@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ListOrdered, Package, Palette, Scissors, Star } from "lucide-react";
+import { ChevronRight, ListOrdered, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserSquare2 } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 
 export const Route = createFileRoute("/barbeiro/mais")({
@@ -15,10 +15,14 @@ export const Route = createFileRoute("/barbeiro/mais")({
 });
 
 const itens = [
+  { to: "/barbeiro/crescimento", label: "Crescimento", detail: "Novos clientes, retorno e indicações", icon: TrendingUp },
+  { to: "/barbeiro/indicacoes", label: "Indicações", detail: "Cliente que traz cliente", icon: Sparkles },
+  { to: "/barbeiro/avaliacoes", label: "Avaliações", detail: "Notas e convite público", icon: Star },
   { to: "/barbeiro/produtos", label: "Produtos e estoque", detail: "Catálogo, vendas e alertas", icon: Package },
   { to: "/barbeiro/servicos", label: "Serviços", detail: "Preços e duração", icon: Scissors },
-  { to: "/barbeiro/fila", label: "Fila de espera", detail: "Ocupe horários vagos", icon: ListOrdered },
-  { to: "/barbeiro/fidelidade", label: "Fidelidade", detail: "Regras e benefícios", icon: Star },
+  { to: "/barbeiro/fila", label: "Lista de espera", detail: "Ocupe horários vagos", icon: ListOrdered },
+  { to: "/barbeiro/fidelidade", label: "Fidelidade", detail: "Progresso e clientes elegíveis", icon: Star },
+  { to: "/barbeiro/profissionais", label: "Profissionais", detail: "Descrição e portfólio", icon: UserSquare2 },
   { to: "/barbeiro/marca", label: "Página e marca", detail: "Personalize e compartilhe", icon: Palette },
 ] as const;
 

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
+import { repetirAgendamento } from "@/lib/crescimento.functions";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
   head: () => ({
@@ -44,6 +45,7 @@ function corDaBorda(forma: string | null) {
 
 function AgendaPage() {
   const oferecer = useServerFn(oferecerHorarioAFila);
+  const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
   const [aviso, setAviso] = useState<string | null>(null);
 
@@ -104,6 +106,26 @@ function AgendaPage() {
                         ? `Fiado · ${brl(item.valor_centavos)}`
                         : brl(item.valor_centavos)}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    <span className="text-[11px] text-mute2">Repetir:</span>
+                    {(["semanal", "quinzenal", "mensal"] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className="btn-tertiary text-[11px]"
+                        onClick={async () => {
+                          try {
+                            const r = await repetir({ data: { agendamentoId: item.id, periodicidade: p } });
+                            setAviso(`Repetido para ${new Date(r.inicio).toLocaleDateString("pt-BR")}.`);
+                          } catch (e) {
+                            setAviso(e instanceof Error ? e.message : "Não foi possível repetir.");
+                          }
+                        }}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : bloqueio ? (
                 <div className="flex-1 border-l-2 border-l-mute2 bg-ink2 px-4 py-3">

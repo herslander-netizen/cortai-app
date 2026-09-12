@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
-import { getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
+import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
   head: () => ({
@@ -37,6 +37,8 @@ function FidelidadePage() {
     queryKey: ["fidelidade"],
     queryFn: () => getConfigFidelidade(),
   });
+
+  const elegiveis = useQuery({ queryKey: ["fidelidade-clientes"], queryFn: () => getClientesFidelidade() });
 
   const [alvo, setAlvo] = useState(10);
   const [ativo, setAtivo] = useState(false);
@@ -155,6 +157,31 @@ function FidelidadePage() {
         {salvando ? "Salvando…" : "Salvar"}
       </button>
       {ok ? <p className="mt-3 text-center text-sm text-sage">Configuração salva.</p> : null}
+
+      <h2 className="mb-1 mt-10 text-sm font-semibold text-paper">Progresso dos clientes</h2>
+      {elegiveis.data && elegiveis.data.clientes.length === 0 ? (
+        <p className="border-y border-line py-8 text-center text-sm text-mute">
+          Ninguém acumulou selos ainda.
+        </p>
+      ) : null}
+      <ul>
+        {(elegiveis.data?.clientes ?? []).map((c) => (
+          <li key={c.id} className="border-b border-line py-4">
+            <div className="flex items-baseline justify-between gap-4">
+              <p className="truncate text-sm text-paper">{c.nome}</p>
+              <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
+                {c.elegivel ? "Corte grátis liberado" : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
+              </p>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink3">
+              <div
+                className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-gold"}`}
+                style={{ width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%` }}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
     </Screen>
   );
 }

@@ -21,7 +21,14 @@ export type PaginaPublica = {
     fotos_signed_urls: string[];
   };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
-  profissionais: { id: string; nome: string; avatar_url: string | null }[];
+  profissionais: {
+    id: string;
+    nome: string;
+    avatar_url: string | null;
+    descricao: string | null;
+    portfolio: string[];
+  }[];
+  produtos: { id: string; nome: string; categoria: string; preco_centavos: number; foto_url: string | null }[];
 };
 
 async function signedUrl(client: any, path: string | null) {
@@ -43,9 +50,10 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!tenant) return null;
 
-    const [{ data: servicos }, { data: profissionais }] = await Promise.all([
+    const [{ data: servicos }, { data: profissionais }, { data: produtos }] = await Promise.all([
       supabaseAdmin.from("servicos").select("id, nome, duracao_min, preco_centavos").eq("tenant_id", tenant.id).eq("ativo", true).order("ordem"),
-      supabaseAdmin.from("profissionais").select("id, nome, avatar_url").eq("tenant_id", tenant.id).eq("ativo", true).order("criado_em"),
+      supabaseAdmin.from("profissionais").select("id, nome, avatar_url, descricao, portfolio").eq("tenant_id", tenant.id).eq("ativo", true).order("criado_em"),
+      supabaseAdmin.from("produtos").select("id, nome, categoria, preco_centavos, foto_url").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
     ]);
     const fotos = Array.isArray(tenant.fotos) ? tenant.fotos.filter((item): item is string => typeof item === "string") : [];
     const [logo, capa, ...galeria] = await Promise.all([
@@ -73,6 +81,15 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         fotos_signed_urls: galeria.filter((url): url is string => Boolean(url)),
       },
       servicos: servicos ?? [],
-      profissionais: profissionais ?? [],
+      profissionais: (profissionais ?? []).map((p) => ({
+        id: p.id,
+        nome: p.nome,
+        avatar_url: p.avatar_url,
+        descricao: p.descricao,
+        portfolio: Array.isArray(p.portfolio)
+          ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
+          : [],
+      })),
+      produtos: produtos ?? [],
     };
   });

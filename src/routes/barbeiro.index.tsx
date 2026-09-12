@@ -1,11 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { TrendingUp } from "lucide-react";
+import { ChevronRight, TrendingUp } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { brl, hora } from "@/lib/format";
 import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
+import { getOportunidades } from "@/lib/crescimento.functions";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -47,6 +48,7 @@ function Indicador({
 function HojePage() {
   const finalizar = useServerFn(finalizarAtendimento);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
+  const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
 
   return (
     <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
@@ -104,6 +106,27 @@ function HojePage() {
               <p className="text-sm text-mute">Ninguém na cadeira neste momento.</p>
             </div>
           )}
+
+          <div className="mt-8 flex items-baseline justify-between">
+            <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
+            <Link to="/barbeiro/crescimento" className="text-xs text-gold">Crescimento</Link>
+          </div>
+          <ul className="mb-2">
+            {(oportunidades ?? []).map((o) => (
+              <li key={o.chave} className="border-b border-line">
+                <Link to={o.destino} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-4">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${o.quantidade > 0 ? "bg-gold text-ink" : "bg-ink2 text-mute"}`}>
+                    {o.quantidade}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm text-paper">{o.titulo}</span>
+                    <span className="mt-0.5 block truncate text-xs text-mute2">{o.detalhe}</span>
+                  </span>
+                  <ChevronRight size={16} className="text-mute2" />
+                </Link>
+              </li>
+            ))}
+          </ul>
 
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
           <ul>

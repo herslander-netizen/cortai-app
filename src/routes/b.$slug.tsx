@@ -60,7 +60,56 @@ function PaginaBarbearia() {
 
       <section className="pt-12"><p className="text-xs font-semibold uppercase text-mute">Serviços</p><div className="mt-4 grid gap-x-8 sm:grid-cols-2">{data.servicos.map((servico) => <div key={servico.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-line py-4"><div className="min-w-0"><h2 className="text-sm font-semibold text-paper">{servico.nome}</h2><p className="mt-1 flex items-center gap-1 text-xs text-mute"><Clock3 size={12} />{servico.duracao_min} min</p></div><p className="text-sm font-semibold text-paper">{brl(servico.preco_centavos)}</p></div>)}</div></section>
 
-      <section className="pt-12"><p className="text-xs font-semibold uppercase text-mute">Profissionais</p><div className="mt-5 flex flex-wrap gap-6">{data.profissionais.map((profissional) => <div key={profissional.id} className="w-20 text-center">{profissional.avatar_url ? <img src={profissional.avatar_url} alt={profissional.nome} loading="lazy" className="mx-auto h-16 w-16 rounded-full object-cover" /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-ink2 text-lg font-semibold text-gold">{profissional.nome.charAt(0)}</span>}<p className="mt-2 truncate text-xs text-paper">{profissional.nome}</p></div>)}</div></section>
+      <section className="pt-12">
+        <p className="text-xs font-semibold uppercase text-mute">Profissionais</p>
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          {data.profissionais.map((profissional) => (
+            <article key={profissional.id} className="rounded-xl border border-line bg-ink2 p-4">
+              <div className="flex items-center gap-3">
+                {profissional.avatar_url ? (
+                  <img src={profissional.avatar_url} alt={profissional.nome} loading="lazy" className="h-14 w-14 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-ink3 text-lg font-semibold text-gold">{profissional.nome.charAt(0)}</span>
+                )}
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-semibold text-paper">{profissional.nome}</h3>
+                  {profissional.descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{profissional.descricao}</p> : null}
+                </div>
+              </div>
+              {profissional.portfolio.length ? (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {profissional.portfolio.slice(0, 6).map((foto) => (
+                    <img key={foto} src={foto} alt={`Trabalho de ${profissional.nome}`} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+                  ))}
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {data.produtos.length ? (
+        <section className="pt-12">
+          <p className="text-xs font-semibold uppercase text-mute">Produtos</p>
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {data.produtos.map((produto) => (
+              <article key={produto.id} className="overflow-hidden rounded-xl border border-line bg-ink2">
+                {produto.foto_url ? (
+                  <img src={produto.foto_url} alt={produto.nome} loading="lazy" className="aspect-square w-full object-cover" />
+                ) : (
+                  <div className="aspect-square w-full bg-ink3" />
+                )}
+                <div className="p-3">
+                  <h3 className="truncate text-sm font-semibold text-paper">{produto.nome}</h3>
+                  <p className="mt-0.5 truncate text-[11px] text-mute2">{produto.categoria}</p>
+                  <p className="mt-2 text-sm font-semibold text-paper">{brl(produto.preco_centavos)}</p>
+                  <p className="mt-1 text-[11px] text-mute">Comprar na barbearia</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {tenant.fotos_signed_urls.length ? <section className="pt-12"><p className="text-xs font-semibold uppercase text-mute">O espaço</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">{tenant.fotos_signed_urls.map((foto) => <img key={foto} src={foto} alt={`Ambiente da ${tenant.nome}`} loading="lazy" className="aspect-square w-full rounded-xl object-cover" />)}</div></section> : null}
 
