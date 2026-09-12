@@ -21,7 +21,14 @@ export type PaginaPublica = {
     fotos_signed_urls: string[];
   };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
-  profissionais: { id: string; nome: string; avatar_url: string | null }[];
+  profissionais: {
+    id: string;
+    nome: string;
+    avatar_url: string | null;
+    descricao: string | null;
+    portfolio: string[];
+  }[];
+  produtos: { id: string; nome: string; categoria: string; preco_centavos: number; foto_url: string | null }[];
 };
 
 async function signedUrl(client: any, path: string | null) {
