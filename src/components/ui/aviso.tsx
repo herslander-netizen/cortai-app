@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
-import { Info, TriangleAlert, CircleAlert } from "lucide-react";
+import { Info, TriangleAlert, CircleAlert, CircleCheck } from "lucide-react";
 
-export type TomDeAviso = "info" | "atencao" | "acao";
+export type TomDeAviso = "info" | "atencao" | "sucesso" | "acao";
 
 const TOM = {
   info: {
     Icone: Info,
-    faixa: "bg-mute",
+    faixa: "bg-paper",
     icone: "text-paper",
     fundo: "bg-ink3",
     titulo: "text-paper",
@@ -18,14 +18,22 @@ const TOM = {
     fundo: "bg-gold-soft",
     titulo: "text-gold",
   },
+  sucesso: {
+    Icone: CircleCheck,
+    faixa: "bg-sage",
+    icone: "text-sage",
+    fundo: "bg-[rgba(143,168,130,0.14)]",
+    titulo: "text-sage",
+  },
   acao: {
     Icone: CircleAlert,
     faixa: "bg-brick",
     icone: "text-brick",
-    fundo: "bg-[rgba(196,112,95,0.14)]",
+    fundo: "bg-[rgba(196,112,95,0.16)]",
     titulo: "text-brick",
   },
 } as const;
+
 
 /**
  * Linguagem única de aviso do Cortaí: faixa lateral sólida + ícone + texto
