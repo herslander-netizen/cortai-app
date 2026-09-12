@@ -65,9 +65,19 @@ function Chip({
   );
 }
 
-function Passo({ n, titulo, children }: { n: number; titulo: string; children: React.ReactNode }) {
+function Passo({
+  n,
+  titulo,
+  guia,
+  children,
+}: {
+  n: number;
+  titulo: string;
+  guia?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="border-t border-line py-6 first:border-t-0 first:pt-0">
+    <section data-guia={guia} className="border-t border-line py-6 first:border-t-0 first:pt-0">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-[11px] text-mute">{n}</span>
         {titulo}
@@ -212,7 +222,7 @@ function Fluxo({
 
   return (
     <Screen title="Agendar" subtitle={`${dados.tenant.nome} · ${dados.cliente.nome}`}>
-      <Passo n={1} titulo="Serviço">
+      <Passo n={1} titulo="Serviço" guia="agendar-servico">
         <div className="flex flex-wrap gap-2">
           {dados.servicos.map((s) => (
             <Chip
@@ -230,7 +240,7 @@ function Fluxo({
         </div>
       </Passo>
 
-      <Passo n={2} titulo="Profissional">
+      <Passo n={2} titulo="Profissional" guia="agendar-profissional">
         <div className="flex flex-wrap gap-2">
           {dados.profissionais.map((p) => (
             <Chip
@@ -265,7 +275,7 @@ function Fluxo({
         </div>
       </Passo>
 
-      <Passo n={4} titulo="Horário">
+      <Passo n={4} titulo="Horário" guia="agendar-horario">
         {!servico || !profId || !dia ? (
           <p className="text-sm text-mute">Escolha serviço, profissional e dia para ver os horários.</p>
         ) : (
@@ -357,7 +367,7 @@ function Fluxo({
         )}
       </Passo>
 
-      <Passo n={6} titulo="Confirmação">
+      <Passo n={6} titulo="Confirmação" guia="agendar-confirmar">
         <p className="text-sm text-mute">
           Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
         </p>

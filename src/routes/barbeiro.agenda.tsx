@@ -71,7 +71,7 @@ function AgendaPage() {
       {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
-      <ul>
+      <ul data-guia="agenda-lista">
         {lista.map((s) => {
           const item = data?.itens.find((i) => {
             const ini = new Date(i.inicio).getTime();
@@ -106,7 +106,7 @@ function AgendaPage() {
                         ? `Fiado · ${brl(item.valor_centavos)}`
                         : brl(item.valor_centavos)}
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-3">
+                  <div data-guia="agenda-repetir" className="mt-2 flex flex-wrap gap-3">
                     <span className="text-[11px] text-mute2">Repetir:</span>
                     {(["semanal", "quinzenal", "mensal"] as const).map((p) => (
                       <button
@@ -133,7 +133,7 @@ function AgendaPage() {
                   <p className="mt-0.5 text-xs text-mute2">Horário bloqueado.</p>
                 </div>
               ) : (
-                <div className="flex-1 border border-dashed border-line2 border-l-2 px-4 py-3">
+                <div data-guia="agenda-vazio" className="flex-1 border border-dashed border-line2 border-l-2 px-4 py-3">
                   <p className="text-sm text-mute">Horário livre</p>
                   <p className="mt-0.5 text-xs text-mute2">
                     {naFila > 0

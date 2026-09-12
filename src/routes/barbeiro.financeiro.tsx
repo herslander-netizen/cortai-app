@@ -24,12 +24,12 @@ function FinanceiroPage() {
     {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
     {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-mute">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
     {data ? <>
-      <section className="rounded-xl border border-line bg-ink2 p-5">
+      <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink2 p-5">
         <p className="text-xs text-mute">Faturamento no mês</p>
         <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
         <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${data.total ? Math.max(8, data.servicos / data.total * 100) : 0}%` }} /></div>
       </section>
-      <div className="mt-6 grid grid-cols-3 gap-2">
+      <div data-guia="financeiro-categorias" className="mt-6 grid grid-cols-3 gap-2">
         {[
           { label: "Serviços", value: data.servicos, icon: Scissors },
           { label: "Produtos", value: data.produtos, icon: PackageCheck },
@@ -37,7 +37,7 @@ function FinanceiroPage() {
         ].map((item) => { const Icon = item.icon; return <div key={item.label} className="min-w-0 rounded-lg border border-line bg-ink2 p-3"><Icon size={16} className="text-mute" /><p className="mt-3 truncate text-[10px] text-mute">{item.label}</p><p className="mt-1 truncate text-sm font-semibold text-paper">{brl(item.value)}</p></div>; })}
       </div>
       <h2 className="mt-8 text-sm font-semibold text-paper">Movimentações recentes</h2>
-      <ul className="mt-2">
+      <ul data-guia="financeiro-movimentos" className="mt-2">
         {data.vendas.map((venda) => <li key={venda.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink2 text-mute"><Banknote size={16} /></span><div className="min-w-0"><p className="truncate text-sm text-paper">{venda.descricao ?? "Venda"}</p><p className="mt-0.5 text-xs capitalize text-mute2">{venda.categoria}</p></div><p className="text-sm font-semibold text-sage">{brl(venda.total_centavos)}</p></li>)}
       </ul>
     </> : null}

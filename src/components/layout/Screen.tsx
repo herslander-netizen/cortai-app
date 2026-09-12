@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Signature } from "./Signature";
+import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 
 export function Screen({
   title,
@@ -12,9 +13,12 @@ export function Screen({
 }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      <header className="px-5 pb-5 pt-8">
-        <h1 className="screen-title">{title}</h1>
-        {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
+      <header className="flex items-start justify-between gap-3 px-5 pb-5 pt-8">
+        <div className="min-w-0">
+          <h1 className="screen-title">{title}</h1>
+          {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
+        </div>
+        <BotaoAjuda />
       </header>
       <main className="flex-1 px-5">{children}</main>
       <Signature />

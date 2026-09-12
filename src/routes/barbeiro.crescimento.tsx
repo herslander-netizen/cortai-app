@@ -50,7 +50,7 @@ function CrescimentoPage() {
 
       {data ? (
         <>
-          <div className="grid grid-cols-2 gap-3">
+          <div data-guia="crescimento-metricas" className="grid grid-cols-2 gap-3">
             <Metrica rotulo="Novos clientes" valor={String(data.novosClientesMes)} detalhe="neste mês" />
             <Metrica rotulo="Recorrentes" valor={String(data.clientesRecorrentes)} detalhe="voltaram mais de uma vez" />
             <Metrica rotulo="Vieram pelo link" valor={String(data.agendamentosPeloLink)} detalhe="página pública e indicação" />
@@ -64,7 +64,7 @@ function CrescimentoPage() {
           </div>
 
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Ações de hoje</h2>
-          <ul>
+          <ul data-guia="crescimento-acoes">
             <li className="border-b border-line">
               <Link to="/barbeiro/clientes" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><UserPlus size={18} /></span>
@@ -98,7 +98,7 @@ function CrescimentoPage() {
           </ul>
 
           <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Compartilhar minha barbearia</h2>
-          <div className="rounded-xl border border-line bg-ink2 p-5">
+          <div data-guia="crescimento-compartilhar" className="rounded-xl border border-line bg-ink2 p-5">
             <p className="break-all text-xs text-mute">{link}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <button
