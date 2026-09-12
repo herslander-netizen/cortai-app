@@ -32,6 +32,12 @@ export const getCarteira = createServerFn({ method: "GET" })
       .eq("cliente_id", cliente.id)
       .maybeSingle();
 
+    const { data: personalizacao } = await db
+      .from("clientes")
+      .select("fidelidade_participa")
+      .eq("id", cliente.id)
+      .maybeSingle();
+
     const { data: regra } = await db
       .from("regras_de_plano")
       .select("ativo, fidelidade_alvo")
@@ -60,7 +66,11 @@ export const getCarteira = createServerFn({ method: "GET" })
             fidelidade_progresso: carteira.fidelidade_progresso,
           }
         : { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
-      fidelidade: { ativo: regra?.ativo ?? false, alvo: regra?.fidelidade_alvo ?? null },
+      fidelidade: (() => {
+        // A escolha individual do cliente sobrescreve o padrão da barbearia.
+        const ativo = personalizacao?.fidelidade_participa ?? regra?.ativo ?? false;
+        return { ativo, alvo: ativo ? (regra?.fidelidade_alvo ?? null) : null };
+      })(),
       movimentos,
     };
   });
