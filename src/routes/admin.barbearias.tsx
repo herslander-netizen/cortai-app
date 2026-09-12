@@ -6,7 +6,15 @@ import { useMemo, useState } from "react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { addRetentionContact, getAdminTenants, getRetentionContacts, type AdminTenant } from "@/lib/admin.functions";
+import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
+import {
+  addRetentionContact,
+  definirStatusDaBarbearia,
+  excluirBarbearia,
+  getAdminTenants,
+  getRetentionContacts,
+  type AdminTenant,
+} from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({ meta: [
