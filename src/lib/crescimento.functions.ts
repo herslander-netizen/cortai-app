@@ -1,4 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
 import { z } from "zod";
 
 const DIA = 24 * 60 * 60 * 1000;
@@ -8,15 +11,15 @@ async function admin() {
   return supabaseAdmin;
 }
 
-async function tenantPadrao() {
+async function tenantPadrao(context: ContextoAutenticado) {
   const db = await admin();
+  const tenantId = await tenantIdDoMembro(context);
   const { data: tenant } = await db
     .from("tenants")
     .select("id, nome, slug, indicacao_ativa, indicacao_codigo, indicacao_recompensa, link_avaliacao_publica")
-    .order("criado_em", { ascending: true })
-    .limit(1)
+    .eq("id", tenantId)
     .maybeSingle();
-  if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
+  if (!tenant) throw new Error("Barbearia não encontrada");
   return { db, tenant };
 }
 
@@ -46,8 +49,9 @@ export type ClienteCRM = {
   atrasoDias: number | null;
 };
 
-export const getClientesCRM = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenant } = await tenantPadrao();
+export const getClientesCRM = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenant } = await tenantPadrao(context);
   const [clientesRes, agRes, carteirasRes] = await Promise.all([
     db.from("clientes").select("id, nome, telefone, criado_em").eq("tenant_id", tenant.id).order("nome"),
     db
@@ -135,8 +139,9 @@ export type Crescimento = {
   naFila: number;
 };
 
-export const getCrescimento = createServerFn({ method: "GET" }).handler(async (): Promise<Crescimento> => {
-  const { db, tenant } = await tenantPadrao();
+export const getCrescimento = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<Crescimento> => {
+  const { db, tenant } = await tenantPadrao(context);
   const agora = Date.now();
   const inicioMes = new Date();
   inicioMes.setDate(1);
@@ -209,8 +214,9 @@ export const getCrescimento = createServerFn({ method: "GET" }).handler(async ()
 
 /* -------------------------------- INDICAÇÕES ------------------------------ */
 
-export const getIndicacoes = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenant } = await tenantPadrao();
+export const getIndicacoes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenant } = await tenantPadrao(context);
   const { data } = await db
     .from("indicacoes")
     .select("id, indicado_nome, status, recompensa, recompensa_entregue, criado_em, convertido_em, clientes!indicacoes_indicador_cliente_id_fkey(nome)")
@@ -240,6 +246,7 @@ export const getIndicacoes = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const salvarConfigIndicacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -249,8 +256,8 @@ export const salvarConfigIndicacao = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
       .from("tenants")
       .update({
@@ -264,6 +271,7 @@ export const salvarConfigIndicacao = createServerFn({ method: "POST" })
   });
 
 export const registrarIndicacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -272,8 +280,8 @@ export const registrarIndicacao = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db.from("indicacoes").insert({
       tenant_id: tenant.id,
       indicador_cliente_id: data.indicadorClienteId,
@@ -285,11 +293,12 @@ export const registrarIndicacao = createServerFn({ method: "POST" })
   });
 
 export const atualizarIndicacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z.object({ id: z.string().uuid(), acao: z.enum(["converter", "recompensar", "remover"]) }).parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     if (data.acao === "remover") {
       await db.from("indicacoes").delete().eq("id", data.id).eq("tenant_id", tenant.id);
       return { ok: true };
@@ -305,8 +314,9 @@ export const atualizarIndicacao = createServerFn({ method: "POST" })
 
 /* -------------------------------- AVALIAÇÕES ------------------------------ */
 
-export const getAvaliacoes = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenant } = await tenantPadrao();
+export const getAvaliacoes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenant } = await tenantPadrao(context);
   const desde = new Date(Date.now() - 30 * DIA).toISOString();
 
   const [concluidosRes, avaliacoesRes] = await Promise.all([
@@ -351,6 +361,7 @@ export const getAvaliacoes = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const registrarAvaliacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -360,8 +371,8 @@ export const registrarAvaliacao = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { data: ag } = await db
       .from("agendamentos")
       .select("id, cliente_id, profissional_id")
@@ -383,9 +394,10 @@ export const registrarAvaliacao = createServerFn({ method: "POST" })
   });
 
 export const salvarLinkAvaliacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ link: z.string().trim().max(300) }).parse(input))
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
       .from("tenants")
       .update({ link_avaliacao_publica: data.link || null })
@@ -399,6 +411,7 @@ export const salvarLinkAvaliacao = createServerFn({ method: "POST" })
 const PERIODOS = { semanal: 7, quinzenal: 14, mensal: 28 } as const;
 
 export const repetirAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -407,8 +420,8 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { data: ag } = await db
       .from("agendamentos")
       .select("*")
@@ -449,61 +462,11 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
     return { ok: true, inicio: inicio.toISOString() };
   });
 
-/* ----------------------------- LISTA DE ESPERA ---------------------------- */
-
-export const entrarNaFila = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    z
-      .object({
-        nome: z.string().trim().min(2).max(80),
-        telefone: z.string().trim().min(8).max(20),
-        janelaInicio: z.number().int().min(0).max(23).nullable(),
-        janelaFim: z.number().int().min(1).max(24).nullable(),
-      })
-      .parse(input),
-  )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
-    const telefone = data.telefone.replace(/\D/g, "");
-
-    const { data: existente } = await db
-      .from("clientes")
-      .select("id")
-      .eq("tenant_id", tenant.id)
-      .eq("telefone", telefone)
-      .maybeSingle();
-
-    let clienteId = existente?.id ?? null;
-    if (!clienteId) {
-      const { data: novo, error } = await db
-        .from("clientes")
-        .insert({ tenant_id: tenant.id, nome: data.nome, telefone, origem: "link" })
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      clienteId = novo.id;
-    }
-
-    const { data: fila } = await db.from("fila_de_espera").select("posicao").eq("tenant_id", tenant.id);
-    const posicao = (fila ?? []).reduce((max, f) => Math.max(max, f.posicao), 0) + 1;
-
-    const { error: erroFila } = await db.from("fila_de_espera").insert({
-      tenant_id: tenant.id,
-      cliente_id: clienteId,
-      posicao,
-      janela_preferida:
-        data.janelaInicio !== null && data.janelaFim !== null
-          ? { inicio: data.janelaInicio, fim: data.janelaFim }
-          : null,
-    });
-    if (erroFila) throw new Error(erroFila.message);
-    return { ok: true, posicao };
-  });
-
 /* ---------------------------- PERFIL PROFISSIONAL ------------------------- */
 
-export const getProfissionaisPerfil = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenant } = await tenantPadrao();
+export const getProfissionaisPerfil = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenant } = await tenantPadrao(context);
   const { data } = await db
     .from("profissionais")
     .select("id, nome, descricao, portfolio, ativo")
@@ -519,6 +482,7 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" }).handler(
 });
 
 export const salvarPerfilProfissional = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -528,8 +492,8 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
       .from("profissionais")
       .update({ descricao: data.descricao || null, portfolio: data.portfolio })
@@ -549,9 +513,10 @@ export type Oportunidade = {
   destino: "/barbeiro/clientes" | "/barbeiro/agenda" | "/barbeiro/produtos" | "/barbeiro/avaliacoes";
 };
 
-export const getOportunidades = createServerFn({ method: "GET" }).handler(
-  async (): Promise<Oportunidade[]> => {
-    const { db, tenant } = await tenantPadrao();
+export const getOportunidades = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(
+  async ({ context }): Promise<Oportunidade[]> => {
+    const { db, tenant } = await tenantPadrao(context);
     const agora = Date.now();
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);

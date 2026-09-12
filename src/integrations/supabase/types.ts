@@ -213,6 +213,7 @@ export type Database = {
           origem: string
           telefone: string
           tenant_id: string
+          user_id: string | null
         }
         Insert: {
           criado_em?: string
@@ -225,6 +226,7 @@ export type Database = {
           origem?: string
           telefone: string
           tenant_id: string
+          user_id?: string | null
         }
         Update: {
           criado_em?: string
@@ -237,6 +239,7 @@ export type Database = {
           origem?: string
           telefone?: string
           tenant_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -543,6 +546,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      perfis: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          nome: string | null
+          telefone: string | null
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          nome?: string | null
+          telefone?: string | null
+          tipo?: string
+          user_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          nome?: string | null
+          telefone?: string | null
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       produtos: {
         Row: {
@@ -1138,6 +1168,7 @@ export type Database = {
         }
         Returns: Json
       }
+      criar_barbearia: { Args: { _nome: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1159,6 +1190,7 @@ export type Database = {
         }
         Returns: Json
       }
+      unaccent_placeholder: { Args: { _texto: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "suporte"

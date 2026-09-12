@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { clienteDoUsuario } from "@/lib/cliente";
+
 export type Movimento = {
   id: string;
   tipo: string;
@@ -12,39 +15,16 @@ export type Movimento = {
 export type DadosCarteira = {
   tenant: { id: string; nome: string; rotulo_carteira: string | null };
   cliente: { id: string; nome: string; limite_fiado_centavos: number };
-  clientes: { id: string; nome: string }[];
   carteira: { saldo_creditos: number; saldo_centavos: number; fidelidade_progresso: number };
   fidelidade: { ativo: boolean; alvo: number | null };
   movimentos: Movimento[];
 };
 
-async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
-}
-
 export const getCarteira = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
-  .handler(async ({ data }): Promise<DadosCarteira> => {
-    const db = await admin();
-
-    const { data: tenant } = await db
-      .from("tenants")
-      .select("id, nome, rotulo_carteira")
-      .order("criado_em", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
-
-    const { data: clientes } = await db
-      .from("clientes")
-      .select("id, nome, limite_fiado_centavos")
-      .eq("tenant_id", tenant.id)
-      .order("nome");
-
-    const lista = clientes ?? [];
-    const cliente = lista.find((c) => c.id === data.clienteId) ?? lista[0];
-    if (!cliente) throw new Error("Nenhum cliente cadastrado");
+  .handler(async ({ context }): Promise<DadosCarteira> => {
+    const { db, tenant, cliente } = await clienteDoUsuario(context);
 
     const { data: carteira } = await db
       .from("carteiras")
@@ -73,7 +53,6 @@ export const getCarteira = createServerFn({ method: "GET" })
     return {
       tenant,
       cliente,
-      clientes: lista.map((c) => ({ id: c.id, nome: c.nome })),
       carteira: carteira
         ? {
             saldo_creditos: carteira.saldo_creditos,

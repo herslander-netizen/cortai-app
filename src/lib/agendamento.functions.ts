@@ -1,11 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { clienteDoUsuario } from "@/lib/cliente";
+
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 
 export type DadosAgendar = {
   tenant: { id: string; nome: string; rotulo_carteira: string | null };
   cliente: { id: string; nome: string; limite_fiado_centavos: number };
-  clientes: { id: string; nome: string }[];
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: { id: string; nome: string }[];
   carteira: { saldo_creditos: number; saldo_centavos: number; fidelidade_progresso: number };
@@ -13,26 +15,13 @@ export type DadosAgendar = {
   ocupados: Ocupado[];
 };
 
-async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
-}
-
 export const getDadosAgendar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
-  .handler(async ({ data }): Promise<DadosAgendar> => {
-    const db = await admin();
+  .handler(async ({ context }): Promise<DadosAgendar> => {
+    const { db, tenant, cliente } = await clienteDoUsuario(context);
 
-    const { data: tenant } = await db
-      .from("tenants")
-      .select("id, nome, rotulo_carteira")
-      .order("criado_em", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
-
-    const [clientesRes, servicosRes, profRes, regrasRes] = await Promise.all([
-      db.from("clientes").select("id, nome, limite_fiado_centavos").eq("tenant_id", tenant.id).order("nome"),
+    const [servicosRes, profRes, regrasRes, carteiraRes] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos")
@@ -44,17 +33,12 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         .from("regras_de_plano")
         .select("tipo, ativo, bloqueia_agendamento_no_limite, fidelidade_alvo")
         .eq("tenant_id", tenant.id),
+      db
+        .from("carteiras")
+        .select("saldo_creditos, saldo_centavos, fidelidade_progresso")
+        .eq("cliente_id", cliente.id)
+        .maybeSingle(),
     ]);
-
-    const clientes = clientesRes.data ?? [];
-    const cliente = clientes.find((c) => c.id === data.clienteId) ?? clientes[0];
-    if (!cliente) throw new Error("Nenhum cliente cadastrado");
-
-    const { data: carteira } = await db
-      .from("carteiras")
-      .select("saldo_creditos, saldo_centavos, fidelidade_progresso")
-      .eq("cliente_id", cliente.id)
-      .maybeSingle();
 
     const desde = new Date();
     desde.setHours(0, 0, 0, 0);
@@ -70,10 +54,9 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
     return {
       tenant,
       cliente,
-      clientes: clientes.map((c) => ({ id: c.id, nome: c.nome })),
       servicos: servicosRes.data ?? [],
       profissionais: profRes.data ?? [],
-      carteira: carteira ?? { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
+      carteira: carteiraRes.data ?? { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
       regras: regrasRes.data ?? [],
       ocupados: ocupados ?? [],
     };
@@ -92,21 +75,23 @@ export type ResultadoAgendamento = {
 };
 
 export const criarAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(
     (data: {
-      tenantId: string;
-      clienteId: string;
+      tenantId?: string;
+      clienteId?: string;
       profissionalId: string;
       servicoId: string;
       inicio: string;
       formaPagamento: "credito" | "pix" | "balcao" | "fiado";
     }) => data,
   )
-  .handler(async ({ data }): Promise<ResultadoAgendamento> => {
-    const db = await admin();
+  .handler(async ({ data, context }): Promise<ResultadoAgendamento> => {
+    // A barbearia e o cliente vêm sempre da sessão, nunca do que a tela enviou.
+    const { db, tenant, cliente } = await clienteDoUsuario(context);
     const { data: res, error } = await db.rpc("criar_agendamento", {
-      _tenant_id: data.tenantId,
-      _cliente_id: data.clienteId,
+      _tenant_id: tenant.id,
+      _cliente_id: cliente.id,
       _profissional_id: data.profissionalId,
       _servico_id: data.servicoId,
       _inicio: data.inicio,
@@ -117,34 +102,45 @@ export const criarAgendamento = createServerFn({ method: "POST" })
   });
 
 export const cancelarAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { agendamentoId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
+  .handler(async ({ data, context }) => {
+    const { db, cliente } = await clienteDoUsuario(context);
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("id", data.agendamentoId)
+      .eq("cliente_id", cliente.id)
+      .maybeSingle();
+    if (!ag) throw new Error("Esse agendamento não é seu.");
     const { data: res, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
     if (error) throw new Error(traduz(error.message));
     return res as unknown as { devolvido: boolean; saldo_creditos: number; saldo_centavos: number };
   });
 
-export const marcarFalta = createServerFn({ method: "POST" })
-  .inputValidator((data: { agendamentoId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
-    const { error } = await db.rpc("marcar_falta", { _agendamento_id: data.agendamentoId });
-    if (error) throw new Error(traduz(error.message));
-    return { ok: true };
-  });
+export type AgendamentoCliente = {
+  id: string;
+  inicio: string;
+  fim: string;
+  status: string;
+  forma_pagamento: string | null;
+  valor_centavos: number;
+  servicos: { nome: string } | null;
+  profissionais: { nome: string } | null;
+};
 
 export const listarAgendamentosCliente = createServerFn({ method: "GET" })
-  .inputValidator((data: { clienteId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
+  .handler(async ({ context }): Promise<AgendamentoCliente[]> => {
+    const { db, cliente } = await clienteDoUsuario(context);
     const { data: rows } = await db
       .from("agendamentos")
       .select("id, inicio, fim, status, forma_pagamento, valor_centavos, servicos(nome), profissionais(nome)")
-      .eq("cliente_id", data.clienteId)
+      .eq("cliente_id", cliente.id)
       .order("inicio", { ascending: false })
       .limit(30);
-    return rows ?? [];
+    return (rows ?? []) as AgendamentoCliente[];
   });
 
 function traduz(msg: string): string {

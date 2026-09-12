@@ -1,19 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-async function tenantPadrao() {
+async function tenantPadrao(context: ContextoAutenticado) {
   const db = await admin();
-  const { data: tenant } = await db
-    .from("tenants")
-    .select("id, nome")
-    .order("criado_em", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
+  const tenantId = await tenantIdDoMembro(context);
+  const { data: tenant } = await db.from("tenants").select("id, nome").eq("id", tenantId).maybeSingle();
+  if (!tenant) throw new Error("Barbearia não encontrada");
   return { db, tenant };
 }
 
@@ -48,8 +47,9 @@ export type PainelHoje = {
   alertas: Alerta[];
 };
 
-export const getPainelHoje = createServerFn({ method: "GET" }).handler(async (): Promise<PainelHoje> => {
-  const { db, tenant } = await tenantPadrao();
+export const getPainelHoje = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<PainelHoje> => {
+  const { db, tenant } = await tenantPadrao(context);
   const de = inicioDoDia();
   const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
   const agora = Date.now();
@@ -175,13 +175,15 @@ export const getPainelHoje = createServerFn({ method: "GET" }).handler(async ():
 });
 
 export const finalizarAtendimento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { agendamentoId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
       .from("agendamentos")
       .update({ status: "concluido" })
-      .eq("id", data.agendamentoId);
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -210,9 +212,10 @@ export type AgendaDia = {
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { dia?: string | undefined }) => data ?? {})
-  .handler(async ({ data }): Promise<AgendaDia> => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }): Promise<AgendaDia> => {
+    const { db, tenant } = await tenantPadrao(context);
     const de = inicioDoDia(data.dia);
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
@@ -262,21 +265,24 @@ export const getAgendaDia = createServerFn({ method: "GET" })
   });
 
 export const avisarFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { filaId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
       .from("fila_de_espera")
       .update({ avisado_em: new Date().toISOString() })
-      .eq("id", data.filaId);
+      .eq("id", data.filaId)
+      .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 export const oferecerHorarioAFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { inicioIso: string }) => data)
-  .handler(async ({ data }) => {
-    const { db, tenant } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const hora = new Date(data.inicioIso).getHours();
     const { data: fila } = await db
       .from("fila_de_espera")
@@ -316,8 +322,9 @@ export type FichaCliente = {
   maisAntigo: string | null;
 };
 
-export const listarClientesBarbeiro = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenant } = await tenantPadrao();
+export const listarClientesBarbeiro = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenant } = await tenantPadrao(context);
   const [clientesRes, carteirasRes] = await Promise.all([
     db.from("clientes").select("id, nome, telefone").eq("tenant_id", tenant.id).order("nome"),
     db.from("carteiras").select("cliente_id, saldo_centavos, saldo_creditos").eq("tenant_id", tenant.id),
@@ -333,13 +340,15 @@ export const listarClientesBarbeiro = createServerFn({ method: "GET" }).handler(
 });
 
 export const getFichaCliente = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { clienteId: string }) => data)
-  .handler(async ({ data }): Promise<FichaCliente> => {
-    const db = await admin();
+  .handler(async ({ data, context }): Promise<FichaCliente> => {
+    const { db, tenant } = await tenantPadrao(context);
     const { data: cliente } = await db
       .from("clientes")
       .select("id, nome, telefone, limite_fiado_centavos, ficha_tecnica")
       .eq("id", data.clienteId)
+      .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!cliente) throw new Error("Cliente não encontrado");
 
@@ -387,17 +396,19 @@ export const getFichaCliente = createServerFn({ method: "GET" })
  * nunca é editado nem apagado.
  */
 export const registrarBaixaFiado = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { clienteId: string; centavos: number }) => {
     const centavos = Math.round(data.centavos);
     if (centavos <= 0) throw new Error("valor invalido");
     return { clienteId: data.clienteId, centavos };
   })
-  .handler(async ({ data }) => {
-    const db = await admin();
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
     const { data: carteira } = await db
       .from("carteiras")
       .select("id, saldo_centavos")
       .eq("cliente_id", data.clienteId)
+      .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!carteira) throw new Error("Carteira não encontrada");
 
@@ -437,8 +448,9 @@ export type DadosFila = {
   recuperadoCentavos: number;
 };
 
-export const getFila = createServerFn({ method: "GET" }).handler(async (): Promise<DadosFila> => {
-  const { db, tenant } = await tenantPadrao();
+export const getFila = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<DadosFila> => {
+  const { db, tenant } = await tenantPadrao(context);
 
   const inicioMes = new Date();
   inicioMes.setDate(1);
@@ -496,10 +508,11 @@ export const getFila = createServerFn({ method: "GET" }).handler(async (): Promi
 });
 
 export const removerDaFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { filaId: string }) => data)
-  .handler(async ({ data }) => {
-    const db = await admin();
-    const { error } = await db.from("fila_de_espera").delete().eq("id", data.filaId);
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const { error } = await db.from("fila_de_espera").delete().eq("id", data.filaId).eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

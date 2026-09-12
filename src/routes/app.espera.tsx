@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
-import { entrarNaFila } from "@/lib/crescimento.functions";
+import { entrarNaFila } from "@/lib/fila-cliente.functions";
 
 export const Route = createFileRoute("/app/espera")({
   head: () => ({

@@ -31,10 +31,7 @@ function HistoricoPage() {
   const lista = useQuery({
     queryKey: ["historico", clienteId],
     enabled: !!clienteId,
-    queryFn: () => {
-      if (!clienteId) return Promise.resolve([]);
-      return listarAgendamentosCliente({ data: { clienteId } });
-    },
+    queryFn: () => listarAgendamentosCliente({ data: { clienteId } }),
   });
 
   const agora = Date.now();

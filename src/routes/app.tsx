@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { exigirPapel } from "@/lib/guarda";
 import { CalendarDays, Clock, Scissors, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { ClientBrand } from "@/components/layout/ClientBrand";
@@ -11,6 +12,8 @@ const tabs: TabItem[] = [
 ];
 
 export const Route = createFileRoute("/app")({
+  ssr: false,
+  beforeLoad: () => exigirPapel("cliente"),
   component: ClientLayout,
 });
 
