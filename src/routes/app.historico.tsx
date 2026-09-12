@@ -59,11 +59,14 @@ function HistoricoPage() {
                   type="button"
                   className="shrink-0 text-xs text-brick underline"
                   onClick={async () => {
+                    const comAntecedencia = new Date(a.inicio).getTime() - Date.now() > 4 * 60 * 60 * 1000;
                     const res = await cancelar({ data: { agendamentoId: a.id } });
                     setAviso(
                       res.devolvido
                         ? "Cancelado. O valor voltou para a sua carteira."
-                        : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.",
+                        : comAntecedencia
+                          ? "Cancelado. Não havia nada lançado na carteira para devolver."
+                          : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.",
                     );
                     lista.refetch();
                   }}
