@@ -6,7 +6,7 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, dataHoraLonga } from "@/lib/format";
-import { cancelarAgendamento, getDadosAgendar, listarAgendamentosCliente } from "@/lib/agendamento.functions";
+import { cancelarAgendamento, listarAgendamentosCliente } from "@/lib/agendamento.functions";
 
 export const Route = createFileRoute("/app/historico")({
   head: () => ({
@@ -48,7 +48,7 @@ function HistoricoPage() {
   };
 
   return (
-    <Screen title="Meus horários" subtitle={base.data?.cliente.nome ?? ""}>
+    <Screen title="Meus horários" subtitle="Seus agendamentos no Cortaí">
       {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
       {lista.isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}
