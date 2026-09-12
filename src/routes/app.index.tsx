@@ -28,12 +28,12 @@ function InicioCliente() {
             ) : null}
             <div className="min-w-0">
               <h1 className="truncate text-[26px] font-bold leading-tight text-paper">{data?.nome ?? "Cortaí"}</h1>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-mute"><Clock3 size={13} aria-hidden /> Seg–sáb · 09h às 19h</p>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-mute"><MapPin size={13} aria-hidden /> Atendimento na barbearia</p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-mute"><Clock3 size={13} aria-hidden /> Agendamentos online</p>
+              <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-mute"><MapPin size={13} className="shrink-0" aria-hidden /><span className="truncate">{data?.endereco ?? "Atendimento na barbearia"}</span></p>
             </div>
           </div>
           <span className="mt-1 flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase text-sage">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden /> Aberto
+            <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden /> Agenda online
           </span>
         </div>
       </header>

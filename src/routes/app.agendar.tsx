@@ -81,10 +81,9 @@ const HORA_INICIO = 9;
 const HORA_FIM = 19;
 
 function AgendarPage() {
-  const [clienteId, setClienteId] = useState<string | undefined>(undefined);
   const dados = useQuery({
-    queryKey: ["agendar", clienteId],
-    queryFn: () => getDadosAgendar({ data: { clienteId } }),
+    queryKey: ["agendar"],
+    queryFn: () => getDadosAgendar({ data: {} }),
   });
 
   if (dados.isLoading || !dados.data) {
@@ -95,16 +94,14 @@ function AgendarPage() {
     );
   }
 
-  return <Fluxo dados={dados.data} onTrocarCliente={setClienteId} recarregar={() => dados.refetch()} />;
+  return <Fluxo dados={dados.data} recarregar={() => dados.refetch()} />;
 }
 
 function Fluxo({
   dados,
-  onTrocarCliente,
   recarregar,
 }: {
   dados: DadosAgendar;
-  onTrocarCliente: (id: string) => void;
   recarregar: () => void;
 }) {
   const criar = useServerFn(criarAgendamento);
@@ -215,22 +212,6 @@ function Fluxo({
 
   return (
     <Screen title="Agendar" subtitle={`${dados.tenant.nome} · ${dados.cliente.nome}`}>
-      {dados.clientes.length > 1 ? (
-        <div className="mb-6">
-          <p className="mb-2 text-xs uppercase tracking-wider text-mute2">Entrando como</p>
-          <div className="flex flex-wrap gap-2">
-            {dados.clientes.map((c) => (
-              <Chip
-                key={c.id}
-                label={c.nome}
-                selected={c.id === dados.cliente.id}
-                onClick={() => onTrocarCliente(c.id)}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       <Passo n={1} titulo="Serviço">
         <div className="flex flex-wrap gap-2">
           {dados.servicos.map((s) => (
@@ -388,7 +369,7 @@ function Fluxo({
         {erro ? <p className="mt-3 text-sm text-brick">{erro}</p> : null}
         <button
           type="button"
-          className="btn-primary mt-5 w-full disabled:opacity-40"
+          className="btn-primary mt-5 min-w-[180px] px-6 py-3.5 disabled:opacity-40"
           disabled={!servico || !profId || !inicio || !forma || enviando}
           onClick={async () => {
             if (!servico || !profId || !inicio || !forma) return;

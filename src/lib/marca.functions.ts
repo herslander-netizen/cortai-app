@@ -192,7 +192,7 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("tenants")
-    .select("nome, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
+    .select("nome, endereco, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
     .order("criado_em", { ascending: true })
     .limit(1)
     .maybeSingle();
