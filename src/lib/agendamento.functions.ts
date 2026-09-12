@@ -40,6 +40,20 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         .maybeSingle(),
     ]);
 
+    // Exceção individual: a escolha feita na ficha do cliente vale mais que o padrão.
+    const { data: personalizacao } = await db
+      .from("clientes")
+      .select("fidelidade_participa")
+      .eq("id", cliente.id)
+      .maybeSingle();
+
+    const regras = (regrasRes.data ?? []).map((r) =>
+      r.tipo === "fidelidade" && personalizacao?.fidelidade_participa !== null &&
+      personalizacao?.fidelidade_participa !== undefined
+        ? { ...r, ativo: personalizacao.fidelidade_participa }
+        : r,
+    );
+
     const desde = new Date();
     desde.setHours(0, 0, 0, 0);
     const ate = new Date(desde.getTime() + 21 * 24 * 60 * 60 * 1000);
@@ -57,7 +71,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       servicos: servicosRes.data ?? [],
       profissionais: profRes.data ?? [],
       carteira: carteiraRes.data ?? { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
-      regras: regrasRes.data ?? [],
+      regras,
       ocupados: ocupados ?? [],
     };
   });
@@ -97,7 +111,20 @@ export const criarAgendamento = createServerFn({ method: "POST" })
       _forma_pagamento: data.formaPagamento,
     });
     if (error) throw new Error(traduz(error.message));
-    return res as unknown as ResultadoAgendamento;
+    const resultado = res as unknown as ResultadoAgendamento;
+
+    const [{ data: personalizacao }, { data: regraFidelidade }] = await Promise.all([
+      db.from("clientes").select("fidelidade_participa").eq("id", cliente.id).maybeSingle(),
+      db
+        .from("regras_de_plano")
+        .select("ativo")
+        .eq("tenant_id", tenant.id)
+        .eq("tipo", "fidelidade")
+        .maybeSingle(),
+    ]);
+    const participa = personalizacao?.fidelidade_participa ?? regraFidelidade?.ativo ?? false;
+    if (!participa) resultado.fidelidade_alvo = null;
+    return resultado;
   });
 
 export const cancelarAgendamento = createServerFn({ method: "POST" })
