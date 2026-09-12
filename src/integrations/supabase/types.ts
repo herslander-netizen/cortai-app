@@ -751,6 +751,17 @@ export type Database = {
         Args: { _carteira_id: string }
         Returns: boolean
       }
+      configuracao_visual_global: {
+        Args: never
+        Returns: {
+          cor_fundo: string
+          cor_primaria: string
+          cor_superficie: string
+          cor_texto: string
+          raio_px: number
+          tipografia: string
+        }[]
+      }
       criar_agendamento: {
         Args: {
           _cliente_id: string
