@@ -403,8 +403,7 @@ function Fluxo({
             try {
               const res = await criar({
                 data: {
-                  tenantId: dados.tenant.id,
-                  clienteId: dados.cliente.id,
+                  ...(slug ? { slug } : {}),
                   profissionalId: profId,
                   servicoId: servico.id,
                   inicio,
