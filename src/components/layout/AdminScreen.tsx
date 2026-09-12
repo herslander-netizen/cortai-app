@@ -11,5 +11,8 @@ export function AdminScreen({ title, subtitle, actions, children }: { title: str
 }
 
 export function AdminNotice({ error }: { error: unknown }) {
-  return <div className="border-l-2 border-brick py-2 pl-4"><p className="text-sm font-semibold text-paper">Acesso restrito</p><p className="mt-1 text-sm text-mute">{error instanceof Error ? error.message : "Entre com a conta do dono da plataforma."}</p></div>;
+  const message = error instanceof Error && !error.message.toLowerCase().includes("unauthorized")
+    ? error.message
+    : "Entre com a conta do dono da plataforma para ver estes dados.";
+  return <div className="border-l-2 border-brick py-2 pl-4"><p className="text-sm font-semibold text-paper">Acesso restrito</p><p className="mt-1 text-sm text-mute">{message}</p></div>;
 }
