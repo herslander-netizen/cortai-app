@@ -10,6 +10,7 @@ import { Signature } from "@/components/layout/Signature";
 import { brl } from "@/lib/format";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
@@ -41,7 +42,7 @@ function PaginaBarbearia() {
       <img src={tenant.capa_signed_url ?? coverAsset.url} alt={`Ambiente da ${tenant.nome}`} width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-ink/55" />
       <div className="relative mx-auto flex min-h-[62vh] max-w-6xl flex-col justify-end px-5 pb-10 sm:px-8">
-        {tenant.logo_signed_url ? <img src={tenant.logo_signed_url} alt={`Logo ${tenant.nome}`} className="mb-5 h-16 w-16 rounded-xl border border-line bg-ink2/80 object-contain p-1" /> : null}
+        <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={64} className="mb-5" />
         <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>
         <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-6xl">{tenant.nome}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80 sm:text-base">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>

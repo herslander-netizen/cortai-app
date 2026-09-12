@@ -553,6 +553,45 @@ export type Database = {
           },
         ]
       }
+      pedidos_de_projeto: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          email: string | null
+          empresa: string | null
+          id: string
+          mensagem: string
+          nome: string
+          status: string
+          tipo: string
+          whatsapp: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          email?: string | null
+          empresa?: string | null
+          id?: string
+          mensagem: string
+          nome: string
+          status?: string
+          tipo: string
+          whatsapp: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          email?: string | null
+          empresa?: string | null
+          id?: string
+          mensagem?: string
+          nome?: string
+          status?: string
+          tipo?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           atualizado_em: string

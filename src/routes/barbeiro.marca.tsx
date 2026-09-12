@@ -82,29 +82,20 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
   const uploadLogo = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.type !== "image/png" || file.size > 2 * 1024 * 1024) { setStatus("Use um PNG de até 2 MB."); return; }
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setStatus("Use uma imagem PNG, JPG ou WEBP."); return; }
+    if (file.size > 2 * 1024 * 1024) { setStatus("A logo precisa ter até 2 MB."); return; }
+    const objectUrl = URL.createObjectURL(file);
     const image = new Image();
-    image.src = URL.createObjectURL(file);
+    image.src = objectUrl;
+    image.onerror = () => { setStatus("Não foi possível ler esta imagem."); URL.revokeObjectURL(objectUrl); };
     image.onload = async () => {
-      if (image.width !== image.height || image.width < 512) { setStatus("A logo precisa ser quadrada e ter pelo menos 512 px."); URL.revokeObjectURL(image.src); return; }
-      const canvas = document.createElement("canvas");
-      canvas.width = image.width;
-      canvas.height = image.height;
-      const context = canvas.getContext("2d", { willReadFrequently: true });
-      context?.drawImage(image, 0, 0);
-      const pixels = context?.getImageData(0, 0, canvas.width, canvas.height).data;
-      let hasTransparency = false;
-      if (pixels) {
-        for (let index = 3; index < pixels.length; index += 4) {
-          if (pixels[index] !== 255) { hasTransparency = true; break; }
-        }
-      }
-      if (!hasTransparency) { setStatus("A logo precisa ter fundo transparente."); URL.revokeObjectURL(image.src); return; }
+      if (image.width < 256 || image.height < 256) { setStatus("Use uma imagem com pelo menos 256 px."); URL.revokeObjectURL(objectUrl); return; }
       setBusy(true);
-      const path = `${initial.id}/logo-${Date.now()}.png`;
-      const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: "image/png" });
-      if (error) setStatus(error.message);
-      else { set("logo_url", path); setLogoPreview(image.src); setStatus("Logo pronta para salvar."); }
+      const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+      const path = `${initial.id}/logo-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: file.type });
+      if (error) setStatus("Não foi possível enviar a logo. Tente novamente.");
+      else { set("logo_url", path); setLogoPreview(objectUrl); setStatus("Logo pronta para salvar."); }
       setBusy(false);
     };
   };
@@ -147,11 +138,26 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
     </Secao>
 
     <Secao title="Logo">
-      <button type="button" onClick={() => fileRef.current?.click()} className="flex w-full items-center gap-4 rounded-lg border border-dashed border-line2 p-4 text-left">
-        {logoPreview ? <img src={logoPreview} alt="Logo atual" className="h-16 w-16 rounded-lg object-contain" /> : <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-line2 text-[10px] text-mute">SUA LOGO</div>}
-        <span><span className="flex items-center gap-2 text-sm font-semibold text-paper"><ImagePlus size={17} /> Escolher PNG</span><span className="mt-1 block text-xs text-mute">Quadrada, 512 px ou maior, até 2 MB.</span></span>
-      </button>
-      <input ref={fileRef} type="file" accept="image/png" className="hidden" onChange={uploadLogo} />
+      <div className="flex items-center gap-4 rounded-lg border border-line2 p-4">
+        {logoPreview
+          ? <img src={logoPreview} alt="Logo atual da barbearia" className="h-16 w-16 rounded-lg border border-line bg-ink2 object-contain p-1" />
+          : <span aria-hidden className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-line2 bg-ink2 text-xl font-bold text-gold">{(form.nome?.trim()[0] ?? "C").toUpperCase()}</span>}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-paper">{logoPreview ? "Logo da barbearia" : "Sem logo ainda"}</p>
+          <p className="mt-1 text-xs text-mute">PNG, JPG ou WEBP quadrado, 256 px ou maior, até 2 MB. Sem logo usamos a inicial da barbearia.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
+              <ImagePlus />{logoPreview ? "Trocar logo" : "Adicionar logo"}
+            </Button>
+            {logoPreview ? (
+              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => { set("logo_url", null); setLogoPreview(null); setStatus("Logo removida. Salve para confirmar."); }}>
+                Remover
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={uploadLogo} />
     </Secao>
 
     <Secao title="Tema de cor">
