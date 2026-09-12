@@ -14,6 +14,7 @@ import {
   registrarBaixaFiado,
 } from "@/lib/barbeiro.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { PersonalizacaoCliente } from "@/components/barbeiro/PersonalizacaoCliente";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
@@ -188,6 +189,8 @@ function FichaPage() {
           <p className="rounded-lg border border-line bg-ink2 px-4 py-4 text-sm text-mute">
             {data.cliente.ficha_tecnica ?? "Nada anotado ainda sobre máquina, tesoura ou preferências."}
           </p>
+
+          <PersonalizacaoCliente ficha={data} onSalvo={() => refetch()} />
 
           <section className="mt-10 border-t border-line pt-6">
             <h2 className="text-sm font-semibold text-paper">Situação do cliente</h2>
