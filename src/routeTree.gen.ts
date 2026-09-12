@@ -28,6 +28,7 @@ import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
+import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
@@ -133,6 +134,11 @@ const BarbeiroClientesRoute = BarbeiroClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
+  id: '/crescimento',
+  path: '/crescimento',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroFidelidadeRoute = BarbeiroFidelidadeRouteImport.update({
   id: '/fidelidade',
   path: '/fidelidade',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/b/$slug': typeof BSlugRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/barbeiro/agenda'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/crescimento'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbeiro/agenda'
     | '/barbeiro/caixa'
+    | '/barbeiro/crescimento'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/barbeiro/agenda'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/crescimento'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -499,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/crescimento': {
+      id: '/barbeiro/crescimento'
+      path: '/crescimento'
+      fullPath: '/barbeiro/crescimento'
+      preLoaderRoute: typeof BarbeiroCrescimentoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/fidelidade': {
       id: '/barbeiro/fidelidade'
       path: '/fidelidade'
@@ -616,6 +635,7 @@ interface BarbeiroRouteChildren {
   BarbeiroAgendaRoute: typeof BarbeiroAgendaRoute
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
+  BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
@@ -630,6 +650,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAgendaRoute: BarbeiroAgendaRoute,
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
+  BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
