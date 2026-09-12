@@ -607,7 +607,6 @@ export type Database = {
         Returns: boolean
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
-      is_tenant_owner: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
     }
     Enums: {
