@@ -153,6 +153,15 @@
   transition: background-color 120ms ease;
 }
 
+/* Único elemento decorativo do app: listra de poste de barbeiro. */
+@utility barber-pole {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--gold) 0 5px,
+    var(--paper) 5px 10px
+  );
+}
+
 @utility btn-tertiary {
   color: var(--gold);
   text-decoration: underline;
