@@ -177,6 +177,89 @@ export type Database = {
           },
         ]
       }
+      configuracoes_da_plataforma: {
+        Row: {
+          atualizado_em: string
+          atualizado_por: string | null
+          cor_fundo: string
+          cor_primaria: string
+          cor_superficie: string
+          cor_texto: string
+          id: boolean
+          preco_essencial_centavos: number
+          preco_pro_centavos: number
+          preco_studio_centavos: number
+          raio_px: number
+          tipografia: string
+        }
+        Insert: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          cor_fundo?: string
+          cor_primaria?: string
+          cor_superficie?: string
+          cor_texto?: string
+          id?: boolean
+          preco_essencial_centavos?: number
+          preco_pro_centavos?: number
+          preco_studio_centavos?: number
+          raio_px?: number
+          tipografia?: string
+        }
+        Update: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          cor_fundo?: string
+          cor_primaria?: string
+          cor_superficie?: string
+          cor_texto?: string
+          id?: boolean
+          preco_essencial_centavos?: number
+          preco_pro_centavos?: number
+          preco_studio_centavos?: number
+          raio_px?: number
+          tipografia?: string
+        }
+        Relationships: []
+      }
+      contatos_de_retencao: {
+        Row: {
+          canal: string
+          criado_em: string
+          criado_por: string
+          id: string
+          observacao: string | null
+          resultado: string
+          tenant_id: string
+        }
+        Insert: {
+          canal: string
+          criado_em?: string
+          criado_por: string
+          id?: string
+          observacao?: string | null
+          resultado: string
+          tenant_id: string
+        }
+        Update: {
+          canal?: string
+          criado_em?: string
+          criado_por?: string
+          id?: string
+          observacao?: string | null
+          resultado?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contatos_de_retencao_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fila_de_espera: {
         Row: {
           avisado_em: string | null
@@ -225,6 +308,38 @@ export type Database = {
           },
           {
             foreignKeyName: "fila_de_espera_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      historico_de_plano: {
+        Row: {
+          criado_em: string
+          id: string
+          plano_de: string
+          plano_para: string
+          tenant_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          plano_de: string
+          plano_para: string
+          tenant_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          plano_de?: string
+          plano_para?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_de_plano_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -417,6 +532,42 @@ export type Database = {
           },
         ]
       }
+      sugestoes_da_plataforma: {
+        Row: {
+          atualizado_em: string
+          canal: string
+          criado_em: string
+          criado_por: string
+          id: string
+          motivo: string
+          pedido: string
+          status: string
+          tenants_que_pediram: string[]
+        }
+        Insert: {
+          atualizado_em?: string
+          canal: string
+          criado_em?: string
+          criado_por: string
+          id?: string
+          motivo: string
+          pedido: string
+          status?: string
+          tenants_que_pediram?: string[]
+        }
+        Update: {
+          atualizado_em?: string
+          canal?: string
+          criado_em?: string
+          criado_por?: string
+          id?: string
+          motivo?: string
+          pedido?: string
+          status?: string
+          tenants_que_pediram?: string[]
+        }
+        Relationships: []
+      }
       tenant_branding_versions: {
         Row: {
           criado_em: string
@@ -497,10 +648,13 @@ export type Database = {
       tenants: {
         Row: {
           assinatura_visivel: boolean
+          ativo: boolean
+          ciclo: string
           cor_accent: string | null
           cor_primaria: string
           cor_secundaria: string | null
           criado_em: string
+          desconto_percentual: number
           endereco: string | null
           facebook: string | null
           id: string
@@ -514,14 +668,18 @@ export type Database = {
           telefone: string | null
           tema: string
           texto_boas_vindas: string | null
+          ultimo_acesso_em: string | null
           whatsapp: string | null
         }
         Insert: {
           assinatura_visivel?: boolean
+          ativo?: boolean
+          ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
           cor_secundaria?: string | null
           criado_em?: string
+          desconto_percentual?: number
           endereco?: string | null
           facebook?: string | null
           id?: string
@@ -535,14 +693,18 @@ export type Database = {
           telefone?: string | null
           tema?: string
           texto_boas_vindas?: string | null
+          ultimo_acesso_em?: string | null
           whatsapp?: string | null
         }
         Update: {
           assinatura_visivel?: boolean
+          ativo?: boolean
+          ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
           cor_secundaria?: string | null
           criado_em?: string
+          desconto_percentual?: number
           endereco?: string | null
           facebook?: string | null
           id?: string
@@ -556,6 +718,7 @@ export type Database = {
           telefone?: string | null
           tema?: string
           texto_boas_vindas?: string | null
+          ultimo_acesso_em?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -608,6 +771,10 @@ export type Database = {
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
+      registrar_acesso_do_tenant: {
+        Args: { _tenant_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "suporte"
