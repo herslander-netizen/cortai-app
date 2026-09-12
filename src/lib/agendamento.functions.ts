@@ -47,7 +47,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       .eq("id", cliente.id)
       .maybeSingle();
 
-    const regras = (regrasRes.data ?? []).map((r) =>
+    const regras = (regrasRes.data ?? []).map((r: DadosAgendar["regras"][number]) =>
       r.tipo === "fidelidade" && personalizacao?.fidelidade_participa !== null &&
       personalizacao?.fidelidade_participa !== undefined
         ? { ...r, ativo: personalizacao.fidelidade_participa }

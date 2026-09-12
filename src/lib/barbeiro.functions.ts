@@ -58,7 +58,7 @@ export const getPainelHoje = createServerFn({ method: "GET" })
     db
       .from("agendamentos")
       .select(
-        "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, clientes(nome), servicos(nome), profissionais(nome)",
+        "id, inicio, fim, status, forma_pagamento, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)",
       )
       .eq("tenant_id", tenant.id)
       .gte("inicio", de.toISOString())
@@ -224,7 +224,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, clientes(nome), servicos(nome), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
