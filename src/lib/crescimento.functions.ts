@@ -295,12 +295,26 @@ export const registrarIndicacao = createServerFn({ method: "POST" })
 export const atualizarIndicacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), acao: z.enum(["converter", "recompensar", "remover"]) }).parse(input),
+    z
+      .object({
+        id: z.string().uuid(),
+        acao: z.enum(["converter", "recompensar", "remover"]),
+        senha: z.string().min(1).max(200).optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     if (data.acao === "remover") {
-      await db.from("indicacoes").delete().eq("id", data.id).eq("tenant_id", tenant.id);
+      // Exclusão permanente: exige reautenticação da conta que está pedindo.
+      const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
+      await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha ?? "");
+      const { error: erroRemocao } = await db
+        .from("indicacoes")
+        .delete()
+        .eq("id", data.id)
+        .eq("tenant_id", tenant.id);
+      if (erroRemocao) throw new Error(erroRemocao.message);
       return { ok: true };
     }
     const patch =
