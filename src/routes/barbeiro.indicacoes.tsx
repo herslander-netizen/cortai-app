@@ -5,6 +5,7 @@ import { Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
+import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import {
   atualizarIndicacao,
   getIndicacoes,
@@ -188,16 +189,17 @@ function IndicacoesPage() {
                   Recompensa entregue
                 </button>
               ) : null}
-              <button
-                type="button"
-                className="text-xs text-brick underline"
-                onClick={async () => {
-                  await atualizar({ data: { id: i.id, acao: "remover" } });
+              <ExclusaoPermanente
+                titulo="Excluir indicação permanentemente"
+                descricao={`A indicação de ${i.indicado} será apagada e não poderá ser recuperada.`}
+                onExcluir={async (senha) => {
+                  await atualizar({ data: { id: i.id, acao: "remover", senha } });
+                }}
+                onSucesso={() => {
+                  setAviso("Indicação excluída permanentemente.");
                   refetch();
                 }}
-              >
-                Remover
-              </button>
+              />
             </div>
           </li>
         ))}
