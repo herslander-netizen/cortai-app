@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { useState } from "react";
+import { ChevronRight, LogOut, Palette, ShieldCheck, UserRound } from "lucide-react";
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/admin/perfil")({
 
 function AdminPerfilPage() {
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
+  const [saindo, setSaindo] = useState(false);
 
   return (
     <AdminScreen title="Perfil" subtitle="Sua conta na administração do Cortaí.">
@@ -44,13 +46,24 @@ function AdminPerfilPage() {
           </div>
         </li>
         <li className="border-b border-line">
+          <Link to="/admin/ajustes" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
+            <Palette size={18} className="text-mute" />
+            <span className="text-sm text-paper">Configurações da plataforma</span>
+            <ChevronRight size={16} className="text-mute2" />
+          </Link>
+        </li>
+        <li className="border-b border-line">
           <button
             type="button"
-            onClick={() => void sair()}
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
+            disabled={saindo}
+            onClick={() => {
+              setSaindo(true);
+              void sair();
+            }}
+            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left disabled:opacity-50"
           >
             <LogOut size={18} className="text-mute" />
-            <span className="text-sm text-paper">Sair da conta</span>
+            <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
             <span className="text-xs text-mute2">Encerrar sessão</span>
           </button>
         </li>

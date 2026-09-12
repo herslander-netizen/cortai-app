@@ -45,7 +45,7 @@ export function ExclusaoPermanente({
     } catch (e) {
       setSenha("");
       setErro(
-        e instanceof Error && /senha|conta|identidade|provedor/i.test(e.message)
+        e instanceof Error && /senha|conta|identidade|provedor|histórico|arquive|não encontrad/i.test(e.message)
           ? e.message
           : "Não foi possível excluir agora. Tente novamente.",
       );
