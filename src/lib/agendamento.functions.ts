@@ -19,7 +19,7 @@ async function admin() {
 }
 
 export const getDadosAgendar = createServerFn({ method: "GET" })
-  .inputValidator((data: { clienteId?: string }) => data ?? {})
+  .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
   .handler(async ({ data }): Promise<DadosAgendar> => {
     const db = await admin();
 
