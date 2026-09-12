@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Json } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -41,9 +42,7 @@ export type MarcaVersion = {
 };
 
 async function tenantDoDono(
-  supabase: Parameters<Parameters<typeof requireSupabaseAuth>["options"]["server"]>[0] extends never
-    ? never
-    : any,
+  supabase: SupabaseClient<Database>,
   userId: string,
 ) {
   const { data: vinculo } = await supabase
@@ -58,7 +57,7 @@ async function tenantDoDono(
   return vinculo.tenant_id as string;
 }
 
-function snapshot(row: Record<string, unknown>): MarcaForm {
+function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaForm {
   return marcaSchema.parse({
     nome: row.nome,
     endereco: row.endereco ?? null,
