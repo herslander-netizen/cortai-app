@@ -5,6 +5,7 @@ import { Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
+import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import {
   atualizarIndicacao,
   getIndicacoes,
