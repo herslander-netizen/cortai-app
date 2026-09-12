@@ -45,7 +45,7 @@ function ClientesPage() {
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       {data && data.trazerDeVolta.length > 0 ? (
-        <section className="rounded-xl border border-line bg-ink2 p-5">
+        <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">
           <p className="text-xs font-semibold uppercase text-gold">Clientes para trazer de volta</p>
           <p className="mt-1 text-xs text-mute2">Passaram do intervalo habitual entre visitas.</p>
           <ul className="mt-4 space-y-3">
@@ -82,7 +82,7 @@ function ClientesPage() {
       />
 
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
-      <ul className="mt-2">
+      <ul data-guia="clientes-lista" className="mt-2">
         {lista.map((c) => {
           const rotulo = ROTULOS[c.status];
           return (

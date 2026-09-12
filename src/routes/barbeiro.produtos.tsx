@@ -29,7 +29,7 @@ function ProdutosPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [form, setForm] = useState({ nome: "", foto_url: null as string | null, categoria: "Finalização", custo_centavos: 0, preco_centavos: 0, quantidade: 0, estoque_minimo: 3, ativo: true });
   return <Screen title="Produtos" subtitle="Catálogo, vendas e estoque.">
-    <Button variant="outline" className="w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
+    <Button data-guia="produtos-novo" variant="outline" className="w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
     {novo ? <form className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4" onSubmit={async (event) => { event.preventDefault(); await salvar({ data: form }); setNovo(false); setForm({ nome: "", foto_url: null, categoria: "Finalização", custo_centavos: 0, preco_centavos: 0, quantidade: 0, estoque_minimo: 3, ativo: true }); await query.refetch(); setStatus("Produto salvo."); }}>
       <input required placeholder="Nome do produto" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="input-premium" />
       <input placeholder="URL da foto" value={form.foto_url ?? ""} onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })} className="input-premium" />
@@ -41,12 +41,12 @@ function ProdutosPage() {
     {status ? <p className="mt-4 text-sm text-sage">{status}</p> : null}
     {query.isError ? <p className="mt-5 text-sm text-mute">Entre com uma conta vinculada para gerenciar produtos.</p> : null}
     {query.data?.produtos.length === 0 ? <div className="mt-5"><EmptyState text="Nenhum produto cadastrado." /></div> : null}
-    <ul className="mt-5">{query.data?.produtos.map((produto) => {
+    <ul data-guia="produtos-lista" className="mt-5">{query.data?.produtos.map((produto) => {
       const baixo = produto.quantidade <= produto.estoque_minimo;
       return <li key={produto.id} className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4">
         {produto.foto_url ? <img src={produto.foto_url} alt={produto.nome} loading="lazy" className="h-12 w-12 rounded-lg object-cover" /> : <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-ink2 text-mute"><ShoppingBag size={18} /></span>}
         <div className="min-w-0"><p className="truncate text-sm font-semibold text-paper">{produto.nome}</p><p className="mt-0.5 text-xs text-mute">{produto.categoria} · {brl(produto.preco_centavos)}</p><p className={`mt-1 flex items-center gap-1 text-xs ${baixo ? "text-brick" : "text-mute2"}`}>{baixo ? <AlertTriangle size={12} /> : null}{produto.quantidade} em estoque</p></div>
-        <Button size="sm" variant="outline" disabled={produto.quantidade < 1} onClick={async () => { await vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }); setStatus(`${produto.nome}: venda registrada.`); await query.refetch(); }}>Vender</Button>
+        <Button data-guia="produtos-venda" size="sm" variant="outline" disabled={produto.quantidade < 1} onClick={async () => { await vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }); setStatus(`${produto.nome}: venda registrada.`); await query.refetch(); }}>Vender</Button>
       </li>;
     })}</ul>
   </Screen>;

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight, LogIn, UserRound, Wallet } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
+import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 
 export const Route = createFileRoute("/app/perfil")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/app/perfil")({
         <li className="border-b border-line"><Link to="/app/carteira" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"><Wallet size={18} className="text-mute" /><span className="text-sm text-paper">Carteira e fidelidade</span><ChevronRight size={16} className="text-mute2" /></Link></li>
         <li className="border-b border-line"><Link to="/login" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"><LogIn size={18} className="text-mute" /><span className="text-sm text-paper">Entrar na minha conta</span><ChevronRight size={16} className="text-mute2" /></Link></li>
       </ul>
+      <PreferenciasDicas />
       <Link to="/login" className="mt-10 block text-center text-xs text-mute">É dono ou profissional de uma barbearia? <span className="font-semibold text-paper">Acessar Cortaí Gestão →</span></Link>
     </Screen>
   ),
