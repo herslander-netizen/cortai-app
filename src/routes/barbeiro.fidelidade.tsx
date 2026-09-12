@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -63,10 +63,11 @@ function FidelidadePage() {
       {isLoading ? <Carregando /> : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">
-        <div>
-          <p className="text-sm text-paper">Programa ativo</p>
+        <div className="pr-4">
+          <p className="text-sm text-paper">Programa de fidelidade</p>
           <p className="mt-0.5 text-xs text-mute2">
-            Desligar não zera o progresso já acumulado dos clientes.
+            Desligado, o cliente não vê cartão, selos nem promessa de corte grátis. Desligar não zera o
+            progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.
           </p>
         </div>
         <button
@@ -169,7 +170,13 @@ function FidelidadePage() {
         {(elegiveis.data?.clientes ?? []).map((c) => (
           <li key={c.id} className="border-b border-line py-4">
             <div className="flex items-baseline justify-between gap-4">
-              <p className="truncate text-sm text-paper">{c.nome}</p>
+              <Link
+                to="/barbeiro/clientes/$id"
+                params={{ id: c.id }}
+                className="truncate text-sm font-medium text-gold underline underline-offset-2"
+              >
+                {c.nome}
+              </Link>
               <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
                 {c.elegivel ? "Corte grátis liberado" : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
               </p>

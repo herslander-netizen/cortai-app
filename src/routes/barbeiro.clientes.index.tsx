@@ -53,7 +53,13 @@ function ClientesPage() {
             {data.trazerDeVolta.slice(0, 5).map((c) => (
               <li key={c.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-paper">{c.nome}</p>
+                  <Link
+                    to="/barbeiro/clientes/$id"
+                    params={{ id: c.id }}
+                    className="block truncate text-sm font-medium text-gold underline underline-offset-2"
+                  >
+                    {c.nome}
+                  </Link>
                   <p className="mt-0.5 text-xs text-mute">
                     {c.diasDesdeUltima} dias sem vir · costuma voltar a cada {c.intervaloMedioDias ?? 30} dias
                   </p>

@@ -13,6 +13,7 @@ import {
   type ResultadoAgendamento,
 } from "@/lib/agendamento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -273,22 +274,24 @@ function Fluxo({
       </Passo>
 
       <Passo n={3} titulo="Dia">
-        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+        <TiraHorizontal rotulo="Escolha o dia">
           {dias.map((d) => {
             const { dia: sem, num, mes } = diaCurto(d);
             return (
-              <Chip
-                key={d}
-                label={`${sem} ${num}/${mes}`}
-                selected={d === dia}
-                onClick={() => {
-                  setDia(d);
-                  setInicio(null);
-                }}
-              />
+              <div key={d} className="shrink-0 snap-start">
+                <Chip
+                  label={`${sem} ${num}/${mes}`}
+                  selected={d === dia}
+                  onClick={() => {
+                    setDia(d);
+                    setInicio(null);
+                  }}
+                />
+              </div>
             );
           })}
-        </div>
+        </TiraHorizontal>
+
       </Passo>
 
       <Passo n={4} titulo="Horário" guia="agendar-horario">
