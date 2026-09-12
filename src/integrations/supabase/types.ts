@@ -331,6 +331,21 @@ export type Database = {
           },
         ]
       }
+      emails_admin_autorizados: {
+        Row: {
+          criado_em: string
+          email: string
+        }
+        Insert: {
+          criado_em?: string
+          email: string
+        }
+        Update: {
+          criado_em?: string
+          email?: string
+        }
+        Relationships: []
+      }
       fila_de_espera: {
         Row: {
           avisado_em: string | null
