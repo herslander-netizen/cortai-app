@@ -50,9 +50,10 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!tenant) return null;
 
-    const [{ data: servicos }, { data: profissionais }] = await Promise.all([
+    const [{ data: servicos }, { data: profissionais }, { data: produtos }] = await Promise.all([
       supabaseAdmin.from("servicos").select("id, nome, duracao_min, preco_centavos").eq("tenant_id", tenant.id).eq("ativo", true).order("ordem"),
-      supabaseAdmin.from("profissionais").select("id, nome, avatar_url").eq("tenant_id", tenant.id).eq("ativo", true).order("criado_em"),
+      supabaseAdmin.from("profissionais").select("id, nome, avatar_url, descricao, portfolio").eq("tenant_id", tenant.id).eq("ativo", true).order("criado_em"),
+      supabaseAdmin.from("produtos").select("id, nome, categoria, preco_centavos, foto_url").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
     ]);
     const fotos = Array.isArray(tenant.fotos) ? tenant.fotos.filter((item): item is string => typeof item === "string") : [];
     const [logo, capa, ...galeria] = await Promise.all([
