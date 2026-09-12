@@ -92,7 +92,7 @@ function InicioCliente() {
             </span>
             <span className="shrink-0 text-xs text-gold">Entrar</span>
           </Link>
-          <Link to="/app" search={{}} className="mt-5 block text-xs text-mute underline">
+          <Link to="/" className="mt-5 block text-xs text-mute underline">
             Trocar de barbearia
           </Link>
         </section>
