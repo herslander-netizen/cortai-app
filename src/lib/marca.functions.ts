@@ -21,6 +21,9 @@ const marcaSchema = z.object({
   cor_accent: hex,
   rotulo_carteira: nullableText,
   texto_boas_vindas: nullableText,
+  descricao: nullableText,
+  capa_url: z.string().max(500).nullable(),
+  fotos: z.array(z.string().max(500)).max(8),
   assinatura_visivel: z.boolean(),
   logo_url: z.string().max(500).nullable(),
 });
@@ -31,6 +34,8 @@ export type MarcaData = MarcaForm & {
   id: string;
   plano: string;
   logo_signed_url: string | null;
+  capa_signed_url: string | null;
+  slug: string;
 };
 
 export type MarcaVersion = {
@@ -71,6 +76,9 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
     cor_accent: row.cor_accent ?? "#8FA882",
     rotulo_carteira: row.rotulo_carteira ?? null,
     texto_boas_vindas: row.texto_boas_vindas ?? null,
+    descricao: row.descricao ?? null,
+    capa_url: row.capa_url ?? null,
+    fotos: Array.isArray(row.fotos) ? row.fotos.filter((item): item is string => typeof item === "string") : [],
     assinatura_visivel: row.assinatura_visivel,
     logo_url: row.logo_url ?? null,
   });
@@ -103,6 +111,8 @@ export const getMarca = createServerFn({ method: "GET" })
         plano: tenant.plano,
         ...atual,
         logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
+        capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
+        slug: tenant.slug,
       },
       versoes: (versoes ?? []).map((item) => ({
         ...item,
@@ -192,7 +202,7 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("tenants")
-    .select("nome, endereco, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
+    .select("nome, slug, endereco, descricao, capa_url, fotos, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
     .order("criado_em", { ascending: true })
     .limit(1)
     .maybeSingle();
@@ -200,5 +210,6 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
   return {
     ...data,
     logo_signed_url: await signedLogo(supabaseAdmin, data.logo_url),
+    capa_signed_url: await signedLogo(supabaseAdmin, data.capa_url),
   };
 });

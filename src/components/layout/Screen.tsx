@@ -11,7 +11,7 @@ export function Screen({
   children?: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col pb-28">
+    <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
       <header className="px-5 pb-5 pt-8">
         <h1 className="screen-title">{title}</h1>
         {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
