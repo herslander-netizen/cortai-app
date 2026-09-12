@@ -296,7 +296,7 @@ function GuiaOverlay({
       {/* camada que bloqueia a interação com o resto da tela */}
       <button
         type="button"
-        aria-label="Pular dicas"
+        aria-label="Fechar dicas"
         onClick={aoPular}
         className="absolute inset-0 h-full w-full cursor-default bg-ink/60 transition-opacity duration-300"
         style={alvo ? { backgroundColor: "transparent" } : undefined}
