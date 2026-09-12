@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { clienteDoUsuario } from "@/lib/cliente";
+import { clienteDoUsuario, fichasDoUsuario } from "@/lib/cliente";
 
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 
@@ -17,9 +17,9 @@ export type DadosAgendar = {
 
 export const getDadosAgendar = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
-  .handler(async ({ context }): Promise<DadosAgendar> => {
-    const { db, tenant, cliente } = await clienteDoUsuario(context);
+  .inputValidator((data: { slug?: string | undefined }) => data ?? {})
+  .handler(async ({ data, context }): Promise<DadosAgendar> => {
+    const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
 
     const [servicosRes, profRes, regrasRes, carteiraRes] = await Promise.all([
       db
@@ -78,8 +78,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     (data: {
-      tenantId?: string;
-      clienteId?: string;
+      slug?: string;
       profissionalId: string;
       servicoId: string;
       inicio: string;
@@ -88,7 +87,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<ResultadoAgendamento> => {
     // A barbearia e o cliente vêm sempre da sessão, nunca do que a tela enviou.
-    const { db, tenant, cliente } = await clienteDoUsuario(context);
+    const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
       _cliente_id: cliente.id,
@@ -105,12 +104,13 @@ export const cancelarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { agendamentoId: string }) => data)
   .handler(async ({ data, context }) => {
-    const { db, cliente } = await clienteDoUsuario(context);
+    const { db, fichas } = await fichasDoUsuario(context);
+    const ids = fichas.map((f) => f.cliente.id);
     const { data: ag } = await db
       .from("agendamentos")
       .select("id")
       .eq("id", data.agendamentoId)
-      .eq("cliente_id", cliente.id)
+      .in("cliente_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
       .maybeSingle();
     if (!ag) throw new Error("Esse agendamento não é seu.");
     const { data: res, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
@@ -131,13 +131,15 @@ export type AgendamentoCliente = {
 
 export const listarAgendamentosCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
+  .inputValidator((data: { slug?: string | undefined }) => data ?? {})
   .handler(async ({ context }): Promise<AgendamentoCliente[]> => {
-    const { db, cliente } = await clienteDoUsuario(context);
+    const { db, fichas } = await fichasDoUsuario(context);
+    const ids = fichas.map((f) => f.cliente.id);
+    if (!ids.length) return [];
     const { data: rows } = await db
       .from("agendamentos")
       .select("id, inicio, fim, status, forma_pagamento, valor_centavos, servicos(nome), profissionais(nome)")
-      .eq("cliente_id", cliente.id)
+      .in("cliente_id", ids)
       .order("inicio", { ascending: false })
       .limit(30);
     return (rows ?? []) as AgendamentoCliente[];

@@ -6,14 +6,14 @@ import { clienteDoUsuario } from "@/lib/cliente";
 export const entrarNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { nome: string; telefone: string; janelaInicio: number | null; janelaFim: number | null }) => {
+    (data: { nome: string; telefone: string; janelaInicio: number | null; janelaFim: number | null; slug?: string }) => {
       if (!data.nome.trim()) throw new Error("Informe seu nome.");
       if (data.telefone.replace(/\D/g, "").length < 10) throw new Error("Informe um WhatsApp válido.");
       return data;
     },
   )
   .handler(async ({ data, context }) => {
-    const { db, tenant, cliente } = await clienteDoUsuario(context);
+    const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
 
     if (data.nome.trim() !== cliente.nome || data.telefone.trim()) {
       await db
