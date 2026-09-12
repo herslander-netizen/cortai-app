@@ -58,7 +58,7 @@ function FidelidadePage() {
   const a = aviso(alvo);
 
   return (
-    <Screen title="Fidelidade" subtitle="Cortes pagos até o corte grátis.">
+    <Screen voltarPara="/barbeiro/mais" title="Fidelidade" subtitle="Cortes pagos até o corte grátis.">
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">

@@ -27,7 +27,7 @@ function ContaPage() {
   const [saindo, setSaindo] = useState(false);
 
   return (
-    <Screen title="Conta" subtitle="Seus dados e os da sua barbearia.">
+    <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os da sua barbearia.">
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
           <UserRound size={22} />

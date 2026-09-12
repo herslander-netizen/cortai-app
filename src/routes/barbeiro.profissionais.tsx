@@ -40,7 +40,7 @@ function ProfissionaisPage() {
   }, [data]);
 
   return (
-    <Screen title="Profissionais" subtitle="O que aparece na sua página pública.">
+    <Screen voltarPara="/barbeiro/mais" title="Profissionais" subtitle="O que aparece na sua página pública.">
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
       {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}

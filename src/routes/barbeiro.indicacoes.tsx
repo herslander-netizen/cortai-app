@@ -50,7 +50,7 @@ function IndicacoesPage() {
   const link = `${typeof window === "undefined" ? "" : window.location.origin}/b/${data?.tenant.slug ?? ""}?indicacao=${codigo}`;
 
   return (
-    <Screen title="Indicações" subtitle="Cliente que traz cliente.">
+    <Screen voltarPara="/barbeiro/mais" title="Indicações" subtitle="Cliente que traz cliente.">
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       <div className="rounded-xl border border-line bg-ink2 p-5">

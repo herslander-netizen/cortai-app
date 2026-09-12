@@ -28,7 +28,7 @@ function ProdutosPage() {
   const [novo, setNovo] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [form, setForm] = useState({ nome: "", foto_url: null as string | null, categoria: "Finalização", custo_centavos: 0, preco_centavos: 0, quantidade: 0, estoque_minimo: 3, ativo: true });
-  return <Screen title="Produtos" subtitle="Catálogo, vendas e estoque.">
+  return <Screen voltarPara="/barbeiro/mais" title="Produtos" subtitle="Catálogo, vendas e estoque.">
     <Button data-guia="produtos-novo" variant="outline" className="w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
     {novo ? <form className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4" onSubmit={async (event) => { event.preventDefault(); await salvar({ data: form }); setNovo(false); setForm({ nome: "", foto_url: null, categoria: "Finalização", custo_centavos: 0, preco_centavos: 0, quantidade: 0, estoque_minimo: 3, ativo: true }); await query.refetch(); setStatus("Produto salvo."); }}>
       <input required placeholder="Nome do produto" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="input-premium" />
