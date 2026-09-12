@@ -9,6 +9,7 @@ import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
   getDadosAgendamentoManual,
+  getProximoHorarioLivre,
 } from "@/lib/barbeiro.functions";
 
 type Forma = "balcao" | "pix" | "fiado" | "credito";
@@ -32,11 +33,13 @@ export function AgendamentoManual({
   horaInicial,
   onCriado,
   gatilho = "primario",
+  rotulo,
 }: {
   dia: string;
   horaInicial?: string;
   onCriado?: () => void;
   gatilho?: "primario" | "discreto";
+  rotulo?: string;
 }) {
   const [aberto, setAberto] = useState(false);
 
@@ -51,7 +54,7 @@ export function AgendamentoManual({
             : "btn-tertiary text-xs"
         }
       >
-        {gatilho === "primario" ? "+ Agendamento manual" : "Marcar cliente aqui"}
+        {rotulo ?? (gatilho === "primario" ? "+ Agendamento manual" : "Marcar cliente aqui")}
       </button>
       {aberto ? (
         <Formulario
@@ -85,6 +88,12 @@ function Formulario({
   const { data: base } = useQuery({
     queryKey: ["dados-manual"],
     queryFn: () => getDadosAgendamentoManual(),
+  });
+
+  const proximo = useQuery({
+    queryKey: ["proximo-livre"],
+    queryFn: () => getProximoHorarioLivre({ data: {} }),
+    staleTime: 30_000,
   });
 
   const [termo, setTermo] = useState("");
@@ -280,6 +289,22 @@ function Formulario({
 
         {/* 3. Horário */}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-mute2">3. Horário</p>
+        {proximo.data ? (
+          <button
+            type="button"
+            onClick={() => {
+              setData(new Date().toISOString().slice(0, 10));
+              setHoraMin(proximo.data!.label);
+            }}
+            className={`mt-2 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm ${
+              horaMin === proximo.data.label ? "border-gold bg-gold-soft text-gold" : "border-gold/60 text-gold"
+            }`}
+          >
+            <span className="font-semibold">Atender agora</span>
+            <span>próximo livre {proximo.data.label}</span>
+          </button>
+        ) : null}
+
         <div className="mt-2 grid grid-cols-2 gap-2">
           <input
             type="date"

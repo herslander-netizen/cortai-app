@@ -4,6 +4,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { brl } from "@/lib/format";
 import { getAdminOverview } from "@/lib/admin.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [
@@ -22,7 +23,7 @@ function Metric({ label, value, note }: { label: string; value: string; note?: s
 function AdminOverview() {
   const query = useQuery({ queryKey: ["admin-overview"], queryFn: () => getAdminOverview(), retry: false });
   return <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">
-    {query.isLoading ? <p className="text-sm text-mute">Carregando indicadores…</p> : null}
+    {query.isLoading ? <Carregando texto="Carregando indicadores…" /> : null}
     {query.isError ? <AdminNotice error={query.error} /> : null}
     {query.data ? <>
       <section className="grid grid-cols-2 gap-x-5 lg:grid-cols-4">

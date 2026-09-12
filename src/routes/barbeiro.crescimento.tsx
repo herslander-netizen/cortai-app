@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { getCrescimento } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/crescimento")({
   head: () => ({
@@ -46,7 +47,7 @@ function CrescimentoPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz sua barbearia crescer."}>
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       {data ? (
         <>

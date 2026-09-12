@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
   head: () => ({
@@ -59,7 +60,7 @@ function FidelidadePage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fidelidade" subtitle="Cortes pagos até o corte grátis.">
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">
         <div>

@@ -13,6 +13,7 @@ import {
   registrarIndicacao,
   salvarConfigIndicacao,
 } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   head: () => ({
@@ -52,7 +53,7 @@ function IndicacoesPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Indicações" subtitle="Cliente que traz cliente.">
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       <div className="rounded-xl border border-line bg-ink2 p-5">
         <div className="flex items-center justify-between gap-4">

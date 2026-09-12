@@ -15,6 +15,7 @@ import {
   type MarcaData,
   type MarcaForm,
 } from "@/lib/marca.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   head: () => ({
@@ -51,7 +52,7 @@ function Secao({ title, children }: { title: string; children: React.ReactNode }
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
-  if (query.isLoading) return <Screen voltarPara="/barbeiro/mais" title="Marca"><p className="text-sm text-mute">Carregando…</p></Screen>;
+  if (query.isLoading) return <Screen voltarPara="/barbeiro/mais" title="Marca"><Carregando /></Screen>;
   if (query.isError) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
   if (!query.data) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
   return <MarcaFormPage initial={query.data.marca} versions={query.data.versoes} reload={() => query.refetch()} />;

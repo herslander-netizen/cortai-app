@@ -13,6 +13,7 @@ import {
   getFichaCliente,
   registrarBaixaFiado,
 } from "@/lib/barbeiro.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
@@ -76,7 +77,7 @@ function FichaPage() {
         Voltar para clientes
       </Link>
 
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
       {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
 
       {data ? (

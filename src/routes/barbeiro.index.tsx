@@ -9,6 +9,7 @@ import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { brl, hora } from "@/lib/format";
 import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -54,7 +55,7 @@ function HojePage() {
 
   return (
     <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       {data ? (
         <>

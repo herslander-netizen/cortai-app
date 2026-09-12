@@ -12,6 +12,7 @@ import {
   type DadosAgendar,
   type ResultadoAgendamento,
 } from "@/lib/agendamento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -112,7 +113,7 @@ function AgendarPage() {
   if (dados.isLoading || !dados.data) {
     return (
       <Screen title="Agendar" subtitle="Escolha serviço, barbeiro e horário.">
-        <p className="text-sm text-mute">Carregando…</p>
+        <Carregando />
       </Screen>
     );
   }

@@ -9,6 +9,7 @@ import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { brl } from "@/lib/format";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
   head: () => ({
@@ -64,7 +65,7 @@ function AgendaPage() {
         <AgendamentoManual
           dia={dia}
           onCriado={() => {
-            setAviso({ tom: "info", texto: "Agendamento criado e já aparece na agenda." });
+            setAviso({ tom: "sucesso", texto: "Agendamento criado e já aparece na agenda." });
             void refetch();
           }}
         />
@@ -85,7 +86,7 @@ function AgendaPage() {
           {aviso.texto}
         </Aviso>
       ) : null}
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
 
       <ul data-guia="agenda-lista">
@@ -180,7 +181,7 @@ function AgendaPage() {
                       horaInicial={s.label}
                       gatilho="discreto"
                       onCriado={() => {
-                        setAviso({ tom: "info", texto: `Cliente marcado às ${s.label}.` });
+                        setAviso({ tom: "sucesso", texto: `Cliente marcado às ${s.label}.` });
                         void refetch();
                       }}
                     />
