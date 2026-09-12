@@ -24,6 +24,7 @@ export type Database = {
           id: string
           inicio: string
           profissional_id: string | null
+          recorrencia: string | null
           servico_id: string | null
           status: string
           tenant_id: string
@@ -38,6 +39,7 @@ export type Database = {
           id?: string
           inicio: string
           profissional_id?: string | null
+          recorrencia?: string | null
           servico_id?: string | null
           status?: string
           tenant_id: string
@@ -52,6 +54,7 @@ export type Database = {
           id?: string
           inicio?: string
           profissional_id?: string | null
+          recorrencia?: string | null
           servico_id?: string | null
           status?: string
           tenant_id?: string
@@ -81,6 +84,71 @@ export type Database = {
           },
           {
             foreignKeyName: "agendamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      avaliacoes: {
+        Row: {
+          agendamento_id: string
+          cliente_id: string | null
+          comentario: string | null
+          convite_publico_enviado: boolean
+          criado_em: string
+          id: string
+          nota: number
+          profissional_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          agendamento_id: string
+          cliente_id?: string | null
+          comentario?: string | null
+          convite_publico_enviado?: boolean
+          criado_em?: string
+          id?: string
+          nota: number
+          profissional_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          agendamento_id?: string
+          cliente_id?: string | null
+          comentario?: string | null
+          convite_publico_enviado?: boolean
+          criado_em?: string
+          id?: string
+          nota?: number
+          profissional_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: true
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -142,6 +210,7 @@ export type Database = {
           nome: string
           opt_in_em: string | null
           opt_in_whatsapp: boolean
+          origem: string
           telefone: string
           tenant_id: string
         }
@@ -153,6 +222,7 @@ export type Database = {
           nome: string
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
+          origem?: string
           telefone: string
           tenant_id: string
         }
@@ -164,6 +234,7 @@ export type Database = {
           nome?: string
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
+          origem?: string
           telefone?: string
           tenant_id?: string
         }
@@ -347,6 +418,67 @@ export type Database = {
           },
         ]
       }
+      indicacoes: {
+        Row: {
+          convertido_em: string | null
+          criado_em: string
+          id: string
+          indicado_cliente_id: string | null
+          indicado_nome: string
+          indicador_cliente_id: string | null
+          recompensa: string | null
+          recompensa_entregue: boolean
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          convertido_em?: string | null
+          criado_em?: string
+          id?: string
+          indicado_cliente_id?: string | null
+          indicado_nome: string
+          indicador_cliente_id?: string | null
+          recompensa?: string | null
+          recompensa_entregue?: boolean
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          convertido_em?: string | null
+          criado_em?: string
+          id?: string
+          indicado_cliente_id?: string | null
+          indicado_nome?: string
+          indicador_cliente_id?: string | null
+          recompensa?: string | null
+          recompensa_entregue?: boolean
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indicacoes_indicado_cliente_id_fkey"
+            columns: ["indicado_cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicacoes_indicador_cliente_id_fkey"
+            columns: ["indicador_cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicacoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimentos: {
         Row: {
           agendamento_id: string | null
@@ -455,24 +587,30 @@ export type Database = {
           ativo: boolean
           avatar_url: string | null
           criado_em: string
+          descricao: string | null
           id: string
           nome: string
+          portfolio: Json
           tenant_id: string
         }
         Insert: {
           ativo?: boolean
           avatar_url?: string | null
           criado_em?: string
+          descricao?: string | null
           id?: string
           nome: string
+          portfolio?: Json
           tenant_id: string
         }
         Update: {
           ativo?: boolean
           avatar_url?: string | null
           criado_em?: string
+          descricao?: string | null
           id?: string
           nome?: string
+          portfolio?: Json
           tenant_id?: string
         }
         Relationships: [
@@ -714,7 +852,11 @@ export type Database = {
           facebook: string | null
           fotos: Json
           id: string
+          indicacao_ativa: boolean
+          indicacao_codigo: string | null
+          indicacao_recompensa: string | null
           instagram: string | null
+          link_avaliacao_publica: string | null
           logo_url: string | null
           modo: string
           nome: string
@@ -742,7 +884,11 @@ export type Database = {
           facebook?: string | null
           fotos?: Json
           id?: string
+          indicacao_ativa?: boolean
+          indicacao_codigo?: string | null
+          indicacao_recompensa?: string | null
           instagram?: string | null
+          link_avaliacao_publica?: string | null
           logo_url?: string | null
           modo?: string
           nome: string
@@ -770,7 +916,11 @@ export type Database = {
           facebook?: string | null
           fotos?: Json
           id?: string
+          indicacao_ativa?: boolean
+          indicacao_codigo?: string | null
+          indicacao_recompensa?: string | null
           instagram?: string | null
+          link_avaliacao_publica?: string | null
           logo_url?: string | null
           modo?: string
           nome?: string
