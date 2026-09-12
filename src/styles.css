@@ -195,3 +195,32 @@
 .client-brand[data-hide-signature="true"] footer {
   display: none;
 }
+
+/* ------------------------- Carregamento (clipper) ------------------------- */
+.cortai-clipper-lamina {
+  transform-origin: 24px 9px;
+  animation: cortai-lamina 640ms ease-in-out infinite;
+}
+
+@keyframes cortai-lamina {
+  0%, 100% { transform: translateX(-1.2px); }
+  50% { transform: translateX(1.2px); }
+}
+
+.cortai-progresso {
+  animation: cortai-progresso 1100ms ease-in-out infinite;
+}
+
+@keyframes cortai-progresso {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.cortai-splash {
+  animation: cortai-aparecer 160ms ease-out both;
+}
+
+@keyframes cortai-aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
