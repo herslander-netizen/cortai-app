@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouterState } from "@tanstack/react-router";
+import { Lightbulb } from "lucide-react";
 
 import { guiaDaRota, type Guia } from "@/lib/guia/tours";
 import { supabase } from "@/integrations/supabase/client";
@@ -324,8 +325,8 @@ function GuiaOverlay({
         className="absolute rounded-xl border border-line2 bg-ink2 p-5 shadow-2xl transition-all duration-300 ease-out"
         style={{ top: topoDica, left: esquerdaDica, width: largura }}
       >
-        <p id="guia-titulo" className="text-sm font-bold text-paper">
-          <span aria-hidden className="mr-1.5">💡</span>
+        <p id="guia-titulo" className="flex items-center gap-2 text-sm font-bold text-paper">
+          <Lightbulb size={15} className="shrink-0 text-gold" aria-hidden />
           {atual.titulo}
         </p>
         <p id="guia-texto" className="mt-2 text-sm leading-relaxed text-mute">
