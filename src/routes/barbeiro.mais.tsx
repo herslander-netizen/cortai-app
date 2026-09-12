@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ListOrdered, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserSquare2 } from "lucide-react";
+import { ChevronRight, ListOrdered, LogOut, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserSquare2 } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
+import { sair } from "@/lib/guarda";
 
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({ meta: [
@@ -28,5 +29,5 @@ const itens = [
 ] as const;
 
 function MaisPage() {
-  return <Screen title="Cortaí Gestão" subtitle="Tudo da sua barbearia em um só lugar."><ul data-guia="mais-lista">{itens.map((item) => { const Icon = item.icon; return <li key={item.to} className="border-b border-line"><Link to={item.to} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><Icon size={18} /></span><span className="min-w-0"><span className="block text-sm font-semibold text-paper">{item.label}</span><span className="mt-1 block text-xs text-mute">{item.detail}</span></span><ChevronRight size={17} className="text-mute2" /></Link></li>; })}</ul><PreferenciasDicas /></Screen>;
+  return <Screen title="Cortaí Gestão" subtitle="Tudo da sua barbearia em um só lugar."><ul data-guia="mais-lista">{itens.map((item) => { const Icon = item.icon; return <li key={item.to} className="border-b border-line"><Link to={item.to} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><Icon size={18} /></span><span className="min-w-0"><span className="block text-sm font-semibold text-paper">{item.label}</span><span className="mt-1 block text-xs text-mute">{item.detail}</span></span><ChevronRight size={17} className="text-mute2" /></Link></li>; })}</ul><PreferenciasDicas /><button type="button" onClick={() => void sair()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button></Screen>;
 }
