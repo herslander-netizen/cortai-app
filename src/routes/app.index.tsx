@@ -11,6 +11,8 @@ export const Route = createFileRoute("/app/")({
       { name: "description", content: "Seu próximo corte e sua barbearia favorita no Cortaí." },
       { property: "og:title", content: "Início — Cortaí" },
       { property: "og:description", content: "Seu próximo corte em um toque." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: InicioCliente,

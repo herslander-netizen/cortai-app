@@ -14,6 +14,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Agende, gerencie e acompanhe sua barbearia pelo celular.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   beforeLoad: () => {
