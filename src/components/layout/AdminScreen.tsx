@@ -1,0 +1,15 @@
+import type { ReactNode } from "react";
+
+export function AdminScreen({ title, subtitle, actions, children }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
+  return <div className="mx-auto w-full max-w-[1180px] px-5 pb-28 pt-8 md:px-8 md:pb-12 md:pt-10">
+    <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div><p className="text-xs font-semibold uppercase text-gold">Plataforma Cortaí</p><h1 className="mt-2 text-2xl font-bold text-paper">{title}</h1>{subtitle ? <p className="mt-2 text-sm text-mute">{subtitle}</p> : null}</div>
+      {actions}
+    </header>
+    <main>{children}</main>
+  </div>;
+}
+
+export function AdminNotice({ error }: { error: unknown }) {
+  return <div className="border-l-2 border-brick py-2 pl-4"><p className="text-sm font-semibold text-paper">Acesso restrito</p><p className="mt-1 text-sm text-mute">{error instanceof Error ? error.message : "Entre com a conta do dono da plataforma."}</p></div>;
+}
