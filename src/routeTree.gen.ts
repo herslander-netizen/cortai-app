@@ -26,6 +26,7 @@ import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as BSlugRouteImport } from './routes/b.$slug'
 import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
+import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
@@ -125,6 +126,11 @@ const BarbeiroAgendaRoute = BarbeiroAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroAvaliacoesRoute = BarbeiroAvaliacoesRouteImport.update({
+  id: '/avaliacoes',
+  path: '/avaliacoes',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroCaixaRoute = BarbeiroCaixaRouteImport.update({
   id: '/caixa',
   path: '/caixa',
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/app/perfil'
     | '/b/$slug'
     | '/barbeiro/agenda'
+    | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
     | '/barbeiro/crescimento'
@@ -330,6 +340,7 @@ export interface FileRouteTypes {
     | '/app/perfil'
     | '/b/$slug'
     | '/barbeiro/agenda'
+    | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/crescimento'
     | '/barbeiro/fidelidade'
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/app/perfil'
     | '/b/$slug'
     | '/barbeiro/agenda'
+    | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
     | '/barbeiro/crescimento'
@@ -509,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroAgendaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/avaliacoes': {
+      id: '/barbeiro/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/barbeiro/avaliacoes'
+      preLoaderRoute: typeof BarbeiroAvaliacoesRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/caixa': {
       id: '/barbeiro/caixa'
       path: '/caixa'
@@ -652,6 +671,7 @@ const BarbeiroClientesRouteWithChildren =
 
 interface BarbeiroRouteChildren {
   BarbeiroAgendaRoute: typeof BarbeiroAgendaRoute
+  BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
@@ -668,6 +688,7 @@ interface BarbeiroRouteChildren {
 
 const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAgendaRoute: BarbeiroAgendaRoute,
+  BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
