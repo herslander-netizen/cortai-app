@@ -1109,33 +1109,6 @@ export type Database = {
       }
     }
     Views: {
-      configuracao_visual_publica: {
-        Row: {
-          cor_fundo: string | null
-          cor_primaria: string | null
-          cor_superficie: string | null
-          cor_texto: string | null
-          raio_px: number | null
-          tipografia: string | null
-        }
-        Insert: {
-          cor_fundo?: string | null
-          cor_primaria?: string | null
-          cor_superficie?: string | null
-          cor_texto?: string | null
-          raio_px?: number | null
-          tipografia?: string | null
-        }
-        Update: {
-          cor_fundo?: string | null
-          cor_primaria?: string | null
-          cor_superficie?: string | null
-          cor_texto?: string | null
-          raio_px?: number | null
-          tipografia?: string | null
-        }
-        Relationships: []
-      }
       design_da_plataforma: {
         Row: {
           cor_fundo: string | null
