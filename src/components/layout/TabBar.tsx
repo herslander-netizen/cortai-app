@@ -1,8 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, type LinkProps } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 
 export type TabItem = {
-  to: string;
+  to: NonNullable<LinkProps["to"]>;
   label: string;
   icon: LucideIcon;
 };
