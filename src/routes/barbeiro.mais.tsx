@@ -17,6 +17,7 @@ export const Route = createFileRoute("/barbeiro/mais")({
 });
 
 const itens = [
+  { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Seus dados, página pública e sair", icon: UserRound },
   { to: "/barbeiro/crescimento", label: "Crescimento", detail: "Novos clientes, retorno e indicações", icon: TrendingUp },
   { to: "/barbeiro/indicacoes", label: "Indicações", detail: "Cliente que traz cliente", icon: Sparkles },
   { to: "/barbeiro/avaliacoes", label: "Avaliações", detail: "Notas e convite público", icon: Star },
