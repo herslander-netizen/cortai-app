@@ -1,0 +1,160 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+
+import { Screen } from "@/components/layout/Screen";
+import { brl } from "@/lib/format";
+import { getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
+
+export const Route = createFileRoute("/barbeiro/fidelidade")({
+  head: () => ({
+    meta: [
+      { title: "Fidelidade — Cortaí" },
+      {
+        name: "description",
+        content: "Defina quantos cortes valem um grátis e veja o desconto real antes de vender no prejuízo.",
+      },
+      { property: "og:title", content: "Fidelidade — Cortaí" },
+      { property: "og:description", content: "Desconto real e ticket efetivo do seu cartão de fidelidade." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: FidelidadePage,
+});
+
+function aviso(alvo: number): { texto: string; classe: string } {
+  if (alvo <= 5) return { texto: "o desconto passa de 16%, só vale se sua margem for alta", classe: "text-brick" };
+  if (alvo >= 16)
+    return { texto: "acima de 15 o cliente costuma desistir antes de completar", classe: "text-brick" };
+  return { texto: "faixa saudável", classe: "text-mute2" };
+}
+
+function FidelidadePage() {
+  const salvar = useServerFn(salvarFidelidade);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["fidelidade"],
+    queryFn: () => getConfigFidelidade(),
+  });
+
+  const [alvo, setAlvo] = useState(10);
+  const [ativo, setAtivo] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [ok, setOk] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setAlvo(data.alvo);
+      setAtivo(data.ativo);
+    }
+  }, [data]);
+
+  const preco = data?.precoBaseCentavos ?? 0;
+  const descontoReal = 100 / (alvo + 1);
+  const ticketEfetivo = (preco * alvo) / (alvo + 1);
+  const a = aviso(alvo);
+
+  return (
+    <Screen title="Fidelidade" subtitle="Cortes pagos até o corte grátis.">
+      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+
+      <div className="flex items-center justify-between border-b border-line py-4">
+        <div>
+          <p className="text-sm text-paper">Programa ativo</p>
+          <p className="mt-0.5 text-xs text-mute2">
+            Desligar não zera o progresso já acumulado dos clientes.
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={ativo}
+          aria-label="Programa de fidelidade ativo"
+          onClick={() => {
+            setAtivo((v) => !v);
+            setOk(false);
+          }}
+          className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${
+            ativo ? "border-gold bg-gold" : "border-line2 bg-ink2"
+          }`}
+        >
+          <span
+            className={`block h-5 w-5 rounded-full transition-transform ${
+              ativo ? "translate-x-6 bg-ink" : "translate-x-1 bg-mute"
+            }`}
+          />
+        </button>
+      </div>
+
+      <div className="py-6">
+        <div className="flex items-baseline justify-between">
+          <p className="text-sm text-paper">Cortes até o grátis</p>
+          <p className="text-2xl font-bold text-gold">{alvo}</p>
+        </div>
+        <input
+          type="range"
+          min={4}
+          max={20}
+          step={1}
+          value={alvo}
+          aria-label="Cortes até o corte grátis"
+          onChange={(e) => {
+            setAlvo(Number(e.target.value));
+            setOk(false);
+          }}
+          className="mt-4 w-full accent-[var(--gold)]"
+        />
+        <div className="mt-1 flex justify-between text-xs text-mute2">
+          <span>4</span>
+          <span>20</span>
+        </div>
+        <p className={`mt-3 text-xs ${a.classe}`}>{a.texto}</p>
+      </div>
+
+      <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm text-mute">Desconto real</span>
+          <span className="text-xl font-bold text-paper">
+            {descontoReal.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+          </span>
+        </div>
+        <div className="mt-4 flex items-baseline justify-between">
+          <span className="text-sm text-mute">Ticket efetivo</span>
+          <span className="text-xl font-bold text-paper">{brl(ticketEfetivo)}</span>
+        </div>
+        <p className="mt-4 text-xs text-mute2">
+          O cliente paga {alvo} e leva {alvo + 1}. Sobre o preço de {brl(preco)}, cada corte sai por{" "}
+          {brl(ticketEfetivo)}.
+        </p>
+      </div>
+
+      {data && data.clientesComProgresso > 0 ? (
+        <p className="mt-4 text-xs text-mute">
+          {data.clientesComProgresso}{" "}
+          {data.clientesComProgresso === 1 ? "cliente já tem selos" : "clientes já têm selos"} acumulados. Mudar
+          a meta não apaga o que eles já juntaram.
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        className="btn-primary mt-6 w-full"
+        disabled={salvando}
+        onClick={async () => {
+          setSalvando(true);
+          try {
+            await salvar({ data: { ativo, alvo } });
+            setOk(true);
+            refetch();
+          } finally {
+            setSalvando(false);
+          }
+        }}
+      >
+        {salvando ? "Salvando…" : "Salvar"}
+      </button>
+      {ok ? <p className="mt-3 text-center text-sm text-sage">Configuração salva.</p> : null}
+    </Screen>
+  );
+}
