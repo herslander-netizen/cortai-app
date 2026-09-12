@@ -47,9 +47,9 @@ function AgendaPage() {
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<{ tom: TomDeAviso; texto: string } | null>(null);
 
-  const { data, isLoading } = useQuery<AgendaDia>({
+  const { data, isLoading, refetch } = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
     queryFn: () => getAgendaDia({ data: { dia } }),
   });
@@ -58,6 +58,16 @@ function AgendaPage() {
 
   return (
     <Screen title="Agenda do dia" subtitle="Hora a hora, do primeiro ao último.">
+      <div className="mb-5">
+        <AgendamentoManual
+          dia={dia}
+          onCriado={() => {
+            setAviso({ tom: "info", texto: "Agendamento criado e já aparece na agenda." });
+            void refetch();
+          }}
+        />
+      </div>
+
       <label className="mb-6 block">
         <span className="text-xs text-mute2">Dia</span>
         <input
@@ -68,8 +78,13 @@ function AgendaPage() {
         />
       </label>
 
-      {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
+      {aviso ? (
+        <Aviso tom={aviso.tom} className="mb-4">
+          {aviso.texto}
+        </Aviso>
+      ) : null}
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+
 
       <ul data-guia="agenda-lista">
         {lista.map((s) => {
