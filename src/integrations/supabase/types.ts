@@ -207,11 +207,15 @@ export type Database = {
       clientes: {
         Row: {
           arquivado_em: string | null
+          condicoes_especiais: string | null
           criado_em: string
+          desconto_percentual: number | null
           ficha_tecnica: string | null
+          fidelidade_participa: boolean | null
           id: string
           limite_fiado_centavos: number
           nome: string
+          observacoes_internas: string | null
           opt_in_em: string | null
           opt_in_whatsapp: boolean
           origem: string
@@ -221,11 +225,15 @@ export type Database = {
         }
         Insert: {
           arquivado_em?: string | null
+          condicoes_especiais?: string | null
           criado_em?: string
+          desconto_percentual?: number | null
           ficha_tecnica?: string | null
+          fidelidade_participa?: boolean | null
           id?: string
           limite_fiado_centavos?: number
           nome: string
+          observacoes_internas?: string | null
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
@@ -235,11 +243,15 @@ export type Database = {
         }
         Update: {
           arquivado_em?: string | null
+          condicoes_especiais?: string | null
           criado_em?: string
+          desconto_percentual?: number | null
           ficha_tecnica?: string | null
+          fidelidade_participa?: boolean | null
           id?: string
           limite_fiado_centavos?: number
           nome?: string
+          observacoes_internas?: string | null
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
