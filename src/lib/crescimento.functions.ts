@@ -145,10 +145,9 @@ export const getCrescimento = createServerFn({ method: "GET" }).handler(async ()
   hoje.setHours(0, 0, 0, 0);
   const amanha = new Date(hoje.getTime() + DIA);
 
-  const [novosRes, clientesRes, origemRes, agHojeRes, agRes, profRes, filaRes, indicacoesRes] =
+  const [novosRes, origemRes, agHojeRes, agRes, profRes, filaRes, indicacoesRes] =
     await Promise.all([
       db.from("clientes").select("id").eq("tenant_id", tenant.id).gte("criado_em", inicioMes.toISOString()),
-      db.from("clientes").select("id").eq("tenant_id", tenant.id),
       db.from("clientes").select("id").eq("tenant_id", tenant.id).in("origem", ["link", "indicacao"]),
       db
         .from("agendamentos")
