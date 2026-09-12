@@ -222,7 +222,7 @@ function Fluxo({
 
   return (
     <Screen title="Agendar" subtitle={`${dados.tenant.nome} · ${dados.cliente.nome}`}>
-      <Passo n={1} titulo="Serviço">
+      <Passo n={1} titulo="Serviço" guia="agendar-servico">
         <div className="flex flex-wrap gap-2">
           {dados.servicos.map((s) => (
             <Chip
@@ -240,7 +240,7 @@ function Fluxo({
         </div>
       </Passo>
 
-      <Passo n={2} titulo="Profissional">
+      <Passo n={2} titulo="Profissional" guia="agendar-profissional">
         <div className="flex flex-wrap gap-2">
           {dados.profissionais.map((p) => (
             <Chip
@@ -275,7 +275,7 @@ function Fluxo({
         </div>
       </Passo>
 
-      <Passo n={4} titulo="Horário">
+      <Passo n={4} titulo="Horário" guia="agendar-horario">
         {!servico || !profId || !dia ? (
           <p className="text-sm text-mute">Escolha serviço, profissional e dia para ver os horários.</p>
         ) : (
@@ -367,7 +367,7 @@ function Fluxo({
         )}
       </Passo>
 
-      <Passo n={6} titulo="Confirmação">
+      <Passo n={6} titulo="Confirmação" guia="agendar-confirmar">
         <p className="text-sm text-mute">
           Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
         </p>

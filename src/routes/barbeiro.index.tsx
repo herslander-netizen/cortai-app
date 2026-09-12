@@ -56,12 +56,12 @@ function HojePage() {
 
       {data ? (
         <>
-          <div className="rounded-xl border border-line bg-ink2 p-5">
+          <div data-guia="dash-faturamento" className="rounded-xl border border-line bg-ink2 p-5">
             <div className="flex items-start justify-between gap-4"><div><p className="text-xs text-mute">Faturamento de hoje</p><p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(data.caixaCentavos)}</p></div><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold"><TrendingUp size={19} /></span></div>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(5, data.ocupacaoPct)}%` }} /></div>
             <p className="mt-2 text-xs text-mute2">{data.ocupacaoPct}% da agenda ocupada · {data.ocupacaoDetalhe}</p>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          <div data-guia="dash-indicadores" className="mt-3 grid grid-cols-2 gap-3">
             <Indicador rotulo="Atendimentos" valor={data.ocupacaoDetalhe.split(" ")[0] ?? "0"} detalhe="agendados hoje" />
             <Indicador rotulo="Horários livres" valor={String(Math.max(0, Number(data.ocupacaoDetalhe.split(" ")[2] ?? 0) - Number(data.ocupacaoDetalhe.split(" ")[0] ?? 0)))} detalhe="oportunidades" />
             <Indicador
@@ -107,6 +107,7 @@ function HojePage() {
             </div>
           )}
 
+          <div data-guia="dash-oportunidades">
           <div className="mt-8 flex items-baseline justify-between">
             <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
             <Link to="/barbeiro/crescimento" className="text-xs text-gold">Crescimento</Link>
@@ -127,6 +128,7 @@ function HojePage() {
               </li>
             ))}
           </ul>
+          </div>
 
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
           <ul>

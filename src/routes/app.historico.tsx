@@ -61,7 +61,7 @@ function HistoricoPage() {
       {proximo ? (
         <section>
           <p className="text-xs font-semibold uppercase text-mute">Seu próximo corte</p>
-          <div className="mt-3 rounded-md border border-line bg-ink2 px-4 py-4">
+          <div data-guia="historico-proximo" className="mt-3 rounded-md border border-line bg-ink2 px-4 py-4">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
               <div className="min-w-0">
                 <h2 className="text-base font-semibold text-paper">{proximo.servicos?.nome ?? "Serviço"}</h2>
@@ -70,7 +70,7 @@ function HistoricoPage() {
               </div>
               <span className="shrink-0 text-[10px] font-semibold uppercase text-sage">Confirmado</span>
             </div>
-            <div className="mt-4 flex gap-2 border-t border-line pt-3">
+            <div data-guia="historico-acoes" className="mt-4 flex gap-2 border-t border-line pt-3">
               <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar">Remarcar</Link></Button>
               <Button variant="ghost" size="sm" className="text-mute hover:text-brick" onClick={() => cancelarItem(proximo.id, proximo.inicio)}>Cancelar</Button>
             </div>
