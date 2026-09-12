@@ -45,6 +45,7 @@ function corDaBorda(forma: string | null) {
 
 function AgendaPage() {
   const oferecer = useServerFn(oferecerHorarioAFila);
+  const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
   const [aviso, setAviso] = useState<string | null>(null);
 
