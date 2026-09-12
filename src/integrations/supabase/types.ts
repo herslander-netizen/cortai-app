@@ -397,6 +397,59 @@ export type Database = {
           },
         ]
       }
+      produtos: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          categoria: string
+          criado_em: string
+          custo_centavos: number
+          estoque_minimo: number
+          foto_url: string | null
+          id: string
+          nome: string
+          preco_centavos: number
+          quantidade: number
+          tenant_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          categoria?: string
+          criado_em?: string
+          custo_centavos?: number
+          estoque_minimo?: number
+          foto_url?: string | null
+          id?: string
+          nome: string
+          preco_centavos?: number
+          quantidade?: number
+          tenant_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          categoria?: string
+          criado_em?: string
+          custo_centavos?: number
+          estoque_minimo?: number
+          foto_url?: string | null
+          id?: string
+          nome?: string
+          preco_centavos?: number
+          quantidade?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profissionais: {
         Row: {
           ativo: boolean
@@ -649,14 +702,17 @@ export type Database = {
         Row: {
           assinatura_visivel: boolean
           ativo: boolean
+          capa_url: string | null
           ciclo: string
           cor_accent: string | null
           cor_primaria: string
           cor_secundaria: string | null
           criado_em: string
           desconto_percentual: number
+          descricao: string | null
           endereco: string | null
           facebook: string | null
+          fotos: Json
           id: string
           instagram: string | null
           logo_url: string | null
@@ -674,14 +730,17 @@ export type Database = {
         Insert: {
           assinatura_visivel?: boolean
           ativo?: boolean
+          capa_url?: string | null
           ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
           cor_secundaria?: string | null
           criado_em?: string
           desconto_percentual?: number
+          descricao?: string | null
           endereco?: string | null
           facebook?: string | null
+          fotos?: Json
           id?: string
           instagram?: string | null
           logo_url?: string | null
@@ -699,14 +758,17 @@ export type Database = {
         Update: {
           assinatura_visivel?: boolean
           ativo?: boolean
+          capa_url?: string | null
           ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
           cor_secundaria?: string | null
           criado_em?: string
           desconto_percentual?: number
+          descricao?: string | null
           endereco?: string | null
           facebook?: string | null
+          fotos?: Json
           id?: string
           instagram?: string | null
           logo_url?: string | null
@@ -740,6 +802,115 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      venda_itens: {
+        Row: {
+          criado_em: string
+          custo_unitario_centavos: number
+          id: string
+          nome: string
+          preco_unitario_centavos: number
+          produto_id: string | null
+          quantidade: number
+          venda_id: string
+        }
+        Insert: {
+          criado_em?: string
+          custo_unitario_centavos?: number
+          id?: string
+          nome: string
+          preco_unitario_centavos: number
+          produto_id?: string | null
+          quantidade: number
+          venda_id: string
+        }
+        Update: {
+          criado_em?: string
+          custo_unitario_centavos?: number
+          id?: string
+          nome?: string
+          preco_unitario_centavos?: number
+          produto_id?: string | null
+          quantidade?: number
+          venda_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venda_itens_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venda_itens_venda_id_fkey"
+            columns: ["venda_id"]
+            isOneToOne: false
+            referencedRelation: "vendas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendas: {
+        Row: {
+          agendamento_id: string | null
+          categoria: string
+          cliente_id: string | null
+          criado_em: string
+          criado_por: string | null
+          descricao: string | null
+          forma_pagamento: string | null
+          id: string
+          tenant_id: string
+          total_centavos: number
+        }
+        Insert: {
+          agendamento_id?: string | null
+          categoria?: string
+          cliente_id?: string | null
+          criado_em?: string
+          criado_por?: string | null
+          descricao?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          tenant_id: string
+          total_centavos?: number
+        }
+        Update: {
+          agendamento_id?: string | null
+          categoria?: string
+          cliente_id?: string | null
+          criado_em?: string
+          criado_por?: string | null
+          descricao?: string | null
+          forma_pagamento?: string | null
+          id?: string
+          tenant_id?: string
+          total_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendas_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -814,6 +985,14 @@ export type Database = {
       registrar_acesso_do_tenant: {
         Args: { _tenant_id: string }
         Returns: undefined
+      }
+      registrar_venda_produto: {
+        Args: {
+          _forma_pagamento?: string
+          _produto_id: string
+          _quantidade: number
+        }
+        Returns: Json
       }
     }
     Enums: {
