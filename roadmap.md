@@ -12,9 +12,18 @@
 - [x] Criar gestão de pedidos das barbearias.
 - [ ] Validar dados com uma sessão autenticada de dono (bloqueado: ainda não há conta do solicitante no app).
 - [x] Aplicar a Direção C nas telas do cliente e validar em 390px.
-- [ ] Refinar a navegação do cliente para Início, Agendar, Meus horários e Perfil.
-- [ ] Reestruturar o Cortaí Gestão com Dashboard, Agenda, Clientes, Financeiro e Mais.
-- [ ] Criar catálogo de produtos, registro de vendas e financeiro por categoria.
-- [ ] Ampliar a personalização e criar página pública compartilhável por barbearia.
-- [ ] Criar tela de entrada com acesso profissional discreto.
-- [ ] Validar as experiências em 390px e corrigir sobreposição, cortes e overflow.
+- [x] Refinar a navegação do cliente para Início, Agendar, Meus horários e Perfil.
+- [x] Reestruturar o Cortaí Gestão com Dashboard, Agenda, Clientes, Financeiro e Mais.
+- [x] Criar catálogo de produtos, registro de vendas e financeiro por categoria.
+- [x] Ampliar a personalização e criar página pública compartilhável por barbearia.
+- [x] Criar tela de entrada com acesso profissional discreto.
+- [x] Validar as experiências em 390px e corrigir sobreposição, cortes e overflow.- [x] Criar CRM de clientes com frequência, gasto médio e clientes para trazer de volta.
+- [x] Criar a área Crescimento com métricas reais, ações e compartilhamento com QR Code.
+- [x] Criar indicações com código, recompensa e acompanhamento.
+- [x] Permitir o cliente entrar na lista de espera.
+- [x] Mostrar progresso e clientes elegíveis na fidelidade.
+- [x] Criar avaliação pós-atendimento com convite público para notas altas.
+- [x] Permitir repetir agendamento semanal, quinzenal ou mensal.
+- [x] Criar descrição e portfólio de profissionais na página pública.
+- [x] Mostrar produtos ativos na página pública sem compra online.
+- [x] Criar o bloco Oportunidades de hoje no Dashboard.
