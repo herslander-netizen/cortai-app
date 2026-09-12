@@ -1,0 +1,106 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+
+import { EmptyState, Screen } from "@/components/layout/Screen";
+import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
+
+export const Route = createFileRoute("/barbeiro/profissionais")({
+  head: () => ({
+    meta: [
+      { title: "Profissionais — Cortaí Gestão" },
+      { name: "description", content: "Descrição e portfólio de cada profissional na página pública." },
+      { property: "og:title", content: "Profissionais — Cortaí Gestão" },
+      { property: "og:description", content: "Mostre o trabalho de cada profissional da equipe." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: ProfissionaisPage,
+});
+
+function ProfissionaisPage() {
+  const salvar = useServerFn(salvarPerfilProfissional);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["profissionais-perfil"],
+    queryFn: () => getProfissionaisPerfil(),
+  });
+
+  const [form, setForm] = useState<Record<string, { descricao: string; fotos: string }>>({});
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!data) return;
+    setForm(
+      Object.fromEntries(
+        data.map((p) => [p.id, { descricao: p.descricao ?? "", fotos: p.portfolio.join("\n") }]),
+      ),
+    );
+  }, [data]);
+
+  return (
+    <Screen title="Profissionais" subtitle="O que aparece na sua página pública.">
+      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
+      {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
+
+      <ul className="space-y-6">
+        {(data ?? []).map((p) => {
+          const atual = form[p.id] ?? { descricao: "", fotos: "" };
+          return (
+            <li key={p.id} className="rounded-xl border border-line bg-ink2 p-5">
+              <p className="text-sm font-semibold text-paper">{p.nome}</p>
+              <label className="mt-4 block">
+                <span className="text-xs text-mute2">Descrição curta</span>
+                <textarea
+                  rows={2}
+                  maxLength={200}
+                  value={atual.descricao}
+                  onChange={(e) => setForm((s) => ({ ...s, [p.id]: { ...atual, descricao: e.target.value } }))}
+                  className="input-premium mt-1 w-full resize-none"
+                  placeholder="Especialista em degradê e barba."
+                />
+              </label>
+              <label className="mt-4 block">
+                <span className="text-xs text-mute2">Portfólio — um link de foto por linha (até 6)</span>
+                <textarea
+                  rows={3}
+                  value={atual.fotos}
+                  onChange={(e) => setForm((s) => ({ ...s, [p.id]: { ...atual, fotos: e.target.value } }))}
+                  className="input-premium mt-1 w-full resize-none"
+                  placeholder="https://"
+                />
+              </label>
+              <button
+                type="button"
+                className="btn-tertiary mt-4 text-xs"
+                onClick={async () => {
+                  try {
+                    await salvar({
+                      data: {
+                        id: p.id,
+                        descricao: atual.descricao,
+                        portfolio: atual.fotos
+                          .split("\n")
+                          .map((f) => f.trim())
+                          .filter(Boolean)
+                          .slice(0, 6),
+                      },
+                    });
+                    setAviso(`Perfil de ${p.nome} salvo.`);
+                    refetch();
+                  } catch (e) {
+                    setAviso(e instanceof Error ? e.message : "Não foi possível salvar.");
+                  }
+                }}
+              >
+                Salvar perfil
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </Screen>
+  );
+}
