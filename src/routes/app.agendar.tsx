@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
+import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { brl, dataHoraLonga, diaCurto, hora } from "@/lib/format";
 import {
   criarAgendamento,
@@ -13,6 +14,8 @@ import {
 } from "@/lib/agendamento.functions";
 
 export const Route = createFileRoute("/app/agendar")({
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Agendar horário — Cortaí" },
@@ -91,10 +94,20 @@ const HORA_INICIO = 9;
 const HORA_FIM = 19;
 
 function AgendarPage() {
+  const { b } = Route.useSearch();
   const dados = useQuery({
-    queryKey: ["agendar"],
-    queryFn: () => getDadosAgendar({ data: {} }),
+    queryKey: ["agendar", b ?? null],
+    queryFn: () => getDadosAgendar({ data: b ? { slug: b } : {} }),
+    retry: false,
   });
+
+  if (dados.isError) {
+    return (
+      <Screen title="Agendar" subtitle="Escolha a barbearia para continuar.">
+        <DescobrirBarbearias titulo="Onde você quer agendar?" />
+      </Screen>
+    );
+  }
 
   if (dados.isLoading || !dados.data) {
     return (
@@ -104,14 +117,16 @@ function AgendarPage() {
     );
   }
 
-  return <Fluxo dados={dados.data} recarregar={() => dados.refetch()} />;
+  return <Fluxo dados={dados.data} slug={b ?? dados.data.tenant.slug ?? undefined} recarregar={() => dados.refetch()} />;
 }
 
 function Fluxo({
   dados,
+  slug,
   recarregar,
 }: {
   dados: DadosAgendar;
+  slug?: string | undefined;
   recarregar: () => void;
 }) {
   const criar = useServerFn(criarAgendamento);
