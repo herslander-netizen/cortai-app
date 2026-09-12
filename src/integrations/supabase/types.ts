@@ -203,6 +203,7 @@ export type Database = {
       }
       clientes: {
         Row: {
+          arquivado_em: string | null
           criado_em: string
           ficha_tecnica: string | null
           id: string
@@ -216,6 +217,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          arquivado_em?: string | null
           criado_em?: string
           ficha_tecnica?: string | null
           id?: string
@@ -229,6 +231,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          arquivado_em?: string | null
           criado_em?: string
           ficha_tecnica?: string | null
           id?: string
