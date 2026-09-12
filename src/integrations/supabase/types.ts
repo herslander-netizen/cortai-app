@@ -538,9 +538,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancelar_agendamento: { Args: { _agendamento_id: string }; Returns: Json }
       carteira_pertence_ao_membro: {
         Args: { _carteira_id: string }
         Returns: boolean
+      }
+      criar_agendamento: {
+        Args: {
+          _cliente_id: string
+          _forma_pagamento: string
+          _inicio: string
+          _profissional_id: string
+          _servico_id: string
+          _tenant_id: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -550,6 +562,7 @@ export type Database = {
         Returns: boolean
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "suporte"
