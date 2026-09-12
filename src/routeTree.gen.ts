@@ -21,6 +21,7 @@ import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
+import { Route as AppEsperaRouteImport } from './routes/app.espera'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as BSlugRouteImport } from './routes/b.$slug'
@@ -100,6 +101,11 @@ const AppAgendarRoute = AppAgendarRouteImport.update({
 const AppCarteiraRoute = AppCarteiraRouteImport.update({
   id: '/carteira',
   path: '/carteira',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEsperaRoute = AppEsperaRouteImport.update({
+  id: '/espera',
+  path: '/espera',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHistoricoRoute = AppHistoricoRouteImport.update({
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
+  '/app/espera': typeof AppEsperaRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
+  '/app/espera': typeof AppEsperaRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
+  '/app/espera': typeof AppEsperaRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
@@ -315,6 +324,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
+    | '/app/espera'
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
+    | '/app/espera'
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
+    | '/app/espera'
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
@@ -496,6 +508,13 @@ declare module '@tanstack/react-router' {
       path: '/carteira'
       fullPath: '/app/carteira'
       preLoaderRoute: typeof AppCarteiraRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/espera': {
+      id: '/app/espera'
+      path: '/espera'
+      fullPath: '/app/espera'
+      preLoaderRoute: typeof AppEsperaRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/historico': {
@@ -660,6 +679,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface AppRouteChildren {
   AppAgendarRoute: typeof AppAgendarRoute
   AppCarteiraRoute: typeof AppCarteiraRoute
+  AppEsperaRoute: typeof AppEsperaRoute
   AppHistoricoRoute: typeof AppHistoricoRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -668,6 +688,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAgendarRoute: AppAgendarRoute,
   AppCarteiraRoute: AppCarteiraRoute,
+  AppEsperaRoute: AppEsperaRoute,
   AppHistoricoRoute: AppHistoricoRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,

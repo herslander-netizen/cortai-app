@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ListOrdered, Package, Palette, Scissors, Star } from "lucide-react";
+import { ChevronRight, ListOrdered, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserSquare2 } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 
 export const Route = createFileRoute("/barbeiro/mais")({
