@@ -169,3 +169,7 @@
   background: none;
   border: none;
 }
+
+.client-brand[data-hide-signature="true"] footer {
+  display: none;
+}
