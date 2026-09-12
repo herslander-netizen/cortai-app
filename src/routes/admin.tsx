@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
-import { Building2, ClipboardList, LineChart, Palette } from "lucide-react";
+import { Building2, ClipboardList, LineChart, Palette, UserRound } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 const tabs = [
@@ -8,6 +8,7 @@ const tabs = [
   { to: "/admin/barbearias", label: "Barbearias", icon: Building2 },
   { to: "/admin/ajustes", label: "Design system", icon: Palette },
   { to: "/admin/pedidos", label: "Pedidos", icon: ClipboardList },
+  { to: "/admin/perfil", label: "Perfil", icon: UserRound },
 ] as const;
 
 export const Route = createFileRoute("/admin")({
