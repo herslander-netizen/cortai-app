@@ -7,6 +7,7 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, dataHoraLonga } from "@/lib/format";
 import { cancelarAgendamento, listarAgendamentosCliente } from "@/lib/agendamento.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createFileRoute("/app/historico")({
   head: () => ({
@@ -49,7 +50,7 @@ function HistoricoPage() {
 
   return (
     <Screen title="Meus horários" subtitle="Seus agendamentos no Cortaí">
-      {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
+      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
       {lista.isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}
       {proximo ? (

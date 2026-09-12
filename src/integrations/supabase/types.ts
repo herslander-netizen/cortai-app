@@ -23,6 +23,7 @@ export type Database = {
           forma_pagamento: string | null
           id: string
           inicio: string
+          origem: string
           profissional_id: string | null
           recorrencia: string | null
           servico_id: string | null
@@ -38,6 +39,7 @@ export type Database = {
           forma_pagamento?: string | null
           id?: string
           inicio: string
+          origem?: string
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           forma_pagamento?: string | null
           id?: string
           inicio?: string
+          origem?: string
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null

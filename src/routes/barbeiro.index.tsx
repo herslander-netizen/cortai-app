@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight, TrendingUp } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { Aviso } from "@/components/ui/aviso";
+import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { brl, hora } from "@/lib/format";
 import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
@@ -107,6 +109,10 @@ function HojePage() {
             </div>
           )}
 
+          <div className="mt-4">
+            <AgendamentoManual dia={new Date().toISOString().slice(0, 10)} onCriado={() => void refetch()} />
+          </div>
+
           <div data-guia="dash-oportunidades">
           <div className="mt-8 flex items-baseline justify-between">
             <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
@@ -130,17 +136,16 @@ function HojePage() {
           </ul>
           </div>
 
-          <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
-          <ul>
+          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
+          <ul className="space-y-2">
             {data.alertas.map((a) => (
-              <li key={a.chave} className="flex items-center gap-4 border-b border-line py-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-ink">
-                  {a.numero}
-                </span>
-                <div>
-                  <p className="text-sm text-paper">{a.titulo}</p>
-                  <p className="mt-0.5 text-xs text-mute2">{a.detalhe}</p>
-                </div>
+              <li key={a.chave}>
+                <Aviso
+                  tom={a.numero > 0 ? "atencao" : "info"}
+                  titulo={`${a.numero} ${a.titulo}`}
+                >
+                  {a.detalhe}
+                </Aviso>
               </li>
             ))}
           </ul>

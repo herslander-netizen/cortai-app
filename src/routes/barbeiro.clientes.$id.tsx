@@ -6,6 +6,7 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
+import { Aviso } from "@/components/ui/aviso";
 import {
   arquivarCliente,
   excluirClientePermanente,
@@ -76,7 +77,7 @@ function FichaPage() {
       </Link>
 
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
-      {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
+      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
 
       {data ? (
         <>

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -137,7 +138,7 @@ function LoginPage() {
             {erro}
           </p>
         ) : null}
-        {aviso ? <p className="text-sm text-sage">{aviso}</p> : null}
+        {aviso ? <Aviso tom="info" className="">{aviso}</Aviso> : null}
         <Button className="h-12 w-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
