@@ -4,6 +4,7 @@ import { MapPin, Search } from "lucide-react";
 import { useState } from "react";
 
 import { buscarBarbearias } from "@/lib/descoberta.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export function DescobrirBarbearias({ titulo = "Onde você quer agendar?" }: { titulo?: string }) {
   const [termo, setTermo] = useState("");
@@ -34,7 +35,7 @@ export function DescobrirBarbearias({ titulo = "Onde você quer agendar?" }: { t
       </label>
 
       <div className="mt-6">
-        {consulta.isLoading ? <p className="text-sm text-mute">Carregando barbearias…</p> : null}
+        {consulta.isLoading ? <Carregando texto="Carregando barbearias…" /> : null}
         {consulta.isError ? (
           <p className="text-sm text-brick" role="alert">
             Não foi possível carregar as barbearias. Tente de novo em instantes.

@@ -5,6 +5,7 @@ import { Banknote, PackageCheck, Scissors, Shapes } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getFinanceiro } from "@/lib/gestao.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({ meta: [
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/barbeiro/financeiro")({
 function FinanceiroPage() {
   const { data, isLoading, isError } = useQuery({ queryKey: ["financeiro"], queryFn: () => getFinanceiro(), retry: false });
   return <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
-    {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+    {isLoading ? <Carregando /> : null}
     {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-mute">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
     {data ? <>
       <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink2 p-5">

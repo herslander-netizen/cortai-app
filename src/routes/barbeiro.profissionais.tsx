@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
 import { Aviso } from "@/components/ui/aviso";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
@@ -42,7 +43,7 @@ function ProfissionaisPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Profissionais" subtitle="O que aparece na sua página pública.">
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
       {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
 

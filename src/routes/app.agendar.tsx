@@ -7,6 +7,7 @@ import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { brl, dataHoraLonga, diaCurto, hora } from "@/lib/format";
 import {
+import { Carregando } from "@/components/layout/Carregando";
   criarAgendamento,
   getDadosAgendar,
   type DadosAgendar,
@@ -112,7 +113,7 @@ function AgendarPage() {
   if (dados.isLoading || !dados.data) {
     return (
       <Screen title="Agendar" subtitle="Escolha serviço, barbeiro e horário.">
-        <p className="text-sm text-mute">Carregando…</p>
+        <Carregando />
       </Screen>
     );
   }

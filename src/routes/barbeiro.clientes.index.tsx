@@ -6,6 +6,7 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
@@ -42,7 +43,7 @@ function ClientesPage() {
 
   return (
     <Screen title="Clientes" subtitle="Quem passa pela sua cadeira, e quando volta.">
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       {data && data.trazerDeVolta.length > 0 ? (
         <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">

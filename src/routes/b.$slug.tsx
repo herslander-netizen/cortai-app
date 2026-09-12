@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Signature } from "@/components/layout/Signature";
 import { brl } from "@/lib/format";
 import { getPaginaPublica } from "@/lib/publico.functions";
+import { TelaDeCarregamento } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
@@ -30,7 +31,7 @@ function PaginaBarbearia() {
   useEffect(() => {
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
   }, []);
-  if (isLoading) return <main className="grid min-h-screen place-items-center text-sm text-mute">Carregando barbearia…</main>;
+  if (isLoading) return <TelaDeCarregamento texto="Abrindo a barbearia…" />;
   if (!data) throw notFound();
   const { tenant } = data;
   const style = { "--gold": tenant.cor_primaria, "--primary": tenant.cor_primaria } as CSSProperties;

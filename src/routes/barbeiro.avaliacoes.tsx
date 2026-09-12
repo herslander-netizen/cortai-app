@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { dataCurta } from "@/lib/format";
 import { getAvaliacoes, registrarAvaliacao, salvarLinkAvaliacao } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
@@ -57,7 +58,7 @@ function AvaliacoesPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Avaliações" subtitle="Feedback interno, convite público só quando faz sentido.">
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       {data ? (
         <div className="rounded-xl border border-line bg-ink2 px-5 py-5">

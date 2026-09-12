@@ -7,6 +7,7 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
 import { Aviso } from "@/components/ui/aviso";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/fila")({
   head: () => ({
@@ -37,7 +38,7 @@ function FilaPage() {
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
       {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
-      {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+      {isLoading ? <Carregando /> : null}
 
       {data ? (
         <div className="rounded-lg border border-line bg-ink2 px-5 py-5">

@@ -5,6 +5,7 @@ import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
+import { TelaDeCarregamento } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/app/")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -31,7 +32,7 @@ function InicioCliente() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-[520px] px-5 pt-10 text-sm text-mute">Carregando…</div>
+      <TelaDeCarregamento />
     );
   }
 
