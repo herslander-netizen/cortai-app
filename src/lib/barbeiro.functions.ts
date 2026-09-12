@@ -589,3 +589,195 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* --------------------- AGENDAMENTO MANUAL (BALCÃO) ------------------------ */
+
+export type DadosManual = {
+  tenant: { id: string; nome: string };
+  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  profissionais: { id: string; nome: string }[];
+};
+
+export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<DadosManual> => {
+    const { db, tenant } = await tenantPadrao(context);
+    const [servicosRes, profRes] = await Promise.all([
+      db
+        .from("servicos")
+        .select("id, nome, duracao_min, preco_centavos")
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .order("ordem"),
+      db.from("profissionais").select("id, nome").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
+    ]);
+    return { tenant, servicos: servicosRes.data ?? [], profissionais: profRes.data ?? [] };
+  });
+
+/** Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. */
+export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { termo?: string | undefined }) => ({ termo: (data?.termo ?? "").trim().slice(0, 60) }))
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    let q = db
+      .from("clientes")
+      .select("id, nome, telefone")
+      .eq("tenant_id", tenant.id)
+      .is("arquivado_em", null)
+      .order("nome")
+      .limit(8);
+    if (data.termo) {
+      const t = data.termo.replace(/[%,()]/g, "");
+      q = q.or(`nome.ilike.%${t}%,telefone.ilike.%${t}%`);
+    }
+    const { data: rows } = await q;
+    return (rows ?? []) as { id: string; nome: string; telefone: string }[];
+  });
+
+function soDigitos(v: string) {
+  return v.replace(/\D/g, "");
+}
+
+export type ResultadoManual = {
+  ok: boolean;
+  agendamentoId?: string;
+  inicio?: string;
+  clienteNome?: string;
+  conflito?: { mensagem: string; sugestoes: { iso: string; label: string }[] };
+};
+
+/**
+ * Agendamento de balcão: mesmas regras de disponibilidade do app.
+ * A barbearia vem sempre do vínculo da sessão — nunca de id enviado pela tela.
+ */
+export const criarAgendamentoManual = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      clienteId?: string | undefined;
+      novoNome?: string | undefined;
+      novoTelefone?: string | undefined;
+      servicoId: string;
+      profissionalId: string;
+      inicio: string;
+      formaPagamento: "pix" | "balcao" | "fiado" | "credito";
+    }) => data,
+  )
+  .handler(async ({ data, context }): Promise<ResultadoManual> => {
+    const { db, tenant } = await tenantPadrao(context);
+
+    const { data: servico } = await db
+      .from("servicos")
+      .select("id, duracao_min")
+      .eq("id", data.servicoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!servico) throw new Error("Serviço não encontrado nesta barbearia.");
+
+    const { data: prof } = await db
+      .from("profissionais")
+      .select("id")
+      .eq("id", data.profissionalId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!prof) throw new Error("Profissional não encontrado nesta barbearia.");
+
+    // 1. Resolver cliente — reutiliza a ficha desta barbearia, nunca de outra.
+    let clienteId = data.clienteId ?? null;
+    let clienteNome = "";
+    if (clienteId) {
+      const { data: c } = await db
+        .from("clientes")
+        .select("id, nome")
+        .eq("id", clienteId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
+      if (!c) throw new Error("Cliente não encontrado nesta barbearia.");
+      clienteNome = c.nome;
+    } else {
+      const nome = (data.novoNome ?? "").trim().slice(0, 80);
+      const telefone = soDigitos(data.novoTelefone ?? "").slice(0, 15);
+      if (nome.length < 2) throw new Error("Informe o nome do cliente.");
+      if (telefone.length < 10) throw new Error("Informe um telefone com DDD.");
+      const { data: existente } = await db
+        .from("clientes")
+        .select("id, nome")
+        .eq("tenant_id", tenant.id)
+        .eq("telefone", telefone)
+        .maybeSingle();
+      if (existente) {
+        clienteId = existente.id;
+        clienteNome = existente.nome;
+        await db.from("clientes").update({ arquivado_em: null }).eq("id", existente.id);
+      } else {
+        const { data: novo, error } = await db
+          .from("clientes")
+          .insert({ tenant_id: tenant.id, nome, telefone, origem: "balcao" })
+          .select("id, nome")
+          .single();
+        if (error) throw new Error(error.message);
+        clienteId = novo.id;
+        clienteNome = novo.nome;
+      }
+    }
+
+    // 2. Conferir disponibilidade e, se ocupado, sugerir horários livres.
+    const inicio = new Date(data.inicio);
+    const fim = new Date(inicio.getTime() + servico.duracao_min * 60000);
+    const dia = new Date(inicio);
+    dia.setHours(0, 0, 0, 0);
+    const fimDia = new Date(dia.getTime() + 24 * 60 * 60 * 1000);
+
+    const { data: doDia } = await db
+      .from("agendamentos")
+      .select("inicio, fim")
+      .eq("tenant_id", tenant.id)
+      .eq("profissional_id", data.profissionalId)
+      .gte("inicio", dia.toISOString())
+      .lt("inicio", fimDia.toISOString())
+      .not("status", "in", "(cancelado,falta)");
+
+    const ocupados = (doDia ?? []).map((a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const);
+    const livre = (i: number, f: number) => !ocupados.some(([oi, of]) => i < of && f > oi);
+
+    if (!livre(inicio.getTime(), fim.getTime())) {
+      const sugestoes: { iso: string; label: string }[] = [];
+      for (let h = 9; h < 19 && sugestoes.length < 4; h++) {
+        for (const m of [0, 30]) {
+          const cand = new Date(dia);
+          cand.setHours(h, m, 0, 0);
+          if (cand.getTime() <= Date.now()) continue;
+          const candFim = cand.getTime() + servico.duracao_min * 60000;
+          if (livre(cand.getTime(), candFim) && sugestoes.length < 4) {
+            sugestoes.push({
+              iso: cand.toISOString(),
+              label: `${String(h).padStart(2, "0")}:${m === 0 ? "00" : "30"}`,
+            });
+          }
+        }
+      }
+      return {
+        ok: false,
+        conflito: {
+          mensagem: "Esse horário já está ocupado para o profissional escolhido.",
+          sugestoes,
+        },
+      };
+    }
+
+    // 3. Criar pelas mesmas regras do app e marcar a origem como manual.
+    const { data: res, error } = await db.rpc("criar_agendamento", {
+      _tenant_id: tenant.id,
+      _cliente_id: clienteId,
+      _profissional_id: data.profissionalId,
+      _servico_id: data.servicoId,
+      _inicio: inicio.toISOString(),
+      _forma_pagamento: data.formaPagamento,
+    });
+    if (error) throw new Error(error.message);
+    const criado = res as unknown as { agendamento_id: string; inicio: string };
+    await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
+
+    return { ok: true, agendamentoId: criado.agendamento_id, inicio: criado.inicio, clienteNome };
+  });
