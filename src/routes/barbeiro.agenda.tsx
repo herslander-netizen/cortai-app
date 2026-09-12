@@ -65,7 +65,7 @@ function AgendaPage() {
         <AgendamentoManual
           dia={dia}
           onCriado={() => {
-            setAviso({ tom: "info", texto: "Agendamento criado e já aparece na agenda." });
+            setAviso({ tom: "sucesso", texto: "Agendamento criado e já aparece na agenda." });
             void refetch();
           }}
         />
@@ -181,7 +181,7 @@ function AgendaPage() {
                       horaInicial={s.label}
                       gatilho="discreto"
                       onCriado={() => {
-                        setAviso({ tom: "info", texto: `Cliente marcado às ${s.label}.` });
+                        setAviso({ tom: "sucesso", texto: `Cliente marcado às ${s.label}.` });
                         void refetch();
                       }}
                     />
