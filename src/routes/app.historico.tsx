@@ -26,12 +26,9 @@ function HistoricoPage() {
   const cancelar = useServerFn(cancelarAgendamento);
   const [aviso, setAviso] = useState<string | null>(null);
 
-  const base = useQuery({ queryKey: ["agendar", undefined], queryFn: () => getDadosAgendar({ data: {} }) });
-  const clienteId = base.data?.cliente.id;
   const lista = useQuery({
-    queryKey: ["historico", clienteId],
-    enabled: !!clienteId,
-    queryFn: () => listarAgendamentosCliente({ data: { clienteId } }),
+    queryKey: ["historico"],
+    queryFn: () => listarAgendamentosCliente({ data: {} }),
   });
 
   const agora = Date.now();
