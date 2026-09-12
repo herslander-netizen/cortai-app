@@ -6,8 +6,8 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
-import {
 import { Aviso } from "@/components/ui/aviso";
+import {
   arquivarCliente,
   excluirClientePermanente,
   getFichaCliente,
