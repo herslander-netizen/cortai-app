@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { EmptyState, Screen } from "@/components/layout/Screen";
+import { getMarcaCliente } from "@/lib/marca.functions";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -10,9 +12,17 @@ export const Route = createFileRoute("/app/")({
       { property: "og:description", content: "Seu próximo corte em um toque." },
     ],
   }),
-  component: () => (
-    <Screen title="Olá" subtitle="Sua barbearia, no seu tempo.">
+  component: InicioCliente,
+});
+
+function InicioCliente() {
+  const { data } = useQuery({ queryKey: ["marca-cliente"], queryFn: () => getMarcaCliente() });
+  return (
+    <Screen title={data?.nome ?? "Olá"} subtitle={data?.texto_boas_vindas ?? "Sua barbearia, no seu tempo."}>
+      {data?.logo_signed_url ? (
+        <img src={data.logo_signed_url} alt={`Logo ${data.nome}`} className="mb-6 h-20 w-20 rounded-lg object-contain" />
+      ) : null}
       <EmptyState text="Nada por aqui ainda." />
     </Screen>
-  ),
-});
+  );
+}

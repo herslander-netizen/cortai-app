@@ -417,6 +417,51 @@ export type Database = {
           },
         ]
       }
+      tenant_branding_versions: {
+        Row: {
+          criado_em: string
+          criado_por: string | null
+          id: string
+          restaurado_de: string | null
+          snapshot: Json
+          tenant_id: string
+          versao: number
+        }
+        Insert: {
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          restaurado_de?: string | null
+          snapshot: Json
+          tenant_id: string
+          versao: number
+        }
+        Update: {
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          restaurado_de?: string | null
+          snapshot?: Json
+          tenant_id?: string
+          versao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_branding_versions_restaurado_de_fkey"
+            columns: ["restaurado_de"]
+            isOneToOne: false
+            referencedRelation: "tenant_branding_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_branding_versions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_usuarios: {
         Row: {
           criado_em: string
