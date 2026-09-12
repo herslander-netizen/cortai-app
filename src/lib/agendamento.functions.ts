@@ -99,7 +99,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
       profissionalId: string;
       servicoId: string;
       inicio: string;
-      formaPagamento: "credito" | "pix" | "barbearia" | "fiado";
+      formaPagamento: "credito" | "pix" | "balcao" | "fiado";
     }) => data,
   )
   .handler(async ({ data }): Promise<ResultadoAgendamento> => {

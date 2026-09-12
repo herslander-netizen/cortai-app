@@ -29,7 +29,7 @@ export const Route = createFileRoute("/app/agendar")({
   component: AgendarPage,
 });
 
-type Forma = "credito" | "pix" | "barbearia" | "fiado";
+type Forma = "credito" | "pix" | "balcao" | "fiado";
 
 function Chip({
   label,
@@ -349,8 +349,8 @@ function Fluxo({
                     titulo="Pagar na barbearia"
                     detalhe="Dinheiro ou cartão no balcão"
                     valor={brl(preco)}
-                    selecionado={forma === "barbearia"}
-                    onClick={() => setForma("barbearia")}
+                    selecionado={forma === "balcao"}
+                    onClick={() => setForma("balcao")}
                   />
                 </li>
               </>
