@@ -6,7 +6,7 @@ import { clienteDoUsuario, fichasDoUsuario } from "@/lib/cliente";
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 
 export type DadosAgendar = {
-  tenant: { id: string; nome: string; rotulo_carteira: string | null };
+  tenant: { id: string; nome: string; rotulo_carteira: string | null; slug?: string | undefined };
   cliente: { id: string; nome: string; limite_fiado_centavos: number };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: { id: string; nome: string }[];

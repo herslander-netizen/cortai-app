@@ -49,7 +49,7 @@ function PaginaBarbearia() {
     </header>
     <main className="mx-auto max-w-6xl px-5 pb-16 sm:px-8">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <Button asChild className="h-12 font-bold"><Link to="/app/agendar">Agendar horário</Link></Button>
+        <Button asChild className="h-12 font-bold"><Link to="/app/agendar" search={{ b: slug }}>Agendar horário</Link></Button>
         <div className="grid grid-cols-3 gap-2">
           <Button variant="outline" size="icon" aria-label="Compartilhar" title="Compartilhar" onClick={() => navigator.share?.({ title: tenant.nome, url: window.location.href })}><Share2 /></Button>
           <Button variant="outline" size="icon" aria-label="Copiar link" title="Copiar link" onClick={async () => { await navigator.clipboard.writeText(window.location.href); setCopiado(true); }}><Copy /></Button>

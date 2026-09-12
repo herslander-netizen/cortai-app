@@ -18,7 +18,10 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   if (error || !data.user) {
     throw redirect({
       to: "/login",
-      search: { proximo: typeof window !== "undefined" ? window.location.pathname : "" },
+      search: {
+        proximo:
+          typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "",
+      },
     });
   }
   let sessao: Sessao;
