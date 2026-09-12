@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
+import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
+import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { brl } from "@/lib/format";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
@@ -131,9 +133,10 @@ function AgendaPage() {
                         onClick={async () => {
                           try {
                             const r = await repetir({ data: { agendamentoId: item.id, periodicidade: p } });
-                            setAviso(`Repetido para ${new Date(r.inicio).toLocaleDateString("pt-BR")}.`);
+                            setAviso({ tom: "info", texto: `Repetido para ${new Date(r.inicio).toLocaleDateString("pt-BR")}.` });
+                            void refetch();
                           } catch (e) {
-                            setAviso(e instanceof Error ? e.message : "Não foi possível repetir.");
+                            setAviso({ tom: "acao", texto: e instanceof Error ? e.message : "Não foi possível repetir." });
                           }
                         }}
                       >
@@ -163,14 +166,25 @@ function AgendaPage() {
                         const r = await oferecer({ data: { inicioIso: s.iso } });
                         setAviso(
                           r.avisado
-                            ? `${r.avisado} foi avisado do horário das ${s.label}. Quem responder primeiro fica com a vaga.`
-                            : "Ninguém na fila para esta janela.",
+                            ? { tom: "atencao", texto: `${r.avisado} foi avisado do horário das ${s.label}. Quem responder primeiro fica com a vaga.` }
+                            : { tom: "info", texto: "Ninguém na fila para esta janela." },
                         );
                       }}
                     >
                       Oferecer à fila
                     </button>
                   ) : null}
+                  <div className="mt-2">
+                    <AgendamentoManual
+                      dia={dia}
+                      horaInicial={s.label}
+                      gatilho="discreto"
+                      onCriado={() => {
+                        setAviso({ tom: "info", texto: `Cliente marcado às ${s.label}.` });
+                        void refetch();
+                      }}
+                    />
+                  </div>
                 </div>
               )}
             </li>
