@@ -781,3 +781,54 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
 
     return { ok: true, agendamentoId: criado.agendamento_id, inicio: criado.inicio, clienteNome };
   });
+
+/** Próximo horário realmente livre (hoje, dentro do funcionamento) para "atender agora". */
+export const getProximoHorarioLivre = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { profissionalId?: string | undefined; servicoId?: string | undefined }) => data ?? {})
+  .handler(async ({ data, context }): Promise<{ iso: string; label: string } | null> => {
+    const { db, tenant } = await tenantPadrao(context);
+
+    let duracao = 30;
+    if (data.servicoId) {
+      const { data: s } = await db
+        .from("servicos")
+        .select("duracao_min")
+        .eq("id", data.servicoId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
+      if (s) duracao = s.duracao_min;
+    }
+
+    const dia = new Date();
+    dia.setHours(0, 0, 0, 0);
+    const fimDia = new Date(dia.getTime() + 24 * 60 * 60 * 1000);
+
+    let q = db
+      .from("agendamentos")
+      .select("inicio, fim")
+      .eq("tenant_id", tenant.id)
+      .gte("inicio", dia.toISOString())
+      .lt("inicio", fimDia.toISOString())
+      .not("status", "in", "(cancelado,falta)");
+    if (data.profissionalId) q = q.eq("profissional_id", data.profissionalId);
+    const { data: doDia } = await q;
+
+    const ocupados = (doDia ?? []).map((a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const);
+    const agora = Date.now();
+
+    for (let h = 9; h < 19; h++) {
+      for (const m of [0, 30]) {
+        const cand = new Date(dia);
+        cand.setHours(h, m, 0, 0);
+        if (cand.getTime() < agora) continue;
+        if (h >= 12 && h < 13) continue; // almoço
+        const fim = cand.getTime() + duracao * 60000;
+        const livre = !ocupados.some(([oi, of]) => cand.getTime() < of && fim > oi);
+        if (livre) {
+          return { iso: cand.toISOString(), label: `${String(h).padStart(2, "0")}:${m === 0 ? "00" : "30"}` };
+        }
+      }
+    }
+    return null;
+  });
