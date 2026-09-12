@@ -105,6 +105,27 @@ function HojePage() {
             </div>
           )}
 
+          <div className="mt-8 flex items-baseline justify-between">
+            <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
+            <Link to="/barbeiro/crescimento" className="text-xs text-gold">Crescimento</Link>
+          </div>
+          <ul className="mb-2">
+            {(oportunidades ?? []).map((o) => (
+              <li key={o.chave} className="border-b border-line">
+                <Link to={o.destino} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-4">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${o.quantidade > 0 ? "bg-gold text-ink" : "bg-ink2 text-mute"}`}>
+                    {o.quantidade}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm text-paper">{o.titulo}</span>
+                    <span className="mt-0.5 block truncate text-xs text-mute2">{o.detalhe}</span>
+                  </span>
+                  <ChevronRight size={16} className="text-mute2" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
           <ul>
             {data.alertas.map((a) => (
