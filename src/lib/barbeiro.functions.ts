@@ -58,7 +58,7 @@ export const getPainelHoje = createServerFn({ method: "GET" })
     db
       .from("agendamentos")
       .select(
-        "id, inicio, fim, status, forma_pagamento, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)",
+        "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, clientes(nome), servicos(nome), profissionais(nome)",
       )
       .eq("tenant_id", tenant.id)
       .gte("inicio", de.toISOString())
@@ -197,6 +197,7 @@ export type AgendaItem = {
   status: string;
   forma_pagamento: string | null;
   valor_centavos: number;
+  clienteId: string | null;
   cliente: string;
   servico: string;
   profissional: string;
@@ -245,6 +246,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         status: a.status,
         forma_pagamento: a.forma_pagamento,
         valor_centavos: a.valor_centavos,
+        clienteId: a.cliente_id ?? null,
         cliente: a.clientes?.nome ?? "Cliente",
         servico: a.servicos?.nome ?? "Serviço",
         profissional: a.profissionais?.nome ?? "—",
@@ -316,7 +318,14 @@ export type FichaCliente = {
     limite_fiado_centavos: number;
     ficha_tecnica: string | null;
     arquivado_em: string | null;
+    opt_in_whatsapp: boolean;
+    fidelidade_participa: boolean | null;
+    desconto_percentual: number | null;
+    condicoes_especiais: string | null;
+    observacoes_internas: string | null;
   };
+  padrao: { fidelidadeAtiva: boolean; fidelidadeAlvo: number | null };
+  fidelidadeProgresso: number;
   emAbertoCentavos: number;
   debitos: Debito[];
   baixas: Debito[];
@@ -347,17 +356,27 @@ export const getFichaCliente = createServerFn({ method: "GET" })
     const { db, tenant } = await tenantPadrao(context);
     const { data: cliente } = await db
       .from("clientes")
-      .select("id, nome, telefone, limite_fiado_centavos, ficha_tecnica, arquivado_em")
+      .select(
+        "id, nome, telefone, limite_fiado_centavos, ficha_tecnica, arquivado_em, opt_in_whatsapp, fidelidade_participa, desconto_percentual, condicoes_especiais, observacoes_internas",
+      )
       .eq("id", data.clienteId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!cliente) throw new Error("Cliente não encontrado");
 
-    const { data: carteira } = await db
-      .from("carteiras")
-      .select("id, saldo_centavos")
-      .eq("cliente_id", cliente.id)
-      .maybeSingle();
+    const [{ data: carteira }, { data: regra }] = await Promise.all([
+      db
+        .from("carteiras")
+        .select("id, saldo_centavos, fidelidade_progresso")
+        .eq("cliente_id", cliente.id)
+        .maybeSingle(),
+      db
+        .from("regras_de_plano")
+        .select("ativo, fidelidade_alvo")
+        .eq("tenant_id", tenant.id)
+        .eq("tipo", "fidelidade")
+        .maybeSingle(),
+    ]);
 
     let debitos: Debito[] = [];
     let baixas: Debito[] = [];
@@ -384,6 +403,8 @@ export const getFichaCliente = createServerFn({ method: "GET" })
 
     return {
       cliente,
+      padrao: { fidelidadeAtiva: regra?.ativo ?? false, fidelidadeAlvo: regra?.fidelidade_alvo ?? null },
+      fidelidadeProgresso: carteira?.fidelidade_progresso ?? 0,
       emAbertoCentavos: emAberto,
       debitos: debitos.reverse(),
       baixas: baixas.reverse(),
@@ -831,4 +852,64 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       }
     }
     return null;
+  });
+
+/* --------------------- PERSONALIZAÇÃO POR CLIENTE ------------------------- */
+
+/**
+ * Só quem é membro da barbearia dona do cliente pode mudar estas regras.
+ * O cliente final nunca chega aqui: a autorização é resolvida no servidor,
+ * pelo vínculo do usuário logado com o tenant, e nunca por dado do navegador.
+ */
+export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      clienteId: string;
+      fidelidadeParticipa: boolean | null;
+      descontoPercentual: number | null;
+      condicoesEspeciais: string | null;
+      observacoesInternas: string | null;
+      optInWhatsapp: boolean;
+    }) => {
+      if (!data.clienteId) throw new Error("cliente invalido");
+      let desconto: number | null = null;
+      if (data.descontoPercentual !== null && data.descontoPercentual !== undefined) {
+        const n = Math.round(Number(data.descontoPercentual));
+        if (!Number.isFinite(n) || n < 0 || n > 100) throw new Error("Use um desconto entre 0% e 100%.");
+        desconto = n === 0 ? null : n;
+      }
+      const limpar = (t: string | null) => {
+        const v = (t ?? "").trim();
+        if (v.length > 600) throw new Error("Texto muito longo.");
+        return v === "" ? null : v;
+      };
+      return {
+        clienteId: data.clienteId,
+        fidelidadeParticipa:
+          data.fidelidadeParticipa === null || data.fidelidadeParticipa === undefined
+            ? null
+            : !!data.fidelidadeParticipa,
+        descontoPercentual: desconto,
+        condicoesEspeciais: limpar(data.condicoesEspeciais),
+        observacoesInternas: limpar(data.observacoesInternas),
+        optInWhatsapp: !!data.optInWhatsapp,
+      };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const { error } = await db
+      .from("clientes")
+      .update({
+        fidelidade_participa: data.fidelidadeParticipa,
+        desconto_percentual: data.descontoPercentual,
+        condicoes_especiais: data.condicoesEspeciais,
+        observacoes_internas: data.observacoesInternas,
+        opt_in_whatsapp: data.optInWhatsapp,
+      })
+      .eq("id", data.clienteId)
+      .eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
