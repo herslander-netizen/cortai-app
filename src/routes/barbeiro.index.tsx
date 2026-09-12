@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarCheck2, Clock3, PackageCheck, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { brl, hora } from "@/lib/format";

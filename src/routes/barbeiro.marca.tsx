@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, ImagePlus, LockKeyhole, RotateCcw } from "lucide-react";
+import { Check, Copy, Eye, ImagePlus, LockKeyhole, MessageCircle, RotateCcw, Share2 } from "lucide-react";
 import { type ChangeEvent, type CSSProperties, useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
@@ -61,14 +61,16 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
   const save = useServerFn(salvarMarca);
   const restore = useServerFn(restaurarMarca);
   const fileRef = useRef<HTMLInputElement>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<MarcaForm>(initial);
   const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
+  const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
   const [custom, setCustom] = useState(initial.tema === "personalizada");
   const [welcomeDefault, setWelcomeDefault] = useState(!initial.texto_boas_vindas);
   const [walletDefault, setWalletDefault] = useState(!initial.rotulo_carteira);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  useEffect(() => { setForm(initial); setLogoPreview(initial.logo_signed_url); }, [initial]);
+  useEffect(() => { setForm(initial); setLogoPreview(initial.logo_signed_url); setCoverPreview(initial.capa_signed_url); }, [initial]);
 
   const set = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) => setForm((old) => ({ ...old, [key]: value }));
   const chooseTheme = (theme: typeof temas[number]) => {
@@ -106,6 +108,18 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
     };
   };
 
+  const uploadCover = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 6 * 1024 * 1024) { setStatus("Use uma imagem de até 6 MB."); return; }
+    setBusy(true);
+    const path = `${initial.id}/capa-${Date.now()}.${file.name.split(".").pop() ?? "jpg"}`;
+    const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: file.type });
+    if (error) setStatus(error.message);
+    else { set("capa_url", path); setCoverPreview(URL.createObjectURL(file)); setStatus("Capa pronta para salvar."); }
+    setBusy(false);
+  };
+
   const previewStyle = {
     "--preview-primary": form.cor_primaria,
     "--preview-secondary": form.cor_secundaria,
@@ -113,15 +127,22 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
   } as CSSProperties;
 
   return <Screen title="Marca" subtitle="A identidade que seus clientes veem.">
-    <Secao title="Prévia do app">
+    <Secao title="Prévia da página pública">
       <div className="overflow-hidden rounded-lg border border-line bg-ink2" style={previewStyle}>
-        <div className="h-1 bg-[var(--preview-primary)]" />
-        <div className="flex items-center gap-3 p-4">
+        <div className="relative h-36 overflow-hidden bg-ink3">{coverPreview ? <img src={coverPreview} alt="Prévia da capa" className="h-full w-full object-cover" /> : null}<div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,var(--ink2))]" /></div>
+        <div className="relative -mt-8 flex items-end gap-3 p-4">
           {logoPreview ? <img src={logoPreview} alt={`Logo ${form.nome}`} className="h-12 w-12 rounded-lg object-contain" /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-line2 text-[9px] text-mute">SUA LOGO</div>}
           <div><p className="text-sm font-bold text-paper">{form.nome || "Sua barbearia"}</p><p className="text-[11px] text-mute">{form.texto_boas_vindas || "Sua barbearia, no seu tempo."}</p></div>
         </div>
-        <div className="mx-4 mb-4 flex gap-2"><span className="h-8 flex-1 rounded-md bg-[var(--preview-primary)]" /><span className="h-8 flex-1 rounded-md bg-[var(--preview-secondary)]" /><span className="h-8 w-8 rounded-md bg-[var(--preview-accent)]" /></div>
+        <div className="mx-4 mb-4 h-9 rounded-md bg-[var(--preview-primary)]" />
       </div>
+      <div className="mt-3 grid grid-cols-3 gap-2"><Button asChild variant="outline" size="sm"><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Visualizar</a></Button><Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button><Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`); setStatus("Link copiado."); }}><Copy />Link</Button></div>
+    </Secao>
+
+    <Secao title="Capa e fotos">
+      <button type="button" onClick={() => coverRef.current?.click()} className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-line2 bg-ink2">{coverPreview ? <img src={coverPreview} alt="Capa atual" className="h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm text-mute"><ImagePlus size={17} />Adicionar foto de capa</span>}</button>
+      <input ref={coverRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={uploadCover} />
+      <p className="mt-3 text-xs text-mute">Use uma foto horizontal forte do ambiente. Galeria: até 8 imagens.</p>
     </Secao>
 
     <Secao title="Logo">
@@ -141,7 +162,7 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
       {custom ? <div className="mt-4 grid grid-cols-3 gap-3">{(["cor_primaria", "cor_secundaria", "cor_accent"] as const).map((key, index) => <label key={key} className="text-[10px] text-mute">{["Primária", "Secundária", "Accent"][index]}<input type="color" className="mt-2 h-11 w-full rounded-md border border-line bg-ink2 p-1" value={form[key]} onChange={(e) => set(key, e.target.value.toUpperCase())} /></label>)}</div> : null}
     </Secao>
 
-    <Secao title="Dados da barbearia"><div className="space-y-4"><Campo label="Nome" value={form.nome} onChange={(v) => set("nome", v)} /><Campo label="Endereço" value={form.endereco} onChange={(v) => set("endereco", v)} /><Campo label="Telefone" value={form.telefone} onChange={(v) => set("telefone", v)} /><Campo label="Instagram" value={form.instagram} onChange={(v) => set("instagram", v)} placeholder="@sua_barbearia" /><Campo label="WhatsApp" value={form.whatsapp} onChange={(v) => set("whatsapp", v)} /><Campo label="Facebook" value={form.facebook} onChange={(v) => set("facebook", v)} /></div></Secao>
+    <Secao title="Dados da barbearia"><div className="space-y-4"><Campo label="Nome" value={form.nome} onChange={(v) => set("nome", v)} /><label className="block text-xs font-medium text-mute">Descrição<textarea className={`${fieldClass} min-h-24 resize-none`} value={form.descricao ?? ""} onChange={(e) => set("descricao", e.target.value || null)} placeholder="Conte o que torna sua barbearia especial" /></label><Campo label="Endereço" value={form.endereco} onChange={(v) => set("endereco", v)} /><Campo label="Telefone" value={form.telefone} onChange={(v) => set("telefone", v)} /><Campo label="Instagram" value={form.instagram} onChange={(v) => set("instagram", v)} placeholder="@sua_barbearia" /><Campo label="WhatsApp" value={form.whatsapp} onChange={(v) => set("whatsapp", v)} /></div></Secao>
 
     <Secao title="Textos no app">
       <ToggleText title="Usar rótulo padrão da carteira" checked={walletDefault} onChecked={(checked) => { setWalletDefault(checked); if (checked) set("rotulo_carteira", null); }} />
