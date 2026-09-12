@@ -34,7 +34,7 @@ function HistoricoPage() {
   });
 
   return (
-    <Screen title="Meus horários" subtitle={base.data ? base.data.cliente.nome : undefined}>
+    <Screen title="Meus horários" subtitle={base.data?.cliente.nome ?? ""}>
       {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
       {lista.isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}
