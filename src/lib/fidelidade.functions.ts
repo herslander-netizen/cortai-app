@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+
 export type ConfigFidelidade = {
   tenantId: string;
   ativo: boolean;
@@ -13,21 +16,16 @@ async function admin() {
   return supabaseAdmin;
 }
 
-async function tenantPadrao() {
+async function tenantPadrao(context: ContextoAutenticado) {
   const db = await admin();
-  const { data: tenant } = await db
-    .from("tenants")
-    .select("id")
-    .order("criado_em", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!tenant) throw new Error("Nenhuma barbearia cadastrada");
-  return { db, tenantId: tenant.id };
+  const tenantId = await tenantIdDoMembro(context);
+  return { db, tenantId };
 }
 
-export const getConfigFidelidade = createServerFn({ method: "GET" }).handler(
-  async (): Promise<ConfigFidelidade> => {
-    const { db, tenantId } = await tenantPadrao();
+export const getConfigFidelidade = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(
+  async ({ context }): Promise<ConfigFidelidade> => {
+    const { db, tenantId } = await tenantPadrao(context);
 
     const [regraRes, servicoRes, carteirasRes] = await Promise.all([
       db
@@ -58,13 +56,14 @@ export const getConfigFidelidade = createServerFn({ method: "GET" }).handler(
 );
 
 export const salvarFidelidade = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { ativo: boolean; alvo: number }) => {
     const alvo = Math.round(data.alvo);
     if (alvo < 4 || alvo > 20) throw new Error("alvo fora da faixa");
     return { ativo: !!data.ativo, alvo };
   })
-  .handler(async ({ data }) => {
-    const { db, tenantId } = await tenantPadrao();
+  .handler(async ({ data, context }) => {
+    const { db, tenantId } = await tenantPadrao(context);
 
     const { data: existente } = await db
       .from("regras_de_plano")
@@ -91,8 +90,9 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
     return { ok: true, ativo: data.ativo, alvo: data.alvo };
   });
 
-export const getClientesFidelidade = createServerFn({ method: "GET" }).handler(async () => {
-  const { db, tenantId } = await tenantPadrao();
+export const getClientesFidelidade = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { db, tenantId } = await tenantPadrao(context);
   const [regraRes, carteirasRes] = await Promise.all([
     db
       .from("regras_de_plano")

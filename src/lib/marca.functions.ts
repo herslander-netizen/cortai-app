@@ -203,6 +203,7 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
   const { data } = await supabaseAdmin
     .from("tenants")
     .select("nome, slug, endereco, descricao, capa_url, fotos, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
+    .eq("ativo", true)
     .order("criado_em", { ascending: true })
     .limit(1)
     .maybeSingle();

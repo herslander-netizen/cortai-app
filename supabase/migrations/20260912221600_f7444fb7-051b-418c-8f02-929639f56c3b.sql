@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.criar_barbearia(text) TO authenticated;
