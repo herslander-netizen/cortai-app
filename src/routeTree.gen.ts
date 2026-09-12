@@ -19,11 +19,13 @@ import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
+import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
+import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,6 +78,11 @@ const AppAgendarRoute = AppAgendarRouteImport.update({
   path: '/agendar',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCarteiraRoute = AppCarteiraRouteImport.update({
+  id: '/carteira',
+  path: '/carteira',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHistoricoRoute = AppHistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
@@ -101,6 +108,11 @@ const BarbeiroClientesRoute = BarbeiroClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroFidelidadeRoute = BarbeiroFidelidadeRouteImport.update({
+  id: '/fidelidade',
+  path: '/fidelidade',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -116,10 +128,12 @@ export interface FileRoutesByFullPath {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/agendar': typeof AppAgendarRoute
+  '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRoute
+  '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -131,10 +145,12 @@ export interface FileRoutesByTo {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/agendar': typeof AppAgendarRoute
+  '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRoute
+  '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -150,10 +166,12 @@ export interface FileRoutesById {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/agendar': typeof AppAgendarRoute
+  '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRoute
+  '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -170,10 +188,12 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/usuarios'
     | '/app/agendar'
+    | '/app/carteira'
     | '/app/historico'
     | '/app/perfil'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/fidelidade'
     | '/barbeiro/servicos'
     | '/admin/'
     | '/app/'
@@ -185,10 +205,12 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/usuarios'
     | '/app/agendar'
+    | '/app/carteira'
     | '/app/historico'
     | '/app/perfil'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/fidelidade'
     | '/barbeiro/servicos'
     | '/admin'
     | '/app'
@@ -203,10 +225,12 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/usuarios'
     | '/app/agendar'
+    | '/app/carteira'
     | '/app/historico'
     | '/app/perfil'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/fidelidade'
     | '/barbeiro/servicos'
     | '/admin/'
     | '/app/'
@@ -292,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgendarRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/carteira': {
+      id: '/app/carteira'
+      path: '/carteira'
+      fullPath: '/app/carteira'
+      preLoaderRoute: typeof AppCarteiraRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/historico': {
       id: '/app/historico'
       path: '/historico'
@@ -327,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/fidelidade': {
+      id: '/barbeiro/fidelidade'
+      path: '/fidelidade'
+      fullPath: '/barbeiro/fidelidade'
+      preLoaderRoute: typeof BarbeiroFidelidadeRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/servicos': {
       id: '/barbeiro/servicos'
       path: '/servicos'
@@ -355,6 +393,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppRouteChildren {
   AppAgendarRoute: typeof AppAgendarRoute
+  AppCarteiraRoute: typeof AppCarteiraRoute
   AppHistoricoRoute: typeof AppHistoricoRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -362,6 +401,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAgendarRoute: AppAgendarRoute,
+  AppCarteiraRoute: AppCarteiraRoute,
   AppHistoricoRoute: AppHistoricoRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
@@ -372,6 +412,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 interface BarbeiroRouteChildren {
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRoute
+  BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
 }
@@ -379,6 +420,7 @@ interface BarbeiroRouteChildren {
 const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
   BarbeiroClientesRoute: BarbeiroClientesRoute,
+  BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
 }
