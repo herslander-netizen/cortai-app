@@ -27,3 +27,11 @@
 - [x] Criar descrição e portfólio de profissionais na página pública.
 - [x] Mostrar produtos ativos na página pública sem compra online.
 - [x] Criar o bloco Oportunidades de hoje no Dashboard.
+
+## Auditoria de perfis e acesso (concluída)
+- [x] Três perfis: administrador, barbeiro e cliente, com destino próprio
+- [x] Áreas /admin, /barbeiro e /app bloqueadas por sessão real
+- [x] Tela "Começar" para escolher agendar ou criar barbearia
+- [x] Entrar, criar conta e continuar com Google
+- [x] Dados do cliente e da barbearia isolados por conta no servidor
+- [x] Sair da conta no Perfil e em Mais
