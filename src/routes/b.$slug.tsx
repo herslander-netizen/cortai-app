@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock3, Copy, Instagram, MapPin, MessageCircle, Share2 } from "lucide-react";
+import { Check, Clock3, Copy, Instagram, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { type CSSProperties, useEffect, useState } from "react";
 
@@ -24,76 +24,111 @@ export const Route = createFileRoute("/b/$slug")({
   component: PaginaBarbearia,
 });
 
+function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <section className="pt-10">
+      <p className="text-xs font-semibold uppercase tracking-wide text-mute">{titulo}</p>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function Vazio({ texto }: { texto: string }) {
+  return <p className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">{texto}</p>;
+}
+
 function PaginaBarbearia() {
   const { slug } = Route.useParams();
   const { data, isLoading } = useQuery({ queryKey: ["pagina-publica", slug], queryFn: () => getPaginaPublica({ data: { slug } }) });
   const [qr, setQr] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [mostrarQr, setMostrarQr] = useState(false);
+
   useEffect(() => {
+    if (!mostrarQr || qr) return;
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
-  }, []);
+  }, [mostrarQr, qr]);
+
   if (isLoading) return <TelaDeCarregamento texto="Abrindo a barbearia…" />;
   if (!data) throw notFound();
+
   const { tenant } = data;
   const style = { "--gold": tenant.cor_primaria, "--primary": tenant.cor_primaria } as CSSProperties;
-  const whatsapp = tenant.whatsapp?.replace(/\D/g, "");
+  const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
+  const telefone = tenant.telefone?.replace(/\D/g, "") || null;
+  const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
+  const instagram = tenant.instagram?.replace(/^@/, "") || null;
+
   return <div className="client-brand min-h-screen bg-ink" style={style} data-hide-signature={tenant.assinatura_visivel === false}>
-    <header className="relative mx-auto min-h-[62vh] max-h-[720px] overflow-hidden">
+    <header className="relative mx-auto min-h-[56vh] max-h-[620px] overflow-hidden">
       <img src={tenant.capa_signed_url ?? coverAsset.url} alt={`Ambiente da ${tenant.nome}`} width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-ink/55" />
-      <div className="relative mx-auto flex min-h-[62vh] max-w-6xl flex-col justify-end px-5 pb-10 sm:px-8">
-        <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={64} className="mb-5" />
+      <div className="absolute inset-0 bg-ink/60" />
+      <div className="relative mx-auto flex min-h-[56vh] max-w-6xl flex-col justify-end px-5 pb-9 sm:px-8">
+        <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={60} className="mb-4" />
         <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>
-        <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-6xl">{tenant.nome}</h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80 sm:text-base">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>
-        {tenant.endereco ? <p className="mt-4 flex items-center gap-2 text-xs text-mute"><MapPin size={14} />{tenant.endereco}</p> : null}
+        <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-5xl">{tenant.nome}</h1>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">
+          {tenant.endereco ? <span className="flex items-center gap-1.5"><MapPin size={13} className="text-gold" />{tenant.endereco}</span> : null}
+          {data.servicos.length ? <span className="flex items-center gap-1.5"><Clock3 size={13} className="text-gold" />{data.servicos.length} serviço{data.servicos.length > 1 ? "s" : ""} disponíve{data.servicos.length > 1 ? "is" : "l"}</span> : null}
+          {instagram ? <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-paper/80 hover:text-gold"><Instagram size={13} className="text-gold" />@{instagram}</a> : null}
+        </div>
       </div>
     </header>
-    <main className="mx-auto max-w-6xl px-5 pb-16 sm:px-8">
-      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <Button asChild className="h-12 font-bold"><Link to="/app/agendar" search={{ b: slug }}>Agendar horário</Link></Button>
-        <div className="grid grid-cols-3 gap-2">
-          <Button variant="outline" size="icon" aria-label="Compartilhar" title="Compartilhar" onClick={() => navigator.share?.({ title: tenant.nome, url: window.location.href })}><Share2 /></Button>
-          <Button variant="outline" size="icon" aria-label="Copiar link" title="Copiar link" onClick={async () => { await navigator.clipboard.writeText(window.location.href); setCopiado(true); }}><Copy /></Button>
-          {whatsapp ? <Button asChild variant="outline" size="icon"><a href={`https://wa.me/${whatsapp}`} aria-label="WhatsApp" target="_blank" rel="noreferrer"><MessageCircle /></a></Button> : <Button variant="outline" size="icon" disabled><MessageCircle /></Button>}
-        </div>
-      </div>
-      {copiado ? <p className="mt-2 text-xs text-sage">Link copiado.</p> : null}
 
-      <section className="pt-12"><p className="text-xs font-semibold uppercase text-mute">Serviços</p><div className="mt-4 grid gap-x-8 sm:grid-cols-2">{data.servicos.map((servico) => <div key={servico.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-line py-4"><div className="min-w-0"><h2 className="text-sm font-semibold text-paper">{servico.nome}</h2><p className="mt-1 flex items-center gap-1 text-xs text-mute"><Clock3 size={12} />{servico.duracao_min} min</p></div><p className="text-sm font-semibold text-paper">{brl(servico.preco_centavos)}</p></div>)}</div></section>
-
-      <section className="pt-12">
-        <p className="text-xs font-semibold uppercase text-mute">Profissionais</p>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          {data.profissionais.map((profissional) => (
-            <article key={profissional.id} className="rounded-xl border border-line bg-ink2 p-4">
-              <div className="flex items-center gap-3">
-                {profissional.avatar_url ? (
-                  <img src={profissional.avatar_url} alt={profissional.nome} loading="lazy" className="h-14 w-14 shrink-0 rounded-full object-cover" />
-                ) : (
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-ink3 text-lg font-semibold text-gold">{profissional.nome.charAt(0)}</span>
-                )}
+    <main className="mx-auto max-w-6xl px-5 pb-14 sm:px-8">
+      <Secao titulo="Serviços">
+        {data.servicos.length ? (
+          <div className="grid gap-x-8 sm:grid-cols-2">
+            {data.servicos.map((servico) => (
+              <div key={servico.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-line py-3.5">
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-semibold text-paper">{profissional.nome}</h3>
-                  {profissional.descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{profissional.descricao}</p> : null}
+                  <h2 className="truncate text-sm font-semibold text-paper">{servico.nome}</h2>
+                  <p className="mt-0.5 flex items-center gap-1 text-xs text-mute"><Clock3 size={12} />{servico.duracao_min} min</p>
                 </div>
+                <p className="text-sm font-semibold text-paper">{brl(servico.preco_centavos)}</p>
               </div>
-              {profissional.portfolio.length ? (
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  {profissional.portfolio.slice(0, 6).map((foto) => (
-                    <img key={foto} src={foto} alt={`Trabalho de ${profissional.nome}`} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
-                  ))}
+            ))}
+          </div>
+        ) : (
+          <Vazio texto="Os serviços ainda não foram publicados. Fale com a barbearia para saber valores e durações." />
+        )}
+      </Secao>
+
+      <Secao titulo="Profissionais">
+        {data.profissionais.length ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {data.profissionais.map((profissional) => (
+              <article key={profissional.id} className="rounded-xl border border-line bg-ink2 p-3.5">
+                <div className="flex items-center gap-3">
+                  {profissional.avatar_url ? (
+                    <img src={profissional.avatar_url} alt={profissional.nome} loading="lazy" className="h-12 w-12 shrink-0 rounded-full object-cover" />
+                  ) : (
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink3 text-base font-semibold text-gold">{profissional.nome.charAt(0)}</span>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="truncate text-sm font-semibold text-paper">{profissional.nome}</h3>
+                    {profissional.descricao ? <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-mute">{profissional.descricao}</p> : null}
+                  </div>
                 </div>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      </section>
+                {profissional.portfolio.length ? (
+                  <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    {profissional.portfolio.slice(0, 3).map((foto) => (
+                      <img key={foto} src={foto} alt={`Trabalho de ${profissional.nome}`} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <Vazio texto="A equipe ainda não foi publicada. Você pode agendar e a barbearia confirma quem vai te atender." />
+        )}
+      </Secao>
 
       {data.produtos.length ? (
-        <section className="pt-12">
-          <p className="text-xs font-semibold uppercase text-mute">Produtos</p>
-          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Secao titulo="Produtos">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {data.produtos.map((produto) => (
               <article key={produto.id} className="overflow-hidden rounded-xl border border-line bg-ink2">
                 {produto.foto_url ? (
@@ -104,18 +139,55 @@ function PaginaBarbearia() {
                 <div className="p-3">
                   <h3 className="truncate text-sm font-semibold text-paper">{produto.nome}</h3>
                   <p className="mt-0.5 truncate text-[11px] text-mute2">{produto.categoria}</p>
-                  <p className="mt-2 text-sm font-semibold text-paper">{brl(produto.preco_centavos)}</p>
-                  <p className="mt-1 text-[11px] text-mute">Comprar na barbearia</p>
+                  <p className="mt-1.5 text-sm font-semibold text-paper">{brl(produto.preco_centavos)}</p>
+                  <p className="mt-0.5 text-[11px] text-mute">Comprar na barbearia</p>
                 </div>
               </article>
             ))}
           </div>
-        </section>
+        </Secao>
       ) : null}
 
-      {tenant.fotos_signed_urls.length ? <section className="pt-12"><p className="text-xs font-semibold uppercase text-mute">O espaço</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">{tenant.fotos_signed_urls.map((foto) => <img key={foto} src={foto} alt={`Ambiente da ${tenant.nome}`} loading="lazy" className="aspect-square w-full rounded-xl object-cover" />)}</div></section> : null}
+      {tenant.fotos_signed_urls.length ? (
+        <Secao titulo="O espaço">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {tenant.fotos_signed_urls.map((foto) => (
+              <img key={foto} src={foto} alt={`Ambiente da ${tenant.nome}`} loading="lazy" className="aspect-square w-full rounded-xl object-cover" />
+            ))}
+          </div>
+        </Secao>
+      ) : null}
 
-      <section className="mt-12 grid gap-6 border-y border-line py-8 sm:grid-cols-[1fr_auto] sm:items-center"><div><h2 className="text-xl font-bold text-paper">Fale com a barbearia</h2><div className="mt-4 flex flex-wrap gap-4">{whatsapp ? <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-paper"><MessageCircle size={17} className="text-gold" />WhatsApp</a> : null}{tenant.instagram ? <a href={`https://instagram.com/${tenant.instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-paper"><Instagram size={17} className="text-gold" />Instagram</a> : null}</div></div>{qr ? <img src={qr} alt={`QR Code da página de ${tenant.nome}`} className="h-28 w-28 rounded-lg bg-paper p-2" /> : null}</section>
+      <section className="mt-12 rounded-2xl border border-line bg-ink2 p-5 sm:p-6">
+        <h2 className="text-xl font-bold text-paper">Reserve seu horário</h2>
+        <p className="mt-1 text-sm text-mute">Escolha serviço, profissional e horário em menos de um minuto.</p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <Button asChild className="h-12 font-bold"><Link to="/app/agendar" search={{ b: slug }}>Agendar horário</Link></Button>
+          {linkContato ? (
+            <Button asChild variant="outline" className="h-12">
+              <a href={linkContato} target={whatsapp ? "_blank" : undefined} rel="noreferrer">
+                {whatsapp ? <MessageCircle /> : <Phone />}Falar com a barbearia
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-line p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-paper">Compartilhe esta barbearia</h2>
+        <p className="mt-1 text-xs text-mute">Envie o link para quem precisa cortar o cabelo — ou mostre o código para apontar a câmera e agendar.</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: tenant.nome, url: window.location.href })}><Share2 />Compartilhar</Button>
+          <Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(window.location.href); setCopiado(true); }}>{copiado ? <Check /> : <Copy />}{copiado ? "Link copiado" : "Copiar link"}</Button>
+          <Button variant="outline" size="sm" onClick={() => setMostrarQr((v) => !v)}>{mostrarQr ? "Esconder código" : "Mostrar código"}</Button>
+        </div>
+        {mostrarQr ? (
+          <div className="mt-5 flex items-center gap-4">
+            {qr ? <img src={qr} alt={`Código para abrir a página de ${tenant.nome}`} className="h-28 w-28 rounded-lg bg-paper p-2" /> : <div className="h-28 w-28 animate-pulse rounded-lg bg-ink3" />}
+            <p className="max-w-xs text-xs leading-relaxed text-mute">Aponte a câmera do celular para este código para abrir esta página e agendar.</p>
+          </div>
+        ) : null}
+      </section>
     </main>
     <Signature />
   </div>;
