@@ -81,6 +81,15 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         fotos_signed_urls: galeria.filter((url): url is string => Boolean(url)),
       },
       servicos: servicos ?? [],
-      profissionais: profissionais ?? [],
+      profissionais: (profissionais ?? []).map((p) => ({
+        id: p.id,
+        nome: p.nome,
+        avatar_url: p.avatar_url,
+        descricao: p.descricao,
+        portfolio: Array.isArray(p.portfolio)
+          ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
+          : [],
+      })),
+      produtos: produtos ?? [],
     };
   });
