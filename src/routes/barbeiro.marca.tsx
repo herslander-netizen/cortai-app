@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import {
-import { Carregando } from "@/components/layout/Carregando";
   getMarca,
   restaurarMarca,
   salvarMarca,
   type MarcaData,
   type MarcaForm,
 } from "@/lib/marca.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   head: () => ({

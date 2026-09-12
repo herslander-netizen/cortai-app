@@ -8,12 +8,12 @@ import { brl } from "@/lib/format";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { Aviso } from "@/components/ui/aviso";
 import {
-import { Carregando } from "@/components/layout/Carregando";
   arquivarCliente,
   excluirClientePermanente,
   getFichaCliente,
   registrarBaixaFiado,
 } from "@/lib/barbeiro.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({

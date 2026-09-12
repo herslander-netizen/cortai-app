@@ -7,12 +7,12 @@ import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { brl, dataHoraLonga, diaCurto, hora } from "@/lib/format";
 import {
-import { Carregando } from "@/components/layout/Carregando";
   criarAgendamento,
   getDadosAgendar,
   type DadosAgendar,
   type ResultadoAgendamento,
 } from "@/lib/agendamento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>

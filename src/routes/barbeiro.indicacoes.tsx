@@ -8,12 +8,12 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { Aviso } from "@/components/ui/aviso";
 import {
-import { Carregando } from "@/components/layout/Carregando";
   atualizarIndicacao,
   getIndicacoes,
   registrarIndicacao,
   salvarConfigIndicacao,
 } from "@/lib/crescimento.functions";
+import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   head: () => ({
