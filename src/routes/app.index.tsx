@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock3, MapPin } from "lucide-react";
+import { Clock3, MapPin, Sparkles } from "lucide-react";
+import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
 import { getMarcaCliente } from "@/lib/marca.functions";
 
@@ -21,8 +22,8 @@ export const Route = createFileRoute("/app/")({
 function InicioCliente() {
   const { data } = useQuery({ queryKey: ["marca-cliente"], queryFn: () => getMarcaCliente() });
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col pb-28">
-      <header className="px-5 pb-6 pt-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <header className="px-5 pb-5 pt-7">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
           <div className="flex min-w-0 items-center gap-3">
             {data?.logo_signed_url ? (
@@ -34,19 +35,22 @@ function InicioCliente() {
               <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-mute"><MapPin size={13} className="shrink-0" aria-hidden /><span className="truncate">{data?.endereco ?? "Atendimento na barbearia"}</span></p>
             </div>
           </div>
-          <span className="mt-1 flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase text-sage">
+          <span className="mt-1 flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-ink2 px-2.5 py-1.5 text-[9px] font-semibold uppercase text-sage">
             <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden /> Agenda online
           </span>
         </div>
       </header>
 
       <main className="flex-1 px-5">
-        <section className="border-y border-line py-7">
-          <p className="max-w-[300px] text-[32px] font-bold leading-[1.12] text-paper">Seu estilo, no seu horário.</p>
-          <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-mute">
-            {data?.texto_boas_vindas ?? "Sua barbearia, no seu tempo."}
-          </p>
-          <Link to="/app/agendar" className="btn-primary mt-5 px-6 py-3.5">Agendar horário</Link>
+        <section className="relative min-h-[340px] overflow-hidden rounded-2xl">
+          <img src={coverAsset.url} alt="Cadeira de barbearia em ambiente sofisticado" width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_5%,var(--ink)_100%)]" />
+          <div className="relative flex min-h-[340px] flex-col justify-end p-5">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase text-gold"><Sparkles size={13} /> Sua melhor versão</p>
+            <p className="mt-2 max-w-[300px] text-[30px] font-bold leading-[1.1] text-paper">Seu estilo, no seu horário.</p>
+            <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-paper/75">{data?.texto_boas_vindas ?? "Sua barbearia, no seu tempo."}</p>
+            <Link to="/app/agendar" className="btn-primary mt-5 self-start px-6 py-3.5">Agendar horário</Link>
+          </div>
         </section>
 
         <section className="py-7">

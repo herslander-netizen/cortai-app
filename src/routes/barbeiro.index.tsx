@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { CalendarCheck2, Clock3, PackageCheck, TrendingUp } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { brl, hora } from "@/lib/format";
@@ -35,7 +36,7 @@ function Indicador({
   cor?: string;
 }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 px-4 py-4">
+    <div className="rounded-xl border border-line bg-ink2 px-4 py-4">
       <p className="text-xs text-mute">{rotulo}</p>
       <p className={`mt-1 text-xl font-bold leading-tight ${cor ?? "text-paper"}`}>{valor}</p>
       {detalhe ? <p className="mt-1 text-[11px] text-mute2">{detalhe}</p> : null}
@@ -48,29 +49,34 @@ function HojePage() {
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
 
   return (
-    <Screen title="Hoje" subtitle={data?.tenant.nome ?? "Os números do seu dia."}>
+    <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       {data ? (
         <>
-          <div className="grid grid-cols-2 gap-3">
-            <Indicador rotulo="Caixa do dia" valor={brl(data.caixaCentavos)} detalhe="Pix, balcão e baixas" />
-            <Indicador rotulo="Ocupação" valor={`${data.ocupacaoPct}%`} detalhe={data.ocupacaoDetalhe} />
+          <div className="rounded-xl border border-line bg-ink2 p-5">
+            <div className="flex items-start justify-between gap-4"><div><p className="text-xs text-mute">Faturamento de hoje</p><p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(data.caixaCentavos)}</p></div><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold"><TrendingUp size={19} /></span></div>
+            <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(5, data.ocupacaoPct)}%` }} /></div>
+            <p className="mt-2 text-xs text-mute2">{data.ocupacaoPct}% da agenda ocupada · {data.ocupacaoDetalhe}</p>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Indicador rotulo="Atendimentos" valor={data.ocupacaoDetalhe.split(" ")[0] ?? "0"} detalhe="agendados hoje" />
+            <Indicador rotulo="Horários livres" valor={String(Math.max(0, Number(data.ocupacaoDetalhe.split(" ")[2] ?? 0) - Number(data.ocupacaoDetalhe.split(" ")[0] ?? 0)))} detalhe="oportunidades" />
             <Indicador
-              rotulo="A receber em fiado"
+              rotulo="A receber"
               valor={brl(data.fiadoAbertoCentavos)}
               cor="text-brick"
               detalhe="Total em aberto"
             />
             <Indicador
-              rotulo="Assinantes"
+              rotulo="Clientes ativos"
               valor={String(data.assinantes)}
               detalhe={`${brl(data.receitaFixaCentavos)} de receita fixa`}
             />
           </div>
 
           {data.emAndamento ? (
-            <div className="mt-6 rounded-lg border border-line bg-ink2 px-5 py-5">
+            <div className="mt-6 rounded-xl border border-line bg-ink2 px-5 py-5">
               <p className="text-xs text-gold">Em atendimento agora</p>
               <p className="mt-1 text-lg font-bold text-paper">{data.emAndamento.cliente}</p>
               <p className="mt-0.5 text-xs text-mute">

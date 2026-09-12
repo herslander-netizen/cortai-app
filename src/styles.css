@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Cortaí design system — dark by default, single gold accent, no gradients.
+ * Cortaí design system — carvão, off-white e dourado em uso contido.
  */
 
 @theme inline {
@@ -133,7 +133,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  border-radius: var(--radius);
+  border-radius: 12px;
   background-color: var(--gold);
   color: var(--ink);
   font-weight: 700;
@@ -151,6 +151,28 @@
   color: var(--paper);
   font-weight: 500;
   transition: background-color 120ms ease;
+}
+
+@utility input-premium {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  background: var(--ink);
+  padding: 12px 14px;
+  color: var(--paper);
+  font-size: 14px;
+  outline: none;
+  &:focus { border-color: var(--gold); }
+}
+
+.management-shell .screen-title::before {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--gold);
+  content: "CORTAÍ GESTÃO";
+  font-size: 10px;
+  font-weight: 700;
 }
 
 /* Único elemento decorativo do app: listra de poste de barbeiro. */
