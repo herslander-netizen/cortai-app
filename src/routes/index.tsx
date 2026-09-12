@@ -1,24 +1,50 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Scissors } from "lucide-react";
+
+import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
+import { Signature } from "@/components/layout/Signature";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cortaí — Agendamento para barbearias" },
+      { title: "Cortaí — Encontre sua barbearia e agende" },
       {
         name: "description",
         content:
-          "Cortaí conecta clientes, barbeiros e barbearias em um só lugar: agenda, histórico e gestão.",
+          "Busque barbearias por nome ou endereço, veja serviços e agende seu horário pelo Cortaí.",
       },
-      { property: "og:title", content: "Cortaí — Agendamento para barbearias" },
+      { property: "og:title", content: "Cortaí — Encontre sua barbearia e agende" },
       {
         property: "og:description",
-        content: "Agende, gerencie e acompanhe sua barbearia pelo celular.",
+        content: "Descubra barbearias ativas e agende seu horário em poucos toques.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  beforeLoad: () => {
-    throw redirect({ to: "/app" });
-  },
+  component: Descoberta,
 });
+
+function Descoberta() {
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-10 pt-10">
+      <header className="flex items-center justify-between gap-4">
+        <span className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-ink2 text-gold">
+            <Scissors size={20} aria-hidden />
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-gold">Cortaí</span>
+        </span>
+        <Link to="/login" className="text-sm font-semibold text-paper">
+          Entrar
+        </Link>
+      </header>
+
+      <main className="flex-1 pt-10">
+        <h1 className="sr-only">Cortaí — encontre sua barbearia</h1>
+        <DescobrirBarbearias />
+      </main>
+      <Signature />
+    </div>
+  );
+}

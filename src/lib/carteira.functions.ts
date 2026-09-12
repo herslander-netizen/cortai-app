@@ -22,9 +22,9 @@ export type DadosCarteira = {
 
 export const getCarteira = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId?: string | undefined }) => data ?? {})
-  .handler(async ({ context }): Promise<DadosCarteira> => {
-    const { db, tenant, cliente } = await clienteDoUsuario(context);
+  .inputValidator((data: { slug?: string | undefined }) => data ?? {})
+  .handler(async ({ data, context }): Promise<DadosCarteira> => {
+    const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
 
     const { data: carteira } = await db
       .from("carteiras")

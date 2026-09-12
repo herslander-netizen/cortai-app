@@ -34,6 +34,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { proximo } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -43,7 +44,13 @@ function LoginPage() {
 
   async function seguirParaMinhaArea() {
     const sessao = await getSessao();
-    await navigate({ to: destinoDoPapel(sessao) });
+    const destino = destinoDoPapel(sessao);
+    // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
+    if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
+      window.location.assign(proximo);
+      return;
+    }
+    await navigate({ to: destino });
   }
 
   return (

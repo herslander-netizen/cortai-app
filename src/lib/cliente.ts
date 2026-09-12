@@ -1,65 +1,105 @@
 import type { ContextoAutenticado } from "@/lib/tenant";
 
-export type TenantCliente = { id: string; nome: string; rotulo_carteira: string | null };
+export type TenantCliente = { id: string; nome: string; rotulo_carteira: string | null; slug?: string };
 export type ClienteAtual = { id: string; nome: string; limite_fiado_centavos: number };
 
-/**
- * Resolve (e cria na primeira vez) a ficha de cliente ligada à conta autenticada.
- * Nada aqui depende de id enviado pela tela.
- */
-export async function clienteDoUsuario(
-  context: ContextoAutenticado,
-): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual }> {
+export type ContextoBarbearia = { slug?: string | null | undefined };
+
+export const SEM_BARBEARIA = "Escolha uma barbearia para continuar.";
+
+async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const db = supabaseAdmin;
+  return supabaseAdmin;
+}
 
-  const { data: existente } = await db
-    .from("clientes")
-    .select("id, nome, limite_fiado_centavos, tenants(id, nome, rotulo_carteira, ativo)")
-    .eq("user_id", context.userId)
-    .limit(1)
+/** Resolve a barbearia pelo slug, garantindo que ela existe e está ativa. */
+async function tenantPorSlug(db: any, slug: string): Promise<TenantCliente> {
+  const { data } = await db
+    .from("tenants")
+    .select("id, nome, slug, rotulo_carteira")
+    .eq("slug", slug)
+    .eq("ativo", true)
     .maybeSingle();
+  if (!data) throw new Error("Barbearia não encontrada ou indisponível.");
+  return data as TenantCliente;
+}
 
-  if (existente && (existente as any).tenants) {
-    const t = (existente as any).tenants as TenantCliente;
-    return {
-      db,
-      tenant: { id: t.id, nome: t.nome, rotulo_carteira: t.rotulo_carteira },
+/** Fichas do usuário em barbearias ativas, mais recente primeiro. */
+export async function fichasDoUsuario(context: ContextoAutenticado) {
+  const db = await admin();
+  const { data } = await db
+    .from("clientes")
+    .select("id, nome, limite_fiado_centavos, criado_em, tenants!inner(id, nome, slug, rotulo_carteira, ativo)")
+    .eq("user_id", context.userId)
+    .eq("tenants.ativo", true)
+    .order("criado_em", { ascending: false });
+  const linhas = (data ?? []) as any[];
+  return {
+    db,
+    fichas: linhas.map((linha) => ({
       cliente: {
-        id: existente.id,
-        nome: existente.nome,
-        limite_fiado_centavos: existente.limite_fiado_centavos,
-      },
-    };
+        id: linha.id,
+        nome: linha.nome,
+        limite_fiado_centavos: linha.limite_fiado_centavos,
+      } as ClienteAtual,
+      tenant: {
+        id: linha.tenants.id,
+        nome: linha.tenants.nome,
+        slug: linha.tenants.slug,
+        rotulo_carteira: linha.tenants.rotulo_carteira,
+      } as TenantCliente,
+    })),
+  };
+}
+
+/**
+ * Resolve a ficha do cliente dentro do contexto de barbearia informado.
+ * Com slug: usa (e cria na primeira vez) a ficha NAQUELA barbearia.
+ * Sem slug: usa apenas uma ficha que já exista — nunca escolhe uma barbearia por conta própria.
+ */
+export async function clienteDoUsuarioOpcional(
+  context: ContextoAutenticado,
+  ctx?: ContextoBarbearia,
+): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual } | null> {
+  const slug = ctx?.slug?.trim() || null;
+  const { db, fichas } = await fichasDoUsuario(context);
+
+  if (slug) {
+    const tenant = await tenantPorSlug(db, slug);
+    const existente = fichas.find((f) => f.tenant.id === tenant.id);
+    if (existente) return { db, tenant, cliente: existente.cliente };
+
+    const { data: perfil } = await db
+      .from("perfis")
+      .select("nome, telefone")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    const { data: novo, error } = await db
+      .from("clientes")
+      .insert({
+        tenant_id: tenant.id,
+        nome: perfil?.nome ?? "Cliente",
+        telefone: perfil?.telefone ?? "",
+        user_id: context.userId,
+        origem: "app",
+      })
+      .select("id, nome, limite_fiado_centavos")
+      .single();
+    if (error) throw new Error(error.message);
+    return { db, tenant, cliente: novo as ClienteAtual };
   }
 
-  const { data: tenant } = await db
-    .from("tenants")
-    .select("id, nome, rotulo_carteira")
-    .eq("ativo", true)
-    .order("criado_em", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!tenant) throw new Error("Nenhuma barbearia disponível no momento.");
+  const unica = fichas[0];
+  if (!unica) return null;
+  return { db, tenant: unica.tenant, cliente: unica.cliente };
+}
 
-  const { data: perfil } = await db
-    .from("perfis")
-    .select("nome, telefone")
-    .eq("user_id", context.userId)
-    .maybeSingle();
-
-  const { data: novo, error } = await db
-    .from("clientes")
-    .insert({
-      tenant_id: tenant.id,
-      nome: perfil?.nome ?? "Cliente",
-      telefone: perfil?.telefone ?? "",
-      user_id: context.userId,
-      origem: "app",
-    })
-    .select("id, nome, limite_fiado_centavos")
-    .single();
-  if (error) throw new Error(error.message);
-
-  return { db, tenant, cliente: novo };
+export async function clienteDoUsuario(
+  context: ContextoAutenticado,
+  ctx?: ContextoBarbearia,
+): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual }> {
+  const resolvido = await clienteDoUsuarioOpcional(context, ctx);
+  if (!resolvido) throw new Error(SEM_BARBEARIA);
+  return resolvido;
 }
