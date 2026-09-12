@@ -3,6 +3,7 @@ import { Scissors } from "lucide-react";
 
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { Signature } from "@/components/layout/Signature";
+import { SolicitarProjeto } from "@/components/institucional/SolicitarProjeto";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,7 +44,14 @@ function Descoberta() {
       <main className="flex-1 pt-10">
         <h1 className="sr-only">Cortaí — encontre sua barbearia</h1>
         <DescobrirBarbearias />
+        <SolicitarProjeto />
       </main>
+
+      <footer className="mt-10 border-t border-line pt-6 text-center">
+        <p className="text-[11px] text-mute">Cortaí — agendamento para barbearias.</p>
+        <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
+        <p className="mt-1 text-[10px] text-mute2">© 2026 Alvo Digital</p>
+      </footer>
       <Signature />
     </div>
   );
