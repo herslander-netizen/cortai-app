@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Signature } from "./Signature";
+import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 
 export function Screen({
   title,
