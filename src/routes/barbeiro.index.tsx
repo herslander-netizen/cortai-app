@@ -48,6 +48,7 @@ function Indicador({
 function HojePage() {
   const finalizar = useServerFn(finalizarAtendimento);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
+  const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
 
   return (
     <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
