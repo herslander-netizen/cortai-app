@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import {
+import { Aviso } from "@/components/ui/aviso";
   atualizarIndicacao,
   getIndicacoes,
   registrarIndicacao,
@@ -122,7 +123,7 @@ function IndicacoesPage() {
         </div>
       </div>
 
-      {aviso ? <p className="mt-4 text-sm text-sage">{aviso}</p> : null}
+      {aviso ? <Aviso tom="info" className="mt-4">{aviso}</Aviso> : null}
 
       <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Registrar indicação</h2>
       <div className="flex gap-2">
