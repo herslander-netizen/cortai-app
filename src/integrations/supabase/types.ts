@@ -743,7 +743,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      design_da_plataforma: {
+        Row: {
+          cor_fundo: string | null
+          cor_primaria: string | null
+          cor_superficie: string | null
+          cor_texto: string | null
+          id: boolean | null
+          raio_px: number | null
+          tipografia: string | null
+        }
+        Insert: {
+          cor_fundo?: string | null
+          cor_primaria?: string | null
+          cor_superficie?: string | null
+          cor_texto?: string | null
+          id?: boolean | null
+          raio_px?: number | null
+          tipografia?: string | null
+        }
+        Update: {
+          cor_fundo?: string | null
+          cor_primaria?: string | null
+          cor_superficie?: string | null
+          cor_texto?: string | null
+          id?: boolean | null
+          raio_px?: number | null
+          tipografia?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cancelar_agendamento: { Args: { _agendamento_id: string }; Returns: Json }
