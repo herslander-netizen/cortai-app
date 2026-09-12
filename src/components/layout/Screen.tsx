@@ -11,10 +11,10 @@ export function Screen({
   children?: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col pb-24">
-      <header className="px-5 pb-6 pt-10">
+    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col pb-28">
+      <header className="px-5 pb-5 pt-8">
         <h1 className="screen-title">{title}</h1>
-        {subtitle ? <p className="mt-2 text-sm text-mute">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
       </header>
       <main className="flex-1 px-5">{children}</main>
       <Signature />
@@ -24,7 +24,7 @@ export function Screen({
 
 export function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 px-5 py-10 text-center">
+    <div className="border-y border-line py-8 text-center">
       <p className="text-sm text-mute">{text}</p>
     </div>
   );

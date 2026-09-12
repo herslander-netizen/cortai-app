@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
-import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
@@ -102,10 +101,9 @@ function CartaoFidelidade({ progresso, alvo }: { progresso: number; alvo: number
 }
 
 function CarteiraPage() {
-  const [clienteId, setClienteId] = useState<string | undefined>(undefined);
   const { data, isLoading } = useQuery({
-    queryKey: ["carteira", clienteId],
-    queryFn: () => getCarteira({ data: clienteId ? { clienteId } : {} }),
+    queryKey: ["carteira"],
+    queryFn: () => getCarteira({ data: {} }),
   });
 
   const saldo = data?.carteira.saldo_centavos ?? 0;
@@ -114,37 +112,20 @@ function CarteiraPage() {
 
   return (
     <Screen title={rotulo} subtitle={data?.cliente.nome ?? ""}>
-      {data && data.clientes.length > 1 ? (
-        <label className="mb-6 block">
-          <span className="text-xs text-mute2">Entrando como</span>
-          <select
-            className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
-            value={data.cliente.id}
-            onChange={(e) => setClienteId(e.target.value)}
-          >
-            {data.clientes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
-
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       {data ? (
         <>
-          <div className="flex overflow-hidden rounded-lg border border-line bg-ink2">
-            <div className={`w-[9px] shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`} aria-hidden="true" />
-            <div className="flex-1 px-5 py-6">
+          <div className="flex min-h-[118px] overflow-hidden rounded-md border border-line bg-ink2">
+            <div className={`w-1.5 shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`} aria-hidden="true" />
+            <div className="flex min-w-0 flex-1 flex-col justify-center px-5 py-4">
               <p className="text-xs text-mute">{negativo ? "Em aberto (fiado)" : "Saldo disponível"}</p>
               <p
-                className={`mt-1 text-[36px] font-bold leading-none ${negativo ? "text-brick" : "text-paper"}`}
+                className={`mt-1.5 text-[32px] font-bold leading-none ${negativo ? "text-brick" : "text-paper"}`}
               >
                 {brl(Math.abs(saldo))}
               </p>
-              <p className="mt-3 text-xs text-mute">
+              <p className="mt-2.5 text-xs leading-relaxed text-mute">
                 {data.carteira.saldo_creditos > 0
                   ? `${data.carteira.saldo_creditos} ${
                       data.carteira.saldo_creditos === 1 ? "crédito" : "créditos"
@@ -163,14 +144,14 @@ function CarteiraPage() {
             <CartaoFidelidade progresso={data.carteira.fidelidade_progresso} alvo={data.fidelidade.alvo} />
           ) : null}
 
-          <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">Extrato</h2>
+          <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Extrato</h2>
           {data.movimentos.length === 0 ? (
             <EmptyState text="Nenhum lançamento por enquanto." />
           ) : (
             <ul>
               {data.movimentos.map((m) => (
-                <li key={m.id} className="flex items-start justify-between gap-4 border-b border-line py-4">
-                  <div>
+                <li key={m.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4">
+                  <div className="min-w-0">
                     <p className="text-sm text-paper">{rotuloMovimento(m)}</p>
                     <p className="mt-0.5 text-xs text-mute2">{dataCurta(m.criado_em)}</p>
                   </div>

@@ -11,3 +11,4 @@
 - [x] Criar design system global editável.
 - [x] Criar gestão de pedidos das barbearias.
 - [ ] Validar dados com uma sessão autenticada de dono (bloqueado: ainda não há conta do solicitante no app).
+- [x] Aplicar a Direção C nas telas do cliente e validar em 390px.
