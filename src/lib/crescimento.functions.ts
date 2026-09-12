@@ -205,7 +205,6 @@ export const getCrescimento = createServerFn({ method: "GET" }).handler(async ()
     ocupacaoPct: Math.round((ativosHoje.length / totalSlots) * 100),
     horariosVagosHoje: Math.max(0, totalSlots - ativosHoje.length),
     naFila: filaRes.data?.length ?? 0,
-    ...(clientesRes.data ? {} : {}),
   };
 });
 
