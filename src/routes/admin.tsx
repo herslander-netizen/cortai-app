@@ -1,13 +1,13 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { Building2, LineChart, Settings, Users } from "lucide-react";
-import { TabBar, type TabItem } from "@/components/layout/TabBar";
+import { Building2, ClipboardList, LineChart, Palette } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
-const tabs: TabItem[] = [
+const tabs = [
   { to: "/admin", label: "Visão geral", icon: LineChart },
   { to: "/admin/barbearias", label: "Barbearias", icon: Building2 },
-  { to: "/admin/usuarios", label: "Usuários", icon: Users },
-  { to: "/admin/ajustes", label: "Ajustes", icon: Settings },
-];
+  { to: "/admin/ajustes", label: "Design system", icon: Palette },
+  { to: "/admin/pedidos", label: "Pedidos", icon: ClipboardList },
+] as const;
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -15,9 +15,13 @@ export const Route = createFileRoute("/admin")({
 
 function AdminLayout() {
   return (
-    <>
+    <div className="min-h-screen bg-ink md:grid md:grid-cols-[220px_1fr]">
+      <aside className="hidden border-r border-line px-5 py-8 md:block">
+        <p className="text-sm font-bold text-paper">CORTAÍ</p><p className="mt-1 text-xs text-mute">Dono da plataforma</p>
+        <nav className="mt-10 space-y-1" aria-label="Painel da plataforma">{tabs.map((item) => { const Icon = item.icon; return <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-mute" activeProps={{ className: "bg-ink2 text-paper" }}><Icon size={17} />{item.label}</Link>; })}</nav>
+      </aside>
       <Outlet />
-      <TabBar items={tabs} />
-    </>
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink md:hidden" aria-label="Painel da plataforma"><ul className="grid grid-cols-4">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex flex-col items-center gap-1 py-3 text-mute" activeProps={{ className: "text-paper" }}><Icon size={19}/><span className="text-[10px]">{item.label}</span></Link></li>; })}</ul></nav>
+    </div>
   );
 }

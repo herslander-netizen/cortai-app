@@ -16,7 +16,7 @@ import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
-import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
@@ -68,9 +68,9 @@ const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
   path: '/barbearias',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
+const AdminPedidosRoute = AdminPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -156,7 +156,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
@@ -178,7 +178,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
@@ -203,7 +203,7 @@ export interface FileRoutesById {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/historico': typeof AppHistoricoRoute
@@ -230,7 +230,7 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/admin/ajustes'
     | '/admin/barbearias'
-    | '/admin/usuarios'
+    | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/historico'
@@ -252,7 +252,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/ajustes'
     | '/admin/barbearias'
-    | '/admin/usuarios'
+    | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/historico'
@@ -276,7 +276,7 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/admin/ajustes'
     | '/admin/barbearias'
-    | '/admin/usuarios'
+    | '/admin/pedidos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/historico'
@@ -353,11 +353,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBarbeariasRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/usuarios': {
-      id: '/admin/usuarios'
-      path: '/usuarios'
-      fullPath: '/admin/usuarios'
-      preLoaderRoute: typeof AdminUsuariosRouteImport
+    '/admin/pedidos': {
+      id: '/admin/pedidos'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos'
+      preLoaderRoute: typeof AdminPedidosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/app/': {
@@ -471,14 +471,14 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
-  AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AdminPedidosRoute: typeof AdminPedidosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
-  AdminUsuariosRoute: AdminUsuariosRoute,
+  AdminPedidosRoute: AdminPedidosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
