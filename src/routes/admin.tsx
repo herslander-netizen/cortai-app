@@ -25,7 +25,7 @@ function AdminLayout() {
         <nav className="mt-10 space-y-1" aria-label="Painel da plataforma">{tabs.map((item) => { const Icon = item.icon; return <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-mute" activeProps={{ className: "bg-ink2 text-paper" }}><Icon size={17} />{item.label}</Link>; })}</nav>
       </aside>
       <Outlet />
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink md:hidden" aria-label="Painel da plataforma"><ul className="grid grid-cols-4">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex flex-col items-center gap-1 py-3 text-mute" activeProps={{ className: "text-paper" }}><Icon size={19}/><span className="text-[10px]">{item.label}</span></Link></li>; })}</ul></nav>
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink md:hidden" aria-label="Painel da plataforma"><ul className="grid grid-cols-5">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex flex-col items-center gap-1 py-3 text-mute" activeProps={{ className: "text-paper" }}><Icon size={19}/><span className="text-[10px]">{item.label}</span></Link></li>; })}</ul></nav>
     </div>
   );
 }

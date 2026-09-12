@@ -19,6 +19,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
+import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
@@ -92,6 +93,11 @@ const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
 const AdminPedidosRoute = AdminPedidosRouteImport.update({
   id: '/pedidos',
   path: '/pedidos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPerfilRoute = AdminPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => AdminRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/perfil': typeof AdminPerfilRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/perfil': typeof AdminPerfilRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/perfil': typeof AdminPerfilRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/pedidos'
+    | '/admin/perfil'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/pedidos'
+    | '/admin/perfil'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/pedidos'
+    | '/admin/perfil'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -507,6 +519,13 @@ declare module '@tanstack/react-router' {
       path: '/pedidos'
       fullPath: '/admin/pedidos'
       preLoaderRoute: typeof AdminPedidosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/perfil': {
+      id: '/admin/perfil'
+      path: '/perfil'
+      fullPath: '/admin/perfil'
+      preLoaderRoute: typeof AdminPerfilRouteImport
       parentRoute: typeof AdminRoute
     }
     '/app/': {
@@ -684,6 +703,7 @@ interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
+  AdminPerfilRoute: typeof AdminPerfilRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -691,6 +711,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
   AdminPedidosRoute: AdminPedidosRoute,
+  AdminPerfilRoute: AdminPerfilRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
