@@ -53,7 +53,7 @@ export const getClientesCRM = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const { db, tenant } = await tenantPadrao(context);
   const [clientesRes, agRes, carteirasRes] = await Promise.all([
-    db.from("clientes").select("id, nome, telefone, criado_em").eq("tenant_id", tenant.id).order("nome"),
+    db.from("clientes").select("id, nome, telefone, criado_em").eq("tenant_id", tenant.id).is("arquivado_em", null).order("nome"),
     db
       .from("agendamentos")
       .select("cliente_id, inicio, valor_centavos, status, servicos(nome), profissionais(nome)")

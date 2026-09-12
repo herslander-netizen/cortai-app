@@ -11,7 +11,7 @@ export const Route = createFileRoute("/barbeiro/caixa")({
     ],
   }),
   component: () => (
-    <Screen title="Caixa" subtitle="Entradas, créditos e valores em aberto.">
+    <Screen voltarPara="/barbeiro/mais" title="Caixa" subtitle="Entradas, créditos e valores em aberto.">
       <EmptyState text="Sem movimentações." />
     </Screen>
   ),

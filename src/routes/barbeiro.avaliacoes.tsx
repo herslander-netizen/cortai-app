@@ -56,7 +56,7 @@ function AvaliacoesPage() {
   }, [data]);
 
   return (
-    <Screen title="Avaliações" subtitle="Feedback interno, convite público só quando faz sentido.">
+    <Screen voltarPara="/barbeiro/mais" title="Avaliações" subtitle="Feedback interno, convite público só quando faz sentido.">
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       {data ? (

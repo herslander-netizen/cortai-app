@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 
 /**
  * Padrão único de exclusão permanente do Cortaí:
@@ -20,6 +20,7 @@ export function ExclusaoPermanente({
   onSucesso?: () => void;
   className?: string;
 }) {
+  const campoId = useId();
   const [aberto, setAberto] = useState(false);
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export function ExclusaoPermanente({
     } catch (e) {
       setSenha("");
       setErro(
-        e instanceof Error && /senha|conta|identidade|provedor/i.test(e.message)
+        e instanceof Error && /senha|conta|identidade|provedor|histórico|arquive|não encontrad/i.test(e.message)
           ? e.message
           : "Não foi possível excluir agora. Tente novamente.",
       );
@@ -70,11 +71,11 @@ export function ExclusaoPermanente({
             <p className="mt-2 text-xs text-mute">{descricao}</p>
             <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>
 
-            <label className="mt-4 block text-xs text-mute2" htmlFor="senha-exclusao">
+            <label className="mt-4 block text-xs text-mute2" htmlFor={campoId}>
               Digite sua senha para confirmar
             </label>
             <input
-              id="senha-exclusao"
+              id={campoId}
               type="password"
               autoComplete="current-password"
               value={senha}

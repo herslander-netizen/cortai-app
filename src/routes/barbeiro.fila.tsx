@@ -34,7 +34,7 @@ function FilaPage() {
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
 
   return (
-    <Screen title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
+    <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
       {aviso ? <p className="mb-4 text-sm text-sage">{aviso}</p> : null}
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 

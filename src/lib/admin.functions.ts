@@ -195,3 +195,67 @@ export const getGlobalDesign = createServerFn({ method: "GET" }).handler(async (
   const { data } = await client.from("design_da_plataforma").select("cor_fundo, cor_superficie, cor_primaria, cor_texto, tipografia, raio_px").eq("id", true).maybeSingle();
   return data;
 });
+/* ------------------- CICLO DE VIDA DAS BARBEARIAS (ADMIN) ------------------ */
+
+export const definirStatusDaBarbearia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid(), ativo: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const db = await adminContext(context);
+    const { error } = await db.from("tenants").update({ ativo: data.ativo }).eq("id", data.tenantId);
+    if (error) throw new Error(error.message);
+    return { ok: true, ativo: data.ativo };
+  });
+
+/**
+ * Exclusão permanente de uma barbearia: só o dono da plataforma, com senha
+ * revalidada no servidor. Apaga na ordem das dependências para não deixar
+ * registros órfãos.
+ */
+export const excluirBarbearia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z.object({ tenantId: z.string().uuid(), senha: z.string().min(1).max(200) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const db = await adminContext(context);
+    const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
+    await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha);
+
+    const tenantId = data.tenantId;
+    const { data: tenant } = await db.from("tenants").select("id, nome").eq("id", tenantId).maybeSingle();
+    if (!tenant) throw new Error("Barbearia não encontrada.");
+
+    const { data: carteiras } = await db.from("carteiras").select("id").eq("tenant_id", tenantId);
+    const carteiraIds = (carteiras ?? []).map((c: { id: string }) => c.id);
+    if (carteiraIds.length) await db.from("movimentos").delete().in("carteira_id", carteiraIds);
+
+    const { data: vendas } = await db.from("vendas").select("id").eq("tenant_id", tenantId);
+    const vendaIds = (vendas ?? []).map((v: { id: string }) => v.id);
+    if (vendaIds.length) await db.from("venda_itens").delete().in("venda_id", vendaIds);
+
+    for (const tabela of [
+      "vendas",
+      "avaliacoes",
+      "fila_de_espera",
+      "indicacoes",
+      "agendamentos",
+      "carteiras",
+      "clientes",
+      "produtos",
+      "servicos",
+      "profissionais",
+      "regras_de_plano",
+      "historico_de_plano",
+      "contatos_de_retencao",
+      "tenant_branding_versions",
+      "tenant_usuarios",
+    ] as const) {
+      const { error } = await db.from(tabela).delete().eq("tenant_id", tenantId);
+      if (error) throw new Error(error.message);
+    }
+
+    const { error } = await db.from("tenants").delete().eq("id", tenantId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

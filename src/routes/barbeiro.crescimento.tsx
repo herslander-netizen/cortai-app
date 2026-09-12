@@ -45,7 +45,7 @@ function CrescimentoPage() {
   }, [link]);
 
   return (
-    <Screen title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz sua barbearia crescer."}>
+    <Screen voltarPara="/barbeiro/mais" title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz sua barbearia crescer."}>
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
 
       {data ? (

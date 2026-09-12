@@ -5,7 +5,13 @@ import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
-import { getFichaCliente, registrarBaixaFiado } from "@/lib/barbeiro.functions";
+import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
+import {
+  arquivarCliente,
+  excluirClientePermanente,
+  getFichaCliente,
+  registrarBaixaFiado,
+} from "@/lib/barbeiro.functions";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
@@ -31,7 +37,12 @@ function diasDesde(iso: string) {
 
 function FichaPage() {
   const { id } = Route.useParams();
+  const navigate = Route.useNavigate();
   const baixar = useServerFn(registrarBaixaFiado);
+  const arquivar = useServerFn(arquivarCliente);
+  const excluir = useServerFn(excluirClientePermanente);
+  const [arquivando, setArquivando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
   const [valor, setValor] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
 
@@ -175,6 +186,50 @@ function FichaPage() {
           <p className="rounded-lg border border-line bg-ink2 px-4 py-4 text-sm text-mute">
             {data.cliente.ficha_tecnica ?? "Nada anotado ainda sobre máquina, tesoura ou preferências."}
           </p>
+
+          <section className="mt-10 border-t border-line pt-6">
+            <h2 className="text-sm font-semibold text-paper">Situação do cliente</h2>
+            <p className="mt-1 text-xs text-mute">
+              {data.cliente.arquivado_em
+                ? "Arquivado: some das listas do dia a dia, mas o histórico continua nos relatórios."
+                : "Ativo nas listas e na agenda. Arquivar é reversível e não apaga nada."}
+            </p>
+            <button
+              type="button"
+              disabled={arquivando}
+              className="btn-secondary mt-3 w-full disabled:opacity-50"
+              onClick={async () => {
+                setArquivando(true);
+                setErro(null);
+                try {
+                  await arquivar({ data: { clienteId: id, arquivar: !data.cliente.arquivado_em } });
+                  setAviso(data.cliente.arquivado_em ? "Cliente reativado." : "Cliente arquivado.");
+                  refetch();
+                } catch {
+                  setErro("Não foi possível mudar a situação agora.");
+                } finally {
+                  setArquivando(false);
+                }
+              }}
+            >
+              {arquivando ? "Salvando…" : data.cliente.arquivado_em ? "Reativar cliente" : "Arquivar cliente"}
+            </button>
+            {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
+            <p className="mt-5 text-xs text-mute2">
+              A exclusão definitiva só é possível para cadastros sem nenhum atendimento ou lançamento financeiro.
+              Com histórico, o caminho seguro é arquivar.
+            </p>
+            <div className="mt-2">
+              <ExclusaoPermanente
+                titulo={`Excluir ${data.cliente.nome} permanentemente`}
+                descricao="O cadastro e a carteira deste cliente serão apagados. Clientes com atendimentos ou valores lançados não podem ser excluídos."
+                onExcluir={async (senha) => {
+                  await excluir({ data: { clienteId: id, senha } });
+                }}
+                onSucesso={() => navigate({ to: "/barbeiro/clientes" })}
+              />
+            </div>
+          </section>
         </>
       ) : null}
     </Screen>

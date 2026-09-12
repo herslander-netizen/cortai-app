@@ -6,7 +6,15 @@ import { useMemo, useState } from "react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { addRetentionContact, getAdminTenants, getRetentionContacts, type AdminTenant } from "@/lib/admin.functions";
+import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
+import {
+  addRetentionContact,
+  definirStatusDaBarbearia,
+  excluirBarbearia,
+  getAdminTenants,
+  getRetentionContacts,
+  type AdminTenant,
+} from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({ meta: [
@@ -26,16 +34,16 @@ function BarbeariasPage() {
   return <AdminScreen title="Barbearias" subtitle="Saúde, uso e retenção de cada operação.">
     {query.isError ? <AdminNotice error={query.error} /> : <>
       <div className="flex flex-col gap-3 sm:flex-row"><label className="flex flex-1 items-center gap-2 border-b border-line2 px-1 py-2"><Search size={16} className="text-mute"/><input aria-label="Buscar barbearia" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar barbearia" className="w-full bg-transparent text-sm text-paper outline-none placeholder:text-mute2"/></label><div className="flex gap-1">{(["todas", "pagantes", "risco"] as const).map((item) => <Button key={item} size="sm" variant={filter === item ? "default" : "ghost"} onClick={() => setFilter(item)}>{item === "risco" ? "Em risco" : item.charAt(0).toUpperCase() + item.slice(1)}</Button>)}</div></div>
-      <div className="mt-7 overflow-x-auto"><div className="min-w-[680px]"><div className="grid grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] gap-4 border-b border-line pb-3 text-xs text-mute"><span>Barbearia</span><span>Plano</span><span>Ciclo</span><span>Agenda</span><span>Status</span></div>{list.map((tenant) => <button type="button" key={tenant.id} onClick={() => setSelected(tenant)} className="grid w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 border-b border-line py-4 text-left"><span><span className="block text-sm font-semibold text-paper">{tenant.nome}</span><span className="mt-1 block text-xs text-mute">{tenant.desconto ? `${tenant.desconto}% de desconto` : "sem desconto"}</span></span><span className="text-sm capitalize text-paper">{tenant.plano}</span><span className="text-sm capitalize text-mute">{tenant.ciclo}</span><span className="text-sm text-paper">{tenant.agendamentos}</span><span className={tenant.risco ? "text-xs font-semibold text-brick" : "text-xs font-semibold text-sage"}>{tenant.risco ? "Em risco" : "Saudável"}</span></button>)}</div></div>
+      <div className="mt-7 overflow-x-auto"><div className="min-w-[680px]"><div className="grid grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] gap-4 border-b border-line pb-3 text-xs text-mute"><span>Barbearia</span><span>Plano</span><span>Ciclo</span><span>Agenda</span><span>Status</span></div>{list.map((tenant) => <button type="button" key={tenant.id} onClick={() => setSelected(tenant)} className="grid w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 border-b border-line py-4 text-left"><span><span className="block text-sm font-semibold text-paper">{tenant.nome}</span><span className="mt-1 block text-xs text-mute">{tenant.desconto ? `${tenant.desconto}% de desconto` : "sem desconto"}</span></span><span className="text-sm capitalize text-paper">{tenant.plano}</span><span className="text-sm capitalize text-mute">{tenant.ciclo}</span><span className="text-sm text-paper">{tenant.agendamentos}</span><span className={!tenant.ativo ? "text-xs font-semibold text-mute" : tenant.risco ? "text-xs font-semibold text-brick" : "text-xs font-semibold text-sage"}>{!tenant.ativo ? "Desativada" : tenant.risco ? "Em risco" : "Saudável"}</span></button>)}</div></div>
       {!query.isLoading && !list.length ? <p className="mt-8 text-sm text-mute">Nenhuma barbearia neste filtro.</p> : null}
-      <TenantDialog tenant={selected} onClose={() => setSelected(null)} />
+      <TenantDialog tenant={selected} onClose={() => setSelected(null)} onChanged={() => { void query.refetch(); setSelected(null); }} />
     </>}
   </AdminScreen>;
 }
 
-function TenantDialog({ tenant, onClose }: { tenant: AdminTenant | null; onClose: () => void }) {
+function TenantDialog({ tenant, onClose, onChanged }: { tenant: AdminTenant | null; onClose: () => void; onChanged: () => void }) {
   const contacts = useQuery({ queryKey: ["retention-contacts", tenant?.id], queryFn: () => getRetentionContacts({ data: { tenantId: tenant?.id ?? "" } }), enabled: Boolean(tenant), retry: false });
-  const add = useServerFn(addRetentionContact); const [result, setResult] = useState("conversou"); const [note, setNote] = useState(""); const [channel, setChannel] = useState<"whatsapp" | "telefone">("whatsapp");
+  const add = useServerFn(addRetentionContact); const setStatus = useServerFn(definirStatusDaBarbearia); const remover = useServerFn(excluirBarbearia); const [statusOcupado, setStatusOcupado] = useState(false); const [erroStatus, setErroStatus] = useState<string | null>(null); const [result, setResult] = useState("conversou"); const [note, setNote] = useState(""); const [channel, setChannel] = useState<"whatsapp" | "telefone">("whatsapp");
   if (!tenant) return null;
   const number = (tenant.whatsapp ?? tenant.telefone ?? "").replace(/\D/g, "");
   const message = encodeURIComponent("Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar sua barbearia a aproveitar melhor o Cortaí.");
@@ -45,5 +53,24 @@ function TenantDialog({ tenant, onClose }: { tenant: AdminTenant | null; onClose
     {(tenant.whatsapp || tenant.telefone) ? <section className="mt-3"><div className="flex gap-2">{tenant.whatsapp ? <Button asChild onClick={() => setChannel("whatsapp")}><a href={`https://wa.me/${number}?text=${message}`} target="_blank" rel="noreferrer"><MessageCircle/>WhatsApp</a></Button> : null}{tenant.telefone ? <Button asChild variant="outline" onClick={() => setChannel("telefone")}><a href={`tel:${tenant.telefone}`}><Phone/>Ligar</a></Button> : null}</div>
       <div className="mt-5 border-t border-line pt-5"><p className="text-sm font-semibold text-paper">Registrar resultado</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><select aria-label="Canal" value={channel} onChange={(e) => setChannel(e.target.value as typeof channel)} className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">{tenant.whatsapp ? <option value="whatsapp">WhatsApp</option> : null}{tenant.telefone ? <option value="telefone">Telefone</option> : null}</select><select aria-label="Resultado" value={result} onChange={(e) => setResult(e.target.value)} className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">{Object.entries(statusLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div><textarea aria-label="Observação" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Observação do contato" className="mt-3 min-h-20 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"/><Button className="mt-3" onClick={async () => { await add({ data: { tenantId: tenant.id, canal: channel, resultado: result as "sem_resposta" | "conversou" | "recuperou" | "cancelou", observacao: note || null } }); setNote(""); contacts.refetch(); }}>Salvar resultado</Button></div>
     </section> : null}
+    <section className="mt-6 border-t border-line pt-5">
+      <p className="text-sm font-semibold text-paper">Situação da barbearia</p>
+      <p className="mt-1 text-xs text-mute">{tenant.ativo ? "Ativa: a equipe consegue usar o Cortaí normalmente." : "Desativada: a equipe não consegue operar, mas nenhum dado foi apagado."}</p>
+      <Button className="mt-3" variant={tenant.ativo ? "outline" : "default"} disabled={statusOcupado} onClick={async () => { setStatusOcupado(true); setErroStatus(null); try { await setStatus({ data: { tenantId: tenant.id, ativo: !tenant.ativo } }); onChanged(); } catch { setErroStatus("Não foi possível mudar a situação agora."); } finally { setStatusOcupado(false); } }}>
+        {statusOcupado ? "Salvando…" : tenant.ativo ? "Desativar barbearia" : "Reativar barbearia"}
+      </Button>
+      {erroStatus ? <p className="mt-2 text-xs text-brick">{erroStatus}</p> : null}
+      <div className="mt-5 border-t border-line pt-4">
+        <p className="text-xs text-mute2">Prefira desativar. A exclusão apaga tudo desta barbearia para sempre.</p>
+        <div className="mt-2">
+          <ExclusaoPermanente
+            titulo={`Excluir ${tenant.nome} permanentemente`}
+            descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos desta barbearia. Não há como recuperar."
+            onExcluir={async (senha) => { await remover({ data: { tenantId: tenant.id, senha } }); }}
+            onSucesso={onChanged}
+          />
+        </div>
+      </div>
+    </section>
   </DialogContent></Dialog>;
 }
