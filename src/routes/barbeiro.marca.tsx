@@ -52,6 +52,7 @@ function Secao({ title, children }: { title: string; children: React.ReactNode }
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca() });
   if (query.isLoading) return <Screen title="Marca"><p className="text-sm text-mute">Carregando…</p></Screen>;
+  if (query.isError) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
   if (!query.data) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
   return <MarcaFormPage initial={query.data.marca} versions={query.data.versoes} reload={() => query.refetch()} />;
 }
@@ -83,6 +84,19 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
     image.src = URL.createObjectURL(file);
     image.onload = async () => {
       if (image.width !== image.height || image.width < 512) { setStatus("A logo precisa ser quadrada e ter pelo menos 512 px."); URL.revokeObjectURL(image.src); return; }
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      context?.drawImage(image, 0, 0);
+      const pixels = context?.getImageData(0, 0, canvas.width, canvas.height).data;
+      let hasTransparency = false;
+      if (pixels) {
+        for (let index = 3; index < pixels.length; index += 4) {
+          if (pixels[index] !== 255) { hasTransparency = true; break; }
+        }
+      }
+      if (!hasTransparency) { setStatus("A logo precisa ter fundo transparente."); URL.revokeObjectURL(image.src); return; }
       setBusy(true);
       const path = `${initial.id}/logo-${Date.now()}.png`;
       const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: "image/png" });

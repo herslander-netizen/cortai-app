@@ -8,7 +8,6 @@ export function ClientBrand({ children }: { children: ReactNode }) {
   const style = data ? ({
     "--gold": data.cor_primaria,
     "--primary": data.cor_primaria,
-    "--ink3": data.cor_secundaria ?? undefined,
     "--secondary": data.cor_secundaria ?? undefined,
     "--sage": data.cor_accent ?? undefined,
     "--accent": data.cor_accent ?? undefined,
