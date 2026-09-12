@@ -11,12 +11,12 @@ export function Screen({
   children?: ReactNode;
 }) {
   return (
-    <div className="mx-auto min-h-screen w-full max-w-[430px] pb-24">
+    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col pb-24">
       <header className="px-5 pb-6 pt-10">
         <h1 className="screen-title">{title}</h1>
         {subtitle ? <p className="mt-2 text-sm text-mute">{subtitle}</p> : null}
       </header>
-      <main className="px-5">{children}</main>
+      <main className="flex-1 px-5">{children}</main>
       <Signature />
     </div>
   );
