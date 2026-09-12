@@ -104,6 +104,26 @@ function AgendaPage() {
                         ? `Fiado · ${brl(item.valor_centavos)}`
                         : brl(item.valor_centavos)}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    <span className="text-[11px] text-mute2">Repetir:</span>
+                    {(["semanal", "quinzenal", "mensal"] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className="btn-tertiary text-[11px]"
+                        onClick={async () => {
+                          try {
+                            const r = await repetir({ data: { agendamentoId: item.id, periodicidade: p } });
+                            setAviso(`Repetido para ${new Date(r.inicio).toLocaleDateString("pt-BR")}.`);
+                          } catch (e) {
+                            setAviso(e instanceof Error ? e.message : "Não foi possível repetir.");
+                          }
+                        }}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : bloqueio ? (
                 <div className="flex-1 border-l-2 border-l-mute2 bg-ink2 px-4 py-3">
