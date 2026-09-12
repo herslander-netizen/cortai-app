@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
+import { repetirAgendamento } from "@/lib/crescimento.functions";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
   head: () => ({
