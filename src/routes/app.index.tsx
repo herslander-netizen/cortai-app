@@ -44,7 +44,7 @@ function InicioCliente() {
       <main className="flex-1 px-5">
         <section className="relative min-h-[340px] overflow-hidden rounded-2xl">
           <img src={coverAsset.url} alt="Cadeira de barbearia em ambiente sofisticado" width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_5%,var(--ink)_100%)]" />
+          <div className="absolute inset-0 bg-ink/55" />
           <div className="relative flex min-h-[340px] flex-col justify-end p-5">
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase text-gold"><Sparkles size={13} /> Sua melhor versão</p>
             <p className="mt-2 max-w-[300px] text-[30px] font-bold leading-[1.1] text-paper">Seu estilo, no seu horário.</p>

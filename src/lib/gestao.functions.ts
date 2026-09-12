@@ -51,7 +51,17 @@ export const salvarProduto = createServerFn({ method: "POST" })
   .validator((input: unknown) => produtoSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
-    const payload = { ...data, tenant_id: tenantId };
+    const payload = {
+      nome: data.nome,
+      foto_url: data.foto_url,
+      categoria: data.categoria,
+      custo_centavos: data.custo_centavos,
+      preco_centavos: data.preco_centavos,
+      quantidade: data.quantidade,
+      estoque_minimo: data.estoque_minimo,
+      ativo: data.ativo,
+      tenant_id: tenantId,
+    };
     const { error } = data.id
       ? await context.supabase.from("produtos").update(payload).eq("id", data.id).eq("tenant_id", tenantId)
       : await context.supabase.from("produtos").insert(payload);

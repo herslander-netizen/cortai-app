@@ -38,7 +38,7 @@ function PaginaBarbearia() {
   return <div className="client-brand min-h-screen bg-ink" style={style} data-hide-signature={tenant.assinatura_visivel === false}>
     <header className="relative mx-auto min-h-[62vh] max-h-[720px] overflow-hidden">
       <img src={tenant.capa_signed_url ?? coverAsset.url} alt={`Ambiente da ${tenant.nome}`} width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_20%,var(--ink)_98%)]" />
+      <div className="absolute inset-0 bg-ink/55" />
       <div className="relative mx-auto flex min-h-[62vh] max-w-6xl flex-col justify-end px-5 pb-10 sm:px-8">
         {tenant.logo_signed_url ? <img src={tenant.logo_signed_url} alt={`Logo ${tenant.nome}`} className="mb-5 h-16 w-16 rounded-xl border border-line bg-ink2/80 object-contain p-1" /> : null}
         <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>

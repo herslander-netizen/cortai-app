@@ -129,7 +129,7 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
   return <Screen title="Marca" subtitle="A identidade que seus clientes veem.">
     <Secao title="Prévia da página pública">
       <div className="overflow-hidden rounded-lg border border-line bg-ink2" style={previewStyle}>
-        <div className="relative h-36 overflow-hidden bg-ink3">{coverPreview ? <img src={coverPreview} alt="Prévia da capa" className="h-full w-full object-cover" /> : null}<div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,var(--ink2))]" /></div>
+        <div className="relative h-36 overflow-hidden bg-ink3">{coverPreview ? <img src={coverPreview} alt="Prévia da capa" className="h-full w-full object-cover opacity-60" /> : null}</div>
         <div className="relative -mt-8 flex items-end gap-3 p-4">
           {logoPreview ? <img src={logoPreview} alt={`Logo ${form.nome}`} className="h-12 w-12 rounded-lg object-contain" /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-line2 text-[9px] text-mute">SUA LOGO</div>}
           <div><p className="text-sm font-bold text-paper">{form.nome || "Sua barbearia"}</p><p className="text-[11px] text-mute">{form.texto_boas_vindas || "Sua barbearia, no seu tempo."}</p></div>
