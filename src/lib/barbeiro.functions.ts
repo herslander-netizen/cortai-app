@@ -516,3 +516,75 @@ export const removerDaFila = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* -------------------------- CICLO DE VIDA DO CLIENTE ---------------------- */
+
+/** Arquivar é reversível: some das listas, mas nada de histórico é apagado. */
+export const arquivarCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { clienteId: string; arquivar: boolean }) => ({
+    clienteId: String(data.clienteId),
+    arquivar: Boolean(data.arquivar),
+  }))
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const { error } = await db
+      .from("clientes")
+      .update({ arquivado_em: data.arquivar ? new Date().toISOString() : null })
+      .eq("id", data.clienteId)
+      .eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true, arquivado: data.arquivar };
+  });
+
+/**
+ * Exclusão permanente do cliente: só quando não há histórico de atendimento
+ * nem lançamento financeiro. Com histórico, o caminho seguro é arquivar.
+ */
+export const excluirClientePermanente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { clienteId: string; senha: string }) => ({
+    clienteId: String(data.clienteId),
+    senha: String(data.senha ?? ""),
+  }))
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const { data: cliente } = await db
+      .from("clientes")
+      .select("id")
+      .eq("id", data.clienteId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!cliente) throw new Error("Cliente não encontrado.");
+
+    const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
+    await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha);
+
+    const { data: agendamentos } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("cliente_id", cliente.id)
+      .limit(1);
+    const { data: carteira } = await db
+      .from("carteiras")
+      .select("id")
+      .eq("cliente_id", cliente.id)
+      .maybeSingle();
+    let temMovimento = false;
+    if (carteira) {
+      const { data: movimentos } = await db.from("movimentos").select("id").eq("carteira_id", carteira.id).limit(1);
+      temMovimento = Boolean(movimentos?.length);
+    }
+    if (agendamentos?.length || temMovimento) {
+      throw new Error(
+        "Este cliente tem histórico de atendimento ou financeiro. Para não apagar seus relatórios, arquive o cliente.",
+      );
+    }
+
+    await db.from("fila_de_espera").delete().eq("cliente_id", cliente.id);
+    await db.from("avaliacoes").delete().eq("cliente_id", cliente.id);
+    if (carteira) await db.from("carteiras").delete().eq("id", carteira.id);
+    const { error } = await db.from("clientes").delete().eq("id", cliente.id).eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
