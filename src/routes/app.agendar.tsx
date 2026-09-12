@@ -65,9 +65,19 @@ function Chip({
   );
 }
 
-function Passo({ n, titulo, children }: { n: number; titulo: string; children: React.ReactNode }) {
+function Passo({
+  n,
+  titulo,
+  guia,
+  children,
+}: {
+  n: number;
+  titulo: string;
+  guia?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="border-t border-line py-6 first:border-t-0 first:pt-0">
+    <section data-guia={guia} className="border-t border-line py-6 first:border-t-0 first:pt-0">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-[11px] text-mute">{n}</span>
         {titulo}
