@@ -13,6 +13,7 @@ import {
   type ResultadoAgendamento,
 } from "@/lib/agendamento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -277,7 +278,7 @@ function Fluxo({
           {dias.map((d) => {
             const { dia: sem, num, mes } = diaCurto(d);
             return (
-              <div key={d} className="snap-start">
+              <div key={d} className="shrink-0 snap-start">
                 <Chip
                   label={`${sem} ${num}/${mes}`}
                   selected={d === dia}
