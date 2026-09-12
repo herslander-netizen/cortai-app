@@ -12,3 +12,9 @@
 - [x] Criar gestão de pedidos das barbearias.
 - [ ] Validar dados com uma sessão autenticada de dono (bloqueado: ainda não há conta do solicitante no app).
 - [x] Aplicar a Direção C nas telas do cliente e validar em 390px.
+- [ ] Refinar a navegação do cliente para Início, Agendar, Meus horários e Perfil.
+- [ ] Reestruturar o Cortaí Gestão com Dashboard, Agenda, Clientes, Financeiro e Mais.
+- [ ] Criar catálogo de produtos, registro de vendas e financeiro por categoria.
+- [ ] Ampliar a personalização e criar página pública compartilhável por barbearia.
+- [ ] Criar tela de entrada com acesso profissional discreto.
+- [ ] Validar as experiências em 390px e corrigir sobreposição, cortes e overflow.
