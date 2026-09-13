@@ -140,12 +140,17 @@ function RootComponent() {
   useEffect(() => {
     let ativo = true;
     let cancelar: (() => void) | undefined;
-    void import("@/integrations/supabase/client").then(({ supabase }) => {
+    void Promise.all([
+      import("@/integrations/supabase/client"),
+      import("@/lib/guarda"),
+    ]).then(([{ supabase }, { sessaoRecemAtualizada, chaveSessao }]) => {
       if (!ativo) return;
       const { data } = supabase.auth.onAuthStateChange((event) => {
         if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        // A sessão é cacheada pelas guardas: precisa cair junto com a troca de conta.
-        queryClient.removeQueries({ queryKey: ["sessao"] });
+        // Quando a própria tela acabou de atualizar a sessão (login, troca de
+        // perfil), não refazemos a consulta: evitava duas idas ao servidor.
+        if (event !== "SIGNED_OUT" && sessaoRecemAtualizada()) return;
+        queryClient.removeQueries({ queryKey: chaveSessao });
         router.invalidate();
         if (event !== "SIGNED_OUT") queryClient.invalidateQueries({ type: "active" });
       });
@@ -156,6 +161,7 @@ function RootComponent() {
       cancelar?.();
     };
   }, [router, queryClient]);
+
 
   return (
     <QueryClientProvider client={queryClient}>
