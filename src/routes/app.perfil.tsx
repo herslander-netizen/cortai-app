@@ -4,6 +4,7 @@ import { ChevronRight, LogOut, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
+import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 
@@ -36,6 +37,7 @@ function PerfilPage() {
         </div>
       </div>
       <ul className="mt-3">
+        <AtalhoInstalar />
         <li className="border-b border-line">
           <Link
             to="/app/carteira"

@@ -99,6 +99,12 @@
     color-scheme: dark;
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -132,25 +138,53 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
   border-radius: 12px;
   background-color: var(--gold);
   color: var(--ink);
   font-weight: 700;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms ease, transform 120ms ease;
+  &:hover { opacity: 0.92; }
+  &:active { opacity: 0.85; transform: scale(0.99); }
+  &:disabled { opacity: 0.5; pointer-events: none; }
 }
 
 @utility btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 13px;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: var(--radius);
   background-color: transparent;
   border: 1px solid var(--line2);
   color: var(--paper);
   font-weight: 500;
+  transition: background-color 120ms ease, border-color 120ms ease;
+  &:hover { border-color: var(--gold); }
+  &:active { background-color: var(--ink2); }
+  &:disabled { opacity: 0.5; pointer-events: none; }
+}
+
+/* Ação destrutiva: vermelho discreto, nunca dourado. */
+@utility btn-destrutivo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background-color: transparent;
+  border: 1px solid var(--brick);
+  color: var(--brick);
+  font-weight: 600;
   transition: background-color 120ms ease;
+  &:active { background-color: rgba(0, 0, 0, 0.2); }
+  &:disabled { opacity: 0.5; pointer-events: none; }
 }
 
 @utility input-premium {
@@ -202,6 +236,20 @@
   display: none;
   width: 0;
   height: 0;
+}
+
+/* A navegação inferior nunca mostra barra de rolagem nem se estica. */
+nav[aria-label$="barbearia"],
+nav[aria-label="Navegação principal"],
+nav[aria-label="Painel da plataforma"] {
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+nav[aria-label$="barbearia"]::-webkit-scrollbar,
+nav[aria-label="Navegação principal"]::-webkit-scrollbar,
+nav[aria-label="Painel da plataforma"]::-webkit-scrollbar {
+  display: none;
 }
 
 

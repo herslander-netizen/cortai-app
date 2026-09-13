@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight, ClipboardList, Handshake, Palette, UserRound } from "lucide-react";
 
+import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { AdminScreen } from "@/components/layout/AdminScreen";
 
 export const Route = createFileRoute("/admin/mais")({
@@ -26,6 +27,7 @@ function AdminMais() {
   return (
     <AdminScreen title="Mais" subtitle="Ferramentas da plataforma.">
       <ul>
+        <AtalhoInstalar />
         {itens.map((item) => {
           const Icon = item.icon;
           return (
