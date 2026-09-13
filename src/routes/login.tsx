@@ -147,11 +147,30 @@ function LoginPage() {
       <button
         type="button"
         className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
+        disabled={enviando}
         onClick={async () => {
           setErro(null);
+          setEnviando(true);
           try {
-            await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+            const retorno = new URL("/entrar/retorno", window.location.origin);
+            if (proximo && proximo.startsWith("/") && !proximo.startsWith("//")) {
+              retorno.searchParams.set("proximo", proximo);
+            }
+            const resultado = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: retorno.toString(),
+            });
+            if (resultado.error) {
+              setEnviando(false);
+              setErro("Não foi possível continuar com o Google.");
+              return;
+            }
+            // Redirecionamento de página inteira: o retorno assume daqui.
+            if (resultado.redirected) return;
+            // Fluxo em popup: a sessão já está definida, segue direto para a área certa.
+            await seguirParaMinhaArea();
+            setEnviando(false);
           } catch {
+            setEnviando(false);
             setErro("Não foi possível continuar com o Google.");
           }
         }}

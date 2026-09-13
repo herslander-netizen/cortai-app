@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      aceites_legais: {
+        Row: {
+          aceito: boolean
+          criado_em: string
+          documento: string
+          id: string
+          origem: string
+          user_id: string
+          versao: string
+        }
+        Insert: {
+          aceito?: boolean
+          criado_em?: string
+          documento: string
+          id?: string
+          origem?: string
+          user_id: string
+          versao: string
+        }
+        Update: {
+          aceito?: boolean
+          criado_em?: string
+          documento?: string
+          id?: string
+          origem?: string
+          user_id?: string
+          versao?: string
+        }
+        Relationships: []
+      }
       agendamentos: {
         Row: {
           cancelado_em: string | null
@@ -24,6 +54,8 @@ export type Database = {
           id: string
           inicio: string
           origem: string
+          pagamento_confirmado_em: string | null
+          pagamento_confirmado_por: string | null
           profissional_id: string | null
           recorrencia: string | null
           servico_id: string | null
@@ -40,6 +72,8 @@ export type Database = {
           id?: string
           inicio: string
           origem?: string
+          pagamento_confirmado_em?: string | null
+          pagamento_confirmado_por?: string | null
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
@@ -56,6 +90,8 @@ export type Database = {
           id?: string
           inicio?: string
           origem?: string
+          pagamento_confirmado_em?: string | null
+          pagamento_confirmado_por?: string | null
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
@@ -87,6 +123,44 @@ export type Database = {
           },
           {
             foreignKeyName: "agendamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      auditoria_da_barbearia: {
+        Row: {
+          acao: string
+          alvo: string
+          ator_user_id: string | null
+          criado_em: string
+          detalhes: Json
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          acao: string
+          alvo: string
+          ator_user_id?: string | null
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          acao?: string
+          alvo?: string
+          ator_user_id?: string | null
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditoria_da_barbearia_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -318,13 +392,17 @@ export type Database = {
           cor_primaria: string
           cor_superficie: string
           cor_texto: string
+          facebook_cortai: string | null
           id: boolean
+          instagram_cortai: string | null
           preco_essencial_centavos: number
           preco_pro_centavos: number
           preco_studio_centavos: number
           raio_px: number
+          tiktok_cortai: string | null
           tipografia: string
           whatsapp_alvo: string | null
+          youtube_cortai: string | null
         }
         Insert: {
           atualizado_em?: string
@@ -333,13 +411,17 @@ export type Database = {
           cor_primaria?: string
           cor_superficie?: string
           cor_texto?: string
+          facebook_cortai?: string | null
           id?: boolean
+          instagram_cortai?: string | null
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
+          tiktok_cortai?: string | null
           tipografia?: string
           whatsapp_alvo?: string | null
+          youtube_cortai?: string | null
         }
         Update: {
           atualizado_em?: string
@@ -348,13 +430,17 @@ export type Database = {
           cor_primaria?: string
           cor_superficie?: string
           cor_texto?: string
+          facebook_cortai?: string | null
           id?: boolean
+          instagram_cortai?: string | null
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
+          tiktok_cortai?: string | null
           tipografia?: string
           whatsapp_alvo?: string | null
+          youtube_cortai?: string | null
         }
         Relationships: []
       }
@@ -847,6 +933,41 @@ export type Database = {
         }
         Relationships: []
       }
+      recursos_do_tenant: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          chave: string
+          criado_em: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave: string
+          criado_em?: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave?: string
+          criado_em?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recursos_do_tenant_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regras_de_plano: {
         Row: {
           ativo: boolean
@@ -1033,6 +1154,7 @@ export type Database = {
           criado_em: string
           id: string
           papel: string
+          permissoes: string[]
           tenant_id: string
           user_id: string
         }
@@ -1040,6 +1162,7 @@ export type Database = {
           criado_em?: string
           id?: string
           papel?: string
+          permissoes?: string[]
           tenant_id: string
           user_id: string
         }
@@ -1047,6 +1170,7 @@ export type Database = {
           criado_em?: string
           id?: string
           papel?: string
+          permissoes?: string[]
           tenant_id?: string
           user_id?: string
         }
@@ -1339,10 +1463,18 @@ export type Database = {
           tipografia: string
         }[]
       }
+      confirmar_pagamento_agendamento: {
+        Args: { _agendamento_id: string; _forma_pagamento: string }
+        Returns: Json
+      }
       contato_da_plataforma: {
         Args: never
         Returns: {
+          facebook_cortai: string
+          instagram_cortai: string
+          tiktok_cortai: string
           whatsapp_alvo: string
+          youtube_cortai: string
         }[]
       }
       criar_agendamento: {
@@ -1364,10 +1496,28 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_tenant_permission: {
+        Args: { _permission: string; _tenant_id: string }
+        Returns: boolean
+      }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
+      permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
+      recurso_do_tenant_ativo: {
+        Args: { _chave: string; _tenant_id: string }
+        Returns: boolean
+      }
       registrar_acesso_do_tenant: {
         Args: { _tenant_id: string }
+        Returns: undefined
+      }
+      registrar_auditoria_barbearia: {
+        Args: {
+          _acao: string
+          _alvo: string
+          _detalhes?: Json
+          _tenant_id: string
+        }
         Returns: undefined
       }
       registrar_venda_produto: {
