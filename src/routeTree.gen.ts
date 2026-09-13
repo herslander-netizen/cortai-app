@@ -23,6 +23,7 @@ import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
+import { Route as AdminHomeRouteImport } from './routes/admin.home'
 import { Route as AdminMaisRouteImport } from './routes/admin.mais'
 import { Route as AdminMonetizacaoRouteImport } from './routes/admin.monetizacao'
 import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
@@ -128,6 +129,11 @@ const AdminAjustesRoute = AdminAjustesRouteImport.update({
 const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
   id: '/barbearias',
   path: '/barbearias',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminHomeRoute = AdminHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMaisRoute = AdminMaisRouteImport.update({
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -426,6 +434,7 @@ export interface FileRoutesById {
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/home'
     | '/admin/mais'
     | '/admin/monetizacao'
     | '/admin/parceiros'
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/home'
     | '/admin/mais'
     | '/admin/monetizacao'
     | '/admin/parceiros'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/home'
     | '/admin/mais'
     | '/admin/monetizacao'
     | '/admin/parceiros'
@@ -735,6 +747,13 @@ declare module '@tanstack/react-router' {
       path: '/barbearias'
       fullPath: '/admin/barbearias'
       preLoaderRoute: typeof AdminBarbeariasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/home': {
+      id: '/admin/home'
+      path: '/home'
+      fullPath: '/admin/home'
+      preLoaderRoute: typeof AdminHomeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/mais': {
@@ -995,6 +1014,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
+  AdminHomeRoute: typeof AdminHomeRoute
   AdminMaisRoute: typeof AdminMaisRoute
   AdminMonetizacaoRoute: typeof AdminMonetizacaoRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
@@ -1007,6 +1027,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
+  AdminHomeRoute: AdminHomeRoute,
   AdminMaisRoute: AdminMaisRoute,
   AdminMonetizacaoRoute: AdminMonetizacaoRoute,
   AdminParceirosRoute: AdminParceirosRoute,

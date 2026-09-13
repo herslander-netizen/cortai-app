@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ClipboardList, Palette, SlidersHorizontal, UserRound, UsersRound } from "lucide-react";
+import { ChevronRight, ClipboardList, LayoutTemplate, Palette, SlidersHorizontal, UserRound, UsersRound } from "lucide-react";
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
 
@@ -22,6 +22,12 @@ const grupos = [
     titulo: "Operação da plataforma",
     itens: [
       { to: "/admin/pedidos", label: "Pedidos", detail: "Solicitações e prioridades das barbearias", icon: ClipboardList },
+    ],
+  },
+  {
+    titulo: "Conteúdo público",
+    itens: [
+      { to: "/admin/home", label: "Home", detail: "Topo, seções, imagens e aparência da página inicial", icon: LayoutTemplate },
       { to: "/admin/parceiros", label: "Parceiros", detail: "Faixa pública e parcerias ativas", icon: UsersRound },
     ],
   },
