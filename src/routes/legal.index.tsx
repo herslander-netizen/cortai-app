@@ -60,7 +60,7 @@ function IndiceLegal() {
       </div>
 
       <div className="mx-auto w-full max-w-[680px]">
-        <Signature />
+        <Signature mostrarLegal />
       </div>
     </div>
   );

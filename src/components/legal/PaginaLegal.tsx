@@ -52,7 +52,7 @@ export function PaginaLegal({ documento }: { documento: DocumentoLegal }) {
       </div>
 
       <div className="mx-auto w-full max-w-[680px]">
-        <Signature />
+        <Signature mostrarLegal />
       </div>
     </div>
   );

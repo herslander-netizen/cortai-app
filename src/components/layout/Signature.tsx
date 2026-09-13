@@ -27,7 +27,7 @@ export function useContatoDaPlataforma() {
 
 export function Signature({
   mostrarRedesSociais = false,
-  mostrarLegal = true,
+  mostrarLegal = false,
 }: {
   mostrarRedesSociais?: boolean;
   mostrarLegal?: boolean;

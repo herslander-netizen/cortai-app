@@ -193,7 +193,7 @@ function LoginPage() {
       </button>
 
       <div className="mt-auto">
-        <Signature mostrarRedesSociais />
+        <Signature mostrarRedesSociais mostrarLegal />
       </div>
     </main>
   );
