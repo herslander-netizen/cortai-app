@@ -25,7 +25,7 @@ function FinanceiroPage() {
     {isLoading ? <Carregando /> : null}
     {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-mute">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
     {data ? <>
-      <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink2 p-5">
+      <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink3 p-5">
         <p className="text-xs text-mute">Faturamento no mês</p>
         <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
         <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${data.total ? Math.max(8, data.servicos / data.total * 100) : 0}%` }} /></div>

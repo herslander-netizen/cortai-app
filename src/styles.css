@@ -26,7 +26,9 @@
   --color-mute: var(--mute);
   --color-mute2: var(--mute2);
   --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
   --color-brick: var(--brick);
+  --color-brick-soft: var(--brick-soft);
   --color-line: var(--line);
   --color-line2: var(--line2);
 
@@ -64,7 +66,9 @@
   --mute: #a1a1a1;
   --mute2: #707070;
   --sage: #8fa882;
+  --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
   --brick: #c4705f;
+  --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: #292929;
   --line2: #292929;
   --nav-shadow: 0 -10px 30px rgba(0, 0, 0, 0.24);
@@ -114,6 +118,8 @@
   --border: var(--line);
   --input: var(--line2);
   --nav-shadow: 0 -10px 30px rgba(23, 23, 20, 0.08);
+  --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
+  --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
 }
 
 @layer base {

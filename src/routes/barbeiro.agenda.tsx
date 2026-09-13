@@ -125,7 +125,7 @@ function AgendaPage() {
               <span className="w-12 shrink-0 pt-3 text-xs text-mute">{s.label}</span>
 
               {item ? (
-                <div className={`flex-1 border-l-2 bg-ink2 px-4 py-3 ${corDaBorda(item.forma_pagamento)}`}>
+                <div className={`flex-1 rounded-r-lg border-l-2 bg-ink2 px-4 py-3 ${corDaBorda(item.forma_pagamento)}`}>
                   {item.clienteId ? (
                     <Link
                       to="/barbeiro/clientes/$id"
@@ -172,12 +172,12 @@ function AgendaPage() {
                   </div>
                 </div>
               ) : bloqueio ? (
-                <div className="flex-1 border-l-2 border-l-mute2 bg-ink2 px-4 py-3">
+                <div className="flex-1 rounded-r-lg border-l-2 border-l-mute2 bg-ink2 px-4 py-3">
                   <p className="text-sm text-mute">Almoço</p>
                   <p className="mt-0.5 text-xs text-mute2">Horário bloqueado.</p>
                 </div>
               ) : (
-                <div data-guia="agenda-vazio" className="flex-1 border border-dashed border-line2 border-l-2 px-4 py-3">
+                <div data-guia="agenda-vazio" className="flex-1 rounded-r-lg border border-dashed border-line border-l-2 bg-ink px-4 py-3">
                   <p className="text-sm text-mute">Horário livre</p>
                   <p className="mt-0.5 text-xs text-mute2">
                     {naFila > 0
