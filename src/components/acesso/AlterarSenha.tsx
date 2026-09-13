@@ -49,11 +49,11 @@ export function AlterarSenha() {
               return;
             }
             setSalvando(true);
+            // current_password confirma a identidade de quem está logado.
             const { error } = await supabase.auth.updateUser({
               password: nova,
-              // @ts-expect-error suportado pelo Auth; confirma a identidade de quem está logado
               current_password: atual,
-            });
+            } as Parameters<typeof supabase.auth.updateUser>[0]);
             setSalvando(false);
             if (error) {
               setErro(
