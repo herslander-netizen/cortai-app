@@ -25,13 +25,18 @@ function IndiceLegal() {
   return (
     <div className="min-h-screen">
       <div className="mx-auto w-full max-w-[680px] px-5 pb-4 pt-8">
-        <Link to="/" className="inline-flex items-center gap-1 text-xs text-mute transition-colors hover:text-paper">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-xs text-mute transition-colors hover:text-paper"
+        >
           <ChevronLeft size={14} aria-hidden />
           Início
         </Link>
 
         <header className="mt-5 border-b border-line pb-6">
-          <h1 className="text-[26px] font-bold leading-tight text-paper md:text-[30px]">Informações legais</h1>
+          <h1 className="text-[26px] font-bold leading-tight text-paper md:text-[30px]">
+            Informações legais
+          </h1>
           <p className="mt-3 text-sm leading-relaxed text-mute">
             Os documentos que regulam o uso do Cortaí por clientes, barbearias e profissionais.
           </p>
@@ -47,7 +52,9 @@ function IndiceLegal() {
               >
                 <span className="min-w-0">
                   <span className="block text-[15px] font-semibold text-paper">{doc.titulo}</span>
-                  <span className="mt-1 block text-[13px] leading-relaxed text-mute">{doc.resumo}</span>
+                  <span className="mt-1 block text-[13px] leading-relaxed text-mute">
+                    {doc.resumo}
+                  </span>
                   <span className="mt-2 block text-[11px] text-mute2">
                     Versão {doc.versao} · {doc.atualizadoEm}
                   </span>

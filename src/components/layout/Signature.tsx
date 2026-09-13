@@ -50,7 +50,15 @@ export function Signature({
         </a>
       ) : null}
 
-      {mostrarRedesSociais ? <LinksSociais instagram={contato?.instagram_cortai} facebook={contato?.facebook_cortai} tiktok={contato?.tiktok_cortai} youtube={contato?.youtube_cortai} className="mb-4 justify-center" /> : null}
+      {mostrarRedesSociais ? (
+        <LinksSociais
+          instagram={contato?.instagram_cortai}
+          facebook={contato?.facebook_cortai}
+          tiktok={contato?.tiktok_cortai}
+          youtube={contato?.youtube_cortai}
+          className="mb-4 justify-center"
+        />
+      ) : null}
 
       {mostrarLegal ? <LinksLegais className="mb-6 text-center" /> : null}
 
@@ -64,7 +72,12 @@ export function Signature({
         }}
       >
         {link ? (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gold">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-gold"
+          >
             by ALVO DIGITAL
           </a>
         ) : (

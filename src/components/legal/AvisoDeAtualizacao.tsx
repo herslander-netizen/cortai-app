@@ -35,11 +35,19 @@ export function AvisoDeAtualizacao() {
           <p className="text-[13px] font-semibold text-paper">Atualizamos nossos termos</p>
           <p className="mt-0.5 text-[11px] leading-relaxed text-mute">
             Dê uma olhada nos{" "}
-            <Link to="/legal/$documento" params={{ documento: "termos-de-uso" }} className="underline">
+            <Link
+              to="/legal/$documento"
+              params={{ documento: "termos-de-uso" }}
+              className="underline"
+            >
               Termos de Uso
             </Link>{" "}
             e na{" "}
-            <Link to="/legal/$documento" params={{ documento: "privacidade" }} className="underline">
+            <Link
+              to="/legal/$documento"
+              params={{ documento: "privacidade" }}
+              className="underline"
+            >
               Política de Privacidade
             </Link>
             .
@@ -52,7 +60,12 @@ export function AvisoDeAtualizacao() {
               try {
                 for (const doc of DOCUMENTOS_DE_ACEITE) {
                   await registrarAceite({
-                    data: { documento: doc, versao: VERSAO_DO_ACEITE, aceito: true, origem: "novo-aceite" },
+                    data: {
+                      documento: doc,
+                      versao: VERSAO_DO_ACEITE,
+                      aceito: true,
+                      origem: "novo-aceite",
+                    },
                   });
                 }
                 await refetch();

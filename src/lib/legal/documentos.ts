@@ -84,7 +84,9 @@ const TERMOS_USO: DocumentoLegal = {
     },
     {
       titulo: "4. Uso permitido",
-      paragrafos: ["Você se compromete a usar o Cortaí de forma lícita, respeitosa e conforme estes termos."],
+      paragrafos: [
+        "Você se compromete a usar o Cortaí de forma lícita, respeitosa e conforme estes termos.",
+      ],
       itens: [
         "Não tentar acessar dados, contas ou áreas às quais não tenha autorização.",
         "Não utilizar mecanismos automatizados para extrair dados em massa da plataforma.",
@@ -169,7 +171,8 @@ const TERMOS_BARBEARIAS: DocumentoLegal = {
   slug: "termos-barbearias",
   titulo: "Termos para Barbearias e Estabelecimentos",
   rotulo: "Termos para Barbearias",
-  resumo: "Condições específicas para quem usa o Cortaí para gerir uma barbearia ou estabelecimento.",
+  resumo:
+    "Condições específicas para quem usa o Cortaí para gerir uma barbearia ou estabelecimento.",
   versao: "1.0",
   atualizadoEm: "13 de setembro de 2026",
   publico: "Barbearias",
@@ -537,7 +540,8 @@ const PAGAMENTOS: DocumentoLegal = {
   slug: "pagamentos",
   titulo: "Política de Pagamentos",
   rotulo: "Pagamentos",
-  resumo: "Como os pagamentos funcionam hoje e como funcionarão caso o Cortaí passe a intermediá-los.",
+  resumo:
+    "Como os pagamentos funcionam hoje e como funcionarão caso o Cortaí passe a intermediá-los.",
   versao: "1.0 (estrutura preparada)",
   atualizadoEm: "13 de setembro de 2026",
   publico: "Todos",
@@ -618,9 +622,7 @@ const ALTERACOES: DocumentoLegal = {
     },
     {
       titulo: "5. Histórico",
-      paragrafos: [
-        `Versões anteriores podem ser solicitadas por ${EMAIL_JURIDICO}.`,
-      ],
+      paragrafos: [`Versões anteriores podem ser solicitadas por ${EMAIL_JURIDICO}.`],
     },
   ],
 };

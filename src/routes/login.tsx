@@ -113,7 +113,9 @@ function LoginPage() {
           setAviso(null);
           if (modo === "criar" && !aceitaTermos) {
             setEnviando(false);
-            setErro("Para criar a conta é preciso aceitar os Termos de Uso e a Política de Privacidade.");
+            setErro(
+              "Para criar a conta é preciso aceitar os Termos de Uso e a Política de Privacidade.",
+            );
             return;
           }
           if (modo === "entrar") {
@@ -221,7 +223,8 @@ function LoginPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-gold"
               />
               <span className="text-[12px] leading-relaxed text-mute">
-                Quero receber novidades do Cortaí por e-mail. Opcional, e você pode cancelar quando quiser.
+                Quero receber novidades do Cortaí por e-mail. Opcional, e você pode cancelar quando
+                quiser.
               </span>
             </label>
           </div>

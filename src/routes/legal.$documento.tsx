@@ -12,7 +12,10 @@ export const Route = createFileRoute("/legal/$documento")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Documento não encontrado — Cortaí" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Documento não encontrado — Cortaí" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const { documento } = loaderData;
@@ -42,7 +45,9 @@ function DocumentoIndisponivel() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[680px] flex-col justify-center px-5 text-center">
       <h1 className="text-xl font-bold text-paper">Documento não encontrado</h1>
-      <p className="mt-2 text-sm text-mute">Este documento pode ter sido renomeado ou substituído.</p>
+      <p className="mt-2 text-sm text-mute">
+        Este documento pode ter sido renomeado ou substituído.
+      </p>
       <Link to="/legal" className="mt-6 text-sm font-semibold text-gold">
         Ver informações legais
       </Link>

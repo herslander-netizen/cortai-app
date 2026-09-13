@@ -9,13 +9,18 @@ export function PaginaLegal({ documento }: { documento: DocumentoLegal }) {
   return (
     <div className="min-h-screen">
       <div className="mx-auto w-full max-w-[680px] px-5 pb-4 pt-8">
-        <Link to="/legal" className="inline-flex items-center gap-1 text-xs text-mute transition-colors hover:text-paper">
+        <Link
+          to="/legal"
+          className="inline-flex items-center gap-1 text-xs text-mute transition-colors hover:text-paper"
+        >
           <ChevronLeft size={14} aria-hidden />
           Informações legais
         </Link>
 
         <header className="mt-5 border-b border-line pb-6">
-          <h1 className="text-[26px] font-bold leading-tight text-paper md:text-[30px]">{documento.titulo}</h1>
+          <h1 className="text-[26px] font-bold leading-tight text-paper md:text-[30px]">
+            {documento.titulo}
+          </h1>
           <p className="mt-3 text-sm leading-relaxed text-mute">{documento.resumo}</p>
           <p className="mt-4 text-[11px] text-mute2">
             Versão {documento.versao} · Última atualização em {documento.atualizadoEm}
@@ -34,8 +39,14 @@ export function PaginaLegal({ documento }: { documento: DocumentoLegal }) {
               {secao.itens ? (
                 <ul className="mt-3 space-y-2">
                   {secao.itens.map((item) => (
-                    <li key={item} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 text-[14px] leading-[1.75] text-mute">
-                      <span aria-hidden className="mt-[11px] h-[3px] w-[3px] shrink-0 rounded-full bg-gold" />
+                    <li
+                      key={item}
+                      className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 text-[14px] leading-[1.75] text-mute"
+                    >
+                      <span
+                        aria-hidden
+                        className="mt-[11px] h-[3px] w-[3px] shrink-0 rounded-full bg-gold"
+                      />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -46,8 +57,9 @@ export function PaginaLegal({ documento }: { documento: DocumentoLegal }) {
         </article>
 
         <p className="mt-8 rounded-lg border border-line bg-ink2 px-4 py-3 text-[11px] leading-relaxed text-mute2">
-          Documento de produto, redigido em linguagem clara e sujeito a revisão jurídica antes do lançamento
-          comercial. Campos entre colchetes serão preenchidos com os dados oficiais do Cortaí.
+          Documento de produto, redigido em linguagem clara e sujeito a revisão jurídica antes do
+          lançamento comercial. Campos entre colchetes serão preenchidos com os dados oficiais do
+          Cortaí.
         </p>
       </div>
 
