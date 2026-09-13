@@ -1,7 +1,8 @@
-import { Download, Share, Smartphone } from "lucide-react";
+import { Download, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 import { useInstalacaoApp } from "@/hooks/useInstalacaoApp";
+import { PassosDeInstalacao } from "@/components/pwa/PassosDeInstalacao";
 
 /**
  * Atalho discreto em listas de "Perfil"/"Mais" para quem dispensou o convite.
@@ -40,15 +41,7 @@ export function AtalhoInstalar() {
           {status}
         </p>
       ) : null}
-      {passos ? (
-        <p className="mb-4 flex items-start gap-2 rounded-lg border border-line bg-ink2 px-3 py-2.5 text-xs leading-relaxed text-mute">
-          <Share size={14} className="mt-0.5 shrink-0 text-gold" />
-          <span>
-            Toque em <span className="text-paper">Compartilhar</span> e depois em{" "}
-            <span className="text-paper">Adicionar à Tela de Início</span>.
-          </span>
-        </p>
-      ) : null}
+      {passos ? <PassosDeInstalacao sistema={instalacao.sistema} className="mb-4" /> : null}
     </li>
   );
 }
