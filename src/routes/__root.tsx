@@ -4,20 +4,16 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
-
-const GuiaProvider = lazy(async () => {
-  const modulo = await import("@/components/guia/GuiaProvider");
-  return { default: modulo.GuiaProvider };
-});
+import { GuiaProvider } from "@/components/guia/GuiaProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -87,11 +83,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cortaí — Agendamento para barbearias" },
       {
         name: "description",
-        content: "Agenda • Clientes • Loja • Fidelidade — tudo com a cara da sua barbearia.",
+        content: "Agendamento e gestão para barbearias, direto do celular.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#0B0B0B" },
+      { name: "theme-color", content: "#0B0B0C" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Cortaí" },
     ],
@@ -104,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/icone-cortai-192.png" },
@@ -134,40 +130,23 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const usaGuia = pathname.startsWith("/app") || pathname.startsWith("/barbeiro") || pathname.startsWith("/admin");
 
   useEffect(() => {
-    let ativo = true;
-    let cancelar: (() => void) | undefined;
-    void Promise.all([
-      import("@/integrations/supabase/client"),
-      import("@/lib/guarda"),
-    ]).then(([{ supabase }, { sessaoRecemAtualizada, chaveSessao }]) => {
-      if (!ativo) return;
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        // Quando a própria tela acabou de atualizar a sessão (login, troca de
-        // perfil), não refazemos a consulta: evitava duas idas ao servidor.
-        if (event !== "SIGNED_OUT" && sessaoRecemAtualizada()) return;
-        queryClient.removeQueries({ queryKey: chaveSessao });
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries({ type: "active" });
-      });
-      cancelar = () => data.subscription.unsubscribe();
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      router.invalidate();
+      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
-    return () => {
-      ativo = false;
-      cancelar?.();
-    };
+    return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
-
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <GlobalDesign>
-        {usaGuia ? <Suspense fallback={<Outlet />}><GuiaProvider><Outlet /></GuiaProvider></Suspense> : <Outlet />}
+        <GuiaProvider>
+          <Outlet />
+        </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>
   );

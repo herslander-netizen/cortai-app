@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export function AdminScreen({ title, subtitle, actions, children }: { title: string; subtitle?: string; actions?: ReactNode; children: ReactNode }) {
-  return <div className="mx-auto w-full max-w-[1180px] px-5 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-8 md:px-8 md:pb-12 md:pt-10">
+  return <div className="mx-auto w-full max-w-[1180px] px-5 pb-28 pt-8 md:px-8 md:pb-12 md:pt-10">
     <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div><MarcaCortai tamanho="sm" assinatura={false} /><h1 className="mt-5 text-2xl font-bold text-paper">{title}</h1>{subtitle ? <p className="mt-2 text-sm text-mute">{subtitle}</p> : null}</div>
+      <div><p className="text-xs font-semibold uppercase text-gold">Plataforma Cortaí</p><h1 className="mt-2 text-2xl font-bold text-paper">{title}</h1>{subtitle ? <p className="mt-2 text-sm text-mute">{subtitle}</p> : null}</div>
       {actions}
     </header>
     <main>{children}</main>

@@ -37,48 +37,11 @@
 - [x] Sair da conta no Perfil e em Mais
 
 ## Navegação e permissões da barbearia
-- [x] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
-- [x] Criar Ações rápidas com visibilidade e execução por permissão.
-- [x] Criar Pedidos com confirmação segura de pagamento.
-- [x] Criar permissões individuais por funcionário e perfis padrão por barbearia.
-- [x] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
-- [x] Reorganizar Mais em categorias mostrando só o que está ativo.
-- [x] Corrigir a navegação mobile do admin global com uma central "Mais".
-- [ ] Validar com uma conta real de dono em 390px (bloqueado: sem conta de teste do solicitante).
-
-## Experiência progressiva
-- [x] Criar o gerenciador de recursos da barbearia (/barbeiro/recursos).
-- [x] Esconder recursos desligados da navegação e bloquear acesso direto.
-- [x] Ocultar loja e lista de espera para o cliente quando a barbearia não usa.
-- [x] Reduzir a poluição do painel inicial (blocos vazios escondidos).
-
-## Identidade visual oficial Cortaí
-- [ ] Centralizar tokens e componentes oficiais de marca.
-- [ ] Aplicar a identidade em navegação, áreas públicas, autenticação e módulos internos.
-- [ ] Atualizar favicon, PWA, compartilhamento e carregamento com o símbolo oficial.
-- [ ] Validar todas as famílias de telas em 390 px e desktop, sem overflow.
-- [ ] Executar verificações de tipos, lint disponível e build.
-
-## Redes sociais
-- [ ] Organizar Instagram e Facebook da barbearia na área Marca.
-- [ ] Exibir ícones sociais somente quando houver perfil configurado.
-- [ ] Criar gestão das redes oficiais do Cortaí no painel da plataforma.
-- [ ] Exibir as redes do Cortaí de forma discreta nos rodapés públicos.
-- [ ] Validar permissões, links, mobile e build.
-
-## Refinamento visual e performance
-- [x] Refinar o CTA e a busca secundária da landing.
-- [x] Reduzir recursos e chamadas não críticos no primeiro carregamento.
-- [x] Otimizar imagens e fontes públicas sem perda de conteúdo.
-- [x] Validar landing, busca e login em mobile e desktop.
-- [x] Executar verificação de tipos e build.
-
-## Ajuste pontual da marca
-- [x] Recolocar a logo oficial no local anterior, preservando proporção e suavizando as bordas.
-
-## Entrada emergencial
-- [x] Criar tela inicial mínima com Entrar e Criar conta.
-- [x] Mover a apresentação atual para /apresentacao.
-- [x] Criar /cadastro isolado de módulos pesados.
-- [x] Corrigir bloqueios e loops entre /, /login e áreas autenticadas.
-- [x] Validar mobile 390px, desktop 1280px e build.
+- [ ] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
+- [ ] Criar Ações rápidas com visibilidade e execução por permissão.
+- [ ] Criar Pedidos com confirmação segura de pagamento.
+- [ ] Criar permissões individuais por funcionário e perfis padrão por barbearia.
+- [ ] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
+- [ ] Reorganizar Mais sem remover nenhuma ferramenta existente.
+- [ ] Corrigir a navegação mobile do admin global sem imitar a barbearia.
+- [ ] Validar isolamento entre barbearias, mobile, tipos e build.

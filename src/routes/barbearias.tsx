@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/barbearias")({
   head: () => ({
@@ -27,9 +26,9 @@ function BarbeariasPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-10 pt-8">
       <header className="flex items-center justify-between gap-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-paper" aria-label="Voltar ao Cortaí">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-paper">
           <ArrowLeft size={16} aria-hidden />
-          <MarcaCortai compacta tamanho="sm" />
+          Cortaí
         </Link>
         <Link to="/login" className="text-sm font-semibold text-paper">
           Entrar
@@ -41,7 +40,7 @@ function BarbeariasPage() {
         <FaixaDeParceiros />
       </main>
 
-      <Signature mostrarRedesSociais />
+      <Signature />
     </div>
   );
 }

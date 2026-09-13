@@ -87,13 +87,13 @@ function InicioCliente() {
             <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
             <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo corte.</p>
           </div>
-          {data.fila_ativa ? <Link to="/app/espera" className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">
+          <Link to="/app/espera" className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-paper">Sem horário bom para você?</span>
               <span className="mt-1 block text-xs text-mute">Entre na lista de espera e avisamos quando vagar.</span>
             </span>
             <span className="shrink-0 text-xs text-gold">Entrar</span>
-          </Link> : null}
+          </Link>
           <Link to="/" className="mt-5 block text-xs text-mute underline">
             Trocar de barbearia
           </Link>

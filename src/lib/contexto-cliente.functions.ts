@@ -12,8 +12,6 @@ export type ContextoClienteAtual = {
   logo_signed_url: string | null;
   capa_signed_url: string | null;
   loja: { ativa: boolean; destaques: { id: string; nome: string; preco_centavos: number; foto_url: string | null }[] };
-  /** Recursos que a barbearia realmente usa; o que estiver desligado não aparece. */
-  fila_ativa: boolean;
 };
 
 async function assinada(db: any, caminho: string | null) {
@@ -43,14 +41,7 @@ export const getContextoCliente = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!linha) return null;
 
-    const { data: recursosDoTenant } = await db
-      .from("recursos_do_tenant")
-      .select("chave, ativo")
-      .eq("tenant_id", tenant.id);
-    const recursoAtivo = (chave: string) =>
-      (recursosDoTenant ?? []).find((r: any) => r.chave === chave)?.ativo ?? true;
-
-    let lojaAtiva = Boolean(linha.loja_ativa) && recursoAtivo("loja_online");
+    let lojaAtiva = Boolean(linha.loja_ativa);
     if (lojaAtiva) {
       const { data: regra } = await db
         .from("recursos_de_plano")
@@ -80,7 +71,6 @@ export const getContextoCliente = createServerFn({ method: "GET" })
       texto_boas_vindas: linha.texto_boas_vindas,
       logo_signed_url: await assinada(db, linha.logo_url),
       capa_signed_url: await assinada(db, linha.capa_url),
-      fila_ativa: recursoAtivo("fila_espera"),
       loja: { ativa: lojaAtiva && (destaques ?? []).length > 0, destaques: destaques ?? [] },
     };
   });

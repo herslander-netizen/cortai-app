@@ -8,8 +8,6 @@ import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
-import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
-import { LinksSociais } from "@/components/marca/LinksSociais";
 
 export const Route = createFileRoute("/loja/$slug")({
   head: ({ params }) => ({ meta: [
@@ -45,13 +43,16 @@ function LojaPage() {
             <ArrowLeft size={14} />Voltar para {tenant.nome}
           </Link>
           <div className="mt-5 flex items-center gap-3">
-            <LogoBarbearia nome={tenant.nome} url={tenant.logo_url} size={48} />
+            {tenant.logo_url ? (
+              <img src={tenant.logo_url} alt={`Logo ${tenant.nome}`} className="h-12 w-12 rounded-md object-contain" />
+            ) : (
+              <span className="flex h-12 w-12 items-center justify-center rounded-md bg-ink2 text-gold"><ShoppingBag size={20} /></span>
+            )}
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold text-paper">Loja da {tenant.nome}</h1>
               <p className="mt-0.5 text-xs text-mute">Reserve aqui e retire na barbearia.</p>
             </div>
           </div>
-          <LinksSociais instagram={tenant.instagram} facebook={tenant.facebook} whatsapp={tenant.whatsapp} mostrarRotulos className="mt-4" />
         </header>
 
         <main className="mt-8 flex-1">
@@ -74,11 +75,11 @@ function LojaPage() {
             ))}
           </ul>
         </main>
-        <Signature mostrarRedesSociais />
+        <Signature />
       </div>
 
       {aberto ? (
-        <div className="fixed inset-0 z-40 flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/80 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={aberto.nome}>
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/80 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={aberto.nome}>
           <div className="w-full max-w-md rounded-t-2xl border border-line bg-ink2 p-5 sm:rounded-2xl">
             <div className="flex items-start justify-between gap-4">
               <h2 className="text-lg font-bold text-paper">{aberto.nome}</h2>

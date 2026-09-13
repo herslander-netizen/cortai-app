@@ -156,7 +156,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
                 <p className="text-xs text-paper">{registro.acao.replaceAll("_", " ")}</p>
                 <p className="mt-1 text-xs text-mute">{registro.ator_email ?? "equipe Cortaí"} · {new Date(registro.criado_em).toLocaleString("pt-BR")}</p>
                 <p className="mt-1 text-xs text-mute2">Motivo: {registro.alvo}</p>
-                <pre className="sem-barra mt-2 overflow-x-auto rounded bg-ink px-2 py-1 text-[10px] text-mute2">{registro.alteracoes}</pre>
+                <pre className="mt-2 overflow-x-auto rounded bg-ink px-2 py-1 text-[10px] text-mute2">{registro.alteracoes}</pre>
               </li>
             ))}
           </ul>

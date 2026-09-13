@@ -6,7 +6,7 @@ import { ChevronRight, LogOut, Palette, ShieldCheck, UserRound } from "lucide-re
 import { AdminScreen } from "@/components/layout/AdminScreen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
-import { useSair } from "@/hooks/useSair";
+import { sair } from "@/lib/guarda";
 
 export const Route = createFileRoute("/admin/perfil")({
   head: () => ({
@@ -23,7 +23,6 @@ export const Route = createFileRoute("/admin/perfil")({
 });
 
 function AdminPerfilPage() {
-  const sairDaConta = useSair();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
   const [saindo, setSaindo] = useState(false);
 
@@ -59,7 +58,7 @@ function AdminPerfilPage() {
             disabled={saindo}
             onClick={() => {
               setSaindo(true);
-              void sairDaConta();
+              void sair();
             }}
             className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left disabled:opacity-50"
           >
