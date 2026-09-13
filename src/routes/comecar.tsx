@@ -19,10 +19,13 @@ export const Route = createFileRoute("/comecar")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    const sessao = await getSessao();
+  beforeLoad: async ({ context }) => {
+    let sessao;
+    try {
+      sessao = await carregarSessao(context.queryClient);
+    } catch {
+      throw redirect({ to: "/login", search: { proximo: "/comecar" } });
+    }
     if (sessao.papel !== "pendente" && !(sessao.papel === "barbeiro" && !sessao.tenantId)) {
       throw redirect({ to: destinoDoPapel(sessao) });
     }
