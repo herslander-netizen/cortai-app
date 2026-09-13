@@ -54,18 +54,39 @@ function LoginPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const seguindo = useRef(false);
 
   async function seguirParaMinhaArea() {
-    queryClient.removeQueries({ queryKey: chaveSessao });
-    const sessao = await carregarSessao(queryClient);
-    const destino = destinoDoPapel(sessao);
-    // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
-    if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
-      window.location.assign(proximo);
-      return;
+    // Evita duas navegações simultâneas (botão + evento de sessão do Google).
+    if (seguindo.current) return;
+    seguindo.current = true;
+    try {
+      const sessao = await atualizarSessao(queryClient);
+      const destino = destinoDoPapel(sessao);
+      // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
+      const interno =
+        proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app";
+      await navigate({ to: (interno ? proximo : destino) as never, replace: true });
+    } catch {
+      seguindo.current = false;
+      setErro("Entramos na sua conta, mas não conseguimos abrir sua área. Tente novamente.");
+      setEnviando(false);
     }
-    await navigate({ to: destino });
   }
+
+  // Retorno do Google (popup ou redirecionamento): assim que a sessão chega,
+  // seguimos sozinhos — antes a tela ficava parada no botão.
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((evento, sessao) => {
+      if (evento === "SIGNED_IN" && sessao) {
+        setEnviando(true);
+        void seguirParaMinhaArea();
+      }
+    });
+    return () => data.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
