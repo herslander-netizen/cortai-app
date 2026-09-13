@@ -71,4 +71,4 @@
 - [x] Reduzir recursos e chamadas não críticos no primeiro carregamento.
 - [x] Otimizar imagens e fontes públicas sem perda de conteúdo.
 - [x] Validar landing, busca e login em mobile e desktop.
-- [ ] Executar verificação de tipos e build.
+- [x] Executar verificação de tipos e build.
