@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
+import { CardInstalar } from "@/components/pwa/CardInstalar";
 import { Signature } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import heroMobile from "@/assets/landing-hero-720.webp.asset.json";
@@ -289,6 +290,8 @@ function Inicio() {
             </Link>
           </div>
         </section>
+
+        <CardInstalar className="mt-8" />
 
         <FaixaDeParceiros />
       </main>
