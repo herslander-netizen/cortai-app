@@ -1,11 +1,11 @@
 import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
 
 type LinksSociaisProps = {
-  instagram?: string | null;
-  facebook?: string | null;
-  whatsapp?: string | null;
-  tiktok?: string | null;
-  youtube?: string | null;
+  instagram?: string | null | undefined;
+  facebook?: string | null | undefined;
+  whatsapp?: string | null | undefined;
+  tiktok?: string | null | undefined;
+  youtube?: string | null | undefined;
   mostrarRotulos?: boolean;
   className?: string;
 };
