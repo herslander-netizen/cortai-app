@@ -606,6 +606,39 @@ export type Database = {
           },
         ]
       }
+      parceiros_da_plataforma: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          criado_em: string
+          id: string
+          link: string | null
+          logo_url: string | null
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          link?: string | null
+          logo_url?: string | null
+          nome: string
+          ordem?: number
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          link?: string | null
+          logo_url?: string | null
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
       pedidos_de_projeto: {
         Row: {
           atualizado_em: string
