@@ -77,7 +77,7 @@ function CrescimentoPage() {
               </Link>
             </li>
             <li className="border-b border-line">
-              <Link to="/barbeiro/agenda" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
+              <Link to="/barbeiro/agenda" search={{ acao: undefined }} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><CalendarClock size={18} /></span>
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-paper">Horários vazios</span>

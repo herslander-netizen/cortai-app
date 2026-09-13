@@ -1,47 +1,10 @@
-# Roadmap
+# Upgrade do Cortaí
 
-- [x] Criar a tela Marca no painel do barbeiro.
-- [x] Adicionar temas, paleta própria, dados, textos e controle da assinatura.
-- [x] Criar armazenamento privado e validação de logo.
-- [x] Criar histórico de versões com restauração.
-- [x] Aplicar as cores e textos ao app do cliente.
-- [x] Restringir alterações ao dono da barbearia.
-- [x] Criar visão executiva com métricas reais e correlações.
-- [x] Criar gestão de barbearias em risco e contatos de retenção.
-- [x] Criar design system global editável.
-- [x] Criar gestão de pedidos das barbearias.
-- [ ] Validar dados com uma sessão autenticada de dono (bloqueado: ainda não há conta do solicitante no app).
-- [x] Aplicar a Direção C nas telas do cliente e validar em 390px.
-- [x] Refinar a navegação do cliente para Início, Agendar, Meus horários e Perfil.
-- [x] Reestruturar o Cortaí Gestão com Dashboard, Agenda, Clientes, Financeiro e Mais.
-- [x] Criar catálogo de produtos, registro de vendas e financeiro por categoria.
-- [x] Ampliar a personalização e criar página pública compartilhável por barbearia.
-- [x] Criar tela de entrada com acesso profissional discreto.
-- [x] Validar as experiências em 390px e corrigir sobreposição, cortes e overflow.- [x] Criar CRM de clientes com frequência, gasto médio e clientes para trazer de volta.
-- [x] Criar a área Crescimento com métricas reais, ações e compartilhamento com QR Code.
-- [x] Criar indicações com código, recompensa e acompanhamento.
-- [x] Permitir o cliente entrar na lista de espera.
-- [x] Mostrar progresso e clientes elegíveis na fidelidade.
-- [x] Criar avaliação pós-atendimento com convite público para notas altas.
-- [x] Permitir repetir agendamento semanal, quinzenal ou mensal.
-- [x] Criar descrição e portfólio de profissionais na página pública.
-- [x] Mostrar produtos ativos na página pública sem compra online.
-- [x] Criar o bloco Oportunidades de hoje no Dashboard.
-
-## Auditoria de perfis e acesso (concluída)
-- [x] Três perfis: administrador, barbeiro e cliente, com destino próprio
-- [x] Áreas /admin, /barbeiro e /app bloqueadas por sessão real
-- [x] Tela "Começar" para escolher agendar ou criar barbearia
-- [x] Entrar, criar conta e continuar com Google
-- [x] Dados do cliente e da barbearia isolados por conta no servidor
-- [x] Sair da conta no Perfil e em Mais
-
-## Navegação e permissões da barbearia
-- [ ] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
-- [ ] Criar Ações rápidas com visibilidade e execução por permissão.
-- [ ] Criar Pedidos com confirmação segura de pagamento.
-- [ ] Criar permissões individuais por funcionário e perfis padrão por barbearia.
-- [ ] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
-- [ ] Reorganizar Mais sem remover nenhuma ferramenta existente.
-- [ ] Corrigir a navegação mobile do admin global sem imitar a barbearia.
-- [ ] Validar isolamento entre barbearias, mobile, tipos e build.
+- [x] Reorganizar a navegação mobile em cinco posições
+- [x] Implementar a folha de ações rápidas e reutilizar os fluxos existentes
+- [x] Reorganizar Início, Agenda, Clientes e Mais
+- [x] Atualizar conclusão do onboarding
+- [x] Apresentar fidelidade como Voltaí
+- [x] Refinar tokens e consistência visual sem descaracterizar
+- [ ] Validar rotas, responsividade, interações, tipos e build
+- [ ] Executar autenticação Google real do botão ao destino e corrigir falhas

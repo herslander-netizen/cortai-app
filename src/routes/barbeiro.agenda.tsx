@@ -12,6 +12,12 @@ import { repetirAgendamento } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    acao:
+      search["acao"] === "agendamento" || search["acao"] === "atendimento" || search["acao"] === "cliente"
+        ? search["acao"]
+        : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Agenda do dia — Painel do barbeiro | Cortaí" },
@@ -47,6 +53,7 @@ function corDaBorda(forma: string | null) {
 }
 
 function AgendaPage() {
+  const { acao } = Route.useSearch();
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
@@ -60,10 +67,18 @@ function AgendaPage() {
   const lista = slots(dia);
 
   return (
-    <Screen title="Agenda do dia" subtitle="Hora a hora, do primeiro ao último.">
+    <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
+      <nav className="mb-5 grid grid-cols-2 gap-2" aria-label="Atalhos da agenda">
+        <Link to="/barbeiro/profissionais" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Profissionais</Link>
+        <Link to="/barbeiro/fila" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Fila de espera</Link>
+      </nav>
       <div className="mb-5">
         <AgendamentoManual
+          key={acao ?? "normal"}
           dia={dia}
+          autoAbrir={Boolean(acao)}
+          iniciarNovoCliente={acao === "cliente"}
+          rotulo={acao === "atendimento" ? "Novo atendimento" : "Novo agendamento"}
           onCriado={() => {
             setAviso({ tom: "sucesso", texto: "Agendamento criado e já aparece na agenda." });
             void refetch();
