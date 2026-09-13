@@ -9,10 +9,15 @@
  */
 
 @theme inline {
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 6px);
+
+  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--ink) 32%, transparent);
+  --shadow-md: 0 12px 28px color-mix(in oklab, var(--ink) 42%, transparent);
+  --shadow-lg: 0 20px 48px color-mix(in oklab, var(--ink) 58%, transparent);
 
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
 
@@ -55,18 +60,18 @@
 :root {
   --radius: 10px;
 
-  --ink: #0b0b0b;
-  --ink2: #131312;
-  --ink3: #1c1b19;
-  --gold: #d4af6a;
-  --gold-soft: rgba(212, 175, 106, 0.13);
-  --paper: #f5f5f3;
-  --mute: #9a968e;
-  --mute2: #6b6b6b;
-  --sage: #8fa882;
-  --brick: #c4705f;
-  --line: rgba(245, 245, 243, 0.1);
-  --line2: rgba(245, 245, 243, 0.2);
+  --ink: oklch(0.14 0.006 80);
+  --ink2: oklch(0.18 0.006 80);
+  --ink3: oklch(0.23 0.008 80);
+  --gold: oklch(0.77 0.09 78);
+  --gold-soft: color-mix(in oklab, var(--gold) 13%, transparent);
+  --paper: oklch(0.97 0.005 80);
+  --mute: oklch(0.68 0.012 80);
+  --mute2: oklch(0.5 0.008 80);
+  --sage: oklch(0.7 0.07 135);
+  --brick: oklch(0.66 0.11 30);
+  --line: color-mix(in oklab, var(--paper) 10%, transparent);
+  --line2: color-mix(in oklab, var(--paper) 20%, transparent);
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -110,6 +115,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   :focus-visible {
@@ -134,6 +140,19 @@
   color: var(--paper);
 }
 
+@utility brand-surface {
+  background-color: color-mix(in oklab, var(--ink2) 94%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+@utility bottom-nav {
+  border-top: 1px solid var(--line);
+  background-color: color-mix(in oklab, var(--ink) 96%, transparent);
+  box-shadow: 0 -12px 30px color-mix(in oklab, var(--ink) 45%, transparent);
+  backdrop-filter: blur(16px);
+}
+
 @utility btn-primary {
   display: inline-flex;
   align-items: center;
@@ -141,11 +160,12 @@
   gap: 8px;
   min-height: 48px;
   padding: 12px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background-color: var(--gold);
   color: var(--ink);
   font-weight: 700;
-  transition: opacity 120ms ease, transform 120ms ease;
+  box-shadow: var(--shadow-sm);
+  transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
   &:hover { opacity: 0.92; }
   &:active { opacity: 0.85; transform: scale(0.99); }
   &:disabled { opacity: 0.5; pointer-events: none; }
@@ -191,7 +211,7 @@
   width: 100%;
   min-width: 0;
   border: 1px solid var(--line2);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--ink);
   padding: 12px 14px;
   color: var(--paper);
@@ -200,22 +220,26 @@
   &:focus { border-color: var(--gold); }
 }
 
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active,
+a:active {
+  transform: translateY(1px);
+}
+
 .management-shell .screen-title::before {
   display: block;
   margin-bottom: 6px;
   color: var(--gold);
-  content: "CORTAÍ GESTÃO";
-  font-size: 10px;
+  content: "Cortaí Gestão";
+  font-size: 11px;
   font-weight: 700;
-}
-
-/* Único elemento decorativo do app: listra de poste de barbeiro. */
-@utility barber-pole {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--gold) 0 5px,
-    var(--paper) 5px 10px
-  );
 }
 
 @utility btn-tertiary {
@@ -250,6 +274,10 @@ nav[aria-label$="barbearia"]::-webkit-scrollbar,
 nav[aria-label="Navegação principal"]::-webkit-scrollbar,
 nav[aria-label="Painel da plataforma"]::-webkit-scrollbar {
   display: none;
+}
+
+@media (max-width: 390px) {
+  .screen-title { font-size: 22px; }
 }
 
 

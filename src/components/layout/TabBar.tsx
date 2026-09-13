@@ -10,7 +10,7 @@ export type TabItem = {
 export function TabBar({ items }: { items: TabItem[] }) {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink/95 backdrop-blur-md"
+      className="bottom-nav fixed inset-x-0 bottom-0 z-20"
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 8px)" }}
       aria-label="Navegação principal"
     >
@@ -25,7 +25,6 @@ export function TabBar({ items }: { items: TabItem[] }) {
                 className="group relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-mute transition-colors duration-150 active:bg-ink2"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}
               >
-                {/* indicador dourado no topo do item ativo */}
                 <span
                   aria-hidden
                   className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-gold opacity-0 transition-opacity duration-150 group-aria-[current=page]:opacity-100"

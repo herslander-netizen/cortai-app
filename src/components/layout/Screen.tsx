@@ -20,7 +20,7 @@ export function Screen({
 }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      <header className="flex items-start justify-between gap-3 px-5 pb-5 pt-8">
+      <header className="flex items-start justify-between gap-3 border-b border-line px-5 pb-5 pt-8">
         <div className="min-w-0">
           {voltarPara ? (
             <Link to={voltarPara} className="mb-2 inline-flex items-center gap-1 text-xs text-mute">
