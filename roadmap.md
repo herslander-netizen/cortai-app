@@ -19,3 +19,4 @@
 - [ ] Uniformizar telas públicas, cliente, gestão e administração
 - [ ] Validar celular, tablet e desktop nos principais perfis
 - [ ] Validar tipagem, testes relevantes e build
+- [ ] Validar explicitamente dark/light e mobile/desktop antes da entrega
