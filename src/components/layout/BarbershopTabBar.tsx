@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { QuickActions } from "@/components/barbeiro/QuickActions";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 
-type Item = { to: LinkProps["to"]; label: string; icon: LucideIcon; exact: boolean };
+type Item = { to: NonNullable<LinkProps["to"]>; label: string; icon: LucideIcon; exact: boolean };
 
 export function BarbershopTabBar() {
   const { pode } = useContextoBarbearia();

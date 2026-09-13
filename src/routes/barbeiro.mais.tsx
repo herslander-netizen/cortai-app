@@ -20,7 +20,7 @@ export const Route = createFileRoute("/barbeiro/mais")({
   component: MaisPage,
 });
 
-type Item = { to: LinkProps["to"]; label: string; detail: string; icon: LucideIcon };
+type Item = { to: NonNullable<LinkProps["to"]>; label: string; detail: string; icon: LucideIcon };
 
 function MaisPage() {
   const { carregando, pode, ativo } = useContextoBarbearia();
