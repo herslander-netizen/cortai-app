@@ -1,28 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 import { esquemaHome, normalizarHome, type ConfigHome } from "@/lib/home-publica";
 
 const BUCKET = "home-publica";
-
-/** Cliente público (chave publicável) para leituras do site. */
-function clientePublico() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"]!;
-  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-    auth: { persistSession: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
-}
 
 /** Só o dono da plataforma edita a Home. */
 async function exigirAdmin(context: { supabase: any; userId: string }) {
@@ -63,10 +45,11 @@ async function resolverImagens(config: ConfigHome): Promise<ConfigHome> {
   };
 }
 
-/** Conteúdo publicado da Home. Público por natureza (é o próprio site). */
+/** Conteúdo publicado da Home. Lido no servidor (a função não é aberta ao público). */
 export const getHomePublicada = createServerFn({ method: "GET" }).handler(async (): Promise<ConfigHome> => {
   try {
-    const { data } = await clientePublico().rpc("home_publicada");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.rpc("home_publicada");
     return await resolverImagens(normalizarHome(data));
   } catch {
     return normalizarHome(null);
