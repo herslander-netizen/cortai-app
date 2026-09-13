@@ -59,6 +59,7 @@ export const getContextoCliente = createServerFn({ method: "GET" })
           .eq("ativo", true)
           .eq("disponivel_venda", true)
           .gt("preco_centavos", 0)
+          .order("destaque", { ascending: false })
           .order("nome")
           .limit(4)
       : { data: [] };
