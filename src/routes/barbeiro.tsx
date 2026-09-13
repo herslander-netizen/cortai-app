@@ -16,7 +16,7 @@ export const Route = createFileRoute("/barbeiro")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
-  beforeLoad: () => exigirPapel("barbeiro"),
+  beforeLoad: ({ context }) => exigirPapel("barbeiro", context.queryClient),
   component: BarberLayout,
 });
 
