@@ -67,8 +67,8 @@
 - [ ] Validar permissões, links, mobile e build.
 
 ## Refinamento visual e performance
-- [ ] Refinar o CTA e a busca secundária da landing.
-- [ ] Reduzir recursos e chamadas não críticos no primeiro carregamento.
-- [ ] Otimizar imagens e fontes públicas sem perda de conteúdo.
-- [ ] Validar landing, busca e login em mobile e desktop.
+- [x] Refinar o CTA e a busca secundária da landing.
+- [x] Reduzir recursos e chamadas não críticos no primeiro carregamento.
+- [x] Otimizar imagens e fontes públicas sem perda de conteúdo.
+- [x] Validar landing, busca e login em mobile e desktop.
 - [ ] Executar verificação de tipos e build.
