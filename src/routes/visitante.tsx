@@ -1,0 +1,217 @@
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { LockKeyhole, Mail, User } from "lucide-react";
+import { useState } from "react";
+
+import { Aviso } from "@/components/ui/aviso";
+import { Button } from "@/components/ui/button";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import { destinoDoPapel } from "@/lib/guarda";
+import { getSessao } from "@/lib/sessao.functions";
+
+export const Route = createFileRoute("/visitante")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Entrar como cliente — Cortaí" },
+      { name: "description", content: "Crie sua conta de cliente para agendar cortes nas barbearias do Cortaí." },
+      { property: "og:title", content: "Entrar como cliente — Cortaí" },
+      { property: "og:description", content: "Conta de cliente para agendar seus cortes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) {
+      const sessao = await getSessao();
+      throw redirect({ to: destinoDoPapel(sessao) });
+    }
+  },
+  component: VisitantePage,
+});
+
+function VisitantePage() {
+  const navigate = useNavigate();
+  const [modo, setModo] = useState<"entrar" | "criar">("criar");
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function seguir() {
+    const sessao = await getSessao();
+    await navigate({ to: destinoDoPapel(sessao) });
+  }
+
+  return (
+    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
+      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <h1 className="mt-2 max-w-xs text-[30px] font-bold leading-tight text-paper">
+        {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu corte."}
+      </h1>
+      <p className="mt-3 text-sm leading-relaxed text-mute">
+        Esta conta é para quem quer agendar horários. Não precisa ter barbearia.
+      </p>
+
+      <form
+        className="mt-8 space-y-4"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          setErro(null);
+          setAviso(null);
+          setEnviando(true);
+          if (modo === "entrar") {
+            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+            setEnviando(false);
+            if (error) {
+              setErro("Não foi possível entrar. Confira o e-mail e a senha.");
+              return;
+            }
+            await seguir();
+            return;
+          }
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: senha,
+            options: {
+              emailRedirectTo: `${window.location.origin}/app`,
+              data: { nome: nome.trim() },
+            },
+          });
+          setEnviando(false);
+          if (error) {
+            setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
+            return;
+          }
+          if (!data.session) {
+            setAviso("Conta criada. Confirme o e-mail que enviamos e volte para entrar.");
+            return;
+          }
+          await seguir();
+        }}
+      >
+        {modo === "criar" ? (
+          <label className="block text-xs font-medium text-mute">
+            Seu nome
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+              <User size={17} aria-hidden />
+              <input
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                autoComplete="name"
+                required
+                className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+              />
+            </span>
+          </label>
+        ) : null}
+        <label className="block text-xs font-medium text-mute">
+          E-mail
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+            <Mail size={17} aria-hidden />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              autoComplete="email"
+              required
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        <label className="block text-xs font-medium text-mute">
+          Senha
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+            <LockKeyhole size={17} aria-hidden />
+            <input
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              type="password"
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        {erro ? (
+          <p className="text-sm text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
+        {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
+        <Button className="h-12 w-full font-bold" disabled={enviando}>
+          {enviando ? "Aguarde…" : modo === "criar" ? "Criar minha conta" : "Entrar"}
+        </Button>
+        {modo === "entrar" ? (
+          <Link
+            to="/recuperar-senha"
+            className="block pt-1 text-center text-xs text-mute transition-colors hover:text-paper"
+          >
+            Esqueceu sua senha?
+          </Link>
+        ) : null}
+      </form>
+
+      <button
+        type="button"
+        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
+        disabled={enviando}
+        onClick={async () => {
+          setErro(null);
+          setEnviando(true);
+          try {
+            const resultado = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: new URL("/entrar/retorno", window.location.origin).toString(),
+            });
+            if (resultado.error) {
+              setEnviando(false);
+              setErro("Não foi possível continuar com o Google.");
+              return;
+            }
+            if (resultado.redirected) return;
+            await seguir();
+            setEnviando(false);
+          } catch {
+            setEnviando(false);
+            setErro("Não foi possível continuar com o Google.");
+          }
+        }}
+      >
+        Continuar com Google
+      </button>
+
+      <button
+        type="button"
+        className="mt-8 text-center text-xs text-mute transition-colors hover:text-paper"
+        onClick={() => {
+          setModo(modo === "criar" ? "entrar" : "criar");
+          setErro(null);
+          setAviso(null);
+        }}
+      >
+        {modo === "criar" ? (
+          <>
+            Já tem conta? <span className="font-semibold text-paper">Entrar</span>
+          </>
+        ) : (
+          <>
+            Ainda não tem conta? <span className="font-semibold text-paper">Criar conta</span>
+          </>
+        )}
+      </button>
+
+      <Link to="/login" className="mt-6 text-center text-xs text-mute2 hover:text-paper">
+        Tenho uma barbearia no Cortaí
+      </Link>
+
+      <footer className="mt-auto pt-10 text-center">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
+      </footer>
+    </main>
+  );
+}
