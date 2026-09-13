@@ -47,6 +47,7 @@ import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fideli
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
+import { Route as BarbeiroIntegracoesRouteImport } from './routes/barbeiro.integracoes'
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
 import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
@@ -247,6 +248,11 @@ const BarbeiroIndicacoesRoute = BarbeiroIndicacoesRouteImport.update({
   path: '/indicacoes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroIntegracoesRoute = BarbeiroIntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroMaisRoute = BarbeiroMaisRouteImport.update({
   id: '/mais',
   path: '/mais',
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
+  '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
+  '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
+  '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/indicacoes'
+    | '/barbeiro/integracoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/produtos'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/indicacoes'
+    | '/barbeiro/integracoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/produtos'
@@ -569,6 +580,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/indicacoes'
+    | '/barbeiro/integracoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/produtos'
@@ -868,6 +880,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroIndicacoesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/integracoes': {
+      id: '/barbeiro/integracoes'
+      path: '/integracoes'
+      fullPath: '/barbeiro/integracoes'
+      preLoaderRoute: typeof BarbeiroIntegracoesRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/mais': {
       id: '/barbeiro/mais'
       path: '/mais'
@@ -1003,6 +1022,7 @@ interface BarbeiroRouteChildren {
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
+  BarbeiroIntegracoesRoute: typeof BarbeiroIntegracoesRoute
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
   BarbeiroMarcaRoute: typeof BarbeiroMarcaRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
@@ -1023,6 +1043,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
+  BarbeiroIntegracoesRoute: BarbeiroIntegracoesRoute,
   BarbeiroMaisRoute: BarbeiroMaisRoute,
   BarbeiroMarcaRoute: BarbeiroMarcaRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
