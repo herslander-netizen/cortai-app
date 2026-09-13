@@ -1,10 +1,10 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { supabase } from "@/integrations/supabase/client";
 import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
-import { criarBarbearia, definirTipoDePerfil, getSessao } from "@/lib/sessao.functions";
+import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/comecar")({
@@ -37,6 +37,7 @@ export const Route = createFileRoute("/comecar")({
 function ComecarPage() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [modo, setModo] = useState<"escolha" | "barbearia">(
     sessao.papel === "barbeiro" ? "barbearia" : "escolha",
   );
@@ -62,6 +63,7 @@ function ComecarPage() {
               setErro(null);
               try {
                 await definirTipoDePerfil({ data: { tipo: "cliente" } });
+                queryClient.removeQueries({ queryKey: chaveSessao });
                 await navigate({ to: "/app" });
               } catch {
                 setErro("Não foi possível continuar agora.");
@@ -96,6 +98,7 @@ function ComecarPage() {
             setErro(null);
             try {
               await criarBarbearia({ data: { nome: nome.trim() } });
+              queryClient.removeQueries({ queryKey: chaveSessao });
               await navigate({ to: "/barbeiro" });
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");
