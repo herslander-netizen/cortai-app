@@ -10,6 +10,7 @@ import { brl, hora } from "@/lib/format";
 import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -51,7 +52,11 @@ function Indicador({
 function HojePage() {
   const finalizar = useServerFn(finalizarAtendimento);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
-  const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
+  const contexto = useContextoBarbearia();
+  const mostrarCrescimento = contexto.ativo("crescimento") && contexto.pode("relatorios");
+  const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades(), enabled: mostrarCrescimento });
+  const oportunidadesUteis = (oportunidades ?? []).filter((o) => o.quantidade > 0);
+  const alertasUteis = (data?.alertas ?? []).filter((a) => a.numero > 0);
 
   return (
     <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
@@ -110,17 +115,20 @@ function HojePage() {
             </div>
           )}
 
-          <div className="mt-4">
-            <AgendamentoManual dia={new Date().toISOString().slice(0, 10)} onCriado={() => void refetch()} />
-          </div>
+          {contexto.ativo("agendamento_manual") && contexto.pode("agendamento_manual") ? (
+            <div className="mt-4">
+              <AgendamentoManual dia={new Date().toISOString().slice(0, 10)} onCriado={() => void refetch()} />
+            </div>
+          ) : null}
 
+          {mostrarCrescimento && oportunidadesUteis.length ? (
           <div data-guia="dash-oportunidades">
           <div className="mt-8 flex items-baseline justify-between">
             <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
             <Link to="/barbeiro/crescimento" className="text-xs text-gold">Crescimento</Link>
           </div>
           <ul className="mb-2">
-            {(oportunidades ?? []).map((o) => (
+            {oportunidadesUteis.map((o) => (
               <li key={o.chave} className="border-b border-line">
                 <Link to={o.destino} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-4">
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${o.quantidade > 0 ? "bg-gold text-ink" : "bg-ink2 text-mute"}`}>
@@ -136,20 +144,20 @@ function HojePage() {
             ))}
           </ul>
           </div>
+          ) : null}
 
-          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
-          <ul className="space-y-2">
-            {data.alertas.map((a) => (
-              <li key={a.chave}>
-                <Aviso
-                  tom={a.numero > 0 ? "atencao" : "info"}
-                  titulo={`${a.numero} ${a.titulo}`}
-                >
-                  {a.detalhe}
-                </Aviso>
-              </li>
-            ))}
-          </ul>
+          {alertasUteis.length ? (
+            <>
+              <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
+              <ul className="space-y-2">
+                {alertasUteis.map((a) => (
+                  <li key={a.chave}>
+                    <Aviso tom="atencao" titulo={`${a.numero} ${a.titulo}`}>{a.detalhe}</Aviso>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </>
       ) : null}
     </Screen>
