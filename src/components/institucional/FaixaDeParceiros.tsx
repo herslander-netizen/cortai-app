@@ -8,7 +8,14 @@ import { listarParceiros } from "@/lib/parceiros.functions";
  * para a esquerda, lento, pausável ao toque e escondido quando não há parceiros.
  */
 export function FaixaDeParceiros() {
-  const consulta = useQuery({ queryKey: ["parceiros"], queryFn: () => listarParceiros(), retry: false });
+  const consulta = useQuery({
+    queryKey: ["parceiros"],
+    queryFn: () => listarParceiros(),
+    retry: false,
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
   const trilho = useRef<HTMLDivElement>(null);
   const pausado = useRef(false);
 
