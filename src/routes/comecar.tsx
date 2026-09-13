@@ -3,7 +3,7 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
+import { atualizarSessao, carregarSessao, destinoDoPapel } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
@@ -66,8 +66,8 @@ function ComecarPage() {
               setErro(null);
               try {
                 await definirTipoDePerfil({ data: { tipo: "cliente" } });
-                queryClient.removeQueries({ queryKey: chaveSessao });
-                await navigate({ to: "/app" });
+                await atualizarSessao(queryClient);
+                await navigate({ to: "/app", replace: true });
               } catch {
                 setErro("Não foi possível continuar agora.");
                 setEnviando(false);
@@ -105,8 +105,8 @@ function ComecarPage() {
             setErro(null);
             try {
               await criarBarbearia({ data: { nome: nome.trim() } });
-              queryClient.removeQueries({ queryKey: chaveSessao });
-              await navigate({ to: "/barbeiro" });
+              await atualizarSessao(queryClient);
+              await navigate({ to: "/barbeiro", replace: true });
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");
               setEnviando(false);
