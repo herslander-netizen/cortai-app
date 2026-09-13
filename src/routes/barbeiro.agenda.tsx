@@ -14,8 +14,8 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/agenda")({
   validateSearch: (search: Record<string, unknown>) => ({
     acao:
-      search.acao === "agendamento" || search.acao === "atendimento" || search.acao === "cliente"
-        ? search.acao
+      search["acao"] === "agendamento" || search["acao"] === "atendimento" || search["acao"] === "cliente"
+        ? search["acao"]
         : undefined,
   }),
   head: () => ({
