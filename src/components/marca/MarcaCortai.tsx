@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoOficial from "@/assets/cortai-logo-oficial.jpg.asset.json";
+import logoOficial from "@/assets/cortai-logo-transparente.png.asset.json";
 
 type MarcaCortaiProps = {
   compacta?: boolean;
@@ -9,9 +9,9 @@ type MarcaCortaiProps = {
 };
 
 const TAMANHOS = {
-  sm: { icone: "h-9 w-9", logo: "h-9 w-[112px]" },
-  md: { icone: "h-11 w-11", logo: "h-11 w-[137px]" },
-  lg: { icone: "h-14 w-14", logo: "h-14 w-[175px]" },
+  sm: { icone: "h-9 w-9", logo: "h-9 w-[117px]" },
+  md: { icone: "h-11 w-11", logo: "h-11 w-[143px]" },
+  lg: { icone: "h-14 w-14", logo: "h-14 w-[183px]" },
 } as const;
 
 /** Marca da plataforma. Em espaços compactos, mostra somente o símbolo oficial. */
@@ -31,9 +31,9 @@ export function MarcaCortai({ compacta = false, assinatura = true, className, ta
         <img
           src={logoOficial.url}
           alt=""
-          width={1060}
-          height={340}
-          className={cn("shrink-0 object-cover", escala.logo, assinatura ? "" : "object-left")}
+          width={900}
+          height={276}
+          className={cn("brand-lockup shrink-0 object-contain object-left", escala.logo, assinatura ? "" : "object-left")}
         />
       )}
     </span>
