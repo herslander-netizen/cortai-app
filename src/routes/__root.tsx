@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cortaí — Agendamento para barbearias" },
       {
         name: "description",
-        content: "Agendamento e gestão para barbearias, direto do celular.",
+        content: "Agenda • Clientes • Loja • Fidelidade — tudo com a cara da sua barbearia.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

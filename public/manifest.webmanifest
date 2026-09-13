@@ -1,7 +1,8 @@
 {
-  "name": "Cortaí — agendamento para barbearias",
+  "id": "/",
+  "name": "Cortaí — sua barbearia, no controle",
   "short_name": "Cortaí",
-  "description": "Agende seus horários na barbearia com poucos toques.",
+  "description": "Agenda, clientes, loja e fidelidade em um só lugar.",
   "start_url": "/app",
   "scope": "/",
   "display": "standalone",
