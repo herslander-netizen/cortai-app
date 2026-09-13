@@ -86,6 +86,7 @@ function EditorDaHome() {
   const descartarFn = useServerFn(descartarRascunhoHome);
   const restaurarFn = useServerFn(restaurarVersaoHome);
   const assinarFn = useServerFn(assinarImagensHome);
+  const listarFn = useServerFn(listarImagensHome);
 
   const { data, isLoading, error } = useQuery({ queryKey: ["admin", "home"], queryFn: () => carregar({}) });
 
@@ -368,7 +369,7 @@ function EditorDaHome() {
             </section>
           ) : null}
 
-          {aba === "midia" ? <Biblioteca listar={useServerFn(listarImagensHome)} /> : null}
+          {aba === "midia" ? <Biblioteca listar={listarFn} /> : null}
 
           {aba === "aparencia" ? (
             <section className="space-y-4">
