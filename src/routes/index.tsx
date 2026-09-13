@@ -20,7 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import heroImg from "@/assets/landing-hero.jpg";
+import heroAsset from "@/assets/cortai-hero-barbearia.png.asset.json";
 import lojaImg from "@/assets/landing-loja.jpg";
 import ctaImg from "@/assets/landing-cta.jpg";
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
@@ -167,7 +167,7 @@ function Inicio() {
 
       <main>
         <section className="relative flex min-h-[100svh] items-end overflow-hidden">
-          <img src={heroImg} alt="Barbeiro atendendo um cliente em uma barbearia premium" width={1114} height={768} className="absolute inset-0 h-full w-full object-cover object-[57%_center] md:object-center" />
+          <img src={heroAsset.url} alt="Barbeiro em uma barbearia premium com iluminação quente" width={1024} height={1536} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[68%_center] md:object-[60%_center] lg:object-center" />
           <div className="landing-hero-overlay absolute inset-0" />
           <div className="landing-reveal relative mx-auto w-full max-w-[1280px] px-5 pb-10 pt-32 md:px-10 md:pb-16 lg:pb-20">
             <div className="max-w-[680px]">
