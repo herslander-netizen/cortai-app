@@ -6,5 +6,5 @@
 - [x] Atualizar conclusão do onboarding
 - [x] Apresentar fidelidade como Voltaí
 - [x] Refinar tokens e consistência visual sem descaracterizar
-- [ ] Validar rotas, responsividade, interações, tipos e build
-- [ ] Executar autenticação Google real do botão ao destino e corrigir falhas
+- [x] Validar rotas, responsividade, interações, tipos e build
+- [ ] Concluir autenticação Google real após a escolha da conta (bloqueado: navegador de teste sem sessão Google)
