@@ -5,7 +5,9 @@ import {
   assinarInstalacao,
   conviteAdiado,
   dentroDeIframe,
+  ehAndroid,
   ehIOS,
+  ehMobile,
   instalarAgora,
   jaInstalouAntes,
   lerInstalacao,
@@ -24,9 +26,12 @@ export function useInstalacaoApp() {
   const instalado = estado.instalado || jaInstalouAntes();
   const bloqueado = dentroDeIframe() || standalone || instalado;
   const podeInstalarAgora = Boolean(estado.prompt) && !bloqueado;
-  const instrucaoManual = !bloqueado && !estado.prompt && ehIOS();
+  // Android às vezes não dispara o prompt (aba anônima, primeiro acesso):
+  // nesses casos ainda queremos ensinar o caminho manual.
+  const instrucaoManual = !bloqueado && !estado.prompt && ehMobile();
 
   return {
+    sistema: ehIOS() ? ("ios" as const) : ehAndroid() ? ("android" as const) : ("outro" as const),
     standalone,
     instalado,
     podeInstalarAgora,

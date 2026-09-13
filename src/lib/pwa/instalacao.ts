@@ -40,6 +40,15 @@ export function ehIOS() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
 }
 
+export function ehAndroid() {
+  if (typeof navigator === "undefined") return false;
+  return /android/i.test(navigator.userAgent);
+}
+
+export function ehMobile() {
+  return ehIOS() || ehAndroid();
+}
+
 export function dentroDeIframe() {
   if (typeof window === "undefined") return false;
   try {
