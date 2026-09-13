@@ -63,10 +63,11 @@ async function resolverImagens(config: ConfigHome): Promise<ConfigHome> {
   };
 }
 
-/** Conteúdo publicado da Home. Público por natureza (é o próprio site). */
+/** Conteúdo publicado da Home. Lido no servidor (a função não é aberta ao público). */
 export const getHomePublicada = createServerFn({ method: "GET" }).handler(async (): Promise<ConfigHome> => {
   try {
-    const { data } = await clientePublico().rpc("home_publicada");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.rpc("home_publicada");
     return await resolverImagens(normalizarHome(data));
   } catch {
     return normalizarHome(null);
