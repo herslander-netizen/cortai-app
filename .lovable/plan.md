@@ -1,55 +1,65 @@
-# Editor da Home pública
+# Assistente Cortaí + configuração inicial do barbeiro
 
-## Onde isso vai ficar na navegação
+## O que vou construir
 
-A Home pública do Cortaí é uma página **da plataforma** (não de cada barbearia), então o editor pertence ao painel do dono da plataforma.
+Uma configuração inicial curta para quem acabou de criar a barbearia, um assistente de IA de verdade dentro do produto, um tour curto no painel, um cartão "Primeiros passos" que lembra o progresso, e a entrada na fila pelo link público sem login.
 
-Hoje o admin tem: Visão geral | Barbearias | Monetização | Mais. Dentro de "Mais" já existe o grupo **Configurações** (Aparência e padrões, Recursos dos planos, Perfil).
+Nada do que já existe é removido: agenda, clientes, financeiro, Voltaí, loja, equipe, administração e a página pública continuam iguais.
 
-Decisão: **não** criar item novo na barra principal. O editor entra em Mais → um novo grupo **Conteúdo público**, com dois itens:
-- **Home** (novo editor)
-- **Parceiros** (já existe, sai de "Operação da plataforma" para cá, pois é conteúdo público)
+## Premissas
 
-Assim o número de itens principais continua o mesmo e a hierarquia fica mais lógica.
+- A identidade continua a atual (fundo quase preto, cartões grafite, dourado/âmbar na ação). Entendo "laranja/amarelo" como essa mesma família; não troco a paleta do produto.
+- WhatsApp fica opcional em todo o fluxo e a integração fica preparada, sem simular conexão.
+- Se a chave da IA não estiver disponível, o assistente responde com um aviso claro e atalhos úteis — nunca inventa resposta.
 
-Endereço: `/admin/home`.
+## 1. Configuração inicial (4 passos)
 
-## O que o administrador vai poder fazer
+Nova tela `/barbeiro/configurar`, aberta logo depois de criar a barbearia:
 
-Uma tela única, organizada em abas, sempre com poucos campos visíveis por vez:
+1. **Dados** — nome (obrigatório) e WhatsApp; logo/foto opcionais.
+2. **Horários** — botão "Usar Seg–Sáb, 09:00 às 19:00" já selecionado + personalizar por dia. Campo de texto livre: "segunda a sábado das 9 às 19 e domingo fechado" → prévia antes de salvar.
+3. **Serviços** — sugestões prontas (Corte, Barba, Corte + Barba, Pezinho, Sobrancelha, Platinado) com preço/duração editáveis + bloco "✨ Quer que o Cortaí configure isso para você?" que interpreta texto e mostra prévia editável.
+4. **Pronto** — "Sua barbearia está pronta!", status do que foi configurado, link da fila, Copiar, Compartilhar e Ver fila.
 
-1. **Visão geral** — miniatura da Home, status (Publicada / Rascunho com alterações), data da última publicação, atalhos: Ver a Home, Publicar, Descartar rascunho, Restaurar uma versão anterior.
-2. **Topo (Hero)** — texto pequeno acima do título, título, descrição, botão principal (texto + destino), botão secundário (texto + destino), imagem de fundo, enquadramento da foto, escurecimento da foto, alinhamento, ligar/desligar o selo.
-3. **Seções** — lista de cards com nome, tipo, ligado/desligado e ordem (arrastar para reordenar). Cada card abre a edição do seu conteúdo (títulos, textos, itens, imagem). Tipos disponíveis: Topo, Benefícios, Texto + imagem, Celular/produto, Agenda, Clientes, Financeiro, Voltaí/Fidelidade, Loja, Chamada final, Parceiros, Rodapé. Duplicar disponível nos tipos de conteúdo livre; excluir só com confirmação e nunca no Topo/Rodapé.
-4. **Imagens** — biblioteca simples com as fotos já usadas na Home, enviar nova, substituir, remover, definir o ponto de foco e proporção recomendada.
-5. **Aparência** — presets (Cortaí Premium, Cinemático, Clean, Editorial), cor de destaque, estilo e arredondamento dos botões, intensidade de bordas/sombras, largura do conteúdo, espaçamento entre seções, tipografia (apenas as já suportadas), claro/escuro por seção.
-6. **SEO e compartilhamento** — título, descrição, imagem de compartilhamento, endereço canônico, com explicações curtas em português.
-7. **Publicação** — "Salvar rascunho" e "Publicar alterações" separados, resumo do que mudou antes de publicar, link para ver a Home antes de publicar.
+Cada passo salva sozinho; sair e voltar retoma onde parou. O botão de saída vira "Configurar depois". WhatsApp aparece como recomendado, nunca bloqueia.
 
-Cada aba mostra o essencial; ajustes finos ficam atrás de "Configurações avançadas". Toda alteração visual tem prévia ao lado (desktop) ou acima (celular).
+## 2. Assistente "Perguntar ao Cortaí"
 
-## Como a Home passa a funcionar
+- Botão fixo no painel e item no menu de ajuda; abre um painel lateral (celular: folha de baixo para cima).
+- Entende português natural e resolve tarefas: cadastrar serviços, ajustar horários, explicar a fila, mostrar o que já está cadastrado, levar para a tela certa.
+- Toda alteração passa por prévia em cartões + botão **Confirmar**; nada é gravado antes disso.
+- Respostas de navegação trazem atalhos ("Ir para serviços", "Abrir fila", "Abrir horários").
+- Conversa fica salva por barbearia, para continuar depois.
 
-A Home continua exatamente a experiência cinematográfica atual (fotos grandes, alternância preto / off-white, mockup de celular, Voltaí, Agenda, Clientes, Financeiro, Loja, CTAs). O que muda: os textos, imagens, ordem, ativação e estilo dessas seções passam a vir da configuração publicada, com o conteúdo atual gravado como valor inicial — ninguém vê diferença no dia da entrega.
+## 3. Tour curto e Primeiros passos
 
-Se a configuração não carregar, a Home cai no conteúdo atual embutido no código. Nada de página genérica de blocos.
+- Ao terminar a configuração, vai para o painel com o convite "Começar tour" ou "Explorar sozinho" (reaproveita o guia contextual que já existe, sem cobrir a tela).
+- Passos: fila atual → adicionar cliente → chamar próximo → serviços → assistente.
+- Cartão "Primeiros passos" no painel com progresso gravado: configurar barbearia, cadastrar serviços, publicar a fila, conhecer o painel da fila, conectar o WhatsApp (opcional), personalizar.
+- Menu de ajuda reúne: Primeiros passos, Fazer tour novamente, Perguntar ao Cortaí, Central de ajuda.
+
+## 4. Fila pública para o cliente
+
+Na página pública da barbearia: escolher serviço, informar nome e WhatsApp, confirmar e entrar na fila — sem login. Depois mostra posição, estimativa de espera e status, com atualização automática. Aviso por WhatsApp fica preparado, desligado por enquanto.
 
 ## Detalhes técnicos
 
-**Banco (nova migração)**
-- `home_publica` — linha única (`id boolean primary key default true`) com `rascunho jsonb`, `publicado jsonb`, `publicado_em`, `atualizado_em`, `atualizado_por`. Leitura pública apenas do `publicado` via função `home_publicada()` security definer (evita expor rascunho ao `anon`); escrita só para `admin` via `has_role`.
-- `home_publica_versoes` — histórico de snapshots publicados (`snapshot jsonb`, `criado_em`, `criado_por`), para restaurar versão anterior. Mesmo padrão de `tenant_branding_versions`.
-- GRANTs explícitos: `authenticated` + `service_role`; sem `anon` (a leitura pública sai da função security definer).
-- Seed com o conteúdo atual da Home em `publicado` e `rascunho`.
+**Banco (uma migração)**
+- `horarios_de_funcionamento` (tenant, dia da semana, abre/fecha, fechado) + grants, RLS por membro do tenant, leitura pública mínima para a página da fila.
+- `onboarding_do_tenant` (etapa atual, concluído em, itens do checklist em jsonb, tour visto).
+- `conversas_de_ia` / `mensagens_de_ia` (tenant, autor, conteúdo, ação estruturada em jsonb), RLS por tenant.
+- `fila_de_espera`: colunas `nome_visitante`, `telefone_visitante`, `servico_id`, `status`, `token_publico`; `cliente_id` passa a aceitar nulo para entrada anônima, com RPC `entrar_na_fila_publica` (security definer) e leitura de posição só pelo token.
 
-**Imagens**: bucket público `home-publica` (via ferramenta de bucket), upload por server function com verificação de admin.
+**IA (server-side)**
+- `src/lib/ia/assistente.server.ts`: chamada ao Lovable AI Gateway com `openai/gpt-6-astra` na Responses API, em streaming, prompt de sistema com vocabulário de barbearia, regra de nunca inventar dados e de sempre pedir confirmação.
+- Saída estruturada: `resposta`, `intencao`, `acao`, `parametros`, `precisaConfirmar`.
+- `src/lib/ia/assistente.functions.ts`: `perguntarAoCortai`, `confirmarAcaoDaIa`, `interpretarServicos`, `interpretarHorarios` — todas com `requireSupabaseAuth`, permissão do tenant e validação Zod do lado do servidor; a execução da ação é reescrita no servidor a partir dos parâmetros, nunca confiando no texto do modelo.
+- Sem chave: retorno de fallback explícito (`disponivel: false`) com atalhos.
 
-**Código**
-- `src/lib/home-publica.ts` — tipos (`ConfigHome`, `SecaoHome`), preset padrão com o conteúdo atual, presets de aparência, validação Zod compartilhada.
-- `src/lib/home.functions.ts` — `getHomePublicada` (pública, cacheável), `getHomeAdmin`, `salvarRascunhoHome`, `publicarHome`, `descartarRascunhoHome`, `restaurarVersaoHome`, `enviarImagemHome`; todas as de escrita com `requireSupabaseAuth` + checagem `has_role(admin)` no servidor.
-- `src/routes/index.tsx` — passa a ler a configuração publicada no loader (`ensureQueryData`) e renderizar as seções a partir dela; os blocos visuais atuais viram componentes em `src/components/home/` (`SecaoHero`, `SecaoBeneficios`, `SecaoTextoImagem`, `SecaoProduto`, `SecaoRecursos`, `SecaoVoltai`, `SecaoCTA`, `SecaoRodape`) reaproveitando as classes `landing-*` já existentes. `head()` usa os campos de SEO.
-- `src/routes/admin.home.tsx` — editor com abas, prévia e estados de salvamento, usando `AdminScreen`, `Field`, `SectionHeading`, `EmptyState`, `Button`, `Switch`, `Dialog`.
-- `src/routes/admin.mais.tsx` e `src/routes/admin.tsx` — novo grupo "Conteúdo público".
-- Reordenação por arrastar com `@dnd-kit/core` + `@dnd-kit/sortable` (instalar), com alternativa por botões "subir/descer" para toque.
+**Interface**
+- `src/components/ia/AssistenteCortai.tsx` (painel + mensagens + ações rápidas), `BotaoAssistente.tsx`.
+- `src/components/onboarding/*` para os 4 passos e `PrimeirosPassos.tsx` no painel.
+- Rotas novas: `/barbeiro/configurar`, `/barbeiro/horarios`; `/barbeiro/servicos` (hoje vazia) ganha o CRUD real + bloco de IA.
+- `src/lib/guia/tours.ts` ganha o tour "primeiros-passos" apontando para `data-guia` reais.
 
-**Validação final**: typecheck, build e conferência visual em 390px e 1280px, claro e escuro, da Home e do editor.
+**Validação**: `bunx tsgo --noEmit`, `bun run build` e passagem pelos dois fluxos no navegador (barbeiro novo → configuração → serviços com IA → painel → tour → assistente; cliente → link público → entrar na fila → acompanhar).
