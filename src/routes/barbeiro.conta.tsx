@@ -6,7 +6,7 @@ import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "luc
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
-import { sair } from "@/lib/guarda";
+import { useSair } from "@/hooks/useSair";
 
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/barbeiro/conta")({
 });
 
 function ContaPage() {
+  const sairDaConta = useSair();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
   const [saindo, setSaindo] = useState(false);
 
@@ -80,7 +81,7 @@ function ContaPage() {
             disabled={saindo}
             onClick={() => {
               setSaindo(true);
-              void sair();
+              void sairDaConta();
             }}
             className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left disabled:opacity-50"
           >

@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { LockKeyhole, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
+import { atualizarSessao, carregarSessao, destinoDoPapel } from "@/lib/guarda";
+
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Signature } from "@/components/layout/Signature";
@@ -53,18 +54,39 @@ function LoginPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const seguindo = useRef(false);
 
   async function seguirParaMinhaArea() {
-    queryClient.removeQueries({ queryKey: chaveSessao });
-    const sessao = await carregarSessao(queryClient);
-    const destino = destinoDoPapel(sessao);
-    // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
-    if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
-      window.location.assign(proximo);
-      return;
+    // Evita duas navegações simultâneas (botão + evento de sessão do Google).
+    if (seguindo.current) return;
+    seguindo.current = true;
+    try {
+      const sessao = await atualizarSessao(queryClient);
+      const destino = destinoDoPapel(sessao);
+      // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
+      const interno =
+        proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app";
+      await navigate({ to: (interno ? proximo : destino) as never, replace: true });
+    } catch {
+      seguindo.current = false;
+      setErro("Entramos na sua conta, mas não conseguimos abrir sua área. Tente novamente.");
+      setEnviando(false);
     }
-    await navigate({ to: destino });
   }
+
+  // Retorno do Google (popup ou redirecionamento): assim que a sessão chega,
+  // seguimos sozinhos — antes a tela ficava parada no botão.
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((evento, sessao) => {
+      if (evento === "SIGNED_IN" && sessao) {
+        setEnviando(true);
+        void seguirParaMinhaArea();
+      }
+    });
+    return () => data.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
@@ -93,8 +115,8 @@ function LoginPage() {
               return;
             }
             await seguirParaMinhaArea();
-            setEnviando(false);
             return;
+
           }
           const { data, error } = await supabase.auth.signUp({
             email,
@@ -159,18 +181,34 @@ function LoginPage() {
 
       <button
         type="button"
-        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
+        disabled={enviando}
+        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper disabled:opacity-50"
         onClick={async () => {
           setErro(null);
+          setAviso(null);
+          setEnviando(true);
           try {
-            await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+            const resultado = (await lovable.auth.signInWithOAuth("google", {
+              // Volta sempre para o login: é daqui que decidimos a área certa.
+              redirect_uri: `${window.location.origin}/login`,
+            })) as { redirected?: boolean; error?: unknown };
+            // Vai sair da página: mantemos o estado de carregamento.
+            if (resultado?.redirected) return;
+            if (resultado?.error) {
+              setEnviando(false);
+              setErro("Não foi possível continuar com o Google.");
+              return;
+            }
+            await seguirParaMinhaArea();
           } catch {
+            setEnviando(false);
             setErro("Não foi possível continuar com o Google.");
           }
         }}
       >
-        Continuar com Google
+        {enviando ? "Aguarde…" : "Continuar com Google"}
       </button>
+
 
       <button
         type="button"

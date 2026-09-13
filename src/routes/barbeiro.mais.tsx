@@ -7,7 +7,7 @@ import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { Carregando } from "@/components/layout/Carregando";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
-import { sair } from "@/lib/guarda";
+import { useSair } from "@/hooks/useSair";
 
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({ meta: [
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/barbeiro/mais")({
 type Item = { to: NonNullable<LinkProps["to"]>; label: string; detail: string; icon: LucideIcon };
 
 function MaisPage() {
+  const sairDaConta = useSair();
   const { carregando, pode, ativo } = useContextoBarbearia();
 
   const grupos: { titulo: string; itens: (Item | false)[] }[] = [
@@ -95,7 +96,7 @@ function MaisPage() {
         </div>
       )}
       <PreferenciasDicas />
-      <button type="button" onClick={() => void sair()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button>
+      <button type="button" onClick={() => void sairDaConta()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button>
     </Screen>
   );
 }

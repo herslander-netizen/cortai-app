@@ -15,19 +15,41 @@ export function destinoDoPapel(sessao: Sessao): Destino {
   return "/comecar";
 }
 
+const OPCOES_SESSAO = {
+  queryKey: chaveSessao,
+  queryFn: () => getSessao(),
+  staleTime: 5 * 60 * 1000,
+  gcTime: 30 * 60 * 1000,
+  retry: false,
+} as const;
+
+/**
+ * Marca quando a sessão acabou de ser buscada de propósito (login, troca de
+ * perfil). O listener global usa isso para não refazer a mesma consulta.
+ */
+let ultimaAtualizacao = 0;
+export function sessaoRecemAtualizada(janelaMs = 3000) {
+  return Date.now() - ultimaAtualizacao < janelaMs;
+}
+
 /**
  * Lê a sessão uma única vez e reaproveita pelo cache do React Query.
  * Sem isso cada troca de aba refazia a validação inteira no servidor —
  * era a principal causa de lentidão na navegação, sobretudo no Android.
  */
 export function carregarSessao(queryClient: QueryClient): Promise<Sessao> {
-  return queryClient.ensureQueryData({
-    queryKey: chaveSessao,
-    queryFn: () => getSessao(),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    retry: false,
-  });
+  return queryClient.ensureQueryData(OPCOES_SESSAO);
+}
+
+/**
+ * Busca a sessão de novo e já grava no cache: uma única ida ao servidor.
+ * Antes o código removia o cache e chamava `carregarSessao` logo depois, o
+ * que disparava duas consultas e deixava a tela parada entre elas.
+ */
+export async function atualizarSessao(queryClient: QueryClient): Promise<Sessao> {
+  const sessao = await queryClient.fetchQuery({ ...OPCOES_SESSAO, staleTime: 0 });
+  ultimaAtualizacao = Date.now();
+  return sessao;
 }
 
 function paraLogin(): never {
@@ -60,8 +82,21 @@ export async function exigirPapel(
   return sessao;
 }
 
-export async function sair(queryClient?: QueryClient) {
-  queryClient?.clear();
+type IrPara = (opcoes: { to: string; replace?: boolean }) => unknown;
+
+/**
+ * Sai da conta sem recarregar a página: cancela o que está em voo, limpa o
+ * cache e navega pelo próprio router (o reload anterior dava a sensação de
+ * travamento em celulares lentos).
+ */
+export async function sair(queryClient?: QueryClient, irPara?: IrPara) {
+  await queryClient?.cancelQueries();
   await supabase.auth.signOut();
-  if (typeof window !== "undefined") window.location.assign("/");
+  queryClient?.clear();
+  ultimaAtualizacao = Date.now();
+  if (irPara) {
+    await irPara({ to: "/login", replace: true });
+    return;
+  }
+  if (typeof window !== "undefined") window.location.assign("/login");
 }

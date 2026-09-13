@@ -26,7 +26,7 @@ export function QuickActions() {
       <span className="mt-8 truncate text-[10px] font-semibold text-gold">Ações</span>
     </div>
     {aberto ? <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/80" role="dialog" aria-modal="true" aria-label="Ações rápidas" onMouseDown={(e) => { if (e.target === e.currentTarget) setAberto(false); }}>
-      <div className="w-full max-w-md rounded-t-xl border border-line bg-ink2 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5">
+      <div className="max-h-[85dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-xl border border-line bg-ink2 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4"><div className="min-w-0"><h2 className="text-lg font-bold text-paper">Ações rápidas</h2><p className="mt-1 text-xs text-mute">Somente o que você pode fazer nesta barbearia.</p></div><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setAberto(false)}><X /></Button></div>
         <div className="mt-5 space-y-2">
           {agendamentoManual ? <AgendamentoManual dia={new Date().toISOString().slice(0, 10)} rotulo="Agendamento manual" /> : null}
