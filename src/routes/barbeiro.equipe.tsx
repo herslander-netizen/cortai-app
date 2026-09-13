@@ -14,13 +14,12 @@ import {
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
 import {
+  ACOES,
   DESCRICAO_DO_PAPEL,
-  GRUPOS_DE_PERMISSAO,
+  MODULOS,
   PAPEIS,
-  PERMISSOES,
   PERMISSOES_PADRAO,
   SEM_PERMISSAO,
-  type ChaveDePermissao,
   type PapelDeEquipe,
 } from "@/lib/permissoes";
 
@@ -51,10 +50,22 @@ function EquipePage() {
     setMensagem({ tom: "acao", texto: e instanceof Error ? e.message : "Não foi possível concluir." });
 
   const convite = useMutation({
-    mutationFn: () => convidarMembro({ data: { email: email.trim(), papel: papelConvite as "gerente" } }),
-    onSuccess: async () => {
+    mutationFn: () =>
+      convidarMembro({
+        data: {
+          email: email.trim(),
+          papel: papelConvite as "gerente",
+          redirectTo: `${window.location.origin}/redefinir-senha?convite=1`,
+        },
+      }),
+    onSuccess: async (resultado) => {
       setEmail("");
-      setMensagem({ tom: "sucesso", texto: "Acesso liberado. A pessoa já pode entrar com o login dela." });
+      setMensagem({
+        tom: "sucesso",
+        texto: resultado.enviouEmail
+          ? "Convite enviado por e-mail. Assim que a pessoa criar a senha, ela confirma o acesso e já entra."
+          : "Acesso liberado. A pessoa já pode entrar com o login dela.",
+      });
       await recarregar();
     },
     onError: falhar,
@@ -114,8 +125,8 @@ function EquipePage() {
               <UserPlus size={16} className="text-gold" /> Dar acesso a alguém
             </h2>
             <p className="mt-1 text-xs leading-relaxed text-mute">
-              A pessoa cria a conta dela no Cortaí e você libera o acesso pelo e-mail. Você nunca vê nem
-              cria a senha de ninguém.
+              Digite o e-mail da pessoa. Se ela ainda não tiver conta, enviamos o convite por e-mail para
+              ela criar a senha e confirmar o acesso. Você nunca vê nem cria a senha de ninguém.
             </p>
             <form
               className="mt-4 space-y-3"
@@ -152,7 +163,7 @@ function EquipePage() {
                 <span className="mt-1 block text-xs text-mute2">{DESCRICAO_DO_PAPEL[papelConvite]}</span>
               </label>
               <button className="btn-primary w-full py-3" disabled={convite.isPending}>
-                {convite.isPending ? "Liberando…" : "Liberar acesso"}
+                {convite.isPending ? "Enviando…" : "Convidar para a equipe"}
               </button>
             </form>
           </section>
@@ -241,6 +252,7 @@ function CartaoMembro({
             <span className={membro.ativo ? "text-sage" : "text-brick"}>
               {membro.ativo ? "acesso ativo" : "acesso desativado"}
             </span>
+            {membro.aceitoEm ? null : <span className="text-mute2">convite pendente</span>}
           </p>
         </div>
         {dono ? (
@@ -272,23 +284,33 @@ function CartaoMembro({
           </label>
 
           <div className="space-y-3">
-            {GRUPOS_DE_PERMISSAO.map((grupo) => (
-              <fieldset key={grupo.titulo}>
-                <legend className="text-xs font-semibold uppercase text-mute2">{grupo.titulo}</legend>
+            {MODULOS.map((modulo) => (
+              <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
+                  {modulo.titulo}
+                </legend>
+                <p className="text-[11px] leading-relaxed text-mute2">{modulo.descricao}</p>
                 <div className="mt-2 space-y-1.5">
-                  {grupo.chaves.map((chave: ChaveDePermissao) => (
-                    <label key={chave} className="flex items-center gap-3 text-sm text-paper">
+                  {modulo.itens.map((item) => (
+                    <label key={item.chave} className="flex items-start gap-3 text-sm text-paper">
                       <input
                         type="checkbox"
-                        checked={permissoes.includes(chave)}
+                        checked={permissoes.includes(item.chave)}
                         onChange={(e) =>
                           setPermissoes((atual) =>
-                            e.target.checked ? [...atual, chave] : atual.filter((c) => c !== chave),
+                            e.target.checked
+                              ? [...atual, item.chave]
+                              : atual.filter((c) => c !== item.chave),
                           )
                         }
-                        className="h-4 w-4 rounded border-line2 bg-ink accent-[var(--gold)]"
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line2 bg-ink accent-[var(--gold)]"
                       />
-                      {PERMISSOES[chave]}
+                      <span className="min-w-0">
+                        <span className="block leading-snug">{item.rotulo}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-mute2">
+                          {ACOES[item.acao]}
+                        </span>
+                      </span>
                     </label>
                   ))}
                 </div>
