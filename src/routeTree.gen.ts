@@ -46,6 +46,7 @@ import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
@@ -235,6 +236,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const EntrarRetornoRoute = EntrarRetornoRouteImport.update({
+  id: '/entrar/retorno',
+  path: '/entrar/retorno',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -286,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/entrar/retorno': typeof EntrarRetornoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -324,6 +331,7 @@ export interface FileRoutesByTo {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/entrar/retorno': typeof EntrarRetornoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/entrar/retorno': typeof EntrarRetornoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -411,6 +420,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/entrar/retorno'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/entrar/retorno'
     | '/loja/$slug'
     | '/admin'
     | '/app'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/entrar/retorno'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
@@ -508,6 +520,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
   BSlugRoute: typeof BSlugRoute
+  EntrarRetornoRoute: typeof EntrarRetornoRoute
   LojaSlugRoute: typeof LojaSlugRoute
 }
 
@@ -772,6 +785,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/entrar/retorno': {
+      id: '/entrar/retorno'
+      path: '/entrar/retorno'
+      fullPath: '/entrar/retorno'
+      preLoaderRoute: typeof EntrarRetornoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -902,6 +922,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
   BSlugRoute: BSlugRoute,
+  EntrarRetornoRoute: EntrarRetornoRoute,
   LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport
