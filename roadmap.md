@@ -75,3 +75,10 @@
 
 ## Ajuste pontual da marca
 - [x] Recolocar a logo oficial no local anterior, preservando proporção e suavizando as bordas.
+
+## Entrada emergencial
+- [ ] Criar tela inicial mínima com Entrar e Criar conta.
+- [ ] Mover a apresentação atual para /apresentacao.
+- [ ] Criar /cadastro isolado de módulos pesados.
+- [ ] Corrigir bloqueios e loops entre /, /login e áreas autenticadas.
+- [ ] Validar mobile 390px, desktop 1280px e build.
