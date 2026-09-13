@@ -145,6 +145,7 @@ export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
     "relatorios",
     "gerenciar_profissionais",
     "alterar_dados_barbearia",
+    "gerenciar_voltai",
   ],
   barbeiro: [
     "criar_agendamento",
