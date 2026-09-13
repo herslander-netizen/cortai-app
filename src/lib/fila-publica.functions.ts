@@ -77,7 +77,7 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
       _slug: data.slug,
       _nome: data.nome,
       _telefone: data.telefone,
-      _servico_id: data.servicoId ?? undefined,
+      ...(data.servicoId ? { _servico_id: data.servicoId } : {}),
     });
     if (error) throw new Error(error.message);
     const r = resultado as unknown as { token: string; posicao: number };
