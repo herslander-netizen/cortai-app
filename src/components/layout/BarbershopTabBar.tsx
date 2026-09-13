@@ -1,11 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, type LinkProps } from "@tanstack/react-router";
 import { CalendarRange, ClipboardList, LayoutDashboard, Menu, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { QuickActions } from "@/components/barbeiro/QuickActions";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 
-type Item = { to: string; label: string; icon: LucideIcon; exact: boolean };
+type Item = { to: LinkProps["to"]; label: string; icon: LucideIcon; exact: boolean };
 
 export function BarbershopTabBar() {
   const { pode } = useContextoBarbearia();

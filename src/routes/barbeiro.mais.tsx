@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, type LinkProps } from "@tanstack/react-router";
 import { ChevronRight, ClipboardList, ListOrdered, LogOut, Package, Palette, Scissors, ShieldCheck, SlidersHorizontal, Sparkles, Star, TrendingUp, UserRound, UserSquare2, Users, WalletCards } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/barbeiro/mais")({
   component: MaisPage,
 });
 
-type Item = { to: string; label: string; detail: string; icon: LucideIcon };
+type Item = { to: LinkProps["to"]; label: string; detail: string; icon: LucideIcon };
 
 function MaisPage() {
   const { carregando, pode, ativo } = useContextoBarbearia();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, type LinkProps } from "@tanstack/react-router";
 import { CircleDollarSign, ListPlus, PackagePlus, Scissors, UserPlus, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -17,7 +17,7 @@ export function QuickActions() {
     ativo("produtos_estoque") && pode("registrar_venda") && { to: "/barbeiro/produtos", label: "Registrar venda", icon: PackagePlus },
     pode("editar_clientes") && { to: "/barbeiro/clientes", label: "Novo cliente", icon: UserPlus },
     ativo("fila_espera") && pode("criar_agendamento") && { to: "/barbeiro/fila", label: "Adicionar à fila", icon: ListPlus },
-  ].filter(Boolean) as { to: string; label: string; icon: LucideIcon }[];
+  ].filter(Boolean) as { to: LinkProps["to"]; label: string; icon: LucideIcon }[];
 
   return <>
     <div className="relative flex min-w-0 flex-col items-center justify-center">
