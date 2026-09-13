@@ -488,7 +488,7 @@ function Previa({ config }: { config: ConfigHome }) {
   );
 }
 
-function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string; onChange: (p: Partial<SecaoHome>) => void }) {
+function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string | undefined; onChange: (p: Partial<SecaoHome>) => void }) {
   const usaImagem = ["voltai", "texto_imagem", "loja", "rotina", "cta"].includes(secao.tipo);
   const usaItens = ["beneficios", "recursos", "voltai", "rotina", "produto"].includes(secao.tipo);
   const usaTexto = !["parceiros", "rodape"].includes(secao.tipo);
@@ -545,7 +545,7 @@ function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string;
 }
 
 /** Envio e escolha de imagem, com opção de voltar à imagem original. */
-function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string; onChange: (caminho: string) => void }) {
+function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string | undefined; onChange: (caminho: string) => void }) {
   const input = useRef<HTMLInputElement>(null);
   const [enviando, setEnviando] = useState(false);
 
