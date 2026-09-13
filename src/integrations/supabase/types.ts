@@ -720,6 +720,103 @@ export type Database = {
         }
         Relationships: []
       }
+      eventos_de_ia: {
+        Row: {
+          chave_idempotencia: string
+          criado_em: string
+          id: string
+          payload: Json
+          processado_em: string | null
+          provedor: string
+          status: string
+          tenant_id: string
+          tentativas: number
+          tipo: string
+          ultimo_erro: string | null
+        }
+        Insert: {
+          chave_idempotencia: string
+          criado_em?: string
+          id?: string
+          payload?: Json
+          processado_em?: string | null
+          provedor?: string
+          status?: string
+          tenant_id: string
+          tentativas?: number
+          tipo: string
+          ultimo_erro?: string | null
+        }
+        Update: {
+          chave_idempotencia?: string
+          criado_em?: string
+          id?: string
+          payload?: Json
+          processado_em?: string | null
+          provedor?: string
+          status?: string
+          tenant_id?: string
+          tentativas?: number
+          tipo?: string
+          ultimo_erro?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eventos_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eventos_recebidos_de_ia: {
+        Row: {
+          criado_em: string
+          erro: string | null
+          evento_externo_id: string
+          id: string
+          payload: Json
+          processado_em: string | null
+          provedor: string
+          status: string
+          tenant_id: string
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          erro?: string | null
+          evento_externo_id: string
+          id?: string
+          payload?: Json
+          processado_em?: string | null
+          provedor?: string
+          status?: string
+          tenant_id: string
+          tipo: string
+        }
+        Update: {
+          criado_em?: string
+          erro?: string | null
+          evento_externo_id?: string
+          id?: string
+          payload?: Json
+          processado_em?: string | null
+          provedor?: string
+          status?: string
+          tenant_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eventos_recebidos_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fila_de_espera: {
         Row: {
           avisado_em: string | null
@@ -861,6 +958,65 @@ export type Database = {
           },
           {
             foreignKeyName: "indicacoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integracoes_de_ia: {
+        Row: {
+          agent_name: string | null
+          agent_persona: Json
+          atualizado_em: string
+          conectado_em: string | null
+          criado_em: string
+          external_agent_id: string | null
+          external_tenant_id: string | null
+          id: string
+          metadata: Json
+          provedor: string
+          status: string
+          tenant_id: string
+          ultima_sincronizacao_em: string | null
+          ultimo_erro: string | null
+        }
+        Insert: {
+          agent_name?: string | null
+          agent_persona?: Json
+          atualizado_em?: string
+          conectado_em?: string | null
+          criado_em?: string
+          external_agent_id?: string | null
+          external_tenant_id?: string | null
+          id?: string
+          metadata?: Json
+          provedor?: string
+          status?: string
+          tenant_id: string
+          ultima_sincronizacao_em?: string | null
+          ultimo_erro?: string | null
+        }
+        Update: {
+          agent_name?: string | null
+          agent_persona?: Json
+          atualizado_em?: string
+          conectado_em?: string | null
+          criado_em?: string
+          external_agent_id?: string | null
+          external_tenant_id?: string | null
+          id?: string
+          metadata?: Json
+          provedor?: string
+          status?: string
+          tenant_id?: string
+          ultima_sincronizacao_em?: string | null
+          ultimo_erro?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integracoes_de_ia_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
