@@ -181,18 +181,34 @@ function LoginPage() {
 
       <button
         type="button"
-        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
+        disabled={enviando}
+        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper disabled:opacity-50"
         onClick={async () => {
           setErro(null);
+          setAviso(null);
+          setEnviando(true);
           try {
-            await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+            const resultado = (await lovable.auth.signInWithOAuth("google", {
+              // Volta sempre para o login: é daqui que decidimos a área certa.
+              redirect_uri: `${window.location.origin}/login`,
+            })) as { redirected?: boolean; error?: unknown };
+            // Vai sair da página: mantemos o estado de carregamento.
+            if (resultado?.redirected) return;
+            if (resultado?.error) {
+              setEnviando(false);
+              setErro("Não foi possível continuar com o Google.");
+              return;
+            }
+            await seguirParaMinhaArea();
           } catch {
+            setEnviando(false);
             setErro("Não foi possível continuar com o Google.");
           }
         }}
       >
-        Continuar com Google
+        {enviando ? "Aguarde…" : "Continuar com Google"}
       </button>
+
 
       <button
         type="button"
