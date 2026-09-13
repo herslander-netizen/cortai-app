@@ -64,13 +64,13 @@
   --gold-soft: rgba(212, 175, 106, 0.13);
   --paper: #f4f4f4;
   --mute: #a1a1a1;
-  --mute2: #707070;
+  --mute2: #8a8a8a;
   --sage: #8fa882;
   --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
   --brick: #c4705f;
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: #292929;
-  --line2: #292929;
+  --line2: #383838;
   --nav-shadow: 0 -10px 30px rgba(0, 0, 0, 0.24);
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
@@ -93,7 +93,7 @@
   --accent: var(--ink3);
   --accent-foreground: var(--paper);
   --destructive: var(--brick);
-  --destructive-foreground: var(--paper);
+  --destructive-foreground: var(--ink);
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
@@ -402,6 +402,10 @@ option {
 
 .client-brand[data-hide-signature="true"] footer {
   display: none;
+}
+
+html.light {
+  color-scheme: light;
 }
 
 /* ------------------------- Carregamento (clipper) ------------------------- */
