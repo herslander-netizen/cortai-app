@@ -8,12 +8,12 @@ import { Signature } from "@/components/layout/Signature";
 export const Route = createFileRoute("/barbearias")({
   head: () => ({
     meta: [
-      { title: "Encontrar uma barbearia — CortAI" },
+      { title: "Encontrar uma barbearia — Cortaí" },
       {
         name: "description",
-        content: "Busque sua barbearia pelo nome ou endereço e agende seu horário em poucos toques no CortAI.",
+        content: "Busque sua barbearia pelo nome ou endereço e agende seu horário em poucos toques no Cortaí.",
       },
-      { property: "og:title", content: "Encontrar uma barbearia — CortAI" },
+      { property: "og:title", content: "Encontrar uma barbearia — Cortaí" },
       { property: "og:description", content: "Busque sua barbearia e agende seu horário em poucos toques." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -28,7 +28,7 @@ function BarbeariasPage() {
       <header className="flex items-center justify-between gap-4">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-paper">
           <ArrowLeft size={16} aria-hidden />
-          CortAI
+          Cortaí
         </Link>
         <Link to="/login" className="text-sm font-semibold text-paper">
           Entrar

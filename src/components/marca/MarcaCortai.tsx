@@ -17,7 +17,7 @@ export function IconeCortai({ className = "h-12 w-12" }: { className?: string })
   return (
     <img
       src={iconeCortaiUrl}
-      alt="Símbolo do CortAI"
+      alt="Símbolo do Cortaí"
       width={1024}
       height={1024}
       className={`shrink-0 object-contain ${className}`}
@@ -37,7 +37,7 @@ export function MarcaCortai({
   return (
     <img
       src={marcas[variante]}
-      alt="CortAI"
+      alt="Cortaí"
       width={1774}
       height={887}
       loading={prioridade ? "eager" : "lazy"}

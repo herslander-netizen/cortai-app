@@ -1,6 +1,6 @@
 import { IconeCortai } from "@/components/marca/MarcaCortai";
 
-/** Identidade de carregamento do CortAI com o ícone oficial. */
+/** Identidade de carregamento do Cortaí com o ícone oficial. */
 export function Clipper({ size = 44 }: { size?: number }) {
   return (
     <span className="block shrink-0" style={{ width: `${size}px`, height: `${size}px` }}>
@@ -35,7 +35,7 @@ export function TelaDeCarregamento({ texto = "Preparando tudo…" }: { texto?: s
         <div className="flex justify-center">
           <Clipper size={52} />
         </div>
-        <p className="mt-4 text-xs font-bold uppercase tracking-[0.28em] text-gold">CortAI</p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.28em] text-gold">Cortaí</p>
         <p className="mt-1.5 text-xs text-mute">{texto}</p>
         <span className="mt-4 block h-0.5 w-full overflow-hidden rounded-full bg-ink3">
           <span className="cortai-progresso block h-full w-1/3 rounded-full bg-gold" />

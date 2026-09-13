@@ -11,10 +11,10 @@ import { PLANOS, ROTULO_DO_PLANO } from "@/lib/planos";
 
 export const Route = createFileRoute("/admin/recursos")({
   head: () => ({ meta: [
-    { title: "Recursos e planos — CortAI" },
-    { name: "description", content: "Defina quais recursos do CortAI cada plano libera para as barbearias." },
-    { property: "og:title", content: "Recursos e planos — CortAI" },
-    { property: "og:description", content: "Matriz de recursos por plano da plataforma CortAI." },
+    { title: "Recursos e planos — Cortaí" },
+    { name: "description", content: "Defina quais recursos do Cortaí cada plano libera para as barbearias." },
+    { property: "og:title", content: "Recursos e planos — Cortaí" },
+    { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),

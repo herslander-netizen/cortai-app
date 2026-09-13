@@ -12,10 +12,10 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 export const Route = createFileRoute("/admin/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil do administrador — CortAI" },
-      { name: "description", content: "Sua conta de dono da plataforma CortAI e saída segura." },
-      { property: "og:title", content: "Perfil do administrador — CortAI" },
-      { property: "og:description", content: "Conta de administração da plataforma CortAI." },
+      { title: "Perfil do administrador — Cortaí" },
+      { name: "description", content: "Sua conta de dono da plataforma Cortaí e saída segura." },
+      { property: "og:title", content: "Perfil do administrador — Cortaí" },
+      { property: "og:description", content: "Conta de administração da plataforma Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -28,7 +28,7 @@ function AdminPerfilPage() {
   const [saindo, setSaindo] = useState(false);
 
   return (
-    <AdminScreen title="Perfil" subtitle="Sua conta na administração do CortAI.">
+    <AdminScreen title="Perfil" subtitle="Sua conta na administração do Cortaí.">
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
           <UserRound size={22} />

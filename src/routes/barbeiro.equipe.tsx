@@ -26,9 +26,9 @@ import {
 export const Route = createFileRoute("/barbeiro/equipe")({
   head: () => ({
     meta: [
-      { title: "Equipe e permissões — CortAI Gestão" },
+      { title: "Equipe e permissões — Cortaí Gestão" },
       { name: "description", content: "Cada pessoa com o próprio login e só o acesso que precisa." },
-      { property: "og:title", content: "Equipe e permissões — CortAI Gestão" },
+      { property: "og:title", content: "Equipe e permissões — Cortaí Gestão" },
       { property: "og:description", content: "Gerencie quem tem acesso à sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

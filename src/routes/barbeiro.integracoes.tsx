@@ -14,12 +14,12 @@ export const Route = createFileRoute("/barbeiro/integracoes")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Integrações — CortAI Gestão" },
+      { title: "Integrações — Cortaí Gestão" },
       {
         name: "description",
         content: "Conecte a sua barbearia ao atendimento inteligente da ALVO e escolha o nome do atendente.",
       },
-      { property: "og:title", content: "Integrações — CortAI Gestão" },
+      { property: "og:title", content: "Integrações — Cortaí Gestão" },
       { property: "og:description", content: "Atendimento inteligente ligado à sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

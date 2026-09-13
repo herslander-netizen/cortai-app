@@ -11,9 +11,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
     meta: [
-      { title: "Profissionais — CortAI Gestão" },
+      { title: "Profissionais — Cortaí Gestão" },
       { name: "description", content: "Descrição e portfólio de cada profissional na página pública." },
-      { property: "og:title", content: "Profissionais — CortAI Gestão" },
+      { property: "og:title", content: "Profissionais — Cortaí Gestão" },
       { property: "og:description", content: "Mostre o trabalho de cada profissional da equipe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

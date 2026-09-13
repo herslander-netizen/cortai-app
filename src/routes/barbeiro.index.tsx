@@ -18,12 +18,12 @@ import { BotaoAssistente } from "@/components/ia/BotaoAssistente";
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
     meta: [
-      { title: "Hoje — Painel do barbeiro | CortAI" },
+      { title: "Hoje — Painel do barbeiro | Cortaí" },
       {
         name: "description",
         content: "Caixa do dia, ocupação, fiado em aberto e o que precisa da sua atenção agora.",
       },
-      { property: "og:title", content: "Hoje — Painel do barbeiro | CortAI" },
+      { property: "og:title", content: "Hoje — Painel do barbeiro | Cortaí" },
       { property: "og:description", content: "Os números do dia e o que precisa de você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

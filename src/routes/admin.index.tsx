@@ -8,10 +8,10 @@ import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [
-    { title: "Visão da plataforma — CortAI" },
-    { name: "description", content: "Receita, conversão, cancelamento e sinais de sucesso das barbearias no CortAI." },
-    { property: "og:title", content: "Visão da plataforma — CortAI" },
-    { property: "og:description", content: "Indicadores reais da plataforma CortAI." },
+    { title: "Visão da plataforma — Cortaí" },
+    { name: "description", content: "Receita, conversão, cancelamento e sinais de sucesso das barbearias no Cortaí." },
+    { property: "og:title", content: "Visão da plataforma — Cortaí" },
+    { property: "og:description", content: "Indicadores reais da plataforma Cortaí." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }), component: AdminOverview,
 });

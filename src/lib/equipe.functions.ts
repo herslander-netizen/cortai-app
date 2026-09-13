@@ -21,7 +21,7 @@ function mensagem(bruta: string): string {
   const m = bruta.toLowerCase();
   if (m.includes("sem permissao")) return "Você não tem permissão para gerenciar a equipe.";
   if (m.includes("conta nao encontrada")) {
-    return "Ainda não existe uma conta CortAI com esse e-mail. Peça para a pessoa criar a conta e tente de novo.";
+    return "Ainda não existe uma conta Cortaí com esse e-mail. Peça para a pessoa criar a conta e tente de novo.";
   }
   if (m.includes("ja esta ligada")) return "Essa conta já está ligada a uma barbearia.";
   if (m.includes("somente o dono")) return "Só o proprietário pode alterar esse acesso.";
@@ -51,7 +51,7 @@ export const listarEquipe = createServerFn({ method: "GET" })
   });
 
 /**
- * Convida alguém pelo e-mail. Se a pessoa ainda não tem conta CortAI, o
+ * Convida alguém pelo e-mail. Se a pessoa ainda não tem conta Cortaí, o
  * próprio serviço de autenticação envia o convite por e-mail e a conta é
  * criada — depois o vínculo com a barbearia é feito pelas regras do banco.
  */

@@ -28,9 +28,9 @@ import { dataCurta, type Plano } from "@/lib/monetizacao";
 export const Route = createFileRoute("/admin/monetizacao")({
   head: () => ({
     meta: [
-      { title: "Monetização — CortAI" },
-      { name: "description", content: "Planos, preços, condições por barbearia, cupons e campanhas do CortAI." },
-      { property: "og:title", content: "Monetização — CortAI" },
+      { title: "Monetização — Cortaí" },
+      { name: "description", content: "Planos, preços, condições por barbearia, cupons e campanhas do Cortaí." },
+      { property: "og:title", content: "Monetização — Cortaí" },
       { property: "og:description", content: "Administre preços, condições especiais, cupons e banners." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

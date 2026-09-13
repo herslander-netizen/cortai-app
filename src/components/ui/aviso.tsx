@@ -36,7 +36,7 @@ const TOM = {
 
 
 /**
- * Linguagem única de aviso do CortAI: faixa lateral sólida + ícone + texto
+ * Linguagem única de aviso do Cortaí: faixa lateral sólida + ícone + texto
  * em alto contraste. Nunca parece card de conteúdo nem item de navegação.
  */
 export function Aviso({

@@ -11,7 +11,7 @@ import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
 
 export const Route = createFileRoute("/loja/$slug")({
   head: ({ params }) => ({ meta: [
-    { title: `Loja da ${params.slug} — CortAI` },
+    { title: `Loja da ${params.slug} — Cortaí` },
     { name: "description", content: "Produtos selecionados pela barbearia para levar para casa." },
     { property: "og:title", content: `Loja — ${params.slug}` },
     { property: "og:description", content: "Produtos da barbearia, com retirada no balcão." },
