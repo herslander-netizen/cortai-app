@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -60,7 +60,7 @@ function MonetizacaoPage() {
   const [aba, setAba] = useState<(typeof ABAS)[number]>("Planos e preços");
   return (
     <AdminScreen title="Monetização" subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você negocia com uma barbearia.">
-      <nav className="mb-6 flex gap-2 overflow-x-auto" aria-label="Seções de monetização">
+      <nav className="sem-barra mb-6 flex gap-2 overflow-x-auto pb-1" aria-label="Seções de monetização">
         {ABAS.map((a) => (
           <button
             key={a}
@@ -73,6 +73,7 @@ function MonetizacaoPage() {
           </button>
         ))}
       </nav>
+      <Link to="/admin/recursos" className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-line bg-ink2 px-4 py-3 text-sm text-paper"><span><span className="block font-semibold">Recursos e limites dos planos</span><span className="mt-1 block text-xs text-mute">Defina o que cada plano libera, sem alterar preços.</span></span><span className="text-xs text-gold">Abrir</span></Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
       {aba === "Por barbearia" ? <AbaBarbearia /> : null}
       {aba === "Cupons" ? <AbaCupons /> : null}

@@ -8,6 +8,7 @@ import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
@@ -40,7 +41,7 @@ function ContaPage() {
       </div>
 
       <ul className="mt-3">
-        <li className="border-b border-line">
+        {data?.permissoes.includes("alterar_dados_barbearia") ? <li className="border-b border-line">
           <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
             <Building2 size={18} className="text-mute" />
             <span className="min-w-0">
@@ -50,7 +51,7 @@ function ContaPage() {
               </span>
             </span>
           </div>
-        </li>
+        </li> : null}
         {data?.tenantSlug ? (
           <li className="border-b border-line">
             <a
@@ -78,6 +79,7 @@ function ContaPage() {
         <li>
           <AlterarSenha />
         </li>
+        <li><ThemeToggle /></li>
         <li className="border-b border-line">
           <button
             type="button"

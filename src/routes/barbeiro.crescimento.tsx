@@ -24,7 +24,7 @@ export const Route = createFileRoute("/barbeiro/crescimento")({
 
 function Metrica({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe: string }) {
   return (
-    <div className="rounded-xl border border-line bg-ink2 px-4 py-4">
+    <div className="surface-card px-4 py-4">
       <p className="text-xs text-mute">{rotulo}</p>
       <p className="mt-1 text-xl font-bold leading-tight text-paper">{valor}</p>
       <p className="mt-1 text-[11px] text-mute2">{detalhe}</p>
@@ -51,7 +51,7 @@ function CrescimentoPage() {
 
       {data ? (
         <>
-          <div data-guia="crescimento-metricas" className="grid grid-cols-2 gap-3">
+          <div data-guia="crescimento-metricas" className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             <Metrica rotulo="Novos clientes" valor={String(data.novosClientesMes)} detalhe="neste mês" />
             <Metrica rotulo="Recorrentes" valor={String(data.clientesRecorrentes)} detalhe="voltaram mais de uma vez" />
             <Metrica rotulo="Vieram pelo link" valor={String(data.agendamentosPeloLink)} detalhe="página pública e indicação" />
@@ -99,7 +99,7 @@ function CrescimentoPage() {
           </ul>
 
           <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Compartilhar minha barbearia</h2>
-          <div data-guia="crescimento-compartilhar" className="rounded-xl border border-line bg-ink2 p-5">
+          <div data-guia="crescimento-compartilhar" className="surface-card p-5 md:max-w-2xl">
             <p className="break-all text-xs text-mute">{link}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <button

@@ -66,7 +66,7 @@ export function ExclusaoPermanente({
           aria-modal="true"
           aria-label={titulo}
         >
-          <div className="w-full max-w-sm rounded-xl border border-line bg-ink3 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5">
+          <div className="max-h-[92dvh] w-full max-w-sm overflow-y-auto rounded-xl border border-line bg-ink3 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5">
             <p className="text-sm font-semibold text-paper">{titulo}</p>
             <p className="mt-2 text-xs text-mute">{descricao}</p>
             <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>
@@ -93,7 +93,7 @@ export function ExclusaoPermanente({
                 type="button"
                 onClick={() => void confirmar()}
                 disabled={!senha || processando}
-                className="rounded-lg bg-brick px-4 py-2 text-xs font-semibold text-paper disabled:opacity-40"
+                className="min-h-11 rounded-lg bg-brick px-4 py-2 text-xs font-semibold text-destructive-foreground disabled:opacity-40"
               >
                 {processando ? "Excluindo…" : "Excluir permanentemente"}
               </button>

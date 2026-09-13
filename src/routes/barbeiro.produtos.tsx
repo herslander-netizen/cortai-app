@@ -67,7 +67,7 @@ function ProdutosPage() {
     {query.isError ? <p className="text-sm text-mute">{(query.error as Error).message}</p> : null}
 
     {loja ? (
-      <section className="rounded-xl border border-line bg-ink2 p-4">
+      <section className="surface-card p-4 md:max-w-3xl md:p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-sm font-semibold text-paper"><Store size={15} className="text-gold" />Loja online</p>
@@ -102,7 +102,7 @@ function ProdutosPage() {
 
     <Button data-guia="produtos-novo" variant="outline" className="mt-5 w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
 
-    {novo ? <form className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4" onSubmit={async (event) => {
+    {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={async (event) => {
       event.preventDefault();
       setErro(null);
       try {

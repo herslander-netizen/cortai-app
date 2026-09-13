@@ -1,36 +1,31 @@
 import { Link } from "@tanstack/react-router";
-import { Banknote, BarChart3, Megaphone, Package, Scissors, Star, Store, UserSquare2, UsersRound } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight } from "lucide-react";
 
-/** Atalhos para os módulos que a barbearia mais abre no dia a dia. */
-const modulos = [
-  { to: "/barbeiro/caixa", label: "Caixa", icon: Banknote },
-  { to: "/barbeiro/produtos", label: "Loja", icon: Store },
-  { to: "/barbeiro/servicos", label: "Serviços", icon: Scissors },
-  { to: "/barbeiro/profissionais", label: "Profissionais", icon: UserSquare2 },
-  { to: "/barbeiro/financeiro", label: "Relatórios", icon: BarChart3 },
-  { to: "/barbeiro/fidelidade", label: "Voltaí", icon: Star },
-  { to: "/barbeiro/indicacoes", label: "Marketing", icon: Megaphone },
-  { to: "/barbeiro/equipe", label: "Equipe", icon: UsersRound },
-  { to: "/barbeiro/fila", label: "Fila", icon: Package },
-] as const;
+import { MODULOS_DE_NAVEGACAO } from "@/lib/navegacao-barbeiro";
+import { getSessao } from "@/lib/sessao.functions";
 
 export function HubModulos() {
+  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const modulos = MODULOS_DE_NAVEGACAO.filter((modulo) => sessao?.permissoes.includes(modulo.permissao)).slice(0, 4);
+  if (!modulos.length) return null;
   return (
     <section className="mt-8">
-      <h2 className="mb-3 text-sm font-semibold text-paper">Seus módulos</h2>
-      <ul className="grid grid-cols-3 gap-3">
+      <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div><h2 className="text-sm font-semibold text-paper">Atalhos da sua função</h2><p className="mt-1 text-xs text-mute">Acesso rápido ao que você usa no dia a dia.</p></div><Link to="/barbeiro/mais" className="text-xs font-semibold text-gold">Ver tudo</Link></div>
+      <ul className="divide-y divide-line border-y border-line">
         {modulos.map((m) => {
           const Icon = m.icon;
           return (
             <li key={m.to}>
               <Link
                 to={m.to}
-                className="flex h-full flex-col items-center gap-2 rounded-xl border border-line bg-ink2 px-2 py-4 text-center transition-colors hover:border-gold/40"
+                className="nav-list-item"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink3 text-gold">
+                <span className="nav-list-icon">
                   <Icon size={18} />
                 </span>
-                <span className="text-[11px] leading-tight text-paper">{m.label}</span>
+                <span className="min-w-0"><span className="block text-sm font-semibold text-paper">{m.label}</span><span className="mt-1 block truncate text-xs text-mute">{m.detail}</span></span>
+                <ChevronRight size={16} className="text-mute2" />
               </Link>
             </li>
           );

@@ -7,6 +7,7 @@ import { AdminScreen } from "@/components/layout/AdminScreen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export const Route = createFileRoute("/admin/perfil")({
   head: () => ({
@@ -45,6 +46,7 @@ function AdminPerfilPage() {
             <span className="text-xs text-mute">Dono da plataforma</span>
           </div>
         </li>
+        <li><ThemeToggle /></li>
         <li className="border-b border-line">
           <Link to="/admin/ajustes" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
             <Palette size={18} className="text-mute" />

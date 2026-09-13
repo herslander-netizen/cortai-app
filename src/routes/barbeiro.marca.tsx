@@ -128,7 +128,7 @@ function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; vers
         </div>
         <div className="mx-4 mb-4 h-9 rounded-md bg-[var(--preview-primary)]" />
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2"><Button asChild variant="outline" size="sm"><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Visualizar</a></Button><Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button><Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`); setStatus("Link copiado."); }}><Copy />Link</Button></div>
+      <div className="mt-3 grid gap-2 min-[380px]:grid-cols-3 md:max-w-2xl"><Button asChild variant="outline" size="sm"><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Visualizar</a></Button><Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button><Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`); setStatus("Link copiado."); }}><Copy />Link</Button></div>
     </Secao>
 
     <Secao title="Capa e fotos">

@@ -1,18 +1,20 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
-import { Building2, ClipboardList, CreditCard, Handshake, LineChart, Palette, SlidersHorizontal, UserRound } from "lucide-react";
+import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 const tabs = [
   { to: "/admin", label: "Visão geral", icon: LineChart },
   { to: "/admin/barbearias", label: "Barbearias", icon: Building2 },
-  { to: "/admin/recursos", label: "Recursos e planos", icon: SlidersHorizontal },
   { to: "/admin/monetizacao", label: "Monetização", icon: CreditCard },
-  { to: "/admin/ajustes", label: "Design system", icon: Palette },
-  { to: "/admin/parceiros", label: "Parceiros", icon: Handshake },
-  { to: "/admin/pedidos", label: "Pedidos", icon: ClipboardList },
-  { to: "/admin/perfil", label: "Perfil", icon: UserRound },
+  { to: "/admin/mais", label: "Mais", icon: Menu },
+] as const;
+
+const desktopGroups = [
+  { label: "Principal", items: tabs.slice(0, 2) },
+  { label: "Comercial", items: tabs.slice(2, 3) },
+  { label: "Administração", items: tabs.slice(3) },
 ] as const;
 
 export const Route = createFileRoute("/admin")({
@@ -26,10 +28,10 @@ function AdminLayout() {
     <div className="min-h-screen bg-ink md:grid md:grid-cols-[220px_1fr]">
       <aside className="hidden border-r border-line px-5 py-8 md:block">
         <MarcaCortai variante="escura" className="h-auto w-36" prioridade /><p className="mt-2 text-xs text-mute">Dono da plataforma</p>
-        <nav className="mt-10 space-y-1" aria-label="Painel da plataforma">{tabs.map((item) => { const Icon = item.icon; return <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex items-center gap-3 rounded-md px-3 py-3 text-sm text-mute" activeProps={{ className: "bg-ink2 text-paper" }}><Icon size={17} />{item.label}</Link>; })}</nav>
+        <nav className="mt-10 space-y-7" aria-label="Painel da plataforma">{desktopGroups.map((group) => <section key={group.label}><p className="mb-2 px-3 text-[10px] font-semibold uppercase text-mute2">{group.label}</p><div className="space-y-1">{group.items.map((item) => { const Icon = item.icon; return <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm text-mute transition-colors hover:bg-ink2 hover:text-paper" activeProps={{ className: "bg-ink2 text-paper" }}><Icon size={17} />{item.label}</Link>; })}</div></section>)}</nav>
       </aside>
       <Outlet />
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink md:hidden" aria-label="Painel da plataforma"><ul className="grid grid-cols-4 gap-y-1 py-1">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex flex-col items-center gap-1 py-3 text-mute" activeProps={{ className: "text-paper" }}><Icon size={19}/><span className="text-[10px]">{item.label}</span></Link></li>; })}</ul></nav>
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2/95 backdrop-blur-md md:hidden" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 6px)" }} aria-label="Painel da plataforma"><ul className="mx-auto grid max-w-[520px] grid-cols-4 px-1 pt-1">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="group mx-auto flex h-14 w-full max-w-[88px] flex-col items-center justify-center gap-1 text-mute" activeProps={{ className: "text-gold", "aria-current": "page" }}><span className="flex h-7 w-12 items-center justify-center rounded-full group-aria-[current=page]:bg-gold-soft"><Icon size={19}/></span><span className="w-full truncate text-center text-[10px] font-medium">{item.label}</span></Link></li>; })}</ul></nav>
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
+import { EmptyState } from "@/components/ui/section";
 import { listarParceirosAdmin, removerParceiro, salvarParceiro, type Parceiro } from "@/lib/parceiros.functions";
 
 export const Route = createFileRoute("/admin/parceiros")({
@@ -33,11 +35,8 @@ function ParceirosAdmin() {
   const parceiros = (consulta.data ?? []) as Parceiro[];
 
   return (
-    <main className="px-5 pb-28 pt-8 md:pb-10">
-      <h1 className="text-xl font-bold text-paper">Parceiros</h1>
-      <p className="mt-1 text-sm text-mute">
-        Aparecem numa faixa discreta na página inicial. Sem parceiros ativos, a faixa some sozinha.
-      </p>
+    <AdminScreen title="Parceiros" subtitle="Faixa discreta da página inicial; sem parceiros ativos, ela fica oculta.">
+      {consulta.isError ? <AdminNotice error={consulta.error} /> : null}
 
       <form
         className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
@@ -69,7 +68,7 @@ function ParceirosAdmin() {
             required
             value={form.nome}
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
-            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
+            className="field-control mt-1"
           />
         </label>
         <label className="block text-xs text-mute">
@@ -77,7 +76,7 @@ function ParceirosAdmin() {
           <input
             value={form.logo_url}
             onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
+            className="field-control mt-1"
           />
         </label>
         <label className="block text-xs text-mute">
@@ -86,7 +85,7 @@ function ParceirosAdmin() {
             value={form.link}
             onChange={(e) => setForm({ ...form, link: e.target.value })}
             placeholder="https://"
-            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
+            className="field-control mt-1"
           />
         </label>
         <label className="block text-xs text-mute">
@@ -96,7 +95,7 @@ function ParceirosAdmin() {
             min={0}
             value={form.ordem}
             onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })}
-            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
+            className="field-control mt-1"
           />
         </label>
         <div className="flex items-center justify-between gap-4">
@@ -106,9 +105,7 @@ function ParceirosAdmin() {
         <div className="flex gap-2">
           <Button className="flex-1">{form.id ? "Salvar" : "Adicionar"}</Button>
           {form.id ? (
-            <button type="button" onClick={() => setForm(VAZIO)} className="text-xs text-mute">
-              Cancelar
-            </button>
+            <Button type="button" variant="ghost" onClick={() => setForm(VAZIO)}>Cancelar</Button>
           ) : null}
         </div>
         {erro ? (
@@ -158,7 +155,7 @@ function ParceirosAdmin() {
           </li>
         ))}
       </ul>
-      {parceiros.length === 0 ? <p className="mt-4 text-sm text-mute">Nenhum parceiro cadastrado ainda.</p> : null}
-    </main>
+      {parceiros.length === 0 ? <EmptyState className="mt-4" title="Nenhum parceiro cadastrado" description="A faixa pública continuará oculta até o primeiro parceiro ativo." /> : null}
+    </AdminScreen>
   );
 }

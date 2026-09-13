@@ -7,6 +7,7 @@ import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export const Route = createFileRoute("/app/perfil")({
   head: () => ({
@@ -50,6 +51,7 @@ function PerfilPage() {
         <li>
           <AlterarSenha />
         </li>
+        <li><ThemeToggle /></li>
         <li className="border-b border-line">
           <button
             type="button"
