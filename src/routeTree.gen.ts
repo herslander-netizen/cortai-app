@@ -42,6 +42,7 @@ import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
 import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
+import { Route as BarbeiroConfigurarRouteImport } from './routes/barbeiro.configurar'
 import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
@@ -226,6 +227,11 @@ const BarbeiroClientesRoute = BarbeiroClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroConfigurarRoute = BarbeiroConfigurarRouteImport.update({
+  id: '/configurar',
+  path: '/configurar',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroContaRoute = BarbeiroContaRouteImport.update({
   id: '/conta',
   path: '/conta',
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
@@ -397,6 +404,7 @@ export interface FileRoutesByTo {
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
@@ -506,6 +515,7 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
@@ -555,6 +565,7 @@ export interface FileRouteTypes {
     | '/barbeiro/agenda'
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
@@ -608,6 +619,7 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
@@ -882,6 +894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/configurar': {
+      id: '/barbeiro/configurar'
+      path: '/configurar'
+      fullPath: '/barbeiro/configurar'
+      preLoaderRoute: typeof BarbeiroConfigurarRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/conta': {
       id: '/barbeiro/conta'
       path: '/conta'
@@ -1077,6 +1096,7 @@ interface BarbeiroRouteChildren {
   BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
+  BarbeiroConfigurarRoute: typeof BarbeiroConfigurarRoute
   BarbeiroContaRoute: typeof BarbeiroContaRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
@@ -1098,6 +1118,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
+  BarbeiroConfigurarRoute: BarbeiroConfigurarRoute,
   BarbeiroContaRoute: BarbeiroContaRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
