@@ -177,13 +177,13 @@ function FidelidadePage() {
               >
                 {c.nome}
               </Link>
-              <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
+              <p className={`shrink-0 text-xs ${c.elegivel ? "text-gold" : "text-mute2"}`}>
                 {c.elegivel ? "Corte grátis liberado" : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
               </p>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink3">
               <div
-                className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-gold"}`}
+                className={`h-full rounded-full ${c.elegivel ? "bg-gold" : "bg-mute2"}`}
                 style={{ width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%` }}
               />
             </div>

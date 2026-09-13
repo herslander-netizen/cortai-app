@@ -169,12 +169,12 @@ function Formulario({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/75 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Agendamento manual"
     >
-      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-line bg-ink2 p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-2xl">
+      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-line bg-ink3 p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-base font-bold text-paper">Agendamento manual</p>
