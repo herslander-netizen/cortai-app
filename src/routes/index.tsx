@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ArrowDown,
   BarChart3,
   CalendarCheck,
   CalendarDays,
@@ -16,10 +17,14 @@ import {
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
-import heroImg from "@/assets/landing-hero.jpg";
-import agendaImg from "@/assets/landing-agenda.jpg";
-import lojaImg from "@/assets/landing-loja.jpg";
-import ctaImg from "@/assets/landing-cta.jpg";
+import heroMobile from "@/assets/landing-hero-720.webp.asset.json";
+import heroDesktop from "@/assets/landing-hero-1400.webp.asset.json";
+import agendaMobile from "@/assets/landing-agenda-640.webp.asset.json";
+import agendaDesktop from "@/assets/landing-agenda-1200.webp.asset.json";
+import lojaMobile from "@/assets/landing-loja-640.webp.asset.json";
+import lojaDesktop from "@/assets/landing-loja-1200.webp.asset.json";
+import ctaMobile from "@/assets/landing-cta-640.webp.asset.json";
+import ctaDesktop from "@/assets/landing-cta-1400.webp.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,6 +46,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://cortai.dev/og-cortai.jpg" },
     ],
+    links: [{ rel: "preload", as: "image", href: heroMobile.url, fetchPriority: "high" }],
   }),
   component: Inicio,
 });
@@ -71,6 +77,7 @@ function Secao({
   texto,
   destaque,
   imagem,
+  imagemMobile,
   alt,
   invertido = false,
 }: {
@@ -79,17 +86,22 @@ function Secao({
   texto: string;
   destaque?: string;
   imagem?: string;
+  imagemMobile?: string;
   alt?: string;
   invertido?: boolean;
 }) {
   return (
-    <section className="mt-16 first:mt-0">
+    <section className="render-later mt-16 first:mt-0">
       <div className={`grid gap-6 md:grid-cols-2 md:items-center ${invertido ? "md:[&>figure]:order-last" : ""}`}>
         {imagem ? (
           <figure className="overflow-hidden rounded-2xl border border-line">
             <img
               src={imagem}
+              srcSet={imagemMobile ? `${imagemMobile} 640w, ${imagem} 1200w` : undefined}
+              sizes="(max-width: 767px) calc(100vw - 40px), 430px"
               alt={alt ?? ""}
+              width={1200}
+              height={912}
               loading="lazy"
               className="h-52 w-full object-cover md:h-64"
             />
@@ -124,10 +136,13 @@ function Inicio() {
         {/* HERO */}
         <section className="relative mt-8 overflow-hidden rounded-2xl border border-line">
           <img
-            src={heroImg}
+            src={heroDesktop.url}
+            srcSet={`${heroMobile.url} 720w, ${heroDesktop.url} 1400w`}
+            sizes="(max-width: 940px) calc(100vw - 40px), 900px"
             alt="Barbeiro atendendo um cliente em uma barbearia moderna de estética preta e dourada"
-            width={1600}
-            height={1104}
+            width={1400}
+            height={966}
+            fetchPriority="high"
             className="h-[420px] w-full object-cover md:h-[520px]"
           />
           <div className="absolute inset-0 bg-ink/55" />
@@ -139,18 +154,19 @@ function Inicio() {
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-mute md:text-base">
               Agenda, clientes, loja e fidelidade em um só lugar — com a sua marca na frente.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex max-w-md flex-col items-start gap-3 sm:flex-row sm:items-center">
               <a
                 href="#conhecer"
-                className="flex h-12 items-center rounded-lg bg-gold px-5 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5"
+                className="cta-premium"
               >
                 Conhecer o Cortaí
+                <ArrowDown size={14} aria-hidden />
               </a>
               <Link
                 to="/barbearias"
-                className="flex h-12 items-center gap-2 rounded-lg border border-line2 bg-ink2/80 px-5 text-sm font-semibold text-paper transition-colors hover:border-gold"
+                className="inline-flex min-h-10 items-center gap-2 rounded-md px-2 py-2 text-xs font-semibold text-mute transition-colors hover:text-paper"
               >
-                <Search size={16} aria-hidden />
+                <Search size={15} aria-hidden />
                 Encontrar uma barbearia
               </Link>
             </div>
@@ -186,7 +202,8 @@ function Inicio() {
           titulo="O dia inteiro numa tela só."
           texto="Veja horários por profissional, abra encaixes e registre atendimentos na hora, sem caderno e sem perder ninguém."
           destaque="Marque também quem chegou na barbearia."
-          imagem={agendaImg}
+          imagem={agendaDesktop.url}
+          imagemMobile={agendaMobile.url}
           alt="Barbeiro fazendo um degradê com máquina dourada"
         />
 
@@ -204,7 +221,8 @@ function Inicio() {
           titulo="Controle o estoque, escolha o que vende."
           texto="Cadastre seus produtos, acompanhe o que entra e sai e publique na loja apenas o que você quer vender."
           destaque="Venda produtos sem misturar com seu estoque interno."
-          imagem={lojaImg}
+          imagem={lojaDesktop.url}
+          imagemMobile={lojaMobile.url}
           alt="Produtos masculinos de barbearia sobre superfície escura"
         />
 
@@ -221,7 +239,8 @@ function Inicio() {
           etiqueta="Link da barbearia"
           titulo="Um link só, bonito, que agenda por você."
           texto="Seu cliente escolhe serviço, profissional, dia e horário em poucos toques. Compartilhe no WhatsApp, no Instagram ou na porta da loja."
-          imagem={ctaImg}
+          imagem={ctaDesktop.url}
+          imagemMobile={ctaMobile.url}
           alt="Cadeira de barbeiro preta com detalhes dourados"
         />
 
@@ -234,7 +253,7 @@ function Inicio() {
         />
 
         {/* RECURSOS */}
-        <section className="mt-16">
+        <section className="render-later mt-16">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">Recursos</p>
           <h2 className="mt-2 text-[26px] font-bold leading-tight text-paper">Já está tudo pronto.</h2>
           <ul className="mt-6 grid gap-2 md:grid-cols-2">
@@ -251,7 +270,7 @@ function Inicio() {
         </section>
 
         {/* CTA FINAL */}
-        <section className="mt-16 rounded-xl border border-line bg-ink2 px-6 py-10 text-center">
+        <section className="render-later mt-16 rounded-xl border border-line bg-ink2 px-6 py-10 text-center">
           <h2 className="text-[24px] font-bold leading-tight text-paper">
             Pronto para colocar sua barbearia no Cortaí?
           </h2>
