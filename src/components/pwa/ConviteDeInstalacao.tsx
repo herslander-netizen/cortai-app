@@ -1,7 +1,8 @@
-import { Download, Share, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useInstalacaoApp } from "@/hooks/useInstalacaoApp";
+import { PassosDeInstalacao } from "@/components/pwa/PassosDeInstalacao";
 
 /**
  * Convite de instalação: uma faixa discreta acima da navegação, exibida
@@ -31,6 +32,7 @@ export function ConviteDeInstalacao() {
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
           <img
             src="/icone-cortai-192.png"
+            loading="lazy"
             alt=""
             width={40}
             height={40}
@@ -56,13 +58,7 @@ export function ConviteDeInstalacao() {
         </div>
 
         {mostrarPassos ? (
-          <p className="mt-3 flex items-start gap-2 rounded-lg border border-line bg-ink px-3 py-2.5 text-xs leading-relaxed text-mute">
-            <Share size={14} className="mt-0.5 shrink-0 text-gold" />
-            <span>
-              Toque em <span className="text-paper">Compartilhar</span> e depois em{" "}
-              <span className="text-paper">Adicionar à Tela de Início</span>.
-            </span>
-          </p>
+          <PassosDeInstalacao sistema={instalacao.sistema} className="mt-3" />
         ) : null}
 
         <div className="mt-3 flex items-center justify-end gap-2">

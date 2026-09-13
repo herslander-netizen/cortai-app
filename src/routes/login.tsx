@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { LockKeyhole, Mail } from "lucide-react";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { destinoDoPapel } from "@/lib/guarda";
-import { getSessao } from "@/lib/sessao.functions";
+import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Signature } from "@/components/layout/Signature";
@@ -14,22 +14,30 @@ import { Signature } from "@/components/layout/Signature";
 export const Route = createFileRoute("/login")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
-    typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
+    typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrar — Cortaí" },
-      { name: "description", content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí." },
+      {
+        name: "description",
+        content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí.",
+      },
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (data.user) {
-      const sessao = await getSessao();
-      throw redirect({ to: destinoDoPapel(sessao) });
+  beforeLoad: async ({ context }) => {
+    // getSession() lê o token local sem ida ao servidor: abre o login na hora.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return;
+    try {
+      throw redirect({ to: destinoDoPapel(await carregarSessao(context.queryClient)) });
+    } catch (erro) {
+      if (erro && typeof erro === "object" && "to" in erro) throw erro;
     }
   },
   component: LoginPage,
@@ -37,6 +45,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { proximo } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
@@ -46,7 +55,8 @@ function LoginPage() {
   const [enviando, setEnviando] = useState(false);
 
   async function seguirParaMinhaArea() {
-    const sessao = await getSessao();
+    queryClient.removeQueries({ queryKey: chaveSessao });
+    const sessao = await carregarSessao(queryClient);
     const destino = destinoDoPapel(sessao);
     // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
     if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
@@ -137,7 +147,11 @@ function LoginPage() {
             {erro}
           </p>
         ) : null}
-        {aviso ? <Aviso tom="info" className="">{aviso}</Aviso> : null}
+        {aviso ? (
+          <Aviso tom="info" className="">
+            {aviso}
+          </Aviso>
+        ) : null}
         <Button className="h-12 w-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
@@ -178,7 +192,9 @@ function LoginPage() {
         )}
       </button>
 
-      <div className="mt-auto"><Signature mostrarRedesSociais /></div>
+      <div className="mt-auto">
+        <Signature mostrarRedesSociais />
+      </div>
     </main>
   );
 }

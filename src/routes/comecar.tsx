@@ -1,10 +1,10 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel } from "@/lib/guarda";
-import { criarBarbearia, definirTipoDePerfil, getSessao } from "@/lib/sessao.functions";
+import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
+import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/comecar")({
@@ -12,17 +12,23 @@ export const Route = createFileRoute("/comecar")({
   head: () => ({
     meta: [
       { title: "Começar — Cortaí" },
-      { name: "description", content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia." },
+      {
+        name: "description",
+        content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia.",
+      },
       { property: "og:title", content: "Começar — Cortaí" },
       { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    const sessao = await getSessao();
+  beforeLoad: async ({ context }) => {
+    let sessao;
+    try {
+      sessao = await carregarSessao(context.queryClient);
+    } catch {
+      throw redirect({ to: "/login", search: { proximo: "/comecar" } });
+    }
     if (sessao.papel !== "pendente" && !(sessao.papel === "barbeiro" && !sessao.tenantId)) {
       throw redirect({ to: destinoDoPapel(sessao) });
     }
@@ -34,6 +40,7 @@ export const Route = createFileRoute("/comecar")({
 function ComecarPage() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [modo, setModo] = useState<"escolha" | "barbearia">(
     sessao.papel === "barbeiro" ? "barbearia" : "escolha",
   );
@@ -59,6 +66,7 @@ function ComecarPage() {
               setErro(null);
               try {
                 await definirTipoDePerfil({ data: { tipo: "cliente" } });
+                queryClient.removeQueries({ queryKey: chaveSessao });
                 await navigate({ to: "/app" });
               } catch {
                 setErro("Não foi possível continuar agora.");
@@ -69,7 +77,9 @@ function ComecarPage() {
             <CalendarDays size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
-              <span className="mt-1 block text-xs text-mute">Marcar horários na minha barbearia.</span>
+              <span className="mt-1 block text-xs text-mute">
+                Marcar horários na minha barbearia.
+              </span>
             </span>
           </button>
           <button
@@ -80,7 +90,9 @@ function ComecarPage() {
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho uma barbearia</span>
-              <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no Cortaí Gestão.</span>
+              <span className="mt-1 block text-xs text-mute">
+                Agenda, clientes e financeiro no Cortaí Gestão.
+              </span>
             </span>
           </button>
         </div>
@@ -93,6 +105,7 @@ function ComecarPage() {
             setErro(null);
             try {
               await criarBarbearia({ data: { nome: nome.trim() } });
+              queryClient.removeQueries({ queryKey: chaveSessao });
               await navigate({ to: "/barbeiro" });
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");

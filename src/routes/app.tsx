@@ -22,7 +22,7 @@ export const Route = createFileRoute("/app")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
-  beforeLoad: () => exigirPapel("cliente"),
+  beforeLoad: ({ context }) => exigirPapel("cliente", context.queryClient),
   component: ClientLayout,
 });
 

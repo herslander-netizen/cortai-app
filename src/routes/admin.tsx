@@ -31,7 +31,7 @@ export const Route = createFileRoute("/admin")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
-  beforeLoad: () => exigirPapel("admin"),
+  beforeLoad: ({ context }) => exigirPapel("admin", context.queryClient),
   component: AdminLayout,
 });
 
