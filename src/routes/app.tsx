@@ -14,6 +14,14 @@ const tabs: TabItem[] = [
 
 export const Route = createFileRoute("/app")({
   ssr: false,
+  head: () => ({ meta: [
+    { title: "Área do cliente — Cortaí" },
+    { name: "description", content: "Agende horários e acompanhe sua relação com a barbearia no Cortaí." },
+    { property: "og:title", content: "Área do cliente — Cortaí" },
+    { property: "og:description", content: "Agendamentos e benefícios da sua barbearia." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   beforeLoad: () => exigirPapel("cliente"),
   component: ClientLayout,
 });

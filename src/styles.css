@@ -203,7 +203,7 @@
   color: var(--brick);
   font-weight: 600;
   transition: background-color 120ms ease;
-  &:active { background-color: rgba(0, 0, 0, 0.2); }
+  &:active { background-color: color-mix(in oklab, var(--ink) 70%, transparent); }
   &:disabled { opacity: 0.5; pointer-events: none; }
 }
 

@@ -92,7 +92,7 @@ export function SinoDeNotificacoes() {
             role="dialog"
             aria-modal="true"
             aria-label="Notificações"
-            className="cortai-splash flex max-h-[80vh] w-full max-w-[440px] flex-col rounded-t-2xl border border-line bg-ink2 sm:rounded-2xl"
+            className="cortai-splash flex max-h-[80vh] w-full max-w-[440px] flex-col rounded-t-2xl border border-line2 bg-ink2 shadow-lg sm:rounded-2xl"
           >
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-line px-5 py-4">
               <div className="min-w-0">

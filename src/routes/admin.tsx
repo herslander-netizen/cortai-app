@@ -23,6 +23,14 @@ const tabsMobile = [
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
+  head: () => ({ meta: [
+    { title: "Administração da plataforma — Cortaí" },
+    { name: "description", content: "Gestão central da plataforma Cortaí." },
+    { property: "og:title", content: "Administração da plataforma — Cortaí" },
+    { property: "og:description", content: "Gestão central da plataforma Cortaí." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   beforeLoad: () => exigirPapel("admin"),
   component: AdminLayout,
 });
