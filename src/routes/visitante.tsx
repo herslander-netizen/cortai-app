@@ -14,9 +14,9 @@ export const Route = createFileRoute("/visitante")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Entrar como cliente — Cortaí" },
-      { name: "description", content: "Crie sua conta de cliente para agendar cortes nas barbearias do Cortaí." },
-      { property: "og:title", content: "Entrar como cliente — Cortaí" },
+      { title: "Entrar como cliente — CortAI" },
+      { name: "description", content: "Crie sua conta de cliente para agendar cortes nas barbearias do CortAI." },
+      { property: "og:title", content: "Entrar como cliente — CortAI" },
       { property: "og:description", content: "Conta de cliente para agendar seus cortes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -206,7 +206,7 @@ function VisitantePage() {
       </button>
 
       <Link to="/login" className="mt-6 text-center text-xs text-mute2 hover:text-paper">
-        Tenho uma barbearia no Cortaí
+        Tenho uma barbearia no CortAI
       </Link>
 
       <footer className="mt-auto pt-10 text-center">

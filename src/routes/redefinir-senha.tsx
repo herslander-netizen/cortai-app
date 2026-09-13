@@ -12,10 +12,10 @@ export const Route = createFileRoute("/redefinir-senha")({
     search["convite"] ? { convite: "1" } : {},
   head: () => ({
     meta: [
-      { title: "Criar nova senha — Cortaí" },
-      { name: "description", content: "Defina uma nova senha e volte a usar o Cortaí." },
-      { property: "og:title", content: "Criar nova senha — Cortaí" },
-      { property: "og:description", content: "Defina sua nova senha do Cortaí." },
+      { title: "Criar nova senha — CortAI" },
+      { name: "description", content: "Defina uma nova senha e volte a usar o CortAI." },
+      { property: "og:title", content: "Criar nova senha — CortAI" },
+      { property: "og:description", content: "Defina sua nova senha do CortAI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,14 +61,14 @@ function RedefinirSenhaPage() {
           <Aviso tom="sucesso" titulo="Sua senha foi criada.">
             {convite
               ? "Agora é só conferir o que você pode fazer na barbearia e confirmar o acesso."
-              : "Você já pode entrar no Cortaí com a senha nova."}
+              : "Você já pode entrar no CortAI com a senha nova."}
           </Aviso>
           <button
             type="button"
             className="btn-primary w-full py-3.5"
             onClick={() => void navigate({ to: convite ? "/convite" : "/login" })}
           >
-            {convite ? "Ver meu acesso" : "Entrar no Cortaí"}
+            {convite ? "Ver meu acesso" : "Entrar no CortAI"}
           </button>
         </div>
       ) : linkInvalido && !pronto ? (
@@ -105,7 +105,7 @@ function RedefinirSenhaPage() {
           }}
         >
           <p className="text-sm leading-relaxed text-mute">
-            Escolha uma senha com pelo menos 8 caracteres. Ninguém no Cortaí vê a sua senha.
+            Escolha uma senha com pelo menos 8 caracteres. Ninguém no CortAI vê a sua senha.
           </p>
           <label className="block text-xs font-medium text-mute">
             Nova senha

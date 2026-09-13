@@ -1,7 +1,7 @@
 /**
  * Contrato da camada de atendimento inteligente (ALVO IA).
  *
- * O Cortaí NÃO conhece o provedor: fala sempre com esta interface. Trocar a
+ * O CortAI NÃO conhece o provedor: fala sempre com esta interface. Trocar a
  * ALVO IA por outro provedor no futuro é implementar `ProvedorDeIA` de novo,
  * sem tocar em nenhum módulo de negócio.
  *
@@ -109,7 +109,7 @@ export type RespostaDeAgente = {
 };
 
 /**
- * Interface única entre o Cortaí e qualquer plataforma de IA.
+ * Interface única entre o CortAI e qualquer plataforma de IA.
  * Implementações vivem em arquivos `.server.ts` e nunca no navegador.
  */
 export interface ProvedorDeIA {

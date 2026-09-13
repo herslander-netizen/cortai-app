@@ -11,9 +11,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/crescimento")({
   head: () => ({
     meta: [
-      { title: "Crescimento — Cortaí Gestão" },
+      { title: "Crescimento — CortAI Gestão" },
       { name: "description", content: "Novos clientes, recorrência, indicações e ocupação da sua barbearia." },
-      { property: "og:title", content: "Crescimento — Cortaí Gestão" },
+      { property: "og:title", content: "Crescimento — CortAI Gestão" },
       { property: "og:description", content: "O que faz sua barbearia crescer, em números reais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

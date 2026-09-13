@@ -18,9 +18,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   head: () => ({
     meta: [
-      { title: "Indicações — Cortaí Gestão" },
+      { title: "Indicações — CortAI Gestão" },
       { name: "description", content: "Cliente que traz cliente: código, recompensa e acompanhamento." },
-      { property: "og:title", content: "Indicações — Cortaí Gestão" },
+      { property: "og:title", content: "Indicações — CortAI Gestão" },
       { property: "og:description", content: "Acompanhe quem indicou e quem já virou cliente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

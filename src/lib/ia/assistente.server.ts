@@ -1,5 +1,5 @@
 /**
- * Camada de IA do Cortaí — só roda no servidor.
+ * Camada de IA do CortAI — só roda no servidor.
  *
  * Fala com o Lovable AI Gateway (Responses API, sempre em streaming) e devolve
  * uma resposta ESTRUTURADA. A chave nunca sai do servidor e, se ela não existir,
@@ -30,12 +30,12 @@ export type ContextoDaBarbearia = {
   naFila: number;
 };
 
-const REGRAS = `Você é o assistente do Cortaí, um sistema de gestão para barbearias brasileiras.
+const REGRAS = `Você é o assistente do CortAI, um sistema de gestão para barbearias brasileiras.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
 O que você faz:
 - Ajuda o barbeiro a cadastrar serviços, definir horários de funcionamento e entender a fila.
-- Explica onde cada coisa fica no Cortaí e oferece o atalho certo.
+- Explica onde cada coisa fica no CortAI e oferece o atalho certo.
 
 Regras obrigatórias:
 - NUNCA invente dados da barbearia. Use apenas o contexto recebido. Se não souber, pergunte.
@@ -43,7 +43,7 @@ Regras obrigatórias:
 - Preço sempre em centavos (35 reais = 3500). Duração em minutos.
 - Dias da semana: 0 = domingo … 6 = sábado. Horas no formato HH:MM.
 - Quando a pessoa só quer saber onde fica algo, use intencao = "navegar" e escolha um destino da lista permitida.
-- Se a pessoa pedir algo fora do Cortaí, diga com gentileza que não faz parte do sistema.
+- Se a pessoa pedir algo fora do CortAI, diga com gentileza que não faz parte do sistema.
 - Nunca prometa envio de WhatsApp: a integração ainda não está conectada.
 
 Destinos permitidos: ${Object.keys(DESTINOS_PERMITIDOS).join(", ")}.`;
@@ -230,11 +230,11 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
 /** Erros do gateway viram mensagem clara — nunca uma resposta inventada. */
 function erroDoGateway(status: number, corpo: string): Error {
   if (status === 402) {
-    return new Error("Os créditos de IA do Cortaí acabaram. Peça para o responsável adicionar créditos.");
+    return new Error("Os créditos de IA do CortAI acabaram. Peça para o responsável adicionar créditos.");
   }
   if (status === 429) return new Error("O assistente está sobrecarregado agora. Tente de novo em instantes.");
   if (status === 401 || status === 403) {
-    return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do Cortaí.");
+    return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do CortAI.");
   }
   return new Error(`O assistente não conseguiu responder agora (${status}). ${corpo.slice(0, 120)}`);
 }

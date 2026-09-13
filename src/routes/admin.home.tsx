@@ -52,10 +52,10 @@ import {
 export const Route = createFileRoute("/admin/home")({
   head: () => ({
     meta: [
-      { title: "Home pública — Administração Cortaí" },
-      { name: "description", content: "Edite o conteúdo, as seções e a aparência da página inicial pública do Cortaí." },
-      { property: "og:title", content: "Home pública — Administração Cortaí" },
-      { property: "og:description", content: "Editor da página inicial pública do Cortaí." },
+      { title: "Home pública — Administração CortAI" },
+      { name: "description", content: "Edite o conteúdo, as seções e a aparência da página inicial pública do CortAI." },
+      { property: "og:title", content: "Home pública — Administração CortAI" },
+      { property: "og:description", content: "Editor da página inicial pública do CortAI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -240,7 +240,7 @@ function EditorDaHome() {
 
           {aba === "hero" ? (
             <section className="space-y-4">
-              <SectionHeading title="Topo da página" description="A primeira coisa que a pessoa vê ao abrir o Cortaí." />
+              <SectionHeading title="Topo da página" description="A primeira coisa que a pessoa vê ao abrir o CortAI." />
               <label className="flex items-center justify-between rounded-lg border border-line bg-ink2 p-4">
                 <span className="text-sm text-paper">Mostrar o topo</span>
                 <Switch checked={config.hero.ativo} onCheckedChange={(v) => atualizar({ hero: { ...config.hero, ativo: v } })} />
@@ -422,7 +422,7 @@ function EditorDaHome() {
 
           {aba === "seo" ? (
             <section className="space-y-4">
-              <SectionHeading title="SEO e compartilhamento" description="Como o Cortaí aparece no Google e ao compartilhar o link." />
+              <SectionHeading title="SEO e compartilhamento" description="Como o CortAI aparece no Google e ao compartilhar o link." />
               <Field label="Título" hint="Até 60 caracteres funciona melhor">
                 <Input value={config.seo.titulo} onChange={(e) => atualizar({ seo: { ...config.seo, titulo: e.target.value } })} />
               </Field>

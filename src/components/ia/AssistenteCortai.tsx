@@ -158,12 +158,12 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
       <button type="button" aria-label="Fechar" className="absolute inset-0" onClick={onFechar} />
       <section
         role="dialog"
-        aria-label="Assistente do Cortaí"
+        aria-label="Assistente do CortAI"
         className="relative flex h-[86vh] w-full flex-col rounded-t-2xl border border-line2 bg-ink2 md:h-full md:max-w-[420px] md:rounded-none md:rounded-l-2xl"
       >
         <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
           <div>
-            <p className="text-sm font-semibold text-paper">✨ Perguntar ao Cortaí</p>
+            <p className="text-sm font-semibold text-paper">✨ Perguntar ao CortAI</p>
             <p className="mt-0.5 text-xs text-mute">Cadastre serviços, ajuste horários e tire dúvidas.</p>
           </div>
           <button type="button" onClick={onFechar} aria-label="Fechar assistente" className="text-mute">

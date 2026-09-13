@@ -10,10 +10,10 @@ export const Route = createFileRoute("/recuperar-senha")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Recuperar acesso — Cortaí" },
-      { name: "description", content: "Receba as instruções para voltar a entrar no Cortaí." },
-      { property: "og:title", content: "Recuperar acesso — Cortaí" },
-      { property: "og:description", content: "Recupere o acesso à sua conta Cortaí." },
+      { title: "Recuperar acesso — CortAI" },
+      { name: "description", content: "Receba as instruções para voltar a entrar no CortAI." },
+      { property: "og:title", content: "Recuperar acesso — CortAI" },
+      { property: "og:description", content: "Recupere o acesso à sua conta CortAI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

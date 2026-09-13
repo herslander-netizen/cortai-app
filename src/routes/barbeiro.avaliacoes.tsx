@@ -12,9 +12,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
     meta: [
-      { title: "Avaliações — Cortaí Gestão" },
+      { title: "Avaliações — CortAI Gestão" },
       { name: "description", content: "Registre a nota de cada atendimento e convide os satisfeitos a avaliar publicamente." },
-      { property: "og:title", content: "Avaliações — Cortaí Gestão" },
+      { property: "og:title", content: "Avaliações — CortAI Gestão" },
       { property: "og:description", content: "Feedback interno e convite público na medida certa." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

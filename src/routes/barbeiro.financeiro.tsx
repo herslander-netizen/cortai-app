@@ -9,9 +9,9 @@ import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({ meta: [
-    { title: "Financeiro — Cortaí Gestão" },
+    { title: "Financeiro — CortAI Gestão" },
     { name: "description", content: "Receitas de serviços, produtos e outros lançamentos da barbearia." },
-    { property: "og:title", content: "Financeiro — Cortaí Gestão" },
+    { property: "og:title", content: "Financeiro — CortAI Gestão" },
     { property: "og:description", content: "Visão clara das receitas da barbearia." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },

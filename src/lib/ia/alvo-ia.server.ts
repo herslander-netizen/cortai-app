@@ -115,7 +115,7 @@ class AlvoAIClient implements ProvedorDeIA {
 
 let instancia: ProvedorDeIA | undefined;
 
-/** Ponto único de acesso ao provedor de IA em todo o Cortaí. */
+/** Ponto único de acesso ao provedor de IA em todo o CortAI. */
 export function provedorDeIA(): ProvedorDeIA {
   if (!instancia) instancia = new AlvoAIClient();
   return instancia;

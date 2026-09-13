@@ -21,9 +21,9 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configuração inicial — Cortaí Gestão" },
+      { title: "Configuração inicial — CortAI Gestão" },
       { name: "description", content: "Dados, horários e serviços da sua barbearia em poucos minutos." },
-      { property: "og:title", content: "Configuração inicial — Cortaí" },
+      { property: "og:title", content: "Configuração inicial — CortAI" },
       { property: "og:description", content: "Deixe sua barbearia pronta para atender." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -215,7 +215,7 @@ function ConfigurarPage() {
                 className="btn-primary mt-8 w-full py-3.5"
                 onClick={() => void navigate({ to: "/barbeiro" })}
               >
-                ✂️ Entrar no Cortaí
+                ✂️ Entrar no CortAI
               </button>
             </div>
           ) : null}

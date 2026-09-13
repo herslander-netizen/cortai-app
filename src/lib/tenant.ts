@@ -12,7 +12,7 @@ export async function tenantIdDoMembro(context: ContextoAutenticado): Promise<st
   const tenantId = data.tenant_id as string;
   const { data: tenant } = await context.supabase.from("tenants").select("ativo").eq("id", tenantId).maybeSingle();
   if (tenant && tenant.ativo === false) {
-    throw new Error("Esta barbearia está desativada. Fale com o suporte do Cortaí para reativar.");
+    throw new Error("Esta barbearia está desativada. Fale com o suporte do CortAI para reativar.");
   }
   return tenantId;
 }

@@ -14,9 +14,9 @@ import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
-    { title: `${params.slug} — Agende pelo Cortaí` },
-    { name: "description", content: "Conheça serviços, profissionais e agende seu horário pelo Cortaí." },
-    { property: "og:title", content: `${params.slug} — Cortaí` },
+    { title: `${params.slug} — Agende pelo CortAI` },
+    { name: "description", content: "Conheça serviços, profissionais e agende seu horário pelo CortAI." },
+    { property: "og:title", content: `${params.slug} — CortAI` },
     { property: "og:description", content: "Serviços, profissionais e agendamento em um só lugar." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -65,7 +65,7 @@ function PaginaBarbearia() {
       <div className="absolute inset-0 bg-ink/60" />
       <div className="relative mx-auto flex min-h-[56vh] max-w-6xl flex-col justify-end px-5 pb-9 sm:px-8">
         <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={60} className="mb-4" />
-        <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>
+        <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo CortAI</p>
         <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-5xl">{tenant.nome}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">

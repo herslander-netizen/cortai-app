@@ -8,9 +8,9 @@ import { entrarNaFila } from "@/lib/fila-cliente.functions";
 export const Route = createFileRoute("/app/espera")({
   head: () => ({
     meta: [
-      { title: "Lista de espera — Cortaí" },
+      { title: "Lista de espera — CortAI" },
       { name: "description", content: "Entre na lista de espera e seja avisado quando abrir um horário." },
-      { property: "og:title", content: "Lista de espera — Cortaí" },
+      { property: "og:title", content: "Lista de espera — CortAI" },
       { property: "og:description", content: "Horário cheio? Avisamos assim que vagar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

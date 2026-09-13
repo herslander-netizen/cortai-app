@@ -11,9 +11,9 @@ import { rotuloDoPapel } from "@/lib/navigation";
 
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({ meta: [
-    { title: "Mais — Cortaí Gestão" },
+    { title: "Mais — CortAI Gestão" },
     { name: "description", content: "Produtos, serviços, marca e recursos da sua barbearia." },
-    { property: "og:title", content: "Mais — Cortaí Gestão" },
+    { property: "og:title", content: "Mais — CortAI Gestão" },
     { property: "og:description", content: "Configurações e recursos da barbearia." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },

@@ -7,7 +7,7 @@ import { brl } from "@/lib/format";
 import { aplicarCupom, getBannersDaHome, getMinhaAssinatura } from "@/lib/monetizacao.functions";
 import { ROTULO_DO_LIMITE, dataCurta, diasRestantes, type TipoDeLimite } from "@/lib/monetizacao";
 
-/** Campanhas publicadas pelo Cortaí para esta barbearia. */
+/** Campanhas publicadas pelo CortAI para esta barbearia. */
 export function BannersDaPlataforma() {
   const { data } = useQuery({ queryKey: ["banners-home"], queryFn: () => getBannersDaHome(), retry: false });
   if (!data?.length) return null;

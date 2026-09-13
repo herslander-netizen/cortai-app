@@ -20,7 +20,7 @@ export function BotaoAssistente({ variante = "destaque" }: { variante?: "destaqu
         >
           <Sparkles size={18} className="shrink-0 text-gold" aria-hidden />
           <span className="min-w-0">
-            <span className="block text-sm font-semibold text-paper">Perguntar ao Cortaí</span>
+            <span className="block text-sm font-semibold text-paper">Perguntar ao CortAI</span>
             <span className="mt-0.5 block text-xs text-mute">
               Cadastre serviços, ajuste horários ou tire dúvidas escrevendo normal.
             </span>
@@ -33,7 +33,7 @@ export function BotaoAssistente({ variante = "destaque" }: { variante?: "destaqu
           className="flex w-full items-center gap-3 border-b border-line py-4 text-left"
         >
           <Sparkles size={17} className="shrink-0 text-gold" aria-hidden />
-          <span className="text-sm text-paper">Perguntar ao Cortaí</span>
+          <span className="text-sm text-paper">Perguntar ao CortAI</span>
         </button>
       )}
 

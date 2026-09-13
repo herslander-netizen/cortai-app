@@ -9,8 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { getAdminTenants, getSuggestions, saveSuggestion, updateSuggestionStatus } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/pedidos")({ head: () => ({ meta: [
-  { title: "Pedidos das barbearias — Cortaí" }, { name: "description", content: "Sugestões agrupadas e priorizadas das barbearias do Cortaí." },
-  { property: "og:title", content: "Pedidos das barbearias — Cortaí" }, { property: "og:description", content: "Demanda real das barbearias por novas soluções." },
+  { title: "Pedidos das barbearias — CortAI" }, { name: "description", content: "Sugestões agrupadas e priorizadas das barbearias do CortAI." },
+  { property: "og:title", content: "Pedidos das barbearias — CortAI" }, { property: "og:description", content: "Demanda real das barbearias por novas soluções." },
   { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
 ] }), component: PedidosPage });
 

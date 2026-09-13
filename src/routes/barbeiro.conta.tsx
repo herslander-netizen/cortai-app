@@ -13,10 +13,10 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
     meta: [
-      { title: "Conta e barbearia — Cortaí Gestão" },
-      { name: "description", content: "Dados da sua conta, da barbearia e saída segura do Cortaí." },
-      { property: "og:title", content: "Conta e barbearia — Cortaí Gestão" },
-      { property: "og:description", content: "Sua conta e sua barbearia no Cortaí." },
+      { title: "Conta e barbearia — CortAI Gestão" },
+      { name: "description", content: "Dados da sua conta, da barbearia e saída segura do CortAI." },
+      { property: "og:title", content: "Conta e barbearia — CortAI Gestão" },
+      { property: "og:description", content: "Sua conta e sua barbearia no CortAI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

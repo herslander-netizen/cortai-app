@@ -12,9 +12,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/fila")({
   head: () => ({
     meta: [
-      { title: "Fila de espera — Painel do barbeiro | Cortaí" },
+      { title: "Fila de espera — Painel do barbeiro | CortAI" },
       { name: "description", content: "Quem espera vaga, quem já foi avisado e quanto a fila recuperou no mês." },
-      { property: "og:title", content: "Fila de espera — Cortaí" },
+      { property: "og:title", content: "Fila de espera — CortAI" },
       { property: "og:description", content: "Horários vagos viram atendimento com a fila." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

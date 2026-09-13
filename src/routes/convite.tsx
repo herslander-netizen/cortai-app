@@ -11,9 +11,9 @@ export const Route = createFileRoute("/convite")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Confirmar acesso à barbearia — Cortaí" },
+      { title: "Confirmar acesso à barbearia — CortAI" },
       { name: "description", content: "Veja o que você pode fazer na barbearia e confirme o seu acesso." },
-      { property: "og:title", content: "Confirmar acesso à barbearia — Cortaí" },
+      { property: "og:title", content: "Confirmar acesso à barbearia — CortAI" },
       { property: "og:description", content: "Confirme o acesso que a barbearia liberou para você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

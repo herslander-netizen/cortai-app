@@ -132,7 +132,7 @@ export function SecaoHero({ hero }: { hero: HeroHome }) {
 
 function MockupCortai() {
   return (
-    <div className="landing-device-stage" aria-label="Exemplo da interface de gestão do Cortaí">
+    <div className="landing-device-stage" aria-label="Exemplo da interface de gestão do CortAI">
       <div className="landing-device-card landing-device-card-left" aria-hidden>
         <p className="text-[9px] font-bold uppercase text-gold">Agenda de hoje</p>
         <p className="mt-2 text-2xl font-bold text-paper">8 horários</p>
@@ -151,7 +151,7 @@ function MockupCortai() {
         <div className="landing-phone-screen">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[8px] font-bold uppercase text-gold">Cortaí Gestão</p>
+              <p className="text-[8px] font-bold uppercase text-gold">CortAI Gestão</p>
               <p className="mt-1 text-sm font-bold text-paper">Bom dia, Matheus</p>
             </div>
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink3 text-gold"><Scissors size={14} /></span>
@@ -191,10 +191,10 @@ function MockupCortai() {
 }
 
 function TelaProduto({ tipo }: { tipo: "agenda" | "clientes" | "caixa" | "voltai" }) {
-  if (tipo === "agenda") return <div className="landing-product-screen"><div className="border-b border-line px-4 py-3"><p className="text-[10px] font-bold uppercase text-gold">Cortaí Gestão</p><p className="mt-1 text-sm font-bold text-paper">Agenda</p></div><div className="space-y-2 p-4">{[["09:00", "Carlos", "Corte + barba"], ["10:00", "Horário livre", "Oferecer à fila"], ["11:30", "Rafael", "Corte degradê"]].map((item, index) => <div key={item[0]} className={`grid grid-cols-[48px_1fr] gap-3 border-l-2 px-3 py-2 ${index === 1 ? "border-line2" : "border-gold"}`}><span className="text-xs font-semibold text-mute">{item[0]}</span><span><b className="block text-xs text-paper">{item[1]}</b><small className="text-mute">{item[2]}</small></span></div>)}</div></div>;
+  if (tipo === "agenda") return <div className="landing-product-screen"><div className="border-b border-line px-4 py-3"><p className="text-[10px] font-bold uppercase text-gold">CortAI Gestão</p><p className="mt-1 text-sm font-bold text-paper">Agenda</p></div><div className="space-y-2 p-4">{[["09:00", "Carlos", "Corte + barba"], ["10:00", "Horário livre", "Oferecer à fila"], ["11:30", "Rafael", "Corte degradê"]].map((item, index) => <div key={item[0]} className={`grid grid-cols-[48px_1fr] gap-3 border-l-2 px-3 py-2 ${index === 1 ? "border-line2" : "border-gold"}`}><span className="text-xs font-semibold text-mute">{item[0]}</span><span><b className="block text-xs text-paper">{item[1]}</b><small className="text-mute">{item[2]}</small></span></div>)}</div></div>;
   if (tipo === "clientes") return <div className="landing-product-screen"><div className="border-b border-line px-4 py-3"><p className="text-[10px] font-bold uppercase text-gold">Clientes</p><p className="mt-1 text-sm font-bold text-paper">Na hora de voltar</p></div><div className="p-4"><p className="text-[11px] text-mute">Voltaí acompanha a frequência de cada cliente.</p>{["Cliente recorrente", "Cliente em retorno", "Contato recente"].map((nome, index) => <div key={nome} className="mt-3 flex items-center justify-between border-b border-line pb-2"><span><b className="block text-xs text-paper">{nome}</b><small className="text-mute">A cada {22 + index * 5} dias</small></span><em className={index === 1 ? "text-[9px] not-italic text-gold" : "text-[9px] not-italic text-sage"}>{index === 1 ? "EM RETORNO" : "RECORRENTE"}</em></div>)}</div></div>;
   if (tipo === "caixa") return <div className="landing-product-screen"><div className="border-b border-line px-4 py-3"><p className="text-[10px] font-bold uppercase text-gold">Financeiro</p><p className="mt-1 text-sm font-bold text-paper">Visão do mês</p></div><div className="p-4"><p className="text-[10px] text-mute">Faturamento</p><p className="mt-1 text-2xl font-bold text-paper">R$ 8.420</p><div className="mt-4 h-1.5 rounded-full bg-ink3"><div className="h-full w-3/4 rounded-full bg-gold" /></div><div className="mt-5 grid grid-cols-2 gap-2">{[["Serviços", "R$ 6.980"], ["Produtos", "R$ 1.440"]].map((item) => <div key={item[0]} className="rounded-md bg-ink3 p-3"><small className="text-mute">{item[0]}</small><b className="mt-1 block text-xs text-paper">{item[1]}</b></div>)}</div></div></div>;
-  return <div className="landing-product-screen"><div className="flex items-center justify-between border-b border-line px-4 py-3"><div><p className="text-[10px] font-bold uppercase text-gold">Voltaí</p><p className="mt-1 text-sm font-bold text-paper">Fidelidade do Cortaí</p></div><Gift size={18} className="text-gold" /></div><div className="p-4"><p className="text-[11px] text-mute">Progresso para o próximo corte</p><div className="mt-4 flex gap-2">{Array.from({ length: 6 }).map((_, index) => <span key={index} className={`flex h-8 w-8 items-center justify-center rounded-full border text-[10px] font-bold ${index < 4 ? "border-gold bg-gold text-ink" : "border-line2 text-mute"}`}>{index + 1}</span>)}</div><p className="mt-4 text-xs font-semibold text-paper">Faltam 2 cortes para ganhar.</p></div></div>;
+  return <div className="landing-product-screen"><div className="flex items-center justify-between border-b border-line px-4 py-3"><div><p className="text-[10px] font-bold uppercase text-gold">Voltaí</p><p className="mt-1 text-sm font-bold text-paper">Fidelidade do CortAI</p></div><Gift size={18} className="text-gold" /></div><div className="p-4"><p className="text-[11px] text-mute">Progresso para o próximo corte</p><div className="mt-4 flex gap-2">{Array.from({ length: 6 }).map((_, index) => <span key={index} className={`flex h-8 w-8 items-center justify-center rounded-full border text-[10px] font-bold ${index < 4 ? "border-gold bg-gold text-ink" : "border-line2 text-mute"}`}>{index + 1}</span>)}</div><p className="mt-4 text-xs font-semibold text-paper">Faltam 2 cortes para ganhar.</p></div></div>;
 }
 
 const BLOCO = "mx-auto max-w-[var(--home-largura)] px-5 md:px-10";
@@ -281,7 +281,7 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
             <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
             {secao.tipo === "voltai" ? (
               <p className={`mt-7 inline-flex items-center gap-2 text-xs font-semibold ${claro ? "text-landing-light-ink" : "text-paper"}`}>
-                <Repeat2 size={15} className={claro ? "text-landing-light-gold" : "text-gold"} /> Uma função do Cortaí, não outro aplicativo.
+                <Repeat2 size={15} className={claro ? "text-landing-light-gold" : "text-gold"} /> Uma função do CortAI, não outro aplicativo.
               </p>
             ) : null}
             {ciclo.length === 3 ? (
