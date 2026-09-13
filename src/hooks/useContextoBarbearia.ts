@@ -12,7 +12,7 @@ export function useContextoBarbearia() {
   const query = useQuery({
     queryKey: ["contexto-barbearia"],
     queryFn: () => getContextoBarbearia(),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
     retry: false,
   });
   const dados = query.data;
