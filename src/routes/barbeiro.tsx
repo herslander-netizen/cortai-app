@@ -1,13 +1,13 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
-import { CalendarRange, LayoutDashboard, Menu, Users, WalletCards } from "lucide-react";
+import { CalendarRange, House, Menu, Users } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
+import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 
 const tabs: TabItem[] = [
-  { to: "/barbeiro", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/barbeiro", label: "Início", icon: House },
   { to: "/barbeiro/agenda", label: "Agenda", icon: CalendarRange },
   { to: "/barbeiro/clientes", label: "Clientes", icon: Users },
-  { to: "/barbeiro/financeiro", label: "Financeiro", icon: WalletCards },
   { to: "/barbeiro/mais", label: "Mais", icon: Menu },
 ];
 
@@ -21,7 +21,7 @@ function BarberLayout() {
   return (
     <div className="management-shell">
       <Outlet />
-      <TabBar items={tabs} />
+      <TabBar items={tabs} centralAction={<AcoesRapidas />} />
     </div>
   );
 }

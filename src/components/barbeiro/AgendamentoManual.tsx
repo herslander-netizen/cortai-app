@@ -34,14 +34,18 @@ export function AgendamentoManual({
   onCriado,
   gatilho = "primario",
   rotulo,
+  autoAbrir = false,
+  iniciarNovoCliente = false,
 }: {
   dia: string;
   horaInicial?: string;
   onCriado?: () => void;
   gatilho?: "primario" | "discreto";
   rotulo?: string;
+  autoAbrir?: boolean;
+  iniciarNovoCliente?: boolean;
 }) {
-  const [aberto, setAberto] = useState(false);
+  const [aberto, setAberto] = useState(autoAbrir);
 
   return (
     <>
@@ -60,6 +64,7 @@ export function AgendamentoManual({
         <Formulario
           dia={dia}
           {...(horaInicial ? { horaInicial } : {})}
+          iniciarNovoCliente={iniciarNovoCliente}
           onFechar={() => setAberto(false)}
           onCriado={() => {
             setAberto(false);
@@ -76,11 +81,13 @@ function Formulario({
   horaInicial = "09:00",
   onFechar,
   onCriado,
+  iniciarNovoCliente = false,
 }: {
   dia: string;
   horaInicial?: string;
   onFechar: () => void;
   onCriado: () => void;
+  iniciarNovoCliente?: boolean;
 }) {
   const criar = useServerFn(criarAgendamentoManual);
   const buscar = useServerFn(buscarClientesDaBarbearia);
@@ -100,7 +107,7 @@ function Formulario({
   const [termoDebounce, setTermoDebounce] = useState("");
   const [clienteId, setClienteId] = useState<string | null>(null);
   const [clienteNome, setClienteNome] = useState("");
-  const [novo, setNovo] = useState(false);
+  const [novo, setNovo] = useState(iniciarNovoCliente);
   const [novoNome, setNovoNome] = useState("");
   const [novoTelefone, setNovoTelefone] = useState("");
   const [servicoId, setServicoId] = useState("");
