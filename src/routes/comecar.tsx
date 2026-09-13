@@ -3,7 +3,7 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel } from "@/lib/guarda";
+import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil, getSessao } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
