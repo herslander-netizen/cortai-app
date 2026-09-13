@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { LockKeyhole, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { carregarSessao, chaveSessao, destinoDoPapel } from "@/lib/guarda";
+import { atualizarSessao, destinoDoPapel } from "@/lib/guarda";
+
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Signature } from "@/components/layout/Signature";
