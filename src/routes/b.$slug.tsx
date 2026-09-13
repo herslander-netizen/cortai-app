@@ -11,6 +11,7 @@ import { brl } from "@/lib/format";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
@@ -65,7 +66,7 @@ function PaginaBarbearia() {
       <div className="absolute inset-0 bg-ink/60" />
       <div className="relative mx-auto flex min-h-[56vh] max-w-6xl flex-col justify-end px-5 pb-9 sm:px-8">
         <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={60} className="mb-4" />
-        <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>
+        <MarcaCortai tamanho="sm" assinatura={false} className="mb-3" />
         <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-5xl">{tenant.nome}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">

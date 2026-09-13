@@ -8,6 +8,7 @@ import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
+import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 
 export const Route = createFileRoute("/loja/$slug")({
   head: ({ params }) => ({ meta: [
@@ -43,11 +44,7 @@ function LojaPage() {
             <ArrowLeft size={14} />Voltar para {tenant.nome}
           </Link>
           <div className="mt-5 flex items-center gap-3">
-            {tenant.logo_url ? (
-              <img src={tenant.logo_url} alt={`Logo ${tenant.nome}`} className="h-12 w-12 rounded-md object-contain" />
-            ) : (
-              <span className="flex h-12 w-12 items-center justify-center rounded-md bg-ink2 text-gold"><ShoppingBag size={20} /></span>
-            )}
+            <LogoBarbearia nome={tenant.nome} url={tenant.logo_url} size={48} />
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold text-paper">Loja da {tenant.nome}</h1>
               <p className="mt-0.5 text-xs text-mute">Reserve aqui e retire na barbearia.</p>
