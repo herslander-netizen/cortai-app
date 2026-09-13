@@ -4,7 +4,6 @@ import { CalendarCheck, Scissors, Store, Wallet } from "lucide-react";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
-import { SolicitarProjeto } from "@/components/institucional/SolicitarProjeto";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -87,8 +86,6 @@ function Inicio() {
         <DescobrirBarbearias discreto />
 
         <FaixaDeParceiros />
-
-        <SolicitarProjeto />
       </main>
 
       <Signature />

@@ -324,6 +324,7 @@ export type Database = {
           preco_studio_centavos: number
           raio_px: number
           tipografia: string
+          whatsapp_alvo: string | null
         }
         Insert: {
           atualizado_em?: string
@@ -338,6 +339,7 @@ export type Database = {
           preco_studio_centavos?: number
           raio_px?: number
           tipografia?: string
+          whatsapp_alvo?: string | null
         }
         Update: {
           atualizado_em?: string
@@ -352,6 +354,7 @@ export type Database = {
           preco_studio_centavos?: number
           raio_px?: number
           tipografia?: string
+          whatsapp_alvo?: string | null
         }
         Relationships: []
       }
@@ -1334,6 +1337,12 @@ export type Database = {
           cor_texto: string
           raio_px: number
           tipografia: string
+        }[]
+      }
+      contato_da_plataforma: {
+        Args: never
+        Returns: {
+          whatsapp_alvo: string
         }[]
       }
       criar_agendamento: {

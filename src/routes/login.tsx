@@ -181,7 +181,7 @@ function LoginPage() {
 
       <footer className="mt-auto pt-10 text-center">
         <p className="text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
-        <p className="mt-1 text-[10px] text-mute2">© 2026 Alvo Digital</p>
+        <p className="mt-1 text-[10px] text-mute2">© 2026 Herslander</p>
       </footer>
     </main>
   );

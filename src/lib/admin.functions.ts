@@ -146,6 +146,12 @@ const configSchema = z.object({
   preco_essencial_centavos: z.number().int().min(0), preco_pro_centavos: z.number().int().min(0), preco_studio_centavos: z.number().int().min(0),
   cor_fundo: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_superficie: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_primaria: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_texto: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   tipografia: z.enum(["Montserrat", "Work Sans", "Sora"]), raio_px: z.number().int().min(0).max(24),
+  whatsapp_alvo: z.string().trim().max(30).nullable().optional().transform((v) => {
+    const digitos = String(v ?? "").replace(/\D/g, "");
+    if (!digitos) return null;
+    if (digitos.length < 10 || digitos.length > 15) throw new Error("Número de WhatsApp inválido.");
+    return digitos.length <= 11 ? `55${digitos}` : digitos;
+  }),
 });
 
 export const savePlatformConfig = createServerFn({ method: "POST" })
