@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { exigirRecurso } from "@/lib/planos";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -473,6 +474,7 @@ export type DadosFila = {
 export const getFila = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<DadosFila> => {
   const { db, tenant } = await tenantPadrao(context);
+  await exigirRecurso(db, tenant.id, "fila_espera");
 
   const inicioMes = new Date();
   inicioMes.setDate(1);
@@ -623,6 +625,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DadosManual> => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "agendamento_manual");
     const [servicosRes, profRes] = await Promise.all([
       db
         .from("servicos")
@@ -687,6 +690,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<ResultadoManual> => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "agendamento_manual");
 
     const { data: servico } = await db
       .from("servicos")

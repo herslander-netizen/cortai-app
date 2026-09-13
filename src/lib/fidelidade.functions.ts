@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { exigirRecurso } from "@/lib/planos";
 
 export type ConfigFidelidade = {
   tenantId: string;
@@ -26,6 +27,8 @@ export const getConfigFidelidade = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(
   async ({ context }): Promise<ConfigFidelidade> => {
     const { db, tenantId } = await tenantPadrao(context);
+    await exigirRecurso(db, tenantId, "fidelidade");
+  await exigirRecurso(db, tenantId, "fidelidade");
 
     const [regraRes, servicoRes, carteirasRes] = await Promise.all([
       db
@@ -64,6 +67,8 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await tenantPadrao(context);
+    await exigirRecurso(db, tenantId, "fidelidade");
+  await exigirRecurso(db, tenantId, "fidelidade");
 
     const { data: existente } = await db
       .from("regras_de_plano")
@@ -93,6 +98,7 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
 export const getClientesFidelidade = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const { db, tenantId } = await tenantPadrao(context);
+  await exigirRecurso(db, tenantId, "fidelidade");
   const [regraRes, carteirasRes] = await Promise.all([
     db
       .from("regras_de_plano")

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { exigirRecurso } from "@/lib/planos";
 import { z } from "zod";
 
 const DIA = 24 * 60 * 60 * 1000;
@@ -142,6 +143,7 @@ export type Crescimento = {
 export const getCrescimento = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<Crescimento> => {
   const { db, tenant } = await tenantPadrao(context);
+  await exigirRecurso(db, tenant.id, "crescimento");
   const agora = Date.now();
   const inicioMes = new Date();
   inicioMes.setDate(1);
@@ -217,6 +219,7 @@ export const getCrescimento = createServerFn({ method: "GET" })
 export const getIndicacoes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const { db, tenant } = await tenantPadrao(context);
+  await exigirRecurso(db, tenant.id, "indicacoes");
   const { data } = await db
     .from("indicacoes")
     .select("id, indicado_nome, status, recompensa, recompensa_entregue, criado_em, convertido_em, clientes!indicacoes_indicador_cliente_id_fkey(nome)")
@@ -258,6 +261,7 @@ export const salvarConfigIndicacao = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "indicacoes");
     const { error } = await db
       .from("tenants")
       .update({
