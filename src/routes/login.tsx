@@ -115,8 +115,8 @@ function LoginPage() {
               return;
             }
             await seguirParaMinhaArea();
-            setEnviando(false);
             return;
+
           }
           const { data, error } = await supabase.auth.signUp({
             email,
