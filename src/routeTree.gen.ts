@@ -42,12 +42,14 @@ import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
 import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
+import { Route as BarbeiroConfigurarRouteImport } from './routes/barbeiro.configurar'
 import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
+import { Route as BarbeiroHorariosRouteImport } from './routes/barbeiro.horarios'
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
 import { Route as BarbeiroIntegracoesRouteImport } from './routes/barbeiro.integracoes'
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
@@ -56,6 +58,7 @@ import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
+import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
@@ -226,6 +229,11 @@ const BarbeiroClientesRoute = BarbeiroClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroConfigurarRoute = BarbeiroConfigurarRouteImport.update({
+  id: '/configurar',
+  path: '/configurar',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroContaRoute = BarbeiroContaRouteImport.update({
   id: '/conta',
   path: '/conta',
@@ -254,6 +262,11 @@ const BarbeiroFilaRoute = BarbeiroFilaRouteImport.update({
 const BarbeiroFinanceiroRoute = BarbeiroFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroHorariosRoute = BarbeiroHorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroIndicacoesRoute = BarbeiroIndicacoesRouteImport.update({
@@ -294,6 +307,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
 const EntrarRetornoRoute = EntrarRetornoRouteImport.update({
   id: '/entrar/retorno',
   path: '/entrar/retorno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FSlugRoute = FSlugRouteImport.update({
+  id: '/f/$slug',
+  path: '/f/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
@@ -348,12 +366,14 @@ export interface FileRoutesByFullPath {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
+  '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
@@ -362,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
+  '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -397,12 +418,14 @@ export interface FileRoutesByTo {
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
+  '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
@@ -411,6 +434,7 @@ export interface FileRoutesByTo {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
+  '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -451,12 +475,14 @@ export interface FileRoutesById {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
+  '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
+  '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/integracoes': typeof BarbeiroIntegracoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
@@ -465,6 +491,7 @@ export interface FileRoutesById {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
+  '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -506,12 +533,14 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
+    | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/integracoes'
     | '/barbeiro/mais'
@@ -520,6 +549,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
     | '/entrar/retorno'
+    | '/f/$slug'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
@@ -555,12 +585,14 @@ export interface FileRouteTypes {
     | '/barbeiro/agenda'
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
+    | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/integracoes'
     | '/barbeiro/mais'
@@ -569,6 +601,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
     | '/entrar/retorno'
+    | '/f/$slug'
     | '/loja/$slug'
     | '/admin'
     | '/app'
@@ -608,12 +641,14 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/caixa'
     | '/barbeiro/clientes'
+    | '/barbeiro/configurar'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
+    | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/integracoes'
     | '/barbeiro/mais'
@@ -622,6 +657,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
     | '/entrar/retorno'
+    | '/f/$slug'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
@@ -645,6 +681,7 @@ export interface RootRouteChildren {
   VisitanteRoute: typeof VisitanteRoute
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
+  FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
 }
@@ -882,6 +919,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/configurar': {
+      id: '/barbeiro/configurar'
+      path: '/configurar'
+      fullPath: '/barbeiro/configurar'
+      preLoaderRoute: typeof BarbeiroConfigurarRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/conta': {
       id: '/barbeiro/conta'
       path: '/conta'
@@ -922,6 +966,13 @@ declare module '@tanstack/react-router' {
       path: '/financeiro'
       fullPath: '/barbeiro/financeiro'
       preLoaderRoute: typeof BarbeiroFinanceiroRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/horarios': {
+      id: '/barbeiro/horarios'
+      path: '/horarios'
+      fullPath: '/barbeiro/horarios'
+      preLoaderRoute: typeof BarbeiroHorariosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/indicacoes': {
@@ -978,6 +1029,13 @@ declare module '@tanstack/react-router' {
       path: '/entrar/retorno'
       fullPath: '/entrar/retorno'
       preLoaderRoute: typeof EntrarRetornoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/f/$slug': {
+      id: '/f/$slug'
+      path: '/f/$slug'
+      fullPath: '/f/$slug'
+      preLoaderRoute: typeof FSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja/$slug': {
@@ -1077,12 +1135,14 @@ interface BarbeiroRouteChildren {
   BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
+  BarbeiroConfigurarRoute: typeof BarbeiroConfigurarRoute
   BarbeiroContaRoute: typeof BarbeiroContaRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
+  BarbeiroHorariosRoute: typeof BarbeiroHorariosRoute
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
   BarbeiroIntegracoesRoute: typeof BarbeiroIntegracoesRoute
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
@@ -1098,12 +1158,14 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
+  BarbeiroConfigurarRoute: BarbeiroConfigurarRoute,
   BarbeiroContaRoute: BarbeiroContaRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
+  BarbeiroHorariosRoute: BarbeiroHorariosRoute,
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
   BarbeiroIntegracoesRoute: BarbeiroIntegracoesRoute,
   BarbeiroMaisRoute: BarbeiroMaisRoute,
@@ -1132,6 +1194,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisitanteRoute: VisitanteRoute,
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
+  FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
 }

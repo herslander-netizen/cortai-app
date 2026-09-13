@@ -612,6 +612,41 @@ export type Database = {
           },
         ]
       }
+      conversas_de_ia: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          id: string
+          tenant_id: string
+          titulo: string | null
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          tenant_id: string
+          titulo?: string | null
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          tenant_id?: string
+          titulo?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversas_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cupons: {
         Row: {
           ativo: boolean
@@ -824,9 +859,13 @@ export type Database = {
           criado_em: string
           id: string
           janela_preferida: Json | null
+          origem: string
           posicao: number
           profissional_id: string | null
+          servico_id: string | null
+          status: string
           tenant_id: string
+          token_publico: string | null
         }
         Insert: {
           avisado_em?: string | null
@@ -834,9 +873,13 @@ export type Database = {
           criado_em?: string
           id?: string
           janela_preferida?: Json | null
+          origem?: string
           posicao?: number
           profissional_id?: string | null
+          servico_id?: string | null
+          status?: string
           tenant_id: string
+          token_publico?: string | null
         }
         Update: {
           avisado_em?: string | null
@@ -844,9 +887,13 @@ export type Database = {
           criado_em?: string
           id?: string
           janela_preferida?: Json | null
+          origem?: string
           posicao?: number
           profissional_id?: string | null
+          servico_id?: string | null
+          status?: string
           tenant_id?: string
+          token_publico?: string | null
         }
         Relationships: [
           {
@@ -861,6 +908,13 @@ export type Database = {
             columns: ["profissional_id"]
             isOneToOne: false
             referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fila_de_espera_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
             referencedColumns: ["id"]
           },
           {
@@ -957,6 +1011,47 @@ export type Database = {
           snapshot?: Json
         }
         Relationships: []
+      }
+      horarios_de_funcionamento: {
+        Row: {
+          abre: string
+          atualizado_em: string
+          criado_em: string
+          dia_semana: number
+          fecha: string
+          fechado: boolean
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          abre?: string
+          atualizado_em?: string
+          criado_em?: string
+          dia_semana: number
+          fecha?: string
+          fechado?: boolean
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          abre?: string
+          atualizado_em?: string
+          criado_em?: string
+          dia_semana?: number
+          fecha?: string
+          fechado?: boolean
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "horarios_de_funcionamento_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       indicacoes: {
         Row: {
@@ -1078,6 +1173,51 @@ export type Database = {
           },
         ]
       }
+      mensagens_de_ia: {
+        Row: {
+          acao: Json | null
+          autor: string
+          conteudo: string
+          conversa_id: string
+          criado_em: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          acao?: Json | null
+          autor: string
+          conteudo: string
+          conversa_id: string
+          criado_em?: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          acao?: Json | null
+          autor?: string
+          conteudo?: string
+          conversa_id?: string
+          criado_em?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_de_ia_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_de_ia"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimentos: {
         Row: {
           agendamento_id: string | null
@@ -1124,6 +1264,44 @@ export type Database = {
             columns: ["carteira_id"]
             isOneToOne: false
             referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_do_tenant: {
+        Row: {
+          atualizado_em: string
+          concluido_em: string | null
+          criado_em: string
+          etapa: string
+          itens: Json
+          tenant_id: string
+          tour_visto: boolean
+        }
+        Insert: {
+          atualizado_em?: string
+          concluido_em?: string | null
+          criado_em?: string
+          etapa?: string
+          itens?: Json
+          tenant_id: string
+          tour_visto?: boolean
+        }
+        Update: {
+          atualizado_em?: string
+          concluido_em?: string | null
+          criado_em?: string
+          etapa?: string
+          itens?: Json
+          tenant_id?: string
+          tour_visto?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_do_tenant_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -2009,6 +2187,15 @@ export type Database = {
         }
         Returns: Json
       }
+      entrar_na_fila_publica: {
+        Args: {
+          _nome: string
+          _servico_id?: string
+          _slug: string
+          _telefone: string
+        }
+        Returns: Json
+      }
       equipe_do_tenant: {
         Args: { _tenant_id: string }
         Returns: {
@@ -2031,6 +2218,7 @@ export type Database = {
         }
         Returns: string[]
       }
+      fila_publica_status: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

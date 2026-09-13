@@ -78,6 +78,21 @@ export const GUIAS: Guia[] = [
         titulo: "Oportunidades de hoje",
         texto: "Aqui o Cortaí diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
       },
+      {
+        alvo: "dash-primeiros-passos",
+        titulo: "Primeiros passos",
+        texto: "Este cartão mostra o que falta para sua barbearia ficar redonda. Ele guarda o progresso.",
+      },
+      {
+        alvo: "dash-assistente",
+        titulo: "Perguntar ao Cortaí",
+        texto: "Escreva como você fala: cadastre serviços, ajuste horários ou pergunte onde fica cada coisa.",
+      },
+      {
+        alvo: "dash-acoes-rapidas",
+        titulo: "Ações rápidas",
+        texto: "A tesoura dourada abre as ações do dia: colocar cliente na fila, chamar o próximo e agendar.",
+      },
     ],
   },
   {
