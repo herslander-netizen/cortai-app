@@ -3,6 +3,7 @@ import { exigirPapel } from "@/lib/guarda";
 import { CalendarDays, Clock, Scissors, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { ClientBrand } from "@/components/layout/ClientBrand";
+import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 
 const tabs: TabItem[] = [
   { to: "/app", label: "Início", icon: Scissors },
@@ -22,6 +23,7 @@ function ClientLayout() {
     <ClientBrand>
       <Outlet />
       <TabBar items={tabs} />
+      <ConviteDeInstalacao />
     </ClientBrand>
   );
 }
