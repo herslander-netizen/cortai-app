@@ -50,7 +50,7 @@ const ICONES: Record<string, ComponentType<{ size?: number; className?: string }
 
 const ICONES_ROTINA = [Smartphone, Zap, Check, PackageCheck, Scissors];
 
-function Icone({ chave, ...props }: { chave?: string; size?: number; className?: string }) {
+function Icone({ chave, ...props }: { chave?: string | undefined; size?: number; className?: string }) {
   const Componente = ICONES[chave ?? "outro"] ?? Sparkles;
   return <Componente {...props} />;
 }
@@ -62,10 +62,10 @@ function BotaoDestino({
   variante = "default",
   className,
 }: {
-  texto?: string;
-  destino?: string;
+  texto?: string | undefined;
+  destino?: string | undefined;
   variante?: "default" | "ghost" | "outline" | "link";
-  className?: string;
+  className?: string | undefined;
 }) {
   if (!texto || !destino) return null;
   const conteudo = destino.startsWith("#") ? <a href={destino}>{texto}{variante === "ghost" ? <ArrowDown /> : <ArrowRight />}</a> : <Link to={destino}>{texto} <ArrowRight /></Link>;
@@ -76,7 +76,7 @@ function BotaoDestino({
   );
 }
 
-function Cabecalho({ etiqueta, titulo, texto, claro = false }: { etiqueta?: string; titulo?: string; texto?: string; claro?: boolean }) {
+function Cabecalho({ etiqueta, titulo, texto, claro = false }: { etiqueta?: string | undefined; titulo?: string | undefined; texto?: string | undefined; claro?: boolean }) {
   return (
     <div className="max-w-2xl">
       {etiqueta ? <p className={claro ? "landing-kicker-light" : "landing-kicker"}>{etiqueta}</p> : null}
