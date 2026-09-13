@@ -7,6 +7,7 @@ import { Bot, ShieldCheck } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { STATUS_DA_INTEGRACAO, type StatusDaIntegracao } from "@/lib/ia/contrato";
+import type { PainelDeIntegracao } from "@/lib/ia.functions";
 import { conectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
 
 export const Route = createFileRoute("/barbeiro/integracoes")({
@@ -42,7 +43,7 @@ function IntegracoesPage() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["integracao-ia"],
-    queryFn: () => getIntegracaoDeIA(),
+    queryFn: () => getIntegracaoDeIA() as Promise<PainelDeIntegracao>,
   });
 
   const [nome, setNome] = useState("");
@@ -80,7 +81,7 @@ function IntegracoesPage() {
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível conectar agora."),
   });
 
-  const status = data?.integracao.status ?? "desconectado";
+  const status: StatusDaIntegracao = data?.integracao.status ?? "desconectado";
 
   return (
     <Screen

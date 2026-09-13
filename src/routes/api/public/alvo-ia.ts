@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/public/alvo-ia")({
           provedor: PROVEDOR_PADRAO,
           evento_externo_id: evento.eventoExternoId,
           tipo: evento.tipo,
-          payload: evento.payload,
+          payload: evento.payload as never,
         });
         // 23505 = já recebemos esta entrega; responder ok evita reentrega infinita.
         if (error && error.code !== "23505") {

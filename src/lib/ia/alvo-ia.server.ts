@@ -9,6 +9,7 @@ import {
   IntegracaoNaoConfiguradaError,
   PROVEDOR_PADRAO,
   type EventoDeNegocio,
+  type DadosDeEvento,
   type EventoRecebido,
   type PersonaDoAgente,
   type ProvedorDeIA,
@@ -107,7 +108,7 @@ class AlvoAIClient implements ProvedorDeIA {
       eventoExternoId: texto(bruto["event_id"], "event_id"),
       tipo: texto(bruto["type"], "type"),
       externalTenantId: texto(bruto["tenant_id"], "tenant_id"),
-      payload: typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {},
+      payload: typeof payload === "object" && payload !== null ? (payload as DadosDeEvento) : {},
     };
   }
 }

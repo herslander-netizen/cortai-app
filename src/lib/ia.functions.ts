@@ -8,6 +8,7 @@ import {
   type IntegracaoDeIA,
   type PersonaDoAgente,
   type StatusDaIntegracao,
+  type ValorSimples,
 } from "@/lib/ia/contrato";
 
 async function admin() {
@@ -27,7 +28,7 @@ function daLinha(tenantId: string, linha: Record<string, any> | null): Integraca
     conectadoEm: (linha?.["conectado_em"] as string) ?? null,
     ultimaSincronizacaoEm: (linha?.["ultima_sincronizacao_em"] as string) ?? null,
     ultimoErro: (linha?.["ultimo_erro"] as string) ?? null,
-    metadata: ((linha?.["metadata"] as Record<string, unknown>) ?? {}) as Record<string, unknown>,
+    metadata: ((linha?.["metadata"] as Record<string, ValorSimples>) ?? {}) as Record<string, ValorSimples>,
   };
 }
 

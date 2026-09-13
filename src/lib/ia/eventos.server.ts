@@ -6,7 +6,7 @@
  * - idempotente: a mesma chave nunca entra duas vezes;
  * - gravar evento nunca pode derrubar a operação de negócio que o originou.
  */
-import type { EventoDeNegocio, TipoDeEventoDeIA } from "./contrato";
+import type { DadosDeEvento, EventoDeNegocio, TipoDeEventoDeIA } from "./contrato";
 import { PROVEDOR_PADRAO } from "./contrato";
 
 async function admin() {
@@ -19,7 +19,7 @@ export function montarEvento(
   tenantId: string,
   tipo: TipoDeEventoDeIA,
   entidadeId: string,
-  payload: Record<string, unknown> = {},
+  payload: DadosDeEvento = {},
   versao: string = new Date().toISOString(),
 ): EventoDeNegocio {
   return {
@@ -68,7 +68,7 @@ export async function emitirEvento(
   tenantId: string,
   tipo: TipoDeEventoDeIA,
   entidadeId: string,
-  payload: Record<string, unknown> = {},
+  payload: DadosDeEvento = {},
 ): Promise<void> {
   await registrarEvento(montarEvento(tenantId, tipo, entidadeId, payload));
 }

@@ -8,6 +8,10 @@
  * Este arquivo é seguro para o navegador: só tipos e rótulos, nunca segredos.
  */
 
+/** Valor simples serializável — nada de objetos exóticos atravessando a fronteira. */
+export type ValorSimples = string | number | boolean | null;
+export type DadosDeEvento = Record<string, ValorSimples | ValorSimples[] | Record<string, ValorSimples>>;
+
 export const PROVEDOR_PADRAO = "alvo_ia" as const;
 export type ProvedorDeIAId = typeof PROVEDOR_PADRAO;
 
@@ -46,7 +50,7 @@ export type IntegracaoDeIA = {
   ultimaSincronizacaoEm: string | null;
   ultimoErro: string | null;
   /** Diagnóstico não sensível. */
-  metadata: Record<string, unknown>;
+  metadata: Record<string, ValorSimples>;
 };
 
 /* ------------------------------- Eventos --------------------------------- */
@@ -72,7 +76,7 @@ export type EventoDeNegocio = {
   chaveIdempotencia: string;
   ocorridoEm: string;
   /** Só dados necessários ao atendimento; nada além do preciso (LGPD). */
-  payload: Record<string, unknown>;
+  payload: DadosDeEvento;
 };
 
 export type EventoRecebido = {
@@ -80,7 +84,7 @@ export type EventoRecebido = {
   eventoExternoId: string;
   tipo: string;
   externalTenantId: string;
-  payload: Record<string, unknown>;
+  payload: DadosDeEvento;
 };
 
 /* ------------------------------- Adaptador -------------------------------- */
