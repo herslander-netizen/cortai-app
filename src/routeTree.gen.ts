@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
+import { Route as AdminMaisRouteImport } from './routes/admin.mais'
 import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
@@ -102,6 +103,11 @@ const AdminAjustesRoute = AdminAjustesRouteImport.update({
 const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
   id: '/barbearias',
   path: '/barbearias',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMaisRoute = AdminMaisRouteImport.update({
+  id: '/mais',
+  path: '/mais',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminParceirosRoute = AdminParceirosRouteImport.update({
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/mais': typeof AdminMaisRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/mais': typeof AdminMaisRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/mais': typeof AdminMaisRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -422,6 +431,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/mais'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -465,6 +475,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/mais'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -510,6 +521,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/mais'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -629,6 +641,13 @@ declare module '@tanstack/react-router' {
       path: '/barbearias'
       fullPath: '/admin/barbearias'
       preLoaderRoute: typeof AdminBarbeariasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/mais': {
+      id: '/admin/mais'
+      path: '/mais'
+      fullPath: '/admin/mais'
+      preLoaderRoute: typeof AdminMaisRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/parceiros': {
@@ -875,6 +894,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
+  AdminMaisRoute: typeof AdminMaisRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   AdminPerfilRoute: typeof AdminPerfilRoute
@@ -885,6 +905,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
+  AdminMaisRoute: AdminMaisRoute,
   AdminParceirosRoute: AdminParceirosRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   AdminPerfilRoute: AdminPerfilRoute,
