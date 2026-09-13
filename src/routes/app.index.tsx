@@ -13,9 +13,9 @@ export const Route = createFileRoute("/app/")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Início — CortAI" },
-      { name: "description", content: "Escolha sua barbearia e agende seu próximo corte no CortAI." },
-      { property: "og:title", content: "Início — CortAI" },
+      { title: "Início — Cortaí" },
+      { name: "description", content: "Escolha sua barbearia e agende seu próximo corte no Cortaí." },
+      { property: "og:title", content: "Início — Cortaí" },
       { property: "og:description", content: "Seu próximo corte em um toque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ function InicioCliente() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-10">
         <main className="flex-1">
-          <h1 className="sr-only">Início — CortAI</h1>
+          <h1 className="sr-only">Início — Cortaí</h1>
           <DescobrirBarbearias />
         </main>
         <Signature />

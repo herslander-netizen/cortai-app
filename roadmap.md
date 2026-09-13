@@ -1,4 +1,4 @@
-# Upgrade do CortAI
+# Upgrade do Cortaí
 
 - [x] Reorganizar a navegação mobile em cinco posições
 - [x] Implementar a folha de ações rápidas e reutilizar os fluxos existentes
@@ -21,7 +21,7 @@
 - [ ] Validar tipagem, testes relevantes e build
 - [ ] Validar explicitamente dark/light e mobile/desktop antes da entrega
 
-## Assistente CortAI e configuração inicial (aprovado)
+## Assistente Cortaí e configuração inicial (aprovado)
 
 - [ ] Banco: horários, onboarding, conversas de IA e fila pública
 - [ ] Camada de IA server-side com fallback sem chave

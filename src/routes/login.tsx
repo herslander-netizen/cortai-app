@@ -16,10 +16,10 @@ export const Route = createFileRoute("/login")({
     typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
   head: () => ({
     meta: [
-      { title: "Entrar — CortAI" },
-      { name: "description", content: "Acesse seus horários ou a gestão da sua barbearia no CortAI." },
-      { property: "og:title", content: "Entrar — CortAI" },
-      { property: "og:description", content: "Seu acesso ao CortAI." },
+      { title: "Entrar — Cortaí" },
+      { name: "description", content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí." },
+      { property: "og:title", content: "Entrar — Cortaí" },
+      { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -59,11 +59,11 @@ function LoginPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
       <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
       <h1 className="mt-2 max-w-xs text-[32px] font-bold leading-tight text-paper">
-        {modo === "entrar" ? "Seu próximo corte começa aqui." : "Crie sua conta no CortAI."}
+        {modo === "entrar" ? "Seu próximo corte começa aqui." : "Crie sua conta no Cortaí."}
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
         {modo === "entrar"
-          ? "Entre para agendar ou para abrir o CortAI Gestão."
+          ? "Entre para agendar ou para abrir o Cortaí Gestão."
           : "Depois você escolhe se quer agendar ou gerenciar uma barbearia."}
       </p>
 

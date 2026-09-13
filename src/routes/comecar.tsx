@@ -11,9 +11,9 @@ export const Route = createFileRoute("/comecar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Começar — CortAI" },
-      { name: "description", content: "Escolha como usar o CortAI: agendar ou gerenciar sua barbearia." },
-      { property: "og:title", content: "Começar — CortAI" },
+      { title: "Começar — Cortaí" },
+      { name: "description", content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia." },
+      { property: "og:title", content: "Começar — Cortaí" },
       { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -46,12 +46,12 @@ function ComecarPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
       <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
-        {concluido ? "🔥 Tá tudo pronto pra começar os cortes!" : modo === "escolha" ? "Como você vai usar o CortAI?" : "Qual o nome da sua barbearia?"}
+        {concluido ? "🔥 Tá tudo pronto pra começar os cortes!" : modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
       </h1>
 
       {concluido ? (
         <div className="mt-8">
-          <p className="text-base leading-relaxed text-mute">O CortAI tá no jeito. Bora atender?</p>
+          <p className="text-base leading-relaxed text-mute">O Cortaí tá no jeito. Bora atender?</p>
           <button type="button" className="btn-primary mt-8 w-full" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
             ✂️ Configurar minha barbearia
           </button>
@@ -88,7 +88,7 @@ function ComecarPage() {
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho uma barbearia</span>
-              <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no CortAI Gestão.</span>
+              <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no Cortaí Gestão.</span>
             </span>
           </button>
         </div>

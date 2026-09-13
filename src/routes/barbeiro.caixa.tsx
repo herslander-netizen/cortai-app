@@ -4,9 +4,9 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 export const Route = createFileRoute("/barbeiro/caixa")({
   head: () => ({
     meta: [
-      { title: "Caixa — Painel do barbeiro | CortAI" },
+      { title: "Caixa — Painel do barbeiro | Cortaí" },
       { name: "description", content: "Entradas, créditos e valores em aberto da barbearia." },
-      { property: "og:title", content: "Caixa — CortAI" },
+      { property: "og:title", content: "Caixa — Cortaí" },
       { property: "og:description", content: "Entradas, créditos e valores em aberto." },
     ],
   }),

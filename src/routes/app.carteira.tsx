@@ -10,9 +10,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/app/carteira")({
   head: () => ({
     meta: [
-      { title: "Minha carteira — CortAI" },
+      { title: "Minha carteira — Cortaí" },
       { name: "description", content: "Saldo, créditos, cartão de fidelidade e extrato da sua barbearia." },
-      { property: "og:title", content: "Minha carteira — CortAI" },
+      { property: "og:title", content: "Minha carteira — Cortaí" },
       { property: "og:description", content: "Seu saldo, seu cartão de fidelidade e cada lançamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

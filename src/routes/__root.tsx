@@ -70,7 +70,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CortAI — Agendamento para barbearias" },
+      { title: "Cortaí — Agendamento para barbearias" },
       {
         name: "description",
         content: "Agendamento e gestão para barbearias, direto do celular.",
@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0B0B0B" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "CortAI" },
+      { name: "apple-mobile-web-app-title", content: "Cortaí" },
     ],
     links: [
       {

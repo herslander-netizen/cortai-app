@@ -19,8 +19,8 @@ import {
 
 export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({ meta: [
-    { title: "Barbearias da plataforma — CortAI" }, { name: "description", content: "Acompanhe planos, uso e risco das barbearias do CortAI." },
-    { property: "og:title", content: "Barbearias da plataforma — CortAI" }, { property: "og:description", content: "Planos, uso e retenção das barbearias." },
+    { title: "Barbearias da plataforma — Cortaí" }, { name: "description", content: "Acompanhe planos, uso e risco das barbearias do Cortaí." },
+    { property: "og:title", content: "Barbearias da plataforma — Cortaí" }, { property: "og:description", content: "Planos, uso e retenção das barbearias." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }), component: BarbeariasPage,
 });
@@ -48,7 +48,7 @@ function TenantDialog({ tenant, onClose, onChanged }: { tenant: AdminTenant | nu
   const add = useServerFn(addRetentionContact); const setStatus = useServerFn(definirStatusDaBarbearia); const remover = useServerFn(excluirBarbearia); const [statusOcupado, setStatusOcupado] = useState(false); const [erroStatus, setErroStatus] = useState<string | null>(null); const [result, setResult] = useState("conversou"); const [note, setNote] = useState(""); const [channel, setChannel] = useState<"whatsapp" | "telefone">("whatsapp");
   if (!tenant) return null;
   const number = (tenant.whatsapp ?? tenant.telefone ?? "").replace(/\D/g, "");
-  const message = encodeURIComponent("Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar sua barbearia a aproveitar melhor o CortAI.");
+  const message = encodeURIComponent("Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar sua barbearia a aproveitar melhor o Cortaí.");
   return <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}><DialogContent className="max-h-[90vh] overflow-y-auto bg-ink2 sm:max-w-xl"><DialogHeader><DialogTitle>{tenant.nome}</DialogTitle><DialogDescription>{tenant.plano} · {tenant.agendamentos} agendamentos</DialogDescription></DialogHeader>
     {tenant.risco ? <section className="border-l-2 border-brick pl-4"><p className="text-xs font-semibold text-brick">Por que está em risco</p>{tenant.motivosRisco.map((reason) => <p key={reason} className="mt-2 text-sm text-paper">{reason}</p>)}</section> : <p className="text-sm text-sage">Operação saudável.</p>}
     <section className="mt-3"><h3 className="text-sm font-semibold text-paper">Contatos anteriores</h3>{contacts.data?.length ? <ul className="mt-2">{contacts.data.map((contact) => <li key={contact.id} className="border-b border-line py-3"><div className="flex justify-between gap-3"><span className="text-sm text-paper">{contact.canal === "whatsapp" ? "WhatsApp" : "Telefone"}</span><span className="text-xs text-mute">{statusLabel[contact.resultado]}</span></div>{contact.observacao ? <p className="mt-1 text-xs text-mute">{contact.observacao}</p> : null}</li>)}</ul> : <p className="mt-2 text-xs text-mute">Nenhum contato registrado.</p>}</section>
@@ -62,7 +62,7 @@ function TenantDialog({ tenant, onClose, onChanged }: { tenant: AdminTenant | nu
     </section>
     <section className="mt-6 border-t border-line pt-5">
       <p className="text-sm font-semibold text-paper">Situação da barbearia</p>
-      <p className="mt-1 text-xs text-mute">{tenant.ativo ? "Ativa: a equipe consegue usar o CortAI normalmente." : "Desativada: a equipe não consegue operar, mas nenhum dado foi apagado."}</p>
+      <p className="mt-1 text-xs text-mute">{tenant.ativo ? "Ativa: a equipe consegue usar o Cortaí normalmente." : "Desativada: a equipe não consegue operar, mas nenhum dado foi apagado."}</p>
       <Button className="mt-3" variant={tenant.ativo ? "outline" : "default"} disabled={statusOcupado} onClick={async () => { setStatusOcupado(true); setErroStatus(null); try { await setStatus({ data: { tenantId: tenant.id, ativo: !tenant.ativo } }); onChanged(); } catch { setErroStatus("Não foi possível mudar a situação agora."); } finally { setStatusOcupado(false); } }}>
         {statusOcupado ? "Salvando…" : tenant.ativo ? "Desativar barbearia" : "Reativar barbearia"}
       </Button>

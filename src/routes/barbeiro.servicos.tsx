@@ -12,9 +12,9 @@ export const Route = createFileRoute("/barbeiro/servicos")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Serviços — Painel do barbeiro | CortAI" },
+      { title: "Serviços — Painel do barbeiro | Cortaí" },
       { name: "description", content: "Defina cortes, duração e preços da sua barbearia." },
-      { property: "og:title", content: "Serviços — CortAI" },
+      { property: "og:title", content: "Serviços — Cortaí" },
       { property: "og:description", content: "Cortes, duração e preços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
