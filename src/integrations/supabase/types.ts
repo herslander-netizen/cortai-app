@@ -362,13 +362,17 @@ export type Database = {
           cor_primaria: string
           cor_superficie: string
           cor_texto: string
+          facebook_cortai: string | null
           id: boolean
+          instagram_cortai: string | null
           preco_essencial_centavos: number
           preco_pro_centavos: number
           preco_studio_centavos: number
           raio_px: number
+          tiktok_cortai: string | null
           tipografia: string
           whatsapp_alvo: string | null
+          youtube_cortai: string | null
         }
         Insert: {
           atualizado_em?: string
@@ -377,13 +381,17 @@ export type Database = {
           cor_primaria?: string
           cor_superficie?: string
           cor_texto?: string
+          facebook_cortai?: string | null
           id?: boolean
+          instagram_cortai?: string | null
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
+          tiktok_cortai?: string | null
           tipografia?: string
           whatsapp_alvo?: string | null
+          youtube_cortai?: string | null
         }
         Update: {
           atualizado_em?: string
@@ -392,13 +400,17 @@ export type Database = {
           cor_primaria?: string
           cor_superficie?: string
           cor_texto?: string
+          facebook_cortai?: string | null
           id?: boolean
+          instagram_cortai?: string | null
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
+          tiktok_cortai?: string | null
           tipografia?: string
           whatsapp_alvo?: string | null
+          youtube_cortai?: string | null
         }
         Relationships: []
       }
@@ -1428,7 +1440,11 @@ export type Database = {
       contato_da_plataforma: {
         Args: never
         Returns: {
+          facebook_cortai: string
+          instagram_cortai: string
+          tiktok_cortai: string
           whatsapp_alvo: string
+          youtube_cortai: string
         }[]
       }
       criar_agendamento: {
