@@ -144,6 +144,8 @@ function RootComponent() {
       if (!ativo) return;
       const { data } = supabase.auth.onAuthStateChange((event) => {
         if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+        // A sessão é cacheada pelas guardas: precisa cair junto com a troca de conta.
+        queryClient.removeQueries({ queryKey: ["sessao"] });
         router.invalidate();
         if (event !== "SIGNED_OUT") queryClient.invalidateQueries({ type: "active" });
       });
