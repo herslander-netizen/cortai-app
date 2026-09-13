@@ -65,3 +65,10 @@
 - [ ] Criar gestão das redes oficiais do Cortaí no painel da plataforma.
 - [ ] Exibir as redes do Cortaí de forma discreta nos rodapés públicos.
 - [ ] Validar permissões, links, mobile e build.
+
+## Refinamento visual e performance
+- [ ] Refinar o CTA e a busca secundária da landing.
+- [ ] Reduzir recursos e chamadas não críticos no primeiro carregamento.
+- [ ] Otimizar imagens e fontes públicas sem perda de conteúdo.
+- [ ] Validar landing, busca e login em mobile e desktop.
+- [ ] Executar verificação de tipos e build.
