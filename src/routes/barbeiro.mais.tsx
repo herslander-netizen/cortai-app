@@ -34,6 +34,7 @@ const grupos = [
     { to: "/barbeiro/equipe", label: "Equipe e permissões", detail: "Quem entra e o que pode fazer", icon: UsersRound },
     { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Dados, senha e configurações", icon: Settings },
     { to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette },
+    { to: "/barbeiro/integracoes", label: "Integrações", detail: "Atendimento inteligente da ALVO", icon: Bot },
   ] },
 ] as const;
 
