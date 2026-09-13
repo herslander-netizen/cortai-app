@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { CalendarPlus, CircleDollarSign, ListPlus, PackagePlus, Scissors, UserPlus, X } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { CircleDollarSign, ListPlus, PackagePlus, Scissors, UserPlus, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
-import { getMinhasPermissoes } from "@/lib/equipe.functions";
+import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 
 export function QuickActions() {
   const [aberto, setAberto] = useState(false);
-  const { data } = useQuery({ queryKey: ["minhas-permissoes"], queryFn: () => getMinhasPermissoes(), staleTime: 60_000 });
-  const pode = (p: string) => data?.papel === "dono" || data?.permissoes.includes(p as never);
+  const { pode, ativo } = useContextoBarbearia();
+
+  const agendamentoManual = ativo("agendamento_manual") && pode("agendamento_manual");
   const links = [
-    pode("confirmar_pagamento") && { to: "/barbeiro/pedidos" as const, label: "Confirmar pagamento", icon: CircleDollarSign },
-    pode("registrar_venda") && { to: "/barbeiro/produtos" as const, label: "Registrar venda", icon: PackagePlus },
-    pode("editar_clientes") && { to: "/barbeiro/clientes" as const, label: "Novo cliente", icon: UserPlus },
-    pode("criar_agendamento") && { to: "/barbeiro/fila" as const, label: "Adicionar à fila", icon: ListPlus },
-  ].filter(Boolean) as { to: "/barbeiro/pedidos" | "/barbeiro/produtos" | "/barbeiro/clientes" | "/barbeiro/fila"; label: string; icon: typeof CalendarPlus }[];
+    pode("confirmar_pagamento") && { to: "/barbeiro/pedidos", label: "Confirmar pagamento", icon: CircleDollarSign },
+    ativo("produtos_estoque") && pode("registrar_venda") && { to: "/barbeiro/produtos", label: "Registrar venda", icon: PackagePlus },
+    pode("editar_clientes") && { to: "/barbeiro/clientes", label: "Novo cliente", icon: UserPlus },
+    ativo("fila_espera") && pode("criar_agendamento") && { to: "/barbeiro/fila", label: "Adicionar à fila", icon: ListPlus },
+  ].filter(Boolean) as { to: string; label: string; icon: LucideIcon }[];
 
   return <>
     <div className="relative flex min-w-0 flex-col items-center justify-center">
@@ -26,9 +28,9 @@ export function QuickActions() {
       <div className="w-full max-w-md rounded-t-xl border border-line bg-ink2 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4"><div className="min-w-0"><h2 className="text-lg font-bold text-paper">Ações rápidas</h2><p className="mt-1 text-xs text-mute">Somente o que você pode fazer nesta barbearia.</p></div><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setAberto(false)}><X /></Button></div>
         <div className="mt-5 space-y-2">
-          {pode("agendamento_manual") ? <AgendamentoManual dia={new Date().toISOString().slice(0,10)} rotulo="Agendamento manual" /> : null}
+          {agendamentoManual ? <AgendamentoManual dia={new Date().toISOString().slice(0, 10)} rotulo="Agendamento manual" /> : null}
           {links.map((item) => { const Icon = item.icon; return <Button key={item.to} asChild variant="outline" className="h-12 w-full justify-start"><Link to={item.to} onClick={() => setAberto(false)}><Icon />{item.label}</Link></Button>; })}
-          {!pode("agendamento_manual") && !links.length ? <p className="py-4 text-center text-sm text-mute">Nenhuma ação disponível para seu acesso.</p> : null}
+          {!agendamentoManual && !links.length ? <p className="py-4 text-center text-sm text-mute">Nenhuma ação disponível para seu acesso.</p> : null}
         </div>
       </div>
     </div> : null}
