@@ -6,7 +6,7 @@ import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { getSessao } from "@/lib/sessao.functions";
-import { sair } from "@/lib/guarda";
+import { useSair } from "@/hooks/useSair";
 
 export const Route = createFileRoute("/app/perfil")({
   head: () => ({
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/app/perfil")({
 });
 
 function PerfilPage() {
+  const sairDaConta = useSair();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
 
   return (
@@ -51,7 +52,7 @@ function PerfilPage() {
         <li className="border-b border-line">
           <button
             type="button"
-            onClick={() => void sair()}
+            onClick={() => void sairDaConta()}
             className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
           >
             <LogOut size={18} className="text-mute" />
