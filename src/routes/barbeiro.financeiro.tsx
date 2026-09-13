@@ -23,7 +23,7 @@ function FinanceiroPage() {
   const { data, isLoading, isError } = useQuery({ queryKey: ["financeiro"], queryFn: () => getFinanceiro(), retry: false });
   return <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
     {isLoading ? <Carregando /> : null}
-    {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-mute">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
+    {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-brick">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
     {data ? <>
       <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink3 p-5">
         <p className="text-xs text-mute">Faturamento no mês</p>
