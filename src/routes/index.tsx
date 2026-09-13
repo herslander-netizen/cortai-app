@@ -7,7 +7,6 @@ import {
   Link2,
   Package,
   Palette,
-  Scissors,
   Search,
   Store,
   UserRound,
@@ -16,7 +15,8 @@ import {
 
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
-import heroImg from "@/assets/landing-hero.jpg";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import heroAsset from "@/assets/cortai-cover-official.png.asset.json";
 import agendaImg from "@/assets/landing-agenda.jpg";
 import lojaImg from "@/assets/landing-loja.jpg";
 import ctaImg from "@/assets/landing-cta.jpg";
@@ -111,12 +111,7 @@ function Inicio() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-5 pt-6">
-        <span className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-ink2 text-gold">
-            <Scissors size={20} aria-hidden />
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-gold">Cortaí</span>
-        </span>
+        <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
         <Link to="/login" className="text-sm font-semibold text-paper">
           Entrar
         </Link>
@@ -126,11 +121,11 @@ function Inicio() {
         {/* HERO */}
         <section className="relative mt-8 overflow-hidden rounded-3xl border border-line">
           <img
-            src={heroImg}
-            alt="Barbeiro atendendo um cliente em uma barbearia moderna de estética preta e dourada"
-            width={1600}
-            height={1104}
-            className="h-[420px] w-full object-cover md:h-[520px]"
+            src={heroAsset.url}
+            alt="Cortaí — agendamento para barbearias"
+            width={1440}
+            height={720}
+            className="h-[420px] w-full bg-ink object-contain object-top md:h-[600px]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/10" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">

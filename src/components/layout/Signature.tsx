@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
 export function useWhatsappAlvo() {
@@ -24,6 +25,7 @@ export function Signature() {
 
   return (
     <footer className="mt-10 px-5 pb-6 pt-8 text-center">
+      <MarcaCortai variante="branca" className="mx-auto mb-5 h-auto w-24 opacity-70" />
       {link ? (
         <a
           href={link}
