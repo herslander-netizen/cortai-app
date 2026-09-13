@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -151,10 +152,6 @@ const configSchema = z.object({
     if (digitos.length < 10 || digitos.length > 15) throw new Error("Número de WhatsApp inválido.");
     return digitos.length <= 11 ? `55${digitos}` : digitos;
   }),
-  instagram_cortai: z.string().trim().max(300).nullable().optional().transform((v) => v || null),
-  facebook_cortai: z.string().trim().max(300).nullable().optional().transform((v) => v || null),
-  tiktok_cortai: z.string().trim().max(300).nullable().optional().transform((v) => v || null),
-  youtube_cortai: z.string().trim().max(300).nullable().optional().transform((v) => v || null),
 });
 
 export const savePlatformConfig = createServerFn({ method: "POST" })
@@ -198,6 +195,12 @@ export const updateSuggestionStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const getGlobalDesign = createServerFn({ method: "GET" }).handler(async () => {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"]!;
+  const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, { auth: { persistSession: false }, global: { fetch: (input, init) => { const headers = new Headers(init?.headers); if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) headers.delete("Authorization"); headers.set("apikey", key); return fetch(input, { ...init, headers }); } } });
+  const { data } = await client.from("design_da_plataforma").select("cor_fundo, cor_superficie, cor_primaria, cor_texto, tipografia, raio_px").eq("id", true).maybeSingle();
+  return data;
+});
 /* ------------------- CICLO DE VIDA DAS BARBEARIAS (ADMIN) ------------------ */
 
 export const definirStatusDaBarbearia = createServerFn({ method: "POST" })

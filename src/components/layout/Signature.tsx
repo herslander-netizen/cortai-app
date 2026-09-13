@@ -1,36 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getPlatformContact } from "@/lib/plataforma-publica.functions";
-import { LinksSociais } from "@/components/marca/LinksSociais";
+
+import { supabase } from "@/integrations/supabase/client";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
-export function useContatoDaPlataforma() {
-  const [podeCarregar, setPodeCarregar] = useState(false);
-  useEffect(() => {
-    const id = window.setTimeout(() => setPodeCarregar(true), 800);
-    return () => window.clearTimeout(id);
-  }, []);
+export function useWhatsappAlvo() {
   const { data } = useQuery({
     queryKey: ["contato-da-plataforma"],
-    staleTime: 24 * 60 * 60 * 1000,
-    gcTime: 24 * 60 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    enabled: podeCarregar,
+    staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      return getPlatformContact();
+      const { data, error } = await supabase.rpc("contato_da_plataforma");
+      if (error) return null;
+      const numero = (Array.isArray(data) ? data[0]?.whatsapp_alvo : null) ?? null;
+      const digitos = String(numero ?? "").replace(/\D/g, "");
+      return digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
     },
   });
   return data ?? null;
 }
 
-export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais?: boolean }) {
-  const contato = useContatoDaPlataforma();
-  const digitos = String(contato?.whatsapp_alvo ?? "").replace(/\D/g, "");
-  const link = digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
+export function Signature() {
+  const link = useWhatsappAlvo();
 
   return (
-    <footer className="mt-10 border-t border-line px-5 pb-6 pt-8 text-center">
+    <footer className="mt-10 px-5 pb-6 pt-8 text-center">
       {link ? (
         <a
           href={link}
@@ -43,10 +36,8 @@ export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais
         </a>
       ) : null}
 
-      {mostrarRedesSociais ? <LinksSociais instagram={contato?.instagram_cortai} facebook={contato?.facebook_cortai} tiktok={contato?.tiktok_cortai} youtube={contato?.youtube_cortai} className="mb-4 justify-center" /> : null}
-
       <p
-        className="text-mute2"
+        className="text-mute"
         style={{
           fontVariant: "small-caps",
           fontSize: "12px",

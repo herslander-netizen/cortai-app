@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Clock3, Copy, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import { Check, Clock3, Copy, Instagram, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import QRCode from "qrcode";
 import { type CSSProperties, useEffect, useState } from "react";
 
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
@@ -10,8 +11,6 @@ import { brl } from "@/lib/format";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
-import { LinksSociais } from "@/components/marca/LinksSociais";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
@@ -47,11 +46,7 @@ function PaginaBarbearia() {
 
   useEffect(() => {
     if (!mostrarQr || qr) return;
-    let ativo = true;
-    void import("qrcode").then(({ default: QRCode }) =>
-      QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }),
-    ).then((url) => { if (ativo) setQr(url); });
-    return () => { ativo = false; };
+    QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
   }, [mostrarQr, qr]);
 
   if (isLoading) return <TelaDeCarregamento texto="Abrindo a barbearia…" />;
@@ -62,6 +57,7 @@ function PaginaBarbearia() {
   const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
   const telefone = tenant.telefone?.replace(/\D/g, "") || null;
   const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
+  const instagram = tenant.instagram?.replace(/^@/, "") || null;
 
   return <div className="client-brand min-h-screen bg-ink" style={style} data-hide-signature={tenant.assinatura_visivel === false}>
     <header className="relative mx-auto min-h-[56vh] max-h-[620px] overflow-hidden">
@@ -69,14 +65,14 @@ function PaginaBarbearia() {
       <div className="absolute inset-0 bg-ink/60" />
       <div className="relative mx-auto flex min-h-[56vh] max-w-6xl flex-col justify-end px-5 pb-9 sm:px-8">
         <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={60} className="mb-4" />
-        <MarcaCortai tamanho="sm" assinatura={false} className="mb-3" />
+        <p className="text-xs font-semibold uppercase text-gold">Agendamento pelo Cortaí</p>
         <h1 className="mt-2 max-w-3xl text-4xl font-bold leading-tight text-paper sm:text-5xl">{tenant.nome}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-paper/80">{tenant.descricao ?? tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você."}</p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">
           {tenant.endereco ? <span className="flex items-center gap-1.5"><MapPin size={13} className="text-gold" />{tenant.endereco}</span> : null}
           {data.servicos.length ? <span className="flex items-center gap-1.5"><Clock3 size={13} className="text-gold" />{data.servicos.length} serviço{data.servicos.length > 1 ? "s" : ""} disponíve{data.servicos.length > 1 ? "is" : "l"}</span> : null}
+          {instagram ? <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-paper/80 hover:text-gold"><Instagram size={13} className="text-gold" />@{instagram}</a> : null}
         </div>
-        <LinksSociais instagram={tenant.instagram} facebook={tenant.facebook} whatsapp={tenant.whatsapp} mostrarRotulos className="mt-4" />
       </div>
     </header>
 
@@ -193,6 +189,6 @@ function PaginaBarbearia() {
         ) : null}
       </section>
     </main>
-    <Signature mostrarRedesSociais />
+    <Signature />
   </div>;
 }

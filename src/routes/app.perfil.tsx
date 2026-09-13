@@ -4,9 +4,8 @@ import { ChevronRight, LogOut, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
-import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { getSessao } from "@/lib/sessao.functions";
-import { useSair } from "@/hooks/useSair";
+import { sair } from "@/lib/guarda";
 
 export const Route = createFileRoute("/app/perfil")({
   head: () => ({
@@ -23,7 +22,6 @@ export const Route = createFileRoute("/app/perfil")({
 });
 
 function PerfilPage() {
-  const sairDaConta = useSair();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
 
   return (
@@ -38,7 +36,6 @@ function PerfilPage() {
         </div>
       </div>
       <ul className="mt-3">
-        <AtalhoInstalar />
         <li className="border-b border-line">
           <Link
             to="/app/carteira"
@@ -52,7 +49,7 @@ function PerfilPage() {
         <li className="border-b border-line">
           <button
             type="button"
-            onClick={() => void sairDaConta()}
+            onClick={() => void sair()}
             className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
           >
             <LogOut size={18} className="text-mute" />

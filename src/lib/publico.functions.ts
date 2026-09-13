@@ -11,7 +11,6 @@ export type PaginaPublica = {
     telefone: string | null;
     whatsapp: string | null;
     instagram: string | null;
-    facebook: string | null;
     texto_boas_vindas: string | null;
     cor_primaria: string;
     cor_secundaria: string | null;
@@ -46,7 +45,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, facebook, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos")
+      .select("id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos")
       .eq("slug", data.slug)
       .eq("ativo", true)
       .maybeSingle();
@@ -81,7 +80,6 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         telefone: tenant.telefone,
         whatsapp: tenant.whatsapp,
         instagram: tenant.instagram,
-        facebook: tenant.facebook,
         texto_boas_vindas: tenant.texto_boas_vindas,
         cor_primaria: tenant.cor_primaria,
         cor_secundaria: tenant.cor_secundaria,

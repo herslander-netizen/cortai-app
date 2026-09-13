@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { buscarBarbearias } from "@/lib/descoberta.functions";
 import { Carregando } from "@/components/layout/Carregando";
@@ -15,19 +15,11 @@ export function DescobrirBarbearias({
   discreto?: boolean;
 }) {
   const [termo, setTermo] = useState("");
-  const [busca, setBusca] = useState("");
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setBusca(termo.trim()), 250);
-    return () => window.clearTimeout(timer);
-  }, [termo]);
-
+  const busca = termo.trim();
   const consulta = useQuery({
     queryKey: ["barbearias", busca],
     queryFn: () => buscarBarbearias({ data: { termo: busca } }),
     enabled: !discreto || busca.length >= 2,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
   const resultados = (consulta.data ?? []).slice(0, discreto ? 6 : 100);
 
@@ -65,7 +57,7 @@ export function DescobrirBarbearias({
         {discreto && busca.length < 2 ? (
           <p className="text-xs text-mute2">Digite ao menos duas letras para ver as barbearias.</p>
         ) : null}
-        {consulta.isFetching && busca === termo.trim() ? <Carregando texto="Carregando barbearias…" /> : null}
+        {consulta.isFetching ? <Carregando texto="Carregando barbearias…" /> : null}
         {consulta.isError ? (
           <p className="text-sm text-brick" role="alert">
             Não foi possível carregar as barbearias. Tente de novo em instantes.
@@ -94,7 +86,7 @@ export function DescobrirBarbearias({
                     </span>
                   ) : null}
                 </span>
-                <span className="shrink-0 text-xs font-semibold text-paper">Ver</span>
+                <span className="shrink-0 text-xs text-gold">Ver</span>
               </Link>
             </li>
           ))}

@@ -1,7 +1,34 @@
-import { SimboloCortai } from "@/components/marca/MarcaCortai";
-
+/**
+ * Identidade de carregamento do Cortaí: máquina de cortar cabelo em SVG local,
+ * com vibração sutil e barra de progresso indeterminada. Sem imagem externa.
+ */
 export function Clipper({ size = 44 }: { size?: number }) {
-  return <span className="cortai-clipper inline-flex" style={{ width: size, height: size }}><SimboloCortai className="h-full w-full" /></span>;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden
+      className="cortai-clipper"
+    >
+      {/* corpo */}
+      <rect x="16" y="15" width="16" height="24" rx="3.5" stroke="var(--gold)" strokeWidth="2" />
+      <path d="M19 21h10M19 25h10M19 29h6" stroke="var(--mute)" strokeWidth="1.6" strokeLinecap="round" />
+      {/* pescoço */}
+      <path d="M19 15v-3.5h10V15" stroke="var(--gold)" strokeWidth="2" strokeLinejoin="round" />
+      {/* lâmina */}
+      <g className="cortai-clipper-lamina">
+        <rect x="16.5" y="6.5" width="15" height="5" rx="1.5" fill="var(--paper)" />
+        <path
+          d="M18 6.5V4M21 6.5V4M24 6.5V4M27 6.5V4M30 6.5V4"
+          stroke="var(--paper)"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </g>
+    </svg>
+  );
 }
 
 export function Carregando({ texto = "Carregando…", className = "" }: { texto?: string; className?: string }) {

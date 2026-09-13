@@ -22,14 +22,14 @@ const TOM = {
     Icone: CircleCheck,
     faixa: "bg-sage",
     icone: "text-sage",
-    fundo: "bg-sage/15",
+    fundo: "bg-[rgba(143,168,130,0.14)]",
     titulo: "text-sage",
   },
   acao: {
     Icone: CircleAlert,
     faixa: "bg-brick",
     icone: "text-brick",
-    fundo: "bg-brick/15",
+    fundo: "bg-[rgba(196,112,95,0.16)]",
     titulo: "text-brick",
   },
 } as const;
