@@ -16,3 +16,21 @@ export async function tenantIdDoMembro(context: ContextoAutenticado): Promise<st
   }
   return tenantId;
 }
+
+/**
+ * Autorização real das permissões de equipe: roda no servidor, pelo vínculo
+ * ativo do usuário com a barbearia. Esconder botão na tela não basta.
+ */
+export async function exigirPermissao(
+  context: ContextoAutenticado,
+  tenantId: string,
+  chave: string,
+): Promise<void> {
+  const { data, error } = await context.supabase.rpc("has_tenant_permission", {
+    _tenant_id: tenantId,
+    _permission: chave,
+  });
+  if (error || !data) {
+    throw new Error("Você não tem permissão para esta ação. Fale com o responsável pela barbearia.");
+  }
+}

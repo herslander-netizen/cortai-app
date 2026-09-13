@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirRecurso, recursoLiberado } from "@/lib/planos";
+import { exigirPermissao } from "@/lib/tenant";
 
 async function tenantDoMembro(supabase: any, userId: string) {
   const { data } = await supabase.from("tenant_usuarios").select("tenant_id").eq("user_id", userId).limit(1).maybeSingle();
@@ -13,6 +14,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const inicio = new Date();
     inicio.setDate(1);
     inicio.setHours(0, 0, 0, 0);
@@ -30,6 +32,7 @@ export const getProdutos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirPermissao(context, tenantId, "visualizar_estoque");
     await exigirRecurso(context.supabase, tenantId, "produtos_estoque");
     const [{ data, error }, { data: tenant }, loja] = await Promise.all([
       context.supabase.from("produtos").select("*").eq("tenant_id", tenantId).order("nome"),
@@ -74,6 +77,7 @@ export const salvarProduto = createServerFn({ method: "POST" })
   .validator((input: unknown) => produtoSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirPermissao(context, tenantId, "alterar_estoque");
     await exigirRecurso(context.supabase, tenantId, "produtos_estoque");
     const { liberado: lojaLiberada } = await recursoLiberado(context.supabase, tenantId, "loja_online");
     const payload = {
@@ -104,6 +108,8 @@ export const registrarVendaProduto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ produtoId: z.string().uuid(), quantidade: z.number().int().positive(), formaPagamento: z.string().min(2).max(40) }).parse(input))
   .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirPermissao(context, tenantId, "registrar_venda");
     const { data: resultado, error } = await context.supabase.rpc("registrar_venda_produto", {
       _produto_id: data.produtoId,
       _quantidade: data.quantidade,
@@ -117,6 +123,7 @@ export const definirLojaAtiva = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     if (data.ativa) await exigirRecurso(context.supabase, tenantId, "loja_online");
     const { error } = await context.supabase.from("tenants").update({ loja_ativa: data.ativa }).eq("id", tenantId);
     if (error) throw new Error(error.message);

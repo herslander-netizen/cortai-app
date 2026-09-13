@@ -1151,6 +1151,8 @@ export type Database = {
       }
       tenant_usuarios: {
         Row: {
+          ativo: boolean
+          atualizado_em: string
           criado_em: string
           id: string
           papel: string
@@ -1159,6 +1161,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ativo?: boolean
+          atualizado_em?: string
           criado_em?: string
           id?: string
           papel?: string
@@ -1167,6 +1171,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ativo?: boolean
+          atualizado_em?: string
           criado_em?: string
           id?: string
           papel?: string
@@ -1477,6 +1483,10 @@ export type Database = {
           youtube_cortai: string
         }[]
       }
+      convidar_membro: {
+        Args: { _email: string; _papel: string; _tenant_id: string }
+        Returns: Json
+      }
       criar_agendamento: {
         Args: {
           _cliente_id: string
@@ -1489,6 +1499,37 @@ export type Database = {
         Returns: Json
       }
       criar_barbearia: { Args: { _nome: string }; Returns: string }
+      definir_acesso_membro: {
+        Args: {
+          _ativo: boolean
+          _papel: string
+          _permissoes: string[]
+          _tenant_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      equipe_do_tenant: {
+        Args: { _tenant_id: string }
+        Returns: {
+          ativo: boolean
+          criado_em: string
+          email: string
+          nome: string
+          papel: string
+          permissoes: string[]
+          user_id: string
+        }[]
+      }
+      equipe_valida_edicao: {
+        Args: {
+          _papel: string
+          _permissoes: string[]
+          _tenant_id: string
+          _user_id: string
+        }
+        Returns: string[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1502,6 +1543,14 @@ export type Database = {
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
+      meu_acesso_no_tenant: {
+        Args: { _tenant_id: string }
+        Returns: {
+          ativo: boolean
+          papel: string
+          permissoes: string[]
+        }[]
+      }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }
@@ -1526,6 +1575,10 @@ export type Database = {
           _produto_id: string
           _quantidade: number
         }
+        Returns: Json
+      }
+      remover_membro: {
+        Args: { _tenant_id: string; _user_id: string }
         Returns: Json
       }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 
 async function admin() {
@@ -180,6 +180,7 @@ export const finalizarAtendimento = createServerFn({ method: "POST" })
   .inputValidator((data: { agendamentoId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "confirmar_pagamento");
     const { error } = await db
       .from("agendamentos")
       .update({ status: "concluido" })
@@ -427,6 +428,7 @@ export const registrarBaixaFiado = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "confirmar_pagamento");
     const { data: carteira } = await db
       .from("carteiras")
       .select("id, saldo_centavos")
@@ -552,6 +554,7 @@ export const arquivarCliente = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "editar_clientes");
     const { error } = await db
       .from("clientes")
       .update({ arquivado_em: data.arquivar ? new Date().toISOString() : null })
@@ -573,6 +576,7 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "acoes_destrutivas");
     const { data: cliente } = await db
       .from("clientes")
       .select("id")
@@ -625,6 +629,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DadosManual> => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
     await exigirRecurso(db, tenant.id, "agendamento_manual");
     const [servicosRes, profRes] = await Promise.all([
       db
@@ -903,6 +908,7 @@ export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "editar_clientes");
     await exigirRecurso(db, tenant.id, "personalizacao_cliente");
     const { error } = await db
       .from("clientes")

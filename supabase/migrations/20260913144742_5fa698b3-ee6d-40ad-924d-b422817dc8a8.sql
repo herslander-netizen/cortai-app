@@ -1,0 +1,12 @@
+REVOKE ALL ON FUNCTION public.meu_acesso_no_tenant(uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.equipe_do_tenant(uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.convidar_membro(uuid, text, text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.definir_acesso_membro(uuid, uuid, text, text[], boolean) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.remover_membro(uuid, uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.equipe_valida_edicao(uuid, uuid, text, text[]) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.meu_acesso_no_tenant(uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.equipe_do_tenant(uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.convidar_membro(uuid, text, text) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.definir_acesso_membro(uuid, uuid, text, text[], boolean) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.remover_membro(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.equipe_valida_edicao(uuid, uuid, text, text[]) TO service_role;

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { LockKeyhole, Mail } from "lucide-react";
 import { useState } from "react";
 
@@ -140,6 +140,14 @@ function LoginPage() {
         <Button className="h-12 w-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
+        {modo === "entrar" ? (
+          <Link
+            to="/recuperar-senha"
+            className="block pt-1 text-center text-xs text-mute transition-colors hover:text-paper"
+          >
+            Esqueceu sua senha?
+          </Link>
+        ) : null}
       </form>
 
       <button

@@ -16,6 +16,8 @@ import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
@@ -37,6 +39,7 @@ import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
 import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
+import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
@@ -84,6 +87,16 @@ const ComecarRoute = ComecarRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -191,6 +204,11 @@ const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
   path: '/crescimento',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroEquipeRoute = BarbeiroEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroFidelidadeRoute = BarbeiroFidelidadeRouteImport.update({
   id: '/fidelidade',
   path: '/fidelidade',
@@ -265,6 +283,8 @@ export interface FileRoutesByFullPath {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -283,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -305,6 +326,8 @@ export interface FileRoutesByTo {
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -322,6 +345,7 @@ export interface FileRoutesByTo {
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -348,6 +372,8 @@ export interface FileRoutesById {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/parceiros': typeof AdminParceirosRoute
@@ -366,6 +392,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/conta': typeof BarbeiroContaRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
@@ -393,6 +420,8 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/comecar'
     | '/login'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/parceiros'
@@ -411,6 +440,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
+    | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -433,6 +463,8 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/comecar'
     | '/login'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/parceiros'
@@ -450,6 +482,7 @@ export interface FileRouteTypes {
     | '/barbeiro/caixa'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
+    | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -475,6 +508,8 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/comecar'
     | '/login'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/parceiros'
@@ -493,6 +528,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/barbeiro/conta'
     | '/barbeiro/crescimento'
+    | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
@@ -519,6 +555,8 @@ export interface RootRouteChildren {
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
+  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   LojaSlugRoute: typeof LojaSlugRoute
@@ -573,6 +611,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-senha': {
+      id: '/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof RecuperarSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -720,6 +772,13 @@ declare module '@tanstack/react-router' {
       path: '/crescimento'
       fullPath: '/barbeiro/crescimento'
       preLoaderRoute: typeof BarbeiroCrescimentoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/equipe': {
+      id: '/barbeiro/equipe'
+      path: '/equipe'
+      fullPath: '/barbeiro/equipe'
+      preLoaderRoute: typeof BarbeiroEquipeRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/fidelidade': {
@@ -878,6 +937,7 @@ interface BarbeiroRouteChildren {
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
   BarbeiroContaRoute: typeof BarbeiroContaRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
+  BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
@@ -897,6 +957,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
   BarbeiroContaRoute: BarbeiroContaRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
+  BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
@@ -921,6 +982,8 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
+  RecuperarSenhaRoute: RecuperarSenhaRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   LojaSlugRoute: LojaSlugRoute,

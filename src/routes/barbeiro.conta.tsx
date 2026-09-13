@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
@@ -73,6 +74,9 @@ function ContaPage() {
             <span className="text-sm text-paper">Página e marca</span>
             <ChevronRight size={16} className="text-mute2" />
           </Link>
+        </li>
+        <li>
+          <AlterarSenha />
         </li>
         <li className="border-b border-line">
           <button

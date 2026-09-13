@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { tenantIdDoMembro, type ContextoAutenticado, exigirPermissao } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import { z } from "zod";
 
@@ -286,6 +286,7 @@ export const registrarIndicacao = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "gerenciar_profissionais");
     const { error } = await db.from("indicacoes").insert({
       tenant_id: tenant.id,
       indicador_cliente_id: data.indicadorClienteId,

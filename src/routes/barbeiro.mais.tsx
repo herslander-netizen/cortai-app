@@ -20,7 +20,7 @@ const grupos = [
   { titulo: "Operação", itens: [
     { to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas e valores em aberto", icon: Banknote },
     { to: "/barbeiro/produtos", label: "Loja e estoque", detail: "Produtos, vendas e alertas", icon: Store },
-    { to: "/barbeiro/profissionais", label: "Equipe", detail: "Profissionais e portfólios", icon: UsersRound },
+    { to: "/barbeiro/profissionais", label: "Profissionais", detail: "Perfis e portfólios", icon: UserSquare2 },
     { to: "/barbeiro/servicos", label: "Serviços", detail: "Preços e duração", icon: Scissors },
   ] },
   { titulo: "Gestão", itens: [
@@ -31,7 +31,8 @@ const grupos = [
     { to: "/barbeiro/fidelidade", label: "Voltaí", detail: "Seu cliente corta. Ganha. Volta.", icon: Star },
   ] },
   { titulo: "Configurações", itens: [
-    { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Dados e configurações", icon: Settings },
+    { to: "/barbeiro/equipe", label: "Equipe e permissões", detail: "Quem entra e o que pode fazer", icon: UsersRound },
+    { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Dados, senha e configurações", icon: Settings },
     { to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette },
   ] },
 ] as const;
