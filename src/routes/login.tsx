@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { atualizarSessao, destinoDoPapel } from "@/lib/guarda";
+import { atualizarSessao, carregarSessao, destinoDoPapel } from "@/lib/guarda";
 
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
