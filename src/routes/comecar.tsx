@@ -40,15 +40,23 @@ function ComecarPage() {
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [concluido, setConcluido] = useState(false);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
       <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
-        {modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
+        {concluido ? "🔥 Tá tudo pronto pra começar os cortes!" : modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
       </h1>
 
-      {modo === "escolha" ? (
+      {concluido ? (
+        <div className="mt-8">
+          <p className="text-base leading-relaxed text-mute">O Cortaí tá no jeito. Bora atender?</p>
+          <button type="button" className="btn-primary mt-8 w-full" onClick={() => void navigate({ to: "/barbeiro" })}>
+            ✂️ Entrar no Cortaí
+          </button>
+        </div>
+      ) : modo === "escolha" ? (
         <div className="mt-10 space-y-3">
           <button
             type="button"
@@ -93,7 +101,7 @@ function ComecarPage() {
             setErro(null);
             try {
               await criarBarbearia({ data: { nome: nome.trim() } });
-              await navigate({ to: "/barbeiro" });
+               setConcluido(true);
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");
               setEnviando(false);
