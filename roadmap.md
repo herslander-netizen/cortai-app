@@ -58,3 +58,10 @@
 - [ ] Atualizar favicon, PWA, compartilhamento e carregamento com o símbolo oficial.
 - [ ] Validar todas as famílias de telas em 390 px e desktop, sem overflow.
 - [ ] Executar verificações de tipos, lint disponível e build.
+
+## Redes sociais
+- [ ] Organizar Instagram e Facebook da barbearia na área Marca.
+- [ ] Exibir ícones sociais somente quando houver perfil configurado.
+- [ ] Criar gestão das redes oficiais do Cortaí no painel da plataforma.
+- [ ] Exibir as redes do Cortaí de forma discreta nos rodapés públicos.
+- [ ] Validar permissões, links, mobile e build.
