@@ -48,6 +48,7 @@ export const getProdutos = createServerFn({ method: "GET" })
         slug: (tenant?.slug as string) ?? null,
         aVenda: produtos.filter((p: any) => p.ativo && p.disponivel_venda && p.preco_centavos > 0).length,
         estoqueBaixo: produtos.filter((p: any) => p.controla_estoque && p.quantidade <= p.estoque_minimo).length,
+        destaques: produtos.filter((p: any) => p.ativo && p.destaque && p.disponivel_venda && p.preco_centavos > 0).length,
       },
     };
   });
@@ -61,6 +62,8 @@ const produtoSchema = z.object({
   preco_centavos: z.number().int().min(0),
   quantidade: z.number().int().min(0),
   estoque_minimo: z.number().int().min(0),
+  descricao: z.string().trim().max(500).nullable().default(null),
+  destaque: z.boolean().default(false),
   ativo: z.boolean(),
   controla_estoque: z.boolean().default(true),
   disponivel_venda: z.boolean().default(false),
@@ -82,7 +85,9 @@ export const salvarProduto = createServerFn({ method: "POST" })
       quantidade: data.quantidade,
       estoque_minimo: data.estoque_minimo,
       ativo: data.ativo,
+      descricao: data.descricao,
       controla_estoque: data.controla_estoque,
+      destaque: data.destaque && data.disponivel_venda && data.preco_centavos > 0 && lojaLiberada,
       // Só vai para a loja com preço válido e com o recurso liberado no plano.
       disponivel_venda: data.disponivel_venda && data.preco_centavos > 0 && lojaLiberada,
 

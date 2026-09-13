@@ -7,6 +7,8 @@ export type ProdutoPublico = {
   categoria: string;
   preco_centavos: number;
   foto_url: string | null;
+  descricao: string | null;
+  destaque: boolean;
 };
 
 export type LojaPublica = {
@@ -20,6 +22,7 @@ export type LojaPublica = {
     logo_url: string | null;
   };
   produtos: ProdutoPublico[];
+  destaques: ProdutoPublico[];
 };
 
 /**
@@ -49,11 +52,12 @@ export const getLojaPublica = createServerFn({ method: "GET" })
 
     const { data: produtos } = await supabaseAdmin
       .from("produtos")
-      .select("id, nome, categoria, preco_centavos, foto_url")
+      .select("id, nome, categoria, preco_centavos, foto_url, descricao, destaque")
       .eq("tenant_id", tenant.id)
       .eq("ativo", true)
       .eq("disponivel_venda", true)
       .gt("preco_centavos", 0)
+      .order("destaque", { ascending: false })
       .order("nome");
 
     let logo = tenant.logo_url;
@@ -73,5 +77,6 @@ export const getLojaPublica = createServerFn({ method: "GET" })
         logo_url: logo,
       },
       produtos: produtos ?? [],
+      destaques: (produtos ?? []).filter((p) => p.destaque),
     };
   });
