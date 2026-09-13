@@ -20,9 +20,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/marca")({
   head: () => ({
     meta: [
-      { title: "Marca — Painel do barbeiro | Cortaí" },
+      { title: "Marca — Painel do barbeiro | CortAI" },
       { name: "description", content: "Configure a identidade da sua barbearia no app dos clientes." },
-      { property: "og:title", content: "Marca — Painel do barbeiro | Cortaí" },
+      { property: "og:title", content: "Marca — Painel do barbeiro | CortAI" },
       { property: "og:description", content: "Logo, cores, contatos e textos da sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

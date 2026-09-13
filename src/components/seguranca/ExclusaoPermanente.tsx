@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 
 /**
- * Padrão único de exclusão permanente do Cortaí:
+ * Padrão único de exclusão permanente do CortAI:
  * confirmação explícita + senha da conta, validada no servidor.
  * A senha vive apenas neste estado local e é descartada ao fechar.
  */

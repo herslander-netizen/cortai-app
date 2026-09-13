@@ -1,4 +1,4 @@
-# Assistente Cortaí + configuração inicial do barbeiro
+# Assistente CortAI + configuração inicial do barbeiro
 
 ## O que vou construir
 
@@ -18,12 +18,12 @@ Nova tela `/barbeiro/configurar`, aberta logo depois de criar a barbearia:
 
 1. **Dados** — nome (obrigatório) e WhatsApp; logo/foto opcionais.
 2. **Horários** — botão "Usar Seg–Sáb, 09:00 às 19:00" já selecionado + personalizar por dia. Campo de texto livre: "segunda a sábado das 9 às 19 e domingo fechado" → prévia antes de salvar.
-3. **Serviços** — sugestões prontas (Corte, Barba, Corte + Barba, Pezinho, Sobrancelha, Platinado) com preço/duração editáveis + bloco "✨ Quer que o Cortaí configure isso para você?" que interpreta texto e mostra prévia editável.
+3. **Serviços** — sugestões prontas (Corte, Barba, Corte + Barba, Pezinho, Sobrancelha, Platinado) com preço/duração editáveis + bloco "✨ Quer que o CortAI configure isso para você?" que interpreta texto e mostra prévia editável.
 4. **Pronto** — "Sua barbearia está pronta!", status do que foi configurado, link da fila, Copiar, Compartilhar e Ver fila.
 
 Cada passo salva sozinho; sair e voltar retoma onde parou. O botão de saída vira "Configurar depois". WhatsApp aparece como recomendado, nunca bloqueia.
 
-## 2. Assistente "Perguntar ao Cortaí"
+## 2. Assistente "Perguntar ao CortAI"
 
 - Botão fixo no painel e item no menu de ajuda; abre um painel lateral (celular: folha de baixo para cima).
 - Entende português natural e resolve tarefas: cadastrar serviços, ajustar horários, explicar a fila, mostrar o que já está cadastrado, levar para a tela certa.
@@ -36,7 +36,7 @@ Cada passo salva sozinho; sair e voltar retoma onde parou. O botão de saída vi
 - Ao terminar a configuração, vai para o painel com o convite "Começar tour" ou "Explorar sozinho" (reaproveita o guia contextual que já existe, sem cobrir a tela).
 - Passos: fila atual → adicionar cliente → chamar próximo → serviços → assistente.
 - Cartão "Primeiros passos" no painel com progresso gravado: configurar barbearia, cadastrar serviços, publicar a fila, conhecer o painel da fila, conectar o WhatsApp (opcional), personalizar.
-- Menu de ajuda reúne: Primeiros passos, Fazer tour novamente, Perguntar ao Cortaí, Central de ajuda.
+- Menu de ajuda reúne: Primeiros passos, Fazer tour novamente, Perguntar ao CortAI, Central de ajuda.
 
 ## 4. Fila pública para o cliente
 

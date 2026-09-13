@@ -12,9 +12,9 @@ import { definirLojaAtiva, getProdutos, registrarVendaProduto, salvarProduto } f
 
 export const Route = createFileRoute("/barbeiro/produtos")({
   head: () => ({ meta: [
-    { title: "Produtos e loja — Cortaí Gestão" },
+    { title: "Produtos e loja — CortAI Gestão" },
     { name: "description", content: "Estoque interno, produtos à venda e loja online da barbearia." },
-    { property: "og:title", content: "Produtos e loja — Cortaí Gestão" },
+    { property: "og:title", content: "Produtos e loja — CortAI Gestão" },
     { property: "og:description", content: "Controle de produtos, estoque e loja." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
@@ -90,7 +90,7 @@ function ProdutosPage() {
           />
         </div>
         {!loja.liberada ? (
-          <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.</p>
+          <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">A loja online não está incluída no seu plano atual. Fale com o CortAI para liberar.</p>
         ) : null}
         <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center">
           <div><dt className="text-[10px] uppercase text-mute2">Situação</dt><dd className={`mt-1 text-sm font-semibold ${loja.ativa ? "text-sage" : "text-mute"}`}>{loja.ativa ? "Ativa" : "Desativada"}</dd></div>

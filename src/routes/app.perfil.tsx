@@ -12,9 +12,9 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 export const Route = createFileRoute("/app/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil — Cortaí" },
-      { name: "description", content: "Seus dados, carteira e preferências no Cortaí." },
-      { property: "og:title", content: "Perfil — Cortaí" },
+      { title: "Perfil — CortAI" },
+      { name: "description", content: "Seus dados, carteira e preferências no CortAI." },
+      { property: "og:title", content: "Perfil — CortAI" },
       { property: "og:description", content: "Seus dados e preferências." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -27,7 +27,7 @@ function PerfilPage() {
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
 
   return (
-    <Screen title="Perfil" subtitle="Sua conta no Cortaí.">
+    <Screen title="Perfil" subtitle="Sua conta no CortAI.">
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
           <UserRound size={22} />

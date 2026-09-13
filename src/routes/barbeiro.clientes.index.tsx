@@ -11,9 +11,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
     meta: [
-      { title: "Clientes — Cortaí Gestão" },
+      { title: "Clientes — CortAI Gestão" },
       { name: "description", content: "Frequência, gasto médio, preferências e quem precisa voltar." },
-      { property: "og:title", content: "Clientes — Cortaí Gestão" },
+      { property: "og:title", content: "Clientes — CortAI Gestão" },
       { property: "og:description", content: "Seu CRM de barbearia, com dados reais de cada cliente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

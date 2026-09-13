@@ -1,5 +1,5 @@
 /**
- * Contrato do assistente do Cortaí — seguro para o navegador (só tipos e rótulos).
+ * Contrato do assistente do CortAI — seguro para o navegador (só tipos e rótulos).
  *
  * A resposta do modelo é sempre estruturada: texto para a pessoa ler, intenção,
  * ação sugerida com parâmetros e se precisa de confirmação antes de gravar.
@@ -77,7 +77,7 @@ export const SERVICOS_SUGERIDOS: ServicoSugerido[] = [
 export function respostaIndisponivel(): RespostaDoAssistente {
   return {
     resposta:
-      "O assistente do Cortaí ainda não está ligado neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
+      "O assistente do CortAI ainda não está ligado neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
     intencao: "ajuda",
     precisaConfirmar: false,
     perguntaDeConfirmacao: null,

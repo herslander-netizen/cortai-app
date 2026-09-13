@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Modelo de conteúdo da Home pública do Cortaí.
+ * Modelo de conteúdo da Home pública do CortAI.
  *
  * O conteúdo atual da Home vive aqui como valor padrão. O editor do admin
  * grava um objeto com a mesma forma; se nada estiver publicado, a Home usa
@@ -11,7 +11,7 @@ import { z } from "zod";
 export const TIPOS_DE_SECAO = [
   { valor: "beneficios", rotulo: "Benefícios" },
   { valor: "produto", rotulo: "Produto / celular" },
-  { valor: "recursos", rotulo: "Módulos do Cortaí" },
+  { valor: "recursos", rotulo: "Módulos do CortAI" },
   { valor: "voltai", rotulo: "Voltaí / fidelidade" },
   { valor: "telas", rotulo: "Agenda, Clientes, Financeiro" },
   { valor: "rotina", rotulo: "Rotina da barbearia" },
@@ -113,7 +113,7 @@ export const PRESETS: Record<AparenciaHome["preset"], Omit<AparenciaHome, "prese
 };
 
 export const ROTULO_PRESET: Record<AparenciaHome["preset"], string> = {
-  premium: "Cortaí Premium",
+  premium: "CortAI Premium",
   cinematico: "Cinemático",
   clean: "Clean",
   editorial: "Editorial",
@@ -129,7 +129,7 @@ export const HOME_PADRAO: ConfigHome = {
     mostrarSelo: true,
     titulo: "Sua barbearia, no controle.",
     texto: "Agenda, clientes, caixa, loja e fidelidade em um só lugar — com a sua marca na frente.",
-    ctaTexto: "Conhecer o Cortaí",
+    ctaTexto: "Conhecer o CortAI",
     ctaDestino: "#conhecer",
     cta2Texto: "Ver como funciona",
     cta2Destino: "#como-funciona",
@@ -160,7 +160,7 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Um sistema. Toda a operação.",
       titulo: "Gestão completa para o seu negócio",
-      texto: "Da agenda ao relacionamento com seus clientes, o Cortaí organiza a rotina sem tirar o foco do que importa: o atendimento.",
+      texto: "Da agenda ao relacionamento com seus clientes, o CortAI organiza a rotina sem tirar o foco do que importa: o atendimento.",
       ctaTexto: "Começar agora",
       ctaDestino: "/comecar",
       itens: [
@@ -171,12 +171,12 @@ export const HOME_PADRAO: ConfigHome = {
     {
       id: "recursos",
       tipo: "recursos",
-      nome: "Módulos do Cortaí",
+      nome: "Módulos do CortAI",
       ativo: true,
       tema: "escuro",
       etiqueta: "Tudo que sua barbearia precisa",
       titulo: "Do primeiro horário ao fechamento do caixa.",
-      texto: "O Cortaí reúne a rotina da cadeira e a visão do negócio. Fila é parte da Agenda. Voltaí é a fidelidade. Tudo na mesma plataforma.",
+      texto: "O CortAI reúne a rotina da cadeira e a visão do negócio. Fila é parte da Agenda. Voltaí é a fidelidade. Tudo na mesma plataforma.",
       itens: [
         { titulo: "Sua agenda no controle.", texto: "Horários por profissional, encaixes, bloqueios e fila no mesmo lugar.", icone: "agenda" },
         { titulo: "Conheça quem senta na sua cadeira.", texto: "Histórico, frequência e preferências para atender melhor a cada visita.", icone: "clientes" },
@@ -196,7 +196,7 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Voltaí",
       titulo: "Seu cliente corta. Ganha. Volta.",
-      texto: "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o Cortaí mostra o progresso e o cliente tem mais um motivo para voltar.",
+      texto: "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o CortAI mostra o progresso e o cliente tem mais um motivo para voltar.",
       imagem: "",
       itens: [
         { titulo: "Corta", texto: "" },
@@ -207,12 +207,12 @@ export const HOME_PADRAO: ConfigHome = {
     {
       id: "telas",
       tipo: "telas",
-      nome: "Por dentro do Cortaí",
+      nome: "Por dentro do CortAI",
       ativo: true,
       tema: "escuro",
-      etiqueta: "Por dentro do Cortaí",
+      etiqueta: "Por dentro do CortAI",
       titulo: "O controle que você usa de verdade.",
-      texto: "Visualizações baseadas nos módulos que já existem na área de gestão do Cortaí.",
+      texto: "Visualizações baseadas nos módulos que já existem na área de gestão do CortAI.",
     },
     {
       id: "rotina",
@@ -237,7 +237,7 @@ export const HOME_PADRAO: ConfigHome = {
       nome: "Chamada final",
       ativo: true,
       tema: "escuro",
-      titulo: "Pronto para colocar sua barbearia no Cortaí?",
+      titulo: "Pronto para colocar sua barbearia no CortAI?",
       texto: "Organize a rotina, acompanhe o negócio e mantenha sua marca na frente.",
       imagem: "",
       ctaTexto: "Começar agora",
@@ -259,7 +259,7 @@ export const HOME_PADRAO: ConfigHome = {
     tipografia: "Montserrat",
   },
   seo: {
-    titulo: "Cortaí — sua barbearia, no controle",
+    titulo: "CortAI — sua barbearia, no controle",
     descricao: "Agenda, clientes, caixa, loja, estoque e fidelidade para sua barbearia crescer com controle.",
     imagem: "",
     canonica: "",

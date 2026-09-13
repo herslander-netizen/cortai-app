@@ -13,9 +13,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/app/historico")({
   head: () => ({
     meta: [
-      { title: "Meus horários — Cortaí" },
+      { title: "Meus horários — CortAI" },
       { name: "description", content: "Veja seus agendamentos e cancele quando precisar." },
-      { property: "og:title", content: "Meus horários — Cortaí" },
+      { property: "og:title", content: "Meus horários — CortAI" },
       { property: "og:description", content: "Seus agendamentos e a regra de cancelamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -50,7 +50,7 @@ function HistoricoPage() {
   };
 
   return (
-    <Screen title="Meus horários" subtitle="Seus agendamentos no Cortaí">
+    <Screen title="Meus horários" subtitle="Seus agendamentos no CortAI">
       {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
       {lista.isLoading ? <Carregando /> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}

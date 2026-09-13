@@ -37,7 +37,7 @@ function jaInstalado() {
 }
 
 /**
- * Convite de instalação do Cortaí, mostrado dentro do app depois do login.
+ * Convite de instalação do CortAI, mostrado dentro do app depois do login.
  * Nunca bloqueia nada: aparece só quando dá para instalar e some ao ser dispensado.
  */
 export function ConviteDeInstalacao() {
@@ -96,14 +96,14 @@ export function ConviteDeInstalacao() {
         </button>
         <img
           src="/icone-cortai-192.png"
-          alt="Cortaí"
+          alt="CortAI"
           width={56}
           height={56}
           loading="lazy"
           className="mx-auto -mt-2 h-14 w-14 rounded-xl border border-line"
         />
         <h2 id="convite-instalacao-titulo" className="mt-4 text-lg font-bold text-paper">
-          Tenha o Cortaí sempre à mão
+          Tenha o CortAI sempre à mão
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-mute">
           Instale o aplicativo para agendar seus próximos horários com mais rapidez.

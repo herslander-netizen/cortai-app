@@ -17,10 +17,10 @@ export const Route = createFileRoute("/entrar/retorno")({
     typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
   head: () => ({
     meta: [
-      { title: "Entrando — Cortaí" },
-      { name: "description", content: "Finalizando seu acesso ao Cortaí." },
-      { property: "og:title", content: "Entrando — Cortaí" },
-      { property: "og:description", content: "Finalizando seu acesso ao Cortaí." },
+      { title: "Entrando — CortAI" },
+      { name: "description", content: "Finalizando seu acesso ao CortAI." },
+      { property: "og:title", content: "Entrando — CortAI" },
+      { property: "og:description", content: "Finalizando seu acesso ao CortAI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },

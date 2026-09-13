@@ -19,7 +19,7 @@ export async function confirmarSenhaDoUsuario(claims: Record<string, unknown>, s
   }
   if (providers.length > 0 && !providers.includes("email")) {
     throw new Error(
-      "Sua conta entra por provedor externo e não tem senha no Cortaí. Entre novamente pela sua conta para excluir definitivamente.",
+      "Sua conta entra por provedor externo e não tem senha no CortAI. Entre novamente pela sua conta para excluir definitivamente.",
     );
   }
   if (!senha) throw new Error("Senha incorreta. Tente novamente.");

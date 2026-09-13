@@ -6,9 +6,9 @@ import { AdminScreen } from "@/components/layout/AdminScreen";
 export const Route = createFileRoute("/admin/mais")({
   head: () => ({
     meta: [
-      { title: "Mais — Administração Cortaí" },
-      { name: "description", content: "Configurações e áreas administrativas da plataforma Cortaí." },
-      { property: "og:title", content: "Mais — Administração Cortaí" },
+      { title: "Mais — Administração CortAI" },
+      { name: "description", content: "Configurações e áreas administrativas da plataforma CortAI." },
+      { property: "og:title", content: "Mais — Administração CortAI" },
       { property: "og:description", content: "Configurações e áreas administrativas da plataforma." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
