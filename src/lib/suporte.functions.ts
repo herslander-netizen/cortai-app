@@ -32,11 +32,11 @@ export type BarbeariaSuporte = {
   id: string;
   slug: string;
   plano: string;
-  campos: Record<string, unknown>;
+  campos: Record<string, string | number | boolean | null>;
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; ativo: boolean }[];
   profissionais: { id: string; nome: string; ativo: boolean }[];
   produtos: { id: string; nome: string; disponivel_venda: boolean; destaque: boolean; ativo: boolean }[];
-  auditoria: { id: string; acao: string; alvo: string; ator_email: string | null; alteracoes: unknown; criado_em: string }[];
+  auditoria: { id: string; acao: string; alvo: string; ator_email: string | null; alteracoes: string; criado_em: string }[];
 };
 
 /** Ficha completa da barbearia para a tela de suporte. */
@@ -54,8 +54,11 @@ export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
     ]);
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Barbearia não encontrada.");
-    const campos: Record<string, unknown> = {};
-    for (const campo of CAMPOS_PUBLICOS) campos[campo] = (tenant as Record<string, unknown>)[campo] ?? null;
+    const campos: Record<string, string | number | boolean | null> = {};
+    for (const campo of CAMPOS_PUBLICOS) {
+      const valor = (tenant as Record<string, unknown>)[campo];
+      campos[campo] = typeof valor === "string" || typeof valor === "number" || typeof valor === "boolean" ? valor : null;
+    }
     return {
       id: tenant.id,
       slug: tenant.slug,
@@ -64,7 +67,10 @@ export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
       servicos: servicosRes.data ?? [],
       profissionais: profRes.data ?? [],
       produtos: prodRes.data ?? [],
-      auditoria: (auditoriaRes.data ?? []) as BarbeariaSuporte["auditoria"],
+      auditoria: (auditoriaRes.data ?? []).map((r: any) => ({
+        id: r.id, acao: r.acao, alvo: r.alvo, ator_email: r.ator_email,
+        alteracoes: JSON.stringify(r.alteracoes ?? {}), criado_em: r.criado_em,
+      })),
     };
   });
 
@@ -115,7 +121,7 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
     }
     if (!Object.keys(patch).length) return { ok: true, alteracoes: 0 };
 
-    const { error } = await db.from("tenants").update(patch).eq("id", data.tenantId);
+    const { error } = await db.from("tenants").update(patch as never).eq("id", data.tenantId);
     if (error) throw new Error(error.message);
 
     await db.from("auditoria_de_suporte").insert({
@@ -146,7 +152,7 @@ export const alternarItemComoSuporte = createServerFn({ method: "POST" })
     const { db, email } = await comoSuporte(context);
     const { error } = await db
       .from(data.tabela)
-      .update({ [data.campo]: data.valor })
+      .update({ [data.campo]: data.valor } as never)
       .eq("id", data.id)
       .eq("tenant_id", data.tenantId);
     if (error) throw new Error(error.message);

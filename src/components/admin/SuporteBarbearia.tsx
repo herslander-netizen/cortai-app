@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import type { BarbeariaSuporte } from "@/lib/suporte.functions";
 import {
   alternarItemComoSuporte,
   getBarbeariaParaSuporte,
@@ -43,7 +44,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
 
   useEffect(() => {
     if (!query.data) return;
-    const campos = query.data.campos;
+    const campos = (query.data as BarbeariaSuporte).campos;
     setForm(Object.fromEntries(TEXTO.map((t) => [t.campo, String(campos[t.campo] ?? "")])));
     setLoja(Boolean(campos["loja_ativa"]));
     setPlano(String(campos["plano"] ?? "essencial"));
@@ -52,7 +53,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   if (query.isError) return <p className="text-sm text-brick">{(query.error as Error).message}</p>;
   if (!query.data) return <p className="text-sm text-mute">Carregando dados da barbearia…</p>;
 
-  const dados = query.data;
+  const dados = query.data as BarbeariaSuporte;
 
   return (
     <div className="space-y-6">
@@ -155,7 +156,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
                 <p className="text-xs text-paper">{registro.acao.replaceAll("_", " ")}</p>
                 <p className="mt-1 text-xs text-mute">{registro.ator_email ?? "equipe Cortaí"} · {new Date(registro.criado_em).toLocaleString("pt-BR")}</p>
                 <p className="mt-1 text-xs text-mute2">Motivo: {registro.alvo}</p>
-                <pre className="mt-2 overflow-x-auto rounded bg-ink px-2 py-1 text-[10px] text-mute2">{JSON.stringify(registro.alteracoes, null, 1)}</pre>
+                <pre className="mt-2 overflow-x-auto rounded bg-ink px-2 py-1 text-[10px] text-mute2">{registro.alteracoes}</pre>
               </li>
             ))}
           </ul>
