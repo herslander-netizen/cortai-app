@@ -210,7 +210,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                     {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
                     {m.acao?.destino ? (
                       <Link
-                        to={m.acao.destino}
+                        to={m.acao.destino as "/barbeiro"}
                         onClick={onFechar}
                         className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-gold"
                       >
