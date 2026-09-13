@@ -1,46 +1,42 @@
-# Navegação, equipe e permissões do Cortaí Gestão
+# Atualização global da identidade Cortaí
 
 ## Resultado
-- Trocar a barra inferior da barbearia por cinco posições confortáveis: Visão geral, Agenda, ação rápida central, Pedidos e Mais.
-- Eliminar rolagem horizontal e quebra de labels, preservando área segura, contraste e estados ativos.
-- Manter o painel global visualmente distinto; no mobile, seus sete atalhos deixam de ficar espremidos e os menos frequentes passam para um menu próprio.
+- Aplicar a identidade oficial preto/grafite, branco e dourado metálico em todas as experiências existentes, sem recriar telas nem alterar regras de negócio.
+- Fazer a marca Cortaí aparecer com hierarquia consistente: logo completa em áreas amplas, símbolo oficial em espaços compactos.
+- Preservar a personalização própria de cada barbearia nas páginas e áreas do cliente, mantendo o Cortaí como plataforma e assinatura visual secundária.
 
-## Ações rápidas
-- Criar um botão central circular, levemente elevado, em preto/dourado, que abre uma folha compacta de ações.
-- Reutilizar o agendamento manual e os fluxos existentes de produtos, clientes e fila.
-- Exibir somente ações permitidas e recursos habilitados no plano: agendamento manual, confirmar pagamento, registrar venda, novo cliente e adicionar à fila.
-- Confirmar pagamento somente após escolher um atendimento pendente, revisar cliente/serviço/valor/forma e confirmar explicitamente.
+## Sistema visual central
+- Consolidar no tema global as cores, contrastes, tipografia, raios, sombras, bordas, foco, estados interativos e áreas seguras para celular.
+- Remover cores, gradientes e estilos decorativos que contradigam a marca; manter dourado reservado para ações principais, seleção e detalhes relevantes.
+- Padronizar fundos premium escuros nas áreas de gestão e superfícies claras somente onde realmente melhorarem a leitura pública.
+- Criar componentes reutilizáveis da marca para símbolo, logo horizontal e assinatura, sem duplicar desenhos nas telas.
 
-## Pedidos e pagamentos
-- Criar `/barbeiro/pedidos` para centralizar atendimentos aguardando confirmação financeira e seu histórico recente.
-- Registrar no atendimento quando, por quem e como o pagamento foi confirmado, sem confirmar por um toque acidental.
-- Não inventar pedidos de loja online: enquanto não há checkout de produtos no Cortaí, a tela usará os atendimentos reais e seus pagamentos.
+## Aplicação nas telas
+- Atualizar cabeçalhos, menus, navegações desktop/mobile e barras inferiores do cliente, da barbearia e do administrador global.
+- Revisar a entrada pública, descoberta, página pública de barbearia e loja, sem esconder informações funcionais nem inventar conteúdo.
+- Aplicar a identidade ao login, criação de conta, escolha de perfil e instalação do aplicativo.
+- Harmonizar visão geral, agenda, clientes, profissionais, pedidos, loja, estoque, fidelidade, equipe, permissões, configurações e perfis por meio dos componentes compartilhados e ajustes específicos necessários.
+- Padronizar botões, campos, cartões legítimos, listas, abas, indicadores, notificações, modais, confirmações, mensagens e estados vazios.
+- Tornar a assinatura Alvo Digital mais discreta e claramente subordinada ao Cortaí.
 
-## Equipe e permissões
-- Ampliar os perfis da barbearia para Dono, Gerente, Barbeiro e Recepção.
-- Criar permissões individuais, isoladas por barbearia, para todos os grupos pedidos: agenda, cancelamento, pagamento, venda, preço, estoque, clientes, financeiro, relatórios, profissionais, dados da barbearia, permissões e ações destrutivas.
-- Aplicar perfis padrão como ponto de partida e permitir exceções por funcionário.
-- Criar em “Mais” o Gerenciador de equipe para vincular contas existentes por e-mail, alterar perfil/permissões e remover acesso com confirmação.
-- Garantir que sempre exista um dono e impedir que alguém remova ou rebaixe o último dono.
+## Marca e mídia
+- Usar o símbolo oficial no favicon, ícones do aplicativo, avatar de marca, botão central e carregamentos quando apropriado.
+- Usar a composição oficial escura em fundos escuros e a versão preta em superfícies claras, sempre preservando proporção e legibilidade.
+- Atualizar manifesto, ícones, metadados e imagem de compartilhamento para a mesma identidade.
+- Não redesenhar ou reinterpretar a marca. Se alguma das três composições não estiver disponível como arquivo utilizável no projeto, manter a referência existente correspondente e registrar essa limitação sem inventar uma substituta.
 
-## Segurança e auditoria
-- Validar cada permissão no servidor; esconder botões será apenas uma camada adicional de interface.
-- Manter o isolamento por barbearia em todas as consultas e alterações.
-- Reutilizar a confirmação por senha existente para ações destrutivas e mudanças sensíveis de equipe/permissões.
-- Registrar ações críticas com barbearia, usuário, ação, alvo, detalhes e data/hora em histórico imutável.
-- Restringir a visualização da equipe e da auditoria a quem tiver autorização.
-
-## Reorganização de “Mais”
-- Preservar todas as páginas atuais e agrupá-las por frequência e permissão: conta/perfil, clientes, financeiro, estoque/loja, crescimento, indicações, avaliações, serviços, fila, fidelidade, profissionais, marca, equipe/permissões e auditoria.
-- Não duplicar rotas nem remover recursos; atalhos indisponíveis ficam ocultos ou apresentam o bloqueio de plano já existente, conforme o caso.
+## Responsividade e acabamento
+- Validar largura de aproximadamente 390 px e desktop em todas as famílias de telas.
+- Corrigir rolagem horizontal, cortes, textos quebrados, conteúdo atrás da barra inferior e logos deformadas.
+- Manter alvos de toque confortáveis, contraste acessível, foco visível e movimento sutil com redução de movimento respeitada.
 
 ## Verificação
-- Conferir a navegação e os modais em largura mobile, incluindo tela estreita e área segura inferior.
-- Testar usuário com permissões reduzidas, dono e separação entre duas barbearias.
-- Testar confirmação de pagamento em duas etapas, ações rápidas e histórico de auditoria.
-- Revisar todas as rotas da barbearia, metadados, TypeScript e build.
+- Conferir visualmente entrada, login, cliente, barbearia e administrador em celular e desktop.
+- Verificar favicon, manifesto, ícones, compartilhamento, convite de instalação e carregamento.
+- Rodar verificações de tipos, testes relevantes, lint disponível e build; corrigir erros antes de concluir.
+- Relatar claramente o que foi aplicado e qualquer ponto impedido pela ausência de um arquivo oficial ou acesso autenticado.
 
 ## Detalhes técnicos
-- Novas estruturas no banco: permissões individuais por vínculo, auditoria da barbearia e campos de confirmação de pagamento no atendimento.
-- Funções de autorização centralizadas serão usadas por leituras e alterações sensíveis; o administrador global continuará usando suas regras próprias.
-- Componentes atuais serão reutilizados antes de criar formulários equivalentes.
+- A atualização será concentrada nos tokens globais, componentes de marca, layouts e controles compartilhados, com correções diretas apenas onde telas ainda têm estilos próprios.
+- Nenhuma alteração de banco, autenticação, permissões, isolamento por barbearia ou fluxo funcional está prevista.
+- Os arquivos atuais do ícone e da imagem de compartilhamento serão comparados com as referências disponíveis; nenhum desenho novo será gerado.
