@@ -1,70 +1,55 @@
-# Consistência global de UX/UI do Cortaí
+# Editor da Home pública
 
-## Objetivo
+## Onde isso vai ficar na navegação
 
-Transformar a experiência existente em um sistema visual e de navegação único, preservando todas as rotas, dados, permissões e regras de negócio. A intervenção será incremental: corrigir primeiro a base compartilhada e depois aplicar essa base aos fluxos públicos, cliente, gestão da barbearia e administração da plataforma.
+A Home pública do Cortaí é uma página **da plataforma** (não de cada barbearia), então o editor pertence ao painel do dono da plataforma.
 
-## Diagnóstico da auditoria
+Hoje o admin tem: Visão geral | Barbearias | Monetização | Mais. Dentro de "Mais" já existe o grupo **Configurações** (Aparência e padrões, Recursos dos planos, Perfil).
 
-- A área da barbearia já usa a estrutura principal correta com cinco posições, mas atalhos, ações rápidas e módulos ainda não refletem integralmente as permissões do papel ativo.
-- A administração da plataforma expõe oito destinos com o mesmo peso, inclusive no celular; configurações, parceiros, pedidos e perfil competem com as áreas operacionais principais.
-- “Recursos e planos” aparece separado de Monetização, apesar de pertencer ao mesmo domínio.
-- Botões, campos, cards, avisos, folhas, diálogos e estados vazios misturam componentes reutilizáveis com estilos locais, criando diferenças de altura, raio, contraste e comportamento.
-- O tema claro existe por variáveis, mas vários controles e superfícies ainda assumem o tema escuro diretamente.
-- Algumas telas densas usam cards em excesso ou controles horizontais; outras têm pouca distinção entre conteúdo, ação principal e configuração avançada.
-- Estados globais de erro e página inexistente ainda estão em inglês e fora da linguagem visual do produto.
+Decisão: **não** criar item novo na barra principal. O editor entra em Mais → um novo grupo **Conteúdo público**, com dois itens:
+- **Home** (novo editor)
+- **Parceiros** (já existe, sai de "Operação da plataforma" para cá, pois é conteúdo público)
 
-## Implementação
+Assim o número de itens principais continua o mesmo e a hierarquia fica mais lógica.
 
-### 1. Consolidar o design system
+Endereço: `/admin/home`.
 
-- Refinar os tokens semânticos de superfície, texto, borda, destaque, sucesso, atenção, perigo e elevação para dark e light mode.
-- Padronizar tipografia, espaçamento, raios, foco, alturas de toque e movimento reduzido.
-- Consolidar componentes reutilizáveis de botão, campo, seleção, textarea, badge, card, aviso, estado vazio, seção, modal e folha inferior.
-- Remover estilos locais duplicados onde já houver um componente-base equivalente.
-- Corrigir contraste, sobreposição, largura mínima e overflow na origem.
+## O que o administrador vai poder fazer
 
-### 2. Arquitetura por perfil
+Uma tela única, organizada em abas, sempre com poucos campos visíveis por vez:
 
-- Criar uma definição única de navegação e visibilidade baseada no papel e nas permissões efetivas da sessão.
-- Proprietário e gerente: Início, Agenda, ação central, Clientes e Mais; módulos de gestão ficam agrupados em Mais e no hub, conforme permissão.
-- Profissional/barbeiro: foco em agenda, clientes e ações operacionais autorizadas; financeiro, equipe, marca e configurações não aparecem sem permissão.
-- Recepção/atendimento: foco em agenda, clientes, balcão e ações autorizadas; áreas gerenciais ficam ocultas.
-- Cliente: manter a navegação curta e orientada a agendar, horários, carteira e perfil.
-- A ocultação visual complementará, sem substituir, as verificações de segurança já existentes no servidor.
+1. **Visão geral** — miniatura da Home, status (Publicada / Rascunho com alterações), data da última publicação, atalhos: Ver a Home, Publicar, Descartar rascunho, Restaurar uma versão anterior.
+2. **Topo (Hero)** — texto pequeno acima do título, título, descrição, botão principal (texto + destino), botão secundário (texto + destino), imagem de fundo, enquadramento da foto, escurecimento da foto, alinhamento, ligar/desligar o selo.
+3. **Seções** — lista de cards com nome, tipo, ligado/desligado e ordem (arrastar para reordenar). Cada card abre a edição do seu conteúdo (títulos, textos, itens, imagem). Tipos disponíveis: Topo, Benefícios, Texto + imagem, Celular/produto, Agenda, Clientes, Financeiro, Voltaí/Fidelidade, Loja, Chamada final, Parceiros, Rodapé. Duplicar disponível nos tipos de conteúdo livre; excluir só com confirmação e nunca no Topo/Rodapé.
+4. **Imagens** — biblioteca simples com as fotos já usadas na Home, enviar nova, substituir, remover, definir o ponto de foco e proporção recomendada.
+5. **Aparência** — presets (Cortaí Premium, Cinemático, Clean, Editorial), cor de destaque, estilo e arredondamento dos botões, intensidade de bordas/sombras, largura do conteúdo, espaçamento entre seções, tipografia (apenas as já suportadas), claro/escuro por seção.
+6. **SEO e compartilhamento** — título, descrição, imagem de compartilhamento, endereço canônico, com explicações curtas em português.
+7. **Publicação** — "Salvar rascunho" e "Publicar alterações" separados, resumo do que mudou antes de publicar, link para ver a Home antes de publicar.
 
-### 3. Navegação da gestão da barbearia
+Cada aba mostra o essencial; ajustes finos ficam atrás de "Configurações avançadas". Toda alteração visual tem prévia ao lado (desktop) ou acima (celular).
 
-- Manter a barra de cinco posições já definida e melhorar estados ativos, áreas de toque, safe area e adaptação a telas estreitas.
-- Filtrar ações rápidas por permissão e manter a tesoura como ação central sem rótulo.
-- Reorganizar o hub e o menu Mais por Operação, Gestão e Configurações, sem duplicar entradas nem remover rotas.
-- Ajustar cabeçalhos e retornos para deixar localização e ação principal evidentes.
+## Como a Home passa a funcionar
 
-### 4. Navegação da administração da plataforma
+A Home continua exatamente a experiência cinematográfica atual (fotos grandes, alternância preto / off-white, mockup de celular, Voltaí, Agenda, Clientes, Financeiro, Loja, CTAs). O que muda: os textos, imagens, ordem, ativação e estilo dessas seções passam a vir da configuração publicada, com o conteúdo atual gravado como valor inicial — ninguém vê diferença no dia da entrega.
 
-- Reduzir o celular a quatro áreas: Visão geral, Barbearias, Monetização e Mais.
-- Organizar no Mais administrativo: Pedidos, Parceiros, Aparência/Design, Perfil e demais ferramentas secundárias.
-- No desktop, manter uma lateral hierárquica com grupos “Principal”, “Comercial” e “Administração”, em vez de uma lista plana.
-- Incorporar “Recursos e planos” como subseção de Monetização, preservando a tela e suas capacidades por meio de navegação interna coerente.
+Se a configuração não carregar, a Home cai no conteúdo atual embutido no código. Nada de página genérica de blocos.
 
-### 5. Aplicação global nas telas
+## Detalhes técnicos
 
-- Uniformizar shells, cabeçalhos, listas, indicadores, formulários, tabelas, modais, mensagens e estados vazios nas áreas pública, cliente, barbearia e admin.
-- Reduzir altura e aninhamento excessivos em celular; preservar densidade e leitura em desktop/tablet.
-- Ajustar telas densas prioritárias: Início, Agenda, Clientes, Mais, Equipe, Conta, Monetização, Barbearias, Pedidos, Parceiros e Aparência.
-- Traduzir e alinhar estados globais de erro e página inexistente ao Cortaí.
+**Banco (nova migração)**
+- `home_publica` — linha única (`id boolean primary key default true`) com `rascunho jsonb`, `publicado jsonb`, `publicado_em`, `atualizado_em`, `atualizado_por`. Leitura pública apenas do `publicado` via função `home_publicada()` security definer (evita expor rascunho ao `anon`); escrita só para `admin` via `has_role`.
+- `home_publica_versoes` — histórico de snapshots publicados (`snapshot jsonb`, `criado_em`, `criado_por`), para restaurar versão anterior. Mesmo padrão de `tenant_branding_versions`.
+- GRANTs explícitos: `authenticated` + `service_role`; sem `anon` (a leitura pública sai da função security definer).
+- Seed com o conteúdo atual da Home em `publicado` e `rascunho`.
 
-### 6. Validação
+**Imagens**: bucket público `home-publica` (via ferramenta de bucket), upload por server function com verificação de admin.
 
-- Verificar navegação e visibilidade para proprietário, gerente, profissional/barbeiro, recepção e cliente, usando sessões disponíveis ou estados controlados quando uma conta real não estiver disponível.
-- Testar larguras 320, 360, 390 e 430 px, tablet e desktop 1280 px.
-- Conferir ausência de scroll horizontal, sobreposição, texto cortado e alvos de toque pequenos.
-- Validar dark e light mode, modais, folhas, formulários, carregamento, vazio, sucesso e erro.
-- Executar testes relevantes, typecheck e build; não publicar.
+**Código**
+- `src/lib/home-publica.ts` — tipos (`ConfigHome`, `SecaoHome`), preset padrão com o conteúdo atual, presets de aparência, validação Zod compartilhada.
+- `src/lib/home.functions.ts` — `getHomePublicada` (pública, cacheável), `getHomeAdmin`, `salvarRascunhoHome`, `publicarHome`, `descartarRascunhoHome`, `restaurarVersaoHome`, `enviarImagemHome`; todas as de escrita com `requireSupabaseAuth` + checagem `has_role(admin)` no servidor.
+- `src/routes/index.tsx` — passa a ler a configuração publicada no loader (`ensureQueryData`) e renderizar as seções a partir dela; os blocos visuais atuais viram componentes em `src/components/home/` (`SecaoHero`, `SecaoBeneficios`, `SecaoTextoImagem`, `SecaoProduto`, `SecaoRecursos`, `SecaoVoltai`, `SecaoCTA`, `SecaoRodape`) reaproveitando as classes `landing-*` já existentes. `head()` usa os campos de SEO.
+- `src/routes/admin.home.tsx` — editor com abas, prévia e estados de salvamento, usando `AdminScreen`, `Field`, `SectionHeading`, `EmptyState`, `Button`, `Switch`, `Dialog`.
+- `src/routes/admin.mais.tsx` e `src/routes/admin.tsx` — novo grupo "Conteúdo público".
+- Reordenação por arrastar com `@dnd-kit/core` + `@dnd-kit/sortable` (instalar), com alternativa por botões "subir/descer" para toque.
 
-## Limites preservados
-
-- Nenhuma funcionalidade, rota, dado, integração ou regra de negócio será removida.
-- Nenhuma alteração de banco será feita, salvo se uma falha visual depender comprovadamente de informação já existente e inacessível — não é esperado neste trabalho.
-- A identidade preta/grafite, branca e dourada será mantida; dourado continuará reservado a ação principal, foco e estado ativo.
-- O comportamento definido aqui passa a ser a referência permanente para novas telas e funcionalidades.
+**Validação final**: typecheck, build e conferência visual em 390px e 1280px, claro e escuro, da Home e do editor.
