@@ -274,6 +274,71 @@ export type Database = {
           },
         ]
       }
+      banners_da_plataforma: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          criado_em: string
+          criado_por: string | null
+          cta_destino: string | null
+          cta_rotulo: string | null
+          fim: string | null
+          id: string
+          imagem_url: string | null
+          inicio: string
+          plano_alvo: string | null
+          prioridade: number
+          segmento: string
+          subtitulo: string | null
+          tenant_alvo: string | null
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          cta_destino?: string | null
+          cta_rotulo?: string | null
+          fim?: string | null
+          id?: string
+          imagem_url?: string | null
+          inicio?: string
+          plano_alvo?: string | null
+          prioridade?: number
+          segmento?: string
+          subtitulo?: string | null
+          tenant_alvo?: string | null
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          cta_destino?: string | null
+          cta_rotulo?: string | null
+          fim?: string | null
+          id?: string
+          imagem_url?: string | null
+          inicio?: string
+          plano_alvo?: string | null
+          prioridade?: number
+          segmento?: string
+          subtitulo?: string | null
+          tenant_alvo?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banners_da_plataforma_tenant_alvo_fkey"
+            columns: ["tenant_alvo"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carteiras: {
         Row: {
           atualizado_em: string
@@ -384,6 +449,71 @@ export type Database = {
           },
         ]
       }
+      condicoes_comerciais: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          ciclo: string
+          criado_em: string
+          criado_por: string | null
+          desconto_centavos: number
+          desconto_percentual: number
+          fim: string | null
+          id: string
+          inicio: string
+          limites: Json
+          motivo: string | null
+          plano_chave: string
+          preco_personalizado_centavos: number | null
+          recursos: string[]
+          tenant_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          ciclo?: string
+          criado_em?: string
+          criado_por?: string | null
+          desconto_centavos?: number
+          desconto_percentual?: number
+          fim?: string | null
+          id?: string
+          inicio?: string
+          limites?: Json
+          motivo?: string | null
+          plano_chave: string
+          preco_personalizado_centavos?: number | null
+          recursos?: string[]
+          tenant_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          ciclo?: string
+          criado_em?: string
+          criado_por?: string | null
+          desconto_centavos?: number
+          desconto_percentual?: number
+          fim?: string | null
+          id?: string
+          inicio?: string
+          limites?: Json
+          motivo?: string | null
+          plano_chave?: string
+          preco_personalizado_centavos?: number | null
+          recursos?: string[]
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "condicoes_comerciais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       configuracoes_da_plataforma: {
         Row: {
           atualizado_em: string
@@ -475,6 +605,99 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "contatos_de_retencao_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cupons: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          codigo: string
+          criado_em: string
+          criado_por: string | null
+          descricao: string | null
+          fim: string | null
+          id: string
+          inicio: string
+          planos: string[]
+          publico: string
+          tipo: string
+          usos: number
+          usos_max: number | null
+          valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          codigo: string
+          criado_em?: string
+          criado_por?: string | null
+          descricao?: string | null
+          fim?: string | null
+          id?: string
+          inicio?: string
+          planos?: string[]
+          publico?: string
+          tipo?: string
+          usos?: number
+          usos_max?: number | null
+          valor: number
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          codigo?: string
+          criado_em?: string
+          criado_por?: string | null
+          descricao?: string | null
+          fim?: string | null
+          id?: string
+          inicio?: string
+          planos?: string[]
+          publico?: string
+          tipo?: string
+          usos?: number
+          usos_max?: number | null
+          valor?: number
+        }
+        Relationships: []
+      }
+      cupons_usos: {
+        Row: {
+          aplicado_por: string | null
+          criado_em: string
+          cupom_id: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          aplicado_por?: string | null
+          criado_em?: string
+          cupom_id: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          aplicado_por?: string | null
+          criado_em?: string
+          cupom_id?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cupons_usos_cupom_id_fkey"
+            columns: ["cupom_id"]
+            isOneToOne: false
+            referencedRelation: "cupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cupons_usos_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -791,6 +1014,60 @@ export type Database = {
           telefone?: string | null
           tipo?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      planos_da_plataforma: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          chave: string
+          criado_em: string
+          descricao: string | null
+          dias_teste: number
+          id: string
+          limite_agendamentos_mes: number | null
+          limite_clientes: number | null
+          limite_profissionais: number | null
+          limite_unidades: number | null
+          nome: string
+          ordem: number
+          preco_anual_centavos: number
+          preco_mensal_centavos: number
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave: string
+          criado_em?: string
+          descricao?: string | null
+          dias_teste?: number
+          id?: string
+          limite_agendamentos_mes?: number | null
+          limite_clientes?: number | null
+          limite_profissionais?: number | null
+          limite_unidades?: number | null
+          nome: string
+          ordem?: number
+          preco_anual_centavos?: number
+          preco_mensal_centavos?: number
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave?: string
+          criado_em?: string
+          descricao?: string | null
+          dias_teste?: number
+          id?: string
+          limite_agendamentos_mes?: number | null
+          limite_clientes?: number | null
+          limite_profissionais?: number | null
+          limite_unidades?: number | null
+          nome?: string
+          ordem?: number
+          preco_anual_centavos?: number
+          preco_mensal_centavos?: number
         }
         Relationships: []
       }
@@ -1192,6 +1469,7 @@ export type Database = {
       }
       tenants: {
         Row: {
+          assinatura_status: string
           assinatura_visivel: boolean
           ativo: boolean
           capa_url: string | null
@@ -1220,11 +1498,14 @@ export type Database = {
           slug: string
           telefone: string | null
           tema: string
+          teste_fim: string | null
+          teste_inicio: string | null
           texto_boas_vindas: string | null
           ultimo_acesso_em: string | null
           whatsapp: string | null
         }
         Insert: {
+          assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
           capa_url?: string | null
@@ -1253,11 +1534,14 @@ export type Database = {
           slug: string
           telefone?: string | null
           tema?: string
+          teste_fim?: string | null
+          teste_inicio?: string | null
           texto_boas_vindas?: string | null
           ultimo_acesso_em?: string | null
           whatsapp?: string | null
         }
         Update: {
+          assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
           capa_url?: string | null
@@ -1286,6 +1570,8 @@ export type Database = {
           slug?: string
           telefone?: string | null
           tema?: string
+          teste_fim?: string | null
+          teste_inicio?: string | null
           texto_boas_vindas?: string | null
           ultimo_acesso_em?: string | null
           whatsapp?: string | null

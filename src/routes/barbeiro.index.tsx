@@ -10,6 +10,8 @@ import { brl, hora } from "@/lib/format";
 import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { BannersDaPlataforma, MeuPlano } from "@/components/barbeiro/PainelComercial";
+import { HubModulos } from "@/components/barbeiro/HubModulos";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -59,6 +61,7 @@ function HojePage() {
 
       {data ? (
         <>
+          <BannersDaPlataforma />
           <div data-guia="dash-faturamento" className="rounded-xl bg-ink3 p-5">
             <div className="flex items-start justify-between gap-4"><div><p className="text-xs text-mute">Faturamento de hoje</p><p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(data.caixaCentavos)}</p></div><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold"><TrendingUp size={19} /></span></div>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(5, data.ocupacaoPct)}%` }} /></div>
@@ -136,6 +139,9 @@ function HojePage() {
             ))}
           </ul>
           </div>
+
+          <HubModulos />
+          <MeuPlano />
 
           <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Alertas do dia</h2>
           <ul className="space-y-2">
