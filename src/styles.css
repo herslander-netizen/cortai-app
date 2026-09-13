@@ -193,6 +193,11 @@
   &:active { transform: translateY(1px); box-shadow: var(--shadow-sm); }
 }
 
+@utility brand-lockup {
+  filter: drop-shadow(0 2px 2px color-mix(in oklab, var(--ink) 45%, transparent));
+  image-rendering: auto;
+}
+
 @utility render-later {
   content-visibility: auto;
   contain-intrinsic-size: auto 500px;

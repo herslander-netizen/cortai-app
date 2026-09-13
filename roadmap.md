@@ -72,3 +72,6 @@
 - [x] Otimizar imagens e fontes públicas sem perda de conteúdo.
 - [x] Validar landing, busca e login em mobile e desktop.
 - [x] Executar verificação de tipos e build.
+
+## Ajuste pontual da marca
+- [x] Recolocar a logo oficial no local anterior, preservando proporção e suavizando as bordas.
