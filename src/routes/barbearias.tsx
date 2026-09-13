@@ -41,7 +41,7 @@ function BarbeariasPage() {
         <FaixaDeParceiros />
       </main>
 
-      <Signature />
+      <Signature mostrarRedesSociais />
     </div>
   );
 }

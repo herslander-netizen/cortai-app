@@ -178,7 +178,7 @@ function LoginPage() {
         )}
       </button>
 
-      <div className="mt-auto"><Signature /></div>
+      <div className="mt-auto"><Signature mostrarRedesSociais /></div>
     </main>
   );
 }

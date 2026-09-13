@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Clock3, Copy, Instagram, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import { Check, Clock3, Copy, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { type CSSProperties, useEffect, useState } from "react";
 
@@ -12,6 +12,7 @@ import { getPaginaPublica } from "@/lib/publico.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { LinksSociais } from "@/components/marca/LinksSociais";
 
 export const Route = createFileRoute("/b/$slug")({
   head: ({ params }) => ({ meta: [
@@ -58,7 +59,6 @@ function PaginaBarbearia() {
   const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
   const telefone = tenant.telefone?.replace(/\D/g, "") || null;
   const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
-  const instagram = tenant.instagram?.replace(/^@/, "") || null;
 
   return <div className="client-brand min-h-screen bg-ink" style={style} data-hide-signature={tenant.assinatura_visivel === false}>
     <header className="relative mx-auto min-h-[56vh] max-h-[620px] overflow-hidden">
@@ -72,8 +72,8 @@ function PaginaBarbearia() {
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-mute">
           {tenant.endereco ? <span className="flex items-center gap-1.5"><MapPin size={13} className="text-gold" />{tenant.endereco}</span> : null}
           {data.servicos.length ? <span className="flex items-center gap-1.5"><Clock3 size={13} className="text-gold" />{data.servicos.length} serviço{data.servicos.length > 1 ? "s" : ""} disponíve{data.servicos.length > 1 ? "is" : "l"}</span> : null}
-          {instagram ? <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-paper/80 hover:text-gold"><Instagram size={13} className="text-gold" />@{instagram}</a> : null}
         </div>
+        <LinksSociais instagram={tenant.instagram} facebook={tenant.facebook} whatsapp={tenant.whatsapp} mostrarRotulos className="mt-4" />
       </div>
     </header>
 
@@ -190,6 +190,6 @@ function PaginaBarbearia() {
         ) : null}
       </section>
     </main>
-    <Signature />
+    <Signature mostrarRedesSociais />
   </div>;
 }
