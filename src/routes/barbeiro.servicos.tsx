@@ -8,6 +8,8 @@ export const Route = createFileRoute("/barbeiro/servicos")({
       { name: "description", content: "Defina cortes, duração e preços da sua barbearia." },
       { property: "og:title", content: "Serviços — Cortaí" },
       { property: "og:description", content: "Cortes, duração e preços." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

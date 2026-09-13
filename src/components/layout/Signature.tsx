@@ -1,26 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
-
-import { supabase } from "@/integrations/supabase/client";
+import { getPlatformContact } from "@/lib/admin.functions";
+import { LinksSociais } from "@/components/marca/LinksSociais";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
-export function useWhatsappAlvo() {
+export function useContatoDaPlataforma() {
   const { data } = useQuery({
     queryKey: ["contato-da-plataforma"],
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("contato_da_plataforma");
-      if (error) return null;
-      const numero = (Array.isArray(data) ? data[0]?.whatsapp_alvo : null) ?? null;
-      const digitos = String(numero ?? "").replace(/\D/g, "");
-      return digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
+      return getPlatformContact();
     },
   });
   return data ?? null;
 }
 
-export function Signature() {
-  const link = useWhatsappAlvo();
+export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais?: boolean }) {
+  const contato = useContatoDaPlataforma();
+  const digitos = String(contato?.whatsapp_alvo ?? "").replace(/\D/g, "");
+  const link = digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
 
   return (
     <footer className="mt-10 border-t border-line px-5 pb-6 pt-8 text-center">
@@ -35,6 +33,8 @@ export function Signature() {
           Fale com a Alvo Digital
         </a>
       ) : null}
+
+      {mostrarRedesSociais ? <LinksSociais instagram={contato?.instagram_cortai} facebook={contato?.facebook_cortai} tiktok={contato?.tiktok_cortai} youtube={contato?.youtube_cortai} className="mb-4 justify-center" /> : null}
 
       <p
         className="text-mute2"

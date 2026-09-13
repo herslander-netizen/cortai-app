@@ -18,6 +18,8 @@ export type LojaPublica = {
     slug: string;
     whatsapp: string | null;
     telefone: string | null;
+    instagram: string | null;
+    facebook: string | null;
     cor_primaria: string;
     logo_url: string | null;
   };
@@ -36,7 +38,7 @@ export const getLojaPublica = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url")
+      .select("id, nome, slug, plano, loja_ativa, whatsapp, telefone, instagram, facebook, cor_primaria, logo_url")
       .eq("slug", data.slug)
       .eq("ativo", true)
       .maybeSingle();
@@ -73,6 +75,8 @@ export const getLojaPublica = createServerFn({ method: "GET" })
         slug: tenant.slug,
         whatsapp: tenant.whatsapp,
         telefone: tenant.telefone,
+        instagram: tenant.instagram,
+        facebook: tenant.facebook,
         cor_primaria: tenant.cor_primaria,
         logo_url: logo,
       },
