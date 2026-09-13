@@ -20,32 +20,11 @@ async function admin() {
   return supabaseAdmin;
 }
 
-/** Cria o perfil na primeira entrada e concede admin se o e-mail estiver autorizado. */
-async function garantirPerfil(userId: string, email: string | null, nome: string | null) {
-  const db = await admin();
-  const { data: perfil } = await db.from("perfis").select("tipo, nome").eq("user_id", userId).maybeSingle();
-  if (!perfil) {
-    await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
-  }
-  if (email) {
-    const { data: autorizado } = await db
-      .from("emails_admin_autorizados")
-      .select("email")
-      .ilike("email", email)
-      .maybeSingle();
-    if (autorizado) {
-      const { data: jaTem } = await db
-        .from("user_roles")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (!jaTem) await db.from("user_roles").insert({ user_id: userId, role: "admin" });
-    }
-  }
-  return perfil?.tipo ?? "pendente";
-}
-
+/**
+ * Lê o essencial da sessão em poucas idas ao banco (antes eram até sete).
+ * Também cria o perfil na primeira entrada e concede admin quando o e-mail
+ * está na lista autorizada.
+ */
 export const getSessao = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<Sessao> => {
@@ -59,23 +38,38 @@ export const getSessao = createServerFn({ method: "GET" })
           ? (metadata["full_name"] as string)
           : null;
 
-    const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
+    const [{ data: perfil }, { data: papelAdmin }, { data: vinculo }, { data: autorizado }] =
+      await Promise.all([
+        db.from("perfis").select("nome, tipo").eq("user_id", context.userId).maybeSingle(),
+        db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+        db
+          .from("tenant_usuarios")
+          .select("tenant_id, tenants(nome, slug)")
+          .eq("user_id", context.userId)
+          .limit(1)
+          .maybeSingle(),
+        email
+          ? db.from("emails_admin_autorizados").select("email").ilike("email", email).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
 
-    const [{ data: papelAdmin }, { data: vinculo }, { data: perfil }] = await Promise.all([
-      db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
-      db
-        .from("tenant_usuarios")
-        .select("tenant_id, tenants(nome, slug)")
-        .eq("user_id", context.userId)
-        .limit(1)
-        .maybeSingle(),
-      db.from("perfis").select("nome, tipo").eq("user_id", context.userId).maybeSingle(),
-    ]);
+    if (!perfil) {
+      await db.from("perfis").insert({ user_id: context.userId, nome: nomeMeta ?? email?.split("@")[0] ?? null });
+    }
+
+    let ehAdmin = Boolean(papelAdmin);
+    if (autorizado && !ehAdmin) {
+      await db.from("user_roles").upsert(
+        { user_id: context.userId, role: "admin" },
+        { onConflict: "user_id,role", ignoreDuplicates: true },
+      );
+      ehAdmin = true;
+    }
 
     const nome = perfil?.nome ?? nomeMeta ?? null;
 
-    if (papelAdmin) {
+    if (ehAdmin) {
       return { userId: context.userId, email, nome, papel: "admin", tenantId: null, tenantNome: null, tenantSlug: null };
     }
     if (vinculo) {
@@ -90,7 +84,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantSlug: t?.slug ?? null,
       };
     }
-    const escolha = (perfil?.tipo ?? tipo) as string;
+    const escolha = (perfil?.tipo ?? "pendente") as string;
     const papel: Papel = escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
     return { userId: context.userId, email, nome, papel, tenantId: null, tenantNome: null, tenantSlug: null };
   });
