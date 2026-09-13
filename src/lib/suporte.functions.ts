@@ -130,7 +130,7 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
       ator_email: email,
       acao: "editou_dados_da_barbearia",
       alvo: data.motivo,
-      alteracoes: mudancas,
+      alteracoes: JSON.parse(JSON.stringify(mudancas)),
     });
     return { ok: true, alteracoes: Object.keys(patch).length };
   });
@@ -162,7 +162,7 @@ export const alternarItemComoSuporte = createServerFn({ method: "POST" })
       ator_email: email,
       acao: `alterou_${data.tabela}`,
       alvo: data.motivo,
-      alteracoes: { id: data.id, campo: data.campo, para: data.valor },
+      alteracoes: { id: data.id, campo: data.campo, para: data.valor } as Record<string, string | boolean>,
     });
     return { ok: true };
   });
