@@ -1,0 +1,61 @@
+/**
+ * Matriz de recursos por plano.
+ * A chave do recurso + o plano da barbearia decidem o acesso; a verificação
+ * acontece sempre no servidor, nunca no navegador.
+ */
+export const RECURSOS = {
+  loja_online: "Loja online",
+  produtos_estoque: "Produtos e estoque",
+  fidelidade: "Fidelidade",
+  fila_espera: "Fila de espera",
+  indicacoes: "Indicações",
+  crescimento: "Crescimento e análises",
+  agendamento_manual: "Agendamento manual",
+  personalizacao_cliente: "Personalização avançada do cliente",
+  branding_avancado: "Página e branding avançado",
+} as const;
+
+export type ChaveDeRecurso = keyof typeof RECURSOS;
+export const PLANOS = ["essencial", "pro", "studio"] as const;
+export type Plano = (typeof PLANOS)[number];
+
+export const ROTULO_DO_PLANO: Record<string, string> = {
+  essencial: "Essencial",
+  pro: "Pro",
+  studio: "Studio",
+};
+
+/** Lê a matriz e responde se o plano do tenant libera o recurso. */
+export async function recursoLiberado(
+  db: any,
+  tenantId: string,
+  chave: ChaveDeRecurso,
+): Promise<{ liberado: boolean; plano: string }> {
+  const { data: tenant } = await db.from("tenants").select("plano").eq("id", tenantId).maybeSingle();
+  const plano = (tenant?.plano as string) ?? "essencial";
+  const { data: regra } = await db
+    .from("recursos_de_plano")
+    .select("liberado")
+    .eq("chave", chave)
+    .eq("plano", plano)
+    .maybeSingle();
+  // Sem linha na matriz o recurso é considerado liberado (evita travar o app
+  // quando um recurso novo ainda não foi mapeado pelo dono da plataforma).
+  return { liberado: regra?.liberado ?? true, plano };
+}
+
+export class RecursoBloqueadoError extends Error {
+  constructor(chave: ChaveDeRecurso, plano: string) {
+    super(
+      `O recurso "${RECURSOS[chave]}" não está incluído no plano ${ROTULO_DO_PLANO[plano] ?? plano}. Faça upgrade para liberar.`,
+    );
+    this.name = "RecursoBloqueadoError";
+  }
+}
+
+/** Garante o recurso no servidor; lança erro legível quando bloqueado. */
+export async function exigirRecurso(db: any, tenantId: string, chave: ChaveDeRecurso) {
+  const { liberado, plano } = await recursoLiberado(db, tenantId, chave);
+  if (!liberado) throw new RecursoBloqueadoError(chave, plano);
+  return plano;
+}

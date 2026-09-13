@@ -20,6 +20,7 @@ import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
+import { Route as AdminRecursosRouteImport } from './routes/admin.recursos'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
@@ -43,6 +44,7 @@ import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 
@@ -99,6 +101,11 @@ const AdminPedidosRoute = AdminPedidosRouteImport.update({
 const AdminPerfilRoute = AdminPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRecursosRoute = AdminRecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -216,6 +223,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const LojaSlugRoute = LojaSlugRouteImport.update({
+  id: '/loja/$slug',
+  path: '/loja/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarbeiroClientesIndexRoute = BarbeiroClientesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -238,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
+  '/admin/recursos': typeof AdminRecursosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -259,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
@@ -273,6 +287,7 @@ export interface FileRoutesByTo {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
+  '/admin/recursos': typeof AdminRecursosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -293,6 +308,7 @@ export interface FileRoutesByTo {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/loja/$slug': typeof LojaSlugRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
@@ -311,6 +327,7 @@ export interface FileRoutesById {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
+  '/admin/recursos': typeof AdminRecursosRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -332,6 +349,7 @@ export interface FileRoutesById {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
@@ -351,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/pedidos'
     | '/admin/perfil'
+    | '/admin/recursos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -372,6 +391,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/loja/$slug'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
@@ -386,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/pedidos'
     | '/admin/perfil'
+    | '/admin/recursos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -406,6 +427,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/loja/$slug'
     | '/admin'
     | '/app'
     | '/barbeiro'
@@ -423,6 +445,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/pedidos'
     | '/admin/perfil'
+    | '/admin/recursos'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -444,6 +467,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/loja/$slug'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
@@ -459,6 +483,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
   BSlugRoute: typeof BSlugRoute
+  LojaSlugRoute: typeof LojaSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -538,6 +563,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/admin/perfil'
       preLoaderRoute: typeof AdminPerfilRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/recursos': {
+      id: '/admin/recursos'
+      path: '/recursos'
+      fullPath: '/admin/recursos'
+      preLoaderRoute: typeof AdminRecursosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/app/': {
@@ -701,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/loja/$slug': {
+      id: '/loja/$slug'
+      path: '/loja/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barbeiro/clientes/': {
       id: '/barbeiro/clientes/'
       path: '/'
@@ -723,6 +762,7 @@ interface AdminRouteChildren {
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   AdminPerfilRoute: typeof AdminPerfilRoute
+  AdminRecursosRoute: typeof AdminRecursosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -731,6 +771,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBarbeariasRoute: AdminBarbeariasRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   AdminPerfilRoute: AdminPerfilRoute,
+  AdminRecursosRoute: AdminRecursosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -819,6 +860,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
   BSlugRoute: BSlugRoute,
+  LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

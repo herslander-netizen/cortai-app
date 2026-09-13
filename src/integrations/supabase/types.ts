@@ -636,8 +636,10 @@ export type Database = {
           ativo: boolean
           atualizado_em: string
           categoria: string
+          controla_estoque: boolean
           criado_em: string
           custo_centavos: number
+          disponivel_venda: boolean
           estoque_minimo: number
           foto_url: string | null
           id: string
@@ -650,8 +652,10 @@ export type Database = {
           ativo?: boolean
           atualizado_em?: string
           categoria?: string
+          controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
+          disponivel_venda?: boolean
           estoque_minimo?: number
           foto_url?: string | null
           id?: string
@@ -664,8 +668,10 @@ export type Database = {
           ativo?: boolean
           atualizado_em?: string
           categoria?: string
+          controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
+          disponivel_venda?: boolean
           estoque_minimo?: number
           foto_url?: string | null
           id?: string
@@ -724,6 +730,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      recursos_de_plano: {
+        Row: {
+          atualizado_em: string
+          chave: string
+          criado_em: string
+          descricao: string | null
+          id: string
+          liberado: boolean
+          plano: string
+          rotulo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          chave: string
+          criado_em?: string
+          descricao?: string | null
+          id?: string
+          liberado?: boolean
+          plano: string
+          rotulo: string
+        }
+        Update: {
+          atualizado_em?: string
+          chave?: string
+          criado_em?: string
+          descricao?: string | null
+          id?: string
+          liberado?: boolean
+          plano?: string
+          rotulo?: string
+        }
+        Relationships: []
       }
       regras_de_plano: {
         Row: {
@@ -960,6 +999,7 @@ export type Database = {
           instagram: string | null
           link_avaliacao_publica: string | null
           logo_url: string | null
+          loja_ativa: boolean
           modo: string
           nome: string
           plano: string
@@ -992,6 +1032,7 @@ export type Database = {
           instagram?: string | null
           link_avaliacao_publica?: string | null
           logo_url?: string | null
+          loja_ativa?: boolean
           modo?: string
           nome: string
           plano?: string
@@ -1024,6 +1065,7 @@ export type Database = {
           instagram?: string | null
           link_avaliacao_publica?: string | null
           logo_url?: string | null
+          loja_ativa?: boolean
           modo?: string
           nome?: string
           plano?: string

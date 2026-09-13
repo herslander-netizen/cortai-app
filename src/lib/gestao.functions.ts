@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { exigirRecurso, recursoLiberado } from "@/lib/planos";
 
 async function tenantDoMembro(supabase: any, userId: string) {
   const { data } = await supabase.from("tenant_usuarios").select("tenant_id").eq("user_id", userId).limit(1).maybeSingle();
@@ -29,9 +30,26 @@ export const getProdutos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
-    const { data, error } = await context.supabase.from("produtos").select("*").eq("tenant_id", tenantId).order("nome");
+    await exigirRecurso(context.supabase, tenantId, "produtos_estoque");
+    const [{ data, error }, { data: tenant }, loja] = await Promise.all([
+      context.supabase.from("produtos").select("*").eq("tenant_id", tenantId).order("nome"),
+      context.supabase.from("tenants").select("slug, loja_ativa, plano").eq("id", tenantId).maybeSingle(),
+      recursoLiberado(context.supabase, tenantId, "loja_online"),
+    ]);
     if (error) throw new Error(error.message);
-    return { tenantId, produtos: data ?? [] };
+    const produtos = data ?? [];
+    return {
+      tenantId,
+      produtos,
+      loja: {
+        ativa: Boolean(tenant?.loja_ativa) && loja.liberado,
+        liberada: loja.liberado,
+        plano: loja.plano,
+        slug: (tenant?.slug as string) ?? null,
+        aVenda: produtos.filter((p: any) => p.ativo && p.disponivel_venda && p.preco_centavos > 0).length,
+        estoqueBaixo: produtos.filter((p: any) => p.controla_estoque && p.quantidade <= p.estoque_minimo).length,
+      },
+    };
   });
 
 const produtoSchema = z.object({
@@ -44,6 +62,8 @@ const produtoSchema = z.object({
   quantidade: z.number().int().min(0),
   estoque_minimo: z.number().int().min(0),
   ativo: z.boolean(),
+  controla_estoque: z.boolean().default(true),
+  disponivel_venda: z.boolean().default(false),
 });
 
 export const salvarProduto = createServerFn({ method: "POST" })
@@ -51,6 +71,8 @@ export const salvarProduto = createServerFn({ method: "POST" })
   .validator((input: unknown) => produtoSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "produtos_estoque");
+    const { liberado: lojaLiberada } = await recursoLiberado(context.supabase, tenantId, "loja_online");
     const payload = {
       nome: data.nome,
       foto_url: data.foto_url,
@@ -60,6 +82,10 @@ export const salvarProduto = createServerFn({ method: "POST" })
       quantidade: data.quantidade,
       estoque_minimo: data.estoque_minimo,
       ativo: data.ativo,
+      controla_estoque: data.controla_estoque,
+      // Só vai para a loja com preço válido e com o recurso liberado no plano.
+      disponivel_venda: data.disponivel_venda && data.preco_centavos > 0 && lojaLiberada,
+
       tenant_id: tenantId,
     };
     const { error } = data.id
@@ -80,4 +106,14 @@ export const registrarVendaProduto = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message.includes("estoque insuficiente") ? "Estoque insuficiente." : error.message);
     return resultado;
+  });
+export const definirLojaAtiva = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoMembro(context.supabase, context.userId);
+    if (data.ativa) await exigirRecurso(context.supabase, tenantId, "loja_online");
+    const { error } = await context.supabase.from("tenants").update({ loja_ativa: data.ativa }).eq("id", tenantId);
+    if (error) throw new Error(error.message);
+    return { ativa: data.ativa };
   });

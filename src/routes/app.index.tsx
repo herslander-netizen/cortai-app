@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock3, MapPin, Sparkles } from "lucide-react";
+import { Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
+import { brl } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
@@ -97,6 +98,33 @@ function InicioCliente() {
             Trocar de barbearia
           </Link>
         </section>
+
+        {data.loja.ativa ? (
+          <section className="pb-7">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="text-xs font-semibold uppercase text-mute">Na loja da barbearia</h2>
+              <Link to="/loja/$slug" params={{ slug: data.slug }} className="text-xs text-gold">Ver tudo</Link>
+            </div>
+            <ul className="mt-4 grid grid-cols-2 gap-3">
+              {data.loja.destaques.slice(0, 4).map((produto) => (
+                <li key={produto.id}>
+                  <Link to="/loja/$slug" params={{ slug: data.slug }} className="block overflow-hidden rounded-xl border border-line bg-ink2">
+                    {produto.foto_url ? (
+                      <img src={produto.foto_url} alt={produto.nome} loading="lazy" className="aspect-square w-full object-cover" />
+                    ) : (
+                      <span className="flex aspect-square w-full items-center justify-center bg-ink3 text-mute"><ShoppingBag size={20} /></span>
+                    )}
+                    <span className="block p-3">
+                      <span className="block truncate text-sm font-semibold text-paper">{produto.nome}</span>
+                      <span className="mt-1 block text-sm font-semibold text-gold">{brl(produto.preco_centavos)}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
       </main>
       <Signature />
     </div>

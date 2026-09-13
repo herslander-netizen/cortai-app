@@ -259,3 +259,34 @@ export const excluirBarbearia = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Matriz de recursos por plano — leitura para o dono da plataforma. */
+export const getMatrizDeRecursos = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await adminContext(context);
+    const { data, error } = await db
+      .from("recursos_de_plano")
+      .select("id, chave, rotulo, descricao, plano, liberado")
+      .order("rotulo")
+      .order("plano");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+/** Liberar/bloquear um recurso para um plano. */
+export const definirRecursoDePlano = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ chave: z.string().min(2).max(60), plano: z.enum(["essencial", "pro", "studio"]), liberado: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const db = await adminContext(context);
+    const { error } = await db
+      .from("recursos_de_plano")
+      .update({ liberado: data.liberado })
+      .eq("chave", data.chave)
+      .eq("plano", data.plano);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
