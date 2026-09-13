@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EmptyState } from "@/components/ui/section";
-import { Input } from "@/components/ui/input";
 import { listarParceirosAdmin, removerParceiro, salvarParceiro, type Parceiro } from "@/lib/parceiros.functions";
 
 export const Route = createFileRoute("/admin/parceiros")({

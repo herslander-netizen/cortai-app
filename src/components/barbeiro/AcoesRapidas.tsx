@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { CalendarPlus, ContactRound, Scissors, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { getSessao } from "@/lib/sessao.functions";
+import type { ChaveDePermissao } from "@/lib/permissoes";
 
 const acoes = [
   {
@@ -18,6 +21,7 @@ const acoes = [
     icon: CalendarPlus,
     to: "/barbeiro/agenda" as const,
     search: { acao: "agendamento" as const },
+    permissao: "criar_agendamento" as ChaveDePermissao,
   },
   {
     label: "Novo atendimento",
@@ -25,12 +29,14 @@ const acoes = [
     icon: Scissors,
     to: "/barbeiro/agenda" as const,
     search: { acao: "atendimento" as const },
+    permissao: "agendamento_manual" as ChaveDePermissao,
   },
   {
     label: "Nova venda",
     detalhe: "Registrar produto no balcão",
     icon: ShoppingBag,
     to: "/barbeiro/produtos" as const,
+    permissao: "registrar_venda" as ChaveDePermissao,
   },
   {
     label: "Novo cliente",
@@ -38,12 +44,15 @@ const acoes = [
     icon: ContactRound,
     to: "/barbeiro/agenda" as const,
     search: { acao: "cliente" as const },
+    permissao: "editar_clientes" as ChaveDePermissao,
   },
 ] as const;
 
 export function AcoesRapidas() {
   const [aberto, setAberto] = useState(false);
   const navigate = useNavigate();
+  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const acoesPermitidas = acoes.filter((acao) => sessao?.permissoes.includes(acao.permissao));
 
   return (
     <Sheet open={aberto} onOpenChange={setAberto}>
@@ -66,7 +75,7 @@ export function AcoesRapidas() {
           <SheetDescription className="text-mute">O que você precisa fazer agora?</SheetDescription>
         </SheetHeader>
         <div className="mt-5 grid gap-2">
-          {acoes.map((acao) => {
+          {acoesPermitidas.map((acao) => {
             const Icon = acao.icon;
             return (
               <Button
