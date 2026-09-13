@@ -37,11 +37,17 @@
 - [x] Sair da conta no Perfil e em Mais
 
 ## Navegação e permissões da barbearia
-- [ ] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
-- [ ] Criar Ações rápidas com visibilidade e execução por permissão.
-- [ ] Criar Pedidos com confirmação segura de pagamento.
-- [ ] Criar permissões individuais por funcionário e perfis padrão por barbearia.
-- [ ] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
-- [ ] Reorganizar Mais sem remover nenhuma ferramenta existente.
-- [ ] Corrigir a navegação mobile do admin global sem imitar a barbearia.
-- [ ] Validar isolamento entre barbearias, mobile, tipos e build.
+- [x] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
+- [x] Criar Ações rápidas com visibilidade e execução por permissão.
+- [x] Criar Pedidos com confirmação segura de pagamento.
+- [x] Criar permissões individuais por funcionário e perfis padrão por barbearia.
+- [x] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
+- [x] Reorganizar Mais em categorias mostrando só o que está ativo.
+- [x] Corrigir a navegação mobile do admin global com uma central "Mais".
+- [ ] Validar com uma conta real de dono em 390px (bloqueado: sem conta de teste do solicitante).
+
+## Experiência progressiva
+- [x] Criar o gerenciador de recursos da barbearia (/barbeiro/recursos).
+- [x] Esconder recursos desligados da navegação e bloquear acesso direto.
+- [x] Ocultar loja e lista de espera para o cliente quando a barbearia não usa.
+- [x] Reduzir a poluição do painel inicial (blocos vazios escondidos).
