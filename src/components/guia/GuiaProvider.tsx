@@ -311,7 +311,7 @@ function GuiaOverlay({
             left: alvo.left - 6,
             width: alvo.width + 12,
             height: alvo.height + 12,
-            boxShadow: "0 0 0 9999px rgba(8,8,8,0.74)",
+            boxShadow: "0 0 0 9999px color-mix(in oklab, var(--ink) 74%, transparent)",
           }}
         />
       ) : null}
@@ -322,7 +322,7 @@ function GuiaOverlay({
         aria-modal="true"
         aria-labelledby="guia-titulo"
         aria-describedby="guia-texto"
-        className="absolute rounded-xl border border-line2 bg-ink2 p-5 shadow-2xl transition-all duration-300 ease-out"
+        className="absolute rounded-xl border border-line bg-ink3 p-5 shadow-xl transition-all duration-300 ease-out"
         style={{ top: topoDica, left: esquerdaDica, width: largura }}
       >
         <p id="guia-titulo" className="flex items-center gap-2 text-sm font-bold text-paper">

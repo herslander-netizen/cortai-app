@@ -61,12 +61,12 @@ export function ExclusaoPermanente({
 
       {aberto ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-4 sm:items-center"
           role="dialog"
           aria-modal="true"
           aria-label={titulo}
         >
-          <div className="w-full max-w-sm rounded-xl border border-line bg-ink2 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5">
+          <div className="w-full max-w-sm rounded-xl border border-line bg-ink3 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5">
             <p className="text-sm font-semibold text-paper">{titulo}</p>
             <p className="mt-2 text-xs text-mute">{descricao}</p>
             <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>

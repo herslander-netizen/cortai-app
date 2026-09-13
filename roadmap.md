@@ -8,3 +8,4 @@
 - [x] Refinar tokens e consistência visual sem descaracterizar
 - [x] Validar rotas, responsividade, interações, tipos e build
 - [ ] Concluir autenticação Google real após a escolha da conta (bloqueado: navegador de teste sem sessão Google)
+- [x] Aplicar e validar a nova hierarquia global de cores dark/light

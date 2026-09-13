@@ -79,12 +79,12 @@ export function ConviteDeInstalacao() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 pb-[calc(84px+env(safe-area-inset-bottom))] pt-10 sm:items-center sm:pb-10">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 px-4 pb-[calc(84px+env(safe-area-inset-bottom))] pt-10 sm:items-center sm:pb-10">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="convite-instalacao-titulo"
-        className="w-full max-w-[380px] rounded-2xl border border-line2 bg-ink2 p-6 text-center shadow-2xl"
+        className="w-full max-w-[380px] rounded-2xl border border-line bg-ink3 p-6 text-center shadow-xl"
       >
         <button
           type="button"

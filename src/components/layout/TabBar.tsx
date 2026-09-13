@@ -11,7 +11,7 @@ export type TabItem = {
 export function TabBar({ items, centralAction }: { items: TabItem[]; centralAction?: ReactNode }) {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink/95 backdrop-blur-md"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2/95 backdrop-blur-md"
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 8px)" }}
       aria-label="Navegação principal"
     >
@@ -23,7 +23,7 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
               <Link
                 to={item.to}
                 activeOptions={{ exact: item.to.split("/").length === 2 }}
-                className="group relative flex min-h-16 flex-col items-center justify-center gap-1 overflow-hidden px-1 py-2 text-mute transition-colors duration-150 active:bg-ink2"
+                className="group relative flex min-h-16 flex-col items-center justify-center gap-1 overflow-hidden px-1 py-2 text-mute transition-colors duration-150 hover:text-paper active:bg-ink3"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}
               >
                 {/* indicador dourado no topo do item ativo */}

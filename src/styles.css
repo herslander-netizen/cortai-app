@@ -26,7 +26,9 @@
   --color-mute: var(--mute);
   --color-mute2: var(--mute2);
   --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
   --color-brick: var(--brick);
+  --color-brick-soft: var(--brick-soft);
   --color-line: var(--line);
   --color-line2: var(--line2);
 
@@ -56,24 +58,26 @@
   --radius: 10px;
 
   --ink: #0b0b0b;
-  --ink2: #131312;
-  --ink3: #1c1b19;
+  --ink2: #151515;
+  --ink3: #1c1c1c;
   --gold: #d4af6a;
   --gold-soft: rgba(212, 175, 106, 0.13);
-  --paper: #f5f5f3;
-  --mute: #9a968e;
-  --mute2: #6b6b6b;
+  --paper: #f4f4f4;
+  --mute: #a1a1a1;
+  --mute2: #707070;
   --sage: #8fa882;
+  --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
   --brick: #c4705f;
-  --line: rgba(245, 245, 243, 0.1);
-  --line2: rgba(245, 245, 243, 0.2);
+  --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
+  --line: #292929;
+  --line2: #292929;
   --nav-shadow: 0 -10px 30px rgba(0, 0, 0, 0.24);
 
   --background: var(--ink);
   --foreground: var(--paper);
   --card: var(--ink2);
   --card-foreground: var(--paper);
-  --popover: var(--ink2);
+  --popover: var(--ink3);
   --popover-foreground: var(--paper);
   --primary: var(--gold);
   --primary-foreground: var(--ink);
@@ -86,7 +90,7 @@
   --destructive: var(--brick);
   --destructive-foreground: var(--paper);
   --border: var(--line);
-  --input: var(--line2);
+  --input: var(--line);
   --ring: var(--gold);
 }
 
@@ -97,13 +101,13 @@
   --paper: #171714;
   --mute: #6e6a62;
   --mute2: #8b867d;
-  --line: rgba(23, 23, 20, 0.1);
-  --line2: rgba(23, 23, 20, 0.2);
+  --line: #dedbd3;
+  --line2: #d2cec4;
   --background: var(--ink);
   --foreground: var(--paper);
   --card: var(--ink2);
   --card-foreground: var(--paper);
-  --popover: var(--ink2);
+  --popover: var(--ink3);
   --popover-foreground: var(--paper);
   --secondary: var(--ink3);
   --secondary-foreground: var(--paper);
@@ -114,6 +118,8 @@
   --border: var(--line);
   --input: var(--line2);
   --nav-shadow: 0 -10px 30px rgba(23, 23, 20, 0.08);
+  --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
+  --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
 }
 
 @layer base {
@@ -158,6 +164,33 @@
   box-shadow: var(--nav-shadow);
 }
 
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--mute2);
+}
+
+select,
+option {
+  background-color: var(--ink2);
+  color: var(--paper);
+}
+
 .quick-action-trigger {
   box-shadow: 0 8px 24px color-mix(in oklab, var(--gold) 28%, transparent);
   transition: transform 160ms ease, box-shadow 160ms ease;
@@ -183,7 +216,9 @@
   background-color: var(--gold);
   color: var(--ink);
   font-weight: 700;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms ease, transform 120ms ease;
+  &:hover { opacity: 0.92; }
+  &:active { transform: translateY(1px); }
 }
 
 @utility btn-secondary {
@@ -196,7 +231,9 @@
   border: 1px solid var(--line2);
   color: var(--paper);
   font-weight: 500;
-  transition: background-color 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease;
+  &:hover { background-color: var(--ink3); border-color: var(--line2); }
+  &:active { background-color: var(--ink2); }
 }
 
 @utility input-premium {
@@ -204,12 +241,13 @@
   min-width: 0;
   border: 1px solid var(--line2);
   border-radius: 10px;
-  background: var(--ink);
+  background: var(--ink2);
   padding: 12px 14px;
   color: var(--paper);
   font-size: 14px;
   outline: none;
-  &:focus { border-color: var(--gold); }
+  &:hover { border-color: color-mix(in oklab, var(--line2) 70%, var(--paper)); }
+  &:focus { border-color: var(--gold); background: var(--ink3); }
 }
 
 .management-shell .screen-title::before {

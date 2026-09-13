@@ -59,7 +59,7 @@ export function AcoesRapidas() {
       </Button>
       <SheetContent
         side="bottom"
-        className="mx-auto max-h-[82vh] max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink2 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6"
+        className="mx-auto max-h-[82vh] max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink3 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6"
       >
         <SheetHeader className="pr-10 text-left">
           <SheetTitle className="text-paper">Ações rápidas</SheetTitle>
@@ -73,7 +73,7 @@ export function AcoesRapidas() {
                 key={acao.label}
                 type="button"
                 variant="ghost"
-                className="h-auto min-h-16 w-full justify-start gap-4 whitespace-normal rounded-lg border border-line bg-ink px-4 py-3 text-left hover:bg-ink3"
+                className="h-auto min-h-16 w-full justify-start gap-4 whitespace-normal rounded-lg border border-line bg-ink2 px-4 py-3 text-left hover:bg-ink active:bg-ink2"
                 onClick={async () => {
                   setAberto(false);
                   if ("search" in acao) {

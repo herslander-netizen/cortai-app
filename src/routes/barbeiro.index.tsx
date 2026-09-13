@@ -59,7 +59,7 @@ function HojePage() {
 
       {data ? (
         <>
-          <div data-guia="dash-faturamento" className="rounded-xl border border-line bg-ink2 p-5">
+          <div data-guia="dash-faturamento" className="rounded-xl bg-ink3 p-5">
             <div className="flex items-start justify-between gap-4"><div><p className="text-xs text-mute">Faturamento de hoje</p><p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(data.caixaCentavos)}</p></div><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold"><TrendingUp size={19} /></span></div>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(5, data.ocupacaoPct)}%` }} /></div>
             <p className="mt-2 text-xs text-mute2">{data.ocupacaoPct}% da agenda ocupada · {data.ocupacaoDetalhe}</p>
@@ -81,7 +81,7 @@ function HojePage() {
           </div>
 
           {data.emAndamento ? (
-            <div className="mt-6 rounded-xl border border-line bg-ink2 px-5 py-5">
+            <div className="mt-6 rounded-xl border border-line bg-ink3 px-5 py-5">
               <p className="text-xs text-gold">Em atendimento agora</p>
               <p className="mt-1 text-lg font-bold text-paper">{data.emAndamento.cliente}</p>
               <p className="mt-0.5 text-xs text-mute">
