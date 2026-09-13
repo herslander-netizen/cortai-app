@@ -4,16 +4,20 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
-import { GuiaProvider } from "@/components/guia/GuiaProvider";
-import { supabase } from "@/integrations/supabase/client";
+
+const GuiaProvider = lazy(async () => {
+  const modulo = await import("@/components/guia/GuiaProvider");
+  return { default: modulo.GuiaProvider };
+});
 
 function NotFoundComponent() {
   return (
@@ -100,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/icone-cortai-192.png" },
@@ -130,23 +134,32 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const usaGuia = pathname.startsWith("/app") || pathname.startsWith("/barbeiro") || pathname.startsWith("/admin");
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    let ativo = true;
+    let cancelar: (() => void) | undefined;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      if (!ativo) return;
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+        router.invalidate();
+        if (event !== "SIGNED_OUT") queryClient.invalidateQueries({ type: "active" });
+      });
+      cancelar = () => data.subscription.unsubscribe();
     });
-    return () => data.subscription.unsubscribe();
+    return () => {
+      ativo = false;
+      cancelar?.();
+    };
   }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <GlobalDesign>
-        <GuiaProvider>
-          <Outlet />
-        </GuiaProvider>
+        {usaGuia ? <Suspense fallback={<Outlet />}><GuiaProvider><Outlet /></GuiaProvider></Suspense> : <Outlet />}
       </GlobalDesign>
     </QueryClientProvider>
   );

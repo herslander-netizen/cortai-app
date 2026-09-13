@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarClock, Copy, QrCode, Share2, Sparkles, UserPlus } from "lucide-react";
-import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
@@ -41,9 +40,13 @@ function CrescimentoPage() {
   const link = data ? `${typeof window === "undefined" ? "" : window.location.origin}/b/${data.tenant.slug}` : "";
 
   useEffect(() => {
-    if (!link) return;
-    QRCode.toDataURL(link, { width: 320, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
-  }, [link]);
+    if (!link || !mostrarQr || qr) return;
+    let ativo = true;
+    void import("qrcode").then(({ default: QRCode }) =>
+      QRCode.toDataURL(link, { width: 320, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }),
+    ).then((url) => { if (ativo) setQr(url); });
+    return () => { ativo = false; };
+  }, [link, mostrarQr, qr]);
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz sua barbearia crescer."}>

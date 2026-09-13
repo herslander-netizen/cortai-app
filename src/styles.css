@@ -171,6 +171,33 @@
   &:disabled { opacity: 0.5; pointer-events: none; }
 }
 
+@utility cta-premium {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid color-mix(in oklab, var(--gold) 78%, var(--paper));
+  border-radius: var(--radius);
+  background-color: var(--gold);
+  padding: 9px 16px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--gold) 14%, transparent);
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  &:hover {
+    background-color: color-mix(in oklab, var(--gold) 90%, var(--paper));
+    box-shadow: 0 10px 24px color-mix(in oklab, var(--gold) 18%, transparent);
+  }
+  &:active { transform: translateY(1px); box-shadow: var(--shadow-sm); }
+}
+
+@utility render-later {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
 @utility btn-secondary {
   display: inline-flex;
   align-items: center;
