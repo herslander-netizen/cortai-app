@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { BarbershopTabBar } from "@/components/layout/BarbershopTabBar";
+import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { RecursoIndisponivel } from "@/components/barbeiro/RecursoIndisponivel";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 import type { ChaveRecursoTenant } from "@/lib/recursos";
@@ -37,6 +38,7 @@ function BarberLayout() {
         <Outlet />
       )}
       <BarbershopTabBar />
+      <ConviteDeInstalacao />
     </div>
   );
 }
