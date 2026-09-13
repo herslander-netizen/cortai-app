@@ -28,7 +28,6 @@ export const getConfigFidelidade = createServerFn({ method: "GET" })
   async ({ context }): Promise<ConfigFidelidade> => {
     const { db, tenantId } = await tenantPadrao(context);
     await exigirRecurso(db, tenantId, "fidelidade");
-  await exigirRecurso(db, tenantId, "fidelidade");
 
     const [regraRes, servicoRes, carteirasRes] = await Promise.all([
       db
@@ -68,7 +67,6 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await tenantPadrao(context);
     await exigirRecurso(db, tenantId, "fidelidade");
-  await exigirRecurso(db, tenantId, "fidelidade");
 
     const { data: existente } = await db
       .from("regras_de_plano")
