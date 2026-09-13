@@ -126,6 +126,10 @@
   --nav-shadow: 0 -10px 30px rgba(23, 23, 20, 0.08);
   --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
+  --gold: #9a6b16;
+  --gold-soft: color-mix(in oklab, var(--gold) 12%, transparent);
+  --sage: #4f7148;
+  --brick: #a34737;
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);
