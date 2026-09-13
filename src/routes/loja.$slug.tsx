@@ -74,7 +74,7 @@ function LojaPage() {
             ))}
           </ul>
         </main>
-        <Signature mostrarRedesSociais />
+        <Signature mostrarRedesSociais mostrarLegal />
       </div>
 
       {aberto ? (
