@@ -86,8 +86,6 @@ function Inicio() {
         <DescobrirBarbearias discreto />
 
         <FaixaDeParceiros />
-
-        <SolicitarProjeto />
       </main>
 
       <Signature />
