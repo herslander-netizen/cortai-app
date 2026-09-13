@@ -54,7 +54,7 @@ function HojePage() {
   const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
 
   return (
-    <Screen title="Dashboard" subtitle={data?.tenant.nome ?? "O pulso da sua operação hoje."}>
+    <Screen title="Início" subtitle={data?.tenant.nome ? `${data.tenant.nome} · Sua barbearia, no controle.` : "Sua barbearia, no controle."}>
       {isLoading ? <Carregando /> : null}
 
       {data ? (
@@ -115,8 +115,8 @@ function HojePage() {
           </div>
 
           <div data-guia="dash-oportunidades">
-          <div className="mt-8 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold text-paper">Oportunidades de hoje</h2>
+            <div className="mt-8 flex items-baseline justify-between">
+             <h2 className="text-sm font-semibold text-paper">Próximos passos</h2>
             <Link to="/barbeiro/crescimento" className="text-xs text-gold">Crescimento</Link>
           </div>
           <ul className="mb-2">
@@ -137,7 +137,7 @@ function HojePage() {
           </ul>
           </div>
 
-          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Precisa de você</h2>
+          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Alertas do dia</h2>
           <ul className="space-y-2">
             {data.alertas.map((a) => (
               <li key={a.chave}>

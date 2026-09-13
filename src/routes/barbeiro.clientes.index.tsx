@@ -42,13 +42,14 @@ function ClientesPage() {
   const lista = (data?.clientes ?? []).filter((c) => c.nome.toLowerCase().includes(busca.trim().toLowerCase()));
 
   return (
-    <Screen title="Clientes" subtitle="Quem passa pela sua cadeira, e quando volta.">
+    <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
       {isLoading ? <Carregando /> : null}
 
       {data && data.trazerDeVolta.length > 0 ? (
         <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">
-          <p className="text-xs font-semibold uppercase text-gold">Clientes para trazer de volta</p>
-          <p className="mt-1 text-xs text-mute2">Passaram do intervalo habitual entre visitas.</p>
+          <p className="text-xs font-semibold uppercase text-gold">Voltaí</p>
+          <p className="mt-1 text-sm font-semibold text-paper">Seu cliente corta. Ganha. Volta.</p>
+          <p className="mt-1 text-xs text-mute2">Quem passou do intervalo habitual e merece um chamado.</p>
           <ul className="mt-4 space-y-3">
             {data.trazerDeVolta.slice(0, 5).map((c) => (
               <li key={c.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -80,6 +81,12 @@ function ClientesPage() {
           </ul>
         </section>
       ) : null}
+
+      <div className="mt-5 grid grid-cols-3 gap-2" aria-label="Resumo dos clientes">
+        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Ativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status !== "inativo").length ?? "—"}</p></div>
+        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Inativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status === "inativo").length ?? "—"}</p></div>
+        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Voltaí</p><p className="mt-1 text-lg font-bold text-gold">{data?.trazerDeVolta.length ?? "—"}</p></div>
+      </div>
 
       <input
         value={busca}

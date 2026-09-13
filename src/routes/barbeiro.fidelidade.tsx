@@ -11,12 +11,12 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/fidelidade")({
   head: () => ({
     meta: [
-      { title: "Fidelidade — Cortaí" },
+      { title: "Voltaí — Cortaí" },
       {
         name: "description",
         content: "Defina quantos cortes valem um grátis e veja o desconto real antes de vender no prejuízo.",
       },
-      { property: "og:title", content: "Fidelidade — Cortaí" },
+      { property: "og:title", content: "Voltaí — Cortaí" },
       { property: "og:description", content: "Desconto real e ticket efetivo do seu cartão de fidelidade." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -59,12 +59,12 @@ function FidelidadePage() {
   const a = aviso(alvo);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Fidelidade" subtitle="Cortes pagos até o corte grátis.">
+    <Screen voltarPara="/barbeiro/mais" title="Voltaí" subtitle="Seu cliente corta. Ganha. Volta.">
       {isLoading ? <Carregando /> : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">
         <div className="pr-4">
-          <p className="text-sm text-paper">Programa de fidelidade</p>
+          <p className="text-sm text-paper">Voltaí do Cortaí</p>
           <p className="mt-0.5 text-xs text-mute2">
             Desligado, o cliente não vê cartão, selos nem promessa de corte grátis. Desligar não zera o
             progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.

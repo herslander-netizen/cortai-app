@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ListOrdered, LogOut, Package, Palette, Scissors, Sparkles, Star, TrendingUp, UserRound, UserSquare2 } from "lucide-react";
+import { Banknote, BarChart3, ChevronRight, ListOrdered, LogOut, Megaphone, Package, Palette, Scissors, Settings, Sparkles, Star, Store, UserRound, UserSquare2, UsersRound } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { sair } from "@/lib/guarda";
@@ -16,19 +16,26 @@ export const Route = createFileRoute("/barbeiro/mais")({
   component: MaisPage,
 });
 
-const itens = [
-  { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Seus dados, página pública e sair", icon: UserRound },
-  { to: "/barbeiro/crescimento", label: "Crescimento", detail: "Novos clientes, retorno e indicações", icon: TrendingUp },
-  { to: "/barbeiro/indicacoes", label: "Indicações", detail: "Cliente que traz cliente", icon: Sparkles },
-  { to: "/barbeiro/avaliacoes", label: "Avaliações", detail: "Notas e convite público", icon: Star },
-  { to: "/barbeiro/produtos", label: "Produtos e estoque", detail: "Catálogo, vendas e alertas", icon: Package },
-  { to: "/barbeiro/servicos", label: "Serviços", detail: "Preços e duração", icon: Scissors },
-  { to: "/barbeiro/fila", label: "Lista de espera", detail: "Ocupe horários vagos", icon: ListOrdered },
-  { to: "/barbeiro/fidelidade", label: "Fidelidade", detail: "Progresso e clientes elegíveis", icon: Star },
-  { to: "/barbeiro/profissionais", label: "Profissionais", detail: "Descrição e portfólio", icon: UserSquare2 },
-  { to: "/barbeiro/marca", label: "Página e marca", detail: "Personalize e compartilhe", icon: Palette },
+const grupos = [
+  { titulo: "Operação", itens: [
+    { to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas e valores em aberto", icon: Banknote },
+    { to: "/barbeiro/produtos", label: "Loja e estoque", detail: "Produtos, vendas e alertas", icon: Store },
+    { to: "/barbeiro/profissionais", label: "Equipe", detail: "Profissionais e portfólios", icon: UsersRound },
+    { to: "/barbeiro/servicos", label: "Serviços", detail: "Preços e duração", icon: Scissors },
+  ] },
+  { titulo: "Gestão", itens: [
+    { to: "/barbeiro/financeiro", label: "Relatórios", detail: "Faturamento e movimentações", icon: BarChart3 },
+    { to: "/barbeiro/crescimento", label: "Crescimento", detail: "Ocupação, recorrência e números", icon: Sparkles },
+    { to: "/barbeiro/indicacoes", label: "Marketing", detail: "Indicações e novos clientes", icon: Megaphone },
+    { to: "/barbeiro/avaliacoes", label: "Avaliações", detail: "Notas e convite público", icon: Star },
+    { to: "/barbeiro/fidelidade", label: "Voltaí", detail: "Seu cliente corta. Ganha. Volta.", icon: Star },
+  ] },
+  { titulo: "Configurações", itens: [
+    { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Dados e configurações", icon: Settings },
+    { to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette },
+  ] },
 ] as const;
 
 function MaisPage() {
-  return <Screen title="Cortaí Gestão" subtitle="Tudo da sua barbearia em um só lugar."><ul data-guia="mais-lista">{itens.map((item) => { const Icon = item.icon; return <li key={item.to} className="border-b border-line"><Link to={item.to} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><Icon size={18} /></span><span className="min-w-0"><span className="block text-sm font-semibold text-paper">{item.label}</span><span className="mt-1 block text-xs text-mute">{item.detail}</span></span><ChevronRight size={17} className="text-mute2" /></Link></li>; })}</ul><PreferenciasDicas /><button type="button" onClick={() => void sair()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button></Screen>;
+  return <Screen title="Mais" subtitle="Gestão completa, sem lotar sua navegação."><div data-guia="mais-lista" className="space-y-8">{grupos.map((grupo) => <section key={grupo.titulo}><h2 className="mb-2 text-xs font-semibold uppercase text-mute2">{grupo.titulo}</h2><ul>{grupo.itens.map((item) => { const Icon = item.icon; return <li key={item.to} className="border-b border-line"><Link to={item.to} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-4"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold"><Icon size={18} /></span><span className="min-w-0"><span className="block text-sm font-semibold text-paper">{item.label}</span><span className="mt-1 block text-xs text-mute">{item.detail}</span></span><ChevronRight size={17} className="text-mute2" /></Link></li>; })}</ul></section>)}</div><div className="mt-8 rounded-lg border border-line bg-ink2 p-4"><p className="text-xs font-semibold text-paper">Agenda completa</p><p className="mt-1 text-xs text-mute">Fila, profissionais e bloqueios ficam juntos na Agenda.</p><Link to="/barbeiro/fila" className="mt-3 inline-flex items-center gap-2 text-xs text-gold"><ListOrdered size={14} /> Abrir fila</Link></div><PreferenciasDicas /><button type="button" onClick={() => void sair()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button></Screen>;
 }
