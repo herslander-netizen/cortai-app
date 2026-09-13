@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as LoginRouteImport } from './routes/login'
@@ -62,6 +63,11 @@ const AdminRoute = AdminRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarbeariasRoute = BarbeariasRouteImport.update({
+  id: '/barbearias',
+  path: '/barbearias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BarbeiroRoute = BarbeiroRouteImport.update({
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
@@ -288,6 +295,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -328,6 +336,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/barbearias'
     | '/barbeiro'
     | '/comecar'
     | '/login'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/barbearias'
     | '/comecar'
     | '/login'
     | '/admin/ajustes'
@@ -449,6 +460,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/barbearias'
     | '/barbeiro'
     | '/comecar'
     | '/login'
@@ -491,6 +503,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  BarbeariasRoute: typeof BarbeariasRoute
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barbearias': {
+      id: '/barbearias'
+      path: '/barbearias'
+      fullPath: '/barbearias'
+      preLoaderRoute: typeof BarbeariasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/barbeiro': {
@@ -877,6 +897,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  BarbeariasRoute: BarbeariasRoute,
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
