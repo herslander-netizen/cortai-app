@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Banknote, BarChart3, ChevronRight, ListOrdered, LogOut, Megaphone, Package, Palette, Scissors, Settings, Sparkles, Star, Store, UserRound, UserSquare2, UsersRound } from "lucide-react";
+import { Banknote, BarChart3, Bot, ChevronRight, ListOrdered, LogOut, Megaphone, Package, Palette, Scissors, Settings, Sparkles, Star, Store, UserRound, UserSquare2, UsersRound } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { sair } from "@/lib/guarda";
@@ -34,6 +34,7 @@ const grupos = [
     { to: "/barbeiro/equipe", label: "Equipe e permissões", detail: "Quem entra e o que pode fazer", icon: UsersRound },
     { to: "/barbeiro/conta", label: "Conta e barbearia", detail: "Dados, senha e configurações", icon: Settings },
     { to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette },
+    { to: "/barbeiro/integracoes", label: "Integrações", detail: "Atendimento inteligente da ALVO", icon: Bot },
   ] },
 ] as const;
 
