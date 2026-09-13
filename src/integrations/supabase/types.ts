@@ -94,6 +94,47 @@ export type Database = {
           },
         ]
       }
+      auditoria_de_suporte: {
+        Row: {
+          acao: string
+          alteracoes: Json
+          alvo: string
+          ator_email: string | null
+          ator_user_id: string | null
+          criado_em: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          acao: string
+          alteracoes?: Json
+          alvo: string
+          ator_email?: string | null
+          ator_user_id?: string | null
+          criado_em?: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          acao?: string
+          alteracoes?: Json
+          alvo?: string
+          ator_email?: string | null
+          ator_user_id?: string | null
+          criado_em?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditoria_de_suporte_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avaliacoes: {
         Row: {
           agendamento_id: string
@@ -639,6 +680,8 @@ export type Database = {
           controla_estoque: boolean
           criado_em: string
           custo_centavos: number
+          descricao: string | null
+          destaque: boolean
           disponivel_venda: boolean
           estoque_minimo: number
           foto_url: string | null
@@ -655,6 +698,8 @@ export type Database = {
           controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
+          descricao?: string | null
+          destaque?: boolean
           disponivel_venda?: boolean
           estoque_minimo?: number
           foto_url?: string | null
@@ -671,6 +716,8 @@ export type Database = {
           controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
+          descricao?: string | null
+          destaque?: boolean
           disponivel_venda?: boolean
           estoque_minimo?: number
           foto_url?: string | null
