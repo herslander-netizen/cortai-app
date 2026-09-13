@@ -313,7 +313,6 @@ const PRIVACIDADE: DocumentoLegal = {
         "Com autoridades públicas, quando houver obrigação legal, ordem judicial ou requisição válida.",
         "Em eventual reorganização societária, mantendo-se as condições desta política.",
       ],
-      paragrafos2: undefined,
     },
     {
       titulo: "5. Armazenamento e transferência internacional",
@@ -349,7 +348,6 @@ const PRIVACIDADE: DocumentoLegal = {
         "Revogação do consentimento, quando o tratamento se basear nele.",
         "Oposição a tratamento fundado em legítimo interesse.",
       ],
-      paragrafosFinais: undefined,
     },
     {
       titulo: "9. Como exercer seus direitos",
@@ -376,7 +374,7 @@ const PRIVACIDADE: DocumentoLegal = {
         "Esta política pode ser atualizada para refletir mudanças no produto ou na legislação. A versão e a data constam no início do documento.",
       ],
     },
-  ].map((s) => ({ titulo: s.titulo, paragrafos: s.paragrafos, itens: s.itens })),
+  ],
 };
 
 const COOKIES: DocumentoLegal = {
