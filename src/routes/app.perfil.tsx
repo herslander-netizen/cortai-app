@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, LogOut, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
-import { LinhaLegal } from "@/components/legal/LinksLegais";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { getSessao } from "@/lib/sessao.functions";
@@ -62,7 +61,6 @@ function PerfilPage() {
         </li>
       </ul>
       <PreferenciasDicas />
-      <LinhaLegal className="mt-8 text-center" />
     </Screen>
   );
 }

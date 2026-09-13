@@ -53,9 +53,9 @@
 - [x] Reduzir a poluição do painel inicial (blocos vazios escondidos).
 
 ## Identidade visual oficial Cortaí
-- [x] Centralizar tokens e componentes oficiais de marca.
-- [x] Aplicar a identidade em navegação, áreas públicas, autenticação e módulos internos.
-- [x] Atualizar favicon, PWA, compartilhamento e carregamento com o símbolo oficial.
+- [ ] Centralizar tokens e componentes oficiais de marca.
+- [ ] Aplicar a identidade em navegação, áreas públicas, autenticação e módulos internos.
+- [ ] Atualizar favicon, PWA, compartilhamento e carregamento com o símbolo oficial.
 - [ ] Validar todas as famílias de telas em 390 px e desktop, sem overflow.
 - [ ] Executar verificações de tipos, lint disponível e build.
 
@@ -72,12 +72,3 @@
 - [x] Otimizar imagens e fontes públicas sem perda de conteúdo.
 - [x] Validar landing, busca e login em mobile e desktop.
 - [x] Executar verificação de tipos e build.
-
-## Pacote jurídico
-- [x] 8 documentos (termos, barbearias, privacidade LGPD, cookies, agendamento/no-show, conduta, pagamentos, alterações)
-- [x] Páginas /legal e /legal/$documento com versão e data
-- [x] Rodapé legal discreto nas áreas públicas e linha compacta em Perfil/Mais
-- [x] Aceite versionado no cadastro, separado do consentimento de marketing
-- [x] Aviso não bloqueante de nova versão dos termos
-- [ ] Preencher razão social, CNPJ, endereço, e-mails jurídico/privacidade e encarregado
-- [ ] Revisão por advogado antes do lançamento comercial

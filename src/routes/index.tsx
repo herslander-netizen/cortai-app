@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://cortai.dev/og-cortai.jpg" },
       { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
+      { property: "og:image:height", content: "640" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://cortai.dev/og-cortai.jpg" },
     ],
@@ -126,16 +126,16 @@ function Secao({
 function Inicio() {
   return (
     <div className="min-h-screen">
-      <header className="mx-auto grid w-full max-w-[900px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] sm:pt-6">
-        <div className="min-w-0"><MarcaCortai tamanho="sm" /></div>
-        <Link to="/login" className="shrink-0 text-sm font-semibold text-paper/90 transition-colors hover:text-paper">
+      <header className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-5 pt-6">
+        <MarcaCortai tamanho="md" />
+        <Link to="/login" className="text-sm font-semibold text-paper">
           Entrar
         </Link>
       </header>
 
       <main className="mx-auto w-full max-w-[900px] px-5 pb-10">
         {/* HERO */}
-        <section className="relative mt-7 min-h-[460px] overflow-hidden rounded-2xl border border-line md:mt-8 md:min-h-[520px]">
+        <section className="relative mt-8 overflow-hidden rounded-2xl border border-line">
           <img
             src={heroDesktop.url}
             srcSet={`${heroMobile.url} 720w, ${heroDesktop.url} 1400w`}
@@ -144,17 +144,18 @@ function Inicio() {
             width={1400}
             height={966}
             fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-[58%_center] md:object-center"
+            className="h-[420px] w-full object-cover md:h-[520px]"
           />
-          <div className="home-hero-shade absolute inset-0" />
-          <div className="absolute inset-x-0 bottom-0 p-6 pb-7 md:max-w-[620px] md:p-10 md:pb-11">
-            <h1 className="max-w-[12ch] text-[34px] font-bold leading-[1.08] text-paper md:text-[48px] md:leading-[1.06]">
+          <div className="absolute inset-0 bg-ink/55" />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-ink/75" />
+          <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
+            <h1 className="max-w-[12ch] text-[34px] font-bold leading-[1.05] text-paper md:text-[48px]">
               Sua barbearia, no controle.
             </h1>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/75 md:text-base">
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-mute md:text-base">
               Agenda, clientes, loja e fidelidade em um só lugar — com a sua marca na frente.
             </p>
-            <div className="mt-7 flex max-w-md flex-col items-start gap-2.5 sm:flex-row sm:items-center sm:gap-4">
+            <div className="mt-6 flex max-w-md flex-col items-start gap-3 sm:flex-row sm:items-center">
               <a
                 href="#conhecer"
                 className="cta-premium"
@@ -296,7 +297,7 @@ function Inicio() {
       </main>
 
       <div className="mx-auto w-full max-w-[900px]">
-        <Signature mostrarRedesSociais mostrarLegal />
+        <Signature mostrarRedesSociais />
       </div>
     </div>
   );

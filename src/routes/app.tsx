@@ -4,7 +4,6 @@ import { CalendarDays, Clock, Scissors, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { ClientBrand } from "@/components/layout/ClientBrand";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
-import { AvisoDeAtualizacao } from "@/components/legal/AvisoDeAtualizacao";
 
 const tabs: TabItem[] = [
   { to: "/app", label: "Início", icon: Scissors },
@@ -33,7 +32,6 @@ function ClientLayout() {
       <Outlet />
       <TabBar items={tabs} />
       <ConviteDeInstalacao />
-      <AvisoDeAtualizacao />
     </ClientBrand>
   );
 }

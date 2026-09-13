@@ -193,6 +193,6 @@ function PaginaBarbearia() {
         ) : null}
       </section>
     </main>
-    <Signature mostrarRedesSociais mostrarLegal />
+    <Signature mostrarRedesSociais />
   </div>;
 }

@@ -51,8 +51,6 @@ import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroRecursosRouteImport } from './routes/barbeiro.recursos'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
-import { Route as LegalIndexRouteImport } from './routes/legal.index'
-import { Route as LegalDocumentoRouteImport } from './routes/legal.$documento'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
@@ -267,16 +265,6 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
-const LegalIndexRoute = LegalIndexRouteImport.update({
-  id: '/legal/',
-  path: '/legal/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegalDocumentoRoute = LegalDocumentoRouteImport.update({
-  id: '/legal/$documento',
-  path: '/legal/$documento',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -333,12 +321,10 @@ export interface FileRoutesByFullPath {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/legal/$documento': typeof LegalDocumentoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
-  '/legal/': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -378,12 +364,10 @@ export interface FileRoutesByTo {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/legal/$documento': typeof LegalDocumentoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
-  '/legal': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
 }
@@ -428,12 +412,10 @@ export interface FileRoutesById {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/legal/$documento': typeof LegalDocumentoRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
-  '/legal/': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -479,12 +461,10 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/recursos'
     | '/barbeiro/servicos'
-    | '/legal/$documento'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
-    | '/legal/'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesByTo: FileRoutesByTo
@@ -524,12 +504,10 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/recursos'
     | '/barbeiro/servicos'
-    | '/legal/$documento'
     | '/loja/$slug'
     | '/admin'
     | '/app'
     | '/barbeiro'
-    | '/legal'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
   id:
@@ -573,12 +551,10 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/recursos'
     | '/barbeiro/servicos'
-    | '/legal/$documento'
     | '/loja/$slug'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
-    | '/legal/'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesById: FileRoutesById
@@ -592,9 +568,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
   BSlugRoute: typeof BSlugRoute
-  LegalDocumentoRoute: typeof LegalDocumentoRoute
   LojaSlugRoute: typeof LojaSlugRoute
-  LegalIndexRoute: typeof LegalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -893,20 +867,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
-    '/legal/': {
-      id: '/legal/'
-      path: '/legal'
-      fullPath: '/legal/'
-      preLoaderRoute: typeof LegalIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legal/$documento': {
-      id: '/legal/$documento'
-      path: '/legal/$documento'
-      fullPath: '/legal/$documento'
-      preLoaderRoute: typeof LegalDocumentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -1047,9 +1007,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
   BSlugRoute: BSlugRoute,
-  LegalDocumentoRoute: LegalDocumentoRoute,
   LojaSlugRoute: LojaSlugRoute,
-  LegalIndexRoute: LegalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

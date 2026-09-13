@@ -14,36 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      aceites_legais: {
-        Row: {
-          aceito: boolean
-          criado_em: string
-          documento: string
-          id: string
-          origem: string
-          user_id: string
-          versao: string
-        }
-        Insert: {
-          aceito?: boolean
-          criado_em?: string
-          documento: string
-          id?: string
-          origem?: string
-          user_id: string
-          versao: string
-        }
-        Update: {
-          aceito?: boolean
-          criado_em?: string
-          documento?: string
-          id?: string
-          origem?: string
-          user_id?: string
-          versao?: string
-        }
-        Relationships: []
-      }
       agendamentos: {
         Row: {
           cancelado_em: string | null
