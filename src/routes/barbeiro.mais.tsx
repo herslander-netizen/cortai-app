@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Banknote, BarChart3, ChevronRight, ListOrdered, LogOut, Megaphone, Package, Palette, Scissors, Settings, Sparkles, Star, Store, UserRound, UserSquare2, UsersRound } from "lucide-react";
+import { Banknote, BarChart3, Bot, ChevronRight, ListOrdered, LogOut, Megaphone, Package, Palette, Scissors, Settings, Sparkles, Star, Store, UserRound, UserSquare2, UsersRound } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { sair } from "@/lib/guarda";
