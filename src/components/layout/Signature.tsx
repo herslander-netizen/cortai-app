@@ -23,7 +23,7 @@ export function Signature() {
   const link = useWhatsappAlvo();
 
   return (
-    <footer className="mt-10 px-5 pb-6 pt-8 text-center">
+    <footer className="mt-10 border-t border-line px-5 pb-6 pt-8 text-center">
       {link ? (
         <a
           href={link}
@@ -37,7 +37,7 @@ export function Signature() {
       ) : null}
 
       <p
-        className="text-mute"
+        className="text-mute2"
         style={{
           fontVariant: "small-caps",
           fontSize: "12px",

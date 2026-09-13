@@ -7,7 +7,6 @@ import {
   Link2,
   Package,
   Palette,
-  Scissors,
   Search,
   Store,
   UserRound,
@@ -16,6 +15,7 @@ import {
 
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import heroImg from "@/assets/landing-hero.jpg";
 import agendaImg from "@/assets/landing-agenda.jpg";
 import lojaImg from "@/assets/landing-loja.jpg";
@@ -114,12 +114,7 @@ function Inicio() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-5 pt-6">
-        <span className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-ink2 text-gold">
-            <Scissors size={20} aria-hidden />
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-gold">Cortaí</span>
-        </span>
+        <MarcaCortai tamanho="md" />
         <Link to="/login" className="text-sm font-semibold text-paper">
           Entrar
         </Link>
@@ -127,7 +122,7 @@ function Inicio() {
 
       <main className="mx-auto w-full max-w-[900px] px-5 pb-10">
         {/* HERO */}
-        <section className="relative mt-8 overflow-hidden rounded-3xl border border-line">
+        <section className="relative mt-8 overflow-hidden rounded-2xl border border-line">
           <img
             src={heroImg}
             alt="Barbeiro atendendo um cliente em uma barbearia moderna de estética preta e dourada"
@@ -135,7 +130,8 @@ function Inicio() {
             height={1104}
             className="h-[420px] w-full object-cover md:h-[520px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/10" />
+          <div className="absolute inset-0 bg-ink/55" />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-ink/75" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
             <h1 className="max-w-[12ch] text-[34px] font-bold leading-[1.05] text-paper md:text-[48px]">
               Sua barbearia, no controle.
@@ -173,7 +169,7 @@ function Inicio() {
               return (
                 <li
                   key={item.titulo}
-                  className="rounded-xl border border-line bg-ink2 px-4 py-4 transition-colors hover:border-gold/40"
+                  className="rounded-lg border border-line bg-ink2 px-4 py-4 transition-colors hover:border-line2"
                 >
                   <Icone size={18} className="text-gold" aria-hidden />
                   <span className="mt-3 block text-sm font-semibold text-paper">{item.titulo}</span>
@@ -255,7 +251,7 @@ function Inicio() {
         </section>
 
         {/* CTA FINAL */}
-        <section className="mt-16 rounded-2xl border border-gold/30 bg-ink2 px-6 py-10 text-center">
+        <section className="mt-16 rounded-xl border border-line bg-ink2 px-6 py-10 text-center">
           <h2 className="text-[24px] font-bold leading-tight text-paper">
             Pronto para colocar sua barbearia no Cortaí?
           </h2>

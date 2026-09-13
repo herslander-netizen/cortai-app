@@ -5,6 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil, getSessao } from "@/lib/sessao.functions";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/comecar")({
   ssr: false,
@@ -42,8 +43,8 @@ function ComecarPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
-      <p className="text-xs font-semibold uppercase text-gold">Cortaí</p>
-      <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
+      <MarcaCortai tamanho="md" />
+      <h1 className="mt-8 text-[30px] font-bold leading-tight text-paper">
         {modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
       </h1>
 
