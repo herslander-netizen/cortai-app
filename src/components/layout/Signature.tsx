@@ -3,6 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getPlatformContact } from "@/lib/plataforma-publica.functions";
 import { LinksSociais } from "@/components/marca/LinksSociais";
+import { LinksLegais } from "@/components/legal/LinksLegais";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
 export function useContatoDaPlataforma() {
@@ -24,7 +25,13 @@ export function useContatoDaPlataforma() {
   return data ?? null;
 }
 
-export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais?: boolean }) {
+export function Signature({
+  mostrarRedesSociais = false,
+  mostrarLegal = false,
+}: {
+  mostrarRedesSociais?: boolean;
+  mostrarLegal?: boolean;
+}) {
   const contato = useContatoDaPlataforma();
   const digitos = String(contato?.whatsapp_alvo ?? "").replace(/\D/g, "");
   const link = digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
@@ -43,7 +50,17 @@ export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais
         </a>
       ) : null}
 
-      {mostrarRedesSociais ? <LinksSociais instagram={contato?.instagram_cortai} facebook={contato?.facebook_cortai} tiktok={contato?.tiktok_cortai} youtube={contato?.youtube_cortai} className="mb-4 justify-center" /> : null}
+      {mostrarRedesSociais ? (
+        <LinksSociais
+          instagram={contato?.instagram_cortai}
+          facebook={contato?.facebook_cortai}
+          tiktok={contato?.tiktok_cortai}
+          youtube={contato?.youtube_cortai}
+          className="mb-4 justify-center"
+        />
+      ) : null}
+
+      {mostrarLegal ? <LinksLegais className="mb-6 text-center" /> : null}
 
       <p
         className="text-mute2"
@@ -55,7 +72,12 @@ export function Signature({ mostrarRedesSociais = false }: { mostrarRedesSociais
         }}
       >
         {link ? (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gold">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-gold"
+          >
             by ALVO DIGITAL
           </a>
         ) : (
