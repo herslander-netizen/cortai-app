@@ -43,8 +43,10 @@ import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financ
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
 import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
+import { Route as BarbeiroPedidosRouteImport } from './routes/barbeiro.pedidos'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
+import { Route as BarbeiroRecursosRouteImport } from './routes/barbeiro.recursos'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
@@ -220,6 +222,11 @@ const BarbeiroMarcaRoute = BarbeiroMarcaRouteImport.update({
   path: '/marca',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroPedidosRoute = BarbeiroPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroProdutosRoute = BarbeiroProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
@@ -228,6 +235,11 @@ const BarbeiroProdutosRoute = BarbeiroProdutosRouteImport.update({
 const BarbeiroProfissionaisRoute = BarbeiroProfissionaisRouteImport.update({
   id: '/profissionais',
   path: '/profissionais',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroRecursosRoute = BarbeiroRecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
@@ -283,8 +295,10 @@ export interface FileRoutesByFullPath {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/pedidos': typeof BarbeiroPedidosRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -321,8 +335,10 @@ export interface FileRoutesByTo {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/pedidos': typeof BarbeiroPedidosRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -364,8 +380,10 @@ export interface FileRoutesById {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/pedidos': typeof BarbeiroPedidosRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/recursos': typeof BarbeiroRecursosRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/loja/$slug': typeof LojaSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -408,8 +426,10 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/pedidos'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/recursos'
     | '/barbeiro/servicos'
     | '/loja/$slug'
     | '/admin/'
@@ -446,8 +466,10 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/pedidos'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/recursos'
     | '/barbeiro/servicos'
     | '/loja/$slug'
     | '/admin'
@@ -488,8 +510,10 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/pedidos'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/recursos'
     | '/barbeiro/servicos'
     | '/loja/$slug'
     | '/admin/'
@@ -751,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroMarcaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/pedidos': {
+      id: '/barbeiro/pedidos'
+      path: '/pedidos'
+      fullPath: '/barbeiro/pedidos'
+      preLoaderRoute: typeof BarbeiroPedidosRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/produtos': {
       id: '/barbeiro/produtos'
       path: '/produtos'
@@ -763,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/profissionais'
       fullPath: '/barbeiro/profissionais'
       preLoaderRoute: typeof BarbeiroProfissionaisRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/recursos': {
+      id: '/barbeiro/recursos'
+      path: '/recursos'
+      fullPath: '/barbeiro/recursos'
+      preLoaderRoute: typeof BarbeiroRecursosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/servicos': {
@@ -864,8 +902,10 @@ interface BarbeiroRouteChildren {
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
   BarbeiroMarcaRoute: typeof BarbeiroMarcaRoute
+  BarbeiroPedidosRoute: typeof BarbeiroPedidosRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
+  BarbeiroRecursosRoute: typeof BarbeiroRecursosRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
 }
@@ -883,8 +923,10 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
   BarbeiroMaisRoute: BarbeiroMaisRoute,
   BarbeiroMarcaRoute: BarbeiroMarcaRoute,
+  BarbeiroPedidosRoute: BarbeiroPedidosRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
+  BarbeiroRecursosRoute: BarbeiroRecursosRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
 }
