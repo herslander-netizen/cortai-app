@@ -35,3 +35,13 @@
 - [x] Entrar, criar conta e continuar com Google
 - [x] Dados do cliente e da barbearia isolados por conta no servidor
 - [x] Sair da conta no Perfil e em Mais
+
+## Navegação e permissões da barbearia
+- [ ] Substituir a navegação mobile da barbearia por cinco posições sem overflow.
+- [ ] Criar Ações rápidas com visibilidade e execução por permissão.
+- [ ] Criar Pedidos com confirmação segura de pagamento.
+- [ ] Criar permissões individuais por funcionário e perfis padrão por barbearia.
+- [ ] Criar gerenciador de equipe, histórico de auditoria e proteção de ações críticas.
+- [ ] Reorganizar Mais sem remover nenhuma ferramenta existente.
+- [ ] Corrigir a navegação mobile do admin global sem imitar a barbearia.
+- [ ] Validar isolamento entre barbearias, mobile, tipos e build.
