@@ -27,7 +27,7 @@ import lojaDesktop from "@/assets/landing-loja-1200.webp.asset.json";
 import ctaMobile from "@/assets/landing-cta-640.webp.asset.json";
 import ctaDesktop from "@/assets/landing-cta-1400.webp.asset.json";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/apresentacao")({
   head: () => ({
     meta: [
       { title: "Cortaí — sua barbearia, no controle" },
