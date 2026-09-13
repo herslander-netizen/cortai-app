@@ -99,6 +99,12 @@
     color-scheme: dark;
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -202,6 +208,20 @@
   display: none;
   width: 0;
   height: 0;
+}
+
+/* A navegação inferior nunca mostra barra de rolagem nem se estica. */
+nav[aria-label$="barbearia"],
+nav[aria-label="Navegação principal"],
+nav[aria-label="Painel da plataforma"] {
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+nav[aria-label$="barbearia"]::-webkit-scrollbar,
+nav[aria-label="Navegação principal"]::-webkit-scrollbar,
+nav[aria-label="Painel da plataforma"]::-webkit-scrollbar {
+  display: none;
 }
 
 

@@ -3,6 +3,7 @@ import { ChevronRight, ClipboardList, ListOrdered, LogOut, Package, Palette, Sci
 import type { LucideIcon } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { Carregando } from "@/components/layout/Carregando";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
@@ -87,6 +88,10 @@ function MaisPage() {
               </section>
             );
           })}
+          <section>
+            <h2 className="text-[11px] font-semibold uppercase tracking-wide text-mute2">Aplicativo</h2>
+            <ul className="mt-1"><AtalhoInstalar /></ul>
+          </section>
         </div>
       )}
       <PreferenciasDicas />
