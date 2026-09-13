@@ -7,6 +7,7 @@ import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
+import { SuporteBarbearia } from "@/components/admin/SuporteBarbearia";
 import {
   addRetentionContact,
   definirStatusDaBarbearia,
@@ -53,6 +54,11 @@ function TenantDialog({ tenant, onClose, onChanged }: { tenant: AdminTenant | nu
     {(tenant.whatsapp || tenant.telefone) ? <section className="mt-3"><div className="flex gap-2">{tenant.whatsapp ? <Button asChild onClick={() => setChannel("whatsapp")}><a href={`https://wa.me/${number}?text=${message}`} target="_blank" rel="noreferrer"><MessageCircle/>WhatsApp</a></Button> : null}{tenant.telefone ? <Button asChild variant="outline" onClick={() => setChannel("telefone")}><a href={`tel:${tenant.telefone}`}><Phone/>Ligar</a></Button> : null}</div>
       <div className="mt-5 border-t border-line pt-5"><p className="text-sm font-semibold text-paper">Registrar resultado</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><select aria-label="Canal" value={channel} onChange={(e) => setChannel(e.target.value as typeof channel)} className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">{tenant.whatsapp ? <option value="whatsapp">WhatsApp</option> : null}{tenant.telefone ? <option value="telefone">Telefone</option> : null}</select><select aria-label="Resultado" value={result} onChange={(e) => setResult(e.target.value)} className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">{Object.entries(statusLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div><textarea aria-label="Observação" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Observação do contato" className="mt-3 min-h-20 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"/><Button className="mt-3" onClick={async () => { await add({ data: { tenantId: tenant.id, canal: channel, resultado: result as "sem_resposta" | "conversou" | "recuperou" | "cancelou", observacao: note || null } }); setNote(""); contacts.refetch(); }}>Salvar resultado</Button></div>
     </section> : null}
+    <section className="mt-6 border-t border-line pt-5">
+      <h3 className="text-sm font-semibold text-paper">Editar como suporte</h3>
+      <p className="mt-1 text-xs text-mute">Você edita os dados da barbearia sem entrar na conta dela.</p>
+      <div className="mt-4"><SuporteBarbearia tenantId={tenant.id} /></div>
+    </section>
     <section className="mt-6 border-t border-line pt-5">
       <p className="text-sm font-semibold text-paper">Situação da barbearia</p>
       <p className="mt-1 text-xs text-mute">{tenant.ativo ? "Ativa: a equipe consegue usar o Cortaí normalmente." : "Desativada: a equipe não consegue operar, mas nenhum dado foi apagado."}</p>
