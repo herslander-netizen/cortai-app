@@ -72,6 +72,11 @@
   --line: #292929;
   --line2: #292929;
   --nav-shadow: 0 -10px 30px rgba(0, 0, 0, 0.24);
+  --surface-raised: var(--ink2);
+  --surface-emphasis: var(--ink3);
+  --surface-overlay: color-mix(in oklab, var(--ink) 82%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--ink) 65%, transparent);
+  --shadow-md: 0 12px 28px color-mix(in oklab, var(--ink) 48%, transparent);
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -120,6 +125,12 @@
   --nav-shadow: 0 -10px 30px rgba(23, 23, 20, 0.08);
   --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
+  --surface-raised: var(--ink2);
+  --surface-emphasis: var(--ink3);
+  --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--paper) 8%, transparent);
+  --shadow-md: 0 12px 28px color-mix(in oklab, var(--paper) 12%, transparent);
+  color-scheme: light;
 }
 
 @layer base {
@@ -138,6 +149,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    min-width: 320px;
   }
 
   :focus-visible {
@@ -160,6 +172,20 @@
   overflow-x: clip;
 }
 
+.screen-shell {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .management-shell .screen-shell {
+    max-width: 1180px;
+  }
+
+  .management-shell .screen-content {
+    display: block;
+  }
+}
+
 .management-shell > nav[aria-label="Navegação principal"] {
   box-shadow: var(--nav-shadow);
 }
@@ -170,6 +196,11 @@ input,
 select,
 textarea {
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 button:disabled,
@@ -201,7 +232,7 @@ option {
 }
 
 @utility screen-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--paper);
@@ -211,8 +242,9 @@ option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  border-radius: 12px;
+  min-height: 44px;
+  padding: 11px 16px;
+  border-radius: var(--radius);
   background-color: var(--gold);
   color: var(--ink);
   font-weight: 700;
@@ -225,7 +257,8 @@ option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 13px;
+  min-height: 44px;
+  padding: 10px 14px;
   border-radius: var(--radius);
   background-color: transparent;
   border: 1px solid var(--line2);
@@ -242,12 +275,90 @@ option {
   border: 1px solid var(--line2);
   border-radius: 10px;
   background: var(--ink2);
-  padding: 12px 14px;
+  min-height: 44px;
+  padding: 10px 12px;
   color: var(--paper);
   font-size: 14px;
   outline: none;
   &:hover { border-color: color-mix(in oklab, var(--line2) 70%, var(--paper)); }
   &:focus { border-color: var(--gold); background: var(--ink3); }
+}
+
+@utility field-control {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-md);
+  background-color: var(--ink2);
+  padding: 10px 12px;
+  color: var(--paper);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+  &:hover { border-color: color-mix(in oklab, var(--line2) 65%, var(--paper)); }
+  &:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+}
+
+@utility field-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@utility field-hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--mute2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@utility field-error {
+  display: block;
+  margin-top: 6px;
+  color: var(--brick);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@utility surface-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-raised);
+  box-shadow: var(--shadow-sm);
+}
+
+@utility empty-state {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 4px;
+  text-align: center;
+}
+
+@utility nav-list-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 12px 2px;
+  transition: background-color 140ms ease;
+  &:hover { background-color: color-mix(in oklab, var(--ink3) 70%, transparent); }
+}
+
+@utility nav-list-icon {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: var(--ink3);
+  color: var(--gold);
 }
 
 .management-shell .screen-title::before {
