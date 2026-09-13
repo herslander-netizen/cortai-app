@@ -20,3 +20,14 @@
 - [ ] Validar celular, tablet e desktop nos principais perfis
 - [ ] Validar tipagem, testes relevantes e build
 - [ ] Validar explicitamente dark/light e mobile/desktop antes da entrega
+
+## Assistente Cortaí e configuração inicial (aprovado)
+
+- [ ] Banco: horários, onboarding, conversas de IA e fila pública
+- [ ] Camada de IA server-side com fallback sem chave
+- [ ] Configuração inicial em 4 passos
+- [ ] Serviços e horários com interpretação por IA
+- [ ] Assistente no painel e na ajuda
+- [ ] Tour curto e cartão Primeiros passos
+- [ ] Fila pública sem login com acompanhamento
+- [ ] Typecheck, build e teste dos dois fluxos
