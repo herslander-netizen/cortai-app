@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Clock3, Copy, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
-import QRCode from "qrcode";
 import { type CSSProperties, useEffect, useState } from "react";
 
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
@@ -48,7 +47,11 @@ function PaginaBarbearia() {
 
   useEffect(() => {
     if (!mostrarQr || qr) return;
-    QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
+    let ativo = true;
+    void import("qrcode").then(({ default: QRCode }) =>
+      QRCode.toDataURL(window.location.href, { width: 220, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }),
+    ).then((url) => { if (ativo) setQr(url); });
+    return () => { ativo = false; };
   }, [mostrarQr, qr]);
 
   if (isLoading) return <TelaDeCarregamento texto="Abrindo a barbearia…" />;

@@ -1,15 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { getPlatformContact } from "@/lib/plataforma-publica.functions";
 import { LinksSociais } from "@/components/marca/LinksSociais";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
 export function useContatoDaPlataforma() {
+  const [podeCarregar, setPodeCarregar] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setPodeCarregar(true), 800);
+    return () => window.clearTimeout(id);
+  }, []);
   const { data } = useQuery({
     queryKey: ["contato-da-plataforma"],
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: podeCarregar,
     queryFn: async () => {
       return getPlatformContact();
     },

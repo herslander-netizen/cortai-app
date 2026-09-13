@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { listarParceiros } from "@/lib/parceiros.functions";
 
@@ -8,6 +8,7 @@ import { listarParceiros } from "@/lib/parceiros.functions";
  * para a esquerda, lento, pausável ao toque e escondido quando não há parceiros.
  */
 export function FaixaDeParceiros() {
+  const [podeCarregar, setPodeCarregar] = useState(false);
   const consulta = useQuery({
     queryKey: ["parceiros"],
     queryFn: () => listarParceiros(),
@@ -15,11 +16,22 @@ export function FaixaDeParceiros() {
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: podeCarregar,
   });
   const trilho = useRef<HTMLDivElement>(null);
   const pausado = useRef(false);
 
   const parceiros = consulta.data ?? [];
+
+  useEffect(() => {
+    const janela = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (janela.requestIdleCallback) {
+      const id = janela.requestIdleCallback(() => setPodeCarregar(true), { timeout: 1400 });
+      return () => janela.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(() => setPodeCarregar(true), 600);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     const elemento = trilho.current;
