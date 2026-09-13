@@ -25,12 +25,12 @@ function FinanceiroPage() {
     {isLoading ? <Carregando /> : null}
     {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-brick">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
     {data ? <>
-      <section data-guia="financeiro-total" className="rounded-xl border border-line bg-ink3 p-5">
+       <section data-guia="financeiro-total" className="surface-card bg-ink3 p-5 md:max-w-xl">
         <p className="text-xs text-mute">Faturamento no mês</p>
         <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
         <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${data.total ? Math.max(8, data.servicos / data.total * 100) : 0}%` }} /></div>
       </section>
-      <div data-guia="financeiro-categorias" className="mt-6 grid grid-cols-3 gap-2">
+       <div data-guia="financeiro-categorias" className="mt-6 grid grid-cols-3 gap-2 md:max-w-3xl md:gap-4">
         {[
           { label: "Serviços", value: data.servicos, icon: Scissors },
           { label: "Produtos", value: data.produtos, icon: PackageCheck },
