@@ -21,18 +21,95 @@ export const PERMISSOES = {
   alterar_dados_barbearia: "Alterar dados e marca da barbearia",
   gerenciar_permissoes: "Gerenciar equipe e permissões",
   acoes_destrutivas: "Ações críticas e exclusões",
+  gerenciar_voltai: "Configurar o Voltaí (fidelidade)",
 } as const;
 
 export type ChaveDePermissao = keyof typeof PERMISSOES;
 
-/** Agrupamento por módulo, na linguagem do dono da barbearia. */
-export const GRUPOS_DE_PERMISSAO: { titulo: string; chaves: ChaveDePermissao[] }[] = [
-  { titulo: "Agenda e fila", chaves: ["criar_agendamento", "agendamento_manual", "cancelar_agendamento"] },
-  { titulo: "Clientes e Voltaí", chaves: ["visualizar_clientes", "editar_clientes"] },
-  { titulo: "Caixa e loja", chaves: ["confirmar_pagamento", "registrar_venda", "visualizar_estoque", "alterar_estoque"] },
-  { titulo: "Gestão", chaves: ["visualizar_financeiro", "relatorios", "alterar_preco", "gerenciar_profissionais"] },
-  { titulo: "Administração", chaves: ["alterar_dados_barbearia", "gerenciar_permissoes", "acoes_destrutivas"] },
+/** Ações da matriz, sempre nesta ordem e sempre em português. */
+export const ACOES = {
+  visualizar: "Visualizar",
+  criar: "Criar",
+  editar: "Editar",
+  excluir: "Excluir",
+  administrar: "Administrar",
+} as const;
+
+export type AcaoDePermissao = keyof typeof ACOES;
+
+export type ItemDeModulo = { acao: AcaoDePermissao; chave: ChaveDePermissao; rotulo: string };
+
+/** Matriz por módulo, na linguagem do dono da barbearia. */
+export const MODULOS: { id: string; titulo: string; descricao: string; itens: ItemDeModulo[] }[] = [
+  {
+    id: "agenda",
+    titulo: "Agenda",
+    descricao: "Horários, encaixes e faltas do dia a dia.",
+    itens: [
+      { acao: "criar", chave: "criar_agendamento", rotulo: "Agendar horário" },
+      { acao: "editar", chave: "agendamento_manual", rotulo: "Encaixar atendimento manual" },
+      { acao: "excluir", chave: "cancelar_agendamento", rotulo: "Cancelar horário e marcar falta" },
+    ],
+  },
+  {
+    id: "clientes",
+    titulo: "Clientes",
+    descricao: "Cadastro, histórico e ficha de cada cliente.",
+    itens: [
+      { acao: "visualizar", chave: "visualizar_clientes", rotulo: "Ver a lista de clientes" },
+      { acao: "editar", chave: "editar_clientes", rotulo: "Cadastrar e editar clientes" },
+    ],
+  },
+  {
+    id: "caixa",
+    titulo: "Caixa",
+    descricao: "Dinheiro que entra e sai da barbearia.",
+    itens: [
+      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro" },
+      { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
+      { acao: "administrar", chave: "alterar_preco", rotulo: "Alterar preços e serviços" },
+    ],
+  },
+  {
+    id: "voltai",
+    titulo: "Voltaí",
+    descricao: "Programa de fidelidade que traz o cliente de volta.",
+    itens: [{ acao: "administrar", chave: "gerenciar_voltai", rotulo: "Configurar as regras do Voltaí" }],
+  },
+  {
+    id: "loja",
+    titulo: "Loja",
+    descricao: "Produtos, estoque e vendas no balcão.",
+    itens: [
+      { acao: "visualizar", chave: "visualizar_estoque", rotulo: "Ver produtos e estoque" },
+      { acao: "criar", chave: "registrar_venda", rotulo: "Registrar venda" },
+      { acao: "editar", chave: "alterar_estoque", rotulo: "Alterar produtos e estoque" },
+    ],
+  },
+  {
+    id: "equipe",
+    titulo: "Equipe",
+    descricao: "Quem trabalha na barbearia e o que cada um pode fazer.",
+    itens: [
+      { acao: "editar", chave: "gerenciar_profissionais", rotulo: "Gerenciar profissionais" },
+      { acao: "excluir", chave: "acoes_destrutivas", rotulo: "Excluir dados e acessos" },
+      { acao: "administrar", chave: "gerenciar_permissoes", rotulo: "Convidar pessoas e definir permissões" },
+      { acao: "administrar", chave: "alterar_dados_barbearia", rotulo: "Alterar dados e marca da barbearia" },
+    ],
+  },
+  {
+    id: "relatorios",
+    titulo: "Relatórios",
+    descricao: "Resultados e números do negócio.",
+    itens: [{ acao: "visualizar", chave: "relatorios", rotulo: "Ver relatórios" }],
+  },
 ];
+
+/** Agrupamento antigo, mantido para telas que ainda usam a lista simples. */
+export const GRUPOS_DE_PERMISSAO: { titulo: string; chaves: ChaveDePermissao[] }[] = MODULOS.map(
+  (modulo) => ({ titulo: modulo.titulo, chaves: modulo.itens.map((item) => item.chave) }),
+);
+
 
 export const PAPEIS = {
   dono: "Proprietário",
@@ -68,6 +145,7 @@ export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
     "relatorios",
     "gerenciar_profissionais",
     "alterar_dados_barbearia",
+    "gerenciar_voltai",
   ],
   barbeiro: [
     "criar_agendamento",

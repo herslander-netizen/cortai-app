@@ -66,7 +66,7 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await tenantPadrao(context);
-    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    await exigirPermissao(context, tenantId, "gerenciar_voltai");
     await exigirRecurso(db, tenantId, "fidelidade");
 
     const { data: existente } = await db

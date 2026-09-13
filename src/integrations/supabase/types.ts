@@ -1428,6 +1428,7 @@ export type Database = {
       }
       tenant_usuarios: {
         Row: {
+          aceito_em: string | null
           ativo: boolean
           atualizado_em: string
           criado_em: string
@@ -1438,6 +1439,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          aceito_em?: string | null
           ativo?: boolean
           atualizado_em?: string
           criado_em?: string
@@ -1448,6 +1450,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          aceito_em?: string | null
           ativo?: boolean
           atualizado_em?: string
           criado_em?: string
@@ -1755,6 +1758,7 @@ export type Database = {
           tipografia: string
         }[]
       }
+      confirmar_meu_acesso: { Args: never; Returns: Json }
       confirmar_pagamento_agendamento: {
         Args: { _agendamento_id: string; _forma_pagamento: string }
         Returns: Json
@@ -1798,6 +1802,7 @@ export type Database = {
       equipe_do_tenant: {
         Args: { _tenant_id: string }
         Returns: {
+          aceito_em: string
           ativo: boolean
           criado_em: string
           email: string
@@ -1835,6 +1840,17 @@ export type Database = {
           ativo: boolean
           papel: string
           permissoes: string[]
+        }[]
+      }
+      meu_convite: {
+        Args: never
+        Returns: {
+          aceito_em: string
+          ativo: boolean
+          barbearia: string
+          papel: string
+          permissoes: string[]
+          tenant_id: string
         }[]
       }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }

@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/redefinir-senha")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { convite?: string } =>
+    search["convite"] ? { convite: "1" } : {},
   head: () => ({
     meta: [
       { title: "Criar nova senha — Cortaí" },
@@ -23,6 +25,7 @@ export const Route = createFileRoute("/redefinir-senha")({
 
 function RedefinirSenhaPage() {
   const navigate = useNavigate();
+  const { convite } = Route.useSearch();
   const [pronto, setPronto] = useState(false);
   const [linkInvalido, setLinkInvalido] = useState(false);
   const [senha, setSenha] = useState("");
@@ -55,15 +58,17 @@ function RedefinirSenhaPage() {
 
       {salvo ? (
         <div className="mt-8 space-y-5">
-          <Aviso tom="sucesso" titulo="Sua senha foi alterada.">
-            Você já pode entrar no Cortaí com a senha nova.
+          <Aviso tom="sucesso" titulo="Sua senha foi criada.">
+            {convite
+              ? "Agora é só conferir o que você pode fazer na barbearia e confirmar o acesso."
+              : "Você já pode entrar no Cortaí com a senha nova."}
           </Aviso>
           <button
             type="button"
             className="btn-primary w-full py-3.5"
-            onClick={() => void navigate({ to: "/login" })}
+            onClick={() => void navigate({ to: convite ? "/convite" : "/login" })}
           >
-            Entrar no Cortaí
+            {convite ? "Ver meu acesso" : "Entrar no Cortaí"}
           </button>
         </div>
       ) : linkInvalido && !pronto ? (
