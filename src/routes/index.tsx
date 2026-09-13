@@ -125,7 +125,7 @@ function Inicio() {
             alt="Cortaí — agendamento para barbearias"
             width={1440}
             height={720}
-            className="h-[420px] w-full bg-ink object-contain object-top md:h-[520px]"
+            className="h-[420px] w-full bg-ink object-contain object-top md:h-[600px]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/10" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
