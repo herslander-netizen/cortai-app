@@ -13,6 +13,7 @@ export function Signature() {
         by ALVO DIGITAL
       </p>
       <p className="mt-1 text-[11px] text-mute2">Tecnologia que conecta a cidade.</p>
+      <p className="mt-3 text-[10px] text-mute2">© 2026 Herslander</p>
     </footer>
   );
 }

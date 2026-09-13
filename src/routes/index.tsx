@@ -91,11 +91,6 @@ function Inicio() {
         <SolicitarProjeto />
       </main>
 
-      <footer className="mt-10 border-t border-line pt-6 text-center">
-        <p className="text-[11px] text-mute">Cortaí — agendamento para barbearias.</p>
-        <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
-        <p className="mt-1 text-[10px] text-mute2">© 2026 Alvo Digital</p>
-      </footer>
       <Signature />
     </div>
   );
