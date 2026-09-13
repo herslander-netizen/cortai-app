@@ -38,7 +38,7 @@ function RecursosPage() {
       {!query.data ? <Carregando texto="Carregando matriz…" /> : (
         <>
           {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
-          <div className="overflow-x-auto">
+          <div className="sem-barra overflow-x-auto">
             <table className="w-full min-w-[540px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-line">

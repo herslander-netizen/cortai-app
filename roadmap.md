@@ -51,3 +51,10 @@
 - [x] Esconder recursos desligados da navegação e bloquear acesso direto.
 - [x] Ocultar loja e lista de espera para o cliente quando a barbearia não usa.
 - [x] Reduzir a poluição do painel inicial (blocos vazios escondidos).
+
+## Identidade visual oficial Cortaí
+- [ ] Centralizar tokens e componentes oficiais de marca.
+- [ ] Aplicar a identidade em navegação, áreas públicas, autenticação e módulos internos.
+- [ ] Atualizar favicon, PWA, compartilhamento e carregamento com o símbolo oficial.
+- [ ] Validar todas as famílias de telas em 390 px e desktop, sem overflow.
+- [ ] Executar verificações de tipos, lint disponível e build.

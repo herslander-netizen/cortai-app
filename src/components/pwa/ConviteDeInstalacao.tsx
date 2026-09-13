@@ -26,7 +26,7 @@ export function ConviteDeInstalacao() {
       <div
         role="region"
         aria-label="Instalar o Cortaí"
-        className="cortai-splash pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line2 bg-ink2/95 p-4 shadow-[0_12px_32px_rgba(0,0,0,0.5)] backdrop-blur-md"
+        className="cortai-splash pointer-events-auto w-full max-w-[390px] rounded-xl border border-line2 bg-ink2/95 p-4 shadow-lg backdrop-blur-md"
       >
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
           <img
@@ -34,7 +34,7 @@ export function ConviteDeInstalacao() {
             alt=""
             width={40}
             height={40}
-            className="h-10 w-10 shrink-0 rounded-xl border border-line"
+            className="h-10 w-10 shrink-0 rounded-lg object-contain"
           />
           <div className="min-w-0">
             <p className="text-sm font-bold text-paper">Tenha o Cortaí sempre à mão</p>

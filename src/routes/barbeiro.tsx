@@ -8,6 +8,14 @@ import type { ChaveRecursoTenant } from "@/lib/recursos";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
+  head: () => ({ meta: [
+    { title: "Cortaí Gestão" },
+    { name: "description", content: "Agenda, clientes, equipe e operação da sua barbearia." },
+    { property: "og:title", content: "Cortaí Gestão" },
+    { property: "og:description", content: "Gestão diária da sua barbearia." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   beforeLoad: () => exigirPapel("barbeiro"),
   component: BarberLayout,
 });

@@ -86,7 +86,7 @@ export function DescobrirBarbearias({
                     </span>
                   ) : null}
                 </span>
-                <span className="shrink-0 text-xs text-gold">Ver</span>
+                <span className="shrink-0 text-xs font-semibold text-paper">Ver</span>
               </Link>
             </li>
           ))}

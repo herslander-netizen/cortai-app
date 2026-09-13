@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, type LinkProps } from "@tanstack/react-router";
-import { CircleDollarSign, ListPlus, PackagePlus, Scissors, UserPlus, X } from "lucide-react";
+import { CircleDollarSign, ListPlus, PackagePlus, UserPlus, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
+import { SimboloCortai } from "@/components/marca/MarcaCortai";
 
 export function QuickActions() {
   const [aberto, setAberto] = useState(false);
@@ -21,7 +22,7 @@ export function QuickActions() {
 
   return <>
     <div className="relative flex min-w-0 flex-col items-center justify-center">
-      <Button type="button" size="icon" aria-label="Abrir ações rápidas" aria-expanded={aberto} onClick={() => setAberto(true)} className="absolute -top-7 h-14 w-14 rounded-full border-4 border-ink bg-gold text-ink shadow-[0_8px_24px_rgba(0,0,0,0.45)]"><Scissors className="h-6 w-6" /></Button>
+      <Button type="button" size="icon" aria-label="Abrir ações rápidas" aria-expanded={aberto} onClick={() => setAberto(true)} className="absolute -top-7 h-14 w-14 rounded-full border-4 border-ink bg-ink2 p-1.5 text-gold shadow-md"><SimboloCortai className="h-10 w-10 rounded-full" /></Button>
       <span className="mt-8 truncate text-[10px] font-semibold text-gold">Ações</span>
     </div>
     {aberto ? <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/80" role="dialog" aria-modal="true" aria-label="Ações rápidas" onMouseDown={(e) => { if (e.target === e.currentTarget) setAberto(false); }}>
