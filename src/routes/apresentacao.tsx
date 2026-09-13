@@ -30,7 +30,7 @@ import ctaDesktop from "@/assets/landing-cta-1400.webp.asset.json";
 export const Route = createFileRoute("/apresentacao")({
   head: () => ({
     meta: [
-      { title: "Cortaí — sua barbearia, no controle" },
+      { title: "Conhecer o Cortaí — sua barbearia, no controle" },
       {
         name: "description",
         content: "Agenda • Clientes • Loja • Fidelidade — tudo com a cara da sua barbearia.",
