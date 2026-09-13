@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
-import { LockKeyhole, Mail, Scissors } from "lucide-react";
+import { LockKeyhole, Mail } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { lovable } from "@/integrations/lovable";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -56,10 +57,7 @@ function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-ink2 text-gold">
-        <Scissors size={22} aria-hidden />
-      </div>
-      <p className="mt-8 text-xs font-semibold uppercase text-gold">Cortaí</p>
+      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
       <h1 className="mt-2 max-w-xs text-[32px] font-bold leading-tight text-paper">
         {modo === "entrar" ? "Seu próximo corte começa aqui." : "Crie sua conta no Cortaí."}
       </h1>
