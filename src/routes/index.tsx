@@ -27,16 +27,19 @@ export const Route = createFileRoute("/")({
       { title: "Cortaí — sua barbearia, no controle" },
       {
         name: "description",
-        content:
-          "Agenda, clientes, loja com estoque, fidelidade e link próprio da barbearia. O Cortaí organiza tudo em um só lugar.",
+        content: "Agenda • Clientes • Loja • Fidelidade — tudo com a cara da sua barbearia.",
       },
-      { property: "og:title", content: "Cortaí — sua barbearia, no controle" },
+      { property: "og:title", content: "Cortaí" },
       {
         property: "og:description",
-        content: "Agenda, clientes, loja, fidelidade e link próprio: tudo com a cara da sua barbearia.",
+        content: "Sua barbearia, no controle. Agenda • Clientes • Loja • Fidelidade.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://cortai.dev/og-cortai.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://cortai.dev/og-cortai.jpg" },
     ],
   }),
   component: Inicio,
