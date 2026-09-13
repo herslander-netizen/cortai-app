@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock3, MapPin, Sparkles } from "lucide-react";
+import { Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
+import { brl } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
