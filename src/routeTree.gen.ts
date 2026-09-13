@@ -15,9 +15,11 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
+import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
@@ -85,6 +87,11 @@ const ComecarRoute = ComecarRouteImport.update({
   path: '/comecar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConviteRoute = ConviteRouteImport.update({
+  id: '/convite',
+  path: '/convite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -98,6 +105,11 @@ const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisitanteRoute = VisitanteRouteImport.update({
+  id: '/visitante',
+  path: '/visitante',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -288,9 +300,11 @@ export interface FileRoutesByFullPath {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
@@ -332,9 +346,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
+  '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
@@ -379,9 +395,11 @@ export interface FileRoutesById {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
@@ -428,9 +446,11 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/convite'
     | '/login'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/monetizacao'
@@ -472,9 +492,11 @@ export interface FileRouteTypes {
     | '/'
     | '/barbearias'
     | '/comecar'
+    | '/convite'
     | '/login'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/monetizacao'
@@ -518,9 +540,11 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/convite'
     | '/login'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/visitante'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/monetizacao'
@@ -566,9 +590,11 @@ export interface RootRouteChildren {
   BarbeariasRoute: typeof BarbeariasRoute
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
+  ConviteRoute: typeof ConviteRoute
   LoginRoute: typeof LoginRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  VisitanteRoute: typeof VisitanteRoute
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   LojaSlugRoute: typeof LojaSlugRoute
@@ -618,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComecarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/convite': {
+      id: '/convite'
+      path: '/convite'
+      fullPath: '/convite'
+      preLoaderRoute: typeof ConviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -637,6 +670,13 @@ declare module '@tanstack/react-router' {
       path: '/redefinir-senha'
       fullPath: '/redefinir-senha'
       preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visitante': {
+      id: '/visitante'
+      path: '/visitante'
+      fullPath: '/visitante'
+      preLoaderRoute: typeof VisitanteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -1002,9 +1042,11 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeariasRoute: BarbeariasRoute,
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
+  ConviteRoute: ConviteRoute,
   LoginRoute: LoginRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
+  VisitanteRoute: VisitanteRoute,
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   LojaSlugRoute: LojaSlugRoute,

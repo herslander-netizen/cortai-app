@@ -204,6 +204,10 @@ function LoginPage() {
         )}
       </button>
 
+      <Link to="/visitante" className="mt-6 text-center text-xs text-mute2 transition-colors hover:text-paper">
+        Sou cliente e quero só agendar um corte
+      </Link>
+
       <footer className="mt-auto pt-10 text-center">
         <p className="text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
         <p className="mt-1 text-[10px] text-mute2">© 2026 Herslander</p>
