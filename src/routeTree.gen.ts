@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -70,6 +72,11 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApresentacaoRoute = ApresentacaoRouteImport.update({
+  id: '/apresentacao',
+  path: '/apresentacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarbeariasRoute = BarbeariasRouteImport.update({
   id: '/barbearias',
   path: '/barbearias',
@@ -78,6 +85,11 @@ const BarbeariasRoute = BarbeariasRouteImport.update({
 const BarbeiroRoute = BarbeiroRouteImport.update({
   id: '/barbeiro',
   path: '/barbeiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComecarRoute = ComecarRouteImport.update({
@@ -285,8 +297,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
+  '/cadastro': typeof CadastroRoute
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -330,7 +344,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
+  '/cadastro': typeof CadastroRoute
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -376,8 +392,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
+  '/cadastro': typeof CadastroRoute
   '/comecar': typeof ComecarRoute
   '/login': typeof LoginRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -425,8 +443,10 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/apresentacao'
     | '/barbearias'
     | '/barbeiro'
+    | '/cadastro'
     | '/comecar'
     | '/login'
     | '/admin/ajustes'
@@ -470,7 +490,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/apresentacao'
     | '/barbearias'
+    | '/cadastro'
     | '/comecar'
     | '/login'
     | '/admin/ajustes'
@@ -515,8 +537,10 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/apresentacao'
     | '/barbearias'
     | '/barbeiro'
+    | '/cadastro'
     | '/comecar'
     | '/login'
     | '/admin/ajustes'
@@ -563,8 +587,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  ApresentacaoRoute: typeof ApresentacaoRoute
   BarbeariasRoute: typeof BarbeariasRoute
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
+  CadastroRoute: typeof CadastroRoute
   ComecarRoute: typeof ComecarRoute
   LoginRoute: typeof LoginRoute
   BSlugRoute: typeof BSlugRoute
@@ -594,6 +620,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apresentacao': {
+      id: '/apresentacao'
+      path: '/apresentacao'
+      fullPath: '/apresentacao'
+      preLoaderRoute: typeof ApresentacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barbearias': {
       id: '/barbearias'
       path: '/barbearias'
@@ -606,6 +639,13 @@ declare module '@tanstack/react-router' {
       path: '/barbeiro'
       fullPath: '/barbeiro'
       preLoaderRoute: typeof BarbeiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comecar': {
@@ -1002,8 +1042,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  ApresentacaoRoute: ApresentacaoRoute,
   BarbeariasRoute: BarbeariasRoute,
   BarbeiroRoute: BarbeiroRouteWithChildren,
+  CadastroRoute: CadastroRoute,
   ComecarRoute: ComecarRoute,
   LoginRoute: LoginRoute,
   BSlugRoute: BSlugRoute,
