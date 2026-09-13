@@ -1,19 +1,24 @@
-# Refinamento visual e performance do Cortaí
+# Entrada emergencial e autenticação estável
 
 ## Objetivo
-Tornar a entrada pública mais elegante e acelerar o primeiro carregamento e a navegação, sem alterar autenticação, regras de negócio ou funcionalidades.
+Substituir a página inicial pesada por uma porta de entrada mínima, mantendo a apresentação atual em uma rota secundária e eliminando bloqueios ou disputas de redirecionamento no login e cadastro.
 
 ## Implementação
-- Redesenhar o CTA principal como ação compacta e premium, com dourado contido, estados sutis e proporções adequadas em mobile e desktop.
-- Rebaixar visualmente a busca de barbearias para uma ação secundária, refinando largura, espaçamento e alinhamento do bloco inicial.
-- Reduzir o trabalho global feito antes da primeira pintura, adiando personalização, guias, redes sociais e parceiros quando não forem críticos para a tela atual.
-- Aplicar divisão de código nas rotas e carregamento sob demanda para blocos públicos secundários e módulos pesados.
-- Otimizar imagens da landing com variantes modernas e responsivas, dimensões estáveis, prioridade somente na imagem principal e carregamento tardio abaixo da dobra.
-- Enxugar as fontes globais para a família e pesos realmente utilizados, sem bloquear mais recursos que o necessário.
-- Evitar chamadas duplicadas ou antecipadas na landing, busca e login; manter cache adequado e sem espera artificial.
-- Remover apenas código ou recursos comprovadamente sem uso e preservar PWA, login, busca e navegação.
+- Transformar `/` em uma tela leve, mobile-first, com a marca oficial, uma frase curta e ações diretas para **Entrar**, **Criar conta** e, em segundo plano, **Encontrar uma barbearia**.
+- Mover a apresentação institucional atual, sem apagar conteúdo ou funcionalidades, para `/apresentacao` e manter metadados próprios.
+- Criar `/cadastro` como entrada direta para o formulário de criação de conta, reutilizando a mesma experiência de autenticação de `/login`.
+- Extrair o formulário compartilhado de login/cadastro para um componente leve, sem dependências da landing, agenda, notificações ou painéis.
+- Remover verificações de sessão que bloqueiam a montagem do formulário; a tela aparece imediatamente e a recuperação de sessão ocorre em segundo plano.
+- Coordenar o retorno de e-mail/Google e o listener global para impedir consultas duplicadas, navegação concorrente e ciclos entre `/`, `/login`, `/cadastro` e as áreas autenticadas.
+- Preservar os guardas atuais de cliente, barbeiro e administrador, sem alterar permissões ou regras de segurança.
 
 ## Validação
-- Conferir landing, busca e login em mobile e desktop, incluindo foco, toque e ausência de overflow.
-- Medir recursos e chamadas do primeiro carregamento antes e depois.
-- Confirmar verificação de tipos e build sem erros.
+- Testar `/`, `/login` e `/cadastro` em 390×844 e 1280px, incluindo links, voltar/avançar, atualização e ausência de overflow.
+- Restaurar uma sessão de teste com segurança e confirmar o redirecionamento pelo papel, além do bloqueio cruzado entre usuário comum e admin quando as contas disponíveis permitirem.
+- Conferir console, erros de execução, rede, rotas e o registro automático de build; corrigir qualquer falha relacionada encontrada.
+- Não publicar.
+
+## Detalhes técnicos
+- Usar somente TanStack Router e os componentes/tokens existentes.
+- Manter a autenticação independente de consultas públicas e módulos internos.
+- Não instalar pacotes, não alterar banco/RLS e não reconstruir áreas fora do caminho de entrada.
