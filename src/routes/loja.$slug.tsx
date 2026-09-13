@@ -9,6 +9,7 @@ import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
+import { LinksSociais } from "@/components/marca/LinksSociais";
 
 export const Route = createFileRoute("/loja/$slug")({
   head: ({ params }) => ({ meta: [
@@ -50,6 +51,7 @@ function LojaPage() {
               <p className="mt-0.5 text-xs text-mute">Reserve aqui e retire na barbearia.</p>
             </div>
           </div>
+          <LinksSociais instagram={tenant.instagram} facebook={tenant.facebook} whatsapp={tenant.whatsapp} mostrarRotulos className="mt-4" />
         </header>
 
         <main className="mt-8 flex-1">
@@ -72,7 +74,7 @@ function LojaPage() {
             ))}
           </ul>
         </main>
-        <Signature />
+        <Signature mostrarRedesSociais />
       </div>
 
       {aberto ? (

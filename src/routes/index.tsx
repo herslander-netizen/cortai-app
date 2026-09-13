@@ -275,7 +275,7 @@ function Inicio() {
       </main>
 
       <div className="mx-auto w-full max-w-[900px]">
-        <Signature />
+        <Signature mostrarRedesSociais />
       </div>
     </div>
   );
