@@ -12,7 +12,9 @@ export type MembroDaEquipe = {
   permissoes: string[];
   ativo: boolean;
   criadoEm: string;
+  aceitoEm: string | null;
 };
+
 
 /** Traduz os erros técnicos das funções do banco para o barbeiro. */
 function mensagem(bruta: string): string {
@@ -44,9 +46,15 @@ export const listarEquipe = createServerFn({ method: "GET" })
       permissoes: (linha["permissoes"] as string[] | null) ?? [],
       ativo: Boolean(linha["ativo"]),
       criadoEm: linha["criado_em"] as string,
+      aceitoEm: (linha["aceito_em"] as string | null) ?? null,
     }));
   });
 
+/**
+ * Convida alguém pelo e-mail. Se a pessoa ainda não tem conta Cortaí, o
+ * próprio serviço de autenticação envia o convite por e-mail e a conta é
+ * criada — depois o vínculo com a barbearia é feito pelas regras do banco.
+ */
 export const convidarMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -54,19 +62,64 @@ export const convidarMembro = createServerFn({ method: "POST" })
       .object({
         email: z.string().trim().email(),
         papel: z.enum(["gerente", "barbeiro", "recepcao"]),
+        redirectTo: z.string().url(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    const { error } = await context.supabase.rpc("convidar_membro", {
-      _tenant_id: tenantId,
-      _email: data.email,
-      _papel: data.papel,
+
+    const vincular = () =>
+      context.supabase.rpc("convidar_membro", {
+        _tenant_id: tenantId,
+        _email: data.email,
+        _papel: data.papel,
+      });
+
+    const primeira = await vincular();
+    if (!primeira.error) return { ok: true, enviouEmail: false };
+    if (!primeira.error.message.toLowerCase().includes("conta nao encontrada")) {
+      throw new Error(mensagem(primeira.error.message));
+    }
+
+    // Sem conta ainda: dispara o convite por e-mail e cria o acesso.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const convite = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+      redirectTo: data.redirectTo,
     });
+    if (convite.error) {
+      throw new Error("Não foi possível enviar o convite para esse e-mail. Confira o endereço.");
+    }
+    const segunda = await vincular();
+    if (segunda.error) throw new Error(mensagem(segunda.error.message));
+    return { ok: true, enviouEmail: true };
+  });
+
+/** O que a pessoa convidada vê ao entrar pela primeira vez. */
+export const meuConvite = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("meu_convite");
+    if (error) throw new Error("Não foi possível carregar o seu acesso agora.");
+    const linha = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
+    if (!linha) return null;
+    return {
+      barbearia: (linha["barbearia"] as string | null) ?? "sua barbearia",
+      papel: linha["papel"] as string,
+      permissoes: (linha["permissoes"] as string[] | null) ?? [],
+      ativo: Boolean(linha["ativo"]),
+      aceitoEm: (linha["aceito_em"] as string | null) ?? null,
+    };
+  });
+
+export const confirmarMeuAcesso = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase.rpc("confirmar_meu_acesso");
     if (error) throw new Error(mensagem(error.message));
     return { ok: true };
   });
+
 
 export const salvarAcessoDoMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
