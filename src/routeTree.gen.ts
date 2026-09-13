@@ -55,6 +55,7 @@ import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.pro
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 
@@ -288,6 +289,11 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
+  id: '/api/public/alvo-ia',
+  path: '/api/public/alvo-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarbeiroClientesIndexRoute = BarbeiroClientesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -346,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -392,6 +399,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
+  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
 }
@@ -443,6 +451,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -495,6 +504,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesByTo: FileRoutesByTo
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/barbeiro'
+    | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
   id:
@@ -591,6 +602,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesById: FileRoutesById
@@ -610,6 +622,7 @@ export interface RootRouteChildren {
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   LojaSlugRoute: typeof LojaSlugRoute
+  ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -936,6 +949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/alvo-ia': {
+      id: '/api/public/alvo-ia'
+      path: '/api/public/alvo-ia'
+      fullPath: '/api/public/alvo-ia'
+      preLoaderRoute: typeof ApiPublicAlvoIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barbeiro/clientes/': {
       id: '/barbeiro/clientes/'
       path: '/'
@@ -1071,6 +1091,7 @@ const rootRouteChildren: RootRouteChildren = {
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   LojaSlugRoute: LojaSlugRoute,
+  ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
