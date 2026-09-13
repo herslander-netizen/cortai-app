@@ -1,7 +1,13 @@
 import { MoreVertical, Share } from "lucide-react";
 
 /** Instrução real de instalação manual, escrita para o navegador do usuário. */
-export function PassosDeInstalacao({ sistema, className = "" }: { sistema: "ios" | "android" | "outro"; className?: string }) {
+export function PassosDeInstalacao({
+  sistema,
+  className = "",
+}: {
+  sistema: "ios" | "android" | "outro";
+  className?: string;
+}) {
   const Icone = sistema === "ios" ? Share : MoreVertical;
   return (
     <p
@@ -22,7 +28,8 @@ export function PassosDeInstalacao({ sistema, className = "" }: { sistema: "ios"
         </span>
       ) : (
         <span>
-          No seu navegador, procure o ícone de <span className="text-paper">instalar</span> na barra de endereço.
+          No seu navegador, procure o ícone de <span className="text-paper">instalar</span> na barra
+          de endereço.
         </span>
       )}
     </p>

@@ -12,7 +12,10 @@ export const Route = createFileRoute("/comecar")({
   head: () => ({
     meta: [
       { title: "Começar — Cortaí" },
-      { name: "description", content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia." },
+      {
+        name: "description",
+        content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia.",
+      },
       { property: "og:title", content: "Começar — Cortaí" },
       { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
       { property: "og:type", content: "website" },
@@ -74,7 +77,9 @@ function ComecarPage() {
             <CalendarDays size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
-              <span className="mt-1 block text-xs text-mute">Marcar horários na minha barbearia.</span>
+              <span className="mt-1 block text-xs text-mute">
+                Marcar horários na minha barbearia.
+              </span>
             </span>
           </button>
           <button
@@ -85,7 +90,9 @@ function ComecarPage() {
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho uma barbearia</span>
-              <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no Cortaí Gestão.</span>
+              <span className="mt-1 block text-xs text-mute">
+                Agenda, clientes e financeiro no Cortaí Gestão.
+              </span>
             </span>
           </button>
         </div>

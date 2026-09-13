@@ -34,7 +34,8 @@ function paraLogin(): never {
   throw redirect({
     to: "/login",
     search: {
-      proximo: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "",
+      proximo:
+        typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "",
     },
   });
 }

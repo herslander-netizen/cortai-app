@@ -32,7 +32,9 @@ export function AtalhoInstalar() {
         <Smartphone size={18} className="text-mute" />
         <span className="min-w-0">
           <span className="block text-sm text-paper">Instalar aplicativo</span>
-          <span className="mt-0.5 block truncate text-xs text-mute">Abra o Cortaí direto da tela de início</span>
+          <span className="mt-0.5 block truncate text-xs text-mute">
+            Abra o Cortaí direto da tela de início
+          </span>
         </span>
         <Download size={16} className="text-gold" />
       </button>

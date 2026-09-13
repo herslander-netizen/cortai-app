@@ -14,11 +14,16 @@ import { Signature } from "@/components/layout/Signature";
 export const Route = createFileRoute("/login")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
-    typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
+    typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrar — Cortaí" },
-      { name: "description", content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí." },
+      {
+        name: "description",
+        content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí.",
+      },
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
@@ -142,7 +147,11 @@ function LoginPage() {
             {erro}
           </p>
         ) : null}
-        {aviso ? <Aviso tom="info" className="">{aviso}</Aviso> : null}
+        {aviso ? (
+          <Aviso tom="info" className="">
+            {aviso}
+          </Aviso>
+        ) : null}
         <Button className="h-12 w-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
@@ -183,7 +192,9 @@ function LoginPage() {
         )}
       </button>
 
-      <div className="mt-auto"><Signature mostrarRedesSociais /></div>
+      <div className="mt-auto">
+        <Signature mostrarRedesSociais />
+      </div>
     </main>
   );
 }

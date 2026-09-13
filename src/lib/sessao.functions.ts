@@ -55,22 +55,34 @@ export const getSessao = createServerFn({ method: "GET" })
       ]);
 
     if (!perfil) {
-      await db.from("perfis").insert({ user_id: context.userId, nome: nomeMeta ?? email?.split("@")[0] ?? null });
+      await db
+        .from("perfis")
+        .insert({ user_id: context.userId, nome: nomeMeta ?? email?.split("@")[0] ?? null });
     }
 
     let ehAdmin = Boolean(papelAdmin);
     if (autorizado && !ehAdmin) {
-      await db.from("user_roles").upsert(
-        { user_id: context.userId, role: "admin" },
-        { onConflict: "user_id,role", ignoreDuplicates: true },
-      );
+      await db
+        .from("user_roles")
+        .upsert(
+          { user_id: context.userId, role: "admin" },
+          { onConflict: "user_id,role", ignoreDuplicates: true },
+        );
       ehAdmin = true;
     }
 
     const nome = perfil?.nome ?? nomeMeta ?? null;
 
     if (ehAdmin) {
-      return { userId: context.userId, email, nome, papel: "admin", tenantId: null, tenantNome: null, tenantSlug: null };
+      return {
+        userId: context.userId,
+        email,
+        nome,
+        papel: "admin",
+        tenantId: null,
+        tenantNome: null,
+        tenantSlug: null,
+      };
     }
     if (vinculo) {
       const t = vinculo.tenants as unknown as { nome: string; slug: string } | null;
@@ -85,14 +97,25 @@ export const getSessao = createServerFn({ method: "GET" })
       };
     }
     const escolha = (perfil?.tipo ?? "pendente") as string;
-    const papel: Papel = escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
-    return { userId: context.userId, email, nome, papel, tenantId: null, tenantNome: null, tenantSlug: null };
+    const papel: Papel =
+      escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
+    return {
+      userId: context.userId,
+      email,
+      nome,
+      papel,
+      tenantId: null,
+      tenantNome: null,
+      tenantSlug: null,
+    };
   });
 
 export const definirTipoDePerfil = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ tipo: z.enum(["cliente", "barbeiro"]), nome: z.string().trim().max(80).optional() }).parse(input),
+    z
+      .object({ tipo: z.enum(["cliente", "barbeiro"]), nome: z.string().trim().max(80).optional() })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await admin();
@@ -108,9 +131,13 @@ export const definirTipoDePerfil = createServerFn({ method: "POST" })
 
 export const criarBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ nome: z.string().trim().min(2).max(80) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ nome: z.string().trim().min(2).max(80) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
-    const { data: tenantId, error } = await context.supabase.rpc("criar_barbearia", { _nome: data.nome });
+    const { data: tenantId, error } = await context.supabase.rpc("criar_barbearia", {
+      _nome: data.nome,
+    });
     if (error) {
       throw new Error(
         error.message.includes("ja vinculado")
@@ -119,6 +146,8 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       );
     }
     const db = await admin();
-    await db.from("perfis").upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
+    await db
+      .from("perfis")
+      .upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
     return { tenantId: tenantId as unknown as string };
   });

@@ -57,7 +57,9 @@ export function ConviteDeInstalacao() {
           </button>
         </div>
 
-        {mostrarPassos ? <PassosDeInstalacao sistema={instalacao.sistema} className="mt-3" /> : null}
+        {mostrarPassos ? (
+          <PassosDeInstalacao sistema={instalacao.sistema} className="mt-3" />
+        ) : null}
 
         <div className="mt-3 flex items-center justify-end gap-2">
           <button
