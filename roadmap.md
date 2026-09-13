@@ -7,3 +7,4 @@
 - [x] Apresentar fidelidade como Voltaí
 - [x] Refinar tokens e consistência visual sem descaracterizar
 - [ ] Validar rotas, responsividade, interações, tipos e build
+- [ ] Executar autenticação Google real do botão ao destino e corrigir falhas
