@@ -8,14 +8,22 @@ export type TabItem = {
   icon: LucideIcon;
 };
 
+/**
+ * Navegação principal do Cortaí: cinco posições fixas, alturas iguais e a
+ * ação central da marca. Nada de rolagem horizontal na barra principal.
+ */
 export function TabBar({ items, centralAction }: { items: TabItem[]; centralAction?: ReactNode }) {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2/95 backdrop-blur-md"
-      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 8px)" }}
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 6px)" }}
       aria-label="Navegação principal"
     >
-       <ul className="mx-auto grid max-w-[560px] grid-cols-5">
+      <ul
+        className={`mx-auto grid max-w-[560px] px-1 pt-1 ${
+          centralAction ? "grid-cols-5" : "grid-cols-4"
+        }`}
+      >
         {items.map((item, index) => {
           const Icon = item.icon;
           return (
@@ -23,18 +31,13 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
               <Link
                 to={item.to}
                 activeOptions={{ exact: item.to.split("/").length === 2 }}
-                className="group relative flex min-h-16 flex-col items-center justify-center gap-1 overflow-hidden px-1 py-2 text-mute transition-colors duration-150 hover:text-paper active:bg-ink3"
+                className="group relative mx-auto flex h-14 w-full max-w-[76px] flex-col items-center justify-center gap-1 rounded-xl text-mute transition-colors duration-150 hover:text-paper active:scale-[0.97] active:bg-ink3"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}
               >
-                {/* indicador dourado no topo do item ativo */}
-                <span
-                  aria-hidden
-                  className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-gold opacity-0 transition-opacity duration-150 group-aria-[current=page]:opacity-100"
-                />
-                <span className="flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-150 group-aria-[current=page]:bg-gold-soft">
-                  <Icon size={20} strokeWidth={1.6} aria-hidden className="group-aria-[current=page]:stroke-[2.2]" />
+                <span className="flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150 group-aria-[current=page]:bg-gold-soft">
+                  <Icon size={19} strokeWidth={1.7} aria-hidden className="group-aria-[current=page]:stroke-[2.2]" />
                 </span>
-                <span className="max-w-full truncate text-[10px] font-medium group-aria-[current=page]:font-bold">
+                <span className="w-full truncate text-center text-[10px] font-medium leading-none tracking-tight group-aria-[current=page]:font-semibold">
                   {item.label}
                 </span>
               </Link>
@@ -42,12 +45,11 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
           );
         })}
         {centralAction ? (
-          <li className="pointer-events-none col-start-3 row-start-1 flex items-start justify-center">
-            <div className="pointer-events-auto -mt-4">{centralAction}</div>
+          <li className="pointer-events-none col-start-3 row-start-1 flex items-center justify-center">
+            <div className="pointer-events-auto -mt-5">{centralAction}</div>
           </li>
         ) : null}
       </ul>
-
     </nav>
   );
 }

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, LogOut, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
@@ -45,6 +46,9 @@ function PerfilPage() {
             <span className="text-sm text-paper">Carteira e fidelidade</span>
             <ChevronRight size={16} className="text-mute2" />
           </Link>
+        </li>
+        <li>
+          <AlterarSenha />
         </li>
         <li className="border-b border-line">
           <button

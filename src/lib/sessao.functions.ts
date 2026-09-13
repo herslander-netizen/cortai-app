@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { PERMISSOES } from "@/lib/permissoes";
+
+const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
 export type Papel = "admin" | "barbeiro" | "cliente" | "pendente";
 
@@ -13,6 +16,12 @@ export type Sessao = {
   tenantId: string | null;
   tenantNome: string | null;
   tenantSlug: string | null;
+  /** Papel dentro da barbearia: dono, gerente, barbeiro ou recepcao. */
+  papelNaEquipe: string | null;
+  /** Permissões efetivas na barbearia (a checagem real acontece no servidor). */
+  permissoes: string[];
+  /** Vínculo existe, mas o acesso foi desativado por quem gerencia a equipe. */
+  acessoSuspenso: boolean;
 };
 
 async function admin() {
@@ -66,7 +75,7 @@ export const getSessao = createServerFn({ method: "GET" })
       db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       db
         .from("tenant_usuarios")
-        .select("tenant_id, tenants(nome, slug)")
+        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug)")
         .eq("user_id", context.userId)
         .limit(1)
         .maybeSingle(),
@@ -74,25 +83,42 @@ export const getSessao = createServerFn({ method: "GET" })
     ]);
 
     const nome = perfil?.nome ?? nomeMeta ?? null;
+    const base = {
+      userId: context.userId,
+      email,
+      nome,
+      tenantId: null,
+      tenantNome: null,
+      tenantSlug: null,
+      papelNaEquipe: null,
+      permissoes: [] as string[],
+      acessoSuspenso: false,
+    };
 
     if (papelAdmin) {
-      return { userId: context.userId, email, nome, papel: "admin", tenantId: null, tenantNome: null, tenantSlug: null };
+      return { ...base, papel: "admin" as const };
     }
-    if (vinculo) {
+    if (vinculo && vinculo.ativo) {
       const t = vinculo.tenants as unknown as { nome: string; slug: string } | null;
+      const permissoes =
+        vinculo.papel === "dono" ? PERMISSOES_DE_DONO : ((vinculo.permissoes as string[] | null) ?? []);
       return {
-        userId: context.userId,
-        email,
-        nome,
-        papel: "barbeiro",
+        ...base,
+        papel: "barbeiro" as const,
         tenantId: vinculo.tenant_id,
         tenantNome: t?.nome ?? null,
         tenantSlug: t?.slug ?? null,
+        papelNaEquipe: vinculo.papel,
+        permissoes,
       };
+    }
+    if (vinculo && !vinculo.ativo) {
+      // Acesso desativado por quem gerencia a equipe: continua logado, mas sem barbearia.
+      return { ...base, papel: "pendente" as const, papelNaEquipe: vinculo.papel, acessoSuspenso: true };
     }
     const escolha = (perfil?.tipo ?? tipo) as string;
     const papel: Papel = escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
-    return { userId: context.userId, email, nome, papel, tenantId: null, tenantNome: null, tenantSlug: null };
+    return { ...base, papel };
   });
 
 export const definirTipoDePerfil = createServerFn({ method: "POST" })

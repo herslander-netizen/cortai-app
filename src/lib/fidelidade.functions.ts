@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 
 export type ConfigFidelidade = {
@@ -66,6 +66,7 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await tenantPadrao(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     await exigirRecurso(db, tenantId, "fidelidade");
 
     const { data: existente } = await db
