@@ -1,0 +1,77 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+export type ProdutoPublico = {
+  id: string;
+  nome: string;
+  categoria: string;
+  preco_centavos: number;
+  foto_url: string | null;
+};
+
+export type LojaPublica = {
+  tenant: {
+    id: string;
+    nome: string;
+    slug: string;
+    whatsapp: string | null;
+    telefone: string | null;
+    cor_primaria: string;
+    logo_url: string | null;
+  };
+  produtos: ProdutoPublico[];
+};
+
+/**
+ * Produtos visíveis ao público de UMA barbearia.
+ * Só entram quando: barbearia ativa + loja ligada + recurso liberado no plano
+ * + produto ativo + marcado como disponível para venda + preço válido.
+ */
+export const getLojaPublica = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
+  .handler(async ({ data }): Promise<LojaPublica | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: tenant } = await supabaseAdmin
+      .from("tenants")
+      .select("id, nome, slug, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url")
+      .eq("slug", data.slug)
+      .eq("ativo", true)
+      .maybeSingle();
+    if (!tenant || !tenant.loja_ativa) return null;
+
+    const { data: regra } = await supabaseAdmin
+      .from("recursos_de_plano")
+      .select("liberado")
+      .eq("chave", "loja_online")
+      .eq("plano", tenant.plano)
+      .maybeSingle();
+    if (regra && !regra.liberado) return null;
+
+    const { data: produtos } = await supabaseAdmin
+      .from("produtos")
+      .select("id, nome, categoria, preco_centavos, foto_url")
+      .eq("tenant_id", tenant.id)
+      .eq("ativo", true)
+      .eq("disponivel_venda", true)
+      .gt("preco_centavos", 0)
+      .order("nome");
+
+    let logo = tenant.logo_url;
+    if (logo && !logo.startsWith("https://")) {
+      const { data: assinada } = await supabaseAdmin.storage.from("tenant-logos").createSignedUrl(logo, 60 * 60);
+      logo = assinada?.signedUrl ?? null;
+    }
+
+    return {
+      tenant: {
+        id: tenant.id,
+        nome: tenant.nome,
+        slug: tenant.slug,
+        whatsapp: tenant.whatsapp,
+        telefone: tenant.telefone,
+        cor_primaria: tenant.cor_primaria,
+        logo_url: logo,
+      },
+      produtos: produtos ?? [],
+    };
+  });
