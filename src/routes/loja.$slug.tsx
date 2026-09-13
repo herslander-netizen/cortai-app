@@ -78,7 +78,7 @@ function LojaPage() {
       </div>
 
       {aberto ? (
-        <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/80 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={aberto.nome}>
+        <div className="fixed inset-0 z-40 flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/80 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={aberto.nome}>
           <div className="w-full max-w-md rounded-t-2xl border border-line bg-ink2 p-5 sm:rounded-2xl">
             <div className="flex items-start justify-between gap-4">
               <h2 className="text-lg font-bold text-paper">{aberto.nome}</h2>

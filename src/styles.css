@@ -106,8 +106,13 @@
 
   html,
   body {
+    /* Rolagem vertical sempre livre: só o eixo X fica travado. */
     overflow-x: hidden;
+    overflow-y: visible;
+    height: auto;
+    min-height: 100%;
     overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
@@ -300,6 +305,9 @@ nav[aria-label="Navegação principal"],
 nav[aria-label="Painel da plataforma"] {
   overflow: hidden;
   scrollbar-width: none;
+  /* A barra inferior não pode engolir o gesto de rolagem da página. */
+  touch-action: manipulation;
+  overscroll-behavior: contain;
 }
 
 nav[aria-label$="barbearia"]::-webkit-scrollbar,
@@ -344,4 +352,10 @@ nav[aria-label="Painel da plataforma"]::-webkit-scrollbar {
 @keyframes cortai-aparecer {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Qualquer folha/modal de tela cheia precisa rolar sozinha em telas baixas. */
+[role="dialog"][aria-modal="true"] {
+  max-height: 100dvh;
+  overscroll-behavior: contain;
 }
