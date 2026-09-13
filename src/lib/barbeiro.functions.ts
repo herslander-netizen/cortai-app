@@ -903,6 +903,7 @@ export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "personalizacao_cliente");
     const { error } = await db
       .from("clientes")
       .update({
