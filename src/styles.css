@@ -452,6 +452,19 @@ html.light {
   isolation: isolate;
 }
 
+.light .landing-page {
+  --ink: #0b0b0b;
+  --ink2: #151515;
+  --ink3: #1c1c1c;
+  --paper: #f4f4f4;
+  --mute: #a1a1a1;
+  --mute2: #8a8a8a;
+  --line: #292929;
+  --line2: #383838;
+  --gold: #d4af6a;
+  --gold-soft: color-mix(in oklab, var(--gold) 13%, transparent);
+}
+
 .landing-hero-overlay {
   background:
     linear-gradient(to top, var(--ink) 0%, color-mix(in oklab, var(--ink) 72%, transparent) 46%, color-mix(in oklab, var(--ink) 24%, transparent) 78%),
