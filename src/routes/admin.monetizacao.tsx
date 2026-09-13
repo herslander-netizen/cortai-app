@@ -1,0 +1,701 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+
+import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
+import { Carregando } from "@/components/layout/Carregando";
+import { Switch } from "@/components/ui/switch";
+import { brl } from "@/lib/format";
+import { getAdminTenants } from "@/lib/admin.functions";
+import {
+  encerrarCondicao,
+  definirPlanoDoTenant,
+  getVisaoComercialDoTenant,
+  listarBanners,
+  listarCupons,
+  listarPlanos,
+  removerBanner,
+  salvarBanner,
+  salvarCondicao,
+  salvarCupom,
+  salvarPlano,
+  type BannerAdmin,
+  type CupomAdmin,
+} from "@/lib/monetizacao.functions";
+import { dataCurta, type Plano } from "@/lib/monetizacao";
+
+export const Route = createFileRoute("/admin/monetizacao")({
+  head: () => ({
+    meta: [
+      { title: "Monetização — Cortaí" },
+      { name: "description", content: "Planos, preços, condições por barbearia, cupons e campanhas do Cortaí." },
+      { property: "og:title", content: "Monetização — Cortaí" },
+      { property: "og:description", content: "Administre preços, condições especiais, cupons e banners." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: MonetizacaoPage,
+});
+
+const ABAS = ["Planos e preços", "Por barbearia", "Cupons", "Campanhas"] as const;
+
+const hoje = () => new Date().toISOString().slice(0, 10);
+const emReais = (centavos: number) => (centavos / 100).toFixed(2).replace(".", ",");
+const emCentavos = (texto: string) => Math.round(Number(texto.replace(/\./g, "").replace(",", ".") || 0) * 100);
+
+function Campo({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[11px] uppercase text-mute2">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+const input = "w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-paper outline-none focus:border-gold/50";
+
+function MonetizacaoPage() {
+  const [aba, setAba] = useState<(typeof ABAS)[number]>("Planos e preços");
+  return (
+    <AdminScreen title="Monetização" subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você negocia com uma barbearia.">
+      <nav className="mb-6 flex gap-2 overflow-x-auto" aria-label="Seções de monetização">
+        {ABAS.map((a) => (
+          <button
+            key={a}
+            type="button"
+            onClick={() => setAba(a)}
+            aria-current={aba === a ? "page" : undefined}
+            className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs ${aba === a ? "border-gold bg-gold-soft text-gold" : "border-line text-mute"}`}
+          >
+            {a}
+          </button>
+        ))}
+      </nav>
+      {aba === "Planos e preços" ? <AbaPlanos /> : null}
+      {aba === "Por barbearia" ? <AbaBarbearia /> : null}
+      {aba === "Cupons" ? <AbaCupons /> : null}
+      {aba === "Campanhas" ? <AbaBanners /> : null}
+    </AdminScreen>
+  );
+}
+
+/* ---------------------------- PLANOS E PREÇOS ---------------------------- */
+
+function AbaPlanos() {
+  const query = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const salvar = useServerFn(salvarPlano);
+  const [editando, setEditando] = useState<Plano | null>(null);
+  const [status, setStatus] = useState("");
+  const [erro, setErro] = useState("");
+
+  if (query.isError) return <AdminNotice error={query.error} />;
+  if (!query.data) return <Carregando texto="Carregando planos…" />;
+
+  const novo: Plano = {
+    id: "",
+    chave: "",
+    nome: "",
+    descricao: "",
+    precoMensalCentavos: 0,
+    precoAnualCentavos: 0,
+    diasTeste: 0,
+    limiteProfissionais: null,
+    limiteClientes: null,
+    limiteAgendamentosMes: null,
+    limiteUnidades: null,
+    ordem: query.data.length + 1,
+    ativo: true,
+  };
+
+  return (
+    <div>
+      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
+      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
+      <ul className="space-y-3">
+        {query.data.map((p) => (
+          <li key={p.id} className="rounded-xl border border-line bg-ink2 px-4 py-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-paper">{p.nome} {p.ativo ? null : <span className="text-xs text-mute2">(inativo)</span>}</p>
+                <p className="mt-1 text-xs text-mute">{brl(p.precoMensalCentavos)}/mês · {brl(p.precoAnualCentavos)}/ano · {p.diasTeste} dias de teste</p>
+                <p className="mt-1 text-[11px] text-mute2">
+                  Limites: {p.limiteProfissionais ?? "sem limite"} profissionais · {p.limiteClientes ?? "sem limite"} clientes · {p.limiteAgendamentosMes ?? "sem limite"} agendamentos/mês
+                </p>
+              </div>
+              <button type="button" className="btn-secondary px-3 text-xs" onClick={() => setEditando(p)}>Editar</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <button type="button" className="btn-secondary mt-4 text-xs" onClick={() => setEditando(novo)}>Novo plano</button>
+
+      {editando ? (
+        <FormularioPlano
+          plano={editando}
+          onCancelar={() => setEditando(null)}
+          onSalvar={async (dados) => {
+            setStatus("");
+            setErro("");
+            try {
+              await salvar({ data: dados });
+              setEditando(null);
+              await query.refetch();
+              setStatus("Plano salvo. As barbearias com condição especial continuam com o preço delas.");
+            } catch (e) {
+              setErro(e instanceof Error ? e.message : "Não deu para salvar.");
+            }
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function FormularioPlano({
+  plano,
+  onSalvar,
+  onCancelar,
+}: {
+  plano: Plano;
+  onSalvar: (dados: any) => Promise<void>;
+  onCancelar: () => void;
+}) {
+  const [f, setF] = useState({
+    chave: plano.chave,
+    nome: plano.nome,
+    descricao: plano.descricao ?? "",
+    mensal: emReais(plano.precoMensalCentavos),
+    anual: emReais(plano.precoAnualCentavos),
+    diasTeste: String(plano.diasTeste),
+    profissionais: plano.limiteProfissionais == null ? "" : String(plano.limiteProfissionais),
+    clientes: plano.limiteClientes == null ? "" : String(plano.limiteClientes),
+    agendamentos: plano.limiteAgendamentosMes == null ? "" : String(plano.limiteAgendamentosMes),
+    unidades: plano.limiteUnidades == null ? "" : String(plano.limiteUnidades),
+    ordem: String(plano.ordem),
+    ativo: plano.ativo,
+  });
+  const numeroOuNulo = (v: string) => (v.trim() === "" ? null : Math.max(0, Number(v)));
+
+  return (
+    <form
+      className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await onSalvar({
+          ...(plano.id ? { id: plano.id } : {}),
+          chave: f.chave.trim().toLowerCase(),
+          nome: f.nome.trim(),
+          descricao: f.descricao.trim() || null,
+          precoMensalCentavos: emCentavos(f.mensal),
+          precoAnualCentavos: emCentavos(f.anual),
+          diasTeste: Number(f.diasTeste || 0),
+          limiteProfissionais: numeroOuNulo(f.profissionais),
+          limiteClientes: numeroOuNulo(f.clientes),
+          limiteAgendamentosMes: numeroOuNulo(f.agendamentos),
+          limiteUnidades: numeroOuNulo(f.unidades),
+          ordem: Number(f.ordem || 0),
+          ativo: f.ativo,
+        });
+      }}
+    >
+      <p className="text-sm font-semibold text-paper">{plano.id ? `Editar ${plano.nome}` : "Novo plano"}</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Campo label="Nome"><input className={input} value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} required /></Campo>
+        <Campo label="Chave (interna)"><input className={input} value={f.chave} onChange={(e) => setF({ ...f, chave: e.target.value })} required disabled={Boolean(plano.id)} /></Campo>
+        <Campo label="Preço mensal (R$)"><input className={input} inputMode="decimal" value={f.mensal} onChange={(e) => setF({ ...f, mensal: e.target.value })} /></Campo>
+        <Campo label="Preço anual (R$)"><input className={input} inputMode="decimal" value={f.anual} onChange={(e) => setF({ ...f, anual: e.target.value })} /></Campo>
+        <Campo label="Dias de teste grátis"><input className={input} inputMode="numeric" value={f.diasTeste} onChange={(e) => setF({ ...f, diasTeste: e.target.value })} /></Campo>
+        <Campo label="Ordem"><input className={input} inputMode="numeric" value={f.ordem} onChange={(e) => setF({ ...f, ordem: e.target.value })} /></Campo>
+        <Campo label="Limite de profissionais (vazio = sem limite)"><input className={input} inputMode="numeric" value={f.profissionais} onChange={(e) => setF({ ...f, profissionais: e.target.value })} /></Campo>
+        <Campo label="Limite de clientes"><input className={input} inputMode="numeric" value={f.clientes} onChange={(e) => setF({ ...f, clientes: e.target.value })} /></Campo>
+        <Campo label="Agendamentos por mês"><input className={input} inputMode="numeric" value={f.agendamentos} onChange={(e) => setF({ ...f, agendamentos: e.target.value })} /></Campo>
+        <Campo label="Unidades"><input className={input} inputMode="numeric" value={f.unidades} onChange={(e) => setF({ ...f, unidades: e.target.value })} /></Campo>
+      </div>
+      <Campo label="Descrição"><textarea className={input} rows={2} value={f.descricao} onChange={(e) => setF({ ...f, descricao: e.target.value })} /></Campo>
+      <div className="flex items-center gap-3">
+        <Switch checked={f.ativo} onCheckedChange={(v) => setF({ ...f, ativo: v })} aria-label="Plano ativo" />
+        <span className="text-xs text-mute">Plano disponível para contratação</span>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button type="submit" className="btn-primary px-5 text-sm">Salvar</button>
+        <button type="button" className="btn-secondary px-5 text-sm" onClick={onCancelar}>Cancelar</button>
+      </div>
+    </form>
+  );
+}
+
+/* ----------------------------- POR BARBEARIA ----------------------------- */
+
+function AbaBarbearia() {
+  const tenants = useQuery({ queryKey: ["admin-tenants"], queryFn: () => getAdminTenants(), retry: false });
+  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const [tenantId, setTenantId] = useState("");
+  const visao = useQuery({
+    queryKey: ["visao-comercial", tenantId],
+    queryFn: () => getVisaoComercialDoTenant({ data: { tenantId } }),
+    enabled: Boolean(tenantId),
+    retry: false,
+  });
+  const salvar = useServerFn(salvarCondicao);
+  const encerrar = useServerFn(encerrarCondicao);
+  const definirPlano = useServerFn(definirPlanoDoTenant);
+  const [status, setStatus] = useState("");
+  const [erro, setErro] = useState("");
+  const [form, setForm] = useState({ plano: "", preco: "", percentual: "0", fixo: "0", ciclo: "mensal", inicio: hoje(), fim: "", motivo: "" });
+
+  if (tenants.isError) return <AdminNotice error={tenants.error} />;
+
+  return (
+    <div>
+      <Campo label="Barbearia">
+        <select
+          className={input}
+          value={tenantId}
+          onChange={(e) => {
+            setTenantId(e.target.value);
+            setStatus("");
+            setErro("");
+          }}
+        >
+          <option value="">Escolha uma barbearia</option>
+          {(tenants.data ?? []).map((t) => (
+            <option key={t.id} value={t.id}>{t.nome}</option>
+          ))}
+        </select>
+      </Campo>
+
+      {status ? <p className="mt-4 text-sm text-sage" role="status">{status}</p> : null}
+      {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
+      {tenantId && visao.isError ? <div className="mt-4"><AdminNotice error={visao.error} /></div> : null}
+      {tenantId && !visao.data && !visao.isError ? <Carregando texto="Carregando barbearia…" /> : null}
+
+      {visao.data ? (
+        <>
+          <div className="mt-6 rounded-xl border border-line bg-ink2 px-4 py-4">
+            <p className="text-sm font-semibold text-paper">{visao.data.tenantNome}</p>
+            <p className="mt-1 text-xs text-mute">
+              Plano {visao.data.planoChave} · {visao.data.ciclo} · situação {visao.data.status}
+              {visao.data.testeAte ? ` · teste até ${dataCurta(visao.data.testeAte)}` : ""}
+            </p>
+            <p className="mt-2 text-xs text-mute2">
+              Preço padrão {brl(visao.data.precoPadraoCentavos)} · cobrando {" "}
+              <span className="text-gold">{brl(visao.data.precoEfetivoCentavos)}</span>
+            </p>
+            <p className="mt-2 text-[11px] text-mute2">
+              Uso: {visao.data.uso.profissionais}/{visao.data.limites.profissionais ?? "∞"} profissionais ·{" "}
+              {visao.data.uso.clientes}/{visao.data.limites.clientes ?? "∞"} clientes ·{" "}
+              {visao.data.uso.agendamentosMes}/{visao.data.limites.agendamentos_mes ?? "∞"} agendamentos no mês
+            </p>
+            {visao.data.cuponsAplicados.length ? (
+              <p className="mt-2 text-[11px] text-mute2">Cupons usados: {visao.data.cuponsAplicados.map((c) => c.codigo).join(", ")}</p>
+            ) : null}
+          </div>
+
+          <MudarPlano
+            planos={planos.data ?? []}
+            atual={visao.data}
+            onSalvar={async (dados) => {
+              setErro("");
+              try {
+                await definirPlano({ data: { tenantId, ...dados } });
+                await visao.refetch();
+                setStatus("Plano da barbearia atualizado.");
+              } catch (e) {
+                setErro(e instanceof Error ? e.message : "Não deu para atualizar.");
+              }
+            }}
+          />
+
+          <h3 className="mb-2 mt-8 text-sm font-semibold text-paper">Condições especiais</h3>
+          <ul className="space-y-2">
+            {visao.data.condicoes.map((c) => (
+              <li key={c.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+                <div>
+                  <p className="text-xs text-paper">
+                    {c.planoChave} · {c.precoPersonalizadoCentavos != null ? brl(c.precoPersonalizadoCentavos) : `${c.descontoPercentual}% + ${brl(c.descontoCentavos)}`}
+                  </p>
+                  <p className="mt-1 text-[11px] text-mute2">
+                    {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.ativo ? "ativa" : "encerrada"}
+                    {c.motivo ? ` · ${c.motivo}` : ""}
+                  </p>
+                </div>
+                {c.ativo ? (
+                  <button
+                    type="button"
+                    className="btn-secondary px-3 text-[11px]"
+                    onClick={async () => {
+                      await encerrar({ data: { id: c.id } });
+                      await visao.refetch();
+                      setStatus("Condição encerrada. A barbearia volta ao preço padrão.");
+                    }}
+                  >
+                    Encerrar
+                  </button>
+                ) : null}
+              </li>
+            ))}
+            {visao.data.condicoes.length === 0 ? <li className="text-xs text-mute">Nenhuma condição especial. A barbearia paga o preço padrão.</li> : null}
+          </ul>
+
+          <form
+            className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setErro("");
+              setStatus("");
+              try {
+                await salvar({
+                  data: {
+                    tenantId,
+                    planoChave: form.plano || visao.data!.planoChave,
+                    precoPersonalizadoCentavos: form.preco.trim() ? emCentavos(form.preco) : null,
+                    descontoPercentual: Number(form.percentual || 0),
+                    descontoCentavos: emCentavos(form.fixo),
+                    ciclo: form.ciclo as "mensal" | "anual",
+                    inicio: form.inicio,
+                    fim: form.fim || null,
+                    motivo: form.motivo.trim() || null,
+                    limites: {},
+                    recursos: [],
+                    ativo: true,
+                  },
+                });
+                setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
+                await visao.refetch();
+                setStatus("Condição criada só para esta barbearia. O preço padrão do plano não mudou.");
+              } catch (err) {
+                setErro(err instanceof Error ? err.message : "Não deu para salvar.");
+              }
+            }}
+          >
+            <p className="text-sm font-semibold text-paper">Nova condição especial</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Campo label="Plano">
+                <select className={input} value={form.plano || visao.data.planoChave} onChange={(e) => setForm({ ...form, plano: e.target.value })}>
+                  {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+                </select>
+              </Campo>
+              <Campo label="Ciclo">
+                <select className={input} value={form.ciclo} onChange={(e) => setForm({ ...form, ciclo: e.target.value })}>
+                  <option value="mensal">Mensal</option>
+                  <option value="anual">Anual</option>
+                </select>
+              </Campo>
+              <Campo label="Preço fechado (R$, opcional)"><input className={input} inputMode="decimal" value={form.preco} onChange={(e) => setForm({ ...form, preco: e.target.value })} /></Campo>
+              <Campo label="Desconto (%)"><input className={input} inputMode="numeric" value={form.percentual} onChange={(e) => setForm({ ...form, percentual: e.target.value })} /></Campo>
+              <Campo label="Desconto fixo (R$)"><input className={input} inputMode="decimal" value={form.fixo} onChange={(e) => setForm({ ...form, fixo: e.target.value })} /></Campo>
+              <Campo label="Início"><input className={input} type="date" value={form.inicio} onChange={(e) => setForm({ ...form, inicio: e.target.value })} /></Campo>
+              <Campo label="Fim (opcional)"><input className={input} type="date" value={form.fim} onChange={(e) => setForm({ ...form, fim: e.target.value })} /></Campo>
+              <Campo label="Motivo interno"><input className={input} value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} /></Campo>
+            </div>
+            <button type="submit" className="btn-primary px-5 text-sm">Aplicar condição</button>
+          </form>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function MudarPlano({
+  planos,
+  atual,
+  onSalvar,
+}: {
+  planos: Plano[];
+  atual: { planoChave: string; ciclo: string; status: string };
+  onSalvar: (dados: { planoChave: string; ciclo: "mensal" | "anual"; status: "teste" | "ativa" | "vencida" | "cancelada"; diasDeTeste: number | null }) => Promise<void>;
+}) {
+  const [f, setF] = useState({ plano: atual.planoChave, ciclo: atual.ciclo, status: atual.status, dias: "14" });
+  return (
+    <form
+      className="mt-4 grid gap-3 rounded-xl border border-line bg-ink2 p-4 sm:grid-cols-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await onSalvar({
+          planoChave: f.plano,
+          ciclo: f.ciclo as "mensal" | "anual",
+          status: f.status as "teste" | "ativa" | "vencida" | "cancelada",
+          diasDeTeste: f.status === "teste" ? Number(f.dias || 0) : null,
+        });
+      }}
+    >
+      <Campo label="Plano">
+        <select className={input} value={f.plano} onChange={(e) => setF({ ...f, plano: e.target.value })}>
+          {planos.map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+        </select>
+      </Campo>
+      <Campo label="Ciclo">
+        <select className={input} value={f.ciclo} onChange={(e) => setF({ ...f, ciclo: e.target.value })}>
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+      </Campo>
+      <Campo label="Situação">
+        <select className={input} value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>
+          <option value="ativa">Ativa</option>
+          <option value="teste">Teste grátis</option>
+          <option value="vencida">Vencida</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </Campo>
+      {f.status === "teste" ? (
+        <Campo label="Dias de teste"><input className={input} inputMode="numeric" value={f.dias} onChange={(e) => setF({ ...f, dias: e.target.value })} /></Campo>
+      ) : <div />}
+      <div className="sm:col-span-4"><button type="submit" className="btn-secondary px-5 text-sm">Atualizar plano da barbearia</button></div>
+    </form>
+  );
+}
+
+/* -------------------------------- CUPONS -------------------------------- */
+
+function AbaCupons() {
+  const query = useQuery({ queryKey: ["admin-cupons"], queryFn: () => listarCupons(), retry: false });
+  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const salvar = useServerFn(salvarCupom);
+  const [status, setStatus] = useState("");
+  const [erro, setErro] = useState("");
+  const [f, setF] = useState({ codigo: "", descricao: "", tipo: "percentual", valor: "10", inicio: hoje(), fim: "", usosMax: "", publico: "todos", planos: [] as string[] });
+
+  if (query.isError) return <AdminNotice error={query.error} />;
+
+  const alternar = async (c: CupomAdmin, ativo: boolean) => {
+    await salvar({
+      data: {
+        id: c.id, codigo: c.codigo, descricao: c.descricao, tipo: c.tipo, valor: c.valor,
+        inicio: c.inicio, fim: c.fim, usosMax: c.usosMax, publico: c.publico, planos: c.planos, ativo,
+      },
+    });
+    await query.refetch();
+  };
+
+  return (
+    <div>
+      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
+      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
+      <ul className="space-y-2">
+        {(query.data ?? []).map((c) => (
+          <li key={c.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-paper">{c.codigo}</p>
+              <p className="mt-1 text-xs text-mute">
+                {c.tipo === "percentual" ? `${c.valor}% de desconto` : `${brl(c.valor)} de desconto`} · {c.publico === "todos" ? "todas as barbearias" : c.publico === "novos" ? "barbearias novas" : "barbearias já clientes"}
+              </p>
+              <p className="mt-1 text-[11px] text-mute2">
+                {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.usos}
+                {c.usosMax ? `/${c.usosMax}` : ""} usos{c.planos.length ? ` · planos: ${c.planos.join(", ")}` : ""}
+              </p>
+            </div>
+            <Switch checked={c.ativo} aria-label={`Cupom ${c.codigo} ativo`} onCheckedChange={(v) => void alternar(c, v)} />
+          </li>
+        ))}
+        {query.data && query.data.length === 0 ? <li className="text-xs text-mute">Nenhum cupom criado ainda.</li> : null}
+      </ul>
+
+      <form
+        className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setStatus("");
+          setErro("");
+          try {
+            await salvar({
+              data: {
+                codigo: f.codigo.trim(),
+                descricao: f.descricao.trim() || null,
+                tipo: f.tipo as "percentual" | "fixo",
+                valor: f.tipo === "percentual" ? Number(f.valor || 0) : emCentavos(f.valor),
+                inicio: f.inicio,
+                fim: f.fim || null,
+                usosMax: f.usosMax.trim() ? Number(f.usosMax) : null,
+                publico: f.publico as "todos" | "novos" | "existentes",
+                planos: f.planos,
+                ativo: true,
+              },
+            });
+            setF({ ...f, codigo: "", descricao: "" });
+            await query.refetch();
+            setStatus("Cupom criado.");
+          } catch (err) {
+            setErro(err instanceof Error ? err.message : "Não deu para salvar o cupom.");
+          }
+        }}
+      >
+        <p className="text-sm font-semibold text-paper">Novo cupom</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Campo label="Código"><input className={input} value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value.toUpperCase() })} required /></Campo>
+          <Campo label="Tipo">
+            <select className={input} value={f.tipo} onChange={(e) => setF({ ...f, tipo: e.target.value })}>
+              <option value="percentual">Percentual (%)</option>
+              <option value="fixo">Valor fixo (R$)</option>
+            </select>
+          </Campo>
+          <Campo label={f.tipo === "percentual" ? "Desconto (%)" : "Desconto (R$)"}><input className={input} inputMode="decimal" value={f.valor} onChange={(e) => setF({ ...f, valor: e.target.value })} /></Campo>
+          <Campo label="Limite de usos (opcional)"><input className={input} inputMode="numeric" value={f.usosMax} onChange={(e) => setF({ ...f, usosMax: e.target.value })} /></Campo>
+          <Campo label="Início"><input className={input} type="date" value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></Campo>
+          <Campo label="Fim (opcional)"><input className={input} type="date" value={f.fim} onChange={(e) => setF({ ...f, fim: e.target.value })} /></Campo>
+          <Campo label="Para quem">
+            <select className={input} value={f.publico} onChange={(e) => setF({ ...f, publico: e.target.value })}>
+              <option value="todos">Todas as barbearias</option>
+              <option value="novos">Só barbearias novas</option>
+              <option value="existentes">Só barbearias já clientes</option>
+            </select>
+          </Campo>
+          <Campo label="Planos (vazio = todos)">
+            <select
+              className={input}
+              multiple
+              value={f.planos}
+              onChange={(e) => setF({ ...f, planos: Array.from(e.target.selectedOptions).map((o) => o.value) })}
+            >
+              {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+            </select>
+          </Campo>
+        </div>
+        <Campo label="Descrição"><input className={input} value={f.descricao} onChange={(e) => setF({ ...f, descricao: e.target.value })} /></Campo>
+        <button type="submit" className="btn-primary px-5 text-sm">Criar cupom</button>
+      </form>
+    </div>
+  );
+}
+
+/* ------------------------------- CAMPANHAS ------------------------------- */
+
+function AbaBanners() {
+  const query = useQuery({ queryKey: ["admin-banners"], queryFn: () => listarBanners(), retry: false });
+  const tenants = useQuery({ queryKey: ["admin-tenants"], queryFn: () => getAdminTenants(), retry: false });
+  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const salvar = useServerFn(salvarBanner);
+  const remover = useServerFn(removerBanner);
+  const [status, setStatus] = useState("");
+  const [erro, setErro] = useState("");
+  const [f, setF] = useState({
+    titulo: "", subtitulo: "", imagemUrl: "", ctaRotulo: "", ctaDestino: "",
+    inicio: hoje(), fim: "", prioridade: "0", segmento: "todos", planoAlvo: "", tenantAlvo: "",
+  });
+
+  if (query.isError) return <AdminNotice error={query.error} />;
+
+  const alternar = async (b: BannerAdmin, ativo: boolean) => {
+    await salvar({
+      data: {
+        id: b.id, titulo: b.titulo, subtitulo: b.subtitulo, imagemUrl: b.imagemUrl,
+        ctaRotulo: b.ctaRotulo, ctaDestino: b.ctaDestino, inicio: b.inicio, fim: b.fim,
+        prioridade: b.prioridade, ativo, segmento: b.segmento as any, planoAlvo: b.planoAlvo, tenantAlvo: b.tenantAlvo,
+      },
+    });
+    await query.refetch();
+  };
+
+  return (
+    <div>
+      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
+      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
+      <ul className="space-y-2">
+        {(query.data ?? []).map((b) => (
+          <li key={b.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-paper">{b.titulo}</p>
+              {b.subtitulo ? <p className="mt-1 text-xs text-mute">{b.subtitulo}</p> : null}
+              <p className="mt-1 text-[11px] text-mute2">
+                {dataCurta(b.inicio)} até {b.fim ? dataCurta(b.fim) : "sem prazo"} · público: {b.segmento} · prioridade {b.prioridade}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={b.ativo} aria-label={`Campanha ${b.titulo} ativa`} onCheckedChange={(v) => void alternar(b, v)} />
+              <button
+                type="button"
+                className="text-[11px] text-brick"
+                onClick={async () => {
+                  await remover({ data: { id: b.id } });
+                  await query.refetch();
+                  setStatus("Campanha removida.");
+                }}
+              >
+                Excluir
+              </button>
+            </div>
+          </li>
+        ))}
+        {query.data && query.data.length === 0 ? <li className="text-xs text-mute">Nenhuma campanha publicada.</li> : null}
+      </ul>
+
+      <form
+        className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setStatus("");
+          setErro("");
+          try {
+            await salvar({
+              data: {
+                titulo: f.titulo.trim(),
+                subtitulo: f.subtitulo.trim() || null,
+                imagemUrl: f.imagemUrl.trim() || null,
+                ctaRotulo: f.ctaRotulo.trim() || null,
+                ctaDestino: f.ctaDestino.trim() || null,
+                inicio: f.inicio,
+                fim: f.fim || null,
+                prioridade: Number(f.prioridade || 0),
+                ativo: true,
+                segmento: f.segmento as "todos" | "novos" | "teste" | "plano" | "tenant" | "vencimento",
+                planoAlvo: f.planoAlvo || null,
+                tenantAlvo: f.tenantAlvo || null,
+              },
+            });
+            setF({ ...f, titulo: "", subtitulo: "", imagemUrl: "", ctaRotulo: "", ctaDestino: "" });
+            await query.refetch();
+            setStatus("Campanha publicada.");
+          } catch (err) {
+            setErro(err instanceof Error ? err.message : "Não deu para publicar.");
+          }
+        }}
+      >
+        <p className="text-sm font-semibold text-paper">Nova campanha</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Campo label="Título"><input className={input} value={f.titulo} onChange={(e) => setF({ ...f, titulo: e.target.value })} required /></Campo>
+          <Campo label="Subtítulo"><input className={input} value={f.subtitulo} onChange={(e) => setF({ ...f, subtitulo: e.target.value })} /></Campo>
+          <Campo label="Imagem (link)"><input className={input} value={f.imagemUrl} onChange={(e) => setF({ ...f, imagemUrl: e.target.value })} /></Campo>
+          <Campo label="Texto do botão"><input className={input} value={f.ctaRotulo} onChange={(e) => setF({ ...f, ctaRotulo: e.target.value })} /></Campo>
+          <Campo label="Destino do botão"><input className={input} value={f.ctaDestino} onChange={(e) => setF({ ...f, ctaDestino: e.target.value })} /></Campo>
+          <Campo label="Prioridade"><input className={input} inputMode="numeric" value={f.prioridade} onChange={(e) => setF({ ...f, prioridade: e.target.value })} /></Campo>
+          <Campo label="Início"><input className={input} type="date" value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></Campo>
+          <Campo label="Fim (opcional)"><input className={input} type="date" value={f.fim} onChange={(e) => setF({ ...f, fim: e.target.value })} /></Campo>
+          <Campo label="Quem vê">
+            <select className={input} value={f.segmento} onChange={(e) => setF({ ...f, segmento: e.target.value })}>
+              <option value="todos">Todas as barbearias</option>
+              <option value="novos">Barbearias novas</option>
+              <option value="teste">Em teste grátis</option>
+              <option value="vencimento">Teste perto de acabar</option>
+              <option value="plano">Um plano específico</option>
+              <option value="tenant">Uma barbearia específica</option>
+            </select>
+          </Campo>
+          {f.segmento === "plano" ? (
+            <Campo label="Plano">
+              <select className={input} value={f.planoAlvo} onChange={(e) => setF({ ...f, planoAlvo: e.target.value })}>
+                <option value="">Escolha</option>
+                {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+              </select>
+            </Campo>
+          ) : null}
+          {f.segmento === "tenant" ? (
+            <Campo label="Barbearia">
+              <select className={input} value={f.tenantAlvo} onChange={(e) => setF({ ...f, tenantAlvo: e.target.value })}>
+                <option value="">Escolha</option>
+                {(tenants.data ?? []).map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+              </select>
+            </Campo>
+          ) : null}
+        </div>
+        <button type="submit" className="btn-primary px-5 text-sm">Publicar campanha</button>
+      </form>
+    </div>
+  );
+}

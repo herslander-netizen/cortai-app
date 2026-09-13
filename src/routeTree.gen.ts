@@ -21,6 +21,7 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
+import { Route as AdminMonetizacaoRouteImport } from './routes/admin.monetizacao'
 import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
@@ -112,6 +113,11 @@ const AdminAjustesRoute = AdminAjustesRouteImport.update({
 const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
   id: '/barbearias',
   path: '/barbearias',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMonetizacaoRoute = AdminMonetizacaoRouteImport.update({
+  id: '/monetizacao',
+  path: '/monetizacao',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminParceirosRoute = AdminParceirosRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -330,6 +337,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -376,6 +384,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
+  '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/admin/ajustes'
     | '/admin/barbearias'
+    | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
     | '/admin/perfil'
@@ -646,6 +658,13 @@ declare module '@tanstack/react-router' {
       path: '/barbearias'
       fullPath: '/admin/barbearias'
       preLoaderRoute: typeof AdminBarbeariasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/monetizacao': {
+      id: '/admin/monetizacao'
+      path: '/monetizacao'
+      fullPath: '/admin/monetizacao'
+      preLoaderRoute: typeof AdminMonetizacaoRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/parceiros': {
@@ -878,6 +897,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
+  AdminMonetizacaoRoute: typeof AdminMonetizacaoRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   AdminPerfilRoute: typeof AdminPerfilRoute
@@ -888,6 +908,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
+  AdminMonetizacaoRoute: AdminMonetizacaoRoute,
   AdminParceirosRoute: AdminParceirosRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   AdminPerfilRoute: AdminPerfilRoute,
