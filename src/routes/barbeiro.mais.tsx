@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { AtalhoInstalar } from "@/components/pwa/AtalhoInstalar";
 import { Carregando } from "@/components/layout/Carregando";
+import { LinhaLegal } from "@/components/legal/LinksLegais";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { useContextoBarbearia } from "@/hooks/useContextoBarbearia";
 import { sair } from "@/lib/guarda";
@@ -95,6 +96,7 @@ function MaisPage() {
         </div>
       )}
       <PreferenciasDicas />
+      <LinhaLegal className="mt-8 text-center" />
       <button type="button" onClick={() => void sair()} className="mt-10 flex w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"><LogOut size={15} /> Sair da conta</button>
     </Screen>
   );
