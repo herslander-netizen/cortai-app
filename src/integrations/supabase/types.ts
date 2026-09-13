@@ -891,6 +891,41 @@ export type Database = {
         }
         Relationships: []
       }
+      recursos_do_tenant: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          chave: string
+          criado_em: string
+          id: string
+          tenant_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave: string
+          criado_em?: string
+          id?: string
+          tenant_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          chave?: string
+          criado_em?: string
+          id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recursos_do_tenant_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regras_de_plano: {
         Row: {
           ativo: boolean
@@ -1422,6 +1457,10 @@ export type Database = {
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
+      recurso_do_tenant_ativo: {
+        Args: { _chave: string; _tenant_id: string }
+        Returns: boolean
+      }
       registrar_acesso_do_tenant: {
         Args: { _tenant_id: string }
         Returns: undefined
