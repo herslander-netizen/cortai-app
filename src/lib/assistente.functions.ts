@@ -143,7 +143,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
       tenant_id: tenantId,
       autor: "assistente",
       conteudo: resposta.resposta,
-      acao: resposta as unknown as Record<string, unknown>,
+      acao: resposta as never,
     });
     await db.from("conversas_de_ia").update({ atualizado_em: new Date().toISOString() }).eq("id", conversaId);
 

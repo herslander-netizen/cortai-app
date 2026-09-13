@@ -217,7 +217,7 @@ async function lerItens(context: { supabase: any }, tenantId: string): Promise<R
     .select("itens")
     .eq("tenant_id", tenantId)
     .maybeSingle();
-  return ((data?.itens ?? {}) as Record<string, boolean>) ?? {};
+  return (data?.itens ?? {}) as Record<string, boolean>;
 }
 
 export const concluirConfiguracao = createServerFn({ method: "POST" })
