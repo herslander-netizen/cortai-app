@@ -904,6 +904,60 @@ export type Database = {
           },
         ]
       }
+      home_publica: {
+        Row: {
+          atualizado_em: string
+          atualizado_por: string | null
+          criado_em: string
+          id: boolean
+          publicado: Json
+          publicado_em: string | null
+          rascunho: Json
+        }
+        Insert: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          id?: boolean
+          publicado?: Json
+          publicado_em?: string | null
+          rascunho?: Json
+        }
+        Update: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          id?: boolean
+          publicado?: Json
+          publicado_em?: string | null
+          rascunho?: Json
+        }
+        Relationships: []
+      }
+      home_publica_versoes: {
+        Row: {
+          criado_em: string
+          criado_por: string | null
+          id: string
+          rotulo: string | null
+          snapshot: Json
+        }
+        Insert: {
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          rotulo?: string | null
+          snapshot: Json
+        }
+        Update: {
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          rotulo?: string | null
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       indicacoes: {
         Row: {
           convertido_em: string | null
@@ -1988,6 +2042,7 @@ export type Database = {
         Args: { _permission: string; _tenant_id: string }
         Returns: boolean
       }
+      home_publicada: { Args: never; Returns: Json }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
       meu_acesso_no_tenant: {
