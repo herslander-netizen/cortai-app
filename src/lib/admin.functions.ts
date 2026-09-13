@@ -264,8 +264,8 @@ export const excluirBarbearia = createServerFn({ method: "POST" })
 export const getMatrizDeRecursos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await exigirAdmin(context);
-    const { data, error } = await context.supabase
+    const db = await adminContext(context);
+    const { data, error } = await db
       .from("recursos_de_plano")
       .select("id, chave, rotulo, descricao, plano, liberado")
       .order("rotulo")
@@ -281,8 +281,8 @@ export const definirRecursoDePlano = createServerFn({ method: "POST" })
     z.object({ chave: z.string().min(2).max(60), plano: z.enum(["essencial", "pro", "studio"]), liberado: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await exigirAdmin(context);
-    const { error } = await context.supabase
+    const db = await adminContext(context);
+    const { error } = await db
       .from("recursos_de_plano")
       .update({ liberado: data.liberado })
       .eq("chave", data.chave)
