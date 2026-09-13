@@ -51,6 +51,7 @@ import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroRecursosRouteImport } from './routes/barbeiro.recursos'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as LegalIndexRouteImport } from './routes/legal.index'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
@@ -265,6 +266,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const LegalIndexRoute = LegalIndexRouteImport.update({
+  id: '/legal/',
+  path: '/legal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/legal/': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -368,6 +375,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
+  '/legal': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
 }
@@ -416,6 +424,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/legal/': typeof LegalIndexRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
 }
@@ -465,6 +474,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/legal/'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesByTo: FileRoutesByTo
@@ -508,6 +518,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/barbeiro'
+    | '/legal'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
   id:
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/legal/'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
   fileRoutesById: FileRoutesById
@@ -569,6 +581,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   BSlugRoute: typeof BSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
+  LegalIndexRoute: typeof LegalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -867,6 +880,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/legal/': {
+      id: '/legal/'
+      path: '/legal'
+      fullPath: '/legal/'
+      preLoaderRoute: typeof LegalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -1008,6 +1028,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   BSlugRoute: BSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
+  LegalIndexRoute: LegalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
