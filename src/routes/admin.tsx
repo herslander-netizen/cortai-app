@@ -3,6 +3,7 @@ import { exigirPapel } from "@/lib/guarda";
 import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 
 const tabs = [
   { to: "/admin", label: "Visão geral", icon: LineChart },
@@ -31,6 +32,7 @@ function AdminLayout() {
         <nav className="mt-10 space-y-7" aria-label="Painel da plataforma">{desktopGroups.map((group) => <section key={group.label}><p className="mb-2 px-3 text-[10px] font-semibold uppercase text-mute2">{group.label}</p><div className="space-y-1">{group.items.map((item) => { const Icon = item.icon; return <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm text-mute transition-colors hover:bg-ink2 hover:text-paper" activeProps={{ className: "bg-ink2 text-paper" }}><Icon size={17} />{item.label}</Link>; })}</div></section>)}</nav>
       </aside>
       <Outlet />
+      <ConviteDeInstalacao />
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2/95 backdrop-blur-md md:hidden" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 6px)" }} aria-label="Painel da plataforma"><ul className="mx-auto grid max-w-[520px] grid-cols-4 px-1 pt-1">{tabs.map((item) => { const Icon = item.icon; return <li key={item.to}><Link to={item.to} activeOptions={{ exact: item.to === "/admin" }} className="group mx-auto flex h-14 w-full max-w-[88px] flex-col items-center justify-center gap-1 text-mute" activeProps={{ className: "text-gold", "aria-current": "page" }}><span className="flex h-7 w-12 items-center justify-center rounded-full group-aria-[current=page]:bg-gold-soft"><Icon size={19}/></span><span className="w-full truncate text-center text-[10px] font-medium">{item.label}</span></Link></li>; })}</ul></nav>
     </div>
   );
