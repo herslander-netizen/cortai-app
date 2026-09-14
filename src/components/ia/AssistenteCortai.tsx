@@ -4,6 +4,10 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Send, X } from "lucide-react";
 
+import { BigodeCortai } from "./BigodeCortai";
+import { FolhaCortai } from "./FolhaCortai";
+import { useProgressoCortai } from "./useProgressoCortai";
+
 import { brl } from "@/lib/format";
 import { DIAS_DA_SEMANA, type RespostaDoAssistente } from "@/lib/ia/assistente";
 import {
