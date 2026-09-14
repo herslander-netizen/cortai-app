@@ -250,7 +250,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
         </div>
 
         <form
-          className="flex items-end gap-2 border-t border-line px-4 py-3"
+          className="sticky bottom-0 flex items-end gap-2 border-t border-line bg-ink2 px-4 py-3"
           onSubmit={(e) => {
             e.preventDefault();
             void enviar(texto);
@@ -279,7 +279,6 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             <Send size={17} aria-hidden />
           </button>
         </form>
-      </section>
-    </div>
+    </FolhaCortai>
   );
 }
