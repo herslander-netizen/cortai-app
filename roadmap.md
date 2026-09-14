@@ -61,3 +61,9 @@
 - [x] Transcrição real de áudio quando o serviço entrega a mídia (sem simulação)
 - [x] Métricas base (conversas, agendamentos, encaminhamentos, assuntos)
 - [ ] Pendente externo: publicar o serviço de WhatsApp e cadastrar as credenciais
+
+## Novo pedido (14/09)
+- [ ] Tela de acompanhamento do CortAI no painel (conversas, intenções, ferramentas usadas e falhas) — somente leitura, sem mexer no atendimento
+- [ ] Cadastrar credenciais reais da ALVO IA (ALVO_IA_BASE_URL, ALVO_IA_API_KEY, ALVO_IA_WEBHOOK_SECRET) e conferir envio/recebimento de eventos
+- [ ] Publicar o serviço de WhatsApp e conectar o QR de verdade (bloqueado: depende de servidor fora do site)
+- [ ] Teste de atendimento completo no WhatsApp real (bloqueado pelo item acima)
