@@ -8,7 +8,7 @@ import { Screen } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { STATUS_DA_INTEGRACAO, type StatusDaIntegracao } from "@/lib/ia/contrato";
 import type { PainelDeIntegracao } from "@/lib/ia.functions";
-import { conectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
+import { conectarAlvoIA, desconectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
 
 export const Route = createFileRoute("/barbeiro/integracoes")({
   ssr: false,
@@ -40,6 +40,7 @@ function IntegracoesPage() {
   const cliente = useQueryClient();
   const salvar = useServerFn(salvarAgenteDeIA);
   const conectar = useServerFn(conectarAlvoIA);
+  const desconectar = useServerFn(desconectarAlvoIA);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["integracao-ia"],
