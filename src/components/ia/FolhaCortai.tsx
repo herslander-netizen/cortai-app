@@ -83,7 +83,8 @@ export function FolhaCortai({
         tabIndex={-1}
         className="cortai-sheet relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-t-2xl border border-line2 bg-ink2 outline-none"
         style={{
-          height: `${altura}vh`,
+          height: `${altura}dvh`,
+          maxHeight: "100dvh",
           transform: entrou ? `translateY(${Math.max(0, arrasto)}px)` : "translateY(100%)",
           transition: inicio.current === null ? "transform 220ms cubic-bezier(.22,1.2,.36,1), height 220ms ease" : "none",
         }}
@@ -104,7 +105,9 @@ export function FolhaCortai({
           <span className="mx-auto block h-1 w-10 rounded-full bg-line2" aria-hidden />
           {cabecalho}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+        {/* O conteúdo controla a própria rolagem: cabeçalho fixo, mensagens
+            rolando e campo de escrita sempre acessível. */}
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </section>
     </div>,
     document.body,

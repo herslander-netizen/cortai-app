@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
-import { MessageCircle, Bot, ShieldCheck, Smartphone } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Bot, Loader2, MessageCircle, Send, ShieldCheck, Smartphone } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
-import { AUTOMACOES, STATUS_DA_CONEXAO, TONS, type ChaveDeAutomacao, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
+import { QrCodeReal } from "@/components/ia/QrCodeReal";
+import { AUTOMACOES, TONS, type ChaveDeAutomacao, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import {
   atualizarQrCode,
   listarInformacoes,
@@ -22,6 +23,7 @@ import {
   responderComoHumano,
   salvarAutomacao,
   salvarConfiguracaoDoCortai,
+  sincronizarConexao,
   type PainelDoCortai,
 } from "@/lib/whatsapp.functions";
 
