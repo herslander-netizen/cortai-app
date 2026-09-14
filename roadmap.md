@@ -68,3 +68,10 @@
 - [ ] Publicar o serviço de WhatsApp e conectar o QR de verdade (bloqueado: depende de servidor fora do site)
 - [ ] Teste de atendimento completo no WhatsApp real (bloqueado pelo item acima)
 - [ ] Aviso de nova versão: modal bloqueante quando abaixo da versão mínima e aviso discreto quando só recomendada
+
+## Pedido 14/09 (segunda leva)
+- [ ] Recuperação real de senha (resetPasswordForEmail + tela nova senha)
+- [ ] WhatsApp via Evolution API (instância, QR base64, status, webhook)
+- [ ] Endpoints reais Cortaí para a ALVO IA (barbearia, serviços, profissionais, clientes, agenda, disponibilidade, CRUD de agendamento)
+- [ ] Área administrativa do barbeiro dentro do ALVO IA
+- [ ] Indicador ••• e rolagem suave na conversa
