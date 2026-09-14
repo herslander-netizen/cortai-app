@@ -52,3 +52,18 @@ export const enviarPedidoDeProjeto = createServerFn({ method: "POST" })
     if (error) throw new Error("Não foi possível enviar seu pedido agora. Tente novamente em instantes.");
     return { ok: true as const };
   });
+
+/**
+ * Contato público da plataforma (WhatsApp e redes da Alvo Digital).
+ * Lido no servidor para que visitantes não precisem de acesso direto ao banco.
+ */
+export const getContatoDaPlataforma = createServerFn({ method: "GET" }).handler(
+  async (): Promise<{ whatsapp: string | null }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("contato_da_plataforma");
+    if (error) return { whatsapp: null };
+    const linha = Array.isArray(data) ? data[0] : null;
+    const digitos = String(linha?.whatsapp_alvo ?? "").replace(/\D/g, "");
+    return { whatsapp: digitos.length >= 10 ? `https://wa.me/${digitos}` : null };
+  },
+);
