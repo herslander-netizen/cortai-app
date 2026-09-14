@@ -260,33 +260,57 @@ export async function processarMensagemRecebida(input: {
 
   const { data: historicoBruto } = await db
     .from("mensagens_whatsapp")
-    .select("direcao, conteudo, tipo")
+    .select("direcao, conteudo, tipo, gerada_por_humano")
     .eq("conversa_id", conversa.id)
     .order("criado_em", { ascending: false })
-    .limit(20);
+    .limit(30);
 
-  const historico = (historicoBruto ?? [])
-    .reverse()
-    .filter((m) => m.tipo === "text" && m.conteudo.trim() !== "")
-    .map((m) => ({ autor: (m.direcao === "entrada" ? "cliente" : "atendente") as "cliente" | "atendente", texto: m.conteudo }));
+  const anteriores = (historicoBruto ?? []).reverse();
+  const historico = anteriores
+    .filter((m) => m.conteudo.trim() !== "")
+    .map((m) => ({
+      autor: (m.direcao === "entrada" ? "cliente" : "atendente") as "cliente" | "atendente",
+      texto: m.conteudo,
+    }));
+  // Contexto após atendimento humano: o CortAI retoma de onde a equipe parou.
+  const houveAtendimentoHumano = anteriores.some((m) => m.gerada_por_humano);
 
-  // Mídia que o CortAI não consegue interpretar nunca vira palpite.
+  // Áudio: transcrição real quando o serviço entrega a mídia; nunca palpite.
+  let textoDoCliente = input.conteudo;
   if (input.tipo !== "text") {
-    const aviso =
-      "Recebi sua mensagem, mas por aqui eu só consigo ler texto. Pode me escrever o que precisa? Se preferir, chamo alguém da equipe.";
-    await enviarPelaBarbearia({
-      tenantId,
-      conversaId: conversa.id,
-      conexaoId: conexao.id,
-      sessaoId: input.sessaoId,
-      telefone,
-      texto: aviso,
-      porIa: true,
-    }).catch(() => undefined);
-    return { tratada: true, motivo: "midia_nao_suportada" };
+    const { transcreverAudio } = await import("./transcricao.server");
+    const transcrito = input.tipo === "audio" || input.tipo === "voice" ? await transcreverAudio(input.midiaUrl) : null;
+    if (transcrito) {
+      textoDoCliente = transcrito;
+      await db
+        .from("mensagens_whatsapp")
+        .update({ conteudo: transcrito })
+        .eq("conversa_id", conversa.id)
+        .eq("mensagem_externa_id", input.mensagemExternaId ?? "");
+      historico.push({ autor: "cliente", texto: transcrito });
+    } else {
+      const aviso =
+        "Recebi sua mensagem, mas por aqui eu só consigo ler texto. Pode me escrever o que precisa? Se preferir, chamo alguém da equipe.";
+      await enviarPelaBarbearia({
+        tenantId,
+        conversaId: conversa.id,
+        conexaoId: conexao.id,
+        sessaoId: input.sessaoId,
+        telefone,
+        texto: aviso,
+        porIa: true,
+      }).catch(() => undefined);
+      return { tratada: true, motivo: "midia_nao_suportada" };
+    }
   }
+  void textoDoCliente;
 
-  let resposta: { texto: string; pedirHumano: boolean } | null = null;
+  const clienteId = await vincularCliente(tenantId, conversa.id, telefone, conversa.cliente_id ?? null);
+  const perfil = await perfilDoCliente(tenantId, clienteId);
+  const contexto = ((conversa as { contexto?: unknown }).contexto ?? {}) as ContextoDaConversa;
+
+  const { responderConversa: responder } = await import("./atendimento.server");
+  let resposta: Awaited<ReturnType<typeof responder>> = null;
   try {
     resposta = await responderConversa({
       ctx: { tenantId, externalAgentId: integracao?.agent_name ?? null },
@@ -296,6 +320,9 @@ export async function processarMensagemRecebida(input: {
       nomeDoAgente: integracao?.agent_name ?? null,
       config,
       historico,
+      contexto: { ...contexto, ...(clienteId ? { clienteId } : {}) },
+      perfil,
+      houveAtendimentoHumano,
     });
   } catch (erro) {
     await db.from("acoes_de_ia_log").insert({
@@ -320,6 +347,15 @@ export async function processarMensagemRecebida(input: {
     porIa: true,
   }).catch(() => undefined);
 
+  // Memória curta da conversa e intenção identificada ficam guardadas.
+  await db
+    .from("conversas_whatsapp")
+    .update({
+      contexto: { ...resposta.contexto, ...(clienteId ? { clienteId } : {}) } as never,
+      ...(resposta.intencao ? { intencao: resposta.intencao } : {}),
+    })
+    .eq("id", conversa.id);
+
   if (resposta.pedirHumano && config.encaminhamentoHumano) {
     await db
       .from("conversas_whatsapp")
@@ -329,6 +365,7 @@ export async function processarMensagemRecebida(input: {
       tenant_id: tenantId,
       conversa_id: conversa.id,
       acao: "encaminhar_para_humano",
+      intencao: "atendimento_humano",
       sucesso: true,
     });
   }
