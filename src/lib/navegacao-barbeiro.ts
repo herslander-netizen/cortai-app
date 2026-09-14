@@ -3,6 +3,7 @@ import {
   BarChart3,
   Bot,
   Megaphone,
+  MessageCircle,
   Clock3,
   Palette,
   Scissors,
@@ -28,6 +29,7 @@ export const MODULOS_DE_NAVEGACAO = [
   { grupo: "Configurações", to: "/barbeiro/horarios", label: "Horários", detail: "Dias e horas em que você atende", icon: Clock3, permissao: "alterar_dados_barbearia" },
   { grupo: "Configurações", to: "/barbeiro/equipe", label: "Equipe e permissões", detail: "Quem entra e o que pode fazer", icon: UsersRound, permissao: "gerenciar_permissoes" },
   { grupo: "Configurações", to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette, permissao: "alterar_dados_barbearia" },
+  { grupo: "Operação", to: "/barbeiro/cortai", label: "CortAI no WhatsApp", detail: "Conexão, conversas e atendimento", icon: MessageCircle, permissao: "ver_cortai" },
   { grupo: "Configurações", to: "/barbeiro/integracoes", label: "Integrações", detail: "Atendimento inteligente da ALVO", icon: Bot, permissao: "alterar_dados_barbearia" },
 ] as const satisfies ReadonlyArray<{ grupo: string; to: string; label: string; detail: string; icon: typeof Banknote; permissao: ChaveDePermissao }>;
 
