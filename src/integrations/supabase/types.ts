@@ -44,6 +44,57 @@ export type Database = {
         }
         Relationships: []
       }
+      acoes_de_ia_log: {
+        Row: {
+          acao: string
+          conversa_id: string | null
+          criado_em: string
+          entrada: Json
+          erro: string | null
+          id: string
+          resultado: Json
+          sucesso: boolean
+          tenant_id: string
+        }
+        Insert: {
+          acao: string
+          conversa_id?: string | null
+          criado_em?: string
+          entrada?: Json
+          erro?: string | null
+          id?: string
+          resultado?: Json
+          sucesso?: boolean
+          tenant_id: string
+        }
+        Update: {
+          acao?: string
+          conversa_id?: string | null
+          criado_em?: string
+          entrada?: Json
+          erro?: string | null
+          id?: string
+          resultado?: Json
+          sucesso?: boolean
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acoes_de_ia_log_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acoes_de_ia_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agendamentos: {
         Row: {
           cancelado_em: string | null
@@ -202,6 +253,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "auditoria_de_suporte_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automacoes_de_ia: {
+        Row: {
+          ativa: boolean
+          atualizado_em: string
+          chave: string
+          criado_em: string
+          gatilho: Json
+          id: string
+          mensagem: string
+          tenant_id: string
+        }
+        Insert: {
+          ativa?: boolean
+          atualizado_em?: string
+          chave: string
+          criado_em?: string
+          gatilho?: Json
+          id?: string
+          mensagem?: string
+          tenant_id: string
+        }
+        Update: {
+          ativa?: boolean
+          atualizado_em?: string
+          chave?: string
+          criado_em?: string
+          gatilho?: Json
+          id?: string
+          mensagem?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automacoes_de_ia_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -514,6 +606,124 @@ export type Database = {
           },
         ]
       }
+      conexoes_whatsapp: {
+        Row: {
+          atualizado_em: string
+          conectado_em: string | null
+          criado_em: string
+          desconectado_em: string | null
+          id: string
+          nome_exibicao: string | null
+          numero: string | null
+          provedor: string
+          qr_code: string | null
+          qr_expira_em: string | null
+          sessao_id: string
+          status: string
+          tenant_id: string
+          ultimo_erro: string | null
+          visto_em: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          conectado_em?: string | null
+          criado_em?: string
+          desconectado_em?: string | null
+          id?: string
+          nome_exibicao?: string | null
+          numero?: string | null
+          provedor?: string
+          qr_code?: string | null
+          qr_expira_em?: string | null
+          sessao_id: string
+          status?: string
+          tenant_id: string
+          ultimo_erro?: string | null
+          visto_em?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          conectado_em?: string | null
+          criado_em?: string
+          desconectado_em?: string | null
+          id?: string
+          nome_exibicao?: string | null
+          numero?: string | null
+          provedor?: string
+          qr_code?: string | null
+          qr_expira_em?: string | null
+          sessao_id?: string
+          status?: string
+          tenant_id?: string
+          ultimo_erro?: string | null
+          visto_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conexoes_whatsapp_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      config_atendimento_ia: {
+        Row: {
+          atendimento_automatico: boolean
+          atualizado_em: string
+          criado_em: string
+          encaminhamento_humano: boolean
+          lembretes: boolean
+          mensagem_boas_vindas: string
+          mensagem_fora_do_horario: string
+          permite_cancelar: boolean
+          permite_confirmar: boolean
+          permite_remarcar: boolean
+          saudacao_ativa: boolean
+          tenant_id: string
+          tom: string
+        }
+        Insert: {
+          atendimento_automatico?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          encaminhamento_humano?: boolean
+          lembretes?: boolean
+          mensagem_boas_vindas?: string
+          mensagem_fora_do_horario?: string
+          permite_cancelar?: boolean
+          permite_confirmar?: boolean
+          permite_remarcar?: boolean
+          saudacao_ativa?: boolean
+          tenant_id: string
+          tom?: string
+        }
+        Update: {
+          atendimento_automatico?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          encaminhamento_humano?: boolean
+          lembretes?: boolean
+          mensagem_boas_vindas?: string
+          mensagem_fora_do_horario?: string
+          permite_cancelar?: boolean
+          permite_confirmar?: boolean
+          permite_remarcar?: boolean
+          saudacao_ativa?: boolean
+          tenant_id?: string
+          tom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "config_atendimento_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       configuracoes_da_plataforma: {
         Row: {
           atualizado_em: string
@@ -640,6 +850,79 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "conversas_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversas_whatsapp: {
+        Row: {
+          atualizado_em: string
+          cliente_id: string | null
+          conexao_id: string | null
+          contexto: Json
+          criado_em: string
+          ia_ativa: boolean
+          id: string
+          modo_humano: boolean
+          nao_lidas: number
+          nome_contato: string | null
+          status: string
+          telefone: string
+          tenant_id: string
+          ultima_mensagem_em: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          cliente_id?: string | null
+          conexao_id?: string | null
+          contexto?: Json
+          criado_em?: string
+          ia_ativa?: boolean
+          id?: string
+          modo_humano?: boolean
+          nao_lidas?: number
+          nome_contato?: string | null
+          status?: string
+          telefone: string
+          tenant_id: string
+          ultima_mensagem_em?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          cliente_id?: string | null
+          conexao_id?: string | null
+          contexto?: Json
+          criado_em?: string
+          ia_ativa?: boolean
+          id?: string
+          modo_humano?: boolean
+          nao_lidas?: number
+          nome_contato?: string | null
+          status?: string
+          telefone?: string
+          tenant_id?: string
+          ultima_mensagem_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversas_whatsapp_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversas_whatsapp_conexao_id_fkey"
+            columns: ["conexao_id"]
+            isOneToOne: false
+            referencedRelation: "conexoes_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversas_whatsapp_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1223,6 +1506,88 @@ export type Database = {
           },
           {
             foreignKeyName: "mensagens_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mensagens_whatsapp: {
+        Row: {
+          autor_user_id: string | null
+          conexao_id: string | null
+          conteudo: string
+          conversa_id: string
+          criado_em: string
+          direcao: string
+          erro: string | null
+          gerada_por_humano: boolean
+          gerada_por_ia: boolean
+          id: string
+          mensagem_externa_id: string | null
+          midia_url: string | null
+          status: string
+          telefone_destinatario: string | null
+          telefone_remetente: string | null
+          tenant_id: string
+          tipo: string
+        }
+        Insert: {
+          autor_user_id?: string | null
+          conexao_id?: string | null
+          conteudo?: string
+          conversa_id: string
+          criado_em?: string
+          direcao: string
+          erro?: string | null
+          gerada_por_humano?: boolean
+          gerada_por_ia?: boolean
+          id?: string
+          mensagem_externa_id?: string | null
+          midia_url?: string | null
+          status?: string
+          telefone_destinatario?: string | null
+          telefone_remetente?: string | null
+          tenant_id: string
+          tipo?: string
+        }
+        Update: {
+          autor_user_id?: string | null
+          conexao_id?: string | null
+          conteudo?: string
+          conversa_id?: string
+          criado_em?: string
+          direcao?: string
+          erro?: string | null
+          gerada_por_humano?: boolean
+          gerada_por_ia?: boolean
+          id?: string
+          mensagem_externa_id?: string | null
+          midia_url?: string | null
+          status?: string
+          telefone_destinatario?: string | null
+          telefone_remetente?: string | null
+          tenant_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_whatsapp_conexao_id_fkey"
+            columns: ["conexao_id"]
+            isOneToOne: false
+            referencedRelation: "conexoes_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_whatsapp_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_whatsapp_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
