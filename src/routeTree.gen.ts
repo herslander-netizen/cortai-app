@@ -66,6 +66,7 @@ import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
+import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
@@ -355,6 +356,11 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
 } as any)
+const ApiPublicAiSplatRoute = ApiPublicAiSplatRouteImport.update({
+  id: '/api/public/ai/$',
+  path: '/api/public/ai/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   id: '/api/public/cortai/acoes',
   path: '/api/public/cortai/acoes',
@@ -431,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -489,6 +496,7 @@ export interface FileRoutesByTo {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
+  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -552,6 +560,7 @@ export interface FileRoutesById {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -616,6 +625,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
+    | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -674,6 +684,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
+    | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -736,6 +747,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
+    | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -759,6 +771,7 @@ export interface RootRouteChildren {
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
+  ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
   ApiPublicWhatsappEvolutionRoute: typeof ApiPublicWhatsappEvolutionRoute
@@ -1165,6 +1178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
+    '/api/public/ai/$': {
+      id: '/api/public/ai/$'
+      path: '/api/public/ai/$'
+      fullPath: '/api/public/ai/$'
+      preLoaderRoute: typeof ApiPublicAiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cortai/acoes': {
       id: '/api/public/cortai/acoes'
       path: '/api/public/cortai/acoes'
@@ -1322,6 +1342,7 @@ const rootRouteChildren: RootRouteChildren = {
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
+  ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
   ApiPublicWhatsappEvolutionRoute: ApiPublicWhatsappEvolutionRoute,
