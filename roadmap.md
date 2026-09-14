@@ -67,3 +67,4 @@
 - [ ] Cadastrar credenciais reais da ALVO IA (ALVO_IA_BASE_URL, ALVO_IA_API_KEY, ALVO_IA_WEBHOOK_SECRET) e conferir envio/recebimento de eventos
 - [ ] Publicar o serviço de WhatsApp e conectar o QR de verdade (bloqueado: depende de servidor fora do site)
 - [ ] Teste de atendimento completo no WhatsApp real (bloqueado pelo item acima)
+- [ ] Aviso de nova versão: modal bloqueante quando abaixo da versão mínima e aviso discreto quando só recomendada
