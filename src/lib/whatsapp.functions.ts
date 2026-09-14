@@ -139,7 +139,10 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
     const sessao = await sessaoDoTenant(tenantId);
     const db = await admin();
     try {
-      const estado = await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, URL_DE_EVENTOS);
+      const estado = await gatewayDeWhatsapp.criarSessao(
+        sessao.sessao_id,
+        provedorDoGateway() === "evolution" ? URL_DE_EVENTOS_EVOLUTION : URL_DE_EVENTOS,
+      );
       await db
         .from("conexoes_whatsapp")
         .update({
