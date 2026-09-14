@@ -20,6 +20,8 @@ export const TONS = {
   profissional: "Profissional",
   amigavel: "Amigável",
   direto: "Direto",
+  premium: "Premium",
+  objetivo: "Objetivo",
 } as const;
 
 export type TomDoAtendimento = keyof typeof TONS;
@@ -81,6 +83,9 @@ export type ConfiguracaoDoAtendimento = {
   encaminhamentoHumano: boolean;
   lembretes: boolean;
   tom: TomDoAtendimento;
+  /** Preparação da recuperação de clientes: desligada por padrão. */
+  recuperacaoAtiva: boolean;
+  recuperacaoDias: number;
 };
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
@@ -94,6 +99,8 @@ export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   encaminhamentoHumano: true,
   lembretes: false,
   tom: "profissional",
+  recuperacaoAtiva: false,
+  recuperacaoDias: 30,
 };
 
 /** Erro usado quando não existe serviço de WhatsApp configurado no ambiente. */
@@ -107,3 +114,53 @@ export class GatewayNaoConfiguradoError extends Error {
 export function ehGatewayNaoConfigurado(erro: unknown): boolean {
   return erro instanceof Error && erro.name === "GatewayNaoConfiguradoError";
 }
+
+/**
+ * Intenções que o CortAI reconhece. A lista é aberta: acrescentar uma intenção
+ * nova é só adicionar aqui — nada mais precisa ser reescrito.
+ */
+export const INTENCOES = {
+  saudacao: "Saudação",
+  informacoes: "Informações da barbearia",
+  servicos: "Serviços",
+  precos: "Preços",
+  profissionais: "Profissionais",
+  horario_funcionamento: "Horário de funcionamento",
+  localizacao: "Localização",
+  disponibilidade: "Disponibilidade",
+  agendamento: "Agendamento",
+  confirmacao: "Confirmação",
+  cancelamento: "Cancelamento",
+  reagendamento: "Reagendamento",
+  consulta_agendamento: "Consulta de agendamento",
+  historico: "Histórico",
+  atendimento_humano: "Atendimento humano",
+  duvida_geral: "Dúvida geral",
+  desconhecida: "Solicitação desconhecida",
+} as const;
+
+export type Intencao = keyof typeof INTENCOES;
+
+/** Memória curta da conversa: o que já ficou decidido até agora. */
+export type ContextoDaConversa = {
+  intencao?: Intencao;
+  resumo?: string;
+  clienteId?: string | null;
+  servicoId?: string | null;
+  servicoNome?: string | null;
+  profissionalId?: string | null;
+  profissionalNome?: string | null;
+  dia?: string | null;
+  /** Opções oferecidas na última mensagem, na ordem em que foram apresentadas. */
+  opcoes?: { rotulo: string; inicio: string; profissionalId: string; servicoId?: string | null }[];
+  agendamentoId?: string | null;
+  atualizadoEm?: string;
+};
+
+export type InformacaoDaBarbearia = {
+  id: string;
+  pergunta: string;
+  resposta: string;
+  ativo: boolean;
+  ordem: number;
+};
