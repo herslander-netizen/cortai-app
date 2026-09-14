@@ -41,3 +41,13 @@
 - [ ] Tour contextual dentro da folha da CortAI
 - [ ] Tela admin para criar barbearias e gerir contas de administrador
 - [ ] Restringir fila de espera e agenda ao acesso da barbearia
+
+## CortAI no WhatsApp (aprovado 14/09)
+
+- [x] Banco: conexões, conversas, mensagens, configurações, automações, registro de ações e novas permissões
+- [x] Camada única do serviço de WhatsApp (sessão, QR, status, envio, reconectar, desconectar)
+- [x] Entrada de avisos do serviço com assinatura conferida e entrega repetida ignorada
+- [x] Cérebro do atendimento com ferramentas reais e confirmação antes de agendar/cancelar/remarcar
+- [x] Tela do CortAI: conexão, conversas com assumir/retomar/encerrar, ajustes e automações
+- [ ] Publicar o serviço de WhatsApp e configurar WHATSAPP_GATEWAY_URL, WHATSAPP_GATEWAY_API_KEY e WHATSAPP_WEBHOOK_SECRET (bloqueado: depende de infraestrutura fora do site)
+- [ ] Transcrição de áudio (hoje o CortAI avisa que só lê texto)

@@ -45,6 +45,7 @@ import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
 import { Route as BarbeiroConfigurarRouteImport } from './routes/barbeiro.configurar'
 import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
+import { Route as BarbeiroCortaiRouteImport } from './routes/barbeiro.cortai'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
@@ -65,6 +66,7 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
+import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -246,6 +248,11 @@ const BarbeiroContaRoute = BarbeiroContaRouteImport.update({
   path: '/conta',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroCortaiRoute = BarbeiroCortaiRouteImport.update({
+  id: '/cortai',
+  path: '/cortai',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
   id: '/crescimento',
   path: '/crescimento',
@@ -346,6 +353,12 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhatsappEventosRoute =
+  ApiPublicWhatsappEventosRouteImport.update({
+    id: '/api/public/whatsapp/eventos',
+    path: '/api/public/whatsapp/eventos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -381,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
+  '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -404,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -435,6 +450,7 @@ export interface FileRoutesByTo {
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
+  '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -458,6 +474,7 @@ export interface FileRoutesByTo {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -494,6 +511,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
+  '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -517,6 +535,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -554,6 +573,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/barbeiro/configurar'
     | '/barbeiro/conta'
+    | '/barbeiro/cortai'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -577,6 +597,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -608,6 +629,7 @@ export interface FileRouteTypes {
     | '/barbeiro/caixa'
     | '/barbeiro/configurar'
     | '/barbeiro/conta'
+    | '/barbeiro/cortai'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -631,6 +653,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   id:
     | '__root__'
     | '/'
@@ -666,6 +689,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/barbeiro/configurar'
     | '/barbeiro/conta'
+    | '/barbeiro/cortai'
     | '/barbeiro/crescimento'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -689,6 +713,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -710,6 +735,7 @@ export interface RootRouteChildren {
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
+  ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -966,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroContaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/cortai': {
+      id: '/barbeiro/cortai'
+      path: '/cortai'
+      fullPath: '/barbeiro/cortai'
+      preLoaderRoute: typeof BarbeiroCortaiRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/crescimento': {
       id: '/barbeiro/crescimento'
       path: '/crescimento'
@@ -1106,6 +1139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/eventos': {
+      id: '/api/public/whatsapp/eventos'
+      path: '/api/public/whatsapp/eventos'
+      fullPath: '/api/public/whatsapp/eventos'
+      preLoaderRoute: typeof ApiPublicWhatsappEventosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1177,6 +1217,7 @@ interface BarbeiroRouteChildren {
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
   BarbeiroConfigurarRoute: typeof BarbeiroConfigurarRoute
   BarbeiroContaRoute: typeof BarbeiroContaRoute
+  BarbeiroCortaiRoute: typeof BarbeiroCortaiRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
@@ -1200,6 +1241,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
   BarbeiroConfigurarRoute: BarbeiroConfigurarRoute,
   BarbeiroContaRoute: BarbeiroContaRoute,
+  BarbeiroCortaiRoute: BarbeiroCortaiRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
@@ -1239,6 +1281,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
+  ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
