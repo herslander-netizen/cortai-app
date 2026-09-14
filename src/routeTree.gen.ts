@@ -68,6 +68,7 @@ import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.cli
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
+import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -365,6 +366,12 @@ const ApiPublicWhatsappEventosRoute =
     path: '/api/public/whatsapp/eventos',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWhatsappEvolutionRoute =
+  ApiPublicWhatsappEvolutionRouteImport.update({
+    id: '/api/public/whatsapp/evolution',
+    path: '/api/public/whatsapp/evolution',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -426,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
+  '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -483,6 +491,7 @@ export interface FileRoutesByTo {
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
+  '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -545,6 +554,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
+  '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -608,6 +618,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
+    | '/api/public/whatsapp/evolution'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -665,6 +676,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
+    | '/api/public/whatsapp/evolution'
   id:
     | '__root__'
     | '/'
@@ -726,6 +738,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/eventos'
+    | '/api/public/whatsapp/evolution'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -748,6 +761,7 @@ export interface RootRouteChildren {
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
+  ApiPublicWhatsappEvolutionRoute: typeof ApiPublicWhatsappEvolutionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1165,6 +1179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappEventosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/evolution': {
+      id: '/api/public/whatsapp/evolution'
+      path: '/api/public/whatsapp/evolution'
+      fullPath: '/api/public/whatsapp/evolution'
+      preLoaderRoute: typeof ApiPublicWhatsappEvolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1303,6 +1324,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
+  ApiPublicWhatsappEvolutionRoute: ApiPublicWhatsappEvolutionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

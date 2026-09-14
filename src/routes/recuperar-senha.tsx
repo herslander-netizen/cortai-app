@@ -25,6 +25,7 @@ function RecuperarSenhaPage() {
   const [email, setEmail] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
@@ -50,11 +51,22 @@ function RecuperarSenhaPage() {
           onSubmit={async (event) => {
             event.preventDefault();
             setEnviando(true);
-            // Nunca revelamos se o e-mail existe: a resposta é sempre a mesma.
-            await supabase.auth.resetPasswordForEmail(email.trim(), {
+            setErro(null);
+            // Nunca revelamos se o e-mail existe: quando a chamada funciona,
+            // a resposta é sempre a mesma. Falhas reais aparecem de verdade.
+            // O endereço abaixo precisa estar liberado como Redirect URL da conta.
+            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
               redirectTo: `${window.location.origin}/redefinir-senha`,
             });
             setEnviando(false);
+            if (error) {
+              setErro(
+                error.status === 429
+                  ? "Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo."
+                  : "Não foi possível enviar o e-mail de recuperação agora. Tente novamente em instantes.",
+              );
+              return;
+            }
             setEnviado(true);
           }}
         >
@@ -72,6 +84,11 @@ function RecuperarSenhaPage() {
               />
             </span>
           </label>
+          {erro ? (
+            <p className="text-sm text-brick" role="alert">
+              {erro}
+            </p>
+          ) : null}
           <button className="btn-primary w-full py-3.5" disabled={enviando}>
             {enviando ? "Enviando…" : "Enviar instruções"}
           </button>

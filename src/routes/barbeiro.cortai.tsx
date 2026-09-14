@@ -206,14 +206,16 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             <Smartphone size={18} />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-paper">Serviço de WhatsApp ainda não configurado</h2>
+            <h2 className="text-sm font-semibold text-paper">Gateway do WhatsApp não configurado</h2>
             <p className="mt-1 text-xs text-mute">
               A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Cortaí. Enquanto ele
               não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar algo que não funciona.
             </p>
             <p className="mt-3 text-[11px] text-mute2">
-              Para a equipe técnica: configure WHATSAPP_GATEWAY_URL, WHATSAPP_GATEWAY_API_KEY e
-              WHATSAPP_WEBHOOK_SECRET, e aponte o serviço para /api/public/whatsapp/eventos.
+              Para a equipe técnica: falta configurar{" "}
+              {(painel.credenciaisFaltantes.length ? painel.credenciaisFaltantes : ["EVOLUTION_API_URL", "EVOLUTION_API_KEY"]).join(", ")}
+              . O serviço (Evolution API) deve enviar os eventos para /api/public/whatsapp/evolution com o cabeçalho
+              x-webhook-secret.
             </p>
           </div>
         </div>

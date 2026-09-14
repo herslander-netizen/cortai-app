@@ -29,10 +29,16 @@ async function admin() {
 
 /** Endereço público que o serviço de WhatsApp chama para avisar o Cortaí. */
 export const URL_DE_EVENTOS = "https://cortai.dev/api/public/whatsapp/eventos";
+/** Endereço usado quando o provedor é a Evolution API. */
+export const URL_DE_EVENTOS_EVOLUTION = "https://cortai.dev/api/public/whatsapp/evolution";
 
 export type PainelDoCortai = {
   /** Existe serviço de WhatsApp publicado e configurado neste ambiente? */
   gatewayConfigurado: boolean;
+  /** Nome do provedor em uso (evolution por padrão). */
+  provedor: string;
+  /** Variáveis que ainda precisam ser cadastradas para o QR funcionar. */
+  credenciaisFaltantes: string[];
   /** A IA do CortAI está disponível? */
   iaDisponivel: boolean;
   conexao: ConexaoDeWhatsapp | null;
@@ -61,7 +67,9 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
-    const { gatewayConfigurado } = await import("@/lib/whatsapp/gateway.server");
+    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } = await import(
+      "@/lib/whatsapp/gateway.server"
+    );
     const { iaConfigurada } = await import("@/lib/whatsapp/atendimento.server");
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
@@ -84,6 +92,8 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const salvas = new Map((automacoes ?? []).map((a) => [a.chave, a]));
     return {
       gatewayConfigurado: gatewayConfigurado(),
+      provedor: provedorDoGateway(),
+      credenciaisFaltantes: credenciaisFaltantes(),
       iaDisponivel: iaConfigurada(),
       conexao: conexaoDaLinha(conexao),
       configuracao,
@@ -137,7 +147,10 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
     const sessao = await sessaoDoTenant(tenantId);
     const db = await admin();
     try {
-      const estado = await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, URL_DE_EVENTOS);
+      const estado = await gatewayDeWhatsapp.criarSessao(
+        sessao.sessao_id,
+        provedorDoGateway() === "evolution" ? URL_DE_EVENTOS_EVOLUTION : URL_DE_EVENTOS,
+      );
       await db
         .from("conexoes_whatsapp")
         .update({
