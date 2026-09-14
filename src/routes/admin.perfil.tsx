@@ -5,6 +5,8 @@ import { ChevronRight, LogOut, Palette, ShieldCheck, UserRound } from "lucide-re
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
+import { InstalarCortai } from "@/components/pwa/InstalarCortai";
+import { PreferenciasDePrivacidade } from "@/components/privacidade/PreferenciasDePrivacidade";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -47,6 +49,7 @@ function AdminPerfilPage() {
           </div>
         </li>
         <li><ThemeToggle /></li>
+        <li><InstalarCortai /></li>
         <li className="border-b border-line">
           <Link to="/admin/ajustes" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
             <Palette size={18} className="text-mute" />
@@ -71,6 +74,7 @@ function AdminPerfilPage() {
         </li>
       </ul>
       <PreferenciasDicas />
+      <PreferenciasDePrivacidade />
     </AdminScreen>
   );
 }

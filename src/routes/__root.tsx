@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
 
 function NotFoundComponent() {
   return (
@@ -137,6 +138,7 @@ function RootComponent() {
       <GlobalDesign>
         <GuiaProvider>
           <Outlet />
+          <BannerDeCookies />
         </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>
