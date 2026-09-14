@@ -2,24 +2,37 @@
  * Camada única de conversa com o serviço de WhatsApp (gateway).
  *
  * O Cortaí é um site: ele não mantém a sessão do WhatsApp aberta. Quem mantém
- * é um serviço separado, publicado pela equipe, configurado por variáveis de
- * ambiente. Enquanto elas não existirem, TODO método recusa a chamada com
- * `GatewayNaoConfiguradoError` — nunca existe QR falso nem conexão simulada.
+ * é um serviço separado (por padrão a Evolution API), configurado por
+ * variáveis de ambiente. Enquanto elas não existirem, TODO método recusa a
+ * chamada com `GatewayNaoConfiguradoError` — nunca existe QR falso nem conexão
+ * simulada.
+ *
+ * Provedores:
+ * - "evolution" (padrão): Evolution API v2, conexão por QR Code.
+ * - "generico": serviço próprio com o contrato /sessions usado antes.
+ *
+ * Variáveis aceitas (as legadas continuam valendo):
+ *   EVOLUTION_API_URL        | WHATSAPP_GATEWAY_URL
+ *   EVOLUTION_API_KEY        | WHATSAPP_GATEWAY_API_KEY
+ *   EVOLUTION_WEBHOOK_SECRET | WHATSAPP_WEBHOOK_SECRET
+ *   WHATSAPP_GATEWAY_PROVIDER (evolution | generico)
  *
  * As credenciais são lidas dentro dos métodos e nunca saem do servidor.
  */
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 
-type Config = { baseUrl: string; apiKey: string; provedor: string };
+type Provedor = "evolution" | "generico";
+type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
 
 function lerConfig(): Config | null {
-  const baseUrl = process.env["WHATSAPP_GATEWAY_URL"];
-  const apiKey = process.env["WHATSAPP_GATEWAY_API_KEY"];
+  const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
+  const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
   if (!baseUrl || !apiKey) return null;
+  const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
   return {
     baseUrl: baseUrl.replace(/\/+$/, ""),
     apiKey,
-    provedor: process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "gateway",
+    provedor: bruto === "generico" ? "generico" : "evolution",
   };
 }
 
@@ -28,23 +41,41 @@ export function gatewayConfigurado(): boolean {
 }
 
 export function provedorDoGateway(): string {
-  return lerConfig()?.provedor ?? "gateway";
+  return lerConfig()?.provedor ?? "evolution";
 }
 
-/** Segredo com que o gateway assina os avisos que manda para o Cortaí. */
+/** Nomes das variáveis que faltam, para avisar com honestidade na tela. */
+export function credenciaisFaltantes(): string[] {
+  const faltam: string[] = [];
+  if (!(process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"])) {
+    faltam.push("EVOLUTION_API_URL");
+  }
+  if (!(process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"])) {
+    faltam.push("EVOLUTION_API_KEY");
+  }
+  if (!segredoDoWebhookDeWhatsapp()) faltam.push("EVOLUTION_WEBHOOK_SECRET");
+  return faltam;
+}
+
+/** Segredo com que o gateway assina/identifica os avisos mandados ao Cortaí. */
 export function segredoDoWebhookDeWhatsapp(): string | null {
-  return process.env["WHATSAPP_WEBHOOK_SECRET"] ?? null;
+  return process.env["EVOLUTION_WEBHOOK_SECRET"] ?? process.env["WHATSAPP_WEBHOOK_SECRET"] ?? null;
 }
 
-async function chamar<T>(caminho: string, metodo: "GET" | "POST", corpo?: unknown): Promise<T> {
+async function chamar<T>(
+  caminho: string,
+  metodo: "GET" | "POST" | "DELETE" | "PUT",
+  corpo?: unknown,
+): Promise<T> {
   const config = lerConfig();
   if (!config) throw new GatewayNaoConfiguradoError();
+  const cabecalhos: Record<string, string> = { "content-type": "application/json" };
+  if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
+  else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
+
   const resposta = await fetch(`${config.baseUrl}${caminho}`, {
     method: metodo,
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${config.apiKey}`,
-    },
+    headers: cabecalhos,
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   if (!resposta.ok) {
@@ -53,7 +84,8 @@ async function chamar<T>(caminho: string, metodo: "GET" | "POST", corpo?: unknow
       `O serviço de WhatsApp respondeu ${resposta.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ""}`,
     );
   }
-  return (await resposta.json()) as T;
+  const texto = await resposta.text();
+  return (texto ? JSON.parse(texto) : {}) as T;
 }
 
 export type EstadoDaSessao = {
@@ -70,7 +102,7 @@ export function normalizarStatus(bruto: unknown): StatusDaConexao {
   const valor = String(bruto ?? "").toLowerCase();
   if (["connected", "conectado", "open", "ready"].includes(valor)) return "conectado";
   if (["connecting", "conectando", "syncing", "pairing"].includes(valor)) return "conectando";
-  if (["qr", "qr_ready", "qr_pronto", "scan_qr"].includes(valor)) return "qr_pronto";
+  if (["qr", "qr_ready", "qrcode", "qr_pronto", "scan_qr"].includes(valor)) return "qr_pronto";
   if (["pending", "pendente", "starting"].includes(valor)) return "pendente";
   if (["error", "erro", "failed"].includes(valor)) return "erro";
   return "desconectado";
@@ -87,27 +119,128 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
   };
 }
 
-/** Interface única do provedor. Trocar de serviço é reimplementar isto. */
-export const gatewayDeWhatsapp = {
+/* ---------------------------------------------------------------- Evolution */
+
+/** O QR da Evolution chega em base64 (data URL) e vale poucos minutos. */
+const MINUTOS_DO_QR = 2;
+
+function qrDaEvolution(bruto: Record<string, unknown>): { qrCode: string | null; expiraEm: string | null } {
+  const cru = bruto["qrcode"] ?? bruto["qrCode"] ?? bruto;
+  const objeto = (typeof cru === "object" && cru !== null ? cru : {}) as Record<string, unknown>;
+  const base64 = (objeto["base64"] as string) ?? (bruto["base64"] as string) ?? null;
+  const codigo = (objeto["code"] as string) ?? (bruto["code"] as string) ?? null;
+  const qr = base64 ?? codigo;
+  if (!qr) return { qrCode: null, expiraEm: null };
+  return { qrCode: qr, expiraEm: new Date(Date.now() + MINUTOS_DO_QR * 60_000).toISOString() };
+}
+
+function numeroDoDono(bruto: Record<string, unknown>): string | null {
+  const dono = (bruto["owner"] as string) ?? (bruto["ownerJid"] as string) ?? null;
+  if (!dono) return null;
+  return dono.split("@")[0] ?? null;
+}
+
+const evolution = {
   async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>("/sessions", "POST", {
-      session_id: sessaoId,
-      webhook_url: webhookUrl,
-    });
-    return normalizarEstado(r);
+    const segredo = segredoDoWebhookDeWhatsapp();
+    try {
+      const criado = await chamar<Record<string, unknown>>("/instance/create", "POST", {
+        instanceName: sessaoId,
+        qrcode: true,
+        integration: "WHATSAPP-BAILEYS",
+        webhook: {
+          url: webhookUrl,
+          byEvents: false,
+          base64: true,
+          headers: segredo ? { "x-webhook-secret": segredo } : undefined,
+          events: ["QRCODE_UPDATED", "CONNECTION_UPDATE", "MESSAGES_UPSERT"],
+        },
+      });
+      const { qrCode, expiraEm } = qrDaEvolution(criado);
+      const instancia = (criado["instance"] as Record<string, unknown>) ?? {};
+      return {
+        status: qrCode ? "qr_pronto" : normalizarStatus(instancia["status"] ?? "pending"),
+        qrCode,
+        qrExpiraEm: expiraEm,
+        numero: numeroDoDono(instancia),
+        nomeExibicao: (instancia["profileName"] as string) ?? null,
+        erro: null,
+      };
+    } catch (erro) {
+      if (erro instanceof GatewayNaoConfiguradoError) throw erro;
+      // A instância já existe: seguimos direto para a conexão.
+      return evolution.obterQrCode(sessaoId);
+    }
   },
 
   async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/qr`, "GET");
-    return normalizarEstado(r);
+    const r = await chamar<Record<string, unknown>>(
+      `/instance/connect/${encodeURIComponent(sessaoId)}`,
+      "GET",
+    );
+    const { qrCode, expiraEm } = qrDaEvolution(r);
+    if (!qrCode) return evolution.consultarStatus(sessaoId);
+    return { status: "qr_pronto", qrCode, qrExpiraEm: expiraEm, numero: null, nomeExibicao: null, erro: null };
   },
 
   async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}`, "GET");
-    return normalizarEstado(r);
+    const r = await chamar<Record<string, unknown>>(
+      `/instance/connectionState/${encodeURIComponent(sessaoId)}`,
+      "GET",
+    );
+    const instancia = (r["instance"] as Record<string, unknown>) ?? r;
+    return {
+      status: normalizarStatus(instancia["state"] ?? instancia["status"]),
+      qrCode: null,
+      qrExpiraEm: null,
+      numero: numeroDoDono(instancia),
+      nomeExibicao: (instancia["profileName"] as string) ?? null,
+      erro: null,
+    };
   },
 
-  async enviarMensagem(sessaoId: string, telefone: string, texto: string): Promise<{ id: string | null }> {
+  async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
+    const r = await chamar<Record<string, unknown>>(
+      `/message/sendText/${encodeURIComponent(sessaoId)}`,
+      "POST",
+      { number: telefone.replace(/\D/g, ""), text: texto },
+    );
+    const chave = (r["key"] as Record<string, unknown>) ?? {};
+    return { id: (chave["id"] as string) ?? (r["id"] as string) ?? null };
+  },
+
+  async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
+    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(() => undefined);
+    return evolution.obterQrCode(sessaoId);
+  },
+
+  async desconectar(sessaoId: string): Promise<void> {
+    await chamar(`/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE");
+  },
+};
+
+/* ---------------------------------------------------------------- Genérico */
+
+const generico = {
+  async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
+    return normalizarEstado(
+      await chamar<Record<string, unknown>>("/sessions", "POST", {
+        session_id: sessaoId,
+        webhook_url: webhookUrl,
+      }),
+    );
+  },
+  async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
+    return normalizarEstado(
+      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/qr`, "GET"),
+    );
+  },
+  async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
+    return normalizarEstado(
+      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}`, "GET"),
+    );
+  },
+  async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
     const r = await chamar<Record<string, unknown>>(
       `/sessions/${encodeURIComponent(sessaoId)}/messages`,
       "POST",
@@ -115,17 +248,29 @@ export const gatewayDeWhatsapp = {
     );
     return { id: (r["message_id"] as string) ?? (r["id"] as string) ?? null };
   },
-
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>(
-      `/sessions/${encodeURIComponent(sessaoId)}/restart`,
-      "POST",
-      {},
+    return normalizarEstado(
+      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/restart`, "POST", {}),
     );
-    return normalizarEstado(r);
   },
-
   async desconectar(sessaoId: string): Promise<void> {
     await chamar(`/sessions/${encodeURIComponent(sessaoId)}/disconnect`, "POST", {});
   },
+};
+
+function provedor() {
+  const config = lerConfig();
+  if (!config) throw new GatewayNaoConfiguradoError();
+  return config.provedor === "generico" ? generico : evolution;
+}
+
+/** Interface única do provedor. Trocar de serviço é reimplementar isto. */
+export const gatewayDeWhatsapp = {
+  criarSessao: (sessaoId: string, webhookUrl: string) => provedor().criarSessao(sessaoId, webhookUrl),
+  obterQrCode: (sessaoId: string) => provedor().obterQrCode(sessaoId),
+  consultarStatus: (sessaoId: string) => provedor().consultarStatus(sessaoId),
+  enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
+    provedor().enviarMensagem(sessaoId, telefone, texto),
+  reiniciarSessao: (sessaoId: string) => provedor().reiniciarSessao(sessaoId),
+  desconectar: (sessaoId: string) => provedor().desconectar(sessaoId),
 };
