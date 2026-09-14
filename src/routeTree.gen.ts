@@ -65,6 +65,7 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
+import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -346,6 +347,12 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhatsappEventosRoute =
+  ApiPublicWhatsappEventosRouteImport.update({
+    id: '/api/public/whatsapp/eventos',
+    path: '/api/public/whatsapp/eventos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -458,6 +466,7 @@ export interface FileRoutesByTo {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -517,6 +526,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -577,6 +587,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   id:
     | '__root__'
     | '/'
@@ -689,6 +701,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/eventos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -710,6 +723,7 @@ export interface RootRouteChildren {
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
+  ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1106,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/eventos': {
+      id: '/api/public/whatsapp/eventos'
+      path: '/api/public/whatsapp/eventos'
+      fullPath: '/api/public/whatsapp/eventos'
+      preLoaderRoute: typeof ApiPublicWhatsappEventosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1239,6 +1260,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
+  ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
