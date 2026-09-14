@@ -52,6 +52,7 @@ function IntegracoesPage() {
   const [saudacao, setSaudacao] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
+  const [chave, setChave] = useState<{ token: string; url: string } | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -78,8 +79,22 @@ function IntegracoesPage() {
 
   const pedirConexao = useMutation({
     mutationFn: () => conectar({ data: undefined }),
-    onSuccess: () => void refetch(),
+    onSuccess: (r: { token: string; url: string; aviso: string | null }) => {
+      setChave({ token: r.token, url: r.url });
+      setErro(r.aviso);
+      void refetch();
+    },
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível conectar agora."),
+  });
+
+  const desligar = useMutation({
+    mutationFn: () => desconectar({ data: undefined }),
+    onSuccess: () => {
+      setChave(null);
+      setErro(null);
+      void refetch();
+    },
+    onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível desligar agora."),
   });
 
   const status: StatusDaIntegracao = data?.integracao.status ?? "desconectado";
