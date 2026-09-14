@@ -1,0 +1,16 @@
+/**
+ * Indicador de que o CortAI está processando a resposta: três pontos discretos.
+ * Existe somente enquanto há processamento real — nunca como enfeite.
+ */
+export function Digitando({ rotulo = "CortAI" }: { rotulo?: string }) {
+  return (
+    <div className="flex items-center gap-2" role="status" aria-live="polite">
+      <span className="text-[11px] text-mute2">{rotulo}</span>
+      <span className="cortai-digitando" aria-label="CortAI está pensando">
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  );
+}
