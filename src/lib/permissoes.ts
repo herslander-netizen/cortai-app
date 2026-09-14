@@ -22,6 +22,11 @@ export const PERMISSOES = {
   gerenciar_permissoes: "Gerenciar equipe e permissões",
   acoes_destrutivas: "Ações críticas e exclusões",
   gerenciar_voltai: "Configurar o Voltaí (fidelidade)",
+  ver_cortai: "Ver o CortAI e as conversas",
+  gerenciar_conversas: "Organizar conversas do WhatsApp",
+  assumir_conversa: "Assumir e responder conversas",
+  configurar_automacoes: "Configurar o atendimento automático",
+  gerenciar_whatsapp: "Conectar e desconectar o WhatsApp",
 } as const;
 
 export type ChaveDePermissao = keyof typeof PERMISSOES;
