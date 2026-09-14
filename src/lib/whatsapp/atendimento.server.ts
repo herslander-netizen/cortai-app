@@ -389,7 +389,7 @@ export async function responderConversa(input: {
         if (valor !== undefined && valor !== null && valor !== "") (contextoAtual as Record<string, unknown>)[campo] = valor;
       }
       if (Array.isArray(dados.opcoes)) contextoAtual.opcoes = dados.opcoes.slice(0, 5);
-      contextoAtual.intencao = intencao ?? contextoAtual.intencao;
+      if (intencao) contextoAtual.intencao = intencao;
       contextoAtual.atualizadoEm = new Date().toISOString();
       return { ok: true };
     },

@@ -336,7 +336,7 @@ export async function historicoDoCliente(ctx: ContextoDoAgente, input: { cliente
     .maybeSingle();
   if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
 
-  const [{ data: passados }, { data: servicos }, { data: profissionais }, { data: memoria }] = await Promise.all([
+  const [{ data: passados }, servicos, profissionais, { data: memoria }] = await Promise.all([
     db
       .from("agendamentos")
       .select("id, inicio, status, servico_id, profissional_id")
@@ -353,8 +353,8 @@ export async function historicoDoCliente(ctx: ContextoDoAgente, input: { cliente
       .eq("cliente_id", input.clienteId),
   ]);
 
-  const nomeServico = new Map(servicos.map((s) => [s.id, s.nome]));
-  const nomeProfissional = new Map(profissionais.map((p) => [p.id, p.nome]));
+  const nomeServico = new Map(servicos.map((s: { id: string; nome: string }) => [s.id, s.nome]));
+  const nomeProfissional = new Map(profissionais.map((p: { id: string; nome: string }) => [p.id, p.nome]));
   const concluidos = (passados ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
 
   const contar = (lista: (string | null)[]) => {
