@@ -679,7 +679,6 @@ export type RegistroDeAtividade = {
 };
 
 export type AtividadeDoCortai = {
-  metricas: MetricasDoCortai;
   ferramentas: { acao: string; total: number; falhas: number }[];
   registros: RegistroDeAtividade[];
 };
@@ -714,13 +713,13 @@ export const getAtividadeDoCortai = createServerFn({ method: "GET" })
     if (ids.length > 0) {
       const { data: convs } = await db
         .from("conversas_whatsapp")
-        .select("id, telefone, nome_do_contato")
+        .select("id, telefone, nome_contato")
         .eq("tenant_id", tenantId)
         .in("id", ids);
       for (const c of convs ?? []) {
         conversas.set(c.id as string, {
           telefone: (c as any).telefone ?? null,
-          nome: (c as any).nome_do_contato ?? null,
+          nome: (c as any).nome_contato ?? null,
         });
       }
     }
@@ -733,10 +732,7 @@ export const getAtividadeDoCortai = createServerFn({ method: "GET" })
       uso.set(l.acao, atual);
     }
 
-    const metricas = await (getMetricasDoCortai as unknown as () => Promise<MetricasDoCortai>)();
-
     return {
-      metricas,
       ferramentas: [...uso.entries()]
         .map(([acao, v]) => ({ acao, total: v.total, falhas: v.falhas }))
         .sort((a, b) => b.total - a.total),
