@@ -58,14 +58,45 @@ export async function listarProfissionais(ctx: ContextoDoAgente) {
   return data ?? [];
 }
 
-/** Horários já ocupados no dia — a montagem da grade fica com quem consome. */
+/** Dados públicos da barbearia — o que o atendente pode contar ao cliente. */
+export async function consultarBarbearia(ctx: ContextoDoAgente) {
+  const db = await admin();
+  const [{ data: tenant }, { data: horarios }] = await Promise.all([
+    db.from("tenants").select("nome, slug, whatsapp, endereco").eq("id", ctx.tenantId).maybeSingle(),
+    db
+      .from("horarios_de_funcionamento")
+      .select("dia_semana, fechado, abre, fecha")
+      .eq("tenant_id", ctx.tenantId)
+      .order("dia_semana"),
+  ]);
+  return {
+    nome: tenant?.nome ?? null,
+    slug: tenant?.slug ?? null,
+    whatsapp: tenant?.whatsapp ?? null,
+    endereco: (tenant as { endereco?: string | null } | null)?.endereco ?? null,
+    horarios: horarios ?? [],
+  };
+}
+
+function minutos(hora: string): number {
+  const [h, m] = hora.split(":");
+  return Number(h) * 60 + Number(m ?? 0);
+}
+
+/**
+ * Disponibilidade REAL: grade montada a partir do horário de funcionamento da
+ * barbearia menos os agendamentos ativos. O atendente só pode oferecer o que
+ * sai daqui — nunca um horário inventado.
+ */
 export async function consultarDisponibilidade(
   ctx: ContextoDoAgente,
-  input: { dia: string; profissionalId?: string | null },
+  input: { dia: string; profissionalId?: string | null; servicoId?: string | null },
 ) {
   const db = await admin();
   const de = new Date(`${input.dia}T00:00:00`);
+  if (Number.isNaN(de.getTime())) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
   const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
+
   let consulta = db
     .from("agendamentos")
     .select("id, profissional_id, inicio, fim")
@@ -74,10 +105,59 @@ export async function consultarDisponibilidade(
     .gte("inicio", de.toISOString())
     .lt("inicio", ate.toISOString());
   if (input.profissionalId) consulta = consulta.eq("profissional_id", input.profissionalId);
-  const { data, error } = await consulta.order("inicio");
+
+  const [{ data: ocupados, error }, { data: expediente }, profissionais, servico] = await Promise.all([
+    consulta.order("inicio"),
+    db
+      .from("horarios_de_funcionamento")
+      .select("fechado, abre, fecha")
+      .eq("tenant_id", ctx.tenantId)
+      .eq("dia_semana", de.getDay())
+      .maybeSingle(),
+    listarProfissionais(ctx),
+    input.servicoId
+      ? db
+          .from("servicos")
+          .select("id, duracao_min")
+          .eq("tenant_id", ctx.tenantId)
+          .eq("id", input.servicoId)
+          .maybeSingle()
+          .then((r) => r.data)
+      : Promise.resolve(null),
+  ]);
   if (error) throw new Error(error.message);
-  return { dia: input.dia, ocupados: data ?? [] };
+
+  const equipe = input.profissionalId
+    ? profissionais.filter((p) => p.id === input.profissionalId)
+    : profissionais;
+
+  if (!expediente || expediente.fechado) {
+    return { dia: input.dia, fechado: true, ocupados: ocupados ?? [], livres: [] as { profissionalId: string; inicio: string }[] };
+  }
+
+  const duracao = servico?.duracao_min ?? 30;
+  const passo = 15;
+  const abre = minutos(String(expediente.abre).slice(0, 5));
+  const fecha = minutos(String(expediente.fecha).slice(0, 5));
+  const agora = Date.now();
+  const livres: { profissionalId: string; inicio: string }[] = [];
+
+  for (const profissional of equipe) {
+    const agenda = (ocupados ?? []).filter((a) => a.profissional_id === profissional.id);
+    for (let m = abre; m + duracao <= fecha; m += passo) {
+      const inicio = new Date(de.getTime() + m * 60_000);
+      const fim = new Date(inicio.getTime() + duracao * 60_000);
+      if (inicio.getTime() <= agora) continue;
+      const conflita = agenda.some(
+        (a) => new Date(a.inicio).getTime() < fim.getTime() && new Date(a.fim).getTime() > inicio.getTime(),
+      );
+      if (!conflita) livres.push({ profissionalId: profissional.id, inicio: inicio.toISOString() });
+    }
+  }
+
+  return { dia: input.dia, fechado: false, duracaoMin: duracao, ocupados: ocupados ?? [], livres };
 }
+
 
 /** Busca cliente pelo telefone dentro da própria barbearia. */
 export async function consultarCliente(ctx: ContextoDoAgente, input: { telefone: string }) {
