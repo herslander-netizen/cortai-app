@@ -663,3 +663,93 @@ export const getMetricasDoCortai = createServerFn({ method: "GET" })
         .slice(0, 6),
     };
   });
+
+/* ------------------------------ Atividade -------------------------------- */
+
+export type RegistroDeAtividade = {
+  id: string;
+  conversaId: string | null;
+  telefone: string | null;
+  nomeDoCliente: string | null;
+  acao: string;
+  intencao: string | null;
+  sucesso: boolean;
+  erro: string | null;
+  criadoEm: string;
+};
+
+export type AtividadeDoCortai = {
+  metricas: MetricasDoCortai;
+  ferramentas: { acao: string; total: number; falhas: number }[];
+  registros: RegistroDeAtividade[];
+};
+
+/**
+ * Tela de acompanhamento (somente leitura): o que o CortAI entendeu, quais
+ * ferramentas usou e o que falhou. Não altera nada do atendimento.
+ */
+export const getAtividadeDoCortai = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { apenasFalhas?: boolean } | undefined) => input ?? {})
+  .handler(async ({ context, data }): Promise<AtividadeDoCortai> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const desde = new Date(Date.now() - 30 * 86_400_000).toISOString();
+
+    let consulta = db
+      .from("acoes_de_ia_log")
+      .select("id, conversa_id, acao, intencao, sucesso, erro, criado_em")
+      .eq("tenant_id", tenantId)
+      .gte("criado_em", desde)
+      .order("criado_em", { ascending: false })
+      .limit(120);
+    if (data.apenasFalhas) consulta = consulta.eq("sucesso", false);
+    const { data: logs, error } = await consulta;
+    if (error) throw new Error(error.message);
+    const linhas = logs ?? [];
+
+    const ids = [...new Set(linhas.map((l) => l.conversa_id).filter(Boolean))] as string[];
+    const conversas = new Map<string, { telefone: string | null; nome: string | null }>();
+    if (ids.length > 0) {
+      const { data: convs } = await db
+        .from("conversas_whatsapp")
+        .select("id, telefone, nome_do_contato")
+        .eq("tenant_id", tenantId)
+        .in("id", ids);
+      for (const c of convs ?? []) {
+        conversas.set(c.id as string, {
+          telefone: (c as any).telefone ?? null,
+          nome: (c as any).nome_do_contato ?? null,
+        });
+      }
+    }
+
+    const uso = new Map<string, { total: number; falhas: number }>();
+    for (const l of linhas) {
+      const atual = uso.get(l.acao) ?? { total: 0, falhas: 0 };
+      atual.total += 1;
+      if (!l.sucesso) atual.falhas += 1;
+      uso.set(l.acao, atual);
+    }
+
+    const metricas = await (getMetricasDoCortai as unknown as () => Promise<MetricasDoCortai>)();
+
+    return {
+      metricas,
+      ferramentas: [...uso.entries()]
+        .map(([acao, v]) => ({ acao, total: v.total, falhas: v.falhas }))
+        .sort((a, b) => b.total - a.total),
+      registros: linhas.map((l) => ({
+        id: l.id as string,
+        conversaId: (l.conversa_id as string) ?? null,
+        telefone: conversas.get(l.conversa_id as string)?.telefone ?? null,
+        nomeDoCliente: conversas.get(l.conversa_id as string)?.nome ?? null,
+        acao: l.acao as string,
+        intencao: (l.intencao as string) ?? null,
+        sucesso: Boolean(l.sucesso),
+        erro: (l.erro as string) ?? null,
+        criadoEm: l.criado_em as string,
+      })),
+    };
+  });
