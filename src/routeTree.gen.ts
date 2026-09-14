@@ -21,7 +21,6 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as VisitanteRouteImport } from './routes/visitante'
-import { Route as ZzTesteFabRouteImport } from './routes/zz-teste-fab'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
@@ -125,11 +124,6 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const VisitanteRoute = VisitanteRouteImport.update({
   id: '/visitante',
   path: '/visitante',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ZzTesteFabRoute = ZzTesteFabRouteImport.update({
-  id: '/zz-teste-fab',
-  path: '/zz-teste-fab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -366,7 +360,6 @@ export interface FileRoutesByFullPath {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
-  '/zz-teste-fab': typeof ZzTesteFabRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
@@ -422,7 +415,6 @@ export interface FileRoutesByTo {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
-  '/zz-teste-fab': typeof ZzTesteFabRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
@@ -481,7 +473,6 @@ export interface FileRoutesById {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
-  '/zz-teste-fab': typeof ZzTesteFabRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
@@ -542,7 +533,6 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
-    | '/zz-teste-fab'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/home'
@@ -598,7 +588,6 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
-    | '/zz-teste-fab'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/home'
@@ -656,7 +645,6 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
-    | '/zz-teste-fab'
     | '/admin/ajustes'
     | '/admin/barbearias'
     | '/admin/home'
@@ -716,7 +704,6 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   VisitanteRoute: typeof VisitanteRoute
-  ZzTesteFabRoute: typeof ZzTesteFabRoute
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
@@ -809,13 +796,6 @@ declare module '@tanstack/react-router' {
       path: '/visitante'
       fullPath: '/visitante'
       preLoaderRoute: typeof VisitanteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/zz-teste-fab': {
-      id: '/zz-teste-fab'
-      path: '/zz-teste-fab'
-      fullPath: '/zz-teste-fab'
-      preLoaderRoute: typeof ZzTesteFabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -1253,7 +1233,6 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   VisitanteRoute: VisitanteRoute,
-  ZzTesteFabRoute: ZzTesteFabRoute,
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
