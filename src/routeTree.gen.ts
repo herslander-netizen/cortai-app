@@ -17,6 +17,7 @@ import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as VisitanteRouteImport } from './routes/visitante'
@@ -103,6 +104,11 @@ const ConviteRoute = ConviteRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
@@ -350,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
@@ -461,6 +469,7 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/convite'
     | '/login'
+    | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
@@ -574,6 +584,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/convite'
     | '/login'
+    | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
@@ -630,6 +641,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/convite'
     | '/login'
+    | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
@@ -688,6 +700,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConviteRoute: typeof ConviteRoute
   LoginRoute: typeof LoginRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   VisitanteRoute: typeof VisitanteRoute
@@ -755,6 +768,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recuperar-senha': {
@@ -1209,6 +1229,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConviteRoute: ConviteRoute,
   LoginRoute: LoginRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   VisitanteRoute: VisitanteRoute,
