@@ -75,3 +75,10 @@
 - [ ] Endpoints reais Cortaí para a ALVO IA (barbearia, serviços, profissionais, clientes, agenda, disponibilidade, CRUD de agendamento)
 - [ ] Área administrativa do barbeiro dentro do ALVO IA
 - [ ] Indicador ••• e rolagem suave na conversa
+
+## Evolution API (14/09)
+- [x] gateway.server.ts vira abstração de provider (evolution padrão, generico legado)
+- [x] webhook /api/public/whatsapp/evolution (segredo em x-webhook-secret, QR base64, connection.update, messages.upsert)
+- [x] tela avisa exatamente quais variáveis faltam
+- [ ] Publicar a Evolution API e cadastrar EVOLUTION_API_URL / EVOLUTION_API_KEY / EVOLUTION_WEBHOOK_SECRET (externo)
+- [ ] Endpoints /api/ai/* : hoje atendidos por /api/public/cortai/acoes (avaliar se precisa alias REST)
