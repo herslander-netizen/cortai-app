@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Send, X } from "lucide-react";
 
 import { BigodeCortai } from "./BigodeCortai";
+import { Digitando } from "./Digitando";
 import { FolhaCortai } from "./FolhaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
 
