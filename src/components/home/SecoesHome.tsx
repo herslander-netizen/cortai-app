@@ -23,6 +23,8 @@ import {
 import type { ComponentType } from "react";
 
 import heroAsset from "@/assets/cortai-hero-barbearia.png.asset.json";
+import mockupAsset from "@/assets/cortai-mockup-home.png.asset.json";
+
 import lojaImg from "@/assets/landing-loja.jpg";
 import ctaImg from "@/assets/landing-cta.jpg";
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
