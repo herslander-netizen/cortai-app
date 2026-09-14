@@ -181,21 +181,44 @@ function IntegracoesPage() {
             </button>
             {ok ? <p className="text-center text-sm text-sage">Atendente salvo.</p> : null}
 
-            {data.disponivel ? (
+            {data.integracao.status === "conectado" ? (
+              <button
+                type="button"
+                className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+                disabled={desligar.isPending}
+                onClick={() => desligar.mutate()}
+              >
+                {desligar.isPending ? "Desligando…" : "Desligar atendimento inteligente"}
+              </button>
+            ) : (
               <button
                 type="button"
                 className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
                 disabled={pedirConexao.isPending}
                 onClick={() => pedirConexao.mutate()}
               >
-                {pedirConexao.isPending ? "Conectando…" : "Conectar à ALVO IA"}
+                {pedirConexao.isPending ? "Conectando…" : "Conectar o atendimento inteligente"}
               </button>
-            ) : (
-              <p className="rounded-md border border-line bg-ink px-4 py-3 text-xs text-mute">
-                A conexão com a ALVO IA ainda não está liberada. Pode deixar o atendente configurado: quando
-                abrirmos, é só ligar aqui.
-              </p>
             )}
+
+            {chave ? (
+              <div className="space-y-2 rounded-md border border-gold/40 bg-ink px-4 py-3">
+                <p className="text-xs text-gold">
+                  Guarde esta chave agora: ela aparece uma única vez. É com ela que o atendente consulta a sua
+                  agenda.
+                </p>
+                <code className="block break-all rounded bg-ink2 px-3 py-2 text-[11px] text-paper">{chave.token}</code>
+                <p className="text-[11px] text-mute">Endereço: {chave.url}</p>
+              </div>
+            ) : null}
+
+            {data.ponte && !chave ? (
+              <p className="rounded-md border border-line bg-ink px-4 py-3 text-[11px] text-mute">
+                Chave ativa {data.ponte.prefixo}… · último uso{" "}
+                {data.ponte.usadoEm ? new Date(data.ponte.usadoEm).toLocaleString("pt-BR") : "ainda não usada"}
+              </p>
+            ) : null}
+
             {erro ? <p className="text-center text-sm text-brick">{erro}</p> : null}
           </div>
 
