@@ -171,7 +171,7 @@ function AtividadePage() {
         </div>
 
         {atividade.data && atividade.data.registros.length === 0 ? (
-          <EmptyState title="Nada por aqui ainda." detail="Quando o CortAI atender, o registro aparece nesta lista." />
+          <EmptyState text="Quando o CortAI atender, o registro aparece nesta lista." />
         ) : null}
 
         <ul className="mt-3 space-y-2">
