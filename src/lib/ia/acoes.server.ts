@@ -281,6 +281,163 @@ export async function listarAgendamentosDoCliente(ctx: ContextoDoAgente, input: 
   return data ?? [];
 }
 
+/* ---------------- Memória, histórico e informações da barbearia ----------- */
+
+/** Detalhes de um serviço específico (preço, duração) — nunca estimados. */
+export async function consultarServico(ctx: ContextoDoAgente, input: { servicoId: string }) {
+  const db = await admin();
+  const { data } = await db
+    .from("servicos")
+    .select("id, nome, duracao_min, preco_centavos, ativo")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("id", input.servicoId)
+    .maybeSingle();
+  if (!data) throw new Error("Serviço não encontrado nesta barbearia.");
+  return data;
+}
+
+/** Horários de funcionamento da barbearia. */
+export async function consultarHorariosDeFuncionamento(ctx: ContextoDoAgente) {
+  const db = await admin();
+  const { data } = await db
+    .from("horarios_de_funcionamento")
+    .select("dia_semana, fechado, abre, fecha")
+    .eq("tenant_id", ctx.tenantId)
+    .order("dia_semana");
+  return data ?? [];
+}
+
+/**
+ * Informações oficiais cadastradas pela barbearia (endereço, estacionamento,
+ * formas de pagamento, políticas). É a única fonte de FAQ do atendente.
+ */
+export async function consultarInformacoes(ctx: ContextoDoAgente) {
+  const db = await admin();
+  const { data } = await db
+    .from("informacoes_da_barbearia")
+    .select("pergunta, resposta")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("ativo", true)
+    .order("ordem");
+  return data ?? [];
+}
+
+/**
+ * Memória do cliente: histórico real de atendimentos + preferências que a
+ * própria pessoa informou. Sempre dentro da mesma barbearia.
+ */
+export async function historicoDoCliente(ctx: ContextoDoAgente, input: { clienteId: string }) {
+  const db = await admin();
+  const { data: cliente } = await db
+    .from("clientes")
+    .select("id, nome")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("id", input.clienteId)
+    .maybeSingle();
+  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+
+  const [{ data: passados }, servicos, profissionais, { data: memoria }] = await Promise.all([
+    db
+      .from("agendamentos")
+      .select("id, inicio, status, servico_id, profissional_id")
+      .eq("tenant_id", ctx.tenantId)
+      .eq("cliente_id", input.clienteId)
+      .order("inicio", { ascending: false })
+      .limit(12),
+    listarServicos(ctx),
+    listarProfissionais(ctx),
+    db
+      .from("memoria_do_cliente")
+      .select("chave, valor")
+      .eq("tenant_id", ctx.tenantId)
+      .eq("cliente_id", input.clienteId),
+  ]);
+
+  const nomeServico = new Map(servicos.map((s: { id: string; nome: string }) => [s.id, s.nome]));
+  const nomeProfissional = new Map(profissionais.map((p: { id: string; nome: string }) => [p.id, p.nome]));
+  const concluidos = (passados ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
+
+  const contar = (lista: (string | null)[]) => {
+    const mapa = new Map<string, number>();
+    for (const item of lista) if (item) mapa.set(item, (mapa.get(item) ?? 0) + 1);
+    return [...mapa.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  };
+
+  const servicoPreferidoId = contar(concluidos.map((a) => a.servico_id));
+  const profissionalPreferidoId = contar(concluidos.map((a) => a.profissional_id));
+
+  const datas = concluidos.map((a) => new Date(a.inicio).getTime()).sort((a, b) => b - a);
+  let intervaloMedioDias: number | null = null;
+  if (datas.length >= 2) {
+    let soma = 0;
+    for (let i = 0; i < datas.length - 1; i += 1) soma += (datas[i]! - datas[i + 1]!) / 86_400_000;
+    intervaloMedioDias = Math.round(soma / (datas.length - 1));
+  }
+
+  return {
+    clienteId: cliente.id,
+    nome: cliente.nome,
+    visitas: concluidos.length,
+    ultimaVisita: concluidos[0]?.inicio ?? null,
+    intervaloMedioDias,
+    servicoPreferido: servicoPreferidoId
+      ? { id: servicoPreferidoId, nome: nomeServico.get(servicoPreferidoId) ?? null }
+      : null,
+    profissionalPreferido: profissionalPreferidoId
+      ? { id: profissionalPreferidoId, nome: nomeProfissional.get(profissionalPreferidoId) ?? null }
+      : null,
+    ultimos: concluidos.slice(0, 5).map((a) => ({
+      inicio: a.inicio,
+      servico: a.servico_id ? nomeServico.get(a.servico_id) ?? null : null,
+      profissional: a.profissional_id ? nomeProfissional.get(a.profissional_id) ?? null : null,
+    })),
+    preferencias: memoria ?? [],
+  };
+}
+
+/**
+ * Guarda uma preferência que a PESSOA informou (nunca uma dedução). Fica
+ * amarrada à barbearia — nenhuma outra enxerga.
+ */
+export async function salvarPreferenciaDoCliente(
+  ctx: ContextoDoAgente,
+  input: { clienteId: string; chave: string; valor: string },
+) {
+  const chave = input.chave.trim().slice(0, 60);
+  const valor = input.valor.trim().slice(0, 300);
+  if (!chave || !valor) throw new Error("Preferência incompleta.");
+  const db = await admin();
+  const { data: cliente } = await db
+    .from("clientes")
+    .select("id")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("id", input.clienteId)
+    .maybeSingle();
+  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+  const { error } = await db
+    .from("memoria_do_cliente")
+    .upsert(
+      { tenant_id: ctx.tenantId, cliente_id: input.clienteId, chave, valor, origem: "conversa" },
+      { onConflict: "tenant_id,cliente_id,chave" },
+    );
+  if (error) throw new Error(error.message);
+  return { chave, valor };
+}
+
+/** Confirma a presença em um agendamento existente. */
+export async function confirmarAgendamento(ctx: ContextoDoAgente, input: { agendamentoId: string }) {
+  const atual = await exigirAgendamentoDoTenant(ctx, input.agendamentoId);
+  const db = await admin();
+  const { data: linha } = await db.from("agendamentos").select("status").eq("id", atual.id).maybeSingle();
+  if (linha?.status === "cancelado" || linha?.status === "falta") {
+    throw new Error("Este agendamento não está mais ativo.");
+  }
+  const { error } = await db.from("agendamentos").update({ status: "confirmado" }).eq("id", atual.id);
+  if (error) throw new Error(error.message);
+  await registrarAuditoria(ctx, "agendamento_confirmado", atual.id, {});
+  return { agendamentoId: atual.id, status: "confirmado" };
+}
+
 /** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
 export const ACOES_DO_AGENTE = {
   consultar_barbearia: consultarBarbearia,
@@ -290,6 +447,12 @@ export const ACOES_DO_AGENTE = {
   consultar_cliente: consultarCliente,
   registrar_cliente: registrarCliente,
   listar_agendamentos_do_cliente: listarAgendamentosDoCliente,
+  consultar_servico: consultarServico,
+  consultar_horarios: consultarHorariosDeFuncionamento,
+  consultar_informacoes: consultarInformacoes,
+  historico_do_cliente: historicoDoCliente,
+  salvar_preferencia_do_cliente: salvarPreferenciaDoCliente,
+  confirmar_agendamento: confirmarAgendamento,
   criar_agendamento: criarAgendamento,
   remarcar_agendamento: remarcarAgendamento,
   cancelar_agendamento: cancelarAgendamento,

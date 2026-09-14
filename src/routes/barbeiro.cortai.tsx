@@ -9,6 +9,9 @@ import { Carregando } from "@/components/layout/Carregando";
 import { AUTOMACOES, STATUS_DA_CONEXAO, TONS, type ChaveDeAutomacao, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import {
   atualizarQrCode,
+  listarInformacoes,
+  removerInformacao,
+  salvarInformacao,
   conectarWhatsapp,
   definirAtendimentoDaConversa,
   desconectarWhatsapp,
@@ -589,12 +592,51 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
           />
         </label>
 
+        <div className="mt-5 border-t border-line pt-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-xs text-paper">Sugerir clientes sumidos</p>
+              <p className="mt-0.5 text-[11px] text-mute2">
+                Só identifica quem passou do intervalo habitual. Nada é enviado automaticamente.
+              </p>
+            </div>
+            <input
+              type="checkbox"
+              checked={config.recuperacaoAtiva}
+              onChange={(e) => {
+                setOk(false);
+                setConfig({ ...config, recuperacaoAtiva: e.target.checked });
+              }}
+              className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
+              aria-label="Sugerir clientes sumidos"
+            />
+          </div>
+          {config.recuperacaoAtiva ? (
+            <label className="mt-3 block">
+              <span className="text-xs text-mute">Dias sem voltar</span>
+              <input
+                type="number"
+                min={7}
+                max={180}
+                value={config.recuperacaoDias}
+                onChange={(e) => {
+                  setOk(false);
+                  setConfig({ ...config, recuperacaoDias: Number(e.target.value) || 30 });
+                }}
+                className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+              />
+            </label>
+          ) : null}
+        </div>
+
         <button type="button" className="btn-primary mt-5 w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
           {gravar.isPending ? "Salvando…" : "Salvar ajustes"}
         </button>
         {ok ? <p className="mt-2 text-center text-sm text-sage">Ajustes salvos.</p> : null}
         {erro ? <p className="mt-2 text-center text-sm text-brick">{erro}</p> : null}
       </div>
+
+      <BlocoInformacoes />
 
       <div className="rounded-lg border border-line bg-ink2 p-5">
         <h2 className="text-sm font-semibold text-paper">Mensagens automáticas</h2>
@@ -615,5 +657,90 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </ul>
       </div>
     </section>
+  );
+}
+
+/* ---------------------- Informações oficiais da barbearia ----------------- */
+
+function BlocoInformacoes() {
+  const cliente = useQueryClient();
+  const salvar = useServerFn(salvarInformacao);
+  const remover = useServerFn(removerInformacao);
+  const [pergunta, setPergunta] = useState("");
+  const [resposta, setResposta] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+
+  const lista = useQuery({ queryKey: ["cortai-informacoes"], queryFn: () => listarInformacoes() });
+  const recarregar = () => void cliente.invalidateQueries({ queryKey: ["cortai-informacoes"] });
+
+  const gravar = useMutation({
+    mutationFn: () => salvar({ data: { pergunta: pergunta.trim(), resposta: resposta.trim(), ativo: true } }),
+    onSuccess: () => {
+      setPergunta("");
+      setResposta("");
+      setErro(null);
+      recarregar();
+    },
+    onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível salvar."),
+  });
+
+  const apagar = useMutation({
+    mutationFn: (id: string) => remover({ data: { id } }),
+    onSuccess: recarregar,
+  });
+
+  return (
+    <div className="rounded-lg border border-line bg-ink2 p-5">
+      <h2 className="text-sm font-semibold text-paper">Informações da barbearia</h2>
+      <p className="mt-1 text-xs text-mute">
+        Endereço, estacionamento, formas de pagamento, políticas. O CortAI só responde essas dúvidas com o que estiver
+        escrito aqui.
+      </p>
+
+      {lista.data && lista.data.length > 0 ? (
+        <ul className="mt-4 space-y-3">
+          {lista.data.map((i) => (
+            <li key={i.id} className="rounded-md border border-line2 p-3">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-paper">{i.pergunta}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-xs text-mute">{i.resposta}</p>
+                </div>
+                <button type="button" className="text-[11px] text-brick" onClick={() => apagar.mutate(i.id)}>
+                  Apagar
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-4 text-xs text-mute2">Nenhuma informação cadastrada ainda.</p>
+      )}
+
+      <div className="mt-4 space-y-2 border-t border-line pt-4">
+        <input
+          value={pergunta}
+          onChange={(e) => setPergunta(e.target.value)}
+          placeholder="Pergunta (ex.: Tem estacionamento?)"
+          className="w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+        />
+        <textarea
+          value={resposta}
+          onChange={(e) => setResposta(e.target.value)}
+          rows={2}
+          placeholder="Resposta oficial da barbearia"
+          className="w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+        />
+        <button
+          type="button"
+          className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+          disabled={gravar.isPending || pergunta.trim().length < 3 || resposta.trim().length < 2}
+          onClick={() => gravar.mutate()}
+        >
+          {gravar.isPending ? "Salvando…" : "Adicionar informação"}
+        </button>
+        {erro ? <p className="text-center text-sm text-brick">{erro}</p> : null}
+      </div>
+    </div>
   );
 }

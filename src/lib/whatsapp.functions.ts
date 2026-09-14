@@ -11,6 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import {
   AUTOMACOES,
+  type InformacaoDaBarbearia,
   CONFIGURACAO_PADRAO,
   type ChaveDeAutomacao,
   type ConexaoDeWhatsapp,
@@ -425,7 +426,9 @@ const configSchema = z.object({
   permiteRemarcar: z.boolean(),
   encaminhamentoHumano: z.boolean(),
   lembretes: z.boolean(),
-  tom: z.enum(["profissional", "amigavel", "direto"]),
+  tom: z.enum(["profissional", "amigavel", "direto", "premium", "objetivo"]),
+  recuperacaoAtiva: z.boolean().default(false),
+  recuperacaoDias: z.number().int().min(7).max(180).default(30),
 });
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
@@ -448,6 +451,8 @@ export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
         encaminhamento_humano: data.encaminhamentoHumano,
         lembretes: data.lembretes,
         tom: data.tom as TomDoAtendimento,
+        recuperacao_ativa: data.recuperacaoAtiva,
+        recuperacao_dias: data.recuperacaoDias,
       },
       { onConflict: "tenant_id" },
     );
@@ -481,3 +486,134 @@ export const salvarAutomacao = createServerFn({ method: "POST" })
   });
 
 export { CONFIGURACAO_PADRAO };
+
+/* --------------------- Informações oficiais da barbearia ------------------ */
+
+export const listarInformacoes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<InformacaoDaBarbearia[]> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const { data, error } = await db
+      .from("informacoes_da_barbearia")
+      .select("id, pergunta, resposta, ativo, ordem")
+      .eq("tenant_id", tenantId)
+      .order("ordem");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const salvarInformacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        pergunta: z.string().trim().min(3).max(120),
+        resposta: z.string().trim().min(2).max(1000),
+        ativo: z.boolean().default(true),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "configurar_automacoes");
+    const db = await admin();
+    if (data.id) {
+      const { error } = await db
+        .from("informacoes_da_barbearia")
+        .update({ pergunta: data.pergunta, resposta: data.resposta, ativo: data.ativo })
+        .eq("tenant_id", tenantId)
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true as const };
+    }
+    const { count } = await db
+      .from("informacoes_da_barbearia")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId);
+    const { error } = await db.from("informacoes_da_barbearia").insert({
+      tenant_id: tenantId,
+      pergunta: data.pergunta,
+      resposta: data.resposta,
+      ativo: data.ativo,
+      ordem: count ?? 0,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const removerInformacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ context, data }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "configurar_automacoes");
+    const db = await admin();
+    const { error } = await db
+      .from("informacoes_da_barbearia")
+      .delete()
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+/* ------------------------------- Métricas -------------------------------- */
+
+export type MetricasDoCortai = {
+  conversas: number;
+  conversasComHumano: number;
+  agendamentosPelaIa: number;
+  cancelamentosPelaIa: number;
+  remarcacoesPelaIa: number;
+  encaminhamentos: number;
+  falhas: number;
+  assuntos: { intencao: string; total: number }[];
+};
+
+/** Base da inteligência comercial: contagens reais do registro de ações. */
+export const getMetricasDoCortai = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<MetricasDoCortai> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const desde = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const [{ data: logs }, conversas, humanas] = await Promise.all([
+      db
+        .from("acoes_de_ia_log")
+        .select("acao, intencao, sucesso")
+        .eq("tenant_id", tenantId)
+        .gte("criado_em", desde)
+        .limit(5000),
+      db
+        .from("conversas_whatsapp")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .gte("criado_em", desde),
+      db
+        .from("conversas_whatsapp")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .eq("status", "humano"),
+    ]);
+    const linhas = logs ?? [];
+    const contarAcao = (acao: string) => linhas.filter((l) => l.acao === acao && l.sucesso).length;
+    const assuntos = new Map<string, number>();
+    for (const l of linhas) if (l.intencao) assuntos.set(l.intencao, (assuntos.get(l.intencao) ?? 0) + 1);
+    return {
+      conversas: conversas.count ?? 0,
+      conversasComHumano: humanas.count ?? 0,
+      agendamentosPelaIa: contarAcao("criar_agendamento"),
+      cancelamentosPelaIa: contarAcao("cancelar_agendamento"),
+      remarcacoesPelaIa: contarAcao("remarcar_agendamento"),
+      encaminhamentos: contarAcao("encaminhar_para_humano"),
+      falhas: linhas.filter((l) => !l.sucesso).length,
+      assuntos: [...assuntos.entries()]
+        .map(([intencao, total]) => ({ intencao, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 6),
+    };
+  });

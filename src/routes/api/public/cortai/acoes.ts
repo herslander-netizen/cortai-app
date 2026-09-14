@@ -27,6 +27,16 @@ const ENTRADAS = {
     profissionalId: uuid.nullish(),
     servicoId: uuid.nullish(),
   }),
+  consultar_servico: z.object({ servicoId: uuid }),
+  consultar_horarios: z.object({}).default({}),
+  consultar_informacoes: z.object({}).default({}),
+  historico_do_cliente: z.object({ clienteId: uuid }),
+  salvar_preferencia_do_cliente: z.object({
+    clienteId: uuid,
+    chave: z.string().trim().min(2).max(60),
+    valor: z.string().trim().min(1).max(300),
+  }),
+  confirmar_agendamento: z.object({ agendamentoId: uuid }),
   consultar_cliente: z.object({ telefone: z.string().trim().min(8).max(20) }),
   registrar_cliente: z.object({
     nome: z.string().trim().min(2).max(80),
