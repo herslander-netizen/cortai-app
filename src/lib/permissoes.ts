@@ -108,6 +108,18 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     descricao: "Resultados e números do negócio.",
     itens: [{ acao: "visualizar", chave: "relatorios", rotulo: "Ver relatórios" }],
   },
+  {
+    id: "cortai",
+    titulo: "CortAI no WhatsApp",
+    descricao: "Atendimento pelo WhatsApp e conversas com os clientes.",
+    itens: [
+      { acao: "visualizar", chave: "ver_cortai", rotulo: "Ver o CortAI e as conversas" },
+      { acao: "editar", chave: "gerenciar_conversas", rotulo: "Organizar e encerrar conversas" },
+      { acao: "criar", chave: "assumir_conversa", rotulo: "Assumir e responder conversas" },
+      { acao: "administrar", chave: "configurar_automacoes", rotulo: "Configurar o atendimento automático" },
+      { acao: "administrar", chave: "gerenciar_whatsapp", rotulo: "Conectar e desconectar o WhatsApp" },
+    ],
+  },
 ];
 
 /** Agrupamento antigo, mantido para telas que ainda usam a lista simples. */
