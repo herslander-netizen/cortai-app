@@ -6,6 +6,8 @@ import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "luc
 import { Screen } from "@/components/layout/Screen";
 import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
+import { InstalarCortai } from "@/components/pwa/InstalarCortai";
+import { PreferenciasDePrivacidade } from "@/components/privacidade/PreferenciasDePrivacidade";
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -80,6 +82,7 @@ function ContaPage() {
           <AlterarSenha />
         </li>
         <li><ThemeToggle /></li>
+        <li><InstalarCortai /></li>
         <li className="border-b border-line">
           <button
             type="button"
@@ -98,6 +101,7 @@ function ContaPage() {
       </ul>
 
       <PreferenciasDicas />
+      <PreferenciasDePrivacidade />
     </Screen>
   );
 }
