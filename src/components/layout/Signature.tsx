@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { getContatoDaPlataforma } from "@/lib/institucional.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
@@ -11,15 +11,17 @@ export function useWhatsappAlvo() {
     queryKey: ["contato-da-plataforma"],
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("contato_da_plataforma");
-      if (error) return null;
-      const numero = (Array.isArray(data) ? data[0]?.whatsapp_alvo : null) ?? null;
-      const digitos = String(numero ?? "").replace(/\D/g, "");
-      return digitos.length >= 10 ? `https://wa.me/${digitos}` : null;
+      try {
+        const r = await getContatoDaPlataforma();
+        return r.whatsapp;
+      } catch {
+        return null;
+      }
     },
   });
   return data ?? null;
 }
+
 
 export function Signature() {
   const link = useWhatsappAlvo();
