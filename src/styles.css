@@ -550,73 +550,8 @@ html.light {
 .landing-copy { color: var(--mute); }
 .landing-copy-light { color: var(--landing-light-muted); }
 
-.landing-device-stage {
-  position: relative;
-  display: flex;
-  min-height: 500px;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
 
-.landing-device-stage::before {
-  position: absolute;
-  inset: 12% 3% 4%;
-  border: 1px solid var(--landing-light-line);
-  border-radius: 50%;
-  content: "";
-}
 
-.landing-phone {
-  position: relative;
-  z-index: 2;
-  width: min(72vw, 260px);
-  border: 7px solid var(--landing-light-ink);
-  border-radius: 34px;
-  background: var(--ink);
-  padding: 8px;
-  box-shadow: 0 28px 55px color-mix(in oklab, var(--landing-light-ink) 26%, transparent);
-  transform: rotate(-1.5deg);
-  transition: transform 400ms ease;
-}
-
-.landing-device-stage:hover .landing-phone {
-  transform: translateY(-5px) rotate(0deg);
-}
-
-.landing-phone-speaker {
-  position: absolute;
-  left: 50%;
-  top: 9px;
-  z-index: 3;
-  height: 5px;
-  width: 42px;
-  border-radius: 999px;
-  background: var(--line2);
-  transform: translateX(-50%);
-}
-
-.landing-phone-screen {
-  min-height: 470px;
-  border-radius: 22px;
-  background: var(--ink);
-  padding: 30px 15px 16px;
-}
-
-.landing-device-card {
-  position: absolute;
-  z-index: 3;
-  width: 210px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: color-mix(in oklab, var(--ink2) 95%, transparent);
-  padding: 18px;
-  box-shadow: 0 18px 40px color-mix(in oklab, var(--landing-light-ink) 24%, transparent);
-  backdrop-filter: blur(10px);
-}
-
-.landing-device-card-left { left: 0; top: 25%; }
-.landing-device-card-right { bottom: 16%; right: 0; }
 
 .landing-feature {
   transition: background-color 220ms ease, transform 220ms ease;
@@ -668,9 +603,6 @@ html.light {
 
   .landing-benefit:nth-child(2n) { border-right: 0; }
   .landing-benefit:nth-last-child(1) { justify-content: center; border-top: 1px solid var(--line); border-right: 0; }
-  .landing-device-card { width: 160px; padding: 13px; }
-  .landing-device-card-left { left: -72px; }
-  .landing-device-card-right { right: -70px; }
 }
 
 @keyframes cortai-aparecer {

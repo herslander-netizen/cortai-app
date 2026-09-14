@@ -23,6 +23,8 @@ import {
 import type { ComponentType } from "react";
 
 import heroAsset from "@/assets/cortai-hero-barbearia.png.asset.json";
+import mockupAsset from "@/assets/cortai-mockup-home.png.asset.json";
+
 import lojaImg from "@/assets/landing-loja.jpg";
 import ctaImg from "@/assets/landing-cta.jpg";
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
@@ -132,63 +134,18 @@ export function SecaoHero({ hero }: { hero: HeroHome }) {
 
 function MockupCortai() {
   return (
-    <div className="landing-device-stage" aria-label="Exemplo da interface de gestão do Cortaí">
-      <div className="landing-device-card landing-device-card-left" aria-hidden>
-        <p className="text-[9px] font-bold uppercase text-gold">Agenda de hoje</p>
-        <p className="mt-2 text-2xl font-bold text-paper">8 horários</p>
-        <div className="mt-5 space-y-3">
-          {["09:00 · Corte + barba", "10:30 · Corte", "11:15 · Horário livre"].map((item, index) => (
-            <div key={item} className="flex items-center gap-3 border-b border-line pb-3 text-[10px] text-mute">
-              <span className={index === 2 ? "h-2 w-2 rounded-full bg-mute2" : "h-2 w-2 rounded-full bg-gold"} />
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="landing-phone">
-        <div className="landing-phone-speaker" />
-        <div className="landing-phone-screen">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[8px] font-bold uppercase text-gold">Cortaí Gestão</p>
-              <p className="mt-1 text-sm font-bold text-paper">Bom dia, Matheus</p>
-            </div>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink3 text-gold"><Scissors size={14} /></span>
-          </div>
-          <div className="mt-5 rounded-lg bg-ink3 p-4">
-            <p className="text-[9px] text-mute">Faturamento de hoje</p>
-            <p className="mt-1 text-2xl font-bold text-paper">R$ 1.240</p>
-            <div className="mt-4 h-1 overflow-hidden rounded-full bg-line"><div className="h-full w-3/4 rounded-full bg-gold" /></div>
-            <p className="mt-2 text-[8px] text-mute">75% da agenda ocupada</p>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {[["Atendimentos", "08"], ["Horários livres", "03"], ["A receber", "R$ 180"], ["Clientes ativos", "126"]].map(([label, value]) => (
-              <div key={label} className="rounded-lg border border-line bg-ink2 p-3">
-                <p className="text-[8px] text-mute">{label}</p>
-                <p className="mt-1 text-sm font-bold text-paper">{value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex items-center justify-between border-t border-line pt-4 text-[8px] text-mute">
-            <span className="text-gold">Início</span><span>Agenda</span><Scissors size={13} className="text-gold" /><span>Clientes</span><span>Mais</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="landing-device-card landing-device-card-right" aria-hidden>
-        <div className="flex items-center justify-between"><p className="text-[9px] font-bold uppercase text-gold">Voltaí</p><Gift size={16} className="text-gold" /></div>
-        <p className="mt-3 text-base font-bold text-paper">Clientes que voltam.</p>
-        <div className="mt-5 flex gap-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <span key={index} className={`flex h-7 w-7 items-center justify-center rounded-full border text-[9px] font-bold ${index < 3 ? "border-gold bg-gold text-ink" : "border-line2 text-mute"}`}>{index + 1}</span>
-          ))}
-        </div>
-        <p className="mt-4 text-[10px] text-mute">Faltam 2 cortes para o prêmio.</p>
-      </div>
-    </div>
+    <img
+      src={mockupAsset.url}
+      alt="Aplicativo Cortaí aberto em um celular, mostrando a agenda e o faturamento do dia"
+      width={1024}
+      height={1536}
+      loading="eager"
+      fetchPriority="high"
+      className="mx-auto block h-auto w-full max-w-[420px] lg:max-h-[640px] lg:w-auto lg:max-w-full"
+    />
   );
 }
+
 
 function TelaProduto({ tipo }: { tipo: "agenda" | "clientes" | "caixa" | "voltai" }) {
   if (tipo === "agenda") return <div className="landing-product-screen"><div className="border-b border-line px-4 py-3"><p className="text-[10px] font-bold uppercase text-gold">Cortaí Gestão</p><p className="mt-1 text-sm font-bold text-paper">Agenda</p></div><div className="space-y-2 p-4">{[["09:00", "Carlos", "Corte + barba"], ["10:00", "Horário livre", "Oferecer à fila"], ["11:30", "Rafael", "Corte degradê"]].map((item, index) => <div key={item[0]} className={`grid grid-cols-[48px_1fr] gap-3 border-l-2 px-3 py-2 ${index === 1 ? "border-line2" : "border-gold"}`}><span className="text-xs font-semibold text-mute">{item[0]}</span><span><b className="block text-xs text-paper">{item[1]}</b><small className="text-mute">{item[2]}</small></span></div>)}</div></div>;
