@@ -1,0 +1,1 @@
+UPDATE public.clientes SET arquivado_em = now() WHERE id IN ('283f3e26-8abc-46bf-a448-5fcd756b7753','4fe10ffb-ed78-4fa6-8b20-9dae5b749b7e');
