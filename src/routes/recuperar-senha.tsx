@@ -50,11 +50,22 @@ function RecuperarSenhaPage() {
           onSubmit={async (event) => {
             event.preventDefault();
             setEnviando(true);
-            // Nunca revelamos se o e-mail existe: a resposta é sempre a mesma.
-            await supabase.auth.resetPasswordForEmail(email.trim(), {
+            setErro(null);
+            // Nunca revelamos se o e-mail existe: quando a chamada funciona,
+            // a resposta é sempre a mesma. Falhas reais aparecem de verdade.
+            // O endereço abaixo precisa estar liberado como Redirect URL da conta.
+            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
               redirectTo: `${window.location.origin}/redefinir-senha`,
             });
             setEnviando(false);
+            if (error) {
+              setErro(
+                error.status === 429
+                  ? "Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo."
+                  : "Não foi possível enviar o e-mail de recuperação agora. Tente novamente em instantes.",
+              );
+              return;
+            }
             setEnviado(true);
           }}
         >
