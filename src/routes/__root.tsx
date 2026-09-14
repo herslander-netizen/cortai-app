@@ -16,6 +16,7 @@ import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
+import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
 
 function NotFoundComponent() {
   return (
@@ -139,6 +140,7 @@ function RootComponent() {
         <GuiaProvider>
           <Outlet />
           <BannerDeCookies />
+          <AvisoDeVersao />
         </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>
