@@ -4,6 +4,10 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Send, X } from "lucide-react";
 
+import { BigodeCortai } from "./BigodeCortai";
+import { FolhaCortai } from "./FolhaCortai";
+import { useProgressoCortai } from "./useProgressoCortai";
+
 import { brl } from "@/lib/format";
 import { DIAS_DA_SEMANA, type RespostaDoAssistente } from "@/lib/ia/assistente";
 import {
@@ -19,6 +23,38 @@ const ATALHOS = [
   "Como coloco um cliente na fila?",
   "Quais serviços estão cadastrados?",
 ];
+
+/** Progresso real da configuração inicial, no topo da folha. */
+function ProgressoDaConfiguracao() {
+  const progresso = useProgressoCortai();
+  if (!progresso || progresso.concluido) return null;
+  const pct = Math.round((progresso.feitos / progresso.total) * 100);
+  const feitos = progresso.itens.filter((i) => i.feito);
+
+  return (
+    <div className="border-b border-line px-5 pb-3 pt-3">
+      <p className="text-xs text-mute">
+        Configuração · {progresso.feitos} de {progresso.total}
+      </p>
+      <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink3">
+        <div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(4, pct)}%` }} />
+      </div>
+      {feitos.length ? (
+        <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {feitos.map((i) => (
+            <span
+              key={i.chave}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute"
+            >
+              <Check size={11} style={{ color: "#8FA882" }} aria-hidden />
+              {i.rotulo}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function PreviaDaAcao({
   acao,
@@ -154,24 +190,44 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/60 backdrop-blur-sm md:items-stretch">
-      <button type="button" aria-label="Fechar" className="absolute inset-0" onClick={onFechar} />
-      <section
-        role="dialog"
-        aria-label="Assistente do CortAI"
-        className="relative flex h-[86vh] w-full flex-col rounded-t-2xl border border-line2 bg-ink2 md:h-full md:max-w-[420px] md:rounded-none md:rounded-l-2xl"
-      >
-        <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-          <div>
-            <p className="text-sm font-semibold text-paper">✨ Perguntar ao CortAI</p>
-            <p className="mt-0.5 text-xs text-mute">Cadastre serviços, ajuste horários e tire dúvidas.</p>
-          </div>
-          <button type="button" onClick={onFechar} aria-label="Fechar assistente" className="text-mute">
-            <X size={18} />
-          </button>
-        </header>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+    <FolhaCortai
+      aoFechar={onFechar}
+      rotulo="CortAI"
+      cabecalho={
+        <>
+          <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ink2 px-5 pb-3 pt-3">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+              style={{ background: "#D4AF6A", color: "#0B0B0B" }}
+              aria-hidden
+            >
+              <BigodeCortai size={22} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-base font-semibold" style={{ color: "#F5F5F3" }}>
+                CortAI
+              </span>
+              <span
+                className="mt-0.5 block truncate"
+                style={{ color: "#9A968E", fontSize: "11px", letterSpacing: ".04em" }}
+              >
+                Alimentada pela Alvo IA
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={onFechar}
+              aria-label="Fechar CortAI"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-mute transition-colors hover:text-paper"
+            >
+              <X size={18} />
+            </button>
+          </header>
+          <ProgressoDaConfiguracao />
+        </>
+      }
+    >
+        <div className="px-5 py-4">
           {mensagens.length === 0 ? (
             <div>
               <p className="text-sm leading-relaxed text-mute">
@@ -230,7 +286,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
         </div>
 
         <form
-          className="flex items-end gap-2 border-t border-line px-4 py-3"
+          className="sticky bottom-0 flex items-end gap-2 border-t border-line bg-ink2 px-4 py-3"
           onSubmit={(e) => {
             e.preventDefault();
             void enviar(texto);
@@ -259,7 +315,6 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             <Send size={17} aria-hidden />
           </button>
         </form>
-      </section>
-    </div>
+    </FolhaCortai>
   );
 }
