@@ -227,7 +227,16 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
         </>
       }
     >
-        <div className="px-5 py-4">
+        <div
+          ref={lista}
+          className="cortai-conversa-lista px-5 py-4"
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const perto = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+            noFim.current = perto;
+            if (perto) setNovaMensagem(false);
+          }}
+        >
           {mensagens.length === 0 ? (
             <div>
               <p className="text-sm leading-relaxed text-mute">
@@ -257,12 +266,14 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             {mensagens.map((m) => (
               <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : ""}>
                 {m.autor === "barbeiro" ? (
-                  <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-ink">
+                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-ink">
                     {m.conteudo}
                   </p>
                 ) : (
-                  <div className="max-w-full">
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-paper">{m.conteudo}</p>
+                  <div className="min-w-0 max-w-full">
+                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
+                      {m.conteudo}
+                    </p>
                     {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
                     {m.acao?.destino ? (
                       <Link
@@ -280,13 +291,29 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             ))}
           </ul>
 
-          {enviando ? <p className="mt-4 animate-pulse text-sm text-mute">Pensando…</p> : null}
+          {enviando ? (
+            <div className="mt-4">
+              <Digitando />
+            </div>
+          ) : null}
           {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
           <div ref={fim} />
         </div>
 
+        {novaMensagem ? (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => irAoFim()}
+              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+            >
+              Nova mensagem ↓
+            </button>
+          </div>
+        ) : null}
+
         <form
-          className="sticky bottom-0 flex items-end gap-2 border-t border-line bg-ink2 px-4 py-3"
+          className="cortai-conversa-barra flex shrink-0 items-end gap-2 border-t border-line bg-ink2 px-4 pt-3"
           onSubmit={(e) => {
             e.preventDefault();
             void enviar(texto);
@@ -302,9 +329,9 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                 void enviar(texto);
               }
             }}
-            rows={2}
+            rows={1}
             placeholder="Escreva aqui…"
-            className="min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
           />
           <button
             type="submit"
