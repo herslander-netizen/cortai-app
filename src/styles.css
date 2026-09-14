@@ -603,9 +603,6 @@ html.light {
 
   .landing-benefit:nth-child(2n) { border-right: 0; }
   .landing-benefit:nth-last-child(1) { justify-content: center; border-top: 1px solid var(--line); border-right: 0; }
-  .landing-device-card { width: 160px; padding: 13px; }
-  .landing-device-card-left { left: -72px; }
-  .landing-device-card-right { right: -70px; }
 }
 
 @keyframes cortai-aparecer {
