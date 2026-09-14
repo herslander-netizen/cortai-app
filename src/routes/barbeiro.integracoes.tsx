@@ -6,6 +6,7 @@ import { Bot, ShieldCheck } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
+import { PainelDeSincronizacao } from "@/components/ia/PainelDeSincronizacao";
 import { STATUS_DA_INTEGRACAO, type StatusDaIntegracao } from "@/lib/ia/contrato";
 import type { PainelDeIntegracao } from "@/lib/ia.functions";
 import { conectarAlvoIA, desconectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
@@ -112,8 +113,10 @@ function IntegracoesPage() {
         </p>
       ) : null}
 
+      {data ? <PainelDeSincronizacao /> : null}
+
       {data ? (
-        <section className="rounded-lg border border-line bg-ink2 p-5">
+        <section className="mt-5 rounded-lg border border-line bg-ink2 p-5">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
               <Bot size={18} />
