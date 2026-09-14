@@ -52,6 +52,7 @@ export type Database = {
           entrada: Json
           erro: string | null
           id: string
+          intencao: string | null
           resultado: Json
           sucesso: boolean
           tenant_id: string
@@ -63,6 +64,7 @@ export type Database = {
           entrada?: Json
           erro?: string | null
           id?: string
+          intencao?: string | null
           resultado?: Json
           sucesso?: boolean
           tenant_id: string
@@ -74,6 +76,7 @@ export type Database = {
           entrada?: Json
           erro?: string | null
           id?: string
+          intencao?: string | null
           resultado?: Json
           sucesso?: boolean
           tenant_id?: string
@@ -680,6 +683,8 @@ export type Database = {
           permite_cancelar: boolean
           permite_confirmar: boolean
           permite_remarcar: boolean
+          recuperacao_ativa: boolean
+          recuperacao_dias: number
           saudacao_ativa: boolean
           tenant_id: string
           tom: string
@@ -695,6 +700,8 @@ export type Database = {
           permite_cancelar?: boolean
           permite_confirmar?: boolean
           permite_remarcar?: boolean
+          recuperacao_ativa?: boolean
+          recuperacao_dias?: number
           saudacao_ativa?: boolean
           tenant_id: string
           tom?: string
@@ -710,6 +717,8 @@ export type Database = {
           permite_cancelar?: boolean
           permite_confirmar?: boolean
           permite_remarcar?: boolean
+          recuperacao_ativa?: boolean
+          recuperacao_dias?: number
           saudacao_ativa?: boolean
           tenant_id?: string
           tom?: string
@@ -866,6 +875,7 @@ export type Database = {
           criado_em: string
           ia_ativa: boolean
           id: string
+          intencao: string | null
           modo_humano: boolean
           nao_lidas: number
           nome_contato: string | null
@@ -882,6 +892,7 @@ export type Database = {
           criado_em?: string
           ia_ativa?: boolean
           id?: string
+          intencao?: string | null
           modo_humano?: boolean
           nao_lidas?: number
           nome_contato?: string | null
@@ -898,6 +909,7 @@ export type Database = {
           criado_em?: string
           ia_ativa?: boolean
           id?: string
+          intencao?: string | null
           modo_humano?: boolean
           nao_lidas?: number
           nome_contato?: string | null
@@ -1397,6 +1409,47 @@ export type Database = {
           },
         ]
       }
+      informacoes_da_barbearia: {
+        Row: {
+          ativo: boolean
+          atualizado_em: string
+          criado_em: string
+          id: string
+          ordem: number
+          pergunta: string
+          resposta: string
+          tenant_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          ordem?: number
+          pergunta: string
+          resposta: string
+          tenant_id: string
+        }
+        Update: {
+          ativo?: boolean
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          ordem?: number
+          pergunta?: string
+          resposta?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "informacoes_da_barbearia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integracoes_de_ia: {
         Row: {
           agent_name: string | null
@@ -1461,6 +1514,54 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "integracoes_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memoria_do_cliente: {
+        Row: {
+          atualizado_em: string
+          chave: string
+          cliente_id: string
+          criado_em: string
+          id: string
+          origem: string
+          tenant_id: string
+          valor: string
+        }
+        Insert: {
+          atualizado_em?: string
+          chave: string
+          cliente_id: string
+          criado_em?: string
+          id?: string
+          origem?: string
+          tenant_id: string
+          valor: string
+        }
+        Update: {
+          atualizado_em?: string
+          chave?: string
+          cliente_id?: string
+          criado_em?: string
+          id?: string
+          origem?: string
+          tenant_id?: string
+          valor?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memoria_do_cliente_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memoria_do_cliente_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
