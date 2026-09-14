@@ -84,6 +84,11 @@ function RecuperarSenhaPage() {
               />
             </span>
           </label>
+          {erro ? (
+            <p className="text-sm text-brick" role="alert">
+              {erro}
+            </p>
+          ) : null}
           <button className="btn-primary w-full py-3.5" disabled={enviando}>
             {enviando ? "Enviando…" : "Enviar instruções"}
           </button>
