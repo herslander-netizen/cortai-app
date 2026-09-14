@@ -677,3 +677,79 @@ html.light {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ---- Bolha flutuante da CortAI (painel de gestão) ---- */
+.cortai-fab-area {
+  position: fixed;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cortai-fab {
+  position: relative;
+  display: flex;
+  height: 60px;
+  width: 60px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #d4af6a;
+  color: #0b0b0b;
+  box-shadow: 0 6px 24px rgba(212, 175, 106, 0.28);
+  transition: transform 150ms ease;
+}
+.cortai-fab:active { transform: scale(0.96); }
+.cortai-fab:focus-visible { outline: 2px solid #f5f5f3; outline-offset: 3px; }
+
+.cortai-fab-pulso {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid #d4af6a;
+  animation: cortai-pulso 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cortai-pulso {
+  0% { opacity: 0.35; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+.cortai-fab-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: flex;
+  height: 18px;
+  min-width: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #c4705f;
+  color: #f5f5f3;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.cortai-fab-rotulo {
+  border-radius: 9999px;
+  border: 1px solid var(--line2);
+  background: var(--ink2);
+  padding: 5px 10px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--paper);
+  pointer-events: none;
+  animation: fade-in 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cortai-fab-pulso { animation: none; opacity: 0.2; }
+  .cortai-fab, .cortai-fab-rotulo, .cortai-sheet { transition: none !important; animation: none !important; }
+}
