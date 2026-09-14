@@ -298,3 +298,240 @@ export const getSincronizacaoDoCortai = createServerFn({ method: "GET" })
       ultimaSincronizacao: (chave?.["token_usado_em"] as string) ?? null,
     };
   });
+
+/* ------------------- Painel operacional do barbeiro (ALVO IA) ------------- */
+
+export type AgendamentoDoPainel = {
+  id: string;
+  inicio: string;
+  fim: string;
+  status: string;
+  valorCentavos: number;
+  formaPagamento: string | null;
+  cliente: { id: string; nome: string; telefone: string | null } | null;
+  servico: { nome: string; duracaoMin: number; precoCentavos: number } | null;
+  profissional: { nome: string } | null;
+};
+
+export type ClienteDoPainel = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  criadoEm: string;
+  ultimaVisita: string | null;
+  visitas: number;
+};
+
+export type PainelOperacional = {
+  /** Estado real da ponte com o Cortaí — nunca "não encontrado". */
+  estado: "conectado" | "nao_configurado" | "sem_dados" | "erro";
+  motivo: string | null;
+  barbearia: { nome: string; telefone: string | null; endereco: string | null };
+  resumo: {
+    agendamentosHoje: number;
+    concluidosHoje: number;
+    previstoHojeCentavos: number;
+    proximos: number;
+    clientes: number;
+    servicos: number;
+    profissionais: number;
+  };
+  hoje: AgendamentoDoPainel[];
+  proximos: AgendamentoDoPainel[];
+  clientes: ClienteDoPainel[];
+  servicos: { id: string; nome: string; duracaoMin: number; precoCentavos: number; ativo: boolean }[];
+  profissionais: { id: string; nome: string; ativo: boolean }[];
+  horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
+  whatsapp: { status: string; numero: string | null };
+  ultimaSincronizacao: string | null;
+};
+
+function agendamentoDoPainel(linha: Record<string, any>): AgendamentoDoPainel {
+  const cliente = linha["clientes"] as Record<string, any> | null;
+  const servico = linha["servicos"] as Record<string, any> | null;
+  const profissional = linha["profissionais"] as Record<string, any> | null;
+  return {
+    id: linha["id"] as string,
+    inicio: linha["inicio"] as string,
+    fim: linha["fim"] as string,
+    status: (linha["status"] as string) ?? "confirmado",
+    valorCentavos: (linha["valor_centavos"] as number) ?? 0,
+    formaPagamento: (linha["forma_pagamento"] as string) ?? null,
+    cliente: cliente
+      ? { id: cliente["id"] as string, nome: cliente["nome"] as string, telefone: (cliente["telefone"] as string) ?? null }
+      : null,
+    servico: servico
+      ? {
+          nome: servico["nome"] as string,
+          duracaoMin: (servico["duracao_min"] as number) ?? 0,
+          precoCentavos: (servico["preco_centavos"] as number) ?? 0,
+        }
+      : null,
+    profissional: profissional ? { nome: profissional["nome"] as string } : null,
+  };
+}
+
+/**
+ * Tudo que o barbeiro precisa para administrar a operação dentro do ALVO IA,
+ * lido direto do Cortaí (fonte de verdade) e sempre da própria barbearia.
+ */
+export const getPainelOperacional = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PainelOperacional> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+
+    const agora = new Date();
+    const inicioDoDia = new Date(agora);
+    inicioDoDia.setHours(0, 0, 0, 0);
+    const fimDoDia = new Date(inicioDoDia.getTime() + 24 * 60 * 60 * 1000);
+    const selecao =
+      "id, inicio, fim, status, valor_centavos, forma_pagamento, clientes(id, nome, telefone), servicos(nome, duracao_min, preco_centavos), profissionais(nome)";
+
+    const [tenant, hoje, proximos, clientes, servicos, profissionais, horarios, conexao, integracao, totalClientes] =
+      await Promise.all([
+        db.from("tenants").select("nome, telefone, endereco").eq("id", tenantId).maybeSingle(),
+        db
+          .from("agendamentos")
+          .select(selecao)
+          .eq("tenant_id", tenantId)
+          .gte("inicio", inicioDoDia.toISOString())
+          .lt("inicio", fimDoDia.toISOString())
+          .order("inicio", { ascending: true }),
+        db
+          .from("agendamentos")
+          .select(selecao)
+          .eq("tenant_id", tenantId)
+          .gte("inicio", fimDoDia.toISOString())
+          .not("status", "in", "(cancelado,falta)")
+          .order("inicio", { ascending: true })
+          .limit(20),
+        db
+          .from("clientes")
+          .select("id, nome, telefone, criado_em")
+          .eq("tenant_id", tenantId)
+          .is("arquivado_em", null)
+          .order("criado_em", { ascending: false })
+          .limit(30),
+        db
+          .from("servicos")
+          .select("id, nome, duracao_min, preco_centavos, ativo")
+          .eq("tenant_id", tenantId)
+          .order("ordem", { ascending: true }),
+        db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
+        db
+          .from("horarios_de_funcionamento")
+          .select("dia_semana, fechado, abre, fecha")
+          .eq("tenant_id", tenantId)
+          .order("dia_semana"),
+        db.from("conexoes_whatsapp").select("status, numero").eq("tenant_id", tenantId).maybeSingle(),
+        db
+          .from("integracoes_de_ia")
+          .select("token_hash, token_usado_em, status, ultimo_erro")
+          .eq("tenant_id", tenantId)
+          .eq("provedor", PROVEDOR_PADRAO)
+          .maybeSingle(),
+        db.from("clientes").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).is("arquivado_em", null),
+      ]);
+
+    const listaHoje = ((hoje.data ?? []) as Record<string, any>[]).map(agendamentoDoPainel);
+    const listaProximos = ((proximos.data ?? []) as Record<string, any>[]).map(agendamentoDoPainel);
+    const idsDeClientes = ((clientes.data ?? []) as Record<string, any>[]).map((c) => c["id"] as string);
+
+    let visitasPorCliente = new Map<string, { total: number; ultima: string }>();
+    if (idsDeClientes.length > 0) {
+      const { data: visitas } = await db
+        .from("agendamentos")
+        .select("cliente_id, inicio")
+        .eq("tenant_id", tenantId)
+        .in("cliente_id", idsDeClientes)
+        .not("status", "in", "(cancelado,falta)")
+        .lte("inicio", agora.toISOString());
+      visitasPorCliente = ((visitas ?? []) as Record<string, any>[]).reduce((mapa, linha) => {
+        const id = linha["cliente_id"] as string;
+        const inicio = linha["inicio"] as string;
+        const atual = mapa.get(id);
+        mapa.set(id, {
+          total: (atual?.total ?? 0) + 1,
+          ultima: !atual || inicio > atual.ultima ? inicio : atual.ultima,
+        });
+        return mapa;
+      }, new Map<string, { total: number; ultima: string }>());
+    }
+
+    const chave = integracao.data as Record<string, any> | null;
+    const temChave = Boolean(chave?.["token_hash"]) && chave?.["status"] !== "suspenso";
+    const semDados = (servicos.data ?? []).length === 0 && (profissionais.data ?? []).length === 0;
+    const estado: PainelOperacional["estado"] = chave?.["ultimo_erro"]
+      ? "erro"
+      : !temChave
+        ? "nao_configurado"
+        : semDados
+          ? "sem_dados"
+          : "conectado";
+
+    return {
+      estado,
+      motivo:
+        estado === "erro"
+          ? ((chave?.["ultimo_erro"] as string) ?? null)
+          : estado === "nao_configurado"
+            ? "A chave de acesso do atendente ainda não foi emitida em Integrações."
+            : estado === "sem_dados"
+              ? "Cadastre serviços e profissionais para o atendente trabalhar."
+              : null,
+      barbearia: {
+        nome: (tenant.data?.nome as string) ?? "Barbearia",
+        telefone: (tenant.data?.telefone as string) ?? null,
+        endereco: (tenant.data?.endereco as string) ?? null,
+      },
+      resumo: {
+        agendamentosHoje: listaHoje.filter((a) => a.status !== "cancelado" && a.status !== "falta").length,
+        concluidosHoje: listaHoje.filter((a) => a.status === "concluido").length,
+        previstoHojeCentavos: listaHoje
+          .filter((a) => a.status !== "cancelado" && a.status !== "falta")
+          .reduce((soma, a) => soma + (a.valorCentavos || (a.servico?.precoCentavos ?? 0)), 0),
+        proximos: listaProximos.length,
+        clientes: totalClientes.count ?? 0,
+        servicos: ((servicos.data ?? []) as Record<string, any>[]).filter((s) => s["ativo"]).length,
+        profissionais: ((profissionais.data ?? []) as Record<string, any>[]).filter((p) => p["ativo"]).length,
+      },
+      hoje: listaHoje,
+      proximos: listaProximos,
+      clientes: ((clientes.data ?? []) as Record<string, any>[]).map((c) => {
+        const visitas = visitasPorCliente.get(c["id"] as string);
+        return {
+          id: c["id"] as string,
+          nome: c["nome"] as string,
+          telefone: (c["telefone"] as string) ?? null,
+          criadoEm: c["criado_em"] as string,
+          ultimaVisita: visitas?.ultima ?? null,
+          visitas: visitas?.total ?? 0,
+        };
+      }),
+      servicos: ((servicos.data ?? []) as Record<string, any>[]).map((s) => ({
+        id: s["id"] as string,
+        nome: s["nome"] as string,
+        duracaoMin: (s["duracao_min"] as number) ?? 0,
+        precoCentavos: (s["preco_centavos"] as number) ?? 0,
+        ativo: Boolean(s["ativo"]),
+      })),
+      profissionais: ((profissionais.data ?? []) as Record<string, any>[]).map((p) => ({
+        id: p["id"] as string,
+        nome: p["nome"] as string,
+        ativo: Boolean(p["ativo"]),
+      })),
+      horarios: ((horarios.data ?? []) as Record<string, any>[]).map((h) => ({
+        diaSemana: (h["dia_semana"] as number) ?? 0,
+        fechado: Boolean(h["fechado"]),
+        abre: String(h["abre"] ?? "").slice(0, 5),
+        fecha: String(h["fecha"] ?? "").slice(0, 5),
+      })),
+      whatsapp: {
+        status: (conexao.data?.status as string) ?? "desconectado",
+        numero: (conexao.data?.numero as string) ?? null,
+      },
+      ultimaSincronizacao: (chave?.["token_usado_em"] as string) ?? null,
+    };
+  });
