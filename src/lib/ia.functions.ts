@@ -122,47 +122,100 @@ export const salvarAgenteDeIA = createServerFn({ method: "POST" })
   });
 
 /**
- * Pede o vínculo da barbearia na ALVO IA. Só funciona quando o ambiente tiver
- * endpoint e credencial configurados — não existe conexão simulada.
+ * Liga o atendente à barbearia.
+ *
+ * A conexão que importa é a ponte de ENTRADA: o Cortaí emite uma chave
+ * exclusiva da barbearia e o atendente passa a consultar serviços, preços,
+ * profissionais, disponibilidade, clientes e agenda por ela. A chave em texto
+ * puro só aparece UMA vez, aqui; depois só o começo dela é exibido.
+ *
+ * Se o ambiente também tiver saída configurada (Cortaí → ALVO IA), o vínculo
+ * externo é criado no mesmo passo. Sem isso, a ponte continua válida.
  */
 export const conectarAlvoIA = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const db = await admin();
+    const { gerarToken } = await import("@/lib/ia/ponte.server");
     const { provedorDeIA } = await import("@/lib/ia/alvo-ia.server");
     const provedor = provedorDeIA();
-    if (!provedor.estaConfigurado()) {
-      throw new Error("A ALVO IA ainda não está disponível. Assim que liberarmos, a conexão aparece aqui.");
-    }
-    const db = await admin();
+
     const { data: tenant } = await db.from("tenants").select("nome").eq("id", tenantId).maybeSingle();
-    try {
-      const vinculo = await provedor.registrarTenant({ tenantId, nome: tenant?.nome ?? "Barbearia" });
-      await db.from("integracoes_de_ia").upsert(
-        {
-          tenant_id: tenantId,
-          provedor: PROVEDOR_PADRAO,
-          external_tenant_id: vinculo.externalTenantId,
-          status: vinculo.status,
-          conectado_em: vinculo.status === "conectado" ? new Date().toISOString() : null,
-          ultimo_erro: null,
-        },
-        { onConflict: "tenant_id,provedor" },
-      );
-      await context.supabase.rpc("registrar_auditoria_barbearia", {
-        _tenant_id: tenantId,
-        _acao: "alvo_ia.conexao_solicitada",
-        _alvo: vinculo.externalTenantId,
-        _detalhes: { status: vinculo.status },
-      });
-      return { status: vinculo.status as StatusDaIntegracao };
-    } catch (erro) {
-      const mensagem = erro instanceof Error ? erro.message : "Falha desconhecida";
-      await db.from("integracoes_de_ia").upsert(
-        { tenant_id: tenantId, provedor: PROVEDOR_PADRAO, status: "erro", ultimo_erro: mensagem },
-        { onConflict: "tenant_id,provedor" },
-      );
-      throw new Error(mensagem);
+    const chave = await gerarToken();
+    const agora = new Date().toISOString();
+
+    let externalTenantId: string | null = tenantId;
+    let aviso: string | null = null;
+    if (provedor.estaConfigurado()) {
+      try {
+        const vinculo = await provedor.registrarTenant({ tenantId, nome: tenant?.nome ?? "Barbearia" });
+        externalTenantId = vinculo.externalTenantId;
+      } catch (erro) {
+        aviso = erro instanceof Error ? erro.message : "Falha ao avisar a ALVO IA.";
+      }
     }
+
+    const { error } = await db.from("integracoes_de_ia").upsert(
+      {
+        tenant_id: tenantId,
+        provedor: PROVEDOR_PADRAO,
+        external_tenant_id: externalTenantId,
+        status: "conectado" satisfies StatusDaIntegracao,
+        conectado_em: agora,
+        token_hash: chave.hash,
+        token_prefixo: chave.prefixo,
+        token_criado_em: agora,
+        token_usado_em: null,
+        ultimo_erro: aviso,
+      },
+      { onConflict: "tenant_id,provedor" },
+    );
+    if (error) throw new Error(error.message);
+
+    await context.supabase.rpc("registrar_auditoria_barbearia", {
+      _tenant_id: tenantId,
+      _acao: "alvo_ia.conexao_ativada",
+      _alvo: chave.prefixo,
+      _detalhes: { saida_configurada: provedor.estaConfigurado() },
+    });
+
+    return {
+      status: "conectado" as StatusDaIntegracao,
+      url: URL_DA_PONTE,
+      /** Aparece uma única vez. Depois não é possível recuperá-la. */
+      token: chave.token,
+      aviso,
+    };
   });
+
+/** Desliga a ponte: a chave deixa de funcionar imediatamente. */
+export const desconectarAlvoIA = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const db = await admin();
+    const { error } = await db
+      .from("integracoes_de_ia")
+      .update({
+        status: "desconectado" satisfies StatusDaIntegracao,
+        token_hash: null,
+        token_prefixo: null,
+        token_criado_em: null,
+        token_usado_em: null,
+        conectado_em: null,
+      })
+      .eq("tenant_id", tenantId)
+      .eq("provedor", PROVEDOR_PADRAO);
+    if (error) throw new Error(error.message);
+    await context.supabase.rpc("registrar_auditoria_barbearia", {
+      _tenant_id: tenantId,
+      _acao: "alvo_ia.conexao_desligada",
+      _alvo: tenantId,
+      _detalhes: {},
+    });
+    return { ok: true };
+  });
+
