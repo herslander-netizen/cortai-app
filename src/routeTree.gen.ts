@@ -63,6 +63,7 @@ import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
+import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -334,6 +335,11 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
 } as any)
+const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
+  id: '/api/public/cortai/acoes',
+  path: '/api/public/cortai/acoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -390,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -442,6 +449,7 @@ export interface FileRoutesByTo {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
+  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
+    | '/api/public/cortai/acoes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -609,6 +619,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
+    | '/api/public/cortai/acoes'
   id:
     | '__root__'
     | '/'
@@ -665,6 +676,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
+    | '/api/public/cortai/acoes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -684,6 +696,7 @@ export interface RootRouteChildren {
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
+  ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1066,6 +1079,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
+    '/api/public/cortai/acoes': {
+      id: '/api/public/cortai/acoes'
+      path: '/api/public/cortai/acoes'
+      fullPath: '/api/public/cortai/acoes'
+      preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1197,6 +1217,7 @@ const rootRouteChildren: RootRouteChildren = {
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
+  ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

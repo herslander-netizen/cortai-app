@@ -1128,6 +1128,10 @@ export type Database = {
           provedor: string
           status: string
           tenant_id: string
+          token_criado_em: string | null
+          token_hash: string | null
+          token_prefixo: string | null
+          token_usado_em: string | null
           ultima_sincronizacao_em: string | null
           ultimo_erro: string | null
         }
@@ -1144,6 +1148,10 @@ export type Database = {
           provedor?: string
           status?: string
           tenant_id: string
+          token_criado_em?: string | null
+          token_hash?: string | null
+          token_prefixo?: string | null
+          token_usado_em?: string | null
           ultima_sincronizacao_em?: string | null
           ultimo_erro?: string | null
         }
@@ -1160,6 +1168,10 @@ export type Database = {
           provedor?: string
           status?: string
           tenant_id?: string
+          token_criado_em?: string | null
+          token_hash?: string | null
+          token_prefixo?: string | null
+          token_usado_em?: string | null
           ultima_sincronizacao_em?: string | null
           ultimo_erro?: string | null
         }
