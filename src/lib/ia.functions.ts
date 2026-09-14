@@ -32,10 +32,17 @@ function daLinha(tenantId: string, linha: Record<string, any> | null): Integraca
   };
 }
 
+/** Endereço público, real, que a ALVO IA / CortAI chama para operar a agenda. */
+export const URL_DA_PONTE = "https://cortai.dev/api/public/cortai/acoes";
+
 export type PainelDeIntegracao = {
   integracao: IntegracaoDeIA;
-  /** Há endpoint/credencial da ALVO IA neste ambiente? */
+  /** A ponte de atendimento pode ser ligada nesta barbearia. */
   disponivel: boolean;
+  /** Há endpoint/credencial de SAÍDA (Cortaí → ALVO IA) neste ambiente? */
+  saidaConfigurada: boolean;
+  /** Estado da chave de acesso usada pelo atendente. Nunca traz o token. */
+  ponte: { url: string; prefixo: string; criadoEm: string | null; usadoEm: string | null } | null;
   eventosPendentes: number;
 };
 
@@ -58,12 +65,23 @@ export const getIntegracaoDeIA = createServerFn({ method: "GET" })
         .eq("status", "pendente"),
     ]);
     const { provedorDeIA } = await import("@/lib/ia/alvo-ia.server");
+    const bruto = linha as Record<string, any> | null;
     return {
-      integracao: daLinha(tenantId, linha as Record<string, any> | null),
-      disponivel: provedorDeIA().estaConfigurado(),
+      integracao: daLinha(tenantId, bruto),
+      disponivel: true,
+      saidaConfigurada: provedorDeIA().estaConfigurado(),
+      ponte: bruto?.["token_prefixo"]
+        ? {
+            url: URL_DA_PONTE,
+            prefixo: bruto["token_prefixo"] as string,
+            criadoEm: (bruto["token_criado_em"] as string) ?? null,
+            usadoEm: (bruto["token_usado_em"] as string) ?? null,
+          }
+        : null,
       eventosPendentes: count ?? 0,
     };
   });
+
 
 const personaSchema = z.object({
   tom: z.string().trim().max(120).optional(),
