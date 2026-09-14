@@ -67,7 +67,9 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
-    const { gatewayConfigurado } = await import("@/lib/whatsapp/gateway.server");
+    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } = await import(
+      "@/lib/whatsapp/gateway.server"
+    );
     const { iaConfigurada } = await import("@/lib/whatsapp/atendimento.server");
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
@@ -90,6 +92,8 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const salvas = new Map((automacoes ?? []).map((a) => [a.chave, a]));
     return {
       gatewayConfigurado: gatewayConfigurado(),
+      provedor: provedorDoGateway(),
+      credenciaisFaltantes: credenciaisFaltantes(),
       iaDisponivel: iaConfigurada(),
       conexao: conexaoDaLinha(conexao),
       configuracao,
