@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 
 import {
@@ -27,7 +28,11 @@ export function PreferenciasDePrivacidade() {
       </h2>
       <p className="mt-2 text-xs leading-relaxed text-mute">
         Escolha o que o Cortaí pode usar além do necessário para funcionar. Você pode mudar quando
-        quiser.
+        quiser. Leia a{" "}
+        <Link to="/privacidade" className="text-gold underline">
+          Política de Privacidade
+        </Link>
+        .
       </p>
       <ul className="mt-4 space-y-3">
         {DESCRICAO_DAS_CATEGORIAS.map((categoria) => (
