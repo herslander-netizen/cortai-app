@@ -25,6 +25,7 @@ function RecuperarSenhaPage() {
   const [email, setEmail] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
