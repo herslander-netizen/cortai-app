@@ -25,7 +25,11 @@ export const ROTULO_DO_PLANO: Record<string, string> = {
   studio: "Studio",
 };
 
-/** Lê a matriz e responde se o plano do tenant libera o recurso. */
+/**
+ * Lê a matriz e responde se o plano do tenant libera o recurso.
+ * A matriz é configuração interna da plataforma: a leitura acontece sempre
+ * pelo servidor, nunca pela sessão do usuário.
+ */
 export async function recursoLiberado(
   db: any,
   tenantId: string,
@@ -33,7 +37,8 @@ export async function recursoLiberado(
 ): Promise<{ liberado: boolean; plano: string }> {
   const { data: tenant } = await db.from("tenants").select("plano").eq("id", tenantId).maybeSingle();
   const plano = (tenant?.plano as string) ?? "essencial";
-  const { data: regra } = await db
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: regra } = await supabaseAdmin
     .from("recursos_de_plano")
     .select("liberado")
     .eq("chave", chave)
