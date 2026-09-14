@@ -29,6 +29,8 @@ async function admin() {
 
 /** Endereço público que o serviço de WhatsApp chama para avisar o Cortaí. */
 export const URL_DE_EVENTOS = "https://cortai.dev/api/public/whatsapp/eventos";
+/** Endereço usado quando o provedor é a Evolution API. */
+export const URL_DE_EVENTOS_EVOLUTION = "https://cortai.dev/api/public/whatsapp/evolution";
 
 export type PainelDoCortai = {
   /** Existe serviço de WhatsApp publicado e configurado neste ambiente? */
