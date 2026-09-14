@@ -147,8 +147,19 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
   const [mensagens, setMensagens] = useState<TurnoDaConversa[]>([]);
   const fim = useRef<HTMLDivElement | null>(null);
   const campo = useRef<HTMLTextAreaElement | null>(null);
+  const lista = useRef<HTMLDivElement | null>(null);
+  const noFim = useRef(true);
+  const [novaMensagem, setNovaMensagem] = useState(false);
 
   const { data } = useQuery({ queryKey: ["assistente-conversa"], queryFn: () => getConversaDoAssistente() });
+
+  function irAoFim(suave = true) {
+    const el = lista.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: suave ? "smooth" : "auto" });
+    noFim.current = true;
+    setNovaMensagem(false);
+  }
 
   useEffect(() => {
     if (!data) return;
@@ -156,9 +167,11 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
     setMensagens((atual) => (atual.length ? atual : data.mensagens));
   }, [data]);
 
+  // Só acompanha automaticamente quem já estava no fim da conversa.
   useEffect(() => {
-    fim.current?.scrollIntoView({ block: "end" });
-  }, [mensagens, enviando]);
+    if (noFim.current) irAoFim();
+    else setNovaMensagem(true);
+  }, [mensagens.length, enviando]);
 
   useEffect(() => {
     campo.current?.focus();
