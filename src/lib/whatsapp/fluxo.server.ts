@@ -6,7 +6,12 @@
  *
  * Idempotência: a mesma entrega (mesmo id externo) nunca é processada duas vezes.
  */
-import { CONFIGURACAO_PADRAO, type ConfiguracaoDoAtendimento, type TomDoAtendimento } from "./contrato";
+import {
+  CONFIGURACAO_PADRAO,
+  type ConfiguracaoDoAtendimento,
+  type ContextoDaConversa,
+  type TomDoAtendimento,
+} from "./contrato";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -42,6 +47,8 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     encaminhamentoHumano: data.encaminhamento_humano,
     lembretes: data.lembretes,
     tom: data.tom as TomDoAtendimento,
+    recuperacaoAtiva: data.recuperacao_ativa ?? false,
+    recuperacaoDias: data.recuperacao_dias ?? 30,
   };
 }
 
@@ -55,7 +62,7 @@ async function conversaDoTelefone(input: {
   const telefone = somenteDigitos(input.telefone);
   const { data: existente } = await db
     .from("conversas_whatsapp")
-    .select("id, status, ia_ativa, modo_humano, cliente_id")
+    .select("id, status, ia_ativa, modo_humano, cliente_id, contexto")
     .eq("tenant_id", input.tenantId)
     .eq("telefone", telefone)
     .maybeSingle();
@@ -78,7 +85,7 @@ async function conversaDoTelefone(input: {
       nome_contato: input.nomeContato,
       cliente_id: cliente?.id ?? null,
     })
-    .select("id, status, ia_ativa, modo_humano, cliente_id")
+    .select("id, status, ia_ativa, modo_humano, cliente_id, contexto")
     .single();
   if (error) throw new Error(error.message);
   return data;
@@ -129,6 +136,57 @@ export async function enviarPelaBarbearia(input: {
 
   if (erro) throw new Error(erro);
   return { externoId };
+}
+
+
+/**
+ * Memória do cliente em texto: só dados reais desta barbearia. Devolve `null`
+ * quando a pessoa ainda não é cliente daqui.
+ */
+async function perfilDoCliente(tenantId: string, clienteId: string | null): Promise<string | null> {
+  if (!clienteId) return null;
+  try {
+    const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
+    const h = await historicoDoCliente({ tenantId, externalAgentId: null }, { clienteId });
+    const linhas = [
+      `- clienteId: ${h.clienteId}`,
+      `- nome: ${h.nome}`,
+      `- visitas concluídas: ${h.visitas}`,
+      h.ultimaVisita ? `- última visita: ${new Date(h.ultimaVisita).toLocaleString("pt-BR")}` : null,
+      h.intervaloMedioDias ? `- costuma voltar a cada ${h.intervaloMedioDias} dias` : null,
+      h.servicoPreferido?.nome ? `- serviço mais frequente: ${h.servicoPreferido.nome} (id ${h.servicoPreferido.id})` : null,
+      h.profissionalPreferido?.nome
+        ? `- profissional mais frequente: ${h.profissionalPreferido.nome} (id ${h.profissionalPreferido.id})`
+        : null,
+      h.ultimos.length
+        ? `- últimos atendimentos: ${h.ultimos
+            .map((u) => `${new Date(u.inicio).toLocaleDateString("pt-BR")} ${u.servico ?? "-"} com ${u.profissional ?? "-"}`)
+            .join("; ")}`
+        : null,
+      h.preferencias.length
+        ? `- preferências informadas: ${h.preferencias.map((m) => `${m.chave}: ${m.valor}`).join("; ")}`
+        : null,
+    ].filter(Boolean);
+    return linhas.join("\n");
+  } catch {
+    return null;
+  }
+}
+
+/** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
+async function vincularCliente(tenantId: string, conversaId: string, telefone: string, atual: string | null) {
+  if (atual) return atual;
+  const db = await admin();
+  const { data } = await db
+    .from("clientes")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("telefone", telefone)
+    .is("arquivado_em", null)
+    .maybeSingle();
+  if (!data) return null;
+  await db.from("conversas_whatsapp").update({ cliente_id: data.id }).eq("id", conversaId);
+  return data.id;
 }
 
 /** Trata uma mensagem recebida do gateway. */
