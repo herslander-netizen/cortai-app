@@ -80,8 +80,7 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           const conectado = estado === "open";
           const atualizou = await fluxo.atualizarEstadoDaConexao(sessaoId, {
             status: estado,
-            qrCode: conectado ? null : undefined,
-            qrExpiraEm: conectado ? null : undefined,
+            ...(conectado ? { qrCode: null, qrExpiraEm: null } : {}),
             numero: typeof dados["number"] === "string" ? (dados["number"] as string) : null,
             nomeExibicao: typeof dados["profileName"] === "string" ? (dados["profileName"] as string) : null,
             erro: null,
