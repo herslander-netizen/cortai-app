@@ -12,8 +12,6 @@ import { getOportunidades } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { BannersDaPlataforma, MeuPlano } from "@/components/barbeiro/PainelComercial";
 import { HubModulos } from "@/components/barbeiro/HubModulos";
-import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
-import { BotaoAssistente } from "@/components/ia/BotaoAssistente";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -64,10 +62,6 @@ function HojePage() {
       {data ? (
         <>
           <BannersDaPlataforma />
-          <div className="mb-5">
-            <BotaoAssistente />
-          </div>
-          <PrimeirosPassos />
           <div data-guia="dash-faturamento" className="rounded-xl bg-ink3 p-5">
             <div className="flex items-start justify-between gap-4"><div><p className="text-xs text-mute">Faturamento de hoje</p><p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(data.caixaCentavos)}</p></div><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold"><TrendingUp size={19} /></span></div>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(5, data.ocupacaoPct)}%` }} /></div>

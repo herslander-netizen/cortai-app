@@ -4,6 +4,7 @@ import { CalendarRange, House, Menu, Users } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
+import { FabCortai } from "@/components/ia/FabCortai";
 
 const tabs: TabItem[] = [
   { to: "/barbeiro", label: "Início", icon: House },
@@ -23,6 +24,7 @@ function BarberLayout() {
     <div className="management-shell">
       <Outlet />
       <TabBar items={tabs} centralAction={<AcoesRapidas />} />
+      <FabCortai />
       <ConviteDeInstalacao />
     </div>
   );
