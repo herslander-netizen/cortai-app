@@ -31,3 +31,13 @@
 - [ ] Tour curto e cartão Primeiros passos
 - [ ] Fila pública sem login com acompanhamento
 - [ ] Typecheck, build e teste dos dois fluxos
+
+## Pedidos de 14/09
+
+- [x] Fechar execução anônima das funções internas restantes (fila por link, home, aparência, contato)
+- [x] Validar fila por link e horários públicos após o fechamento
+- [ ] Credenciais reais da ALVO IA (bloqueado: valores só a ALVO IA emite)
+- [ ] Histórico de agendamentos e status na ficha do cliente
+- [ ] Tour contextual dentro da folha da CortAI
+- [ ] Tela admin para criar barbearias e gerir contas de administrador
+- [ ] Restringir fila de espera e agenda ao acesso da barbearia
