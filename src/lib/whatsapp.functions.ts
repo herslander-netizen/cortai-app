@@ -35,6 +35,10 @@ export const URL_DE_EVENTOS_EVOLUTION = "https://cortai.dev/api/public/whatsapp/
 export type PainelDoCortai = {
   /** Existe serviço de WhatsApp publicado e configurado neste ambiente? */
   gatewayConfigurado: boolean;
+  /** Nome do provedor em uso (evolution por padrão). */
+  provedor: string;
+  /** Variáveis que ainda precisam ser cadastradas para o QR funcionar. */
+  credenciaisFaltantes: string[];
   /** A IA do CortAI está disponível? */
   iaDisponivel: boolean;
   conexao: ConexaoDeWhatsapp | null;
