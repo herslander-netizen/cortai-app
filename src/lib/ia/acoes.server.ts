@@ -73,7 +73,7 @@ export async function consultarBarbearia(ctx: ContextoDoAgente) {
     nome: tenant?.nome ?? null,
     slug: tenant?.slug ?? null,
     whatsapp: tenant?.whatsapp ?? null,
-    endereco: (tenant as { endereco?: string | null } | null)?.endereco ?? null,
+    endereco: tenant?.endereco ?? null,
     horarios: horarios ?? [],
   };
 }
@@ -266,13 +266,30 @@ export async function cancelarAgendamento(ctx: ContextoDoAgente, input: { agenda
   return data;
 }
 
-/** Catálogo de ações que a futura ALVO IA poderá solicitar. */
+/** Agendamentos futuros de um cliente — base para remarcar ou cancelar. */
+export async function listarAgendamentosDoCliente(ctx: ContextoDoAgente, input: { clienteId: string }) {
+  const db = await admin();
+  const { data, error } = await db
+    .from("agendamentos")
+    .select("id, inicio, fim, status, servico_id, profissional_id")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("cliente_id", input.clienteId)
+    .not("status", "in", "(cancelado,falta)")
+    .gte("inicio", new Date().toISOString())
+    .order("inicio");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+/** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
 export const ACOES_DO_AGENTE = {
+  consultar_barbearia: consultarBarbearia,
   consultar_disponibilidade: consultarDisponibilidade,
   listar_servicos: listarServicos,
   listar_profissionais: listarProfissionais,
   consultar_cliente: consultarCliente,
   registrar_cliente: registrarCliente,
+  listar_agendamentos_do_cliente: listarAgendamentosDoCliente,
   criar_agendamento: criarAgendamento,
   remarcar_agendamento: remarcarAgendamento,
   cancelar_agendamento: cancelarAgendamento,
