@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 
 import {
   DESCRICAO_DAS_CATEGORIAS,
@@ -29,7 +30,11 @@ export function BannerDeCookies() {
         <p className="text-sm font-bold text-paper">Sua privacidade importa.</p>
         <p className="mt-1 text-xs leading-relaxed text-mute">
           Usamos cookies e tecnologias semelhantes para manter o Cortaí funcionando, melhorar sua
-          experiência e, quando permitido, entender como o sistema é utilizado.
+          experiência e, quando permitido, entender como o sistema é utilizado. Saiba mais na{" "}
+          <Link to="/privacidade" className="text-gold underline">
+            Política de Privacidade
+          </Link>
+          .
         </p>
 
         {configurando ? (
