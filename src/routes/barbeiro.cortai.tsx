@@ -137,11 +137,53 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const novoQr = useServerFn(atualizarQrCode);
   const reconectar = useServerFn(reconectarWhatsapp);
   const desconectar = useServerFn(desconectarWhatsapp);
+  const sincronizar = useServerFn(sincronizarConexao);
   const [aviso, setAviso] = useState<string | null>(null);
   const [restante, setRestante] = useState<number | null>(null);
+  const [desde] = useState(() => Date.now());
+  const [agora, setAgora] = useState(() => Date.now());
 
-  const conexao = painel.conexao;
+  const acao = useMutation({
+    mutationFn: async (qual: "conectar" | "qr" | "reconectar" | "desconectar") => {
+      if (qual === "conectar") return conectar({ data: undefined });
+      if (qual === "qr") return novoQr({ data: undefined });
+      if (qual === "reconectar") return reconectar({ data: undefined });
+      return desconectar({ data: undefined });
+    },
+    onSuccess: (r: unknown) => {
+      setAviso((r as { aviso?: string | null })?.aviso ?? null);
+      void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+      void cliente.invalidateQueries({ queryKey: ["cortai-conexao"] });
+    },
+    onError: (e: unknown) => setAviso(e instanceof Error ? e.message : "Não foi possível concluir agora."),
+  });
+
+  const statusBase = painel.conexao?.status ?? "desconectado";
+  // Enquanto não estiver conectado, perguntamos o estado real ao serviço.
+  const acompanhar =
+    painel.gatewayConfigurado && statusBase !== "conectado" && agora - desde < 10 * 60 * 1000;
+
+  const estado = useQuery({
+    queryKey: ["cortai-conexao"],
+    queryFn: () => sincronizar({ data: undefined }),
+    enabled: acompanhar,
+    refetchInterval: acompanhar ? 5000 : false,
+    refetchIntervalInBackground: false,
+  });
+
+  const conexao = estado.data?.conexao ?? painel.conexao;
+  const status = conexao?.status ?? "desconectado";
   const expira = conexao?.qrExpiraEm ?? null;
+
+  useEffect(() => {
+    const id = window.setInterval(() => setAgora(Date.now()), 15000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Assim que o serviço confirma a conexão, o painel inteiro se atualiza.
+  useEffect(() => {
+    if (status === "conectado") void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+  }, [status, cliente]);
 
   useEffect(() => {
     if (!expira) {
@@ -154,31 +196,15 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     return () => window.clearInterval(id);
   }, [expira]);
 
-  const recarregar = () => void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
-
-  const acao = useMutation({
-    mutationFn: async (qual: "conectar" | "qr" | "reconectar" | "desconectar") => {
-      if (qual === "conectar") return conectar({ data: undefined });
-      if (qual === "qr") return novoQr({ data: undefined });
-      if (qual === "reconectar") return reconectar({ data: undefined });
-      return desconectar({ data: undefined });
-    },
-    onSuccess: (r: any) => {
-      setAviso(r?.aviso ?? null);
-      recarregar();
-    },
-    onError: (e: unknown) => setAviso(e instanceof Error ? e.message : "Não foi possível concluir agora."),
-  });
-
   if (!painel.gatewayConfigurado) {
     return (
-      <section className="rounded-lg border border-line bg-ink2 p-5">
+      <section className="rounded-xl border border-line bg-ink2 p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
             <Smartphone size={18} />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-paper">Serviço de WhatsApp não configurado</h2>
+            <h2 className="text-sm font-semibold text-paper">Serviço de WhatsApp ainda não configurado</h2>
             <p className="mt-1 text-xs text-mute">
               A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Cortaí. Enquanto ele
               não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar algo que não funciona.
@@ -193,61 +219,99 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     );
   }
 
+  const qrExpirado = status === "qr_pronto" && restante !== null && restante <= 0;
+  const conectando = acao.isPending || status === "pendente" || status === "conectando";
+
+  const titulo =
+    status === "conectado"
+      ? "WhatsApp conectado"
+      : qrExpirado
+        ? "Este QR Code expirou"
+        : status === "qr_pronto"
+          ? "Escaneie o QR Code usando o WhatsApp Business"
+          : status === "conectando"
+            ? "Conectando seu WhatsApp…"
+            : status === "pendente"
+              ? "Preparando sua conexão…"
+              : status === "erro"
+                ? "Não foi possível conectar seu WhatsApp"
+                : conexao?.conectadoEm
+                  ? "Seu WhatsApp foi desconectado"
+                  : "Seu WhatsApp ainda não está conectado";
+
+  const descricao =
+    status === "conectado"
+      ? "Seu WhatsApp está conectado e pronto para o CortAI atender seus clientes."
+      : "Conecte o WhatsApp da sua barbearia para que o CortAI possa atender seus clientes automaticamente.";
+
+  const rotuloPrincipal = conectando
+    ? "Conectando…"
+    : status === "erro"
+      ? "Tentar novamente"
+      : conexao?.conectadoEm
+        ? "Reconectar WhatsApp"
+        : "Conectar WhatsApp";
+
   return (
-    <section className="rounded-lg border border-line bg-ink2 p-5">
+    <section className="rounded-xl border border-line bg-ink2 p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
           <MessageCircle size={18} />
         </span>
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-paper">
-            {conexao ? STATUS_DA_CONEXAO[conexao.status] : "Não conectado"}
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
+            <Ponto ligado={status === "conectado"} />
+            {titulo}
           </h2>
-          <p className="mt-1 text-xs text-mute">
-            O CortAI atende no seu próprio número do WhatsApp Business.
-          </p>
+          <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p>
         </div>
       </div>
 
-      {conexao?.status === "conectado" ? (
+      {status === "conectado" ? (
         <dl className="mt-5 space-y-2 border-t border-line pt-4 text-xs">
           <div className="flex justify-between gap-4">
             <dt className="text-mute">Número</dt>
-            <dd className="text-paper">{conexao.numero ?? "—"}</dd>
+            <dd className="text-paper">{conexao?.numero ?? "—"}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-mute">Nome</dt>
-            <dd className="truncate text-paper">{conexao.nomeExibicao ?? "—"}</dd>
+            <dt className="text-mute">Nome da conta</dt>
+            <dd className="truncate text-paper">{conexao?.nomeExibicao ?? "—"}</dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-mute">Conectado em</dt>
             <dd className="text-paper">
-              {conexao.conectadoEm ? new Date(conexao.conectadoEm).toLocaleString("pt-BR") : "—"}
+              {conexao?.conectadoEm ? new Date(conexao.conectadoEm).toLocaleString("pt-BR") : "—"}
             </dd>
           </div>
         </dl>
       ) : null}
 
-      {conexao?.status === "qr_pronto" && conexao.qrCode ? (
-        <div className="mt-5 border-t border-line pt-4 text-center">
+      {conectando && status !== "qr_pronto" ? (
+        <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
+          <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
           <p className="text-xs text-mute">
-            Abra o WhatsApp no celular, vá em Aparelhos conectados e escaneie o código.
+            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando sua conexão…"}
           </p>
-          <img
-            src={conexao.qrCode.startsWith("data:") ? conexao.qrCode : `data:image/png;base64,${conexao.qrCode}`}
-            alt="QR Code para conectar o WhatsApp da barbearia"
-            className="mx-auto mt-4 h-56 w-56 rounded-lg bg-paper p-2"
-          />
+        </div>
+      ) : null}
+
+      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado ? (
+        <div className="mt-5 border-t border-line pt-4 text-center">
+          <div className="mt-1">
+            <QrCodeReal valor={conexao.qrCode} alt="QR Code para conectar o WhatsApp da barbearia" />
+          </div>
+          <p className="mt-4 text-xs text-paper">Abra o WhatsApp Business no seu celular.</p>
+          <p className="mt-1 text-xs text-mute">
+            Vá em Aparelhos conectados &gt; Conectar um aparelho e escaneie este código.
+          </p>
           {restante !== null ? (
-            <p className="mt-2 text-[11px] text-mute2">
-              {restante > 0 ? `Este código expira em ${restante} segundos.` : "Este código expirou."}
-            </p>
+            <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
           ) : null}
         </div>
       ) : null}
 
       <div className="mt-6 space-y-3">
-        {conexao?.status === "conectado" ? (
+        {status === "conectado" ? (
           <>
             <button
               type="button"
@@ -262,7 +326,11 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => {
-                if (window.confirm("Desconectar o WhatsApp da barbearia? Clientes, histórico e agendamentos continuam salvos.")) {
+                if (
+                  window.confirm(
+                    "Desconectar o WhatsApp da barbearia? Clientes, histórico e agendamentos continuam salvos.",
+                  )
+                ) {
                   acao.mutate("desconectar");
                 }
               }}
@@ -278,16 +346,18 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               disabled={acao.isPending}
               onClick={() => acao.mutate("conectar")}
             >
-              {acao.isPending ? "Preparando conexão…" : "Conectar WhatsApp"}
+              {rotuloPrincipal}
             </button>
-            <button
-              type="button"
-              className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
-              disabled={acao.isPending}
-              onClick={() => acao.mutate("qr")}
-            >
-              Gerar novo QR Code
-            </button>
+            {status === "qr_pronto" || qrExpirado ? (
+              <button
+                type="button"
+                className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+                disabled={acao.isPending}
+                onClick={() => acao.mutate("qr")}
+              >
+                Gerar novo QR Code
+              </button>
+            ) : null}
           </>
         )}
         {aviso ? <p className="text-center text-sm text-brick">{aviso}</p> : null}
@@ -322,17 +392,22 @@ function BlocoConversas() {
     refetchInterval: 20000,
   });
 
-  if (aberta) return <Conversa id={aberta} aoVoltar={() => { setAberta(null); void cliente.invalidateQueries({ queryKey: ["cortai-conversas"] }); }} />;
+  const fechar = () => {
+    setAberta(null);
+    void cliente.invalidateQueries({ queryKey: ["cortai-conversas"] });
+  };
 
-  return (
-    <section>
+  const painelLista = (
+    <section className="min-w-0">
       <div className="flex flex-wrap gap-2">
         {FILTROS.map(([id, rotulo]) => (
           <button
             key={id}
             type="button"
             onClick={() => setFiltro(id)}
-            className={`rounded-full border px-3 py-1 text-[11px] ${filtro === id ? "border-gold text-gold" : "border-line2 text-mute"}`}
+            className={`rounded-full border px-3 py-1 text-[11px] transition-colors ${
+              filtro === id ? "border-gold text-gold" : "border-line2 text-mute hover:text-paper"
+            }`}
           >
             {rotulo}
           </button>
@@ -342,20 +417,30 @@ function BlocoConversas() {
       {lista.isLoading ? <Carregando /> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Nenhuma conversa por aqui ainda." /> : null}
 
-      <ul className="mt-3">
+      <ul className="mt-3 lg:max-h-[560px] lg:overflow-y-auto lg:pr-1">
         {(lista.data ?? []).map((c) => (
           <li key={c.id} className="border-b border-line">
-            <button type="button" onClick={() => setAberta(c.id)} className="block w-full py-4 text-left">
+            <button
+              type="button"
+              onClick={() => setAberta(c.id)}
+              className={`block w-full px-1 py-4 text-left ${aberta === c.id ? "bg-ink2" : ""}`}
+            >
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm text-paper">{c.nomeContato ?? c.telefone}</p>
-                  <p className="mt-0.5 text-xs text-mute">
-                    {c.status === "humano" ? "Atendimento humano" : c.status === "encerrada" ? "Encerrada" : "CortAI atendendo"}
+                  <p className="mt-0.5 truncate text-xs text-mute">
+                    {c.status === "humano"
+                      ? "Atendimento humano"
+                      : c.status === "encerrada"
+                        ? "Encerrada"
+                        : "Atendimento pelo CortAI"}
                     {c.ultimaMensagemEm ? ` · ${new Date(c.ultimaMensagemEm).toLocaleString("pt-BR")}` : ""}
                   </p>
                 </div>
                 {c.naoLidas > 0 ? (
-                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-semibold text-ink">{c.naoLidas}</span>
+                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-semibold text-ink">
+                    {c.naoLidas}
+                  </span>
                 ) : null}
               </div>
             </button>
@@ -364,7 +449,32 @@ function BlocoConversas() {
       </ul>
     </section>
   );
+
+  return (
+    <>
+      {/* Celular: uma coisa de cada vez. */}
+      <div className="lg:hidden">
+        {aberta ? <Conversa id={aberta} aoVoltar={fechar} /> : painelLista}
+      </div>
+
+      {/* Computador: lista à esquerda, conversa aberta à direita. */}
+      <div className="hidden gap-6 lg:grid lg:grid-cols-[300px_minmax(0,1fr)]">
+        {painelLista}
+        <div className="min-w-0">
+          {aberta ? (
+            <Conversa id={aberta} aoVoltar={fechar} />
+          ) : (
+            <div className="flex h-[560px] items-center justify-center rounded-xl border border-dashed border-line text-sm text-mute2">
+              Escolha uma conversa para acompanhar.
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }
+
+type PendenteFalha = { id: string; texto: string };
 
 function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
   const cliente = useQueryClient();
@@ -372,116 +482,236 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
   const responder = useServerFn(responderComoHumano);
   const [texto, setTexto] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [falhas, setFalhas] = useState<PendenteFalha[]>([]);
+  const [novaMensagem, setNovaMensagem] = useState(false);
+  const lista = useRef<HTMLDivElement | null>(null);
+  const noFim = useRef(true);
+  const ultimaContagem = useRef(0);
 
   const dados = useQuery({
     queryKey: ["cortai-conversa", id],
     queryFn: () => lerConversa({ data: { conversaId: id } }),
-    refetchInterval: 15000,
+    refetchInterval: 10000,
   });
+
+  const mensagens = dados.data?.mensagens ?? [];
+
+  const irAoFim = (suave = true) => {
+    const el = lista.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: suave ? "smooth" : "auto" });
+    setNovaMensagem(false);
+    noFim.current = true;
+  };
+
+  // Rolagem inteligente: só acompanha quem já estava no fim da conversa.
+  useEffect(() => {
+    if (mensagens.length === ultimaContagem.current) return;
+    const primeiraCarga = ultimaContagem.current === 0;
+    ultimaContagem.current = mensagens.length;
+    if (primeiraCarga || noFim.current) irAoFim(!primeiraCarga);
+    else setNovaMensagem(true);
+  }, [mensagens.length]);
 
   const mudar = useMutation({
     mutationFn: (modo: "humano" | "cortai" | "encerrar") => definir({ data: { conversaId: id, modo } }),
-    onSuccess: () => void cliente.invalidateQueries({ queryKey: ["cortai-conversa", id] }),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ["cortai-conversa", id] });
+      void cliente.invalidateQueries({ queryKey: ["cortai-conversas"] });
+    },
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível mudar o atendimento."),
   });
 
   const enviar = useMutation({
-    mutationFn: () => responder({ data: { conversaId: id, texto: texto.trim() } }),
-    onSuccess: () => {
-      setTexto("");
+    mutationFn: (conteudo: string) => responder({ data: { conversaId: id, texto: conteudo } }),
+    onSuccess: (_r, conteudo) => {
+      setFalhas((f) => f.filter((x) => x.texto !== conteudo));
       setErro(null);
+      noFim.current = true;
       void cliente.invalidateQueries({ queryKey: ["cortai-conversa", id] });
     },
-    onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível enviar."),
+    onError: (e: unknown, conteudo) => {
+      setErro(e instanceof Error ? e.message : "Não foi possível enviar.");
+      setFalhas((f) =>
+        f.some((x) => x.texto === conteudo) ? f : [...f, { id: `falha-${Date.now()}`, texto: conteudo }],
+      );
+    },
   });
 
+  function enviarNovo() {
+    const limpo = texto.trim();
+    if (!limpo || enviar.isPending) return;
+    setTexto("");
+    enviar.mutate(limpo);
+  }
+
+  const conversa = dados.data?.conversa;
+  const humano = conversa?.status === "humano";
+
   return (
-    <section>
-      <button type="button" onClick={aoVoltar} className="text-xs text-mute">
-        ← Voltar às conversas
-      </button>
-
-      {dados.isLoading ? <Carregando /> : null}
-
-      {dados.data ? (
-        <>
-          <div className="mt-3 rounded-lg border border-line bg-ink2 p-4">
-            <p className="text-sm font-semibold text-paper">
-              {dados.data.conversa.nomeContato ?? dados.data.cliente?.nome ?? dados.data.conversa.telefone}
+    <section className="cortai-conversa h-[calc(100dvh-230px)] min-h-[380px] rounded-xl border border-line bg-ink2 lg:h-[560px]">
+      <header className="shrink-0 border-b border-line px-4 py-3">
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={aoVoltar}
+            aria-label="Voltar às conversas"
+            className="mt-0.5 shrink-0 text-mute hover:text-paper"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-paper">
+              {conversa?.nomeContato ?? dados.data?.cliente?.nome ?? conversa?.telefone ?? "Conversa"}
             </p>
-            <p className="mt-0.5 text-xs text-mute">{dados.data.conversa.telefone}</p>
-            {dados.data.agendamentos.length > 0 ? (
-              <ul className="mt-3 space-y-1 border-t border-line pt-3 text-[11px] text-mute2">
-                {dados.data.agendamentos.slice(0, 5).map((a: any) => (
-                  <li key={a.id}>
-                    {new Date(a.inicio).toLocaleString("pt-BR")} · {a.status}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper"
-                onClick={() => mudar.mutate("humano")}
-              >
-                Assumir conversa
-              </button>
-              <button
-                type="button"
-                className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper"
-                onClick={() => mudar.mutate("cortai")}
-              >
-                CortAI atende
-              </button>
-              <button
-                type="button"
-                className="rounded-md border border-line2 px-3 py-2 text-xs text-mute"
-                onClick={() => mudar.mutate("encerrar")}
-              >
-                Encerrar
-              </button>
-            </div>
+            <p className="mt-0.5 flex items-center gap-2 text-[11px] text-mute">
+              <Ponto ligado={!humano} />
+              {conversa?.status === "encerrada"
+                ? "Conversa encerrada"
+                : humano
+                  ? "Atendimento humano"
+                  : "Atendimento pelo CortAI"}
+              {conversa?.telefone ? ` · ${conversa.telefone}` : ""}
+            </p>
           </div>
+        </div>
 
-          <ul className="mt-4 space-y-3">
-            {dados.data.mensagens.map((m) => (
-              <li
-                key={m.id}
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                  m.direcao === "entrada" ? "bg-ink2 text-paper" : "ml-auto bg-gold/15 text-paper"
-                }`}
-              >
-                <p className="whitespace-pre-wrap break-words">{m.conteudo}</p>
-                <p className="mt-1 text-[10px] text-mute2">
-                  {m.direcao === "saida" ? (m.geradaPorIa ? "CortAI" : "Equipe") : "Cliente"} ·{" "}
-                  {new Date(m.criadoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                  {m.status === "falhou" ? " · não enviada" : ""}
-                </p>
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper disabled:opacity-50"
+            disabled={mudar.isPending}
+            onClick={() => mudar.mutate("humano")}
+          >
+            Assumir conversa
+          </button>
+          <button
+            type="button"
+            className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper disabled:opacity-50"
+            disabled={mudar.isPending}
+            onClick={() => mudar.mutate("cortai")}
+          >
+            CortAI atende
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-line2 px-3 py-2 text-xs text-mute disabled:opacity-50"
+            disabled={mudar.isPending}
+            onClick={() => mudar.mutate("encerrar")}
+          >
+            Encerrar
+          </button>
+        </div>
+      </header>
+
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={lista}
+          className="cortai-conversa-lista h-full px-4 py-4"
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const perto = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+            noFim.current = perto;
+            if (perto) setNovaMensagem(false);
+          }}
+        >
+          {dados.isLoading ? <Carregando /> : null}
+
+          <ul className="space-y-3">
+            {mensagens.map((m) => {
+              const sistema = m.tipo === "sistema";
+              if (sistema) {
+                return (
+                  <li key={m.id} className="flex justify-center">
+                    <span className="rounded-full border border-line2 px-3 py-1 text-[11px] text-mute2">
+                      {m.conteudo}
+                    </span>
+                  </li>
+                );
+              }
+              const entrada = m.direcao === "entrada";
+              return (
+                <li key={m.id} className={entrada ? "flex" : "flex justify-end"}>
+                  <div
+                    className={`max-w-[85%] min-w-0 rounded-2xl px-3.5 py-2.5 text-sm ${
+                      entrada ? "rounded-bl-sm bg-ink text-paper" : "rounded-br-sm bg-gold/15 text-paper"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words leading-relaxed">{m.conteudo}</p>
+                    <p className="mt-1 text-[10px] text-mute2">
+                      {entrada ? "Cliente" : m.geradaPorIa ? "CortAI" : "Equipe"} ·{" "}
+                      {new Date(m.criadoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      {m.status === "falhou" ? " · não enviada" : ""}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+
+            {falhas.map((f) => (
+              <li key={f.id} className="flex justify-end">
+                <div className="max-w-[85%] min-w-0 rounded-2xl rounded-br-sm border border-brick/50 px-3.5 py-2.5 text-sm">
+                  <p className="whitespace-pre-wrap break-words text-paper">{f.texto}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-[10px] text-brick">Não foi possível enviar.</span>
+                    <button
+                      type="button"
+                      className="text-[10px] text-gold underline"
+                      onClick={() => enviar.mutate(f.texto)}
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                </div>
               </li>
             ))}
-          </ul>
 
-          <div className="mt-5">
-            <textarea
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              rows={3}
-              placeholder="Escrever como atendente…"
-              className="w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
-            />
-            <button
-              type="button"
-              className="btn-primary mt-2 w-full"
-              disabled={enviar.isPending || texto.trim().length === 0}
-              onClick={() => enviar.mutate()}
-            >
-              {enviar.isPending ? "Enviando…" : "Enviar mensagem"}
-            </button>
-            {erro ? <p className="mt-2 text-center text-sm text-brick">{erro}</p> : null}
-          </div>
-        </>
-      ) : null}
+            {enviar.isPending ? (
+              <li className="flex justify-end">
+                <span className="text-[11px] text-mute2">Enviando…</span>
+              </li>
+            ) : null}
+          </ul>
+        </div>
+
+        {novaMensagem ? (
+          <button
+            type="button"
+            onClick={() => irAoFim()}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+          >
+            Nova mensagem ↓
+          </button>
+        ) : null}
+      </div>
+
+      <div className="cortai-conversa-barra shrink-0 border-t border-line px-3 pt-3">
+        <div className="flex items-end gap-2">
+          <textarea
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                enviarNovo();
+              }
+            }}
+            rows={1}
+            placeholder="Escreva aqui…"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
+          />
+          <button
+            type="button"
+            aria-label="Enviar mensagem"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-ink disabled:opacity-50"
+            disabled={enviar.isPending || texto.trim().length === 0}
+            onClick={enviarNovo}
+          >
+            <Send size={17} aria-hidden />
+          </button>
+        </div>
+        {erro ? <p className="mt-2 text-center text-xs text-brick">{erro}</p> : null}
+      </div>
     </section>
   );
 }
