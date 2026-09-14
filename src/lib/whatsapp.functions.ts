@@ -244,6 +244,52 @@ export const desconectarWhatsapp = createServerFn({ method: "POST" })
     return { ok: true, aviso };
   });
 
+/**
+ * Pergunta ao serviço de WhatsApp qual é o estado REAL da sessão e grava o que
+ * ele responder. O navegador nunca decide sozinho que está conectado: só
+ * mostramos "conectado" depois que o serviço confirma.
+ */
+export const sincronizarConexao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
+    if (!gatewayConfigurado()) return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
+    const db = await admin();
+    const { data: atual } = await db
+      .from("conexoes_whatsapp")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    // Sem sessão criada ainda não há nada para consultar — evita chamada inútil.
+    if (!atual) return { conexao: null, aviso: null };
+    try {
+      const estado = await gatewayDeWhatsapp.consultarStatus(atual.sessao_id);
+      const conectou = estado.status === "conectado";
+      const { data } = await db
+        .from("conexoes_whatsapp")
+        .update({
+          status: estado.status,
+          qr_code: conectou ? null : (estado.qrCode ?? atual.qr_code),
+          qr_expira_em: conectou ? null : (estado.qrExpiraEm ?? atual.qr_expira_em),
+          numero: estado.numero ?? atual.numero,
+          nome_exibicao: estado.nomeExibicao ?? atual.nome_exibicao,
+          conectado_em: conectou ? (atual.conectado_em ?? new Date().toISOString()) : atual.conectado_em,
+          ultimo_erro: estado.erro ?? null,
+        })
+        .eq("id", atual.id)
+        .select("*")
+        .single();
+      return { conexao: conexaoDaLinha(data), aviso: null };
+    } catch (erro) {
+      return {
+        conexao: conexaoDaLinha(atual),
+        aviso: erro instanceof Error ? erro.message : "Não foi possível consultar o serviço agora.",
+      };
+    }
+  });
+
 /* ------------------------------ Conversas -------------------------------- */
 
 export const listarConversas = createServerFn({ method: "GET" })
