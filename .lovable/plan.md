@@ -1,65 +1,45 @@
-# Assistente CortAI + configuração inicial do barbeiro
+# CortAI no WhatsApp — atendimento de ponta a ponta
 
-## O que vou construir
+Objetivo: o cliente manda mensagem no WhatsApp da barbearia, o CortAI entende, consulta os dados reais do Cortaí, responde, agenda/cancela/remarca e passa para atendimento humano quando preciso.
 
-Uma configuração inicial curta para quem acabou de criar a barbearia, um assistente de IA de verdade dentro do produto, um tour curto no painel, um cartão "Primeiros passos" que lembra o progresso, e a entrada na fila pelo link público sem login.
+O que já existe e será reaproveitado (nada será recriado): as ações operacionais do atendente (barbearia, serviços, profissionais, disponibilidade real, cliente, criar/remarcar/cancelar agendamento), o token por barbearia, a tela de Integrações, as permissões da equipe e o isolamento por barbearia.
 
-Nada do que já existe é removido: agenda, clientes, financeiro, Voltaí, loja, equipe, administração e a página pública continuam iguais.
+## Dependência externa (importante)
 
-## Premissas
+A conexão por QR Code só existe se houver um serviço de WhatsApp rodando fora do Cortaí (o Cortaí é um site; ele não pode manter a sessão do WhatsApp aberta). Vou construir toda a integração com esse serviço e deixar documentado o que precisa ser publicado no servidor.
 
-- A identidade continua a atual (fundo quase preto, cartões grafite, dourado/âmbar na ação). Entendo "laranja/amarelo" como essa mesma família; não troco a paleta do produto.
-- WhatsApp fica opcional em todo o fluxo e a integração fica preparada, sem simular conexão.
-- Se a chave da IA não estiver disponível, o assistente responde com um aviso claro e atalhos úteis — nunca inventa resposta.
+Enquanto o endereço e a chave desse serviço não forem configurados, a tela mostra honestamente "Serviço de WhatsApp não configurado" — sem QR falso, sem conexão simulada.
 
-## 1. Configuração inicial (4 passos)
+## Etapas
 
-Nova tela `/barbeiro/configurar`, aberta logo depois de criar a barbearia:
+### 1. Banco (isolado por barbearia, com RLS e auditoria)
+- conexões de WhatsApp (sessão, número, nome, status, QR temporário com validade, últimos erros)
+- conversas (telefone, cliente, status: CortAI / humano / encerrada)
+- mensagens (entrada e saída, tipo, conteúdo, id externo para não processar duas vezes)
+- configurações do atendimento e automações por barbearia
+- registro das ações da IA
+- novas permissões: ver CortAI, gerenciar conversas, assumir conversa, configurar automações, gerenciar WhatsApp
 
-1. **Dados** — nome (obrigatório) e WhatsApp; logo/foto opcionais.
-2. **Horários** — botão "Usar Seg–Sáb, 09:00 às 19:00" já selecionado + personalizar por dia. Campo de texto livre: "segunda a sábado das 9 às 19 e domingo fechado" → prévia antes de salvar.
-3. **Serviços** — sugestões prontas (Corte, Barba, Corte + Barba, Pezinho, Sobrancelha, Platinado) com preço/duração editáveis + bloco "✨ Quer que o CortAI configure isso para você?" que interpreta texto e mostra prévia editável.
-4. **Pronto** — "Sua barbearia está pronta!", status do que foi configurado, link da fila, Copiar, Compartilhar e Ver fila.
+### 2. Camada do provedor de WhatsApp
+Interface única (criar sessão, obter QR, status, enviar mensagem, desconectar, reconectar) com a implementação do provedor configurável por variáveis de ambiente. Trocar de provedor depois não mexe no resto do sistema.
 
-Cada passo salva sozinho; sair e voltar retoma onde parou. O botão de saída vira "Configurar depois". WhatsApp aparece como recomendado, nunca bloqueia.
+### 3. Entrada de eventos
+Endpoint público para o serviço de WhatsApp avisar: QR atualizado, conectado, desconectado, erro, mensagem recebida, mensagem entregue. Assinatura conferida, entrega repetida ignorada.
 
-## 2. Assistente "Perguntar ao CortAI"
+### 4. Cérebro do atendimento
+Serviço no servidor que identifica a barbearia e o cliente, carrega o contexto da conversa (entende "o segundo horário"), decide a intenção, usa só as ferramentas controladas para consultar dados reais e responde. Nunca inventa preço, horário, serviço ou confirmação; nunca confirma o que falhou; pede confirmação antes de agendar ou cancelar; passa para humano quando o cliente pedir.
 
-- Botão fixo no painel e item no menu de ajuda; abre um painel lateral (celular: folha de baixo para cima).
-- Entende português natural e resolve tarefas: cadastrar serviços, ajustar horários, explicar a fila, mostrar o que já está cadastrado, levar para a tela certa.
-- Toda alteração passa por prévia em cartões + botão **Confirmar**; nada é gravado antes disso.
-- Respostas de navegação trazem atalhos ("Ir para serviços", "Abrir fila", "Abrir horários").
-- Conversa fica salva por barbearia, para continuar depois.
+### 5. Tela do CortAI no painel
+- **WhatsApp**: não conectado → "Conectar WhatsApp" → QR real com contagem de expiração e "Gerar novo QR" → conectando → conectado (número, nome, data) com Reconectar e Desconectar.
+- **Conversas**: lista com filtros (todas, CortAI, humano, não lidas), histórico da conversa, dados e agendamentos do cliente, botões Assumir, Retomar CortAI e Encerrar. Assumir uma conversa não desliga o CortAI das outras.
+- **Configurações**: atendimento automático, saudação, mensagem de boas-vindas, mensagem fora do horário, confirmação/cancelamento/remarcação, encaminhamento humano, lembretes e tom (profissional, amigável, direto).
+- **Status**: WhatsApp, CortAI e automação em verde/vermelho, com ação de reconectar.
 
-## 3. Tour curto e Primeiros passos
+Tudo respeitando as permissões: quem não tem acesso não vê o módulo.
 
-- Ao terminar a configuração, vai para o painel com o convite "Começar tour" ou "Explorar sozinho" (reaproveita o guia contextual que já existe, sem cobrir a tela).
-- Passos: fila atual → adicionar cliente → chamar próximo → serviços → assistente.
-- Cartão "Primeiros passos" no painel com progresso gravado: configurar barbearia, cadastrar serviços, publicar a fila, conhecer o painel da fila, conectar o WhatsApp (opcional), personalizar.
-- Menu de ajuda reúne: Primeiros passos, Fazer tour novamente, Perguntar ao CortAI, Central de ajuda.
+### 6. Validação
+Testes das ferramentas com dados reais, tentativa de acesso cruzado entre barbearias (deve falhar), entrega repetida de mensagem (não pode duplicar agendamento), verificação de tipos e build, e conferência em celular e computador.
 
-## 4. Fila pública para o cliente
-
-Na página pública da barbearia: escolher serviço, informar nome e WhatsApp, confirmar e entrar na fila — sem login. Depois mostra posição, estimativa de espera e status, com atualização automática. Aviso por WhatsApp fica preparado, desligado por enquanto.
-
-## Detalhes técnicos
-
-**Banco (uma migração)**
-- `horarios_de_funcionamento` (tenant, dia da semana, abre/fecha, fechado) + grants, RLS por membro do tenant, leitura pública mínima para a página da fila.
-- `onboarding_do_tenant` (etapa atual, concluído em, itens do checklist em jsonb, tour visto).
-- `conversas_de_ia` / `mensagens_de_ia` (tenant, autor, conteúdo, ação estruturada em jsonb), RLS por tenant.
-- `fila_de_espera`: colunas `nome_visitante`, `telefone_visitante`, `servico_id`, `status`, `token_publico`; `cliente_id` passa a aceitar nulo para entrada anônima, com RPC `entrar_na_fila_publica` (security definer) e leitura de posição só pelo token.
-
-**IA (server-side)**
-- `src/lib/ia/assistente.server.ts`: chamada ao Lovable AI Gateway com `openai/gpt-6-astra` na Responses API, em streaming, prompt de sistema com vocabulário de barbearia, regra de nunca inventar dados e de sempre pedir confirmação.
-- Saída estruturada: `resposta`, `intencao`, `acao`, `parametros`, `precisaConfirmar`.
-- `src/lib/ia/assistente.functions.ts`: `perguntarAoCortai`, `confirmarAcaoDaIa`, `interpretarServicos`, `interpretarHorarios` — todas com `requireSupabaseAuth`, permissão do tenant e validação Zod do lado do servidor; a execução da ação é reescrita no servidor a partir dos parâmetros, nunca confiando no texto do modelo.
-- Sem chave: retorno de fallback explícito (`disponivel: false`) com atalhos.
-
-**Interface**
-- `src/components/ia/AssistenteCortai.tsx` (painel + mensagens + ações rápidas), `BotaoAssistente.tsx`.
-- `src/components/onboarding/*` para os 4 passos e `PrimeirosPassos.tsx` no painel.
-- Rotas novas: `/barbeiro/configurar`, `/barbeiro/horarios`; `/barbeiro/servicos` (hoje vazia) ganha o CRUD real + bloco de IA.
-- `src/lib/guia/tours.ts` ganha o tour "primeiros-passos" apontando para `data-guia` reais.
-
-**Validação**: `bunx tsgo --noEmit`, `bun run build` e passagem pelos dois fluxos no navegador (barbeiro novo → configuração → serviços com IA → painel → tour → assistente; cliente → link público → entrar na fila → acompanhar).
+## Fora deste trabalho
+- Transcrição de áudio: a estrutura fica pronta, mas sem transcrição o CortAI não finge que entendeu.
+- Publicação do serviço de WhatsApp no servidor e suas credenciais.
