@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
+import { useAcao } from "@/hooks/useAcao";
 import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
-import { Aviso } from "@/components/ui/aviso";
 import { Carregando } from "@/components/layout/Carregando";
+
 
 export const Route = createFileRoute("/barbeiro/fila")({
   head: () => ({
