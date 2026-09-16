@@ -86,7 +86,19 @@ export type ConfiguracaoDoAtendimento = {
   /** Preparação da recuperação de clientes: desligada por padrão. */
   recuperacaoAtiva: boolean;
   recuperacaoDias: number;
+  /** A IA pode responder pelo WhatsApp quando a conexão estiver ativa. */
+  responderWhatsapp: boolean;
+  /** Regras escritas pela barbearia, usadas nas respostas. */
+  instrucoesExtras: string;
+  /** A IA atende só dentro de um horário próprio. */
+  horarioProprio: boolean;
+  /** Dias da semana (0 domingo … 6 sábado) em que a IA atende. */
+  horarioDias: number[];
+  horarioInicio: string;
+  horarioFim: string;
 };
+
+export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   atendimentoAutomatico: true,
@@ -101,6 +113,12 @@ export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   tom: "profissional",
   recuperacaoAtiva: false,
   recuperacaoDias: 30,
+  responderWhatsapp: true,
+  instrucoesExtras: "",
+  horarioProprio: false,
+  horarioDias: [1, 2, 3, 4, 5, 6],
+  horarioInicio: "09:00",
+  horarioFim: "19:00",
 };
 
 /** Erro usado quando não existe serviço de WhatsApp configurado no ambiente. */

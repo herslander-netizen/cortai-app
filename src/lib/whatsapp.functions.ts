@@ -491,6 +491,12 @@ const configSchema = z.object({
   tom: z.enum(["profissional", "amigavel", "direto", "premium", "objetivo"]),
   recuperacaoAtiva: z.boolean().default(false),
   recuperacaoDias: z.number().int().min(7).max(180).default(30),
+  responderWhatsapp: z.boolean().default(true),
+  instrucoesExtras: z.string().trim().max(2000).default(""),
+  horarioProprio: z.boolean().default(false),
+  horarioDias: z.array(z.number().int().min(0).max(6)).max(7).default([1, 2, 3, 4, 5, 6]),
+  horarioInicio: z.string().regex(/^\d{2}:\d{2}$/).default("09:00"),
+  horarioFim: z.string().regex(/^\d{2}:\d{2}$/).default("19:00"),
 });
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
@@ -515,6 +521,12 @@ export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
         tom: data.tom as TomDoAtendimento,
         recuperacao_ativa: data.recuperacaoAtiva,
         recuperacao_dias: data.recuperacaoDias,
+        responder_whatsapp: data.responderWhatsapp,
+        instrucoes_extras: data.instrucoesExtras,
+        horario_proprio: data.horarioProprio,
+        horario_dias: data.horarioDias,
+        horario_inicio: `${data.horarioInicio}:00`,
+        horario_fim: `${data.horarioFim}:00`,
       },
       { onConflict: "tenant_id" },
     );

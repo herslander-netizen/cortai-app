@@ -677,6 +677,11 @@ export type Database = {
           atualizado_em: string
           criado_em: string
           encaminhamento_humano: boolean
+          horario_dias: number[]
+          horario_fim: string
+          horario_inicio: string
+          horario_proprio: boolean
+          instrucoes_extras: string
           lembretes: boolean
           mensagem_boas_vindas: string
           mensagem_fora_do_horario: string
@@ -685,6 +690,7 @@ export type Database = {
           permite_remarcar: boolean
           recuperacao_ativa: boolean
           recuperacao_dias: number
+          responder_whatsapp: boolean
           saudacao_ativa: boolean
           tenant_id: string
           tom: string
@@ -694,6 +700,11 @@ export type Database = {
           atualizado_em?: string
           criado_em?: string
           encaminhamento_humano?: boolean
+          horario_dias?: number[]
+          horario_fim?: string
+          horario_inicio?: string
+          horario_proprio?: boolean
+          instrucoes_extras?: string
           lembretes?: boolean
           mensagem_boas_vindas?: string
           mensagem_fora_do_horario?: string
@@ -702,6 +713,7 @@ export type Database = {
           permite_remarcar?: boolean
           recuperacao_ativa?: boolean
           recuperacao_dias?: number
+          responder_whatsapp?: boolean
           saudacao_ativa?: boolean
           tenant_id: string
           tom?: string
@@ -711,6 +723,11 @@ export type Database = {
           atualizado_em?: string
           criado_em?: string
           encaminhamento_humano?: boolean
+          horario_dias?: number[]
+          horario_fim?: string
+          horario_inicio?: string
+          horario_proprio?: boolean
+          instrucoes_extras?: string
           lembretes?: boolean
           mensagem_boas_vindas?: string
           mensagem_fora_do_horario?: string
@@ -719,6 +736,7 @@ export type Database = {
           permite_remarcar?: boolean
           recuperacao_ativa?: boolean
           recuperacao_dias?: number
+          responder_whatsapp?: boolean
           saudacao_ativa?: boolean
           tenant_id?: string
           tom?: string

@@ -1,13 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Bot, Loader2, MessageCircle, Send, ShieldCheck, Smartphone } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { ArrowLeft, Bot, Loader2, MessageCircle, Send, ShieldCheck, Smartphone, X } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
-import { AUTOMACOES, TONS, type ChaveDeAutomacao, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
+import {
+  AUTOMACOES,
+  DIAS_DA_SEMANA,
+  TONS,
+  type ChaveDeAutomacao,
+  type ConfiguracaoDoAtendimento,
+} from "@/lib/whatsapp/contrato";
 import {
   atualizarQrCode,
   listarInformacoes,
@@ -104,7 +111,7 @@ function CortaiPage() {
               [
                 ["whatsapp", "WhatsApp"],
                 ["conversas", "Conversas"],
-                ["ajustes", "Ajustes"],
+                ["ajustes", "IA do Cortaí"],
               ] as [Aba, string][]
             ).map(([id, rotulo]) => (
               <button
@@ -133,6 +140,27 @@ function CortaiPage() {
 
 /* ------------------------------- WhatsApp -------------------------------- */
 
+const CORES_DO_ESTADO: Record<"desconectado" | "conectando" | "conectado" | "erro", string> = {
+  desconectado: "border-line2 text-mute",
+  conectando: "border-gold/60 text-gold",
+  conectado: "border-sage/60 text-sage",
+  erro: "border-brick/60 text-brick",
+};
+
+function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: string }) {
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] ${CORES_DO_ESTADO[estado]}`}>
+      <span
+        aria-hidden
+        className={`inline-block h-2 w-2 rounded-full ${
+          estado === "conectado" ? "bg-sage" : estado === "erro" ? "bg-brick" : estado === "conectando" ? "bg-gold" : "bg-mute2"
+        }`}
+      />
+      {texto}
+    </span>
+  );
+}
+
 function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
   const conectar = useServerFn(conectarWhatsapp);
@@ -144,6 +172,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const [restante, setRestante] = useState<number | null>(null);
   const [desde] = useState(() => Date.now());
   const [agora, setAgora] = useState(() => Date.now());
+  const [qrAberto, setQrAberto] = useState(false);
 
   const acao = useMutation({
     mutationFn: async (qual: "conectar" | "qr" | "reconectar" | "desconectar") => {
@@ -184,7 +213,10 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
   // Assim que o serviço confirma a conexão, o painel inteiro se atualiza.
   useEffect(() => {
-    if (status === "conectado") void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+    if (status === "conectado") {
+      setQrAberto(false);
+      void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+    }
   }, [status, cliente]);
 
   useEffect(() => {
@@ -198,6 +230,11 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     return () => window.clearInterval(id);
   }, [expira]);
 
+  // O QR aparece sozinho assim que o serviço entrega um código válido.
+  useEffect(() => {
+    if (status === "qr_pronto" && conexao?.qrCode) setQrAberto(true);
+  }, [status, conexao?.qrCode]);
+
   if (!painel.gatewayConfigurado) {
     return (
       <section className="rounded-xl border border-line bg-ink2 p-5">
@@ -205,9 +242,12 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
             <Smartphone size={18} />
           </span>
-          <div>
-            <h2 className="text-sm font-semibold text-paper">Gateway do WhatsApp não configurado</h2>
-            <p className="mt-1 text-xs text-mute">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-semibold text-paper">Serviço de WhatsApp ainda não configurado</h2>
+              <Selo estado="desconectado" texto="Indisponível" />
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-mute">
               A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Cortaí. Enquanto ele
               não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar algo que não funciona.
             </p>
@@ -219,6 +259,12 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             </p>
           </div>
         </div>
+        <button type="button" className="btn-primary mt-5 w-full opacity-50" disabled aria-disabled>
+          Conectar WhatsApp
+        </button>
+        <p className="mt-2 text-center text-[11px] text-mute2">
+          O botão será liberado assim que o serviço estiver publicado.
+        </p>
       </section>
     );
   }
@@ -226,17 +272,33 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const qrExpirado = status === "qr_pronto" && restante !== null && restante <= 0;
   const conectando = acao.isPending || status === "pendente" || status === "conectando";
 
+  const visual: keyof typeof CORES_DO_ESTADO =
+    status === "conectado" ? "conectado" : status === "erro" ? "erro" : conectando || status === "qr_pronto" ? "conectando" : "desconectado";
+
+  const rotuloDoEstado =
+    status === "conectado"
+      ? "Conectado"
+      : status === "erro"
+        ? "Erro"
+        : status === "qr_pronto"
+          ? qrExpirado
+            ? "QR Code expirado"
+            : "Aguardando leitura"
+          : conectando
+            ? "Conectando"
+            : "Desconectado";
+
   const titulo =
     status === "conectado"
       ? "WhatsApp conectado"
       : qrExpirado
         ? "Este QR Code expirou"
         : status === "qr_pronto"
-          ? "Escaneie o QR Code usando o WhatsApp Business"
+          ? "Escaneie o QR Code usando o WhatsApp"
           : status === "conectando"
             ? "Conectando seu WhatsApp…"
-            : status === "pendente"
-              ? "Preparando sua conexão…"
+            : status === "pendente" || acao.isPending
+              ? "Preparando conexão…"
               : status === "erro"
                 ? "Não foi possível conectar seu WhatsApp"
                 : conexao?.conectadoEm
@@ -248,13 +310,17 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
       ? "Seu WhatsApp está conectado e pronto para o CortAI atender seus clientes."
       : "Conecte o WhatsApp da sua barbearia para que o CortAI possa atender seus clientes automaticamente.";
 
-  const rotuloPrincipal = conectando
-    ? "Conectando…"
-    : status === "erro"
-      ? "Tentar novamente"
-      : conexao?.conectadoEm
-        ? "Reconectar WhatsApp"
-        : "Conectar WhatsApp";
+  const rotuloPrincipal = acao.isPending
+    ? "Preparando conexão…"
+    : conectando
+      ? "Conectando…"
+      : status === "erro"
+        ? "Tentar novamente"
+        : status === "qr_pronto"
+          ? "Ativar conexão"
+          : conexao?.conectadoEm
+            ? "Reconectar WhatsApp"
+            : "Conectar WhatsApp";
 
   return (
     <section className="rounded-xl border border-line bg-ink2 p-5">
@@ -263,11 +329,11 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
           <MessageCircle size={18} />
         </span>
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <Ponto ligado={status === "conectado"} />
-            {titulo}
-          </h2>
-          <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
+            <Selo estado={visual} texto={rotuloDoEstado} />
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-mute">{descricao}</p>
         </div>
       </div>
 
@@ -294,24 +360,19 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
           <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
           <p className="text-xs text-mute">
-            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando sua conexão…"}
+            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando conexão…"}
           </p>
         </div>
       ) : null}
 
-      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado ? (
-        <div className="mt-5 border-t border-line pt-4 text-center">
-          <div className="mt-1">
-            <QrCodeReal valor={conexao.qrCode} alt="QR Code para conectar o WhatsApp da barbearia" />
-          </div>
-          <p className="mt-4 text-xs text-paper">Abra o WhatsApp Business no seu celular.</p>
-          <p className="mt-1 text-xs text-mute">
-            Vá em Aparelhos conectados &gt; Conectar um aparelho e escaneie este código.
-          </p>
-          {restante !== null ? (
-            <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
-          ) : null}
-        </div>
+      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado && !qrAberto ? (
+        <button
+          type="button"
+          className="mt-5 w-full rounded-md border border-gold/50 py-2.5 text-sm text-gold"
+          onClick={() => setQrAberto(true)}
+        >
+          Mostrar QR Code
+        </button>
       ) : null}
 
       <div className="mt-6 space-y-3">
@@ -320,14 +381,22 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             <button
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
-              disabled={acao.isPending}
-              onClick={() => acao.mutate("reconectar")}
+              disabled={acao.isPending || estado.isFetching}
+              onClick={() => void estado.refetch()}
             >
-              Reconectar
+              {estado.isFetching ? "Atualizando…" : "Atualizar conexão"}
             </button>
             <button
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("reconectar")}
+            >
+              {acao.isPending ? "Aguarde…" : "Reconectar"}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-md border border-line2 py-2.5 text-sm text-brick disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => {
                 if (
@@ -348,7 +417,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               type="button"
               className="btn-primary w-full"
               disabled={acao.isPending}
-              onClick={() => acao.mutate("conectar")}
+              onClick={() => acao.mutate(status === "qr_pronto" && !qrExpirado ? "qr" : "conectar")}
             >
               {rotuloPrincipal}
             </button>
@@ -359,7 +428,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
                 disabled={acao.isPending}
                 onClick={() => acao.mutate("qr")}
               >
-                Gerar novo QR Code
+                {acao.isPending ? "Gerando…" : "Gerar novo QR Code"}
               </button>
             ) : null}
           </>
@@ -372,7 +441,87 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
         <ShieldCheck size={14} className="mt-0.5 shrink-0" />
         O CortAI responde apenas com informações cadastradas na sua barbearia e nunca acessa dados de outra.
       </p>
+
+      {qrAberto && conexao?.qrCode && !qrExpirado ? (
+        <ModalQr
+          valor={conexao.qrCode}
+          restante={restante}
+          aoFechar={() => setQrAberto(false)}
+          aoGerarNovo={() => acao.mutate("qr")}
+          gerando={acao.isPending}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function ModalQr({
+  valor,
+  restante,
+  aoFechar,
+  aoGerarNovo,
+  gerando,
+}: {
+  valor: string;
+  restante: number | null;
+  aoFechar: () => void;
+  aoGerarNovo: () => void;
+  gerando: boolean;
+}) {
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === "Escape") aoFechar();
+    };
+    window.addEventListener("keydown", aoTeclar);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", aoTeclar);
+      document.body.style.overflow = "";
+    };
+  }, [aoFechar]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Conectar o WhatsApp por QR Code"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+      style={{ background: "rgba(11,11,11,.72)", backdropFilter: "blur(8px)" }}
+      onClick={aoFechar}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl border border-line bg-ink2 p-5 text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-paper">Conectar WhatsApp</h3>
+          <button type="button" aria-label="Fechar" className="text-mute" onClick={aoFechar}>
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-4">
+          <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp da barbearia" />
+        </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-paper">
+          Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → escaneie o QR Code.
+        </p>
+        {restante !== null ? (
+          <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
+        ) : null}
+
+        <button
+          type="button"
+          className="mt-5 w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+          disabled={gerando}
+          onClick={aoGerarNovo}
+        >
+          {gerando ? "Gerando…" : "Gerar novo QR Code"}
+        </button>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -720,7 +869,48 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
   );
 }
 
-/* -------------------------------- Ajustes -------------------------------- */
+/* ----------------------------- IA do Cortaí ------------------------------ */
+
+function Bloco({ titulo, descricao, children }: { titulo: string; descricao?: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-line bg-ink2 p-5">
+      <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
+      {descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p> : null}
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}
+
+function Chave({
+  rotulo,
+  detalhe,
+  valor,
+  aoMudar,
+  desabilitado,
+}: {
+  rotulo: string;
+  detalhe?: string;
+  valor: boolean;
+  aoMudar: (v: boolean) => void;
+  desabilitado?: boolean;
+}) {
+  return (
+    <li className={`flex items-start justify-between gap-4 ${desabilitado ? "opacity-60" : ""}`}>
+      <div className="min-w-0">
+        <p className="text-xs text-paper">{rotulo}</p>
+        {detalhe ? <p className="mt-0.5 text-[11px] leading-relaxed text-mute2">{detalhe}</p> : null}
+      </div>
+      <input
+        type="checkbox"
+        checked={valor}
+        disabled={desabilitado}
+        onChange={(e) => aoMudar(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--gold,#D4AF6A)]"
+        aria-label={rotulo}
+      />
+    </li>
+  );
+}
 
 function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
@@ -736,10 +926,21 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
     setDias(String(painel.configuracao.recuperacaoDias));
   }, [painel.configuracao]);
 
+  const mudar = (parcial: Partial<ConfiguracaoDoAtendimento>) => {
+    setOk(false);
+    setConfig((atual) => ({ ...atual, ...parcial }));
+  };
+
   const gravar = useMutation({
     mutationFn: () => {
       if (config.recuperacaoAtiva && (dias.trim() === "" || !Number.isFinite(Number(dias)))) {
         throw new Error("Informe em quantos dias sem voltar o cliente deve ser lembrado.");
+      }
+      if (config.horarioProprio && config.horarioDias.length === 0) {
+        throw new Error("Escolha pelo menos um dia de atendimento da IA.");
+      }
+      if (config.horarioProprio && config.horarioInicio >= config.horarioFim) {
+        throw new Error("O horário de início precisa ser antes do horário de término.");
       }
       return salvar({ data: { ...config, recuperacaoDias: dias.trim() === "" ? config.recuperacaoDias : Number(dias) } });
     },
@@ -751,55 +952,62 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível salvar."),
   });
 
-
   const alternarAutomacao = useMutation({
     mutationFn: (a: { chave: ChaveDeAutomacao; ativa: boolean; mensagem: string }) => salvarAuto({ data: a }),
     onSuccess: () => void cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
   });
 
-  const chaves: [keyof ConfiguracaoDoAtendimento, string][] = [
-    ["atendimentoAutomatico", "Atendimento automático"],
-    ["saudacaoAtiva", "Saudação ao iniciar conversa"],
-    ["permiteConfirmar", "Confirmar agendamento"],
-    ["permiteCancelar", "Cancelar agendamento"],
-    ["permiteRemarcar", "Remarcar agendamento"],
-    ["encaminhamentoHumano", "Encaminhar para atendente"],
-    ["lembretes", "Lembretes de horário"],
-  ];
+  const whatsappConectado = painel.conexao?.status === "conectado";
+  const iaAtiva = painel.iaDisponivel && config.atendimentoAutomatico;
 
   return (
     <section className="space-y-5">
       <div className="rounded-lg border border-line bg-ink2 p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
-          <Bot size={16} className="text-gold" /> Como o CortAI atende
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
+            <Bot size={16} className="text-gold" /> IA do Cortaí
+          </h2>
+          <Selo estado={iaAtiva ? "conectado" : "desconectado"} texto={iaAtiva ? "Ativa" : "Inativa"} />
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-mute">
+          {painel.iaDisponivel
+            ? "A IA responde apenas com os dados cadastrados na sua barbearia."
+            : "A IA está indisponível neste momento. Assim que voltar, as configurações abaixo passam a valer."}
+        </p>
+      </div>
 
-        <ul className="mt-4 space-y-3">
-          {chaves.map(([chave, rotulo]) => (
-            <li key={chave} className="flex items-center justify-between gap-4">
-              <span className="text-xs text-paper">{rotulo}</span>
-              <input
-                type="checkbox"
-                checked={Boolean(config[chave])}
-                onChange={(e) => {
-                  setOk(false);
-                  setConfig({ ...config, [chave]: e.target.checked });
-                }}
-                className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
-                aria-label={rotulo}
-              />
-            </li>
-          ))}
+      <Bloco titulo="Atendimento" descricao="O que a IA pode fazer no dia a dia da barbearia.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Atendimento automático"
+            detalhe="A IA responde sozinha às mensagens que chegam."
+            valor={config.atendimentoAutomatico}
+            aoMudar={(v) => mudar({ atendimentoAutomatico: v })}
+          />
+          <Chave
+            rotulo="Responder pelo WhatsApp"
+            detalhe={
+              whatsappConectado
+                ? "A IA atende as conversas do WhatsApp conectado."
+                : "Depende da conexão do WhatsApp: conecte na aba WhatsApp para a IA poder responder."
+            }
+            valor={config.responderWhatsapp}
+            aoMudar={(v) => mudar({ responderWhatsapp: v })}
+          />
+          <Chave
+            rotulo="Saudação ao iniciar conversa"
+            valor={config.saudacaoAtiva}
+            aoMudar={(v) => mudar({ saudacaoAtiva: v })}
+          />
         </ul>
+      </Bloco>
 
-        <label className="mt-4 block">
+      <Bloco titulo="Forma de atendimento" descricao="Como a IA fala com os seus clientes.">
+        <label className="block">
           <span className="text-xs text-mute">Tom do atendimento</span>
           <select
             value={config.tom}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, tom: e.target.value as ConfiguracaoDoAtendimento["tom"] });
-            }}
+            onChange={(e) => mudar({ tom: e.target.value as ConfiguracaoDoAtendimento["tom"] })}
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           >
             {Object.entries(TONS).map(([valor, rotulo]) => (
@@ -811,14 +1019,12 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </label>
 
         <label className="mt-4 block">
-          <span className="text-xs text-mute">Mensagem de boas-vindas</span>
+          <span className="text-xs text-mute">Mensagem inicial</span>
           <textarea
             value={config.mensagemBoasVindas}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, mensagemBoasVindas: e.target.value });
-            }}
+            onChange={(e) => mudar({ mensagemBoasVindas: e.target.value })}
             rows={2}
+            placeholder="Olá! Aqui é a barbearia. Como posso ajudar?"
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
         </label>
@@ -827,67 +1033,184 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
           <span className="text-xs text-mute">Mensagem fora do horário</span>
           <textarea
             value={config.mensagemForaDoHorario}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, mensagemForaDoHorario: e.target.value });
-            }}
+            onChange={(e) => mudar({ mensagemForaDoHorario: e.target.value })}
             rows={2}
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
         </label>
 
-        <div className="mt-5 border-t border-line pt-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-xs text-paper">Sugerir clientes sumidos</p>
-              <p className="mt-0.5 text-[11px] text-mute2">
-                Só identifica quem passou do intervalo habitual. Nada é enviado automaticamente.
-              </p>
+        <label className="mt-4 block">
+          <span className="text-xs text-mute">Regras de atendimento</span>
+          <textarea
+            value={config.instrucoesExtras}
+            onChange={(e) => mudar({ instrucoesExtras: e.target.value })}
+            rows={4}
+            placeholder="Ex.: sempre confirmar o profissional antes de marcar; não prometer desconto."
+            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+          />
+          <span className="mt-1 block text-[11px] text-mute2">
+            Instruções do estabelecimento que a IA deve seguir em toda conversa.
+          </span>
+        </label>
+      </Bloco>
+
+      <Bloco titulo="Horário de atendimento da IA" descricao="Fora deste horário a IA não responde sozinha.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Usar um horário próprio para a IA"
+            detalhe="Desligado, a IA atende a qualquer hora."
+            valor={config.horarioProprio}
+            aoMudar={(v) => mudar({ horarioProprio: v })}
+          />
+        </ul>
+        {config.horarioProprio ? (
+          <>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {DIAS_DA_SEMANA.map((nome, indice) => {
+                const marcado = config.horarioDias.includes(indice);
+                return (
+                  <button
+                    key={nome}
+                    type="button"
+                    aria-pressed={marcado}
+                    onClick={() =>
+                      mudar({
+                        horarioDias: marcado
+                          ? config.horarioDias.filter((d) => d !== indice)
+                          : [...config.horarioDias, indice].sort((a, b) => a - b),
+                      })
+                    }
+                    className={`rounded-full border px-3 py-1 text-[11px] ${
+                      marcado ? "border-gold text-gold" : "border-line2 text-mute"
+                    }`}
+                  >
+                    {nome.slice(0, 3)}
+                  </button>
+                );
+              })}
             </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-xs text-mute">Começa às</span>
+                <input
+                  type="time"
+                  value={config.horarioInicio}
+                  onChange={(e) => mudar({ horarioInicio: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs text-mute">Termina às</span>
+                <input
+                  type="time"
+                  value={config.horarioFim}
+                  onChange={(e) => mudar({ horarioFim: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+                />
+              </label>
+            </div>
+          </>
+        ) : null}
+      </Bloco>
+
+      <Bloco titulo="Objetivos da IA" descricao="Ligue só o que a sua barbearia quer entregar pela IA.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Confirmar agendamento"
+            valor={config.permiteConfirmar}
+            aoMudar={(v) => mudar({ permiteConfirmar: v })}
+          />
+          <Chave rotulo="Cancelar agendamento" valor={config.permiteCancelar} aoMudar={(v) => mudar({ permiteCancelar: v })} />
+          <Chave rotulo="Remarcar agendamento" valor={config.permiteRemarcar} aoMudar={(v) => mudar({ permiteRemarcar: v })} />
+          <Chave rotulo="Lembretes de horário" valor={config.lembretes} aoMudar={(v) => mudar({ lembretes: v })} />
+          <Chave
+            rotulo="Recuperação de clientes"
+            detalhe="Só identifica quem passou do intervalo habitual. Nada é enviado automaticamente."
+            valor={config.recuperacaoAtiva}
+            aoMudar={(v) => mudar({ recuperacaoAtiva: v })}
+          />
+        </ul>
+        {config.recuperacaoAtiva ? (
+          <label className="mt-4 block">
+            <span className="text-xs text-mute">Dias sem voltar</span>
             <input
-              type="checkbox"
-              checked={config.recuperacaoAtiva}
+              type="number"
+              min={7}
+              max={180}
+              inputMode="numeric"
+              value={dias}
               onChange={(e) => {
                 setOk(false);
-                setConfig({ ...config, recuperacaoAtiva: e.target.checked });
+                setDias(e.target.value);
               }}
-              className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
-              aria-label="Sugerir clientes sumidos"
+              className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
             />
-          </div>
-          {config.recuperacaoAtiva ? (
-            <label className="mt-3 block">
-              <span className="text-xs text-mute">Dias sem voltar</span>
-              <input
-                type="number"
-                min={7}
-                max={180}
-                inputMode="numeric"
-                value={dias}
-                onChange={(e) => {
-                  setOk(false);
-                  setDias(e.target.value);
-                }}
+          </label>
+        ) : null}
+      </Bloco>
 
-                className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
-              />
-            </label>
-          ) : null}
-        </div>
+      <Bloco titulo="Escalonamento" descricao="Quando a IA deve passar a conversa para a equipe.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Encaminhar para atendimento humano"
+            detalhe="A IA chama a equipe quando o cliente pedir ou quando não souber responder."
+            valor={config.encaminhamentoHumano}
+            aoMudar={(v) => mudar({ encaminhamentoHumano: v })}
+          />
+        </ul>
+      </Bloco>
 
-        <button type="button" className="btn-primary mt-5 w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
-          {gravar.isPending ? "Salvando…" : "Salvar ajustes"}
+      <div className="rounded-lg border border-line bg-ink2 p-5">
+        <button type="button" className="btn-primary w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
+          {gravar.isPending ? "Salvando…" : "Salvar configurações"}
         </button>
-        {ok ? <p className="mt-2 text-center text-sm text-sage">Ajustes salvos.</p> : null}
+        {ok ? <p className="mt-2 text-center text-sm text-sage">Configurações salvas.</p> : null}
         {erro ? <p className="mt-2 text-center text-sm text-brick">{erro}</p> : null}
       </div>
 
+      <Bloco titulo="Atividade" descricao="Resumo do que está acontecendo agora.">
+        <dl className="space-y-3 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Conversas em andamento</dt>
+            <dd className="text-paper">{painel.conversasAtivas}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Conversas com a equipe</dt>
+            <dd className="text-paper">{painel.conversasComHumano}</dd>
+          </div>
+        </dl>
+        <Link to="/barbeiro/cortai-atividade" className="mt-4 block text-xs text-gold">
+          Ver assuntos, consultas e falhas →
+        </Link>
+      </Bloco>
+
+      <Bloco titulo="Integrações" descricao="O que a IA depende para funcionar.">
+        <dl className="space-y-3 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">WhatsApp</dt>
+            <dd>
+              <Selo
+                estado={whatsappConectado ? "conectado" : "desconectado"}
+                texto={whatsappConectado ? "Conectado" : painel.gatewayConfigurado ? "Desconectado" : "Não configurado"}
+              />
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Inteligência do CortAI</dt>
+            <dd>
+              <Selo
+                estado={painel.iaDisponivel ? "conectado" : "erro"}
+                texto={painel.iaDisponivel ? "Disponível" : "Indisponível"}
+              />
+            </dd>
+          </div>
+        </dl>
+      </Bloco>
+
       <BlocoInformacoes />
 
-      <div className="rounded-lg border border-line bg-ink2 p-5">
-        <h2 className="text-sm font-semibold text-paper">Mensagens automáticas</h2>
-        <p className="mt-1 text-xs text-mute">Ligue só o que fizer sentido para a sua barbearia.</p>
-        <ul className="mt-4 space-y-3">
+      <Bloco titulo="Mensagens automáticas" descricao="Ligue só o que fizer sentido para a sua barbearia.">
+        <ul className="space-y-3">
           {painel.automacoes.map((a) => (
             <li key={a.chave} className="flex items-center justify-between gap-4">
               <span className="text-xs text-paper">{AUTOMACOES[a.chave]}</span>
@@ -901,7 +1224,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
             </li>
           ))}
         </ul>
-      </div>
+      </Bloco>
     </section>
   );
 }
