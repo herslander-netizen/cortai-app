@@ -521,6 +521,12 @@ export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
         tom: data.tom as TomDoAtendimento,
         recuperacao_ativa: data.recuperacaoAtiva,
         recuperacao_dias: data.recuperacaoDias,
+        responder_whatsapp: data.responderWhatsapp,
+        instrucoes_extras: data.instrucoesExtras,
+        horario_proprio: data.horarioProprio,
+        horario_dias: data.horarioDias,
+        horario_inicio: `${data.horarioInicio}:00`,
+        horario_fim: `${data.horarioFim}:00`,
       },
       { onConflict: "tenant_id" },
     );

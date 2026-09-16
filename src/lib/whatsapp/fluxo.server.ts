@@ -49,7 +49,22 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     tom: data.tom as TomDoAtendimento,
     recuperacaoAtiva: data.recuperacao_ativa ?? false,
     recuperacaoDias: data.recuperacao_dias ?? 30,
+    responderWhatsapp: data.responder_whatsapp ?? true,
+    instrucoesExtras: data.instrucoes_extras ?? "",
+    horarioProprio: data.horario_proprio ?? false,
+    horarioDias: (data.horario_dias as number[] | null) ?? [1, 2, 3, 4, 5, 6],
+    horarioInicio: String(data.horario_inicio ?? "09:00:00").slice(0, 5),
+    horarioFim: String(data.horario_fim ?? "19:00:00").slice(0, 5),
   };
+}
+
+/** A IA só atende dentro do horário próprio, quando a barbearia define um. */
+export function dentroDoHorarioDaIa(config: ConfiguracaoDoAtendimento, agora = new Date()): boolean {
+  if (!config.horarioProprio) return true;
+  if (!config.horarioDias.includes(agora.getDay())) return false;
+  const minutos = agora.getHours() * 60 + agora.getMinutes();
+  const paraMinutos = (h: string) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5));
+  return minutos >= paraMinutos(config.horarioInicio) && minutos <= paraMinutos(config.horarioFim);
 }
 
 async function conversaDoTelefone(input: {
