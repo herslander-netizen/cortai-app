@@ -30,7 +30,9 @@ function ParceirosAdmin() {
   const salvar = useServerFn(salvarParceiro);
   const remover = useServerFn(removerParceiro);
   const [form, setForm] = useState<typeof VAZIO & { id?: string }>(VAZIO);
+  const [ordem, setOrdem] = useState("0");
   const [erro, setErro] = useState<string | null>(null);
+
 
   const parceiros = (consulta.data ?? []) as Parceiro[];
 
@@ -43,6 +45,7 @@ function ParceirosAdmin() {
         onSubmit={async (event) => {
           event.preventDefault();
           setErro(null);
+          if (ordem.trim() !== "" && !Number.isFinite(Number(ordem))) { setErro("Informe uma ordem válida."); return; }
           try {
             await salvar({
               data: {
@@ -50,12 +53,14 @@ function ParceirosAdmin() {
                 nome: form.nome,
                 logo_url: form.logo_url || null,
                 link: form.link || null,
-                ordem: Number(form.ordem) || 0,
+                ordem: ordem.trim() === "" ? 0 : Number(ordem),
                 ativo: form.ativo,
               },
             });
             setForm(VAZIO);
+            setOrdem("0");
             await consulta.refetch();
+
           } catch (e) {
             setErro((e as Error).message);
           }
