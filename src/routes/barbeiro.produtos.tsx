@@ -78,19 +78,16 @@ function ProdutosPage() {
           </div>
           <Switch
             checked={loja.ativa}
-            disabled={!loja.liberada}
+            disabled={!loja.liberada || acao.ocupado}
             aria-label="Loja online"
-            onCheckedChange={async (valor) => {
-              setErro(null);
-              try {
-                await alternarLoja({ data: { ativa: valor } });
-                await query.refetch();
-                setStatus(valor ? "Loja ativada." : "Loja desativada. Nenhum produto foi apagado.");
-              } catch (e) {
-                setErro((e as Error).message);
-              }
-            }}
+            onCheckedChange={(valor) =>
+              acao.executar("loja", () => alternarLoja({ data: { ativa: valor } }), {
+                sucesso: valor ? "Loja ativada." : "Loja desativada. Nenhum produto foi apagado.",
+                aoConcluir: async () => { await query.refetch(); },
+              })
+            }
           />
+
         </div>
         {!loja.liberada ? (
           <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.</p>
