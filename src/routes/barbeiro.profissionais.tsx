@@ -77,28 +77,29 @@ function ProfissionaisPage() {
               <button
                 type="button"
                 className="btn-tertiary mt-4 text-xs"
-                onClick={async () => {
-                  try {
-                    await salvar({
-                      data: {
-                        id: p.id,
-                        descricao: atual.descricao,
-                        portfolio: atual.fotos
-                          .split("\n")
-                          .map((f) => f.trim())
-                          .filter(Boolean)
-                          .slice(0, 6),
-                      },
-                    });
-                    setAviso(`Perfil de ${p.nome} salvo.`);
-                    refetch();
-                  } catch (e) {
-                    setAviso(e instanceof Error ? e.message : "Não foi possível salvar.");
-                  }
-                }}
+                disabled={acao.ocupado}
+                onClick={() =>
+                  acao.executar(
+                    p.id,
+                    () =>
+                      salvar({
+                        data: {
+                          id: p.id,
+                          descricao: atual.descricao,
+                          portfolio: atual.fotos
+                            .split("\n")
+                            .map((f) => f.trim())
+                            .filter(Boolean)
+                            .slice(0, 6),
+                        },
+                      }),
+                    { sucesso: `Perfil de ${p.nome} salvo.`, aoConcluir: async () => { await refetch(); } },
+                  )
+                }
               >
-                Salvar perfil
+                {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
               </button>
+
             </li>
           );
         })}
