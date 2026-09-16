@@ -57,9 +57,10 @@ function ProdutosPage() {
   const vender = useServerFn(registrarVendaProduto);
   const alternarLoja = useServerFn(definirLojaAtiva);
   const query = useQuery({ queryKey: ["produtos"], queryFn: () => getProdutos(), retry: false });
+  const acao = useAcao();
   const [novo, setNovo] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+
   const [form, setForm] = useState<Form>(FORM_VAZIO);
   const NUMEROS_VAZIOS = { custo: "", preco: "", quantidade: "0", estoque_minimo: "3" };
   const [numeros, setNumeros] = useState(NUMEROS_VAZIOS);
