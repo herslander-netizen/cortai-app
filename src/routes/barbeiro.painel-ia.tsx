@@ -1,11 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { Screen } from "@/components/layout/Screen";
+import { Aviso } from "@/components/ui/aviso";
 import { EmptyState, SectionHeading } from "@/components/ui/section";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
+import { cancelarAgendamentoPainel, remarcarAgendamentoPainel } from "@/lib/barbeiro.functions";
 import { getPainelOperacional, type PainelOperacional } from "@/lib/ia.functions";
+
+function diaDeHoje() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function paraCampoLocal(iso: string) {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
 export const Route = createFileRoute("/barbeiro/painel-ia")({
   ssr: false,
@@ -44,23 +59,111 @@ function Cartao({ rotulo, valor }: { rotulo: string; valor: string }) {
   );
 }
 
-function LinhaAgendamento({ a }: { a: PainelOperacional["hoje"][number] }) {
+function LinhaAgendamento({
+  a,
+  onMudou,
+}: {
+  a: PainelOperacional["hoje"][number];
+  onMudou?: () => void;
+}) {
+  const remarcar = useServerFn(remarcarAgendamentoPainel);
+  const cancelar = useServerFn(cancelarAgendamentoPainel);
+  const [editando, setEditando] = useState(false);
+  const [quando, setQuando] = useState(() => paraCampoLocal(a.inicio));
+  const [ocupado, setOcupado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const encerrado = a.status === "cancelado" || a.status === "concluido" || a.status === "falta";
+
   return (
-    <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-3 last:border-b-0">
-      <span className="text-xs font-semibold text-paper">{hora(a.inicio)}</span>
-      <span className="min-w-0">
-        <span className="block truncate text-sm text-paper">{a.cliente?.nome ?? "Cliente"}</span>
-        <span className="block truncate text-xs text-mute">
-          {a.servico?.nome ?? "Serviço"}
-          {a.profissional ? ` · ${a.profissional.nome}` : ""}
+    <div className="border-b border-line py-3 last:border-b-0">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
+        <span className="text-xs font-semibold text-paper">{hora(a.inicio)}</span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm text-paper">{a.cliente?.nome ?? "Cliente"}</span>
+          <span className="block truncate text-xs text-mute">
+            {a.servico?.nome ?? "Serviço"}
+            {a.profissional ? ` · ${a.profissional.nome}` : ""}
+          </span>
         </span>
-      </span>
-      <span className="text-right">
-        <span className="block text-xs font-semibold text-paper">
-          {brl(a.valorCentavos || (a.servico?.precoCentavos ?? 0))}
+        <span className="text-right">
+          <span className="block text-xs font-semibold text-paper">
+            {brl(a.valorCentavos || (a.servico?.precoCentavos ?? 0))}
+          </span>
+          <span className="block text-[11px] text-mute2">{a.status}</span>
         </span>
-        <span className="block text-[11px] text-mute2">{a.status}</span>
-      </span>
+      </div>
+
+      {encerrado ? null : (
+        <div className="mt-2 flex gap-2">
+          <button
+            type="button"
+            className="btn-tertiary text-[11px]"
+            onClick={() => {
+              setErro(null);
+              setEditando((v) => !v);
+            }}
+          >
+            {editando ? "Fechar" : "Remarcar"}
+          </button>
+          <button
+            type="button"
+            className="btn-tertiary text-[11px] text-brick"
+            disabled={ocupado}
+            onClick={async () => {
+              if (!window.confirm("Cancelar este atendimento?")) return;
+              setOcupado(true);
+              setErro(null);
+              try {
+                await cancelar({ data: { agendamentoId: a.id } });
+                onMudou?.();
+              } catch (e) {
+                setErro(e instanceof Error ? e.message : "Não foi possível cancelar.");
+              }
+              setOcupado(false);
+            }}
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+
+      {editando ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <input
+            type="datetime-local"
+            value={quando}
+            onChange={(e) => setQuando(e.target.value)}
+            className="h-10 rounded-lg border border-line2 bg-ink2 px-3 text-xs text-paper outline-none"
+          />
+          <button
+            type="button"
+            className="btn-primary px-4 py-2 text-xs"
+            disabled={ocupado}
+            onClick={async () => {
+              setOcupado(true);
+              setErro(null);
+              try {
+                await remarcar({
+                  data: { agendamentoId: a.id, novoInicio: new Date(quando).toISOString() },
+                });
+                setEditando(false);
+                onMudou?.();
+              } catch (e) {
+                setErro(e instanceof Error ? e.message : "Não foi possível remarcar.");
+              }
+              setOcupado(false);
+            }}
+          >
+            {ocupado ? "Salvando…" : "Confirmar novo horário"}
+          </button>
+        </div>
+      ) : null}
+
+      {erro ? (
+        <p className="mt-2 text-xs text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
     </div>
   );
 }
