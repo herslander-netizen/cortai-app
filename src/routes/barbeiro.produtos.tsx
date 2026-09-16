@@ -8,7 +8,9 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
+import { useAcao } from "@/hooks/useAcao";
 import { definirLojaAtiva, getProdutos, registrarVendaProduto, salvarProduto } from "@/lib/gestao.functions";
+
 
 export const Route = createFileRoute("/barbeiro/produtos")({
   head: () => ({ meta: [
