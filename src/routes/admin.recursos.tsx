@@ -62,14 +62,11 @@ function RecursosPage() {
                           <div className="flex flex-col items-center gap-1">
                             <Switch
                               checked={Boolean(linha?.liberado)}
+                              disabled={acao.ocupado}
                               aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`}
-                              onCheckedChange={async (valor) => {
-                                setStatus("");
-                                await definir({ data: { chave: recurso.chave, plano, liberado: valor } });
-                                await query.refetch();
-                                setStatus(`${recurso.rotulo} — ${ROTULO_DO_PLANO[plano]}: ${valor ? "ativo" : "bloqueado"}.`);
-                              }}
+                              onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)}
                             />
+
                             <span className={`text-[10px] uppercase ${linha?.liberado ? "text-sage" : "text-mute2"}`}>{linha?.liberado ? "Ativo" : "Bloqueado"}</span>
                           </div>
                         </td>
