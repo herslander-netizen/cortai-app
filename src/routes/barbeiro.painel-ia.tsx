@@ -1,11 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { Screen } from "@/components/layout/Screen";
+import { Aviso } from "@/components/ui/aviso";
 import { EmptyState, SectionHeading } from "@/components/ui/section";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
+import { cancelarAgendamentoPainel, remarcarAgendamentoPainel } from "@/lib/barbeiro.functions";
 import { getPainelOperacional, type PainelOperacional } from "@/lib/ia.functions";
+
+function diaDeHoje() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function paraCampoLocal(iso: string) {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
 export const Route = createFileRoute("/barbeiro/painel-ia")({
   ssr: false,
