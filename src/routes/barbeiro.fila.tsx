@@ -31,14 +31,14 @@ function janelaTexto(inicio: number | null, fim: number | null) {
 function FilaPage() {
   const avisar = useServerFn(avisarFila);
   const remover = useServerFn(removerDaFila);
-  const [aviso, setAviso] = useState<string | null>(null);
+  const acao = useAcao();
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
-      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
       {isLoading ? <Carregando /> : null}
+
 
       {data ? (
         <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
