@@ -73,25 +73,31 @@ function FilaPage() {
                 <button
                   type="button"
                   className="btn-tertiary text-xs"
-                  onClick={async () => {
-                    await avisar({ data: { filaId: f.id } });
-                    setAviso(`${f.cliente} foi avisado. Quem responder primeiro fica com a vaga.`);
-                    refetch();
-                  }}
+                  disabled={acao.ocupado}
+                  onClick={() =>
+                    acao.executar(`avisar-${f.id}`, () => avisar({ data: { filaId: f.id } }), {
+                      sucesso: `${f.cliente} foi avisado. Quem responder primeiro fica com a vaga.`,
+                      aoConcluir: async () => { await refetch(); },
+                    })
+                  }
                 >
-                  Avisar
+                  {acao.estaEm(`avisar-${f.id}`) ? "Avisando…" : "Avisar"}
                 </button>
                 <button
                   type="button"
-                  className="text-xs text-brick underline"
-                  onClick={async () => {
-                    await remover({ data: { filaId: f.id } });
-                    setAviso(`${f.cliente} saiu da fila.`);
-                    refetch();
+                  className="text-xs text-brick underline disabled:opacity-60"
+                  disabled={acao.ocupado}
+                  onClick={() => {
+                    if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
+                    void acao.executar(`remover-${f.id}`, () => remover({ data: { filaId: f.id } }), {
+                      sucesso: `${f.cliente} saiu da fila.`,
+                      aoConcluir: async () => { await refetch(); },
+                    });
                   }}
                 >
-                  Tirar da fila
+                  {acao.estaEm(`remover-${f.id}`) ? "Removendo…" : "Tirar da fila"}
                 </button>
+
               </div>
             </div>
           </li>
