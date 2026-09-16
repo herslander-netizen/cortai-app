@@ -727,13 +727,22 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
   const salvar = useServerFn(salvarConfiguracaoDoCortai);
   const salvarAuto = useServerFn(salvarAutomacao);
   const [config, setConfig] = useState<ConfiguracaoDoAtendimento>(painel.configuracao);
+  const [dias, setDias] = useState(String(painel.configuracao.recuperacaoDias));
   const [ok, setOk] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => setConfig(painel.configuracao), [painel.configuracao]);
+  useEffect(() => {
+    setConfig(painel.configuracao);
+    setDias(String(painel.configuracao.recuperacaoDias));
+  }, [painel.configuracao]);
 
   const gravar = useMutation({
-    mutationFn: () => salvar({ data: config }),
+    mutationFn: () => {
+      if (config.recuperacaoAtiva && (dias.trim() === "" || !Number.isFinite(Number(dias)))) {
+        throw new Error("Informe em quantos dias sem voltar o cliente deve ser lembrado.");
+      }
+      return salvar({ data: { ...config, recuperacaoDias: dias.trim() === "" ? config.recuperacaoDias : Number(dias) } });
+    },
     onSuccess: () => {
       setOk(true);
       setErro(null);
@@ -741,6 +750,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
     },
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível salvar."),
   });
+
 
   const alternarAutomacao = useMutation({
     mutationFn: (a: { chave: ChaveDeAutomacao; ativa: boolean; mensagem: string }) => salvarAuto({ data: a }),
