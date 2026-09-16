@@ -862,11 +862,13 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
                 type="number"
                 min={7}
                 max={180}
-                value={config.recuperacaoDias}
+                inputMode="numeric"
+                value={dias}
                 onChange={(e) => {
                   setOk(false);
-                  setConfig({ ...config, recuperacaoDias: Number(e.target.value) || 30 });
+                  setDias(e.target.value);
                 }}
+
                 className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
               />
             </label>
