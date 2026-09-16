@@ -144,19 +144,15 @@ function FidelidadePage() {
       <button
         type="button"
         className="btn-primary mt-6 w-full"
-        disabled={salvando}
-        onClick={async () => {
-          setSalvando(true);
-          try {
-            await salvar({ data: { ativo, alvo } });
-            setOk(true);
-            refetch();
-          } finally {
-            setSalvando(false);
-          }
-        }}
+        disabled={acao.ocupado}
+        onClick={() =>
+          acao.executar("fidelidade", () => salvar({ data: { ativo, alvo } }), {
+            sucesso: "Cartão fidelidade salvo.",
+            aoConcluir: async () => { setOk(true); await refetch(); },
+          })
+        }
       >
-        {salvando ? "Salvando…" : "Salvar"}
+        {acao.estaEm("fidelidade") ? "Salvando…" : "Salvar"}
       </button>
       {ok ? <p className="mt-3 text-center text-sm text-sage">Configuração salva.</p> : null}
 
