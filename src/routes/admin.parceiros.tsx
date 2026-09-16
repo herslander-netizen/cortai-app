@@ -112,7 +112,7 @@ function ParceirosAdmin() {
         <div className="flex gap-2">
           <Button className="flex-1">{form.id ? "Salvar" : "Adicionar"}</Button>
           {form.id ? (
-            <Button type="button" variant="ghost" onClick={() => setForm(VAZIO)}>Cancelar</Button>
+            <Button type="button" variant="ghost" onClick={() => { setForm(VAZIO); setOrdem("0"); }}>Cancelar</Button>
           ) : null}
         </div>
         {erro ? (
@@ -135,7 +135,8 @@ function ParceirosAdmin() {
               <button
                 type="button"
                 className="text-xs text-gold"
-                onClick={() =>
+                onClick={() => {
+                  setOrdem(String(parceiro.ordem));
                   setForm({
                     id: parceiro.id,
                     nome: parceiro.nome,
@@ -143,8 +144,9 @@ function ParceirosAdmin() {
                     link: parceiro.link ?? "",
                     ordem: parceiro.ordem,
                     ativo: parceiro.ativo,
-                  })
-                }
+                  });
+                }}
+
               >
                 Editar
               </button>
