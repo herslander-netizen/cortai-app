@@ -133,6 +133,27 @@ function CortaiPage() {
 
 /* ------------------------------- WhatsApp -------------------------------- */
 
+const CORES_DO_ESTADO: Record<"desconectado" | "conectando" | "conectado" | "erro", string> = {
+  desconectado: "border-line2 text-mute",
+  conectando: "border-gold/60 text-gold",
+  conectado: "border-sage/60 text-sage",
+  erro: "border-brick/60 text-brick",
+};
+
+function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: string }) {
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] ${CORES_DO_ESTADO[estado]}`}>
+      <span
+        aria-hidden
+        className={`inline-block h-2 w-2 rounded-full ${
+          estado === "conectado" ? "bg-sage" : estado === "erro" ? "bg-brick" : estado === "conectando" ? "bg-gold" : "bg-mute2"
+        }`}
+      />
+      {texto}
+    </span>
+  );
+}
+
 function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
   const conectar = useServerFn(conectarWhatsapp);
@@ -144,6 +165,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const [restante, setRestante] = useState<number | null>(null);
   const [desde] = useState(() => Date.now());
   const [agora, setAgora] = useState(() => Date.now());
+  const [qrAberto, setQrAberto] = useState(false);
 
   const acao = useMutation({
     mutationFn: async (qual: "conectar" | "qr" | "reconectar" | "desconectar") => {
@@ -184,7 +206,10 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
   // Assim que o serviço confirma a conexão, o painel inteiro se atualiza.
   useEffect(() => {
-    if (status === "conectado") void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+    if (status === "conectado") {
+      setQrAberto(false);
+      void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+    }
   }, [status, cliente]);
 
   useEffect(() => {
@@ -198,6 +223,11 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     return () => window.clearInterval(id);
   }, [expira]);
 
+  // O QR aparece sozinho assim que o serviço entrega um código válido.
+  useEffect(() => {
+    if (status === "qr_pronto" && conexao?.qrCode) setQrAberto(true);
+  }, [status, conexao?.qrCode]);
+
   if (!painel.gatewayConfigurado) {
     return (
       <section className="rounded-xl border border-line bg-ink2 p-5">
@@ -205,9 +235,12 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
             <Smartphone size={18} />
           </span>
-          <div>
-            <h2 className="text-sm font-semibold text-paper">Gateway do WhatsApp não configurado</h2>
-            <p className="mt-1 text-xs text-mute">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-semibold text-paper">Serviço de WhatsApp ainda não configurado</h2>
+              <Selo estado="desconectado" texto="Indisponível" />
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-mute">
               A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Cortaí. Enquanto ele
               não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar algo que não funciona.
             </p>
@@ -219,6 +252,12 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             </p>
           </div>
         </div>
+        <button type="button" className="btn-primary mt-5 w-full opacity-50" disabled aria-disabled>
+          Conectar WhatsApp
+        </button>
+        <p className="mt-2 text-center text-[11px] text-mute2">
+          O botão será liberado assim que o serviço estiver publicado.
+        </p>
       </section>
     );
   }
@@ -226,17 +265,33 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const qrExpirado = status === "qr_pronto" && restante !== null && restante <= 0;
   const conectando = acao.isPending || status === "pendente" || status === "conectando";
 
+  const visual: keyof typeof CORES_DO_ESTADO =
+    status === "conectado" ? "conectado" : status === "erro" ? "erro" : conectando || status === "qr_pronto" ? "conectando" : "desconectado";
+
+  const rotuloDoEstado =
+    status === "conectado"
+      ? "Conectado"
+      : status === "erro"
+        ? "Erro"
+        : status === "qr_pronto"
+          ? qrExpirado
+            ? "QR Code expirado"
+            : "Aguardando leitura"
+          : conectando
+            ? "Conectando"
+            : "Desconectado";
+
   const titulo =
     status === "conectado"
       ? "WhatsApp conectado"
       : qrExpirado
         ? "Este QR Code expirou"
         : status === "qr_pronto"
-          ? "Escaneie o QR Code usando o WhatsApp Business"
+          ? "Escaneie o QR Code usando o WhatsApp"
           : status === "conectando"
             ? "Conectando seu WhatsApp…"
-            : status === "pendente"
-              ? "Preparando sua conexão…"
+            : status === "pendente" || acao.isPending
+              ? "Preparando conexão…"
               : status === "erro"
                 ? "Não foi possível conectar seu WhatsApp"
                 : conexao?.conectadoEm
@@ -248,13 +303,17 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
       ? "Seu WhatsApp está conectado e pronto para o CortAI atender seus clientes."
       : "Conecte o WhatsApp da sua barbearia para que o CortAI possa atender seus clientes automaticamente.";
 
-  const rotuloPrincipal = conectando
-    ? "Conectando…"
-    : status === "erro"
-      ? "Tentar novamente"
-      : conexao?.conectadoEm
-        ? "Reconectar WhatsApp"
-        : "Conectar WhatsApp";
+  const rotuloPrincipal = acao.isPending
+    ? "Preparando conexão…"
+    : conectando
+      ? "Conectando…"
+      : status === "erro"
+        ? "Tentar novamente"
+        : status === "qr_pronto"
+          ? "Ativar conexão"
+          : conexao?.conectadoEm
+            ? "Reconectar WhatsApp"
+            : "Conectar WhatsApp";
 
   return (
     <section className="rounded-xl border border-line bg-ink2 p-5">
@@ -263,11 +322,11 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
           <MessageCircle size={18} />
         </span>
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <Ponto ligado={status === "conectado"} />
-            {titulo}
-          </h2>
-          <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
+            <Selo estado={visual} texto={rotuloDoEstado} />
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-mute">{descricao}</p>
         </div>
       </div>
 
@@ -294,24 +353,19 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
           <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
           <p className="text-xs text-mute">
-            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando sua conexão…"}
+            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando conexão…"}
           </p>
         </div>
       ) : null}
 
-      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado ? (
-        <div className="mt-5 border-t border-line pt-4 text-center">
-          <div className="mt-1">
-            <QrCodeReal valor={conexao.qrCode} alt="QR Code para conectar o WhatsApp da barbearia" />
-          </div>
-          <p className="mt-4 text-xs text-paper">Abra o WhatsApp Business no seu celular.</p>
-          <p className="mt-1 text-xs text-mute">
-            Vá em Aparelhos conectados &gt; Conectar um aparelho e escaneie este código.
-          </p>
-          {restante !== null ? (
-            <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
-          ) : null}
-        </div>
+      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado && !qrAberto ? (
+        <button
+          type="button"
+          className="mt-5 w-full rounded-md border border-gold/50 py-2.5 text-sm text-gold"
+          onClick={() => setQrAberto(true)}
+        >
+          Mostrar QR Code
+        </button>
       ) : null}
 
       <div className="mt-6 space-y-3">
@@ -320,14 +374,22 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             <button
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
-              disabled={acao.isPending}
-              onClick={() => acao.mutate("reconectar")}
+              disabled={acao.isPending || estado.isFetching}
+              onClick={() => void estado.refetch()}
             >
-              Reconectar
+              {estado.isFetching ? "Atualizando…" : "Atualizar conexão"}
             </button>
             <button
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("reconectar")}
+            >
+              {acao.isPending ? "Aguarde…" : "Reconectar"}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-md border border-line2 py-2.5 text-sm text-brick disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => {
                 if (
@@ -348,7 +410,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               type="button"
               className="btn-primary w-full"
               disabled={acao.isPending}
-              onClick={() => acao.mutate("conectar")}
+              onClick={() => acao.mutate(status === "qr_pronto" && !qrExpirado ? "qr" : "conectar")}
             >
               {rotuloPrincipal}
             </button>
@@ -359,7 +421,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
                 disabled={acao.isPending}
                 onClick={() => acao.mutate("qr")}
               >
-                Gerar novo QR Code
+                {acao.isPending ? "Gerando…" : "Gerar novo QR Code"}
               </button>
             ) : null}
           </>
@@ -372,7 +434,87 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
         <ShieldCheck size={14} className="mt-0.5 shrink-0" />
         O CortAI responde apenas com informações cadastradas na sua barbearia e nunca acessa dados de outra.
       </p>
+
+      {qrAberto && conexao?.qrCode && !qrExpirado ? (
+        <ModalQr
+          valor={conexao.qrCode}
+          restante={restante}
+          aoFechar={() => setQrAberto(false)}
+          aoGerarNovo={() => acao.mutate("qr")}
+          gerando={acao.isPending}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function ModalQr({
+  valor,
+  restante,
+  aoFechar,
+  aoGerarNovo,
+  gerando,
+}: {
+  valor: string;
+  restante: number | null;
+  aoFechar: () => void;
+  aoGerarNovo: () => void;
+  gerando: boolean;
+}) {
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === "Escape") aoFechar();
+    };
+    window.addEventListener("keydown", aoTeclar);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", aoTeclar);
+      document.body.style.overflow = "";
+    };
+  }, [aoFechar]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Conectar o WhatsApp por QR Code"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+      style={{ background: "rgba(11,11,11,.72)", backdropFilter: "blur(8px)" }}
+      onClick={aoFechar}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl border border-line bg-ink2 p-5 text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-paper">Conectar WhatsApp</h3>
+          <button type="button" aria-label="Fechar" className="text-mute" onClick={aoFechar}>
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-4">
+          <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp da barbearia" />
+        </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-paper">
+          Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → escaneie o QR Code.
+        </p>
+        {restante !== null ? (
+          <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
+        ) : null}
+
+        <button
+          type="button"
+          className="mt-5 w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+          disabled={gerando}
+          onClick={aoGerarNovo}
+        >
+          {gerando ? "Gerando…" : "Gerar novo QR Code"}
+        </button>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
