@@ -139,8 +139,10 @@ function RootComponent() {
       <GlobalDesign>
         <GuiaProvider>
           <Outlet />
+          <Toaster position="top-center" closeButton richColors />
           <BannerDeCookies />
           <AvisoDeVersao />
+
         </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>
