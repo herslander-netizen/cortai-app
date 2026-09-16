@@ -102,7 +102,7 @@ function ProdutosPage() {
 
     <Button data-guia="produtos-novo" variant="outline" className="mt-5 w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
 
-    {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={async (event) => {
+    {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={(event) => {
       event.preventDefault();
       setErro(null);
       const numero = (valor: string) => (valor.trim() === "" || !Number.isFinite(Number(valor)) ? null : Number(valor));
@@ -113,15 +113,21 @@ function ProdutosPage() {
       const custo = numero(numeros.custo);
       const preco = numero(numeros.preco);
       if (form.disponivel_venda && preco === null) { setErro("Informe o preço de venda do produto."); return; }
-      try {
-        await salvar({ data: { ...form, custo_centavos: Math.round((custo ?? 0) * 100), preco_centavos: Math.round((preco ?? 0) * 100), quantidade, estoque_minimo: estoqueMinimo } });
-        setNovo(false);
-        setForm(FORM_VAZIO);
-        setNumeros(NUMEROS_VAZIOS);
-        await query.refetch();
-        setStatus("Produto salvo.");
-      } catch (e) { setErro((e as Error).message); }
+      void acao.executar(
+        "novo-produto",
+        () => salvar({ data: { ...form, custo_centavos: Math.round((custo ?? 0) * 100), preco_centavos: Math.round((preco ?? 0) * 100), quantidade, estoque_minimo: estoqueMinimo } }),
+        {
+          sucesso: "Produto salvo.",
+          aoConcluir: async () => {
+            setNovo(false);
+            setForm(FORM_VAZIO);
+            setNumeros(NUMEROS_VAZIOS);
+            await query.refetch();
+          },
+        },
+      );
     }}>
+
       <input required placeholder="Nome do produto" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="input-premium" />
       <input placeholder="URL da foto" value={form.foto_url ?? ""} onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })} className="input-premium" />
       <input required placeholder="Categoria" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} className="input-premium" />
