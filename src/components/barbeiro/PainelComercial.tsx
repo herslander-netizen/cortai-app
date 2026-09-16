@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAcao } from "@/hooks/useAcao";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { BadgeCheck, Sparkles, Ticket } from "lucide-react";
@@ -99,18 +100,18 @@ export function MeuPlano() {
 
       <form
         className="mt-4 flex gap-2"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
           setAviso("");
           setErro("");
-          try {
-            const r = await aplicar({ data: { codigo } });
-            setAviso(`Cupom ${r.codigo} aplicado.`);
-            setCodigo("");
-            await query.refetch();
-          } catch (err) {
-            setErro(err instanceof Error ? err.message : "Não deu para aplicar o cupom.");
-          }
+          void acao.executar("cupom", () => aplicar({ data: { codigo } }), {
+            erro: "Não deu para aplicar o cupom.",
+            aoConcluir: async (r) => {
+              setAviso(`Cupom ${r.codigo} aplicado.`);
+              setCodigo("");
+              await query.refetch();
+            },
+          });
         }}
       >
         <label className="sr-only" htmlFor="cupom">
