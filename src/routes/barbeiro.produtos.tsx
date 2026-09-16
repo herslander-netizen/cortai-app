@@ -162,21 +162,37 @@ function ProdutosPage() {
           </p>
         </div>
         <div className="grid gap-1.5">
-          <Button data-guia="produtos-venda" size="sm" variant="outline" disabled={produto.quantidade < 1} onClick={async () => { await vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }); setStatus(`${produto.nome}: venda registrada.`); await query.refetch(); }}>Vender</Button>
-          <Button size="sm" variant="ghost" className="text-[11px]" onClick={async () => {
-            setErro(null);
-            try {
-              await salvar({ data: {
+          <Button
+            data-guia="produtos-venda"
+            size="sm"
+            variant="outline"
+            disabled={produto.quantidade < 1 || acao.ocupado}
+            onClick={() =>
+              acao.executar(`vender-${produto.id}`, () => vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }), {
+                sucesso: `${produto.nome}: venda registrada.`,
+                aoConcluir: async () => { await query.refetch(); },
+              })
+            }
+          >
+            {acao.estaEm(`vender-${produto.id}`) ? "Registrando…" : "Vender"}
+          </Button>
+          <Button size="sm" variant="ghost" className="text-[11px]" disabled={acao.ocupado} onClick={() =>
+            acao.executar(
+              `loja-${produto.id}`,
+              () => salvar({ data: {
                 id: produto.id, nome: produto.nome, foto_url: produto.foto_url, categoria: produto.categoria,
                 custo_centavos: produto.custo_centavos, preco_centavos: produto.preco_centavos,
                 quantidade: produto.quantidade, estoque_minimo: produto.estoque_minimo, ativo: produto.ativo,
                 controla_estoque: produto.controla_estoque, disponivel_venda: !produto.disponivel_venda,
-              } });
-              await query.refetch();
-              setStatus(produto.disponivel_venda ? `${produto.nome} saiu da loja.` : `${produto.nome} entrou na loja.`);
-            } catch (e) { setErro((e as Error).message); }
-          }}>{produto.disponivel_venda ? "Tirar da loja" : "Pôr à venda"}</Button>
+              } }),
+              {
+                sucesso: produto.disponivel_venda ? `${produto.nome} saiu da loja.` : `${produto.nome} entrou na loja.`,
+                aoConcluir: async () => { await query.refetch(); },
+              },
+            )
+          }>{acao.estaEm(`loja-${produto.id}`) ? "Atualizando…" : produto.disponivel_venda ? "Tirar da loja" : "Pôr à venda"}</Button>
         </div>
+
       </li>;
     })}</ul>
   </Screen>;
