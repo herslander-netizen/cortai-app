@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
+import { exigirRecurso } from "@/lib/planos";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -126,6 +127,8 @@ export const salvarMarca = createServerFn({ method: "POST" })
   .validator((input: unknown) => marcaSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
+    // Marca avançada é recurso de plano: a liberação é conferida no servidor.
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
     const { data: atual } = await context.supabase.from("tenants").select("*").eq("id", tenantId).single();
     if (!atual) throw new Error("Barbearia não encontrada.");
 
@@ -159,6 +162,8 @@ export const restaurarMarca = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ versaoId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
+    // Restaurar uma versão também grava a marca avançada: mesma checagem de plano.
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
     const [{ data: atual }, { data: versao }] = await Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase

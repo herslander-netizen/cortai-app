@@ -50,6 +50,9 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       janela_preferida: janela,
       posicao,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[fila] entrarNaFila falhou:", error.message);
+      throw new Error("Não foi possível entrar na lista de espera agora. Tente novamente.");
+    }
     return { posicao };
   });

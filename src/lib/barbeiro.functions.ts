@@ -695,6 +695,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<ResultadoManual> => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
     await exigirRecurso(db, tenant.id, "agendamento_manual");
 
     const { data: servico } = await db

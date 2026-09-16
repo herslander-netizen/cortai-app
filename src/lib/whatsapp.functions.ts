@@ -322,7 +322,10 @@ export const listarConversas = createServerFn({ method: "GET" })
     if (data.filtro === "humano") consulta = consulta.eq("status", "humano");
     if (data.filtro === "nao_lidas") consulta = consulta.gt("nao_lidas", 0);
     const { data: linhas, error } = await consulta.order("ultima_mensagem_em", { ascending: false }).limit(100);
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[whatsapp] listarConversas falhou:", error.message);
+      throw new Error("Não foi possível carregar as conversas agora. Tente novamente.");
+    }
     return (linhas ?? []).map((l) => ({
       id: l.id,
       telefone: l.telefone,
@@ -615,7 +618,10 @@ export const removerInformacao = createServerFn({ method: "POST" })
       .delete()
       .eq("tenant_id", tenantId)
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[whatsapp] removerInformacao falhou:", error.message);
+      throw new Error("Não foi possível remover a informação agora. Tente novamente.");
+    }
     return { ok: true as const };
   });
 

@@ -182,7 +182,10 @@ export const saveSuggestion = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
     const { error } = await db.from("sugestoes_da_plataforma").insert({ pedido: data.pedido, motivo: data.motivo, canal: data.canal, tenants_que_pediram: data.tenants, status: data.status, criado_por: context.userId });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[admin] saveSuggestion falhou:", error.message);
+      throw new Error("Não foi possível registrar a sugestão agora. Tente novamente.");
+    }
     return { ok: true };
   });
 
@@ -209,7 +212,10 @@ export const definirStatusDaBarbearia = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
     const { error } = await db.from("tenants").update({ ativo: data.ativo }).eq("id", data.tenantId);
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[admin] definirStatusDaBarbearia falhou:", error.message);
+      throw new Error("Não foi possível atualizar a situação da barbearia agora. Tente novamente.");
+    }
     return { ok: true, ativo: data.ativo };
   });
 
