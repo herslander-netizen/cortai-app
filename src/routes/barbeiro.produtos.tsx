@@ -61,6 +61,9 @@ function ProdutosPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [form, setForm] = useState<Form>(FORM_VAZIO);
+  const NUMEROS_VAZIOS = { custo: "", preco: "", quantidade: "0", estoque_minimo: "3" };
+  const [numeros, setNumeros] = useState(NUMEROS_VAZIOS);
+
   const loja = query.data?.loja;
 
   return <Screen voltarPara="/barbeiro/mais" title="Produtos e loja" subtitle="O que você guarda no estoque e o que vende para o cliente.">
