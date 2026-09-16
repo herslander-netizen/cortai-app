@@ -453,7 +453,7 @@ function MudarPlano({
       {f.status === "teste" ? (
         <Campo label="Dias de teste"><input className={input} inputMode="numeric" value={f.dias} onChange={(e) => setF({ ...f, dias: e.target.value })} /></Campo>
       ) : <div />}
-      <div className="sm:col-span-4"><button type="submit" className="btn-secondary px-5 text-sm">Atualizar plano da barbearia</button></div>
+      <div className="sm:col-span-4"><button type="submit" className="btn-secondary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano da barbearia"}</button></div>
     </form>
   );
 }
