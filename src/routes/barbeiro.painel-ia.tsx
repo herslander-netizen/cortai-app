@@ -44,7 +44,7 @@ const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sáb
 
 const ESTADOS: Record<PainelOperacional["estado"], { rotulo: string; cor: string }> = {
   conectado: { rotulo: "Conectado ao Cortaí", cor: "text-sage" },
-  sincronizando: { rotulo: "Sincronizando", cor: "text-gold" } as never,
+  
   nao_configurado: { rotulo: "Ainda não configurado", cor: "text-gold" },
   sem_dados: { rotulo: "Sem dados cadastrados", cor: "text-gold" },
   erro: { rotulo: "Erro de autenticação", cor: "text-brick" },
