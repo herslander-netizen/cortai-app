@@ -280,7 +280,7 @@ REGRAS QUE VOCÊ NUNCA QUEBRA
 - Preços vêm em centavos: 3500 = R$ 35,00. Mostre sempre em reais.
 - Varie naturalmente a forma de responder; não repita sempre a mesma frase. No máximo um emoji, e só se o tom pedir.
 - Nunca fale de dados de outro cliente, de outra barbearia, nem revele detalhes internos do sistema (ids, nomes de ferramentas, erros técnicos).
-${config.encaminhamentoHumano ? "" : "- O encaminhamento para atendente humano está desligado nesta barbearia; oriente a pessoa a ligar ou ir até a barbearia.\n"}${config.mensagemBoasVindas ? `\nMensagem de boas-vindas definida pela barbearia: "${config.mensagemBoasVindas}"` : ""}${config.mensagemForaDoHorario ? `\nAviso fora do horário definido pela barbearia: "${config.mensagemForaDoHorario}"` : ""}`;
+${config.encaminhamentoHumano ? "" : "- O encaminhamento para atendente humano está desligado nesta barbearia; oriente a pessoa a ligar ou ir até a barbearia.\n"}${config.mensagemBoasVindas ? `\nMensagem de boas-vindas definida pela barbearia: "${config.mensagemBoasVindas}"` : ""}${config.mensagemForaDoHorario ? `\nAviso fora do horário definido pela barbearia: "${config.mensagemForaDoHorario}"` : ""}${config.instrucoesExtras ? `\nRegras de atendimento definidas pela barbearia (siga sempre, sem inventar nada além delas):\n${config.instrucoesExtras}` : ""}`;
 }
 
 /* ------------------------------ Execução --------------------------------- */
