@@ -165,6 +165,7 @@ function FormularioPlano({
   onSalvar: (dados: any) => Promise<void>;
   onCancelar: () => void;
 }) {
+  const acao = useAcao();
   const [f, setF] = useState({
     chave: plano.chave,
     nome: plano.nome,
@@ -184,9 +185,9 @@ function FormularioPlano({
   return (
     <form
       className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
-      onSubmit={async (e) => {
+      onSubmit={(e) => {
         e.preventDefault();
-        await onSalvar({
+        void acao.executar("plano", () => onSalvar({
           ...(plano.id ? { id: plano.id } : {}),
           chave: f.chave.trim().toLowerCase(),
           nome: f.nome.trim(),
@@ -200,7 +201,7 @@ function FormularioPlano({
           limiteUnidades: numeroOuNulo(f.unidades),
           ordem: Number(f.ordem || 0),
           ativo: f.ativo,
-        });
+        }));
       }}
     >
       <p className="text-sm font-semibold text-paper">{plano.id ? `Editar ${plano.nome}` : "Novo plano"}</p>
@@ -222,7 +223,7 @@ function FormularioPlano({
         <span className="text-xs text-mute">Plano disponível para contratação</span>
       </div>
       <div className="flex gap-2 pt-1">
-        <button type="submit" className="btn-primary px-5 text-sm">Salvar</button>
+        <button type="submit" className="btn-primary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("plano") ? "Salvando…" : "Salvar"}</button>
         <button type="button" className="btn-secondary px-5 text-sm" onClick={onCancelar}>Cancelar</button>
       </div>
     </form>
@@ -247,6 +248,7 @@ function AbaBarbearia() {
   const [status, setStatus] = useState("");
   const [erro, setErro] = useState("");
   const [form, setForm] = useState({ plano: "", preco: "", percentual: "0", fixo: "0", ciclo: "mensal", inicio: hoje(), fim: "", motivo: "" });
+  const acao = useAcao();
 
   if (tenants.isError) return <AdminNotice error={tenants.error} />;
 
@@ -328,14 +330,17 @@ function AbaBarbearia() {
                 {c.ativo ? (
                   <button
                     type="button"
-                    className="btn-secondary px-3 text-[11px]"
-                    onClick={async () => {
-                      await encerrar({ data: { id: c.id } });
-                      await visao.refetch();
-                      setStatus("Condição encerrada. A barbearia volta ao preço padrão.");
+                    className="btn-secondary px-3 text-[11px] disabled:opacity-60"
+                    disabled={acao.ocupado}
+                    onClick={() => {
+                      if (!window.confirm("Encerrar esta condição especial? A barbearia volta ao preço padrão.")) return;
+                      void acao.executar(`encerrar-${c.id}`, () => encerrar({ data: { id: c.id } }), {
+                        sucesso: "Condição encerrada. A barbearia volta ao preço padrão.",
+                        aoConcluir: async () => { await visao.refetch(); },
+                      });
                     }}
                   >
-                    Encerrar
+                    {acao.estaEm(`encerrar-${c.id}`) ? "Encerrando…" : "Encerrar"}
                   </button>
                 ) : null}
               </li>
@@ -345,12 +350,11 @@ function AbaBarbearia() {
 
           <form
             className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault();
               setErro("");
               setStatus("");
-              try {
-                await salvar({
+              void acao.executar("condicao", () => salvar({
                   data: {
                     tenantId,
                     planoChave: form.plano || visao.data!.planoChave,
@@ -365,13 +369,13 @@ function AbaBarbearia() {
                     recursos: [],
                     ativo: true,
                   },
-                });
-                setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
-                await visao.refetch();
-                setStatus("Condição criada só para esta barbearia. O preço padrão do plano não mudou.");
-              } catch (err) {
-                setErro(err instanceof Error ? err.message : "Não deu para salvar.");
-              }
+                }), {
+                sucesso: "Condição criada só para esta barbearia. O preço padrão do plano não mudou.",
+                aoConcluir: async () => {
+                  setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
+                  await visao.refetch();
+                },
+              });
             }}
           >
             <p className="text-sm font-semibold text-paper">Nova condição especial</p>
@@ -394,7 +398,7 @@ function AbaBarbearia() {
               <Campo label="Fim (opcional)"><input className={input} type="date" value={form.fim} onChange={(e) => setForm({ ...form, fim: e.target.value })} /></Campo>
               <Campo label="Motivo interno"><input className={input} value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} /></Campo>
             </div>
-            <button type="submit" className="btn-primary px-5 text-sm">Aplicar condição</button>
+            <button type="submit" className="btn-primary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("condicao") ? "Aplicando…" : "Aplicar condição"}</button>
           </form>
         </>
       ) : null}
@@ -415,9 +419,9 @@ function MudarPlano({
   return (
     <form
       className="mt-4 grid gap-3 rounded-xl border border-line bg-ink2 p-4 sm:grid-cols-4"
-      onSubmit={async (e) => {
+      onSubmit={(e) => {
         e.preventDefault();
-        await onSalvar({
+        void acao.executar("plano", () => onSalvar({
           planoChave: f.plano,
           ciclo: f.ciclo as "mensal" | "anual",
           status: f.status as "teste" | "ativa" | "vencida" | "cancelada",
