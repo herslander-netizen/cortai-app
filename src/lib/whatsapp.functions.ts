@@ -491,6 +491,12 @@ const configSchema = z.object({
   tom: z.enum(["profissional", "amigavel", "direto", "premium", "objetivo"]),
   recuperacaoAtiva: z.boolean().default(false),
   recuperacaoDias: z.number().int().min(7).max(180).default(30),
+  responderWhatsapp: z.boolean().default(true),
+  instrucoesExtras: z.string().trim().max(2000).default(""),
+  horarioProprio: z.boolean().default(false),
+  horarioDias: z.array(z.number().int().min(0).max(6)).max(7).default([1, 2, 3, 4, 5, 6]),
+  horarioInicio: z.string().regex(/^\d{2}:\d{2}$/).default("09:00"),
+  horarioFim: z.string().regex(/^\d{2}:\d{2}$/).default("19:00"),
 });
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
