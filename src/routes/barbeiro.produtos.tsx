@@ -144,11 +144,11 @@ function ProdutosPage() {
         <Escolha titulo="Uso interno / somente estoque" descricao="Você controla a quantidade aqui dentro. O cliente não vê este produto." ativo={form.controla_estoque} onChange={(v) => setForm({ ...form, controla_estoque: v })} />
         <Escolha titulo="Disponível para venda" descricao="Aparece na loja para o cliente quando a loja online estiver ativada e houver preço." ativo={form.disponivel_venda} onChange={(v) => setForm({ ...form, disponivel_venda: v })} />
       </div>
-      <Button className="h-11 w-full font-bold">Salvar produto</Button>
+      <Button className="h-11 w-full font-bold" disabled={acao.ocupado}>{acao.estaEm("novo-produto") ? "Salvando…" : "Salvar produto"}</Button>
     </form> : null}
 
-    {status ? <p className="mt-4 text-sm text-sage" role="status">{status}</p> : null}
     {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
     {query.data?.produtos.length === 0 ? <div className="mt-5"><EmptyState text="Nenhum produto cadastrado." /></div> : null}
 
     <ul data-guia="produtos-lista" className="mt-5">{query.data?.produtos.map((produto: any) => {
