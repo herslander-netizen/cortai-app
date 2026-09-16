@@ -869,7 +869,48 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
   );
 }
 
-/* -------------------------------- Ajustes -------------------------------- */
+/* ----------------------------- IA do Cortaí ------------------------------ */
+
+function Bloco({ titulo, descricao, children }: { titulo: string; descricao?: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-line bg-ink2 p-5">
+      <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
+      {descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p> : null}
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}
+
+function Chave({
+  rotulo,
+  detalhe,
+  valor,
+  aoMudar,
+  desabilitado,
+}: {
+  rotulo: string;
+  detalhe?: string;
+  valor: boolean;
+  aoMudar: (v: boolean) => void;
+  desabilitado?: boolean;
+}) {
+  return (
+    <li className={`flex items-start justify-between gap-4 ${desabilitado ? "opacity-60" : ""}`}>
+      <div className="min-w-0">
+        <p className="text-xs text-paper">{rotulo}</p>
+        {detalhe ? <p className="mt-0.5 text-[11px] leading-relaxed text-mute2">{detalhe}</p> : null}
+      </div>
+      <input
+        type="checkbox"
+        checked={valor}
+        disabled={desabilitado}
+        onChange={(e) => aoMudar(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--gold,#D4AF6A)]"
+        aria-label={rotulo}
+      />
+    </li>
+  );
+}
 
 function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
@@ -885,10 +926,21 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
     setDias(String(painel.configuracao.recuperacaoDias));
   }, [painel.configuracao]);
 
+  const mudar = (parcial: Partial<ConfiguracaoDoAtendimento>) => {
+    setOk(false);
+    setConfig((atual) => ({ ...atual, ...parcial }));
+  };
+
   const gravar = useMutation({
     mutationFn: () => {
       if (config.recuperacaoAtiva && (dias.trim() === "" || !Number.isFinite(Number(dias)))) {
         throw new Error("Informe em quantos dias sem voltar o cliente deve ser lembrado.");
+      }
+      if (config.horarioProprio && config.horarioDias.length === 0) {
+        throw new Error("Escolha pelo menos um dia de atendimento da IA.");
+      }
+      if (config.horarioProprio && config.horarioInicio >= config.horarioFim) {
+        throw new Error("O horário de início precisa ser antes do horário de término.");
       }
       return salvar({ data: { ...config, recuperacaoDias: dias.trim() === "" ? config.recuperacaoDias : Number(dias) } });
     },
@@ -900,55 +952,62 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível salvar."),
   });
 
-
   const alternarAutomacao = useMutation({
     mutationFn: (a: { chave: ChaveDeAutomacao; ativa: boolean; mensagem: string }) => salvarAuto({ data: a }),
     onSuccess: () => void cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
   });
 
-  const chaves: [keyof ConfiguracaoDoAtendimento, string][] = [
-    ["atendimentoAutomatico", "Atendimento automático"],
-    ["saudacaoAtiva", "Saudação ao iniciar conversa"],
-    ["permiteConfirmar", "Confirmar agendamento"],
-    ["permiteCancelar", "Cancelar agendamento"],
-    ["permiteRemarcar", "Remarcar agendamento"],
-    ["encaminhamentoHumano", "Encaminhar para atendente"],
-    ["lembretes", "Lembretes de horário"],
-  ];
+  const whatsappConectado = painel.conexao?.status === "conectado";
+  const iaAtiva = painel.iaDisponivel && config.atendimentoAutomatico;
 
   return (
     <section className="space-y-5">
       <div className="rounded-lg border border-line bg-ink2 p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
-          <Bot size={16} className="text-gold" /> Como o CortAI atende
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
+            <Bot size={16} className="text-gold" /> IA do Cortaí
+          </h2>
+          <Selo estado={iaAtiva ? "conectado" : "desconectado"} texto={iaAtiva ? "Ativa" : "Inativa"} />
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-mute">
+          {painel.iaDisponivel
+            ? "A IA responde apenas com os dados cadastrados na sua barbearia."
+            : "A IA está indisponível neste momento. Assim que voltar, as configurações abaixo passam a valer."}
+        </p>
+      </div>
 
-        <ul className="mt-4 space-y-3">
-          {chaves.map(([chave, rotulo]) => (
-            <li key={chave} className="flex items-center justify-between gap-4">
-              <span className="text-xs text-paper">{rotulo}</span>
-              <input
-                type="checkbox"
-                checked={Boolean(config[chave])}
-                onChange={(e) => {
-                  setOk(false);
-                  setConfig({ ...config, [chave]: e.target.checked });
-                }}
-                className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
-                aria-label={rotulo}
-              />
-            </li>
-          ))}
+      <Bloco titulo="Atendimento" descricao="O que a IA pode fazer no dia a dia da barbearia.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Atendimento automático"
+            detalhe="A IA responde sozinha às mensagens que chegam."
+            valor={config.atendimentoAutomatico}
+            aoMudar={(v) => mudar({ atendimentoAutomatico: v })}
+          />
+          <Chave
+            rotulo="Responder pelo WhatsApp"
+            detalhe={
+              whatsappConectado
+                ? "A IA atende as conversas do WhatsApp conectado."
+                : "Depende da conexão do WhatsApp: conecte na aba WhatsApp para a IA poder responder."
+            }
+            valor={config.responderWhatsapp}
+            aoMudar={(v) => mudar({ responderWhatsapp: v })}
+          />
+          <Chave
+            rotulo="Saudação ao iniciar conversa"
+            valor={config.saudacaoAtiva}
+            aoMudar={(v) => mudar({ saudacaoAtiva: v })}
+          />
         </ul>
+      </Bloco>
 
-        <label className="mt-4 block">
+      <Bloco titulo="Forma de atendimento" descricao="Como a IA fala com os seus clientes.">
+        <label className="block">
           <span className="text-xs text-mute">Tom do atendimento</span>
           <select
             value={config.tom}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, tom: e.target.value as ConfiguracaoDoAtendimento["tom"] });
-            }}
+            onChange={(e) => mudar({ tom: e.target.value as ConfiguracaoDoAtendimento["tom"] })}
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           >
             {Object.entries(TONS).map(([valor, rotulo]) => (
@@ -960,14 +1019,12 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </label>
 
         <label className="mt-4 block">
-          <span className="text-xs text-mute">Mensagem de boas-vindas</span>
+          <span className="text-xs text-mute">Mensagem inicial</span>
           <textarea
             value={config.mensagemBoasVindas}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, mensagemBoasVindas: e.target.value });
-            }}
+            onChange={(e) => mudar({ mensagemBoasVindas: e.target.value })}
             rows={2}
+            placeholder="Olá! Aqui é a barbearia. Como posso ajudar?"
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
         </label>
@@ -976,67 +1033,184 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
           <span className="text-xs text-mute">Mensagem fora do horário</span>
           <textarea
             value={config.mensagemForaDoHorario}
-            onChange={(e) => {
-              setOk(false);
-              setConfig({ ...config, mensagemForaDoHorario: e.target.value });
-            }}
+            onChange={(e) => mudar({ mensagemForaDoHorario: e.target.value })}
             rows={2}
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
         </label>
 
-        <div className="mt-5 border-t border-line pt-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-xs text-paper">Sugerir clientes sumidos</p>
-              <p className="mt-0.5 text-[11px] text-mute2">
-                Só identifica quem passou do intervalo habitual. Nada é enviado automaticamente.
-              </p>
+        <label className="mt-4 block">
+          <span className="text-xs text-mute">Regras de atendimento</span>
+          <textarea
+            value={config.instrucoesExtras}
+            onChange={(e) => mudar({ instrucoesExtras: e.target.value })}
+            rows={4}
+            placeholder="Ex.: sempre confirmar o profissional antes de marcar; não prometer desconto."
+            className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+          />
+          <span className="mt-1 block text-[11px] text-mute2">
+            Instruções do estabelecimento que a IA deve seguir em toda conversa.
+          </span>
+        </label>
+      </Bloco>
+
+      <Bloco titulo="Horário de atendimento da IA" descricao="Fora deste horário a IA não responde sozinha.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Usar um horário próprio para a IA"
+            detalhe="Desligado, a IA atende a qualquer hora."
+            valor={config.horarioProprio}
+            aoMudar={(v) => mudar({ horarioProprio: v })}
+          />
+        </ul>
+        {config.horarioProprio ? (
+          <>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {DIAS_DA_SEMANA.map((nome, indice) => {
+                const marcado = config.horarioDias.includes(indice);
+                return (
+                  <button
+                    key={nome}
+                    type="button"
+                    aria-pressed={marcado}
+                    onClick={() =>
+                      mudar({
+                        horarioDias: marcado
+                          ? config.horarioDias.filter((d) => d !== indice)
+                          : [...config.horarioDias, indice].sort((a, b) => a - b),
+                      })
+                    }
+                    className={`rounded-full border px-3 py-1 text-[11px] ${
+                      marcado ? "border-gold text-gold" : "border-line2 text-mute"
+                    }`}
+                  >
+                    {nome.slice(0, 3)}
+                  </button>
+                );
+              })}
             </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-xs text-mute">Começa às</span>
+                <input
+                  type="time"
+                  value={config.horarioInicio}
+                  onChange={(e) => mudar({ horarioInicio: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs text-mute">Termina às</span>
+                <input
+                  type="time"
+                  value={config.horarioFim}
+                  onChange={(e) => mudar({ horarioFim: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+                />
+              </label>
+            </div>
+          </>
+        ) : null}
+      </Bloco>
+
+      <Bloco titulo="Objetivos da IA" descricao="Ligue só o que a sua barbearia quer entregar pela IA.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Confirmar agendamento"
+            valor={config.permiteConfirmar}
+            aoMudar={(v) => mudar({ permiteConfirmar: v })}
+          />
+          <Chave rotulo="Cancelar agendamento" valor={config.permiteCancelar} aoMudar={(v) => mudar({ permiteCancelar: v })} />
+          <Chave rotulo="Remarcar agendamento" valor={config.permiteRemarcar} aoMudar={(v) => mudar({ permiteRemarcar: v })} />
+          <Chave rotulo="Lembretes de horário" valor={config.lembretes} aoMudar={(v) => mudar({ lembretes: v })} />
+          <Chave
+            rotulo="Recuperação de clientes"
+            detalhe="Só identifica quem passou do intervalo habitual. Nada é enviado automaticamente."
+            valor={config.recuperacaoAtiva}
+            aoMudar={(v) => mudar({ recuperacaoAtiva: v })}
+          />
+        </ul>
+        {config.recuperacaoAtiva ? (
+          <label className="mt-4 block">
+            <span className="text-xs text-mute">Dias sem voltar</span>
             <input
-              type="checkbox"
-              checked={config.recuperacaoAtiva}
+              type="number"
+              min={7}
+              max={180}
+              inputMode="numeric"
+              value={dias}
               onChange={(e) => {
                 setOk(false);
-                setConfig({ ...config, recuperacaoAtiva: e.target.checked });
+                setDias(e.target.value);
               }}
-              className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
-              aria-label="Sugerir clientes sumidos"
+              className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
             />
-          </div>
-          {config.recuperacaoAtiva ? (
-            <label className="mt-3 block">
-              <span className="text-xs text-mute">Dias sem voltar</span>
-              <input
-                type="number"
-                min={7}
-                max={180}
-                inputMode="numeric"
-                value={dias}
-                onChange={(e) => {
-                  setOk(false);
-                  setDias(e.target.value);
-                }}
+          </label>
+        ) : null}
+      </Bloco>
 
-                className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
-              />
-            </label>
-          ) : null}
-        </div>
+      <Bloco titulo="Escalonamento" descricao="Quando a IA deve passar a conversa para a equipe.">
+        <ul className="space-y-4">
+          <Chave
+            rotulo="Encaminhar para atendimento humano"
+            detalhe="A IA chama a equipe quando o cliente pedir ou quando não souber responder."
+            valor={config.encaminhamentoHumano}
+            aoMudar={(v) => mudar({ encaminhamentoHumano: v })}
+          />
+        </ul>
+      </Bloco>
 
-        <button type="button" className="btn-primary mt-5 w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
-          {gravar.isPending ? "Salvando…" : "Salvar ajustes"}
+      <div className="rounded-lg border border-line bg-ink2 p-5">
+        <button type="button" className="btn-primary w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
+          {gravar.isPending ? "Salvando…" : "Salvar configurações"}
         </button>
-        {ok ? <p className="mt-2 text-center text-sm text-sage">Ajustes salvos.</p> : null}
+        {ok ? <p className="mt-2 text-center text-sm text-sage">Configurações salvas.</p> : null}
         {erro ? <p className="mt-2 text-center text-sm text-brick">{erro}</p> : null}
       </div>
 
+      <Bloco titulo="Atividade" descricao="Resumo do que está acontecendo agora.">
+        <dl className="space-y-3 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Conversas em andamento</dt>
+            <dd className="text-paper">{painel.conversasAtivas}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Conversas com a equipe</dt>
+            <dd className="text-paper">{painel.conversasComHumano}</dd>
+          </div>
+        </dl>
+        <Link to="/barbeiro/cortai-atividade" className="mt-4 block text-xs text-gold">
+          Ver assuntos, consultas e falhas →
+        </Link>
+      </Bloco>
+
+      <Bloco titulo="Integrações" descricao="O que a IA depende para funcionar.">
+        <dl className="space-y-3 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">WhatsApp</dt>
+            <dd>
+              <Selo
+                estado={whatsappConectado ? "conectado" : "desconectado"}
+                texto={whatsappConectado ? "Conectado" : painel.gatewayConfigurado ? "Desconectado" : "Não configurado"}
+              />
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-mute">Inteligência do CortAI</dt>
+            <dd>
+              <Selo
+                estado={painel.iaDisponivel ? "conectado" : "erro"}
+                texto={painel.iaDisponivel ? "Disponível" : "Indisponível"}
+              />
+            </dd>
+          </div>
+        </dl>
+      </Bloco>
+
       <BlocoInformacoes />
 
-      <div className="rounded-lg border border-line bg-ink2 p-5">
-        <h2 className="text-sm font-semibold text-paper">Mensagens automáticas</h2>
-        <p className="mt-1 text-xs text-mute">Ligue só o que fizer sentido para a sua barbearia.</p>
-        <ul className="mt-4 space-y-3">
+      <Bloco titulo="Mensagens automáticas" descricao="Ligue só o que fizer sentido para a sua barbearia.">
+        <ul className="space-y-3">
           {painel.automacoes.map((a) => (
             <li key={a.chave} className="flex items-center justify-between gap-4">
               <span className="text-xs text-paper">{AUTOMACOES[a.chave]}</span>
@@ -1050,7 +1224,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
             </li>
           ))}
         </ul>
-      </div>
+      </Bloco>
     </section>
   );
 }
