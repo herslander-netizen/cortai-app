@@ -44,7 +44,7 @@ const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sáb
 
 const ESTADOS: Record<PainelOperacional["estado"], { rotulo: string; cor: string }> = {
   conectado: { rotulo: "Conectado ao Cortaí", cor: "text-sage" },
-  sincronizando: { rotulo: "Sincronizando", cor: "text-gold" } as never,
+  
   nao_configurado: { rotulo: "Ainda não configurado", cor: "text-gold" },
   sem_dados: { rotulo: "Sem dados cadastrados", cor: "text-gold" },
   erro: { rotulo: "Erro de autenticação", cor: "text-brick" },
@@ -170,11 +170,16 @@ function LinhaAgendamento({
 
 function PainelIaPage() {
   const [aba, setAba] = useState<Aba>("Resumo");
-  const { data, isLoading, isError, error } = useQuery({
+  const [aviso, setAviso] = useState<string | null>(null);
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["painel-operacional-ia"],
     queryFn: () => getPainelOperacional() as Promise<PainelOperacional>,
     staleTime: 30_000,
   });
+  const atualizar = (texto: string) => {
+    setAviso(texto);
+    void refetch();
+  };
 
   return (
     <Screen
@@ -258,13 +263,25 @@ function PainelIaPage() {
 
           {aba === "Agenda" ? (
             <div className="space-y-6">
+              {aviso ? <Aviso tom="sucesso">{aviso}</Aviso> : null}
+              <AgendamentoManual
+                dia={diaDeHoje()}
+                rotulo="Novo agendamento"
+                onCriado={() => atualizar("Agendamento criado e já aparece na agenda.")}
+              />
               <section>
                 <SectionHeading title="Atendimentos de hoje" />
                 <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
                   {data.hoje.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nenhum atendimento hoje.</p>
                   ) : (
-                    data.hoje.map((a) => <LinhaAgendamento key={a.id} a={a} />)
+                    data.hoje.map((a) => (
+                      <LinhaAgendamento
+                        key={a.id}
+                        a={a}
+                        onMudou={() => atualizar("Agenda atualizada.")}
+                      />
+                    ))
                   )}
                 </div>
               </section>
@@ -277,7 +294,7 @@ function PainelIaPage() {
                     data.proximos.map((a) => (
                       <div key={a.id} className="border-b border-line py-3 last:border-b-0">
                         <p className="text-xs text-mute2">{dataHoraLonga(a.inicio)}</p>
-                        <LinhaAgendamento a={a} />
+                        <LinhaAgendamento a={a} onMudou={() => atualizar("Agenda atualizada.")} />
                       </div>
                     ))
                   )}
