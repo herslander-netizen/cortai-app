@@ -41,6 +41,7 @@ export function MeuPlano() {
   const [codigo, setCodigo] = useState("");
   const [aviso, setAviso] = useState("");
   const [erro, setErro] = useState("");
+  const acao = useAcao();
 
   const a = query.data;
   if (!a) return null;
@@ -127,8 +128,8 @@ export function MeuPlano() {
             className="w-full bg-transparent py-2.5 text-sm text-paper outline-none placeholder:text-mute2"
           />
         </span>
-        <button type="submit" className="btn-secondary px-4 text-xs" disabled={codigo.trim().length < 2}>
-          Aplicar
+        <button type="submit" className="btn-secondary px-4 text-xs disabled:opacity-60" disabled={acao.ocupado || codigo.trim().length < 2}>
+          {acao.estaEm("cupom") ? "Aplicando…" : "Aplicar"}
         </button>
       </form>
       {aviso ? <p className="mt-2 text-xs text-sage" role="status">{aviso}</p> : null}
