@@ -93,10 +93,12 @@ function ParceirosAdmin() {
           <input
             type="number"
             min={0}
-            value={form.ordem}
-            onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })}
+            inputMode="numeric"
+            value={ordem}
+            onChange={(e) => setOrdem(e.target.value)}
             className="field-control mt-1"
           />
+
         </label>
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm text-paper">Visível na página inicial</span>
