@@ -294,7 +294,7 @@ function PainelIaPage() {
                     data.proximos.map((a) => (
                       <div key={a.id} className="border-b border-line py-3 last:border-b-0">
                         <p className="text-xs text-mute2">{dataHoraLonga(a.inicio)}</p>
-                        <LinhaAgendamento a={a} />
+                        <LinhaAgendamento a={a} onMudou={() => atualizar("Agenda atualizada.")} />
                       </div>
                     ))
                   )}
