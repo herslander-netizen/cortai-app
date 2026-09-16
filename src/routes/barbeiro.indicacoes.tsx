@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { Aviso } from "@/components/ui/aviso";
+import { useAcao } from "@/hooks/useAcao";
 import {
   atualizarIndicacao,
   getIndicacoes,
@@ -34,6 +35,7 @@ function IndicacoesPage() {
   const registrar = useServerFn(registrarIndicacao);
   const atualizar = useServerFn(atualizarIndicacao);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["indicacoes"], queryFn: () => getIndicacoes() });
+  const acao = useAcao();
 
   const [ativa, setAtiva] = useState(false);
   const [codigo, setCodigo] = useState("");
@@ -94,18 +96,16 @@ function IndicacoesPage() {
 
         <button
           type="button"
-          className="btn-primary mt-5 w-full"
-          onClick={async () => {
-            try {
-              await salvarConfig({ data: { ativa, codigo, recompensa } });
-              setAviso("Programa salvo.");
-              refetch();
-            } catch (e) {
-              setAviso(e instanceof Error ? e.message : "Não foi possível salvar.");
-            }
-          }}
+          className="btn-primary mt-5 w-full disabled:opacity-60"
+          disabled={acao.ocupado}
+          onClick={() =>
+            acao.executar("config", () => salvarConfig({ data: { ativa, codigo, recompensa } }), {
+              sucesso: "Programa de indicações salvo.",
+              aoConcluir: async () => { await refetch(); },
+            })
+          }
         >
-          Salvar programa
+          {acao.estaEm("config") ? "Salvando…" : "Salvar programa"}
         </button>
 
         <div className="mt-5 border-t border-line pt-4">
@@ -136,15 +136,16 @@ function IndicacoesPage() {
         />
         <button
           type="button"
-          className="btn-primary shrink-0 px-4"
-          onClick={async () => {
-            if (novo.trim().length < 2) return;
-            await registrar({ data: { indicadorClienteId: null, indicadoNome: novo.trim() } });
-            setNovo("");
-            refetch();
-          }}
+          className="btn-primary shrink-0 px-4 disabled:opacity-60"
+          disabled={acao.ocupado || novo.trim().length < 2}
+          onClick={() =>
+            acao.executar("registrar", () => registrar({ data: { indicadorClienteId: null, indicadoNome: novo.trim() } }), {
+              sucesso: "Indicação registrada.",
+              aoConcluir: async () => { setNovo(""); await refetch(); },
+            })
+          }
         >
-          Adicionar
+          {acao.estaEm("registrar") ? "Salvando…" : "Adicionar"}
         </button>
       </div>
 
@@ -170,25 +171,31 @@ function IndicacoesPage() {
               {i.status !== "convertido" ? (
                 <button
                   type="button"
-                  className="btn-tertiary text-xs"
-                  onClick={async () => {
-                    await atualizar({ data: { id: i.id, acao: "converter" } });
-                    refetch();
-                  }}
+                  className="btn-tertiary text-xs disabled:opacity-60"
+                  disabled={acao.ocupado}
+                  onClick={() =>
+                    acao.executar(`converter-${i.id}`, () => atualizar({ data: { id: i.id, acao: "converter" } }), {
+                      sucesso: `${i.indicado} marcado como cliente.`,
+                      aoConcluir: async () => { await refetch(); },
+                    })
+                  }
                 >
-                  Marcar como cliente
+                  {acao.estaEm(`converter-${i.id}`) ? "Salvando…" : "Marcar como cliente"}
                 </button>
               ) : null}
               {!i.recompensaEntregue ? (
                 <button
                   type="button"
-                  className="btn-tertiary text-xs"
-                  onClick={async () => {
-                    await atualizar({ data: { id: i.id, acao: "recompensar" } });
-                    refetch();
-                  }}
+                  className="btn-tertiary text-xs disabled:opacity-60"
+                  disabled={acao.ocupado}
+                  onClick={() =>
+                    acao.executar(`recompensar-${i.id}`, () => atualizar({ data: { id: i.id, acao: "recompensar" } }), {
+                      sucesso: "Recompensa registrada.",
+                      aoConcluir: async () => { await refetch(); },
+                    })
+                  }
                 >
-                  Recompensa entregue
+                  {acao.estaEm(`recompensar-${i.id}`) ? "Salvando…" : "Recompensa entregue"}
                 </button>
               ) : null}
               <ExclusaoPermanente

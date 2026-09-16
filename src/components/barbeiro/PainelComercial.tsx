@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAcao } from "@/hooks/useAcao";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { BadgeCheck, Sparkles, Ticket } from "lucide-react";
@@ -40,6 +41,7 @@ export function MeuPlano() {
   const [codigo, setCodigo] = useState("");
   const [aviso, setAviso] = useState("");
   const [erro, setErro] = useState("");
+  const acao = useAcao();
 
   const a = query.data;
   if (!a) return null;
@@ -99,18 +101,18 @@ export function MeuPlano() {
 
       <form
         className="mt-4 flex gap-2"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
           setAviso("");
           setErro("");
-          try {
-            const r = await aplicar({ data: { codigo } });
-            setAviso(`Cupom ${r.codigo} aplicado.`);
-            setCodigo("");
-            await query.refetch();
-          } catch (err) {
-            setErro(err instanceof Error ? err.message : "Não deu para aplicar o cupom.");
-          }
+          void acao.executar("cupom", () => aplicar({ data: { codigo } }), {
+            erro: "Não deu para aplicar o cupom.",
+            aoConcluir: async (r) => {
+              setAviso(`Cupom ${r.codigo} aplicado.`);
+              setCodigo("");
+              await query.refetch();
+            },
+          });
         }}
       >
         <label className="sr-only" htmlFor="cupom">
@@ -126,8 +128,8 @@ export function MeuPlano() {
             className="w-full bg-transparent py-2.5 text-sm text-paper outline-none placeholder:text-mute2"
           />
         </span>
-        <button type="submit" className="btn-secondary px-4 text-xs" disabled={codigo.trim().length < 2}>
-          Aplicar
+        <button type="submit" className="btn-secondary px-4 text-xs disabled:opacity-60" disabled={acao.ocupado || codigo.trim().length < 2}>
+          {acao.estaEm("cupom") ? "Aplicando…" : "Aplicar"}
         </button>
       </form>
       {aviso ? <p className="mt-2 text-xs text-sage" role="status">{aviso}</p> : null}

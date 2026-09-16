@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EmptyState } from "@/components/ui/section";
+import { useAcao } from "@/hooks/useAcao";
 import { listarParceirosAdmin, removerParceiro, salvarParceiro, type Parceiro } from "@/lib/parceiros.functions";
 
 export const Route = createFileRoute("/admin/parceiros")({
@@ -32,6 +33,7 @@ function ParceirosAdmin() {
   const [form, setForm] = useState<typeof VAZIO & { id?: string }>(VAZIO);
   const [ordem, setOrdem] = useState("0");
   const [erro, setErro] = useState<string | null>(null);
+  const acao = useAcao();
 
 
   const parceiros = (consulta.data ?? []) as Parceiro[];
@@ -42,28 +44,33 @@ function ParceirosAdmin() {
 
       <form
         className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
-        onSubmit={async (event) => {
+        onSubmit={(event) => {
           event.preventDefault();
           setErro(null);
           if (ordem.trim() !== "" && !Number.isFinite(Number(ordem))) { setErro("Informe uma ordem válida."); return; }
-          try {
-            await salvar({
-              data: {
-                ...(form.id ? { id: form.id } : {}),
-                nome: form.nome,
-                logo_url: form.logo_url || null,
-                link: form.link || null,
-                ordem: ordem.trim() === "" ? 0 : Number(ordem),
-                ativo: form.ativo,
+          const editando = Boolean(form.id);
+          void acao.executar(
+            "salvar",
+            () =>
+              salvar({
+                data: {
+                  ...(form.id ? { id: form.id } : {}),
+                  nome: form.nome,
+                  logo_url: form.logo_url || null,
+                  link: form.link || null,
+                  ordem: ordem.trim() === "" ? 0 : Number(ordem),
+                  ativo: form.ativo,
+                },
+              }),
+            {
+              sucesso: editando ? "Parceiro salvo." : "Parceiro adicionado.",
+              aoConcluir: async () => {
+                setForm(VAZIO);
+                setOrdem("0");
+                await consulta.refetch();
               },
-            });
-            setForm(VAZIO);
-            setOrdem("0");
-            await consulta.refetch();
-
-          } catch (e) {
-            setErro((e as Error).message);
-          }
+            },
+          );
         }}
       >
         <p className="text-sm font-semibold text-paper">{form.id ? "Editar parceiro" : "Novo parceiro"}</p>
@@ -110,7 +117,7 @@ function ParceirosAdmin() {
           <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} aria-label="Parceiro visível" />
         </div>
         <div className="flex gap-2">
-          <Button className="flex-1">{form.id ? "Salvar" : "Adicionar"}</Button>
+          <Button className="flex-1" disabled={acao.ocupado}>{acao.estaEm("salvar") ? "Salvando…" : form.id ? "Salvar" : "Adicionar"}</Button>
           {form.id ? (
             <Button type="button" variant="ghost" onClick={() => { setForm(VAZIO); setOrdem("0"); }}>Cancelar</Button>
           ) : null}
@@ -152,13 +159,20 @@ function ParceirosAdmin() {
               </button>
               <button
                 type="button"
-                className="text-xs text-brick"
-                onClick={async () => {
-                  await remover({ data: { id: parceiro.id } });
-                  await consulta.refetch();
+                className="text-xs text-brick disabled:opacity-60"
+                disabled={acao.ocupado}
+                onClick={() => {
+                  if (!window.confirm(`Remover o parceiro ${parceiro.nome} da página inicial?`)) return;
+                  void acao.executar(`remover-${parceiro.id}`, () => remover({ data: { id: parceiro.id } }), {
+                    sucesso: "Parceiro removido.",
+                    aoConcluir: async () => {
+                      if (form.id === parceiro.id) { setForm(VAZIO); setOrdem("0"); }
+                      await consulta.refetch();
+                    },
+                  });
                 }}
               >
-                Remover
+                {acao.estaEm(`remover-${parceiro.id}`) ? "Removendo…" : "Remover"}
               </button>
             </span>
           </li>

@@ -17,6 +17,8 @@ import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
 import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
+import { Toaster } from "@/components/ui/sonner";
+
 
 function NotFoundComponent() {
   return (
@@ -139,8 +141,10 @@ function RootComponent() {
       <GlobalDesign>
         <GuiaProvider>
           <Outlet />
+          <Toaster position="top-center" closeButton richColors />
           <BannerDeCookies />
           <AvisoDeVersao />
+
         </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>

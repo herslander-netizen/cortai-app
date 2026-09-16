@@ -8,6 +8,7 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { dataCurta } from "@/lib/format";
 import { getAvaliacoes, registrarAvaliacao, salvarLinkAvaliacao } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { useAcao } from "@/hooks/useAcao";
 
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
@@ -51,6 +52,7 @@ function AvaliacoesPage() {
   const [comentarios, setComentarios] = useState<Record<string, string>>({});
   const [link, setLink] = useState("");
   const [convite, setConvite] = useState<string | null>(null);
+  const acao = useAcao();
 
   useEffect(() => {
     if (data) setLink(data.linkPublico ?? "");
@@ -76,13 +78,16 @@ function AvaliacoesPage() {
       </label>
       <button
         type="button"
-        className="btn-tertiary mt-2 text-xs"
-        onClick={async () => {
-          await salvarLink({ data: { link } });
-          refetch();
-        }}
+        className="btn-tertiary mt-2 text-xs disabled:opacity-60"
+        disabled={acao.ocupado}
+        onClick={() =>
+          acao.executar("link", () => salvarLink({ data: { link } }), {
+            sucesso: "Link de avaliação salvo.",
+            aoConcluir: async () => { await refetch(); },
+          })
+        }
       >
-        Salvar link
+        {acao.estaEm("link") ? "Salvando…" : "Salvar link"}
       </button>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Atendimentos sem avaliação</h2>
@@ -110,22 +115,29 @@ function AvaliacoesPage() {
                   />
                   <button
                     type="button"
-                    className="btn-tertiary mt-2 text-xs"
-                    onClick={async () => {
-                      const r = await registrar({
-                        data: { agendamentoId: p.id, nota, comentario: comentarios[p.id] ?? "" },
-                      });
-                      setConvite(
-                        r.convidarPublico && r.link
-                          ? `${p.cliente} gostou. Convide para avaliar publicamente: ${r.link}`
-                          : r.convidarPublico
-                            ? `${p.cliente} gostou. Cadastre o link público acima para convidar.`
-                            : "Feedback registrado internamente.",
-                      );
-                      refetch();
-                    }}
+                    className="btn-tertiary mt-2 text-xs disabled:opacity-60"
+                    disabled={acao.ocupado}
+                    onClick={() =>
+                      acao.executar(
+                        `avaliar-${p.id}`,
+                        () => registrar({ data: { agendamentoId: p.id, nota, comentario: comentarios[p.id] ?? "" } }),
+                        {
+                          sucesso: "Avaliação registrada.",
+                          aoConcluir: async (r) => {
+                            setConvite(
+                              r.convidarPublico && r.link
+                                ? `${p.cliente} gostou. Convide para avaliar publicamente: ${r.link}`
+                                : r.convidarPublico
+                                  ? `${p.cliente} gostou. Cadastre o link público acima para convidar.`
+                                  : "Feedback registrado internamente.",
+                            );
+                            await refetch();
+                          },
+                        },
+                      )
+                    }
                   >
-                    Registrar avaliação
+                    {acao.estaEm(`avaliar-${p.id}`) ? "Salvando…" : "Registrar avaliação"}
                   </button>
                 </>
               ) : null}

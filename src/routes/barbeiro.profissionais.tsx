@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
-import { Aviso } from "@/components/ui/aviso";
+import { useAcao } from "@/hooks/useAcao";
 import { Carregando } from "@/components/layout/Carregando";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
@@ -30,7 +30,8 @@ function ProfissionaisPage() {
   });
 
   const [form, setForm] = useState<Record<string, { descricao: string; fotos: string }>>({});
-  const [aviso, setAviso] = useState<string | null>(null);
+  const acao = useAcao();
+
 
   useEffect(() => {
     if (!data) return;
@@ -45,7 +46,7 @@ function ProfissionaisPage() {
     <Screen voltarPara="/barbeiro/mais" title="Profissionais" subtitle="O que aparece na sua página pública.">
       {isLoading ? <Carregando /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
-      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
+      
 
       <ul className="space-y-6">
         {(data ?? []).map((p) => {
@@ -77,28 +78,29 @@ function ProfissionaisPage() {
               <button
                 type="button"
                 className="btn-tertiary mt-4 text-xs"
-                onClick={async () => {
-                  try {
-                    await salvar({
-                      data: {
-                        id: p.id,
-                        descricao: atual.descricao,
-                        portfolio: atual.fotos
-                          .split("\n")
-                          .map((f) => f.trim())
-                          .filter(Boolean)
-                          .slice(0, 6),
-                      },
-                    });
-                    setAviso(`Perfil de ${p.nome} salvo.`);
-                    refetch();
-                  } catch (e) {
-                    setAviso(e instanceof Error ? e.message : "Não foi possível salvar.");
-                  }
-                }}
+                disabled={acao.ocupado}
+                onClick={() =>
+                  acao.executar(
+                    p.id,
+                    () =>
+                      salvar({
+                        data: {
+                          id: p.id,
+                          descricao: atual.descricao,
+                          portfolio: atual.fotos
+                            .split("\n")
+                            .map((f) => f.trim())
+                            .filter(Boolean)
+                            .slice(0, 6),
+                        },
+                      }),
+                    { sucesso: `Perfil de ${p.nome} salvo.`, aoConcluir: async () => { await refetch(); } },
+                  )
+                }
               >
-                Salvar perfil
+                {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
               </button>
+
             </li>
           );
         })}

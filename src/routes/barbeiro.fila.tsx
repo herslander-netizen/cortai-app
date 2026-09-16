@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
+import { useAcao } from "@/hooks/useAcao";
 import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
-import { Aviso } from "@/components/ui/aviso";
 import { Carregando } from "@/components/layout/Carregando";
+
 
 export const Route = createFileRoute("/barbeiro/fila")({
   head: () => ({
@@ -31,14 +31,14 @@ function janelaTexto(inicio: number | null, fim: number | null) {
 function FilaPage() {
   const avisar = useServerFn(avisarFila);
   const remover = useServerFn(removerDaFila);
-  const [aviso, setAviso] = useState<string | null>(null);
+  const acao = useAcao();
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
-      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
       {isLoading ? <Carregando /> : null}
+
 
       {data ? (
         <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
@@ -73,25 +73,31 @@ function FilaPage() {
                 <button
                   type="button"
                   className="btn-tertiary text-xs"
-                  onClick={async () => {
-                    await avisar({ data: { filaId: f.id } });
-                    setAviso(`${f.cliente} foi avisado. Quem responder primeiro fica com a vaga.`);
-                    refetch();
-                  }}
+                  disabled={acao.ocupado}
+                  onClick={() =>
+                    acao.executar(`avisar-${f.id}`, () => avisar({ data: { filaId: f.id } }), {
+                      sucesso: `${f.cliente} foi avisado. Quem responder primeiro fica com a vaga.`,
+                      aoConcluir: async () => { await refetch(); },
+                    })
+                  }
                 >
-                  Avisar
+                  {acao.estaEm(`avisar-${f.id}`) ? "Avisando…" : "Avisar"}
                 </button>
                 <button
                   type="button"
-                  className="text-xs text-brick underline"
-                  onClick={async () => {
-                    await remover({ data: { filaId: f.id } });
-                    setAviso(`${f.cliente} saiu da fila.`);
-                    refetch();
+                  className="text-xs text-brick underline disabled:opacity-60"
+                  disabled={acao.ocupado}
+                  onClick={() => {
+                    if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
+                    void acao.executar(`remover-${f.id}`, () => remover({ data: { filaId: f.id } }), {
+                      sucesso: `${f.cliente} saiu da fila.`,
+                      aoConcluir: async () => { await refetch(); },
+                    });
                   }}
                 >
-                  Tirar da fila
+                  {acao.estaEm(`remover-${f.id}`) ? "Removendo…" : "Tirar da fila"}
                 </button>
+
               </div>
             </div>
           </li>

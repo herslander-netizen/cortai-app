@@ -8,7 +8,9 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
+import { useAcao } from "@/hooks/useAcao";
 import { definirLojaAtiva, getProdutos, registrarVendaProduto, salvarProduto } from "@/lib/gestao.functions";
+
 
 export const Route = createFileRoute("/barbeiro/produtos")({
   head: () => ({ meta: [
@@ -57,9 +59,10 @@ function ProdutosPage() {
   const vender = useServerFn(registrarVendaProduto);
   const alternarLoja = useServerFn(definirLojaAtiva);
   const query = useQuery({ queryKey: ["produtos"], queryFn: () => getProdutos(), retry: false });
+  const acao = useAcao();
   const [novo, setNovo] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+
   const [form, setForm] = useState<Form>(FORM_VAZIO);
   const NUMEROS_VAZIOS = { custo: "", preco: "", quantidade: "0", estoque_minimo: "3" };
   const [numeros, setNumeros] = useState(NUMEROS_VAZIOS);
@@ -78,19 +81,16 @@ function ProdutosPage() {
           </div>
           <Switch
             checked={loja.ativa}
-            disabled={!loja.liberada}
+            disabled={!loja.liberada || acao.ocupado}
             aria-label="Loja online"
-            onCheckedChange={async (valor) => {
-              setErro(null);
-              try {
-                await alternarLoja({ data: { ativa: valor } });
-                await query.refetch();
-                setStatus(valor ? "Loja ativada." : "Loja desativada. Nenhum produto foi apagado.");
-              } catch (e) {
-                setErro((e as Error).message);
-              }
-            }}
+            onCheckedChange={(valor) =>
+              acao.executar("loja", () => alternarLoja({ data: { ativa: valor } }), {
+                sucesso: valor ? "Loja ativada." : "Loja desativada. Nenhum produto foi apagado.",
+                aoConcluir: async () => { await query.refetch(); },
+              })
+            }
           />
+
         </div>
         {!loja.liberada ? (
           <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.</p>
@@ -105,7 +105,7 @@ function ProdutosPage() {
 
     <Button data-guia="produtos-novo" variant="outline" className="mt-5 w-full" onClick={() => setNovo((value) => !value)}><PackagePlus /> Novo produto</Button>
 
-    {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={async (event) => {
+    {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={(event) => {
       event.preventDefault();
       setErro(null);
       const numero = (valor: string) => (valor.trim() === "" || !Number.isFinite(Number(valor)) ? null : Number(valor));
@@ -116,15 +116,21 @@ function ProdutosPage() {
       const custo = numero(numeros.custo);
       const preco = numero(numeros.preco);
       if (form.disponivel_venda && preco === null) { setErro("Informe o preço de venda do produto."); return; }
-      try {
-        await salvar({ data: { ...form, custo_centavos: Math.round((custo ?? 0) * 100), preco_centavos: Math.round((preco ?? 0) * 100), quantidade, estoque_minimo: estoqueMinimo } });
-        setNovo(false);
-        setForm(FORM_VAZIO);
-        setNumeros(NUMEROS_VAZIOS);
-        await query.refetch();
-        setStatus("Produto salvo.");
-      } catch (e) { setErro((e as Error).message); }
+      void acao.executar(
+        "novo-produto",
+        () => salvar({ data: { ...form, custo_centavos: Math.round((custo ?? 0) * 100), preco_centavos: Math.round((preco ?? 0) * 100), quantidade, estoque_minimo: estoqueMinimo } }),
+        {
+          sucesso: "Produto salvo.",
+          aoConcluir: async () => {
+            setNovo(false);
+            setForm(FORM_VAZIO);
+            setNumeros(NUMEROS_VAZIOS);
+            await query.refetch();
+          },
+        },
+      );
     }}>
+
       <input required placeholder="Nome do produto" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="input-premium" />
       <input placeholder="URL da foto" value={form.foto_url ?? ""} onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })} className="input-premium" />
       <input required placeholder="Categoria" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} className="input-premium" />
@@ -141,11 +147,11 @@ function ProdutosPage() {
         <Escolha titulo="Uso interno / somente estoque" descricao="Você controla a quantidade aqui dentro. O cliente não vê este produto." ativo={form.controla_estoque} onChange={(v) => setForm({ ...form, controla_estoque: v })} />
         <Escolha titulo="Disponível para venda" descricao="Aparece na loja para o cliente quando a loja online estiver ativada e houver preço." ativo={form.disponivel_venda} onChange={(v) => setForm({ ...form, disponivel_venda: v })} />
       </div>
-      <Button className="h-11 w-full font-bold">Salvar produto</Button>
+      <Button className="h-11 w-full font-bold" disabled={acao.ocupado}>{acao.estaEm("novo-produto") ? "Salvando…" : "Salvar produto"}</Button>
     </form> : null}
 
-    {status ? <p className="mt-4 text-sm text-sage" role="status">{status}</p> : null}
     {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
+
     {query.data?.produtos.length === 0 ? <div className="mt-5"><EmptyState text="Nenhum produto cadastrado." /></div> : null}
 
     <ul data-guia="produtos-lista" className="mt-5">{query.data?.produtos.map((produto: any) => {
@@ -162,21 +168,37 @@ function ProdutosPage() {
           </p>
         </div>
         <div className="grid gap-1.5">
-          <Button data-guia="produtos-venda" size="sm" variant="outline" disabled={produto.quantidade < 1} onClick={async () => { await vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }); setStatus(`${produto.nome}: venda registrada.`); await query.refetch(); }}>Vender</Button>
-          <Button size="sm" variant="ghost" className="text-[11px]" onClick={async () => {
-            setErro(null);
-            try {
-              await salvar({ data: {
+          <Button
+            data-guia="produtos-venda"
+            size="sm"
+            variant="outline"
+            disabled={produto.quantidade < 1 || acao.ocupado}
+            onClick={() =>
+              acao.executar(`vender-${produto.id}`, () => vender({ data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" } }), {
+                sucesso: `${produto.nome}: venda registrada.`,
+                aoConcluir: async () => { await query.refetch(); },
+              })
+            }
+          >
+            {acao.estaEm(`vender-${produto.id}`) ? "Registrando…" : "Vender"}
+          </Button>
+          <Button size="sm" variant="ghost" className="text-[11px]" disabled={acao.ocupado} onClick={() =>
+            acao.executar(
+              `loja-${produto.id}`,
+              () => salvar({ data: {
                 id: produto.id, nome: produto.nome, foto_url: produto.foto_url, categoria: produto.categoria,
                 custo_centavos: produto.custo_centavos, preco_centavos: produto.preco_centavos,
                 quantidade: produto.quantidade, estoque_minimo: produto.estoque_minimo, ativo: produto.ativo,
                 controla_estoque: produto.controla_estoque, disponivel_venda: !produto.disponivel_venda,
-              } });
-              await query.refetch();
-              setStatus(produto.disponivel_venda ? `${produto.nome} saiu da loja.` : `${produto.nome} entrou na loja.`);
-            } catch (e) { setErro((e as Error).message); }
-          }}>{produto.disponivel_venda ? "Tirar da loja" : "Pôr à venda"}</Button>
+              } }),
+              {
+                sucesso: produto.disponivel_venda ? `${produto.nome} saiu da loja.` : `${produto.nome} entrou na loja.`,
+                aoConcluir: async () => { await query.refetch(); },
+              },
+            )
+          }>{acao.estaEm(`loja-${produto.id}`) ? "Atualizando…" : produto.disponivel_venda ? "Tirar da loja" : "Pôr à venda"}</Button>
         </div>
+
       </li>;
     })}</ul>
   </Screen>;
