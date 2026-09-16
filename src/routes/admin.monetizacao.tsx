@@ -417,6 +417,7 @@ function MudarPlano({
   onSalvar: (dados: { planoChave: string; ciclo: "mensal" | "anual"; status: "teste" | "ativa" | "vencida" | "cancelada"; diasDeTeste: number | null }) => Promise<void>;
 }) {
   const [f, setF] = useState({ plano: atual.planoChave, ciclo: atual.ciclo, status: atual.status, dias: "14" });
+  const acao = useAcao();
   return (
     <form
       className="mt-4 grid gap-3 rounded-xl border border-line bg-ink2 p-4 sm:grid-cols-4"
@@ -427,7 +428,7 @@ function MudarPlano({
           ciclo: f.ciclo as "mensal" | "anual",
           status: f.status as "teste" | "ativa" | "vencida" | "cancelada",
           diasDeTeste: f.status === "teste" ? Number(f.dias || 0) : null,
-        });
+        }));
       }}
     >
       <Campo label="Plano">
