@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
+import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
 import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
 import { Carregando } from "@/components/layout/Carregando";
@@ -43,7 +44,7 @@ function FidelidadePage() {
 
   const [alvo, setAlvo] = useState(10);
   const [ativo, setAtivo] = useState(false);
-  const [salvando, setSalvando] = useState(false);
+  const acao = useAcao();
   const [ok, setOk] = useState(false);
 
   useEffect(() => {
