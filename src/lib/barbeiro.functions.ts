@@ -931,3 +931,51 @@ export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ------------------- REMARCAR E CANCELAR PELO PAINEL ---------------------- */
+
+/** Remarcar = cancelar pelas regras atuais e recriar com o mesmo serviço. */
+export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { agendamentoId: string; novoInicio: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, cliente_id, servico_id, profissional_id, forma_pagamento")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    const { error: erroCancelar } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (erroCancelar) throw new Error(erroCancelar.message);
+    const { data: novo, error } = await db.rpc("criar_agendamento", {
+      _tenant_id: tenant.id,
+      _cliente_id: atual.cliente_id,
+      _profissional_id: atual.profissional_id,
+      _servico_id: atual.servico_id,
+      _inicio: data.novoInicio,
+      _forma_pagamento: atual.forma_pagamento ?? "balcao",
+    });
+    if (error) throw new Error(error.message);
+    return novo as unknown as { agendamento_id?: string };
+  });
+
+export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { agendamentoId: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
