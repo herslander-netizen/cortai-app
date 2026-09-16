@@ -263,13 +263,25 @@ function PainelIaPage() {
 
           {aba === "Agenda" ? (
             <div className="space-y-6">
+              {aviso ? <Aviso tom="sucesso">{aviso}</Aviso> : null}
+              <AgendamentoManual
+                dia={diaDeHoje()}
+                rotulo="Novo agendamento"
+                onCriado={() => atualizar("Agendamento criado e já aparece na agenda.")}
+              />
               <section>
                 <SectionHeading title="Atendimentos de hoje" />
                 <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
                   {data.hoje.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nenhum atendimento hoje.</p>
                   ) : (
-                    data.hoje.map((a) => <LinhaAgendamento key={a.id} a={a} />)
+                    data.hoje.map((a) => (
+                      <LinhaAgendamento
+                        key={a.id}
+                        a={a}
+                        onMudou={() => atualizar("Agenda atualizada.")}
+                      />
+                    ))
                   )}
                 </div>
               </section>
