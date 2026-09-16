@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Bot, Loader2, MessageCircle, Send, ShieldCheck, Smartphone, X } from "lucide-react";
 
@@ -111,7 +111,7 @@ function CortaiPage() {
               [
                 ["whatsapp", "WhatsApp"],
                 ["conversas", "Conversas"],
-                ["ajustes", "Ajustes"],
+                ["ajustes", "IA do Cortaí"],
               ] as [Aba, string][]
             ).map(([id, rotulo]) => (
               <button
@@ -871,7 +871,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
 
 /* ----------------------------- IA do Cortaí ------------------------------ */
 
-function Bloco({ titulo, descricao, children }: { titulo: string; descricao?: string; children: React.ReactNode }) {
+function Bloco({ titulo, descricao, children }: { titulo: string; descricao?: string; children: ReactNode }) {
   return (
     <div className="rounded-lg border border-line bg-ink2 p-5">
       <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
