@@ -17,6 +17,8 @@ export function EditorDeServicos({
 }) {
   const interpretar = useServerFn(interpretarServicos);
   const [texto, setTexto] = useState("");
+  const [rascunho, setRascunho] = useState<Record<string, string>>({});
+
   const [pensando, setPensando] = useState(false);
   const [previa, setPrevia] = useState<ServicoSugerido[] | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
