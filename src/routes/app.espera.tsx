@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
+import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
 
 export const Route = createFileRoute("/app/espera")({
@@ -33,6 +34,7 @@ function EsperaPage() {
   const [janela, setJanela] = useState(0);
   const [status, setStatus] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
+  const acao = useAcao();
 
   const escolhida = JANELAS[janela] ?? JANELAS[0];
 
@@ -76,25 +78,32 @@ function EsperaPage() {
 
           <button
             type="button"
-            className="btn-primary mt-7 w-full"
-            onClick={async () => {
-              try {
-                const r = await entrar({
-                  data: {
-                    nome: nome.trim(),
-                    telefone: telefone.trim(),
-                    janelaInicio: escolhida.inicio,
-                    janelaFim: escolhida.fim,
+            className="btn-primary mt-7 w-full disabled:opacity-60"
+            disabled={acao.ocupado || nome.trim().length < 2 || telefone.trim().length < 8}
+            onClick={() => {
+              setStatus(null);
+              void acao.executar(
+                "fila",
+                () =>
+                  entrar({
+                    data: {
+                      nome: nome.trim(),
+                      telefone: telefone.trim(),
+                      janelaInicio: escolhida.inicio,
+                      janelaFim: escolhida.fim,
+                    },
+                  }),
+                {
+                  erro: "Confira o nome e o WhatsApp e tente de novo.",
+                  aoConcluir: (r) => {
+                    setStatus(`Você é o número ${r.posicao} da fila. Quem responder primeiro fica com a vaga.`);
+                    setPronto(true);
                   },
-                });
-                setStatus(`Você é o número ${r.posicao} da fila. Quem responder primeiro fica com a vaga.`);
-                setPronto(true);
-              } catch {
-                setStatus("Confira o nome e o WhatsApp e tente de novo.");
-              }
+                },
+              ).catch(() => setStatus("Confira o nome e o WhatsApp e tente de novo."));
             }}
           >
-            Entrar na lista de espera
+            {acao.estaEm("fila") ? "Entrando na lista…" : "Entrar na lista de espera"}
           </button>
           {status && !pronto ? <p className="mt-3 text-sm text-brick">{status}</p> : null}
         </>
