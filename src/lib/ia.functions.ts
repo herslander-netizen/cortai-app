@@ -448,16 +448,15 @@ export const getPainelOperacional = createServerFn({ method: "GET" })
         .in("cliente_id", idsDeClientes)
         .not("status", "in", "(cancelado,falta)")
         .lte("inicio", agora.toISOString());
-      visitasPorCliente = ((visitas ?? []) as Record<string, any>[]).reduce((mapa, linha) => {
+      for (const linha of (visitas ?? []) as Record<string, any>[]) {
         const id = linha["cliente_id"] as string;
         const inicio = linha["inicio"] as string;
-        const atual = mapa.get(id);
-        mapa.set(id, {
+        const atual = visitasPorCliente.get(id);
+        visitasPorCliente.set(id, {
           total: (atual?.total ?? 0) + 1,
           ultima: !atual || inicio > atual.ultima ? inicio : atual.ultima,
         });
-        return mapa;
-      }, new Map<string, { total: number; ultima: string }>());
+      }
     }
 
     const chave = integracao.data as Record<string, any> | null;
