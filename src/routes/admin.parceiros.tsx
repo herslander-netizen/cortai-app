@@ -30,7 +30,9 @@ function ParceirosAdmin() {
   const salvar = useServerFn(salvarParceiro);
   const remover = useServerFn(removerParceiro);
   const [form, setForm] = useState<typeof VAZIO & { id?: string }>(VAZIO);
+  const [ordem, setOrdem] = useState("0");
   const [erro, setErro] = useState<string | null>(null);
+
 
   const parceiros = (consulta.data ?? []) as Parceiro[];
 
@@ -43,6 +45,7 @@ function ParceirosAdmin() {
         onSubmit={async (event) => {
           event.preventDefault();
           setErro(null);
+          if (ordem.trim() !== "" && !Number.isFinite(Number(ordem))) { setErro("Informe uma ordem válida."); return; }
           try {
             await salvar({
               data: {
@@ -50,12 +53,14 @@ function ParceirosAdmin() {
                 nome: form.nome,
                 logo_url: form.logo_url || null,
                 link: form.link || null,
-                ordem: Number(form.ordem) || 0,
+                ordem: ordem.trim() === "" ? 0 : Number(ordem),
                 ativo: form.ativo,
               },
             });
             setForm(VAZIO);
+            setOrdem("0");
             await consulta.refetch();
+
           } catch (e) {
             setErro((e as Error).message);
           }
@@ -93,10 +98,12 @@ function ParceirosAdmin() {
           <input
             type="number"
             min={0}
-            value={form.ordem}
-            onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })}
+            inputMode="numeric"
+            value={ordem}
+            onChange={(e) => setOrdem(e.target.value)}
             className="field-control mt-1"
           />
+
         </label>
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm text-paper">Visível na página inicial</span>
@@ -105,7 +112,7 @@ function ParceirosAdmin() {
         <div className="flex gap-2">
           <Button className="flex-1">{form.id ? "Salvar" : "Adicionar"}</Button>
           {form.id ? (
-            <Button type="button" variant="ghost" onClick={() => setForm(VAZIO)}>Cancelar</Button>
+            <Button type="button" variant="ghost" onClick={() => { setForm(VAZIO); setOrdem("0"); }}>Cancelar</Button>
           ) : null}
         </div>
         {erro ? (
@@ -128,7 +135,8 @@ function ParceirosAdmin() {
               <button
                 type="button"
                 className="text-xs text-gold"
-                onClick={() =>
+                onClick={() => {
+                  setOrdem(String(parceiro.ordem));
                   setForm({
                     id: parceiro.id,
                     nome: parceiro.nome,
@@ -136,8 +144,9 @@ function ParceirosAdmin() {
                     link: parceiro.link ?? "",
                     ordem: parceiro.ordem,
                     ativo: parceiro.ativo,
-                  })
-                }
+                  });
+                }}
+
               >
                 Editar
               </button>

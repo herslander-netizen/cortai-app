@@ -61,6 +61,9 @@ function ProdutosPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [form, setForm] = useState<Form>(FORM_VAZIO);
+  const NUMEROS_VAZIOS = { custo: "", preco: "", quantidade: "0", estoque_minimo: "3" };
+  const [numeros, setNumeros] = useState(NUMEROS_VAZIOS);
+
   const loja = query.data?.loja;
 
   return <Screen voltarPara="/barbeiro/mais" title="Produtos e loja" subtitle="O que você guarda no estoque e o que vende para o cliente.">
@@ -105,10 +108,19 @@ function ProdutosPage() {
     {novo ? <form className="surface-card mt-5 space-y-3 p-4 md:max-w-3xl md:p-5" onSubmit={async (event) => {
       event.preventDefault();
       setErro(null);
+      const numero = (valor: string) => (valor.trim() === "" || !Number.isFinite(Number(valor)) ? null : Number(valor));
+      const quantidade = numero(numeros.quantidade);
+      const estoqueMinimo = numero(numeros.estoque_minimo);
+      if (quantidade === null) { setErro("Informe a quantidade em estoque."); return; }
+      if (estoqueMinimo === null) { setErro("Informe o estoque mínimo."); return; }
+      const custo = numero(numeros.custo);
+      const preco = numero(numeros.preco);
+      if (form.disponivel_venda && preco === null) { setErro("Informe o preço de venda do produto."); return; }
       try {
-        await salvar({ data: form });
+        await salvar({ data: { ...form, custo_centavos: Math.round((custo ?? 0) * 100), preco_centavos: Math.round((preco ?? 0) * 100), quantidade, estoque_minimo: estoqueMinimo } });
         setNovo(false);
         setForm(FORM_VAZIO);
+        setNumeros(NUMEROS_VAZIOS);
         await query.refetch();
         setStatus("Produto salvo.");
       } catch (e) { setErro((e as Error).message); }
@@ -117,13 +129,14 @@ function ProdutosPage() {
       <input placeholder="URL da foto" value={form.foto_url ?? ""} onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })} className="input-premium" />
       <input required placeholder="Categoria" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} className="input-premium" />
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-xs text-mute">Custo<input type="number" min="0" step="0.01" className="input-premium" onChange={(e) => setForm({ ...form, custo_centavos: Math.round(Number(e.target.value) * 100) })} /></label>
-        <label className="text-xs text-mute">Preço<input type="number" min="0" step="0.01" className="input-premium" onChange={(e) => setForm({ ...form, preco_centavos: Math.round(Number(e.target.value) * 100) })} /></label>
+        <label className="text-xs text-mute">Custo<input type="number" min="0" step="0.01" inputMode="decimal" className="input-premium" value={numeros.custo} onChange={(e) => setNumeros({ ...numeros, custo: e.target.value })} /></label>
+        <label className="text-xs text-mute">Preço<input type="number" min="0" step="0.01" inputMode="decimal" className="input-premium" value={numeros.preco} onChange={(e) => setNumeros({ ...numeros, preco: e.target.value })} /></label>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-xs text-mute">Quantidade<input type="number" min="0" className="input-premium" value={form.quantidade} onChange={(e) => setForm({ ...form, quantidade: Number(e.target.value) })} /></label>
-        <label className="text-xs text-mute">Estoque mínimo<input type="number" min="0" className="input-premium" value={form.estoque_minimo} onChange={(e) => setForm({ ...form, estoque_minimo: Number(e.target.value) })} /></label>
+        <label className="text-xs text-mute">Quantidade<input type="number" min="0" inputMode="numeric" className="input-premium" value={numeros.quantidade} onChange={(e) => setNumeros({ ...numeros, quantidade: e.target.value })} /></label>
+        <label className="text-xs text-mute">Estoque mínimo<input type="number" min="0" inputMode="numeric" className="input-premium" value={numeros.estoque_minimo} onChange={(e) => setNumeros({ ...numeros, estoque_minimo: e.target.value })} /></label>
       </div>
+
       <div className="space-y-2 pt-1">
         <Escolha titulo="Uso interno / somente estoque" descricao="Você controla a quantidade aqui dentro. O cliente não vê este produto." ativo={form.controla_estoque} onChange={(v) => setForm({ ...form, controla_estoque: v })} />
         <Escolha titulo="Disponível para venda" descricao="Aparece na loja para o cliente quando a loja online estiver ativada e houver preço." ativo={form.disponivel_venda} onChange={(v) => setForm({ ...form, disponivel_venda: v })} />
