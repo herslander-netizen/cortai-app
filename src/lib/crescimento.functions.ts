@@ -261,6 +261,7 @@ export const salvarConfigIndicacao = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "alterar_dados_barbearia");
     await exigirRecurso(db, tenant.id, "indicacoes");
     const { error } = await db
       .from("tenants")
@@ -513,6 +514,7 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "gerenciar_profissionais");
     const { error } = await db
       .from("profissionais")
       .update({ descricao: data.descricao || null, portfolio: data.portfolio })

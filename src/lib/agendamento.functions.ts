@@ -102,6 +102,15 @@ export const criarAgendamento = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<ResultadoAgendamento> => {
     // A barbearia e o cliente vêm sempre da sessão, nunca do que a tela enviou.
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
+    // O profissional precisa ser desta barbearia: nunca confiar no id vindo da tela.
+    const { data: profissional } = await db
+      .from("profissionais")
+      .select("id")
+      .eq("id", data.profissionalId)
+      .eq("tenant_id", tenant.id)
+      .eq("ativo", true)
+      .maybeSingle();
+    if (!profissional) throw new Error("Profissional não encontrado nesta barbearia.");
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
       _cliente_id: cliente.id,
