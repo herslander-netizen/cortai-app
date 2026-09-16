@@ -31,6 +31,7 @@ export const MODULOS_DE_NAVEGACAO = [
   { grupo: "Configurações", to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette, permissao: "alterar_dados_barbearia" },
   { grupo: "Operação", to: "/barbeiro/cortai", label: "CortAI no WhatsApp", detail: "Conexão, conversas e atendimento", icon: MessageCircle, permissao: "ver_cortai" },
   { grupo: "Gestão", to: "/barbeiro/cortai-atividade", label: "Atividade do CortAI", detail: "Assuntos, consultas e falhas", icon: Bot, permissao: "ver_cortai" },
+  { grupo: "Gestão", to: "/barbeiro/painel-ia", label: "Painel do atendente", detail: "Resumo, agenda, clientes e serviços", icon: BarChart3, permissao: "ver_cortai" },
   { grupo: "Configurações", to: "/barbeiro/integracoes", label: "Integrações", detail: "Atendimento inteligente da ALVO", icon: Bot, permissao: "alterar_dados_barbearia" },
 ] as const satisfies ReadonlyArray<{ grupo: string; to: string; label: string; detail: string; icon: typeof Banknote; permissao: ChaveDePermissao }>;
 
