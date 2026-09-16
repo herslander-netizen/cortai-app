@@ -170,11 +170,16 @@ function LinhaAgendamento({
 
 function PainelIaPage() {
   const [aba, setAba] = useState<Aba>("Resumo");
-  const { data, isLoading, isError, error } = useQuery({
+  const [aviso, setAviso] = useState<string | null>(null);
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["painel-operacional-ia"],
     queryFn: () => getPainelOperacional() as Promise<PainelOperacional>,
     staleTime: 30_000,
   });
+  const atualizar = (texto: string) => {
+    setAviso(texto);
+    void refetch();
+  };
 
   return (
     <Screen
