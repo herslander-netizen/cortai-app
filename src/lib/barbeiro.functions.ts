@@ -948,6 +948,9 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    if (!atual.profissional_id || !atual.servico_id) {
+      throw new Error("Esse atendimento não pode ser remarcado por aqui.");
+    }
     const { error: erroCancelar } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
     if (erroCancelar) throw new Error(erroCancelar.message);
     const { data: novo, error } = await db.rpc("criar_agendamento", {
