@@ -262,6 +262,8 @@ export async function processarMensagemRecebida(input: {
   const config = await configuracaoDoTenant(tenantId);
   if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
   if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
+  if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
+  if (!dentroDoHorarioDaIa(config)) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
   const { iaConfigurada, responderConversa } = await import("./atendimento.server");
   if (!iaConfigurada()) return { tratada: true, motivo: "ia_indisponivel" };
