@@ -77,8 +77,14 @@ export function EditorDeServicos({
                   min={5}
                   max={480}
                   step={5}
-                  value={s.duracaoMin}
-                  onChange={(e) => atualizar(i, { duracaoMin: Number(e.target.value) })}
+                  inputMode="numeric"
+                  value={rascunho[`${i}-duracao`] ?? String(s.duracaoMin)}
+                  onChange={(e) => {
+                    setRascunho({ ...rascunho, [`${i}-duracao`]: e.target.value });
+                    const n = Number(e.target.value);
+                    if (e.target.value.trim() !== "" && Number.isFinite(n)) atualizar(i, { duracaoMin: n });
+                  }}
+                  onBlur={() => setRascunho(Object.fromEntries(Object.entries(rascunho).filter(([k]) => k !== `${i}-duracao`)))}
                   className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
                 />
               </label>
@@ -88,12 +94,19 @@ export function EditorDeServicos({
                   type="number"
                   min={0}
                   step="0.5"
-                  value={(s.precoCentavos / 100).toString()}
-                  onChange={(e) => atualizar(i, { precoCentavos: Math.round(Number(e.target.value) * 100) })}
+                  inputMode="decimal"
+                  value={rascunho[`${i}-preco`] ?? String(s.precoCentavos / 100)}
+                  onChange={(e) => {
+                    setRascunho({ ...rascunho, [`${i}-preco`]: e.target.value });
+                    const n = Number(e.target.value);
+                    if (e.target.value.trim() !== "" && Number.isFinite(n)) atualizar(i, { precoCentavos: Math.round(n * 100) });
+                  }}
+                  onBlur={() => setRascunho(Object.fromEntries(Object.entries(rascunho).filter(([k]) => k !== `${i}-preco`)))}
                   className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
                 />
               </label>
             </div>
+
           </li>
         ))}
       </ul>
