@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Carregando } from "@/components/layout/Carregando";
 import { Switch } from "@/components/ui/switch";
+import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
 import { getAdminTenants } from "@/lib/admin.functions";
 import {
