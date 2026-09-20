@@ -27,7 +27,15 @@ export const PERMISSOES = {
   assumir_conversa: "Assumir e responder conversas",
   configurar_automacoes: "Configurar o atendimento automático",
   gerenciar_whatsapp: "Conectar e desconectar o WhatsApp",
+  conceder_desconto: "Dar desconto na comanda",
+  caixa_abrir_fechar: "Abrir e fechar o caixa",
+  caixa_movimentar: "Registrar saída, sangria e despesa",
+  estorno_autorizar: "Autorizar estorno e ajuste",
+  comissao_configurar: "Configurar comissões e Pix",
+  comissao_pagar: "Pagar comissões",
+  comissao_visualizar_todas: "Ver comissões de toda a equipe",
 } as const;
+
 
 export type ChaveDePermissao = keyof typeof PERMISSOES;
 
