@@ -27,7 +27,15 @@ export const PERMISSOES = {
   assumir_conversa: "Assumir e responder conversas",
   configurar_automacoes: "Configurar o atendimento automático",
   gerenciar_whatsapp: "Conectar e desconectar o WhatsApp",
+  conceder_desconto: "Dar desconto na comanda",
+  caixa_abrir_fechar: "Abrir e fechar o caixa",
+  caixa_movimentar: "Registrar saída, sangria e despesa",
+  estorno_autorizar: "Autorizar estorno e ajuste",
+  comissao_configurar: "Configurar comissões e Pix",
+  comissao_pagar: "Pagar comissões",
+  comissao_visualizar_todas: "Ver comissões de toda a equipe",
 } as const;
+
 
 export type ChaveDePermissao = keyof typeof PERMISSOES;
 
@@ -72,7 +80,15 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     itens: [
       { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro" },
       { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
+      { acao: "criar", chave: "conceder_desconto", rotulo: "Dar desconto na comanda" },
+      { acao: "editar", chave: "caixa_movimentar", rotulo: "Registrar saída, sangria e despesa" },
+      { acao: "administrar", chave: "caixa_abrir_fechar", rotulo: "Abrir e fechar o caixa" },
+      { acao: "administrar", chave: "estorno_autorizar", rotulo: "Autorizar estorno e ajuste" },
+      { acao: "administrar", chave: "comissao_configurar", rotulo: "Configurar comissões e Pix" },
+      { acao: "administrar", chave: "comissao_pagar", rotulo: "Pagar comissões" },
+      { acao: "visualizar", chave: "comissao_visualizar_todas", rotulo: "Ver comissões de toda a equipe" },
       { acao: "administrar", chave: "alterar_preco", rotulo: "Alterar preços e serviços" },
+
     ],
   },
   {
@@ -168,7 +184,12 @@ export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
     "assumir_conversa",
     "configurar_automacoes",
     "gerenciar_whatsapp",
+    "conceder_desconto",
+    "caixa_abrir_fechar",
+    "caixa_movimentar",
+    "comissao_visualizar_todas",
   ],
+
   barbeiro: [
     "criar_agendamento",
     "agendamento_manual",
