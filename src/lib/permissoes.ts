@@ -80,7 +80,15 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     itens: [
       { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro" },
       { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
+      { acao: "criar", chave: "conceder_desconto", rotulo: "Dar desconto na comanda" },
+      { acao: "editar", chave: "caixa_movimentar", rotulo: "Registrar saída, sangria e despesa" },
+      { acao: "administrar", chave: "caixa_abrir_fechar", rotulo: "Abrir e fechar o caixa" },
+      { acao: "administrar", chave: "estorno_autorizar", rotulo: "Autorizar estorno e ajuste" },
+      { acao: "administrar", chave: "comissao_configurar", rotulo: "Configurar comissões e Pix" },
+      { acao: "administrar", chave: "comissao_pagar", rotulo: "Pagar comissões" },
+      { acao: "visualizar", chave: "comissao_visualizar_todas", rotulo: "Ver comissões de toda a equipe" },
       { acao: "administrar", chave: "alterar_preco", rotulo: "Alterar preços e serviços" },
+
     ],
   },
   {
