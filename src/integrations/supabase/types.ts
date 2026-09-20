@@ -434,6 +434,160 @@ export type Database = {
           },
         ]
       }
+      caixa_movimentos: {
+        Row: {
+          caixa_sessao_id: string | null
+          categoria: string
+          cliente_id: string | null
+          comanda_id: string | null
+          criado_em: string
+          criado_por: string
+          descricao: string
+          forma_pagamento: string | null
+          id: string
+          motivo: string | null
+          movimento_original_id: string | null
+          pagamento_id: string | null
+          profissional_id: string | null
+          tenant_id: string
+          tipo: string
+          valor_centavos: number
+        }
+        Insert: {
+          caixa_sessao_id?: string | null
+          categoria: string
+          cliente_id?: string | null
+          comanda_id?: string | null
+          criado_em?: string
+          criado_por: string
+          descricao: string
+          forma_pagamento?: string | null
+          id?: string
+          motivo?: string | null
+          movimento_original_id?: string | null
+          pagamento_id?: string | null
+          profissional_id?: string | null
+          tenant_id: string
+          tipo: string
+          valor_centavos: number
+        }
+        Update: {
+          caixa_sessao_id?: string | null
+          categoria?: string
+          cliente_id?: string | null
+          comanda_id?: string | null
+          criado_em?: string
+          criado_por?: string
+          descricao?: string
+          forma_pagamento?: string | null
+          id?: string
+          motivo?: string | null
+          movimento_original_id?: string | null
+          pagamento_id?: string | null
+          profissional_id?: string | null
+          tenant_id?: string
+          tipo?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caixa_movimentos_caixa_sessao_id_fkey"
+            columns: ["caixa_sessao_id"]
+            isOneToOne: false
+            referencedRelation: "caixa_sessoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_movimento_original_id_fkey"
+            columns: ["movimento_original_id"]
+            isOneToOne: false
+            referencedRelation: "caixa_movimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caixa_movimentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      caixa_sessoes: {
+        Row: {
+          aberto_em: string
+          aberto_por: string
+          diferenca_centavos: number | null
+          fechado_em: string | null
+          fechado_por: string | null
+          id: string
+          saldo_informado_centavos: number | null
+          saldo_inicial_centavos: number
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          aberto_em?: string
+          aberto_por: string
+          diferenca_centavos?: number | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          saldo_informado_centavos?: number | null
+          saldo_inicial_centavos?: number
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          aberto_em?: string
+          aberto_por?: string
+          diferenca_centavos?: number | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          saldo_informado_centavos?: number | null
+          saldo_inicial_centavos?: number
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caixa_sessoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carteiras: {
         Row: {
           atualizado_em: string
@@ -537,6 +691,290 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "clientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comanda_itens: {
+        Row: {
+          comanda_id: string
+          comissao_centavos: number
+          comissao_percentual: number
+          criado_em: string
+          descricao: string
+          id: string
+          produto_id: string | null
+          quantidade: number
+          servico_id: string | null
+          tipo: string
+          valor_total_centavos: number
+          valor_unitario_centavos: number
+        }
+        Insert: {
+          comanda_id: string
+          comissao_centavos: number
+          comissao_percentual: number
+          criado_em?: string
+          descricao: string
+          id?: string
+          produto_id?: string | null
+          quantidade: number
+          servico_id?: string | null
+          tipo: string
+          valor_total_centavos: number
+          valor_unitario_centavos: number
+        }
+        Update: {
+          comanda_id?: string
+          comissao_centavos?: number
+          comissao_percentual?: number
+          criado_em?: string
+          descricao?: string
+          id?: string
+          produto_id?: string | null
+          quantidade?: number
+          servico_id?: string | null
+          tipo?: string
+          valor_total_centavos?: number
+          valor_unitario_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comanda_itens_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comanda_itens_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comanda_itens_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comandas: {
+        Row: {
+          aberta_por: string
+          agendamento_id: string | null
+          atualizado_em: string
+          cliente_id: string
+          comissao_total_centavos: number
+          criado_em: string
+          desconto_aplicado_por: string | null
+          desconto_centavos: number
+          finalizada_em: string | null
+          finalizada_por: string | null
+          id: string
+          numero: number
+          profissional_id: string | null
+          status: string
+          subtotal_centavos: number
+          tenant_id: string
+          total_centavos: number
+        }
+        Insert: {
+          aberta_por: string
+          agendamento_id?: string | null
+          atualizado_em?: string
+          cliente_id: string
+          comissao_total_centavos?: number
+          criado_em?: string
+          desconto_aplicado_por?: string | null
+          desconto_centavos?: number
+          finalizada_em?: string | null
+          finalizada_por?: string | null
+          id?: string
+          numero?: number
+          profissional_id?: string | null
+          status?: string
+          subtotal_centavos?: number
+          tenant_id: string
+          total_centavos?: number
+        }
+        Update: {
+          aberta_por?: string
+          agendamento_id?: string | null
+          atualizado_em?: string
+          cliente_id?: string
+          comissao_total_centavos?: number
+          criado_em?: string
+          desconto_aplicado_por?: string | null
+          desconto_centavos?: number
+          finalizada_em?: string | null
+          finalizada_por?: string | null
+          id?: string
+          numero?: number
+          profissional_id?: string | null
+          status?: string
+          subtotal_centavos?: number
+          tenant_id?: string
+          total_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comandas_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comandas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comandas_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comandas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comissao_pagamentos: {
+        Row: {
+          id: string
+          pago_em: string
+          pago_por: string
+          periodo_fim: string
+          periodo_inicio: string
+          profissional_id: string
+          status: string
+          tenant_id: string
+          valor_centavos: number
+        }
+        Insert: {
+          id?: string
+          pago_em?: string
+          pago_por: string
+          periodo_fim: string
+          periodo_inicio: string
+          profissional_id: string
+          status?: string
+          tenant_id: string
+          valor_centavos: number
+        }
+        Update: {
+          id?: string
+          pago_em?: string
+          pago_por?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          profissional_id?: string
+          status?: string
+          tenant_id?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissao_pagamentos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissao_pagamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comissoes: {
+        Row: {
+          base_centavos: number
+          comanda_id: string
+          criado_em: string
+          id: string
+          item_comanda_id: string
+          pago_em: string | null
+          pago_por: string | null
+          percentual: number
+          profissional_id: string
+          status: string
+          tenant_id: string
+          tipo_item: string
+          valor_centavos: number
+        }
+        Insert: {
+          base_centavos: number
+          comanda_id: string
+          criado_em?: string
+          id?: string
+          item_comanda_id: string
+          pago_em?: string | null
+          pago_por?: string | null
+          percentual: number
+          profissional_id: string
+          status?: string
+          tenant_id: string
+          tipo_item: string
+          valor_centavos: number
+        }
+        Update: {
+          base_centavos?: number
+          comanda_id?: string
+          criado_em?: string
+          id?: string
+          item_comanda_id?: string
+          pago_em?: string | null
+          pago_por?: string | null
+          percentual?: number
+          profissional_id?: string
+          status?: string
+          tenant_id?: string
+          tipo_item?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissoes_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_item_comanda_id_fkey"
+            columns: ["item_comanda_id"]
+            isOneToOne: true
+            referencedRelation: "comanda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -810,6 +1248,50 @@ export type Database = {
           youtube_cortai?: string | null
         }
         Relationships: []
+      }
+      configuracoes_financeiras: {
+        Row: {
+          atualizado_em: string
+          comissao_produto_percentual: number
+          comissao_servico_percentual: number
+          criado_em: string
+          pix_ativo: boolean
+          pix_chave: string | null
+          pix_tipo: string | null
+          pix_whatsapp: string | null
+          tenant_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          comissao_produto_percentual?: number
+          comissao_servico_percentual?: number
+          criado_em?: string
+          pix_ativo?: boolean
+          pix_chave?: string | null
+          pix_tipo?: string | null
+          pix_whatsapp?: string | null
+          tenant_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          comissao_produto_percentual?: number
+          comissao_servico_percentual?: number
+          criado_em?: string
+          pix_ativo?: boolean
+          pix_chave?: string | null
+          pix_tipo?: string | null
+          pix_whatsapp?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "configuracoes_financeiras_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contatos_de_retencao: {
         Row: {
@@ -1158,6 +1640,80 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "eventos_recebidos_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiados: {
+        Row: {
+          cliente_id: string
+          comanda_id: string
+          criado_em: string
+          criado_por: string
+          id: string
+          profissional_id: string | null
+          quitado_em: string | null
+          saldo_centavos: number
+          status: string
+          tenant_id: string
+          valor_centavos: number
+          valor_pago_centavos: number
+        }
+        Insert: {
+          cliente_id: string
+          comanda_id: string
+          criado_em?: string
+          criado_por: string
+          id?: string
+          profissional_id?: string | null
+          quitado_em?: string | null
+          saldo_centavos: number
+          status?: string
+          tenant_id: string
+          valor_centavos: number
+          valor_pago_centavos?: number
+        }
+        Update: {
+          cliente_id?: string
+          comanda_id?: string
+          criado_em?: string
+          criado_por?: string
+          id?: string
+          profissional_id?: string | null
+          quitado_em?: string | null
+          saldo_centavos?: number
+          status?: string
+          tenant_id?: string
+          valor_centavos?: number
+          valor_pago_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiados_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiados_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: true
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiados_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiados_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1802,6 +2358,63 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          comanda_id: string
+          confirmado_em: string | null
+          confirmado_por: string | null
+          criado_em: string
+          criado_por: string
+          estornado_em: string | null
+          forma_pagamento: string
+          id: string
+          status: string
+          tenant_id: string
+          valor_centavos: number
+        }
+        Insert: {
+          comanda_id: string
+          confirmado_em?: string | null
+          confirmado_por?: string | null
+          criado_em?: string
+          criado_por: string
+          estornado_em?: string | null
+          forma_pagamento: string
+          id?: string
+          status: string
+          tenant_id: string
+          valor_centavos: number
+        }
+        Update: {
+          comanda_id?: string
+          confirmado_em?: string | null
+          confirmado_por?: string | null
+          criado_em?: string
+          criado_por?: string
+          estornado_em?: string | null
+          forma_pagamento?: string
+          id?: string
+          status?: string
+          tenant_id?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parceiros_da_plataforma: {
         Row: {
           ativo: boolean
@@ -1960,6 +2573,7 @@ export type Database = {
           ativo: boolean
           atualizado_em: string
           categoria: string
+          comissao_percentual: number | null
           controla_estoque: boolean
           criado_em: string
           custo_centavos: number
@@ -1978,6 +2592,7 @@ export type Database = {
           ativo?: boolean
           atualizado_em?: string
           categoria?: string
+          comissao_percentual?: number | null
           controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
@@ -1996,6 +2611,7 @@ export type Database = {
           ativo?: boolean
           atualizado_em?: string
           categoria?: string
+          comissao_percentual?: number | null
           controla_estoque?: boolean
           criado_em?: string
           custo_centavos?: number
@@ -2030,6 +2646,7 @@ export type Database = {
           nome: string
           portfolio: Json
           tenant_id: string
+          user_id: string | null
         }
         Insert: {
           ativo?: boolean
@@ -2040,6 +2657,7 @@ export type Database = {
           nome: string
           portfolio?: Json
           tenant_id: string
+          user_id?: string | null
         }
         Update: {
           ativo?: boolean
@@ -2050,6 +2668,7 @@ export type Database = {
           nome?: string
           portfolio?: Json
           tenant_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2191,6 +2810,7 @@ export type Database = {
       servicos: {
         Row: {
           ativo: boolean
+          comissao_percentual: number | null
           criado_em: string
           duracao_min: number
           id: string
@@ -2201,6 +2821,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
           id?: string
@@ -2211,6 +2832,7 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
           id?: string
@@ -2647,6 +3269,23 @@ export type Database = {
         Args: { _agendamento_id: string; _forma_pagamento: string }
         Returns: Json
       }
+      confirmar_pagamento_comanda: {
+        Args: {
+          _comanda_id: string
+          _forma: string
+          _somente_preparar_pix?: boolean
+        }
+        Returns: Json
+      }
+      confirmar_pagamento_comanda_segura: {
+        Args: {
+          _ator: string
+          _comanda_id: string
+          _forma: string
+          _somente_preparar_pix?: boolean
+        }
+        Returns: Json
+      }
       contato_da_plataforma: {
         Args: never
         Returns: {
@@ -2715,6 +3354,10 @@ export type Database = {
         Returns: string[]
       }
       fila_publica_status: { Args: { _token: string }; Returns: Json }
+      financeiro_tem_permissao: {
+        Args: { _ator: string; _permissao: string; _tenant: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2749,6 +3392,11 @@ export type Database = {
         }[]
       }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
+      preparar_comanda: { Args: { _agendamento_id: string }; Returns: string }
+      preparar_comanda_segura: {
+        Args: { _agendamento_id: string; _ator: string }
+        Returns: string
+      }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }
         Returns: boolean
@@ -2777,6 +3425,43 @@ export type Database = {
       remover_membro: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: Json
+      }
+      salvar_comanda: {
+        Args: { _comanda_id: string; _desconto_centavos?: number; _itens: Json }
+        Returns: Json
+      }
+      salvar_comanda_segura: {
+        Args: {
+          _ator: string
+          _comanda_id: string
+          _desconto_centavos?: number
+          _itens: Json
+        }
+        Returns: Json
+      }
+      salvar_configuracao_financeira: {
+        Args: {
+          _comissao_produto: number
+          _comissao_servico: number
+          _pix_ativo: boolean
+          _pix_chave: string
+          _pix_tipo: string
+          _pix_whatsapp: string
+        }
+        Returns: undefined
+      }
+      salvar_configuracao_financeira_segura: {
+        Args: {
+          _ator: string
+          _comissao_produto: number
+          _comissao_servico: number
+          _pix_ativo: boolean
+          _pix_chave: string
+          _pix_tipo: string
+          _pix_whatsapp: string
+          _tenant: string
+        }
+        Returns: undefined
       }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }
     }
