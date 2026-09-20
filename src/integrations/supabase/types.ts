@@ -3277,6 +3277,15 @@ export type Database = {
         }
         Returns: Json
       }
+      confirmar_pagamento_comanda_segura: {
+        Args: {
+          _ator: string
+          _comanda_id: string
+          _forma: string
+          _somente_preparar_pix?: boolean
+        }
+        Returns: Json
+      }
       contato_da_plataforma: {
         Args: never
         Returns: {
@@ -3345,6 +3354,10 @@ export type Database = {
         Returns: string[]
       }
       fila_publica_status: { Args: { _token: string }; Returns: Json }
+      financeiro_tem_permissao: {
+        Args: { _ator: string; _permissao: string; _tenant: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3380,6 +3393,10 @@ export type Database = {
       }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
       preparar_comanda: { Args: { _agendamento_id: string }; Returns: string }
+      preparar_comanda_segura: {
+        Args: { _agendamento_id: string; _ator: string }
+        Returns: string
+      }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }
         Returns: boolean
@@ -3413,6 +3430,15 @@ export type Database = {
         Args: { _comanda_id: string; _desconto_centavos?: number; _itens: Json }
         Returns: Json
       }
+      salvar_comanda_segura: {
+        Args: {
+          _ator: string
+          _comanda_id: string
+          _desconto_centavos?: number
+          _itens: Json
+        }
+        Returns: Json
+      }
       salvar_configuracao_financeira: {
         Args: {
           _comissao_produto: number
@@ -3421,6 +3447,19 @@ export type Database = {
           _pix_chave: string
           _pix_tipo: string
           _pix_whatsapp: string
+        }
+        Returns: undefined
+      }
+      salvar_configuracao_financeira_segura: {
+        Args: {
+          _ator: string
+          _comissao_produto: number
+          _comissao_servico: number
+          _pix_ativo: boolean
+          _pix_chave: string
+          _pix_tipo: string
+          _pix_whatsapp: string
+          _tenant: string
         }
         Returns: undefined
       }
