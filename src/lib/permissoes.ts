@@ -184,7 +184,12 @@ export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
     "assumir_conversa",
     "configurar_automacoes",
     "gerenciar_whatsapp",
+    "conceder_desconto",
+    "caixa_abrir_fechar",
+    "caixa_movimentar",
+    "comissao_visualizar_todas",
   ],
+
   barbeiro: [
     "criar_agendamento",
     "agendamento_manual",
