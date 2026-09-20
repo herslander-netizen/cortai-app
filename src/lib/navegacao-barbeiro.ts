@@ -17,7 +17,9 @@ import {
 import type { ChaveDePermissao } from "@/lib/permissoes";
 
 export const MODULOS_DE_NAVEGACAO = [
-  { grupo: "Operação", to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas e valores em aberto", icon: Banknote, permissao: "visualizar_financeiro" },
+  { grupo: "Operação", to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas, saídas e fiado em aberto", icon: Banknote, permissao: "visualizar_financeiro" },
+  { grupo: "Gestão", to: "/barbeiro/comissoes", label: "Comissões", detail: "Gerada, paga e pendente por profissional", icon: Banknote, permissao: "visualizar_financeiro" },
+
   { grupo: "Operação", to: "/barbeiro/produtos", label: "Loja e estoque", detail: "Produtos, vendas e alertas", icon: Store, permissao: "visualizar_estoque" },
   { grupo: "Operação", to: "/barbeiro/profissionais", label: "Profissionais", detail: "Perfis e portfólios", icon: UserSquare2, permissao: "gerenciar_profissionais" },
   { grupo: "Operação", to: "/barbeiro/servicos", label: "Serviços", detail: "Preços e duração", icon: Scissors, permissao: "alterar_preco" },
