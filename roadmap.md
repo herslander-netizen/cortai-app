@@ -82,3 +82,13 @@
 - [x] tela avisa exatamente quais variáveis faltam
 - [ ] Publicar a Evolution API e cadastrar EVOLUTION_API_URL / EVOLUTION_API_KEY / EVOLUTION_WEBHOOK_SECRET (externo)
 - [ ] Endpoints /api/ai/* : hoje atendidos por /api/public/cortai/acoes (avaliar se precisa alias REST)
+
+## Financeiro V1 (20/09)
+- [ ] Criar comanda transacional ligada ao agendamento, cliente e profissional
+- [ ] Implementar fechamento mobile com serviços, produtos, desconto e pagamento
+- [ ] Implementar Pix manual, confirmação, fiado e quitação posterior
+- [ ] Implementar caixa rastreável, abertura/fechamento, saídas, despesas e sangrias
+- [ ] Implementar regras configuráveis e lançamentos append-only de comissão
+- [ ] Integrar Agenda, Início, Financeiro, Caixa, Comissões e permissões
+- [ ] Validar o cenário Corte R$ 40 + Pomada R$ 35, Pix e comissão R$ 23,50
+- [ ] Validar tipos, build, RLS, transações e experiência mobile
