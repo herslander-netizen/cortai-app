@@ -85,25 +85,27 @@ function minutos(hora: string): number {
 
 /**
  * Disponibilidade REAL: grade montada a partir do horário de funcionamento da
- * barbearia menos os agendamentos ativos. O atendente só pode oferecer o que
- * sai daqui — nunca um horário inventado.
+ * barbearia (hora de parede no fuso da barbearia) menos os agendamentos ativos.
+ * O atendente só pode oferecer o que sai daqui — nunca um horário inventado.
  */
 export async function consultarDisponibilidade(
   ctx: ContextoDoAgente,
   input: { dia: string; profissionalId?: string | null; servicoId?: string | null },
 ) {
   const db = await admin();
-  const de = new Date(`${input.dia}T00:00:00`);
-  if (Number.isNaN(de.getTime())) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
-  const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
+  const { isoNoFusoDaBarbearia, diaDaSemanaDoDia } = await import("@/lib/horarios");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dia)) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
+  // O dia da barbearia vai de 00:00 a 24:00 no fuso dela, não em UTC.
+  const inicioDoDia = isoNoFusoDaBarbearia(input.dia, "00:00");
+  const fimDoDia = new Date(new Date(inicioDoDia).getTime() + 24 * 60 * 60 * 1000).toISOString();
 
   let consulta = db
     .from("agendamentos")
     .select("id, profissional_id, inicio, fim")
     .eq("tenant_id", ctx.tenantId)
     .not("status", "in", "(cancelado,falta)")
-    .gte("inicio", de.toISOString())
-    .lt("inicio", ate.toISOString());
+    .gte("inicio", inicioDoDia)
+    .lt("inicio", fimDoDia);
   if (input.profissionalId) consulta = consulta.eq("profissional_id", input.profissionalId);
 
   const [{ data: ocupados, error }, { data: expediente }, profissionais, servico] = await Promise.all([
@@ -112,7 +114,7 @@ export async function consultarDisponibilidade(
       .from("horarios_de_funcionamento")
       .select("fechado, abre, fecha")
       .eq("tenant_id", ctx.tenantId)
-      .eq("dia_semana", de.getDay())
+      .eq("dia_semana", diaDaSemanaDoDia(input.dia))
       .maybeSingle(),
     listarProfissionais(ctx),
     input.servicoId
@@ -130,6 +132,9 @@ export async function consultarDisponibilidade(
   const equipe = input.profissionalId
     ? profissionais.filter((p) => p.id === input.profissionalId)
     : profissionais;
+  if (input.profissionalId && equipe.length === 0) {
+    throw new Error("Profissional não encontrado nesta barbearia.");
+  }
 
   if (!expediente || expediente.fechado) {
     return { dia: input.dia, fechado: true, ocupados: ocupados ?? [], livres: [] as { profissionalId: string; inicio: string }[] };
@@ -139,13 +144,14 @@ export async function consultarDisponibilidade(
   const passo = 15;
   const abre = minutos(String(expediente.abre).slice(0, 5));
   const fecha = minutos(String(expediente.fecha).slice(0, 5));
+  const base = new Date(inicioDoDia).getTime();
   const agora = Date.now();
   const livres: { profissionalId: string; inicio: string }[] = [];
 
   for (const profissional of equipe) {
     const agenda = (ocupados ?? []).filter((a) => a.profissional_id === profissional.id);
     for (let m = abre; m + duracao <= fecha; m += passo) {
-      const inicio = new Date(de.getTime() + m * 60_000);
+      const inicio = new Date(base + m * 60_000);
       const fim = new Date(inicio.getTime() + duracao * 60_000);
       if (inicio.getTime() <= agora) continue;
       const conflita = agenda.some(
