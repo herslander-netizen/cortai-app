@@ -22,7 +22,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<DadosAgendar> => {
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
 
-    const [servicosRes, profRes, regrasRes, carteiraRes] = await Promise.all([
+    const [servicosRes, profRes, regrasRes, carteiraRes, horariosRes] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos")
@@ -39,6 +39,11 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         .select("saldo_creditos, saldo_centavos, fidelidade_progresso")
         .eq("cliente_id", cliente.id)
         .maybeSingle(),
+      db
+        .from("horarios_de_funcionamento")
+        .select("dia_semana, fechado, abre, fecha")
+        .eq("tenant_id", tenant.id)
+        .order("dia_semana"),
     ]);
 
     // Exceção individual: a escolha feita na ficha do cliente vale mais que o padrão.
