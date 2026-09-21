@@ -14,8 +14,9 @@ import {
   type ServicoSugerido,
 } from "./assistente";
 
-const ENDPOINT = "https://ai.gateway.lovable.dev/v1/responses";
-const MODELO = "openai/gpt-6-astra";
+// Infraestrutura da Alvo IA / Lovable AI Gateway — nenhum consumo de tokens da OpenAI.
+const ENDPOINT = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODELO = "google/gemini-3-flash";
 
 export function assistenteConfigurado(): boolean {
   return Boolean(process.env["LOVABLE_API_KEY"]);
