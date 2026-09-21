@@ -13,6 +13,7 @@ export type DadosAgendar = {
   carteira: { saldo_creditos: number; saldo_centavos: number; fidelidade_progresso: number };
   regras: { tipo: string; ativo: boolean; bloqueia_agendamento_no_limite: boolean; fidelidade_alvo: number | null }[];
   ocupados: Ocupado[];
+  horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
 };
 
 export const getDadosAgendar = createServerFn({ method: "GET" })
