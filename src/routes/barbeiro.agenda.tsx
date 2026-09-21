@@ -33,6 +33,19 @@ export const Route = createFileRoute("/barbeiro/agenda")({
   component: AgendaPage,
 });
 
+function hojeIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Soma dias ao "AAAA-MM-DD" sem passar pelo fuso do navegador. */
+function somarDias(dia: string, passo: number) {
+  const [a, m, d] = dia.split("-").map(Number);
+  const base = new Date(Date.UTC(a ?? 1970, (m ?? 1) - 1, d ?? 1));
+  base.setUTCDate(base.getUTCDate() + passo);
+  return base.toISOString().slice(0, 10);
+}
+
 function corDaBorda(forma: string | null) {
   if (forma === "fiado") return "border-l-brick";
   return "border-l-gold";
@@ -79,7 +92,7 @@ function AgendaPage() {
         />
       </div>
 
-      <label className="mb-6 block">
+      <label className="mb-2 block">
         <span className="text-xs text-mute2">Dia</span>
         <input
           type="date"
@@ -88,6 +101,17 @@ function AgendaPage() {
           className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
         />
       </label>
+      <div className="mb-6 grid grid-cols-3 gap-2" role="group" aria-label="Navegar pelos dias">
+        <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(somarDias(dia, -1))}>
+          Anterior
+        </button>
+        <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(hojeIso())}>
+          Hoje
+        </button>
+        <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(somarDias(dia, 1))}>
+          Próximo
+        </button>
+      </div>
 
       {aviso ? (
         <Aviso tom={aviso.tom} className="mb-4">

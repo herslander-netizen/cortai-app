@@ -12,6 +12,17 @@ export function destinoDoPapel(sessao: Sessao): Destino {
   return "/comecar";
 }
 
+/**
+ * Só devolve o destino pedido no login quando ele é um caminho interno
+ * dentro da área permitida para o papel da pessoa. Caso contrário, null.
+ */
+export function destinoSolicitadoPermitido(proximo: string | undefined, destino: Destino): string | null {
+  if (!proximo || !proximo.startsWith("/") || proximo.startsWith("//")) return null;
+  const caminho = proximo.split("?")[0] ?? "";
+  if (caminho === destino || caminho.startsWith(`${destino}/`)) return proximo;
+  return null;
+}
+
 /** Bloqueia a rota quando não há sessão real ou quando o papel não é o esperado. */
 export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Sessao> {
   const { data, error } = await supabase.auth.getUser();

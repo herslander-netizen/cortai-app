@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel } from "@/lib/guarda";
+import { destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 
 /**
@@ -45,8 +45,9 @@ function RetornoPage() {
         const sessao = await getSessao();
         if (!ativo) return;
         const destino = destinoDoPapel(sessao);
-        if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
-          await navigate({ to: proximo, replace: true });
+        const pedido = destinoSolicitadoPermitido(proximo, destino);
+        if (pedido) {
+          await navigate({ to: pedido, replace: true });
           return;
         }
         await navigate({ to: destino, replace: true });
