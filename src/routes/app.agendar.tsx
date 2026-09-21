@@ -156,25 +156,26 @@ function Fluxo({
     return out;
   }, []);
 
+  const fechadoNoDia = useMemo(
+    () => (dia ? horarioDoDia(dia, dados.horarios).fechado : false),
+    [dia, dados.horarios],
+  );
+
   const horarios = useMemo(() => {
-    if (!dia || !servico || !profId) return [] as { iso: string; ocupado: boolean; passado: boolean }[];
-    const out: { iso: string; ocupado: boolean; passado: boolean }[] = [];
+    if (!dia || !servico || !profId) return [] as { iso: string; label: string; ocupado: boolean; passado: boolean }[];
     const agora = Date.now();
-    for (let h = HORA_INICIO; h < HORA_FIM; h++) {
-      for (const m of [0, 30]) {
-        const d = new Date(`${dia}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
-        const fim = new Date(d.getTime() + servico.duracao_min * 60000);
-        const ocupado = dados.ocupados.some(
-          (o) =>
-            o.profissional_id === profId &&
-            new Date(o.inicio).getTime() < fim.getTime() &&
-            new Date(o.fim).getTime() > d.getTime(),
-        );
-        out.push({ iso: d.toISOString(), ocupado, passado: d.getTime() <= agora });
-      }
-    }
-    return out;
-  }, [dia, servico, profId, dados.ocupados]);
+    return slotsDoDia(dia, dados.horarios).slots.map((s) => {
+      const inicio = new Date(s.iso).getTime();
+      const fim = inicio + servico.duracao_min * 60000;
+      const ocupado = dados.ocupados.some(
+        (o) =>
+          o.profissional_id === profId &&
+          new Date(o.inicio).getTime() < fim &&
+          new Date(o.fim).getTime() > inicio,
+      );
+      return { iso: s.iso, label: s.label, ocupado, passado: inicio <= agora };
+    });
+  }, [dia, servico, profId, dados.ocupados, dados.horarios]);
 
   const preco = servico?.preco_centavos ?? 0;
   const disponivelFiado = dados.cliente.limite_fiado_centavos + Math.min(dados.carteira.saldo_centavos, 0);
