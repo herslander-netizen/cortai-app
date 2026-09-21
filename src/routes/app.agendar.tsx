@@ -5,7 +5,8 @@ import { useMemo, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
-import { brl, dataHoraLonga, diaCurto, hora } from "@/lib/format";
+import { brl, dataHoraLonga, diaCurto } from "@/lib/format";
+import { horarioDoDia, slotsDoDia } from "@/lib/horarios";
 import {
   criarAgendamento,
   getDadosAgendar,
