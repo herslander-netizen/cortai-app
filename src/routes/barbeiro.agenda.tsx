@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
+import { FechamentoComanda } from "@/components/financeiro/FechamentoComanda";
 import { brl } from "@/lib/format";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
