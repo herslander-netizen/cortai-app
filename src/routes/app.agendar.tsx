@@ -299,13 +299,15 @@ function Fluxo({
       <Passo n={4} titulo="Horário" guia="agendar-horario">
         {!servico || !profId || !dia ? (
           <p className="text-sm text-mute">Escolha serviço, profissional e dia para ver os horários.</p>
+        ) : fechadoNoDia ? (
+          <p className="text-sm text-mute">A barbearia não abre neste dia. Escolha outro dia.</p>
         ) : (
           <>
             <div className="flex flex-wrap gap-2">
               {horarios.map((h) => (
                 <Chip
                   key={h.iso}
-                  label={hora(h.iso)}
+                  label={h.label}
                   selected={h.iso === inicio}
                   disabled={h.ocupado || h.passado}
                   strike={h.ocupado}
