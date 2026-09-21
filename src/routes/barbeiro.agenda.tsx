@@ -59,6 +59,7 @@ function AgendaPage() {
   const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
   const [aviso, setAviso] = useState<{ tom: TomDeAviso; texto: string } | null>(null);
+  const [fechando, setFechando] = useState<string | null>(null);
 
   const { data, isLoading, refetch } = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
@@ -150,6 +151,13 @@ function AgendaPage() {
                         ? `Fiado · ${brl(item.valor_centavos)}`
                         : brl(item.valor_centavos)}
                   </p>
+                  <button
+                    type="button"
+                    className="btn-primary mt-3 w-full text-xs"
+                    onClick={() => setFechando(item.id)}
+                  >
+                    Finalizar e receber
+                  </button>
                   <div data-guia="agenda-repetir" className="mt-2 flex flex-wrap gap-3">
                     <span className="text-[11px] text-mute2">Repetir:</span>
                     {(["semanal", "quinzenal", "mensal"] as const).map((p) => (
