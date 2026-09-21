@@ -52,7 +52,7 @@ function Indicador({
 }
 
 function HojePage() {
-  const finalizar = useServerFn(finalizarAtendimento);
+  const [fechando, setFechando] = useState<string | null>(null);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
   const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
 
