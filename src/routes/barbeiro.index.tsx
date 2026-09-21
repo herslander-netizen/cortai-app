@@ -100,12 +100,9 @@ function HojePage() {
               <button
                 type="button"
                 className="btn-primary mt-4 w-full"
-                onClick={async () => {
-                  await finalizar({ data: { agendamentoId: data.emAndamento!.id } });
-                  refetch();
-                }}
+                onClick={() => setFechando(data.emAndamento!.id)}
               >
-                Finalizar atendimento
+                Finalizar e receber
               </button>
             </div>
           ) : (
