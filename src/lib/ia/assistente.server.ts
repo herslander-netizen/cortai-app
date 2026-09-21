@@ -122,41 +122,6 @@ ${horarios}`;
 
 type Turno = { autor: "barbeiro" | "assistente"; conteudo: string };
 
-/** Lê o SSE inteiro e devolve o texto final — streaming é obrigatório nesta API. */
-async function lerFluxo(resposta: Response): Promise<string> {
-  const leitor = resposta.body?.getReader();
-  if (!leitor) throw new Error("Resposta vazia do assistente.");
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let texto = "";
-  let completo = "";
-  for (;;) {
-    const { done, value } = await leitor.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const linhas = buffer.split("\n");
-    buffer = linhas.pop() ?? "";
-    for (const linha of linhas) {
-      if (!linha.startsWith("data:")) continue;
-      const cru = linha.slice(5).trim();
-      if (!cru || cru === "[DONE]") continue;
-      try {
-        const evento = JSON.parse(cru) as Record<string, any>;
-        if (evento["type"] === "response.output_text.delta" && typeof evento["delta"] === "string") {
-          texto += evento["delta"];
-        }
-        if (evento["type"] === "response.completed") {
-          const saida = evento["response"]?.output_text;
-          if (typeof saida === "string" && saida) completo = saida;
-          else if (Array.isArray(saida) && saida.length) completo = saida.join("");
-        }
-      } catch {
-        /* linha parcial — ignora */
-      }
-    }
-  }
-  return completo || texto;
-}
 
 function inteiro(valor: unknown, padrao: number): number {
   const n = typeof valor === "number" ? valor : Number(valor);
