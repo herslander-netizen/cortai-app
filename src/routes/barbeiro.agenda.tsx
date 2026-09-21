@@ -230,6 +230,18 @@ function AgendaPage() {
       <p className="mt-6 text-xs text-mute2">
         Borda dourada: horário normal. Vermelha: fiado. Cinza: bloqueio. Tracejado: horário livre.
       </p>
+
+      {fechando ? (
+        <FechamentoComanda
+          agendamentoId={fechando}
+          onFechar={() => setFechando(null)}
+          onConcluido={() => {
+            setFechando(null);
+            setAviso({ tom: "sucesso", texto: "Atendimento fechado, pagamento registrado no caixa." });
+            void refetch();
+          }}
+        />
+      ) : null}
     </Screen>
   );
 }
