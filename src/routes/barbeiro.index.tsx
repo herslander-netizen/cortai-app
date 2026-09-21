@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight, TrendingUp } from "lucide-react";
+import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso } from "@/components/ui/aviso";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
+import { FechamentoComanda } from "@/components/financeiro/FechamentoComanda";
 import { brl, hora } from "@/lib/format";
-import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
+import { getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { BannersDaPlataforma, MeuPlano } from "@/components/barbeiro/PainelComercial";
@@ -51,7 +52,7 @@ function Indicador({
 }
 
 function HojePage() {
-  const finalizar = useServerFn(finalizarAtendimento);
+  const [fechando, setFechando] = useState<string | null>(null);
   const { data, isLoading, refetch } = useQuery({ queryKey: ["painel-hoje"], queryFn: () => getPainelHoje() });
   const { data: oportunidades } = useQuery({ queryKey: ["oportunidades"], queryFn: () => getOportunidades() });
 
@@ -99,12 +100,9 @@ function HojePage() {
               <button
                 type="button"
                 className="btn-primary mt-4 w-full"
-                onClick={async () => {
-                  await finalizar({ data: { agendamentoId: data.emAndamento!.id } });
-                  refetch();
-                }}
+                onClick={() => setFechando(data.emAndamento!.id)}
               >
-                Finalizar atendimento
+                Finalizar e receber
               </button>
             </div>
           ) : (
@@ -157,6 +155,17 @@ function HojePage() {
             ))}
           </ul>
         </>
+      ) : null}
+
+      {fechando ? (
+        <FechamentoComanda
+          agendamentoId={fechando}
+          onFechar={() => setFechando(null)}
+          onConcluido={() => {
+            setFechando(null);
+            void refetch();
+          }}
+        />
       ) : null}
     </Screen>
   );
