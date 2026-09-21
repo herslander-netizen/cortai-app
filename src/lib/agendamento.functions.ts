@@ -79,7 +79,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       carteira: carteiraRes.data ?? { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
       regras,
       ocupados: ocupados ?? [],
-      horarios: (horariosRes.data ?? []).map((h) => ({
+      horarios: (horariosRes.data ?? []).map((h: Record<string, any>) => ({
         diaSemana: h.dia_semana as number,
         fechado: Boolean(h.fechado),
         abre: String(h.abre).slice(0, 5),
