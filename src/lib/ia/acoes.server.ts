@@ -85,25 +85,27 @@ function minutos(hora: string): number {
 
 /**
  * Disponibilidade REAL: grade montada a partir do horário de funcionamento da
- * barbearia menos os agendamentos ativos. O atendente só pode oferecer o que
- * sai daqui — nunca um horário inventado.
+ * barbearia (hora de parede no fuso da barbearia) menos os agendamentos ativos.
+ * O atendente só pode oferecer o que sai daqui — nunca um horário inventado.
  */
 export async function consultarDisponibilidade(
   ctx: ContextoDoAgente,
   input: { dia: string; profissionalId?: string | null; servicoId?: string | null },
 ) {
   const db = await admin();
-  const de = new Date(`${input.dia}T00:00:00`);
-  if (Number.isNaN(de.getTime())) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
-  const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
+  const { isoNoFusoDaBarbearia, diaDaSemanaDoDia } = await import("@/lib/horarios");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dia)) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
+  // O dia da barbearia vai de 00:00 a 24:00 no fuso dela, não em UTC.
+  const inicioDoDia = isoNoFusoDaBarbearia(input.dia, "00:00");
+  const fimDoDia = new Date(new Date(inicioDoDia).getTime() + 24 * 60 * 60 * 1000).toISOString();
 
   let consulta = db
     .from("agendamentos")
     .select("id, profissional_id, inicio, fim")
     .eq("tenant_id", ctx.tenantId)
     .not("status", "in", "(cancelado,falta)")
-    .gte("inicio", de.toISOString())
-    .lt("inicio", ate.toISOString());
+    .gte("inicio", inicioDoDia)
+    .lt("inicio", fimDoDia);
   if (input.profissionalId) consulta = consulta.eq("profissional_id", input.profissionalId);
 
   const [{ data: ocupados, error }, { data: expediente }, profissionais, servico] = await Promise.all([
@@ -112,7 +114,7 @@ export async function consultarDisponibilidade(
       .from("horarios_de_funcionamento")
       .select("fechado, abre, fecha")
       .eq("tenant_id", ctx.tenantId)
-      .eq("dia_semana", de.getDay())
+      .eq("dia_semana", diaDaSemanaDoDia(input.dia))
       .maybeSingle(),
     listarProfissionais(ctx),
     input.servicoId
@@ -130,6 +132,9 @@ export async function consultarDisponibilidade(
   const equipe = input.profissionalId
     ? profissionais.filter((p) => p.id === input.profissionalId)
     : profissionais;
+  if (input.profissionalId && equipe.length === 0) {
+    throw new Error("Profissional não encontrado nesta barbearia.");
+  }
 
   if (!expediente || expediente.fechado) {
     return { dia: input.dia, fechado: true, ocupados: ocupados ?? [], livres: [] as { profissionalId: string; inicio: string }[] };
@@ -139,13 +144,14 @@ export async function consultarDisponibilidade(
   const passo = 15;
   const abre = minutos(String(expediente.abre).slice(0, 5));
   const fecha = minutos(String(expediente.fecha).slice(0, 5));
+  const base = new Date(inicioDoDia).getTime();
   const agora = Date.now();
   const livres: { profissionalId: string; inicio: string }[] = [];
 
   for (const profissional of equipe) {
     const agenda = (ocupados ?? []).filter((a) => a.profissional_id === profissional.id);
     for (let m = abre; m + duracao <= fecha; m += passo) {
-      const inicio = new Date(de.getTime() + m * 60_000);
+      const inicio = new Date(base + m * 60_000);
       const fim = new Date(inicio.getTime() + duracao * 60_000);
       if (inicio.getTime() <= agora) continue;
       const conflita = agenda.some(
@@ -181,6 +187,18 @@ export async function registrarCliente(
   const existente = await consultarCliente(ctx, { telefone: input.telefone });
   if (existente) return existente;
   const db = await admin();
+  // Ficha antiga (arquivada) do mesmo telefone: reaproveitar em vez de duplicar.
+  const { data: arquivado } = await db
+    .from("clientes")
+    .select("id, nome, telefone, opt_in_whatsapp")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("telefone", input.telefone)
+    .not("arquivado_em", "is", null)
+    .maybeSingle();
+  if (arquivado) {
+    await db.from("clientes").update({ arquivado_em: null, nome: input.nome }).eq("id", arquivado.id);
+    return { ...arquivado, nome: input.nome };
+  }
   const { data, error } = await db
     .from("clientes")
     .insert({
@@ -210,6 +228,17 @@ async function exigirAgendamentoDoTenant(ctx: ContextoDoAgente, agendamentoId: s
   return data;
 }
 
+/** Avisa o cliente pelo WhatsApp Operacional V1. Nunca afeta o agendamento. */
+async function avisar(agendamentoId: string | undefined, tipo: "confirmacao_agendamento" | "cancelamento" | "remarcacao") {
+  if (!agendamentoId) return;
+  try {
+    const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+    await notificarAgendamento(agendamentoId, tipo);
+  } catch {
+    /* o agendamento já está salvo; a falha fica registrada no envio */
+  }
+}
+
 export async function criarAgendamento(
   ctx: ContextoDoAgente,
   input: {
@@ -218,9 +247,27 @@ export async function criarAgendamento(
     servicoId: string;
     inicio: string;
     formaPagamento: "credito" | "pix" | "balcao" | "fiado";
+    /** Quando `false`, o aviso fica por conta de quem chamou (ex.: remarcação). */
+    avisarCliente?: boolean;
   },
 ) {
   const db = await admin();
+  // Cliente, profissional e serviço precisam ser desta barbearia.
+  const [{ data: cliente }, { data: profissional }, { data: servico }] = await Promise.all([
+    db.from("clientes").select("id").eq("id", input.clienteId).eq("tenant_id", ctx.tenantId).maybeSingle(),
+    db
+      .from("profissionais")
+      .select("id")
+      .eq("id", input.profissionalId)
+      .eq("tenant_id", ctx.tenantId)
+      .eq("ativo", true)
+      .maybeSingle(),
+    db.from("servicos").select("id").eq("id", input.servicoId).eq("tenant_id", ctx.tenantId).eq("ativo", true).maybeSingle(),
+  ]);
+  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+  if (!profissional) throw new Error("Profissional não encontrado nesta barbearia.");
+  if (!servico) throw new Error("Serviço não encontrado nesta barbearia.");
+
   const { data, error } = await db.rpc("criar_agendamento", {
     _tenant_id: ctx.tenantId,
     _cliente_id: input.clienteId,
@@ -234,26 +281,53 @@ export async function criarAgendamento(
   await registrarAuditoria(ctx, "agendamento_criado", resultado.agendamento_id ?? "-", {
     inicio: input.inicio,
   });
+  if (input.avisarCliente !== false) await avisar(resultado.agendamento_id, "confirmacao_agendamento");
   return data;
 }
 
-/** Remarcar = cancelar pelas regras atuais e criar de novo com o mesmo serviço. */
+/**
+ * Remarcar: cria o novo horário ANTES de cancelar o antigo, para o cliente
+ * nunca ficar sem horário se a criação falhar. Quando o próprio agendamento
+ * atual atrapalha o novo horário, cancela primeiro e recria — e, se ainda
+ * assim falhar, devolve o horário original.
+ */
 export async function remarcarAgendamento(
   ctx: ContextoDoAgente,
   input: { agendamentoId: string; novoInicio: string; profissionalId?: string | null },
 ) {
   const atual = await exigirAgendamentoDoTenant(ctx, input.agendamentoId);
   const db = await admin();
-  const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
-  if (error) throw new Error(error.message);
-  const novo = await criarAgendamento(ctx, {
+  const dados = {
     clienteId: atual.cliente_id,
     profissionalId: (input.profissionalId ?? atual.profissional_id) as string,
     servicoId: atual.servico_id as string,
-    inicio: input.novoInicio,
     formaPagamento: (atual.forma_pagamento ?? "balcao") as "credito" | "pix" | "balcao" | "fiado",
-  });
+    avisarCliente: false,
+  };
+
+  let novo: unknown;
+  try {
+    novo = await criarAgendamento(ctx, { ...dados, inicio: input.novoInicio });
+    const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (error) throw new Error(error.message);
+  } catch (primeiroErro) {
+    if (novo) throw primeiroErro;
+    // O horário pode estar ocupado pelo próprio agendamento atual.
+    const { data: original } = await db.from("agendamentos").select("inicio").eq("id", atual.id).maybeSingle();
+    const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (error) throw primeiroErro;
+    try {
+      novo = await criarAgendamento(ctx, { ...dados, inicio: input.novoInicio });
+    } catch (segundoErro) {
+      if (original?.inicio) {
+        await criarAgendamento(ctx, { ...dados, inicio: original.inicio }).catch(() => undefined);
+      }
+      throw segundoErro;
+    }
+  }
+
   await registrarAuditoria(ctx, "agendamento_remarcado", atual.id, { novo_inicio: input.novoInicio });
+  await avisar((novo as { agendamento_id?: string })?.agendamento_id, "remarcacao");
   return novo;
 }
 
@@ -263,6 +337,7 @@ export async function cancelarAgendamento(ctx: ContextoDoAgente, input: { agenda
   const { data, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
   if (error) throw new Error(error.message);
   await registrarAuditoria(ctx, "agendamento_cancelado", atual.id, {});
+  await avisar(atual.id, "cancelamento");
   return data;
 }
 

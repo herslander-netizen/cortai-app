@@ -268,6 +268,10 @@ export async function processarMensagemRecebida(input: {
   if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
   if (!dentroDoHorarioDaIa(config)) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
+  // Proteção contra rajada na mesma conversa (abuso e custo de IA).
+  const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
+  if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
+
   const { iaConfigurada, responderConversa } = await import("./atendimento.server");
   if (!iaConfigurada()) return { tratada: true, motivo: "ia_indisponivel" };
 
@@ -323,11 +327,25 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "midia_nao_suportada" };
     }
   }
-  void textoDoCliente;
-
   const clienteId = await vincularCliente(tenantId, conversa.id, telefone, conversa.cliente_id ?? null);
   const perfil = await perfilDoCliente(tenantId, clienteId);
   const contexto = ((conversa as { contexto?: unknown }).contexto ?? {}) as ContextoDaConversa;
+
+  // Controle de custo: um "oi" na primeira mensagem é respondido pela saudação
+  // cadastrada pela barbearia, sem acionar a IA.
+  const soSaudacao = /^\s*(oi+|ol[áa]+|bom dia|boa tarde|boa noite|e a[íi]+|opa+)[\s!.,]*$/i.test(textoDoCliente);
+  if (soSaudacao && config.saudacaoAtiva && config.mensagemBoasVindas && historico.length <= 1 && !contexto.intencao) {
+    await enviarPelaBarbearia({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: input.sessaoId,
+      telefone,
+      texto: config.mensagemBoasVindas,
+      porIa: true,
+    }).catch(() => undefined);
+    return { tratada: true, motivo: "saudacao_sem_ia" };
+  }
 
   const { responderConversa: responder } = await import("./atendimento.server");
   let resposta: Awaited<ReturnType<typeof responder>> = null;

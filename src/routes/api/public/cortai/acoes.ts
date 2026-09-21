@@ -99,13 +99,32 @@ export const Route = createFileRoute("/api/public/cortai/acoes")({
           return json({ erro: "Dados inválidos.", detalhes: entrada.error.issues.map((i) => i.message) }, 422);
         }
 
+        const { limiteDaApiExcedido, registrarChamadaDaApi } = await import("@/lib/ia/limite.server");
+        if (await limiteDaApiExcedido(ctx.tenantId)) {
+          return json({ erro: "Muitas chamadas em pouco tempo. Tente novamente em instantes." }, 429);
+        }
+
         const { ACOES_DO_AGENTE } = await import("@/lib/ia/acoes.server");
+        const comecou = Date.now();
         try {
           const executar = ACOES_DO_AGENTE[nome] as (c: typeof ctx, d: unknown) => Promise<unknown>;
           const resultado = await executar(ctx, entrada.data);
+          await registrarChamadaDaApi({
+            tenantId: ctx.tenantId,
+            acao: nome,
+            sucesso: true,
+            duracaoMs: Date.now() - comecou,
+          });
           return json({ ok: true, acao: nome, resultado });
         } catch (erro) {
           const mensagem = erro instanceof Error ? erro.message : "Falha ao executar a ação.";
+          await registrarChamadaDaApi({
+            tenantId: ctx.tenantId,
+            acao: nome,
+            sucesso: false,
+            duracaoMs: Date.now() - comecou,
+            erro: mensagem,
+          });
           return json({ ok: false, acao: nome, erro: mensagem }, 409);
         }
       },
