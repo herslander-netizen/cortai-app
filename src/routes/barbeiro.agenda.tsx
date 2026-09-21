@@ -32,22 +32,6 @@ export const Route = createFileRoute("/barbeiro/agenda")({
   component: AgendaPage,
 });
 
-const HORA_INICIO = 9;
-const HORA_FIM = 19;
-const ALMOCO_INICIO = 12;
-const ALMOCO_FIM = 13;
-
-function slots(dia: string) {
-  const out: { iso: string; label: string; hora: number }[] = [];
-  for (let h = HORA_INICIO; h < HORA_FIM; h++) {
-    for (const m of [0, 30]) {
-      const d = new Date(`${dia}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
-      out.push({ iso: d.toISOString(), label: `${String(h).padStart(2, "0")}:${m === 0 ? "00" : "30"}`, hora: h });
-    }
-  }
-  return out;
-}
-
 function corDaBorda(forma: string | null) {
   if (forma === "fiado") return "border-l-brick";
   return "border-l-gold";
@@ -64,9 +48,15 @@ function AgendaPage() {
   const { data, isLoading, refetch } = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
     queryFn: () => getAgendaDia({ data: { dia } }),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
-  const lista = slots(dia);
+  const { slots: lista, fechado, abre, fecha } = useMemo(
+    () => slotsDoDia(dia, data?.horarios ?? null),
+    [dia, data?.horarios],
+  );
 
   return (
     <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
