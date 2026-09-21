@@ -80,10 +80,10 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       regras,
       ocupados: ocupados ?? [],
       horarios: (horariosRes.data ?? []).map((h: Record<string, any>) => ({
-        diaSemana: h.dia_semana as number,
-        fechado: Boolean(h.fechado),
-        abre: String(h.abre).slice(0, 5),
-        fecha: String(h.fecha).slice(0, 5),
+        diaSemana: h["dia_semana"] as number,
+        fechado: Boolean(h["fechado"]),
+        abre: String(h["abre"]).slice(0, 5),
+        fecha: String(h["fecha"]).slice(0, 5),
       })),
     };
   });
