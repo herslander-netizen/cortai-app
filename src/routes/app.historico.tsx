@@ -58,22 +58,35 @@ function HistoricoPage() {
       {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
       {lista.isLoading ? <Carregando /> : null}
       {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}
-      {proximo ? (
+      {proximos.length ? (
         <section>
-          <p className="text-xs font-semibold uppercase text-mute">Seu próximo corte</p>
-          <div data-guia="historico-proximo" className="mt-3 rounded-md border border-line bg-ink2 px-4 py-4">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
-              <div className="min-w-0">
-                <h2 className="text-base font-semibold text-paper">{proximo.servicos?.nome ?? "Serviço"}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-mute">{dataHoraLonga(proximo.inicio)}</p>
-                <p className="mt-0.5 text-xs text-mute2">com {proximo.profissionais?.nome ?? "profissional"}</p>
+          <p className="text-xs font-semibold uppercase text-mute">
+            {proximos.length === 1 ? "Seu próximo corte" : "Seus próximos cortes"}
+          </p>
+          <div className="space-y-3">
+            {proximos.map((p, indice) => (
+              <div
+                key={p.id}
+                {...(indice === 0 ? { "data-guia": "historico-proximo" } : {})}
+                className="mt-3 rounded-md border border-line bg-ink2 px-4 py-4"
+              >
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold text-paper">{p.servicos?.nome ?? "Serviço"}</h2>
+                    <p className="mt-1 text-sm leading-relaxed text-mute">{dataHoraLonga(p.inicio)}</p>
+                    <p className="mt-0.5 text-xs text-mute2">com {p.profissionais?.nome ?? "profissional"}</p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-semibold uppercase text-sage">Confirmado</span>
+                </div>
+                <div
+                  {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
+                  className="mt-4 flex gap-2 border-t border-line pt-3"
+                >
+                  <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar">Remarcar</Link></Button>
+                  <Button variant="ghost" size="sm" className="text-mute hover:text-brick" onClick={() => cancelarItem(p.id, p.inicio)}>Cancelar</Button>
+                </div>
               </div>
-              <span className="shrink-0 text-[10px] font-semibold uppercase text-sage">Confirmado</span>
-            </div>
-            <div data-guia="historico-acoes" className="mt-4 flex gap-2 border-t border-line pt-3">
-              <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar">Remarcar</Link></Button>
-              <Button variant="ghost" size="sm" className="text-mute hover:text-brick" onClick={() => cancelarItem(proximo.id, proximo.inicio)}>Cancelar</Button>
-            </div>
+            ))}
           </div>
         </section>
       ) : null}
