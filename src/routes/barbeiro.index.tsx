@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight, TrendingUp } from "lucide-react";
+import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso } from "@/components/ui/aviso";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
+import { FechamentoComanda } from "@/components/financeiro/FechamentoComanda";
 import { brl, hora } from "@/lib/format";
-import { finalizarAtendimento, getPainelHoje } from "@/lib/barbeiro.functions";
+import { getPainelHoje } from "@/lib/barbeiro.functions";
 import { getOportunidades } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { BannersDaPlataforma, MeuPlano } from "@/components/barbeiro/PainelComercial";
