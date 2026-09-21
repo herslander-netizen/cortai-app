@@ -96,6 +96,12 @@ export type ConfiguracaoDoAtendimento = {
   horarioDias: number[];
   horarioInicio: string;
   horarioFim: string;
+  /** Confirmação automática do agendamento pelo WhatsApp (sem IA). */
+  confirmacaoAutomatica: boolean;
+  /** Mostrar link externo de pagamento antecipado na confirmação. */
+  pagamentoAntecipado: boolean;
+  /** Link externo de pagamento informado pela barbearia. */
+  linkPagamento: string;
 };
 
 export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
@@ -119,6 +125,9 @@ export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   horarioDias: [1, 2, 3, 4, 5, 6],
   horarioInicio: "09:00",
   horarioFim: "19:00",
+  confirmacaoAutomatica: true,
+  pagamentoAntecipado: false,
+  linkPagamento: "",
 };
 
 /** Erro usado quando não existe serviço de WhatsApp configurado no ambiente. */

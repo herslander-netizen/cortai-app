@@ -497,6 +497,14 @@ const configSchema = z.object({
   horarioDias: z.array(z.number().int().min(0).max(6)).max(7).default([1, 2, 3, 4, 5, 6]),
   horarioInicio: z.string().regex(/^\d{2}:\d{2}$/).default("09:00"),
   horarioFim: z.string().regex(/^\d{2}:\d{2}$/).default("19:00"),
+  confirmacaoAutomatica: z.boolean().default(true),
+  pagamentoAntecipado: z.boolean().default(false),
+  linkPagamento: z
+    .string()
+    .trim()
+    .max(500)
+    .default("")
+    .refine((v) => v === "" || /^https:\/\/\S+$/.test(v), "Informe um link que comece com https://"),
 });
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
@@ -527,6 +535,9 @@ export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
         horario_dias: data.horarioDias,
         horario_inicio: `${data.horarioInicio}:00`,
         horario_fim: `${data.horarioFim}:00`,
+        confirmacao_automatica: data.confirmacaoAutomatica,
+        pagamento_antecipado: data.pagamentoAntecipado,
+        link_pagamento: data.linkPagamento,
       },
       { onConflict: "tenant_id" },
     );
