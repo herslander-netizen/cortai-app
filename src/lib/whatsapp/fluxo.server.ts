@@ -268,6 +268,10 @@ export async function processarMensagemRecebida(input: {
   if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
   if (!dentroDoHorarioDaIa(config)) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
+  // Proteção contra rajada na mesma conversa (abuso e custo de IA).
+  const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
+  if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
+
   const { iaConfigurada, responderConversa } = await import("./atendimento.server");
   if (!iaConfigurada()) return { tratada: true, motivo: "ia_indisponivel" };
 
