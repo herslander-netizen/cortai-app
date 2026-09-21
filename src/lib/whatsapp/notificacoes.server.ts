@@ -352,7 +352,11 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   const db = await admin();
   const resumo = { lembrete24h: 0, lembrete2h: 0, retentativas: 0 };
 
-  const janela = async (horas: number, minutos: number) => {
+  /**
+   * Só os agendamentos elegíveis da janela, já sem os que têm envio deste tipo
+   * (evita reprocessar e chamadas desnecessárias a cada execução do job).
+   */
+  const janela = async (tipo: TipoDeNotificacao, horas: number, minutos: number) => {
     const de = new Date(agora.getTime() + horas * 3600_000 - minutos * 60_000);
     const ate = new Date(agora.getTime() + horas * 3600_000 + minutos * 60_000);
     const { data } = await db
@@ -362,14 +366,22 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
       .lte("inicio", ate.toISOString())
       .in("status", ["novo", "agendado", "aguardando_pagamento", "aguardando_confirmacao", "pago", "fiado"])
       .limit(500);
-    return (data ?? []).map((a) => a.id);
+    const ids = (data ?? []).map((a) => a.id);
+    if (ids.length === 0) return [];
+    const { data: jaEnviados } = await db
+      .from("envios_de_whatsapp")
+      .select("agendamento_id")
+      .eq("tipo", tipo)
+      .in("agendamento_id", ids);
+    const feitos = new Set((jaEnviados ?? []).map((e) => e.agendamento_id));
+    return ids.filter((id) => !feitos.has(id));
   };
 
-  for (const id of await janela(24, 30)) {
+  for (const id of await janela("lembrete_24h", 24, 30)) {
     const r = await notificarAgendamento(id, "lembrete_24h");
     if (r.enviado) resumo.lembrete24h += 1;
   }
-  for (const id of await janela(2, 15)) {
+  for (const id of await janela("lembrete_2h", 2, 15)) {
     const r = await notificarAgendamento(id, "lembrete_2h");
     if (r.enviado) resumo.lembrete2h += 1;
   }

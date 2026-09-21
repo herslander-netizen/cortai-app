@@ -1252,22 +1252,45 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
 
       <BlocoInformacoes />
 
-      <Bloco titulo="Mensagens automáticas" descricao="Ligue só o que fizer sentido para a sua barbearia.">
-        <ul className="space-y-3">
-          {painel.automacoes.map((a) => (
-            <li key={a.chave} className="flex items-center justify-between gap-4">
-              <span className="text-xs text-paper">{AUTOMACOES[a.chave]}</span>
-              <input
-                type="checkbox"
-                checked={a.ativa}
-                onChange={(e) => alternarAutomacao.mutate({ chave: a.chave, ativa: e.target.checked, mensagem: a.mensagem })}
-                className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
-                aria-label={AUTOMACOES[a.chave]}
-              />
-            </li>
-          ))}
-        </ul>
-      </Bloco>
+      {(() => {
+        const OPERACIONAIS = [
+          "confirmacao_agendamento",
+          "lembrete_24h",
+          "lembrete_2h",
+          "cancelamento",
+          "remarcacao",
+        ] as const;
+        const item = (a: (typeof painel.automacoes)[number]) => (
+          <li key={a.chave} className="flex items-center justify-between gap-4">
+            <span className="text-xs text-paper">{AUTOMACOES[a.chave]}</span>
+            <input
+              type="checkbox"
+              checked={a.ativa}
+              onChange={(e) => alternarAutomacao.mutate({ chave: a.chave, ativa: e.target.checked, mensagem: a.mensagem })}
+              className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
+              aria-label={AUTOMACOES[a.chave]}
+            />
+          </li>
+        );
+        const operacionais = painel.automacoes.filter((a) => (OPERACIONAIS as readonly string[]).includes(a.chave));
+        const outras = painel.automacoes.filter((a) => !(OPERACIONAIS as readonly string[]).includes(a.chave));
+        return (
+          <>
+            <Bloco
+              titulo="WhatsApp — Automações"
+              descricao="Mensagens enviadas pela barbearia, sem IA. Desligada, a mensagem não é enviada."
+            >
+              <ul className="space-y-3">{operacionais.map(item)}</ul>
+              <p className="mt-3 text-[11px] text-mute">
+                O pagamento antecipado é ligado acima, em Atendimento, junto do link de pagamento.
+              </p>
+            </Bloco>
+            <Bloco titulo="Outras mensagens" descricao="Mensagens da conversa com a IA.">
+              <ul className="space-y-3">{outras.map(item)}</ul>
+            </Bloco>
+          </>
+        );
+      })()}
     </section>
   );
 }
