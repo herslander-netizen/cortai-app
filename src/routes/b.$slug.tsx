@@ -162,7 +162,7 @@ function PaginaBarbearia() {
         <h2 className="text-xl font-bold text-paper">Reserve seu horário</h2>
         <p className="mt-1 text-sm text-mute">Escolha serviço, profissional e horário em menos de um minuto.</p>
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
-          <Button asChild className="h-12 font-bold"><Link to="/app/agendar" search={{ b: slug }}>Agendar horário</Link></Button>
+          <Button asChild className="h-12 font-bold"><Link to="/agendar/$slug" params={{ slug }}>Agendar horário</Link></Button>
           {linkContato ? (
             <Button asChild variant="outline" className="h-12">
               <a href={linkContato} target={whatsapp ? "_blank" : undefined} rel="noreferrer">

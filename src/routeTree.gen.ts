@@ -31,6 +31,7 @@ import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
 import { Route as AdminRecursosRouteImport } from './routes/admin.recursos'
+import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AppCarteiraRouteImport } from './routes/app.carteira'
@@ -182,6 +183,11 @@ const AdminRecursosRoute = AdminRecursosRouteImport.update({
   id: '/recursos',
   path: '/recursos',
   getParentRoute: () => AdminRoute,
+} as any)
+const AgendarSlugRoute = AgendarSlugRouteImport.update({
+  id: '/agendar/$slug',
+  path: '/agendar/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
@@ -413,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -475,6 +482,7 @@ export interface FileRoutesByTo {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -540,6 +548,7 @@ export interface FileRoutesById {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
   '/app/espera': typeof AppEsperaRoute
@@ -607,6 +616,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -669,6 +679,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -733,6 +744,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
     | '/app/espera'
@@ -790,6 +802,7 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   VisitanteRoute: typeof VisitanteRoute
+  AgendarSlugRoute: typeof AgendarSlugRoute
   BSlugRoute: typeof BSlugRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
@@ -956,6 +969,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/recursos'
       preLoaderRoute: typeof AdminRecursosRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/agendar/$slug': {
+      id: '/agendar/$slug'
+      path: '/agendar/$slug'
+      fullPath: '/agendar/$slug'
+      preLoaderRoute: typeof AgendarSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/': {
       id: '/app/'
@@ -1379,6 +1399,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   VisitanteRoute: VisitanteRoute,
+  AgendarSlugRoute: AgendarSlugRoute,
   BSlugRoute: BSlugRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
