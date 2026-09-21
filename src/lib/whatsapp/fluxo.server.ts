@@ -55,6 +55,9 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     horarioDias: (data.horario_dias as number[] | null) ?? [1, 2, 3, 4, 5, 6],
     horarioInicio: String(data.horario_inicio ?? "09:00:00").slice(0, 5),
     horarioFim: String(data.horario_fim ?? "19:00:00").slice(0, 5),
+    confirmacaoAutomatica: data.confirmacao_automatica ?? true,
+    pagamentoAntecipado: data.pagamento_antecipado ?? false,
+    linkPagamento: data.link_pagamento ?? "",
   };
 }
 
@@ -67,7 +70,7 @@ export function dentroDoHorarioDaIa(config: ConfiguracaoDoAtendimento, agora = n
   return minutos >= paraMinutos(config.horarioInicio) && minutos <= paraMinutos(config.horarioFim);
 }
 
-async function conversaDoTelefone(input: {
+export async function conversaDoTelefone(input: {
   tenantId: string;
   conexaoId: string;
   telefone: string;

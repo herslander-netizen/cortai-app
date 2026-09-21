@@ -1113,6 +1113,7 @@ export type Database = {
         Row: {
           atendimento_automatico: boolean
           atualizado_em: string
+          confirmacao_automatica: boolean
           criado_em: string
           encaminhamento_humano: boolean
           horario_dias: number[]
@@ -1121,8 +1122,10 @@ export type Database = {
           horario_proprio: boolean
           instrucoes_extras: string
           lembretes: boolean
+          link_pagamento: string
           mensagem_boas_vindas: string
           mensagem_fora_do_horario: string
+          pagamento_antecipado: boolean
           permite_cancelar: boolean
           permite_confirmar: boolean
           permite_remarcar: boolean
@@ -1136,6 +1139,7 @@ export type Database = {
         Insert: {
           atendimento_automatico?: boolean
           atualizado_em?: string
+          confirmacao_automatica?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]
@@ -1144,8 +1148,10 @@ export type Database = {
           horario_proprio?: boolean
           instrucoes_extras?: string
           lembretes?: boolean
+          link_pagamento?: string
           mensagem_boas_vindas?: string
           mensagem_fora_do_horario?: string
+          pagamento_antecipado?: boolean
           permite_cancelar?: boolean
           permite_confirmar?: boolean
           permite_remarcar?: boolean
@@ -1159,6 +1165,7 @@ export type Database = {
         Update: {
           atendimento_automatico?: boolean
           atualizado_em?: string
+          confirmacao_automatica?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]
@@ -1167,8 +1174,10 @@ export type Database = {
           horario_proprio?: boolean
           instrucoes_extras?: string
           lembretes?: boolean
+          link_pagamento?: string
           mensagem_boas_vindas?: string
           mensagem_fora_do_horario?: string
+          pagamento_antecipado?: boolean
           permite_cancelar?: boolean
           permite_confirmar?: boolean
           permite_remarcar?: boolean
@@ -1549,6 +1558,76 @@ export type Database = {
           email?: string
         }
         Relationships: []
+      }
+      envios_de_whatsapp: {
+        Row: {
+          agendamento_id: string | null
+          atualizado_em: string
+          cliente_id: string | null
+          conteudo: string | null
+          criado_em: string
+          enviado_em: string | null
+          erro: string | null
+          id: string
+          status: string
+          telefone: string
+          tenant_id: string
+          tentativas: number
+          tipo: string
+        }
+        Insert: {
+          agendamento_id?: string | null
+          atualizado_em?: string
+          cliente_id?: string | null
+          conteudo?: string | null
+          criado_em?: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: string
+          telefone: string
+          tenant_id: string
+          tentativas?: number
+          tipo?: string
+        }
+        Update: {
+          agendamento_id?: string | null
+          atualizado_em?: string
+          cliente_id?: string | null
+          conteudo?: string | null
+          criado_em?: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: string
+          telefone?: string
+          tenant_id?: string
+          tentativas?: number
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "envios_de_whatsapp_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_de_whatsapp_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_de_whatsapp_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       eventos_de_ia: {
         Row: {

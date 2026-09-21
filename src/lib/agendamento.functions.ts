@@ -145,6 +145,15 @@ export const criarAgendamento = createServerFn({ method: "POST" })
     ]);
     const participa = personalizacao?.fidelidade_participa ?? regraFidelidade?.ativo ?? false;
     if (!participa) resultado.fidelidade_alvo = null;
+
+    // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
+    try {
+      const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+      await enviarConfirmacaoDeAgendamento(resultado.agendamento_id);
+    } catch {
+      /* o agendamento já está salvo; a falha fica registrada no envio */
+    }
+
     return resultado;
   });
 
