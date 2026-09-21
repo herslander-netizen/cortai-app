@@ -272,8 +272,15 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     });
 
     const iso = de.toISOString().slice(0, 10);
-    return { tenant, dia: iso, itens, fila };
+    const horarios = (horariosRes.data ?? []).map((h) => ({
+      diaSemana: h.dia_semana as number,
+      fechado: Boolean(h.fechado),
+      abre: String(h.abre).slice(0, 5),
+      fecha: String(h.fecha).slice(0, 5),
+    }));
+    return { tenant, dia: iso, itens, fila, horarios };
   });
+
 
 export const avisarFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
