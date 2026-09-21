@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { slotsDoDia } from "@/lib/horarios";
+import { FUSO_BARBEARIA, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -50,11 +50,11 @@ function proximosDias(qtd: number) {
 }
 
 function horaLocal(iso: string) {
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: FUSO_BARBEARIA });
 }
 
 function dataLocal(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: FUSO_BARBEARIA });
 }
 
 function livre(
@@ -419,7 +419,7 @@ function AgendamentoPublico() {
         </p>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-line bg-ink/95 px-5 py-4 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 px-5 py-4 backdrop-blur">
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">
