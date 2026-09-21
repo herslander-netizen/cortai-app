@@ -187,6 +187,18 @@ export async function registrarCliente(
   const existente = await consultarCliente(ctx, { telefone: input.telefone });
   if (existente) return existente;
   const db = await admin();
+  // Ficha antiga (arquivada) do mesmo telefone: reaproveitar em vez de duplicar.
+  const { data: arquivado } = await db
+    .from("clientes")
+    .select("id, nome, telefone, opt_in_whatsapp")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("telefone", input.telefone)
+    .not("arquivado_em", "is", null)
+    .maybeSingle();
+  if (arquivado) {
+    await db.from("clientes").update({ arquivado_em: null, nome: input.nome }).eq("id", arquivado.id);
+    return { ...arquivado, nome: input.nome };
+  }
   const { data, error } = await db
     .from("clientes")
     .insert({
