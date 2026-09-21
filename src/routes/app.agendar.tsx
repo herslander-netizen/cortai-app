@@ -92,15 +92,15 @@ function Passo({
   );
 }
 
-const HORA_INICIO = 9;
-const HORA_FIM = 19;
-
 function AgendarPage() {
   const { b } = Route.useSearch();
   const dados = useQuery({
     queryKey: ["agendar", b ?? null],
     queryFn: () => getDadosAgendar({ data: b ? { slug: b } : {} }),
     retry: false,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
   if (dados.isError) {
