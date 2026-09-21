@@ -1002,6 +1002,49 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </ul>
       </Bloco>
 
+      <Bloco
+        titulo="Confirmação automática"
+        descricao="Mensagem pronta enviada pelo WhatsApp assim que um agendamento é confirmado. Não usa IA."
+      >
+        <ul className="space-y-4">
+          <Chave
+            rotulo="WhatsApp automático"
+            detalhe={
+              whatsappConectado
+                ? "Envia a confirmação com serviço, profissional, data, horário e valor."
+                : "Depende da conexão do WhatsApp: conecte na aba WhatsApp para os envios acontecerem."
+            }
+            valor={config.confirmacaoAutomatica}
+            aoMudar={(v) => mudar({ confirmacaoAutomatica: v })}
+          />
+          <Chave
+            rotulo="Pagamento antecipado"
+            detalhe="Inclui um link externo de pagamento na mensagem de confirmação."
+            valor={config.pagamentoAntecipado}
+            aoMudar={(v) => mudar({ pagamentoAntecipado: v })}
+          />
+        </ul>
+
+        {config.pagamentoAntecipado ? (
+          <label className="mt-4 block">
+            <span className="text-xs text-mute">Link de pagamento</span>
+            <input
+              type="url"
+              inputMode="url"
+              value={config.linkPagamento}
+              onChange={(e) => mudar({ linkPagamento: e.target.value })}
+              placeholder="https://..."
+              className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
+            />
+            <span className="mt-1 block text-[11px] text-mute2">
+              {config.linkPagamento.trim() === ""
+                ? "Enquanto o link estiver vazio, a mensagem é enviada sem a parte de pagamento."
+                : "Esse link é enviado como “Pagar agora” na confirmação."}
+            </span>
+          </label>
+        ) : null}
+      </Bloco>
+
       <Bloco titulo="Forma de atendimento" descricao="Como a IA fala com os seus clientes.">
         <label className="block">
           <span className="text-xs text-mute">Tom do atendimento</span>
