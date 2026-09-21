@@ -172,6 +172,12 @@ export const cancelarAgendamento = createServerFn({ method: "POST" })
     if (!ag) throw new Error("Esse agendamento não é seu.");
     const { data: res, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
     if (error) throw new Error(traduz(error.message));
+    try {
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      await notificarAgendamento(data.agendamentoId, "cancelamento");
+    } catch {
+      /* o cancelamento já está salvo */
+    }
     return res as unknown as { devolvido: boolean; saldo_creditos: number; saldo_centavos: number };
   });
 

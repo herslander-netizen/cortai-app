@@ -986,6 +986,16 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       _forma_pagamento: atual.forma_pagamento ?? "balcao",
     });
     if (error) throw new Error(error.message);
+    const criadoId = (novo as any)?.agendamento_id as string | undefined;
+    // Aviso de remarcação: nunca bloqueia o novo horário.
+    if (criadoId) {
+      try {
+        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+        await notificarAgendamento(criadoId, "remarcacao");
+      } catch {
+        /* o horário já está salvo; a falha fica registrada no envio */
+      }
+    }
     return novo as unknown as { agendamento_id?: string };
   });
 
@@ -1004,5 +1014,11 @@ export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
     if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
     const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
     if (error) throw new Error(error.message);
+    try {
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      await notificarAgendamento(atual.id, "cancelamento");
+    } catch {
+      /* o cancelamento já está salvo */
+    }
     return { ok: true };
   });

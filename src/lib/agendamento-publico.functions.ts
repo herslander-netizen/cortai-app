@@ -247,5 +247,11 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
     if (telefone !== data.telefone) throw new Error("Agendamento não encontrado.");
     const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
     if (error) throw new Error("Não foi possível cancelar agora.");
+    try {
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      await notificarAgendamento(data.agendamentoId, "cancelamento");
+    } catch {
+      /* o cancelamento já está salvo */
+    }
     return { cancelado: true };
   });
