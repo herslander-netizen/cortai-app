@@ -5,7 +5,8 @@ import { useMemo, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
-import { brl, dataHoraLonga, diaCurto, hora } from "@/lib/format";
+import { brl, dataHoraLonga, diaCurto } from "@/lib/format";
+import { horarioDoDia, slotsDoDia } from "@/lib/horarios";
 import {
   criarAgendamento,
   getDadosAgendar,
@@ -92,15 +93,15 @@ function Passo({
   );
 }
 
-const HORA_INICIO = 9;
-const HORA_FIM = 19;
-
 function AgendarPage() {
   const { b } = Route.useSearch();
   const dados = useQuery({
     queryKey: ["agendar", b ?? null],
     queryFn: () => getDadosAgendar({ data: b ? { slug: b } : {} }),
     retry: false,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
   if (dados.isError) {
@@ -156,25 +157,26 @@ function Fluxo({
     return out;
   }, []);
 
+  const fechadoNoDia = useMemo(
+    () => (dia ? horarioDoDia(dia, dados.horarios).fechado : false),
+    [dia, dados.horarios],
+  );
+
   const horarios = useMemo(() => {
-    if (!dia || !servico || !profId) return [] as { iso: string; ocupado: boolean; passado: boolean }[];
-    const out: { iso: string; ocupado: boolean; passado: boolean }[] = [];
+    if (!dia || !servico || !profId) return [] as { iso: string; label: string; ocupado: boolean; passado: boolean }[];
     const agora = Date.now();
-    for (let h = HORA_INICIO; h < HORA_FIM; h++) {
-      for (const m of [0, 30]) {
-        const d = new Date(`${dia}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
-        const fim = new Date(d.getTime() + servico.duracao_min * 60000);
-        const ocupado = dados.ocupados.some(
-          (o) =>
-            o.profissional_id === profId &&
-            new Date(o.inicio).getTime() < fim.getTime() &&
-            new Date(o.fim).getTime() > d.getTime(),
-        );
-        out.push({ iso: d.toISOString(), ocupado, passado: d.getTime() <= agora });
-      }
-    }
-    return out;
-  }, [dia, servico, profId, dados.ocupados]);
+    return slotsDoDia(dia, dados.horarios).slots.map((s) => {
+      const inicio = new Date(s.iso).getTime();
+      const fim = inicio + servico.duracao_min * 60000;
+      const ocupado = dados.ocupados.some(
+        (o) =>
+          o.profissional_id === profId &&
+          new Date(o.inicio).getTime() < fim &&
+          new Date(o.fim).getTime() > inicio,
+      );
+      return { iso: s.iso, label: s.label, ocupado, passado: inicio <= agora };
+    });
+  }, [dia, servico, profId, dados.ocupados, dados.horarios]);
 
   const preco = servico?.preco_centavos ?? 0;
   const disponivelFiado = dados.cliente.limite_fiado_centavos + Math.min(dados.carteira.saldo_centavos, 0);
@@ -297,13 +299,15 @@ function Fluxo({
       <Passo n={4} titulo="Horário" guia="agendar-horario">
         {!servico || !profId || !dia ? (
           <p className="text-sm text-mute">Escolha serviço, profissional e dia para ver os horários.</p>
+        ) : fechadoNoDia ? (
+          <p className="text-sm text-mute">A barbearia não abre neste dia. Escolha outro dia.</p>
         ) : (
           <>
             <div className="flex flex-wrap gap-2">
               {horarios.map((h) => (
                 <Chip
                   key={h.iso}
-                  label={hora(h.iso)}
+                  label={h.label}
                   selected={h.iso === inicio}
                   disabled={h.ocupado || h.passado}
                   strike={h.ocupado}

@@ -14,8 +14,9 @@ import {
   type ServicoSugerido,
 } from "./assistente";
 
-const ENDPOINT = "https://ai.gateway.lovable.dev/v1/responses";
-const MODELO = "openai/gpt-6-astra";
+// Infraestrutura da Alvo IA / Lovable AI Gateway — nenhum consumo de tokens da OpenAI.
+const ENDPOINT = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODELO = "google/gemini-3-flash";
 
 export function assistenteConfigurado(): boolean {
   return Boolean(process.env["LOVABLE_API_KEY"]);
@@ -122,41 +123,6 @@ ${horarios}`;
 
 type Turno = { autor: "barbeiro" | "assistente"; conteudo: string };
 
-/** Lê o SSE inteiro e devolve o texto final — streaming é obrigatório nesta API. */
-async function lerFluxo(resposta: Response): Promise<string> {
-  const leitor = resposta.body?.getReader();
-  if (!leitor) throw new Error("Resposta vazia do assistente.");
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let texto = "";
-  let completo = "";
-  for (;;) {
-    const { done, value } = await leitor.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const linhas = buffer.split("\n");
-    buffer = linhas.pop() ?? "";
-    for (const linha of linhas) {
-      if (!linha.startsWith("data:")) continue;
-      const cru = linha.slice(5).trim();
-      if (!cru || cru === "[DONE]") continue;
-      try {
-        const evento = JSON.parse(cru) as Record<string, any>;
-        if (evento["type"] === "response.output_text.delta" && typeof evento["delta"] === "string") {
-          texto += evento["delta"];
-        }
-        if (evento["type"] === "response.completed") {
-          const saida = evento["response"]?.output_text;
-          if (typeof saida === "string" && saida) completo = saida;
-          else if (Array.isArray(saida) && saida.length) completo = saida.join("");
-        }
-      } catch {
-        /* linha parcial — ignora */
-      }
-    }
-  }
-  return completo || texto;
-}
 
 function inteiro(valor: unknown, padrao: number): number {
   const n = typeof valor === "number" ? valor : Number(valor);
@@ -253,37 +219,33 @@ export async function pensar(input: {
   if (!chave) return respostaIndisponivel();
 
   const entrada = [
-    { role: "system", content: [{ type: "input_text", text: REGRAS }] },
-    {
-      role: "system",
-      content: [{ type: "input_text", text: `Contexto atual da barbearia:\n${contextoEmTexto(input.contexto)}` }],
-    },
-    ...(input.instrucaoExtra
-      ? [{ role: "system", content: [{ type: "input_text", text: input.instrucaoExtra }] }]
-      : []),
+    { role: "system", content: REGRAS },
+    { role: "system", content: `Contexto atual da barbearia:\n${contextoEmTexto(input.contexto)}` },
+    ...(input.instrucaoExtra ? [{ role: "system", content: input.instrucaoExtra }] : []),
     ...(input.historico ?? []).slice(-10).map((t) => ({
       role: t.autor === "barbeiro" ? "user" : "assistant",
-      content: [{ type: t.autor === "barbeiro" ? "input_text" : "output_text", text: t.conteudo }],
+      content: t.conteudo,
     })),
-    { role: "user", content: [{ type: "input_text", text: input.mensagem }] },
+    { role: "user", content: input.mensagem },
   ];
 
   const resposta = await fetch(ENDPOINT, {
     method: "POST",
-    headers: { "content-type": "application/json", "Lovable-API-Key": chave, "X-Lovable-AIG-SDK": "fetch" },
+    headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
     body: JSON.stringify({
       model: MODELO,
-      input: entrada,
-      stream: true,
-      store: false,
-      reasoning: { effort: "low" },
-      text: { format: { type: "json_schema", name: "resposta_do_cortai", strict: true, schema: ESQUEMA } },
+      messages: entrada,
+      response_format: {
+        type: "json_schema",
+        json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
+      },
     }),
   });
 
   if (!resposta.ok) throw erroDoGateway(resposta.status, await resposta.text().catch(() => ""));
 
-  const texto = await lerFluxo(resposta);
+  const corpo = (await resposta.json()) as Record<string, any>;
+  const texto = String(corpo?.["choices"]?.[0]?.message?.content ?? "");
   if (!texto.trim()) {
     return {
       ...respostaIndisponivel(),

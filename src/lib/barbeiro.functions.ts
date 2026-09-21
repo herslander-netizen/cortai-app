@@ -212,6 +212,7 @@ export type AgendaDia = {
   dia: string;
   itens: AgendaItem[];
   fila: FilaJanela[];
+  horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
@@ -222,7 +223,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const de = inicioDoDia(data.dia);
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
-    const [agRes, filaRes] = await Promise.all([
+    const [agRes, filaRes, horariosRes] = await Promise.all([
       db
         .from("agendamentos")
         .select(
@@ -237,7 +238,13 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .select("id, janela_preferida, clientes(nome)")
         .eq("tenant_id", tenant.id)
         .order("posicao"),
+      db
+        .from("horarios_de_funcionamento")
+        .select("dia_semana, fechado, abre, fecha")
+        .eq("tenant_id", tenant.id)
+        .order("dia_semana"),
     ]);
+
 
     const itens = (agRes.data ?? [])
       .filter((a) => a.status !== "cancelado")
@@ -265,8 +272,15 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     });
 
     const iso = de.toISOString().slice(0, 10);
-    return { tenant, dia: iso, itens, fila };
+    const horarios = (horariosRes.data ?? []).map((h) => ({
+      diaSemana: h.dia_semana as number,
+      fechado: Boolean(h.fechado),
+      abre: String(h.abre).slice(0, 5),
+      fecha: String(h.fecha).slice(0, 5),
+    }));
+    return { tenant, dia: iso, itens, fila, horarios };
   });
+
 
 export const avisarFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
