@@ -31,6 +31,8 @@ export const AUTOMACOES = {
   fora_do_horario: "Aviso fora do horário",
   confirmacao_agendamento: "Confirmação de agendamento",
   lembrete_agendamento: "Lembrete de agendamento",
+  lembrete_24h: "Lembrete 24 horas antes",
+  lembrete_2h: "Lembrete 2 horas antes",
   cancelamento: "Aviso de cancelamento",
   remarcacao: "Aviso de remarcação",
   encaminhamento_humano: "Encaminhamento para atendente",

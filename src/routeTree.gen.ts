@@ -71,6 +71,7 @@ import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.cli
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
+import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
 
@@ -384,6 +385,12 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhatsappAutomacoesRoute =
+  ApiPublicWhatsappAutomacoesRouteImport.update({
+    id: '/api/public/whatsapp/automacoes',
+    path: '/api/public/whatsapp/automacoes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWhatsappEventosRoute =
   ApiPublicWhatsappEventosRouteImport.update({
     id: '/api/public/whatsapp/eventos',
@@ -460,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
@@ -522,6 +530,7 @@ export interface FileRoutesByTo {
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
@@ -589,6 +598,7 @@ export interface FileRoutesById {
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
 }
@@ -657,6 +667,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
   fileRoutesByTo: FileRoutesByTo
@@ -719,6 +730,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes'
     | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
   id:
@@ -785,6 +797,7 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
     | '/api/public/cortai/acoes'
+    | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
   fileRoutesById: FileRoutesById
@@ -810,6 +823,7 @@ export interface RootRouteChildren {
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
+  ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
   ApiPublicWhatsappEvolutionRoute: typeof ApiPublicWhatsappEvolutionRoute
 }
@@ -1250,6 +1264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whatsapp/automacoes': {
+      id: '/api/public/whatsapp/automacoes'
+      path: '/api/public/whatsapp/automacoes'
+      fullPath: '/api/public/whatsapp/automacoes'
+      preLoaderRoute: typeof ApiPublicWhatsappAutomacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whatsapp/eventos': {
       id: '/api/public/whatsapp/eventos'
       path: '/api/public/whatsapp/eventos'
@@ -1407,6 +1428,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
+  ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
   ApiPublicWhatsappEvolutionRoute: ApiPublicWhatsappEvolutionRoute,
 }
