@@ -270,20 +270,21 @@ export async function pensar(input: {
 
   const resposta = await fetch(ENDPOINT, {
     method: "POST",
-    headers: { "content-type": "application/json", "Lovable-API-Key": chave, "X-Lovable-AIG-SDK": "fetch" },
+    headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
     body: JSON.stringify({
       model: MODELO,
-      input: entrada,
-      stream: true,
-      store: false,
-      reasoning: { effort: "low" },
-      text: { format: { type: "json_schema", name: "resposta_do_cortai", strict: true, schema: ESQUEMA } },
+      messages: entrada,
+      response_format: {
+        type: "json_schema",
+        json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
+      },
     }),
   });
 
   if (!resposta.ok) throw erroDoGateway(resposta.status, await resposta.text().catch(() => ""));
 
-  const texto = await lerFluxo(resposta);
+  const corpo = (await resposta.json()) as Record<string, any>;
+  const texto = String(corpo?.["choices"]?.[0]?.message?.content ?? "");
   if (!texto.trim()) {
     return {
       ...respostaIndisponivel(),
