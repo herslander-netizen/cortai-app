@@ -253,19 +253,14 @@ export async function pensar(input: {
   if (!chave) return respostaIndisponivel();
 
   const entrada = [
-    { role: "system", content: [{ type: "input_text", text: REGRAS }] },
-    {
-      role: "system",
-      content: [{ type: "input_text", text: `Contexto atual da barbearia:\n${contextoEmTexto(input.contexto)}` }],
-    },
-    ...(input.instrucaoExtra
-      ? [{ role: "system", content: [{ type: "input_text", text: input.instrucaoExtra }] }]
-      : []),
+    { role: "system", content: REGRAS },
+    { role: "system", content: `Contexto atual da barbearia:\n${contextoEmTexto(input.contexto)}` },
+    ...(input.instrucaoExtra ? [{ role: "system", content: input.instrucaoExtra }] : []),
     ...(input.historico ?? []).slice(-10).map((t) => ({
       role: t.autor === "barbeiro" ? "user" : "assistant",
-      content: [{ type: t.autor === "barbeiro" ? "input_text" : "output_text", text: t.conteudo }],
+      content: t.conteudo,
     })),
-    { role: "user", content: [{ type: "input_text", text: input.mensagem }] },
+    { role: "user", content: input.mensagem },
   ];
 
   const resposta = await fetch(ENDPOINT, {
