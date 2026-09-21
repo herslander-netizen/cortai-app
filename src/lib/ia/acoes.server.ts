@@ -216,6 +216,17 @@ async function exigirAgendamentoDoTenant(ctx: ContextoDoAgente, agendamentoId: s
   return data;
 }
 
+/** Avisa o cliente pelo WhatsApp Operacional V1. Nunca afeta o agendamento. */
+async function avisar(agendamentoId: string | undefined, tipo: "confirmacao_agendamento" | "cancelamento" | "remarcacao") {
+  if (!agendamentoId) return;
+  try {
+    const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+    await notificarAgendamento(agendamentoId, tipo);
+  } catch {
+    /* o agendamento já está salvo; a falha fica registrada no envio */
+  }
+}
+
 export async function criarAgendamento(
   ctx: ContextoDoAgente,
   input: {
@@ -224,9 +235,27 @@ export async function criarAgendamento(
     servicoId: string;
     inicio: string;
     formaPagamento: "credito" | "pix" | "balcao" | "fiado";
+    /** Quando `false`, o aviso fica por conta de quem chamou (ex.: remarcação). */
+    avisarCliente?: boolean;
   },
 ) {
   const db = await admin();
+  // Cliente, profissional e serviço precisam ser desta barbearia.
+  const [{ data: cliente }, { data: profissional }, { data: servico }] = await Promise.all([
+    db.from("clientes").select("id").eq("id", input.clienteId).eq("tenant_id", ctx.tenantId).maybeSingle(),
+    db
+      .from("profissionais")
+      .select("id")
+      .eq("id", input.profissionalId)
+      .eq("tenant_id", ctx.tenantId)
+      .eq("ativo", true)
+      .maybeSingle(),
+    db.from("servicos").select("id").eq("id", input.servicoId).eq("tenant_id", ctx.tenantId).eq("ativo", true).maybeSingle(),
+  ]);
+  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+  if (!profissional) throw new Error("Profissional não encontrado nesta barbearia.");
+  if (!servico) throw new Error("Serviço não encontrado nesta barbearia.");
+
   const { data, error } = await db.rpc("criar_agendamento", {
     _tenant_id: ctx.tenantId,
     _cliente_id: input.clienteId,
@@ -240,26 +269,53 @@ export async function criarAgendamento(
   await registrarAuditoria(ctx, "agendamento_criado", resultado.agendamento_id ?? "-", {
     inicio: input.inicio,
   });
+  if (input.avisarCliente !== false) await avisar(resultado.agendamento_id, "confirmacao_agendamento");
   return data;
 }
 
-/** Remarcar = cancelar pelas regras atuais e criar de novo com o mesmo serviço. */
+/**
+ * Remarcar: cria o novo horário ANTES de cancelar o antigo, para o cliente
+ * nunca ficar sem horário se a criação falhar. Quando o próprio agendamento
+ * atual atrapalha o novo horário, cancela primeiro e recria — e, se ainda
+ * assim falhar, devolve o horário original.
+ */
 export async function remarcarAgendamento(
   ctx: ContextoDoAgente,
   input: { agendamentoId: string; novoInicio: string; profissionalId?: string | null },
 ) {
   const atual = await exigirAgendamentoDoTenant(ctx, input.agendamentoId);
   const db = await admin();
-  const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
-  if (error) throw new Error(error.message);
-  const novo = await criarAgendamento(ctx, {
+  const dados = {
     clienteId: atual.cliente_id,
     profissionalId: (input.profissionalId ?? atual.profissional_id) as string,
     servicoId: atual.servico_id as string,
-    inicio: input.novoInicio,
     formaPagamento: (atual.forma_pagamento ?? "balcao") as "credito" | "pix" | "balcao" | "fiado",
-  });
+    avisarCliente: false,
+  };
+
+  let novo: unknown;
+  try {
+    novo = await criarAgendamento(ctx, { ...dados, inicio: input.novoInicio });
+    const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (error) throw new Error(error.message);
+  } catch (primeiroErro) {
+    if (novo) throw primeiroErro;
+    // O horário pode estar ocupado pelo próprio agendamento atual.
+    const { data: original } = await db.from("agendamentos").select("inicio").eq("id", atual.id).maybeSingle();
+    const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
+    if (error) throw primeiroErro;
+    try {
+      novo = await criarAgendamento(ctx, { ...dados, inicio: input.novoInicio });
+    } catch (segundoErro) {
+      if (original?.inicio) {
+        await criarAgendamento(ctx, { ...dados, inicio: original.inicio }).catch(() => undefined);
+      }
+      throw segundoErro;
+    }
+  }
+
   await registrarAuditoria(ctx, "agendamento_remarcado", atual.id, { novo_inicio: input.novoInicio });
+  await avisar((novo as { agendamento_id?: string })?.agendamento_id, "remarcacao");
   return novo;
 }
 
@@ -269,6 +325,7 @@ export async function cancelarAgendamento(ctx: ContextoDoAgente, input: { agenda
   const { data, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
   if (error) throw new Error(error.message);
   await registrarAuditoria(ctx, "agendamento_cancelado", atual.id, {});
+  await avisar(atual.id, "cancelamento");
   return data;
 }
 
