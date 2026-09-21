@@ -34,9 +34,13 @@ function HistoricoPage() {
   });
 
   const agora = Date.now();
-  const proximos = (lista.data ?? []).filter((a) => new Date(a.inicio).getTime() > agora && a.status !== "cancelado" && a.status !== "falta");
-  const proximo = proximos[proximos.length - 1];
-  const anteriores = (lista.data ?? []).filter((a) => a.id !== proximo?.id);
+  const ehFuturoAtivo = (a: { inicio: string; status: string }) =>
+    new Date(a.inicio).getTime() > agora && a.status !== "cancelado" && a.status !== "falta";
+  const proximos = (lista.data ?? [])
+    .filter(ehFuturoAtivo)
+    .slice()
+    .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
+  const anteriores = (lista.data ?? []).filter((a) => !ehFuturoAtivo(a));
 
   const cancelarItem = async (agendamentoId: string, inicio: string) => {
     const comAntecedencia = new Date(inicio).getTime() - Date.now() > 4 * 60 * 60 * 1000;
