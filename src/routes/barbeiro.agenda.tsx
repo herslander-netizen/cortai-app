@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
 import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { FechamentoComanda } from "@/components/financeiro/FechamentoComanda";
 import { brl } from "@/lib/format";
+import { slotsDoDia } from "@/lib/horarios";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
