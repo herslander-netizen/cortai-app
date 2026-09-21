@@ -209,6 +209,14 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     }
     const criado = res as any;
 
+    // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
+    try {
+      const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+      await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
+    } catch {
+      /* o agendamento já está salvo; a falha fica registrada no envio */
+    }
+
     return {
       agendamentoId: criado.agendamento_id,
       inicio: criado.inicio,
