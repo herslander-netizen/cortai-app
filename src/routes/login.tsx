@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { destinoDoPapel } from "@/lib/guarda";
+import { destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
@@ -47,9 +47,10 @@ function LoginPage() {
   async function seguirParaMinhaArea() {
     const sessao = await getSessao();
     const destino = destinoDoPapel(sessao);
-    // Só aceita caminho interno (mesma origem), preservando o contexto da barbearia.
-    if (proximo && proximo.startsWith("/") && !proximo.startsWith("//") && destino === "/app") {
-      window.location.assign(proximo);
+    // Só aceita caminho interno da área autorizada para o papel da pessoa.
+    const pedido = destinoSolicitadoPermitido(proximo, destino);
+    if (pedido) {
+      window.location.assign(pedido);
       return;
     }
     await navigate({ to: destino });
