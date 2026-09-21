@@ -156,6 +156,17 @@ function HojePage() {
           </ul>
         </>
       ) : null}
+
+      {fechando ? (
+        <FechamentoComanda
+          agendamentoId={fechando}
+          onFechar={() => setFechando(null)}
+          onConcluido={() => {
+            setFechando(null);
+            void refetch();
+          }}
+        />
+      ) : null}
     </Screen>
   );
 }
