@@ -64,7 +64,9 @@ function AgendaPage() {
     queryFn: () => getAgendaDia({ data: { dia } }),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    // Horários livres e ocupados se atualizam sozinhos a cada minuto.
+    refetchInterval: 60_000,
   });
 
   const { slots: lista, fechado, abre, fecha } = useMemo(

@@ -46,6 +46,8 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
     queryKey: ["grade-chat", dia, servicoId, profissionalId],
     queryFn: () => getGradeDoDia({ data: { dia, servicoId, profissionalId } }),
     staleTime: 30_000,
+    // Horários livres se atualizam sozinhos enquanto a agenda está aberta.
+    refetchInterval: 45_000,
   });
 
   const servicos = grade.data?.servicos ?? [];
