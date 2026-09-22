@@ -464,7 +464,42 @@ export const listarConversas = createServerFn({ method: "GET" })
       console.error("[whatsapp] listarConversas falhou:", error.message);
       throw new Error("Não foi possível carregar as conversas agora. Tente novamente.");
     }
-    return (linhas ?? []).map((l) => ({
+
+    let filtradas = linhas ?? [];
+    if (data.filtro === "recebidas" || data.filtro === "falhas" || data.filtro === "aguardando_resposta") {
+      const ids = filtradas.map((l) => l.id);
+      const { data: mensagens } = ids.length
+        ? await db
+            .from("mensagens_whatsapp")
+            .select("conversa_id, direcao, status, criado_em")
+            .in("conversa_id", ids)
+            .order("criado_em", { ascending: false })
+            .limit(2000)
+        : { data: [] };
+      const resumo = new Map<string, { ultimaDirecao: string | null; temFalha: boolean }>();
+      for (const m of mensagens ?? []) {
+        const atual = resumo.get(m.conversa_id) ?? { ultimaDirecao: null, temFalha: false };
+        if (atual.ultimaDirecao === null) atual.ultimaDirecao = m.direcao;
+        if (m.direcao === "saida" && m.status === "falhou") atual.temFalha = true;
+        resumo.set(m.conversa_id, atual);
+      }
+      if (data.filtro === "recebidas") {
+        filtradas = filtradas.filter((l) => resumo.get(l.id)?.ultimaDirecao === "entrada");
+      } else if (data.filtro === "falhas") {
+        filtradas = filtradas.filter((l) => resumo.get(l.id)?.temFalha === true);
+      } else {
+        // Aguardando resposta da equipe: última mensagem veio do cliente e a
+        // conversa está em atendimento humano (CortAI não responde sozinho).
+        filtradas = filtradas.filter(
+          (l) =>
+            resumo.get(l.id)?.ultimaDirecao === "entrada" &&
+            l.status !== "encerrada" &&
+            (l.modo_humano === true || l.status === "humano"),
+        );
+      }
+    }
+
+    return filtradas.map((l) => ({
       id: l.id,
       telefone: l.telefone,
       nomeContato: l.nome_contato,
