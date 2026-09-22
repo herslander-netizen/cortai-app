@@ -255,10 +255,11 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                   <button
                     key={a}
                     type="button"
-                    className="w-full rounded-xl border border-line2 px-4 py-3 text-left text-xs text-paper"
+                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
                     onClick={() => void enviar(a)}
                   >
-                    {a}
+                    <span className="min-w-0">{a}</span>
+                    <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
                   </button>
                 ))}
               </div>
@@ -270,30 +271,40 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             </div>
           ) : null}
 
-          <ul className="space-y-4">
+          <ul className="space-y-3.5">
             {mensagens.map((m) => (
-              <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : ""}>
+              <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : "flex gap-2.5"}>
                 {m.autor === "barbeiro" ? (
-                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-ink">
+                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border border-gold/25 bg-gold/10 px-4 py-2.5 text-sm leading-relaxed text-paper">
                     {m.conteudo}
                   </p>
                 ) : (
-                  <div className="min-w-0 max-w-full">
-                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
-                      {m.conteudo}
-                    </p>
-                    {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
-                    {m.acao?.destino ? (
-                      <Link
-                        to={m.acao.destino as "/barbeiro"}
-                        onClick={onFechar}
-                        className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-gold"
-                      >
-                        {m.acao.rotuloDoDestino ?? "Abrir"}
-                        <ArrowRight size={13} aria-hidden />
-                      </Link>
-                    ) : null}
-                  </div>
+                  <>
+                    <span
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                      aria-hidden
+                    >
+                      <BigodeCortai size={15} />
+                    </span>
+                    <div className="min-w-0 max-w-[88%]">
+                      <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
+                          {m.conteudo}
+                        </p>
+                        {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
+                      </div>
+                      {m.acao?.destino ? (
+                        <Link
+                          to={m.acao.destino as "/barbeiro"}
+                          onClick={onFechar}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
+                        >
+                          {m.acao.rotuloDoDestino ?? "Abrir"}
+                          <ArrowRight size={13} aria-hidden />
+                        </Link>
+                      ) : null}
+                    </div>
+                  </>
                 )}
               </li>
             ))}
