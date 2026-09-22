@@ -107,6 +107,138 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     };
   });
 
+/* ----------------------------- Diagnóstico -------------------------------- */
+
+export type DiagnosticoDoWhatsapp = {
+  provedor: string;
+  oficial: boolean;
+  gatewayConfigurado: boolean;
+  credenciaisFaltantes: string[];
+  enderecoDeEventos: string;
+  conexao: ConexaoDeWhatsapp | null;
+  vistoEm: string | null;
+  /** Eventos recebidos do provedor nas últimas 24 horas. */
+  eventos24h: number;
+  eventosPendentes: number;
+  falhas: { id: string; evento: string; erro: string; recebidoEm: string }[];
+  ultimoEventoEm: string | null;
+  ultimaMensagemRecebida: { telefone: string | null; conteudo: string; criadoEm: string } | null;
+  ultimoEnvioComErro: { telefone: string; tipo: string; erro: string; criadoEm: string } | null;
+};
+
+/** Estado detalhado da conexão oficial: eventos, falhas e última mensagem real. */
+export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<DiagnosticoDoWhatsapp> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } = await import(
+      "@/lib/whatsapp/gateway.server"
+    );
+    const provedor = provedorDoGateway();
+
+    const { data: linha } = await db
+      .from("conexoes_whatsapp")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+
+    const oficial = (linha?.provedor ?? provedor) === "meta";
+    const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    // A caixa de entrada oficial é única por instalação; só faz sentido exibir
+    // para a barbearia que de fato usa a conta oficial da Meta.
+    const [eventos, pendentes, falhas, ultimoEvento, entrada, envioErro] = await Promise.all([
+      oficial
+        ? db
+            .from("whatsapp_webhook_events")
+            .select("delivery_id", { count: "exact", head: true })
+            .gte("received_at", desde)
+        : Promise.resolve({ count: 0 }),
+      oficial
+        ? db
+            .from("whatsapp_webhook_events")
+            .select("delivery_id", { count: "exact", head: true })
+            .is("processed_at", null)
+        : Promise.resolve({ count: 0 }),
+      oficial
+        ? db
+            .from("whatsapp_webhook_events")
+            .select("delivery_id, event, processing_error, received_at")
+            .not("processing_error", "is", null)
+            .order("received_at", { ascending: false })
+            .limit(5)
+            .then((r) => r.data ?? [])
+        : Promise.resolve([] as any[]),
+      oficial
+        ? db
+            .from("whatsapp_webhook_events")
+            .select("received_at")
+            .order("received_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+            .then((r) => r.data)
+        : Promise.resolve(null),
+      db
+        .from("mensagens_whatsapp")
+        .select("conteudo, criado_em, telefone_remetente")
+        .eq("tenant_id", tenantId)
+        .eq("direcao", "entrada")
+        .order("criado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then((r) => r.data),
+      db
+        .from("envios_de_whatsapp")
+        .select("telefone, tipo, erro, criado_em")
+        .eq("tenant_id", tenantId)
+        .eq("status", "erro")
+        .order("criado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then((r) => r.data),
+    ]);
+
+    return {
+      provedor: linha?.provedor ?? provedor,
+      oficial,
+      gatewayConfigurado: gatewayConfigurado(),
+      credenciaisFaltantes: credenciaisFaltantes(),
+      enderecoDeEventos: oficial
+        ? "https://cortai.dev/api/public/whatsapp/webhook"
+        : provedor === "evolution"
+          ? URL_DE_EVENTOS_EVOLUTION
+          : URL_DE_EVENTOS,
+      conexao: conexaoDaLinha(linha),
+      vistoEm: linha?.visto_em ?? null,
+      eventos24h: eventos.count ?? 0,
+      eventosPendentes: pendentes.count ?? 0,
+      falhas: falhas.map((f: any) => ({
+        id: String(f.delivery_id),
+        evento: String(f.event ?? "—"),
+        erro: String(f.processing_error ?? ""),
+        recebidoEm: String(f.received_at),
+      })),
+      ultimoEventoEm: (ultimoEvento as any)?.received_at ?? null,
+      ultimaMensagemRecebida: entrada
+        ? {
+            telefone: entrada.telefone_remetente ?? null,
+            conteudo: entrada.conteudo ?? "",
+            criadoEm: entrada.criado_em,
+          }
+        : null,
+      ultimoEnvioComErro: envioErro
+        ? {
+            telefone: envioErro.telefone,
+            tipo: envioErro.tipo,
+            erro: envioErro.erro ?? "Falha no envio.",
+            criadoEm: envioErro.criado_em,
+          }
+        : null,
+    };
+  });
+
 /* ------------------------------- Conexão --------------------------------- */
 
 async function sessaoDoTenant(tenantId: string) {
