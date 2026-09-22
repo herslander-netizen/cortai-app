@@ -273,9 +273,67 @@ const generico = {
   },
 };
 
+/* -------------------------------------------------------------------- Meta */
+
+/**
+ * WhatsApp Business oficial (Meta), via conexão do workspace. A sessão é da
+ * conta: não há QR para escanear nem logout pelo app. O estado consultado em
+ * /phone_number é real — se a chamada falha, a tela mostra o erro.
+ */
+const meta = {
+  async consultarStatus(): Promise<EstadoDaSessao> {
+    try {
+      const r = await chamar<Record<string, unknown>>(
+        "/phone_number?fields=display_phone_number,quality_rating",
+        "GET",
+      );
+      return {
+        status: "conectado",
+        qrCode: null,
+        qrExpiraEm: null,
+        numero: (r["display_phone_number"] as string) ?? null,
+        nomeExibicao: null,
+        erro: null,
+      };
+    } catch (erro) {
+      return {
+        status: "erro",
+        qrCode: null,
+        qrExpiraEm: null,
+        numero: null,
+        nomeExibicao: null,
+        erro: erro instanceof Error ? erro.message : "Falha ao consultar o número.",
+      };
+    }
+  },
+  criarSessao(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  obterQrCode(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  async enviarMensagem(_sessaoId: string, telefone: string, texto: string) {
+    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+      messaging_product: "whatsapp",
+      to: telefone.replace(/\D/g, ""),
+      type: "text",
+      text: { body: texto },
+    });
+    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+    return { id: (lista[0]?.["id"] as string) ?? null };
+  },
+  reiniciarSessao(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  async desconectar(): Promise<void> {
+    // O desvínculo da conta oficial é feito em Connectors → WhatsApp, não pelo app.
+  },
+};
+
 function provedor() {
   const config = lerConfig();
   if (!config) throw new GatewayNaoConfiguradoError();
+  if (config.provedor === "meta") return meta;
   return config.provedor === "generico" ? generico : evolution;
 }
 
