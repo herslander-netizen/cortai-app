@@ -331,20 +331,37 @@ export async function processarMensagemRecebida(input: {
   const perfil = await perfilDoCliente(tenantId, clienteId);
   const contexto = ((conversa as { contexto?: unknown }).contexto ?? {}) as ContextoDaConversa;
 
-  // Controle de custo: um "oi" na primeira mensagem é respondido pela saudação
-  // cadastrada pela barbearia, sem acionar a IA.
+  // Controle de custo: um "oi" na primeira mensagem da conversa é respondido
+  // pela saudação da barbearia (ou pela saudação padrão, se ela ainda não
+  // escreveu a própria), sem acionar a IA.
   const soSaudacao = /^\s*(oi+|ol[áa]+|bom dia|boa tarde|boa noite|e a[íi]+|opa+)[\s!.,]*$/i.test(textoDoCliente);
-  if (soSaudacao && config.saudacaoAtiva && config.mensagemBoasVindas && historico.length <= 1 && !contexto.intencao) {
-    await enviarPelaBarbearia({
-      tenantId,
-      conversaId: conversa.id,
-      conexaoId: conexao.id,
-      sessaoId: input.sessaoId,
-      telefone,
-      texto: config.mensagemBoasVindas,
-      porIa: true,
-    }).catch(() => undefined);
-    return { tratada: true, motivo: "saudacao_sem_ia" };
+  const primeiraMensagemDaConversa = historico.length <= 1 && !contexto.intencao;
+  if (soSaudacao && config.saudacaoAtiva && primeiraMensagemDaConversa) {
+    const saudacao = config.mensagemBoasVindas.trim() || SAUDACAO_PADRAO;
+    try {
+      await enviarPelaBarbearia({
+        tenantId,
+        conversaId: conversa.id,
+        conexaoId: conexao.id,
+        sessaoId: input.sessaoId,
+        telefone,
+        texto: saudacao,
+        porIa: true,
+      });
+      return { tratada: true, motivo: "saudacao_sem_ia" };
+    } catch (erro) {
+      // Falha de envio não é escondida: a mensagem já ficou registrada como
+      // "falhou" em mensagens_whatsapp e o erro vai para o log de ações.
+      const mensagemErro = erro instanceof Error ? erro.message : "Falha ao enviar a saudação.";
+      await db.from("acoes_de_ia_log").insert({
+        tenant_id: tenantId,
+        conversa_id: conversa.id,
+        acao: "saudacao_sem_ia",
+        sucesso: false,
+        erro: mensagemErro,
+      });
+      return { tratada: true, motivo: "saudacao_falhou" };
+    }
   }
 
   const { responderConversa: responder } = await import("./atendimento.server");
