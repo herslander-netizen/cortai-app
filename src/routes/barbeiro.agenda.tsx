@@ -64,7 +64,9 @@ function AgendaPage() {
     queryFn: () => getAgendaDia({ data: { dia } }),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    // Horários livres e ocupados se atualizam sozinhos a cada minuto.
+    refetchInterval: 60_000,
   });
 
   const { slots: lista, fechado, abre, fecha } = useMemo(
@@ -74,7 +76,8 @@ function AgendaPage() {
 
   return (
     <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
-      <nav className="mb-5 grid grid-cols-2 gap-2" aria-label="Atalhos da agenda">
+      <nav className="mb-5 grid grid-cols-3 gap-2" aria-label="Atalhos da agenda">
+        <Link to="/barbeiro/agendamentos" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Confirmados</Link>
         <Link to="/barbeiro/profissionais" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Profissionais</Link>
         <Link to="/barbeiro/fila" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Fila de espera</Link>
       </nav>

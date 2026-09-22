@@ -17,6 +17,7 @@ import {
 import type { ChaveDePermissao } from "@/lib/permissoes";
 
 export const MODULOS_DE_NAVEGACAO = [
+  { grupo: "Operação", to: "/barbeiro/agendamentos", label: "Agendamentos confirmados", detail: "Nome, WhatsApp e horário de cada cliente", icon: Clock3, permissao: "visualizar_clientes" },
   { grupo: "Operação", to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas, saídas e fiado em aberto", icon: Banknote, permissao: "visualizar_financeiro" },
   { grupo: "Gestão", to: "/barbeiro/comissoes", label: "Comissões", detail: "Gerada, paga e pendente por profissional", icon: Banknote, permissao: "visualizar_financeiro" },
 
