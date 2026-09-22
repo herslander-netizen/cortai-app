@@ -25,33 +25,33 @@ const ATALHOS = [
   "Quais serviços estão cadastrados?",
 ];
 
-/** Progresso real da configuração inicial, no topo da folha. */
+/** Sugestões rápidas sempre à mão, logo acima do campo de escrita. */
+const SUGESTOES = [
+  "Horários livres de hoje",
+  "Quanto entrou hoje?",
+  "Como coloco um cliente na fila?",
+  "Cadastrar um serviço novo",
+];
+
+/** Progresso real da configuração inicial — linha fina, sem roubar espaço. */
 function ProgressoDaConfiguracao() {
   const progresso = useProgressoCortai();
   if (!progresso || progresso.concluido) return null;
   const pct = Math.round((progresso.feitos / progresso.total) * 100);
-  const feitos = progresso.itens.filter((i) => i.feito);
 
   return (
-    <div className="border-b border-line px-5 pb-3 pt-3">
-      <p className="text-xs text-mute">
-        Configuração · {progresso.feitos} de {progresso.total}
-      </p>
-      <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink3">
-        <div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(4, pct)}%` }} />
-      </div>
-      {feitos.length ? (
-        <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {feitos.map((i) => (
-            <span
-              key={i.chave}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute"
-            >
-              <Check size={11} style={{ color: "#8FA882" }} aria-hidden />
-              {i.rotulo}
-            </span>
-          ))}
-        </div>
+    <div className="flex items-center gap-2.5 border-b border-line px-5 pb-2.5">
+      <span className="shrink-0 text-[11px] text-mute2">
+        Configuração · {progresso.feitos}/{progresso.total}
+      </span>
+      <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-ink3">
+        <span
+          className="block h-full rounded-full bg-gold transition-[width] duration-500"
+          style={{ width: `${Math.max(4, pct)}%` }}
+        />
+      </span>
+      {progresso.feitos > 0 ? (
+        <Check size={12} className="shrink-0 text-sage" aria-hidden />
       ) : null}
     </div>
   );
