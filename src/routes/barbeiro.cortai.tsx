@@ -23,7 +23,9 @@ import {
   conectarWhatsapp,
   definirAtendimentoDaConversa,
   desconectarWhatsapp,
+  getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
+  type DiagnosticoDoWhatsapp,
   lerConversa,
   listarConversas,
   reconectarWhatsapp,
@@ -128,7 +130,12 @@ function CortaiPage() {
           </nav>
 
           <div className="mt-5">
-            {aba === "whatsapp" ? <BlocoConexao painel={painel.data} /> : null}
+            {aba === "whatsapp" ? (
+              <>
+                <BlocoConexao painel={painel.data} />
+                <BlocoDiagnostico />
+              </>
+            ) : null}
             {aba === "conversas" ? <BlocoConversas /> : null}
             {aba === "ajustes" ? <BlocoAjustes painel={painel.data} /> : null}
           </div>
@@ -451,6 +458,115 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
           gerando={acao.isPending}
         />
       ) : null}
+    </section>
+  );
+}
+
+function Linha({ rotulo, valor, alerta }: { rotulo: string; valor: ReactNode; alerta?: boolean }) {
+  return (
+    <div className="flex justify-between gap-4">
+      <dt className="shrink-0 text-mute">{rotulo}</dt>
+      <dd className={`min-w-0 truncate text-right ${alerta ? "text-brick" : "text-paper"}`}>{valor}</dd>
+    </div>
+  );
+}
+
+function quando(valor: string | null | undefined) {
+  return valor ? new Date(valor).toLocaleString("pt-BR") : "—";
+}
+
+/** Estado detalhado da conexão oficial: eventos, falhas e última mensagem. */
+function BlocoDiagnostico() {
+  const carregar = useServerFn(getDiagnosticoDoWhatsapp);
+  const consulta = useQuery({
+    queryKey: ["cortai-diagnostico"],
+    queryFn: () => carregar({ data: undefined }) as Promise<DiagnosticoDoWhatsapp>,
+    refetchInterval: 60000,
+  });
+  const d = consulta.data;
+
+  return (
+    <section className="mt-4 rounded-xl border border-line bg-ink2 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-paper">Status detalhado da conexão</h2>
+        <button
+          type="button"
+          className="text-xs text-gold disabled:opacity-50"
+          disabled={consulta.isFetching}
+          onClick={() => void consulta.refetch()}
+        >
+          {consulta.isFetching ? "Atualizando…" : "Atualizar"}
+        </button>
+      </div>
+
+      {!d ? (
+        <p className="mt-3 text-xs text-mute">Carregando informações da conexão…</p>
+      ) : (
+        <>
+          <dl className="mt-4 space-y-2 text-xs">
+            <Linha rotulo="Tipo de conexão" valor={d.oficial ? "Conta oficial (Meta)" : d.provedor} />
+            <Linha
+              rotulo="Serviço configurado"
+              valor={d.gatewayConfigurado ? "Sim" : "Não"}
+              alerta={!d.gatewayConfigurado}
+            />
+            {d.credenciaisFaltantes.length ? (
+              <Linha rotulo="Faltando" valor={d.credenciaisFaltantes.join(", ")} alerta />
+            ) : null}
+            <Linha rotulo="Número" valor={d.conexao?.numero ?? "—"} />
+            <Linha rotulo="Situação" valor={d.conexao?.status ?? "sem conexão"} alerta={d.conexao?.status === "erro"} />
+            <Linha rotulo="Conectado em" valor={quando(d.conexao?.conectadoEm)} />
+            <Linha rotulo="Última verificação" valor={quando(d.vistoEm)} />
+          </dl>
+
+          <dl className="mt-4 space-y-2 border-t border-line pt-4 text-xs">
+            <Linha rotulo="Avisos recebidos (24h)" valor={d.eventos24h} />
+            <Linha rotulo="Avisos aguardando processamento" valor={d.eventosPendentes} alerta={d.eventosPendentes > 0} />
+            <Linha rotulo="Último aviso do WhatsApp" valor={quando(d.ultimoEventoEm)} />
+            <Linha rotulo="Endereço de recebimento" valor={<span className="break-all">{d.enderecoDeEventos}</span>} />
+          </dl>
+
+          <div className="mt-4 border-t border-line pt-4">
+            <p className="text-xs font-medium text-paper">Última mensagem recebida</p>
+            {d.ultimaMensagemRecebida ? (
+              <>
+                <p className="mt-1 text-xs text-mute">
+                  {d.ultimaMensagemRecebida.telefone ?? "Número não informado"} ·{" "}
+                  {quando(d.ultimaMensagemRecebida.criadoEm)}
+                </p>
+                <p className="mt-1 line-clamp-3 text-xs text-paper">{d.ultimaMensagemRecebida.conteudo || "—"}</p>
+              </>
+            ) : (
+              <p className="mt-1 text-xs text-mute">Nenhuma mensagem de cliente recebida até agora.</p>
+            )}
+          </div>
+
+          <div className="mt-4 border-t border-line pt-4">
+            <p className="text-xs font-medium text-paper">Falhas recentes</p>
+            {d.conexao?.ultimoErro ? (
+              <p className="mt-1 text-xs text-brick">Conexão: {d.conexao.ultimoErro}</p>
+            ) : null}
+            {d.ultimoEnvioComErro ? (
+              <p className="mt-1 text-xs text-brick">
+                Envio ({d.ultimoEnvioComErro.tipo}) para {d.ultimoEnvioComErro.telefone} em{" "}
+                {quando(d.ultimoEnvioComErro.criadoEm)}: {d.ultimoEnvioComErro.erro}
+              </p>
+            ) : null}
+            {d.falhas.length ? (
+              <ul className="mt-2 space-y-2">
+                {d.falhas.map((f) => (
+                  <li key={f.id} className="text-xs text-brick">
+                    {f.evento} · {quando(f.recebidoEm)} — {f.erro}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {!d.conexao?.ultimoErro && !d.ultimoEnvioComErro && !d.falhas.length ? (
+              <p className="mt-1 text-xs text-mute">Nenhuma falha registrada.</p>
+            ) : null}
+          </div>
+        </>
+      )}
     </section>
   );
 }
