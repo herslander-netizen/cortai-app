@@ -128,7 +128,12 @@ function CortaiPage() {
           </nav>
 
           <div className="mt-5">
-            {aba === "whatsapp" ? <BlocoConexao painel={painel.data} /> : null}
+            {aba === "whatsapp" ? (
+              <>
+                <BlocoConexao painel={painel.data} />
+                <BlocoDiagnostico />
+              </>
+            ) : null}
             {aba === "conversas" ? <BlocoConversas /> : null}
             {aba === "ajustes" ? <BlocoAjustes painel={painel.data} /> : null}
           </div>
