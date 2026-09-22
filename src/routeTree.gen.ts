@@ -16,6 +16,7 @@ import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConviteRouteImport } from './routes/convite'
+import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
@@ -109,6 +110,11 @@ const ComecarRoute = ComecarRouteImport.update({
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemonstracaoRoute = DemonstracaoRouteImport.update({
+  id: '/demonstracao',
+  path: '/demonstracao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -419,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -484,6 +491,7 @@ export interface FileRoutesByTo {
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -552,6 +560,7 @@ export interface FileRoutesById {
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
   '/convite': typeof ConviteRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -622,6 +631,7 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/comecar'
     | '/convite'
+    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -687,6 +697,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/comecar'
     | '/convite'
+    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -754,6 +765,7 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/comecar'
     | '/convite'
+    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -823,6 +835,7 @@ export interface RootRouteChildren {
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
   ConviteRoute: typeof ConviteRoute
+  DemonstracaoRoute: typeof DemonstracaoRoute
   LoginRoute: typeof LoginRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
@@ -891,6 +904,13 @@ declare module '@tanstack/react-router' {
       path: '/convite'
       fullPath: '/convite'
       preLoaderRoute: typeof ConviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demonstracao': {
+      id: '/demonstracao'
+      path: '/demonstracao'
+      fullPath: '/demonstracao'
+      preLoaderRoute: typeof DemonstracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1436,6 +1456,7 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
   ConviteRoute: ConviteRoute,
+  DemonstracaoRoute: DemonstracaoRoute,
   LoginRoute: LoginRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
