@@ -440,7 +440,13 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
 export const listarConversas = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ filtro: z.enum(["todas", "cortai", "humano", "nao_lidas"]).default("todas") }).parse(input ?? {}),
+    z
+      .object({
+        filtro: z
+          .enum(["todas", "cortai", "humano", "nao_lidas", "recebidas", "falhas", "aguardando_resposta"])
+          .default("todas"),
+      })
+      .parse(input ?? {}),
   )
   .handler(async ({ context, data }): Promise<ConversaDeWhatsapp[]> => {
     const tenantId = await tenantIdDoMembro(context);
