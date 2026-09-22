@@ -76,8 +76,12 @@ async function garantirUsuarioDaDemo(): Promise<string> {
     email_confirm: true,
     user_metadata: { nome: "Visita de demonstração" },
   });
-  if (error || !data.user) throw new Error("Não foi possível abrir a demonstração agora.");
-  return data.user.id;
+  if (data?.user) return data.user.id;
+  // Corrida entre duas visitas simultâneas: a conta pode ter acabado de nascer.
+  const { data: novaLista } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+  const criado = novaLista?.users.find((u) => u.email?.toLowerCase() === EMAIL_DEMO);
+  if (criado) return criado.id;
+  throw new Error(`Não foi possível abrir a demonstração agora. ${error?.message ?? ""}`.trim());
 }
 
 async function garantirVinculo(userId: string) {
