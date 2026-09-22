@@ -140,6 +140,43 @@ async function processar(mudanca: MudancaMeta): Promise<void> {
   // de entrada para consulta, sem descartar o conteúdo.
 }
 
+/**
+ * Retomada: a cada nova entrega, reprocessa algumas pendentes antigas.
+ * Assim, quando as re tentativas automáticas acabam, o tráfego seguinte
+ * destrava o que ficou para trás — sem depender de tarefa agendada.
+ */
+async function reprocessarPendentes(excluirId: string): Promise<void> {
+  const db = await admin();
+  const limite = new Date(Date.now() - 60_000).toISOString();
+  const { data: pendentes } = await db
+    .from("whatsapp_webhook_events")
+    .select("id, payload")
+    .is("processed_at", null)
+    .lt("received_at", limite)
+    .order("received_at", { ascending: true })
+    .limit(5);
+  for (const pendente of pendentes ?? []) {
+    if (pendente.id === excluirId) continue;
+    try {
+      const corpo = pendente.payload as { entry?: { changes?: MudancaMeta[] }[] };
+      for (const entrada of corpo.entry ?? []) {
+        for (const mudanca of entrada.changes ?? []) {
+          await processar(mudanca);
+        }
+      }
+      await db
+        .from("whatsapp_webhook_events")
+        .update({ processed_at: new Date().toISOString(), processing_error: null })
+        .eq("id", pendente.id);
+    } catch (erro) {
+      await db
+        .from("whatsapp_webhook_events")
+        .update({ processing_error: erro instanceof Error ? erro.message : "Falha ao processar." })
+        .eq("id", pendente.id);
+    }
+  }
+}
+
 export const Route = createFileRoute("/api/public/whatsapp/webhook")({
   server: {
     handlers: {
@@ -188,6 +225,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         }
 
         try {
+          await reprocessarPendentes(eventoId);
           const corpo = verificado.payload as { entry?: { changes?: MudancaMeta[] }[] };
           for (const entrada of corpo.entry ?? []) {
             for (const mudanca of entrada.changes ?? []) {
