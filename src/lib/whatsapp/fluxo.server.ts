@@ -338,7 +338,7 @@ export async function processarMensagemRecebida(input: {
   const soSaudacao = /^\s*(oi+|ol[áa]+|bom dia|boa tarde|boa noite|e a[íi]+|opa+)[\s!.,]*$/i.test(textoDoCliente);
   const primeiraMensagemDaConversa = historico.length <= 1 && !contexto.intencao;
   if (soSaudacao && config.saudacaoAtiva && primeiraMensagemDaConversa) {
-    const saudacao = config.mensagemBoasVindas.trim() || SAUDACAO_PADRAO;
+    const saudacao = (config.mensagemBoasVindas ?? "").trim() || SAUDACAO_PADRAO;
     try {
       await enviarPelaBarbearia({
         tenantId,
