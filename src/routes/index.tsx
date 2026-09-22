@@ -81,9 +81,10 @@ function AtendimentoWhatsapp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"
-      className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-[#07130c] shadow-xl transition-transform hover:scale-[1.03]"
+      className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-paper/15 bg-ink/85 shadow-lg backdrop-blur-md transition-transform hover:scale-105"
+      style={{ color: "#25D366" }}
     >
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden>
         <path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36a9.9 9.9 0 0 0 4.84 1.24h.01c5.5 0 9.96-4.46 9.96-9.96 0-2.66-1.04-5.16-2.92-7.04A9.9 9.9 0 0 0 12.04 2Zm0 18.2c-1.5 0-2.98-.4-4.26-1.16l-.3-.18-3.08.8.82-3-.2-.32a8.2 8.2 0 0 1-1.26-4.38c0-4.56 3.72-8.28 8.28-8.28 2.22 0 4.3.86 5.86 2.42a8.24 8.24 0 0 1 2.42 5.86c0 4.56-3.72 8.24-8.28 8.24Zm4.54-6.18c-.25-.12-1.47-.72-1.7-.8-.22-.09-.39-.13-.55.12-.17.25-.63.8-.78.97-.14.16-.28.18-.53.06-.25-.13-1.05-.39-2-1.23a7.5 7.5 0 0 1-1.38-1.72c-.15-.25-.02-.38.1-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.09-.17.05-.31-.02-.44-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.43.06-.65.31-.22.25-.85.84-.85 2.04s.87 2.37.99 2.53c.12.17 1.71 2.62 4.15 3.67.58.25 1.03.4 1.39.51.58.19 1.11.16 1.53.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.17-.47-.29Z" />
       </svg>
       Falar no WhatsApp
