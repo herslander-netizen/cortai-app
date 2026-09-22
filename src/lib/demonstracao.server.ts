@@ -136,8 +136,8 @@ async function garantirAgendaViva() {
     const inicio = emSaoPaulo(dia, hora, minuto);
     linhas.push({
       tenant_id: TENANT_DEMO,
-      cliente_id: CLIENTES[i % CLIENTES.length],
-      profissional_id: PROFISSIONAIS[i % PROFISSIONAIS.length],
+      cliente_id: CLIENTES[i % CLIENTES.length]!,
+      profissional_id: PROFISSIONAIS[i % PROFISSIONAIS.length]!,
       servico_id: servico.id,
       inicio: inicio.toISOString(),
       fim: new Date(inicio.getTime() + servico.duracao * 60000).toISOString(),
