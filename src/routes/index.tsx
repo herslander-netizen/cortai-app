@@ -48,9 +48,14 @@ function ConteudoHome({ config }: { config: ConfigHome }) {
       <header className="fixed inset-x-0 top-0 z-40 border-b border-paper/10 bg-ink/70 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[var(--home-largura)] items-center justify-between px-5 md:px-10">
           <MarcaCortai variante="escura" className="h-7 w-auto md:h-8" />
-          <Button asChild variant="ghost" size="sm" className="text-paper hover:bg-paper/10">
-            <Link to="/login">Entrar</Link>
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button asChild variant="ghost" size="sm" className="text-paper hover:bg-paper/10">
+              <Link to="/demonstracao">Explorar demonstração</Link>
+            </Button>
+            <Button asChild size="sm" className="font-semibold">
+              <Link to="/login">Entrar</Link>
+            </Button>
+          </div>
         </div>
       </header>
 

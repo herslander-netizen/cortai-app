@@ -5,6 +5,7 @@ import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { FabCortai } from "@/components/ia/FabCortai";
+import { SeloDemonstracao } from "@/components/demo/SeloDemonstracao";
 
 const tabs: TabItem[] = [
   { to: "/barbeiro", label: "Início", icon: House },
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/barbeiro")({
 function BarberLayout() {
   return (
     <div className="management-shell">
+      <SeloDemonstracao />
       <Outlet />
       <TabBar items={tabs} centralAction={<AcoesRapidas />} />
       <FabCortai />
