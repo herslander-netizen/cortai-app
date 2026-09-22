@@ -648,6 +648,9 @@ const FILTROS = [
   ["cortai", "CortAI"],
   ["humano", "Humano"],
   ["nao_lidas", "Não lidas"],
+  ["recebidas", "Recebidas"],
+  ["aguardando_resposta", "Aguardando resposta"],
+  ["falhas", "Falhas de entrega"],
 ] as const;
 
 function BlocoConversas() {
