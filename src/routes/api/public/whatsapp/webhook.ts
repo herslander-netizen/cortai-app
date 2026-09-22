@@ -215,7 +215,11 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         if (!eventoId) {
           const { data: gravado, error } = await db
             .from("whatsapp_webhook_events")
-            .insert({ delivery_id: entregaId, event: evento, payload: verificado.payload })
+            .insert({
+              delivery_id: entregaId,
+              event: evento,
+              payload: verificado.payload as unknown as import("@/integrations/supabase/types").Json,
+            })
             .select("id")
             .single();
           if (error || !gravado) {
