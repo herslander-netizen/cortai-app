@@ -21,19 +21,29 @@
  */
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 
-type Provedor = "evolution" | "generico";
+type Provedor = "evolution" | "generico" | "meta";
 type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
+
+const URL_GATEWAY_META = "https://connector-gateway.lovable.dev/whatsapp";
 
 function lerConfig(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
   const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
-  if (!baseUrl || !apiKey) return null;
-  const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
-  return {
-    baseUrl: baseUrl.replace(/\/+$/, ""),
-    apiKey,
-    provedor: bruto === "generico" ? "generico" : "evolution",
-  };
+  if (baseUrl && apiKey) {
+    const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
+    return {
+      baseUrl: baseUrl.replace(/\/+$/, ""),
+      apiKey,
+      provedor: bruto === "generico" ? "generico" : "evolution",
+    };
+  }
+  // WhatsApp Business oficial (Meta), conectado em Connectors → WhatsApp.
+  // Não existe QR Code: a conexão é da conta, verificada em /phone_number.
+  const chaveMeta = process.env["WHATSAPP_API_KEY"];
+  if (chaveMeta && process.env["LOVABLE_API_KEY"]) {
+    return { baseUrl: URL_GATEWAY_META, apiKey: chaveMeta, provedor: "meta" };
+  }
+  return null;
 }
 
 export function gatewayConfigurado(): boolean {
