@@ -119,7 +119,18 @@ async function garantirAgendaViva() {
     .gte("inicio", inicioDoDia);
   if ((count ?? 0) > 0) return;
 
-  const linhas: Record<string, unknown>[] = [];
+  const linhas: {
+    tenant_id: string;
+    cliente_id: string;
+    profissional_id: string;
+    servico_id: string;
+    inicio: string;
+    fim: string;
+    status: string;
+    valor_centavos: number;
+    origem: string;
+    forma_pagamento?: string;
+  }[] = [];
   const empurrar = (dia: number, hora: number, minuto: number, i: number, status: string) => {
     const servico = SERVICOS[i % SERVICOS.length]!;
     const inicio = emSaoPaulo(dia, hora, minuto);
