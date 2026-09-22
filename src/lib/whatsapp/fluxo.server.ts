@@ -8,6 +8,7 @@
  */
 import {
   CONFIGURACAO_PADRAO,
+  SAUDACAO_PADRAO,
   type ConfiguracaoDoAtendimento,
   type ContextoDaConversa,
   type TomDoAtendimento,
