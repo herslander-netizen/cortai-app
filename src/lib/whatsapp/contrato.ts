@@ -108,10 +108,18 @@ export type ConfiguracaoDoAtendimento = {
 
 export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
 
+/**
+ * Saudação padrão do CortAI: usada quando a barbearia ativou a saudação
+ * automática mas ainda não escreveu a própria mensagem. Garante que uma
+ * barbearia nova já responde ao primeiro "oi" sem custo de IA.
+ */
+export const SAUDACAO_PADRAO =
+  "Olá! 👋 Sou o CortAI, assistente da sua barbearia. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.";
+
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   atendimentoAutomatico: true,
   saudacaoAtiva: true,
-  mensagemBoasVindas: "",
+  mensagemBoasVindas: SAUDACAO_PADRAO,
   mensagemForaDoHorario: "",
   permiteConfirmar: true,
   permiteCancelar: true,
