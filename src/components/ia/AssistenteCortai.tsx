@@ -151,6 +151,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
   const lista = useRef<HTMLDivElement | null>(null);
   const noFim = useRef(true);
   const [novaMensagem, setNovaMensagem] = useState(false);
+  const [agendando, setAgendando] = useState(false);
 
   const { data } = useQuery({ queryKey: ["assistente-conversa"], queryFn: () => getConversaDoAssistente() });
 
