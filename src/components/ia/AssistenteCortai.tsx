@@ -25,33 +25,33 @@ const ATALHOS = [
   "Quais serviços estão cadastrados?",
 ];
 
-/** Progresso real da configuração inicial, no topo da folha. */
+/** Sugestões rápidas sempre à mão, logo acima do campo de escrita. */
+const SUGESTOES = [
+  "Horários livres de hoje",
+  "Quanto entrou hoje?",
+  "Como coloco um cliente na fila?",
+  "Cadastrar um serviço novo",
+];
+
+/** Progresso real da configuração inicial — linha fina, sem roubar espaço. */
 function ProgressoDaConfiguracao() {
   const progresso = useProgressoCortai();
   if (!progresso || progresso.concluido) return null;
   const pct = Math.round((progresso.feitos / progresso.total) * 100);
-  const feitos = progresso.itens.filter((i) => i.feito);
 
   return (
-    <div className="border-b border-line px-5 pb-3 pt-3">
-      <p className="text-xs text-mute">
-        Configuração · {progresso.feitos} de {progresso.total}
-      </p>
-      <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink3">
-        <div className="h-full rounded-full bg-gold" style={{ width: `${Math.max(4, pct)}%` }} />
-      </div>
-      {feitos.length ? (
-        <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {feitos.map((i) => (
-            <span
-              key={i.chave}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute"
-            >
-              <Check size={11} style={{ color: "#8FA882" }} aria-hidden />
-              {i.rotulo}
-            </span>
-          ))}
-        </div>
+    <div className="flex items-center gap-2.5 border-b border-line px-5 pb-2.5">
+      <span className="shrink-0 text-[11px] text-mute2">
+        Configuração · {progresso.feitos}/{progresso.total}
+      </span>
+      <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-ink3">
+        <span
+          className="block h-full rounded-full bg-gold transition-[width] duration-500"
+          style={{ width: `${Math.max(4, pct)}%` }}
+        />
+      </span>
+      {progresso.feitos > 0 ? (
+        <Check size={12} className="shrink-0 text-sage" aria-hidden />
       ) : null}
     </div>
   );
@@ -209,22 +209,16 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
       rotulo="CortAI"
       cabecalho={
         <>
-          <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ink2 px-5 pb-3 pt-3">
+          <header className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
             <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-              style={{ background: "#D4AF6A", color: "#0B0B0B" }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
               aria-hidden
             >
-              <BigodeCortai size={22} />
+              <BigodeCortai size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-base font-semibold" style={{ color: "#F5F5F3" }}>
-                CortAI
-              </span>
-              <span
-                className="mt-0.5 block truncate"
-                style={{ color: "#9A968E", fontSize: "11px", letterSpacing: ".04em" }}
-              >
+              <span className="block truncate text-sm font-semibold tracking-wide text-paper">CortAI</span>
+              <span className="block truncate text-[10px] uppercase tracking-[.12em] text-mute2">
                 Alimentada pela Alvo IA
               </span>
             </span>
@@ -232,9 +226,9 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
               type="button"
               onClick={onFechar}
               aria-label="Fechar CortAI"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-mute transition-colors hover:text-paper"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line2 text-mute transition-colors hover:border-gold/40 hover:text-paper"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </header>
           <ProgressoDaConfiguracao />
@@ -261,10 +255,11 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                   <button
                     key={a}
                     type="button"
-                    className="w-full rounded-xl border border-line2 px-4 py-3 text-left text-xs text-paper"
+                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
                     onClick={() => void enviar(a)}
                   >
-                    {a}
+                    <span className="min-w-0">{a}</span>
+                    <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
                   </button>
                 ))}
               </div>
@@ -276,38 +271,56 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             </div>
           ) : null}
 
-          <ul className="space-y-4">
+          <ul className="space-y-3.5">
             {mensagens.map((m) => (
-              <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : ""}>
+              <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : "flex gap-2.5"}>
                 {m.autor === "barbeiro" ? (
-                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-ink">
+                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border border-gold/25 bg-gold/10 px-4 py-2.5 text-sm leading-relaxed text-paper">
                     {m.conteudo}
                   </p>
                 ) : (
-                  <div className="min-w-0 max-w-full">
-                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
-                      {m.conteudo}
-                    </p>
-                    {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
-                    {m.acao?.destino ? (
-                      <Link
-                        to={m.acao.destino as "/barbeiro"}
-                        onClick={onFechar}
-                        className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-gold"
-                      >
-                        {m.acao.rotuloDoDestino ?? "Abrir"}
-                        <ArrowRight size={13} aria-hidden />
-                      </Link>
-                    ) : null}
-                  </div>
+                  <>
+                    <span
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                      aria-hidden
+                    >
+                      <BigodeCortai size={15} />
+                    </span>
+                    <div className="min-w-0 max-w-[88%]">
+                      <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
+                          {m.conteudo}
+                        </p>
+                        {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
+                      </div>
+                      {m.acao?.destino ? (
+                        <Link
+                          to={m.acao.destino as "/barbeiro"}
+                          onClick={onFechar}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
+                        >
+                          {m.acao.rotuloDoDestino ?? "Abrir"}
+                          <ArrowRight size={13} aria-hidden />
+                        </Link>
+                      ) : null}
+                    </div>
+                  </>
                 )}
               </li>
             ))}
           </ul>
 
           {enviando ? (
-            <div className="mt-4">
-              <Digitando />
+            <div className="mt-3.5 flex items-center gap-2.5">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                aria-hidden
+              >
+                <BigodeCortai size={15} />
+              </span>
+              <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
+                <Digitando />
+              </span>
             </div>
           ) : null}
           {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
@@ -319,43 +332,60 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             <button
               type="button"
               onClick={() => irAoFim()}
-              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
             >
               Nova mensagem ↓
             </button>
           </div>
         ) : null}
 
-        <form
-          className="cortai-conversa-barra flex shrink-0 items-end gap-2 border-t border-line bg-ink2 px-4 pt-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void enviar(texto);
-          }}
-        >
-          <textarea
-            ref={campo}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void enviar(texto);
-              }
+        <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
+          {mensagens.length > 0 ? (
+            <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {SUGESTOES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  disabled={enviando}
+                  onClick={() => void enviar(s)}
+                  className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-[11px] text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void enviar(texto);
             }}
-            rows={1}
-            placeholder="Escreva aqui…"
-            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
-          />
-          <button
-            type="submit"
-            aria-label="Enviar"
-            disabled={enviando || !texto.trim()}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-ink disabled:opacity-50"
           >
-            <Send size={17} aria-hidden />
-          </button>
-        </form>
+            <textarea
+              ref={campo}
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void enviar(texto);
+                }
+              }}
+              rows={1}
+              placeholder="Escreva aqui…"
+              className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+            />
+            <button
+              type="submit"
+              aria-label="Enviar"
+              disabled={enviando || !texto.trim()}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+            >
+              <Send size={17} aria-hidden />
+            </button>
+          </form>
+        </div>
     </FolhaCortai>
   );
 }
