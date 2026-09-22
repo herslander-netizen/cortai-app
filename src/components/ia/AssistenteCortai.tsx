@@ -311,8 +311,16 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
           </ul>
 
           {enviando ? (
-            <div className="mt-4">
-              <Digitando />
+            <div className="mt-3.5 flex items-center gap-2.5">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                aria-hidden
+              >
+                <BigodeCortai size={15} />
+              </span>
+              <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
+                <Digitando />
+              </span>
             </div>
           ) : null}
           {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
@@ -324,43 +332,60 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             <button
               type="button"
               onClick={() => irAoFim()}
-              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
             >
               Nova mensagem ↓
             </button>
           </div>
         ) : null}
 
-        <form
-          className="cortai-conversa-barra flex shrink-0 items-end gap-2 border-t border-line bg-ink2 px-4 pt-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void enviar(texto);
-          }}
-        >
-          <textarea
-            ref={campo}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void enviar(texto);
-              }
+        <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
+          {mensagens.length > 0 ? (
+            <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {SUGESTOES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  disabled={enviando}
+                  onClick={() => void enviar(s)}
+                  className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-[11px] text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void enviar(texto);
             }}
-            rows={1}
-            placeholder="Escreva aqui…"
-            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
-          />
-          <button
-            type="submit"
-            aria-label="Enviar"
-            disabled={enviando || !texto.trim()}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-ink disabled:opacity-50"
           >
-            <Send size={17} aria-hidden />
-          </button>
-        </form>
+            <textarea
+              ref={campo}
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void enviar(texto);
+                }
+              }}
+              rows={1}
+              placeholder="Escreva aqui…"
+              className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+            />
+            <button
+              type="submit"
+              aria-label="Enviar"
+              disabled={enviando || !texto.trim()}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+            >
+              <Send size={17} aria-hidden />
+            </button>
+          </form>
+        </div>
     </FolhaCortai>
   );
 }
