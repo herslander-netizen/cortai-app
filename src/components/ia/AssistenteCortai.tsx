@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Send, X } from "lucide-react";
 
+import { AgendarNoChat } from "./AgendarNoChat";
 import { BigodeCortai } from "./BigodeCortai";
 import { Digitando } from "./Digitando";
 import { FolhaCortai } from "./FolhaCortai";
@@ -27,7 +28,6 @@ const ATALHOS = [
 
 /** Sugestões rápidas sempre à mão, logo acima do campo de escrita. */
 const SUGESTOES = [
-  "Horários livres de hoje",
   "Quanto entrou hoje?",
   "Como coloco um cliente na fila?",
   "Cadastrar um serviço novo",
@@ -151,6 +151,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
   const lista = useRef<HTMLDivElement | null>(null);
   const noFim = useRef(true);
   const [novaMensagem, setNovaMensagem] = useState(false);
+  const [agendando, setAgendando] = useState(false);
 
   const { data } = useQuery({ queryKey: ["assistente-conversa"], queryFn: () => getConversaDoAssistente() });
 
@@ -250,6 +251,14 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
               <p className="text-sm leading-relaxed text-mute">
                 Escreva como você falaria com um colega. Por exemplo:
               </p>
+              <button
+                type="button"
+                onClick={() => setAgendando(true)}
+                className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl bg-gold px-4 py-3 text-left text-xs font-semibold text-ink"
+              >
+                <span>Marcar um horário agora</span>
+                <ArrowRight size={13} aria-hidden />
+              </button>
               <div className="mt-3 space-y-2">
                 {ATALHOS.map((a) => (
                   <button
@@ -310,6 +319,33 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             ))}
           </ul>
 
+          {agendando ? (
+            <div className="mt-3.5 flex gap-2.5">
+              <span
+                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                aria-hidden
+              >
+                <BigodeCortai size={15} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                  <p className="text-sm leading-relaxed text-paper">
+                    Escolha o serviço, o dia e um horário livre. Eu marco e aviso o cliente no WhatsApp.
+                  </p>
+                  <AgendarNoChat />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAgendando(false)}
+                  className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-[11px] text-mute"
+                >
+                  Fechar agenda
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+
           {enviando ? (
             <div className="mt-3.5 flex items-center gap-2.5">
               <span
@@ -340,8 +376,18 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
         ) : null}
 
         <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
-          {mensagens.length > 0 ? (
+          {mensagens.length > 0 || agendando ? (
             <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setAgendando(true);
+                  irAoFim();
+                }}
+                className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-[11px] font-semibold text-ink"
+              >
+                Marcar horário
+              </button>
               {SUGESTOES.map((s) => (
                 <button
                   key={s}
