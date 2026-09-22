@@ -21,19 +21,29 @@
  */
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 
-type Provedor = "evolution" | "generico";
+type Provedor = "evolution" | "generico" | "meta";
 type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
+
+const URL_GATEWAY_META = "https://connector-gateway.lovable.dev/whatsapp";
 
 function lerConfig(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
   const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
-  if (!baseUrl || !apiKey) return null;
-  const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
-  return {
-    baseUrl: baseUrl.replace(/\/+$/, ""),
-    apiKey,
-    provedor: bruto === "generico" ? "generico" : "evolution",
-  };
+  if (baseUrl && apiKey) {
+    const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
+    return {
+      baseUrl: baseUrl.replace(/\/+$/, ""),
+      apiKey,
+      provedor: bruto === "generico" ? "generico" : "evolution",
+    };
+  }
+  // WhatsApp Business oficial (Meta), conectado em Connectors → WhatsApp.
+  // Não existe QR Code: a conexão é da conta, verificada em /phone_number.
+  const chaveMeta = process.env["WHATSAPP_API_KEY"];
+  if (chaveMeta && process.env["LOVABLE_API_KEY"]) {
+    return { baseUrl: URL_GATEWAY_META, apiKey: chaveMeta, provedor: "meta" };
+  }
+  return null;
 }
 
 export function gatewayConfigurado(): boolean {
@@ -53,6 +63,8 @@ export function credenciaisFaltantes(): string[] {
   if (!(process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"])) {
     faltam.push("EVOLUTION_API_KEY");
   }
+  // Com a conta oficial da Meta vinculada, nenhuma dessas é necessária.
+  if (process.env["WHATSAPP_API_KEY"] && process.env["LOVABLE_API_KEY"]) return [];
   if (!segredoDoWebhookDeWhatsapp()) faltam.push("EVOLUTION_WEBHOOK_SECRET");
   return faltam;
 }
@@ -71,7 +83,10 @@ async function chamar<T>(
   if (!config) throw new GatewayNaoConfiguradoError();
   const cabecalhos: Record<string, string> = { "content-type": "application/json" };
   if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
-  else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
+  else if (config.provedor === "meta") {
+    cabecalhos["authorization"] = `Bearer ${process.env["LOVABLE_API_KEY"]}`;
+    cabecalhos["x-connection-api-key"] = config.apiKey;
+  } else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
 
   const resposta = await fetch(`${config.baseUrl}${caminho}`, {
     method: metodo,
@@ -258,9 +273,67 @@ const generico = {
   },
 };
 
+/* -------------------------------------------------------------------- Meta */
+
+/**
+ * WhatsApp Business oficial (Meta), via conexão do workspace. A sessão é da
+ * conta: não há QR para escanear nem logout pelo app. O estado consultado em
+ * /phone_number é real — se a chamada falha, a tela mostra o erro.
+ */
+const meta = {
+  async consultarStatus(): Promise<EstadoDaSessao> {
+    try {
+      const r = await chamar<Record<string, unknown>>(
+        "/phone_number?fields=display_phone_number,quality_rating",
+        "GET",
+      );
+      return {
+        status: "conectado",
+        qrCode: null,
+        qrExpiraEm: null,
+        numero: (r["display_phone_number"] as string) ?? null,
+        nomeExibicao: null,
+        erro: null,
+      };
+    } catch (erro) {
+      return {
+        status: "erro",
+        qrCode: null,
+        qrExpiraEm: null,
+        numero: null,
+        nomeExibicao: null,
+        erro: erro instanceof Error ? erro.message : "Falha ao consultar o número.",
+      };
+    }
+  },
+  criarSessao(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  obterQrCode(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  async enviarMensagem(_sessaoId: string, telefone: string, texto: string) {
+    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+      messaging_product: "whatsapp",
+      to: telefone.replace(/\D/g, ""),
+      type: "text",
+      text: { body: texto },
+    });
+    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+    return { id: (lista[0]?.["id"] as string) ?? null };
+  },
+  reiniciarSessao(): Promise<EstadoDaSessao> {
+    return meta.consultarStatus();
+  },
+  async desconectar(): Promise<void> {
+    // O desvínculo da conta oficial é feito em Connectors → WhatsApp, não pelo app.
+  },
+};
+
 function provedor() {
   const config = lerConfig();
   if (!config) throw new GatewayNaoConfiguradoError();
+  if (config.provedor === "meta") return meta;
   return config.provedor === "generico" ? generico : evolution;
 }
 
