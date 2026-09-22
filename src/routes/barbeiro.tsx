@@ -23,6 +23,7 @@ export const Route = createFileRoute("/barbeiro")({
 function BarberLayout() {
   return (
     <div className="management-shell">
+      <SeloDemonstracao />
       <Outlet />
       <TabBar items={tabs} centralAction={<AcoesRapidas />} />
       <FabCortai />
