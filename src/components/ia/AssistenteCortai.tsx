@@ -209,22 +209,16 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
       rotulo="CortAI"
       cabecalho={
         <>
-          <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ink2 px-5 pb-3 pt-3">
+          <header className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
             <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-              style={{ background: "#D4AF6A", color: "#0B0B0B" }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
               aria-hidden
             >
-              <BigodeCortai size={22} />
+              <BigodeCortai size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-base font-semibold" style={{ color: "#F5F5F3" }}>
-                CortAI
-              </span>
-              <span
-                className="mt-0.5 block truncate"
-                style={{ color: "#9A968E", fontSize: "11px", letterSpacing: ".04em" }}
-              >
+              <span className="block truncate text-sm font-semibold tracking-wide text-paper">CortAI</span>
+              <span className="block truncate text-[10px] uppercase tracking-[.12em] text-mute2">
                 Alimentada pela Alvo IA
               </span>
             </span>
@@ -232,9 +226,9 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
               type="button"
               onClick={onFechar}
               aria-label="Fechar CortAI"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-mute transition-colors hover:text-paper"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line2 text-mute transition-colors hover:border-gold/40 hover:text-paper"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </header>
           <ProgressoDaConfiguracao />
