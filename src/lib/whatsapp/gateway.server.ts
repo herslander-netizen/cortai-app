@@ -63,6 +63,8 @@ export function credenciaisFaltantes(): string[] {
   if (!(process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"])) {
     faltam.push("EVOLUTION_API_KEY");
   }
+  // Com a conta oficial da Meta vinculada, nenhuma dessas é necessária.
+  if (process.env["WHATSAPP_API_KEY"] && process.env["LOVABLE_API_KEY"]) return [];
   if (!segredoDoWebhookDeWhatsapp()) faltam.push("EVOLUTION_WEBHOOK_SECRET");
   return faltam;
 }
@@ -81,7 +83,10 @@ async function chamar<T>(
   if (!config) throw new GatewayNaoConfiguradoError();
   const cabecalhos: Record<string, string> = { "content-type": "application/json" };
   if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
-  else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
+  else if (config.provedor === "meta") {
+    cabecalhos["authorization"] = `Bearer ${process.env["LOVABLE_API_KEY"]}`;
+    cabecalhos["x-connection-api-key"] = config.apiKey;
+  } else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
 
   const resposta = await fetch(`${config.baseUrl}${caminho}`, {
     method: metodo,
