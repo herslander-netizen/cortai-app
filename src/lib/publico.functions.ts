@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 
 export type PaginaPublica = {
   tenant: {
@@ -30,6 +31,9 @@ export type PaginaPublica = {
   }[];
   loja_ativa: boolean;
   produtos: { id: string; nome: string; categoria: string; preco_centavos: number; foto_url: string | null }[];
+  horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
+  avaliacoes: { media: number | null; quantidade: number };
+  pagina: PaginaConfig;
 };
 
 async function signedUrl(client: any, path: string | null) {
@@ -51,10 +55,13 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!tenant) return null;
 
-    const [{ data: servicos }, { data: profissionais }, { data: produtos }] = await Promise.all([
+    const [{ data: servicos }, { data: profissionais }, { data: produtos }, { data: horarios }, { data: avaliacoes }, { data: pageConfig }] = await Promise.all([
       supabaseAdmin.from("servicos").select("id, nome, duracao_min, preco_centavos").eq("tenant_id", tenant.id).eq("ativo", true).order("ordem"),
       supabaseAdmin.from("profissionais").select("id, nome, avatar_url, descricao, portfolio").eq("tenant_id", tenant.id).eq("ativo", true).order("criado_em"),
-      supabaseAdmin.from("produtos").select("id, nome, categoria, preco_centavos, foto_url").eq("tenant_id", tenant.id).eq("ativo", true).eq("disponivel_venda", true).gt("preco_centavos", 0).order("nome"),
+      supabaseAdmin.from("produtos").select("id, nome, categoria, preco_centavos, foto_url").eq("tenant_id", tenant.id).eq("ativo", true).eq("disponivel_venda", true).gt("preco_centavos", 0).order("nome").limit(8),
+      supabaseAdmin.from("horarios_de_funcionamento").select("dia_semana, fechado, abre, fecha").eq("tenant_id", tenant.id).order("dia_semana"),
+      supabaseAdmin.from("avaliacoes").select("nota").eq("tenant_id", tenant.id),
+      supabaseAdmin.from("tenant_page_configs").select("published_config").eq("tenant_id", tenant.id).maybeSingle(),
     ]);
     const { data: regraLoja } = await supabaseAdmin
       .from("recursos_de_plano")
@@ -64,7 +71,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     const lojaAtiva = Boolean(tenant.loja_ativa) && (regraLoja?.liberado ?? true);
 
-    const fotos = Array.isArray(tenant.fotos) ? tenant.fotos.filter((item): item is string => typeof item === "string") : [];
+    const fotos = Array.isArray(tenant.fotos) ? tenant.fotos.filter((item): item is string => typeof item === "string").slice(0, 8) : [];
     const [logo, capa, ...galeria] = await Promise.all([
       signedUrl(supabaseAdmin, tenant.logo_url),
       signedUrl(supabaseAdmin, tenant.capa_url),
@@ -101,5 +108,14 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       })),
       loja_ativa: lojaAtiva,
       produtos: lojaAtiva ? (produtos ?? []) : [],
+      horarios: horarios ?? [],
+      avaliacoes: {
+        media: avaliacoes?.length ? Number((avaliacoes.reduce((sum, item) => sum + item.nota, 0) / avaliacoes.length).toFixed(1)) : null,
+        quantidade: avaliacoes?.length ?? 0,
+      },
+      pagina: normalizarPagina((pageConfig?.published_config as { pagina?: unknown } | null)?.pagina, {
+        frase: tenant.texto_boas_vindas ?? undefined,
+        sobre: tenant.descricao ?? "",
+      }),
     };
   });
