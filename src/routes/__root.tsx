@@ -17,7 +17,8 @@ import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
 import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
-import { Toaster } from "@/components/ui/sonner";
+import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
+import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 
 
 function NotFoundComponent() {
@@ -140,8 +141,10 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <GlobalDesign>
         <GuiaProvider>
-          <Outlet />
-          <Toaster position="top-center" closeButton richColors />
+          <TransicaoDePagina>
+            <Outlet />
+          </TransicaoDePagina>
+          <AvisosDoApp />
           <BannerDeCookies />
           <AvisoDeVersao />
 

@@ -30,6 +30,7 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
             <li key={item.to} className={centralAction && index === 2 ? "col-start-4" : undefined}>
               <Link
                 to={item.to}
+                preload="intent"
                 activeOptions={{ exact: item.to.split("/").length === 2 }}
                 className="group relative mx-auto flex h-14 w-full max-w-[76px] flex-col items-center justify-center gap-1 rounded-xl text-mute transition-colors duration-150 hover:text-paper active:scale-[0.97] active:bg-ink3"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}

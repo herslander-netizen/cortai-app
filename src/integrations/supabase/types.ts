@@ -2399,6 +2399,72 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          corpo: string | null
+          criado_em: string
+          id: string
+          lida_em: string | null
+          link: string | null
+          tenant_id: string
+          tipo: string
+          titulo: string
+          user_id: string | null
+        }
+        Insert: {
+          corpo?: string | null
+          criado_em?: string
+          id?: string
+          lida_em?: string | null
+          link?: string | null
+          tenant_id: string
+          tipo: string
+          titulo: string
+          user_id?: string | null
+        }
+        Update: {
+          corpo?: string | null
+          criado_em?: string
+          id?: string
+          lida_em?: string | null
+          link?: string | null
+          tenant_id?: string
+          tipo?: string
+          titulo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      notificacoes_preferencias: {
+        Row: {
+          atualizado_em: string
+          id: string
+          no_app: boolean
+          no_whatsapp: boolean
+          tenant_id: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          id?: string
+          no_app?: boolean
+          no_whatsapp?: boolean
+          tenant_id: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          id?: string
+          no_app?: boolean
+          no_whatsapp?: boolean
+          tenant_id?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       onboarding_do_tenant: {
         Row: {
           atualizado_em: string
@@ -3421,6 +3487,16 @@ export type Database = {
         Returns: Json
       }
       criar_barbearia: { Args: { _nome: string }; Returns: string }
+      criar_notificacao: {
+        Args: {
+          _corpo: string
+          _link: string
+          _tenant: string
+          _tipo: string
+          _titulo: string
+        }
+        Returns: undefined
+      }
       definir_acesso_membro: {
         Args: {
           _ativo: boolean

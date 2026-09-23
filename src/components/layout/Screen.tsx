@@ -3,6 +3,7 @@ import { Link, type LinkProps } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { Signature } from "./Signature";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
+import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
 
 export function Screen({
   title,
@@ -30,7 +31,10 @@ export function Screen({
           <h1 className="screen-title">{title}</h1>
           {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
         </div>
-        <BotaoAjuda />
+        <div className="flex items-center gap-2">
+          <SinoDeAvisos />
+          <BotaoAjuda />
+        </div>
       </header>
       <main className="screen-content min-w-0 flex-1 px-5 md:px-8">{children}</main>
       <Signature />
