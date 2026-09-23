@@ -112,7 +112,7 @@ function ConfigurarMinhaBarbearia() {
       const r = await publicar({ data: { token } });
       setSlug(r.slug);
       setPasso(PASSOS.length - 1);
-      aviso.sucesso("Sua barbearia está publicada.");
+      aviso.ok("Sua barbearia está publicada.");
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não consegui publicar agora.");
     } finally {
@@ -131,7 +131,7 @@ function ConfigurarMinhaBarbearia() {
     try {
       await reivindicar({ data: { token } });
       setReivindicado(true);
-      aviso.sucesso("Acesso liberado. Bem-vindo ao painel.");
+      aviso.ok("Acesso liberado. Bem-vindo ao painel.");
       void navigate({ to: "/barbeiro" });
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não consegui liberar o acesso.");

@@ -46,7 +46,7 @@ function PlanoPage() {
     setSalvando(chave);
     try {
       const r = await escolher({ data: { chave } });
-      aviso.sucesso(`Plano ${r.plano} aplicado. Seus dados continuam como estavam.`);
+      aviso.ok(`Plano ${r.plano} aplicado. Seus dados continuam como estavam.`);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["planos-da-barbearia"] }),
         queryClient.invalidateQueries({ queryKey: ["capacidades"] }),
@@ -60,7 +60,7 @@ function PlanoPage() {
   }
 
   return (
-    <Screen titulo="Plano da barbearia" subtitulo="O plano decide o que aparece no painel, no menu e na configuração.">
+    <Screen title="Plano da barbearia" subtitle="O plano decide o que aparece no painel, no menu e na configuração.">
       {isLoading || !data ? (
         <EsqueletoLista linhas={3} />
       ) : (
