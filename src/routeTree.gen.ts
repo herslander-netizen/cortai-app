@@ -64,6 +64,7 @@ import { Route as BarbeiroIntegracoesRouteImport } from './routes/barbeiro.integ
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
 import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroPainelIaRouteImport } from './routes/barbeiro.painel-ia'
+import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
@@ -357,6 +358,11 @@ const BarbeiroPainelIaRoute = BarbeiroPainelIaRouteImport.update({
   path: '/painel-ia',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroPlanoRoute = BarbeiroPlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroProdutosRoute = BarbeiroProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
@@ -495,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -564,6 +571,7 @@ export interface FileRoutesByTo {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -638,6 +646,7 @@ export interface FileRoutesById {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -713,6 +722,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -782,6 +792,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -855,6 +866,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -1293,6 +1305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroPainelIaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/plano': {
+      id: '/barbeiro/plano'
+      path: '/plano'
+      fullPath: '/barbeiro/plano'
+      preLoaderRoute: typeof BarbeiroPlanoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/produtos': {
       id: '/barbeiro/produtos'
       path: '/produtos'
@@ -1491,6 +1510,7 @@ interface BarbeiroRouteChildren {
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
   BarbeiroMarcaRoute: typeof BarbeiroMarcaRoute
   BarbeiroPainelIaRoute: typeof BarbeiroPainelIaRoute
+  BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
@@ -1520,6 +1540,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroMaisRoute: BarbeiroMaisRoute,
   BarbeiroMarcaRoute: BarbeiroMarcaRoute,
   BarbeiroPainelIaRoute: BarbeiroPainelIaRoute,
+  BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
