@@ -268,7 +268,6 @@ function CaixaPage() {
                         // Sai da lista na hora; volta se o servidor recusar.
                         const anterior = fiados.data;
                         if (anterior) {
-                          fiados.data = anterior;
                           queryClient.setQueryData(
                             ["fiados"],
                             (anterior as any[]).filter((x) => x.id !== f.id),
