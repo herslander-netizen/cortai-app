@@ -52,6 +52,8 @@ export type ContextoDoMotor = ContextoDaConversa & {
   inicioEscolhido?: string | null;
   /** Estado salvo antes de expirar, para retomada. */
   estadoAnterior?: EstadoDaConversa | null;
+  /** Aguardando o nome da pessoa para concluir o cadastro do agendamento. */
+  aguardandoNome?: boolean;
   /** Tentativas seguidas sem entender a pessoa. */
   semEntender?: number;
 };
