@@ -178,7 +178,8 @@ function Formulario({
       aria-label="Agendamento manual"
     >
       <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-line bg-ink3 p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-2xl">
-        <div className="flex items-start justify-between gap-3">
+        {confirmado ? <ConfirmacaoRapida texto="Pronto. Agendamento criado." /> : null}
+        <div hidden={confirmado} className="flex items-start justify-between gap-3">
           <div>
             <p className="text-base font-bold text-paper">Agendamento manual</p>
             <p className="mt-1 text-xs text-mute">Cliente que chegou agora, em poucos toques.</p>
