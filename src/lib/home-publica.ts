@@ -9,8 +9,13 @@ import { z } from "zod";
  */
 
 export const TIPOS_DE_SECAO = [
+  { valor: "pilares", rotulo: "Quatro pilares" },
   { valor: "beneficios", rotulo: "Benefícios" },
   { valor: "produto", rotulo: "Produto / celular" },
+  { valor: "modulo", rotulo: "Módulo (texto + tela)" },
+  { valor: "identidade", rotulo: "Identidade da barbearia" },
+  { valor: "experiencia", rotulo: "Experiência do cliente" },
+  { valor: "crescimento", rotulo: "Crescimento e oportunidades" },
   { valor: "recursos", rotulo: "Módulos do Cortaí" },
   { valor: "voltai", rotulo: "Voltaí / fidelidade" },
   { valor: "telas", rotulo: "Agenda, Clientes, Financeiro" },
@@ -21,6 +26,7 @@ export const TIPOS_DE_SECAO = [
   { valor: "parceiros", rotulo: "Parceiros" },
   { valor: "rodape", rotulo: "Rodapé" },
 ] as const;
+
 
 export type TipoSecao = (typeof TIPOS_DE_SECAO)[number]["valor"];
 
@@ -81,7 +87,7 @@ export const esquemaAparencia = z.object({
   bordas: z.enum(["sutil", "media", "forte"]),
   larguraPx: z.number().int().min(1040).max(1600),
   espacamento: z.enum(["compacto", "padrao", "amplo"]),
-  tipografia: z.enum(["Montserrat", "Work Sans", "Sora"]),
+  tipografia: z.enum(["Manrope", "Montserrat", "Work Sans", "Sora"]),
 });
 
 export const esquemaSeo = z.object({
