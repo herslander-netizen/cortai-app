@@ -52,7 +52,7 @@ function ConteudoHome({ config }: { config: ConfigHome }) {
             <Button asChild variant="ghost" size="sm" className="hidden text-paper hover:bg-paper/10 sm:inline-flex">
               <Link to="/configurar-minha-barbearia">Configurar minha barbearia</Link>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="text-paper hover:bg-paper/10">
+            <Button asChild variant="outline" size="sm" className="border-paper/25 bg-paper/5 text-paper backdrop-blur-sm transition-colors hover:border-gold/60 hover:bg-paper/10 hover:text-gold">
               <Link to="/demonstracao">Explorar demonstração</Link>
             </Button>
             <Button asChild size="sm" className="font-semibold">
