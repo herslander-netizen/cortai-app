@@ -214,8 +214,28 @@ textarea {
 }
 
 button,
-a {
+a,
+[role="button"],
+[data-clicavel] {
   touch-action: manipulation;
+}
+
+/* Resposta imediata ao toque, sem esperar o servidor. */
+button:not(:disabled):active,
+a:active,
+[role="button"]:active,
+[data-clicavel]:active {
+  transform: scale(0.97);
+  transition: transform 80ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active,
+  a:active,
+  [role="button"]:active,
+  [data-clicavel]:active {
+    transform: none;
+  }
 }
 
 button:disabled,
