@@ -62,7 +62,11 @@ function PainelPage() {
                 <div>
                   <p className="text-xs text-mute">Faturamento de hoje</p>
                   <p className="mt-2 text-[30px] font-bold leading-none text-paper">
-                    {data.hoje.faturamentoCentavos === null ? "—" : brl(data.hoje.faturamentoCentavos)}
+                    {data.hoje.faturamentoCentavos === null ? (
+                      "—"
+                    ) : (
+                      <ValorAnimado valor={data.hoje.faturamentoCentavos} formatar={brl} />
+                    )}
                   </p>
                   {data.hoje.faturamentoCentavos === null ? (
                     <p className="mt-2 text-xs text-mute2">Você não tem acesso aos valores da barbearia.</p>
@@ -76,7 +80,7 @@ function PainelPage() {
               </div>
               <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3">
                 <div
-                  className="h-full rounded-full bg-gold"
+                  className="h-full rounded-full bg-gold transition-[width] duration-500 ease-out"
                   style={{ width: `${Math.max(5, data.hoje.ocupacaoPct ?? 0)}%` }}
                 />
               </div>
