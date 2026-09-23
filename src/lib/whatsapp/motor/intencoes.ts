@@ -27,6 +27,7 @@ export type IntencaoDoMotor =
   | "REMARCAR"
   | "CANCELAR"
   | "LOCALIZACAO"
+  | "BARBEARIA"
   | "FUNCIONAMENTO"
   | "FILA"
   | "HISTORICO"
@@ -104,6 +105,7 @@ export function classificar(
   if (contem(t, VOCABULARIO.fidelidade)) return resultado("FIDELIDADE", 0.85);
   if (contem(t, VOCABULARIO.fila)) return resultado("FILA", 0.8);
   if (contem(t, VOCABULARIO.preco)) return resultado("PRECO", 0.85);
+  if (contem(t, VOCABULARIO.barbearia)) return resultado("BARBEARIA", 0.9);
   if (contem(t, VOCABULARIO.localizacao)) return resultado("LOCALIZACAO", 0.85);
   if (contem(t, VOCABULARIO.horarios)) return resultado("FUNCIONAMENTO", 0.85);
   if (contem(t, VOCABULARIO.profissionais)) return resultado("PROFISSIONAIS", 0.8);
