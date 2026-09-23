@@ -6,6 +6,7 @@ import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
 import { capacidadesDoTenant } from "@/lib/capacidades.functions";
+import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
 
 export const ITENS_DO_CHECKLIST = [
