@@ -6,7 +6,8 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { useDebounce } from "@/hooks/useMovimento";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
