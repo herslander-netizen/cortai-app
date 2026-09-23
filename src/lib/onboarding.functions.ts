@@ -5,6 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
+import { capacidadesDoTenant } from "@/lib/capacidades.functions";
+import type { CapacidadesDoTenant } from "@/lib/capacidades";
 
 export const ITENS_DO_CHECKLIST = [
   { chave: "configurar", rotulo: "Configure sua barbearia", destino: "/barbeiro/configurar" },
@@ -280,5 +282,142 @@ export const marcarTourVisto = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await gravarOnboarding(context, tenantId, { tour_visto: true });
+    return { ok: true };
+  });
+
+/* ---------------------- IMPLANTAÇÃO GUIADA (onboarding) ------------------ */
+
+export const ETAPAS_DA_IMPLANTACAO = [
+  "boas_vindas",
+  "dados",
+  "equipe",
+  "servicos",
+  "agenda",
+  "canais",
+  "recursos",
+  "pronto",
+] as const;
+
+export type EtapaDaImplantacao = (typeof ETAPAS_DA_IMPLANTACAO)[number];
+
+export type ProfissionalDaImplantacao = { id: string; nome: string; ativo: boolean };
+
+export type Implantacao = ConfiguracaoInicial & {
+  tenant: ConfiguracaoInicial["tenant"] & { telefone: string | null; endereco: string | null };
+  profissionais: ProfissionalDaImplantacao[];
+  capacidades: CapacidadesDoTenant;
+  permissoes: string[];
+  whatsappConectado: boolean;
+};
+
+/** Leitura única com tudo que a implantação precisa. Evita telas em cascata. */
+export const getImplantacao = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<Implantacao> => {
+    const tenantId = await tenantIdDoMembro(context);
+    const db = context.supabase;
+
+    const [tenantRes, horariosRes, servicosRes, onbRes, profRes, conexaoRes, acessoRes, capacidades] =
+      await Promise.all([
+        db
+          .from("tenants")
+          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco")
+          .eq("id", tenantId)
+          .maybeSingle(),
+        db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
+        db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
+        db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
+        db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
+        db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).maybeSingle(),
+        db.rpc("meu_acesso_no_tenant", { _tenant_id: tenantId }),
+        capacidadesDoTenant(db, tenantId),
+      ]);
+
+    const tenant = tenantRes.data;
+    if (!tenant) throw new Error("Barbearia não encontrada.");
+
+    const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
+      ? (horariosRes.data ?? []).map((h: Record<string, any>) => ({
+          diaSemana: h["dia_semana"] as number,
+          fechado: Boolean(h["fechado"]),
+          abre: String(h["abre"]).slice(0, 5),
+          fecha: String(h["fecha"]).slice(0, 5),
+        }))
+      : horariosPadrao();
+
+    const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map((s: Record<string, any>) => ({
+      id: s["id"] as string,
+      nome: s["nome"] as string,
+      duracaoMin: s["duracao_min"] as number,
+      precoCentavos: s["preco_centavos"] as number,
+      ativo: Boolean(s["ativo"]),
+    }));
+
+    const onb = onbRes.data as Record<string, any> | null;
+    const itens = (onb?.["itens"] ?? {}) as Record<string, boolean>;
+    const acesso = Array.isArray(acessoRes.data) ? (acessoRes.data[0] as Record<string, any> | undefined) : null;
+
+    return {
+      tenant: {
+        id: tenant.id as string,
+        nome: tenant.nome as string,
+        slug: tenant.slug as string,
+        whatsapp: (tenant.whatsapp as string) ?? null,
+        logoUrl: (tenant.logo_url as string) ?? null,
+        fuso: normalizarFuso(tenant.fuso as string | null),
+        telefone: (tenant.telefone as string) ?? null,
+        endereco: (tenant.endereco as string) ?? null,
+      },
+      horarios,
+      servicos,
+      etapa: (onb?.["etapa"] as string) ?? "boas_vindas",
+      itens: {
+        ...itens,
+        servicos: itens["servicos"] ?? servicos.length > 0,
+        configurar: itens["configurar"] ?? Boolean(onb?.["concluido_em"]),
+      },
+      tourVisto: Boolean(onb?.["tour_visto"]),
+      concluidoEm: (onb?.["concluido_em"] as string) ?? null,
+      profissionais: (profRes.data ?? []).map((p: Record<string, any>) => ({
+        id: p["id"] as string,
+        nome: p["nome"] as string,
+        ativo: Boolean(p["ativo"]),
+      })),
+      capacidades,
+      permissoes: ((acesso?.["permissoes"] as string[] | undefined) ?? []) as string[],
+      whatsappConectado: (conexaoRes.data?.status as string | undefined) === "conectado",
+    };
+  });
+
+/** Guarda a etapa alcançada, para a pessoa poder sair e voltar sem perder nada. */
+export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ etapa: z.enum(ETAPAS_DA_IMPLANTACAO) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await gravarOnboarding(context, tenantId, { etapa: data.etapa });
+    return { ok: true };
+  });
+
+/** Cadastra o primeiro profissional (e os próximos) respeitando o limite do plano. */
+export const adicionarProfissional = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ nome: z.string().trim().min(2).max(60) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_profissionais");
+    const capacidades = await capacidadesDoTenant(context.supabase, tenantId);
+    const limite = capacidades.limites.profissionais;
+    if (limite != null && capacidades.uso.profissionais >= limite) {
+      throw new Error(
+        `Seu plano ${capacidades.plano.nome} permite ${limite} profissional(is). Fale com o Cortaí para liberar mais.`,
+      );
+    }
+    const { error } = await context.supabase
+      .from("profissionais")
+      .insert({ tenant_id: tenantId, nome: data.nome, ativo: true });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
