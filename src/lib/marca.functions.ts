@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
-import { configPadrao, normalizarPagina, paginaConfigSchema, type PaginaConfig } from "@/lib/pagina-config";
+import { normalizarPagina, paginaConfigSchema, type PaginaConfig } from "@/lib/pagina-config";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -125,8 +125,8 @@ export const getMarca = createServerFn({ method: "GET" })
         logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
         capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
         slug: tenant.slug,
-        pagina: normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
-        publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
+        pagina: normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
+        publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
       },
       versoes: (versoes ?? []).map((item) => {
@@ -199,13 +199,13 @@ export const publicarPagina = createServerFn({ method: "POST" })
     const marca = { ...data.marca, assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel };
     const configuracao = { pagina: data.pagina, marca } as unknown as Json;
     const { error } = await context.supabase.rpc("publish_tenant_page", {
-      _tenant_id: tenantId, _config: configuracao, _nome: marca.nome, _endereco: marca.endereco,
-      _telefone: marca.telefone, _instagram: marca.instagram, _whatsapp: marca.whatsapp,
-      _facebook: marca.facebook, _tema: marca.tema, _cor_primaria: marca.cor_primaria,
+      _tenant_id: tenantId, _config: configuracao, _nome: marca.nome, _endereco: marca.endereco ?? "",
+      _telefone: marca.telefone ?? "", _instagram: marca.instagram ?? "", _whatsapp: marca.whatsapp ?? "",
+      _facebook: marca.facebook ?? "", _tema: marca.tema, _cor_primaria: marca.cor_primaria,
       _cor_secundaria: marca.cor_secundaria, _cor_accent: marca.cor_accent,
-      _rotulo_carteira: marca.rotulo_carteira, _texto_boas_vindas: marca.texto_boas_vindas,
-      _descricao: marca.descricao, _capa_url: marca.capa_url, _fotos: marca.fotos,
-      _assinatura_visivel: marca.assinatura_visivel, _logo_url: marca.logo_url,
+      _rotulo_carteira: marca.rotulo_carteira ?? "", _texto_boas_vindas: marca.texto_boas_vindas ?? "",
+      _descricao: marca.descricao ?? "", _capa_url: marca.capa_url ?? "", _fotos: marca.fotos,
+      _assinatura_visivel: marca.assinatura_visivel, _logo_url: marca.logo_url ?? "",
     });
     if (error) throw new Error(error.message);
     return { ok: true };

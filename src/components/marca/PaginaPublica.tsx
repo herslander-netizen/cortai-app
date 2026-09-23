@@ -3,7 +3,6 @@ import { CalendarDays, Clock3, Instagram, MapPin, MessageCircle, Phone, Share2, 
 import { type ReactNode } from "react";
 
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
-import { Button } from "@/components/ui/button";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { brl } from "@/lib/format";
 import { type PaginaConfig, paginaStyle } from "@/lib/pagina-config";

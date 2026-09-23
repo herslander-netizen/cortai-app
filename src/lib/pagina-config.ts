@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { CSSProperties } from "react";
 
 export const temaIds = ["premium", "urbano", "classico", "clean", "dark", "industrial", "street", "editorial"] as const;
 export const layoutIds = ["cinematografico", "logo-central", "minimalista", "foto-destaque", "editorial"] as const;
@@ -59,7 +60,7 @@ const fontes: Record<FonteId, string> = {
   oswald: '"Oswald", sans-serif', roboto: '"Roboto", sans-serif', serif: '"Libre Baskerville", Georgia, serif',
 };
 
-export function paginaStyle(config: PaginaConfig): React.CSSProperties {
+export function paginaStyle(config: PaginaConfig): CSSProperties {
   const raios = { quadrado: "0px", suave: "8px", moderno: "14px", arredondado: "24px" };
   const espacos = { compacta: "0.8", equilibrada: "1", espacosa: "1.22" };
   return {
@@ -73,5 +74,5 @@ export function paginaStyle(config: PaginaConfig): React.CSSProperties {
     "--brand-density": espacos[config.densidade],
     "--brand-heading": fontes[config.fonteTitulo],
     "--brand-body": fontes[config.fonteTexto],
-  } as React.CSSProperties;
+  } as CSSProperties;
 }

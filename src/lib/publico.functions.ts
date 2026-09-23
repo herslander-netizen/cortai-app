@@ -114,7 +114,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         quantidade: avaliacoes?.length ?? 0,
       },
       pagina: normalizarPagina((pageConfig?.published_config as { pagina?: unknown } | null)?.pagina, {
-        frase: tenant.texto_boas_vindas ?? undefined,
+        frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
         sobre: tenant.descricao ?? "",
       }),
     };
