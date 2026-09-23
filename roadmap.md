@@ -146,3 +146,4 @@
 
 - [x] Fuso horário por barbearia (painel de Horários; agenda, disponibilidade e lembretes respeitam o fuso)
 - [x] Barbearia demo comercial "Barbearia Prime" (slug barbearia-prime), com serviços, profissionais, horários e página pública
+- [ ] Avisos: permitir App e WhatsApp ativos ao mesmo tempo por tipo de aviso
