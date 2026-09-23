@@ -136,11 +136,15 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const whatsapp = data.whatsapp.replace(/\D/g, "");
-    const campos: Record<string, unknown> = { nome: data.nome, whatsapp: whatsapp || null };
-    if (data.telefone !== undefined) campos["telefone"] = data.telefone.replace(/\D/g, "") || null;
-    if (data.endereco !== undefined) campos["endereco"] = data.endereco || null;
-    if (data.fuso) campos["fuso"] = data.fuso;
+    const campos = {
+      nome: data.nome,
+      whatsapp: whatsapp || null,
+      ...(data.telefone !== undefined ? { telefone: data.telefone.replace(/\D/g, "") || null } : {}),
+      ...(data.endereco !== undefined ? { endereco: data.endereco || null } : {}),
+      ...(data.fuso ? { fuso: data.fuso } : {}),
+    };
     const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
+
     if (error) throw new Error(error.message);
     if (data.fuso) {
       const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
