@@ -388,7 +388,12 @@ export const getImplantacao = createServerFn({ method: "GET" })
         ativo: Boolean(p["ativo"]),
       })),
       capacidades,
-      permissoes: ((acesso?.["permissoes"] as string[] | undefined) ?? []) as string[],
+      // Dono enxerga tudo; os demais papéis seguem exatamente as permissões gravadas.
+      permissoes:
+        (acesso?.["papel"] as string | undefined) === "dono"
+          ? Object.keys(PERMISSOES)
+          : (((acesso?.["permissoes"] as string[] | undefined) ?? []) as string[]),
+
       whatsappConectado: (conexaoRes.data?.status as string | undefined) === "conectado",
     };
   });
