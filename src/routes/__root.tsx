@@ -19,6 +19,8 @@ import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
 import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
 import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
 import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
+import { NovidadesDaVersao } from "@/components/sistema/NovidadesDaVersao";
+
 
 
 function NotFoundComponent() {
@@ -149,6 +151,8 @@ function RootComponent() {
           <AvisosDoApp />
           <BannerDeCookies />
           <AvisoDeVersao />
+          <NovidadesDaVersao />
+
 
         </GuiaProvider>
       </GlobalDesign>
