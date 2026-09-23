@@ -101,3 +101,16 @@
 - [x] Ocupação pelo horário de funcionamento real; faturamento do dia pela mesma fonte do caixa
 - [x] Removidos `getPainelHoje` e `getOportunidades` (expunham valores sem checar permissão)
 - [x] `/barbeiro/agendamentos` passa a incluir o status `confirmado`
+
+## Cortaí 2.0 — Motion, feedback e notificações — v1.7.0 (23/09)
+- [x] Tokens de movimento (`src/lib/motion.ts`) e hooks (`useMenosMovimento`, `useContagem`, `useDebounce`)
+- [x] Transição de página com fade + subida, respeitando "menos movimento"
+- [x] Botão de ação com trava de clique duplo, largura fixa, carregando após 300ms e ✓ por 600ms
+- [x] Tabelas novas `notificacoes` e `notificacoes_preferencias` com RLS por barbearia/usuário
+- [x] Gatilhos novos: agendamento novo, cancelado, remarcado, fila, fiado e Pix recebido
+- [x] Sino no cabeçalho com badge, pulso, tempo real, agrupamento Hoje/Ontem/Anteriores e "marcar todas como lidas"
+- [x] Avisos rápidos embaixo no celular e no canto superior direito no computador, com helper "Desfazer"
+- [x] Faixa de configuração pendente que encolhe ao rolar
+- [x] Prefetch ao tocar nos itens da barra de navegação; números do Início com contagem animada
+- [ ] Updates otimistas em agenda, clientes e caixa (próxima etapa)
+- [ ] Tela Configurações > Notificações (App/WhatsApp por tipo) usando `notificacoes_preferencias`
