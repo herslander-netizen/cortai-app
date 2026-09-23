@@ -14,6 +14,13 @@ describe("intencoes deterministicas do WhatsApp", () => {
     expect(classificar("Qual o nome da barbearia?", opcoes).intencao).toBe("BARBEARIA");
   });
 
+  it("cobre endereco, funcionamento, servicos e preco antes do fallback", () => {
+    expect(classificar("Onde fica?", opcoes).intencao).toBe("LOCALIZACAO");
+    expect(classificar("Que horas abre?", opcoes).intencao).toBe("FUNCIONAMENTO");
+    expect(classificar("Quais serviços vocês fazem?", opcoes).intencao).toBe("SERVICOS");
+    expect(classificar("Quanto custa o corte?", opcoes).intencao).toBe("PRECO");
+  });
+
   it("interpreta amanha as 15 no fuso configurado", () => {
     const resultado = classificar("Amanhã às 15", opcoes);
     expect(resultado.entidades.dia).toBe("2026-09-24");
@@ -33,6 +40,7 @@ describe("intencoes deterministicas do WhatsApp", () => {
   it("nao confunde artigo indefinido com item do menu", () => {
     expect(classificar("quero um corte", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("AGENDAR");
     expect(classificar("quanto custa um corte e barba", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("PRECO");
+    expect(classificar("segunda", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("DISPONIBILIDADE");
   });
 
   it("limpa selecoes antigas ao voltar ao menu principal", () => {

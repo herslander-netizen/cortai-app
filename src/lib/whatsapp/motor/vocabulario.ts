@@ -145,16 +145,10 @@ export function servicoCitado(textoNormalizado: string): string | null {
 const NUMEROS_ESCRITOS: Record<string, number> = {
   primeiro: 1,
   primeira: 1,
-  dois: 2,
-  duas: 2,
   segundo: 2,
-  segunda: 2,
-  tres: 3,
   terceiro: 3,
   terceira: 3,
-  quatro: 4,
   quarto: 4,
-  cinco: 5,
   quinto: 5,
 };
 
@@ -170,7 +164,7 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
     const n = Number(comIndicador[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
-  const selecaoPorExtenso = textoNormalizado.match(/^(?:o|a|opcao)?\s*(primeiro|primeira|dois|duas|segundo|segunda|tres|terceiro|terceira|quatro|quarto|cinco|quinto)(?:\s+por favor)?$/);
+  const selecaoPorExtenso = textoNormalizado.match(/^(?:o|a|opcao)?\s*(primeiro|primeira|segundo|terceiro|terceira|quarto|quinto)(?:\s+por favor)?$/);
   if (selecaoPorExtenso) {
     const valor = NUMEROS_ESCRITOS[selecaoPorExtenso[1] ?? ""];
     return valor && valor <= totalDeOpcoes ? valor : null;
@@ -181,7 +175,7 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
 /** Código de barbearia no formato #XXXX enviado pelo cliente. */
 export function codigoDaBarbearia(texto: string): string | null {
   const achado = texto.match(/#\s*([a-zA-Z0-9]{4,12})/);
-  return achado ? achado[1]!.toLowerCase() : null;
+  return achado?.[1]?.toLowerCase() ?? null;
 }
 
 const DIAS_DA_SEMANA: Record<string, number> = {

@@ -469,10 +469,11 @@ async function oferecerHorarios(
   };
 
   let livres = grade.livres;
-  if (opcoes.periodo) {
+  const periodo = opcoes.periodo;
+  if (periodo) {
     livres = livres.filter((l) => {
       const m = minutosLocais(l.inicio);
-      return m >= opcoes.periodo!.deMinutos && m <= opcoes.periodo!.ateMinutos;
+      return m >= periodo.deMinutos && m <= periodo.ateMinutos;
     });
   }
 
@@ -769,9 +770,11 @@ async function iniciarCancelamento(ctx: Ctx, contexto: ContextoDoMotor, responde
     });
   }
   if (lista.length === 1) {
+    const unico = lista[0];
+    if (!unico) return responder("Não encontrei horário marcado no seu nome para cancelar.", limparFluxo(contexto));
     return responder(
-      [`Quer mesmo cancelar ${lista[0]!.rotulo}?`, "", "Responda *sim* para cancelar."].join("\n"),
-      { estado: "CANCELLING", agendamentoId: lista[0]!.id, pendente: "cancelar", menuTipo: null, menuItens: null },
+      [`Quer mesmo cancelar ${unico.rotulo}?`, "", "Responda *sim* para cancelar."].join("\n"),
+      { estado: "CANCELLING", agendamentoId: unico.id, pendente: "cancelar", menuTipo: null, menuItens: null },
       { intencao: "cancelamento" },
     );
   }
@@ -825,10 +828,22 @@ async function iniciarRemarcacao(
     );
   }
 
-  const alvo = lista[0]!;
+  const alvo = lista[0];
+  if (!alvo) {
+    return responder("Não encontrei horário marcado no seu nome. Quer agendar um novo?", limparFluxo(contexto), {
+      intencao: "reagendamento",
+    });
+  }
   const dia = cls.entidades.dia;
   const { listarAgendamentosDoCliente } = await import("@/lib/ia/acoes.server");
-  const cru = await listarAgendamentosDoCliente(ctx, { clienteId: contexto.clienteId! });
+  const clienteId = contexto.clienteId;
+  if (!clienteId) {
+    return responder("Não encontrei seu cadastro para remarcar. Vou chamar alguém da equipe.", limparFluxo(contexto), {
+      pedirHumano: true,
+      intencao: "reagendamento",
+    });
+  }
+  const cru = await listarAgendamentosDoCliente(ctx, { clienteId });
   const servicoId = cru.find((a) => a.id === alvo.id)?.servico_id ?? contexto.servicoId ?? null;
 
   if (!dia || !servicoId) {
