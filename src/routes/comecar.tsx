@@ -3,8 +3,8 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel } from "@/lib/guarda";
-import { criarBarbearia, definirTipoDePerfil, getSessao } from "@/lib/sessao.functions";
+import { destinoDoPapel, esquecerSessao, sessaoDoUsuario } from "@/lib/guarda";
+import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
 export const Route = createFileRoute("/comecar")({
@@ -20,9 +20,10 @@ export const Route = createFileRoute("/comecar")({
     ],
   }),
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    const sessao = await getSessao();
+    const { data } = await supabase.auth.getSession();
+    const usuario = data.session?.user;
+    if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
+    const sessao = await sessaoDoUsuario(usuario.id);
     if (sessao.papel !== "pendente" && !(sessao.papel === "barbeiro" && !sessao.tenantId)) {
       throw redirect({ to: destinoDoPapel(sessao) });
     }
@@ -67,6 +68,7 @@ function ComecarPage() {
               setErro(null);
               try {
                 await definirTipoDePerfil({ data: { tipo: "cliente" } });
+                esquecerSessao();
                 await navigate({ to: "/app" });
               } catch {
                 setErro("Não foi possível continuar agora.");
@@ -101,6 +103,7 @@ function ComecarPage() {
             setErro(null);
             try {
               await criarBarbearia({ data: { nome: nome.trim() } });
+              esquecerSessao();
                setConcluido(true);
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");
