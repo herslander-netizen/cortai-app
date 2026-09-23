@@ -1,196 +1,141 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Eye, ImagePlus, LockKeyhole, MessageCircle, RotateCcw, Share2 } from "lucide-react";
-import { type ChangeEvent, type CSSProperties, useEffect, useRef, useState } from "react";
+import { Check, Copy, Eye, ImagePlus, Monitor, RotateCcw, Save, Send, Share2, Smartphone } from "lucide-react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
 
+import { Carregando } from "@/components/layout/Carregando";
 import { Screen } from "@/components/layout/Screen";
+import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  getMarca,
-  restaurarMarca,
-  salvarMarca,
-  type MarcaData,
-  type MarcaForm,
-} from "@/lib/marca.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { getMarca, publicarPagina, restaurarMarca, salvarRascunhoPagina, type MarcaData, type MarcaForm } from "@/lib/marca.functions";
+import { componenteIds, FONTES, LAYOUTS, TEMAS, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
+import { getPaginaPublica } from "@/lib/publico.functions";
 
 export const Route = createFileRoute("/barbeiro/marca")({
-  head: () => ({
-    meta: [
-      { title: "Marca — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Configure a identidade da sua barbearia no app dos clientes." },
-      { property: "og:title", content: "Marca — Painel do barbeiro | Cortaí" },
-      { property: "og:description", content: "Logo, cores, contatos e textos da sua barbearia." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () => ({ meta: [
+    { title: "Personalizar página — Cortaí" },
+    { name: "description", content: "Personalize e publique a página pública da sua barbearia." },
+    { property: "og:title", content: "Personalizar página — Cortaí" },
+    { property: "og:description", content: "Visual, conteúdo, seções e links da página da barbearia." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: MarcaPage,
 });
 
-const temas = [
-  { id: "classica", nome: "Clássica", cores: ["#D4AF6A", "#1C1B19", "#8FA882"] },
-  { id: "dourada", nome: "Dourada", cores: ["#E1B955", "#29251C", "#B78D35"] },
-  { id: "vibrante", nome: "Vibrante", cores: ["#2FC8A0", "#172721", "#F2B84B"] },
-  { id: "escura", nome: "Escura", cores: ["#B9C1C9", "#17191B", "#78909C"] },
-  { id: "quente", nome: "Quente", cores: ["#D77A61", "#2A1D1A", "#E2B44C"] },
-  { id: "clara", nome: "Clara", cores: ["#A9C8B0", "#26302A", "#D79A76"] },
-] as const;
-
 const fieldClass = "mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none placeholder:text-mute2 focus:border-gold";
+const componentes: Record<(typeof componenteIds)[number], string> = {
+  apresentacao: "Apresentação", servicos: "Serviços", profissionais: "Profissionais", galeria: "Galeria",
+  avaliacoes: "Avaliações", produtos: "Produtos", instagram: "Instagram", localizacao: "Localização",
+  horarios: "Horários", whatsapp: "WhatsApp", cta_final: "Chamada final",
+};
 
-function Campo({ label, value, onChange, placeholder }: { label: string; value: string | null; onChange: (v: string) => void; placeholder?: string }) {
-  return <label className="block text-xs font-medium text-mute">{label}<input className={fieldClass} value={value ?? ""} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></label>;
-}
-
-function Secao({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="border-t border-line py-7 first:border-0 first:pt-0"><h2 className="mb-4 text-sm font-semibold text-paper">{title}</h2>{children}</section>;
+function Campo({ label, value, onChange, placeholder }: { label: string; value: string | null; onChange: (value: string) => void; placeholder?: string }) {
+  return <label className="block text-xs font-medium text-mute">{label}<input className={fieldClass} value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
-  if (query.isLoading) return <Screen voltarPara="/barbeiro/mais" title="Marca"><Carregando /></Screen>;
-  if (query.isError) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
-  if (!query.data) return <Screen title="Marca"><p className="text-sm text-brick">Entre como dono da barbearia para configurar a marca.</p></Screen>;
-  return <MarcaFormPage initial={query.data.marca} versions={query.data.versoes} reload={() => query.refetch()} />;
+  if (query.isLoading) return <Screen voltarPara="/barbeiro/mais" title="Personalizar página"><Carregando /></Screen>;
+  if (!query.data) return <Screen title="Personalizar página"><p className="text-sm text-brick">Entre como dono da barbearia para personalizar a página.</p></Screen>;
+  return <Editor initial={query.data.marca} versions={query.data.versoes} reload={() => query.refetch()} />;
 }
 
-function MarcaFormPage({ initial, versions, reload }: { initial: MarcaData; versions: Awaited<ReturnType<typeof getMarca>>["versoes"]; reload: () => void }) {
-  const save = useServerFn(salvarMarca);
+function Editor({ initial, versions, reload }: { initial: MarcaData; versions: Awaited<ReturnType<typeof getMarca>>["versoes"]; reload: () => void }) {
+  const queryClient = useQueryClient();
+  const saveDraft = useServerFn(salvarRascunhoPagina);
+  const publish = useServerFn(publicarPagina);
   const restore = useServerFn(restaurarMarca);
+  const publicQuery = useQuery({ queryKey: ["pagina-publica", initial.slug], queryFn: () => getPaginaPublica({ data: { slug: initial.slug } }) });
   const fileRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<MarcaForm>(initial);
+  const [config, setConfig] = useState<PaginaConfig>(initial.pagina);
   const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
   const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
-  const [custom, setCustom] = useState(initial.tema === "personalizada");
-  const [welcomeDefault, setWelcomeDefault] = useState(!initial.texto_boas_vindas);
-  const [walletDefault, setWalletDefault] = useState(!initial.rotulo_carteira);
+  const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
-  useEffect(() => { setForm(initial); setLogoPreview(initial.logo_signed_url); setCoverPreview(initial.capa_signed_url); }, [initial]);
+  const [status, setStatus] = useState<string | null>(initial.alteracoes_pendentes ? "Há alterações salvas que ainda não foram publicadas." : null);
 
-  const set = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) => setForm((old) => ({ ...old, [key]: value }));
-  const chooseTheme = (theme: typeof temas[number]) => {
-    setForm((old) => ({ ...old, tema: theme.id, cor_primaria: theme.cores[0], cor_secundaria: theme.cores[1], cor_accent: theme.cores[2] }));
-    setCustom(false);
-  };
+  useEffect(() => { setForm(initial); setConfig(initial.pagina); setLogoPreview(initial.logo_signed_url); setCoverPreview(initial.capa_signed_url); }, [initial]);
+  const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) => setForm((old) => ({ ...old, [key]: value }));
+  const setPagina = <K extends keyof PaginaConfig>(key: K, value: PaginaConfig[K]) => setConfig((old) => ({ ...old, [key]: value }));
 
-  const uploadLogo = async (event: ChangeEvent<HTMLInputElement>) => {
+  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa") => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setStatus("Use uma imagem PNG, JPG ou WEBP."); return; }
-    if (file.size > 2 * 1024 * 1024) { setStatus("A logo precisa ter até 2 MB."); return; }
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    image.src = objectUrl;
-    image.onerror = () => { setStatus("Não foi possível ler esta imagem."); URL.revokeObjectURL(objectUrl); };
-    image.onload = async () => {
-      if (image.width < 256 || image.height < 256) { setStatus("Use uma imagem com pelo menos 256 px."); URL.revokeObjectURL(objectUrl); return; }
-      setBusy(true);
-      const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-      const path = `${initial.id}/logo-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: file.type });
-      if (error) setStatus("Não foi possível enviar a logo. Tente novamente.");
-      else { set("logo_url", path); setLogoPreview(objectUrl); setStatus("Logo pronta para salvar."); }
-      setBusy(false);
-    };
-  };
-
-  const uploadCover = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > 6 * 1024 * 1024) { setStatus("Use uma imagem de até 6 MB."); return; }
+    const max = kind === "logo" ? 2 : 6;
+    if (!file.type.startsWith("image/") || file.size > max * 1024 * 1024) { setStatus(`Use uma imagem de até ${max} MB.`); return; }
     setBusy(true);
-    const path = `${initial.id}/capa-${Date.now()}.${file.name.split(".").pop() ?? "jpg"}`;
+    const extension = file.name.split(".").pop() ?? "jpg";
+    const path = `${initial.id}/${kind}-${Date.now()}.${extension}`;
     const { error } = await supabase.storage.from("tenant-logos").upload(path, file, { contentType: file.type });
-    if (error) setStatus(error.message);
-    else { set("capa_url", path); setCoverPreview(URL.createObjectURL(file)); setStatus("Capa pronta para salvar."); }
+    if (error) setStatus("Não foi possível enviar a imagem.");
+    else {
+      const preview = URL.createObjectURL(file);
+      if (kind === "logo") { setMarca("logo_url", path); setLogoPreview(preview); }
+      else { setMarca("capa_url", path); setCoverPreview(preview); }
+      setStatus("Imagem pronta. Salve o rascunho para continuar depois.");
+    }
     setBusy(false);
   };
 
-  const previewStyle = {
-    "--preview-primary": form.cor_primaria,
-    "--preview-secondary": form.cor_secundaria,
-    "--preview-accent": form.cor_accent,
-  } as CSSProperties;
+  const executar = async (mode: "draft" | "publish") => {
+    setBusy(true); setStatus(null);
+    try {
+      if (mode === "draft") { await saveDraft({ data: { marca: form, pagina: config } }); setStatus("Rascunho salvo. Sua página pública não mudou."); }
+      else { await publish({ data: { marca: form, pagina: config } }); await queryClient.invalidateQueries({ queryKey: ["pagina-publica", initial.slug] }); setStatus("Página publicada com sucesso."); }
+      await reload();
+    } catch (error) { setStatus(error instanceof Error ? error.message : "Não foi possível concluir."); }
+    finally { setBusy(false); }
+  };
 
-  return <Screen title="Marca" subtitle="A identidade que seus clientes veem.">
-    <Secao title="Prévia da página pública">
-      <div className="overflow-hidden rounded-lg border border-line bg-ink2" style={previewStyle}>
-        <div className="relative h-36 overflow-hidden bg-ink3">{coverPreview ? <img src={coverPreview} alt="Prévia da capa" className="h-full w-full object-cover opacity-60" /> : null}</div>
-        <div className="relative -mt-8 flex items-end gap-3 p-4">
-          {logoPreview ? <img src={logoPreview} alt={`Logo ${form.nome}`} className="h-12 w-12 rounded-lg object-contain" /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-line2 text-[9px] text-mute">SUA LOGO</div>}
-          <div><p className="text-sm font-bold text-paper">{form.nome || "Sua barbearia"}</p><p className="text-[11px] text-mute">{form.texto_boas_vindas || "Sua barbearia, no seu tempo."}</p></div>
-        </div>
-        <div className="mx-4 mb-4 h-9 rounded-md bg-[var(--preview-primary)]" />
+  const previewData = publicQuery.data ? { ...publicQuery.data, tenant: { ...publicQuery.data.tenant, ...form, logo_signed_url: logoPreview, capa_signed_url: coverPreview } } : null;
+
+  return <Screen voltarPara="/barbeiro/mais" title="Personalizar página" subtitle="Seu mini-site para apresentar a barbearia e transformar visitas em agendamentos.">
+    <div className="mb-5 flex flex-wrap items-center gap-2">
+      <Button variant="outline" size="sm" asChild><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Ver publicada</a></Button>
+      <Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button>
+      <Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`); setStatus("Link copiado."); }}><Copy />Copiar link</Button>
+    </div>
+
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
+      <div>
+        <Tabs defaultValue="visual">
+          <TabsList className="grid h-auto w-full grid-cols-4"><TabsTrigger value="visual">Visual</TabsTrigger><TabsTrigger value="conteudo">Conteúdo</TabsTrigger><TabsTrigger value="secoes">Seções</TabsTrigger><TabsTrigger value="links">Links</TabsTrigger></TabsList>
+          <TabsContent value="visual" className="space-y-7 pt-4">
+            <EditorSection title="Imagens">
+              <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
+                <button type="button" onClick={() => coverRef.current?.click()} className="relative aspect-video overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2">{coverPreview ? <img src={coverPreview} alt="Capa atual" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center gap-2 text-sm text-mute"><ImagePlus size={17} />Foto de capa</span>}</button>
+                <button type="button" onClick={() => fileRef.current?.click()} className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2">{logoPreview ? <img src={logoPreview} alt="Logo atual" className="h-full w-full object-contain p-2" /> : <ImagePlus className="text-mute" />}</button>
+              </div>
+              <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={(event) => upload(event, "capa")} /><input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(event) => upload(event, "logo")} />
+            </EditorSection>
+            <EditorSection title="Tema"><div className="grid grid-cols-2 gap-3">{Object.entries(TEMAS).map(([id, theme]) => <button type="button" key={id} onClick={() => { setPagina("tema", id as TemaId); setPagina("cores", theme.cores); }} className={`rounded-lg border p-3 text-left ${config.tema === id ? "border-gold" : "border-line"}`}><span className="mb-3 flex gap-1">{Object.values(theme.cores).slice(0, 4).map((color) => <i key={color} className="h-5 flex-1 rounded-sm" style={{ backgroundColor: color }} />)}</span><span className="flex items-center justify-between text-xs font-semibold text-paper">{theme.nome}{config.tema === id ? <Check size={14} className="text-gold" /> : null}</span><small className="mt-1 block text-[10px] text-mute">{theme.descricao}</small></button>)}</div></EditorSection>
+            <EditorSection title="Composição"><div className="grid gap-4 sm:grid-cols-2"><SelectNative label="Layout" value={config.layout} options={LAYOUTS} onChange={(value) => setPagina("layout", value as PaginaConfig["layout"])} /><SelectNative label="Fonte dos títulos" value={config.fonteTitulo} options={FONTES} onChange={(value) => setPagina("fonteTitulo", value as PaginaConfig["fonteTitulo"])} /><SelectNative label="Fonte do texto" value={config.fonteTexto} options={FONTES} onChange={(value) => setPagina("fonteTexto", value as PaginaConfig["fonteTexto"])} /><SelectNative label="Espaçamento" value={config.densidade} options={{ compacta: "Compacto", equilibrada: "Equilibrado", espacosa: "Espaçoso" }} onChange={(value) => setPagina("densidade", value as PaginaConfig["densidade"])} /><SelectNative label="Cantos" value={config.bordas} options={{ quadrado: "Quadrados", suave: "Suaves", moderno: "Modernos", arredondado: "Arredondados" }} onChange={(value) => setPagina("bordas", value as PaginaConfig["bordas"])} /><SelectNative label="Botões" value={config.botoes} options={{ solido: "Sólidos", contorno: "Contorno", minimalista: "Minimalistas" }} onChange={(value) => setPagina("botoes", value as PaginaConfig["botoes"])} /></div></EditorSection>
+            <EditorSection title="Cores"><div className="grid grid-cols-3 gap-3">{Object.entries(config.cores).map(([key, value]) => <label key={key} className="text-[10px] capitalize text-mute">{key}<input type="color" className="mt-2 h-11 w-full rounded-md border border-line bg-ink2 p-1" value={value} onChange={(event) => setPagina("cores", { ...config.cores, [key]: event.target.value.toUpperCase() })} /></label>)}</div></EditorSection>
+          </TabsContent>
+
+          <TabsContent value="conteudo" className="space-y-5 pt-4"><Campo label="Nome da barbearia" value={form.nome} onChange={(value) => setMarca("nome", value)} /><Campo label="Frase principal" value={config.frase} onChange={(value) => setPagina("frase", value)} /><label className="block text-xs font-medium text-mute">Sobre a barbearia<textarea className={`${fieldClass} min-h-32 resize-y`} maxLength={1200} value={config.sobre} onChange={(event) => setPagina("sobre", event.target.value)} /></label><Campo label="Texto do botão principal" value={config.cta} onChange={(value) => setPagina("cta", value)} /><Campo label="Endereço" value={form.endereco} onChange={(value) => setMarca("endereco", value || null)} /></TabsContent>
+
+          <TabsContent value="secoes" className="pt-4"><div className="divide-y divide-line rounded-lg border border-line">{componenteIds.map((id) => <label key={id} className="flex items-center justify-between gap-4 px-4 py-3"><span className="text-sm text-paper">{componentes[id]}</span><Switch checked={config.componentes[id]} onCheckedChange={(checked) => setPagina("componentes", { ...config.componentes, [id]: checked })} /></label>)}</div><p className="mt-3 text-xs leading-relaxed text-mute">Uma seção só aparece quando estiver ativa e houver informações reais cadastradas.</p></TabsContent>
+
+          <TabsContent value="links" className="space-y-5 pt-4"><Campo label="WhatsApp" value={form.whatsapp} onChange={(value) => setMarca("whatsapp", value || null)} /><Campo label="Telefone" value={form.telefone} onChange={(value) => setMarca("telefone", value || null)} /><Campo label="Instagram" value={form.instagram} onChange={(value) => setMarca("instagram", value || null)} placeholder="@sua_barbearia" /><Campo label="Facebook" value={form.facebook} onChange={(value) => setMarca("facebook", value || null)} /></TabsContent>
+        </Tabs>
+
+        <div className="sticky bottom-20 z-20 mt-6 grid grid-cols-2 gap-2 rounded-lg border border-line bg-ink/95 p-2 shadow-xl backdrop-blur"><Button variant="outline" disabled={busy} onClick={() => executar("draft")}><Save />{busy ? "Salvando…" : "Salvar rascunho"}</Button><Button disabled={busy} onClick={() => executar("publish")}><Send />{busy ? "Publicando…" : "Publicar"}</Button></div>
+        {status ? <p role="status" className="mt-3 text-sm text-sage">{status}</p> : null}
+        <EditorSection title="Versões anteriores"><ul>{versions.length ? versions.map((version) => <li key={version.id} className="flex items-center justify-between border-b border-line py-3"><span className="text-xs text-mute">Versão {version.versao} · {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(version.criado_em))}</span><Button size="sm" variant="ghost" disabled={busy} onClick={async () => { setBusy(true); await restore({ data: { versaoId: version.id } }); await reload(); setStatus("Versão restaurada como rascunho."); setBusy(false); }}><RotateCcw />Restaurar</Button></li>) : <li className="text-sm text-mute">As versões aparecem após a primeira publicação.</li>}</ul></EditorSection>
       </div>
-      <div className="mt-3 grid gap-2 min-[380px]:grid-cols-3 md:max-w-2xl"><Button asChild variant="outline" size="sm"><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Visualizar</a></Button><Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button><Button variant="outline" size="sm" onClick={async () => { await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`); setStatus("Link copiado."); }}><Copy />Link</Button></div>
-    </Secao>
 
-    <Secao title="Capa e fotos">
-      <button type="button" onClick={() => coverRef.current?.click()} className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-line2 bg-ink2">{coverPreview ? <img src={coverPreview} alt="Capa atual" className="h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm text-mute"><ImagePlus size={17} />Adicionar foto de capa</span>}</button>
-      <input ref={coverRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={uploadCover} />
-      <p className="mt-3 text-xs text-mute">Use uma foto horizontal forte do ambiente. Galeria: até 8 imagens.</p>
-    </Secao>
-
-    <Secao title="Logo">
-      <div className="flex items-center gap-4 rounded-lg border border-line2 p-4">
-        {logoPreview
-          ? <img src={logoPreview} alt="Logo atual da barbearia" className="h-16 w-16 rounded-lg border border-line bg-ink2 object-contain p-1" />
-          : <span aria-hidden className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-line2 bg-ink2 text-xl font-bold text-gold">{(form.nome?.trim()[0] ?? "C").toUpperCase()}</span>}
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-paper">{logoPreview ? "Logo da barbearia" : "Sem logo ainda"}</p>
-          <p className="mt-1 text-xs text-mute">PNG, JPG ou WEBP quadrado, 256 px ou maior, até 2 MB. Sem logo usamos a inicial da barbearia.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
-              <ImagePlus />{logoPreview ? "Trocar logo" : "Adicionar logo"}
-            </Button>
-            {logoPreview ? (
-              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => { set("logo_url", null); setLogoPreview(null); setStatus("Logo removida. Salve para confirmar."); }}>
-                Remover
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
-      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={uploadLogo} />
-    </Secao>
-
-    <Secao title="Tema de cor">
-      <div className="grid grid-cols-2 gap-3">{temas.map((theme) => <button key={theme.id} type="button" onClick={() => chooseTheme(theme)} className={`relative rounded-lg border p-3 text-left ${form.tema === theme.id ? "border-gold" : "border-line"}`}>
-        <span className="mb-3 flex gap-1">{theme.cores.map((color) => <span key={color} className="h-5 flex-1 rounded-sm" style={{ backgroundColor: color }} />)}</span>
-        <span className="text-xs font-medium text-paper">{theme.nome}</span>{form.tema === theme.id ? <Check className="absolute bottom-3 right-3 text-gold" size={14} /> : null}
-      </button>)}</div>
-      <button type="button" className="btn-tertiary mt-4 text-sm" onClick={() => { setCustom(true); set("tema", "personalizada"); }}>Montar paleta própria</button>
-      {custom ? <div className="mt-4 grid grid-cols-3 gap-3">{(["cor_primaria", "cor_secundaria", "cor_accent"] as const).map((key, index) => <label key={key} className="text-[10px] text-mute">{["Primária", "Secundária", "Accent"][index]}<input type="color" className="mt-2 h-11 w-full rounded-md border border-line bg-ink2 p-1" value={form[key]} onChange={(e) => set(key, e.target.value.toUpperCase())} /></label>)}</div> : null}
-    </Secao>
-
-    <Secao title="Dados da barbearia"><div className="space-y-4"><Campo label="Nome" value={form.nome} onChange={(v) => set("nome", v)} /><label className="block text-xs font-medium text-mute">Descrição<textarea className={`${fieldClass} min-h-24 resize-none`} value={form.descricao ?? ""} onChange={(e) => set("descricao", e.target.value || null)} placeholder="Conte o que torna sua barbearia especial" /></label><Campo label="Endereço" value={form.endereco} onChange={(v) => set("endereco", v)} /><Campo label="Telefone" value={form.telefone} onChange={(v) => set("telefone", v)} /><Campo label="Instagram" value={form.instagram} onChange={(v) => set("instagram", v)} placeholder="@sua_barbearia" /><Campo label="WhatsApp" value={form.whatsapp} onChange={(v) => set("whatsapp", v)} /></div></Secao>
-
-    <Secao title="Textos no app">
-      <ToggleText title="Usar rótulo padrão da carteira" checked={walletDefault} onChecked={(checked) => { setWalletDefault(checked); if (checked) set("rotulo_carteira", null); }} />
-      {!walletDefault ? <input className={fieldClass} value={form.rotulo_carteira ?? ""} onChange={(e) => set("rotulo_carteira", e.target.value)} placeholder="Ex.: Meu saldo" /> : null}
-      <div className="mt-5"><ToggleText title="Usar mensagem padrão de boas-vindas" checked={welcomeDefault} onChecked={(checked) => { setWelcomeDefault(checked); if (checked) set("texto_boas_vindas", null); }} /></div>
-      {!welcomeDefault ? <textarea className={`${fieldClass} min-h-24 resize-none`} value={form.texto_boas_vindas ?? ""} onChange={(e) => set("texto_boas_vindas", e.target.value)} placeholder="Escreva sua mensagem" /> : null}
-    </Secao>
-
-    <Secao title="Assinatura">
-      <div className="flex items-center justify-between gap-4"><div><p className="text-sm text-paper">Mostrar assinatura da Alvo Digital</p><p className="mt-1 text-xs text-mute">{initial.plano === "essencial" ? "Incluída no plano Essencial." : "Você pode ocultar a assinatura neste plano."}</p></div><div className="flex items-center gap-2">{initial.plano === "essencial" ? <LockKeyhole size={14} className="text-mute" /> : null}<Switch checked={initial.plano === "essencial" ? true : form.assinatura_visivel} disabled={initial.plano === "essencial"} onCheckedChange={(checked) => set("assinatura_visivel", checked)} /></div></div>
-    </Secao>
-
-    <Secao title="Versões anteriores">
-      {versions.length ? <ul>{versions.map((version) => <li key={version.id} className="flex items-center justify-between gap-3 border-b border-line py-4 first:pt-0"><div><p className="text-sm text-paper">Versão {version.versao}</p><p className="mt-1 text-xs text-mute">{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(version.criado_em))}</p></div><Button variant="outline" size="sm" disabled={busy} onClick={async () => { setBusy(true); await restore({ data: { versaoId: version.id } }); await reload(); setStatus("Versão restaurada."); setBusy(false); }}><RotateCcw /> Restaurar</Button></li>)}</ul> : <p className="text-sm text-mute">As versões aparecem depois da primeira alteração.</p>}
-    </Secao>
-
-    {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
-    <Button className="h-12 w-full text-sm font-bold" disabled={busy} onClick={async () => { setBusy(true); setStatus(null); try { await save({ data: form }); await reload(); setStatus("Marca salva e aplicada ao app dos clientes."); } catch (error) { setStatus(error instanceof Error ? error.message : "Não foi possível salvar."); } finally { setBusy(false); } }}>{busy ? "Salvando…" : "Salvar marca"}</Button>
+      <aside className="hidden xl:block"><div className="sticky top-5"><div className="mb-3 flex items-center justify-between"><p className="text-xs font-semibold uppercase text-mute">Prévia ao vivo</p><div className="flex rounded-md border border-line p-1"><Button variant={device === "mobile" ? "secondary" : "ghost"} size="icon" aria-label="Prévia no celular" title="Celular" onClick={() => setDevice("mobile")}><Smartphone /></Button><Button variant={device === "desktop" ? "secondary" : "ghost"} size="icon" aria-label="Prévia no computador" title="Computador" onClick={() => setDevice("desktop")}><Monitor /></Button></div></div><div className={`mx-auto h-[720px] overflow-y-auto rounded-lg border border-line bg-background shadow-xl transition-[width] ${device === "mobile" ? "w-[390px]" : "w-full"}`}>{previewData ? <PaginaPublicaConteudo data={previewData} config={config} preview /> : <Carregando />}</div></div></aside>
+    </div>
   </Screen>;
 }
 
-function ToggleText({ title, checked, onChecked }: { title: string; checked: boolean; onChecked: (checked: boolean) => void }) {
-  return <div className="flex items-center justify-between gap-3"><p className="text-sm text-paper">{title}</p><Switch checked={checked} onCheckedChange={onChecked} /></div>;
-}
+function EditorSection({ title, children }: { title: string; children: React.ReactNode }) { return <section className="border-t border-line pt-6 first:border-0 first:pt-0"><h2 className="mb-4 text-sm font-semibold text-paper">{title}</h2>{children}</section>; }
+function SelectNative({ label, value, options, onChange }: { label: string; value: string; options: Record<string, string>; onChange: (value: string) => void }) { return <label className="text-xs font-medium text-mute">{label}<select className={fieldClass} value={value} onChange={(event) => onChange(event.target.value)}>{Object.entries(options).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>; }
