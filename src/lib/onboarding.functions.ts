@@ -124,6 +124,9 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
       .object({
         nome: z.string().trim().min(2).max(80),
         whatsapp: z.string().trim().max(30).optional().default(""),
+        telefone: z.string().trim().max(30).optional(),
+        endereco: z.string().trim().max(160).optional(),
+        fuso: z.enum(FUSOS_DA_BARBEARIA.map((f) => f.valor) as [string, ...string[]]).optional(),
       })
       .parse(input),
   )
@@ -131,14 +134,20 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const whatsapp = data.whatsapp.replace(/\D/g, "");
-    const { error } = await context.supabase
-      .from("tenants")
-      .update({ nome: data.nome, whatsapp: whatsapp || null })
-      .eq("id", tenantId);
+    const campos: Record<string, unknown> = { nome: data.nome, whatsapp: whatsapp || null };
+    if (data.telefone !== undefined) campos["telefone"] = data.telefone.replace(/\D/g, "") || null;
+    if (data.endereco !== undefined) campos["endereco"] = data.endereco || null;
+    if (data.fuso) campos["fuso"] = data.fuso;
+    const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
     if (error) throw new Error(error.message);
-    await gravarOnboarding(context, tenantId, { etapa: "horarios" });
+    if (data.fuso) {
+      const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
+      esquecerFusoDoTenant(tenantId);
+    }
+    await gravarOnboarding(context, tenantId, { etapa: "equipe" });
     return { ok: true };
   });
+
 
 export const salvarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
