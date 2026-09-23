@@ -49,6 +49,9 @@ function ConteudoHome({ config }: { config: ConfigHome }) {
         <div className="mx-auto flex h-16 max-w-[var(--home-largura)] items-center justify-between px-5 md:px-10">
           <MarcaCortai variante="escura" className="h-7 w-auto md:h-8" />
           <div className="flex items-center gap-1.5">
+            <Button asChild variant="ghost" size="sm" className="hidden text-paper hover:bg-paper/10 sm:inline-flex">
+              <Link to="/configurar-minha-barbearia">Configurar minha barbearia</Link>
+            </Button>
             <Button asChild variant="ghost" size="sm" className="text-paper hover:bg-paper/10">
               <Link to="/demonstracao">Explorar demonstração</Link>
             </Button>
