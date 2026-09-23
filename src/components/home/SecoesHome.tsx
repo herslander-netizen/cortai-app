@@ -165,6 +165,142 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
   const claro = secao.tema === "claro";
   const itens = secao.itens ?? [];
 
+  /* Cortaí 2.0 — quatro pilares: operar, aparecer, fazer voltar, crescer. */
+  if (secao.tipo === "pilares") {
+    return (
+      <section id="conhecer" className={`scroll-mt-0 border-y ${claro ? "landing-light-section border-landing-light-line" : "border-line"}`}>
+        <div className={BLOCO} style={ALTURA}>
+          <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
+          <ul className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
+            {itens.map((item, index) => (
+              <li key={item.titulo + index}>
+                <span className={`text-[11px] font-semibold tracking-[0.22em] ${claro ? "text-landing-light-muted" : "text-mute"}`}>
+                  0{index + 1}
+                </span>
+                <span className={`mt-5 block h-px w-10 ${claro ? "bg-landing-light-gold" : "bg-gold"}`} />
+                <h3 className={`mt-5 text-2xl font-semibold leading-tight ${claro ? "text-landing-light-ink" : "text-paper"}`}>{item.titulo}</h3>
+                <p className={`mt-3 text-sm leading-6 ${claro ? "text-landing-light-muted" : "text-mute"}`}>{item.texto}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  }
+
+  /* Módulo real do produto: texto editorial + tela do Cortaí. */
+  if (secao.tipo === "modulo") {
+    const chaves = ["agenda", "clientes", "caixa", "voltai"] as const;
+    const tela = (chaves as readonly string[]).includes(secao.imagem ?? "") ? (secao.imagem as (typeof chaves)[number]) : null;
+    const telaEsquerda = secao.imagemPosicao === "esquerda";
+    return (
+      <section className={claro ? "landing-light-section" : ""}>
+        <div className={`grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20 ${BLOCO}`} style={ALTURA}>
+          <div className={telaEsquerda ? "lg:order-2" : ""}>
+            <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
+            {itens.length ? (
+              <ul className={`mt-8 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2 ${claro ? "text-landing-light-muted" : "text-mute"}`}>
+                {itens.map((item) => (
+                  <li key={item.titulo} className="flex items-center gap-2">
+                    <Check size={15} className={claro ? "text-landing-light-gold" : "text-gold"} /> {item.titulo}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {secao.ctaTexto && secao.ctaDestino ? (
+              <BotaoDestino texto={secao.ctaTexto} destino={secao.ctaDestino} variante="link" className={`mt-7 h-auto p-0 ${claro ? "text-landing-light-ink" : "text-paper"}`} />
+            ) : null}
+          </div>
+          <div className={telaEsquerda ? "lg:order-1" : ""}>
+            {tela ? (
+              <div className="mx-auto max-w-[360px]"><TelaProduto tipo={tela} /></div>
+            ) : (
+              <img src={secao.imagem || identidadeV2} alt={secao.titulo ?? "Cortaí"} loading="lazy" className="h-full w-full rounded-xl object-cover" />
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* Identidade: mesma tecnologia, personalidades diferentes. */
+  if (secao.tipo === "identidade") {
+    return (
+      <section className={`relative overflow-hidden border-y ${claro ? "landing-light-section border-landing-light-line" : "border-line"}`}>
+        <div className={`grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16 ${BLOCO}`} style={ALTURA}>
+          <div>
+            <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
+            <p className={`mt-8 text-lg font-semibold ${claro ? "text-landing-light-ink" : "text-paper"}`}>
+              Mesma tecnologia. Sua identidade.
+            </p>
+            <img
+              src={secao.imagem || identidadeV2}
+              alt="Ferramentas de barbeiro sobre bancada de madeira"
+              loading="lazy"
+              className="mt-8 hidden h-64 w-full rounded-xl object-cover lg:block"
+            />
+          </div>
+          <ul className={`grid gap-px overflow-hidden rounded-xl border sm:grid-cols-2 ${claro ? "border-landing-light-line bg-landing-light-line" : "border-line bg-line"}`}>
+            {itens.map((item) => (
+              <li key={item.titulo} className={`p-6 ${claro ? "bg-landing-light-surface" : "bg-ink2"}`}>
+                <p className={`text-[11px] font-semibold tracking-[0.2em] ${claro ? "text-landing-light-gold" : "text-gold"}`}>
+                  {item.titulo.toUpperCase()}
+                </p>
+                <p className={`mt-3 text-sm leading-6 ${claro ? "text-landing-light-muted" : "text-mute"}`}>{item.texto}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  }
+
+  /* Experiência pública do cliente, passo a passo. */
+  if (secao.tipo === "experiencia") {
+    return (
+      <section className={claro ? "landing-light-section" : ""}>
+        <div className={BLOCO} style={ALTURA}>
+          <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
+          <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {itens.map((item, index) => (
+              <li key={item.titulo} className={`rounded-xl border p-6 ${claro ? "border-landing-light-line bg-landing-light-surface" : "border-line bg-ink2"}`}>
+                <span className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold ${claro ? "bg-landing-light-gold text-landing-light-surface" : "bg-gold text-ink"}`}>
+                  {index + 1}
+                </span>
+                <h3 className={`mt-5 text-base font-semibold ${claro ? "text-landing-light-ink" : "text-paper"}`}>{item.titulo}</h3>
+                <p className={`mt-2 text-sm leading-6 ${claro ? "text-landing-light-muted" : "text-mute"}`}>{item.texto}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    );
+  }
+
+  /* Crescimento: oportunidades reais mostradas no Início. */
+  if (secao.tipo === "crescimento") {
+    return (
+      <section className={claro ? "landing-light-section" : ""}>
+        <div className={BLOCO} style={ALTURA}>
+          <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
+          <ul className={`mt-12 grid gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-3 ${claro ? "border-landing-light-line bg-landing-light-line" : "border-line bg-line"}`}>
+            {itens.map((item) => (
+              <li key={item.titulo} className={`flex items-start gap-3 p-6 ${claro ? "bg-landing-light-surface" : "bg-ink2"}`}>
+                <Sparkles size={16} className={claro ? "mt-1 text-landing-light-gold" : "mt-1 text-gold"} />
+                <span>
+                  <b className={`block text-sm font-semibold ${claro ? "text-landing-light-ink" : "text-paper"}`}>{item.titulo}</b>
+                  <small className={`mt-1 block text-sm leading-6 ${claro ? "text-landing-light-muted" : "text-mute"}`}>{item.texto}</small>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  }
+
+
+
   if (secao.tipo === "beneficios") {
     return (
       <section id="conhecer" className="scroll-mt-0 border-y border-line bg-ink2/90">
