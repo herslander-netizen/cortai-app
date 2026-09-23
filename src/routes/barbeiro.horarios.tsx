@@ -54,7 +54,7 @@ function HorariosPage() {
       <label className="mt-2 block">
         <span className="text-xs font-semibold uppercase tracking-wide text-mute">Fuso horário da barbearia</span>
         <select
-          className="input mt-2 w-full"
+          className="mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none focus:border-gold"
           value={fuso}
           onChange={(e) => setFuso(e.target.value)}
         >
