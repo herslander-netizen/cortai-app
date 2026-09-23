@@ -23,10 +23,51 @@ export function destinoSolicitadoPermitido(proximo: string | undefined, destino:
   return null;
 }
 
+/**
+ * Cache curto da sessão no navegador.
+ * A proteção continua acontecendo no servidor em cada função; aqui evitamos
+ * repetir a mesma consulta a cada toque de navegação, que era o que deixava a
+ * troca de telas lenta. Qualquer mudança de login limpa o cache na hora.
+ */
+const VALIDADE_DA_SESSAO_MS = 5 * 60 * 1000;
+let cacheDaSessao: { userId: string; em: number; promessa: Promise<Sessao> } | null = null;
+
+export function esquecerSessao() {
+  cacheDaSessao = null;
+}
+
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange((evento) => {
+    if (evento !== "TOKEN_REFRESHED") esquecerSessao();
+  });
+}
+
+export async function sessaoDoUsuario(userId: string): Promise<Sessao> {
+  const agora = Date.now();
+  if (cacheDaSessao && cacheDaSessao.userId === userId && agora - cacheDaSessao.em < VALIDADE_DA_SESSAO_MS) {
+    return cacheDaSessao.promessa;
+  }
+  const promessa = getSessao();
+  cacheDaSessao = { userId, em: agora, promessa };
+  try {
+    return await promessa;
+  } catch (erro) {
+    esquecerSessao();
+    throw erro;
+  }
+}
+
+/** Usuário autenticado lido da sessão local (sem ida à rede quando o token é válido). */
+async function usuarioAtual(): Promise<{ id: string } | null> {
+  const { data } = await supabase.auth.getSession();
+  const usuario = data.session?.user;
+  return usuario ? { id: usuario.id } : null;
+}
+
 /** Bloqueia a rota quando não há sessão real ou quando o papel não é o esperado. */
 export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Sessao> {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  const usuario = await usuarioAtual();
+  if (!usuario) {
     throw redirect({
       to: "/login",
       search: {
@@ -37,8 +78,9 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   }
   let sessao: Sessao;
   try {
-    sessao = await getSessao();
+    sessao = await sessaoDoUsuario(usuario.id);
   } catch {
+    esquecerSessao();
     await supabase.auth.signOut();
     throw redirect({ to: "/login", search: { proximo: "" } });
   }
@@ -50,6 +92,7 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
 }
 
 export async function sair() {
+  esquecerSessao();
   await supabase.auth.signOut();
   if (typeof window !== "undefined") window.location.assign("/");
 }

@@ -9,6 +9,9 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Prefetch ao encostar/tocar: a próxima tela já começa a carregar antes do clique.
+    defaultPreload: "intent",
+    defaultPreloadDelay: 30,
     defaultPreloadStaleTime: 0,
   });
 
