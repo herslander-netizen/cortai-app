@@ -9,12 +9,13 @@
  */
 
 @theme inline {
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
 
   /* Brand tokens */
   --color-ink: var(--ink);
@@ -60,29 +61,31 @@
 }
 
 :root {
-  --radius: 10px;
+  --radius: 14px;
   --tabbar-height: 72px;
 
-  --ink: #0b0b0b;
-  --ink2: #151515;
-  --ink3: #1c1c1c;
-  --gold: #d4af6a;
-  --gold-soft: rgba(212, 175, 106, 0.13);
-  --paper: #f4f4f4;
-  --mute: #a1a1a1;
-  --mute2: #8a8a8a;
-  --sage: #8fa882;
+  /* Cortaí 2.0 — ink, paper, stone, gold, sage, clay */
+  --ink: #111110;
+  --ink2: #181817;
+  --ink3: #201F1D;
+  --gold: #c9a96a;
+  --gold-soft: rgba(201, 169, 106, 0.12);
+  --paper: #f7f6f2;
+  --mute: #a7a39a;
+  --mute2: #8b877e;
+  --sage: #8e9d88;
   --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
-  --brick: #c4705f;
+  --brick: #c47762;
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
-  --line: #292929;
-  --line2: #383838;
-  --landing-light-surface: #f4f1e9;
-  --landing-light-ink: #171613;
-  --landing-light-muted: #6d685f;
-  --landing-light-line: #d8d2c5;
-  --landing-light-gold: #9a6b16;
+  --line: #2a2926;
+  --line2: #363430;
+  --landing-light-surface: #f7f6f2;
+  --landing-light-ink: #181817;
+  --landing-light-muted: #6f6b62;
+  --landing-light-line: #e9e6df;
+  --landing-light-gold: #8a6c2c;
   --nav-shadow: 0 -10px 30px rgba(0, 0, 0, 0.24);
+
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--ink) 82%, transparent);
@@ -112,13 +115,14 @@
 
 .light {
   --ink: #f7f6f2;
-  --ink2: #ffffff;
-  --ink3: #eeece6;
-  --paper: #171714;
-  --mute: #6e6a62;
-  --mute2: #8b867d;
-  --line: #dedbd3;
-  --line2: #d2cec4;
+  --ink2: #fcfbf8;
+  --ink3: #e9e6df;
+  --paper: #181817;
+  --mute: #6f6b62;
+  --mute2: #8b877e;
+  --line: #e2dfd7;
+  --line2: #d6d2c8;
+
   --background: var(--ink);
   --foreground: var(--paper);
   --card: var(--ink2);
@@ -136,10 +140,11 @@
   --nav-shadow: 0 -10px 30px rgba(23, 23, 20, 0.08);
   --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
-  --gold: #9a6b16;
+  --gold: #8a6c2c;
   --gold-soft: color-mix(in oklab, var(--gold) 12%, transparent);
-  --sage: #4f7148;
-  --brick: #a34737;
+  --sage: #55704f;
+  --brick: #a85a44;
+
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);

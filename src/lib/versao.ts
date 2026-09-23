@@ -7,13 +7,85 @@
  * administrador decide tornar uma atualização obrigatória, subindo a mínima.
  */
 
-/** Versão embutida nesta build. */
-export const VERSAO_INSTALADA = "1.0.0";
+/** Versão embutida nesta build. Fonte única de verdade. */
+export const VERSAO_INSTALADA = "2.0.0";
+
+/** Alias público da versão do aplicativo. */
+export const APP_VERSION = VERSAO_INSTALADA;
+
+/** Nome curto exibido na interface. */
+export const VERSAO_EXIBICAO = `Cortaí · v${APP_VERSION}`;
 
 /** Para onde mandamos quem precisa atualizar. */
 export const URL_DE_ATUALIZACAO = "https://cortai.dev";
 
 export type InfoDeVersao = { atual: string; minima: string; url: string };
+
+export type TipoDeVersao = "major" | "minor" | "patch";
+
+export type ItemDoChangelog = {
+  versao: string;
+  data: string;
+  tipo: TipoDeVersao;
+  titulo: string;
+  descricao: string;
+  funcionalidades: string[];
+  visual: string[];
+  tecnico: string[];
+  correcoes: string[];
+};
+
+/** Histórico oficial de versões do Cortaí (do mais novo para o mais antigo). */
+export const CHANGELOG: ItemDoChangelog[] = [
+  {
+    versao: "2.0.0",
+    data: "2026-09-23",
+    tipo: "major",
+    titulo: "Cortaí 2.0",
+    descricao: "Novo conceito, nova identidade e nova página inicial: o lugar onde sua barbearia acontece.",
+    funcionalidades: [
+      "Nova página inicial editorial com os quatro pilares: operar, aparecer, fazer voltar e crescer.",
+      "Apresentação da identidade própria de cada barbearia e da experiência do cliente.",
+      "Sistema oficial de versão, changelog e tela Sobre o Cortaí.",
+      "Novidades da versão apresentadas uma única vez ao entrar.",
+    ],
+    visual: [
+      "Novo sistema de cores: ink, paper, stone, gold, sage e clay.",
+      "Tipografia Manrope e cantos mais suaves (12 a 18px).",
+      "Fotografia editorial de barbearia no lugar de imagens genéricas.",
+    ],
+    tecnico: [
+      "Versão centralizada em src/lib/versao.ts e publicada em /versao.json.",
+      "Nenhuma migração de banco, RPC ou regra de permissão alterada.",
+    ],
+    correcoes: ["Versão exibida no app estava presa em 1.0.0 mesmo após novas entregas."],
+  },
+  {
+    versao: "1.7.0",
+    data: "2026-09-23",
+    tipo: "minor",
+    titulo: "Movimento, resposta ao toque e avisos",
+    descricao: "Central de avisos, respostas imediatas ao toque e transições suaves.",
+    funcionalidades: ["Central de avisos com sino, tempo real e preferências por tipo."],
+    visual: ["Transições de página, listas em cascata e números animados."],
+    tecnico: ["Tabelas novas de avisos e preferências, com isolamento por barbearia."],
+    correcoes: [],
+  },
+  {
+    versao: "1.6.0",
+    data: "2026-09-23",
+    tipo: "minor",
+    titulo: "Painel de controle da operação",
+    descricao: "O Início virou centro de controle: hoje, atenção, próximos movimentos e agenda.",
+    funcionalidades: ["Leitura única agregada do dia com permissões verificadas no servidor."],
+    visual: ["Blocos, métricas e estados de carregamento, vazio e erro."],
+    tecnico: ["Motor determinístico de oportunidades, sem custo de IA."],
+    correcoes: ["Agendamentos confirmados não apareciam na lista."],
+  },
+];
+
+export const VERSAO_ATUAL_INFO = CHANGELOG[0]!;
+
 
 function partes(versao: string): number[] {
   return versao

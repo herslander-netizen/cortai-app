@@ -390,7 +390,7 @@ function EditorDaHome() {
                 </Field>
                 <Field label="Tipografia">
                   <Select value={config.aparencia.tipografia} onChange={(e) => atualizar({ aparencia: { ...config.aparencia, tipografia: e.target.value as ConfigHome["aparencia"]["tipografia"] } })}>
-                    <option>Montserrat</option><option>Work Sans</option><option>Sora</option>
+                    <option>Manrope</option><option>Montserrat</option><option>Work Sans</option><option>Sora</option>
                   </Select>
                 </Field>
                 <Field label="Estilo dos botões">
