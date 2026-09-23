@@ -117,3 +117,7 @@
 - [x] Esqueletos no formato do conteúdo (clientes e agenda) em vez de carregamento genérico
 - [x] Busca de clientes com espera de 250ms
 - [x] Agenda abre rolada até o próximo atendimento (ou a abertura), nunca na madrugada
+- [x] Toque com resposta imediata em botões, links e cartões (com respeito a "menos movimento")
+- [x] Entrada em cascata (30ms, até 8 itens) nas listas de clientes e da fila
+- [x] Visto animado ao confirmar um agendamento manual
+- [x] Tirar da fila usa "Desfazer" por 5 segundos em vez de pergunta de confirmação

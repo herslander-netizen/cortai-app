@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Search, X } from "lucide-react";
 
 import { Aviso } from "@/components/ui/aviso";
+import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
 import {
   buscarClientesDaBarbearia,
@@ -120,6 +121,7 @@ function Formulario({
     null,
   );
   const [salvando, setSalvando] = useState(false);
+  const [confirmado, setConfirmado] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setTermoDebounce(termo), 250);
@@ -160,11 +162,28 @@ function Formulario({
         setSalvando(false);
         return;
       }
-      onCriado();
+      // Visto animado por um instante antes de fechar.
+      setConfirmado(true);
+      setTimeout(() => onCriado(), 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível agendar agora.");
       setSalvando(false);
     }
+  }
+
+  if (confirmado) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center bg-ink/75 p-0 sm:items-center sm:p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Agendamento criado"
+      >
+        <div className="w-full max-w-md rounded-t-2xl border border-line bg-ink3 p-5 sm:rounded-2xl">
+          <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
+        </div>
+      </div>
+    );
   }
 
   return (

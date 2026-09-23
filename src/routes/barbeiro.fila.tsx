@@ -6,7 +6,9 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { useAcao } from "@/hooks/useAcao";
 import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
+import { aviso, comDesfazer } from "@/lib/avisos";
+import { ItemCascata } from "@/components/layout/ItemCascata";
 
 
 export const Route = createFileRoute("/barbeiro/fila")({
@@ -36,8 +38,11 @@ function FilaPage() {
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
 
-  /** Tira da tela na hora e devolve se o servidor recusar. */
-  async function removerComRespostaImediata(filaId: string, cliente: string) {
+  /**
+   * Tira da tela na hora e oferece "Desfazer" por 5 segundos:
+   * só chama o servidor quando o tempo passa sem desistência.
+   */
+  function removerComDesfazer(filaId: string, cliente: string) {
     const anterior = queryClient.getQueryData<typeof data>(["fila"]);
     if (anterior) {
       queryClient.setQueryData(["fila"], {
@@ -45,17 +50,29 @@ function FilaPage() {
         itens: anterior.itens.filter((i) => i.id !== filaId),
       });
     }
-    try {
-      await remover({ data: { filaId } });
-    } catch (e) {
+
+    let cancelado = false;
+    const prazo = setTimeout(async () => {
+      if (cancelado) return;
+      try {
+        await remover({ data: { filaId } });
+        await refetch();
+      } catch {
+        if (anterior) queryClient.setQueryData(["fila"], anterior);
+        aviso.erro(`Não consegui tirar ${cliente} da fila.`);
+      }
+    }, 5000);
+
+    comDesfazer(`${cliente} saiu da fila.`, () => {
+      cancelado = true;
+      clearTimeout(prazo);
       if (anterior) queryClient.setQueryData(["fila"], anterior);
-      throw e instanceof Error ? e : new Error(`Não consegui tirar ${cliente} da fila.`);
-    }
+    });
   }
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoLista linhas={4} /> : null}
 
 
       {data ? (
@@ -73,8 +90,8 @@ function FilaPage() {
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Na fila</h2>
       {data && data.itens.length === 0 ? <EmptyState text="Ninguém esperando vaga agora." /> : null}
       <ul>
-        {(data?.itens ?? []).map((f) => (
-          <li key={f.id} className="flex items-start gap-4 border-b border-line py-4">
+        {(data?.itens ?? []).map((f, i) => (
+          <ItemCascata key={f.id} indice={i} className="flex items-start gap-4 border-b border-line py-4">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-ink">
               {f.posicao}
             </span>
@@ -105,20 +122,14 @@ function FilaPage() {
                   type="button"
                   className="text-xs text-brick underline disabled:opacity-60"
                   disabled={acao.ocupado}
-                  onClick={() => {
-                    if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
-                    void acao.executar(`remover-${f.id}`, () => removerComRespostaImediata(f.id, f.cliente), {
-                      sucesso: `${f.cliente} saiu da fila.`,
-                      aoConcluir: async () => { await refetch(); },
-                    });
-                  }}
+                  onClick={() => removerComDesfazer(f.id, f.cliente)}
                 >
-                  {acao.estaEm(`remover-${f.id}`) ? "Removendo…" : "Tirar da fila"}
+                  Tirar da fila
                 </button>
 
               </div>
             </div>
-          </li>
+          </ItemCascata>
         ))}
       </ul>
 

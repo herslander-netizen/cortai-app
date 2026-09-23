@@ -8,6 +8,7 @@ import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
 import { useDebounce } from "@/hooks/useMovimento";
+import { ItemCascata } from "@/components/layout/ItemCascata";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
@@ -103,10 +104,10 @@ function ClientesPage() {
       {isLoading ? <EsqueletoLista linhas={6} /> : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
       <ul data-guia="clientes-lista" className="mt-2">
-        {lista.map((c) => {
+        {lista.map((c, i) => {
           const rotulo = ROTULOS[c.status];
           return (
-            <li key={c.id} className="border-b border-line">
+            <ItemCascata key={c.id} indice={i} className="border-b border-line">
               <Link to="/barbeiro/clientes/$id" params={{ id: c.id }} className="block py-4">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">
@@ -136,7 +137,7 @@ function ClientesPage() {
                   </div>
                 </div>
               </Link>
-            </li>
+            </ItemCascata>
           );
         })}
       </ul>
