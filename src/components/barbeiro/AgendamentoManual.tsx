@@ -120,6 +120,7 @@ function Formulario({
     null,
   );
   const [salvando, setSalvando] = useState(false);
+  const [confirmado, setConfirmado] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setTermoDebounce(termo), 250);
@@ -160,7 +161,9 @@ function Formulario({
         setSalvando(false);
         return;
       }
-      onCriado();
+      // Visto animado por um instante antes de fechar.
+      setConfirmado(true);
+      setTimeout(() => onCriado(), 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível agendar agora.");
       setSalvando(false);
