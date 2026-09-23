@@ -8,7 +8,6 @@
  */
 import {
   CONFIGURACAO_PADRAO,
-  SAUDACAO_PADRAO,
   type ConfiguracaoDoAtendimento,
   type ContextoDaConversa,
   type TomDoAtendimento,
@@ -158,39 +157,6 @@ export async function enviarPelaBarbearia(input: {
 }
 
 
-/**
- * Memória do cliente em texto: só dados reais desta barbearia. Devolve `null`
- * quando a pessoa ainda não é cliente daqui.
- */
-async function perfilDoCliente(tenantId: string, clienteId: string | null): Promise<string | null> {
-  if (!clienteId) return null;
-  try {
-    const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
-    const h = await historicoDoCliente({ tenantId, externalAgentId: null }, { clienteId });
-    const linhas = [
-      `- clienteId: ${h.clienteId}`,
-      `- nome: ${h.nome}`,
-      `- visitas concluídas: ${h.visitas}`,
-      h.ultimaVisita ? `- última visita: ${new Date(h.ultimaVisita).toLocaleString("pt-BR")}` : null,
-      h.intervaloMedioDias ? `- costuma voltar a cada ${h.intervaloMedioDias} dias` : null,
-      h.servicoPreferido?.nome ? `- serviço mais frequente: ${h.servicoPreferido.nome} (id ${h.servicoPreferido.id})` : null,
-      h.profissionalPreferido?.nome
-        ? `- profissional mais frequente: ${h.profissionalPreferido.nome} (id ${h.profissionalPreferido.id})`
-        : null,
-      h.ultimos.length
-        ? `- últimos atendimentos: ${h.ultimos
-            .map((u) => `${new Date(u.inicio).toLocaleDateString("pt-BR")} ${u.servico ?? "-"} com ${u.profissional ?? "-"}`)
-            .join("; ")}`
-        : null,
-      h.preferencias.length
-        ? `- preferências informadas: ${h.preferencias.map((m) => `${m.chave}: ${m.valor}`).join("; ")}`
-        : null,
-    ].filter(Boolean);
-    return linhas.join("\n");
-  } catch {
-    return null;
-  }
-}
 
 /** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
 async function vincularCliente(tenantId: string, conversaId: string, telefone: string, atual: string | null) {
