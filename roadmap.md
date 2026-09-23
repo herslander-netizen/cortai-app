@@ -164,3 +164,5 @@
 - [x] Menu e onboarding derivados da mesma fonte central de capacidades.
 - [x] Rota pública "Configurar minha barbearia" com rascunho protegido por código secreto, freio contra abuso e reivindicação de acesso com conta.
 - [x] Primeira dobra da landing com nova mensagem e melhor leitura no celular.
+- [x] Tela "Minhas barbearias" com plano, etapa pendente e troca segura de contexto (`perfis.tenant_ativo`).
+- [x] Agendamento público da Barbearia Prime validado de ponta a ponta no celular (serviço → profissional → data → horário → dados → confirmação).

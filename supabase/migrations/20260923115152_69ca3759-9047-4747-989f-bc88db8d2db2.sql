@@ -1,0 +1,1 @@
+alter table public.perfis add column if not exists tenant_ativo uuid references public.tenants(id) on delete set null;
