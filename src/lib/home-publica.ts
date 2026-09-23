@@ -112,10 +112,11 @@ export type ConfigHome = z.infer<typeof esquemaHome>;
 
 /** Presets visuais: mudam só a apresentação, nunca o conteúdo. */
 export const PRESETS: Record<AparenciaHome["preset"], Omit<AparenciaHome, "preset" | "corDestaque">> = {
-  premium: { estiloBotao: "solido", raioPx: 10, bordas: "sutil", larguraPx: 1280, espacamento: "padrao", tipografia: "Montserrat" },
-  cinematico: { estiloBotao: "solido", raioPx: 4, bordas: "sutil", larguraPx: 1440, espacamento: "amplo", tipografia: "Sora" },
-  clean: { estiloBotao: "contorno", raioPx: 14, bordas: "media", larguraPx: 1120, espacamento: "compacto", tipografia: "Work Sans" },
-  editorial: { estiloBotao: "contorno", raioPx: 2, bordas: "forte", larguraPx: 1280, espacamento: "amplo", tipografia: "Sora" },
+  premium: { estiloBotao: "solido", raioPx: 14, bordas: "sutil", larguraPx: 1280, espacamento: "padrao", tipografia: "Manrope" },
+  cinematico: { estiloBotao: "solido", raioPx: 12, bordas: "sutil", larguraPx: 1440, espacamento: "amplo", tipografia: "Manrope" },
+  clean: { estiloBotao: "contorno", raioPx: 16, bordas: "media", larguraPx: 1120, espacamento: "compacto", tipografia: "Work Sans" },
+  editorial: { estiloBotao: "contorno", raioPx: 12, bordas: "forte", larguraPx: 1280, espacamento: "amplo", tipografia: "Manrope" },
+
 };
 
 export const ROTULO_PRESET: Record<AparenciaHome["preset"], string> = {
