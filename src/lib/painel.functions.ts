@@ -56,7 +56,7 @@ export type PainelDeControle = {
     proximos: ProximoAtendimento[];
     ocupados: number;
     livres: number | null;
-    emAtendimento: { profissional: string; cliente: string; fim: string }[];
+    emAtendimento: { id: string; profissional: string; cliente: string; fim: string }[];
     encaixes: number;
     naFila: number;
     cancelamentosRecentes: number;
@@ -451,6 +451,7 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         emAtendimento: ativosHoje
           .filter((a) => new Date(a.inicio).getTime() <= agora && new Date(a.fim).getTime() > agora)
           .map((a) => ({
+            id: a.id as string,
             profissional: a.profissionais?.nome ?? "—",
             cliente: a.clientes?.nome ?? "Cliente",
             fim: a.fim as string,
