@@ -16,7 +16,7 @@ describe("intencoes deterministicas do WhatsApp", () => {
 
   it("interpreta amanha as 15 no fuso configurado", () => {
     const resultado = classificar("Amanhã às 15", opcoes);
-    expect(resultado.entidades.dia).toBe("2026-09-23");
+    expect(resultado.entidades.dia).toBe("2026-09-24");
     expect(resultado.entidades.periodo).toEqual({ deMinutos: 900, ateMinutos: 959 });
   });
 
@@ -26,7 +26,13 @@ describe("intencoes deterministicas do WhatsApp", () => {
 
   it("interpreta numero somente no menu que esta ativo", () => {
     expect(classificar("3", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("SELECAO");
+    expect(classificar("o 2 por favor", { ...opcoes, totalDeOpcoes: 5 }).entidades.selecao).toBe(2);
     expect(classificar("3", { ...opcoes, totalDeOpcoes: 0 }).intencao).toBe("DESCONHECIDA");
+  });
+
+  it("nao confunde artigo indefinido com item do menu", () => {
+    expect(classificar("quero um corte", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("AGENDAR");
+    expect(classificar("quanto custa um corte e barba", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("PRECO");
   });
 
   it("limpa selecoes antigas ao voltar ao menu principal", () => {

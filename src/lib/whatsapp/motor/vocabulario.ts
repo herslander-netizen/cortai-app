@@ -143,8 +143,6 @@ export function servicoCitado(textoNormalizado: string): string | null {
 }
 
 const NUMEROS_ESCRITOS: Record<string, number> = {
-  um: 1,
-  uma: 1,
   primeiro: 1,
   primeira: 1,
   dois: 2,
@@ -167,13 +165,15 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
     const n = Number(direto[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
-  for (const [palavra, valor] of Object.entries(NUMEROS_ESCRITOS)) {
-    if (contem(textoNormalizado, [palavra]) && valor <= totalDeOpcoes) return valor;
-  }
-  const comOpcao = textoNormalizado.match(/opcao\s*(\d{1,2})/);
-  if (comOpcao) {
-    const n = Number(comOpcao[1]);
+  const comIndicador = textoNormalizado.match(/(?:^|\s)(?:opcao|numero|item|o|a)\s*(\d{1,2})(?:\s+por favor)?\s*$/);
+  if (comIndicador) {
+    const n = Number(comIndicador[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
+  }
+  const selecaoPorExtenso = textoNormalizado.match(/^(?:o|a|opcao)?\s*(primeiro|primeira|dois|duas|segundo|segunda|tres|terceiro|terceira|quatro|quarto|cinco|quinto)(?:\s+por favor)?$/);
+  if (selecaoPorExtenso) {
+    const valor = NUMEROS_ESCRITOS[selecaoPorExtenso[1] ?? ""];
+    return valor && valor <= totalDeOpcoes ? valor : null;
   }
   return null;
 }
