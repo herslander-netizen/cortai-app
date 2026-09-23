@@ -105,15 +105,9 @@ function FilaPage() {
                   type="button"
                   className="text-xs text-brick underline disabled:opacity-60"
                   disabled={acao.ocupado}
-                  onClick={() => {
-                    if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
-                    void acao.executar(`remover-${f.id}`, () => removerComRespostaImediata(f.id, f.cliente), {
-                      sucesso: `${f.cliente} saiu da fila.`,
-                      aoConcluir: async () => { await refetch(); },
-                    });
-                  }}
+                  onClick={() => removerComDesfazer(f.id, f.cliente)}
                 >
-                  {acao.estaEm(`remover-${f.id}`) ? "Removendo…" : "Tirar da fila"}
+                  Tirar da fila
                 </button>
 
               </div>
