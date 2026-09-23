@@ -43,14 +43,18 @@ async function signedUrl(client: any, path: string | null) {
   return data?.signedUrl ?? null;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const getPaginaPublica = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
   .handler(async ({ data }): Promise<PaginaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const colunas = "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos";
+    const chave = UUID_RE.test(data.slug) ? "id" : "slug";
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos")
-      .eq("slug", data.slug)
+      .select(colunas)
+      .eq(chave, data.slug)
       .eq("ativo", true)
       .maybeSingle();
     if (!tenant) return null;
