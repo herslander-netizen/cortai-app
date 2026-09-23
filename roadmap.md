@@ -114,3 +114,6 @@
 - [x] Prefetch ao tocar nos itens da barra de navegação; números do Início com contagem animada
 - [x] Respostas imediatas (otimistas) na fila e na quitação de fiado do caixa
 - [x] Preferências de avisos (App/WhatsApp por tipo) em Mais, usando `notificacoes_preferencias`
+- [x] Esqueletos no formato do conteúdo (clientes e agenda) em vez de carregamento genérico
+- [x] Busca de clientes com espera de 250ms
+- [x] Agenda abre rolada até o próximo atendimento (ou a abertura), nunca na madrugada
