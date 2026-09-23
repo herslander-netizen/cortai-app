@@ -47,12 +47,8 @@ function ClientesPage() {
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
-      {isLoading ? (
-        <>
-          <EsqueletoMetricas colunas={3} />
-          <EsqueletoLista linhas={6} />
-        </>
-      ) : null}
+      {isLoading ? <EsqueletoMetricas colunas={3} /> : null}
+
 
 
       {data && data.trazerDeVolta.length > 0 ? (
