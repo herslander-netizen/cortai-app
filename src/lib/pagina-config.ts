@@ -1,0 +1,77 @@
+import { z } from "zod";
+
+export const temaIds = ["premium", "urbano", "classico", "clean", "dark", "industrial", "street", "editorial"] as const;
+export const layoutIds = ["cinematografico", "logo-central", "minimalista", "foto-destaque", "editorial"] as const;
+export const fonteIds = ["inter", "poppins", "montserrat", "oswald", "roboto", "serif"] as const;
+export const componenteIds = ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"] as const;
+
+const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+export const paginaConfigSchema = z.object({
+  tema: z.enum(temaIds),
+  layout: z.enum(layoutIds),
+  cores: z.object({ principal: hex, secundaria: hex, botao: hex, fundo: hex, texto: hex, destaque: hex }),
+  fonteTitulo: z.enum(fonteIds),
+  fonteTexto: z.enum(fonteIds),
+  bordas: z.enum(["quadrado", "suave", "moderno", "arredondado"]),
+  densidade: z.enum(["compacta", "equilibrada", "espacosa"]),
+  botoes: z.enum(["solido", "contorno", "minimalista"]),
+  frase: z.string().trim().max(120),
+  sobre: z.string().trim().max(1200),
+  cta: z.string().trim().min(2).max(24),
+  componentes: z.record(z.enum(componenteIds), z.boolean()),
+});
+
+export type PaginaConfig = z.infer<typeof paginaConfigSchema>;
+export type TemaId = (typeof temaIds)[number];
+export type LayoutId = (typeof layoutIds)[number];
+export type FonteId = (typeof fonteIds)[number];
+
+export const TEMAS: Record<TemaId, { nome: string; descricao: string; cores: PaginaConfig["cores"] }> = {
+  premium: { nome: "Premium", descricao: "Sofisticado e fotográfico", cores: { principal: "#C9A96A", secundaria: "#27231C", botao: "#C9A96A", fundo: "#111110", texto: "#F7F6F2", destaque: "#E7D1A4" } },
+  urbano: { nome: "Urbano", descricao: "Forte e contemporâneo", cores: { principal: "#F4F4F2", secundaria: "#262624", botao: "#D4AF6A", fundo: "#121212", texto: "#F7F6F2", destaque: "#D4AF6A" } },
+  classico: { nome: "Clássico", descricao: "Tradição e elegância", cores: { principal: "#26483B", secundaria: "#71543C", botao: "#B38B57", fundo: "#F3EBDD", texto: "#1E3029", destaque: "#8A6747" } },
+  clean: { nome: "Clean", descricao: "Claro, direto e objetivo", cores: { principal: "#181817", secundaria: "#E9E6DF", botao: "#181817", fundo: "#FCFBF8", texto: "#181817", destaque: "#72706B" } },
+  dark: { nome: "Dark", descricao: "Alto contraste cinematográfico", cores: { principal: "#D9DDD8", secundaria: "#252827", botao: "#9BB5A2", fundo: "#0D0F0E", texto: "#F4F5F3", destaque: "#9BB5A2" } },
+  industrial: { nome: "Industrial", descricao: "Grafite, metal e precisão", cores: { principal: "#C4C7C5", secundaria: "#303231", botao: "#B58B5A", fundo: "#171918", texto: "#F1F1EF", destaque: "#B58B5A" } },
+  street: { nome: "Street", descricao: "Jovem, gráfico e vibrante", cores: { principal: "#F2F2EF", secundaria: "#222222", botao: "#E85D3F", fundo: "#0F0F0F", texto: "#FAFAF7", destaque: "#E85D3F" } },
+  editorial: { nome: "Editorial", descricao: "Espaço e composição de revista", cores: { principal: "#25231F", secundaria: "#D7CDBC", botao: "#7B3127", fundo: "#F4F0E8", texto: "#25231F", destaque: "#7B3127" } },
+};
+
+export const LAYOUTS: Record<LayoutId, string> = { cinematografico: "Cinematográfico", "logo-central": "Logo Central", minimalista: "Minimalista", "foto-destaque": "Foto em Destaque", editorial: "Editorial" };
+export const FONTES: Record<FonteId, string> = { inter: "Inter", poppins: "Poppins", montserrat: "Montserrat", oswald: "Oswald", roboto: "Roboto", serif: "Serif elegante" };
+
+export function configPadrao(overrides?: Partial<PaginaConfig>): PaginaConfig {
+  return paginaConfigSchema.parse({
+    tema: "premium", layout: "cinematografico", cores: TEMAS.premium.cores,
+    fonteTitulo: "montserrat", fonteTexto: "inter", bordas: "moderno", densidade: "equilibrada", botoes: "solido",
+    frase: "Cuidado, estilo e horário reservado para você.", sobre: "", cta: "Agendar horário",
+    componentes: Object.fromEntries(componenteIds.map((id) => [id, true])), ...overrides,
+  });
+}
+
+export function normalizarPagina(value: unknown, fallback?: Partial<PaginaConfig>) {
+  const parsed = paginaConfigSchema.safeParse(value);
+  return parsed.success ? parsed.data : configPadrao(fallback);
+}
+
+const fontes: Record<FonteId, string> = {
+  inter: '"Inter", sans-serif', poppins: '"Poppins", sans-serif', montserrat: '"Montserrat", sans-serif',
+  oswald: '"Oswald", sans-serif', roboto: '"Roboto", sans-serif', serif: '"Libre Baskerville", Georgia, serif',
+};
+
+export function paginaStyle(config: PaginaConfig): React.CSSProperties {
+  const raios = { quadrado: "0px", suave: "8px", moderno: "14px", arredondado: "24px" };
+  const espacos = { compacta: "0.8", equilibrada: "1", espacosa: "1.22" };
+  return {
+    "--brand-primary": config.cores.principal,
+    "--brand-secondary": config.cores.secundaria,
+    "--brand-button": config.cores.botao,
+    "--brand-background": config.cores.fundo,
+    "--brand-text": config.cores.texto,
+    "--brand-accent": config.cores.destaque,
+    "--brand-radius": raios[config.bordas],
+    "--brand-density": espacos[config.densidade],
+    "--brand-heading": fontes[config.fonteTitulo],
+    "--brand-body": fontes[config.fonteTexto],
+  } as React.CSSProperties;
+}
