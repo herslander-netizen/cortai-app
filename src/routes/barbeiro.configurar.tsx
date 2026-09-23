@@ -517,6 +517,13 @@ function ConfigurarPage() {
               >
                 Ir para o painel
               </button>
+              <button
+                type="button"
+                className="mt-4 w-full text-center text-xs text-mute"
+                onClick={() => setEtapaEscolhida("dados")}
+              >
+                Revisar configuração
+              </button>
             </div>
           ) : null}
 
