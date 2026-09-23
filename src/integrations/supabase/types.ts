@@ -3077,6 +3077,47 @@ export type Database = {
           },
         ]
       }
+      tenant_page_configs: {
+        Row: {
+          created_at: string
+          draft_by: string | null
+          draft_config: Json
+          published_at: string | null
+          published_by: string | null
+          published_config: Json
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          draft_by?: string | null
+          draft_config?: Json
+          published_at?: string | null
+          published_by?: string | null
+          published_config?: Json
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          draft_by?: string | null
+          draft_config?: Json
+          published_at?: string | null
+          published_by?: string | null
+          published_config?: Json
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_page_configs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_usuarios: {
         Row: {
           aceito_em: string | null
@@ -3581,6 +3622,30 @@ export type Database = {
       preparar_comanda_segura: {
         Args: { _agendamento_id: string; _ator: string }
         Returns: string
+      }
+      publish_tenant_page: {
+        Args: {
+          _assinatura_visivel: boolean
+          _capa_url: string
+          _config: Json
+          _cor_accent: string
+          _cor_primaria: string
+          _cor_secundaria: string
+          _descricao: string
+          _endereco: string
+          _facebook: string
+          _fotos: Json
+          _instagram: string
+          _logo_url: string
+          _nome: string
+          _rotulo_carteira: string
+          _telefone: string
+          _tema: string
+          _tenant_id: string
+          _texto_boas_vindas: string
+          _whatsapp: string
+        }
+        Returns: undefined
       }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }
