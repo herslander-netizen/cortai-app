@@ -17,7 +17,8 @@ import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { BannerDeCookies } from "@/components/privacidade/BannerDeCookies";
 import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
-import { Toaster } from "@/components/ui/sonner";
+import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
+import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 
 
 function NotFoundComponent() {
