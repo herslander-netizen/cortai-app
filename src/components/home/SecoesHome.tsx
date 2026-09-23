@@ -27,7 +27,7 @@ import identidadeV2 from "@/assets/v2-identidade.jpg";
 import ctaV2 from "@/assets/v2-cta.jpg";
 import mockupAsset from "@/assets/cortai-mockup-home.png.asset.json";
 
-import lojaImg from "@/assets/landing-loja.jpg";
+import barbeiroCorte from "@/assets/cortai-barbeiro-corte.png.asset.json";
 
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
@@ -370,7 +370,7 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
       <section className={`${claro ? "landing-light-section border-y border-landing-light-line" : "border-y border-line"}`}>
         <div className={`grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-20 ${BLOCO}`} style={ALTURA}>
           <div className="relative min-h-[420px] overflow-hidden rounded-lg md:min-h-[560px]">
-            <img src={secao.imagem || lojaImg} alt={secao.titulo ?? "Barbearia"} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={secao.imagem || barbeiroCorte.url} alt={secao.titulo ?? "Barbeiro atendendo um cliente na barbearia"} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
             <Cabecalho claro={claro} etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
@@ -426,7 +426,7 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
   if (secao.tipo === "rotina") {
     return (
       <section className="relative overflow-hidden border-y border-line" style={ALTURA}>
-        <img src={secao.imagem || lojaImg} alt="Ambiente e produtos de uma barbearia" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <img src={secao.imagem || barbeiroCorte.url} alt="Barbeiro em atendimento na barbearia" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-25" />
         <div className="absolute inset-0 bg-ink/85" />
         <div className={`relative ${BLOCO}`}>
           <Cabecalho etiqueta={secao.etiqueta} titulo={secao.titulo} texto={secao.texto} />
