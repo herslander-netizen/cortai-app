@@ -121,7 +121,7 @@ function AgendaPage() {
           {aviso.texto}
         </Aviso>
       ) : null}
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoAgenda linhas={5} /> : null}
 
 
       {fechado ? (
