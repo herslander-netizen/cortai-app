@@ -157,3 +157,10 @@
 - [x] Menu filtrado pelo plano (some o que não está incluído)
 - [x] Validação no navegador: troca de tela em ~43 ms e volta preservando a tela anterior
 
+
+## Planos, onboarding adaptativo e cadastro público (2.0)
+- [x] Tela "Plano da barbearia" (`/barbeiro/plano`) lendo planos e limites reais da plataforma; troca de plano sem perder dados.
+- [x] Rotas dependentes de plano com guarda de capacidade (fila, produtos, fidelidade, indicações, crescimento, temas, marca).
+- [x] Menu e onboarding derivados da mesma fonte central de capacidades.
+- [x] Rota pública "Configurar minha barbearia" com rascunho protegido por código secreto, freio contra abuso e reivindicação de acesso com conta.
+- [x] Primeira dobra da landing com nova mensagem e melhor leitura no celular.
