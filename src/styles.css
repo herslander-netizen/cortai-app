@@ -623,7 +623,7 @@ html.light {
 
 @media (max-width: 767px) {
   .landing-hero-overlay {
-    background: linear-gradient(to top, var(--ink) 3%, color-mix(in oklab, var(--ink) 68%, transparent) 50%, color-mix(in oklab, var(--ink) 20%, transparent) 84%);
+    background: linear-gradient(to top, var(--ink) 26%, color-mix(in oklab, var(--ink) 84%, transparent) 58%, color-mix(in oklab, var(--ink) 28%, transparent) 88%);
   }
 
   .landing-benefit:nth-child(2n) { border-right: 0; }
