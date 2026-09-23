@@ -88,6 +88,7 @@ export function classificar(
   });
 
   if (!t) return resultado("DESCONHECIDA", 0);
+  if (!semCumprimento) return resultado("SAUDACAO", 0.95);
 
   // Pedido de humano e reclamação têm prioridade sobre qualquer fluxo.
   if (contem(t, VOCABULARIO.humano)) return resultado("HUMANO", 0.95);
