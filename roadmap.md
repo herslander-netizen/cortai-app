@@ -121,3 +121,14 @@
 - [x] Entrada em cascata (30ms, até 8 itens) nas listas de clientes e da fila
 - [x] Visto animado ao confirmar um agendamento manual
 - [x] Tirar da fila usa "Desfazer" por 5 segundos em vez de pergunta de confirmação
+
+## v2.0.0 — Evolução de produto, identidade e Home pública
+
+- [x] Design system Cortaí 2.0 (ink/paper/stone/gold/sage/clay, Manrope, cantos 12–18px)
+- [x] Versão 2.0.0 centralizada (src/lib/versao.ts, public/versao.json, changelog)
+- [x] Aviso de novidades da versão maior (uma vez por versão, só nas áreas logadas)
+- [x] "Sobre o Cortaí" em Mais, com versão e histórico
+- [x] Home pública editorial: hero, quatro pilares, módulos reais, identidade, Voltaí, experiência do cliente e crescimento
+- [x] Imagens editoriais novas (hero, identidade, chamada final)
+- [x] SEO e metadados com o novo posicionamento
+- [x] Conteúdo antigo da Home guardado no histórico de versões antes da troca
