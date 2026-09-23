@@ -154,3 +154,6 @@
 - [x] Módulo central de capacidades por plano
 - [x] Onboarding guiado em etapas com salvamento incremental
 - [x] Tela "Recursos do seu plano" dentro da configuração
+- [x] Menu filtrado pelo plano (some o que não está incluído)
+- [x] Validação no navegador: troca de tela em ~43 ms e volta preservando a tela anterior
+
