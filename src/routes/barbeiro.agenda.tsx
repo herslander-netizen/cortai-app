@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
@@ -11,7 +11,8 @@ import { brl } from "@/lib/format";
 import { slotsDoDia } from "@/lib/horarios";
 import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
+import { prefereMenosMovimento } from "@/lib/motion";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -74,6 +75,30 @@ function AgendaPage() {
     [dia, data?.horarios],
   );
 
+  // A agenda abre rolada até o próximo atendimento (ou até a abertura), nunca na madrugada.
+  const jaRolou = useRef<string | null>(null);
+  useEffect(() => {
+    if (!data || fechado || lista.length === 0) return;
+    if (jaRolou.current === dia) return;
+    jaRolou.current = dia;
+
+    const agora = Date.now();
+    const proximo = (data.itens ?? [])
+      .map((i) => new Date(i.inicio).getTime())
+      .filter((t) => t >= agora)
+      .sort((a, b) => a - b)[0];
+
+    const alvo =
+      lista.find((s) => (proximo ? new Date(s.iso).getTime() >= proximo : new Date(s.iso).getTime() >= agora)) ??
+      lista[0];
+    if (!alvo) return;
+
+    const el = document.getElementById(`slot-${alvo.iso}`);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: prefereMenosMovimento() ? "auto" : "smooth" });
+  }, [data, fechado, lista, dia]);
+
+
   return (
     <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
       <nav className="mb-5 grid grid-cols-3 gap-2" aria-label="Atalhos da agenda">
@@ -121,7 +146,7 @@ function AgendaPage() {
           {aviso.texto}
         </Aviso>
       ) : null}
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoAgenda linhas={5} /> : null}
 
 
       {fechado ? (
@@ -148,7 +173,7 @@ function AgendaPage() {
             ).length;
 
             return (
-              <li key={s.iso} className="flex items-stretch gap-3 py-1.5">
+              <li key={s.iso} id={`slot-${s.iso}`} className="flex items-stretch gap-3 py-1.5">
                 <span className="w-12 shrink-0 pt-3 text-xs text-mute">{s.label}</span>
 
                 {itens.length > 0 ? (

@@ -6,7 +6,8 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { useDebounce } from "@/hooks/useMovimento";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
@@ -38,12 +39,16 @@ function whatsappLink(telefone: string, nome: string) {
 function ClientesPage() {
   const { data, isLoading } = useQuery({ queryKey: ["clientes-crm"], queryFn: () => getClientesCRM() });
   const [busca, setBusca] = useState("");
+  const buscaAdiada = useDebounce(busca, 250);
 
-  const lista = (data?.clientes ?? []).filter((c) => c.nome.toLowerCase().includes(busca.trim().toLowerCase()));
+  const lista = (data?.clientes ?? []).filter((c) =>
+    c.nome.toLowerCase().includes(buscaAdiada.trim().toLowerCase()),
+  );
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
-      {isLoading ? <Carregando /> : null}
+
+
 
       {data && data.trazerDeVolta.length > 0 ? (
         <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">
@@ -95,6 +100,7 @@ function ClientesPage() {
         className="input-premium mt-6 w-full"
       />
 
+      {isLoading ? <EsqueletoLista linhas={6} /> : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
       <ul data-guia="clientes-lista" className="mt-2">
         {lista.map((c) => {
