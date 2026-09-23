@@ -22,11 +22,13 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 
-import heroAsset from "@/assets/cortai-hero-barbearia.png.asset.json";
+import heroV2 from "@/assets/v2-hero-barbearia.jpg";
+import identidadeV2 from "@/assets/v2-identidade.jpg";
+import ctaV2 from "@/assets/v2-cta.jpg";
 import mockupAsset from "@/assets/cortai-mockup-home.png.asset.json";
 
 import lojaImg from "@/assets/landing-loja.jpg";
-import ctaImg from "@/assets/landing-cta.jpg";
+
 import { FaixaDeParceiros } from "@/components/institucional/FaixaDeParceiros";
 import { Signature } from "@/components/layout/Signature";
 import { Button } from "@/components/ui/button";
