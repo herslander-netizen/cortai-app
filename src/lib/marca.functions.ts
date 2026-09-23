@@ -114,16 +114,19 @@ export const getMarca = createServerFn({ method: "GET" })
     ]);
     if (!tenant) throw new Error("Barbearia não encontrada.");
     const atual = snapshot(tenant);
+    const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
+    const publishedContainer = pagina?.published_config as { pagina?: unknown; marca?: unknown } | null;
+    const marcaRascunho = marcaSchema.safeParse(draftContainer?.marca);
     return {
       marca: {
         id: tenant.id,
         plano: tenant.plano,
-        ...atual,
+        ...(marcaRascunho.success ? marcaRascunho.data : atual),
         logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
         capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
         slug: tenant.slug,
-        pagina: normalizarPagina(pagina?.draft_config, { tema: tenant.tema === "personalizada" ? "premium" : undefined, frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
-        publicada: normalizarPagina(pagina?.published_config, { tema: tenant.tema === "personalizada" ? "premium" : undefined, frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
+        pagina: normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
+        publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
       },
       versoes: (versoes ?? []).map((item) => {
