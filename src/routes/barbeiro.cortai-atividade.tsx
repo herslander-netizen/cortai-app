@@ -8,8 +8,10 @@ import { Carregando } from "@/components/layout/Carregando";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
+  getTermosNaoEntendidos,
   type AtividadeDoCortai,
   type MetricasDoCortai,
+  type TermoNaoEntendido,
 } from "@/lib/whatsapp.functions";
 
 export const Route = createFileRoute("/barbeiro/cortai-atividade")({
@@ -99,6 +101,10 @@ function AtividadePage() {
     queryKey: ["cortai-atividade", apenasFalhas],
     queryFn: () => getAtividadeDoCortai({ data: { apenasFalhas } }) as Promise<AtividadeDoCortai>,
   });
+  const termos = useQuery({
+    queryKey: ["cortai-termos"],
+    queryFn: () => getTermosNaoEntendidos() as Promise<TermoNaoEntendido[]>,
+  });
 
   return (
     <Screen
@@ -149,6 +155,23 @@ function AtividadePage() {
                   {f.total}
                   {f.falhas > 0 ? <span className="text-brick"> · {f.falhas} com falha</span> : null}
                 </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {termos.data && termos.data.length > 0 ? (
+        <section className="mt-5" aria-label="Palavras que o CortAI não entendeu">
+          <h2 className="text-sm text-paper">Palavras que os clientes usam e o CortAI não entendeu</h2>
+          <p className="mt-1 text-[11px] text-mute2">
+            Cadastre estes pedidos como serviço ou pergunta frequente para o CortAI passar a responder sozinho.
+          </p>
+          <ul className="mt-2 divide-y divide-line rounded-xl border border-line bg-ink2">
+            {termos.data.map((t) => (
+              <li key={t.texto} className="flex items-center justify-between gap-3 px-4 py-3">
+                <span className="min-w-0 truncate text-xs text-paper">“{t.texto}”</span>
+                <span className="shrink-0 text-[11px] text-mute">{t.total}x</span>
               </li>
             ))}
           </ul>

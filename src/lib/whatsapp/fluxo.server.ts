@@ -8,7 +8,6 @@
  */
 import {
   CONFIGURACAO_PADRAO,
-  SAUDACAO_PADRAO,
   type ConfiguracaoDoAtendimento,
   type ContextoDaConversa,
   type TomDoAtendimento,
@@ -158,39 +157,6 @@ export async function enviarPelaBarbearia(input: {
 }
 
 
-/**
- * Memória do cliente em texto: só dados reais desta barbearia. Devolve `null`
- * quando a pessoa ainda não é cliente daqui.
- */
-async function perfilDoCliente(tenantId: string, clienteId: string | null): Promise<string | null> {
-  if (!clienteId) return null;
-  try {
-    const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
-    const h = await historicoDoCliente({ tenantId, externalAgentId: null }, { clienteId });
-    const linhas = [
-      `- clienteId: ${h.clienteId}`,
-      `- nome: ${h.nome}`,
-      `- visitas concluídas: ${h.visitas}`,
-      h.ultimaVisita ? `- última visita: ${new Date(h.ultimaVisita).toLocaleString("pt-BR")}` : null,
-      h.intervaloMedioDias ? `- costuma voltar a cada ${h.intervaloMedioDias} dias` : null,
-      h.servicoPreferido?.nome ? `- serviço mais frequente: ${h.servicoPreferido.nome} (id ${h.servicoPreferido.id})` : null,
-      h.profissionalPreferido?.nome
-        ? `- profissional mais frequente: ${h.profissionalPreferido.nome} (id ${h.profissionalPreferido.id})`
-        : null,
-      h.ultimos.length
-        ? `- últimos atendimentos: ${h.ultimos
-            .map((u) => `${new Date(u.inicio).toLocaleDateString("pt-BR")} ${u.servico ?? "-"} com ${u.profissional ?? "-"}`)
-            .join("; ")}`
-        : null,
-      h.preferencias.length
-        ? `- preferências informadas: ${h.preferencias.map((m) => `${m.chave}: ${m.valor}`).join("; ")}`
-        : null,
-    ].filter(Boolean);
-    return linhas.join("\n");
-  } catch {
-    return null;
-  }
-}
 
 /** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
 async function vincularCliente(tenantId: string, conversaId: string, telefone: string, atual: string | null) {
@@ -273,122 +239,57 @@ export async function processarMensagemRecebida(input: {
   const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
   if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
 
-  const { iaConfigurada, responderConversa } = await import("./atendimento.server");
-  if (!iaConfigurada()) return { tratada: true, motivo: "ia_indisponivel" };
-
   const { data: tenant } = await db.from("tenants").select("nome").eq("id", tenantId).maybeSingle();
-  const { data: integracao } = await db
-    .from("integracoes_de_ia")
-    .select("agent_name")
-    .eq("tenant_id", tenantId)
-    .maybeSingle();
 
-  const { data: historicoBruto } = await db
-    .from("mensagens_whatsapp")
-    .select("direcao, conteudo, tipo, gerada_por_humano")
-    .eq("conversa_id", conversa.id)
-    .order("criado_em", { ascending: false })
-    .limit(30);
 
-  const anteriores = (historicoBruto ?? []).reverse();
-  const historico = anteriores
-    .filter((m) => m.conteudo.trim() !== "")
-    .map((m) => ({
-      autor: (m.direcao === "entrada" ? "cliente" : "atendente") as "cliente" | "atendente",
-      texto: m.conteudo,
-    }));
-  // Contexto após atendimento humano: o CortAI retoma de onde a equipe parou.
-  const houveAtendimentoHumano = anteriores.some((m) => m.gerada_por_humano);
-
-  // Áudio: transcrição real quando o serviço entrega a mídia; nunca palpite.
-  let textoDoCliente = input.conteudo;
+  // Mídia (áudio, imagem, figurinha): resposta padrão, sem transcrição e sem
+  // qualquer custo de IA. O motor só conversa por texto.
   if (input.tipo !== "text") {
-    const { transcreverAudio } = await import("./transcricao.server");
-    const transcrito = input.tipo === "audio" || input.tipo === "voice" ? await transcreverAudio(input.midiaUrl) : null;
-    if (transcrito) {
-      textoDoCliente = transcrito;
-      await db
-        .from("mensagens_whatsapp")
-        .update({ conteudo: transcrito })
-        .eq("conversa_id", conversa.id)
-        .eq("mensagem_externa_id", input.mensagemExternaId ?? "");
-      historico.push({ autor: "cliente", texto: transcrito });
-    } else {
-      const aviso =
-        "Recebi sua mensagem, mas por aqui eu só consigo ler texto. Pode me escrever o que precisa? Se preferir, chamo alguém da equipe.";
-      await enviarPelaBarbearia({
-        tenantId,
-        conversaId: conversa.id,
-        conexaoId: conexao.id,
-        sessaoId: input.sessaoId,
-        telefone,
-        texto: aviso,
-        porIa: true,
-      }).catch(() => undefined);
-      return { tratada: true, motivo: "midia_nao_suportada" };
-    }
+    const aviso =
+      "Recebi sua mensagem, mas por aqui eu só consigo ler texto. Pode me escrever o que precisa? Se preferir, chamo alguém da equipe.";
+    await enviarPelaBarbearia({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: input.sessaoId,
+      telefone,
+      texto: aviso,
+      porIa: true,
+    }).catch(() => undefined);
+    return { tratada: true, motivo: "midia_nao_suportada" };
   }
+
   const clienteId = await vincularCliente(tenantId, conversa.id, telefone, conversa.cliente_id ?? null);
-  const perfil = await perfilDoCliente(tenantId, clienteId);
   const contexto = ((conversa as { contexto?: unknown }).contexto ?? {}) as ContextoDaConversa;
 
-  // Controle de custo: um "oi" na primeira mensagem da conversa é respondido
-  // pela saudação da barbearia (ou pela saudação padrão, se ela ainda não
-  // escreveu a própria), sem acionar a IA.
-  const soSaudacao = /^\s*(oi+|ol[áa]+|bom dia|boa tarde|boa noite|e a[íi]+|opa+)[\s!.,]*$/i.test(textoDoCliente);
-  const primeiraMensagemDaConversa = historico.length <= 1 && !contexto.intencao;
-  if (soSaudacao && config.saudacaoAtiva && primeiraMensagemDaConversa) {
-    const saudacao = (config.mensagemBoasVindas ?? "").trim() || SAUDACAO_PADRAO;
-    try {
-      await enviarPelaBarbearia({
-        tenantId,
-        conversaId: conversa.id,
-        conexaoId: conexao.id,
-        sessaoId: input.sessaoId,
-        telefone,
-        texto: saudacao,
-        porIa: true,
-      });
-      return { tratada: true, motivo: "saudacao_sem_ia" };
-    } catch (erro) {
-      // Falha de envio não é escondida: a mensagem já ficou registrada como
-      // "falhou" em mensagens_whatsapp e o erro vai para o log de ações.
-      const mensagemErro = erro instanceof Error ? erro.message : "Falha ao enviar a saudação.";
-      await db.from("acoes_de_ia_log").insert({
-        tenant_id: tenantId,
-        conversa_id: conversa.id,
-        acao: "saudacao_sem_ia",
-        sucesso: false,
-        erro: mensagemErro,
-      });
-      return { tratada: true, motivo: "saudacao_falhou" };
-    }
-  }
+  // Rajada de mensagens curtas vira uma única frase para o motor.
+  const { textoAgrupado } = await import("./motor/agrupador.server");
+  const textoDoCliente = await textoAgrupado({ conversaId: conversa.id, textoAtual: input.conteudo });
 
-  const { responderConversa: responder } = await import("./atendimento.server");
-  let resposta: Awaited<ReturnType<typeof responder>> = null;
+  // Motor determinístico: nenhum provedor de IA é chamado — custo zero.
+  const { responderComMotor } = await import("./motor/motor.server");
+  let resposta: Awaited<ReturnType<typeof responderComMotor>> | null = null;
   try {
-    resposta = await responderConversa({
-      ctx: { tenantId, externalAgentId: integracao?.agent_name ?? null },
+    resposta = await responderComMotor({
+      tenantId,
       conversaId: conversa.id,
       telefone,
+      nomeContato: input.nomeContato ?? null,
+      clienteId,
       nomeDaBarbearia: tenant?.nome ?? "a barbearia",
-      nomeDoAgente: integracao?.agent_name ?? null,
       config,
-      historico,
       contexto: { ...contexto, ...(clienteId ? { clienteId } : {}) },
-      perfil,
-      houveAtendimentoHumano,
+      texto: textoDoCliente,
     });
   } catch (erro) {
     await db.from("acoes_de_ia_log").insert({
       tenant_id: tenantId,
       conversa_id: conversa.id,
-      acao: "responder_conversa",
+      acao: "motor_conversa",
       sucesso: false,
-      erro: erro instanceof Error ? erro.message : "Falha na IA.",
+      erro: erro instanceof Error ? erro.message : "Falha no motor de atendimento.",
     });
-    return { tratada: true, motivo: "falha_na_ia" };
+    return { tratada: true, motivo: "falha_no_motor" };
   }
 
   if (!resposta) return { tratada: true, motivo: "sem_resposta" };
