@@ -96,7 +96,7 @@ function Editor({ initial, versions, reload }: { initial: MarcaData; versions: A
 
   const previewData = publicQuery.data ? { ...publicQuery.data, tenant: { ...publicQuery.data.tenant, ...form, logo_signed_url: logoPreview, capa_signed_url: coverPreview } } : null;
 
-  return <Screen voltarPara="/barbeiro/mais" title="Personalizar página" subtitle="Seu mini-site para apresentar a barbearia e transformar visitas em agendamentos.">
+  return <Screen wide voltarPara="/barbeiro/mais" title="Personalizar página" subtitle="Seu mini-site para apresentar a barbearia e transformar visitas em agendamentos.">
     <div className="mb-5 flex flex-wrap items-center gap-2">
       <Button variant="outline" size="sm" asChild><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Ver publicada</a></Button>
       <Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button>
