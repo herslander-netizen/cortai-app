@@ -71,16 +71,22 @@ export const getSessao = createServerFn({ method: "GET" })
     const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
 
-    const [{ data: papelAdmin }, { data: vinculo }, { data: perfil }] = await Promise.all([
+    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }] = await Promise.all([
       db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       db
         .from("tenant_usuarios")
         .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug)")
-        .eq("user_id", context.userId)
-        .limit(1)
-        .maybeSingle(),
-      db.from("perfis").select("nome, tipo").eq("user_id", context.userId).maybeSingle(),
+        .eq("user_id", context.userId),
+      db.from("perfis").select("nome, tipo, tenant_ativo").eq("user_id", context.userId).maybeSingle(),
     ]);
+
+    // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
+    // primeiro vínculo ativo como padrão seguro.
+    const lista = vinculos ?? [];
+    const escolhida = perfil?.tenant_ativo
+      ? lista.find((v) => v.tenant_id === perfil.tenant_ativo && v.ativo)
+      : undefined;
+    const vinculo = escolhida ?? lista.find((v) => v.ativo) ?? lista[0] ?? null;
 
     const nome = perfil?.nome ?? nomeMeta ?? null;
     const base = {
