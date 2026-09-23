@@ -8,8 +8,10 @@ import { Carregando } from "@/components/layout/Carregando";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
+  getTermosNaoEntendidos,
   type AtividadeDoCortai,
   type MetricasDoCortai,
+  type TermoNaoEntendido,
 } from "@/lib/whatsapp.functions";
 
 export const Route = createFileRoute("/barbeiro/cortai-atividade")({
