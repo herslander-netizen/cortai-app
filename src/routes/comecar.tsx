@@ -53,8 +53,8 @@ function ComecarPage() {
       {concluido ? (
         <div className="mt-8">
           <p className="text-base leading-relaxed text-mute">O Cortaí tá no jeito. Bora atender?</p>
-          <button type="button" className="btn-primary mt-8 w-full" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
-            ✂️ Configurar minha barbearia
+          <button type="button" className="btn-primary mt-8 w-full" onClick={() => void navigate({ to: "/barbeiro/plano" })}>
+            ✂️ Escolher plano e configurar
           </button>
         </div>
       ) : modo === "escolha" ? (
