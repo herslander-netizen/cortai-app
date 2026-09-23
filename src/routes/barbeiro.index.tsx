@@ -63,6 +63,8 @@ function PainelPage() {
                   </p>
                   {data.hoje.faturamentoCentavos === null ? (
                     <p className="mt-2 text-xs text-mute2">Você não tem acesso aos valores da barbearia.</p>
+                  ) : data.hoje.faturamentoCentavos === 0 && data.hoje.atendimentos > 0 ? (
+                    <p className="mt-2 text-xs text-mute2">Nenhum recebimento registrado no caixa ainda hoje.</p>
                   ) : null}
                 </div>
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold-soft text-gold">
