@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, ListOrdered, LogOut, Settings } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
+import { PreferenciasDeAvisos } from "@/components/notificacoes/PreferenciasDeAvisos";
 import { BotaoAssistente } from "@/components/ia/BotaoAssistente";
 import { sair } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
