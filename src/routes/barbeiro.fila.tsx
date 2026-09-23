@@ -107,7 +107,7 @@ function FilaPage() {
                   disabled={acao.ocupado}
                   onClick={() => {
                     if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
-                    void acao.executar(`remover-${f.id}`, () => remover({ data: { filaId: f.id } }), {
+                    void acao.executar(`remover-${f.id}`, () => removerComRespostaImediata(f.id, f.cliente), {
                       sucesso: `${f.cliente} saiu da fila.`,
                       aoConcluir: async () => { await refetch(); },
                     });
