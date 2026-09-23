@@ -40,6 +40,7 @@ import { Route as AppEsperaRouteImport } from './routes/app.espera'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as BSlugRouteImport } from './routes/b.$slug'
+import { Route as BarbeariaIdRouteImport } from './routes/barbearia.$id'
 import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
 import { Route as BarbeiroAgendamentosRouteImport } from './routes/barbeiro.agendamentos'
@@ -231,6 +232,11 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
 const BSlugRoute = BSlugRouteImport.update({
   id: '/b/$slug',
   path: '/b/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarbeariaIdRoute = BarbeariaIdRouteImport.update({
+  id: '/barbearia/$id',
+  path: '/barbearia/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BarbeiroIndexRoute = BarbeiroIndexRouteImport.update({
@@ -453,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
+  '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByTo {
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
+  '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -590,6 +598,7 @@ export interface FileRoutesById {
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
   '/b/$slug': typeof BSlugRoute
+  '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -662,6 +671,7 @@ export interface FileRouteTypes {
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
+    | '/barbearia/$id'
     | '/barbeiro/agenda'
     | '/barbeiro/agendamentos'
     | '/barbeiro/avaliacoes'
@@ -729,6 +739,7 @@ export interface FileRouteTypes {
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
+    | '/barbearia/$id'
     | '/barbeiro/agenda'
     | '/barbeiro/agendamentos'
     | '/barbeiro/avaliacoes'
@@ -798,6 +809,7 @@ export interface FileRouteTypes {
     | '/app/historico'
     | '/app/perfil'
     | '/b/$slug'
+    | '/barbearia/$id'
     | '/barbeiro/agenda'
     | '/barbeiro/agendamentos'
     | '/barbeiro/avaliacoes'
@@ -855,6 +867,7 @@ export interface RootRouteChildren {
   VisitanteRoute: typeof VisitanteRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   BSlugRoute: typeof BSlugRoute
+  BarbeariaIdRoute: typeof BarbeariaIdRoute
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
@@ -1084,6 +1097,13 @@ declare module '@tanstack/react-router' {
       path: '/b/$slug'
       fullPath: '/b/$slug'
       preLoaderRoute: typeof BSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barbearia/$id': {
+      id: '/barbearia/$id'
+      path: '/barbearia/$id'
+      fullPath: '/barbearia/$id'
+      preLoaderRoute: typeof BarbeariaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/barbeiro/': {
@@ -1485,6 +1505,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisitanteRoute: VisitanteRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   BSlugRoute: BSlugRoute,
+  BarbeariaIdRoute: BarbeariaIdRoute,
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
