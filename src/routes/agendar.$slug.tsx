@@ -163,7 +163,7 @@ function AgendamentoPublico() {
   if (confirmado) {
     const whatsapp = confirmado.whatsapp?.replace(/\D/g, "") || null;
     const texto = encodeURIComponent(
-      `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio)} às ${horaLocal(confirmado.inicio)}.`,
+      `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio, fuso)} às ${horaLocal(confirmado.inicio, fuso)}.`,
     );
     return (
       <main className="mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12">
@@ -179,8 +179,8 @@ function AgendamentoPublico() {
               ["Cliente", confirmado.cliente],
               ["Serviço", `${confirmado.servico} · ${brl(confirmado.valor_centavos)}`],
               ["Profissional", confirmado.profissional],
-              ["Data", dataLocal(confirmado.inicio)],
-              ["Horário", horaLocal(confirmado.inicio)],
+              ["Data", dataLocal(confirmado.inicio, fuso)],
+              ["Horário", horaLocal(confirmado.inicio, fuso)],
               ["Barbearia", confirmado.barbearia],
             ].map(([rotulo, valor]) => (
               <div key={rotulo} className="flex items-center justify-between gap-4 px-4 py-3">
@@ -424,7 +424,7 @@ function AgendamentoPublico() {
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">
-              {servico.nome} · {dataLocal(escolhido.iso)} às {escolhido.label} · {brl(servico.preco_centavos)}
+              {servico.nome} · {dataLocal(escolhido.iso, fuso)} às {escolhido.label} · {brl(servico.preco_centavos)}
             </p>
           ) : null}
           <Button

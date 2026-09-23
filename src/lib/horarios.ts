@@ -106,6 +106,7 @@ export function slotsDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
   passoMin = 30,
+  fuso: string = FUSO_BARBEARIA,
 ): { fechado: boolean; abre: string; fecha: string; slots: SlotDaAgenda[] } {
   const info = horarioDoDia(dia, horarios);
   if (info.fechado) return { ...info, slots: [] };
@@ -116,7 +117,7 @@ export function slotsDoDia(
     const h = Math.floor(t / 60);
     const m = t % 60;
     const label = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    slots.push({ iso: isoNoFusoDaBarbearia(dia, label), label, minutos: t, hora: h });
+    slots.push({ iso: isoNoFusoDaBarbearia(dia, label, fuso), label, minutos: t, hora: h });
   }
   return { ...info, slots };
 }
