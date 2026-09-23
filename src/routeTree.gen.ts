@@ -66,6 +66,7 @@ import { Route as BarbeiroPainelIaRouteImport } from './routes/barbeiro.painel-i
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
@@ -364,6 +365,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroTemasRoute = BarbeiroTemasRouteImport.update({
+  id: '/temas',
+  path: '/temas',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const EntrarRetornoRoute = EntrarRetornoRouteImport.update({
   id: '/entrar/retorno',
   path: '/entrar/retorno',
@@ -484,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -551,6 +558,7 @@ export interface FileRoutesByTo {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -623,6 +631,7 @@ export interface FileRoutesById {
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -696,6 +705,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -763,6 +773,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -834,6 +845,7 @@ export interface FileRouteTypes {
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
+    | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -1281,6 +1293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/temas': {
+      id: '/barbeiro/temas'
+      path: '/temas'
+      fullPath: '/barbeiro/temas'
+      preLoaderRoute: typeof BarbeiroTemasRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/entrar/retorno': {
       id: '/entrar/retorno'
       path: '/entrar/retorno'
@@ -1454,6 +1473,7 @@ interface BarbeiroRouteChildren {
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
+  BarbeiroTemasRoute: typeof BarbeiroTemasRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
 }
 
@@ -1482,6 +1502,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
+  BarbeiroTemasRoute: BarbeiroTemasRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
 }
 
