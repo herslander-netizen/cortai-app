@@ -97,6 +97,7 @@ export function limparFluxo(contexto: ContextoDoMotor): ContextoDoMotor {
     profissionalNome: null,
     dia: null,
     agendamentoId: null,
+    aguardandoNome: false,
     semEntender: 0,
     atualizadoEm: new Date().toISOString(),
   };
