@@ -132,3 +132,13 @@
 - [x] Imagens editoriais novas (hero, identidade, chamada final)
 - [x] SEO e metadados com o novo posicionamento
 - [x] Conteúdo antigo da Home guardado no histórico de versões antes da troca
+
+## v2.0.0 — Página pública como apresentação e conversão
+
+- [x] Rascunho e publicação separados, com histórico e isolamento por barbearia
+- [x] Editor modular em Visual, Conteúdo, Seções e Links
+- [x] Oito temas, cinco layouts, fontes, cores, densidade, cantos e botões controlados
+- [x] Prévia ao vivo no computador e celular usando o mesmo conteúdo da página publicada
+- [x] Página pública com agendamento como ação principal e WhatsApp como ação secundária
+- [x] Serviços, profissionais, galeria, avaliações agregadas, produtos, horários e localização exibidos somente com dados reais
+- [x] Preservados agenda, clientes, equipe, caixa, WhatsApp, permissões e segurança existentes
