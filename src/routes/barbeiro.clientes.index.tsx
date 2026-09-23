@@ -39,12 +39,21 @@ function whatsappLink(telefone: string, nome: string) {
 function ClientesPage() {
   const { data, isLoading } = useQuery({ queryKey: ["clientes-crm"], queryFn: () => getClientesCRM() });
   const [busca, setBusca] = useState("");
+  const buscaAdiada = useDebounce(busca, 250);
 
-  const lista = (data?.clientes ?? []).filter((c) => c.nome.toLowerCase().includes(busca.trim().toLowerCase()));
+  const lista = (data?.clientes ?? []).filter((c) =>
+    c.nome.toLowerCase().includes(buscaAdiada.trim().toLowerCase()),
+  );
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? (
+        <>
+          <EsqueletoMetricas colunas={3} />
+          <EsqueletoLista linhas={6} />
+        </>
+      ) : null}
+
 
       {data && data.trazerDeVolta.length > 0 ? (
         <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">
