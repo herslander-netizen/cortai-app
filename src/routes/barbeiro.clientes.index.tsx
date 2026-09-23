@@ -47,7 +47,6 @@ function ClientesPage() {
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
-      {isLoading ? <EsqueletoMetricas colunas={3} /> : null}
 
 
 
