@@ -32,8 +32,26 @@ function FilaPage() {
   const avisar = useServerFn(avisarFila);
   const remover = useServerFn(removerDaFila);
   const acao = useAcao();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
+
+  /** Tira da tela na hora e devolve se o servidor recusar. */
+  async function removerComRespostaImediata(filaId: string, cliente: string) {
+    const anterior = queryClient.getQueryData<typeof data>(["fila"]);
+    if (anterior) {
+      queryClient.setQueryData(["fila"], {
+        ...anterior,
+        itens: anterior.itens.filter((i) => i.id !== filaId),
+      });
+    }
+    try {
+      await remover({ data: { filaId } });
+    } catch (e) {
+      if (anterior) queryClient.setQueryData(["fila"], anterior);
+      throw e instanceof Error ? e : new Error(`Não consegui tirar ${cliente} da fila.`);
+    }
+  }
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
