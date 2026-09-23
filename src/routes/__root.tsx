@@ -141,8 +141,10 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <GlobalDesign>
         <GuiaProvider>
-          <Outlet />
-          <Toaster position="top-center" closeButton richColors />
+          <TransicaoDePagina>
+            <Outlet />
+          </TransicaoDePagina>
+          <AvisosDoApp />
           <BannerDeCookies />
           <AvisoDeVersao />
 
