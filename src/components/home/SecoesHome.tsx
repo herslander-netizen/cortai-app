@@ -103,7 +103,7 @@ export function SecaoHero({ hero }: { hero: HeroHome }) {
   return (
     <section className="relative flex min-h-[100svh] items-end overflow-hidden">
       <img
-        src={hero.imagem || heroAsset.url}
+        src={hero.imagem || heroV2}
         alt="Barbeiro em uma barbearia premium com iluminação quente"
         width={1024}
         height={1536}
@@ -314,7 +314,7 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
   if (secao.tipo === "cta") {
     return (
       <section className="relative flex min-h-[600px] items-end overflow-hidden">
-        <img src={secao.imagem || ctaImg} alt="Cadeira de barbeiro em uma barbearia premium" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+        <img src={secao.imagem || ctaV2} alt="Cadeira de barbeiro em uma barbearia contemporânea ao fim da tarde" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/65 to-ink/20" />
         <div className={`relative w-full pb-16 md:pb-20 ${BLOCO}`}>
           <h2 className="max-w-2xl text-[38px] font-bold leading-[1.04] text-paper md:text-[58px]">{secao.titulo}</h2>
