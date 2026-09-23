@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 /** Slug público da barbearia fictícia — usado para sinalizar o modo demonstração. */
-export const SLUG_DEMONSTRACAO = "demonstracao";
+export const SLUG_DEMONSTRACAO = "barbearia-prime";
 
 /**
  * Abre a barbearia de demonstração. Todo o preparo acontece no servidor; a tela

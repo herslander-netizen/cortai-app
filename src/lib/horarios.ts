@@ -8,6 +8,25 @@
  */
 export const FUSO_BARBEARIA = "America/Sao_Paulo";
 
+/** Fusos usados no Brasil, na ordem em que aparecem no painel. */
+export const FUSOS_DA_BARBEARIA = [
+  { valor: "America/Sao_Paulo", rotulo: "Brasília, São Paulo, Sul e Sudeste (UTC-3)" },
+  { valor: "America/Bahia", rotulo: "Bahia e Nordeste (UTC-3)" },
+  { valor: "America/Fortaleza", rotulo: "Ceará, Piauí, Rio Grande do Norte (UTC-3)" },
+  { valor: "America/Belem", rotulo: "Pará e Amapá (UTC-3)" },
+  { valor: "America/Manaus", rotulo: "Amazonas, Mato Grosso, Roraima (UTC-4)" },
+  { valor: "America/Cuiaba", rotulo: "Mato Grosso e Mato Grosso do Sul (UTC-4)" },
+  { valor: "America/Porto_Velho", rotulo: "Rondônia (UTC-4)" },
+  { valor: "America/Rio_Branco", rotulo: "Acre (UTC-5)" },
+  { valor: "America/Noronha", rotulo: "Fernando de Noronha (UTC-2)" },
+] as const;
+
+/** Só aceita um fuso conhecido; qualquer outro valor cai no padrão. */
+export function normalizarFuso(valor: string | null | undefined): string {
+  const achado = FUSOS_DA_BARBEARIA.find((f) => f.valor === valor);
+  return achado ? achado.valor : FUSO_BARBEARIA;
+}
+
 export type HorarioDeFuncionamento = {
   diaSemana: number;
   fechado: boolean;
@@ -87,6 +106,7 @@ export function slotsDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
   passoMin = 30,
+  fuso: string = FUSO_BARBEARIA,
 ): { fechado: boolean; abre: string; fecha: string; slots: SlotDaAgenda[] } {
   const info = horarioDoDia(dia, horarios);
   if (info.fechado) return { ...info, slots: [] };
@@ -97,7 +117,7 @@ export function slotsDoDia(
     const h = Math.floor(t / 60);
     const m = t % 60;
     const label = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    slots.push({ iso: isoNoFusoDaBarbearia(dia, label), label, minutos: t, hora: h });
+    slots.push({ iso: isoNoFusoDaBarbearia(dia, label, fuso), label, minutos: t, hora: h });
   }
   return { ...info, slots };
 }

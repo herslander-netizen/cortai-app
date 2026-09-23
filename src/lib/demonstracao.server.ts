@@ -9,7 +9,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const TENANT_DEMO = "0de00000-0000-4000-8000-000000000001";
-export const SLUG_DEMO = "demonstracao";
+export const SLUG_DEMO = "barbearia-prime";
 const EMAIL_DEMO = "demonstracao@cortai.dev";
 
 /** A visita opera a barbearia, mas não muda a estrutura do negócio. */

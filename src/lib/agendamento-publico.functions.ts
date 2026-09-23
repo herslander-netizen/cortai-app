@@ -12,7 +12,7 @@ import { z } from "zod";
 import type { HorarioDeFuncionamento } from "@/lib/horarios";
 
 export type AgendaPublica = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null };
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
   horarios: HorarioDeFuncionamento[];
@@ -27,7 +27,7 @@ async function admin() {
 async function barbeariaPorSlug(db: any, slug: string) {
   const { data } = await db
     .from("tenants")
-    .select("id, nome, slug, whatsapp")
+    .select("id, nome, slug, whatsapp, fuso")
     .eq("slug", slug)
     .eq("ativo", true)
     .maybeSingle();

@@ -11,14 +11,14 @@
  * - nada é inventado: serviço, preço, profissional e horário vêm do tenant;
  * - toda ação que muda a agenda exige confirmação explícita do cliente.
  */
-import { FUSO_BARBEARIA } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import type { ConfiguracaoDoAtendimento, Intencao } from "../contrato";
 import { SAUDACAO_PADRAO } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
 import { normalizar } from "./vocabulario";
 
-type Ctx = { tenantId: string; externalAgentId: string | null };
+type Ctx = { tenantId: string; externalAgentId: string | null; fuso: string };
 
 export type EntradaDoMotor = {
   tenantId: string;
@@ -39,18 +39,16 @@ export type RespostaDoMotor = {
   pedirHumano: boolean;
 };
 
-const FUSO = FUSO_BARBEARIA;
-
 function reais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function horaBr(iso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+function horaBr(iso: string, fuso: string) {
+  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 }
 
-function dataBr(iso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO, day: "2-digit", month: "2-digit" }).format(new Date(iso));
+function dataBr(iso: string, fuso: string) {
+  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit" }).format(new Date(iso));
 }
 
 function diaPorExtenso(dia: string) {
@@ -61,8 +59,8 @@ function diaPorExtenso(dia: string) {
   );
 }
 
-function hojeNoFuso() {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: FUSO, year: "numeric", month: "2-digit", day: "2-digit" }).format(
+function hojeNoFuso(fuso: string) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(
     new Date(),
   );
 }
@@ -92,7 +90,7 @@ const MENU_PRINCIPAL = [
 
 /** Ponto único de entrada: recebe a mensagem e devolve a resposta pronta. */
 export async function responderComMotor(entrada: EntradaDoMotor): Promise<RespostaDoMotor> {
-  const ctx: Ctx = { tenantId: entrada.tenantId, externalAgentId: null };
+  const ctx: Ctx = { tenantId: entrada.tenantId, externalAgentId: null, fuso: await fusoDoTenant(entrada.tenantId) };
   let contexto: ContextoDoMotor = { ...(entrada.contexto ?? {}) };
   if (entrada.clienteId) contexto.clienteId = entrada.clienteId;
 
@@ -124,7 +122,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
   }
 
   const menuItens = contexto.menuItens ?? [];
-  const cls = classificar(entrada.texto, { fuso: FUSO, totalDeOpcoes: menuItens.length });
+  const cls = classificar(entrada.texto, { fuso: ctx.fuso, totalDeOpcoes: menuItens.length });
 
   // Pedido de atendimento humano tem prioridade absoluta.
   if (cls.intencao === "HUMANO") {
@@ -459,7 +457,7 @@ async function oferecerHorarios(
 
   const minutosLocais = (iso: string) => {
     const partes = new Intl.DateTimeFormat("pt-BR", {
-      timeZone: FUSO,
+      timeZone: ctx.fuso,
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
@@ -498,7 +496,7 @@ async function oferecerHorarios(
   const escolhidos = livres.filter((_, i) => i % passo === 0).slice(0, 5);
 
   const itens: ItemDeMenu[] = escolhidos.map((l) => ({
-    rotulo: `${horaBr(l.inicio)} com ${nomeProfissional.get(l.profissionalId) ?? "nossa equipe"}`,
+    rotulo: `${horaBr(l.inicio, ctx.fuso)} com ${nomeProfissional.get(l.profissionalId) ?? "nossa equipe"}`,
     valor: l.inicio,
     extra: l.profissionalId,
   }));
@@ -654,7 +652,7 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
   return [
     servico ? `✂️ ${servico.nome}` : null,
     `💈 ${item.rotulo.replace(/^\d{2}:\d{2} com /, "")}`,
-    `📅 ${dataBr(item.valor)} às ${horaBr(item.valor)}`,
+    `📅 ${dataBr(item.valor, ctx.fuso)} às ${horaBr(item.valor, ctx.fuso)}`,
     servico ? `💰 ${reais(servico.preco_centavos ?? 0)}` : null,
     casa.endereco ? `📍 ${casa.endereco}` : null,
   ]
@@ -703,7 +701,7 @@ async function concluirAgendamento(
       return oferecerHorarios(ctx, contexto, responder, {
         servicoId: contexto.servicoId,
         servicoNome: contexto.servicoNome ?? null,
-        dia: contexto.dia ?? hojeNoFuso(),
+        dia: contexto.dia ?? hojeNoFuso(ctx.fuso),
         profissionalId: null,
         periodo: null,
       });
@@ -715,7 +713,7 @@ async function concluirAgendamento(
     );
   }
 
-  const quando = `${dataBr(contexto.inicioEscolhido)} às ${horaBr(contexto.inicioEscolhido)}`;
+  const quando = `${dataBr(contexto.inicioEscolhido, ctx.fuso)} às ${horaBr(contexto.inicioEscolhido, ctx.fuso)}`;
   return responder(
     [`Pronto! Seu horário está marcado para ${quando}. ✅`, "", "Te envio a confirmação com todos os detalhes por aqui."].join(
       "\n",
@@ -739,7 +737,7 @@ async function carregarAgendamentos(ctx: Ctx, contexto: ContextoDoMotor) {
   const nomeProfissional = new Map(equipe.map((p) => [p.id, p.nome]));
   return lista.map((a) => ({
     id: a.id,
-    rotulo: `${dataBr(a.inicio)} às ${horaBr(a.inicio)} — ${a.servico_id ? nomeServico.get(a.servico_id) ?? "atendimento" : "atendimento"} com ${
+    rotulo: `${dataBr(a.inicio, ctx.fuso)} às ${horaBr(a.inicio, ctx.fuso)} — ${a.servico_id ? nomeServico.get(a.servico_id) ?? "atendimento" : "atendimento"} com ${
       a.profissional_id ? nomeProfissional.get(a.profissional_id) ?? "nossa equipe" : "nossa equipe"
     }`,
   }));
@@ -889,7 +887,7 @@ async function concluirRemarcacao(ctx: Ctx, contexto: ContextoDoMotor, responder
     });
   }
   return responder(
-    `Remarcado! Seu novo horário é ${dataBr(contexto.inicioEscolhido)} às ${horaBr(contexto.inicioEscolhido)}. ✅`,
+    `Remarcado! Seu novo horário é ${dataBr(contexto.inicioEscolhido, ctx.fuso)} às ${horaBr(contexto.inicioEscolhido, ctx.fuso)}. ✅`,
     { ...limparFluxo(contexto), estado: "BOOKING_CONFIRMED" },
     { intencao: "reagendamento" },
   );

@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { FUSO_BARBEARIA, slotsDoDia } from "@/lib/horarios";
+import { normalizarFuso, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -49,12 +49,12 @@ function proximosDias(qtd: number) {
   });
 }
 
-function horaLocal(iso: string) {
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: FUSO_BARBEARIA });
+function horaLocal(iso: string, fuso: string) {
+  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
 }
 
-function dataLocal(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: FUSO_BARBEARIA });
+function dataLocal(iso: string, fuso: string) {
+  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: fuso });
 }
 
 function livre(
@@ -102,11 +102,12 @@ function AgendamentoPublico() {
   const [confirmado, setConfirmado] = useState<ConfirmacaoPublica | null>(null);
   const [cancelado, setCancelado] = useState(false);
 
+  const fuso = normalizarFuso(data?.tenant.fuso);
   const servico = data?.servicos.find((s) => s.id === servicoId) ?? null;
 
   const agenda = useMemo(() => {
     if (!data || !servico || !dia) return null;
-    const { fechado, slots } = slotsDoDia(dia, data.horarios);
+    const { fechado, slots } = slotsDoDia(dia, data.horarios, 30, fuso);
     if (fechado) return { fechado: true, opcoes: [] as { iso: string; label: string; profId: string }[] };
     const agora = Date.now();
     const candidatos = profId === "qualquer" ? data.profissionais.map((p) => p.id) : [profId];
@@ -162,7 +163,7 @@ function AgendamentoPublico() {
   if (confirmado) {
     const whatsapp = confirmado.whatsapp?.replace(/\D/g, "") || null;
     const texto = encodeURIComponent(
-      `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio)} às ${horaLocal(confirmado.inicio)}.`,
+      `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio, fuso)} às ${horaLocal(confirmado.inicio, fuso)}.`,
     );
     return (
       <main className="mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12">
@@ -178,8 +179,8 @@ function AgendamentoPublico() {
               ["Cliente", confirmado.cliente],
               ["Serviço", `${confirmado.servico} · ${brl(confirmado.valor_centavos)}`],
               ["Profissional", confirmado.profissional],
-              ["Data", dataLocal(confirmado.inicio)],
-              ["Horário", horaLocal(confirmado.inicio)],
+              ["Data", dataLocal(confirmado.inicio, fuso)],
+              ["Horário", horaLocal(confirmado.inicio, fuso)],
               ["Barbearia", confirmado.barbearia],
             ].map(([rotulo, valor]) => (
               <div key={rotulo} className="flex items-center justify-between gap-4 px-4 py-3">
@@ -423,7 +424,7 @@ function AgendamentoPublico() {
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">
-              {servico.nome} · {dataLocal(escolhido.iso)} às {escolhido.label} · {brl(servico.preco_centavos)}
+              {servico.nome} · {dataLocal(escolhido.iso, fuso)} às {escolhido.label} · {brl(servico.preco_centavos)}
             </p>
           ) : null}
           <Button

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
 
 export const ITENS_DO_CHECKLIST = [
   { chave: "configurar", rotulo: "Configure sua barbearia", destino: "/barbeiro/configurar" },
@@ -25,7 +26,7 @@ export type ServicoDaBarbearia = {
 };
 
 export type ConfiguracaoInicial = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null };
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null; fuso: string };
   horarios: HorarioSugerido[];
   servicos: ServicoDaBarbearia[];
   etapa: string;
@@ -54,7 +55,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = context.supabase;
     const [tenantRes, horariosRes, servicosRes, onbRes] = await Promise.all([
-      db.from("tenants").select("id, nome, slug, whatsapp, logo_url").eq("id", tenantId).maybeSingle(),
+      db.from("tenants").select("id, nome, slug, whatsapp, logo_url, fuso").eq("id", tenantId).maybeSingle(),
       db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
       db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
@@ -90,6 +91,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
         slug: tenant.slug as string,
         whatsapp: (tenant.whatsapp as string) ?? null,
         logoUrl: (tenant.logo_url as string) ?? null,
+        fuso: normalizarFuso(tenant.fuso as string | null),
       },
       horarios,
       servicos,
@@ -140,7 +142,14 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
 
 export const salvarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ horarios: z.array(horarioSchema).min(1).max(7) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        horarios: z.array(horarioSchema).min(1).max(7),
+        fuso: z.enum(FUSOS_DA_BARBEARIA.map((f) => f.valor) as [string, ...string[]]).optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
@@ -155,6 +164,15 @@ export const salvarHorarios = createServerFn({ method: "POST" })
       .from("horarios_de_funcionamento")
       .upsert(linhas, { onConflict: "tenant_id,dia_semana" });
     if (error) throw new Error(error.message);
+    if (data.fuso) {
+      const { error: erroFuso } = await context.supabase
+        .from("tenants")
+        .update({ fuso: data.fuso })
+        .eq("id", tenantId);
+      if (erroFuso) throw new Error(erroFuso.message);
+      const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
+      esquecerFusoDoTenant(tenantId);
+    }
     await gravarOnboarding(context, tenantId, { etapa: "servicos" });
     return { ok: true };
   });

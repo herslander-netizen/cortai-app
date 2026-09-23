@@ -12,7 +12,7 @@
  * - isolamento por barbearia: a conexão usada é sempre a do tenant do
  *   agendamento, nunca outra.
  */
-import { FUSO_BARBEARIA } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
 
@@ -43,18 +43,18 @@ function digitos(valor: string) {
   return valor.replace(/\D/g, "");
 }
 
-function dataBr(iso: string) {
+function dataBr(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", {
-    timeZone: FUSO_BARBEARIA,
+    timeZone: fuso,
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   }).format(new Date(iso));
 }
 
-function horaBr(iso: string) {
+function horaBr(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", {
-    timeZone: FUSO_BARBEARIA,
+    timeZone: fuso,
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));
@@ -78,6 +78,8 @@ export type DadosDaMensagem = {
   endereco: string | null;
   linkAgendamento: string | null;
   linkPagamento: string | null;
+  /** Fuso da barbearia; garante data e hora corretas para o cliente. */
+  fuso: string;
 };
 
 /**
@@ -98,8 +100,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       linha(d.servico, "✂️ Serviço: "),
       linha(d.profissional, "💈 Profissional: "),
-      `📅 Data: ${dataBr(d.inicio)}`,
-      `⏰ Horário: ${horaBr(d.inicio)}`,
+      `📅 Data: ${dataBr(d.inicio, d.fuso)}`,
+      `⏰ Horário: ${horaBr(d.inicio, d.fuso)}`,
       d.valorCentavos > 0 ? `💰 Valor: ${reais(d.valorCentavos)}` : null,
       linha(d.endereco, "📍 "),
     );
@@ -112,8 +114,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       linha(d.servico, "✂️ "),
       linha(d.profissional, "💈 "),
-      `📅 ${dataBr(d.inicio)}`,
-      `⏰ ${horaBr(d.inicio)}`,
+      `📅 ${dataBr(d.inicio, d.fuso)}`,
+      `⏰ ${horaBr(d.inicio, d.fuso)}`,
       "",
       "Nos vemos lá! ✂️",
     );
@@ -124,7 +126,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       linha(d.servico, "✂️ "),
       linha(d.profissional, "💈 "),
-      `⏰ ${horaBr(d.inicio)}`,
+      `⏰ ${horaBr(d.inicio, d.fuso)}`,
       "",
       "Até daqui a pouco! ✂️",
     );
@@ -133,8 +135,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       `Olá, ${nome}.`,
       `Seu agendamento na ${d.barbearia} foi cancelado.`,
       "",
-      `📅 ${dataBr(d.inicio)}`,
-      `⏰ ${horaBr(d.inicio)}`,
+      `📅 ${dataBr(d.inicio, d.fuso)}`,
+      `⏰ ${horaBr(d.inicio, d.fuso)}`,
       linha(d.servico, "✂️ "),
     );
     if (d.linkAgendamento) {
@@ -147,8 +149,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       linha(d.servico, "✂️ "),
       linha(d.profissional, "💈 "),
-      `📅 ${dataBr(d.inicio)}`,
-      `⏰ ${horaBr(d.inicio)}`,
+      `📅 ${dataBr(d.inicio, d.fuso)}`,
+      `⏰ ${horaBr(d.inicio, d.fuso)}`,
       "",
       "Até lá! ✂️",
     );
@@ -296,7 +298,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   const { data: tenant } = await db
     .from("tenants")
-    .select("nome, endereco, slug")
+    .select("nome, endereco, slug, fuso")
     .eq("id", ag.tenant_id)
     .maybeSingle();
 
@@ -308,6 +310,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     inicio: ag.inicio,
     valorCentavos: ag.valor_centavos ?? 0,
     endereco: tenant?.endereco ?? null,
+    fuso: await fusoDoTenant(ag.tenant_id),
     linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
     linkPagamento:
       tipo === "confirmacao_agendamento" && config.pagamentoAntecipado && config.linkPagamento?.startsWith("http")
