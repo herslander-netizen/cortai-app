@@ -17,7 +17,7 @@ export type AgendamentoConfirmado = {
   origem: string | null;
 };
 
-const ATIVOS = ["novo", "agendado", "em_atendimento", "aguardando_pagamento", "aguardando_confirmacao"];
+const ATIVOS = ["novo", "agendado", "confirmado", "em_atendimento", "aguardando_pagamento", "aguardando_confirmacao"];
 
 /**
  * Lista os agendamentos confirmados (ativos) da barbearia do usuário — com nome,

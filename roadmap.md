@@ -92,3 +92,12 @@
 - [ ] Integrar Agenda, Início, Financeiro, Caixa, Comissões e permissões
 - [ ] Validar o cenário Corte R$ 40 + Pomada R$ 35, Pix e comissão R$ 23,50
 - [ ] Validar tipos, build, RLS, transações e experiência mobile
+
+## Painel de Controle da Operação — v1.6.0 (23/09)
+- [x] `getPainelDeControle` (leitura agregada única, permissões verificadas no servidor)
+- [x] Motor determinístico de oportunidades (`src/lib/painel/oportunidades.server.ts`)
+- [x] Início do barbeiro reescrito: saudação, Hoje, Atenção, Próximos movimentos, Agenda, Clientes, Financeiro, Profissionais, WhatsApp
+- [x] Estados de carregamento, erro, vazio e sem permissão
+- [x] Ocupação pelo horário de funcionamento real; faturamento do dia pela mesma fonte do caixa
+- [x] Removidos `getPainelHoje` e `getOportunidades` (expunham valores sem checar permissão)
+- [x] `/barbeiro/agendamentos` passa a incluir o status `confirmado`
