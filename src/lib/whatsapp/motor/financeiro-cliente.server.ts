@@ -15,71 +15,92 @@ function reais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export type ResumoFinanceiroDoCliente = {
-  autorizado: boolean;
-  texto: string;
-};
+export type ResumoFinanceiroDoCliente = { autorizado: boolean; texto: string };
 
-/** Saldo de crédito, pendências em aberto e selos de fidelidade do titular. */
+async function titular(tenantId: string, clienteId: string, telefone: string) {
+  const db = await admin();
+  const { data } = await db
+    .from("clientes")
+    .select("id, nome, telefone")
+    .eq("tenant_id", tenantId)
+    .eq("id", clienteId)
+    .is("arquivado_em", null)
+    .maybeSingle();
+  const confere =
+    data?.telefone && String(data.telefone).replace(/\D/g, "") === telefone.replace(/\D/g, "");
+  return confere ? data : null;
+}
+
+const NAO_IDENTIFICADO =
+  "Para falar de saldo ou valores, este número precisa estar cadastrado aqui na barbearia. Quer que eu chame alguém da equipe?";
+const NAO_AUTORIZADO =
+  "Por segurança, só consigo tratar de valores com o titular do cadastro. Posso chamar alguém da equipe para te ajudar?";
+
+/** Saldo em crédito e valores em aberto (fiado) do titular. */
 export async function resumoFinanceiroDoCliente(input: {
   tenantId: string;
   clienteId: string | null;
   telefone: string;
 }): Promise<ResumoFinanceiroDoCliente> {
-  if (!input.clienteId) {
-    return {
-      autorizado: false,
-      texto:
-        "Para consultar saldo ou valores em aberto, preciso que este número esteja cadastrado aqui na barbearia. Quer que eu chame alguém da equipe?",
-    };
-  }
+  if (!input.clienteId) return { autorizado: false, texto: NAO_IDENTIFICADO };
+  const cliente = await titular(input.tenantId, input.clienteId, input.telefone);
+  if (!cliente) return { autorizado: false, texto: NAO_AUTORIZADO };
 
   const db = await admin();
-  const { data: cliente } = await db
-    .from("clientes")
-    .select("id, nome, telefone")
-    .eq("tenant_id", input.tenantId)
-    .eq("id", input.clienteId)
-    .is("arquivado_em", null)
-    .maybeSingle();
-
-  // Conferência dura: o telefone da conversa tem que ser o do cadastro.
-  const mesmoTelefone =
-    cliente?.telefone && String(cliente.telefone).replace(/\D/g, "") === input.telefone.replace(/\D/g, "");
-  if (!cliente || !mesmoTelefone) {
-    return {
-      autorizado: false,
-      texto:
-        "Por segurança, só consigo falar de valores com o titular do cadastro. Posso chamar alguém da equipe para te ajudar?",
-    };
-  }
+  const [{ data: carteira }, { data: fiados }] = await Promise.all([
+    db
+      .from("carteiras")
+      .select("saldo_centavos, saldo_creditos")
+      .eq("tenant_id", input.tenantId)
+      .eq("cliente_id", cliente.id)
+      .maybeSingle(),
+    db
+      .from("fiados")
+      .select("saldo_centavos")
+      .eq("tenant_id", input.tenantId)
+      .eq("cliente_id", cliente.id)
+      .neq("status", "quitado"),
+  ]);
 
   const linhas: string[] = [];
-
-  const { data: carteira } = await db
-    .from("carteiras")
-    .select("saldo_centavos")
-    .eq("tenant_id", input.tenantId)
-    .eq("cliente_id", cliente.id)
-    .maybeSingle()
-    .then((r) => r, () => ({ data: null }) as never);
-  if (carteira && typeof carteira.saldo_centavos === "number") {
-    linhas.push(`💳 Saldo em crédito: ${reais(carteira.saldo_centavos)}`);
-  }
-
-  const { data: emAberto } = await db
-    .from("agendamentos")
-    .select("valor_centavos")
-    .eq("tenant_id", input.tenantId)
-    .eq("cliente_id", cliente.id)
-    .eq("status", "fiado")
-    .then((r) => r, () => ({ data: null }) as never);
-  const totalFiado = (emAberto ?? []).reduce((s, a) => s + (a.valor_centavos ?? 0), 0);
-  if (totalFiado > 0) linhas.push(`🧾 Em aberto (fiado): ${reais(totalFiado)}`);
+  if ((carteira?.saldo_centavos ?? 0) > 0) linhas.push(`💳 Crédito disponível: ${reais(carteira!.saldo_centavos)}`);
+  if ((carteira?.saldo_creditos ?? 0) > 0) linhas.push(`🎟️ Créditos de serviço: ${carteira!.saldo_creditos}`);
+  const emAberto = (fiados ?? []).reduce((soma, f) => soma + (f.saldo_centavos ?? 0), 0);
+  if (emAberto > 0) linhas.push(`🧾 Em aberto: ${reais(emAberto)}`);
 
   if (linhas.length === 0) {
-    return { autorizado: true, texto: `Tudo certo por aqui, ${cliente.nome}: nenhum valor em aberto e sem crédito acumulado.` };
+    return {
+      autorizado: true,
+      texto: `Tudo certo por aqui, ${cliente.nome}: você não tem valores em aberto nem créditos acumulados.`,
+    };
   }
+  return { autorizado: true, texto: [`Olá, ${cliente.nome}! Seu resumo:`, "", ...linhas].join("\n") };
+}
 
-  return { autorizado: true, texto: [`Olá, ${cliente.nome}! Aqui está seu resumo:`, "", ...linhas].join("\n") };
+/** Progresso do cartão fidelidade do titular. */
+export async function fidelidadeDoCliente(input: {
+  tenantId: string;
+  clienteId: string | null;
+  telefone: string;
+}): Promise<ResumoFinanceiroDoCliente> {
+  if (!input.clienteId) return { autorizado: false, texto: NAO_IDENTIFICADO };
+  const cliente = await titular(input.tenantId, input.clienteId, input.telefone);
+  if (!cliente) return { autorizado: false, texto: NAO_AUTORIZADO };
+
+  const db = await admin();
+  const { data: carteira } = await db
+    .from("carteiras")
+    .select("fidelidade_progresso")
+    .eq("tenant_id", input.tenantId)
+    .eq("cliente_id", cliente.id)
+    .maybeSingle();
+
+  const selos = carteira?.fidelidade_progresso ?? 0;
+  return {
+    autorizado: true,
+    texto:
+      selos > 0
+        ? `${cliente.nome}, você já tem ${selos} ${selos === 1 ? "selo" : "selos"} no cartão fidelidade. 💈`
+        : `${cliente.nome}, seu cartão fidelidade ainda não tem selos. O próximo atendimento já começa a contar. 💈`,
+  };
 }
