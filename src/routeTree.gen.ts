@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
+import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as LoginRouteImport } from './routes/login'
@@ -110,6 +111,12 @@ const ComecarRoute = ComecarRouteImport.update({
   path: '/comecar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfigurarMinhaBarbeariaRoute =
+  ConfigurarMinhaBarbeariaRouteImport.update({
+    id: '/configurar-minha-barbearia',
+    path: '/configurar-minha-barbearia',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
@@ -442,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -511,6 +519,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -583,6 +592,7 @@ export interface FileRoutesById {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -657,6 +667,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -726,6 +737,7 @@ export interface FileRouteTypes {
     | '/'
     | '/barbearias'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -797,6 +809,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -870,6 +883,7 @@ export interface RootRouteChildren {
   BarbeariasRoute: typeof BarbeariasRoute
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
+  ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
   DemonstracaoRoute: typeof DemonstracaoRoute
   LoginRoute: typeof LoginRoute
@@ -934,6 +948,13 @@ declare module '@tanstack/react-router' {
       path: '/comecar'
       fullPath: '/comecar'
       preLoaderRoute: typeof ComecarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configurar-minha-barbearia': {
+      id: '/configurar-minha-barbearia'
+      path: '/configurar-minha-barbearia'
+      fullPath: '/configurar-minha-barbearia'
+      preLoaderRoute: typeof ConfigurarMinhaBarbeariaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/convite': {
@@ -1517,6 +1538,7 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeariasRoute: BarbeariasRoute,
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
+  ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
   DemonstracaoRoute: DemonstracaoRoute,
   LoginRoute: LoginRoute,
