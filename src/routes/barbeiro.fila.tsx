@@ -72,7 +72,7 @@ function FilaPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoLista linhas={4} /> : null}
 
 
       {data ? (
@@ -90,8 +90,8 @@ function FilaPage() {
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Na fila</h2>
       {data && data.itens.length === 0 ? <EmptyState text="Ninguém esperando vaga agora." /> : null}
       <ul>
-        {(data?.itens ?? []).map((f) => (
-          <li key={f.id} className="flex items-start gap-4 border-b border-line py-4">
+        {(data?.itens ?? []).map((f, i) => (
+          <ItemCascata key={f.id} indice={i} className="flex items-start gap-4 border-b border-line py-4">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-ink">
               {f.posicao}
             </span>
@@ -129,7 +129,7 @@ function FilaPage() {
 
               </div>
             </div>
-          </li>
+          </ItemCascata>
         ))}
       </ul>
 
