@@ -8,8 +8,10 @@ import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
 import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fidelidade"),
   head: () => ({
     meta: [
       { title: "Voltaí — Cortaí" },

@@ -444,7 +444,11 @@ function ConfigurarPage() {
             <div>
               <p className="text-xs text-mute">
                 Plano <span className="text-gold">{data.capacidades.plano.nome}</span>. Estes são os recursos que a
-                sua barbearia pode usar hoje.
+                sua barbearia pode usar hoje.{" "}
+                <Link to="/barbeiro/plano" className="text-gold">
+                  Ver planos
+                </Link>
+                .
               </p>
               <ListaDeCapacidades itens={capacidades.filter((c) => c.estado !== "nao_incluida")} />
               {capacidades.some((c) => c.estado === "nao_incluida") ? (

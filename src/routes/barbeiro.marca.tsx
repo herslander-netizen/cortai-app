@@ -14,8 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMarca, publicarPagina, restaurarMarca, salvarRascunhoPagina, type MarcaData, type MarcaForm } from "@/lib/marca.functions";
 import { componenteIds, FONTES, LAYOUTS, TEMAS, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { getPaginaPublica } from "@/lib/publico.functions";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 export const Route = createFileRoute("/barbeiro/marca")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({ meta: [
     { title: "Personalizar página — Cortaí" },
     { name: "description", content: "Personalize e publique a página pública da sua barbearia." },

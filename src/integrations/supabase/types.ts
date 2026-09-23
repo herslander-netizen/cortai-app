@@ -2825,6 +2825,53 @@ export type Database = {
           },
         ]
       }
+      rascunhos_de_barbearia: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          dados: Json
+          id: string
+          origem_ip: string | null
+          publicado_em: string | null
+          reivindicado_em: string | null
+          reivindicado_por: string | null
+          tenant_id: string | null
+          token_hash: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          dados?: Json
+          id?: string
+          origem_ip?: string | null
+          publicado_em?: string | null
+          reivindicado_em?: string | null
+          reivindicado_por?: string | null
+          tenant_id?: string | null
+          token_hash: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          dados?: Json
+          id?: string
+          origem_ip?: string | null
+          publicado_em?: string | null
+          reivindicado_em?: string | null
+          reivindicado_por?: string | null
+          tenant_id?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rascunhos_de_barbearia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recursos_de_plano: {
         Row: {
           atualizado_em: string

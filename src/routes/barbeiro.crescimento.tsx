@@ -7,8 +7,10 @@ import { useEffect, useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { getCrescimento } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 export const Route = createFileRoute("/barbeiro/crescimento")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "crescimento"),
   head: () => ({
     meta: [
       { title: "Crescimento — Cortaí Gestão" },

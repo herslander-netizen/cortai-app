@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
+import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as LoginRouteImport } from './routes/login'
@@ -63,6 +64,7 @@ import { Route as BarbeiroIntegracoesRouteImport } from './routes/barbeiro.integ
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
 import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroPainelIaRouteImport } from './routes/barbeiro.painel-ia'
+import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
@@ -110,6 +112,12 @@ const ComecarRoute = ComecarRouteImport.update({
   path: '/comecar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfigurarMinhaBarbeariaRoute =
+  ConfigurarMinhaBarbeariaRouteImport.update({
+    id: '/configurar-minha-barbearia',
+    path: '/configurar-minha-barbearia',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
@@ -350,6 +358,11 @@ const BarbeiroPainelIaRoute = BarbeiroPainelIaRouteImport.update({
   path: '/painel-ia',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroPlanoRoute = BarbeiroPlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroProdutosRoute = BarbeiroProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
@@ -442,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -487,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -511,6 +526,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -555,6 +571,7 @@ export interface FileRoutesByTo {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -583,6 +600,7 @@ export interface FileRoutesById {
   '/barbearias': typeof BarbeariasRoute
   '/barbeiro': typeof BarbeiroRouteWithChildren
   '/comecar': typeof ComecarRoute
+  '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
@@ -628,6 +646,7 @@ export interface FileRoutesById {
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRoute
   '/barbeiro/painel-ia': typeof BarbeiroPainelIaRoute
+  '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
@@ -657,6 +676,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -702,6 +722,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -726,6 +747,7 @@ export interface FileRouteTypes {
     | '/'
     | '/barbearias'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -770,6 +792,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -797,6 +820,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/barbeiro'
     | '/comecar'
+    | '/configurar-minha-barbearia'
     | '/convite'
     | '/demonstracao'
     | '/login'
@@ -842,6 +866,7 @@ export interface FileRouteTypes {
     | '/barbeiro/mais'
     | '/barbeiro/marca'
     | '/barbeiro/painel-ia'
+    | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/servicos'
@@ -870,6 +895,7 @@ export interface RootRouteChildren {
   BarbeariasRoute: typeof BarbeariasRoute
   BarbeiroRoute: typeof BarbeiroRouteWithChildren
   ComecarRoute: typeof ComecarRoute
+  ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
   DemonstracaoRoute: typeof DemonstracaoRoute
   LoginRoute: typeof LoginRoute
@@ -934,6 +960,13 @@ declare module '@tanstack/react-router' {
       path: '/comecar'
       fullPath: '/comecar'
       preLoaderRoute: typeof ComecarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configurar-minha-barbearia': {
+      id: '/configurar-minha-barbearia'
+      path: '/configurar-minha-barbearia'
+      fullPath: '/configurar-minha-barbearia'
+      preLoaderRoute: typeof ConfigurarMinhaBarbeariaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/convite': {
@@ -1272,6 +1305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroPainelIaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/plano': {
+      id: '/barbeiro/plano'
+      path: '/plano'
+      fullPath: '/barbeiro/plano'
+      preLoaderRoute: typeof BarbeiroPlanoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/produtos': {
       id: '/barbeiro/produtos'
       path: '/produtos'
@@ -1470,6 +1510,7 @@ interface BarbeiroRouteChildren {
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
   BarbeiroMarcaRoute: typeof BarbeiroMarcaRoute
   BarbeiroPainelIaRoute: typeof BarbeiroPainelIaRoute
+  BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
@@ -1499,6 +1540,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroMaisRoute: BarbeiroMaisRoute,
   BarbeiroMarcaRoute: BarbeiroMarcaRoute,
   BarbeiroPainelIaRoute: BarbeiroPainelIaRoute,
+  BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
@@ -1517,6 +1559,7 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeariasRoute: BarbeariasRoute,
   BarbeiroRoute: BarbeiroRouteWithChildren,
   ComecarRoute: ComecarRoute,
+  ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
   DemonstracaoRoute: DemonstracaoRoute,
   LoginRoute: LoginRoute,

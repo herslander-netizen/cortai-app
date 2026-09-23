@@ -9,9 +9,11 @@ import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { ItemCascata } from "@/components/layout/ItemCascata";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 
 export const Route = createFileRoute("/barbeiro/fila")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fila_espera"),
   head: () => ({
     meta: [
       { title: "Fila de espera — Painel do barbeiro | Cortaí" },
