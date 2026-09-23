@@ -172,7 +172,7 @@ function PainelPage() {
               descricao={`${data.agenda.ocupados} ocupados · ${data.agenda.livres === null ? "horários não configurados" : `${data.agenda.livres} livres`} · ${data.agenda.encaixes} encaixes`}
               acao={
                 <div className="flex gap-3 text-xs text-gold">
-                  <Link to="/barbeiro/agenda" className="inline-flex items-center gap-1">
+                  <Link to="/barbeiro/agenda" search={{ acao: undefined }} className="inline-flex items-center gap-1">
                     <CalendarRange size={13} /> Ver agenda
                   </Link>
                   <Link to="/barbeiro/fila" className="inline-flex items-center gap-1">

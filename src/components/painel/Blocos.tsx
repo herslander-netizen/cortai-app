@@ -37,8 +37,8 @@ export function Metrica({
 }: {
   rotulo: string;
   valor: string;
-  detalhe?: string;
-  cor?: string;
+  detalhe?: string | undefined;
+  cor?: string | undefined;
 }) {
   return (
     <div className="rounded-xl border border-line bg-ink2 px-4 py-4">
