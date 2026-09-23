@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
@@ -46,6 +46,7 @@ function CaixaPage() {
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
   const quitar = useServerFn(quitarFiado);
+  const queryClient = useQueryClient();
 
   const [valorCaixa, setValorCaixa] = useState("");
   const [saida, setSaida] = useState({ tipo: "saida" as "saida" | "sangria" | "despesa", descricao: "", valor: "" });
