@@ -72,9 +72,9 @@ export function classificar(
 
 
   const entidades: Entidades = {
-    servico: servicoCitado(t),
-    dia: dataCitada(t, fuso, opcoes.agora),
-    periodo: periodoCitado(t),
+    servico: servicoCitado(semCumprimento),
+    dia: dataCitada(semCumprimento, fuso, opcoes.agora),
+    periodo: periodoCitado(semCumprimento),
     selecao: total > 0 ? selecaoNumerica(t, total) : null,
     codigoBarbearia: codigoDaBarbearia(textoOriginal),
     nomeCitado: null,
