@@ -112,5 +112,5 @@
 - [x] Avisos rápidos embaixo no celular e no canto superior direito no computador, com helper "Desfazer"
 - [x] Faixa de configuração pendente que encolhe ao rolar
 - [x] Prefetch ao tocar nos itens da barra de navegação; números do Início com contagem animada
-- [ ] Updates otimistas em agenda, clientes e caixa (próxima etapa)
-- [ ] Tela Configurações > Notificações (App/WhatsApp por tipo) usando `notificacoes_preferencias`
+- [x] Respostas imediatas (otimistas) na fila e na quitação de fiado do caixa
+- [x] Preferências de avisos (App/WhatsApp por tipo) em Mais, usando `notificacoes_preferencias`

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -32,8 +32,26 @@ function FilaPage() {
   const avisar = useServerFn(avisarFila);
   const remover = useServerFn(removerDaFila);
   const acao = useAcao();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
+
+  /** Tira da tela na hora e devolve se o servidor recusar. */
+  async function removerComRespostaImediata(filaId: string, cliente: string) {
+    const anterior = queryClient.getQueryData<typeof data>(["fila"]);
+    if (anterior) {
+      queryClient.setQueryData(["fila"], {
+        ...anterior,
+        itens: anterior.itens.filter((i) => i.id !== filaId),
+      });
+    }
+    try {
+      await remover({ data: { filaId } });
+    } catch (e) {
+      if (anterior) queryClient.setQueryData(["fila"], anterior);
+      throw e instanceof Error ? e : new Error(`Não consegui tirar ${cliente} da fila.`);
+    }
+  }
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
@@ -89,7 +107,7 @@ function FilaPage() {
                   disabled={acao.ocupado}
                   onClick={() => {
                     if (!window.confirm(`Tirar ${f.cliente} da fila de espera?`)) return;
-                    void acao.executar(`remover-${f.id}`, () => remover({ data: { filaId: f.id } }), {
+                    void acao.executar(`remover-${f.id}`, () => removerComRespostaImediata(f.id, f.cliente), {
                       sucesso: `${f.cliente} saiu da fila.`,
                       aoConcluir: async () => { await refetch(); },
                     });

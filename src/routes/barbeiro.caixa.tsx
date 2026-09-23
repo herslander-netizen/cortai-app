@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
@@ -46,6 +46,7 @@ function CaixaPage() {
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
   const quitar = useServerFn(quitarFiado);
+  const queryClient = useQueryClient();
 
   const [valorCaixa, setValorCaixa] = useState("");
   const [saida, setSaida] = useState({ tipo: "saida" as "saida" | "sangria" | "despesa", descricao: "", valor: "" });
@@ -264,10 +265,22 @@ function CaixaPage() {
                     variant="outline"
                     disabled={ocupado}
                     onClick={() =>
-                      void executar(
-                        () => quitar({ data: { fiadoId: f.id, valorCentavos: f.saldo_centavos, forma: "dinheiro" } }),
-                        "Fiado quitado e lançado no caixa.",
-                      )
+                      void executar(async () => {
+                        // Sai da lista na hora; volta se o servidor recusar.
+                        const anterior = fiados.data;
+                        if (anterior) {
+                          queryClient.setQueryData(
+                            ["fiados"],
+                            (anterior as any[]).filter((x) => x.id !== f.id),
+                          );
+                        }
+                        try {
+                          await quitar({ data: { fiadoId: f.id, valorCentavos: f.saldo_centavos, forma: "dinheiro" } });
+                        } catch (e) {
+                          if (anterior) queryClient.setQueryData(["fiados"], anterior);
+                          throw e;
+                        }
+                      }, "Fiado quitado e lançado no caixa.")
                     }
                   >
                     Quitar
