@@ -173,7 +173,7 @@ function AgendaPage() {
             ).length;
 
             return (
-              <li key={s.iso} className="flex items-stretch gap-3 py-1.5">
+              <li key={s.iso} id={`slot-${s.iso}`} className="flex items-stretch gap-3 py-1.5">
                 <span className="w-12 shrink-0 pt-3 text-xs text-mute">{s.label}</span>
 
                 {itens.length > 0 ? (
