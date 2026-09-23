@@ -11,8 +11,10 @@ import { Button } from "@/components/ui/button";
 import { getMarca, publicarPagina, salvarRascunhoPagina, type MarcaData } from "@/lib/marca.functions";
 import { FONTES, LAYOUTS, TEMAS, type FonteId, type LayoutId, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { getPaginaPublica } from "@/lib/publico.functions";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 export const Route = createFileRoute("/barbeiro/temas")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "personalizacao_cliente"),
   head: () => ({ meta: [
     { title: "Temas e layouts — Cortaí" },
     { name: "description", content: "Troque o tema e o layout da página da barbearia e veja o resultado na hora." },

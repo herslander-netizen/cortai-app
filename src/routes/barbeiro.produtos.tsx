@@ -10,9 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
 import { useAcao } from "@/hooks/useAcao";
 import { definirLojaAtiva, getProdutos, registrarVendaProduto, salvarProduto } from "@/lib/gestao.functions";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 
 export const Route = createFileRoute("/barbeiro/produtos")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "produtos_estoque"),
   head: () => ({ meta: [
     { title: "Produtos e loja — Cortaí Gestão" },
     { name: "description", content: "Estoque interno, produtos à venda e loja online da barbearia." },

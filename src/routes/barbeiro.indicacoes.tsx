@@ -15,8 +15,10 @@ import {
   salvarConfigIndicacao,
 } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "indicacoes"),
   head: () => ({
     meta: [
       { title: "Indicações — Cortaí Gestão" },
