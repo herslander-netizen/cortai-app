@@ -273,15 +273,8 @@ export async function processarMensagemRecebida(input: {
   const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
   if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
 
-  const { iaConfigurada, responderConversa } = await import("./atendimento.server");
-  if (!iaConfigurada()) return { tratada: true, motivo: "ia_indisponivel" };
-
   const { data: tenant } = await db.from("tenants").select("nome").eq("id", tenantId).maybeSingle();
-  const { data: integracao } = await db
-    .from("integracoes_de_ia")
-    .select("agent_name")
-    .eq("tenant_id", tenantId)
-    .maybeSingle();
+
 
   const { data: historicoBruto } = await db
     .from("mensagens_whatsapp")
