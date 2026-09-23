@@ -96,7 +96,9 @@ export async function consultarDisponibilidade(
   const { isoNoFusoDaBarbearia, diaDaSemanaDoDia } = await import("@/lib/horarios");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dia)) throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
   // O dia da barbearia vai de 00:00 a 24:00 no fuso dela, não em UTC.
-  const inicioDoDia = isoNoFusoDaBarbearia(input.dia, "00:00");
+  const { fusoDoTenant } = await import("@/lib/fuso.server");
+  const fuso = await fusoDoTenant(ctx.tenantId);
+  const inicioDoDia = isoNoFusoDaBarbearia(input.dia, "00:00", fuso);
   const fimDoDia = new Date(new Date(inicioDoDia).getTime() + 24 * 60 * 60 * 1000).toISOString();
 
   let consulta = db
