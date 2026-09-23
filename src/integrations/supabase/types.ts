@@ -3178,6 +3178,7 @@ export type Database = {
           endereco: string | null
           facebook: string | null
           fotos: Json
+          fuso: string
           id: string
           indicacao_ativa: boolean
           indicacao_codigo: string | null
@@ -3214,6 +3215,7 @@ export type Database = {
           endereco?: string | null
           facebook?: string | null
           fotos?: Json
+          fuso?: string
           id?: string
           indicacao_ativa?: boolean
           indicacao_codigo?: string | null
@@ -3250,6 +3252,7 @@ export type Database = {
           endereco?: string | null
           facebook?: string | null
           fotos?: Json
+          fuso?: string
           id?: string
           indicacao_ativa?: boolean
           indicacao_codigo?: string | null
