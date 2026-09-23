@@ -11,6 +11,8 @@ import { getPainelDeControle } from "@/lib/painel.functions";
 import { BannersDaPlataforma, MeuPlano } from "@/components/barbeiro/PainelComercial";
 import { HubModulos } from "@/components/barbeiro/HubModulos";
 import { Bloco, Erro, Esqueleto, LinhaDeAcao, Metrica, SemPermissao, Vazio } from "@/components/painel/Blocos";
+import { FaixaPendencias } from "@/components/layout/FaixaPendencias";
+import { ValorAnimado } from "@/components/painel/ValorAnimado";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -49,6 +51,7 @@ function PainelPage() {
       {data ? (
         <div className="md:grid md:grid-cols-2 md:gap-x-8">
           <div className="md:col-span-2">
+            <FaixaPendencias />
             <BannersDaPlataforma />
           </div>
 
