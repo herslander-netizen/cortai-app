@@ -100,6 +100,7 @@ function ClientesPage() {
         className="input-premium mt-6 w-full"
       />
 
+      {isLoading ? <EsqueletoLista linhas={6} /> : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
       <ul data-guia="clientes-lista" className="mt-2">
         {lista.map((c) => {
