@@ -67,6 +67,8 @@ const PALAVRAS = {
   ],
   disponibilidade: [
     "tem horario",
+    "horarios disponiveis",
+    "horario disponivel",
     "tem vaga",
     "tem como hoje",
     "ta livre",
@@ -75,10 +77,12 @@ const PALAVRAS = {
     "disponibilidade",
     "que horas tem",
     "quais horarios",
+    "quais os horarios",
     "tem alguem livre",
     "encaixe",
     "encaixar",
   ],
+  barbearia: ["nome da barbearia", "qual barbearia", "como chama a barbearia", "que barbearia e essa"],
   servicos: ["servico", "servicos", "o que voces fazem", "o que faz", "fazem barba", "cardapio", "menu"],
   preco: ["preco", "precos", "valor", "valores", "quanto custa", "quanto fica", "quanto e", "tabela"],
   profissionais: ["barbeiro", "barbeiros", "profissional", "profissionais", "quem atende", "com quem", "equipe"],
@@ -139,20 +143,12 @@ export function servicoCitado(textoNormalizado: string): string | null {
 }
 
 const NUMEROS_ESCRITOS: Record<string, number> = {
-  um: 1,
-  uma: 1,
   primeiro: 1,
   primeira: 1,
-  dois: 2,
-  duas: 2,
   segundo: 2,
-  segunda: 2,
-  tres: 3,
   terceiro: 3,
   terceira: 3,
-  quatro: 4,
   quarto: 4,
-  cinco: 5,
   quinto: 5,
 };
 
@@ -163,13 +159,15 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
     const n = Number(direto[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
-  for (const [palavra, valor] of Object.entries(NUMEROS_ESCRITOS)) {
-    if (contem(textoNormalizado, [palavra]) && valor <= totalDeOpcoes) return valor;
-  }
-  const comOpcao = textoNormalizado.match(/opcao\s*(\d{1,2})/);
-  if (comOpcao) {
-    const n = Number(comOpcao[1]);
+  const comIndicador = textoNormalizado.match(/(?:^|\s)(?:opcao|numero|item|o|a)\s*(\d{1,2})(?:\s+por favor)?\s*$/);
+  if (comIndicador) {
+    const n = Number(comIndicador[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
+  }
+  const selecaoPorExtenso = textoNormalizado.match(/^(?:o|a|opcao)?\s*(primeiro|primeira|segundo|terceiro|terceira|quarto|quinto)(?:\s+por favor)?$/);
+  if (selecaoPorExtenso) {
+    const valor = NUMEROS_ESCRITOS[selecaoPorExtenso[1] ?? ""];
+    return valor && valor <= totalDeOpcoes ? valor : null;
   }
   return null;
 }
@@ -177,7 +175,7 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
 /** Código de barbearia no formato #XXXX enviado pelo cliente. */
 export function codigoDaBarbearia(texto: string): string | null {
   const achado = texto.match(/#\s*([a-zA-Z0-9]{4,12})/);
-  return achado ? achado[1]!.toLowerCase() : null;
+  return achado?.[1]?.toLowerCase() ?? null;
 }
 
 const DIAS_DA_SEMANA: Record<string, number> = {
@@ -267,18 +265,23 @@ export type PeriodoDoDia = { deMinutos: number; ateMinutos: number } | null;
 /** Faixa de horário citada: "depois das 18", "de manhã", "às 15:30". */
 export function periodoCitado(textoNormalizado: string): PeriodoDoDia {
   const comMinutos = textoNormalizado.match(/(\d{1,2})[:h](\d{2})/);
-  const soHora = textoNormalizado.match(/(?:as|às|para as|pras|meio dia|\s)(\d{1,2})\s*h(?!\d)/);
+  const soHora = textoNormalizado.match(/(?:^|\s)(?:as|para as|pras)\s*(\d{1,2})(?:\s*h(?:oras?)?)?(?=\s|$)/);
   const depois = /depois d[ao]s?\s*(\d{1,2})/.exec(textoNormalizado);
   const antes = /antes d[ao]s?\s*(\d{1,2})/.exec(textoNormalizado);
 
   if (depois) return { deMinutos: Number(depois[1]) * 60, ateMinutos: 24 * 60 };
   if (antes) return { deMinutos: 0, ateMinutos: Number(antes[1]) * 60 };
   if (comMinutos) {
-    const m = Number(comMinutos[1]) * 60 + Number(comMinutos[2]);
+    const hora = Number(comMinutos[1]);
+    const minuto = Number(comMinutos[2]);
+    if (hora > 23 || minuto > 59) return null;
+    const m = hora * 60 + minuto;
     return { deMinutos: m, ateMinutos: m + 59 };
   }
   if (soHora) {
-    const m = Number(soHora[1]) * 60;
+    const hora = Number(soHora[1]);
+    if (hora > 23) return null;
+    const m = hora * 60;
     return { deMinutos: m, ateMinutos: m + 59 };
   }
   if (contem(textoNormalizado, ["de manha", "pela manha", "manha", "cedo"])) {

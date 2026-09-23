@@ -51,6 +51,7 @@
 - [x] Tela do CortAI: conexão, conversas com assumir/retomar/encerrar, ajustes e automações
 - [ ] Publicar o serviço de WhatsApp e configurar WHATSAPP_GATEWAY_URL, WHATSAPP_GATEWAY_API_KEY e WHATSAPP_WEBHOOK_SECRET (bloqueado: depende de infraestrutura fora do site)
 - [ ] Transcrição de áudio (hoje o CortAI avisa que só lê texto)
+- [x] Correção incremental dos diálogos reais: disponibilidade, menu contextual, informações básicas, hora exata e confirmação da remarcação
 
 ## Evolução do CortAI (concluída)
 - [x] Memória do cliente (histórico, preferências, serviço/profissional habituais)
@@ -58,7 +59,7 @@
 - [x] Intenção identificada e registrada em conversas e logs
 - [x] Informações oficiais da barbearia (FAQ) com CRUD na tela do CortAI
 - [x] Tons premium e objetivo; sugestão de clientes sumidos (sem envio automático)
-- [x] Transcrição real de áudio quando o serviço entrega a mídia (sem simulação)
+- [ ] Transcrição real de áudio (módulo disponível, mas a Meta atual não entrega a mídia ao fluxo; mantém aviso honesto por texto)
 - [x] Métricas base (conversas, agendamentos, encaminhamentos, assuntos)
 - [ ] Pendente externo: publicar o serviço de WhatsApp e cadastrar as credenciais
 
