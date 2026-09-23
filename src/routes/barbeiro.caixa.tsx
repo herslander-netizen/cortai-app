@@ -264,10 +264,23 @@ function CaixaPage() {
                     variant="outline"
                     disabled={ocupado}
                     onClick={() =>
-                      void executar(
-                        () => quitar({ data: { fiadoId: f.id, valorCentavos: f.saldo_centavos, forma: "dinheiro" } }),
-                        "Fiado quitado e lançado no caixa.",
-                      )
+                      void executar(async () => {
+                        // Sai da lista na hora; volta se o servidor recusar.
+                        const anterior = fiados.data;
+                        if (anterior) {
+                          fiados.data = anterior;
+                          queryClient.setQueryData(
+                            ["fiados"],
+                            (anterior as any[]).filter((x) => x.id !== f.id),
+                          );
+                        }
+                        try {
+                          await quitar({ data: { fiadoId: f.id, valorCentavos: f.saldo_centavos, forma: "dinheiro" } });
+                        } catch (e) {
+                          if (anterior) queryClient.setQueryData(["fiados"], anterior);
+                          throw e;
+                        }
+                      }, "Fiado quitado e lançado no caixa.")
                     }
                   >
                     Quitar
