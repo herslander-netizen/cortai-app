@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
+import { configPadrao, normalizarPagina, paginaConfigSchema, type PaginaConfig } from "@/lib/pagina-config";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -37,6 +38,9 @@ export type MarcaData = MarcaForm & {
   logo_signed_url: string | null;
   capa_signed_url: string | null;
   slug: string;
+  pagina: PaginaConfig;
+  publicada: PaginaConfig;
+  alteracoes_pendentes: boolean;
 };
 
 export type MarcaVersion = {
@@ -45,7 +49,10 @@ export type MarcaVersion = {
   criado_em: string;
   restaurado_de: string | null;
   snapshot: MarcaForm;
+  pagina: PaginaConfig | null;
 };
+
+const editorSchema = z.object({ marca: marcaSchema, pagina: paginaConfigSchema });
 
 async function tenantDoDono(
   supabase: SupabaseClient<Database>,
@@ -95,7 +102,7 @@ export const getMarca = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ marca: MarcaData; versoes: MarcaVersion[] }> => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
-    const [{ data: tenant }, { data: versoes }] = await Promise.all([
+    const [{ data: tenant }, { data: versoes }, { data: pagina }] = await Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
         .from("tenant_branding_versions")
@@ -103,6 +110,7 @@ export const getMarca = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .order("versao", { ascending: false })
         .limit(12),
+      context.supabase.from("tenant_page_configs").select("draft_config, published_config, updated_at, published_at").eq("tenant_id", tenantId).maybeSingle(),
     ]);
     if (!tenant) throw new Error("Barbearia não encontrada.");
     const atual = snapshot(tenant);
@@ -114,11 +122,16 @@ export const getMarca = createServerFn({ method: "GET" })
         logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
         capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
         slug: tenant.slug,
+        pagina: normalizarPagina(pagina?.draft_config, { tema: tenant.tema === "personalizada" ? "premium" : undefined, frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
+        publicada: normalizarPagina(pagina?.published_config, { tema: tenant.tema === "personalizada" ? "premium" : undefined, frase: tenant.texto_boas_vindas ?? undefined, sobre: tenant.descricao ?? "" }),
+        alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
       },
-      versoes: (versoes ?? []).map((item) => ({
-        ...item,
-        snapshot: marcaSchema.parse(item.snapshot),
-      })),
+      versoes: (versoes ?? []).map((item) => {
+        const composto = z.object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() }).safeParse(item.snapshot);
+        return composto.success
+          ? { ...item, snapshot: composto.data.marca, pagina: composto.data.pagina ?? null }
+          : { ...item, snapshot: marcaSchema.parse(item.snapshot), pagina: null };
+      }),
     };
   });
 
@@ -157,6 +170,44 @@ export const salvarMarca = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const salvarRascunhoPagina = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => editorSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
+    const { error } = await context.supabase.from("tenant_page_configs").upsert({
+      tenant_id: tenantId,
+      draft_config: { pagina: data.pagina, marca: data.marca } as unknown as Json,
+      draft_by: context.userId,
+    }, { onConflict: "tenant_id" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const publicarPagina = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => editorSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
+    const { data: tenant } = await context.supabase.from("tenants").select("plano").eq("id", tenantId).single();
+    if (!tenant) throw new Error("Barbearia não encontrada.");
+    const marca = { ...data.marca, assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel };
+    const configuracao = { pagina: data.pagina, marca } as unknown as Json;
+    const { error } = await context.supabase.rpc("publish_tenant_page", {
+      _tenant_id: tenantId, _config: configuracao, _nome: marca.nome, _endereco: marca.endereco,
+      _telefone: marca.telefone, _instagram: marca.instagram, _whatsapp: marca.whatsapp,
+      _facebook: marca.facebook, _tema: marca.tema, _cor_primaria: marca.cor_primaria,
+      _cor_secundaria: marca.cor_secundaria, _cor_accent: marca.cor_accent,
+      _rotulo_carteira: marca.rotulo_carteira, _texto_boas_vindas: marca.texto_boas_vindas,
+      _descricao: marca.descricao, _capa_url: marca.capa_url, _fotos: marca.fotos,
+      _assinatura_visivel: marca.assinatura_visivel, _logo_url: marca.logo_url,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const restaurarMarca = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ versaoId: z.string().uuid() }).parse(input))
@@ -191,7 +242,8 @@ export const restaurarMarca = createServerFn({ method: "POST" })
     });
     if (historyError) throw new Error(historyError.message);
 
-    const restaurada = marcaSchema.parse(versao.snapshot);
+    const composta = z.object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() }).safeParse(versao.snapshot);
+    const restaurada = composta.success ? composta.data.marca : marcaSchema.parse(versao.snapshot);
     const { error } = await context.supabase
       .from("tenants")
       .update({
@@ -200,6 +252,14 @@ export const restaurarMarca = createServerFn({ method: "POST" })
       })
       .eq("id", tenantId);
     if (error) throw new Error(error.message);
+    if (composta.success && composta.data.pagina) {
+      const { error: pageError } = await context.supabase.from("tenant_page_configs").upsert({
+        tenant_id: tenantId,
+        draft_config: { pagina: composta.data.pagina, marca: restaurada } as unknown as Json,
+        draft_by: context.userId,
+      }, { onConflict: "tenant_id" });
+      if (pageError) throw new Error(pageError.message);
+    }
     return { ok: true };
   });
 
