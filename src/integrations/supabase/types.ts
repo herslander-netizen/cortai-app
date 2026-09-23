@@ -2638,6 +2638,7 @@ export type Database = {
           criado_em: string
           nome: string | null
           telefone: string | null
+          tenant_ativo: string | null
           tipo: string
           user_id: string
         }
@@ -2646,6 +2647,7 @@ export type Database = {
           criado_em?: string
           nome?: string | null
           telefone?: string | null
+          tenant_ativo?: string | null
           tipo?: string
           user_id: string
         }
@@ -2654,10 +2656,19 @@ export type Database = {
           criado_em?: string
           nome?: string | null
           telefone?: string | null
+          tenant_ativo?: string | null
           tipo?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "perfis_tenant_ativo_fkey"
+            columns: ["tenant_ativo"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       planos_da_plataforma: {
         Row: {
