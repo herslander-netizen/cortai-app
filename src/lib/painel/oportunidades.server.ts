@@ -123,13 +123,17 @@ export function calcularOportunidades(e: EntradaDoMotor): Oportunidade[] {
     });
   }
 
-  for (const p of e.profissionaisBaixaOcupacao) {
+  if (e.profissionaisBaixaOcupacao.length) {
+    const nomes = e.profissionaisBaixaOcupacao.map((p) => p.nome);
     lista.push({
       tipo: "OCUPACAO_BAIXA",
       prioridade: "media",
-      titulo: `${p.nome} está com ${p.ocupacaoPct}% da agenda ocupada hoje`,
-      descricao: "Direcione os próximos encaixes para essa cadeira.",
-      quantidade: 1,
+      titulo:
+        nomes.length === 1
+          ? `${nomes[0]} está com a agenda quase vazia hoje`
+          : `${nomes.length} profissionais com a agenda quase vazia hoje`,
+      descricao: `${nomes.slice(0, 3).join(", ")}${nomes.length > 3 ? " e outros" : ""} · direcione os próximos encaixes.`,
+      quantidade: nomes.length,
       acao: "VER_AGENDA",
       destino: "/barbeiro/agenda",
     });
@@ -171,5 +175,5 @@ export function calcularOportunidades(e: EntradaDoMotor): Oportunidade[] {
     });
   }
 
-  return lista.sort((a, b) => ORDEM[a.prioridade] - ORDEM[b.prioridade]);
+  return lista.sort((a, b) => ORDEM[a.prioridade] - ORDEM[b.prioridade]).slice(0, 6);
 }
