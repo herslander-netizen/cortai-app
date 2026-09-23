@@ -964,3 +964,44 @@ export const getAtividadeDoCortai = createServerFn({ method: "GET" })
       })),
     };
   });
+
+/* ------------------------- Aprendizado do CortAI -------------------------- */
+
+export type TermoNaoEntendido = { texto: string; total: number; ultimaVez: string };
+
+/**
+ * Frases que o CortAI não entendeu, agrupadas. Serve para a barbearia ver o
+ * que os clientes pedem com palavras diferentes das cadastradas.
+ */
+export const getTermosNaoEntendidos = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<TermoNaoEntendido[]> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const desde = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const { data } = await db
+      .from("acoes_de_ia_log")
+      .select("resultado, criado_em")
+      .eq("tenant_id", tenantId)
+      .eq("acao", "motor.termo_desconhecido")
+      .gte("criado_em", desde)
+      .order("criado_em", { ascending: false })
+      .limit(500);
+
+    const mapa = new Map<string, { total: number; ultimaVez: string }>();
+    for (const linha of data ?? []) {
+      const texto = String((linha.resultado as { texto?: string } | null)?.texto ?? "").trim();
+      if (!texto) continue;
+      const atual = mapa.get(texto);
+      mapa.set(texto, {
+        total: (atual?.total ?? 0) + 1,
+        ultimaVez: atual?.ultimaVez ?? (linha.criado_em as string),
+      });
+    }
+
+    return [...mapa.entries()]
+      .map(([texto, v]) => ({ texto, total: v.total, ultimaVez: v.ultimaVez }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 20);
+  });
