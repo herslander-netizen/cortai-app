@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.publish_tenant_page(uuid, jsonb, text, text, text, text, text, text, text, text, text, text, text, text, text, text, jsonb, boolean, text) FROM anon;
