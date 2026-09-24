@@ -270,6 +270,20 @@
   color-scheme: light;
 }
 
+.management-popover {
+  --ink: #f5f4f0;
+  --ink2: #ffffff;
+  --ink3: #ebeae5;
+  --paper: #191919;
+  --mute: #77746e;
+  --mute2: #918e88;
+  --line: #deddd7;
+  --line2: #cfcec8;
+  --gold: #78951f;
+  --gold-soft: color-mix(in oklab, #b7d84b 22%, transparent);
+  color-scheme: light;
+}
+
 .header-action {
   display: inline-flex;
   min-height: 36px;

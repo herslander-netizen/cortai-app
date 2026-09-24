@@ -21,7 +21,6 @@ import {
   Scissors,
   Settings,
   ShieldCheck,
-  Sparkles,
   Star,
   Store,
   UsersRound,
@@ -37,6 +36,7 @@ import { CAPACIDADES } from "@/lib/capacidades";
 import { getAgendaDia } from "@/lib/barbeiro.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
+import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 
 type ItemDoMenu = {
   label: string;
@@ -185,10 +185,7 @@ export function ManagementHeader() {
         </Sheet>
 
         <div className="flex items-center gap-1">
-          <Link to="/barbeiro/agenda" search={{ acao: "agendamento" }} className="header-action" aria-label="Novo agendamento">
-            <Sparkles size={17} aria-hidden />
-            <span className="hidden sm:inline">Novo</span>
-          </Link>
+          <AcoesRapidas />
           <SinoDeAvisos />
         </div>
       </div>
