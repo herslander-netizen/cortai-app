@@ -52,7 +52,7 @@ function ProfissionaisPage() {
         {(data ?? []).map((p) => {
           const atual = form[p.id] ?? { descricao: "", fotos: "" };
           return (
-            <li key={p.id} className="rounded-xl border border-line bg-ink2 p-5">
+            <li key={p.id} className="border-b border-line bg-ink2 px-1 py-5">
               <p className="text-sm font-semibold text-paper">{p.nome}</p>
               <label className="mt-4 block">
                 <span className="text-xs text-mute2">Descrição curta</span>

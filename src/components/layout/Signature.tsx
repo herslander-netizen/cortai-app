@@ -28,7 +28,7 @@ export function Signature() {
 
   return (
     <footer className="mt-10 px-5 pb-6 pt-8 text-center">
-      <MarcaCortai variante="branca" className="mx-auto mb-5 h-auto w-24 opacity-70" />
+      <MarcaCortai variante="preta" className="mx-auto mb-5 h-auto w-24 opacity-70" />
       {link ? (
         <a
           href={link}
