@@ -181,7 +181,7 @@ export function SinoDeAvisos() {
                   exit={{ opacity: 0 }}
                   transition={transicaoBase}
                 >
-                  <div className="absolute inset-0 bg-black/55" onClick={() => setAberto(false)} />
+                  <div className="absolute inset-0 bg-paper/45" onClick={() => setAberto(false)} />
                   <motion.div
                     role="dialog"
                     aria-label="Central de avisos"
