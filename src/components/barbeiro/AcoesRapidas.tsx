@@ -62,9 +62,9 @@ export function AcoesRapidas() {
         aria-label="Abrir ações rápidas"
         aria-expanded={aberto}
         onClick={() => setAberto(true)}
-        className="quick-action-trigger h-14 w-14 rounded-full border border-gold/70 bg-gold text-ink shadow-lg"
+        className="quick-action-trigger h-10 w-10 rounded-md border border-line bg-primary text-primary-foreground"
       >
-        <Scissors className="h-6 w-6" strokeWidth={2.2} />
+        <Scissors className="h-5 w-5" strokeWidth={2} />
       </Button>
       <SheetContent
         side="bottom"

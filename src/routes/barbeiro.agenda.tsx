@@ -52,7 +52,7 @@ function corDaBorda(forma: string | null) {
   return "border-l-gold";
 }
 
-function AgendaPage() {
+export function AgendaPage() {
   const { acao } = Route.useSearch();
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);

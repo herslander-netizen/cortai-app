@@ -23,7 +23,7 @@ export function ConviteDeInstalacao() {
   if (!podeInstalarAgora && !podeOrientar) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4 sm:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(16px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4 sm:bottom-6">
       <div
         role="dialog"
         aria-label="Instalar o Cortaí"
