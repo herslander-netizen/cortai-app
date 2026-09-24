@@ -181,7 +181,7 @@ export function SinoDeAvisos() {
                   exit={{ opacity: 0 }}
                   transition={transicaoBase}
                 >
-                  <div className="absolute inset-0 bg-paper/45" onClick={() => setAberto(false)} />
+                  <div className="absolute inset-0 bg-black/55" onClick={() => setAberto(false)} />
                   <motion.div
                     role="dialog"
                     aria-label="Central de avisos"
@@ -193,7 +193,7 @@ export function SinoDeAvisos() {
                     animate={menosMovimento ? { opacity: 1 } : { y: 0 }}
                     exit={menosMovimento ? { opacity: 0 } : { y: "100%" }}
                     transition={molaFolha}
-                    className="management-popover absolute inset-x-0 bottom-0 overflow-hidden rounded-t-2xl border border-line bg-ink2 md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:w-[380px] md:rounded-2xl"
+                    className="absolute inset-x-0 bottom-0 overflow-hidden rounded-t-2xl border border-line bg-ink2 md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:w-[380px] md:rounded-2xl"
                   >
                     <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-line md:hidden" />
                     {conteudo}

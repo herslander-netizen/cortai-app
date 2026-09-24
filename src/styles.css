@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Cortaí design system — base semântica compartilhada.
+ * Cortaí design system — carvão, off-white e dourado em uso contido.
  */
 
 @theme inline {
@@ -188,47 +188,8 @@
 }
 
 .management-shell {
-  /* Painel operacional: light, editorial, técnico e urbano. Os nomes antigos
-     permanecem como aliases semânticos para atualizar as telas sem regressão. */
-  --ink: #f5f4f0;
-  --ink2: #ffffff;
-  --ink3: #ebeae5;
-  --paper: #191919;
-  --mute: #77746e;
-  --mute2: #918e88;
-  --line: #deddd7;
-  --line2: #cfcec8;
-  --gold: #78951f;
-  --gold-soft: color-mix(in oklab, #b7d84b 22%, transparent);
-  --sage: #607b22;
-  --sage-soft: color-mix(in oklab, #b7d84b 18%, transparent);
-  --primary: #b7d84b;
-  --primary-foreground: #191919;
-  --background: #f5f4f0;
-  --foreground: #191919;
-  --card: #ffffff;
-  --card-foreground: #191919;
-  --popover: #ffffff;
-  --popover-foreground: #191919;
-  --secondary: #ebeae5;
-  --secondary-foreground: #191919;
-  --muted: #ebeae5;
-  --muted-foreground: #77746e;
-  --accent: #e5efc2;
-  --accent-foreground: #191919;
-  --border: #deddd7;
-  --input: #cfcec8;
-  --ring: #78951f;
-  --radius: 8px;
-  --surface-raised: #ffffff;
-  --surface-emphasis: #ebeae5;
-  --surface-overlay: color-mix(in oklab, #191919 46%, transparent);
-  --shadow-sm: 0 1px 2px color-mix(in oklab, #191919 5%, transparent);
-  --shadow-md: 0 12px 28px color-mix(in oklab, #191919 12%, transparent);
   min-height: 100dvh;
   overflow-x: clip;
-  background: var(--ink);
-  color-scheme: light;
 }
 
 .screen-shell {
@@ -245,98 +206,8 @@
   }
 }
 
-.management-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in oklab, var(--ink) 96%, transparent);
-}
-
-.management-drawer {
-  --ink: #f5f4f0;
-  --ink2: #ffffff;
-  --ink3: #ebeae5;
-  --paper: #191919;
-  --mute: #77746e;
-  --mute2: #918e88;
-  --line: #deddd7;
-  --line2: #cfcec8;
-  --gold: #78951f;
-  --gold-soft: color-mix(in oklab, #b7d84b 22%, transparent);
-  --sage: #607b22;
-  --primary: #b7d84b;
-  --primary-foreground: #191919;
-  color-scheme: light;
-}
-
-.management-popover {
-  --ink: #f5f4f0;
-  --ink2: #ffffff;
-  --ink3: #ebeae5;
-  --paper: #191919;
-  --mute: #77746e;
-  --mute2: #918e88;
-  --line: #deddd7;
-  --line2: #cfcec8;
-  --gold: #78951f;
-  --gold-soft: color-mix(in oklab, #b7d84b 22%, transparent);
-  color-scheme: light;
-}
-
-.header-action {
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  gap: 6px;
-  border-radius: 6px;
-  background: var(--primary);
-  padding: 0 11px;
-  color: var(--primary-foreground);
-  font-size: 12px;
-  font-weight: 700;
-  transition: background-color 160ms ease, transform 100ms ease;
-}
-
-.drawer-link {
-  display: grid;
-  min-height: 42px;
-  grid-template-columns: 22px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  border-radius: 6px;
-  padding: 8px 10px;
-  color: var(--mute);
-  font-size: 13px;
-  font-weight: 550;
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-.drawer-link:hover { background: var(--ink3); color: var(--paper); }
-.drawer-link-active { background: var(--gold-soft); color: var(--paper); font-weight: 700; }
-.drawer-link-active svg { color: var(--gold); }
-
-.management-shell .rounded-xl { border-radius: 8px; }
-.management-shell .rounded-2xl { border-radius: 10px; }
-.management-shell .shadow-xl,
-.management-shell .shadow-lg { box-shadow: var(--shadow-md); }
-.management-shell [class*="backdrop-blur"] { backdrop-filter: none; }
-
-.management-shell .screen-content > section.rounded-xl,
-.management-shell .screen-content > div > section.rounded-xl {
-  border-left: 0;
-  border-right: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.management-shell .screen-content {
-  animation: management-content-in 180ms ease-out;
-}
-
-@keyframes management-content-in {
-  from { opacity: 0.72; transform: translateY(2px); }
-  to { opacity: 1; transform: translateY(0); }
+.management-shell > nav[aria-label="Navegação principal"] {
+  box-shadow: var(--nav-shadow);
 }
 
 button,
@@ -392,8 +263,8 @@ option {
 }
 
 .quick-action-trigger {
-  box-shadow: none;
-  transition: transform 140ms ease, background-color 160ms ease;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--gold) 28%, transparent);
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .quick-action-trigger:active {
@@ -401,7 +272,7 @@ option {
 }
 
 @utility screen-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--paper);
@@ -413,9 +284,9 @@ option {
   justify-content: center;
   min-height: 44px;
   padding: 11px 16px;
-  border-radius: 8px;
-  background-color: var(--primary);
-  color: var(--primary-foreground);
+  border-radius: var(--radius);
+  background-color: var(--gold);
+  color: var(--ink);
   font-weight: 700;
   transition: opacity 120ms ease, transform 120ms ease;
   &:hover { opacity: 0.92; }
@@ -497,7 +368,7 @@ option {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background-color: var(--surface-raised);
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 @utility empty-state {
@@ -525,7 +396,7 @@ option {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background-color: var(--ink3);
   color: var(--gold);
 }
@@ -534,12 +405,12 @@ option {
   display: block;
   margin-bottom: 6px;
   color: var(--gold);
-  content: "OPERAÇÃO";
+  content: "CORTAÍ GESTÃO";
   font-size: 10px;
   font-weight: 700;
 }
 
-/* Elemento legado mantido para páginas externas; não usado no shell operacional. */
+/* Único elemento decorativo do app: listra de poste de barbeiro. */
 @utility barber-pole {
   background-image: repeating-linear-gradient(
     45deg,

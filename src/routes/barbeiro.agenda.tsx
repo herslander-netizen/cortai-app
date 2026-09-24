@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -52,11 +52,8 @@ function corDaBorda(forma: string | null) {
   return "border-l-gold";
 }
 
-export function AgendaPage() {
-  const busca = useSearch({ strict: false });
-  const acao = busca["acao"] === "agendamento" || busca["acao"] === "atendimento" || busca["acao"] === "cliente"
-    ? busca["acao"]
-    : undefined;
+function AgendaPage() {
+  const { acao } = Route.useSearch();
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
@@ -77,17 +74,6 @@ export function AgendaPage() {
     () => slotsDoDia(dia, data?.horarios ?? null),
     [dia, data?.horarios],
   );
-  const resumo = useMemo(() => {
-    const agora = Date.now();
-    const itens = [...(data?.itens ?? [])].sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
-    const atual = itens.find((item) => new Date(item.inicio).getTime() <= agora && new Date(item.fim).getTime() > agora) ?? null;
-    const proximo = itens.find((item) => new Date(item.inicio).getTime() > agora) ?? null;
-    const livres = lista.filter((slot) => {
-      const instante = new Date(slot.iso).getTime();
-      return instante >= agora && !itens.some((item) => instante >= new Date(item.inicio).getTime() && instante < new Date(item.fim).getTime());
-    }).length;
-    return { atual, proximo, livres };
-  }, [data?.itens, lista]);
 
   // A agenda abre rolada até o próximo atendimento (ou até a abertura), nunca na madrugada.
   const jaRolou = useRef<string | null>(null);
@@ -114,26 +100,7 @@ export function AgendaPage() {
 
 
   return (
-    <Screen title="Agenda de hoje" subtitle="Quem está atendendo, quem vem depois e onde ainda cabe alguém.">
-      {!isLoading && data ? (
-        <section className="mb-5 border-y border-line" aria-label="Situação da agenda">
-          <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 border-b border-line py-3">
-            <span className="text-xs font-semibold uppercase text-mute2">Agora</span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-paper">{resumo.atual?.cliente ?? "Nenhum atendimento em andamento"}</span>
-              {resumo.atual ? <span className="block truncate text-xs text-mute">{resumo.atual.servico} · {resumo.atual.profissional}</span> : null}
-            </span>
-          </div>
-          <div className="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 py-3">
-            <span className="text-xs font-semibold uppercase text-mute2">Próximo</span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm text-paper">{resumo.proximo?.cliente ?? "Agenda livre"}</span>
-              {resumo.proximo ? <span className="block truncate text-xs text-mute">{resumo.proximo.servico} · {resumo.proximo.profissional}</span> : null}
-            </span>
-            <span className="text-sm font-bold text-gold">{resumo.proximo ? new Date(resumo.proximo.inicio).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : `${resumo.livres} livres`}</span>
-          </div>
-        </section>
-      ) : null}
+    <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
       <nav className="mb-5 grid grid-cols-3 gap-2" aria-label="Atalhos da agenda">
         <Link to="/barbeiro/agendamentos" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Confirmados</Link>
         <Link to="/barbeiro/profissionais" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Profissionais</Link>
@@ -325,7 +292,7 @@ export function AgendaPage() {
       )}
 
       <p className="mt-6 text-xs text-mute2">
-        {fechado ? "Dia fechado no horário de funcionamento." : `Aberto das ${abre} às ${fecha}.`} Linha verde:
+        {fechado ? "Dia fechado no horário de funcionamento." : `Aberto das ${abre} às ${fecha}.`} Borda dourada:
         horário normal. Vermelha: fiado. Tracejado: horário livre.
       </p>
 

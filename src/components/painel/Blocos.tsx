@@ -41,7 +41,7 @@ export function Metrica({
   cor?: string | undefined;
 }) {
   return (
-    <div className="border-b border-line bg-ink2 px-3 py-4">
+    <div className="rounded-xl border border-line bg-ink2 px-4 py-4">
       <p className="text-xs text-mute">{rotulo}</p>
       <p className={`mt-1 text-xl font-bold leading-tight ${cor ?? "text-paper"}`}>{valor}</p>
       {detalhe ? <p className="mt-1 text-[11px] text-mute2">{detalhe}</p> : null}
@@ -82,7 +82,7 @@ export function LinhaDeAcao({
 
 export function Vazio({ texto }: { texto: string }) {
   return (
-    <div className="border-y border-dashed border-line px-2 py-6">
+    <div className="rounded-xl border border-dashed border-line px-4 py-6">
       <p className="text-sm text-mute">{texto}</p>
     </div>
   );
