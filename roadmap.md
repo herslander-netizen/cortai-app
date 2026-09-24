@@ -169,9 +169,9 @@
 
 ## Experiência operacional light e Agenda-first (24/09)
 
-- [ ] Substituir a navegação inferior por cabeçalho compacto e Drawer acionado pela marca
-- [ ] Tornar `/barbeiro` uma entrada Agenda-first reutilizando a Agenda existente
-- [ ] Aplicar tokens light/editorial/technical/urban ao painel de gestão
-- [ ] Reduzir cartões e manter módulos secundários sob demanda
-- [ ] Uniformizar as principais telas sem alterar regras, permissões ou backend
+- [x] Substituir a navegação inferior por cabeçalho compacto e Drawer acionado pela marca
+- [x] Tornar `/barbeiro` uma entrada Agenda-first reutilizando a Agenda existente
+- [x] Aplicar tokens light/editorial/technical/urban ao painel de gestão
+- [x] Reduzir cartões e manter módulos secundários sob demanda
+- [x] Uniformizar as principais telas sem alterar regras, permissões ou backend
 - [ ] Validar TypeScript, build, navegação, Agenda e mobile
