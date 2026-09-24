@@ -11,10 +11,10 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
   const menosMovimento = useMenosMovimento();
 
   return (
-    <AnimatePresence mode="sync" initial={false}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={caminho}
-        initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 3 }}
+        initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 8 }}
         animate={menosMovimento ? { opacity: 1 } : { opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
         transition={transicaoBase}

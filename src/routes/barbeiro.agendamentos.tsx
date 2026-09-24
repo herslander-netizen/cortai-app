@@ -40,7 +40,7 @@ function apenasDigitos(telefone: string) {
 
 function Cartao({ item }: { item: AgendamentoConfirmado }) {
   return (
-    <li className="border-b border-line border-l-2 border-l-gold bg-ink2 px-4 py-4">
+    <li className="rounded-xl border border-line border-l-2 border-l-gold bg-ink2 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-paper">{item.clienteNome}</p>
