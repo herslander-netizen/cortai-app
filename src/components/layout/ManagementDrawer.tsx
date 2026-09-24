@@ -34,6 +34,7 @@ import { IconeCortai } from "@/components/marca/MarcaCortai";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { CAPACIDADES } from "@/lib/capacidades";
+import { getAgendaDia } from "@/lib/barbeiro.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 
@@ -103,6 +104,15 @@ export function ManagementHeader() {
     staleTime: 300_000,
     enabled: aberto,
   });
+  const hoje = new Date().toISOString().slice(0, 10);
+  const { data: agenda } = useQuery({
+    queryKey: ["agenda-dia", hoje],
+    queryFn: () => getAgendaDia({ data: { dia: hoje } }),
+    staleTime: 60_000,
+    enabled: aberto,
+  });
+  const horarioDeHoje = agenda?.horarios.find((horario) => horario.diaSemana === new Date().getDay());
+  const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
 
   const grupos = useMemo(
     () =>
@@ -138,7 +148,8 @@ export function ManagementHeader() {
                 {sessao?.nome ?? "Conta conectada"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
               </SheetDescription>
               <div className="mt-3 flex items-center gap-2 text-xs text-mute">
-                <span className="h-2 w-2 rounded-full bg-sage" /> Operação disponível
+                <span className={`h-2 w-2 rounded-full ${operacaoAberta === false ? "bg-brick" : "bg-sage"}`} />
+                {operacaoAberta === null ? "Carregando operação…" : operacaoAberta ? `Aberta hoje · ${horarioDeHoje?.abre}–${horarioDeHoje?.fecha}` : "Fechada hoje"}
               </div>
             </div>
 
