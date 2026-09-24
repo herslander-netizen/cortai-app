@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -53,7 +53,10 @@ function corDaBorda(forma: string | null) {
 }
 
 export function AgendaPage() {
-  const { acao } = Route.useSearch();
+  const busca = useSearch({ strict: false });
+  const acao = busca["acao"] === "agendamento" || busca["acao"] === "atendimento" || busca["acao"] === "cliente"
+    ? busca["acao"]
+    : undefined;
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);
   const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
@@ -100,7 +103,7 @@ export function AgendaPage() {
 
 
   return (
-    <Screen title="Agenda" subtitle="Horários, equipe, fila e bloqueios do dia.">
+    <Screen title="Agenda de hoje" subtitle="Quem está atendendo, quem vem depois e onde ainda cabe alguém.">
       <nav className="mb-5 grid grid-cols-3 gap-2" aria-label="Atalhos da agenda">
         <Link to="/barbeiro/agendamentos" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Confirmados</Link>
         <Link to="/barbeiro/profissionais" className="rounded-lg border border-line bg-ink2 px-3 py-3 text-xs text-paper">Profissionais</Link>
@@ -292,7 +295,7 @@ export function AgendaPage() {
       )}
 
       <p className="mt-6 text-xs text-mute2">
-        {fechado ? "Dia fechado no horário de funcionamento." : `Aberto das ${abre} às ${fecha}.`} Borda dourada:
+        {fechado ? "Dia fechado no horário de funcionamento." : `Aberto das ${abre} às ${fecha}.`} Linha verde:
         horário normal. Vermelha: fiado. Tracejado: horário livre.
       </p>
 
