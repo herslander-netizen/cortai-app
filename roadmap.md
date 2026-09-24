@@ -166,3 +166,12 @@
 - [x] Primeira dobra da landing com nova mensagem e melhor leitura no celular.
 - [x] Tela "Minhas barbearias" com plano, etapa pendente e troca segura de contexto (`perfis.tenant_ativo`).
 - [x] Agendamento público da Barbearia Prime validado de ponta a ponta no celular (serviço → profissional → data → horário → dados → confirmação).
+
+## Experiência operacional light e Agenda-first (24/09)
+
+- [ ] Substituir a navegação inferior por cabeçalho compacto e Drawer acionado pela marca
+- [ ] Tornar `/barbeiro` uma entrada Agenda-first reutilizando a Agenda existente
+- [ ] Aplicar tokens light/editorial/technical/urban ao painel de gestão
+- [ ] Reduzir cartões e manter módulos secundários sob demanda
+- [ ] Uniformizar as principais telas sem alterar regras, permissões ou backend
+- [ ] Validar TypeScript, build, navegação, Agenda e mobile
