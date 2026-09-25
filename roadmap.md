@@ -175,3 +175,10 @@
 - [x] Reduzir cartões e manter módulos secundários sob demanda
 - [x] Uniformizar as principais telas sem alterar regras, permissões ou backend
 - [ ] Validar TypeScript, build, navegação, Agenda e mobile
+
+## Agenda operacional mobile-first (25/09)
+
+- [ ] Redesenhar topo, AGORA, próximos, lista e estados vazios
+- [ ] Ligar seleção e botão de tesoura à máquina de estados com Desfazer
+- [ ] Integrar atraso, WhatsApp, falta, fila e fechamento atual
+- [ ] Validar o fluxo completo no celular e em tempo real
