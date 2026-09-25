@@ -209,3 +209,45 @@ export const quitarFiado = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, saldoCentavos: saldo };
   });
+
+export const identificarClienteAvulso = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ comandaId: z.string().uuid(), nome: z.string().trim().min(2).max(80), telefone: z.string().trim().max(20) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "confirmar_pagamento");
+    const db = await admin();
+    const { data: comanda } = await db
+      .from("comandas")
+      .select("id, cliente_id, agendamento_id, status, clientes(telefone)")
+      .eq("id", data.comandaId)
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (!comanda) throw new Error("Comanda não encontrada.");
+    if ((comanda as any).clientes?.telefone !== "avulso") throw new Error("Esta comanda já tem cliente identificado.");
+    const digitos = data.telefone.replace(/\D/g, "");
+    if (digitos && (digitos.length < 10 || digitos.length > 13)) throw new Error("Telefone inválido. Use DDD + número.");
+    let clienteId: string | null = null;
+    if (digitos) {
+      const { data: existente } = await db.from("clientes").select("id").eq("tenant_id", tenantId).eq("telefone", digitos).maybeSingle();
+      clienteId = existente?.id ?? null;
+    }
+    if (!clienteId) {
+      const { data: novo, error } = await db
+        .from("clientes")
+        .insert({ tenant_id: tenantId, nome: data.nome, telefone: digitos || `avulso-${data.comandaId.slice(0, 8)}`, origem: "balcao" })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      clienteId = novo.id;
+    }
+    const { error: e1 } = await db.from("comandas").update({ cliente_id: clienteId }).eq("id", comanda.id).eq("tenant_id", tenantId);
+    if (e1) throw new Error(e1.message);
+    if (comanda.agendamento_id) {
+      const { error: e2 } = await db.from("agendamentos").update({ cliente_id: clienteId }).eq("id", comanda.agendamento_id).eq("tenant_id", tenantId);
+      if (e2) throw new Error(e2.message);
+    }
+    return { clienteId, nome: data.nome };
+  });

@@ -5,12 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { brl, hora } from "@/lib/format";
-import { getFechamentoComanda, pagarComanda, salvarComanda } from "@/lib/financeiro.functions";
+import { getFechamentoComanda, identificarClienteAvulso, pagarComanda, salvarComanda } from "@/lib/financeiro.functions";
 
 type Item = { tipo: "servico" | "produto"; id: string; descricao: string; quantidade: number; valor_unitario_centavos: number; percentual: number };
 
 export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { agendamentoId: string; onFechar: () => void; onConcluido: () => void }) {
-  const buscar = useServerFn(getFechamentoComanda); const salvar = useServerFn(salvarComanda); const pagar = useServerFn(pagarComanda);
+  const buscar = useServerFn(getFechamentoComanda); const salvar = useServerFn(salvarComanda); const pagar = useServerFn(pagarComanda); const identificar = useServerFn(identificarClienteAvulso);
   const query = useQuery({ queryKey: ["fechamento-comanda", agendamentoId], queryFn: () => buscar({ data: { agendamentoId } }) });
   const [itens, setItens] = useState<Item[]>([]); const [desconto, setDesconto] = useState(""); const [forma, setForma] = useState<"pix" | "dinheiro" | "cartao" | "fiado">("pix"); const [etapa, setEtapa] = useState<"itens" | "pix">("itens"); const [ocupado, setOcupado] = useState(false); const [erro, setErro] = useState<string | null>(null); const [copiado, setCopiado] = useState(false);
   useEffect(() => { if (!query.data || itens.length) return; setItens(query.data.itens.map((i: any) => ({ tipo: i.tipo, id: i.servico_id ?? i.produto_id, descricao: i.descricao, quantidade: i.quantidade, valor_unitario_centavos: i.valor_unitario_centavos, percentual: Number(i.comissao_percentual) }))); }, [query.data, itens.length]);
@@ -25,6 +25,7 @@ export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { ag
     <div className="sticky top-0 z-10 flex items-start justify-between gap-4 bg-ink pb-4"><div><p className="text-xs font-semibold uppercase text-gold">Fechamento</p><h2 className="mt-1 text-xl font-bold text-paper">{query.data?.comanda.clientes?.nome ?? "Preparando comanda…"}</h2><p className="text-xs text-mute">{query.data?.comanda.profissionais?.nome ?? "Profissional"} · Comanda #{query.data?.comanda.numero}</p></div><Button variant="ghost" size="icon" aria-label="Fechar" onClick={onFechar}><X /></Button></div>
     {query.isLoading ? <p className="py-10 text-center text-sm text-mute">Preparando fechamento…</p> : null}
     {query.data && etapa === "itens" ? <>
+      {query.data.comanda.clientes?.telefone === "avulso" ? <IdentificarAvulso comandaId={query.data.comanda.id} numero={query.data.comanda.numero} onSalvar={async (nome, telefone) => { await identificar({ data: { comandaId: query.data!.comanda.id, nome, telefone } }); await query.refetch(); }} /> : null}
       <ul className="divide-y divide-line border-y border-line">{itens.map((item, index) => <li key={`${item.tipo}-${item.id}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-4"><div><p className="text-sm font-semibold text-paper">{item.descricao}</p><p className="mt-1 text-xs text-mute">{brl(item.valor_unitario_centavos)} · Comissão {item.percentual}% ({brl(Math.round(item.quantidade * item.valor_unitario_centavos * item.percentual / 100))})</p></div><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={`Remover um ${item.descricao}`} onClick={() => alterar(index, -1)}><Minus /></Button><span className="w-5 text-center text-sm text-paper">{item.quantidade}</span><Button size="icon" variant="outline" aria-label={`Adicionar um ${item.descricao}`} onClick={() => alterar(index, 1)}><Plus /></Button></div></li>)}</ul>
       <div className="mt-5 grid grid-cols-2 gap-3"><label className="text-xs text-mute">Adicionar serviço<select className="input-premium" value="" onChange={(e) => { if (e.target.value) adicionar("servico", e.target.value); }}><option value="">Escolher</option>{query.data.servicos.map((s: any) => <option key={s.id} value={s.id}>{s.nome}</option>)}</select></label><label className="text-xs text-mute">Adicionar produto<select className="input-premium" value="" onChange={(e) => { if (e.target.value) adicionar("produto", e.target.value); }}><option value="">Escolher</option>{query.data.produtos.map((p: any) => <option key={p.id} value={p.id} disabled={p.controla_estoque && p.quantidade < 1}>{p.nome}</option>)}</select></label></div>
       <label className="mt-4 block text-xs text-mute">Desconto (R$)<input className="input-premium" type="number" min="0" step="0.01" inputMode="decimal" value={desconto} onChange={(e) => setDesconto(e.target.value)} placeholder="0,00" /></label>
@@ -35,4 +36,17 @@ export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { ag
     {query.data && etapa === "pix" ? <div className="py-3"><span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft text-gold"><Check /></span><h3 className="mt-4 text-center text-lg font-bold text-paper">Aguardando confirmação Pix</h3><p className="mt-1 text-center text-sm text-mute">Confirme somente depois de conferir o recebimento.</p><div className="mt-6 rounded-lg border border-line bg-ink2 p-4"><p className="text-xs text-mute">Valor a pagar</p><p className="mt-1 text-2xl font-bold text-paper">{brl(total)}</p><p className="mt-4 break-all text-sm text-paper">{query.data.config?.pix_chave}</p></div><div className="mt-3 grid gap-3"><Button variant="outline" onClick={async () => { await navigator.clipboard.writeText(query.data?.config?.pix_chave ?? ""); setCopiado(true); }}><Copy />{copiado ? "Chave copiada" : "Copiar chave Pix"}</Button>{query.data.config?.pix_whatsapp ? <Button variant="outline" asChild><a href={`https://wa.me/${query.data.config.pix_whatsapp}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer">Enviar comprovante pelo WhatsApp</a></Button> : null}<Button size="lg" disabled={ocupado} onClick={() => void confirmarPix()}>{ocupado ? "Confirmando…" : "Confirmar pagamento"}</Button></div></div> : null}
     {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
   </div></div>;
+}
+
+function IdentificarAvulso({ comandaId, numero, onSalvar }: { comandaId: string; numero: number | string; onSalvar: (nome: string, telefone: string) => Promise<void> }) {
+  const [nome, setNome] = useState(`Cliente avulso · ${numero ?? comandaId.slice(0, 4)}`);
+  const [telefone, setTelefone] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  async function salvar() { setSalvando(true); setErro(null); try { await onSalvar(nome.trim(), telefone.trim()); } catch (e) { setErro(e instanceof Error ? e.message : "Não foi possível salvar."); } finally { setSalvando(false); } }
+  return <div className="mb-5 border-b border-line pb-5"><p className="text-xs font-semibold text-mute">Quem é o cliente? (opcional)</p>
+    <label className="mt-2 block text-xs text-mute">Nome<input className="input-premium" value={nome} onChange={(e) => setNome(e.target.value)} onFocus={(e) => e.currentTarget.select()} autoComplete="off" /></label>
+    <label className="mt-3 block text-xs text-mute">Telefone / WhatsApp<input className="input-premium" type="tel" inputMode="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" /></label>
+    <Button variant="outline" className="mt-3 h-12 w-full" disabled={salvando || nome.trim().length < 2} onClick={() => void salvar()}>{salvando ? "Salvando…" : "Salvar cliente"}</Button>
+    {erro ? <p className="mt-2 text-sm text-brick" role="alert">{erro}</p> : null}</div>;
 }
