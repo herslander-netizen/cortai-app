@@ -34,7 +34,7 @@ async function profissionaisComSituacao(db: Db, tenantId: string) {
   return (profRes.data ?? []).map((p) => ({ id: p.id, nome: p.nome, livre: !ocupados.has(p.id) }));
 }
 
-export type ChegadaItem = { id: string; cliente: string; servico: string | null; criadoEm: string };
+export type ChegadaItem = { id: string; clienteId: string | null; cliente: string; servico: string | null; criadoEm: string };
 export type OperacaoFila = {
   chegada: ChegadaItem[];
   profissionais: { id: string; nome: string; livre: boolean }[];
@@ -48,7 +48,7 @@ export const getOperacaoFila = createServerFn({ method: "GET" })
     const [filaRes, profissionais] = await Promise.all([
       db
         .from("fila_de_espera")
-        .select("id, criado_em, clientes(nome), servicos(nome)")
+        .select("id, criado_em, cliente_id, clientes(nome), servicos(nome)")
         .eq("tenant_id", tenantId)
         .in("status", ["aguardando", "avisado"])
         .is("janela_preferida", null)
@@ -59,6 +59,7 @@ export const getOperacaoFila = createServerFn({ method: "GET" })
     return {
       chegada: (filaRes.data ?? []).map((f) => ({
         id: f.id,
+        clienteId: f.cliente_id ?? null,
         cliente: f.clientes?.nome ?? "Cliente",
         servico: f.servicos?.nome ?? null,
         criadoEm: f.criado_em,

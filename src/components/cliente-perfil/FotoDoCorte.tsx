@@ -1,0 +1,55 @@
+import { useServerFn } from "@tanstack/react-start";
+import { Camera, Check } from "lucide-react";
+import { useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { enviarFotoCorte } from "@/lib/perfil-cliente.functions";
+
+/** Reduz a foto para no máximo 1080px e JPEG ~0,72 antes de enviar. */
+async function comprimir(arquivo: File): Promise<string> {
+  const bitmap = await createImageBitmap(arquivo);
+  const escala = Math.min(1, 1080 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * escala);
+  canvas.height = Math.round(bitmap.height * escala);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.72);
+}
+
+export function FotoDoCorte({ clienteId, agendamentoId, onEnviada }: { clienteId: string; agendamentoId?: string | null; onEnviada?: () => void }) {
+  const enviar = useServerFn(enviarFotoCorte);
+  const input = useRef<HTMLInputElement>(null);
+  const [autorizou, setAutorizou] = useState(false);
+  const [estado, setEstado] = useState<"livre" | "enviando" | "ok">("livre");
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function escolher(arquivo: File | undefined) {
+    if (!arquivo) return;
+    setEstado("enviando"); setErro(null);
+    try {
+      const imagem = await comprimir(arquivo);
+      await enviar({ data: { clienteId, agendamentoId: agendamentoId ?? null, imagem, consentimento: true } });
+      setEstado("ok"); onEnviada?.();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não foi possível salvar a foto.");
+      setEstado("livre");
+    } finally { if (input.current) input.current.value = ""; }
+  }
+
+  if (estado === "ok") return <p className="flex min-h-12 items-center gap-2 text-sm font-semibold text-paper"><Check aria-hidden className="size-4" />Foto do corte salva na ficha.</p>;
+
+  return (
+    <div>
+      <label className="flex min-h-12 cursor-pointer items-start gap-3 py-2 text-sm text-paper">
+        <input type="checkbox" className="mt-1 size-5 accent-current" checked={autorizou} onChange={(e) => setAutorizou(e.target.checked)} />
+        <span>O cliente autorizou fotografar o corte. <span className="block text-xs text-mute">Só a barbearia vê. Dá para apagar depois.</span></span>
+      </label>
+      <input ref={input} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void escolher(e.target.files?.[0])} />
+      <Button variant="outline" className="mt-1 h-12 w-full" disabled={!autorizou || estado === "enviando"} onClick={() => input.current?.click()}>
+        <Camera aria-hidden />{estado === "enviando" ? "Salvando foto…" : "Fotografar o corte"}
+      </Button>
+      {erro ? <p className="mt-2 text-sm text-paper" role="alert">{erro}</p> : null}
+    </div>
+  );
+}

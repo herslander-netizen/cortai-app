@@ -707,10 +707,12 @@ export type Database = {
       }
       clientes: {
         Row: {
+          alergias: string | null
           arquivado_em: string | null
           condicoes_especiais: string | null
           criado_em: string
           desconto_percentual: number | null
+          ficha_chips: string[]
           ficha_tecnica: string | null
           fidelidade_participa: boolean | null
           id: string
@@ -725,10 +727,12 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          alergias?: string | null
           arquivado_em?: string | null
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
+          ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
           id?: string
@@ -743,10 +747,12 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          alergias?: string | null
           arquivado_em?: string | null
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
+          ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
           id?: string
@@ -1939,6 +1945,61 @@ export type Database = {
           },
           {
             foreignKeyName: "fila_de_espera_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fotos_de_corte: {
+        Row: {
+          agendamento_id: string | null
+          caminho: string
+          cliente_id: string
+          consentimento_em: string
+          criado_em: string
+          id: string
+          registrado_por: string
+          tenant_id: string
+        }
+        Insert: {
+          agendamento_id?: string | null
+          caminho: string
+          cliente_id: string
+          consentimento_em: string
+          criado_em?: string
+          id?: string
+          registrado_por: string
+          tenant_id: string
+        }
+        Update: {
+          agendamento_id?: string | null
+          caminho?: string
+          cliente_id?: string
+          consentimento_em?: string
+          criado_em?: string
+          id?: string
+          registrado_por?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fotos_de_corte_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_de_corte_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_de_corte_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -3298,6 +3359,7 @@ export type Database = {
           assinatura_visivel: boolean
           ativo: boolean
           capa_url: string | null
+          chips_ficha: string[]
           ciclo: string
           cor_accent: string | null
           cor_primaria: string
@@ -3335,6 +3397,7 @@ export type Database = {
           assinatura_visivel?: boolean
           ativo?: boolean
           capa_url?: string | null
+          chips_ficha?: string[]
           ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
@@ -3372,6 +3435,7 @@ export type Database = {
           assinatura_visivel?: boolean
           ativo?: boolean
           capa_url?: string | null
+          chips_ficha?: string[]
           ciclo?: string
           cor_accent?: string | null
           cor_primaria?: string
