@@ -56,7 +56,7 @@ export const finalizarAtendimento = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "confirmar_pagamento");
     const { error } = await db
       .from("agendamentos")
-      .update({ status: "concluido" })
+      .update({ status: "finalizado", status_alterado_por: context.userId })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);

@@ -35,7 +35,7 @@ function HistoricoPage() {
 
   const agora = Date.now();
   const ehFuturoAtivo = (a: { inicio: string; status: string }) =>
-    new Date(a.inicio).getTime() > agora && a.status !== "cancelado" && a.status !== "falta";
+    new Date(a.inicio).getTime() > agora && a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
   const proximos = (lista.data ?? [])
     .filter(ehFuturoAtivo)
     .slice()
@@ -94,7 +94,7 @@ function HistoricoPage() {
       <ul>
         {anteriores.map((a) => {
           const futuro = new Date(a.inicio).getTime() > Date.now();
-          const ativo = a.status !== "cancelado" && a.status !== "falta";
+          const ativo = a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
           return (
             <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4">
               <div className="min-w-0">

@@ -220,7 +220,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     if (!["cancelado", "estornado"].includes(status)) {
       return { enviado: false, motivo: "Agendamento não está cancelado." };
     }
-  } else if (["cancelado", "falta", "estornado"].includes(status)) {
+  } else if (["cancelado", "falta", "nao_compareceu", "estornado"].includes(status)) {
     return { enviado: false, motivo: "Agendamento não está ativo." };
   }
 

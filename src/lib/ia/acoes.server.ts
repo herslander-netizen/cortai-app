@@ -432,7 +432,7 @@ export async function historicoDoCliente(ctx: ContextoDoAgente, input: { cliente
 
   const nomeServico = new Map(servicos.map((s: { id: string; nome: string }) => [s.id, s.nome]));
   const nomeProfissional = new Map(profissionais.map((p: { id: string; nome: string }) => [p.id, p.nome]));
-  const concluidos = (passados ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
+  const concluidos = (passados ?? []).filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado");
 
   const contar = (lista: (string | null)[]) => {
     const mapa = new Map<string, number>();
@@ -506,13 +506,13 @@ export async function confirmarAgendamento(ctx: ContextoDoAgente, input: { agend
   const atual = await exigirAgendamentoDoTenant(ctx, input.agendamentoId);
   const db = await admin();
   const { data: linha } = await db.from("agendamentos").select("status").eq("id", atual.id).maybeSingle();
-  if (linha?.status === "cancelado" || linha?.status === "falta") {
+  if (linha?.status === "cancelado" || linha?.status === "nao_compareceu") {
     throw new Error("Este agendamento não está mais ativo.");
   }
-  const { error } = await db.from("agendamentos").update({ status: "confirmado" }).eq("id", atual.id);
+  const { error } = await db.from("agendamentos").update({ status: "agendado" }).eq("id", atual.id);
   if (error) throw new Error(error.message);
   await registrarAuditoria(ctx, "agendamento_confirmado", atual.id, {});
-  return { agendamentoId: atual.id, status: "confirmado" };
+  return { agendamentoId: atual.id, status: "agendado" };
 }
 
 /** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
