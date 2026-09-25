@@ -41,6 +41,9 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, success = false, disabled, onClick, children, style, ...props }, forwardedRef) => {
+    if ((variant === "icon" || size === "icon") && !props["aria-label"]) {
+      throw new Error("Button de ícone exige aria-label.");
+    }
     const [pending, setPending] = React.useState(false);
     const [showSpinner, setShowSpinner] = React.useState(false);
     const internalRef = React.useRef<HTMLButtonElement | null>(null);

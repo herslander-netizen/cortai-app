@@ -1,0 +1,27 @@
+// @vitest-environment jsdom
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, describe, expect, it } from "vitest";
+
+import { StatusBadge, type StatusKey } from "./badge";
+
+let host: HTMLDivElement | null = null;
+afterEach(() => { host?.remove(); host = null; });
+
+const estados: Array<[StatusKey, string]> = [
+  ["agendado", "Agendado"], ["chegou", "Chegou"], ["na_cadeira", "Na cadeira"],
+  ["finalizado", "Finalizado"], ["remarcado", "Remarcado"], ["cancelado", "Cancelado"],
+  ["nao_compareceu", "Não compareceu"], ["aguardando_pagamento", "Aguardando pagamento"],
+  ["pago", "Pago"], ["pendente", "Pendente"], ["livre", "Livre"],
+];
+
+describe("StatusBadge", () => {
+  it.each(estados)("mostra texto e ícone para %s", (status, texto) => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    act(() => root.render(<StatusBadge status={status} />));
+    expect(host.textContent).toContain(texto);
+    expect(host.querySelector("svg")).not.toBeNull();
+  });
+});
