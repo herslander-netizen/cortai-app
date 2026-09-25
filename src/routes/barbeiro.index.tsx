@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AgendaPage } from "@/routes/barbeiro.agenda";
+import { AgendaLazy } from "@/components/barbeiro/AgendaLazy";
 
 export const Route = createFileRoute("/barbeiro/")({
   head: () => ({
@@ -13,5 +13,5 @@ export const Route = createFileRoute("/barbeiro/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AgendaPage,
+  component: AgendaLazy,
 });

@@ -154,6 +154,36 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     return { tenant, dia: iso, itens, fila, horarios };
   });
 
+/** Só o necessário para abrir a agenda: quem está na cadeira agora e o próximo. */
+export const getAgoraProximo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const agora = new Date();
+    const { data } = await db
+      .from("agendamentos")
+      .select("id, inicio, fim, clientes(nome), servicos(nome), profissionais(nome)")
+      .eq("tenant_id", tenant.id)
+      .neq("status", "cancelado")
+      .gt("fim", agora.toISOString())
+      .lt("inicio", new Date(agora.getTime() + 24 * 60 * 60 * 1000).toISOString())
+      .order("inicio")
+      .limit(3);
+    const itens = (data ?? []).map((a) => ({
+      id: a.id,
+      inicio: a.inicio,
+      fim: a.fim,
+      cliente: a.clientes?.nome ?? "Cliente",
+      servico: a.servicos?.nome ?? "Serviço",
+      profissional: a.profissionais?.nome ?? "—",
+    }));
+    const t = agora.getTime();
+    return {
+      atual: itens.find((i) => new Date(i.inicio).getTime() <= t) ?? null,
+      proximo: itens.find((i) => new Date(i.inicio).getTime() > t) ?? null,
+    };
+  });
+
 
 export const avisarFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
