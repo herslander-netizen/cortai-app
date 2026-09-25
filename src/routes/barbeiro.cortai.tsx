@@ -15,6 +15,7 @@ import {
   type ChaveDeAutomacao,
   type ConfiguracaoDoAtendimento,
 } from "@/lib/whatsapp/contrato";
+import { Button } from "@/components/ui/button";
 import {
   atualizarQrCode,
   listarInformacoes,
@@ -116,7 +117,7 @@ function CortaiPage() {
                 ["ajustes", "IA do Cortaí"],
               ] as [Aba, string][]
             ).map(([id, rotulo]) => (
-              <button
+              <Button variant="ghost"
                 key={id}
                 type="button"
                 onClick={() => setAba(id)}
@@ -125,7 +126,7 @@ function CortaiPage() {
                 }`}
               >
                 {rotulo}
-              </button>
+              </Button>
             ))}
           </nav>
 
@@ -266,9 +267,9 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             </p>
           </div>
         </div>
-        <button type="button" className="btn-primary mt-5 w-full opacity-50" disabled aria-disabled>
+        <Button variant="ghost" type="button" className="btn-primary mt-5 w-full opacity-50" disabled aria-disabled>
           Conectar WhatsApp
-        </button>
+        </Button>
         <p className="mt-2 text-center text-[11px] text-mute2">
           O botão será liberado assim que o serviço estiver publicado.
         </p>
@@ -373,35 +374,35 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
       ) : null}
 
       {status === "qr_pronto" && conexao?.qrCode && !qrExpirado && !qrAberto ? (
-        <button
+        <Button variant="ghost"
           type="button"
           className="mt-5 w-full rounded-md border border-gold/50 py-2.5 text-sm text-gold"
           onClick={() => setQrAberto(true)}
         >
           Mostrar QR Code
-        </button>
+        </Button>
       ) : null}
 
       <div className="mt-6 space-y-3">
         {status === "conectado" ? (
           <>
-            <button
+            <Button variant="ghost"
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
               disabled={acao.isPending || estado.isFetching}
               onClick={() => void estado.refetch()}
             >
               {estado.isFetching ? "Atualizando…" : "Atualizar conexão"}
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => acao.mutate("reconectar")}
             >
               {acao.isPending ? "Aguarde…" : "Reconectar"}
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-brick disabled:opacity-50"
               disabled={acao.isPending}
@@ -416,27 +417,27 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               }}
             >
               Desconectar
-            </button>
+            </Button>
           </>
         ) : (
           <>
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-primary w-full"
               disabled={acao.isPending}
               onClick={() => acao.mutate(status === "qr_pronto" && !qrExpirado ? "qr" : "conectar")}
             >
               {rotuloPrincipal}
-            </button>
+            </Button>
             {status === "qr_pronto" || qrExpirado ? (
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
                 disabled={acao.isPending}
                 onClick={() => acao.mutate("qr")}
               >
                 {acao.isPending ? "Gerando…" : "Gerar novo QR Code"}
-              </button>
+              </Button>
             ) : null}
           </>
         )}
@@ -489,14 +490,14 @@ function BlocoDiagnostico() {
     <section className="mt-4 rounded-xl border border-line bg-ink2 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-paper">Status detalhado da conexão</h2>
-        <button
+        <Button variant="ghost"
           type="button"
           className="text-xs text-gold disabled:opacity-50"
           disabled={consulta.isFetching}
           onClick={() => void consulta.refetch()}
         >
           {consulta.isFetching ? "Atualizando…" : "Atualizar"}
-        </button>
+        </Button>
       </div>
 
       {!d ? (
@@ -611,9 +612,9 @@ function ModalQr({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-paper">Conectar WhatsApp</h3>
-          <button type="button" aria-label="Fechar" className="text-mute" onClick={aoFechar}>
+          <Button variant="ghost" type="button" aria-label="Fechar" className="text-mute" onClick={aoFechar}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <div className="mt-4">
@@ -627,14 +628,14 @@ function ModalQr({
           <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
         ) : null}
 
-        <button
+        <Button variant="ghost"
           type="button"
           className="mt-5 w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
           disabled={gerando}
           onClick={aoGerarNovo}
         >
           {gerando ? "Gerando…" : "Gerar novo QR Code"}
-        </button>
+        </Button>
       </div>
     </div>,
     document.body,
@@ -673,7 +674,7 @@ function BlocoConversas() {
     <section className="min-w-0">
       <div className="flex flex-wrap gap-2">
         {FILTROS.map(([id, rotulo]) => (
-          <button
+          <Button variant="ghost"
             key={id}
             type="button"
             onClick={() => setFiltro(id)}
@@ -682,7 +683,7 @@ function BlocoConversas() {
             }`}
           >
             {rotulo}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -692,7 +693,7 @@ function BlocoConversas() {
       <ul className="mt-3 lg:max-h-[560px] lg:overflow-y-auto lg:pr-1">
         {(lista.data ?? []).map((c) => (
           <li key={c.id} className="border-b border-line">
-            <button
+            <Button variant="ghost"
               type="button"
               onClick={() => setAberta(c.id)}
               className={`block w-full px-1 py-4 text-left ${aberta === c.id ? "bg-ink2" : ""}`}
@@ -715,7 +716,7 @@ function BlocoConversas() {
                   </span>
                 ) : null}
               </div>
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
@@ -824,14 +825,14 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
     <section className="cortai-conversa h-[calc(100dvh-230px)] min-h-[380px] rounded-xl border border-line bg-ink2 lg:h-[560px]">
       <header className="shrink-0 border-b border-line px-4 py-3">
         <div className="flex items-start gap-3">
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={aoVoltar}
             aria-label="Voltar às conversas"
             className="mt-0.5 shrink-0 text-mute hover:text-paper"
           >
             <ArrowLeft size={16} />
-          </button>
+          </Button>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-paper">
               {conversa?.nomeContato ?? dados.data?.cliente?.nome ?? conversa?.telefone ?? "Conversa"}
@@ -849,30 +850,30 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
         </div>
 
         <div className="mt-3 flex gap-2">
-          <button
+          <Button variant="ghost"
             type="button"
             className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper disabled:opacity-50"
             disabled={mudar.isPending}
             onClick={() => mudar.mutate("humano")}
           >
             Assumir conversa
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             className="flex-1 rounded-md border border-line2 py-2 text-xs text-paper disabled:opacity-50"
             disabled={mudar.isPending}
             onClick={() => mudar.mutate("cortai")}
           >
             CortAI atende
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             className="rounded-md border border-line2 px-3 py-2 text-xs text-mute disabled:opacity-50"
             disabled={mudar.isPending}
             onClick={() => mudar.mutate("encerrar")}
           >
             Encerrar
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -926,13 +927,13 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
                   <p className="whitespace-pre-wrap break-words text-paper">{f.texto}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <span className="text-[10px] text-brick">Não foi possível enviar.</span>
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       className="text-[10px] text-gold underline"
                       onClick={() => enviar.mutate(f.texto)}
                     >
                       Tentar novamente
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </li>
@@ -947,13 +948,13 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
         </div>
 
         {novaMensagem ? (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => irAoFim()}
             className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
           >
             Nova mensagem ↓
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -972,7 +973,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
             placeholder="Escreva aqui…"
             className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
           />
-          <button
+          <Button variant="ghost"
             type="button"
             aria-label="Enviar mensagem"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-ink disabled:opacity-50"
@@ -980,7 +981,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
             onClick={enviarNovo}
           >
             <Send size={17} aria-hidden />
-          </button>
+          </Button>
         </div>
         {erro ? <p className="mt-2 text-center text-xs text-brick">{erro}</p> : null}
       </div>
@@ -1231,7 +1232,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
               {DIAS_DA_SEMANA.map((nome, indice) => {
                 const marcado = config.horarioDias.includes(indice);
                 return (
-                  <button
+                  <Button variant="ghost"
                     key={nome}
                     type="button"
                     aria-pressed={marcado}
@@ -1247,7 +1248,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
                     }`}
                   >
                     {nome.slice(0, 3)}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -1323,9 +1324,9 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
       </Bloco>
 
       <div className="rounded-lg border border-line bg-ink2 p-5">
-        <button type="button" className="btn-primary w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
+        <Button variant="ghost" type="button" className="btn-primary w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
           {gravar.isPending ? "Salvando…" : "Salvar configurações"}
-        </button>
+        </Button>
         {ok ? <p className="mt-2 text-center text-sm text-sage">Configurações salvas.</p> : null}
         {erro ? <p className="mt-2 text-center text-sm text-brick">{erro}</p> : null}
       </div>
@@ -1460,9 +1461,9 @@ function BlocoInformacoes() {
                   <p className="text-xs font-semibold text-paper">{i.pergunta}</p>
                   <p className="mt-1 whitespace-pre-wrap text-xs text-mute">{i.resposta}</p>
                 </div>
-                <button type="button" className="text-[11px] text-brick" onClick={() => apagar.mutate(i.id)}>
+                <Button variant="ghost" type="button" className="text-[11px] text-brick" onClick={() => apagar.mutate(i.id)}>
                   Apagar
-                </button>
+                </Button>
               </div>
             </li>
           ))}
@@ -1485,14 +1486,14 @@ function BlocoInformacoes() {
           placeholder="Resposta oficial da barbearia"
           className="w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
         />
-        <button
+        <Button variant="ghost"
           type="button"
           className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
           disabled={gravar.isPending || pergunta.trim().length < 3 || resposta.trim().length < 2}
           onClick={() => gravar.mutate()}
         >
           {gravar.isPending ? "Salvando…" : "Adicionar informação"}
-        </button>
+        </Button>
         {erro ? <p className="text-center text-sm text-brick">{erro}</p> : null}
       </div>
     </div>

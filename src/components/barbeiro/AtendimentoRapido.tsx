@@ -70,9 +70,9 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
                 <input value={termo} onChange={(e) => setTermo(e.target.value)} placeholder="Buscar por nome ou telefone" className="h-12 w-full rounded-lg border border-line bg-ink pl-9 pr-3 text-sm text-paper outline-none focus:border-paper" />
               </label>
               <div className="mt-2 flex flex-wrap gap-2">
-                <button type="button" className={chip(!cliente)} onClick={() => setCliente(null)}><UserRound aria-hidden size={14} />Cliente avulso</button>
+                <Button variant="ghost" type="button" className={chip(!cliente)} onClick={() => setCliente(null)}><UserRound aria-hidden size={14} />Cliente avulso</Button>
                 {opcoes.map((c) => (
-                  <button key={c.id} type="button" className={chip(cliente?.id === c.id)} onClick={() => setCliente({ id: c.id, nome: c.nome })}>{c.nome}</button>
+                  <Button variant="ghost" key={c.id} type="button" className={chip(cliente?.id === c.id)} onClick={() => setCliente({ id: c.id, nome: c.nome })}>{c.nome}</Button>
                 ))}
               </div>
               {!cliente ? <p className="mt-2 text-xs text-mute">Nome e telefone entram depois, na comanda.</p> : null}
@@ -82,7 +82,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               <p className="mb-2 text-[11px] font-bold uppercase text-mute">Serviço</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.servicos.map((s) => (
-                  <button key={s.id} type="button" className={chip(servicoId === s.id)} onClick={() => setServicoId(s.id)}>{s.nome} · {s.duracao_min} min</button>
+                  <Button variant="ghost" key={s.id} type="button" className={chip(servicoId === s.id)} onClick={() => setServicoId(s.id)}>{s.nome} · {s.duracao_min} min</Button>
                 ))}
               </div>
             </section>
@@ -91,7 +91,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               <p className="mb-2 text-[11px] font-bold uppercase text-mute">Profissional</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.profissionais.map((p) => (
-                  <button key={p.id} type="button" className={chip(profissionalId === p.id)} onClick={() => setProfissionalId(p.id)}>{p.nome}{p.livre ? "" : " · ocupado"}</button>
+                  <Button variant="ghost" key={p.id} type="button" className={chip(profissionalId === p.id)} onClick={() => setProfissionalId(p.id)}>{p.nome}{p.livre ? "" : " · ocupado"}</Button>
                 ))}
               </div>
             </section>

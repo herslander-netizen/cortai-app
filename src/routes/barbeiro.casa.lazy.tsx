@@ -1,11 +1,12 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Circle, Clock3, Scissors, UserCheck } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
+import { StatusBadge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { brl } from "@/lib/format";
 import { getVisaoCasa, type LinhaDaCasa } from "@/lib/dono.functions";
@@ -32,7 +33,7 @@ function Linha({ l, agora, fuso }: { l: LinhaDaCasa; agora: number; fuso: string
           <span className="shrink-0 text-xs text-mute">{passou}/{prev} min</span>
         </div>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-paper">
-          <span className="inline-flex items-center gap-1 rounded-full bg-gold px-2 py-0.5 text-xs font-medium text-ink"><Scissors size={12} /> Na cadeira</span>
+          <StatusBadge status="na_cadeira" />
           <span className="truncate">{l.cliente}</span>
         </p>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink3"><div className={`h-full ${estourou ? "bg-brick" : "bg-gold"}`} style={{ width: `${prev ? Math.min(100, (passou / prev) * 100) : 0}%` }} /></div>
@@ -40,8 +41,8 @@ function Linha({ l, agora, fuso }: { l: LinhaDaCasa; agora: number; fuso: string
     );
   }
   const selo = l.estado === "chegou"
-    ? <span className="inline-flex items-center gap-1 rounded-full bg-sage px-2 py-0.5 text-xs font-medium text-ink"><UserCheck size={12} /> Chegou</span>
-    : <span className="inline-flex items-center gap-1 rounded-full border border-line2 px-2 py-0.5 text-xs font-medium text-mute"><Circle size={12} /> {l.estado === "livre" ? "Livre" : "Sem mais horários"}</span>;
+    ? <StatusBadge status="chegou" />
+    : <StatusBadge status="livre" label={l.estado === "livre" ? "Livre" : "Sem mais horários"} />;
   return (
     <li className="py-3">
       <span className="block truncate text-sm font-semibold text-paper">{l.nome}</span>
@@ -106,7 +107,7 @@ function CasaPage() {
                 <h2 className="mt-7 text-xs font-semibold uppercase tracking-wide text-mute">Caixa do dia</h2>
                 <div className="flex items-baseline justify-between border-b border-line py-3">
                   <span className="text-sm text-mute">{d.caixa.atendimentos} atendimento{d.caixa.atendimentos === 1 ? "" : "s"} · {d.caixa.aberto ? "caixa aberto" : "caixa fechado"}</span>
-                  <span className="text-xl font-semibold text-paper">{brl(d.caixa.entradasCentavos)}</span>
+                  <span className="money-value text-xl text-paper">{brl(d.caixa.entradasCentavos)}</span>
                 </div>
               </>
             ) : null}

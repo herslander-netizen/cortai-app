@@ -6,6 +6,7 @@ import { lazy, Suspense, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { getHojeDoDono, type Metricas } from "@/lib/dono.functions";
 
@@ -28,7 +29,7 @@ function Numero({ rotulo, valor, atual, antes, destaque }: { rotulo: string; val
     <div className={`flex items-baseline justify-between border-b border-line py-4 ${destaque ? "" : ""}`}>
       <span className="text-sm text-mute">{rotulo}</span>
       <span className="flex items-center gap-2">
-        <span className={destaque ? "text-[28px] font-bold leading-none text-paper" : "text-xl font-semibold text-paper"}>{valor}</span>
+        <span className={`money-value ${destaque ? "text-[28px] leading-none" : "text-xl"} text-paper`}>{valor}</span>
         <Seta atual={atual} antes={antes} />
       </span>
     </div>
@@ -64,17 +65,15 @@ function HojePage() {
         {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={Boolean(n.destaque)} />)}
       </section>
 
-      <Link to="/barbeiro/casa" className="mt-5 flex min-h-12 items-center gap-3 rounded-lg border border-line px-4 text-sm font-medium text-paper transition-colors active:bg-ink2 md:max-w-xl">
-        <Armchair size={18} className="text-mute" /> Ver todas as cadeiras agora
-      </Link>
+      <Button asChild variant="secondary" className="mt-5 md:max-w-xl"><Link to="/barbeiro/casa"><Armchair size={18} className="text-mute" /> Ver todas as cadeiras agora</Link></Button>
 
       <div className="mt-8 divide-y divide-line border-y border-line md:max-w-xl">
         {secoes.map(({ id, titulo, detalhe, C }) => (
           <section key={id}>
-            <button type="button" onClick={() => setAberta(aberta === id ? null : id)} aria-expanded={aberta === id} className="flex min-h-14 w-full items-center justify-between gap-3 py-3 text-left">
+            <Button variant="ghost" type="button" onClick={() => setAberta(aberta === id ? null : id)} aria-expanded={aberta === id} className="h-auto min-h-14 w-full justify-between rounded-none px-0 py-3 text-left">
               <span><span className="block text-sm font-semibold text-paper">{titulo}</span><span className="block text-xs text-mute">{detalhe}</span></span>
               <ChevronDown size={18} className={`text-mute transition-transform duration-200 ${aberta === id ? "rotate-180" : ""}`} />
-            </button>
+            </Button>
             {aberta === id ? <div className="pb-5"><Suspense fallback={<EsqueletoLista linhas={3} />}><C /></Suspense></div> : null}
           </section>
         ))}

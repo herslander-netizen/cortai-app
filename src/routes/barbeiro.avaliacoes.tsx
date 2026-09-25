@@ -9,6 +9,7 @@ import { dataCurta } from "@/lib/format";
 import { getAvaliacoes, registrarAvaliacao, salvarLinkAvaliacao } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { useAcao } from "@/hooks/useAcao";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
@@ -28,7 +29,7 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
   return (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
-        <button
+        <Button variant="ghost"
           key={n}
           type="button"
           disabled={!onChange}
@@ -37,7 +38,7 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
           className={n <= nota ? "text-gold" : "text-mute2"}
         >
           <Star size={18} fill={n <= nota ? "currentColor" : "none"} />
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -76,7 +77,7 @@ function AvaliacoesPage() {
         <span className="text-xs text-mute2">Link de avaliação pública (Google, por exemplo)</span>
         <input value={link} onChange={(e) => setLink(e.target.value)} className="input-premium mt-1 w-full" placeholder="https://" />
       </label>
-      <button
+      <Button variant="ghost"
         type="button"
         className="btn-tertiary mt-2 text-xs disabled:opacity-60"
         disabled={acao.ocupado}
@@ -88,7 +89,7 @@ function AvaliacoesPage() {
         }
       >
         {acao.estaEm("link") ? "Salvando…" : "Salvar link"}
-      </button>
+      </Button>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Atendimentos sem avaliação</h2>
       {data && data.pendentes.length === 0 ? <EmptyState text="Todos os atendimentos recentes já foram avaliados." /> : null}
@@ -113,7 +114,7 @@ function AvaliacoesPage() {
                     placeholder="Comentário (opcional)"
                     className="input-premium mt-3 w-full resize-none"
                   />
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     className="btn-tertiary mt-2 text-xs disabled:opacity-60"
                     disabled={acao.ocupado}
@@ -138,7 +139,7 @@ function AvaliacoesPage() {
                     }
                   >
                     {acao.estaEm(`avaliar-${p.id}`) ? "Salvando…" : "Registrar avaliação"}
-                  </button>
+                  </Button>
                 </>
               ) : null}
             </li>

@@ -9,6 +9,7 @@ import { brl } from "@/lib/format";
 import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fidelidade"),
@@ -73,7 +74,7 @@ function FidelidadePage() {
             progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.
           </p>
         </div>
-        <button
+        <Button variant="ghost"
           type="button"
           role="switch"
           aria-checked={ativo}
@@ -91,7 +92,7 @@ function FidelidadePage() {
               ativo ? "translate-x-6 bg-ink" : "translate-x-1 bg-mute"
             }`}
           />
-        </button>
+        </Button>
       </div>
 
       <div className="py-6">
@@ -144,7 +145,7 @@ function FidelidadePage() {
         </p>
       ) : null}
 
-      <button
+      <Button variant="ghost"
         type="button"
         className="btn-primary mt-6 w-full"
         disabled={acao.ocupado}
@@ -156,7 +157,7 @@ function FidelidadePage() {
         }
       >
         {acao.estaEm("fidelidade") ? "Salvando…" : "Salvar"}
-      </button>
+      </Button>
       {ok ? <p className="mt-3 text-center text-sm text-sage">Configuração salva.</p> : null}
 
       <h2 className="mb-1 mt-10 text-sm font-semibold text-paper">Progresso dos clientes</h2>

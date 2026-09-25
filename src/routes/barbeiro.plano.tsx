@@ -9,6 +9,7 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { brl } from "@/lib/format";
 import { aviso } from "@/lib/avisos";
 import { escolherPlanoDaBarbearia, getPlanosDaBarbearia } from "@/lib/planos.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/plano")({
   ssr: false,
@@ -120,18 +121,18 @@ function PlanoPage() {
                 </div>
 
                 {atual ? (
-                  <button type="button" className="btn-secondary mt-5 w-full py-3" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
+                  <Button variant="ghost" type="button" className="btn-secondary mt-5 w-full py-3" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
                     Continuar a configuração
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     className="btn-primary mt-5 w-full py-3"
                     disabled={!data.podeTrocar || salvando !== null}
                     onClick={() => void selecionar(plano.chave)}
                   >
                     {salvando === plano.chave ? "Aplicando…" : `Escolher ${plano.nome}`}
-                  </button>
+                  </Button>
                 )}
               </article>
             );

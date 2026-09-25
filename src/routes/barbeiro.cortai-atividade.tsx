@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
+import { Button } from "@/components/ui/button";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
@@ -181,7 +182,7 @@ function AtividadePage() {
       <section className="mt-5" aria-label="Registro das ações">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm text-paper">Registro das ações</h2>
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => setApenasFalhas((v) => !v)}
             className={`rounded-full border px-3 py-1.5 text-xs ${
@@ -190,7 +191,7 @@ function AtividadePage() {
             aria-pressed={apenasFalhas}
           >
             Só o que falhou
-          </button>
+          </Button>
         </div>
 
         {atividade.data && atividade.data.registros.length === 0 ? (

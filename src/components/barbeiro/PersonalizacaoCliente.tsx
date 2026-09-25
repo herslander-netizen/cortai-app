@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { salvarPersonalizacaoCliente, type FichaCliente } from "@/lib/barbeiro.functions";
+import { Button } from "@/components/ui/button";
 
 type Participa = "padrao" | "sim" | "nao";
 
@@ -16,7 +17,7 @@ function Opcao({
   children: string;
 }) {
   return (
-    <button
+    <Button variant="ghost"
       type="button"
       aria-pressed={ativo}
       onClick={onClick}
@@ -25,7 +26,7 @@ function Opcao({
       }`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -138,7 +139,7 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
           <p className="text-sm text-paper">Pode receber mensagens no WhatsApp</p>
           <p className="mt-0.5 text-xs text-mute2">Avisos de horário, fila e retorno.</p>
         </div>
-        <button
+        <Button variant="ghost"
           type="button"
           role="switch"
           aria-checked={whats}
@@ -153,7 +154,7 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
               whats ? "translate-x-6 bg-ink" : "translate-x-1 bg-mute"
             }`}
           />
-        </button>
+        </Button>
       </div>
 
       {erro ? (
@@ -167,7 +168,7 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
         </Aviso>
       ) : null}
 
-      <button
+      <Button variant="ghost"
         type="button"
         className="btn-primary mt-5 w-full"
         disabled={salvando}
@@ -196,7 +197,7 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
         }}
       >
         {salvando ? "Salvando…" : "Salvar personalizações"}
-      </button>
+      </Button>
     </section>
   );
 }

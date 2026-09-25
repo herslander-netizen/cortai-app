@@ -7,6 +7,7 @@ import { BadgeCheck, Sparkles, Ticket } from "lucide-react";
 import { brl } from "@/lib/format";
 import { aplicarCupom, getBannersDaHome, getMinhaAssinatura } from "@/lib/monetizacao.functions";
 import { ROTULO_DO_LIMITE, dataCurta, diasRestantes, type TipoDeLimite } from "@/lib/monetizacao";
+import { Button } from "@/components/ui/button";
 
 /** Campanhas publicadas pelo Cortaí para esta barbearia. */
 export function BannersDaPlataforma() {
@@ -128,9 +129,9 @@ export function MeuPlano() {
             className="w-full bg-transparent py-2.5 text-sm text-paper outline-none placeholder:text-mute2"
           />
         </span>
-        <button type="submit" className="btn-secondary px-4 text-xs disabled:opacity-60" disabled={acao.ocupado || codigo.trim().length < 2}>
+        <Button variant="ghost" type="submit" className="btn-secondary px-4 text-xs disabled:opacity-60" disabled={acao.ocupado || codigo.trim().length < 2}>
           {acao.estaEm("cupom") ? "Aplicando…" : "Aplicar"}
-        </button>
+        </Button>
       </form>
       {aviso ? <p className="mt-2 text-xs text-sage" role="status">{aviso}</p> : null}
       {erro ? <p className="mt-2 text-xs text-brick" role="alert">{erro}</p> : null}

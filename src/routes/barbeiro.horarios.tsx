@@ -9,6 +9,7 @@ import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { FUSOS_DA_BARBEARIA, FUSO_BARBEARIA } from "@/lib/horarios";
 import { getConfiguracaoInicial, salvarHorarios } from "@/lib/onboarding.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/horarios")({
   ssr: false,
@@ -73,7 +74,7 @@ function HorariosPage() {
         <EditorDeHorarios horarios={horarios} onChange={setHorarios} />
       </div>
 
-      <button
+      <Button variant="ghost"
         type="button"
         className="btn-primary mt-8 w-full py-3.5"
         disabled={estado === "salvando"}
@@ -91,7 +92,7 @@ function HorariosPage() {
         }}
       >
         {estado === "salvando" ? "Salvando…" : estado === "salvo" ? "Horários salvos" : "Salvar horários"}
-      </button>
+      </Button>
       {erro ? (
         <p className="mt-3 text-sm text-brick" role="alert">
           {erro}

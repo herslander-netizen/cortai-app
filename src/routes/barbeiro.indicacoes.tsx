@@ -16,6 +16,7 @@ import {
 } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "indicacoes"),
@@ -65,7 +66,7 @@ function IndicacoesPage() {
             <p className="text-sm text-paper">Programa de indicação</p>
             <p className="mt-0.5 text-xs text-mute2">A recompensa é registrada aqui e entregue na barbearia.</p>
           </div>
-          <button
+          <Button variant="ghost"
             type="button"
             role="switch"
             aria-checked={ativa}
@@ -74,7 +75,7 @@ function IndicacoesPage() {
             className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${ativa ? "border-gold bg-gold" : "border-line2 bg-ink2"}`}
           >
             <span className={`block h-5 w-5 rounded-full bg-paper transition-transform ${ativa ? "translate-x-6" : "translate-x-1"}`} />
-          </button>
+          </Button>
         </div>
 
         <label className="mt-5 block">
@@ -96,7 +97,7 @@ function IndicacoesPage() {
           />
         </label>
 
-        <button
+        <Button variant="ghost"
           type="button"
           className="btn-primary mt-5 w-full disabled:opacity-60"
           disabled={acao.ocupado}
@@ -108,11 +109,11 @@ function IndicacoesPage() {
           }
         >
           {acao.estaEm("config") ? "Salvando…" : "Salvar programa"}
-        </button>
+        </Button>
 
         <div className="mt-5 border-t border-line pt-4">
           <p className="break-all text-xs text-mute">{link}</p>
-          <button
+          <Button variant="ghost"
             type="button"
             className="btn-tertiary mt-2 flex items-center gap-2 text-xs"
             onClick={async () => {
@@ -121,7 +122,7 @@ function IndicacoesPage() {
             }}
           >
             <Copy size={14} /> Copiar link de indicação
-          </button>
+          </Button>
           {copiado ? <p className="mt-2 text-xs text-sage">Link copiado.</p> : null}
         </div>
       </div>
@@ -136,7 +137,7 @@ function IndicacoesPage() {
           className="input-premium min-w-0 flex-1"
           placeholder="Nome de quem foi indicado"
         />
-        <button
+        <Button variant="ghost"
           type="button"
           className="btn-primary shrink-0 px-4 disabled:opacity-60"
           disabled={acao.ocupado || novo.trim().length < 2}
@@ -148,7 +149,7 @@ function IndicacoesPage() {
           }
         >
           {acao.estaEm("registrar") ? "Salvando…" : "Adicionar"}
-        </button>
+        </Button>
       </div>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Acompanhamento</h2>
@@ -171,7 +172,7 @@ function IndicacoesPage() {
             </div>
             <div className="mt-2 flex gap-4">
               {i.status !== "convertido" ? (
-                <button
+                <Button variant="ghost"
                   type="button"
                   className="btn-tertiary text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
@@ -183,10 +184,10 @@ function IndicacoesPage() {
                   }
                 >
                   {acao.estaEm(`converter-${i.id}`) ? "Salvando…" : "Marcar como cliente"}
-                </button>
+                </Button>
               ) : null}
               {!i.recompensaEntregue ? (
-                <button
+                <Button variant="ghost"
                   type="button"
                   className="btn-tertiary text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
@@ -198,7 +199,7 @@ function IndicacoesPage() {
                   }
                 >
                   {acao.estaEm(`recompensar-${i.id}`) ? "Salvando…" : "Recompensa entregue"}
-                </button>
+                </Button>
               ) : null}
               <ExclusaoPermanente
                 titulo="Excluir indicação permanentemente"
