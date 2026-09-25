@@ -420,7 +420,7 @@ function AgendamentoPublico() {
         </p>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 px-5 py-4 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink px-5 py-4">
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">

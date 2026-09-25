@@ -451,7 +451,7 @@ export function SecaoDaHome({ secao, aparencia }: { secao: SecaoHome; aparencia:
     return (
       <section className="relative flex min-h-[600px] items-end overflow-hidden">
         <img src={secao.imagem || ctaV2} alt="Cadeira de barbeiro em uma barbearia contemporânea ao fim da tarde" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/65 to-ink/20" />
+        <div className="absolute inset-0 bg-ink/65" />
         <div className={`relative w-full pb-16 md:pb-20 ${BLOCO}`}>
           <h2 className="max-w-2xl text-[38px] font-bold leading-[1.04] text-paper md:text-[58px]">{secao.titulo}</h2>
           {secao.texto ? <p className="mt-5 max-w-lg text-sm leading-7 text-paper/75 md:text-base">{secao.texto}</p> : null}

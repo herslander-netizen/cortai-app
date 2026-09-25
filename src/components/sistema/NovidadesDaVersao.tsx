@@ -42,7 +42,7 @@ export function NovidadesDaVersao() {
   const destaques = [...VERSAO_ATUAL_INFO.funcionalidades, ...VERSAO_ATUAL_INFO.visual].slice(0, 5);
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/70 p-4 backdrop-blur-sm sm:items-center">
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/80 p-4 sm:items-center">
       <div role="dialog" aria-label="Novidades do Cortaí" className="w-full max-w-md rounded-2xl border border-line bg-ink2 p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
