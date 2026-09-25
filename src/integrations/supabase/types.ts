@@ -1342,6 +1342,7 @@ export type Database = {
       configuracoes_financeiras: {
         Row: {
           atualizado_em: string
+          barbeiro_recebe: boolean
           comissao_produto_percentual: number
           comissao_servico_percentual: number
           criado_em: string
@@ -1353,6 +1354,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          barbeiro_recebe?: boolean
           comissao_produto_percentual?: number
           comissao_servico_percentual?: number
           criado_em?: string
@@ -1364,6 +1366,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          barbeiro_recebe?: boolean
           comissao_produto_percentual?: number
           comissao_servico_percentual?: number
           criado_em?: string
@@ -3753,6 +3756,18 @@ export type Database = {
         }
         Returns: Json
       }
+      definir_barbeiro_recebe: {
+        Args: { _tenant: string; _valor: boolean }
+        Returns: undefined
+      }
+      eh_hoje_na_barbearia: {
+        Args: { _em: string; _tenant: string }
+        Returns: boolean
+      }
+      eh_meu_profissional: {
+        Args: { _profissional_id: string }
+        Returns: boolean
+      }
       eh_profissional_do: {
         Args: { _ator: string; _profissional_id: string }
         Returns: boolean
@@ -3829,6 +3844,10 @@ export type Database = {
       pagar_comanda_com_plano_segura: {
         Args: { _ator: string; _comanda_id: string }
         Returns: Json
+      }
+      permissao_efetiva: {
+        Args: { _perm: string; _tenant: string; _user: string }
+        Returns: boolean
       }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
       preparar_comanda: { Args: { _agendamento_id: string }; Returns: string }
@@ -3926,6 +3945,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      teto_do_papel: { Args: { _papel: string }; Returns: string[] }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }
     }
     Enums: {
