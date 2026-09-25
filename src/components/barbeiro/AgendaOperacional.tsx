@@ -178,7 +178,7 @@ export function AgendaOperacional() {
   useEffect(() => {
     if (!tenantId) return;
     const canal = supabase
-      .channel(`agenda-${tenantId}`)
+      .channel(`agenda-${tenantId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "agendamentos", filter: `tenant_id=eq.${tenantId}` }, () => {
         void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
         void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
