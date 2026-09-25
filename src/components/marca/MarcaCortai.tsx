@@ -1,13 +1,12 @@
 import iconAsset from "@/assets/cortai-icon-official.png.asset.json";
 import blackAsset from "@/assets/cortai-logo-black.png.asset.json";
 import lightBackgroundAsset from "@/assets/cortai-logo-light-bg.png.asset.json";
-import darkBackgroundAsset from "@/assets/cortai-logo-dark-bg.png.asset.json";
 import whiteAsset from "@/assets/cortai-logo-white.png.asset.json";
 
 const marcas = {
   preta: blackAsset.url,
   clara: lightBackgroundAsset.url,
-  escura: darkBackgroundAsset.url,
+  escura: blackAsset.url,
   branca: whiteAsset.url,
 } as const;
 
