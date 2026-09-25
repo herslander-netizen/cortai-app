@@ -57,6 +57,10 @@ const FechamentoComandaLazy = lazy(() =>
   import("@/components/financeiro/FechamentoComanda").then((m) => ({ default: m.FechamentoComanda })),
 );
 
+const PerfilClienteLazy = lazy(() =>
+  import("@/components/cliente-perfil/PerfilClienteSheet").then((m) => ({ default: m.PerfilClienteSheet })),
+);
+
 const TOLERANCIA_MIN = 15;
 const TERMINAIS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
 
@@ -315,7 +319,7 @@ export function AgendaOperacional() {
                   <article key={item.id} className={`agenda-agora ${selecionado === item.id ? "agenda-item-selecionado" : ""}`} onClick={() => setSelecionado(item.id)}>
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
-                        {item.clienteId ? <Link to="/barbeiro/clientes/$id" params={{ id: item.clienteId }} onClick={(e) => e.stopPropagation()} className="block truncate text-lg font-extrabold text-paper">{item.cliente}</Link> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
+                        {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-lg font-extrabold text-paper underline-offset-4 active:underline">{item.cliente}</button> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
                         <p className="mt-0.5 truncate text-sm text-mute">{item.servico} · {item.profissional}</p>
                       </div>
                       <Status status={item.status} />
@@ -381,7 +385,7 @@ export function AgendaOperacional() {
               {chegada.map((f, i) => (
                 <li key={f.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                   <span className="text-sm font-extrabold text-mute">{i + 1}</span>
-                  <div className="min-w-0"><p className="truncate text-sm font-bold text-paper">{f.cliente}</p><p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
+                  <div className="min-w-0">{f.clienteId ? <button type="button" onClick={() => setPerfil(f.clienteId!)} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{f.cliente}</button> : <p className="truncate text-sm font-bold text-paper">{f.cliente}</p>}<p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-mute"><Clock3 aria-hidden size={13} />{minutos(f.criadoEm, agora)} min</span>
                 </li>
               ))}
@@ -421,7 +425,7 @@ export function AgendaOperacional() {
                   <div className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-start gap-3">
                     <p className="pt-0.5 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
                     <div className="min-w-0">
-                      {item.clienteId ? <Link to="/barbeiro/clientes/$id" params={{ id: item.clienteId }} onClick={(e) => e.stopPropagation()} className="block truncate text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</Link> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
+                      {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</button> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
                       <p className="mt-0.5 truncate text-xs text-mute">{item.servico} · {item.profissional}</p>
                     </div>
                     <Status status={item.status} />
