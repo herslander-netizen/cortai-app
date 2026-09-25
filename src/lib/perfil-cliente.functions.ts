@@ -45,7 +45,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<PerfilCliente> => {
     const { db, tenantId, cliente } = await contexto(context, data.clienteId);
     const [tenantRes, agRes, fotosRes, comandasRes] = await Promise.all([
-      db.from("tenants").select("chips_ficha, fuso_horario").eq("id", tenantId).maybeSingle(),
+      db.from("tenants").select("chips_ficha, fuso").eq("id", tenantId).maybeSingle(),
       db
         .from("agendamentos")
         .select("id, inicio, status, valor_centavos, servicos(nome), profissionais(nome)")
@@ -102,7 +102,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
       cancelamentos: historico.filter((h) => h.status === "cancelado").length,
       fotos: fotos.filter((f) => f.url),
       historico: historico.slice(0, 30),
-      fuso: tenantRes.data?.fuso_horario ?? "America/Sao_Paulo",
+      fuso: tenantRes.data?.fuso ?? "America/Sao_Paulo",
     };
   });
 
