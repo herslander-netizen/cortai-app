@@ -93,7 +93,7 @@ export const escolherPlanoDaBarbearia = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    await exigirPermissao(context, tenantId, "gerenciar_plano");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: plano } = await supabaseAdmin

@@ -195,3 +195,26 @@ export const enviarRecuperacaoParaMembro = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/** A barbearia libera (ou não) o barbeiro para receber pagamento. Checado no banco. */
+export const getBarbeiroRecebe = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { data } = await context.supabase
+      .from("configuracoes_financeiras")
+      .select("barbeiro_recebe")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    return { ativo: Boolean((data as { barbeiro_recebe?: boolean } | null)?.barbeiro_recebe) };
+  });
+
+export const definirBarbeiroRecebe = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ ativo: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { error } = await (context.supabase as any).rpc("definir_barbeiro_recebe", { _tenant: tenantId, _valor: data.ativo });
+    if (error) throw new Error("Você não tem permissão para mudar essa regra.");
+    return { ok: true };
+  });
