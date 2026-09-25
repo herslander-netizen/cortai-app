@@ -82,7 +82,8 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     titulo: "Caixa",
     descricao: "Dinheiro que entra e sai da barbearia.",
     itens: [
-      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro" },
+      { acao: "visualizar", chave: "caixa_do_dia", rotulo: "Ver o caixa de hoje" },
+      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro completos" },
       { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
       { acao: "criar", chave: "conceder_desconto", rotulo: "Dar desconto na comanda" },
       { acao: "editar", chave: "caixa_movimentar", rotulo: "Registrar saída, sangria e despesa" },

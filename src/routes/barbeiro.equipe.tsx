@@ -7,6 +7,8 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Aviso } from "@/components/ui/aviso";
 import {
   convidarMembro,
+  definirBarbeiroRecebe,
+  getBarbeiroRecebe,
   enviarRecuperacaoParaMembro,
   listarEquipe,
   removerMembro,
@@ -20,6 +22,7 @@ import {
   PAPEIS,
   PERMISSOES_PADRAO,
   SEM_PERMISSAO,
+  TETO_DO_PAPEL,
   type PapelDeEquipe,
 } from "@/lib/permissoes";
 
@@ -202,6 +205,8 @@ function EquipePage() {
             )}
           </section>
 
+          <RegraDeRecebimento />
+
           <Aviso tom="info" titulo="Segurança">
             As permissões valem também fora da tela: quem não tem acesso a um módulo não consegue usá-lo
             nem por atalho. Toda alteração fica registrada na auditoria da barbearia.
@@ -232,6 +237,7 @@ function CartaoMembro({
   const [papel, setPapel] = useState<PapelDeEquipe>(membro.papel as PapelDeEquipe);
   const [permissoes, setPermissoes] = useState<string[]>(membro.permissoes);
   const [ativo, setAtivo] = useState(membro.ativo);
+  const [ajusteFino, setAjusteFino] = useState(false);
   const dono = membro.papel === "dono";
 
   function trocarPapel(novo: PapelDeEquipe) {
@@ -270,20 +276,36 @@ function CartaoMembro({
 
       {aberto && !dono ? (
         <div className="mt-4 space-y-4 border-t border-line pt-4">
-          <label className="block text-xs font-medium text-mute">
-            Papel
-            <select
-              value={papel}
-              onChange={(e) => trocarPapel(e.target.value as PapelDeEquipe)}
-              className="mt-2 h-11 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
-            >
-              <option value="gerente">{PAPEIS.gerente}</option>
-              <option value="barbeiro">{PAPEIS.barbeiro}</option>
-              <option value="recepcao">{PAPEIS.recepcao}</option>
-            </select>
-          </label>
+          <div>
+            <p className="text-xs font-medium text-mute">Função</p>
+            <div className="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
+              {(["barbeiro", "recepcao", "gerente"] as PapelDeEquipe[]).map((opcao) => (
+                <button
+                  key={opcao}
+                  type="button"
+                  role="radio"
+                  aria-checked={papel === opcao}
+                  onClick={() => trocarPapel(opcao)}
+                  className={`min-h-12 rounded-lg border px-2 text-xs font-semibold ${
+                    papel === opcao ? "border-paper bg-paper text-ink" : "border-line2 bg-ink text-paper"
+                  }`}
+                >
+                  {PAPEIS[opcao].split("/")[0]}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-mute2">{DESCRICAO_DO_PAPEL[papel]} Um toque aplica o pacote da função.</p>
+          </div>
 
-          <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => setAjusteFino((v) => !v)}
+            className="text-xs font-semibold text-paper underline underline-offset-4"
+          >
+            {ajusteFino ? "Esconder ajuste fino" : "Ajuste fino (opcional)"}
+          </button>
+
+          {ajusteFino ?           <div className="space-y-3">
             {MODULOS.map((modulo) => (
               <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
@@ -291,7 +313,7 @@ function CartaoMembro({
                 </legend>
                 <p className="text-[11px] leading-relaxed text-mute2">{modulo.descricao}</p>
                 <div className="mt-2 space-y-1.5">
-                  {modulo.itens.map((item) => (
+                  {modulo.itens.filter((item) => TETO_DO_PAPEL[papel].includes(item.chave)).map((item) => (
                     <label key={item.chave} className="flex items-start gap-3 text-sm text-paper">
                       <input
                         type="checkbox"
@@ -317,6 +339,8 @@ function CartaoMembro({
               </fieldset>
             ))}
           </div>
+
+          ) : null}
 
           <label className="flex items-center gap-3 text-sm text-paper">
             <input
@@ -357,5 +381,38 @@ function CartaoMembro({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function RegraDeRecebimento() {
+  const queryClient = useQueryClient();
+  const regra = useQuery({ queryKey: ["barbeiro-recebe"], queryFn: () => getBarbeiroRecebe() });
+  const mudar = useMutation({
+    mutationFn: (ativo: boolean) => definirBarbeiroRecebe({ data: { ativo } }),
+    onMutate: async (ativo) => {
+      queryClient.setQueryData(["barbeiro-recebe"], { ativo });
+    },
+    onError: () => queryClient.invalidateQueries({ queryKey: ["barbeiro-recebe"] }),
+  });
+  const ativo = regra.data?.ativo ?? false;
+  return (
+    <section className="rounded-lg border border-line bg-ink2 p-4">
+      <label className="flex min-h-12 items-center justify-between gap-4">
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold text-paper">Barbeiro recebe pagamento</span>
+          <span className="mt-1 block text-xs text-mute">
+            Recepção, gerente e dono sempre recebem. Ligue para o barbeiro também fechar a comanda e receber.
+          </span>
+        </span>
+        <input
+          type="checkbox"
+          checked={ativo}
+          disabled={regra.isLoading || mudar.isPending}
+          onChange={(e) => mudar.mutate(e.target.checked)}
+          className="h-6 w-6 shrink-0 accent-[var(--gold)]"
+        />
+      </label>
+      {mudar.isError ? <p className="mt-2 text-xs text-paper">Não foi possível salvar. Tente de novo.</p> : null}
+    </section>
   );
 }
