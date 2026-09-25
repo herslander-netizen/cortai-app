@@ -71,8 +71,14 @@ export type AgendaItem = {
   valor_centavos: number;
   clienteId: string | null;
   cliente: string;
+  telefone: string | null;
+  ficha: string | null;
   servico: string;
+  duracaoMin: number;
   profissional: string;
+  arrivedAt: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
 };
 
 export type FilaJanela = { id: string; cliente: string; janelaInicio: number | null; janelaFim: number | null };
@@ -100,7 +106,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, clientes(nome), servicos(nome), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -119,9 +125,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     ]);
 
 
-    const itens = (agRes.data ?? [])
-      .filter((a) => a.status !== "cancelado")
-      .map((a) => ({
+    const itens = (agRes.data ?? []).map((a) => ({
         id: a.id,
         inicio: a.inicio,
         fim: a.fim,
@@ -130,8 +134,14 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         valor_centavos: a.valor_centavos,
         clienteId: a.cliente_id ?? null,
         cliente: a.clientes?.nome ?? "Cliente",
+        telefone: a.clientes?.telefone ?? null,
+        ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
         servico: a.servicos?.nome ?? "Serviço",
+        duracaoMin: a.servicos?.duracao_min ?? Math.max(1, Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000)),
         profissional: a.profissionais?.nome ?? "—",
+        arrivedAt: a.arrived_at ?? null,
+        startedAt: a.started_at ?? null,
+        finishedAt: a.finished_at ?? null,
       }));
 
     const fila = (filaRes.data ?? []).map((f) => {
@@ -186,9 +196,9 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
     const agora = new Date();
     const { data } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, clientes(nome), servicos(nome), profissionais(nome)")
+      .select("id, inicio, fim, status, cliente_id, arrived_at, started_at, finished_at, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)")
       .eq("tenant_id", tenant.id)
-      .neq("status", "cancelado")
+      .not("status", "in", "(cancelado,nao_compareceu,remarcado,finalizado)")
       .gt("fim", agora.toISOString())
       .lt("inicio", new Date(agora.getTime() + 24 * 60 * 60 * 1000).toISOString())
       .order("inicio")
@@ -197,9 +207,17 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
       id: a.id,
       inicio: a.inicio,
       fim: a.fim,
+      status: a.status,
+      clienteId: a.cliente_id ?? null,
       cliente: a.clientes?.nome ?? "Cliente",
+      telefone: a.clientes?.telefone ?? null,
+      ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
       servico: a.servicos?.nome ?? "Serviço",
+      duracaoMin: a.servicos?.duracao_min ?? Math.max(1, Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000)),
       profissional: a.profissionais?.nome ?? "—",
+      arrivedAt: a.arrived_at ?? null,
+      startedAt: a.started_at ?? null,
+      finishedAt: a.finished_at ?? null,
     }));
     const t = agora.getTime();
     return {
