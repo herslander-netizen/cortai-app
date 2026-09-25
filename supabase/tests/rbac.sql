@@ -5,33 +5,37 @@
 BEGIN;
 
 -- Cenário: uma barbearia, 4 pessoas, 2 profissionais, dados de hoje e de ontem.
-INSERT INTO auth.users (id, email, aud, role) VALUES
- ('00000000-0000-4000-a000-000000000001','t-dono@rbac.test','authenticated','authenticated'),
- ('00000000-0000-4000-a000-000000000002','t-gerente@rbac.test','authenticated','authenticated'),
- ('00000000-0000-4000-a000-000000000003','t-barbeiro@rbac.test','authenticated','authenticated'),
- ('00000000-0000-4000-a000-000000000004','t-recepcao@rbac.test','authenticated','authenticated'),
- ('00000000-0000-4000-a000-000000000005','t-outro@rbac.test','authenticated','authenticated');
+-- Usa 5 contas existentes (o teste não mexe no cadastro de login; tudo é desfeito).
+SELECT user_id AS u1 FROM (SELECT DISTINCT user_id FROM public.perfis ORDER BY user_id LIMIT 1 OFFSET 0) x \gset
+SELECT user_id AS u2 FROM (SELECT DISTINCT user_id FROM public.perfis ORDER BY user_id LIMIT 1 OFFSET 1) x \gset
+SELECT user_id AS u3 FROM (SELECT DISTINCT user_id FROM public.perfis ORDER BY user_id LIMIT 1 OFFSET 2) x \gset
+SELECT user_id AS u4 FROM (SELECT DISTINCT user_id FROM public.perfis ORDER BY user_id LIMIT 1 OFFSET 3) x \gset
+SELECT user_id AS u5 FROM (SELECT DISTINCT user_id FROM public.perfis ORDER BY user_id LIMIT 1 OFFSET 4) x \gset
+-- Isola: essas contas perdem temporariamente outros vínculos e o papel de admin.
+DELETE FROM public.tenant_usuarios WHERE user_id IN (:'u1',:'u2',:'u3',:'u4',:'u5');
+DELETE FROM public.user_roles WHERE user_id IN (:'u1',:'u2',:'u3',:'u4',:'u5');
+UPDATE public.profissionais SET user_id = NULL WHERE user_id IN (:'u1',:'u2',:'u3',:'u4',:'u5');
 
 INSERT INTO public.tenants (id, nome, slug) VALUES ('00000000-0000-4000-b000-000000000001','RBAC Teste','rbac-teste-x');
 INSERT INTO public.tenant_usuarios (tenant_id, user_id, papel, permissoes, ativo)
 SELECT '00000000-0000-4000-b000-000000000001', u, p, public.permissoes_padrao(p) || ARRAY['gerenciar_plano','liberar_fiado','comissao_visualizar_todas','relatorios'], true
-FROM (VALUES ('00000000-0000-4000-a000-000000000001'::uuid,'dono'),
-             ('00000000-0000-4000-a000-000000000002'::uuid,'gerente'),
-             ('00000000-0000-4000-a000-000000000003'::uuid,'barbeiro'),
-             ('00000000-0000-4000-a000-000000000004'::uuid,'recepcao')) v(u,p);
+FROM (VALUES (:'u1'::uuid,'dono'),
+             (:'u2'::uuid,'gerente'),
+             (:'u3'::uuid,'barbeiro'),
+             (:'u4'::uuid,'recepcao')) v(u,p);
 
 INSERT INTO public.profissionais (id, tenant_id, nome, user_id) VALUES
- ('00000000-0000-4000-c000-000000000001','00000000-0000-4000-b000-000000000001','Barbeiro','00000000-0000-4000-a000-000000000003'),
+ ('00000000-0000-4000-c000-000000000001','00000000-0000-4000-b000-000000000001','Barbeiro',:'u3'),
  ('00000000-0000-4000-c000-000000000002','00000000-0000-4000-b000-000000000001','Colega',NULL);
 INSERT INTO public.clientes (id, tenant_id, nome, telefone) VALUES
  ('00000000-0000-4000-d000-000000000001','00000000-0000-4000-b000-000000000001','Cliente','5511900000000');
 INSERT INTO public.comandas (id, tenant_id, numero, cliente_id, aberta_por, profissional_id) VALUES
- ('00000000-0000-4000-e000-000000000001','00000000-0000-4000-b000-000000000001',99001,'00000000-0000-4000-d000-000000000001','00000000-0000-4000-a000-000000000001','00000000-0000-4000-c000-000000000001'),
- ('00000000-0000-4000-e000-000000000002','00000000-0000-4000-b000-000000000001',99002,'00000000-0000-4000-d000-000000000001','00000000-0000-4000-a000-000000000001','00000000-0000-4000-c000-000000000002');
+ ('00000000-0000-4000-e000-000000000001','00000000-0000-4000-b000-000000000001',99001,'00000000-0000-4000-d000-000000000001',:'u1','00000000-0000-4000-c000-000000000001'),
+ ('00000000-0000-4000-e000-000000000002','00000000-0000-4000-b000-000000000001',99002,'00000000-0000-4000-d000-000000000001',:'u1','00000000-0000-4000-c000-000000000002');
 INSERT INTO public.caixa_movimentos (tenant_id, tipo, categoria, descricao, valor_centavos, criado_por, profissional_id, criado_em) VALUES
- ('00000000-0000-4000-b000-000000000001','entrada','servico','hoje meu',1000,'00000000-0000-4000-a000-000000000001','00000000-0000-4000-c000-000000000001', now()),
- ('00000000-0000-4000-b000-000000000001','entrada','servico','hoje colega',2000,'00000000-0000-4000-a000-000000000001','00000000-0000-4000-c000-000000000002', now()),
- ('00000000-0000-4000-b000-000000000001','entrada','servico','ontem colega',3000,'00000000-0000-4000-a000-000000000001','00000000-0000-4000-c000-000000000002', now() - interval '2 days');
+ ('00000000-0000-4000-b000-000000000001','entrada','servico','hoje meu',1000,:'u1','00000000-0000-4000-c000-000000000001', now()),
+ ('00000000-0000-4000-b000-000000000001','entrada','servico','hoje colega',2000,:'u1','00000000-0000-4000-c000-000000000002', now()),
+ ('00000000-0000-4000-b000-000000000001','entrada','servico','ontem colega',3000,:'u1','00000000-0000-4000-c000-000000000002', now() - interval '2 days');
 INSERT INTO public.comissoes (tenant_id, comanda_id, item_comanda_id, profissional_id, tipo_item, base_centavos, percentual, valor_centavos) VALUES
  ('00000000-0000-4000-b000-000000000001','00000000-0000-4000-e000-000000000001',gen_random_uuid(),'00000000-0000-4000-c000-000000000001','servico',1000,50,500),
  ('00000000-0000-4000-b000-000000000001','00000000-0000-4000-e000-000000000002',gen_random_uuid(),'00000000-0000-4000-c000-000000000002','servico',2000,50,1000);
@@ -70,7 +74,7 @@ END $$;
 CREATE OR REPLACE FUNCTION pg_temp.tenta_equipe() RETURNS boolean LANGUAGE plpgsql AS $$
 DECLARE r jsonb;
 BEGIN
-  r := public.definir_acesso_membro('00000000-0000-4000-b000-000000000001','00000000-0000-4000-a000-000000000004','recepcao',public.permissoes_padrao('recepcao'),true);
+  r := public.definir_acesso_membro('00000000-0000-4000-b000-000000000001',:'u4','recepcao',public.permissoes_padrao('recepcao'),true);
   RETURN true;
 EXCEPTION WHEN others THEN RETURN false;
 END $$;
@@ -88,7 +92,7 @@ CREATE OR REPLACE FUNCTION pg_temp.como(_uid text) RETURNS void LANGUAGE sql AS 
 $$;
 
 -- ===== DONO =====
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000001');
+SELECT pg_temp.como(:'u1');
 SET LOCAL ROLE authenticated;
 SELECT pg_temp.checar('dono','le todo o caixa (3)', (SELECT count(*) FROM public.caixa_movimentos WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 3);
 SELECT pg_temp.checar('dono','le comissoes de todos (2)', (SELECT count(*) FROM public.comissoes WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 2);
@@ -103,7 +107,7 @@ RESET ROLE;
 UPDATE public.clientes SET limite_fiado_centavos = 0 WHERE id='00000000-0000-4000-d000-000000000001';
 
 -- ===== GERENTE =====
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000002');
+SELECT pg_temp.como(:'u2');
 SET LOCAL ROLE authenticated;
 SELECT pg_temp.checar('gerente','le todo o caixa (3)', (SELECT count(*) FROM public.caixa_movimentos WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 3);
 SELECT pg_temp.checar('gerente','le comissoes de todos (2)', (SELECT count(*) FROM public.comissoes WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 2);
@@ -118,7 +122,7 @@ SELECT pg_temp.checar('gerente','NAO tem gerenciar_plano mesmo marcado', NOT pub
 RESET ROLE;
 
 -- ===== RECEPCAO =====
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000004');
+SELECT pg_temp.como(:'u4');
 SET LOCAL ROLE authenticated;
 SELECT pg_temp.checar('recepcao','le so o caixa de hoje (2)', (SELECT count(*) FROM public.caixa_movimentos WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 2);
 SELECT pg_temp.checar('recepcao','NAO le comissoes', (SELECT count(*) FROM public.comissoes WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 0);
@@ -134,7 +138,7 @@ SELECT pg_temp.checar('recepcao','NAO exclui a barbearia', NOT pg_temp.tenta_exc
 RESET ROLE;
 
 -- ===== BARBEIRO =====
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000003');
+SELECT pg_temp.como(:'u3');
 SET LOCAL ROLE authenticated;
 SELECT pg_temp.checar('barbeiro','le so o proprio caixa (1)', (SELECT count(*) FROM public.caixa_movimentos WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 1);
 SELECT pg_temp.checar('barbeiro','le so a propria comissao (1)', (SELECT count(*) FROM public.comissoes WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 1);
@@ -150,23 +154,23 @@ SELECT pg_temp.checar('barbeiro','NAO exclui a barbearia', NOT pg_temp.tenta_exc
 RESET ROLE;
 
 -- Barbearia libera: barbeiro passa a receber
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000001');
+SELECT pg_temp.como(:'u1');
 SET LOCAL ROLE authenticated;
 SELECT public.definir_barbeiro_recebe('00000000-0000-4000-b000-000000000001', true);
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000003');
+SELECT pg_temp.como(:'u3');
 SELECT pg_temp.checar('barbeiro','recebe quando a barbearia libera', public.has_tenant_permission('00000000-0000-4000-b000-000000000001','confirmar_pagamento'));
 RESET ROLE;
 
 -- ===== FORA DA BARBEARIA =====
-SELECT pg_temp.como('00000000-0000-4000-a000-000000000005');
+SELECT pg_temp.como(:'u5');
 SET LOCAL ROLE authenticated;
 SELECT pg_temp.checar('estranho','NAO le caixa', (SELECT count(*) FROM public.caixa_movimentos WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 0);
 SELECT pg_temp.checar('estranho','NAO le comandas', (SELECT count(*) FROM public.comandas WHERE tenant_id='00000000-0000-4000-b000-000000000001') = 0);
 RESET ROLE;
 
 -- Teto: permissão proibida gravada no vínculo é descartada
-SELECT pg_temp.checar('teto','barbeiro nao guarda relatorios', NOT ('relatorios' = ANY((SELECT permissoes FROM public.tenant_usuarios WHERE user_id='00000000-0000-4000-a000-000000000003'))));
-SELECT pg_temp.checar('teto','gerente nao guarda liberar_fiado', NOT ('liberar_fiado' = ANY((SELECT permissoes FROM public.tenant_usuarios WHERE user_id='00000000-0000-4000-a000-000000000002'))));
+SELECT pg_temp.checar('teto','barbeiro nao guarda relatorios', NOT ('relatorios' = ANY((SELECT permissoes FROM public.tenant_usuarios WHERE user_id=:'u3'))));
+SELECT pg_temp.checar('teto','gerente nao guarda liberar_fiado', NOT ('liberar_fiado' = ANY((SELECT permissoes FROM public.tenant_usuarios WHERE user_id=:'u2'))));
 
 \pset format unaligned
 \pset tuples_only on
