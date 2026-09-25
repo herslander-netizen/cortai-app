@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro } from "@/lib/tenant";
+import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import {
   condicaoVigente,
   limiteVigente,
@@ -191,6 +191,7 @@ export const aplicarCupom = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_plano");
     const client = await db();
     const hoje = new Date().toISOString().slice(0, 10);
 

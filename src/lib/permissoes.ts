@@ -34,6 +34,10 @@ export const PERMISSOES = {
   comissao_configurar: "Configurar comissões e Pix",
   comissao_pagar: "Pagar comissões",
   comissao_visualizar_todas: "Ver comissões de toda a equipe",
+  caixa_do_dia: "Ver o caixa de hoje",
+  gerenciar_plano: "Plano e cobrança do Cortaí",
+  liberar_fiado: "Liberar fiado para clientes",
+  excluir_barbearia: "Excluir a barbearia",
 } as const;
 
 
@@ -78,7 +82,8 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     titulo: "Caixa",
     descricao: "Dinheiro que entra e sai da barbearia.",
     itens: [
-      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro" },
+      { acao: "visualizar", chave: "caixa_do_dia", rotulo: "Ver o caixa de hoje" },
+      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro completos" },
       { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
       { acao: "criar", chave: "conceder_desconto", rotulo: "Dar desconto na comanda" },
       { acao: "editar", chave: "caixa_movimentar", rotulo: "Registrar saída, sangria e despesa" },
@@ -160,55 +165,44 @@ export const DESCRICAO_DO_PAPEL: Record<PapelDeEquipe, string> = {
   recepcao: "Agenda, clientes e operação do balcão.",
 };
 
-/** Espelha `permissoes_padrao` do banco — usado só para pré-marcar a tela. */
-export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
-  dono: Object.keys(PERMISSOES) as ChaveDePermissao[],
-  gerente: [
-    "criar_agendamento",
-    "agendamento_manual",
-    "cancelar_agendamento",
-    "confirmar_pagamento",
-    "registrar_venda",
-    "alterar_preco",
-    "visualizar_estoque",
-    "alterar_estoque",
-    "visualizar_clientes",
-    "editar_clientes",
-    "visualizar_financeiro",
-    "relatorios",
-    "gerenciar_profissionais",
-    "alterar_dados_barbearia",
-    "gerenciar_voltai",
-    "ver_cortai",
-    "gerenciar_conversas",
-    "assumir_conversa",
-    "configurar_automacoes",
-    "gerenciar_whatsapp",
-    "conceder_desconto",
-    "caixa_abrir_fechar",
-    "caixa_movimentar",
-    "comissao_visualizar_todas",
-  ],
+const TODAS = Object.keys(PERMISSOES) as ChaveDePermissao[];
+const SO_DONO: ChaveDePermissao[] = ["gerenciar_plano", "liberar_fiado", "excluir_barbearia"];
 
+/** Espelha `teto_do_papel` do banco: o ajuste fino nunca passa daqui. */
+export const TETO_DO_PAPEL: Record<PapelDeEquipe, ChaveDePermissao[]> = {
+  dono: TODAS,
+  gerente: TODAS.filter((c) => !SO_DONO.includes(c)),
+  recepcao: [
+    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
+    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "ver_cortai",
+    "gerenciar_conversas", "assumir_conversa", "conceder_desconto", "caixa_abrir_fechar",
+    "caixa_movimentar", "caixa_do_dia",
+  ],
   barbeiro: [
-    "criar_agendamento",
-    "agendamento_manual",
-    "cancelar_agendamento",
-    "confirmar_pagamento",
-    "registrar_venda",
-    "visualizar_estoque",
-    "visualizar_clientes",
-    "editar_clientes",
+    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
+    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "ver_cortai",
+    "assumir_conversa", "conceder_desconto",
+  ],
+};
+
+/** Espelha `permissoes_padrao` do banco — o preset aplicado em um toque. */
+export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
+  dono: TODAS,
+  gerente: [
+    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
+    "registrar_venda", "alterar_preco", "visualizar_estoque", "alterar_estoque", "visualizar_clientes",
+    "editar_clientes", "visualizar_financeiro", "relatorios", "gerenciar_profissionais",
+    "alterar_dados_barbearia", "gerenciar_permissoes", "gerenciar_voltai", "ver_cortai",
+    "gerenciar_conversas", "assumir_conversa", "configurar_automacoes", "gerenciar_whatsapp",
+    "conceder_desconto", "caixa_abrir_fechar", "caixa_movimentar", "comissao_visualizar_todas", "caixa_do_dia",
+  ],
+  barbeiro: [
+    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
+    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes",
   ],
   recepcao: [
-    "criar_agendamento",
-    "agendamento_manual",
-    "cancelar_agendamento",
-    "confirmar_pagamento",
-    "registrar_venda",
-    "visualizar_estoque",
-    "visualizar_clientes",
-    "editar_clientes",
+    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
+    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "caixa_do_dia",
   ],
 };
 
