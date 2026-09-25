@@ -123,6 +123,8 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
 
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO;
   const posicaoAgora = (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO;
+  const maiorNumeroDeRaias = Math.max(1, ...Array.from(posicoes.values(), (posicao) => posicao.raias));
+  const larguraMinima = maiorNumeroDeRaias > 2 ? maiorNumeroDeRaias * 168 : 0;
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
@@ -160,7 +162,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
         </Button>
       ) : null}
       <div ref={rolagemRef} className="agenda-timeline-scroll" aria-label="Timeline de atendimentos" onScroll={acompanharAgora}>
-        <div className="agenda-timeline" style={{ height: `${altura}px` }}>
+        <div className="agenda-timeline" style={{ height: `${altura}px`, minWidth: larguraMinima ? `${larguraMinima}px` : undefined }}>
           {marcas.map((minuto) => (
             <div key={minuto} className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`} style={{ top: `${(minuto - escala.inicio) * PX_POR_MINUTO}px` }}>
               <span>{minuto % 60 === 0 ? horaMinuto(minuto) : ""}</span>
