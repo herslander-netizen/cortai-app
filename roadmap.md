@@ -191,3 +191,6 @@
 - [x] Validar seleção, realtime e rolagem fluida no celular
 
 - [x] Prompt 7: finalizar → comanda → pagamento (plano/Pix/Cartão/Dinheiro/fiado), recepção, retorno, Meu dia
+
+- [x] Perfil do cliente em folha (ficha de corte, alergias, foto com consentimento, histórico)
+- [ ] Validar perfil/foto na tela com conta de barbeiro
