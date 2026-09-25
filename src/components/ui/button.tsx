@@ -36,7 +36,7 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   success?: boolean;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void | Promise<unknown>;
+  onClick?: ((event: React.MouseEvent<HTMLButtonElement>) => void | Promise<unknown>) | undefined;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
