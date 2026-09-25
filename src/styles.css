@@ -37,6 +37,7 @@
   --color-landing-light-muted: var(--landing-light-muted);
   --color-landing-light-line: var(--landing-light-line);
   --color-landing-light-gold: var(--landing-light-gold);
+  --color-whatsapp: var(--whatsapp);
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -73,6 +74,7 @@
   --identity-off-white: #f4f5f2;
   --identity-white: #ffffff;
   --identity-border: #e5e7e6;
+  --whatsapp: #25d366;
   --ink: var(--identity-graphite);
   --ink2: #262b29;
   --ink3: #303634;
@@ -356,6 +358,10 @@
 
 .management-shell .screen-content {
   animation: management-content-in 180ms ease-out;
+}
+
+.management-shell .screen-content > * {
+  max-width: 760px;
 }
 
 @keyframes management-content-in {

@@ -27,7 +27,7 @@
 - [x] Tornar Moderno a identidade padrão e manter Clássico como opção preta e dourada
 - [x] Unificar tokens, Manrope, contraste, alvos de toque e ícones Lucide
 - [x] Adicionar controles de aparência nas telas de Conta
-- [ ] Validar visualmente identidades e modos no celular e no desktop
+- [x] Validar visualmente identidades e modos no celular e no desktop
 
 ## Assistente Cortaí e configuração inicial (aprovado)
 
