@@ -29,14 +29,20 @@ describe("presets por função", () => {
 });
 
 // Prova no banco (RLS e funções). Precisa de acesso ao banco; roda em transação desfeita.
-const temBanco = Boolean(process.env["PGHOST"] || process.env["SUPABASE_DB_URL"]);
+// Requer conexão com papel de administrador do banco em RBAC_DB_URL (o bloco se desfaz sozinho).
+const urlDoBanco = process.env["RBAC_DB_URL"];
+const temBanco = Boolean(urlDoBanco);
 describe.skipIf(!temBanco)("regras no banco por função", () => {
   it("cada função lê e altera só o que deve", () => {
     const arquivo = resolve(__dirname, "../../supabase/tests/rbac.sql");
     expect(existsSync(arquivo)).toBe(true);
-    const saida = execFileSync("psql", ["-X", "-q", "-f", arquivo], { encoding: "utf8", timeout: 60000 });
-    const linhas = saida.split("\n").filter((l) => l.startsWith("PASS") || l.startsWith("FAIL"));
-    expect(linhas.length).toBeGreaterThan(40);
-    expect(linhas.filter((l) => l.startsWith("FAIL"))).toEqual([]);
+    let saida = "";
+    try {
+      execFileSync("psql", [urlDoBanco!, "-X", "-q", "-f", arquivo], { encoding: "utf8", timeout: 60000, stdio: "pipe" });
+    } catch (erro) {
+      saida = String((erro as { stderr?: string }).stderr ?? erro);
+    }
+    // O bloco sempre termina com erro proposital (para desfazer tudo) trazendo o placar.
+    expect(saida).toMatch(/RBAC OK: \d+ verificações/);
   }, 70000);
 });
