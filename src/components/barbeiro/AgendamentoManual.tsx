@@ -7,6 +7,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
 import {
+import { Button } from "@/components/ui/button";
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
   getDadosAgendamentoManual,
@@ -50,7 +51,7 @@ export function AgendamentoManual({
 
   return (
     <>
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => setAberto(true)}
         className={
@@ -60,7 +61,7 @@ export function AgendamentoManual({
         }
       >
         {rotulo ?? (gatilho === "primario" ? "+ Agendamento manual" : "Marcar cliente aqui")}
-      </button>
+      </Button>
       {aberto ? (
         <Formulario
           dia={dia}
@@ -199,9 +200,9 @@ function Formulario({
             <p className="text-base font-bold text-paper">Agendamento manual</p>
             <p className="mt-1 text-xs text-mute">Cliente que chegou agora, em poucos toques.</p>
           </div>
-          <button type="button" aria-label="Fechar" onClick={onFechar} className="p-1 text-mute">
+          <Button variant="ghost" type="button" aria-label="Fechar" onClick={onFechar} className="p-1 text-mute">
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         {/* 1. Cliente */}
@@ -209,7 +210,7 @@ function Formulario({
         {clienteId ? (
           <div className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-line2 px-3 py-3">
             <span className="truncate text-sm text-paper">{clienteNome}</span>
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-tertiary text-xs"
               onClick={() => {
@@ -218,7 +219,7 @@ function Formulario({
               }}
             >
               Trocar
-            </button>
+            </Button>
           </div>
         ) : novo ? (
           <div className="mt-2 space-y-2">
@@ -235,9 +236,9 @@ function Formulario({
               value={novoTelefone}
               onChange={(e) => setNovoTelefone(e.target.value)}
             />
-            <button type="button" className="btn-tertiary text-xs" onClick={() => setNovo(false)}>
+            <Button variant="ghost" type="button" className="btn-tertiary text-xs" onClick={() => setNovo(false)}>
               Buscar cliente já cadastrado
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="mt-2">
@@ -254,7 +255,7 @@ function Formulario({
               {buscando ? <li className="py-3 text-xs text-mute">Buscando…</li> : null}
               {(clientes ?? []).map((c) => (
                 <li key={c.id} className="border-b border-line">
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     className="flex w-full items-center justify-between gap-3 py-3 text-left"
                     onClick={() => {
@@ -264,14 +265,14 @@ function Formulario({
                   >
                     <span className="truncate text-sm text-paper">{c.nome}</span>
                     <span className="shrink-0 text-xs text-mute2">{c.telefone}</span>
-                  </button>
+                  </Button>
                 </li>
               ))}
               {!buscando && (clientes ?? []).length === 0 ? (
                 <li className="py-3 text-xs text-mute">Nenhum cliente encontrado nesta barbearia.</li>
               ) : null}
             </ul>
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-secondary mt-2 w-full text-sm"
               onClick={() => {
@@ -280,7 +281,7 @@ function Formulario({
               }}
             >
               Cadastrar cliente novo
-            </button>
+            </Button>
           </div>
         )}
 
@@ -316,7 +317,7 @@ function Formulario({
         {/* 3. Horário */}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-mute2">3. Horário</p>
         {proximo.data ? (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => {
               setData(new Date().toISOString().slice(0, 10));
@@ -328,7 +329,7 @@ function Formulario({
           >
             <span className="font-semibold">Atender agora</span>
             <span>próximo livre {proximo.data.label}</span>
-          </button>
+          </Button>
         ) : null}
 
         <div className="mt-2 grid grid-cols-2 gap-2">
@@ -362,7 +363,7 @@ function Formulario({
               ["credito", "Crédito"],
             ] as const
           ).map(([v, rotulo]) => (
-            <button
+            <Button variant="ghost"
               key={v}
               type="button"
               onClick={() => setForma(v)}
@@ -371,7 +372,7 @@ function Formulario({
               }`}
             >
               {rotulo}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -381,7 +382,7 @@ function Formulario({
             {conflito.sugestoes.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {conflito.sugestoes.map((s) => (
-                  <button
+                  <Button variant="ghost"
                     key={s.iso}
                     type="button"
                     className="rounded-lg border border-line2 px-3 py-2 text-xs text-paper"
@@ -391,7 +392,7 @@ function Formulario({
                     }}
                   >
                     {s.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             ) : (
@@ -406,14 +407,14 @@ function Formulario({
           </Aviso>
         ) : null}
 
-        <button
+        <Button variant="ghost"
           type="button"
           disabled={!pronto || salvando}
           onClick={() => void salvar()}
           className="btn-primary mt-5 w-full text-sm disabled:opacity-40"
         >
           {salvando ? "Agendando…" : "Confirmar agendamento"}
-        </button>
+        </Button>
       </div>
     </div>
   );

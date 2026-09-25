@@ -10,6 +10,7 @@ import { PainelDeSincronizacao } from "@/components/ia/PainelDeSincronizacao";
 import { STATUS_DA_INTEGRACAO, type StatusDaIntegracao } from "@/lib/ia/contrato";
 import type { PainelDeIntegracao } from "@/lib/ia.functions";
 import { conectarAlvoIA, desconectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/integracoes")({
   ssr: false,
@@ -190,34 +191,34 @@ function IntegracoesPage() {
               />
             </label>
 
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-primary w-full"
               disabled={salvarAgente.isPending || nome.trim().length < 2}
               onClick={() => salvarAgente.mutate()}
             >
               {salvarAgente.isPending ? "Salvando…" : "Salvar atendente"}
-            </button>
+            </Button>
             {ok ? <p className="text-center text-sm text-sage">Atendente salvo.</p> : null}
 
             {data.integracao.status === "conectado" ? (
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
                 disabled={desligar.isPending}
                 onClick={() => desligar.mutate()}
               >
                 {desligar.isPending ? "Desligando…" : "Desligar atendimento inteligente"}
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
                 disabled={pedirConexao.isPending}
                 onClick={() => pedirConexao.mutate()}
               >
                 {pedirConexao.isPending ? "Conectando…" : "Conectar o atendimento inteligente"}
-              </button>
+              </Button>
             )}
 
             {chave ? (

@@ -11,6 +11,7 @@ import { PreferenciasDePrivacidade } from "@/components/privacidade/Preferencias
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
@@ -84,7 +85,7 @@ function ContaPage() {
         <li><ThemeToggle identidadeDaBarbearia={data?.identidadeApp} tenantId={data?.tenantId ?? undefined} podeAlterarIdentidade={data?.papelNaEquipe === "dono"} /></li>
         <li><InstalarCortai /></li>
         <li className="border-b border-line">
-          <button
+          <Button variant="ghost"
             type="button"
             disabled={saindo}
             onClick={() => {
@@ -96,7 +97,7 @@ function ContaPage() {
             <LogOut size={18} className="text-mute" />
             <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
             <ChevronRight size={16} className="text-mute2" />
-          </button>
+          </Button>
         </li>
       </ul>
 

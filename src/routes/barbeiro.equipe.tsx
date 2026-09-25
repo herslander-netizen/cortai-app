@@ -16,6 +16,7 @@ import {
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
 import {
+import { Button } from "@/components/ui/button";
   ACOES,
   DESCRICAO_DO_PAPEL,
   MODULOS,
@@ -165,9 +166,9 @@ function EquipePage() {
                 </select>
                 <span className="mt-1 block text-xs text-mute2">{DESCRICAO_DO_PAPEL[papelConvite]}</span>
               </label>
-              <button className="btn-primary w-full py-3" disabled={convite.isPending}>
+              <Button variant="ghost" className="btn-primary w-full py-3" disabled={convite.isPending}>
                 {convite.isPending ? "Enviando…" : "Convidar para a equipe"}
-              </button>
+              </Button>
             </form>
           </section>
 
@@ -264,13 +265,13 @@ function CartaoMembro({
         {dono ? (
           <ShieldCheck size={18} className="mt-1 shrink-0 text-gold" aria-label="Proprietário" />
         ) : (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={onAbrir}
             className="shrink-0 rounded-lg border border-line2 px-3 py-1.5 text-xs font-semibold text-paper"
           >
             {aberto ? "Fechar" : "Ajustar"}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -280,7 +281,7 @@ function CartaoMembro({
             <p className="text-xs font-medium text-mute">Função</p>
             <div className="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
               {(["barbeiro", "recepcao", "gerente"] as PapelDeEquipe[]).map((opcao) => (
-                <button
+                <Button variant="ghost"
                   key={opcao}
                   type="button"
                   role="radio"
@@ -291,19 +292,19 @@ function CartaoMembro({
                   }`}
                 >
                   {PAPEIS[opcao].split("/")[0]}
-                </button>
+                </Button>
               ))}
             </div>
             <p className="mt-2 text-xs text-mute2">{DESCRICAO_DO_PAPEL[papel]} Um toque aplica o pacote da função.</p>
           </div>
 
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => setAjusteFino((v) => !v)}
             className="text-xs font-semibold text-paper underline underline-offset-4"
           >
             {ajusteFino ? "Esconder ajuste fino" : "Ajuste fino (opcional)"}
-          </button>
+          </Button>
 
           {ajusteFino ? (<div className="space-y-3">
             {MODULOS.map((modulo) => (
@@ -353,30 +354,30 @@ function CartaoMembro({
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-primary flex-1 py-2.5"
               disabled={ocupado}
               onClick={() => onSalvar({ papel, permissoes, ativo })}
             >
               Salvar acesso
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-paper"
               disabled={ocupado}
               onClick={onRecuperar}
             >
               <KeyRound size={14} /> Enviar recuperação
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-brick"
               disabled={ocupado}
               onClick={onRemover}
             >
               <Trash2 size={14} /> Remover acesso
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

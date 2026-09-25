@@ -76,18 +76,18 @@ function EditorDeTemas({ marca, recarregar }: { marca: MarcaData; recarregar: ()
         <section>
           <h2 className="mb-3 text-sm font-semibold text-paper">Tema</h2>
           <div className="grid grid-cols-2 gap-3">
-            {Object.entries(TEMAS).map(([id, tema]) => <button type="button" key={id} onClick={() => setConfig((old) => ({ ...old, tema: id as TemaId, cores: tema.cores }))} className={`rounded-lg border p-3 text-left ${config.tema === id ? "border-gold" : "border-line"}`}>
+            {Object.entries(TEMAS).map(([id, tema]) => <Button variant="ghost" type="button" key={id} onClick={() => setConfig((old) => ({ ...old, tema: id as TemaId, cores: tema.cores }))} className={`rounded-lg border p-3 text-left ${config.tema === id ? "border-gold" : "border-line"}`}>
               <span className="mb-3 flex gap-1">{Object.values(tema.cores).slice(0, 4).map((cor) => <i key={cor} className="h-5 flex-1 rounded-sm" style={{ backgroundColor: cor }} />)}</span>
               <span className="flex items-center justify-between text-xs font-semibold text-paper">{tema.nome}{config.tema === id ? <Check size={14} className="text-gold" /> : null}</span>
               <small className="mt-1 block text-[10px] text-mute">{tema.descricao}</small>
-            </button>)}
+            </Button>)}
           </div>
         </section>
 
         <section>
           <h2 className="mb-3 text-sm font-semibold text-paper">Layout</h2>
           <div className="grid gap-2 sm:grid-cols-2">
-            {Object.entries(LAYOUTS).map(([id, nome]) => <button type="button" key={id} onClick={() => alterar("layout", id as LayoutId)} className={`flex items-center justify-between rounded-lg border px-3 py-3 text-xs font-medium text-paper ${config.layout === id ? "border-gold" : "border-line"}`}>{nome}{config.layout === id ? <Check size={14} className="text-gold" /> : null}</button>)}
+            {Object.entries(LAYOUTS).map(([id, nome]) => <Button variant="ghost" type="button" key={id} onClick={() => alterar("layout", id as LayoutId)} className={`flex items-center justify-between rounded-lg border px-3 py-3 text-xs font-medium text-paper ${config.layout === id ? "border-gold" : "border-line"}`}>{nome}{config.layout === id ? <Check size={14} className="text-gold" /> : null}</Button>)}
           </div>
         </section>
 

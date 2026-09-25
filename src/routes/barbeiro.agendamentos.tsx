@@ -6,6 +6,7 @@ import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
 import {
+import { Button } from "@/components/ui/button";
   listarAgendamentosConfirmados,
   type AgendamentoConfirmado,
 } from "@/lib/agendamentos.functions";
@@ -93,7 +94,7 @@ function AgendamentosPage() {
     >
       <div className="mb-4 grid grid-cols-3 gap-2" role="group" aria-label="Período">
         {PERIODOS.map((p) => (
-          <button
+          <Button variant="ghost"
             key={p.chave}
             type="button"
             onClick={() => setPeriodo(p.chave)}
@@ -102,7 +103,7 @@ function AgendamentosPage() {
             }`}
           >
             {p.rotulo}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -110,9 +111,9 @@ function AgendamentosPage() {
         <p className="text-xs text-mute2">
           {isFetching ? "Atualizando…" : `${data?.length ?? 0} agendamento(s)`}
         </p>
-        <button type="button" className="btn-tertiary text-xs" onClick={() => void refetch()}>
+        <Button variant="ghost" type="button" className="btn-tertiary text-xs" onClick={() => void refetch()}>
           Atualizar
-        </button>
+        </Button>
       </div>
 
       {isLoading ? <Carregando /> : null}

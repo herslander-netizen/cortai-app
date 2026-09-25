@@ -190,7 +190,7 @@ function CaixaPage() {
               const aberto = detalhe === m.id;
               return (
                 <li key={m.id} className="border-b border-line">
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     className="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 py-4 text-left"
                     onClick={() => setDetalhe(aberto ? null : m.id)}
@@ -212,7 +212,7 @@ function CaixaPage() {
                       {m.tipo === "entrada" ? "+" : "−"} {brl(m.valor_centavos)}
                     </span>
                     <ChevronRight size={16} className="text-mute2" />
-                  </button>
+                  </Button>
                   {aberto ? (
                     <dl className="grid grid-cols-2 gap-2 pb-4 text-xs text-mute">
                       <div>

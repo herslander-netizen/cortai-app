@@ -9,6 +9,7 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso } from "@/lib/avisos";
 import { esquecerSessao } from "@/lib/guarda";
 import { definirBarbeariaAtiva, getMinhasBarbearias } from "@/lib/barbearias.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/barbearias")({
   ssr: false,
@@ -105,14 +106,14 @@ function MinhasBarbeariasPage() {
                 </div>
               </div>
 
-              <button
+              <Button variant="ghost"
                 type="button"
                 className={`${b.ehAtiva ? "btn-secondary" : "btn-primary"} mt-4 w-full py-3`}
                 disabled={!b.acessoAtivo || indo !== null}
                 onClick={() => void abrirConfiguracao(b.id, b.ehAtiva)}
               >
                 {indo === b.id ? "Abrindo…" : b.concluida ? "Ver resumo da configuração" : "Voltar à configuração"}
-              </button>
+              </Button>
             </article>
           ))}
         </div>

@@ -15,6 +15,7 @@ import {
 } from "@/lib/barbeiro.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { PersonalizacaoCliente } from "@/components/barbeiro/PersonalizacaoCliente";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
@@ -133,7 +134,7 @@ function FichaPage() {
                 className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper disabled:opacity-50"
               />
             </label>
-            <button
+            <Button variant="ghost"
               type="button"
               className="btn-secondary mt-3 w-full disabled:opacity-50"
               disabled={quitado || !valor}
@@ -144,15 +145,15 @@ function FichaPage() {
               }}
             >
               Dar baixa parcial
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               className="btn-primary mt-3 w-full disabled:opacity-50"
               disabled={quitado}
               onClick={() => registrar(aberto)}
             >
               Quitar tudo
-            </button>
+            </Button>
             <p className="mt-2 text-xs text-mute2">
               Toda baixa entra como lançamento novo na carteira. O débito original nunca é alterado.
             </p>
@@ -199,7 +200,7 @@ function FichaPage() {
                 ? "Arquivado: some das listas do dia a dia, mas o histórico continua nos relatórios."
                 : "Ativo nas listas e na agenda. Arquivar é reversível e não apaga nada."}
             </p>
-            <button
+            <Button variant="ghost"
               type="button"
               disabled={arquivando}
               className="btn-secondary mt-3 w-full disabled:opacity-50"
@@ -218,7 +219,7 @@ function FichaPage() {
               }}
             >
               {arquivando ? "Salvando…" : data.cliente.arquivado_em ? "Reativar cliente" : "Arquivar cliente"}
-            </button>
+            </Button>
             {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
             <p className="mt-5 text-xs text-mute2">
               A exclusão definitiva só é possível para cadastros sem nenhum atendimento ou lançamento financeiro.

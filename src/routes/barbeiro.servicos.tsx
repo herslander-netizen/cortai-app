@@ -7,6 +7,7 @@ import { Screen } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { getConfiguracaoInicial, salvarServicos } from "@/lib/onboarding.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/servicos")({
   ssr: false,
@@ -57,7 +58,7 @@ function ServicosPage() {
         <EditorDeServicos servicos={servicos} onChange={setServicos} />
       </div>
 
-      <button
+      <Button variant="ghost"
         type="button"
         className="btn-primary mt-8 w-full py-3.5"
         disabled={estado === "salvando" || servicos.filter((s) => s.nome.trim().length >= 2).length === 0}
@@ -87,7 +88,7 @@ function ServicosPage() {
         }}
       >
         {estado === "salvando" ? "Salvando…" : estado === "salvo" ? "Serviços salvos" : "Salvar serviços"}
-      </button>
+      </Button>
       {erro ? (
         <p className="mt-3 text-sm text-brick" role="alert">
           {erro}

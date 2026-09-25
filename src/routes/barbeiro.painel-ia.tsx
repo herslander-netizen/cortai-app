@@ -10,6 +10,7 @@ import { EmptyState, SectionHeading } from "@/components/ui/section";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
 import { cancelarAgendamentoPainel, remarcarAgendamentoPainel } from "@/lib/barbeiro.functions";
 import { getPainelOperacional, type PainelOperacional } from "@/lib/ia.functions";
+import { Button } from "@/components/ui/button";
 
 function diaDeHoje() {
   const d = new Date();
@@ -95,7 +96,7 @@ function LinhaAgendamento({
 
       {encerrado ? null : (
         <div className="mt-2 flex gap-2">
-          <button
+          <Button variant="ghost"
             type="button"
             className="btn-tertiary text-[11px]"
             onClick={() => {
@@ -104,8 +105,8 @@ function LinhaAgendamento({
             }}
           >
             {editando ? "Fechar" : "Remarcar"}
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             className="btn-tertiary text-[11px] text-brick"
             disabled={ocupado}
@@ -123,7 +124,7 @@ function LinhaAgendamento({
             }}
           >
             Cancelar
-          </button>
+          </Button>
         </div>
       )}
 
@@ -135,7 +136,7 @@ function LinhaAgendamento({
             onChange={(e) => setQuando(e.target.value)}
             className="h-10 rounded-lg border border-line2 bg-ink2 px-3 text-xs text-paper outline-none"
           />
-          <button
+          <Button variant="ghost"
             type="button"
             className="btn-primary px-4 py-2 text-xs"
             disabled={ocupado}
@@ -155,7 +156,7 @@ function LinhaAgendamento({
             }}
           >
             {ocupado ? "Salvando…" : "Confirmar novo horário"}
-          </button>
+          </Button>
         </div>
       ) : null}
 
@@ -217,7 +218,7 @@ function PainelIaPage() {
 
           <div className="flex gap-2 overflow-x-auto">
             {ABAS.map((item) => (
-              <button
+              <Button variant="ghost"
                 key={item}
                 type="button"
                 onClick={() => setAba(item)}
@@ -226,7 +227,7 @@ function PainelIaPage() {
                 }`}
               >
                 {item}
-              </button>
+              </Button>
             ))}
           </div>
 

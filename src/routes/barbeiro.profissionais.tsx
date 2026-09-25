@@ -7,6 +7,7 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
 import { useAcao } from "@/hooks/useAcao";
 import { Carregando } from "@/components/layout/Carregando";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
@@ -75,7 +76,7 @@ function ProfissionaisPage() {
                   placeholder="https://"
                 />
               </label>
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="btn-tertiary mt-4 text-xs"
                 disabled={acao.ocupado}
@@ -99,7 +100,7 @@ function ProfissionaisPage() {
                 }
               >
                 {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
-              </button>
+              </Button>
 
             </li>
           );

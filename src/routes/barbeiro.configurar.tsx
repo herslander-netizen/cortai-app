@@ -13,6 +13,7 @@ import { aviso } from "@/lib/avisos";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
 import {
+import { Button } from "@/components/ui/button";
   adicionarProfissional,
   concluirConfiguracao,
   ETAPAS_DO_ONBOARDING,
@@ -247,18 +248,18 @@ function ConfigurarPage() {
     <div className="sticky bottom-0 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
       <div className="flex items-center gap-3">
         {indice > 0 ? (
-          <button type="button" className="btn-tertiary min-h-12 px-3 text-sm" onClick={anterior}>
+          <Button variant="ghost" type="button" className="btn-tertiary min-h-12 px-3 text-sm" onClick={anterior}>
             Voltar
-          </button>
+          </Button>
         ) : null}
-        <button type="button" className="btn-primary min-h-14 flex-1 text-sm" disabled={desabilitado} onClick={aoContinuar}>
+        <Button variant="ghost" type="button" className="btn-primary min-h-14 flex-1 text-sm" disabled={desabilitado} onClick={aoContinuar}>
           {rotulo}
-        </button>
+        </Button>
       </div>
       {pular ? (
-        <button type="button" className="mt-2 min-h-10 w-full text-center text-xs text-mute" onClick={pular}>
+        <Button variant="ghost" type="button" className="mt-2 min-h-10 w-full text-center text-xs text-mute" onClick={pular}>
           Pular por agora
-        </button>
+        </Button>
       ) : null}
     </div>
   );
@@ -289,7 +290,7 @@ function ConfigurarPage() {
           {etapa === "dados" ? (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => arquivoRef.current?.click()}
                   className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line2 bg-ink2"
@@ -300,7 +301,7 @@ function ConfigurarPage() {
                   ) : (
                     <Camera size={22} className="text-mute" aria-hidden />
                   )}
-                </button>
+                </Button>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-paper">Logo ou foto</p>
                   <p className="mt-1 text-xs text-mute">
@@ -352,7 +353,7 @@ function ConfigurarPage() {
 
           {etapa === "equipe" ? (
             <div>
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() =>
                   proxima(async () => {
@@ -367,7 +368,7 @@ function ConfigurarPage() {
                   <span className="block text-sm font-semibold text-paper">Trabalho sozinho</span>
                   <span className="block text-xs text-mute">Você aparece como o profissional. Pula este passo.</span>
                 </span>
-              </button>
+              </Button>
 
               <p className="mt-6 text-xs font-medium text-mute">Quem trabalha com você</p>
               <ul className="mt-2 divide-y divide-line border-y border-line">
@@ -385,7 +386,7 @@ function ConfigurarPage() {
               <div className="mt-4 space-y-3 rounded-xl border border-line bg-ink2 p-4">
                 <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
                   {FUNCOES.map((f) => (
-                    <button
+                    <Button variant="ghost"
                       key={f.valor}
                       type="button"
                       role="radio"
@@ -396,7 +397,7 @@ function ConfigurarPage() {
                       }`}
                     >
                       {f.rotulo}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <p className="text-xs text-mute">
@@ -418,7 +419,7 @@ function ConfigurarPage() {
                   placeholder={novaFuncao === "recepcao" ? "E-mail (para enviar o convite)" : "E-mail para dar acesso (opcional)"}
                   className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
                 />
-                <button
+                <Button variant="ghost"
                   type="button"
                   disabled={adicionando}
                   onClick={() => void adicionarPessoa()}
@@ -426,7 +427,7 @@ function ConfigurarPage() {
                 >
                   <Plus size={14} className="mr-1.5 inline" aria-hidden />
                   {adicionando ? "Adicionando…" : "Adicionar"}
-                </button>
+                </Button>
               </div>
 
               {rodape(() => proxima(garantirDonoNaAgenda))}
@@ -462,7 +463,7 @@ function ConfigurarPage() {
 
           {etapa === "regras" ? (
             <div>
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => {
                   setRegras(REGRAS_RECOMENDADAS);
@@ -475,7 +476,7 @@ function ConfigurarPage() {
                   <span className="block text-sm font-semibold text-paper">Usar padrão recomendado</span>
                   <span className="block text-xs text-mute">1 h de antecedência, cancelar até 2 h antes, aceita encaixe.</span>
                 </span>
-              </button>
+              </Button>
 
               <Escolha
                 titulo="Antecedência mínima para agendar"
@@ -518,7 +519,7 @@ function ConfigurarPage() {
                 {linkCurto}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3">
-                <button
+                <Button variant="ghost"
                   type="button"
                   className="btn-secondary min-h-12 text-sm"
                   onClick={async () => {
@@ -529,7 +530,7 @@ function ConfigurarPage() {
                 >
                   <Copy size={14} className="mr-1.5 inline" aria-hidden />
                   {copiado ? "Copiado" : "Copiar"}
-                </button>
+                </Button>
                 <a
                   className="btn-secondary inline-flex min-h-12 items-center justify-center text-sm"
                   href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
@@ -554,20 +555,20 @@ function ConfigurarPage() {
               </span>
               <h2 className="mt-5 text-xl font-semibold text-paper">Sua barbearia está pronta para receber agendamentos.</h2>
               <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="btn-primary mt-8 min-h-14 w-full text-sm"
                 onClick={() => void navigate({ to: "/barbeiro" })}
               >
                 Ir para a agenda
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 className="mt-3 min-h-12 w-full text-center text-xs text-mute"
                 onClick={() => setEtapaEscolhida("dados")}
               >
                 Revisar configuração
-              </button>
+              </Button>
             </div>
           ) : null}
         </>
@@ -592,7 +593,7 @@ function Escolha({
       <legend className="text-sm font-semibold text-paper">{titulo}</legend>
       <div className="mt-2 flex flex-wrap gap-2">
         {opcoes.map((o) => (
-          <button
+          <Button variant="ghost"
             key={o.valor}
             type="button"
             aria-pressed={valor === o.valor}
@@ -602,7 +603,7 @@ function Escolha({
             }`}
           >
             {o.rotulo}
-          </button>
+          </Button>
         ))}
       </div>
     </fieldset>

@@ -8,6 +8,7 @@ import { Screen } from "@/components/layout/Screen";
 import { getCrescimento } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/crescimento")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "crescimento"),
@@ -105,7 +106,7 @@ function CrescimentoPage() {
           <div data-guia="crescimento-compartilhar" className="surface-card p-5 md:max-w-2xl">
             <p className="break-all text-xs text-mute">{link}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">
-              <button
+              <Button variant="ghost"
                 type="button"
                 className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
                 onClick={async () => {
@@ -115,23 +116,23 @@ function CrescimentoPage() {
               >
                 <Copy size={16} className="text-gold" />
                 Copiar
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
                 onClick={() => navigator.share?.({ title: data.tenant.nome, url: link })}
               >
                 <Share2 size={16} className="text-gold" />
                 Compartilhar
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
                 onClick={() => setMostrarQr((v) => !v)}
               >
                 <QrCode size={16} className="text-gold" />
                 QR Code
-              </button>
+              </Button>
             </div>
             {copiado ? <p className="mt-3 text-xs text-sage">Link copiado.</p> : null}
             {mostrarQr && qr ? (

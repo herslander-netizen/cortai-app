@@ -305,7 +305,7 @@ export function AgendaOperacional() {
                   <article onClick={() => setSelecionado(item.id)}>
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
-                        {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-lg font-extrabold text-paper underline-offset-4 active:underline">{item.cliente}</button> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
+                        {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-lg font-extrabold text-paper underline-offset-4 active:underline">{item.cliente}</Button> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
                         <p className="mt-0.5 truncate text-sm text-mute">{item.servico} · {item.profissional}</p>
                       </div>
                       <StatusBadge status={item.status} />
@@ -337,11 +337,11 @@ export function AgendaOperacional() {
               return (
                 <div key={item.id} className="grid grid-cols-[70px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                   <div><p className="text-[10px] font-bold uppercase text-mute2">{indice === 0 ? "Próximo" : "Depois"}</p><p className="mt-1 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p></div>
-                  <button type="button" className="min-w-0 text-left" onClick={() => setSelecionado(item.id)}>
+                  <Button variant="ghost" type="button" className="min-w-0 text-left" onClick={() => setSelecionado(item.id)}>
                     <span className="block truncate text-sm font-semibold text-paper">{item.cliente}</span>
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
                     {espera > 0 ? <span className="mt-1 block text-xs font-semibold text-brick">~{espera} min de espera</span> : null}
-                  </button>
+                  </Button>
                   {espera > 0 && telefone ? <Button asChild variant="secondary" size="sm"><a href={`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer" aria-label={`Avisar ${item.cliente} pelo WhatsApp`}><MessageCircle />Avisar</a></Button> : <StatusBadge status={item.status} />}
                 </div>
               );
@@ -364,7 +364,7 @@ export function AgendaOperacional() {
             {souRecepcao && filaQ.data ? (
               <div className="mb-2 flex flex-wrap gap-2" aria-label="Profissional que vai atender">
                 {filaQ.data.profissionais.map((p) => (
-                  <button key={p.id} type="button" className={`agenda-chip ${profEscolhido === p.id ? "agenda-chip-ativo" : ""}`} onClick={() => setProfChamada(p.id)}>{p.nome}{p.livre ? " · livre" : ""}</button>
+                  <Button variant="ghost" key={p.id} type="button" className={`agenda-chip ${profEscolhido === p.id ? "agenda-chip-ativo" : ""}`} onClick={() => setProfChamada(p.id)}>{p.nome}{p.livre ? " · livre" : ""}</Button>
                 ))}
               </div>
             ) : null}
@@ -372,7 +372,7 @@ export function AgendaOperacional() {
               {chegada.map((f, i) => (
                 <li key={f.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                   <span className="text-sm font-extrabold text-mute">{i + 1}</span>
-                  <div className="min-w-0">{f.clienteId ? <button type="button" onClick={() => setPerfil(f.clienteId!)} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{f.cliente}</button> : <p className="truncate text-sm font-bold text-paper">{f.cliente}</p>}<p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
+                  <div className="min-w-0">{f.clienteId ? <Button variant="ghost" type="button" onClick={() => setPerfil(f.clienteId!)} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{f.cliente}</Button> : <p className="truncate text-sm font-bold text-paper">{f.cliente}</p>}<p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-mute"><Clock3 aria-hidden size={13} />{minutos(f.criadoEm, agora)} min</span>
                 </li>
               ))}
@@ -412,7 +412,7 @@ export function AgendaOperacional() {
                   <div className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-start gap-3">
                     <p className="pt-0.5 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
                     <div className="min-w-0">
-                      {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</button> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
+                      {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</Button> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
                       <p className="mt-0.5 truncate text-xs text-mute">{item.servico} · {item.profissional}</p>
                       {(item as { confirmadoEm?: string | null }).confirmadoEm && item.status === "agendado" ? (
                         <p className="mt-1 inline-flex items-center gap-1 rounded-sm bg-sage px-1.5 py-0.5 text-[11px] font-semibold text-ink">
@@ -435,10 +435,10 @@ export function AgendaOperacional() {
             <ul className="divide-y divide-line border-y border-line">
               {aReceber.map((c) => (
                 <li key={c.id}>
-                  <button type="button" className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-left active:bg-ink2" onClick={() => setFechando(c.agendamentoId)}>
+                  <Button variant="ghost" type="button" className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-left active:bg-ink2" onClick={() => setFechando(c.agendamentoId)}>
                     <span className="min-w-0"><span className="block truncate text-sm font-bold text-paper">{c.cliente}</span><span className="block truncate text-xs text-mute">{c.profissional} · #{c.numero}{c.pix ? " · Pix a confirmar" : ""}</span></span>
                      <span className="money-value flex items-center gap-2 text-sm text-paper"><HandCoins aria-hidden className="size-4" />{brl(c.total)}</span>
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -447,10 +447,10 @@ export function AgendaOperacional() {
 
         {ehHoje && meuDiaQ.data ? (
           <section className="mt-6 border-t border-line pt-2">
-            <button type="button" aria-expanded={meuDiaAberto} className="flex min-h-12 w-full items-center justify-between gap-3 text-left" onClick={() => setMeuDiaAberto((v) => !v)}>
+            <Button variant="ghost" type="button" aria-expanded={meuDiaAberto} className="flex min-h-12 w-full items-center justify-between gap-3 text-left" onClick={() => setMeuDiaAberto((v) => !v)}>
               <span className="flex items-center gap-2 text-sm font-bold text-paper"><ChartNoAxesColumn aria-hidden className="size-4" />Meu dia</span>
               <span className="text-xs text-mute">{meuDiaQ.data.atendimentos} atend. · {brl(meuDiaQ.data.vendido)}</span>
-            </button>
+            </Button>
             {meuDiaAberto ? (
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 pb-3 text-sm">
                 <div><dt className="text-xs text-mute">Atendimentos hoje</dt><dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.atendimentos}</dd></div>
