@@ -28,6 +28,8 @@ type MudancaMeta = {
       image?: { id?: string; caption?: string };
       document?: { id?: string; caption?: string };
       location?: { latitude?: number; longitude?: number };
+      button?: { payload?: string; text?: string };
+      interactive?: { button_reply?: { id?: string; title?: string } };
     }[];
     statuses?: {
       id?: string;
@@ -74,13 +76,22 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
   for (const mensagem of mensagens) {
     const telefone = mensagem.from ?? "";
     if (!telefone) continue;
-    const tipoBruto = mensagem.type ?? "text";
+    // Toque em botão (resposta rápida de modelo ou botão interativo) vira texto:
+    // o identificador do botão segue como conteúdo para a regra do lembrete.
+    const toque =
+      mensagem.button?.payload ??
+      mensagem.button?.text ??
+      mensagem.interactive?.button_reply?.id ??
+      mensagem.interactive?.button_reply?.title ??
+      null;
+    const tipoBruto = toque ? "text" : (mensagem.type ?? "text");
     const tipo = TIPOS_DE_MIDIA.has(tipoBruto) ? tipoBruto : tipoBruto === "text" ? "text" : "unknown";
     const contato = valor.contacts?.find((c) => c.wa_id === telefone) ?? valor.contacts?.[0];
     const conteudo =
-      tipo === "text"
+      toque ??
+      (tipo === "text"
         ? (mensagem.text?.body ?? "")
-        : (mensagem.image?.caption ?? mensagem.document?.caption ?? "");
+        : (mensagem.image?.caption ?? mensagem.document?.caption ?? ""));
     await fluxo.processarMensagemRecebida({
       sessaoId: conexao.sessao_id,
       mensagemExternaId: mensagem.id ?? null,
