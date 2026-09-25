@@ -13,7 +13,7 @@ type HorarioFuncionamento = {
 
 type AgendaTimelineProps = {
   dia: string;
-  fuso?: string;
+  fuso: string | undefined;
   agora: number;
   itens: AgendaItem[];
   horarios: HorarioFuncionamento[];
