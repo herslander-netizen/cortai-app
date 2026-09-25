@@ -81,7 +81,7 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
     tema: row.tema,
     cor_primaria: row.cor_primaria,
     cor_secundaria: row.cor_secundaria ?? "#1C1B19",
-    cor_accent: row.cor_accent ?? "#8FA882",
+    cor_accent: row.cor_accent ?? "#19C37D",
     rotulo_carteira: row.rotulo_carteira ?? null,
     texto_boas_vindas: row.texto_boas_vindas ?? null,
     descricao: row.descricao ?? null,

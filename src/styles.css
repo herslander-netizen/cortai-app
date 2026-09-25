@@ -38,6 +38,8 @@
   --color-landing-light-line: var(--landing-light-line);
   --color-landing-light-gold: var(--landing-light-gold);
   --color-whatsapp: var(--whatsapp);
+  --color-qr-dark: var(--qr-dark);
+  --color-qr-light: var(--qr-light);
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -75,6 +77,8 @@
   --identity-white: #ffffff;
   --identity-border: #e5e7e6;
   --whatsapp: #25d366;
+  --qr-dark: var(--identity-graphite);
+  --qr-light: var(--identity-white);
   --ink: var(--identity-graphite);
   --ink2: #262b29;
   --ink3: #303634;
@@ -344,9 +348,10 @@
 
 .brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; }
 .brand-logo-auto > img { position: absolute; inset: 0; }
-.brand-logo-light { display: none; }
-.dark .brand-logo-dark { display: none; }
-.dark .brand-logo-light { display: block; }
+.brand-logo-on-dark { display: none; }
+.brand-logo-on-light { display: block; }
+.dark .brand-logo-on-dark { display: block; }
+.dark .brand-logo-on-light { display: none; }
 
 .management-shell .screen-content > section.rounded-xl,
 .management-shell .screen-content > div > section.rounded-xl {
@@ -695,14 +700,14 @@ html.light {
 }
 
 .light .landing-page {
-  --ink: #0b0b0b;
-  --ink2: #151515;
-  --ink3: #1c1c1c;
-  --paper: #f4f4f4;
-  --mute: #a1a1a1;
-  --mute2: #8a8a8a;
-  --line: #292929;
-  --line2: #383838;
+  --ink: var(--identity-graphite);
+  --ink2: var(--surface-raised);
+  --ink3: var(--surface-emphasis);
+  --paper: var(--identity-off-white);
+  --mute: var(--identity-muted);
+  --mute2: var(--muted-foreground);
+  --line: var(--identity-border);
+  --line2: var(--border);
   --gold-soft: color-mix(in oklab, var(--gold) 13%, transparent);
 }
 
@@ -871,12 +876,12 @@ html.light {
   justify-content: center;
   border-radius: 9999px;
   background: var(--gold);
-  color: #0b0b0b;
+  color: var(--primary-foreground);
   box-shadow: 0 6px 24px color-mix(in oklab, var(--gold) 28%, transparent);
   transition: transform 150ms ease;
 }
 .cortai-fab:active { transform: scale(0.96); }
-.cortai-fab:focus-visible { outline: 2px solid #f5f5f3; outline-offset: 3px; }
+.cortai-fab:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
 
 .cortai-fab-pulso {
   position: absolute;
@@ -902,8 +907,8 @@ html.light {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: #c4705f;
-  color: #f5f5f3;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
@@ -1071,4 +1076,4 @@ html.light {
 .agenda-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 14px; border: 0.5px solid var(--line); border-radius: 999px; background: var(--ink2); color: var(--paper); font-size: 13px; font-weight: 600; transition: background-color 150ms ease, border-color 150ms ease; }
 .agenda-chip:active { transform: scale(0.98); }
 .agenda-chip-ativo { background: var(--paper); border-color: var(--paper); color: var(--ink); }
-.agenda-sugestao-fila { border-left: 2px solid var(--sage, #8FA882); padding: 10px 12px; background: var(--ink3); border-radius: 0 8px 8px 0; }
+.agenda-sugestao-fila { border-left: 2px solid var(--sage); padding: 10px 12px; background: var(--ink3); border-radius: 0 8px 8px 0; }

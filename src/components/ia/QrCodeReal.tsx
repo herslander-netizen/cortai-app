@@ -20,9 +20,10 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
     }
     let ativo = true;
     setFalhou(false);
+    const estilos = window.getComputedStyle(document.documentElement);
     void import("qrcode")
       .then((m) =>
-        m.toDataURL(valor, { errorCorrectionLevel: "M", margin: 1, width: 512, color: { dark: "#0B0B0B", light: "#FFFFFF" } }),
+        m.toDataURL(valor, { errorCorrectionLevel: "M", margin: 1, width: 512, color: { dark: estilos.getPropertyValue("--qr-dark").trim(), light: estilos.getPropertyValue("--qr-light").trim() } }),
       )
       .then((url) => {
         if (ativo) setDesenhado(url);
@@ -57,7 +58,7 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
       alt={alt}
       width={224}
       height={224}
-      className="mx-auto h-56 w-56 rounded-xl bg-white p-2"
+      className="mx-auto h-56 w-56 rounded-xl bg-qr-light p-2"
     />
   );
 }
