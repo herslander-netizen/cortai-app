@@ -1,11 +1,12 @@
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDownRight, ArrowUpRight, ChevronDown, Minus, Armchair } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronLeft, Minus, Armchair } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { getHojeDoDono, type Metricas } from "@/lib/dono.functions";
@@ -15,6 +16,31 @@ const SecaoFinanceiro = lazy(() => import("@/components/dono/Secoes").then((m) =
 const SecaoClientes = lazy(() => import("@/components/dono/Secoes").then((m) => ({ default: m.SecaoClientes })));
 
 export const Route = createLazyFileRoute("/barbeiro/hoje")({ component: HojePage });
+
+function dataDeHoje() {
+  return new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" })
+    .format(new Date())
+    .replaceAll(".", "")
+    .toLocaleUpperCase("pt-BR");
+}
+
+function CabecalhoHoje() {
+  return (
+    <header className="agenda-cabecalho-compacto">
+      <div className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-2">
+        <Button asChild variant="ghost" size="icon"><Link to="/barbeiro" aria-label="Voltar para a Agenda"><ChevronLeft /></Link></Button>
+        <div className="min-w-0">
+          <h1 className="truncate text-sm font-bold text-paper">Hoje</h1>
+          <p className="truncate text-xs font-semibold text-mute">{dataDeHoje()}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <Button asChild variant="ghost" size="icon"><Link to="/barbeiro/casa" aria-label="Abrir Visão Casa"><Armchair /></Link></Button>
+          <BotaoAjuda />
+        </div>
+      </div>
+    </header>
+  );
+}
 
 function Seta({ atual, antes }: { atual: number | null; antes: number | null }) {
   if (atual === null || antes === null) return null;
@@ -41,7 +67,7 @@ function HojePage() {
   const q = useQuery({ queryKey: ["dono-hoje"], queryFn: () => buscar(), retry: false, refetchInterval: 60_000 });
   const [aberta, setAberta] = useState<string | null>(null);
 
-  if (q.isError) return <Screen title="Hoje" voltarPara="/barbeiro"><p className="border-l-2 border-brick pl-4 text-sm text-paper">Esta visão é do dono e da gerência.</p></Screen>;
+  if (q.isError) return <Screen title="Hoje" hideHeader><CabecalhoHoje /><p className="mt-5 border-l-2 border-brick pl-4 text-sm text-paper">Esta visão é do dono e da gerência.</p></Screen>;
 
   const h = q.data?.hoje;
   const s = q.data?.semanaPassada;
@@ -60,7 +86,9 @@ function HojePage() {
   ];
 
   return (
-    <Screen title="Hoje" subtitle="Setas comparam com o mesmo dia da semana passada, até esta hora." voltarPara="/barbeiro">
+    <Screen title="Hoje" hideHeader>
+      <CabecalhoHoje />
+      <p className="pt-4 text-xs text-mute md:max-w-xl">Comparação com o mesmo dia da semana passada, até esta hora.</p>
       <section aria-label="Números de hoje" className="md:max-w-xl">
         {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={Boolean(n.destaque)} />)}
       </section>
