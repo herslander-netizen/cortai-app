@@ -9,13 +9,12 @@ import { capacidadesDoTenant } from "@/lib/capacidades.functions";
 import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
 
+/** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
-  { chave: "configurar", rotulo: "Configure sua barbearia", destino: "/barbeiro/configurar" },
-  { chave: "servicos", rotulo: "Cadastre seus serviços", destino: "/barbeiro/servicos" },
-  { chave: "publicar", rotulo: "Publique sua fila", destino: "/barbeiro/configurar" },
-  { chave: "fila", rotulo: "Conheça o painel da fila", destino: "/barbeiro/fila" },
-  { chave: "whatsapp", rotulo: "Conecte o WhatsApp (opcional)", destino: "/barbeiro/integracoes" },
-  { chave: "personalizar", rotulo: "Personalize sua experiência", destino: "/barbeiro/marca" },
+  { chave: "compartilhar_link", rotulo: "Compartilhe seu link", destino: "/barbeiro/configurar" },
+  { chave: "primeiro_atendimento", rotulo: "Faça o primeiro atendimento", destino: "/barbeiro" },
+  { chave: "whatsapp", rotulo: "Conecte o WhatsApp", destino: "/barbeiro/cortai" },
+  { chave: "convidar_equipe", rotulo: "Convide sua equipe", destino: "/barbeiro/equipe" },
 ] as const;
 
 export type ChaveDoChecklist = (typeof ITENS_DO_CHECKLIST)[number]["chave"];
@@ -26,7 +25,61 @@ export type ServicoDaBarbearia = {
   duracaoMin: number;
   precoCentavos: number;
   ativo: boolean;
+  categoria: string;
+  profissionalIds: string[];
 };
+
+export type RegrasDeAgendamento = {
+  antecedenciaMinMinutos: number;
+  cancelamentoMinHoras: number;
+  intervaloEntreMin: number;
+  aceitaEncaixe: boolean;
+};
+
+export const REGRAS_RECOMENDADAS: RegrasDeAgendamento = {
+  antecedenciaMinMinutos: 60,
+  cancelamentoMinHoras: 2,
+  intervaloEntreMin: 0,
+  aceitaEncaixe: true,
+};
+
+function paraServico(s: Record<string, any>): ServicoDaBarbearia {
+  return {
+    id: s["id"] as string,
+    nome: s["nome"] as string,
+    duracaoMin: s["duracao_min"] as number,
+    precoCentavos: s["preco_centavos"] as number,
+    ativo: Boolean(s["ativo"]),
+    categoria: (s["categoria"] as string | null) ?? "Serviço",
+    profissionalIds: (s["profissional_ids"] as string[] | null) ?? [],
+  };
+}
+
+function paraHorario(h: Record<string, any>): HorarioSugerido {
+  return {
+    diaSemana: h["dia_semana"] as number,
+    fechado: Boolean(h["fechado"]),
+    abre: String(h["abre"]).slice(0, 5),
+    fecha: String(h["fecha"]).slice(0, 5),
+    intervaloInicio: h["intervalo_inicio"] ? String(h["intervalo_inicio"]).slice(0, 5) : null,
+    intervaloFim: h["intervalo_fim"] ? String(h["intervalo_fim"]).slice(0, 5) : null,
+  };
+}
+
+/** Detecta os primeiros passos pelo que aconteceu de fato. */
+async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<string, boolean>) {
+  const [atend, conexao, equipe] = await Promise.all([
+    db.from("agendamentos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).in("status", ["na_cadeira", "finalizado"]),
+    db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).eq("status", "conectado").limit(1),
+    db.from("tenant_usuarios").select("user_id", { count: "exact", head: true }).eq("tenant_id", tenantId),
+  ]);
+  return {
+    compartilhar_link: Boolean(itens["compartilhar_link"]),
+    primeiro_atendimento: Boolean(itens["primeiro_atendimento"]) || (atend.count ?? 0) > 0,
+    whatsapp: (conexao.data ?? []).length > 0,
+    convidar_equipe: Boolean(itens["sozinho"]) || (equipe.count ?? 0) > 1,
+  };
+}
 
 export type ConfiguracaoInicial = {
   tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null; fuso: string };
@@ -43,6 +96,8 @@ const horarioSchema = z.object({
   fechado: z.boolean(),
   abre: z.string().regex(/^\d{2}:\d{2}$/),
   fecha: z.string().regex(/^\d{2}:\d{2}$/),
+  intervaloInicio: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+  intervaloFim: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
 });
 
 const servicoSchema = z.object({
@@ -50,6 +105,8 @@ const servicoSchema = z.object({
   nome: z.string().trim().min(2).max(60),
   duracaoMin: z.number().int().min(5).max(480),
   precoCentavos: z.number().int().min(0).max(10_000_000),
+  categoria: z.string().trim().max(40).optional(),
+  profissionalIds: z.array(z.string().uuid()).max(50).optional(),
 });
 
 export const getConfiguracaoInicial = createServerFn({ method: "GET" })
@@ -68,24 +125,14 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     if (!tenant) throw new Error("Barbearia não encontrada.");
 
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
-      ? (horariosRes.data ?? []).map((h: Record<string, any>) => ({
-          diaSemana: h["dia_semana"] as number,
-          fechado: Boolean(h["fechado"]),
-          abre: String(h["abre"]).slice(0, 5),
-          fecha: String(h["fecha"]).slice(0, 5),
-        }))
+      ? (horariosRes.data ?? []).map(paraHorario)
       : horariosPadrao();
 
-    const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map((s: Record<string, any>) => ({
-      id: s["id"] as string,
-      nome: s["nome"] as string,
-      duracaoMin: s["duracao_min"] as number,
-      precoCentavos: s["preco_centavos"] as number,
-      ativo: Boolean(s["ativo"]),
-    }));
+    const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map(paraServico);
 
     const onb = onbRes.data as Record<string, any> | null;
-    const itens = (onb?.["itens"] ?? {}) as Record<string, boolean>;
+    const gravados = (onb?.["itens"] ?? {}) as Record<string, boolean>;
+    const itens = { ...gravados, ...(await detectarPrimeirosPassos(db, tenantId, gravados)) };
 
     return {
       tenant: {
@@ -99,11 +146,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
       horarios,
       servicos,
       etapa: (onb?.["etapa"] as string) ?? "dados",
-      itens: {
-        ...itens,
-        servicos: itens["servicos"] ?? servicos.length > 0,
-        configurar: itens["configurar"] ?? Boolean(onb?.["concluido_em"]),
-      },
+      itens,
       tourVisto: Boolean(onb?.["tour_visto"]),
       concluidoEm: (onb?.["concluido_em"] as string) ?? null,
     };
@@ -129,6 +172,7 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
         whatsapp: z.string().trim().max(30).optional().default(""),
         telefone: z.string().trim().max(30).optional(),
         endereco: z.string().trim().max(160).optional(),
+        logoUrl: z.string().trim().max(300).nullable().optional(),
         fuso: z.enum(FUSOS_DA_BARBEARIA.map((f) => f.valor) as [string, ...string[]]).optional(),
       })
       .parse(input),
@@ -143,6 +187,10 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
       ...(data.telefone !== undefined ? { telefone: data.telefone.replace(/\D/g, "") || null } : {}),
       ...(data.endereco !== undefined ? { endereco: data.endereco || null } : {}),
       ...(data.fuso ? { fuso: data.fuso } : {}),
+      // Só aceita arquivo dentro da pasta da própria barbearia.
+      ...(data.logoUrl !== undefined && (data.logoUrl === null || data.logoUrl.startsWith(`${tenantId}/`))
+        ? { logo_url: data.logoUrl }
+        : {}),
     };
     const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
 
@@ -151,7 +199,6 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
       const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
       esquecerFusoDoTenant(tenantId);
     }
-    await gravarOnboarding(context, tenantId, { etapa: "equipe" });
     return { ok: true };
   });
 
@@ -175,6 +222,8 @@ export const salvarHorarios = createServerFn({ method: "POST" })
       fechado: h.fechado,
       abre: `${h.abre}:00`,
       fecha: `${h.fecha}:00`,
+      intervalo_inicio: !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloInicio}:00` : null,
+      intervalo_fim: !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloFim}:00` : null,
     }));
     const { error } = await context.supabase
       .from("horarios_de_funcionamento")
@@ -189,7 +238,6 @@ export const salvarHorarios = createServerFn({ method: "POST" })
       const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
       esquecerFusoDoTenant(tenantId);
     }
-    await gravarOnboarding(context, tenantId, { etapa: "servicos" });
     return { ok: true };
   });
 
@@ -211,6 +259,8 @@ export const salvarServicos = createServerFn({ method: "POST" })
           nome: s.nome,
           duracao_min: s.duracaoMin,
           preco_centavos: s.precoCentavos,
+          categoria: s.categoria ?? null,
+          profissional_ids: s.profissionalIds ?? [],
           ordem: i,
         })),
       );
@@ -219,7 +269,13 @@ export const salvarServicos = createServerFn({ method: "POST" })
     for (const s of existentes) {
       const { error } = await db
         .from("servicos")
-        .update({ nome: s.nome, duracao_min: s.duracaoMin, preco_centavos: s.precoCentavos })
+        .update({
+          nome: s.nome,
+          duracao_min: s.duracaoMin,
+          preco_centavos: s.precoCentavos,
+          ...(s.categoria !== undefined ? { categoria: s.categoria } : {}),
+          ...(s.profissionalIds !== undefined ? { profissional_ids: s.profissionalIds } : {}),
+        })
         .eq("id", s.id!)
         .eq("tenant_id", tenantId);
       if (error) throw new Error(error.message);
@@ -275,7 +331,7 @@ export const marcarItemDoChecklist = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    const permitido = ITENS_DO_CHECKLIST.some((i) => i.chave === data.chave);
+    const permitido = data.chave === "sozinho" || ITENS_DO_CHECKLIST.some((i) => i.chave === data.chave);
     if (!permitido) throw new Error("Item desconhecido.");
     const itens = await lerItens(context, tenantId);
     await gravarOnboarding(context, tenantId, { itens: { ...itens, [data.chave]: data.feito } });
@@ -292,15 +348,14 @@ export const marcarTourVisto = createServerFn({ method: "POST" })
 
 /* ---------------------- IMPLANTAÇÃO GUIADA (onboarding) ------------------ */
 
+/** Ordem do onboarding. As etapas antigas continuam aceitas para quem parou no meio. */
+export const ETAPAS_DO_ONBOARDING = ["dados", "equipe", "servicos", "horarios", "regras", "link", "pronto"] as const;
 export const ETAPAS_DA_IMPLANTACAO = [
+  ...ETAPAS_DO_ONBOARDING,
   "boas_vindas",
-  "dados",
-  "equipe",
-  "servicos",
   "agenda",
   "canais",
   "recursos",
-  "pronto",
 ] as const;
 
 export type EtapaDaImplantacao = (typeof ETAPAS_DA_IMPLANTACAO)[number];
@@ -308,7 +363,9 @@ export type EtapaDaImplantacao = (typeof ETAPAS_DA_IMPLANTACAO)[number];
 export type ProfissionalDaImplantacao = { id: string; nome: string; ativo: boolean };
 
 export type Implantacao = ConfiguracaoInicial & {
-  tenant: ConfiguracaoInicial["tenant"] & { telefone: string | null; endereco: string | null };
+  tenant: ConfiguracaoInicial["tenant"] & { telefone: string | null; endereco: string | null; logoAssinada: string | null };
+  regras: RegrasDeAgendamento;
+  trabalhaSozinho: boolean;
   profissionais: ProfissionalDaImplantacao[];
   capacidades: CapacidadesDoTenant;
   permissoes: string[];
@@ -326,7 +383,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
       await Promise.all([
         db
           .from("tenants")
-          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco")
+          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe")
           .eq("id", tenantId)
           .maybeSingle(),
         db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
@@ -342,21 +399,20 @@ export const getImplantacao = createServerFn({ method: "GET" })
     if (!tenant) throw new Error("Barbearia não encontrada.");
 
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
-      ? (horariosRes.data ?? []).map((h: Record<string, any>) => ({
-          diaSemana: h["dia_semana"] as number,
-          fechado: Boolean(h["fechado"]),
-          abre: String(h["abre"]).slice(0, 5),
-          fecha: String(h["fecha"]).slice(0, 5),
-        }))
+      ? (horariosRes.data ?? []).map(paraHorario)
       : horariosPadrao();
 
-    const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map((s: Record<string, any>) => ({
-      id: s["id"] as string,
-      nome: s["nome"] as string,
-      duracaoMin: s["duracao_min"] as number,
-      precoCentavos: s["preco_centavos"] as number,
-      ativo: Boolean(s["ativo"]),
-    }));
+    const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map(paraServico);
+    const t = tenant as Record<string, any>;
+    let logoAssinada: string | null = null;
+    if (t["logo_url"]) {
+      const caminho = String(t["logo_url"]);
+      if (/^https?:/.test(caminho)) logoAssinada = caminho;
+      else {
+        const { data: assinada } = await db.storage.from("tenant-logos").createSignedUrl(caminho, 60 * 60);
+        logoAssinada = assinada?.signedUrl ?? null;
+      }
+    }
 
     const onb = onbRes.data as Record<string, any> | null;
     const itens = (onb?.["itens"] ?? {}) as Record<string, boolean>;
@@ -372,10 +428,18 @@ export const getImplantacao = createServerFn({ method: "GET" })
         fuso: normalizarFuso(tenant.fuso as string | null),
         telefone: (tenant.telefone as string) ?? null,
         endereco: (tenant.endereco as string) ?? null,
+        logoAssinada,
       },
+      regras: {
+        antecedenciaMinMinutos: Number(t["antecedencia_min_minutos"] ?? REGRAS_RECOMENDADAS.antecedenciaMinMinutos),
+        cancelamentoMinHoras: Number(t["cancelamento_min_horas"] ?? REGRAS_RECOMENDADAS.cancelamentoMinHoras),
+        intervaloEntreMin: Number(t["intervalo_entre_min"] ?? REGRAS_RECOMENDADAS.intervaloEntreMin),
+        aceitaEncaixe: t["aceita_encaixe"] == null ? true : Boolean(t["aceita_encaixe"]),
+      },
+      trabalhaSozinho: Boolean(itens["sozinho"]),
       horarios,
       servicos,
-      etapa: (onb?.["etapa"] as string) ?? "boas_vindas",
+      etapa: (onb?.["etapa"] as string) ?? "dados",
       itens: {
         ...itens,
         servicos: itens["servicos"] ?? servicos.length > 0,
@@ -428,6 +492,36 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("profissionais")
       .insert({ tenant_id: tenantId, nome: data.nome, ativo: true });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+
+/** Regras de agendamento da barbearia (antecedência, cancelamento, intervalo e encaixe). */
+export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        antecedenciaMinMinutos: z.number().int().min(0).max(10080),
+        cancelamentoMinHoras: z.number().int().min(0).max(168),
+        intervaloEntreMin: z.number().int().min(0).max(120),
+        aceitaEncaixe: z.boolean(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { error } = await context.supabase
+      .from("tenants")
+      .update({
+        antecedencia_min_minutos: data.antecedenciaMinMinutos,
+        cancelamento_min_horas: data.cancelamentoMinHoras,
+        intervalo_entre_min: data.intervaloEntreMin,
+        aceita_encaixe: data.aceitaEncaixe,
+      })
+      .eq("id", tenantId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

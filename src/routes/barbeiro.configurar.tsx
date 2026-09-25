@@ -1,37 +1,40 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
-import { Check, Circle, Copy, ExternalLink, Lock, Plus, Share2 } from "lucide-react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { Camera, Check, Copy, ExternalLink, MessageCircle, Plus, Scissors, UserRound } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
-import { PreferenciasDeAvisos } from "@/components/notificacoes/PreferenciasDeAvisos";
-import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
-import { FUSOS_DA_BARBEARIA } from "@/lib/horarios";
+import { supabase } from "@/integrations/supabase/client";
+import { horariosPadrao, SERVICOS_SUGERIDOS, type HorarioSugerido } from "@/lib/ia/assistente";
 import { aviso } from "@/lib/avisos";
-import { avaliarCapacidades, ROTULO_DO_ESTADO, type CapacidadeAvaliada } from "@/lib/capacidades";
+import { convidarMembro } from "@/lib/equipe.functions";
+import { getSessao } from "@/lib/sessao.functions";
 import {
   adicionarProfissional,
   concluirConfiguracao,
+  ETAPAS_DO_ONBOARDING,
   getImplantacao,
+  marcarItemDoChecklist,
+  REGRAS_RECOMENDADAS,
   salvarDadosDaBarbearia,
   salvarEtapaDaImplantacao,
   salvarHorarios,
+  salvarRegrasDeAgendamento,
   salvarServicos,
-  type EtapaDaImplantacao,
-  type Implantacao,
+  type RegrasDeAgendamento,
 } from "@/lib/onboarding.functions";
 
 export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Implantação da barbearia — Cortaí Gestão" },
-      { name: "description", content: "Dados, equipe, serviços e agenda prontos para o primeiro agendamento." },
-      { property: "og:title", content: "Implantação da barbearia — Cortaí" },
-      { property: "og:description", content: "Deixe sua barbearia pronta para atender em poucos minutos." },
+      { title: "Configurar a barbearia — Cortaí" },
+      { name: "description", content: "Em poucos minutos, seu link de agendamento fica pronto." },
+      { property: "og:title", content: "Configurar a barbearia — Cortaí" },
+      { property: "og:description", content: "Barbearia, equipe, serviços, horários, regras e link — em até 5 minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -39,23 +42,52 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   component: ConfigurarPage,
 });
 
-type Etapa = { chave: EtapaDaImplantacao; rotulo: string; essencial: boolean };
+type Etapa = (typeof ETAPAS_DO_ONBOARDING)[number];
 
-function etapasDisponiveis(dados: Implantacao | undefined, capacidades: CapacidadeAvaliada[]): Etapa[] {
-  const podeEquipe = !dados || dados.permissoes.length === 0 || dados.permissoes.includes("gerenciar_profissionais");
-  const canaisDisponiveis = capacidades.some((c) => c.chave === "cortai_whatsapp" && c.estado !== "nao_incluida");
-  const lista: Etapa[] = [
-    { chave: "boas_vindas", rotulo: "Boas-vindas", essencial: false },
-    { chave: "dados", rotulo: "Dados", essencial: true },
-  ];
-  if (podeEquipe) lista.push({ chave: "equipe", rotulo: "Equipe", essencial: true });
-  lista.push({ chave: "servicos", rotulo: "Serviços", essencial: true });
-  lista.push({ chave: "agenda", rotulo: "Agenda", essencial: true });
-  if (canaisDisponiveis) lista.push({ chave: "canais", rotulo: "Avisos", essencial: false });
-  lista.push({ chave: "recursos", rotulo: "Seu plano", essencial: false });
-  lista.push({ chave: "pronto", rotulo: "Pronto", essencial: false });
-  return lista;
+const ROTULOS: Record<Etapa, string> = {
+  dados: "Barbearia",
+  equipe: "Equipe",
+  servicos: "Serviços",
+  horarios: "Horários",
+  regras: "Regras",
+  link: "Link",
+  pronto: "Pronto",
+};
+
+/** Etapas antigas salvas antes da revisão caem no passo equivalente. */
+function etapaSalva(valor: string): Etapa {
+  if ((ETAPAS_DO_ONBOARDING as readonly string[]).includes(valor)) return valor as Etapa;
+  if (valor === "agenda") return "horarios";
+  if (valor === "canais" || valor === "recursos") return "regras";
+  return "dados";
 }
+
+const ANTECEDENCIAS = [
+  { valor: 0, rotulo: "Sem mínimo" },
+  { valor: 30, rotulo: "30 min" },
+  { valor: 60, rotulo: "1 h" },
+  { valor: 120, rotulo: "2 h" },
+  { valor: 1440, rotulo: "1 dia" },
+];
+const CANCELAMENTOS = [
+  { valor: 0, rotulo: "A qualquer hora" },
+  { valor: 1, rotulo: "1 h antes" },
+  { valor: 2, rotulo: "2 h antes" },
+  { valor: 24, rotulo: "1 dia antes" },
+];
+const INTERVALOS = [
+  { valor: 0, rotulo: "Nenhum" },
+  { valor: 5, rotulo: "5 min" },
+  { valor: 10, rotulo: "10 min" },
+  { valor: 15, rotulo: "15 min" },
+];
+
+type Funcao = "barbeiro" | "recepcao" | "gerente";
+const FUNCOES: { valor: Funcao; rotulo: string; detalhe: string }[] = [
+  { valor: "barbeiro", rotulo: "Barbeiro", detalhe: "Atende e vê só os próprios números." },
+  { valor: "recepcao", rotulo: "Recepção", detalhe: "Agenda, fila e caixa do dia." },
+  { valor: "gerente", rotulo: "Gerente", detalhe: "Gestão completa, menos plano e fiado." },
+];
 
 function ConfigurarPage() {
   const navigate = useNavigate();
@@ -63,101 +95,129 @@ function ConfigurarPage() {
   const salvarDados = useServerFn(salvarDadosDaBarbearia);
   const gravarHorarios = useServerFn(salvarHorarios);
   const gravarServicos = useServerFn(salvarServicos);
+  const gravarRegras = useServerFn(salvarRegrasDeAgendamento);
   const gravarEtapa = useServerFn(salvarEtapaDaImplantacao);
   const criarProfissional = useServerFn(adicionarProfissional);
+  const convidar = useServerFn(convidarMembro);
+  const marcar = useServerFn(marcarItemDoChecklist);
   const concluir = useServerFn(concluirConfiguracao);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["implantacao"],
-    queryFn: () => getImplantacao(),
-    staleTime: 60_000,
-  });
+  const { data, isLoading } = useQuery({ queryKey: ["implantacao"], queryFn: () => getImplantacao(), staleTime: 60_000 });
+  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
 
-  const capacidades = useMemo(
-    () => (data ? avaliarCapacidades(data.capacidades, data.permissoes) : []),
-    [data],
-  );
-  const etapas = useMemo(() => etapasDisponiveis(data, capacidades), [data, capacidades]);
+  const [etapaEscolhida, setEtapaEscolhida] = useState<Etapa | null>(null);
+  const etapa: Etapa = etapaEscolhida ?? (data ? (data.concluidoEm ? "pronto" : etapaSalva(data.etapa)) : "dados");
+  const indice = ETAPAS_DO_ONBOARDING.indexOf(etapa);
 
-  // Estado da navegação entre etapas: começa onde a pessoa parou.
-  const [etapaEscolhida, setEtapaEscolhida] = useState<EtapaDaImplantacao | null>(null);
-  const etapaAtual: EtapaDaImplantacao =
-    etapaEscolhida ??
-    (data
-      ? data.concluidoEm
-        ? "pronto"
-        : ((etapas.find((e) => e.chave === data.etapa)?.chave ?? "boas_vindas") as EtapaDaImplantacao)
-      : "boas_vindas");
-  const indice = Math.max(0, etapas.findIndex((e) => e.chave === etapaAtual));
-
-  // Rascunhos locais: os campos nascem preenchidos com o que já existe no banco.
+  // Rascunhos: nascem com o que já está salvo.
   const [nome, setNome] = useState<string | null>(null);
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const [endereco, setEndereco] = useState<string | null>(null);
-  const [fuso, setFuso] = useState<string | null>(null);
+  const [logo, setLogo] = useState<{ caminho: string; previa: string } | null>(null);
+  const [enviandoLogo, setEnviandoLogo] = useState(false);
   const [horarios, setHorarios] = useState<HorarioSugerido[] | null>(null);
   const [servicos, setServicos] = useState<ServicoEditavel[] | null>(null);
-  const [novoProfissional, setNovoProfissional] = useState("");
-  const [salvando, setSalvando] = useState(false);
+  const [regras, setRegras] = useState<RegrasDeAgendamento | null>(null);
+  const [novoNome, setNovoNome] = useState("");
+  const [novoEmail, setNovoEmail] = useState("");
+  const [novaFuncao, setNovaFuncao] = useState<Funcao>("barbeiro");
+  const [adicionando, setAdicionando] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const arquivoRef = useRef<HTMLInputElement>(null);
 
   const valorNome = nome ?? data?.tenant.nome ?? "";
   const valorWhatsapp = whatsapp ?? data?.tenant.whatsapp ?? "";
   const valorEndereco = endereco ?? data?.tenant.endereco ?? "";
-  const valorFuso = fuso ?? data?.tenant.fuso ?? FUSOS_DA_BARBEARIA[0].valor;
   const valorHorarios = horarios ?? data?.horarios ?? horariosPadrao();
+  const valorRegras = regras ?? data?.regras ?? REGRAS_RECOMENDADAS;
+  const ativos = useMemo(() => (data?.servicos ?? []).filter((s) => s.ativo), [data]);
   const valorServicos: ServicoEditavel[] =
     servicos ??
-    (data?.servicos ?? [])
-      .filter((s) => s.ativo)
-      .map((s) => ({
-        id: s.id,
-        nome: s.nome,
-        categoria: "Serviço",
-        duracaoMin: s.duracaoMin,
-        precoCentavos: s.precoCentavos,
-      }));
+    (ativos.length
+      ? ativos.map((s) => ({
+          id: s.id,
+          nome: s.nome,
+          categoria: s.categoria,
+          duracaoMin: s.duracaoMin,
+          precoCentavos: s.precoCentavos,
+          profissionalIds: s.profissionalIds,
+        }))
+      : SERVICOS_SUGERIDOS.map((s) => ({ ...s })));
+  const profissionais = (data?.profissionais ?? []).filter((p) => p.ativo);
 
-  const link = data ? `${typeof window !== "undefined" ? window.location.origin : ""}/b/${data.tenant.slug}` : "";
-
-  const essenciais = [
-    { rotulo: "Dados da barbearia", ok: Boolean(data?.tenant.nome) },
-    { rotulo: "Um profissional cadastrado", ok: (data?.profissionais.length ?? 0) > 0 },
-    { rotulo: "Pelo menos um serviço", ok: (data?.servicos.filter((s) => s.ativo).length ?? 0) > 0 },
-    { rotulo: "Horário de funcionamento", ok: (data?.horarios.length ?? 0) > 0 },
-  ];
-  const feitos = essenciais.filter((i) => i.ok).length;
-  const prontoParaAtender = feitos === essenciais.length;
+  const origem = typeof window !== "undefined" ? window.location.origin : "https://cortai.dev";
+  const link = data ? `${origem}/${data.tenant.slug}` : "";
+  const linkCurto = link.replace(/^https?:\/\//, "");
 
   function recarregar() {
     void queryClient.invalidateQueries({ queryKey: ["implantacao"] });
     void queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] });
   }
 
-  /** Avança na hora e grava em segundo plano: o toque nunca espera a rede. */
-  function irPara(destino: EtapaDaImplantacao, gravar?: () => Promise<unknown>) {
+  /** Avança na hora e grava em segundo plano; a etapa fica salva para continuar depois. */
+  function irPara(destino: Etapa, gravar?: () => Promise<unknown>) {
     setEtapaEscolhida(destino);
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-    const tarefas: Promise<unknown>[] = [];
-    if (gravar) {
-      setSalvando(true);
-      tarefas.push(gravar());
-    }
-    tarefas.push(gravarEtapa({ data: { etapa: destino } }));
-    void Promise.all(tarefas)
+    const antes = gravar ? gravar() : Promise.resolve();
+    void antes
+      .then(() => gravarEtapa({ data: { etapa: destino } }))
       .then(() => recarregar())
-      .catch((e) => aviso.erro(e instanceof Error ? e.message : "Não consegui salvar agora."))
-      .finally(() => setSalvando(false));
+      .catch((e) => aviso.erro(e instanceof Error ? e.message : "Não consegui salvar agora. Tente de novo."));
+  }
+  const proxima = (gravar?: () => Promise<unknown>) =>
+    irPara(ETAPAS_DO_ONBOARDING[Math.min(ETAPAS_DO_ONBOARDING.length - 1, indice + 1)] ?? "pronto", gravar);
+  const anterior = () => setEtapaEscolhida(ETAPAS_DO_ONBOARDING[Math.max(0, indice - 1)] ?? "dados");
+
+  /** Garante que quem configura aparece na agenda quando ninguém foi cadastrado. */
+  async function garantirDonoNaAgenda() {
+    if (profissionais.length > 0) return;
+    const nomeDono = (sessao?.nome ?? sessao?.email?.split("@")[0] ?? "Eu").trim();
+    await criarProfissional({ data: { nome: nomeDono.length >= 2 ? nomeDono : "Profissional" } });
   }
 
-  function proxima(gravar?: () => Promise<unknown>) {
-    const destino = etapas[Math.min(etapas.length - 1, indice + 1)]?.chave ?? "pronto";
-    irPara(destino, gravar);
+  async function enviarLogo(evento: ChangeEvent<HTMLInputElement>) {
+    const arquivo = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!arquivo || !data) return;
+    if (!arquivo.type.startsWith("image/") || arquivo.size > 2 * 1024 * 1024) {
+      aviso.erro("Use uma imagem de até 2 MB.");
+      return;
+    }
+    setEnviandoLogo(true);
+    const extensao = arquivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const caminho = `${data.tenant.id}/logo-${Date.now()}.${extensao}`;
+    const { error } = await supabase.storage.from("tenant-logos").upload(caminho, arquivo, { contentType: arquivo.type });
+    setEnviandoLogo(false);
+    if (error) {
+      aviso.erro("Não consegui enviar a imagem. Tente outra.");
+      return;
+    }
+    setLogo({ caminho, previa: URL.createObjectURL(arquivo) });
   }
 
-  function anterior() {
-    const destino = etapas[Math.max(0, indice - 1)]?.chave ?? "boas_vindas";
-    setEtapaEscolhida(destino);
+  async function adicionarPessoa() {
+    const valor = novoNome.trim();
+    const email = novoEmail.trim();
+    if (novaFuncao === "recepcao" && !email) {
+      aviso.erro("Para a recepção, informe o e-mail da pessoa.");
+      return;
+    }
+    if (novaFuncao !== "recepcao" && valor.length < 2) return;
+    setAdicionando(true);
+    try {
+      if (novaFuncao !== "recepcao") await criarProfissional({ data: { nome: valor } });
+      if (email) {
+        await convidar({ data: { email, papel: novaFuncao, redirectTo: `${origem}/convite` } });
+      }
+      aviso.ok(email ? `${valor || email} foi convidado.` : `${valor} entrou na equipe.`);
+      setNovoNome("");
+      setNovoEmail("");
+      recarregar();
+    } catch (e) {
+      aviso.erro(e instanceof Error ? e.message : "Não consegui adicionar agora.");
+    } finally {
+      setAdicionando(false);
+    }
   }
 
   const salvarServicosAgora = () => {
@@ -170,154 +230,108 @@ function ConfigurarPage() {
           nome: s.nome.trim(),
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
+          categoria: s.categoria?.trim() || "Serviço",
+          profissionalIds: s.profissionalIds ?? [],
         })),
       },
-    });
+    }).then(() => setServicos(null));
   };
 
-  const barra = (
-    <div className="mb-6">
-      <div className="flex gap-1.5" aria-hidden>
-        {etapas.map((e, i) => (
-          <span key={e.chave} className={`h-1.5 flex-1 rounded-full ${i <= indice ? "bg-gold" : "bg-ink3"}`} />
-        ))}
-      </div>
-      <p className="mt-2 text-xs text-mute2">
-        Passo {indice + 1} de {etapas.length} · {etapas[indice]?.rotulo} · você pode completar depois
-      </p>
-    </div>
-  );
+  function marcarLinkCompartilhado() {
+    void marcar({ data: { chave: "compartilhar_link", feito: true } }).then(recarregar).catch(() => undefined);
+  }
 
-  const rodape = (aoContinuar: () => void, rotulo = "Continuar", desabilitado = false) => (
-    <>
-      <div className="mt-8 flex items-center gap-4">
+  const campo = "mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none";
+
+  const rodape = (aoContinuar: () => void, rotulo = "Continuar", desabilitado = false, pular?: () => void) => (
+    <div className="sticky bottom-0 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
+      <div className="flex items-center gap-3">
         {indice > 0 ? (
-          <button type="button" className="btn-tertiary text-sm" onClick={anterior}>
+          <button type="button" className="btn-tertiary min-h-12 px-3 text-sm" onClick={anterior}>
             Voltar
           </button>
         ) : null}
-        <button type="button" className="btn-primary flex-1 py-3.5" disabled={desabilitado} onClick={aoContinuar}>
+        <button type="button" className="btn-primary min-h-14 flex-1 text-sm" disabled={desabilitado} onClick={aoContinuar}>
           {rotulo}
         </button>
       </div>
-      <button
-        type="button"
-        className="mt-4 w-full text-center text-xs text-mute"
-        onClick={() => void navigate({ to: "/barbeiro" })}
-      >
-        Fazer depois
-      </button>
-    </>
+      {pular ? (
+        <button type="button" className="mt-2 min-h-10 w-full text-center text-xs text-mute" onClick={pular}>
+          Pular por agora
+        </button>
+      ) : null}
+    </div>
   );
+
 
   return (
     <Screen
-      title={etapaAtual === "pronto" ? "Sua barbearia está pronta" : "Implantação da barbearia"}
-      subtitle={
-        etapaAtual === "pronto"
-          ? "Já dá para receber cliente pelo link."
-          : `${feitos} de ${essenciais.length} itens essenciais concluídos`
-      }
+      title={etapa === "pronto" ? "Tudo pronto" : "Sua barbearia em 5 minutos"}
+      subtitle={etapa === "pronto" ? "Seu link já recebe agendamentos." : "O progresso fica salvo. Dá para parar e voltar depois."}
     >
-      {isLoading && !data ? <EsqueletoDaImplantacao /> : null}
+      {isLoading && !data ? <Esqueleto /> : null}
 
       {data ? (
         <>
-          {etapaAtual === "boas_vindas" ? null : barra}
-
-          {etapaAtual === "boas_vindas" ? (
-            <div>
-              {data.tenant.logoUrl ? (
-                <img
-                  src={data.tenant.logoUrl}
-                  alt=""
-                  className="h-16 w-16 rounded-xl border border-line object-cover"
-                />
-              ) : null}
-              <h2 className="mt-4 text-xl font-semibold text-paper">{data.tenant.nome}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-mute">
-                Vamos deixar o essencial pronto para você começar a receber agendamentos. Leva poucos minutos e dá
-                para parar no meio: o progresso fica salvo.
-              </p>
-
-              <div className="mt-6 rounded-xl border border-line bg-ink2 px-5 py-5">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold text-paper">Essencial para começar</span>
-                  <span className="text-xs text-mute">
-                    {feitos} de {essenciais.length}
-                  </span>
-                </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink3">
-                  <div
-                    className="h-full rounded-full bg-gold transition-[width] duration-300"
-                    style={{ width: `${Math.round((feitos / essenciais.length) * 100)}%` }}
-                  />
-                </div>
-                <ul className="mt-4 space-y-2">
-                  {essenciais.map((i) => (
-                    <li key={i.rotulo} className="flex items-center gap-3">
-                      {i.ok ? (
-                        <Check size={15} className="shrink-0 text-sage" aria-hidden />
-                      ) : (
-                        <Circle size={15} className="shrink-0 text-mute2" aria-hidden />
-                      )}
-                      <span className={`text-sm ${i.ok ? "text-mute line-through" : "text-paper"}`}>{i.rotulo}</span>
-                    </li>
-                  ))}
-                </ul>
+          {etapa !== "pronto" ? (
+            <div className="mb-6">
+              <div className="flex gap-1.5" aria-hidden>
+                {ETAPAS_DO_ONBOARDING.slice(0, -1).map((e, i) => (
+                  <span key={e} className={`h-1.5 flex-1 rounded-full ${i <= indice ? "bg-gold" : "bg-ink3"}`} />
+                ))}
               </div>
-
-              {rodape(() => proxima(), "Começar configuração")}
+              <p className="mt-2 text-xs text-mute">
+                Passo {indice + 1} de {ETAPAS_DO_ONBOARDING.length - 1} · {ROTULOS[etapa]}
+              </p>
             </div>
           ) : null}
 
-          {etapaAtual === "dados" ? (
+          {etapa === "dados" ? (
             <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => arquivoRef.current?.click()}
+                  className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line2 bg-ink2"
+                  aria-label="Enviar logo ou foto"
+                >
+                  {logo?.previa || data.tenant.logoAssinada ? (
+                    <img src={logo?.previa ?? data.tenant.logoAssinada ?? ""} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Camera size={22} className="text-mute" aria-hidden />
+                  )}
+                </button>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-paper">Logo ou foto</p>
+                  <p className="mt-1 text-xs text-mute">
+                    {enviandoLogo ? "Enviando…" : "Aparece no seu link. Opcional."}
+                  </p>
+                </div>
+                <input ref={arquivoRef} type="file" accept="image/*" className="hidden" onChange={enviarLogo} />
+              </div>
               <label className="block text-xs font-medium text-mute">
                 Nome da barbearia
-                <input
-                  value={valorNome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
-                />
+                <input value={valorNome} onChange={(e) => setNome(e.target.value)} className={campo} />
               </label>
               <label className="block text-xs font-medium text-mute">
-                WhatsApp <span className="text-mute2">(recomendado)</span>
+                WhatsApp da barbearia
                 <input
                   value={valorWhatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   inputMode="tel"
                   placeholder="(11) 90000-0000"
-                  className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+                  className={campo}
                 />
               </label>
               <label className="block text-xs font-medium text-mute">
-                Endereço <span className="text-mute2">(opcional)</span>
+                Endereço
                 <input
                   value={valorEndereco}
                   onChange={(e) => setEndereco(e.target.value)}
-                  placeholder="Rua, número, bairro"
-                  className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+                  placeholder="Rua, número, bairro, cidade"
+                  className={campo}
                 />
               </label>
-              <label className="block text-xs font-medium text-mute">
-                Fuso da barbearia
-                <select
-                  value={valorFuso}
-                  onChange={(e) => setFuso(e.target.value)}
-                  className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper outline-none"
-                >
-                  {FUSOS_DA_BARBEARIA.map((f) => (
-                    <option key={f.valor} value={f.valor}>
-                      {f.rotulo}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p className="text-xs text-mute2">
-                Logo e fotos ficam em <Link to="/barbeiro/marca" className="text-gold">Página e marca</Link>.
-              </p>
-
               {rodape(
                 () =>
                   proxima(() =>
@@ -326,266 +340,276 @@ function ConfigurarPage() {
                         nome: valorNome.trim(),
                         whatsapp: valorWhatsapp,
                         endereco: valorEndereco,
-                        fuso: valorFuso,
+                        ...(logo ? { logoUrl: logo.caminho } : {}),
                       },
                     }),
                   ),
                 "Continuar",
-                valorNome.trim().length < 2,
+                valorNome.trim().length < 2 || enviandoLogo,
               )}
             </div>
           ) : null}
 
-          {etapaAtual === "equipe" ? (
+          {etapa === "equipe" ? (
             <div>
-              <p className="text-xs text-mute">
-                Quem atende na sua barbearia. Você, como dono, já tem acesso total — os profissionais aparecem na
-                agenda e na página pública.
-              </p>
+              <button
+                type="button"
+                onClick={() =>
+                  proxima(async () => {
+                    await garantirDonoNaAgenda();
+                    await marcar({ data: { chave: "sozinho", feito: true } });
+                  })
+                }
+                className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 text-left"
+              >
+                <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-paper">Trabalho sozinho</span>
+                  <span className="block text-xs text-mute">Você aparece como o profissional. Pula este passo.</span>
+                </span>
+              </button>
 
-              <ul className="mt-4 divide-y divide-line border-y border-line">
-                {data.profissionais.length === 0 ? (
-                  <li className="py-3 text-sm text-mute">Nenhum profissional cadastrado ainda.</li>
+              <p className="mt-6 text-xs font-medium text-mute">Quem trabalha com você</p>
+              <ul className="mt-2 divide-y divide-line border-y border-line">
+                {profissionais.length === 0 ? (
+                  <li className="py-3 text-sm text-mute">Ninguém cadastrado ainda.</li>
                 ) : null}
-                {data.profissionais.map((p) => (
-                  <li key={p.id} className="flex items-center gap-3 py-3">
-                    <Check size={15} className="text-sage" aria-hidden />
+                {profissionais.map((p) => (
+                  <li key={p.id} className="flex min-h-12 items-center gap-3">
+                    <Scissors size={15} className="text-paper" aria-hidden />
                     <span className="text-sm text-paper">{p.nome}</span>
                   </li>
                 ))}
               </ul>
 
-              <LimiteDoPlano
-                usado={data.profissionais.length}
-                limite={data.capacidades.limites.profissionais}
-                plano={data.capacidades.plano.nome}
-                rotulo="profissionais"
-              />
-
-              {data.capacidades.limites.profissionais == null ||
-              data.profissionais.length < data.capacidades.limites.profissionais ? (
-                <form
-                  className="mt-4 flex gap-2"
-                  onSubmit={(evento) => {
-                    evento.preventDefault();
-                    const valor = novoProfissional.trim();
-                    if (valor.length < 2) return;
-                    setNovoProfissional("");
-                    void criarProfissional({ data: { nome: valor } })
-                      .then(() => {
-                        aviso.ok(`${valor} entrou na equipe.`);
-                        recarregar();
-                      })
-                      .catch((e) => aviso.erro(e instanceof Error ? e.message : "Não consegui adicionar agora."));
-                  }}
-                >
+              <div className="mt-4 space-y-3 rounded-xl border border-line bg-ink2 p-4">
+                <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
+                  {FUNCOES.map((f) => (
+                    <button
+                      key={f.valor}
+                      type="button"
+                      role="radio"
+                      aria-checked={novaFuncao === f.valor}
+                      onClick={() => setNovaFuncao(f.valor)}
+                      className={`min-h-12 rounded-lg border text-xs font-semibold ${
+                        novaFuncao === f.valor ? "border-paper bg-paper text-ink" : "border-line2 bg-ink text-paper"
+                      }`}
+                    >
+                      {f.rotulo}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-mute">
+                  {FUNCOES.find((f) => f.valor === novaFuncao)?.detalhe} As permissões da função entram sozinhas.
+                </p>
+                {novaFuncao !== "recepcao" ? (
                   <input
-                    value={novoProfissional}
-                    onChange={(e) => setNovoProfissional(e.target.value)}
-                    placeholder="Nome do profissional"
-                    className="h-12 flex-1 rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+                    value={novoNome}
+                    onChange={(e) => setNovoNome(e.target.value)}
+                    placeholder="Nome"
+                    className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
                   />
-                  <button type="submit" className="btn-secondary px-4 text-sm">
-                    <Plus size={14} aria-hidden />
-                  </button>
-                </form>
-              ) : null}
+                ) : null}
+                <input
+                  value={novoEmail}
+                  onChange={(e) => setNovoEmail(e.target.value)}
+                  type="email"
+                  inputMode="email"
+                  placeholder={novaFuncao === "recepcao" ? "E-mail (para enviar o convite)" : "E-mail para dar acesso (opcional)"}
+                  className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
+                />
+                <button
+                  type="button"
+                  disabled={adicionando}
+                  onClick={() => void adicionarPessoa()}
+                  className="btn-secondary min-h-12 w-full text-sm"
+                >
+                  <Plus size={14} className="mr-1.5 inline" aria-hidden />
+                  {adicionando ? "Adicionando…" : "Adicionar"}
+                </button>
+              </div>
 
-              <p className="mt-4 text-xs text-mute2">
-                Convites e permissões detalhadas ficam em{" "}
-                <Link to="/barbeiro/equipe" className="text-gold">
-                  Equipe e permissões
-                </Link>
-                .
-              </p>
-
-              {rodape(() => proxima())}
+              {rodape(() => proxima(garantirDonoNaAgenda))}
             </div>
           ) : null}
 
-          {etapaAtual === "servicos" ? (
+          {etapa === "servicos" ? (
             <div>
               <p className="mb-3 text-xs text-mute">
-                Um serviço já é suficiente para receber o primeiro agendamento. Dá para adicionar mais depois.
+                Já deixamos sugestões. Ajuste preço e duração ou apague o que não faz.
               </p>
-              <EditorDeServicos servicos={valorServicos} onChange={setServicos} />
-              {rodape(() => proxima(salvarServicosAgora))}
-            </div>
-          ) : null}
-
-          {etapaAtual === "agenda" ? (
-            <div>
-              <p className="mb-3 text-xs text-mute">
-                Os horários abaixo definem quando o cliente consegue marcar. Fora deles, o CortAI responde que a
-                barbearia está fechada.
-              </p>
-              <EditorDeHorarios horarios={valorHorarios} onChange={setHorarios} />
-              {rodape(() =>
-                proxima(() => gravarHorarios({ data: { horarios: valorHorarios, fuso: valorFuso } })),
+              <EditorDeServicos
+                servicos={valorServicos}
+                onChange={setServicos}
+                profissionais={profissionais.map((p) => ({ id: p.id, nome: p.nome }))}
+                semIA
+              />
+              {rodape(
+                () => proxima(salvarServicosAgora),
+                "Continuar",
+                !valorServicos.some((s) => s.nome.trim().length >= 2),
               )}
             </div>
           ) : null}
 
-          {etapaAtual === "canais" ? (
+          {etapa === "horarios" ? (
             <div>
-              <p className="text-xs text-mute">
-                O aviso pode chegar no app e no WhatsApp ao mesmo tempo. O WhatsApp depende da conexão em{" "}
-                <Link to="/barbeiro/cortai" className="text-gold">
-                  CortAI no WhatsApp
-                </Link>
-                {data.whatsappConectado ? " — já conectado." : " — ainda não conectado."}
-              </p>
-              <PreferenciasDeAvisos />
-              {rodape(() => proxima())}
+              <p className="mb-3 text-xs text-mute">Já vem preenchido. Mude só o que for diferente.</p>
+              <EditorDeHorarios horarios={valorHorarios} onChange={setHorarios} semIA />
+              {rodape(() => proxima(() => gravarHorarios({ data: { horarios: valorHorarios } })))}
             </div>
           ) : null}
 
-          {etapaAtual === "recursos" ? (
+          {etapa === "regras" ? (
             <div>
-              <p className="text-xs text-mute">
-                Plano <span className="text-gold">{data.capacidades.plano.nome}</span>. Estes são os recursos que a
-                sua barbearia pode usar hoje.{" "}
-                <Link to="/barbeiro/plano" className="text-gold">
-                  Ver planos
-                </Link>
-                .
-              </p>
-              <ListaDeCapacidades itens={capacidades.filter((c) => c.estado !== "nao_incluida")} />
-              {capacidades.some((c) => c.estado === "nao_incluida") ? (
-                <details className="mt-6 rounded-xl border border-line bg-ink2 px-5 py-4">
-                  <summary className="cursor-pointer text-xs text-mute">Disponíveis em outros planos</summary>
-                  <ListaDeCapacidades itens={capacidades.filter((c) => c.estado === "nao_incluida")} />
-                </details>
-              ) : null}
-              {rodape(() => proxima(() => concluir()), "Concluir")}
+              <button
+                type="button"
+                onClick={() => {
+                  setRegras(REGRAS_RECOMENDADAS);
+                  proxima(() => gravarRegras({ data: REGRAS_RECOMENDADAS }));
+                }}
+                className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 text-left"
+              >
+                <Check size={18} className="shrink-0 text-paper" aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-paper">Usar padrão recomendado</span>
+                  <span className="block text-xs text-mute">1 h de antecedência, cancelar até 2 h antes, aceita encaixe.</span>
+                </span>
+              </button>
+
+              <Escolha
+                titulo="Antecedência mínima para agendar"
+                opcoes={ANTECEDENCIAS}
+                valor={valorRegras.antecedenciaMinMinutos}
+                onChange={(v) => setRegras({ ...valorRegras, antecedenciaMinMinutos: v })}
+              />
+              <Escolha
+                titulo="Cliente pode cancelar até"
+                opcoes={CANCELAMENTOS}
+                valor={valorRegras.cancelamentoMinHoras}
+                onChange={(v) => setRegras({ ...valorRegras, cancelamentoMinHoras: v })}
+              />
+              <Escolha
+                titulo="Intervalo entre atendimentos"
+                opcoes={INTERVALOS}
+                valor={valorRegras.intervaloEntreMin}
+                onChange={(v) => setRegras({ ...valorRegras, intervaloEntreMin: v })}
+              />
+              <label className="mt-6 flex min-h-12 items-center justify-between gap-4">
+                <span>
+                  <span className="block text-sm font-semibold text-paper">Aceitar encaixes</span>
+                  <span className="block text-xs text-mute">Cliente sem horário pode entrar na fila.</span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={valorRegras.aceitaEncaixe}
+                  onChange={(e) => setRegras({ ...valorRegras, aceitaEncaixe: e.target.checked })}
+                  className="h-6 w-6 shrink-0 accent-[var(--gold)]"
+                />
+              </label>
+              {rodape(() => proxima(() => gravarRegras({ data: valorRegras }).then(() => concluir())))}
             </div>
           ) : null}
 
-          {etapaAtual === "pronto" ? (
+          {etapa === "link" ? (
             <div>
-              <ul className="divide-y divide-line border-y border-line">
-                {essenciais.map((i) => (
-                  <li key={i.rotulo} className="flex items-center gap-3 py-3">
-                    <Check size={16} className={i.ok ? "text-sage" : "text-mute2"} aria-hidden />
-                    <span className={`text-sm ${i.ok ? "text-paper" : "text-mute"}`}>{i.rotulo}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {!prontoParaAtender ? (
-                <p className="mt-4 text-xs text-mute">
-                  Falta pouco. Você pode completar os itens que sobraram quando quiser.
-                </p>
-              ) : null}
-
-              <p className="mt-6 text-xs text-mute">Link da sua barbearia</p>
-              <p className="mt-1 break-all rounded-lg border border-line bg-ink2 px-4 py-3 text-xs text-paper">
-                {link}
+              <p className="text-sm text-paper">Este é o link da sua barbearia. Mande para seus clientes agendarem.</p>
+              <p className="mt-4 break-all rounded-lg border border-line2 bg-ink2 px-4 py-4 text-base font-semibold text-paper">
+                {linkCurto}
               </p>
-              <div className="mt-3 flex flex-wrap gap-3">
+              <div className="mt-3 grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  className="btn-secondary flex-1 py-2.5 text-sm"
+                  className="btn-secondary min-h-12 text-sm"
                   onClick={async () => {
                     await navigator.clipboard.writeText(link);
                     setCopiado(true);
+                    marcarLinkCompartilhado();
                   }}
                 >
                   <Copy size={14} className="mr-1.5 inline" aria-hidden />
-                  {copiado ? "Copiado" : "Copiar link"}
+                  {copiado ? "Copiado" : "Copiar"}
                 </button>
-                <button
-                  type="button"
-                  className="btn-secondary flex-1 py-2.5 text-sm"
-                  onClick={() => {
-                    if (navigator.share) void navigator.share({ title: data.tenant.nome, url: link });
-                    else void navigator.clipboard.writeText(link).then(() => setCopiado(true));
-                  }}
+                <a
+                  className="btn-secondary inline-flex min-h-12 items-center justify-center text-sm"
+                  href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={marcarLinkCompartilhado}
                 >
-                  <Share2 size={14} className="mr-1.5 inline" aria-hidden /> Compartilhar
-                </button>
+                  <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
+                </a>
               </div>
-              <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold"
-              >
-                <ExternalLink size={13} aria-hidden /> Ver a página
+              <a href={link} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-xs text-paper underline">
+                <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
               </a>
+              {rodape(() => proxima(), "Concluir")}
+            </div>
+          ) : null}
 
+          {etapa === "pronto" ? (
+            <div className="pt-4 text-center">
+              <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
+                <Check size={28} className="text-ink" aria-hidden />
+              </span>
+              <h2 className="mt-5 text-xl font-semibold text-paper">Sua barbearia está pronta para receber agendamentos.</h2>
+              <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
               <button
                 type="button"
-                className="btn-primary mt-8 w-full py-3.5"
+                className="btn-primary mt-8 min-h-14 w-full text-sm"
                 onClick={() => void navigate({ to: "/barbeiro" })}
               >
-                Ir para o painel
+                Ir para a agenda
               </button>
               <button
                 type="button"
-                className="mt-4 w-full text-center text-xs text-mute"
+                className="mt-3 min-h-12 w-full text-center text-xs text-mute"
                 onClick={() => setEtapaEscolhida("dados")}
               >
                 Revisar configuração
               </button>
             </div>
           ) : null}
-
-          {salvando ? <p className="mt-4 text-center text-xs text-mute2">Salvando em segundo plano…</p> : null}
         </>
       ) : null}
     </Screen>
   );
 }
 
-function LimiteDoPlano({
-  usado,
-  limite,
-  plano,
-  rotulo,
+function Escolha({
+  titulo,
+  opcoes,
+  valor,
+  onChange,
 }: {
-  usado: number;
-  limite: number | null;
-  plano: string;
-  rotulo: string;
+  titulo: string;
+  opcoes: { valor: number; rotulo: string }[];
+  valor: number;
+  onChange: (v: number) => void;
 }) {
-  if (limite == null) return null;
   return (
-    <p className="mt-3 text-xs text-mute2">
-      {usado} de {limite} {rotulo} no plano {plano}.
-      {usado >= limite ? " Para ter mais, fale com o Cortaí." : ""}
-    </p>
-  );
-}
-
-function ListaDeCapacidades({ itens }: { itens: CapacidadeAvaliada[] }) {
-  return (
-    <ul className="mt-4 divide-y divide-line border-y border-line">
-      {itens.map((c) => (
-        <li key={c.chave} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
-          <span className="min-w-0">
-            <span className="block truncate text-sm text-paper">{c.rotulo}</span>
-            <span className="block truncate text-xs text-mute2">{c.detalhe}</span>
-          </span>
-          <span
-            className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] ${
-              c.estado === "ativa"
-                ? "border-gold/45 bg-gold-soft text-gold"
-                : c.estado === "disponivel"
-                  ? "border-line text-mute"
-                  : "border-line text-mute2"
+    <fieldset className="mt-6">
+      <legend className="text-sm font-semibold text-paper">{titulo}</legend>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {opcoes.map((o) => (
+          <button
+            key={o.valor}
+            type="button"
+            aria-pressed={valor === o.valor}
+            onClick={() => onChange(o.valor)}
+            className={`min-h-12 rounded-lg border px-4 text-xs font-semibold ${
+              valor === o.valor ? "border-paper bg-paper text-ink" : "border-line2 bg-ink2 text-paper"
             }`}
           >
-            {c.estado === "nao_incluida" ? <Lock size={10} className="mr-1 inline" aria-hidden /> : null}
-            {ROTULO_DO_ESTADO[c.estado]}
-          </span>
-        </li>
-      ))}
-    </ul>
+            {o.rotulo}
+          </button>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
-function EsqueletoDaImplantacao() {
+function Esqueleto() {
   return (
     <div className="animate-pulse space-y-4" aria-hidden>
       <div className="h-1.5 rounded-full bg-ink3" />

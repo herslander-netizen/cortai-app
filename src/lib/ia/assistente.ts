@@ -26,6 +26,9 @@ export type HorarioSugerido = {
   fechado: boolean;
   abre: string;
   fecha: string;
+  /** Intervalo opcional (ex.: almoço), em HH:MM. */
+  intervaloInicio?: string | null;
+  intervaloFim?: string | null;
 };
 
 export type RespostaDoAssistente = {
@@ -68,9 +71,8 @@ export const SERVICOS_SUGERIDOS: ServicoSugerido[] = [
   { nome: "Corte", categoria: "Cabelo", duracaoMin: 30, precoCentavos: 3500 },
   { nome: "Barba", categoria: "Barba", duracaoMin: 30, precoCentavos: 2500 },
   { nome: "Corte + Barba", categoria: "Combo", duracaoMin: 45, precoCentavos: 5000 },
-  { nome: "Pezinho", categoria: "Acabamento", duracaoMin: 15, precoCentavos: 1500 },
   { nome: "Sobrancelha", categoria: "Acabamento", duracaoMin: 15, precoCentavos: 1500 },
-  { nome: "Platinado", categoria: "Química", duracaoMin: 90, precoCentavos: 12000 },
+  { nome: "Pigmentação", categoria: "Química", duracaoMin: 30, precoCentavos: 3000 },
 ];
 
 /** Mensagem honesta quando não há credencial de IA no ambiente. */

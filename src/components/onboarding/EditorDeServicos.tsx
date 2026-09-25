@@ -6,14 +6,19 @@ import { brl } from "@/lib/format";
 import { SERVICOS_SUGERIDOS, type ServicoSugerido } from "@/lib/ia/assistente";
 import { interpretarServicos } from "@/lib/assistente.functions";
 
-export type ServicoEditavel = ServicoSugerido & { id?: string };
+export type ServicoEditavel = ServicoSugerido & { id?: string; profissionalIds?: string[] };
 
 export function EditorDeServicos({
   servicos,
   onChange,
+  profissionais,
+  semIA = false,
 }: {
   servicos: ServicoEditavel[];
   onChange: (s: ServicoEditavel[]) => void;
+  /** Quando há mais de um profissional, mostra quem faz cada serviço. */
+  profissionais?: { id: string; nome: string }[];
+  semIA?: boolean;
 }) {
   const interpretar = useServerFn(interpretarServicos);
   const [texto, setTexto] = useState("");
@@ -71,6 +76,15 @@ export function EditorDeServicos({
                 <Trash2 size={16} />
               </button>
             </div>
+            <label className="mt-2 block text-[11px] text-mute">
+              Categoria
+              <input
+                value={s.categoria}
+                onChange={(e) => atualizar(i, { categoria: e.target.value })}
+                list="categorias-de-servico"
+                className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+              />
+            </label>
             <div className="mt-2 grid grid-cols-2 gap-3">
               <label className="block text-[11px] text-mute">
                 Duração (min)
@@ -108,7 +122,37 @@ export function EditorDeServicos({
                 />
               </label>
             </div>
-
+            {profissionais && profissionais.length > 1 ? (
+              <div className="mt-3">
+                <p className="text-[11px] text-mute">Quem faz</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {profissionais.map((p) => {
+                    const marcados = s.profissionalIds ?? [];
+                    const todos = marcados.length === 0;
+                    const ativo = todos || marcados.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        aria-pressed={ativo}
+                        onClick={() => {
+                          const base = todos ? profissionais.map((x) => x.id) : marcados;
+                          const proximo = ativo ? base.filter((id) => id !== p.id) : [...base, p.id];
+                          atualizar(i, {
+                            profissionalIds: proximo.length === profissionais.length || proximo.length === 0 ? [] : proximo,
+                          });
+                        }}
+                        className={`min-h-10 rounded-full border px-3 text-xs ${
+                          ativo ? "border-paper bg-paper text-ink" : "border-line2 text-mute"
+                        }`}
+                      >
+                        {p.nome}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -121,6 +165,13 @@ export function EditorDeServicos({
         + Adicionar serviço
       </button>
 
+      <datalist id="categorias-de-servico">
+        {["Cabelo", "Barba", "Combo", "Acabamento", "Química"].map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+
+      {semIA ? null : (
       <div className="mt-6 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
         <p className="flex items-center gap-2 text-sm font-semibold text-paper">
           <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o CortAI configure isso para você?
@@ -190,6 +241,7 @@ export function EditorDeServicos({
         {aviso ? <p className="mt-3 text-xs text-mute">{aviso}</p> : null}
         {erro ? <p className="mt-3 text-xs text-brick">{erro}</p> : null}
       </div>
+      )}
     </div>
   );
 }

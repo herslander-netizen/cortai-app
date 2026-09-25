@@ -43,6 +43,7 @@ import {
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
 import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
+import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
 import { brl } from "@/lib/format";
 import { chamarProximoDaFila, desfazerInicioRapido, getOperacaoFila } from "@/lib/atendimento.functions";
 import { hojeNoFuso } from "@/lib/horarios";
@@ -476,6 +477,8 @@ export function AgendaOperacional() {
             ) : null}
           </section>
         ) : null}
+
+        {ehHoje ? <PrimeirosPassos /> : null}
       </div>
 
       <div className="agenda-acao-fixa">
