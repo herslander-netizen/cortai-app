@@ -98,12 +98,64 @@ export type Database = {
           },
         ]
       }
+      agendamento_transicoes: {
+        Row: {
+          agendamento_id: string
+          criado_em: string
+          de: string | null
+          id: string
+          inferidos: string[]
+          para: string
+          por: string | null
+          tenant_id: string
+        }
+        Insert: {
+          agendamento_id: string
+          criado_em?: string
+          de?: string | null
+          id?: string
+          inferidos?: string[]
+          para: string
+          por?: string | null
+          tenant_id: string
+        }
+        Update: {
+          agendamento_id?: string
+          criado_em?: string
+          de?: string | null
+          id?: string
+          inferidos?: string[]
+          para?: string
+          por?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamento_transicoes_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamento_transicoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agendamentos: {
         Row: {
+          arrived_at: string | null
+          arrived_inferido: boolean
           cancelado_em: string | null
           cliente_id: string
           criado_em: string
           fim: string
+          finished_at: string | null
+          finished_inferido: boolean
           forma_pagamento: string | null
           id: string
           inicio: string
@@ -113,15 +165,23 @@ export type Database = {
           profissional_id: string | null
           recorrencia: string | null
           servico_id: string | null
+          started_at: string | null
+          started_inferido: boolean
           status: string
+          status_alterado_em: string | null
+          status_alterado_por: string | null
           tenant_id: string
           valor_centavos: number
         }
         Insert: {
+          arrived_at?: string | null
+          arrived_inferido?: boolean
           cancelado_em?: string | null
           cliente_id: string
           criado_em?: string
           fim: string
+          finished_at?: string | null
+          finished_inferido?: boolean
           forma_pagamento?: string | null
           id?: string
           inicio: string
@@ -131,15 +191,23 @@ export type Database = {
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
+          started_at?: string | null
+          started_inferido?: boolean
           status?: string
+          status_alterado_em?: string | null
+          status_alterado_por?: string | null
           tenant_id: string
           valor_centavos?: number
         }
         Update: {
+          arrived_at?: string | null
+          arrived_inferido?: boolean
           cancelado_em?: string | null
           cliente_id?: string
           criado_em?: string
           fim?: string
+          finished_at?: string | null
+          finished_inferido?: boolean
           forma_pagamento?: string | null
           id?: string
           inicio?: string
@@ -149,7 +217,11 @@ export type Database = {
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
+          started_at?: string | null
+          started_inferido?: boolean
           status?: string
+          status_alterado_em?: string | null
+          status_alterado_por?: string | null
           tenant_id?: string
           valor_centavos?: number
         }
