@@ -27,7 +27,7 @@
 - [x] Etapa 1: salvar a identidade escolhida pelo dono para toda a barbearia
 - [x] Etapa 1: manter o modo por aparelho e adicionar atalho no topo
 - [x] Etapa 1: remover cores antigas fora dos tokens
-- [ ] Etapa 1: validar logo, modo e identidade
+- [x] Etapa 1: validar logo, modo e identidade
 - [x] Separar identidades Moderno, Blue, Indigo, Copper e Clássico dos modos Claro, Escuro e Sistema
 - [x] Tornar Moderno a identidade padrão e manter Clássico como opção preta e dourada
 - [x] Unificar tokens, Manrope, contraste, alvos de toque e ícones Lucide
