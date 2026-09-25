@@ -44,7 +44,7 @@ export function SinoDeAvisos() {
   useEffect(() => {
     if (!tenantId) return;
     const canal = supabase
-      .channel(`avisos-${tenantId}`)
+      .channel(`avisos-${tenantId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notificacoes", filter: `tenant_id=eq.${tenantId}` },
