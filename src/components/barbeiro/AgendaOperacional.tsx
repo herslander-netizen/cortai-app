@@ -17,6 +17,7 @@ import {
 import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
+import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { Screen } from "@/components/layout/Screen";
 import {
   AlertDialog,
@@ -126,6 +127,7 @@ export function AgendaOperacional() {
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   const [ocupado, setOcupado] = useState(false);
+  const [visualizacao, setVisualizacao] = useState<"lista" | "timeline">("lista");
   const ehHoje = dia === hojeNoFuso(fuso);
 
   const rapido = useQuery({
@@ -148,8 +150,17 @@ export function AgendaOperacional() {
     if (agenda.data?.fuso && agenda.data.fuso !== fuso) setFuso(agenda.data.fuso);
   }, [agenda.data?.fuso, fuso]);
   useEffect(() => {
-    const timer = window.setInterval(() => setAgora(Date.now()), 30_000);
-    return () => window.clearInterval(timer);
+    const atualizar = () => setAgora(Date.now());
+    const atraso = 60_000 - (Date.now() % 60_000);
+    let timer: number | undefined;
+    const alinhamento = window.setTimeout(() => {
+      atualizar();
+      timer = window.setInterval(atualizar, 60_000);
+    }, atraso);
+    return () => {
+      window.clearTimeout(alinhamento);
+      if (timer !== undefined) window.clearInterval(timer);
+    };
   }, []);
   useEffect(() => {
     if (!tenantId) return;
@@ -291,8 +302,8 @@ export function AgendaOperacional() {
         ) : null}
 
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1" role="tablist" aria-label="Visualização da agenda">
-          <Button role="tab" aria-selected variant="secondary" size="sm" className="bg-ink2 shadow-sm">Lista</Button>
-          <Button role="tab" aria-selected={false} variant="ghost" size="sm" disabled title="Disponível na próxima etapa">Timeline</Button>
+          <Button role="tab" aria-selected={visualizacao === "lista"} variant={visualizacao === "lista" ? "secondary" : "ghost"} size="sm" className={visualizacao === "lista" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("lista")}>Lista</Button>
+          <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
         </div>
 
         {agenda.isLoading ? <EsqueletoAgenda linhas={5} /> : null}
@@ -301,6 +312,17 @@ export function AgendaOperacional() {
             <p className="text-base font-bold text-paper">Dia livre — compartilhe seu link</p>
             <Link to="/barbeiro/marca" className="mt-3 inline-block text-sm font-semibold text-gold underline underline-offset-4">Abrir página da barbearia</Link>
           </div>
+        ) : visualizacao === "timeline" ? (
+          <AgendaTimeline
+            dia={dia}
+            fuso={fuso}
+            agora={agora}
+            itens={itens}
+            horarios={agenda.data?.horarios ?? []}
+            selecionado={selecionado}
+            onSelecionar={(id) => setSelecionado((atual) => atual === id ? null : id)}
+            renderStatus={(status) => <Status status={status} />}
+          />
         ) : (
           <ul className="divide-y divide-line">
             {itens.map((item) => {
