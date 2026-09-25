@@ -41,9 +41,13 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, success = false, disabled, onClick, children, style, ...props }, forwardedRef) => {
+    if ((variant === "icon" || size === "icon") && !props["aria-label"]) {
+      throw new Error("Button de ícone exige aria-label.");
+    }
     const [pending, setPending] = React.useState(false);
     const [showSpinner, setShowSpinner] = React.useState(false);
     const internalRef = React.useRef<HTMLButtonElement | null>(null);
+    const pendingRef = React.useRef(false);
     const alive = React.useRef(true);
     const width = React.useRef<number | null>(null);
 
@@ -61,14 +65,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-      if (pending || loading) return;
+      if (pendingRef.current || loading) return;
       const result = onClick?.(event);
       if (!result || typeof (result as Promise<unknown>).then !== "function") return;
       width.current = internalRef.current?.offsetWidth ?? null;
+      pendingRef.current = true;
       setPending(true);
       const timer = window.setTimeout(() => alive.current && setShowSpinner(true), 300);
       void Promise.resolve(result).finally(() => {
         window.clearTimeout(timer);
+        pendingRef.current = false;
         if (alive.current) { setPending(false); setShowSpinner(false); }
       });
     }

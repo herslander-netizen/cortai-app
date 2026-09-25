@@ -12,7 +12,6 @@ import {
   MessageCircle,
   Scissors,
   UserRoundPlus,
-  X,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } from "react";
 
@@ -280,7 +279,7 @@ export function AgendaOperacional() {
 
   return (
     <Screen title="Agenda" subtitle={agenda.data?.tenant.nome ?? "Operação do dia"}>
-      <div className="pb-28">
+      <div className="pb-36">
         <div className="mb-5 grid grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2" aria-label="Navegar pelos dias">
           <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => setDia(somarDias(dia, -1))}><ChevronLeft /></Button>
           <div className="min-w-0 text-center">
@@ -467,14 +466,27 @@ export function AgendaOperacional() {
       </div>
 
       <div className="agenda-acao-fixa">
-        {itemSelecionado?.clienteId ? <Button variant="outline" className="mb-2 h-12 w-full" onClick={() => setPerfil(itemSelecionado.clienteId!)}>Ver ficha de {itemSelecionado.cliente}</Button> : null}
-        <Button size="lg" className="h-14 w-full text-base" disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))} onClick={acaoPrincipal}>
+        {menuAberto && !itemSelecionado ? (
+          <div className="agenda-menu-flutuante" role="menu" aria-label="Ações da agenda">
+            <Button variant="ghost" role="menuitem" onClick={() => { setMenuAberto(false); setRapidoAberto(true); }}><Scissors />Atendimento manual</Button>
+            <Button variant="ghost" role="menuitem" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button>
+            <Button asChild variant="ghost" role="menuitem"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button>
+            {chegada.length > 0 ? <Button variant="ghost" role="menuitem" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo da fila</Button> : null}
+          </div>
+        ) : null}
+        <Button
+          size="lg"
+          variant="primary"
+          aria-label={!itemSelecionado ? "Ações da agenda" : undefined}
+          aria-expanded={!itemSelecionado ? menuAberto : undefined}
+          className={itemSelecionado ? "agenda-acao-nomeada" : "agenda-acao-redonda"}
+          disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
+          onClick={acaoPrincipal}
+        >
           <Scissors />
-          {!itemSelecionado ? "Ações da agenda" : itemSelecionado.status === "na_cadeira" ? `Finalizar ${itemSelecionado.cliente}` : `Iniciar ${itemSelecionado.cliente}`}
+          {itemSelecionado ? (itemSelecionado.status === "na_cadeira" ? `Finalizar ${itemSelecionado.cliente}` : `Iniciar ${itemSelecionado.cliente}`) : null}
         </Button>
       </div>
-
-      {menuAberto ? <div className="agenda-folha" role="dialog" aria-modal="true" aria-label="Ações da agenda" onClick={() => setMenuAberto(false)}><div className="agenda-folha-conteudo" onClick={(e) => e.stopPropagation()}><div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="text-lg font-extrabold text-paper">Ações da agenda</h2><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setMenuAberto(false)}><X /></Button></div><div className="grid gap-2"><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setRapidoAberto(true); }}><Scissors />Atendimento manual</Button>{chegada.length > 0 ? <Button variant="outline" className="h-12 justify-start" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo da fila · {chegada.length}</Button> : <Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/fila"><UserRoundPlus />Chamar próximo da fila</Link></Button>}<Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button></div></div></div> : null}
 
       {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
 
@@ -490,7 +502,7 @@ export function AgendaOperacional() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /></Suspense> : null}
+      {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); setSelecionado(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /></Suspense> : null}
       {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /></Suspense> : null}
     </Screen>
   );

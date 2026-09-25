@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { RouteError } from "@/components/layout/RouteError";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,38 +34,6 @@ function NotFoundComponent() {
         </p>
         <div className="mt-6">
           <Button asChild><Link to="/">Voltar ao início</Link></Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
-  const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Esta página não carregou
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Algo não saiu como esperado. Tente novamente ou volte ao início.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-          >
-            Tentar novamente
-          </Button>
-          <Button asChild variant="outline"><Link to="/">Voltar ao início</Link></Button>
         </div>
       </div>
     </div>
@@ -107,7 +75,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
+  errorComponent: RouteError,
 });
 
 function RootShell({ children }: { children: ReactNode }) {

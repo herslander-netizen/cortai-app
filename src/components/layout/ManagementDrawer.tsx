@@ -46,6 +46,7 @@ type ItemDoMenu = {
   icon: typeof CalendarDays;
   permissao?: ChaveDePermissao;
   rotaDaCapacidade?: string;
+  search?: { acao: "agendamento" };
 };
 
 const GRUPOS: ReadonlyArray<{ titulo: string; itens: readonly ItemDoMenu[] }> = [
@@ -53,6 +54,7 @@ const GRUPOS: ReadonlyArray<{ titulo: string; itens: readonly ItemDoMenu[] }> = 
     titulo: "Operação",
     itens: [
       { label: "Agenda", to: "/barbeiro", icon: CalendarDays, permissao: "criar_agendamento", rotaDaCapacidade: "/barbeiro/agenda" },
+      { label: "Novo agendamento", to: "/barbeiro/agenda", icon: CalendarDays, permissao: "criar_agendamento", rotaDaCapacidade: "/barbeiro/agenda", search: { acao: "agendamento" } },
       { label: "Atendimentos", to: "/barbeiro/agendamentos", icon: CheckCircle2, permissao: "visualizar_clientes" },
       { label: "Clientes", to: "/barbeiro/clientes", icon: ContactRound, permissao: "visualizar_clientes", rotaDaCapacidade: "/barbeiro/clientes" },
       { label: "Fila", to: "/barbeiro/fila", icon: ListOrdered, permissao: "criar_agendamento", rotaDaCapacidade: "/barbeiro/fila" },
@@ -172,6 +174,7 @@ export function ManagementHeader() {
                           <li key={`${grupo.titulo}-${item.label}`}>
                             <Link
                               to={item.to as never}
+                              search={item.search as never}
                               preload="intent"
                               onClick={() => setAberto(false)}
                               className={`drawer-link ${ativo ? "drawer-link-active" : ""}`}
@@ -192,7 +195,7 @@ export function ManagementHeader() {
 
         <div className="flex items-center gap-1">
           <ModeShortcut />
-          <AcoesRapidas />
+          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AcoesRapidas />}
           <SinoDeAvisos />
         </div>
       </div>
