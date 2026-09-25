@@ -438,6 +438,7 @@
 .agenda-voltar-agora { position: sticky; top: 8px; z-index: 10; float: right; min-height: 40px; margin: 0 8px -40px 0; border-color: var(--line); background: var(--ink2); box-shadow: var(--shadow-sm); }
 .agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .agenda-acao-redonda { width: 56px; min-width: 56px; height: 56px; padding: 0; border-radius: 999px; box-shadow: var(--shadow-md); }
+.agenda-acao-fechar { position: fixed; z-index: 60; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); }
 .agenda-acao-nomeada { width: auto; max-width: min(82vw, 360px); min-height: 56px; border-radius: 999px; box-shadow: var(--shadow-md); }
 .agenda-acoes-folha { max-height: min(72dvh, 520px); }
 .agenda-acao-lista { width: 100%; min-height: 62px; justify-content: flex-start; gap: 12px; border-radius: 0; padding: 9px 2px; text-align: left; white-space: normal; }
