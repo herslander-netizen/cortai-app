@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Bot, Loader2, MessageCircle, Send, ShieldCheck, Smartphone, X } from "lucide-react";
+import { ArrowLeft, Bot, CalendarPlus, Loader2, MessageCircle, Send, ShieldCheck, Smartphone, X } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
@@ -85,6 +85,14 @@ function CortaiPage() {
             ? "Você não tem acesso a esta área"
             : "Não conseguimos carregar o CortAI agora. Tente de novo em instantes."}
         </p>
+      ) : null}
+
+      {!painel.isError ? (
+        <Button asChild variant="secondary" className="mb-5">
+          <Link to="/barbeiro/agenda" search={{ acao: "agendamento" }}>
+            <CalendarPlus aria-hidden /> Novo agendamento
+          </Link>
+        </Button>
       ) : null}
 
       {painel.data ? (

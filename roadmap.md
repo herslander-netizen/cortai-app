@@ -228,5 +228,5 @@
 - [x] Criar tela de erro padrão para rotas
 - [x] Consolidar a tesoura flutuante e o menu curto da Agenda
 - [x] Unificar o acesso ao novo agendamento
-- [ ] Adicionar testes enxutos de Button e Status
+- [x] Adicionar testes enxutos de Button e Status
 - [ ] Revisar barbeiro, recepção e dono em 375 px e desktop
