@@ -47,7 +47,8 @@ function minutosEntre(abre: string, fecha: string) {
   return Math.max(0, m(fecha) - m(abre));
 }
 
-async function metricasDoDia(b: Base, deslocamentoMs: number, horarios: HorarioDeFuncionamento[], totalProfs: number) {
+async function metricasDoDia(b: Base, deslocamentoMs: number, horarios: HorarioDeFuncionamento[], ativos: Set<string>) {
+  const totalProfs = ativos.size;
   const { dia, ini, fim } = janelaDoDia(b.fuso, deslocamentoMs);
   const corte = new Date(Math.min(Date.now() - deslocamentoMs, fim.getTime()));
   const [ags, caixa] = await Promise.all([
@@ -61,7 +62,7 @@ async function metricasDoDia(b: Base, deslocamentoMs: number, horarios: HorarioD
   const ocupado = validos.reduce((s, a) => s + Math.max(0, (new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60000), 0);
   const h = horarioDoDia(dia, horarios);
   const disponivel = h.fechado ? 0 : minutosEntre(h.abre, h.fecha) * totalProfs;
-  const trabalhando = new Set(validos.map((a) => a.profissional_id).filter(Boolean)).size;
+  const trabalhando = new Set(validos.map((a) => a.profissional_id).filter((id): id is string => Boolean(id) && ativos.has(id as string))).size;
   return {
     atendimentos,
     faturamentoCentavos: faturamento,
@@ -85,11 +86,12 @@ export const getHojeDoDono = createServerFn({ method: "GET" })
     const b = await base(context, ["dono", "gerente"]);
     const [horarios, profs, financeiro] = await Promise.all([
       horariosDe(b),
-      b.db.from("profissionais").select("id", { count: "exact", head: true }).eq("tenant_id", b.tenantId).eq("ativo", true),
+      b.db.from("profissionais").select("id").eq("tenant_id", b.tenantId).eq("ativo", true),
       b.pode("visualizar_financeiro"),
     ]);
-    const total = profs.count ?? 0;
-    const [hoje, semanaPassada] = await Promise.all([metricasDoDia(b, 0, horarios, total), metricasDoDia(b, SEMANA, horarios, total)]);
+    const ativos = new Set((profs.data ?? []).map((p) => p.id));
+    const total = ativos.size;
+    const [hoje, semanaPassada] = await Promise.all([metricasDoDia(b, 0, horarios, ativos), metricasDoDia(b, SEMANA, horarios, ativos)]);
     if (!financeiro) {
       hoje.faturamentoCentavos = 0; hoje.ticketMedioCentavos = 0;
       semanaPassada.faturamentoCentavos = 0; semanaPassada.ticketMedioCentavos = 0;
