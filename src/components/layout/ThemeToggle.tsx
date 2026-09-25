@@ -22,7 +22,7 @@ const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
   { id: "sistema", nome: "Sistema", icon: Monitor },
 ];
 
-export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string | undefined; podeAlterarIdentidade?: boolean | undefined }) {
+export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string | undefined; tenantId?: string | undefined; podeAlterarIdentidade?: boolean | undefined }) {
   const queryClient = useQueryClient();
   const salvarIdentidade = useServerFn(salvarIdentidadeApp);
   const [modo, setModo] = useState<Modo>("sistema");
@@ -51,12 +51,13 @@ export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = fal
   }
 
   async function alterarIdentidade(novaIdentidade: Identidade) {
+    if (!tenantId) return;
     const anterior = identidade;
     setIdentidade(novaIdentidade);
     aplicarIdentidade(novaIdentidade);
     setSalvando(true);
     try {
-      await salvarIdentidade({ data: { identidade: novaIdentidade } });
+      await salvarIdentidade({ data: { identidade: novaIdentidade, tenantId } });
       await queryClient.invalidateQueries({ queryKey: ["sessao"] });
     } catch (error) {
       setIdentidade(anterior);
@@ -77,7 +78,7 @@ export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = fal
         </span>
       </div>
 
-      {podeAlterarIdentidade ? <div className="mt-4">
+      {podeAlterarIdentidade && tenantId ? <div className="mt-4">
         <p className="mb-2 text-xs font-semibold text-mute">Identidade</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5" role="group" aria-label="Identidade visual">
           {OPCOES_DE_IDENTIDADE.map((item) => (

@@ -81,7 +81,7 @@ function ContaPage() {
         <li>
           <AlterarSenha />
         </li>
-        <li><ThemeToggle identidadeDaBarbearia={data?.identidadeApp} podeAlterarIdentidade={data?.papelNaEquipe === "dono"} /></li>
+        <li><ThemeToggle identidadeDaBarbearia={data?.identidadeApp} tenantId={data?.tenantId ?? undefined} podeAlterarIdentidade={data?.papelNaEquipe === "dono"} /></li>
         <li><InstalarCortai /></li>
         <li className="border-b border-line">
           <button

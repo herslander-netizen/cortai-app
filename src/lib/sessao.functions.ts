@@ -133,27 +133,22 @@ export const getSessao = createServerFn({ method: "GET" })
 
 export const salvarIdentidadeApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ identidade: z.enum(IDENTIDADES) }).parse(input))
+  .inputValidator((input: unknown) => z.object({ identidade: z.enum(IDENTIDADES), tenantId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { data: perfil } = await context.supabase
-      .from("perfis")
-      .select("tenant_ativo")
-      .eq("user_id", context.userId)
-      .maybeSingle();
     const { data: vinculo } = await context.supabase
       .from("tenant_usuarios")
       .select("tenant_id, papel, ativo")
       .eq("user_id", context.userId)
       .eq("papel", "dono")
       .eq("ativo", true)
-      .eq("tenant_id", perfil?.tenant_ativo ?? "00000000-0000-0000-0000-000000000000")
+      .eq("tenant_id", data.tenantId)
       .limit(1)
       .maybeSingle();
     if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade da barbearia.");
     const { error } = await context.supabase
       .from("tenants")
       .update({ identidade_app: data.identidade })
-      .eq("id", vinculo.tenant_id);
+      .eq("id", data.tenantId);
     if (error) throw new Error("Não foi possível salvar a identidade agora.");
     return { ok: true };
   });
