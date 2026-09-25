@@ -15,8 +15,8 @@ import {
   type ChaveDeAutomacao,
   type ConfiguracaoDoAtendimento,
 } from "@/lib/whatsapp/contrato";
-import {
 import { Button } from "@/components/ui/button";
+import {
   atualizarQrCode,
   listarInformacoes,
   removerInformacao,

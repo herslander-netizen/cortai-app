@@ -12,8 +12,8 @@ import { horariosPadrao, SERVICOS_SUGERIDOS, type HorarioSugerido } from "@/lib/
 import { aviso } from "@/lib/avisos";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
-import {
 import { Button } from "@/components/ui/button";
+import {
   adicionarProfissional,
   concluirConfiguracao,
   ETAPAS_DO_ONBOARDING,

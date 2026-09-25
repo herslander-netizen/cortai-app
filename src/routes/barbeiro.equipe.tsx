@@ -15,8 +15,8 @@ import {
   salvarAcessoDoMembro,
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
-import {
 import { Button } from "@/components/ui/button";
+import {
   ACOES,
   DESCRICAO_DO_PAPEL,
   MODULOS,

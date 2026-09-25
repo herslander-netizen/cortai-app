@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
-import {
 import { Button } from "@/components/ui/button";
+import {
   listarAgendamentosConfirmados,
   type AgendamentoConfirmado,
 } from "@/lib/agendamentos.functions";

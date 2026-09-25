@@ -5,8 +5,8 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
-import {
 import { Button } from "@/components/ui/button";
+import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
   getTermosNaoEntendidos,

@@ -6,8 +6,8 @@ import { Search, X } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
-import {
 import { Button } from "@/components/ui/button";
+import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
   getDadosAgendamentoManual,
