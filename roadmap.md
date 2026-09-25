@@ -216,9 +216,9 @@
 - [ ] Teste ponta a ponta com WhatsApp real (depende de número conectado e modelos aprovados na Meta)
 
 ## Interface V3.0 — Etapa 2: componentes base
-- [ ] Unificar Button com espera segura, variantes e áreas de toque V3
-- [ ] Unificar Card nas telas do barbeiro, recepção e dono
-- [ ] Centralizar estados de atendimento e pagamento no Badge
-- [ ] Migrar controles e cartões artesanais sem alterar layout ou lógica
-- [ ] Corrigir topo, ação principal e alternância Lista | Timeline da Agenda
-- [ ] Remover BotaoAcao e validar tipos, testes e fluxos mobile
+- [x] Unificar Button com espera segura, variantes e áreas de toque V3
+- [x] Unificar Card nas telas do barbeiro, recepção e dono
+- [x] Centralizar estados de atendimento e pagamento no Badge
+- [x] Migrar controles e cartões artesanais sem alterar layout ou lógica
+- [x] Corrigir topo, ação principal e alternância Lista | Timeline da Agenda
+- [x] Remover BotaoAcao e validar tipos, testes e fluxos mobile

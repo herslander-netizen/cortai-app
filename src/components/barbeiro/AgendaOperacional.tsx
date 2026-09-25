@@ -381,8 +381,8 @@ export function AgendaOperacional() {
         ) : null}
 
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1" role="tablist" aria-label="Visualização da agenda">
-          <Button role="tab" aria-selected={visualizacao === "lista"} variant={visualizacao === "lista" ? "secondary" : "ghost"} size="sm" className={visualizacao === "lista" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("lista")}>Lista</Button>
-          <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
+          <Button role="tab" aria-selected={visualizacao === "lista"} variant={visualizacao === "lista" ? "secondary" : "ghost"} size="sm" className={visualizacao === "lista" ? "bg-ink2 shadow-sm" : "text-mute"} onClick={() => setVisualizacao("lista")}>Lista</Button>
+          <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : "text-mute"} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
         </div>
 
         {agenda.isLoading ? <EsqueletoAgenda linhas={5} /> : null}

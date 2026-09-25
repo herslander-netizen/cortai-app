@@ -65,9 +65,7 @@ function HojePage() {
         {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={Boolean(n.destaque)} />)}
       </section>
 
-      <Link to="/barbeiro/casa" className="mt-5 flex min-h-12 items-center gap-3 rounded-lg border border-line px-4 text-sm font-medium text-paper transition-colors active:bg-ink2 md:max-w-xl">
-        <Armchair size={18} className="text-mute" /> Ver todas as cadeiras agora
-      </Link>
+      <Button asChild variant="secondary" className="mt-5 md:max-w-xl"><Link to="/barbeiro/casa"><Armchair size={18} className="text-mute" /> Ver todas as cadeiras agora</Link></Button>
 
       <div className="mt-8 divide-y divide-line border-y border-line md:max-w-xl">
         {secoes.map(({ id, titulo, detalhe, C }) => (
