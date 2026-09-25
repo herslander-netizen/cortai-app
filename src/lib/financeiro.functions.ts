@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { hojeNoFuso, isoNoFusoDaBarbearia, normalizarFuso } from "@/lib/horarios";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -16,41 +17,100 @@ const itemSchema = z.object({
   valor_unitario_centavos: z.number().int().min(0),
 });
 
+async function temPermissao(context: any, tenantId: string, chave: string) {
+  const { data } = await context.supabase.rpc("has_tenant_permission", { _tenant_id: tenantId, _permission: chave });
+  return Boolean(data);
+}
+
+async function meuProfissionalId(db: any, tenantId: string, userId: string): Promise<string | null> {
+  const { data } = await db.from("profissionais").select("id").eq("tenant_id", tenantId).eq("user_id", userId).eq("ativo", true).limit(1).maybeSingle();
+  return data?.id ?? null;
+}
+
+/** Quem finaliza pode receber? Se a barbearia usa recepção, o barbeiro deixa a comanda aguardando pagamento. */
+async function podeReceberAqui(context: any, db: any, tenantId: string) {
+  if (!(await temPermissao(context, tenantId, "confirmar_pagamento"))) return false;
+  const [{ data: eu }, { count }] = await Promise.all([
+    db.from("tenant_usuarios").select("papel").eq("tenant_id", tenantId).eq("user_id", context.userId).maybeSingle(),
+    db.from("tenant_usuarios").select("user_id", { count: "exact", head: true }).eq("tenant_id", tenantId).eq("papel", "recepcao").eq("ativo", true),
+  ]);
+  return !(eu?.papel === "barbeiro" && (count ?? 0) > 0);
+}
+
 export const getFechamentoComanda = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "confirmar_pagamento");
     const db = await admin();
     const { data: comandaId, error: prepararErro } = await db.rpc("preparar_comanda_segura", {
       _ator: context.userId,
       _agendamento_id: data.agendamentoId,
     });
-    if (prepararErro) throw new Error(prepararErro.message);
-    const [{ data: comanda }, { data: itens }, { data: servicos }, { data: produtos }, { data: config }] = await Promise.all([
-      db.from("comandas").select("id, numero, status, subtotal_centavos, desconto_centavos, total_centavos, comissao_total_centavos, cliente_id, profissional_id, agendamento_id, clientes(nome, telefone), profissionais(nome), agendamentos(inicio)").eq("id", comandaId).single(),
+    if (prepararErro) throw new Error(prepararErro.message === "sem permissao" ? "Você não pode fechar a comanda deste atendimento." : prepararErro.message);
+    const desde = new Date(Date.now() - 90 * 86_400_000).toISOString();
+    const [{ data: comanda }, { data: itens }, { data: servicos }, { data: produtos }, { data: config }, { data: vendidos }, podeReceber] = await Promise.all([
+      db.from("comandas").select("id, numero, status, subtotal_centavos, desconto_centavos, total_centavos, comissao_total_centavos, cliente_id, profissional_id, agendamento_id, clientes(nome, telefone, limite_fiado_centavos), profissionais(nome), agendamentos(inicio, forma_pagamento)").eq("id", comandaId).eq("tenant_id", tenantId).single(),
       db.from("comanda_itens").select("id, tipo, servico_id, produto_id, descricao, quantidade, valor_unitario_centavos, valor_total_centavos, comissao_percentual, comissao_centavos").eq("comanda_id", comandaId).order("criado_em"),
       db.from("servicos").select("id, nome, preco_centavos, comissao_percentual").eq("tenant_id", tenantId).eq("ativo", true).order("ordem"),
       db.from("produtos").select("id, nome, preco_centavos, quantidade, controla_estoque, comissao_percentual").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
       db.from("configuracoes_financeiras").select("pix_ativo, pix_chave, pix_tipo, pix_whatsapp, comissao_servico_percentual, comissao_produto_percentual").eq("tenant_id", tenantId).maybeSingle(),
+      db.from("comanda_itens").select("produto_id, quantidade, comandas!inner(tenant_id, status, criado_em)").eq("tipo", "produto").eq("comandas.tenant_id", tenantId).in("comandas.status", ["paga", "fiado"]).gte("comandas.criado_em", desde).limit(1000),
+      podeReceberAqui(context, db, tenantId),
     ]);
     if (!comanda) throw new Error("Não foi possível preparar a comanda.");
-    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config };
+    const contagem = new Map<string, number>();
+    for (const v of (vendidos ?? []) as any[]) if (v.produto_id) contagem.set(v.produto_id, (contagem.get(v.produto_id) ?? 0) + v.quantidade);
+    const maisVendidos = [...contagem.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id).filter((id) => (produtos ?? []).some((p: any) => p.id === id)).slice(0, 4);
+    let creditos = 0; let fiadoDisponivel = 0;
+    const cliente: any = (comanda as any).clientes;
+    if (comanda.cliente_id && cliente?.telefone !== "avulso") {
+      const [{ data: cart }, { data: abertos }] = await Promise.all([
+        db.from("carteiras").select("saldo_creditos").eq("tenant_id", tenantId).eq("cliente_id", comanda.cliente_id).maybeSingle(),
+        db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).eq("cliente_id", comanda.cliente_id).in("status", ["pendente", "parcial"]),
+      ]);
+      creditos = cart?.saldo_creditos ?? 0;
+      const limite = cliente?.limite_fiado_centavos ?? 0;
+      fiadoDisponivel = limite > 0 ? Math.max(0, limite - (abertos ?? []).reduce((s: number, f: any) => s + f.saldo_centavos, 0)) : 0;
+    }
+    const planoReservado = (comanda as any).agendamentos?.forma_pagamento === "credito";
+    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
   });
+
+const salvarSchema = z.object({ comandaId: z.string().uuid(), itens: z.array(itemSchema).min(1), descontoCentavos: z.number().int().min(0) });
+
+async function salvarItens(db: any, userId: string, tenantId: string, data: z.infer<typeof salvarSchema>) {
+  const { data: c } = await db.from("comandas").select("id").eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle();
+  if (!c) throw new Error("Comanda não encontrada.");
+  const { data: resultado, error } = await db.rpc("salvar_comanda_segura", {
+    _ator: userId, _comanda_id: data.comandaId, _itens: data.itens, _desconto_centavos: data.descontoCentavos,
+  });
+  if (error) throw new Error(error.message === "sem permissao para desconto" ? "Desconto precisa de autorização do responsável." : error.message);
+  return resultado;
+}
 
 export const salvarComanda = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid(), itens: z.array(itemSchema).min(1), descontoCentavos: z.number().int().min(0) }).parse(input))
+  .inputValidator((input: unknown) => salvarSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "confirmar_pagamento");
+    return salvarItens(await admin(), context.userId, tenantId, data);
+  });
+
+/** Barbeiro finaliza e a recepção recebe: comanda fica "Aguardando pagamento" e a cadeira é liberada. */
+export const enviarParaRecepcao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => salvarSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
-    const { data: resultado, error } = await db.rpc("salvar_comanda_segura", {
-      _ator: context.userId, _comanda_id: data.comandaId, _itens: data.itens, _desconto_centavos: data.descontoCentavos,
-    });
-    if (error) throw new Error(error.message);
-    return resultado;
+    await salvarItens(db, context.userId, tenantId, data);
+    const { data: c } = await db.from("comandas").select("agendamento_id").eq("id", data.comandaId).single();
+    if (c?.agendamento_id) {
+      await db.from("agendamentos").update({ status: "finalizado", status_alterado_por: context.userId })
+        .eq("id", c.agendamento_id).eq("tenant_id", tenantId).in("status", ["agendado", "chegou", "na_cadeira"]);
+    }
+    return { ok: true };
   });
 
 export const pagarComanda = createServerFn({ method: "POST" })
@@ -60,11 +120,129 @@ export const pagarComanda = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "confirmar_pagamento");
     const db = await admin();
+    if (data.forma === "fiado") {
+      const { data: c } = await db.from("comandas").select("total_centavos, cliente_id, clientes(telefone, limite_fiado_centavos)").eq("id", data.comandaId).eq("tenant_id", tenantId).single();
+      const cli: any = (c as any)?.clientes;
+      const limite = cli?.telefone === "avulso" ? 0 : cli?.limite_fiado_centavos ?? 0;
+      const { data: abertos } = await db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).eq("cliente_id", c?.cliente_id ?? "").in("status", ["pendente", "parcial"]);
+      const disponivel = limite - (abertos ?? []).reduce((s: number, f: any) => s + f.saldo_centavos, 0);
+      if (limite <= 0 || (c?.total_centavos ?? 0) > disponivel) throw new Error("Este cliente não tem limite de fiado para este valor.");
+    }
     const { data: resultado, error } = await db.rpc("confirmar_pagamento_comanda_segura", {
       _ator: context.userId, _comanda_id: data.comandaId, _forma: data.forma, _somente_preparar_pix: data.prepararPix,
     });
     if (error) throw new Error(error.message);
     return resultado;
+  });
+
+export const pagarComPlano = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "confirmar_pagamento");
+    const db = await admin();
+    const { data: c } = await db.from("comandas").select("id").eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle();
+    if (!c) throw new Error("Comanda não encontrada.");
+    const { data: resultado, error } = await db.rpc("pagar_comanda_com_plano_segura", { _ator: context.userId, _comanda_id: data.comandaId });
+    if (error) throw new Error(error.message);
+    return resultado;
+  });
+
+/** Comandas que a recepção precisa receber. */
+export const getAguardandoPagamento = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const db = await admin();
+    if (!(await podeReceberAqui(context, db, tenantId))) return [];
+    const { data } = await db.from("comandas").select("id, numero, agendamento_id, total_centavos, status, clientes(nome), profissionais(nome)")
+      .eq("tenant_id", tenantId).in("status", ["aguardando_pagamento", "aguardando_confirmacao_pix"]).not("agendamento_id", "is", null)
+      .gte("criado_em", new Date(Date.now() - 3 * 86_400_000).toISOString()).order("atualizado_em");
+    return (data ?? []).map((c: any) => ({ id: c.id, numero: c.numero, agendamentoId: c.agendamento_id as string, total: c.total_centavos, cliente: c.clientes?.nome ?? "Cliente", profissional: c.profissionais?.nome ?? "", pix: c.status === "aguardando_confirmacao_pix" }));
+  });
+
+/** Retorno sugerido pelo intervalo médio do cliente (30 dias se houver pouco histórico). */
+export const getSugestaoRetorno = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const db = await admin();
+    const { data: c } = await db.from("comandas").select("cliente_id, profissional_id, clientes(nome, telefone), agendamentos(inicio, servico_id), comanda_itens(tipo, servico_id)").eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle();
+    const cli: any = (c as any)?.clientes;
+    if (!c?.cliente_id || !c.profissional_id || !cli || String(cli.telefone).startsWith("avulso")) return null;
+    const servicoId = (c as any).agendamentos?.servico_id ?? ((c as any).comanda_itens ?? []).find((i: any) => i.tipo === "servico")?.servico_id;
+    if (!servicoId) return null;
+    const [{ data: t }, { data: hist }] = await Promise.all([
+      db.from("tenants").select("fuso").eq("id", tenantId).single(),
+      db.from("agendamentos").select("inicio").eq("tenant_id", tenantId).eq("cliente_id", c.cliente_id).eq("status", "finalizado").order("inicio", { ascending: false }).limit(12),
+    ]);
+    const fuso = normalizarFuso(t?.fuso);
+    const dias = [...new Set((hist ?? []).map((h: any) => hojeNoFuso(fuso, new Date(h.inicio))))].sort();
+    let intervalo = 30;
+    if (dias.length >= 3) {
+      const ms = dias.map((d) => new Date(`${d}T12:00:00Z`).getTime());
+      intervalo = Math.max(7, Math.round((ms[ms.length - 1]! - ms[0]!) / (ms.length - 1) / 86_400_000));
+    }
+    const base = (c as any).agendamentos?.inicio ? new Date((c as any).agendamentos.inicio) : new Date();
+    const hhmm = new Intl.DateTimeFormat("en-GB", { timeZone: fuso, hour: "2-digit", minute: "2-digit", hour12: false }).format(base);
+    const alvo = hojeNoFuso(fuso, new Date(Date.now() + intervalo * 86_400_000));
+    const { data: serv } = await db.from("servicos").select("duracao_min").eq("id", servicoId).single();
+    const dur = (serv?.duracao_min ?? 30) * 60_000;
+    let inicio = new Date(isoNoFusoDaBarbearia(alvo, hhmm, fuso));
+    for (let i = 0; i < 6; i++) {
+      const fim = new Date(inicio.getTime() + dur);
+      const { count } = await db.from("agendamentos").select("id", { count: "exact", head: true }).eq("profissional_id", c.profissional_id)
+        .not("status", "in", "(cancelado,nao_compareceu,remarcado)").lt("inicio", fim.toISOString()).gt("fim", inicio.toISOString());
+      if (!count) break;
+      inicio = new Date(inicio.getTime() + 30 * 60_000);
+    }
+    return { inicio: inicio.toISOString(), fuso, intervalo, cliente: cli.nome as string };
+  });
+
+export const criarRetorno = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid(), inicio: z.string().datetime() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "criar_agendamento");
+    const db = await admin();
+    const { data: c } = await db.from("comandas").select("cliente_id, profissional_id, agendamentos(servico_id), comanda_itens(tipo, servico_id)").eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle();
+    const servicoId = (c as any)?.agendamentos?.servico_id ?? ((c as any)?.comanda_itens ?? []).find((i: any) => i.tipo === "servico")?.servico_id;
+    if (!c?.cliente_id || !c.profissional_id || !servicoId) throw new Error("Não foi possível marcar o retorno.");
+    const { data: res, error } = await db.rpc("criar_agendamento", {
+      _tenant_id: tenantId, _cliente_id: c.cliente_id, _profissional_id: c.profissional_id, _servico_id: servicoId, _inicio: data.inicio, _forma_pagamento: "balcao",
+    });
+    if (error) throw new Error(error.message === "horario ja ocupado" ? "Esse horário acabou de ser ocupado." : error.message);
+    const criado = res as unknown as { agendamento_id: string };
+    await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
+    return { agendamentoId: criado.agendamento_id };
+  });
+
+/** Meu dia: só os números do próprio barbeiro, com as mesmas fontes do caixa e das comissões. */
+export const getMeuDia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const db = await admin();
+    const profId = await meuProfissionalId(db, tenantId, context.userId);
+    if (!profId) return null;
+    const { data: t } = await db.from("tenants").select("fuso").eq("id", tenantId).single();
+    const fuso = normalizarFuso(t?.fuso);
+    const dia = hojeNoFuso(fuso);
+    const de = isoNoFusoDaBarbearia(dia, "00:00", fuso);
+    const ate = new Date(new Date(de).getTime() + 86_400_000).toISOString();
+    const [{ count: atendimentos }, { data: caixa }, { data: fiados }, { data: comissoes }, { count: plano }] = await Promise.all([
+      db.from("agendamentos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).eq("profissional_id", profId).eq("status", "finalizado").gte("inicio", de).lt("inicio", ate),
+      db.from("caixa_movimentos").select("valor_centavos").eq("tenant_id", tenantId).eq("profissional_id", profId).eq("tipo", "entrada").eq("categoria", "comanda").gte("criado_em", de).lt("criado_em", ate),
+      db.from("fiados").select("valor_centavos").eq("tenant_id", tenantId).eq("profissional_id", profId).gte("criado_em", de).lt("criado_em", ate),
+      db.from("comissoes").select("valor_centavos").eq("tenant_id", tenantId).eq("profissional_id", profId).gte("criado_em", de).lt("criado_em", ate),
+      db.from("agendamentos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).eq("profissional_id", profId).eq("status", "finalizado").eq("forma_pagamento", "credito").gte("inicio", de).lt("inicio", ate),
+    ]);
+    const soma = (l: any[] | null) => (l ?? []).reduce((s, r) => s + (r.valor_centavos ?? 0), 0);
+    const listaComissoes = comissoes ?? [];
+    return { atendimentos: atendimentos ?? 0, vendido: soma(caixa), fiado: soma(fiados), noPlano: plano ?? 0, comissao: soma(listaComissoes), temComissao: listaComissoes.length > 0 };
   });
 
 export const getCaixa = createServerFn({ method: "GET" })

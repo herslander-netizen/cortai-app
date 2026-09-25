@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarPlus,
+  ChartNoAxesColumn,
+  HandCoins,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -40,6 +42,8 @@ import {
   type AgendaItem,
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
+import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
+import { brl } from "@/lib/format";
 import { chamarProximoDaFila, desfazerInicioRapido, getOperacaoFila } from "@/lib/atendimento.functions";
 import { hojeNoFuso } from "@/lib/horarios";
 
@@ -153,6 +157,10 @@ export function AgendaOperacional() {
   });
 
   const filaQ = useQuery({ queryKey: ["agenda-fila"], queryFn: () => getOperacaoFila(), staleTime: 30_000, refetchOnWindowFocus: true });
+  const aReceberQ = useQuery({ queryKey: ["agenda-a-receber"], queryFn: () => getAguardandoPagamento(), staleTime: 30_000, refetchOnWindowFocus: true });
+  const [meuDiaAberto, setMeuDiaAberto] = useState(false);
+  const meuDiaQ = useQuery({ queryKey: ["agenda-meu-dia"], queryFn: () => getMeuDia(), staleTime: 60_000, enabled: ehHoje });
+  const aReceber = aReceberQ.data ?? [];
   const chegada = filaQ.data?.chegada ?? [];
   const souRecepcao = Boolean(filaQ.data && !filaQ.data.meuProfissionalId);
   const profPadrao = filaQ.data?.profissionais.find((p) => p.livre)?.id ?? filaQ.data?.profissionais[0]?.id ?? null;
@@ -183,6 +191,8 @@ export function AgendaOperacional() {
         void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
         void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
         void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
+        void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] });
+        void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "fila_de_espera", filter: `tenant_id=eq.${tenantId}` }, () => {
         void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
@@ -422,6 +432,40 @@ export function AgendaOperacional() {
             })}
           </ul>
         )}
+
+        {aReceber.length ? (
+          <section aria-labelledby="receber-titulo" className="mt-6">
+            <p id="receber-titulo" className="mb-2 text-[11px] font-bold uppercase text-mute">Aguardando pagamento · {aReceber.length}</p>
+            <ul className="divide-y divide-line border-y border-line">
+              {aReceber.map((c) => (
+                <li key={c.id}>
+                  <button type="button" className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-left active:bg-ink2" onClick={() => setFechando(c.agendamentoId)}>
+                    <span className="min-w-0"><span className="block truncate text-sm font-bold text-paper">{c.cliente}</span><span className="block truncate text-xs text-mute">{c.profissional} · #{c.numero}{c.pix ? " · Pix a confirmar" : ""}</span></span>
+                    <span className="flex items-center gap-2 text-sm font-extrabold text-paper"><HandCoins aria-hidden className="size-4" />{brl(c.total)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {ehHoje && meuDiaQ.data ? (
+          <section className="mt-6 border-t border-line pt-2">
+            <button type="button" aria-expanded={meuDiaAberto} className="flex min-h-12 w-full items-center justify-between gap-3 text-left" onClick={() => setMeuDiaAberto((v) => !v)}>
+              <span className="flex items-center gap-2 text-sm font-bold text-paper"><ChartNoAxesColumn aria-hidden className="size-4" />Meu dia</span>
+              <span className="text-xs text-mute">{meuDiaQ.data.atendimentos} atend. · {brl(meuDiaQ.data.vendido)}</span>
+            </button>
+            {meuDiaAberto ? (
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 pb-3 text-sm">
+                <div><dt className="text-xs text-mute">Atendimentos hoje</dt><dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.atendimentos}</dd></div>
+                <div><dt className="text-xs text-mute">Vendido (caixa)</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.vendido)}</dd></div>
+                {meuDiaQ.data.temComissao ? <div><dt className="text-xs text-mute">Comissão estimada</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.comissao)}</dd></div> : null}
+                {meuDiaQ.data.fiado ? <div><dt className="text-xs text-mute">No fiado</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.fiado)}</dd></div> : null}
+                {meuDiaQ.data.noPlano ? <div><dt className="text-xs text-mute">Pelo plano</dt><dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.noPlano}</dd></div> : null}
+              </dl>
+            ) : null}
+          </section>
+        ) : null}
       </div>
 
       <div className="agenda-acao-fixa">
@@ -447,7 +491,7 @@ export function AgendaOperacional() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); }} /></Suspense> : null}
+      {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /></Suspense> : null}
     </Screen>
   );
 }
