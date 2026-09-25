@@ -45,14 +45,14 @@ function ConteudoHome({ config }: { config: ConfigHome }) {
 
   return (
     <div className="landing-page min-h-screen bg-ink text-paper" style={estilo}>
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-paper/10 bg-ink/70 backdrop-blur-md">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-paper/10 bg-ink">
         <div className="mx-auto flex h-16 max-w-[var(--home-largura)] items-center justify-between px-5 md:px-10">
           <MarcaCortai variante="escura" className="h-7 w-auto md:h-8" />
           <div className="flex items-center gap-1.5">
             <Button asChild variant="ghost" size="sm" className="hidden text-paper hover:bg-paper/10 sm:inline-flex">
               <Link to="/configurar-minha-barbearia">Configurar minha barbearia</Link>
             </Button>
-            <Button asChild variant="outline" size="sm" className="border-paper/25 bg-paper/5 text-paper backdrop-blur-sm transition-colors hover:border-gold/60 hover:bg-paper/10 hover:text-gold">
+            <Button asChild variant="outline" size="sm" className="border-paper/25 bg-paper/5 text-paper transition-colors hover:border-gold/60 hover:bg-paper/10 hover:text-gold">
               <Link to="/demonstracao">Explorar demonstração</Link>
             </Button>
             <Button asChild size="sm" className="font-semibold">

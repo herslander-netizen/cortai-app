@@ -3393,6 +3393,7 @@ export type Database = {
           fotos: Json
           fuso: string
           id: string
+          identidade_app: string
           indicacao_ativa: boolean
           indicacao_codigo: string | null
           indicacao_recompensa: string | null
@@ -3435,6 +3436,7 @@ export type Database = {
           fotos?: Json
           fuso?: string
           id?: string
+          identidade_app?: string
           indicacao_ativa?: boolean
           indicacao_codigo?: string | null
           indicacao_recompensa?: string | null
@@ -3477,6 +3479,7 @@ export type Database = {
           fotos?: Json
           fuso?: string
           id?: string
+          identidade_app?: string
           indicacao_ativa?: boolean
           indicacao_codigo?: string | null
           indicacao_recompensa?: string | null

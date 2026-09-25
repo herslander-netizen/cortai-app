@@ -46,6 +46,8 @@ export type PainelDoCortai = {
   automacoes: { chave: ChaveDeAutomacao; ativa: boolean; mensagem: string }[];
   conversasAtivas: number;
   conversasComHumano: number;
+  /** O usuário atual pode administrar a conexão do WhatsApp? */
+  podeGerenciarWhatsapp: boolean;
 };
 
 function conexaoDaLinha(linha: any | null): ConexaoDeWhatsapp | null {
@@ -73,7 +75,7 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const { iaConfigurada } = await import("@/lib/whatsapp/atendimento.server");
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
-    const [{ data: conexao }, configuracao, { data: automacoes }, ativas, humanas] = await Promise.all([
+    const [{ data: conexao }, configuracao, { data: automacoes }, ativas, humanas, { data: podeGerenciarWhatsapp }] = await Promise.all([
       db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId).maybeSingle(),
       configuracaoDoTenant(tenantId),
       db.from("automacoes_de_ia").select("chave, ativa, mensagem").eq("tenant_id", tenantId),
@@ -87,6 +89,10 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
         .eq("status", "humano"),
+      context.supabase.rpc("has_tenant_permission", {
+        _tenant_id: tenantId,
+        _permission: "gerenciar_whatsapp",
+      }),
     ]);
 
     const salvas = new Map((automacoes ?? []).map((a) => [a.chave, a]));
@@ -104,6 +110,7 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       })),
       conversasAtivas: ativas.count ?? 0,
       conversasComHumano: humanas.count ?? 0,
+      podeGerenciarWhatsapp: podeGerenciarWhatsapp === true,
     };
   });
 

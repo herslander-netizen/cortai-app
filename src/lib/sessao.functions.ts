@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PERMISSOES } from "@/lib/permissoes";
+import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
 
 const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
@@ -16,6 +17,7 @@ export type Sessao = {
   tenantId: string | null;
   tenantNome: string | null;
   tenantSlug: string | null;
+  identidadeApp: Identidade;
   /** Papel dentro da barbearia: dono, gerente, barbeiro ou recepcao. */
   papelNaEquipe: string | null;
   /** Permissões efetivas na barbearia (a checagem real acontece no servidor). */
@@ -75,7 +77,7 @@ export const getSessao = createServerFn({ method: "GET" })
       db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       db
         .from("tenant_usuarios")
-        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug)")
+        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug, identidade_app)")
         .eq("user_id", context.userId),
       db.from("perfis").select("nome, tipo, tenant_ativo").eq("user_id", context.userId).maybeSingle(),
     ]);
@@ -96,6 +98,7 @@ export const getSessao = createServerFn({ method: "GET" })
       tenantId: null,
       tenantNome: null,
       tenantSlug: null,
+      identidadeApp: "moderno" as Identidade,
       papelNaEquipe: null,
       permissoes: [] as string[],
       acessoSuspenso: false,
@@ -105,7 +108,7 @@ export const getSessao = createServerFn({ method: "GET" })
       return { ...base, papel: "admin" as const };
     }
     if (vinculo && vinculo.ativo) {
-      const t = vinculo.tenants as unknown as { nome: string; slug: string } | null;
+      const t = vinculo.tenants as unknown as { nome: string; slug: string; identidade_app: string } | null;
       const permissoes =
         vinculo.papel === "dono" ? PERMISSOES_DE_DONO : ((vinculo.permissoes as string[] | null) ?? []);
       return {
@@ -114,6 +117,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantId: vinculo.tenant_id,
         tenantNome: t?.nome ?? null,
         tenantSlug: t?.slug ?? null,
+        identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade) ? t?.identidade_app as Identidade : "moderno",
         papelNaEquipe: vinculo.papel,
         permissoes,
       };
@@ -125,6 +129,28 @@ export const getSessao = createServerFn({ method: "GET" })
     const escolha = (perfil?.tipo ?? tipo) as string;
     const papel: Papel = escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
     return { ...base, papel };
+  });
+
+export const salvarIdentidadeApp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ identidade: z.enum(IDENTIDADES), tenantId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: vinculo } = await context.supabase
+      .from("tenant_usuarios")
+      .select("tenant_id, papel, ativo")
+      .eq("user_id", context.userId)
+      .eq("papel", "dono")
+      .eq("ativo", true)
+      .eq("tenant_id", data.tenantId)
+      .limit(1)
+      .maybeSingle();
+    if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade da barbearia.");
+    const { error } = await context.supabase
+      .from("tenants")
+      .update({ identidade_app: data.identidade })
+      .eq("id", data.tenantId);
+    if (error) throw new Error("Não foi possível salvar a identidade agora.");
+    return { ok: true };
   });
 
 export const definirTipoDePerfil = createServerFn({ method: "POST" })

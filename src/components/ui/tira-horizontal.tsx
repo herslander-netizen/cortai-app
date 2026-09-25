@@ -47,13 +47,13 @@ export function TiraHorizontal({
 
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-y-0 left-0 w-8 bg-[linear-gradient(to_right,var(--ink),transparent)] transition-opacity ${
+        className={`pointer-events-none absolute inset-y-0 left-0 w-8 bg-ink transition-opacity ${
           maisAntes ? "opacity-100" : "opacity-0"
         }`}
       />
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-y-0 right-0 w-8 bg-[linear-gradient(to_left,var(--ink),transparent)] transition-opacity ${
+        className={`pointer-events-none absolute inset-y-0 right-0 w-8 bg-ink transition-opacity ${
           maisDepois ? "opacity-100" : "opacity-0"
         }`}
       />

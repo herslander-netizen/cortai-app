@@ -133,7 +133,7 @@ function CortaiPage() {
             {aba === "whatsapp" ? (
               <>
                 <BlocoConexao painel={painel.data} />
-                <BlocoDiagnostico />
+                {painel.data.podeGerenciarWhatsapp ? <BlocoDiagnostico /> : null}
               </>
             ) : null}
             {aba === "conversas" ? <BlocoConversas /> : null}
@@ -199,7 +199,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const statusBase = painel.conexao?.status ?? "desconectado";
   // Enquanto não estiver conectado, perguntamos o estado real ao serviço.
   const acompanhar =
-    painel.gatewayConfigurado && statusBase !== "conectado" && agora - desde < 10 * 60 * 1000;
+    painel.podeGerenciarWhatsapp && painel.gatewayConfigurado && statusBase !== "conectado" && agora - desde < 10 * 60 * 1000;
 
   const estado = useQuery({
     queryKey: ["cortai-conexao"],

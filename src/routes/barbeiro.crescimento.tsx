@@ -44,7 +44,8 @@ function CrescimentoPage() {
 
   useEffect(() => {
     if (!link) return;
-    QRCode.toDataURL(link, { width: 320, margin: 1, color: { dark: "#0B0B0B", light: "#F5F5F3" } }).then(setQr);
+    const estilos = window.getComputedStyle(document.documentElement);
+    QRCode.toDataURL(link, { width: 320, margin: 1, color: { dark: estilos.getPropertyValue("--qr-dark").trim(), light: estilos.getPropertyValue("--qr-light").trim() } }).then(setQr);
   }, [link]);
 
   return (

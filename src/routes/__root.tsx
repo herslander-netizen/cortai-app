@@ -85,8 +85,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#1E2221" },
-
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Cortaí" },
     ],
@@ -117,7 +115,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo")||localStorage.getItem("cortai-tema")||"sistema",i=localStorage.getItem("cortai-identidade")||"moderno",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade=i;d.classList.toggle("light",l);d.classList.toggle("dark",!l)}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo")||localStorage.getItem("cortai-tema")||"sistema",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#F4F5F2":"#1E2221";document.head.appendChild(t)}catch{}` }} />
       </head>
       <body>
         {children}

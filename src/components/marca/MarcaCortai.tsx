@@ -1,13 +1,12 @@
 import iconAsset from "@/assets/cortai-icon-official.png.asset.json";
 import blackAsset from "@/assets/cortai-logo-black.png.asset.json";
 import lightBackgroundAsset from "@/assets/cortai-logo-light-bg.png.asset.json";
-import darkBackgroundAsset from "@/assets/cortai-logo-dark-bg.png.asset.json";
 import whiteAsset from "@/assets/cortai-logo-white.png.asset.json";
 
 const marcas = {
   preta: blackAsset.url,
   clara: lightBackgroundAsset.url,
-  escura: darkBackgroundAsset.url,
+  escura: blackAsset.url,
   branca: whiteAsset.url,
 } as const;
 
@@ -37,8 +36,8 @@ export function MarcaCortai({
   if (variante === "automatica") {
     return (
       <span className={`brand-logo-auto ${className}`} role="img" aria-label="Cortaí">
-        <img src={marcas.clara} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-dark h-full w-full object-contain" />
-        <img src={marcas.escura} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-light h-full w-full object-contain" />
+        <img src={marcas.clara} alt="" width={1536} height={768} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-dark h-full w-full object-contain" />
+        <img src={marcas.escura} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-light h-full w-full object-contain" />
       </span>
     );
   }
@@ -47,8 +46,8 @@ export function MarcaCortai({
     <img
       src={marcas[variante]}
       alt="Cortaí"
-      width={1774}
-      height={887}
+      width={variante === "clara" ? 1536 : 1774}
+      height={variante === "clara" ? 768 : 887}
       loading={prioridade ? "eager" : "lazy"}
       fetchPriority={prioridade ? "high" : "auto"}
       className={`object-contain ${className}`}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -37,6 +37,8 @@ import { getAgendaDia } from "@/lib/barbeiro.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
+import { ModeShortcut } from "@/components/layout/ThemeToggle";
+import { aplicarIdentidade, identidadeValida } from "@/lib/aparencia";
 
 type ItemDoMenu = {
   label: string;
@@ -114,6 +116,10 @@ export function ManagementHeader() {
   const horarioDeHoje = agenda?.horarios.find((horario) => horario.diaSemana === new Date().getDay());
   const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
 
+  useEffect(() => {
+    aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
+  }, [sessao?.identidadeApp]);
+
   const grupos = useMemo(
     () =>
       GRUPOS.map((grupo) => ({
@@ -185,6 +191,7 @@ export function ManagementHeader() {
         </Sheet>
 
         <div className="flex items-center gap-1">
+          <ModeShortcut />
           <AcoesRapidas />
           <SinoDeAvisos />
         </div>

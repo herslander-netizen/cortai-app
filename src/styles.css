@@ -38,6 +38,8 @@
   --color-landing-light-line: var(--landing-light-line);
   --color-landing-light-gold: var(--landing-light-gold);
   --color-whatsapp: var(--whatsapp);
+  --color-qr-dark: var(--qr-dark);
+  --color-qr-light: var(--qr-light);
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -75,6 +77,8 @@
   --identity-white: #ffffff;
   --identity-border: #e5e7e6;
   --whatsapp: #25d366;
+  --qr-dark: var(--identity-graphite);
+  --qr-light: var(--identity-white);
   --ink: var(--identity-graphite);
   --ink2: #262b29;
   --ink3: #303634;
@@ -344,9 +348,10 @@
 
 .brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; }
 .brand-logo-auto > img { position: absolute; inset: 0; }
-.brand-logo-light { display: none; }
-.dark .brand-logo-dark { display: none; }
-.dark .brand-logo-light { display: block; }
+.brand-logo-on-dark { display: none; }
+.brand-logo-on-light { display: block; }
+.dark .brand-logo-on-dark { display: block; }
+.dark .brand-logo-on-light { display: none; }
 
 .management-shell .screen-content > section.rounded-xl,
 .management-shell .screen-content > div > section.rounded-xl {
@@ -629,11 +634,7 @@ option {
 
 /* Elemento legado mantido para páginas externas; não usado no shell operacional. */
 @utility barber-pole {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--gold) 0 5px,
-    var(--paper) 5px 10px
-  );
+  background: var(--gold);
 }
 
 @utility btn-tertiary {
@@ -695,21 +696,19 @@ html.light {
 }
 
 .light .landing-page {
-  --ink: #0b0b0b;
-  --ink2: #151515;
-  --ink3: #1c1c1c;
-  --paper: #f4f4f4;
-  --mute: #a1a1a1;
-  --mute2: #8a8a8a;
-  --line: #292929;
-  --line2: #383838;
+  --ink: var(--identity-graphite);
+  --ink2: var(--surface-raised);
+  --ink3: var(--surface-emphasis);
+  --paper: var(--identity-off-white);
+  --mute: var(--identity-muted);
+  --mute2: var(--muted-foreground);
+  --line: var(--identity-border);
+  --line2: var(--border);
   --gold-soft: color-mix(in oklab, var(--gold) 13%, transparent);
 }
 
 .landing-hero-overlay {
-  background:
-    linear-gradient(to top, var(--ink) 0%, color-mix(in oklab, var(--ink) 72%, transparent) 46%, color-mix(in oklab, var(--ink) 24%, transparent) 78%),
-    linear-gradient(to right, color-mix(in oklab, var(--ink) 66%, transparent), transparent 72%);
+  background: color-mix(in oklab, var(--ink) 68%, transparent);
 }
 
 .landing-hero-badge {
@@ -725,7 +724,6 @@ html.light {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
 }
 
 .landing-benefit {
@@ -839,7 +837,7 @@ html.light {
 
 @media (max-width: 767px) {
   .landing-hero-overlay {
-    background: linear-gradient(to top, var(--ink) 26%, color-mix(in oklab, var(--ink) 84%, transparent) 58%, color-mix(in oklab, var(--ink) 28%, transparent) 88%);
+    background: color-mix(in oklab, var(--ink) 74%, transparent);
   }
 
   .landing-benefit:nth-child(2n) { border-right: 0; }
@@ -871,12 +869,12 @@ html.light {
   justify-content: center;
   border-radius: 9999px;
   background: var(--gold);
-  color: #0b0b0b;
+  color: var(--primary-foreground);
   box-shadow: 0 6px 24px color-mix(in oklab, var(--gold) 28%, transparent);
   transition: transform 150ms ease;
 }
 .cortai-fab:active { transform: scale(0.96); }
-.cortai-fab:focus-visible { outline: 2px solid #f5f5f3; outline-offset: 3px; }
+.cortai-fab:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
 
 .cortai-fab-pulso {
   position: absolute;
@@ -902,8 +900,8 @@ html.light {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: #c4705f;
-  color: #f5f5f3;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
@@ -983,7 +981,7 @@ html.light {
 .public-brand h1, .public-brand h2, .public-brand h3 { font-family: var(--brand-heading); letter-spacing: 0; }
 .brand-hero { position: relative; min-height: min(78vh, 760px); display: flex; align-items: flex-end; overflow: hidden; }
 .brand-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.brand-overlay { position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in oklab, var(--brand-background) 94%, transparent) 2%, color-mix(in oklab, var(--brand-background) 58%, transparent) 48%, color-mix(in oklab, var(--brand-background) 18%, transparent)); }
+.brand-overlay { position: absolute; inset: 0; background: color-mix(in oklab, var(--brand-background) 64%, transparent); }
 .brand-hero-content { position: relative; z-index: 1; width: min(100% - 40px, 1120px); margin: 0 auto; padding: 32px 0 48px; }
 .brand-logo { margin-bottom: 18px; border-radius: var(--brand-radius); }
 .brand-eyebrow, .brand-kicker { color: var(--brand-accent); font-size: 11px; font-weight: 700; text-transform: uppercase; }
@@ -992,7 +990,7 @@ html.light {
 .brand-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 .brand-cta, .brand-secondary-action { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 9px; border-radius: var(--brand-radius); padding: 0 22px; font-size: 14px; font-weight: 700; transition: transform 180ms ease, opacity 180ms ease; }
 .brand-cta { background: var(--brand-button); color: var(--brand-background); }
-.brand-secondary-action { border: 1px solid color-mix(in oklab, var(--brand-text) 32%, transparent); color: var(--brand-text); backdrop-filter: blur(10px); }
+.brand-secondary-action { border: 1px solid color-mix(in oklab, var(--brand-text) 32%, transparent); color: var(--brand-text); }
 .brand-cta:hover, .brand-secondary-action:hover { transform: translateY(-2px); }
 .buttons-contorno .brand-cta { border: 1px solid var(--brand-button); background: transparent; color: var(--brand-button); }
 .buttons-minimalista .brand-cta { min-height: 42px; border-bottom: 2px solid var(--brand-button); border-radius: 0; background: transparent; color: var(--brand-text); padding-inline: 0; }
@@ -1033,7 +1031,7 @@ html.light {
 .brand-final p { color: var(--brand-accent); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .brand-final h2 { max-width: 640px; margin: 10px 0 24px; font-size: clamp(26px, 5vw, 52px); line-height: 1.1; }
 .brand-share { display: flex; align-items: center; justify-content: center; gap: 8px; padding-top: 28px; color: color-mix(in oklab, var(--brand-text) 55%, transparent); font-size: 11px; }
-.brand-tools { position: fixed; z-index: 30; right: 16px; bottom: 16px; display: flex; gap: 6px; padding: 5px; border: 1px solid var(--border); border-radius: 8px; background: color-mix(in oklab, var(--background) 92%, transparent); backdrop-filter: blur(14px); }
+.brand-tools { position: fixed; z-index: 30; right: 16px; bottom: 16px; display: flex; gap: 6px; padding: 5px; border: 1px solid var(--border); border-radius: 8px; background: var(--background); }
 .brand-qr { position: fixed; z-index: 31; right: 16px; bottom: 82px; display: grid; width: 220px; min-height: 220px; place-items: center; border-radius: 8px; background: var(--background); padding: 12px; box-shadow: var(--shadow-xl); }
 .brand-qr img { width: 100%; }
 .layout-logo-central .brand-hero-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -1071,4 +1069,4 @@ html.light {
 .agenda-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 14px; border: 0.5px solid var(--line); border-radius: 999px; background: var(--ink2); color: var(--paper); font-size: 13px; font-weight: 600; transition: background-color 150ms ease, border-color 150ms ease; }
 .agenda-chip:active { transform: scale(0.98); }
 .agenda-chip-ativo { background: var(--paper); border-color: var(--paper); color: var(--ink); }
-.agenda-sugestao-fila { border-left: 2px solid var(--sage, #8FA882); padding: 10px 12px; background: var(--ink3); border-radius: 0 8px 8px 0; }
+.agenda-sugestao-fila { border-left: 2px solid var(--sage); padding: 10px 12px; background: var(--ink3); border-radius: 0 8px 8px 0; }

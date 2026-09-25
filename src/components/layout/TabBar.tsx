@@ -15,7 +15,7 @@ export type TabItem = {
 export function TabBar({ items, centralAction }: { items: TabItem[]; centralAction?: ReactNode }) {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2/95 backdrop-blur-md"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2"
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 6px)" }}
       aria-label="Navegação principal"
     >
