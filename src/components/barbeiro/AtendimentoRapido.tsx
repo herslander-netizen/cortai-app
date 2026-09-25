@@ -98,9 +98,11 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
 
             {erro ? <p role="alert" className="border-l-2 border-brick pl-3 text-sm font-semibold text-paper">{erro}</p> : null}
 
+            <div className="sticky bottom-0 -mx-5 border-t border-line bg-ink2 px-5 pt-3">
             <Button size="lg" className="h-14 w-full text-base" disabled={enviando || !profissionalId} onClick={iniciar}>
               <Scissors />Iniciar {cliente?.nome ?? "cliente avulso"}
             </Button>
+            </div>
           </div>
         )}
       </div>
