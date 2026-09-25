@@ -61,7 +61,7 @@ function HojePage() {
   return (
     <Screen title="Hoje" subtitle="Setas comparam com o mesmo dia da semana passada, até esta hora." voltarPara="/barbeiro">
       <section aria-label="Números de hoje" className="md:max-w-xl">
-        {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={n.destaque} />)}
+        {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={Boolean(n.destaque)} />)}
       </section>
 
       <Link to="/barbeiro/casa" className="mt-5 flex min-h-12 items-center gap-3 rounded-lg border border-line px-4 text-sm font-medium text-paper transition-colors active:bg-ink2 md:max-w-xl">
