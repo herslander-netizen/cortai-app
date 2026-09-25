@@ -299,17 +299,17 @@ export function AgendaOperacional() {
     <Screen title="Agenda" hideHeader>
       <div className="agenda-operacional pb-32">
         <header className="agenda-cabecalho-compacto">
-          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-            <h1 className="truncate text-sm font-bold text-paper">Agenda</h1>
-            <BotaoAjuda />
-          </div>
-          <div className="grid grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-1" aria-label="Navegar pelos dias">
+          <h1 className="sr-only">Agenda</h1>
+          <div className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-1" aria-label="Navegar pelos dias">
           <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => setDia(somarDias(dia, -1))}><ChevronLeft /></Button>
           <div className="min-w-0 text-center">
             <p className="truncate text-base font-extrabold text-paper">{dataEditorial(dia)}</p>
             {!ehHoje ? <Button variant="link" size="sm" className="h-auto min-h-0 p-1 text-xs text-mute" onClick={() => setDia(hojeNoFuso(fuso))}>Ir para hoje</Button> : <span className="text-xs font-semibold text-mute">Hoje</span>}
           </div>
-          <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => setDia(somarDias(dia, 1))}><ChevronRight /></Button>
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => setDia(somarDias(dia, 1))}><ChevronRight /></Button>
+            <BotaoAjuda />
+          </div>
           </div>
         </header>
 
