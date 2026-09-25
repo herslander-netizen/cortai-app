@@ -47,7 +47,7 @@ function MarcaPage() {
   return <Editor initial={query.data.marca} versions={query.data.versoes} reload={() => query.refetch()} />;
 }
 
-function Editor({ initial, versions, reload }: { initial: MarcaData; versions: Awaited<ReturnType<typeof getMarca>>["versoes"]; reload: () => void }) {
+function Editor({ initial, versions, reload }: { initial: MarcaData; versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"]; reload: () => void }) {
   const queryClient = useQueryClient();
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const publish = useServerFn(publicarPagina);
