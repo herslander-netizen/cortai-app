@@ -5,6 +5,8 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { StatusBadge, type StatusKey } from "./badge";
 
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 let host: HTMLDivElement | null = null;
 afterEach(() => { host?.remove(); host = null; });
 

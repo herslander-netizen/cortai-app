@@ -5,6 +5,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Button } from "./button";
 
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 let host: HTMLDivElement | null = null;
 afterEach(() => { host?.remove(); host = null; });
 
