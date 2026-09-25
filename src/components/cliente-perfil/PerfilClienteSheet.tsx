@@ -5,6 +5,7 @@ import { Check, Plus, TriangleAlert, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl } from "@/lib/format";
 import { apagarFotoCorte, getPerfilCliente, salvarFichaCorte, type PerfilCliente } from "@/lib/perfil-cliente.functions";
@@ -12,8 +13,6 @@ import { apagarFotoCorte, getPerfilCliente, salvarFichaCorte, type PerfilCliente
 function data(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit", year: "2-digit" }).format(new Date(iso));
 }
-
-const ROTULO: Record<string, string> = { finalizado: "", cancelado: "Cancelado", nao_compareceu: "Faltou", agendado: "Agendado", chegou: "Chegou", na_cadeira: "Na cadeira", remarcado: "Remarcado" };
 
 export function PerfilClienteSheet({ clienteId, onFechar }: { clienteId: string; onFechar: () => void }) {
   const buscar = useServerFn(getPerfilCliente);
@@ -59,9 +58,9 @@ function Conteudo({ p }: { p: PerfilCliente }) {
 
       <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-4">
         {ultima ? (
-          <button type="button" className="aspect-[3/4] overflow-hidden rounded-lg border border-line" onClick={() => setVerFoto(true)} aria-label="Ver última foto do corte">
+          <Button variant="ghost" type="button" className="h-auto min-h-12 aspect-[3/4] overflow-hidden rounded-xl border border-line p-0" onClick={() => setVerFoto(true)} aria-label="Ver última foto do corte">
             <img src={ultima.url} alt={`Último corte de ${p.cliente.nome}`} className="size-full object-cover" loading="eager" />
-          </button>
+          </Button>
         ) : (
           <div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-line px-2 text-center text-xs text-mute">Sem foto do corte</div>
         )}
@@ -78,7 +77,7 @@ function Conteudo({ p }: { p: PerfilCliente }) {
         <div><dt className="text-xs text-mute">Último atendimento</dt><dd className="font-bold text-paper">{p.resumo.ultimo ? data(p.resumo.ultimo, p.fuso) : "—"}</dd></div>
         <div><dt className="text-xs text-mute">Profissional</dt><dd className="truncate font-bold text-paper">{p.resumo.profissional ?? "—"}</dd></div>
         <div><dt className="text-xs text-mute">Serviços</dt><dd className="truncate font-bold text-paper">{p.resumo.servicos.join(", ") || "—"}</dd></div>
-        <div><dt className="text-xs text-mute">Total histórico</dt><dd className="font-bold text-paper">{brl(p.resumo.totalCentavos)}<span className="ml-1 text-xs font-normal text-mute">· {p.resumo.visitas} visitas</span></dd></div>
+        <div><dt className="text-xs text-mute">Total histórico</dt><dd className="money-value text-paper">{brl(p.resumo.totalCentavos)}<span className="ml-1 text-xs font-normal text-mute">· {p.resumo.visitas} visitas</span></dd></div>
       </dl>
       {p.faltas || p.cancelamentos ? (
         <p className="mt-2 text-xs text-mute">{[p.faltas ? `${p.faltas} falta${p.faltas > 1 ? "s" : ""}` : null, p.cancelamentos ? `${p.cancelamentos} cancelamento${p.cancelamentos > 1 ? "s" : ""}` : null].filter(Boolean).join(" · ")}</p>
@@ -94,7 +93,7 @@ function Conteudo({ p }: { p: PerfilCliente }) {
               {p.fotos.map((f) => (
                 <li key={f.id} className="relative">
                   <img src={f.url} alt={`Corte em ${data(f.criadoEm, p.fuso)}`} className="aspect-square w-full rounded-md border border-line object-cover" loading="lazy" />
-                  <button type="button" aria-label="Apagar foto" className="absolute right-1 top-1 flex size-9 items-center justify-center rounded-full bg-ink text-paper" onClick={async () => { await apagar({ data: { fotoId: f.id } }); recarregar(); }}><Trash2 aria-hidden className="size-4" /></button>
+                  <Button type="button" variant="icon" size="icon" aria-label="Apagar foto" className="absolute right-1 top-1 bg-ink text-paper" onClick={async () => { await apagar({ data: { fotoId: f.id } }); recarregar(); }}><Trash2 aria-hidden /></Button>
                 </li>
               ))}
             </ul>
@@ -110,8 +109,8 @@ function Conteudo({ p }: { p: PerfilCliente }) {
             {p.historico.map((h) => (
               <li key={h.id} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 py-3 text-sm">
                 <span className="text-xs text-mute">{data(h.inicio, p.fuso)}</span>
-                <span className="min-w-0"><span className="block truncate font-semibold text-paper">{h.servico}</span><span className="block truncate text-xs text-mute">{h.profissional}{ROTULO[h.status] ? ` · ${ROTULO[h.status]}` : ""}</span></span>
-                <span className={`font-bold ${h.status === "finalizado" ? "text-paper" : "text-mute"}`}>{h.status === "finalizado" ? brl(h.valorCentavos) : "—"}</span>
+                <span className="min-w-0"><span className="block truncate font-semibold text-paper">{h.servico}</span><span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-mute"><span className="truncate">{h.profissional}</span><StatusBadge status={h.status} /></span></span>
+                <span className={`money-value ${h.status === "finalizado" ? "text-paper" : "text-mute"}`}>{h.status === "finalizado" ? brl(h.valorCentavos) : "—"}</span>
               </li>
             ))}
           </ul>
@@ -155,7 +154,7 @@ function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) 
       <div className="flex flex-wrap gap-2">
         {opcoes.map((c) => {
           const ativo = chips.includes(c);
-          return <button key={c} type="button" aria-pressed={ativo} onClick={() => alternar(c)} className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${ativo ? "border-gold bg-gold text-ink" : "border-line text-paper active:bg-ink2"}`}>{c}</button>;
+          return <Button key={c} type="button" variant={ativo ? "primary" : "secondary"} size="sm" aria-pressed={ativo} onClick={() => alternar(c)} className="rounded-full">{c}</Button>;
         })}
       </div>
       <label className="mt-3 flex items-center gap-2 text-xs text-mute"><Plus aria-hidden className="size-4" /><input className="input-premium mt-0" placeholder="Novo chip (ex.: Tesoura em cima)" value={novo} maxLength={30} onChange={(e) => { setNovo(e.target.value); setEstado("livre"); }} /></label>

@@ -4,6 +4,7 @@ import { Banknote, CalendarPlus, Check, Copy, CreditCard, Minus, Plus, QrCode, S
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl, hora } from "@/lib/format";
 import {
@@ -69,7 +70,7 @@ export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { ag
   const atalhos = (d?.maisVendidos ?? []).map((id: string) => d?.produtos.find((p: any) => p.id === id)).filter(Boolean) as any[];
   const mensagem = d ? `Olá! Segue o comprovante Pix de ${d.comanda.clientes?.nome ?? "cliente"}, ${itens.map((i) => i.descricao).join(" + ")}, ${d.comanda.agendamentos?.inicio ? `${hora(d.comanda.agendamentos.inicio)}, ` : ""}${brl(total)}, comanda #${d.comanda.numero}.` : "";
   const botaoForma = (forma: Forma, rotulo: string, Icone: typeof Banknote) => (
-    <Button key={forma} variant="outline" className="h-14 flex-col gap-1 px-1 text-xs" disabled={Boolean(ocupado) || !itens.length} onClick={() => void receber(forma)}>
+    <Button key={forma} variant="secondary" className="h-14 flex-col gap-1 px-1 text-xs" loading={ocupado === forma} disabled={Boolean(ocupado) || !itens.length} onClick={() => receber(forma)}>
       <Icone aria-hidden className="size-5" />{ocupado === forma ? "…" : rotulo}
     </Button>
   );
@@ -82,22 +83,22 @@ export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { ag
     {d && etapa === "itens" ? <>
       {d.comanda.clientes?.telefone === "avulso" ? <IdentificarAvulso comandaId={d.comanda.id} numero={d.comanda.numero} onSalvar={async (nome, telefone) => { await identificar({ data: { comandaId: d.comanda.id, nome, telefone } }); await query.refetch(); }} /> : null}
       <ul className="divide-y divide-line border-y border-line">{itens.map((item, index) => <li key={`${item.tipo}-${item.id}`} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-paper">{item.descricao}</p><p className="mt-0.5 text-xs text-mute">{brl(item.valor_unitario_centavos)}</p></div><div className="flex items-center gap-1"><Button size="icon" variant="ghost" aria-label={`Remover um ${item.descricao}`} onClick={() => alterar(index, -1)}><Minus /></Button><span className="w-5 text-center text-sm font-semibold text-paper">{item.quantidade}</span><Button size="icon" variant="ghost" aria-label={`Adicionar um ${item.descricao}`} onClick={() => alterar(index, 1)}><Plus /></Button></div></li>)}</ul>
-      {atalhos.length ? <div className="mt-4"><p className="text-xs font-semibold text-mute">Mais vendidos</p><div className="mt-2 flex flex-wrap gap-2">{atalhos.map((p) => <button key={p.id} type="button" disabled={p.controla_estoque && p.quantidade < 1} onClick={() => adicionar("produto", p.id)} className="flex min-h-12 items-center gap-1.5 rounded-full border border-line px-4 text-sm font-semibold text-paper transition-colors active:bg-ink2 disabled:opacity-40"><Plus aria-hidden className="size-4" />{p.nome}<span className="text-xs font-normal text-mute">{brl(p.preco_centavos)}</span></button>)}</div></div> : null}
+      {atalhos.length ? <div className="mt-4"><p className="text-xs font-semibold text-mute">Mais vendidos</p><div className="mt-2 flex flex-wrap gap-2">{atalhos.map((p) => <Button key={p.id} type="button" variant="secondary" size="sm" disabled={p.controla_estoque && p.quantidade < 1} onClick={() => adicionar("produto", p.id)} className="rounded-full"><Plus aria-hidden />{p.nome}<span className="money-value text-xs text-mute">{brl(p.preco_centavos)}</span></Button>)}</div></div> : null}
       <div className="mt-4 grid grid-cols-2 gap-3"><label className="text-xs text-mute">Outro serviço<select className="input-premium" value="" onChange={(e) => { if (e.target.value) adicionar("servico", e.target.value); }}><option value="">Escolher</option>{d.servicos.map((s: any) => <option key={s.id} value={s.id}>{s.nome}</option>)}</select></label><label className="text-xs text-mute">Outro produto<select className="input-premium" value="" onChange={(e) => { if (e.target.value) adicionar("produto", e.target.value); }}><option value="">Escolher</option>{d.produtos.map((p: any) => <option key={p.id} value={p.id} disabled={p.controla_estoque && p.quantidade < 1}>{p.nome}</option>)}</select></label></div>
       {verDesconto ? <label className="mt-4 block text-xs text-mute">Desconto (R$)<input className="input-premium" type="number" min="0" step="0.01" inputMode="decimal" value={desconto} onChange={(e) => setDesconto(e.target.value)} placeholder="0,00" autoFocus /></label> : <Button variant="link" size="sm" className="mt-2 px-0 text-xs" onClick={() => setVerDesconto(true)}>Aplicar desconto</Button>}
-      <div className="mt-3 flex items-baseline justify-between border-t border-line pt-4"><span className="text-sm text-mute">{descontoCentavos ? `Total (− ${brl(descontoCentavos)})` : "Total"}</span><span className="text-2xl font-extrabold text-paper">{brl(total)}</span></div>
+      <div className="mt-3 flex items-baseline justify-between border-t border-line pt-4"><span className="text-sm text-mute">{descontoCentavos ? `Total (− ${brl(descontoCentavos)})` : "Total"}</span><span className="money-value text-2xl text-paper">{brl(total)}</span></div>
 
       {d.podeReceber ? <div className="mt-4 space-y-2">
-        {planoDisponivel ? <Button size="lg" className="h-14 w-full" disabled={Boolean(ocupado)} onClick={() => void usarPlano()}><Ticket aria-hidden />{ocupado === "plano" ? "Usando plano…" : "Usar plano"}</Button> : null}
+        {planoDisponivel ? <Button size="lg" className="w-full" loading={ocupado === "plano"} disabled={Boolean(ocupado)} onClick={usarPlano}><Ticket aria-hidden />{ocupado === "plano" ? "Usando plano…" : "Usar plano"}</Button> : null}
         <div className={`grid gap-2 ${fiadoDisponivel ? "grid-cols-4" : "grid-cols-3"}`}>
           {botaoForma("pix", "Pix", QrCode)}{botaoForma("cartao", "Cartão", CreditCard)}{botaoForma("dinheiro", "Dinheiro", Banknote)}{fiadoDisponivel ? botaoForma("fiado", "Fiado", Wallet) : null}
         </div>
-      </div> : <div className="mt-4"><Button size="lg" className="h-14 w-full" disabled={Boolean(ocupado) || !itens.length} onClick={() => void paraRecepcao()}><Send aria-hidden />{ocupado === "recepcao" ? "Enviando…" : "Enviar para a recepção"}</Button><p className="mt-2 text-center text-xs text-mute">A comanda fica aguardando pagamento na recepção.</p></div>}
+      </div> : <div className="mt-4"><Button size="lg" className="w-full" loading={ocupado === "recepcao"} disabled={Boolean(ocupado) || !itens.length} onClick={paraRecepcao}><Send aria-hidden />{ocupado === "recepcao" ? "Enviando…" : "Enviar para a recepção"}</Button><p className="mt-2 text-center text-xs text-mute">A comanda fica aguardando pagamento na recepção.</p></div>}
     </> : null}
 
     {d && etapa === "pix" ? <div className="py-3"><h3 className="text-lg font-bold text-paper">Aguardando Pix</h3><p className="mt-1 text-sm text-mute">Confirme depois de conferir o recebimento.</p><div className="mt-5 border-y border-line py-4"><p className="text-xs text-mute">Valor</p><p className="mt-1 text-2xl font-bold text-paper">{brl(total)}</p><p className="mt-3 break-all text-sm text-paper">{d.config?.pix_chave}</p></div><div className="mt-4 grid gap-2"><Button variant="outline" onClick={async () => { await navigator.clipboard.writeText(d.config?.pix_chave ?? ""); setCopiado(true); }}><Copy />{copiado ? "Chave copiada" : "Copiar chave Pix"}</Button>{d.config?.pix_whatsapp ? <Button variant="outline" asChild><a href={`https://wa.me/${d.config.pix_whatsapp}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer">Enviar comprovante pelo WhatsApp</a></Button> : null}<Button size="lg" className="h-14" disabled={Boolean(ocupado)} onClick={() => void confirmarPix()}><Check />{ocupado === "confirmar" ? "Confirmando…" : "Pix recebido"}</Button></div></div> : null}
 
-    {etapa === "retorno" ? <div className="py-3"><p className="flex items-center gap-2 text-sm font-semibold text-paper"><span className="flex size-7 items-center justify-center rounded-full bg-sage text-ink"><Check aria-hidden className="size-4" /></span>Pagamento registrado</p>
+    {etapa === "retorno" ? <div className="py-3"><StatusBadge status="pago" label="Pagamento registrado" />
       {d?.comanda.cliente_id && d.comanda.clientes?.telefone !== "avulso" ? <div className="mt-5 border-y border-line py-3"><FotoDoCorte clienteId={d.comanda.cliente_id} agendamentoId={d.comanda.agendamento_id} /></div> : null}
       {!retorno ? <Button size="lg" className="mt-5 h-14 w-full" onClick={onConcluido}><Check aria-hidden />Concluir</Button> : retornoFeito ? <p className="mt-6 text-center text-sm font-semibold text-paper">Retorno marcado.</p> : <>
         <p className="mt-6 text-lg font-bold text-paper">Marcar retorno: {dataRetorno(retorno.inicio, retorno.fuso)}?</p>
@@ -117,6 +118,6 @@ function IdentificarAvulso({ comandaId, numero, onSalvar }: { comandaId: string;
   return <div className="mb-5 border-b border-line pb-5"><p className="text-xs font-semibold text-mute">Quem é o cliente? (opcional)</p>
     <label className="mt-2 block text-xs text-mute">Nome<input className="input-premium" value={nome} onChange={(e) => setNome(e.target.value)} onFocus={(e) => e.currentTarget.select()} autoComplete="off" /></label>
     <label className="mt-3 block text-xs text-mute">Telefone / WhatsApp<input className="input-premium" type="tel" inputMode="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" /></label>
-    <Button variant="outline" className="mt-3 h-12 w-full" disabled={salvando || nome.trim().length < 2} onClick={() => void salvar()}>{salvando ? "Salvando…" : "Salvar cliente"}</Button>
+    <Button variant="secondary" className="mt-3 w-full" loading={salvando} disabled={salvando || nome.trim().length < 2} onClick={salvar}>{salvando ? "Salvando…" : "Salvar cliente"}</Button>
     {erro ? <p className="mt-2 text-sm text-paper" role="alert">{erro}</p> : null}</div>;
 }
