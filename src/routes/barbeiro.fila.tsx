@@ -9,6 +9,9 @@ import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { ItemCascata } from "@/components/layout/ItemCascata";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 
 
@@ -78,15 +81,15 @@ function FilaPage() {
 
 
       {data ? (
-        <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
+        <Card>
           <p className="text-xs text-mute">Recuperado neste mês pela fila</p>
-          <p className="mt-1 text-[28px] font-bold leading-none text-paper">{brl(data.recuperadoCentavos)}</p>
+          <p className="money-value mt-1 text-[28px] leading-none text-paper">{brl(data.recuperadoCentavos)}</p>
           <p className="mt-2 text-xs text-mute2">
             {data.recuperadosMes}{" "}
             {data.recuperadosMes === 1 ? "horário que ficaria vazio" : "horários que ficariam vazios"} viraram
             atendimento.
           </p>
-        </div>
+        </Card>
       ) : null}
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Na fila</h2>
@@ -103,13 +106,13 @@ function FilaPage() {
                 {janelaTexto(f.janelaInicio, f.janelaFim)}
                 {f.profissional ? ` · ${f.profissional}` : ""}
               </p>
-              <p className={`mt-0.5 text-xs ${f.avisado_em ? "text-sage" : "text-mute2"}`}>
-                {f.avisado_em ? "Avisado — aguardando resposta" : "Ainda não avisado"}
-              </p>
+              <StatusBadge className="mt-1" status={f.avisado_em ? "chegou" : "pendente"} label={f.avisado_em ? "Avisado — aguardando resposta" : "Ainda não avisado"} />
               <div className="mt-2 flex gap-4">
-                <button
+                <Button
                   type="button"
-                  className="btn-tertiary text-xs"
+                  variant="text"
+                  size="sm"
+                  className="text-xs"
                   disabled={acao.ocupado}
                   onClick={() =>
                     acao.executar(`avisar-${f.id}`, () => avisar({ data: { filaId: f.id } }), {
@@ -119,15 +122,17 @@ function FilaPage() {
                   }
                 >
                   {acao.estaEm(`avisar-${f.id}`) ? "Avisando…" : "Avisar"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="text-xs text-brick underline disabled:opacity-60"
+                  variant="text"
+                  size="sm"
+                  className="text-xs text-brick"
                   disabled={acao.ocupado}
                   onClick={() => removerComDesfazer(f.id, f.cliente)}
                 >
                   Tirar da fila
-                </button>
+                </Button>
 
               </div>
             </div>

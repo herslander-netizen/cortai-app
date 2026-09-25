@@ -8,12 +8,10 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Circle,
   Clock3,
   MessageCircle,
   Scissors,
   UserRoundPlus,
-  UserX,
   X,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } from "react";
@@ -32,6 +30,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import {
@@ -65,14 +65,9 @@ const PerfilClienteLazy = lazy(() =>
 const TOLERANCIA_MIN = 15;
 const TERMINAIS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
 
-const ESTADO: Record<string, { rotulo: string; classe: string; Icone: typeof Circle }> = {
-  agendado: { rotulo: "Agendado", classe: "agenda-status-agendado", Icone: Clock3 },
-  chegou: { rotulo: "Chegou", classe: "agenda-status-chegou", Icone: UserRoundPlus },
-  na_cadeira: { rotulo: "Na cadeira", classe: "agenda-status-cadeira", Icone: Scissors },
-  finalizado: { rotulo: "Finalizado", classe: "agenda-status-finalizado", Icone: Check },
-  cancelado: { rotulo: "Cancelado", classe: "agenda-status-falta", Icone: X },
-  nao_compareceu: { rotulo: "Não compareceu", classe: "agenda-status-falta", Icone: UserX },
-  remarcado: { rotulo: "Remarcado", classe: "agenda-status-agendado", Icone: Clock3 },
+const ROTULO_ESTADO: Record<string, string> = {
+  agendado: "Agendado", chegou: "Chegou", na_cadeira: "Na cadeira", finalizado: "Finalizado",
+  cancelado: "Cancelado", nao_compareceu: "Não compareceu", remarcado: "Remarcado",
 };
 
 function somarDias(dia: string, passo: number) {
@@ -101,18 +96,6 @@ function fichaRelevante(texto: string | null) {
   if (!texto) return null;
   const trecho = texto.split(/[.!?\n]/).find((parte) => /alerg/i.test(parte));
   return trecho?.trim() || null;
-}
-
-function Status({ status }: { status: string }) {
-  const estado = ESTADO[status] ?? ESTADO["agendado"];
-  if (!estado) return null;
-  const Icone = estado.Icone;
-  return (
-    <span className={`agenda-status ${estado.classe}`}>
-      <Icone aria-hidden size={13} />
-      {estado.rotulo}
-    </span>
-  );
 }
 
 function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) {
@@ -262,7 +245,7 @@ export function AgendaOperacional() {
       setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
       if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0) setSugestaoFila(true);
       if (oferecerUndo) {
-        comDesfazer(`${item.cliente}: ${ESTADO[novo]?.rotulo ?? novo}.`, async () => {
+        comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
           setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
           try {
             await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
@@ -318,13 +301,14 @@ export function AgendaOperacional() {
                 const estourou = decorrido > item.duracaoMin;
                 const alergia = fichaRelevante(item.ficha);
                 return (
-                  <article key={item.id} className={`agenda-agora ${selecionado === item.id ? "agenda-item-selecionado" : ""}`} onClick={() => setSelecionado(item.id)}>
+                  <Card asChild variant="touchable" key={item.id} className={`agenda-agora ${selecionado === item.id ? "agenda-item-selecionado" : ""}`}>
+                  <article onClick={() => setSelecionado(item.id)}>
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
                         {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-lg font-extrabold text-paper underline-offset-4 active:underline">{item.cliente}</button> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
                         <p className="mt-0.5 truncate text-sm text-mute">{item.servico} · {item.profissional}</p>
                       </div>
-                      <Status status={item.status} />
+                      <StatusBadge status={item.status} />
                     </div>
                     {alergia ? <p className="mt-3 border-l-2 border-brick pl-3 text-xs font-semibold text-paper">{alergia}</p> : null}
                     <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -332,6 +316,7 @@ export function AgendaOperacional() {
                       <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>{decorrido} / {item.duracaoMin} min</span>
                     </div>
                   </article>
+                  </Card>
                 );
               })}
             </div>
@@ -357,7 +342,7 @@ export function AgendaOperacional() {
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
                     {espera > 0 ? <span className="mt-1 block text-xs font-semibold text-brick">~{espera} min de espera</span> : null}
                   </button>
-                  {espera > 0 && telefone ? <Button asChild variant="outline" size="sm"><a href={`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer" aria-label={`Avisar ${item.cliente} pelo WhatsApp`}><MessageCircle />Avisar</a></Button> : <Status status={item.status} />}
+                  {espera > 0 && telefone ? <Button asChild variant="secondary" size="sm"><a href={`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer" aria-label={`Avisar ${item.cliente} pelo WhatsApp`}><MessageCircle />Avisar</a></Button> : <StatusBadge status={item.status} />}
                 </div>
               );
             })}
@@ -415,7 +400,7 @@ export function AgendaOperacional() {
             horarios={agenda.data?.horarios ?? []}
             selecionado={selecionado}
             onSelecionar={(id) => setSelecionado((atual) => atual === id ? null : id)}
-            renderStatus={(status) => <Status status={status} />}
+            renderStatus={(status) => <StatusBadge status={status} />}
           />
         ) : (
           <ul className="divide-y divide-line">
@@ -435,7 +420,7 @@ export function AgendaOperacional() {
                         </p>
                       ) : null}
                     </div>
-                    <Status status={item.status} />
+                    <StatusBadge status={item.status} />
                   </div>
                   {atrasado ? <div className="mt-3 ml-[66px] flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-brick">Não chegou?</span><Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); void transicionar(item, "nao_compareceu"); }}>Marcar falta</Button><Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setAguardando((atuais) => new Set(atuais).add(item.id)); }}>Aguardar</Button></div> : null}
                 </li>
@@ -452,7 +437,7 @@ export function AgendaOperacional() {
                 <li key={c.id}>
                   <button type="button" className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-left active:bg-ink2" onClick={() => setFechando(c.agendamentoId)}>
                     <span className="min-w-0"><span className="block truncate text-sm font-bold text-paper">{c.cliente}</span><span className="block truncate text-xs text-mute">{c.profissional} · #{c.numero}{c.pix ? " · Pix a confirmar" : ""}</span></span>
-                    <span className="flex items-center gap-2 text-sm font-extrabold text-paper"><HandCoins aria-hidden className="size-4" />{brl(c.total)}</span>
+                     <span className="money-value flex items-center gap-2 text-sm text-paper"><HandCoins aria-hidden className="size-4" />{brl(c.total)}</span>
                   </button>
                 </li>
               ))}
@@ -469,9 +454,9 @@ export function AgendaOperacional() {
             {meuDiaAberto ? (
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 pb-3 text-sm">
                 <div><dt className="text-xs text-mute">Atendimentos hoje</dt><dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.atendimentos}</dd></div>
-                <div><dt className="text-xs text-mute">Vendido (caixa)</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.vendido)}</dd></div>
-                {meuDiaQ.data.temComissao ? <div><dt className="text-xs text-mute">Comissão estimada</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.comissao)}</dd></div> : null}
-                {meuDiaQ.data.fiado ? <div><dt className="text-xs text-mute">No fiado</dt><dd className="text-lg font-extrabold text-paper">{brl(meuDiaQ.data.fiado)}</dd></div> : null}
+                <div><dt className="text-xs text-mute">Vendido (caixa)</dt><dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.vendido)}</dd></div>
+                {meuDiaQ.data.temComissao ? <div><dt className="text-xs text-mute">Comissão estimada</dt><dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.comissao)}</dd></div> : null}
+                {meuDiaQ.data.fiado ? <div><dt className="text-xs text-mute">No fiado</dt><dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.fiado)}</dd></div> : null}
                 {meuDiaQ.data.noPlano ? <div><dt className="text-xs text-mute">Pelo plano</dt><dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.noPlano}</dd></div> : null}
               </dl>
             ) : null}
