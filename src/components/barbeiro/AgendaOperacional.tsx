@@ -32,7 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import {
@@ -212,6 +212,10 @@ export function AgendaOperacional() {
   const destaques = futuros.slice(0, 2);
   const itemSelecionado = itens.find((item) => item.id === selecionado) ?? null;
 
+  useEffect(() => {
+    if (itemSelecionado) setMenuAberto(false);
+  }, [itemSelecionado]);
+
   async function sincronizar() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
@@ -283,7 +287,7 @@ export function AgendaOperacional() {
   }
 
   function acaoPrincipal() {
-    if (!itemSelecionado) { setMenuAberto(true); return; }
+    if (!itemSelecionado) { setMenuAberto((aberto) => !aberto); return; }
     if (itemSelecionado.status === "na_cadeira") { setFechando(itemSelecionado.id); return; }
     iniciar(itemSelecionado);
   }
@@ -491,7 +495,9 @@ export function AgendaOperacional() {
           variant="primary"
           aria-label={!itemSelecionado ? "Ações da agenda" : undefined}
           aria-expanded={!itemSelecionado ? menuAberto : undefined}
-          className={itemSelecionado ? "agenda-acao-nomeada" : "agenda-acao-redonda"}
+          className={`${itemSelecionado ? "agenda-acao-nomeada" : "agenda-acao-redonda"} ${menuAberto ? "pointer-events-none invisible" : ""}`}
+          tabIndex={menuAberto ? -1 : undefined}
+          aria-hidden={menuAberto || undefined}
           disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
           onClick={acaoPrincipal}
         >
@@ -500,8 +506,13 @@ export function AgendaOperacional() {
         </Button>
       </div>
 
-      <Sheet open={menuAberto && !itemSelecionado} onOpenChange={setMenuAberto}>
+      <Sheet open={menuAberto} onOpenChange={setMenuAberto}>
         <SheetContent side="bottom" className="agenda-acoes-folha mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5">
+          <SheetClose asChild>
+            <Button type="button" size="lg" variant="primary" aria-label="Fechar ações da agenda" aria-expanded="true" className="agenda-acao-redonda agenda-acao-fechar">
+              <Scissors />
+            </Button>
+          </SheetClose>
           <SheetHeader className="pr-10 text-left">
             <SheetTitle className="text-base text-paper">Ações da agenda</SheetTitle>
             <SheetDescription className="text-xs text-mute">Escolha o que precisa fazer agora.</SheetDescription>
