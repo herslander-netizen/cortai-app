@@ -1,18 +1,33 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
-import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
-import { FechamentoComanda } from "@/components/financeiro/FechamentoComanda";
 import { brl } from "@/lib/format";
 import { slotsDoDia } from "@/lib/horarios";
-import { getAgendaDia, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
+import { getAgendaDia, getAgoraProximo, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { prefereMenosMovimento } from "@/lib/motion";
+
+// Formulários pesados só baixam quando a agenda já está na tela.
+const AgendamentoManualLazy = lazy(() =>
+  import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
+);
+const FechamentoComanda = lazy(() =>
+  import("@/components/financeiro/FechamentoComanda").then((m) => ({ default: m.FechamentoComanda })),
+);
+
+function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) {
+  const discreto = props.gatilho === "discreto";
+  return (
+    <Suspense fallback={<div aria-hidden className={discreto ? "h-6" : "h-12 rounded-lg border border-line bg-ink2"} />}>
+      <AgendamentoManualLazy {...props} />
+    </Suspense>
+  );
+}
 
 function hojeIso() {
   const d = new Date();
