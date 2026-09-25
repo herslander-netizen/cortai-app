@@ -21,7 +21,8 @@ export type TipoDeNotificacao =
   | "lembrete_24h"
   | "lembrete_2h"
   | "cancelamento"
-  | "remarcacao";
+  | "remarcacao"
+  | "retorno";
 
 /** Automação (liga/desliga por barbearia) correspondente a cada tipo. */
 const AUTOMACAO_DO_TIPO = {
@@ -30,7 +31,41 @@ const AUTOMACAO_DO_TIPO = {
   lembrete_2h: "lembrete_2h",
   cancelamento: "cancelamento",
   remarcacao: "remarcacao",
+  retorno: "retorno",
 } as const;
+
+/** Opções de cada lembrete: número (qualquer canal) e botão (API oficial). */
+export const OPCOES_DO_LEMBRETE: Partial<Record<TipoDeNotificacao, { rotulo: string; acao: string }[]>> = {
+  lembrete_24h: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+    { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  lembrete_2h: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Cheguei", acao: "CORTAI_CHEGUEI" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+    { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  retorno: [
+    { rotulo: "Agendar", acao: "CORTAI_AGENDAR" },
+    { rotulo: "Agora não", acao: "CORTAI_AGORA_NAO" },
+  ],
+};
+
+/** Nome do modelo aprovado na Meta para cada lembrete (opcional, por ambiente). */
+function modeloDoTipo(tipo: TipoDeNotificacao): string | null {
+  const chave =
+    tipo === "lembrete_24h"
+      ? "WHATSAPP_MODELO_LEMBRETE"
+      : tipo === "lembrete_2h"
+        ? "WHATSAPP_MODELO_LEMBRETE_DIA"
+        : tipo === "retorno"
+          ? "WHATSAPP_MODELO_RETORNO"
+          : null;
+  const nome = chave ? process.env[chave] : undefined;
+  return nome && nome.trim() ? nome.trim() : null;
+}
 
 const MAX_TENTATIVAS = 3;
 
@@ -130,6 +165,13 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Até daqui a pouco! ✂️",
     );
+  } else if (tipo === "retorno") {
+    blocos.push(
+      `Olá, ${nome}! 👋`,
+      `Já está chegando a hora do seu próximo corte na ${d.barbearia}.`,
+      "",
+      "Quer que eu veja um horário para você?",
+    );
   } else if (tipo === "cancelamento") {
     blocos.push(
       `Olá, ${nome}.`,
@@ -154,6 +196,12 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Até lá! ✂️",
     );
+  }
+
+  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  if (opcoes) {
+    blocos.push("", "Responda com o número:", ...opcoes.map((o, i) => `${i + 1} - ${o.rotulo}`));
+    if (tipo === "retorno") blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
   }
 
   return blocos
@@ -185,6 +233,11 @@ export async function notificarAgendamento(
   agendamentoId: string,
   tipo: TipoDeNotificacao,
 ): Promise<Resultado> {
+  if (tipo === "cancelamento") {
+    // O horário já está livre; a lista de espera é avisada em paralelo.
+    const { avisarListaDeEspera } = await import("./lembretes.server");
+    await avisarListaDeEspera(agendamentoId).catch(() => undefined);
+  }
   try {
     return await executar(agendamentoId, tipo);
   } catch (e) {
@@ -209,14 +262,16 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const { data: ag } = await db
     .from("agendamentos")
     .select(
-      "id, tenant_id, cliente_id, inicio, status, valor_centavos, clientes(nome, telefone), servicos(nome), profissionais(nome)",
+      "id, tenant_id, cliente_id, inicio, status, valor_centavos, clientes(nome, telefone, opt_in_whatsapp), servicos(nome), profissionais(nome)",
     )
     .eq("id", agendamentoId)
     .maybeSingle();
   if (!ag) return { enviado: false, motivo: "Agendamento não encontrado." };
 
   const status = String(ag.status);
-  if (tipo === "cancelamento") {
+  if (tipo === "retorno") {
+    if (status !== "finalizado") return { enviado: false, motivo: "Atendimento não finalizado." };
+  } else if (tipo === "cancelamento") {
     if (!["cancelado", "estornado"].includes(status)) {
       return { enviado: false, motivo: "Agendamento não está cancelado." };
     }
@@ -224,9 +279,17 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo: "Agendamento não está ativo." };
   }
 
-  const cliente = (ag as any).clientes as { nome: string; telefone: string | null } | null;
+  const cliente = (ag as any).clientes as {
+    nome: string;
+    telefone: string | null;
+    opt_in_whatsapp: boolean | null;
+  } | null;
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
+  // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
+  if (tipo === "retorno" && cliente?.opt_in_whatsapp !== true) {
+    return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
+  }
 
   const config = await configuracaoDoTenant(ag.tenant_id);
   const padrao =
@@ -318,6 +381,27 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         : null,
   });
 
+  const nomeModelo = modeloDoTipo(tipo);
+  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  const fusoModelo = await fusoDoTenant(ag.tenant_id);
+  const modelo =
+    nomeModelo && opcoes
+      ? {
+          nome: nomeModelo,
+          idioma: "pt_BR",
+          parametros:
+            tipo === "retorno"
+              ? [primeiroNome(cliente?.nome ?? "cliente"), tenant?.nome ?? "Barbearia"]
+              : [
+                  primeiroNome(cliente?.nome ?? "cliente"),
+                  tenant?.nome ?? "Barbearia",
+                  dataBr(ag.inicio, fusoModelo),
+                  horaBr(ag.inicio, fusoModelo),
+                ],
+          botoes: opcoes.map((o) => o.acao),
+        }
+      : null;
+
   const conversa = await conversaDoTelefone({
     tenantId: ag.tenant_id,
     conexaoId: conexao.id,
@@ -334,6 +418,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       telefone,
       texto,
       porIa: false,
+      modelo,
     });
   } catch (e) {
     return marcarErro(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.");
@@ -353,7 +438,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
  */
 export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   const db = await admin();
-  const resumo = { lembrete24h: 0, lembrete2h: 0, retentativas: 0 };
+  const resumo = { lembrete24h: 0, lembrete2h: 0, retorno: 0, retentativas: 0 };
 
   /**
    * Só os agendamentos elegíveis da janela, já sem os que têm envio deste tipo
@@ -387,6 +472,12 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   for (const id of await janela("lembrete_2h", 2, 15)) {
     const r = await notificarAgendamento(id, "lembrete_2h");
     if (r.enviado) resumo.lembrete2h += 1;
+  }
+
+  const { candidatosAoRetorno } = await import("./lembretes.server");
+  for (const id of await candidatosAoRetorno(agora)) {
+    const r = await notificarAgendamento(id, "retorno");
+    if (r.enviado) resumo.retorno += 1;
   }
 
   // Retry controlado: só falhas recentes e abaixo do limite de tentativas.

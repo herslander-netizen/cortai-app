@@ -428,6 +428,11 @@ export function AgendaOperacional() {
                     <div className="min-w-0">
                       {item.clienteId ? <button type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</button> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
                       <p className="mt-0.5 truncate text-xs text-mute">{item.servico} · {item.profissional}</p>
+                      {(item as { confirmadoEm?: string | null }).confirmadoEm && item.status === "agendado" ? (
+                        <p className="mt-1 inline-flex items-center gap-1 rounded-sm bg-sage px-1.5 py-0.5 text-[11px] font-semibold text-ink">
+                          <Check className="size-3" aria-hidden />Confirmou pelo WhatsApp
+                        </p>
+                      ) : null}
                     </div>
                     <Status status={item.status} />
                   </div>

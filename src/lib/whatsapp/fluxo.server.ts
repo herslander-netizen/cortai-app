@@ -119,13 +119,18 @@ export async function enviarPelaBarbearia(input: {
   texto: string;
   porIa: boolean;
   autorUserId?: string | null;
+  /** Modelo com botões (API oficial). Se o canal não suportar, vai o texto. */
+  modelo?: import("./gateway.server").ModeloComBotoes | null;
 }) {
   const db = await admin();
   const { gatewayDeWhatsapp } = await import("./gateway.server");
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
-    const r = await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
+    const viaModelo = input.modelo
+      ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo)
+      : null;
+    const r = viaModelo ?? (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";
@@ -229,6 +234,33 @@ export async function processarMensagemRecebida(input: {
     })
     .eq("id", conversa.id);
 
+  // Resposta a lembrete (botão, número ou palavra exata): regra + banco, sem motor.
+  let conteudo = input.conteudo;
+  if (input.tipo === "text") {
+    const { tratarRespostaDeLembrete } = await import("./lembretes.server");
+    const lembrete = await tratarRespostaDeLembrete({
+      tenantId,
+      conversaId: conversa.id,
+      telefone,
+      texto: input.conteudo,
+    }).catch(() => null);
+    if (lembrete) {
+      if (lembrete.texto) {
+        await enviarPelaBarbearia({
+          tenantId,
+          conversaId: conversa.id,
+          conexaoId: conexao.id,
+          sessaoId: input.sessaoId,
+          telefone,
+          texto: lembrete.texto,
+          porIa: false,
+        }).catch(() => undefined);
+      }
+      if (!lembrete.repassar) return { tratada: true, motivo: "lembrete" };
+      conteudo = lembrete.repassar;
+    }
+  }
+
   const config = await configuracaoDoTenant(tenantId);
   if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
   if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
@@ -264,7 +296,7 @@ export async function processarMensagemRecebida(input: {
 
   // Rajada de mensagens curtas vira uma única frase para o motor.
   const { textoAgrupado } = await import("./motor/agrupador.server");
-  const textoDoCliente = await textoAgrupado({ conversaId: conversa.id, textoAtual: input.conteudo });
+  const textoDoCliente = await textoAgrupado({ conversaId: conversa.id, textoAtual: conteudo });
 
   // Motor determinístico: nenhum provedor de IA é chamado — custo zero.
   const { responderComMotor } = await import("./motor/motor.server");
