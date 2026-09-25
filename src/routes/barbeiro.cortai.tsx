@@ -16,6 +16,7 @@ import {
   type ConfiguracaoDoAtendimento,
 } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
+import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
 import {
   atualizarQrCode,
   listarInformacoes,
@@ -52,6 +53,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  errorComponent: RouteError,
   component: CortaiPage,
 });
 
@@ -79,7 +81,9 @@ function CortaiPage() {
       {painel.isLoading ? <Carregando /> : null}
       {painel.isError ? (
         <p className="border-y border-line py-8 text-center text-sm text-brick">
-          Não conseguimos carregar o CortAI agora. Tente de novo em instantes.
+          {mensagemDeAcessoNegado(painel.error)
+            ? "Você não tem acesso a esta área"
+            : "Não conseguimos carregar o CortAI agora. Tente de novo em instantes."}
         </p>
       ) : null}
 

@@ -222,3 +222,11 @@
 - [x] Migrar controles e cartões artesanais sem alterar layout ou lógica
 - [x] Corrigir topo, ação principal e alternância Lista | Timeline da Agenda
 - [x] Remover BotaoAcao e validar tipos, testes e fluxos mobile
+
+## Ajustes pós-componentes
+- [x] Tratar recusa de acesso ao WhatsApp sem afrouxar permissões
+- [x] Criar tela de erro padrão para rotas
+- [x] Consolidar a tesoura flutuante e o menu curto da Agenda
+- [x] Unificar o acesso ao novo agendamento
+- [ ] Adicionar testes enxutos de Button e Status
+- [ ] Revisar barbeiro, recepção e dono em 375 px e desktop

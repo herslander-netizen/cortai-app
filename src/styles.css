@@ -434,7 +434,11 @@
 .agenda-linha-agora::before { position: absolute; top: -5px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--brick); content: ""; }
 .agenda-linha-agora span { position: absolute; right: 4px; bottom: 4px; border-radius: 4px; background: var(--brick); padding: 2px 5px; color: var(--ink2); font-size: 9px; font-weight: 800; }
 .agenda-voltar-agora { position: absolute; top: 10px; right: 10px; z-index: 10; min-height: 48px; box-shadow: var(--shadow-md); }
-.agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); left: max(20px, calc((100vw - 760px) / 2 + 32px)); }
+.agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.agenda-acao-redonda { width: 56px; min-width: 56px; height: 56px; padding: 0; border-radius: 999px; box-shadow: var(--shadow-md); }
+.agenda-acao-nomeada { width: auto; max-width: min(82vw, 360px); min-height: 56px; border-radius: 999px; box-shadow: var(--shadow-md); }
+.agenda-menu-flutuante { display: grid; width: min(82vw, 280px); overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--ink2); padding: 6px; box-shadow: var(--shadow-md); }
+.agenda-menu-flutuante > * { width: 100%; justify-content: flex-start; }
 .agenda-folha { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--surface-overlay); }
 .agenda-folha-conteudo { width: 100%; max-width: 520px; border-top: 1px solid var(--line); border-radius: 12px 12px 0 0; background: var(--ink2); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: agenda-sheet-in 180ms ease-out; }
 .agenda-manual-auto > button { display: none; }
