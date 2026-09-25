@@ -62,13 +62,13 @@ export function AcoesRapidas() {
         aria-label="Abrir ações rápidas"
         aria-expanded={aberto}
         onClick={() => setAberto(true)}
-        className="quick-action-trigger h-14 w-14 rounded-full border border-gold/70 bg-gold text-ink shadow-lg"
+        className="quick-action-trigger h-10 w-10 rounded-md border border-line bg-primary text-primary-foreground"
       >
-        <Scissors className="h-6 w-6" strokeWidth={2.2} />
+        <Scissors className="h-5 w-5" strokeWidth={2} />
       </Button>
       <SheetContent
         side="bottom"
-        className="mx-auto max-h-[82vh] max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink3 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6"
+        className="management-popover mx-auto max-h-[82vh] max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink3 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6"
       >
         <SheetHeader className="pr-10 text-left">
           <SheetTitle className="text-paper">Ações rápidas</SheetTitle>
