@@ -214,3 +214,11 @@
 - [x] Cancelar libera horário e avisa a lista de espera
 - [x] Lembrete de retorno com consentimento e SAIR
 - [ ] Teste ponta a ponta com WhatsApp real (depende de número conectado e modelos aprovados na Meta)
+
+## Interface V3.0 — Etapa 2: componentes base
+- [ ] Unificar Button com espera segura, variantes e áreas de toque V3
+- [ ] Unificar Card nas telas do barbeiro, recepção e dono
+- [ ] Centralizar estados de atendimento e pagamento no Badge
+- [ ] Migrar controles e cartões artesanais sem alterar layout ou lógica
+- [ ] Corrigir topo, ação principal e alternância Lista | Timeline da Agenda
+- [ ] Remover BotaoAcao e validar tipos, testes e fluxos mobile
