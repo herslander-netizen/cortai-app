@@ -3681,6 +3681,10 @@ export type Database = {
         }
         Returns: Json
       }
+      eh_profissional_do: {
+        Args: { _ator: string; _profissional_id: string }
+        Returns: boolean
+      }
       entrar_na_fila_publica: {
         Args: {
           _nome: string
@@ -3749,6 +3753,10 @@ export type Database = {
           permissoes: string[]
           tenant_id: string
         }[]
+      }
+      pagar_comanda_com_plano_segura: {
+        Args: { _ator: string; _comanda_id: string }
+        Returns: Json
       }
       permissoes_padrao: { Args: { _papel: string }; Returns: string[] }
       preparar_comanda: { Args: { _agendamento_id: string }; Returns: string }
