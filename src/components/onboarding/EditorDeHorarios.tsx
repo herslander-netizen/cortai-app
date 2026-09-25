@@ -8,9 +8,11 @@ import { interpretarHorarios } from "@/lib/assistente.functions";
 export function EditorDeHorarios({
   horarios,
   onChange,
+  semIA = false,
 }: {
   horarios: HorarioSugerido[];
   onChange: (h: HorarioSugerido[]) => void;
+  semIA?: boolean;
 }) {
   const interpretar = useServerFn(interpretarHorarios);
   const [texto, setTexto] = useState("");
@@ -67,10 +69,48 @@ export function EditorDeHorarios({
                   />
                 </span>
               )}
+              {!h.fechado ? (
+                h.intervaloInicio && h.intervaloFim ? (
+                  <span className="flex w-full items-center gap-2 pl-20 text-xs text-mute">
+                    Intervalo
+                    <input
+                      type="time"
+                      value={h.intervaloInicio}
+                      onChange={(e) => atualizar(h.diaSemana, { intervaloInicio: e.target.value })}
+                      className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
+                      aria-label="Início do intervalo"
+                    />
+                    <span className="text-mute2">às</span>
+                    <input
+                      type="time"
+                      value={h.intervaloFim}
+                      onChange={(e) => atualizar(h.diaSemana, { intervaloFim: e.target.value })}
+                      className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
+                      aria-label="Fim do intervalo"
+                    />
+                    <button
+                      type="button"
+                      className="min-h-10 px-2 text-mute underline"
+                      onClick={() => atualizar(h.diaSemana, { intervaloInicio: null, intervaloFim: null })}
+                    >
+                      Tirar
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="ml-20 min-h-10 text-xs text-mute underline"
+                    onClick={() => atualizar(h.diaSemana, { intervaloInicio: "12:00", intervaloFim: "13:00" })}
+                  >
+                    + Intervalo
+                  </button>
+                )
+              ) : null}
             </li>
           ))}
       </ul>
 
+      {semIA ? null : (
       <div className="mt-5 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
         <p className="flex items-center gap-2 text-sm font-semibold text-paper">
           <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o CortAI configure isso para você?
@@ -139,6 +179,7 @@ export function EditorDeHorarios({
         {aviso ? <p className="mt-3 text-xs text-mute">{aviso}</p> : null}
         {erro ? <p className="mt-3 text-xs text-brick">{erro}</p> : null}
       </div>
+      )}
     </div>
   );
 }

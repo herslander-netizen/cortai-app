@@ -71,7 +71,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .order("nome"),
       db
         .from("horarios_de_funcionamento")
-        .select("dia_semana, fechado, abre, fecha")
+        .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id)
         .order("dia_semana"),
       db
@@ -92,6 +92,8 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         fechado: Boolean(h["fechado"]),
         abre: String(h["abre"]).slice(0, 5),
         fecha: String(h["fecha"]).slice(0, 5),
+        intervaloInicio: h["intervalo_inicio"] ? String(h["intervalo_inicio"]).slice(0, 5) : null,
+        intervaloFim: h["intervalo_fim"] ? String(h["intervalo_fim"]).slice(0, 5) : null,
       })),
       ocupados: ocupadosRes.data ?? [],
     };
@@ -145,6 +147,13 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     const inicio = new Date(data.inicio);
     if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");
     if (inicio.getTime() < Date.now() - 60_000) throw new Error("Esse horário já passou.");
+    {
+      const { data: regra } = await db.from("tenants").select("antecedencia_min_minutos").eq("id", tenant.id).maybeSingle();
+      const antecedencia = Number((regra as { antecedencia_min_minutos?: number } | null)?.antecedencia_min_minutos ?? 0);
+      if (antecedencia > 0 && inicio.getTime() < Date.now() + antecedencia * 60_000) {
+        throw new Error(`Esta barbearia agenda com pelo menos ${antecedencia >= 60 ? `${Math.round(antecedencia / 60)} h` : `${antecedencia} min`} de antecedência.`);
+      }
+    }
     if (inicio.getTime() > Date.now() + 90 * 24 * 60 * 60 * 1000) throw new Error("Escolha uma data mais próxima.");
 
     const [{ data: servico }, { data: profissional }] = await Promise.all([

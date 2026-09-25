@@ -32,6 +32,8 @@ export type HorarioDeFuncionamento = {
   fechado: boolean;
   abre: string; // HH:MM
   fecha: string; // HH:MM
+  intervaloInicio?: string | null;
+  intervaloFim?: string | null;
 };
 
 export type SlotDaAgenda = { iso: string; label: string; minutos: number; hora: number };
@@ -90,14 +92,17 @@ function normalizar(valor: string | null | undefined, padrao: string): string {
 export function horarioDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
-): { fechado: boolean; abre: string; fecha: string } {
+): { fechado: boolean; abre: string; fecha: string; intervaloInicio: string | null; intervaloFim: string | null } {
   const semana = diaDaSemanaDoDia(dia);
   const achado = (horarios ?? []).find((h) => h.diaSemana === semana);
-  if (!achado) return { fechado: false, abre: ABERTURA_PADRAO, fecha: FECHAMENTO_PADRAO };
+  if (!achado) return { fechado: false, abre: ABERTURA_PADRAO, fecha: FECHAMENTO_PADRAO, intervaloInicio: null, intervaloFim: null };
+  const temIntervalo = Boolean(achado.intervaloInicio && achado.intervaloFim);
   return {
     fechado: Boolean(achado.fechado),
     abre: normalizar(achado.abre, ABERTURA_PADRAO),
     fecha: normalizar(achado.fecha, FECHAMENTO_PADRAO),
+    intervaloInicio: temIntervalo ? normalizar(achado.intervaloInicio, "") : null,
+    intervaloFim: temIntervalo ? normalizar(achado.intervaloFim, "") : null,
   };
 }
 
@@ -107,13 +112,16 @@ export function slotsDoDia(
   horarios: HorarioDeFuncionamento[] | undefined | null,
   passoMin = 30,
   fuso: string = FUSO_BARBEARIA,
-): { fechado: boolean; abre: string; fecha: string; slots: SlotDaAgenda[] } {
+): { fechado: boolean; abre: string; fecha: string; intervaloInicio: string | null; intervaloFim: string | null; slots: SlotDaAgenda[] } {
   const info = horarioDoDia(dia, horarios);
   if (info.fechado) return { ...info, slots: [] };
   const inicio = minutos(info.abre);
   const fim = minutos(info.fecha);
   const slots: SlotDaAgenda[] = [];
+  const pausaIni = info.intervaloInicio ? minutos(info.intervaloInicio) : null;
+  const pausaFim = info.intervaloFim ? minutos(info.intervaloFim) : null;
   for (let t = inicio; t + passoMin <= fim; t += passoMin) {
+    if (pausaIni != null && pausaFim != null && t < pausaFim && t + passoMin > pausaIni) continue;
     const h = Math.floor(t / 60);
     const m = t % 60;
     const label = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;

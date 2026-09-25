@@ -2108,6 +2108,8 @@ export type Database = {
           fecha: string
           fechado: boolean
           id: string
+          intervalo_fim: string | null
+          intervalo_inicio: string | null
           tenant_id: string
         }
         Insert: {
@@ -2118,6 +2120,8 @@ export type Database = {
           fecha?: string
           fechado?: boolean
           id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           tenant_id: string
         }
         Update: {
@@ -2128,6 +2132,8 @@ export type Database = {
           fecha?: string
           fechado?: boolean
           id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           tenant_id?: string
         }
         Relationships: [
@@ -3152,6 +3158,7 @@ export type Database = {
       servicos: {
         Row: {
           ativo: boolean
+          categoria: string | null
           comissao_percentual: number | null
           criado_em: string
           duracao_min: number
@@ -3159,10 +3166,12 @@ export type Database = {
           nome: string
           ordem: number
           preco_centavos: number
+          profissional_ids: string[]
           tenant_id: string
         }
         Insert: {
           ativo?: boolean
+          categoria?: string | null
           comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
@@ -3170,10 +3179,12 @@ export type Database = {
           nome: string
           ordem?: number
           preco_centavos?: number
+          profissional_ids?: string[]
           tenant_id: string
         }
         Update: {
           ativo?: boolean
+          categoria?: string | null
           comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
@@ -3181,6 +3192,7 @@ export type Database = {
           nome?: string
           ordem?: number
           preco_centavos?: number
+          profissional_ids?: string[]
           tenant_id?: string
         }
         Relationships: [
@@ -3361,9 +3373,12 @@ export type Database = {
       }
       tenants: {
         Row: {
+          aceita_encaixe: boolean
+          antecedencia_min_minutos: number
           assinatura_status: string
           assinatura_visivel: boolean
           ativo: boolean
+          cancelamento_min_horas: number
           capa_url: string | null
           chips_ficha: string[]
           ciclo: string
@@ -3382,6 +3397,7 @@ export type Database = {
           indicacao_codigo: string | null
           indicacao_recompensa: string | null
           instagram: string | null
+          intervalo_entre_min: number
           link_avaliacao_publica: string | null
           logo_url: string | null
           loja_ativa: boolean
@@ -3399,9 +3415,12 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          aceita_encaixe?: boolean
+          antecedencia_min_minutos?: number
           assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
+          cancelamento_min_horas?: number
           capa_url?: string | null
           chips_ficha?: string[]
           ciclo?: string
@@ -3420,6 +3439,7 @@ export type Database = {
           indicacao_codigo?: string | null
           indicacao_recompensa?: string | null
           instagram?: string | null
+          intervalo_entre_min?: number
           link_avaliacao_publica?: string | null
           logo_url?: string | null
           loja_ativa?: boolean
@@ -3437,9 +3457,12 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          aceita_encaixe?: boolean
+          antecedencia_min_minutos?: number
           assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
+          cancelamento_min_horas?: number
           capa_url?: string | null
           chips_ficha?: string[]
           ciclo?: string
@@ -3458,6 +3481,7 @@ export type Database = {
           indicacao_codigo?: string | null
           indicacao_recompensa?: string | null
           instagram?: string | null
+          intervalo_entre_min?: number
           link_avaliacao_publica?: string | null
           logo_url?: string | null
           loja_ativa?: boolean
