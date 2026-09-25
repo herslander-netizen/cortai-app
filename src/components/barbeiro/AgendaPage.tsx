@@ -97,7 +97,7 @@ export default function AgendaPage() {
   }, [tenantId, queryClient]);
 
   const { slots: lista, fechado, abre, fecha } = useMemo(
-    () => slotsDoDia(dia, data?.horarios ?? null, data?.fuso),
+    () => slotsDoDia(dia, data?.horarios ?? null, 30, data?.fuso),
     [dia, data?.horarios, data?.fuso],
   );
   const resumo = useMemo(() => {
