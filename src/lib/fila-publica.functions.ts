@@ -49,7 +49,7 @@ export const getFilaPublica = createServerFn({ method: "GET" })
       nome: tenant.nome as string,
       slug: tenant.slug as string,
       logoUrl: (tenant.logo_url as string) ?? null,
-      corPrimaria: (tenant.cor_primaria as string) ?? "#C9A227",
+      corPrimaria: (tenant.cor_primaria as string) ?? "var(--gold)",
       servicos: (servicosRes.data ?? []).map((s: Record<string, any>) => ({
         id: s["id"] as string,
         nome: s["nome"] as string,
