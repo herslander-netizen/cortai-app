@@ -225,6 +225,7 @@
   --surface-overlay: color-mix(in oklab, #191919 46%, transparent);
   --shadow-sm: 0 1px 2px color-mix(in oklab, #191919 5%, transparent);
   --shadow-md: 0 12px 28px color-mix(in oklab, #191919 12%, transparent);
+  --operation-gold: #d4af6a;
   min-height: 100dvh;
   overflow-x: clip;
   background: var(--ink);
@@ -355,16 +356,16 @@
 }
 
 .agenda-status-chegou { border-color: var(--sage); background: var(--sage-soft); color: var(--sage); }
-.agenda-status-cadeira { border-color: var(--gold); background: var(--gold-soft); color: var(--gold); }
+.agenda-status-cadeira { border-color: var(--operation-gold); background: color-mix(in oklab, var(--operation-gold) 18%, transparent); color: var(--paper); }
 .agenda-status-finalizado { border-color: var(--paper); background: var(--paper); color: var(--ink); }
 .agenda-status-falta { border-color: var(--brick); background: var(--brick-soft); color: var(--brick); }
-.agenda-agora { border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: 8px; background: var(--ink2); padding: 14px; transition: border-color 150ms ease, transform 100ms ease; }
+.agenda-agora { border: 1px solid var(--line); border-left: 3px solid var(--operation-gold); border-radius: 8px; background: var(--ink2); padding: 14px; transition: border-color 150ms ease, transform 100ms ease; }
 .agenda-lista-item { padding: 14px 8px; border-left: 2px solid transparent; transition: background-color 150ms ease, border-color 150ms ease; }
 .agenda-item-selecionado { border-color: var(--gold); background: var(--gold-soft); }
-.agenda-progress { display: block; width: 100%; height: 5px; overflow: hidden; border: 0; border-radius: 999px; background: var(--ink3); color: var(--gold); }
+.agenda-progress { display: block; width: 100%; height: 5px; overflow: hidden; border: 0; border-radius: 999px; background: var(--ink3); color: var(--operation-gold); }
 .agenda-progress::-webkit-progress-bar { background: var(--ink3); }
-.agenda-progress::-webkit-progress-value { border-radius: 999px; background: var(--gold); transition: width 250ms ease; }
-.agenda-progress::-moz-progress-bar { border-radius: 999px; background: var(--gold); }
+.agenda-progress::-webkit-progress-value { border-radius: 999px; background: var(--operation-gold); transition: width 250ms ease; }
+.agenda-progress::-moz-progress-bar { border-radius: 999px; background: var(--operation-gold); }
 .agenda-progress-estourado { color: var(--brick); }
 .agenda-progress-estourado::-webkit-progress-value { background: var(--brick); }
 .agenda-progress-estourado::-moz-progress-bar { background: var(--brick); }

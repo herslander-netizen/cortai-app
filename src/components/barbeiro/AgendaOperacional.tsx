@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { comDesfazer } from "@/lib/avisos";
+import { aviso, comDesfazer } from "@/lib/avisos";
 import {
   getAgendaDia,
   getAgoraProximo,
@@ -200,6 +200,7 @@ export function AgendaOperacional() {
       }
     } catch {
       setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      aviso.erro("Não foi possível mudar o atendimento. A agenda voltou ao estado anterior.");
     } finally {
       setOcupado(false);
     }
