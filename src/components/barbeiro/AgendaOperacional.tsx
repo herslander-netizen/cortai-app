@@ -124,6 +124,7 @@ export function AgendaOperacional() {
   const [fechando, setFechando] = useState<string | null>(null);
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
+  const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   const [ocupado, setOcupado] = useState(false);
   const ehHoje = dia === hojeNoFuso(fuso);
 
@@ -302,7 +303,7 @@ export function AgendaOperacional() {
         ) : (
           <ul className="divide-y divide-line">
             {itens.map((item) => {
-              const atrasado = ehHoje && (item.status === "agendado") && agora > new Date(item.inicio).getTime() + TOLERANCIA_MIN * 60_000;
+              const atrasado = ehHoje && item.status === "agendado" && !aguardando.has(item.id) && agora > new Date(item.inicio).getTime() + TOLERANCIA_MIN * 60_000;
               const selecionada = selecionado === item.id;
               return (
                 <li key={item.id} className={`agenda-lista-item ${selecionada ? "agenda-item-selecionado" : ""}`} onClick={() => setSelecionado(selecionada ? null : item.id)}>
@@ -314,7 +315,7 @@ export function AgendaOperacional() {
                     </div>
                     <Status status={item.status} />
                   </div>
-                  {atrasado ? <div className="mt-3 ml-[66px] flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-brick">Não chegou?</span><Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); void transicionar(item, "nao_compareceu"); }}>Marcar falta</Button><Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>Aguardar</Button></div> : null}
+                  {atrasado ? <div className="mt-3 ml-[66px] flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-brick">Não chegou?</span><Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); void transicionar(item, "nao_compareceu"); }}>Marcar falta</Button><Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setAguardando((atuais) => new Set(atuais).add(item.id)); }}>Aguardar</Button></div> : null}
                 </li>
               );
             })}
@@ -331,7 +332,7 @@ export function AgendaOperacional() {
 
       {menuAberto ? <div className="agenda-folha" role="dialog" aria-modal="true" aria-label="Ações da agenda" onClick={() => setMenuAberto(false)}><div className="agenda-folha-conteudo" onClick={(e) => e.stopPropagation()}><div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="text-lg font-extrabold text-paper">Ações da agenda</h2><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setMenuAberto(false)}><X /></Button></div><div className="grid gap-2"><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("atendimento"); }}><Scissors />Atendimento manual</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/fila"><UserRoundPlus />Chamar próximo da fila</Link></Button><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button></div></div></div> : null}
 
-      {manualAberto ? <div className="hidden"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo={manualAberto === "atendimento" ? "Atendimento manual" : "Novo agendamento"} onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
+      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo={manualAberto === "atendimento" ? "Atendimento manual" : "Novo agendamento"} onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
 
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => { if (!aberto) setConflito(null); }}>
         <AlertDialogContent>

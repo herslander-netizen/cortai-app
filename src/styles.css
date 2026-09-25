@@ -371,6 +371,7 @@
 .agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); left: max(20px, calc((100vw - 760px) / 2 + 32px)); }
 .agenda-folha { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--surface-overlay); }
 .agenda-folha-conteudo { width: 100%; max-width: 520px; border-top: 1px solid var(--line); border-radius: 12px 12px 0 0; background: var(--ink2); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: agenda-sheet-in 180ms ease-out; }
+.agenda-manual-auto > button { display: none; }
 @keyframes agenda-sheet-in { from { transform: translateY(14px); opacity: 0.7; } to { transform: translateY(0); opacity: 1; } }
 
 button,
