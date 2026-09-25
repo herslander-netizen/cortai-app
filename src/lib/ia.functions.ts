@@ -354,7 +354,7 @@ function agendamentoDoPainel(linha: Record<string, any>): AgendamentoDoPainel {
     id: linha["id"] as string,
     inicio: linha["inicio"] as string,
     fim: linha["fim"] as string,
-    status: (linha["status"] as string) ?? "confirmado",
+    status: (linha["status"] as string) ?? "agendado",
     valorCentavos: (linha["valor_centavos"] as number) ?? 0,
     formaPagamento: (linha["forma_pagamento"] as string) ?? null,
     cliente: cliente
@@ -486,10 +486,10 @@ export const getPainelOperacional = createServerFn({ method: "GET" })
         endereco: (tenant.data?.endereco as string) ?? null,
       },
       resumo: {
-        agendamentosHoje: listaHoje.filter((a) => a.status !== "cancelado" && a.status !== "falta").length,
-        concluidosHoje: listaHoje.filter((a) => a.status === "concluido").length,
+        agendamentosHoje: listaHoje.filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado").length,
+        concluidosHoje: listaHoje.filter((a) => a.status === "finalizado").length,
         previstoHojeCentavos: listaHoje
-          .filter((a) => a.status !== "cancelado" && a.status !== "falta")
+          .filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado")
           .reduce((soma, a) => soma + (a.valorCentavos || (a.servico?.precoCentavos ?? 0)), 0),
         proximos: listaProximos.length,
         clientes: totalClientes.count ?? 0,

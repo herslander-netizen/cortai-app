@@ -148,7 +148,7 @@ async function garantirAgendaViva() {
       status,
       valor_centavos: servico.valor,
       origem: i % 3 === 0 ? "manual" : "app",
-      ...(status === "concluido" ? { forma_pagamento: i % 2 ? "pix" : "credito" } : {}),
+      ...(status === "finalizado" ? { forma_pagamento: i % 2 ? "pix" : "credito" } : {}),
     });
   };
 
@@ -157,17 +157,17 @@ async function garantirAgendaViva() {
   for (let dia = -21; dia < 0; dia += 1) {
     if (new Date(emSaoPaulo(dia, 12, 0)).getUTCDay() === 0) continue;
     for (const hora of [9, 11, 14, 16, 18]) {
-      empurrar(dia, hora, 30, i++, "concluido");
+      empurrar(dia, hora, 30, i++, "finalizado");
     }
   }
   // Hoje: dia cheio, com alguns já atendidos.
   for (const [pos, hora] of [9, 10, 11, 14, 15, 16, 17, 18, 19].entries()) {
-    empurrar(0, hora, pos % 2 ? 0 : 30, i++, hora < 13 ? "concluido" : "confirmado");
+    empurrar(0, hora, pos % 2 ? 0 : 30, i++, hora < 13 ? "finalizado" : "agendado");
   }
   // Próximos dias já com reservas.
   for (let dia = 1; dia <= 6; dia += 1) {
     for (const hora of [10, 13, 16, 18]) {
-      empurrar(dia, hora, 0, i++, "confirmado");
+      empurrar(dia, hora, 0, i++, "agendado");
     }
   }
 

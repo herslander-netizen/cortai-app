@@ -121,3 +121,8 @@ export function slotsDoDia(
   }
   return { ...info, slots };
 }
+
+/** "Hoje" (AAAA-MM-DD) no fuso da barbearia, nunca no relógio do aparelho. */
+export function hojeNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: normalizarFuso(fuso), year: "numeric", month: "2-digit", day: "2-digit" }).format(instante);
+}

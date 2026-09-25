@@ -166,7 +166,7 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         .from("agendamentos")
         .select("id")
         .eq("tenant_id", tenantId)
-        .eq("status", "concluido")
+        .eq("status", "finalizado")
         .gte("inicio", new Date(agora - 30 * DIA).toISOString()),
     ]);
 
@@ -182,9 +182,9 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     const totalSlots = horariosConfigurados && !grade.fechado ? grade.slots.length * Math.max(profissionais.length, 1) : 0;
 
     const agendamentosHoje = (agHojeRes.data ?? []) as any[];
-    const ativosHoje = agendamentosHoje.filter((a) => a.status !== "cancelado" && a.status !== "falta");
+    const ativosHoje = agendamentosHoje.filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado");
     const cancelamentos = agendamentosHoje.filter((a) => a.status === "cancelado");
-    const faltas = agendamentosHoje.filter((a) => a.status === "falta").length;
+    const faltas = agendamentosHoje.filter((a) => a.status === "nao_compareceu").length;
     const encaixes = ativosHoje.filter((a) => a.origem === "manual" || a.origem === "encaixe").length;
 
     const ocupacaoPct = totalSlots > 0 ? Math.min(100, Math.round((ativosHoje.length / totalSlots) * 100)) : null;

@@ -19,7 +19,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
     inicio.setDate(1);
     inicio.setHours(0, 0, 0, 0);
     const [{ data: atendimentos }, { data: vendas }] = await Promise.all([
-      context.supabase.from("agendamentos").select("id, valor_centavos, inicio, servicos(nome)").eq("tenant_id", tenantId).eq("status", "concluido").gte("inicio", inicio.toISOString()),
+      context.supabase.from("agendamentos").select("id, valor_centavos, inicio, servicos(nome)").eq("tenant_id", tenantId).eq("status", "finalizado").gte("inicio", inicio.toISOString()),
       context.supabase.from("vendas").select("id, categoria, descricao, total_centavos, criado_em").eq("tenant_id", tenantId).gte("criado_em", inicio.toISOString()).order("criado_em", { ascending: false }),
     ]);
     const servicos = (atendimentos ?? []).reduce((total, item) => total + item.valor_centavos, 0);

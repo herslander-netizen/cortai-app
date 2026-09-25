@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
+import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -17,11 +19,6 @@ async function tenantPadrao(context: ContextoAutenticado) {
   return { db, tenant };
 }
 
-function inicioDoDia(dia?: string) {
-  const d = dia ? new Date(`${dia}T00:00:00`) : new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 /* ---------------------------------- HOJE --------------------------------- */
 
@@ -56,7 +53,7 @@ export const finalizarAtendimento = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "confirmar_pagamento");
     const { error } = await db
       .from("agendamentos")
-      .update({ status: "concluido" })
+      .update({ status: "finalizado", status_alterado_por: context.userId })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
@@ -86,6 +83,7 @@ export type AgendaDia = {
   itens: AgendaItem[];
   fila: FilaJanela[];
   horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
+  fuso: string;
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
@@ -93,7 +91,9 @@ export const getAgendaDia = createServerFn({ method: "GET" })
   .inputValidator((data: { dia?: string | undefined }) => data ?? {})
   .handler(async ({ data, context }): Promise<AgendaDia> => {
     const { db, tenant } = await tenantPadrao(context);
-    const de = inicioDoDia(data.dia);
+    const fuso = await fusoDoTenant(tenant.id);
+    const diaAlvo = data.dia ?? hojeNoFuso(fuso);
+    const de = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
     const [agRes, filaRes, horariosRes] = await Promise.all([
@@ -144,14 +144,38 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       };
     });
 
-    const iso = de.toISOString().slice(0, 10);
+    const iso = diaAlvo;
     const horarios = (horariosRes.data ?? []).map((h) => ({
       diaSemana: h.dia_semana as number,
       fechado: Boolean(h.fechado),
       abre: String(h.abre).slice(0, 5),
       fecha: String(h.fecha).slice(0, 5),
     }));
-    return { tenant, dia: iso, itens, fila, horarios };
+    return { tenant, dia: iso, itens, fila, horarios, fuso };
+  });
+
+export const ESTADOS_ATENDIMENTO = ["agendado", "chegou", "na_cadeira", "finalizado", "cancelado", "remarcado", "nao_compareceu"] as const;
+export type EstadoAtendimento = (typeof ESTADOS_ATENDIMENTO)[number];
+
+/** Muda a etapa do atendimento. Horários e quem fez são gravados pelo banco. */
+export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { agendamentoId: string; estado: EstadoAtendimento }) => {
+    if (!ESTADOS_ATENDIMENTO.includes(data.estado)) throw new Error("Estado inválido");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const { data: linha, error } = await db
+      .from("agendamentos")
+      .update({ status: data.estado, status_alterado_por: context.userId })
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .select("id, status, arrived_at, started_at, finished_at, arrived_inferido, started_inferido, finished_inferido, status_alterado_em")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!linha) throw new Error("Atendimento não encontrado");
+    return linha;
   });
 
 /** Só o necessário para abrir a agenda: quem está na cadeira agora e o próximo. */

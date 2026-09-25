@@ -1,12 +1,13 @@
 import { Link, useSearch } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Aviso, type TomDeAviso } from "@/components/ui/aviso";
 import { brl } from "@/lib/format";
-import { slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, slotsDoDia } from "@/lib/horarios";
+import { supabase } from "@/integrations/supabase/client";
 import { getAgendaDia, getAgoraProximo, oferecerHorarioAFila, type AgendaDia } from "@/lib/barbeiro.functions";
 import { repetirAgendamento } from "@/lib/crescimento.functions";
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
@@ -29,11 +30,6 @@ function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) 
   );
 }
 
-function hojeIso() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 /** Soma dias ao "AAAA-MM-DD" sem passar pelo fuso do navegador. */
 function somarDias(dia: string, passo: number) {
   const [a, m, d] = dia.split("-").map(Number);
@@ -54,11 +50,12 @@ export default function AgendaPage() {
     : undefined;
   const oferecer = useServerFn(oferecerHorarioAFila);
   const repetir = useServerFn(repetirAgendamento);
-  const [dia, setDia] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dia, setDia] = useState(() => hojeNoFuso());
   const [aviso, setAviso] = useState<{ tom: TomDeAviso; texto: string } | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
 
-  const ehHoje = dia === new Date().toISOString().slice(0, 10);
+  const [fuso, setFuso] = useState<string | undefined>(undefined);
+  const ehHoje = dia === hojeNoFuso(fuso);
   // Consulta enxuta: só quem está na cadeira e o próximo. Chega antes do dia inteiro.
   const { data: rapidoDados } = useQuery({
     queryKey: ["agenda-agora-proximo"],
@@ -77,9 +74,31 @@ export default function AgendaPage() {
     refetchInterval: 60_000,
   });
 
+  // Fuso da barbearia: corrige o "hoje" assim que o servidor responde.
+  const queryClient = useQueryClient();
+  const tenantId = data?.tenant.id;
+  useEffect(() => {
+    if (data?.fuso && data.fuso !== fuso) setFuso(data.fuso);
+  }, [data?.fuso, fuso]);
+
+  // Tempo real: qualquer mudança de etapa aparece para toda a equipe sem recarregar.
+  useEffect(() => {
+    if (!tenantId) return;
+    const canal = supabase
+      .channel(`agenda-${tenantId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "agendamentos", filter: `tenant_id=eq.${tenantId}` }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
+        void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(canal);
+    };
+  }, [tenantId, queryClient]);
+
   const { slots: lista, fechado, abre, fecha } = useMemo(
-    () => slotsDoDia(dia, data?.horarios ?? null),
-    [dia, data?.horarios],
+    () => slotsDoDia(dia, data?.horarios ?? null, 30, data?.fuso),
+    [dia, data?.horarios, data?.fuso],
   );
   const resumo = useMemo(() => {
     // Enquanto o dia inteiro não chega, "Agora" e "Próximo" vêm da consulta enxuta.
@@ -172,7 +191,7 @@ export default function AgendaPage() {
         <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(somarDias(dia, -1))}>
           Anterior
         </button>
-        <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(hojeIso())}>
+        <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(hojeNoFuso(fuso))}>
           Hoje
         </button>
         <button type="button" className="btn-tertiary text-xs" onClick={() => setDia(somarDias(dia, 1))}>

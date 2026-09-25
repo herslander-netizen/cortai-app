@@ -72,7 +72,7 @@ function LinhaAgendamento({
   const [quando, setQuando] = useState(() => paraCampoLocal(a.inicio));
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const encerrado = a.status === "cancelado" || a.status === "concluido" || a.status === "falta";
+  const encerrado = a.status === "cancelado" || a.status === "finalizado" || a.status === "nao_compareceu" || a.status === "remarcado";
 
   return (
     <div className="border-b border-line py-3 last:border-b-0">

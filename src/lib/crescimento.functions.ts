@@ -196,7 +196,7 @@ export const getCrescimento = createServerFn({ method: "GET" })
     if ((agora - ultima) / DIA > intervalo) oportunidades += 1;
   }
 
-  const ativosHoje = (agHojeRes.data ?? []).filter((a) => a.status !== "cancelado" && a.status !== "falta");
+  const ativosHoje = (agHojeRes.data ?? []).filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado");
   const totalSlots = Math.max((profRes.data?.length ?? 1) * 20, 1);
   const indicacoes = indicacoesRes.data ?? [];
 
@@ -344,7 +344,7 @@ export const getAvaliacoes = createServerFn({ method: "GET" })
       .from("agendamentos")
       .select("id, inicio, cliente_id, profissional_id, clientes(nome), servicos(nome)")
       .eq("tenant_id", tenant.id)
-      .eq("status", "concluido")
+      .eq("status", "finalizado")
       .gte("inicio", desde)
       .order("inicio", { ascending: false }),
     db
@@ -473,7 +473,7 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
       servico_id: ag.servico_id,
       inicio: inicio.toISOString(),
       fim: fim.toISOString(),
-      status: "confirmado",
+      status: "agendado",
       forma_pagamento: ag.forma_pagamento === "credito" ? "balcao" : ag.forma_pagamento,
       valor_centavos: ag.valor_centavos,
       recorrencia: data.periodicidade,
