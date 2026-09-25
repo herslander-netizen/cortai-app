@@ -66,7 +66,7 @@ BEGIN
     IF public.has_tenant_permission(t,'comissao_visualizar_todas') <> r.financeiro THEN falhas := falhas || format('%s comissões de todos', r.papel); END IF;
 
     -- Configurações
-    BEGIN INSERT INTO public.regras_de_plano (tenant_id, tipo) VALUES (t, 'teste'); ok := true;
+    BEGIN INSERT INTO public.regras_de_plano (tenant_id, tipo) VALUES (t, 'mensal'); ok := true;
     EXCEPTION WHEN others THEN ok := false; END;
     total := total + 1; IF ok <> r.config THEN falhas := falhas || format('%s alterar configurações', r.papel); END IF;
 
