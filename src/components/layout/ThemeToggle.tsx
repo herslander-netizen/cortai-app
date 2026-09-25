@@ -28,7 +28,7 @@ function aplicarAparencia(modo: Modo, identidade: Identidade) {
   const claro = modo === "claro" || (modo === "sistema" && window.matchMedia("(prefers-color-scheme: light)").matches);
   document.documentElement.classList.toggle("light", claro);
   document.documentElement.classList.toggle("dark", !claro);
-  document.documentElement.dataset.identidade = identidade;
+  document.documentElement.dataset["identidade"] = identidade;
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (meta) meta.content = claro ? "#F4F5F2" : identidade === "classico" ? "#111110" : "#1E2221";
 }
