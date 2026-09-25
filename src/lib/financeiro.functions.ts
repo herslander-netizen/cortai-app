@@ -124,7 +124,7 @@ export const pagarComanda = createServerFn({ method: "POST" })
       const { data: c } = await db.from("comandas").select("total_centavos, cliente_id, clientes(telefone, limite_fiado_centavos)").eq("id", data.comandaId).eq("tenant_id", tenantId).single();
       const cli: any = (c as any)?.clientes;
       const limite = cli?.telefone === "avulso" ? 0 : cli?.limite_fiado_centavos ?? 0;
-      const { data: abertos } = await db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).eq("cliente_id", c?.cliente_id).in("status", ["pendente", "parcial"]);
+      const { data: abertos } = await db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).eq("cliente_id", c?.cliente_id ?? "").in("status", ["pendente", "parcial"]);
       const disponivel = limite - (abertos ?? []).reduce((s: number, f: any) => s + f.saldo_centavos, 0);
       if (limite <= 0 || (c?.total_centavos ?? 0) > disponivel) throw new Error("Este cliente não tem limite de fiado para este valor.");
     }
