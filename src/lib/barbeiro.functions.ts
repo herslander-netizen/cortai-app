@@ -19,11 +19,6 @@ async function tenantPadrao(context: ContextoAutenticado) {
   return { db, tenant };
 }
 
-function inicioDoDia(dia?: string) {
-  const d = dia ? new Date(`${dia}T00:00:00`) : new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 /* ---------------------------------- HOJE --------------------------------- */
 
