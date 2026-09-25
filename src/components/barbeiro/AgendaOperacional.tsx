@@ -90,7 +90,8 @@ function fichaRelevante(texto: string | null) {
 }
 
 function Status({ status }: { status: string }) {
-  const estado = ESTADO[status] ?? ESTADO.agendado;
+  const estado = ESTADO[status] ?? ESTADO["agendado"];
+  if (!estado) return null;
   const Icone = estado.Icone;
   return (
     <span className={`agenda-status ${estado.classe}`}>
