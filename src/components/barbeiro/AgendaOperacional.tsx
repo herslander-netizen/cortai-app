@@ -18,6 +18,7 @@ import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } fro
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { Screen } from "@/components/layout/Screen";
+import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import {
@@ -91,10 +93,22 @@ function minutos(inicio: string | null, agora: number) {
   return inicio ? Math.max(0, Math.floor((agora - new Date(inicio).getTime()) / 60_000)) : 0;
 }
 
+function tempoExcedido(decorrido: number, previsto: number) {
+  const excedido = Math.max(0, decorrido - previsto);
+  if (excedido < 60) return `+${excedido} min excedido`;
+  const horas = Math.floor(excedido / 60);
+  const minutosRestantes = excedido % 60;
+  return `+${horas}h${String(minutosRestantes).padStart(2, "0")} excedido`;
+}
+
 function fichaRelevante(texto: string | null) {
   if (!texto) return null;
   const trecho = texto.split(/[.!?\n]/).find((parte) => /alerg/i.test(parte));
   return trecho?.trim() || null;
+}
+
+function nomeEhGenerico(nome: string) {
+  return nome.trim().toLocaleLowerCase("pt-BR").startsWith("cliente avulso");
 }
 
 function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) {
@@ -278,16 +292,22 @@ export function AgendaOperacional() {
   const diaSemAgenda = !agenda.isLoading && itens.length === 0;
 
   return (
-    <Screen title="Agenda" subtitle={agenda.data?.tenant.nome ?? "Operação do dia"}>
-      <div className="pb-36">
-        <div className="mb-5 grid grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2" aria-label="Navegar pelos dias">
+    <Screen title="Agenda" hideHeader>
+      <div className="agenda-operacional pb-32">
+        <header className="agenda-cabecalho-compacto">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+            <h1 className="truncate text-sm font-bold text-paper">Agenda</h1>
+            <BotaoAjuda />
+          </div>
+          <div className="grid grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-1" aria-label="Navegar pelos dias">
           <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => setDia(somarDias(dia, -1))}><ChevronLeft /></Button>
           <div className="min-w-0 text-center">
             <p className="truncate text-base font-extrabold text-paper">{dataEditorial(dia)}</p>
-            {!ehHoje ? <Button variant="link" size="sm" className="h-auto min-h-0 p-1 text-xs" onClick={() => setDia(hojeNoFuso(fuso))}>Hoje</Button> : <span className="text-xs font-semibold text-gold">Hoje</span>}
+            {!ehHoje ? <Button variant="link" size="sm" className="h-auto min-h-0 p-1 text-xs text-mute" onClick={() => setDia(hojeNoFuso(fuso))}>Ir para hoje</Button> : <span className="text-xs font-semibold text-mute">Hoje</span>}
           </div>
           <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => setDia(somarDias(dia, 1))}><ChevronRight /></Button>
-        </div>
+          </div>
+        </header>
 
         {ehHoje && (rapido.isLoading && !agenda.data) ? <EsqueletoAgenda linhas={2} /> : null}
 
@@ -304,7 +324,7 @@ export function AgendaOperacional() {
                   <article onClick={() => setSelecionado(item.id)}>
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
-                        {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-lg font-extrabold text-paper underline-offset-4 active:underline">{item.cliente}</Button> : <p className="truncate text-lg font-extrabold text-paper">{item.cliente}</p>}
+                        {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); if (item.clienteId) setPerfil(item.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-base underline-offset-4 active:underline ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</Button> : <p className={`truncate text-base ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</p>}
                         <p className="mt-0.5 truncate text-sm text-mute">{item.servico} · {item.profissional}</p>
                       </div>
                       <StatusBadge status={item.status} />
@@ -312,7 +332,7 @@ export function AgendaOperacional() {
                     {alergia ? <p className="mt-3 border-l-2 border-brick pl-3 text-xs font-semibold text-paper">{alergia}</p> : null}
                     <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <progress className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`} max={Math.max(item.duracaoMin, decorrido)} value={decorrido} aria-label={`${decorrido} de ${item.duracaoMin} minutos`} />
-                      <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>{decorrido} / {item.duracaoMin} min</span>
+                      <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>{estourou ? tempoExcedido(decorrido, item.duracaoMin) : `${decorrido} de ${item.duracaoMin} min`}</span>
                     </div>
                   </article>
                   </Card>
@@ -371,7 +391,7 @@ export function AgendaOperacional() {
               {chegada.map((f, i) => (
                 <li key={f.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                   <span className="text-sm font-extrabold text-mute">{i + 1}</span>
-                  <div className="min-w-0">{f.clienteId ? <Button variant="ghost" type="button" onClick={() => setPerfil(f.clienteId!)} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{f.cliente}</Button> : <p className="truncate text-sm font-bold text-paper">{f.cliente}</p>}<p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
+                  <div className="min-w-0">{f.clienteId ? <Button variant="ghost" type="button" onClick={() => { if (f.clienteId) setPerfil(f.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-sm underline-offset-4 hover:underline ${nomeEhGenerico(f.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{f.cliente}</Button> : <p className={`truncate text-sm ${nomeEhGenerico(f.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{f.cliente}</p>}<p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-mute"><Clock3 aria-hidden size={13} />{minutos(f.criadoEm, agora)} min</span>
                 </li>
               ))}
@@ -411,7 +431,7 @@ export function AgendaOperacional() {
                   <div className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-start gap-3">
                     <p className="pt-0.5 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
                     <div className="min-w-0">
-                      {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); setPerfil(item.clienteId!); }} className="block max-w-full truncate text-left text-sm font-bold text-paper underline-offset-4 hover:underline">{item.cliente}</Button> : <p className="truncate text-sm font-bold text-paper">{item.cliente}</p>}
+                      {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); if (item.clienteId) setPerfil(item.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-sm underline-offset-4 hover:underline ${nomeEhGenerico(item.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{item.cliente}</Button> : <p className={`truncate text-sm ${nomeEhGenerico(item.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{item.cliente}</p>}
                       <p className="mt-0.5 truncate text-xs text-mute">{item.servico} · {item.profissional}</p>
                       {(item as { confirmadoEm?: string | null }).confirmadoEm && item.status === "agendado" ? (
                         <p className="mt-1 inline-flex items-center gap-1 rounded-sm bg-sage px-1.5 py-0.5 text-[11px] font-semibold text-ink">
@@ -466,14 +486,6 @@ export function AgendaOperacional() {
       </div>
 
       <div className="agenda-acao-fixa">
-        {menuAberto && !itemSelecionado ? (
-          <div className="agenda-menu-flutuante" role="menu" aria-label="Ações da agenda">
-            <Button variant="ghost" role="menuitem" onClick={() => { setMenuAberto(false); setRapidoAberto(true); }}><Scissors />Atendimento manual</Button>
-            <Button variant="ghost" role="menuitem" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button>
-            <Button asChild variant="ghost" role="menuitem"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button>
-            {chegada.length > 0 ? <Button variant="ghost" role="menuitem" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo da fila</Button> : null}
-          </div>
-        ) : null}
         <Button
           size="lg"
           variant="primary"
@@ -487,6 +499,21 @@ export function AgendaOperacional() {
           {itemSelecionado ? (itemSelecionado.status === "na_cadeira" ? `Finalizar ${itemSelecionado.cliente}` : `Iniciar ${itemSelecionado.cliente}`) : null}
         </Button>
       </div>
+
+      <Sheet open={menuAberto && !itemSelecionado} onOpenChange={setMenuAberto}>
+        <SheetContent side="bottom" className="agenda-acoes-folha mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5">
+          <SheetHeader className="pr-10 text-left">
+            <SheetTitle className="text-base text-paper">Ações da agenda</SheetTitle>
+            <SheetDescription className="text-xs text-mute">Escolha o que precisa fazer agora.</SheetDescription>
+          </SheetHeader>
+          <div className="mt-3 divide-y divide-line" role="menu" aria-label="Ações da agenda">
+            <Button variant="ghost" role="menuitem" className="agenda-acao-lista" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus /><span><strong>Novo agendamento</strong><small>Marcar dia, horário e profissional</small></span></Button>
+            <Button variant="ghost" role="menuitem" className="agenda-acao-lista" onClick={() => { setMenuAberto(false); setRapidoAberto(true); }}><Scissors /><span><strong>Novo atendimento</strong><small>Atender uma pessoa sem horário</small></span></Button>
+            {chegada.length > 0 ? <Button variant="ghost" role="menuitem" className="agenda-acao-lista" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus /><span><strong>Chamar próximo da fila</strong><small>{chegada[0]?.cliente} está aguardando</small></span></Button> : null}
+            <Button asChild variant="ghost" role="menuitem" className="agenda-acao-lista"><Link to="/barbeiro/horarios" onClick={() => setMenuAberto(false)}><Clock3 /><span><strong>Bloquear horário</strong><small>Reservar um período da agenda</small></span></Link></Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
 
