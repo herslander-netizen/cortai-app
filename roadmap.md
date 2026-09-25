@@ -23,6 +23,10 @@
 
 ## Interface V3.0
 
+- [x] Etapa 1: aplicar logo e símbolo oficiais sem alterar as telas
+- [x] Etapa 1: salvar a identidade escolhida pelo dono para toda a barbearia
+- [x] Etapa 1: manter o modo por aparelho e adicionar atalho no topo
+- [ ] Etapa 1: remover cores antigas fora dos tokens e validar logo, modo e identidade
 - [x] Separar identidades Moderno, Blue, Indigo, Copper e Clássico dos modos Claro, Escuro e Sistema
 - [x] Tornar Moderno a identidade padrão e manter Clássico como opção preta e dourada
 - [x] Unificar tokens, Manrope, contraste, alvos de toque e ícones Lucide

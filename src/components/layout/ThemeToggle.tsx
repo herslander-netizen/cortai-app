@@ -1,14 +1,12 @@
 import { Check, Monitor, Moon, Palette, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
-
-const MODE_KEY = "cortai-modo";
-const LEGACY_MODE_KEY = "cortai-tema";
-const IDENTITY_KEY = "cortai-identidade";
-
-type Modo = "claro" | "escuro" | "sistema";
-type Identidade = "moderno" | "blue" | "indigo" | "copper" | "classico";
+import { aviso } from "@/lib/avisos";
+import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, modoSalvo, type Identidade, type Modo } from "@/lib/aparencia";
+import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 
 const IDENTIDADES: ReadonlyArray<{ id: Identidade; nome: string }> = [
   { id: "moderno", nome: "Moderno" },
@@ -24,51 +22,49 @@ const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
   { id: "sistema", nome: "Sistema", icon: Monitor },
 ];
 
-function aplicarAparencia(modo: Modo, identidade: Identidade) {
-  const claro = modo === "claro" || (modo === "sistema" && window.matchMedia("(prefers-color-scheme: light)").matches);
-  document.documentElement.classList.toggle("light", claro);
-  document.documentElement.classList.toggle("dark", !claro);
-  document.documentElement.dataset["identidade"] = identidade;
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (meta) meta.content = claro ? "#F4F5F2" : identidade === "classico" ? "#111110" : "#1E2221";
-}
-
-export function ThemeToggle() {
+export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string; podeAlterarIdentidade?: boolean }) {
+  const queryClient = useQueryClient();
+  const salvarIdentidade = useServerFn(salvarIdentidadeApp);
   const [modo, setModo] = useState<Modo>("sistema");
-  const [identidade, setIdentidade] = useState<Identidade>("moderno");
+  const [identidade, setIdentidade] = useState<Identidade>(() => identidadeValida(identidadeDaBarbearia));
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
-    const legado = window.localStorage.getItem(LEGACY_MODE_KEY);
-    const modoSalvo = window.localStorage.getItem(MODE_KEY);
-    const identidadeSalva = window.localStorage.getItem(IDENTITY_KEY);
-    const modoInicial: Modo = modoSalvo === "claro" || modoSalvo === "escuro" || modoSalvo === "sistema"
-      ? modoSalvo
-      : legado === "claro" || legado === "escuro" ? legado : "sistema";
-    const identidadeInicial = IDENTIDADES.some((item) => item.id === identidadeSalva)
-      ? identidadeSalva as Identidade
-      : "moderno";
+    const modoInicial = modoSalvo();
+    const identidadeInicial = identidadeValida(identidadeDaBarbearia);
     setModo(modoInicial);
     setIdentidade(identidadeInicial);
-    aplicarAparencia(modoInicial, identidadeInicial);
-  }, []);
+    aplicarIdentidade(identidadeInicial);
+    aplicarModo(modoInicial);
+  }, [identidadeDaBarbearia]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: light)");
-    const acompanharSistema = () => aplicarAparencia(modo, identidade);
+    const acompanharSistema = () => aplicarModo(modo);
     media.addEventListener("change", acompanharSistema);
     return () => media.removeEventListener("change", acompanharSistema);
-  }, [modo, identidade]);
+  }, [modo]);
 
   function alterarModo(novoModo: Modo) {
     setModo(novoModo);
-    window.localStorage.setItem(MODE_KEY, novoModo);
-    aplicarAparencia(novoModo, identidade);
+    aplicarModo(novoModo, true);
   }
 
-  function alterarIdentidade(novaIdentidade: Identidade) {
+  async function alterarIdentidade(novaIdentidade: Identidade) {
+    const anterior = identidade;
     setIdentidade(novaIdentidade);
-    window.localStorage.setItem(IDENTITY_KEY, novaIdentidade);
-    aplicarAparencia(modo, novaIdentidade);
+    aplicarIdentidade(novaIdentidade);
+    setSalvando(true);
+    try {
+      await salvarIdentidade({ data: { identidade: novaIdentidade } });
+      await queryClient.invalidateQueries({ queryKey: ["sessao"] });
+    } catch (error) {
+      setIdentidade(anterior);
+      aplicarIdentidade(anterior);
+      aviso.erro(error instanceof Error ? error.message : "Não foi possível salvar a identidade agora.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -77,22 +73,22 @@ export function ThemeToggle() {
         <Palette size={18} strokeWidth={1.75} className="shrink-0 text-mute" />
         <span className="min-w-0">
           <span id="aparencia-titulo" className="block text-sm font-semibold text-paper">Aparência</span>
-          <span className="mt-0.5 block text-xs text-mute">Identidade e modo são independentes</span>
+          <span className="mt-0.5 block text-xs text-mute">{podeAlterarIdentidade ? "Identidade da barbearia e modo deste aparelho" : "Modo deste aparelho"}</span>
         </span>
       </div>
 
-      <div className="mt-4">
+      {podeAlterarIdentidade ? <div className="mt-4">
         <p className="mb-2 text-xs font-semibold text-mute">Identidade</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5" role="group" aria-label="Identidade visual">
           {IDENTIDADES.map((item) => (
-            <Button key={item.id} type="button" variant="outline" onClick={() => alterarIdentidade(item.id)} aria-pressed={identidade === item.id} className="identity-choice h-12 justify-start px-3" data-identity-choice={item.id}>
+            <Button key={item.id} type="button" variant="outline" disabled={salvando} onClick={() => void alterarIdentidade(item.id)} aria-pressed={identidade === item.id} className="identity-choice h-12 justify-start px-3" data-identity-choice={item.id}>
               <span className="identity-swatch" aria-hidden />
               <span className="truncate">{item.nome}</span>
               {identidade === item.id ? <Check className="ml-auto" strokeWidth={1.75} /> : null}
             </Button>
           ))}
         </div>
-      </div>
+      </div> : null}
 
       <div className="mt-4">
         <p className="mb-2 text-xs font-semibold text-mute">Modo</p>
@@ -109,5 +105,29 @@ export function ThemeToggle() {
         </div>
       </div>
     </section>
+  );
+}
+
+export function ModeShortcut() {
+  const [modo, setModo] = useState<Modo>("sistema");
+
+  useEffect(() => {
+    setModo(modoSalvo());
+    const atualizar = (event: Event) => {
+      const detalhe = (event as CustomEvent<{ modo?: Modo }>).detail;
+      if (detalhe?.modo) setModo(detalhe.modo);
+    };
+    window.addEventListener(APPEARANCE_EVENT, atualizar);
+    return () => window.removeEventListener(APPEARANCE_EVENT, atualizar);
+  }, []);
+
+  const escuro = typeof window !== "undefined" && document.documentElement.classList.contains("dark");
+  const Icon = escuro ? Sun : Moon;
+  const proximo: Modo = escuro ? "claro" : "escuro";
+  return (
+    <Button type="button" variant="ghost" size="icon" onClick={() => { setModo(proximo); aplicarModo(proximo, true); }} aria-label={escuro ? "Ativar modo claro" : "Ativar modo escuro"} title={escuro ? "Modo claro" : "Modo escuro"}>
+      <Icon strokeWidth={1.75} />
+      <span className="sr-only">Modo atual: {modo}</span>
+    </Button>
   );
 }

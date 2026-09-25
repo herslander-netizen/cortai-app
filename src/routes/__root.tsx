@@ -117,7 +117,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo")||localStorage.getItem("cortai-tema")||"sistema",i=localStorage.getItem("cortai-identidade")||"moderno",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade=i;d.classList.toggle("light",l);d.classList.toggle("dark",!l)}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo")||localStorage.getItem("cortai-tema")||"sistema",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);addEventListener("DOMContentLoaded",function(){var c=getComputedStyle(d).getPropertyValue("--background").trim(),t=document.querySelector('meta[name="theme-color"]');if(t&&c)t.content=c},{once:true})}catch{}` }} />
       </head>
       <body>
         {children}
