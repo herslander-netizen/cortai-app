@@ -100,8 +100,10 @@ async function signedLogo(supabase: any, path: string | null) {
 
 export const getMarca = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ marca: MarcaData; versoes: MarcaVersion[] }> => {
-    const tenantId = await tenantDoDono(context.supabase, context.userId);
+  .handler(async ({ context }): Promise<{ marca: MarcaData; versoes: MarcaVersion[] } | null> => {
+    // Quem não é dono vê o aviso da tela, sem erro.
+    const tenantId = await tenantDoDono(context.supabase, context.userId).catch(() => null);
+    if (!tenantId) return null;
     const [{ data: tenant }, { data: versoes }, { data: pagina }] = await Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
