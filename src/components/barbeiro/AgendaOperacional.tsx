@@ -255,7 +255,7 @@ export function AgendaOperacional() {
                     {alergia ? <p className="mt-3 border-l-2 border-brick pl-3 text-xs font-semibold text-paper">{alergia}</p> : null}
                     <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <progress className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`} max={Math.max(item.duracaoMin, decorrido)} value={decorrido} aria-label={`${decorrido} de ${item.duracaoMin} minutos`} />
-                      <span className={`text-xs font-bold ${estourou ? "text-brick" : "text-gold"}`}>{decorrido} / {item.duracaoMin} min</span>
+                      <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>{decorrido} / {item.duracaoMin} min</span>
                     </div>
                   </article>
                 );

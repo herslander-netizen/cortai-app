@@ -178,7 +178,7 @@
 
 ## Agenda operacional mobile-first (25/09)
 
-- [ ] Redesenhar topo, AGORA, próximos, lista e estados vazios
-- [ ] Ligar seleção e botão de tesoura à máquina de estados com Desfazer
-- [ ] Integrar atraso, WhatsApp, falta, fila e fechamento atual
-- [ ] Validar o fluxo completo no celular e em tempo real
+- [x] Redesenhar topo, AGORA, próximos, lista e estados vazios
+- [x] Ligar seleção e botão de tesoura à máquina de estados com Desfazer
+- [x] Integrar atraso, WhatsApp, falta, fila e fechamento atual
+- [x] Validar o fluxo operacional no celular e preservar a sincronização em tempo real
