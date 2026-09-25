@@ -9,7 +9,7 @@ DECLARE
   u_dono uuid := gen_random_uuid(); u_ger uuid := gen_random_uuid();
   u_barb uuid := gen_random_uuid(); u_rec uuid := gen_random_uuid(); u_fora uuid := gen_random_uuid();
   p_meu uuid := gen_random_uuid(); p_col uuid := gen_random_uuid(); cli uuid := gen_random_uuid();
-  c1 uuid := gen_random_uuid(); c2 uuid := gen_random_uuid();
+  c1 uuid := gen_random_uuid(); c2 uuid := gen_random_uuid(); i1 uuid := gen_random_uuid(); i2 uuid := gen_random_uuid();
   falhas text[] := '{}'; total int := 0; n int; ok boolean;
 BEGIN
   -- Cenário
@@ -30,8 +30,10 @@ BEGIN
     (t,'entrada','servico','hoje meu',1000,u_dono,p_meu,now()),
     (t,'entrada','servico','hoje colega',2000,u_dono,p_col,now()),
     (t,'entrada','servico','anteontem colega',3000,u_dono,p_col,now() - interval '2 days');
+  INSERT INTO public.comanda_itens (id, comanda_id, tipo, descricao, quantidade, valor_unitario_centavos, valor_total_centavos, comissao_percentual, comissao_centavos) VALUES
+    (i1,c1,'servico','Corte',1,1000,1000,50,500), (i2,c2,'servico','Corte',1,2000,2000,50,1000);
   INSERT INTO public.comissoes (tenant_id, comanda_id, item_comanda_id, profissional_id, tipo_item, base_centavos, percentual, valor_centavos) VALUES
-    (t,c1,gen_random_uuid(),p_meu,'servico',1000,50,500), (t,c2,gen_random_uuid(),p_col,'servico',2000,50,1000);
+    (t,c1,i1,p_meu,'servico',1000,50,500), (t,c2,i2,p_col,'servico',2000,50,1000);
 
   CREATE TEMP TABLE IF NOT EXISTS rbac_casos (papel text, uid uuid, caixa int, comissoes int, comandas int,
     recebe bool, relatorios bool, financeiro bool, config bool, equipe bool, fiado bool, plano bool, excluir bool) ON COMMIT DROP;
