@@ -26,14 +26,23 @@ export function IconeCortai({ className = "h-12 w-12" }: { className?: string })
 }
 
 export function MarcaCortai({
-  variante = "escura",
+  variante = "automatica",
   className = "h-auto w-40",
   prioridade = false,
 }: {
-  variante?: keyof typeof marcas;
+  variante?: keyof typeof marcas | "automatica";
   className?: string;
   prioridade?: boolean;
 }) {
+  if (variante === "automatica") {
+    return (
+      <span className={`brand-logo-auto ${className}`} role="img" aria-label="Cortaí">
+        <img src={marcas.escura} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-dark h-full w-full object-contain" />
+        <img src={marcas.clara} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-light h-full w-full object-contain" />
+      </span>
+    );
+  }
+
   return (
     <img
       src={marcas[variante]}
