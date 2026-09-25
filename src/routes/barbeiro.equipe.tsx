@@ -305,7 +305,7 @@ function CartaoMembro({
             {ajusteFino ? "Esconder ajuste fino" : "Ajuste fino (opcional)"}
           </button>
 
-          {ajusteFino ?           <div className="space-y-3">
+          {ajusteFino ? (<div className="space-y-3">
             {MODULOS.map((modulo) => (
               <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
