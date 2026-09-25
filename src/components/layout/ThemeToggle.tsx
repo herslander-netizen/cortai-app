@@ -22,7 +22,7 @@ const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
   { id: "sistema", nome: "Sistema", icon: Monitor },
 ];
 
-export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string; podeAlterarIdentidade?: boolean }) {
+export function ThemeToggle({ identidadeDaBarbearia, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string | undefined; podeAlterarIdentidade?: boolean | undefined }) {
   const queryClient = useQueryClient();
   const salvarIdentidade = useServerFn(salvarIdentidadeApp);
   const [modo, setModo] = useState<Modo>("sistema");
