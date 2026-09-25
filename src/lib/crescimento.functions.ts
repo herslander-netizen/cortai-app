@@ -473,7 +473,7 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
       servico_id: ag.servico_id,
       inicio: inicio.toISOString(),
       fim: fim.toISOString(),
-      status: "confirmado",
+      status: "agendado",
       forma_pagamento: ag.forma_pagamento === "credito" ? "balcao" : ag.forma_pagamento,
       valor_centavos: ag.valor_centavos,
       recorrencia: data.periodicidade,
