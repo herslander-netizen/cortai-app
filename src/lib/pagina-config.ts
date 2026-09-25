@@ -29,7 +29,7 @@ export type FonteId = (typeof fonteIds)[number];
 
 export const TEMAS: Record<TemaId, { nome: string; descricao: string; cores: PaginaConfig["cores"] }> = {
   premium: { nome: "Premium", descricao: "Sofisticado e fotográfico", cores: { principal: "#C9A96A", secundaria: "#27231C", botao: "#C9A96A", fundo: "#111110", texto: "#F7F6F2", destaque: "#E7D1A4" } },
-  urbano: { nome: "Urbano", descricao: "Forte e contemporâneo", cores: { principal: "#F4F4F2", secundaria: "#262624", botao: "#D4AF6A", fundo: "#121212", texto: "#F7F6F2", destaque: "#D4AF6A" } },
+  urbano: { nome: "Urbano", descricao: "Forte e contemporâneo", cores: { principal: "#C9A96A", secundaria: "#262624", botao: "#C9A96A", fundo: "#121212", texto: "#F7F6F2", destaque: "#C9A96A" } },
   classico: { nome: "Clássico", descricao: "Tradição e elegância", cores: { principal: "#26483B", secundaria: "#71543C", botao: "#B38B57", fundo: "#F3EBDD", texto: "#1E3029", destaque: "#8A6747" } },
   clean: { nome: "Clean", descricao: "Claro, direto e objetivo", cores: { principal: "#181817", secundaria: "#E9E6DF", botao: "#181817", fundo: "#FCFBF8", texto: "#181817", destaque: "#72706B" } },
   dark: { nome: "Dark", descricao: "Alto contraste cinematográfico", cores: { principal: "#D9DDD8", secundaria: "#252827", botao: "#9BB5A2", fundo: "#0D0F0E", texto: "#F4F5F3", destaque: "#9BB5A2" } },

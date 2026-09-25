@@ -1024,7 +1024,7 @@ function Chave({
         checked={valor}
         disabled={desabilitado}
         onChange={(e) => aoMudar(e.target.checked)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--gold,#D4AF6A)]"
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--gold)]"
         aria-label={rotulo}
       />
     </li>
@@ -1386,7 +1386,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
               type="checkbox"
               checked={a.ativa}
               onChange={(e) => alternarAutomacao.mutate({ chave: a.chave, ativa: e.target.checked, mensagem: a.mensagem })}
-              className="h-4 w-4 accent-[var(--gold,#D4AF6A)]"
+              className="h-4 w-4 accent-[var(--gold)]"
               aria-label={AUTOMACOES[a.chave]}
             />
           </li>
