@@ -119,13 +119,18 @@ export async function enviarPelaBarbearia(input: {
   texto: string;
   porIa: boolean;
   autorUserId?: string | null;
+  /** Modelo com botões (API oficial). Se o canal não suportar, vai o texto. */
+  modelo?: import("./gateway.server").ModeloComBotoes | null;
 }) {
   const db = await admin();
   const { gatewayDeWhatsapp } = await import("./gateway.server");
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
-    const r = await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
+    const viaModelo = input.modelo
+      ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo)
+      : null;
+    const r = viaModelo ?? (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";

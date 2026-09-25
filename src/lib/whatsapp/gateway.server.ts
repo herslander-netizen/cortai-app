@@ -322,6 +322,29 @@ const meta = {
     const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
     return { id: (lista[0]?.["id"] as string) ?? null };
   },
+  /** Modelo aprovado com botões de resposta rápida (payload fixo por botão). */
+  async enviarTemplate(telefone: string, t: ModeloComBotoes) {
+    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+      messaging_product: "whatsapp",
+      to: telefone.replace(/\D/g, ""),
+      type: "template",
+      template: {
+        name: t.nome,
+        language: { code: t.idioma },
+        components: [
+          { type: "body", parameters: t.parametros.map((text) => ({ type: "text", text })) },
+          ...t.botoes.map((payload, index) => ({
+            type: "button",
+            sub_type: "quick_reply",
+            index: String(index),
+            parameters: [{ type: "payload", payload }],
+          })),
+        ],
+      },
+    });
+    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+    return { id: (lista[0]?.["id"] as string) ?? null };
+  },
   reiniciarSessao(): Promise<EstadoDaSessao> {
     return meta.consultarStatus();
   },
@@ -337,6 +360,8 @@ function provedor() {
   return config.provedor === "generico" ? generico : evolution;
 }
 
+export type ModeloComBotoes = { nome: string; idioma: string; parametros: string[]; botoes: string[] };
+
 /** Interface única do provedor. Trocar de serviço é reimplementar isto. */
 export const gatewayDeWhatsapp = {
   criarSessao: (sessaoId: string, webhookUrl: string) => provedor().criarSessao(sessaoId, webhookUrl),
@@ -344,6 +369,9 @@ export const gatewayDeWhatsapp = {
   consultarStatus: (sessaoId: string) => provedor().consultarStatus(sessaoId),
   enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
     provedor().enviarMensagem(sessaoId, telefone, texto),
+  /** Só a API oficial garante botões; nos demais provedores devolve null. */
+  enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
+    lerConfig()?.provedor === "meta" ? meta.enviarTemplate(telefone, t) : Promise.resolve(null),
   reiniciarSessao: (sessaoId: string) => provedor().reiniciarSessao(sessaoId),
   desconectar: (sessaoId: string) => provedor().desconectar(sessaoId),
 };
