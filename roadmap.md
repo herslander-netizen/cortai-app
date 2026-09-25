@@ -229,4 +229,4 @@
 - [x] Consolidar a tesoura flutuante e o menu curto da Agenda
 - [x] Unificar o acesso ao novo agendamento
 - [x] Adicionar testes enxutos de Button e Status
-- [ ] Revisar barbeiro, recepção e dono em 375 px e desktop
+- [x] Revisar barbeiro, recepção e dono em 375 px e desktop
