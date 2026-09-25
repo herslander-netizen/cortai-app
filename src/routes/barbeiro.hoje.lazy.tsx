@@ -28,13 +28,13 @@ function CabecalhoHoje() {
   return (
     <header className="agenda-cabecalho-compacto">
       <div className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-2">
-        <Button asChild variant="ghost" size="icon"><Link to="/barbeiro" aria-label="Voltar para a Agenda"><ChevronLeft /></Link></Button>
+        <Button asChild variant="ghost" size="icon" aria-label="Voltar para a Agenda"><Link to="/barbeiro"><ChevronLeft /></Link></Button>
         <div className="min-w-0">
           <h1 className="truncate text-sm font-bold text-paper">Hoje</h1>
           <p className="truncate text-xs font-semibold text-mute">{dataDeHoje()}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button asChild variant="ghost" size="icon"><Link to="/barbeiro/casa" aria-label="Abrir Visão Casa"><Armchair /></Link></Button>
+          <Button asChild variant="ghost" size="icon" aria-label="Abrir Visão Casa"><Link to="/barbeiro/casa"><Armchair /></Link></Button>
           <BotaoAjuda />
         </div>
       </div>
