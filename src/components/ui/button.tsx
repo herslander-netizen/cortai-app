@@ -74,9 +74,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const busy = pending || loading;
-    const Comp = asChild ? Slot : "button";
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={setRefs}
+          aria-busy={busy || undefined}
+          onClick={handleClick}
+          style={width.current && busy ? { ...style, minWidth: width.current } : style}
+          {...props}
+        >
+          {children}
+        </Slot>
+      );
+    }
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={setRefs}
         disabled={disabled || busy}
@@ -85,10 +98,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         style={width.current && busy ? { ...style, minWidth: width.current } : style}
         {...props}
       >
-        {!asChild && showSpinner ? <Loader2 className="animate-spin" aria-hidden /> : null}
-        {!asChild && success ? <Check aria-hidden /> : null}
+        {showSpinner ? <Loader2 className="animate-spin" aria-hidden /> : null}
+        {success ? <Check aria-hidden /> : null}
         {children}
-      </Comp>
+      </button>
     );
   },
 );
