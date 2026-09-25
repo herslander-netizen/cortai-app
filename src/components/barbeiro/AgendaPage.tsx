@@ -58,6 +58,14 @@ export default function AgendaPage() {
   const [aviso, setAviso] = useState<{ tom: TomDeAviso; texto: string } | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
 
+  const ehHoje = dia === new Date().toISOString().slice(0, 10);
+  // Consulta enxuta: só quem está na cadeira e o próximo. Chega antes do dia inteiro.
+  const { data: rapido } = useQuery({
+    queryKey: ["agenda-agora-proximo"],
+    queryFn: () => getAgoraProximo(),
+    enabled: ehHoje,
+    staleTime: 30_000,
+  });
   const { data, isLoading, refetch } = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
     queryFn: () => getAgendaDia({ data: { dia } }),
@@ -73,8 +81,10 @@ export default function AgendaPage() {
     [dia, data?.horarios],
   );
   const resumo = useMemo(() => {
+    // Enquanto o dia inteiro não chega, "Agora" e "Próximo" vêm da consulta enxuta.
+    if (!data) return { atual: rapido?.atual ?? null, proximo: rapido?.proximo ?? null, livres: 0 };
     const agora = Date.now();
-    const itens = [...(data?.itens ?? [])].sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
+    const itens = [...data.itens].sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
     const atual = itens.find((item) => new Date(item.inicio).getTime() <= agora && new Date(item.fim).getTime() > agora) ?? null;
     const proximo = itens.find((item) => new Date(item.inicio).getTime() > agora) ?? null;
     const livres = lista.filter((slot) => {
@@ -82,7 +92,7 @@ export default function AgendaPage() {
       return instante >= agora && !itens.some((item) => instante >= new Date(item.inicio).getTime() && instante < new Date(item.fim).getTime());
     }).length;
     return { atual, proximo, livres };
-  }, [data?.itens, lista]);
+  }, [data, rapido, lista]);
 
   // A agenda abre rolada até o próximo atendimento (ou até a abertura), nunca na madrugada.
   const jaRolou = useRef<string | null>(null);
@@ -110,7 +120,7 @@ export default function AgendaPage() {
 
   return (
     <Screen title="Agenda de hoje" subtitle="Quem está atendendo, quem vem depois e onde ainda cabe alguém.">
-      {!isLoading && data ? (
+      {data || rapido ? (
         <section className="mb-5 border-y border-line" aria-label="Situação da agenda">
           <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 border-b border-line py-3">
             <span className="text-xs font-semibold uppercase text-mute2">Agora</span>
