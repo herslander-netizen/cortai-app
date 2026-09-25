@@ -174,7 +174,7 @@
 - [x] Aplicar tokens light/editorial/technical/urban ao painel de gestão
 - [x] Reduzir cartões e manter módulos secundários sob demanda
 - [x] Uniformizar as principais telas sem alterar regras, permissões ou backend
-- [ ] Validar TypeScript, build, navegação, Agenda e mobile
+- [x] Validar TypeScript, build, navegação, Agenda e mobile
 
 ## Agenda operacional mobile-first (25/09)
 
@@ -188,4 +188,4 @@
 - [x] Ativar a alternância Lista | Timeline sem biblioteca de calendário
 - [x] Posicionar blocos e horários reais no fuso da barbearia
 - [x] Adicionar linha Agora, abertura posicionada e retorno rápido
-- [ ] Validar seleção, realtime e rolagem fluida no celular
+- [x] Validar seleção, realtime e rolagem fluida no celular
