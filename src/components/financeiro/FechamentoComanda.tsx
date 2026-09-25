@@ -4,6 +4,7 @@ import { Banknote, CalendarPlus, Check, Copy, CreditCard, Minus, Plus, QrCode, S
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl, hora } from "@/lib/format";
 import {
   criarRetorno, enviarParaRecepcao, getFechamentoComanda, getSugestaoRetorno, identificarClienteAvulso, pagarComanda, pagarComPlano, salvarComanda,
@@ -97,6 +98,7 @@ export function FechamentoComanda({ agendamentoId, onFechar, onConcluido }: { ag
     {d && etapa === "pix" ? <div className="py-3"><h3 className="text-lg font-bold text-paper">Aguardando Pix</h3><p className="mt-1 text-sm text-mute">Confirme depois de conferir o recebimento.</p><div className="mt-5 border-y border-line py-4"><p className="text-xs text-mute">Valor</p><p className="mt-1 text-2xl font-bold text-paper">{brl(total)}</p><p className="mt-3 break-all text-sm text-paper">{d.config?.pix_chave}</p></div><div className="mt-4 grid gap-2"><Button variant="outline" onClick={async () => { await navigator.clipboard.writeText(d.config?.pix_chave ?? ""); setCopiado(true); }}><Copy />{copiado ? "Chave copiada" : "Copiar chave Pix"}</Button>{d.config?.pix_whatsapp ? <Button variant="outline" asChild><a href={`https://wa.me/${d.config.pix_whatsapp}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer">Enviar comprovante pelo WhatsApp</a></Button> : null}<Button size="lg" className="h-14" disabled={Boolean(ocupado)} onClick={() => void confirmarPix()}><Check />{ocupado === "confirmar" ? "Confirmando…" : "Pix recebido"}</Button></div></div> : null}
 
     {etapa === "retorno" && retorno ? <div className="py-3"><p className="flex items-center gap-2 text-sm font-semibold text-paper"><span className="flex size-7 items-center justify-center rounded-full bg-sage text-ink"><Check aria-hidden className="size-4" /></span>Pagamento registrado</p>
+      {d?.comanda.cliente_id && d.comanda.clientes?.telefone !== "avulso" ? <div className="mt-5 border-y border-line py-3"><FotoDoCorte clienteId={d.comanda.cliente_id} agendamentoId={d.comanda.agendamento_id} /></div> : null}
       {retornoFeito ? <p className="mt-6 text-center text-sm font-semibold text-paper">Retorno marcado.</p> : <>
         <p className="mt-6 text-lg font-bold text-paper">Marcar retorno: {dataRetorno(retorno.inicio, retorno.fuso)}?</p>
         <div className="mt-4 grid gap-2"><Button size="lg" className="h-14" disabled={Boolean(ocupado)} onClick={() => void marcarRetorno()}><CalendarPlus aria-hidden />{ocupado === "retorno" ? "Marcando…" : "Marcar retorno"}</Button><Button variant="ghost" className="h-12" onClick={onConcluido}>Agora não</Button></div>

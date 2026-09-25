@@ -136,6 +136,7 @@ export function AgendaOperacional() {
   const [manualAberto, setManualAberto] = useState<"agendamento" | null>(acaoInicial && acaoInicial !== "atendimento" ? "agendamento" : null);
   const [rapidoAberto, setRapidoAberto] = useState(acaoInicial === "atendimento");
   const [sugestaoFila, setSugestaoFila] = useState(false);
+  const [perfil, setPerfil] = useState<string | null>(null);
   const [profChamada, setProfChamada] = useState<string | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
@@ -473,6 +474,7 @@ export function AgendaOperacional() {
       </div>
 
       <div className="agenda-acao-fixa">
+        {itemSelecionado?.clienteId ? <Button variant="outline" className="mb-2 h-12 w-full" onClick={() => setPerfil(itemSelecionado.clienteId!)}>Ver ficha de {itemSelecionado.cliente}</Button> : null}
         <Button size="lg" className="h-14 w-full text-base" disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))} onClick={acaoPrincipal}>
           <Scissors />
           {!itemSelecionado ? "Ações da agenda" : itemSelecionado.status === "na_cadeira" ? `Finalizar ${itemSelecionado.cliente}` : `Iniciar ${itemSelecionado.cliente}`}
@@ -496,6 +498,7 @@ export function AgendaOperacional() {
       </AlertDialog>
 
       {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /></Suspense> : null}
+      {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /></Suspense> : null}
     </Screen>
   );
 }
