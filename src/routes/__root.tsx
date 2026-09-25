@@ -140,30 +140,6 @@ function RootComponent() {
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
 
-  // Após uma nova versão, partes antigas do app deixam de existir e a tela ficava em branco.
-  // Recarrega uma única vez para buscar a versão nova.
-  useEffect(() => {
-    const CHAVE = "cortai-recarregou-versao";
-    const recarregar = (evento?: Event) => {
-      if (sessionStorage.getItem(CHAVE)) return;
-      evento?.preventDefault();
-      sessionStorage.setItem(CHAVE, "1");
-      window.location.reload();
-    };
-    const aoRejeitar = (evento: PromiseRejectionEvent) => {
-      const msg = String((evento.reason as Error | undefined)?.message ?? evento.reason ?? "");
-      if (/dynamically imported module|Importing a module script failed|Failed to fetch/i.test(msg)) recarregar(evento);
-    };
-    const limpar = window.setTimeout(() => sessionStorage.removeItem(CHAVE), 10000);
-    window.addEventListener("vite:preloadError", recarregar);
-    window.addEventListener("unhandledrejection", aoRejeitar);
-    return () => {
-      window.clearTimeout(limpar);
-      window.removeEventListener("vite:preloadError", recarregar);
-      window.removeEventListener("unhandledrejection", aoRejeitar);
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
