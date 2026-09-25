@@ -230,7 +230,12 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
     if (!marcado) throw new Error("Esse cliente já foi chamado em outro aparelho.");
 
     try {
-      const agendamentoId = await abrirNaCadeira(db, tenantId, context.userId, item.cliente_id, profissionalId, item.servico_id);
+      let servicoId = item.servico_id;
+      if (!servicoId) {
+        const { data: s } = await db.from("servicos").select("id").eq("tenant_id", tenantId).eq("ativo", true).order("ordem").limit(1).maybeSingle();
+        servicoId = s?.id ?? null;
+      }
+      const agendamentoId = await abrirNaCadeira(db, tenantId, context.userId, item.cliente_id, profissionalId, servicoId);
       return { agendamentoId, filaId: item.id, statusAnterior: item.status, cliente: item.clientes?.nome ?? "Cliente" };
     } catch (e) {
       await db.from("fila_de_espera").update({ status: item.status }).eq("id", item.id);
