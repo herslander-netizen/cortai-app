@@ -106,7 +106,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, confirmado_em, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -142,6 +142,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         arrivedAt: a.arrived_at ?? null,
         startedAt: a.started_at ?? null,
         finishedAt: a.finished_at ?? null,
+        confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
       }));
 
     const fila = (filaRes.data ?? []).map((f) => {
@@ -196,7 +197,7 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
     const agora = new Date();
     const { data } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status, cliente_id, arrived_at, started_at, finished_at, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)")
+      .select("id, inicio, fim, status, cliente_id, arrived_at, started_at, finished_at, confirmado_em, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)")
       .eq("tenant_id", tenant.id)
       .not("status", "in", "(cancelado,nao_compareceu,remarcado,finalizado)")
       .gt("fim", agora.toISOString())
