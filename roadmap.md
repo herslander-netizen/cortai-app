@@ -194,3 +194,10 @@
 
 - [x] Perfil do cliente em folha (ficha de corte, alergias, foto com consentimento, histórico)
 - [ ] Validar perfil/foto na tela com conta de barbeiro
+
+## WhatsApp — gatilhos de lembrete (Prompt 9)
+- [x] Lembrete com Confirmar / Remarcar / Cancelar (botão na API oficial, número nos demais)
+- [x] "Cheguei" no lembrete do dia (30 min antes a 15 min depois)
+- [x] Cancelar libera horário e avisa a lista de espera
+- [x] Lembrete de retorno com consentimento e SAIR
+- [ ] Teste ponta a ponta com WhatsApp real (depende de número conectado e modelos aprovados na Meta)
