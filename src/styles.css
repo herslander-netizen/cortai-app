@@ -1038,3 +1038,9 @@ html.light {
   .brand-cta, .brand-secondary-action { transition: none; }
   .brand-cta:hover, .brand-secondary-action:hover { transform: none; }
 }
+
+/* Atendimento manual e fila de chegada */
+.agenda-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 14px; border: 0.5px solid var(--line); border-radius: 999px; background: var(--ink2); color: var(--paper); font-size: 13px; font-weight: 600; transition: background-color 150ms ease, border-color 150ms ease; }
+.agenda-chip:active { transform: scale(0.98); }
+.agenda-chip-ativo { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+.agenda-sugestao-fila { border-left: 2px solid var(--sage, #8FA882); padding: 10px 12px; background: var(--ink3); border-radius: 0 8px 8px 0; }
