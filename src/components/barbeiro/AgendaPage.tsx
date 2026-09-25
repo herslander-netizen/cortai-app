@@ -60,12 +60,13 @@ export default function AgendaPage() {
 
   const ehHoje = dia === new Date().toISOString().slice(0, 10);
   // Consulta enxuta: só quem está na cadeira e o próximo. Chega antes do dia inteiro.
-  const { data: rapido } = useQuery({
+  const { data: rapidoDados } = useQuery({
     queryKey: ["agenda-agora-proximo"],
     queryFn: () => getAgoraProximo(),
     enabled: ehHoje,
     staleTime: 30_000,
   });
+  const rapido = ehHoje ? rapidoDados : undefined;
   const { data, isLoading, refetch } = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
     queryFn: () => getAgendaDia({ data: { dia } }),
