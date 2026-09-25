@@ -40,10 +40,14 @@ import {
   type AgendaItem,
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
+import { chamarProximoDaFila, desfazerInicioRapido, getOperacaoFila } from "@/lib/atendimento.functions";
 import { hojeNoFuso } from "@/lib/horarios";
 
 const AgendamentoManualLazy = lazy(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
+);
+const AtendimentoRapidoLazy = lazy(() =>
+  import("@/components/barbeiro/AtendimentoRapido").then((m) => ({ default: m.AtendimentoRapido })),
 );
 const FechamentoComandaLazy = lazy(() =>
   import("@/components/financeiro/FechamentoComanda").then((m) => ({ default: m.FechamentoComanda })),
@@ -121,7 +125,10 @@ export function AgendaOperacional() {
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [estadosLocais, setEstadosLocais] = useState<Record<string, string>>({});
   const [menuAberto, setMenuAberto] = useState(false);
-  const [manualAberto, setManualAberto] = useState<"agendamento" | "atendimento" | null>(acaoInicial === "atendimento" ? "atendimento" : acaoInicial ? "agendamento" : null);
+  const [manualAberto, setManualAberto] = useState<"agendamento" | null>(acaoInicial && acaoInicial !== "atendimento" ? "agendamento" : null);
+  const [rapidoAberto, setRapidoAberto] = useState(acaoInicial === "atendimento");
+  const [sugestaoFila, setSugestaoFila] = useState(false);
+  const [profChamada, setProfChamada] = useState<string | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
@@ -145,6 +152,12 @@ export function AgendaOperacional() {
     refetchInterval: 60_000,
   });
 
+  const filaQ = useQuery({ queryKey: ["agenda-fila"], queryFn: () => getOperacaoFila(), staleTime: 30_000, refetchOnWindowFocus: true });
+  const chegada = filaQ.data?.chegada ?? [];
+  const souRecepcao = Boolean(filaQ.data && !filaQ.data.meuProfissionalId);
+  const profPadrao = filaQ.data?.profissionais.find((p) => p.livre)?.id ?? filaQ.data?.profissionais[0]?.id ?? null;
+  const profEscolhido = profChamada ?? profPadrao;
+
   const tenantId = agenda.data?.tenant.id;
   useEffect(() => {
     if (agenda.data?.fuso && agenda.data.fuso !== fuso) setFuso(agenda.data.fuso);
@@ -165,10 +178,14 @@ export function AgendaOperacional() {
   useEffect(() => {
     if (!tenantId) return;
     const canal = supabase
-      .channel(`agenda-${tenantId}`)
+      .channel(`agenda-${tenantId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "agendamentos", filter: `tenant_id=eq.${tenantId}` }, () => {
         void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
         void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
+        void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "fila_de_espera", filter: `tenant_id=eq.${tenantId}` }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
       })
       .subscribe();
     return () => { void supabase.removeChannel(canal); };
@@ -187,7 +204,36 @@ export function AgendaOperacional() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
       queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] }),
+      queryClient.invalidateQueries({ queryKey: ["agenda-fila"] }),
     ]);
+  }
+
+  function oferecerDesfazerInicio(r: { agendamentoId: string; cliente: string; filaId?: string; statusAnterior?: string }) {
+    comDesfazer(`${r.cliente}: Na cadeira.`, async () => {
+      try {
+        await desfazerInicioRapido({ data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null, statusAnterior: r.statusAnterior ?? null } });
+      } catch {
+        aviso.erro("Não foi possível desfazer.");
+      }
+      await sincronizar();
+    });
+  }
+
+  async function chamarFila(filaId?: string) {
+    setMenuAberto(false);
+    setSugestaoFila(false);
+    setOcupado(true);
+    try {
+      const r = await chamarProximoDaFila({ data: { profissionalId: souRecepcao ? profEscolhido : null, filaId: filaId ?? null } });
+      setDia(hojeNoFuso(fuso));
+      await sincronizar();
+      oferecerDesfazerInicio(r);
+    } catch (e) {
+      aviso.erro(e instanceof Error ? e.message : "Não foi possível chamar a fila.");
+      await sincronizar();
+    } finally {
+      setOcupado(false);
+    }
   }
 
   async function transicionar(item: AgendaItem, novo: EstadoAtendimento, oferecerUndo = true) {
@@ -198,6 +244,7 @@ export function AgendaOperacional() {
       await mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
       await sincronizar();
       setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0) setSugestaoFila(true);
       if (oferecerUndo) {
         comDesfazer(`${item.cliente}: ${ESTADO[novo]?.rotulo ?? novo}.`, async () => {
           setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
@@ -301,6 +348,37 @@ export function AgendaOperacional() {
           </section>
         ) : null}
 
+        {chegada.length > 0 ? (
+          <section aria-labelledby="fila-titulo" className="mb-6">
+            <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <p id="fila-titulo" className="text-[11px] font-bold uppercase text-mute">Fila · {chegada.length}</p>
+              <Button size="sm" variant="outline" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo</Button>
+            </div>
+            {sugestaoFila ? (
+              <div className="agenda-sugestao-fila mb-2">
+                <p className="text-sm font-semibold text-paper">Horário liberado. Chamar {chegada[0]?.cliente} da fila?</p>
+                <div className="mt-2 flex gap-2"><Button size="sm" disabled={ocupado} onClick={() => void chamarFila()}>Chamar próximo da fila</Button><Button size="sm" variant="ghost" onClick={() => setSugestaoFila(false)}>Agora não</Button></div>
+              </div>
+            ) : null}
+            {souRecepcao && filaQ.data ? (
+              <div className="mb-2 flex flex-wrap gap-2" aria-label="Profissional que vai atender">
+                {filaQ.data.profissionais.map((p) => (
+                  <button key={p.id} type="button" className={`agenda-chip ${profEscolhido === p.id ? "agenda-chip-ativo" : ""}`} onClick={() => setProfChamada(p.id)}>{p.nome}{p.livre ? " · livre" : ""}</button>
+                ))}
+              </div>
+            ) : null}
+            <ol className="divide-y divide-line border-y border-line">
+              {chegada.map((f, i) => (
+                <li key={f.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-3">
+                  <span className="text-sm font-extrabold text-mute">{i + 1}</span>
+                  <div className="min-w-0"><p className="truncate text-sm font-bold text-paper">{f.cliente}</p><p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p></div>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-mute"><Clock3 aria-hidden size={13} />{minutos(f.criadoEm, agora)} min</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1" role="tablist" aria-label="Visualização da agenda">
           <Button role="tab" aria-selected={visualizacao === "lista"} variant={visualizacao === "lista" ? "secondary" : "ghost"} size="sm" className={visualizacao === "lista" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("lista")}>Lista</Button>
           <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : ""} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
@@ -353,9 +431,11 @@ export function AgendaOperacional() {
         </Button>
       </div>
 
-      {menuAberto ? <div className="agenda-folha" role="dialog" aria-modal="true" aria-label="Ações da agenda" onClick={() => setMenuAberto(false)}><div className="agenda-folha-conteudo" onClick={(e) => e.stopPropagation()}><div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="text-lg font-extrabold text-paper">Ações da agenda</h2><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setMenuAberto(false)}><X /></Button></div><div className="grid gap-2"><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("atendimento"); }}><Scissors />Atendimento manual</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/fila"><UserRoundPlus />Chamar próximo da fila</Link></Button><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button></div></div></div> : null}
+      {menuAberto ? <div className="agenda-folha" role="dialog" aria-modal="true" aria-label="Ações da agenda" onClick={() => setMenuAberto(false)}><div className="agenda-folha-conteudo" onClick={(e) => e.stopPropagation()}><div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="text-lg font-extrabold text-paper">Ações da agenda</h2><Button variant="ghost" size="icon" aria-label="Fechar" onClick={() => setMenuAberto(false)}><X /></Button></div><div className="grid gap-2"><Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setRapidoAberto(true); }}><Scissors />Atendimento manual</Button>{chegada.length > 0 ? <Button variant="outline" className="h-12 justify-start" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo da fila · {chegada.length}</Button> : <Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/fila"><UserRoundPlus />Chamar próximo da fila</Link></Button>}<Button variant="outline" className="h-12 justify-start" onClick={() => { setMenuAberto(false); setManualAberto("agendamento"); }}><CalendarPlus />Novo agendamento</Button><Button asChild variant="outline" className="h-12 justify-start"><Link to="/barbeiro/horarios"><Clock3 />Bloquear horário</Link></Button></div></div></div> : null}
 
-      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo={manualAberto === "atendimento" ? "Atendimento manual" : "Novo agendamento"} onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
+      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
+
+      {rapidoAberto ? <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}><AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /></Suspense> : null}
 
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => { if (!aberto) setConflito(null); }}>
         <AlertDialogContent>
