@@ -24,6 +24,8 @@ type AgendaTimelineProps = {
 
 const PX_POR_MINUTO = 1.6;
 const MARGEM_AGORA_MIN = 90;
+const ALTURA_MINIMA_BLOCO = 72;
+const ESPACO_ENTRE_BLOCOS = 6;
 
 function minutosDoHorario(valor: string) {
   const [hora = 0, minuto = 0] = valor.split(":").map(Number);
@@ -87,8 +89,9 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     return resultado;
   }, [escala.fim, escala.inicio]);
 
-  const posicoes = useMemo(() => {
-    const resultado = new Map<string, { inicio: number; fim: number; raia: number; raias: number }>();
+  const layout = useMemo(() => {
+    const resultado = new Map<string, { inicio: number; fim: number; topo: number; altura: number }>();
+    const acrescimos: Array<{ depoisDe: number; pixels: number }> = [];
     const ordenados = itens
       .map((item) => {
         const inicio = minutosNoFuso(item.inicio, fuso);
@@ -97,16 +100,26 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       .sort((a, b) => a.inicio - b.inicio);
     let grupo: typeof ordenados = [];
     let fimDoGrupo = -1;
+    let pixelsAcrescidos = 0;
     const distribuir = () => {
-      const finsDasRaias: number[] = [];
-      const temporarios = grupo.map((evento) => {
-        let raia = finsDasRaias.findIndex((fim) => fim <= evento.inicio);
-        if (raia < 0) raia = finsDasRaias.length;
-        finsDasRaias[raia] = evento.fim;
-        return { ...evento, raia };
+      const inicioGrupo = Math.min(...grupo.map((evento) => evento.inicio));
+      const fimGrupo = Math.max(...grupo.map((evento) => evento.fim));
+      const topoNatural = (inicioGrupo - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
+      let cursor = topoNatural;
+
+      grupo.forEach((evento) => {
+        const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+        resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo: cursor, altura });
+        cursor += altura + ESPACO_ENTRE_BLOCOS;
       });
-      const raias = Math.max(1, finsDasRaias.length);
-      temporarios.forEach((evento) => resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, raia: evento.raia, raias }));
+
+      const alturaNatural = (fimGrupo - inicioGrupo) * PX_POR_MINUTO;
+      const alturaEmpilhada = cursor - topoNatural - ESPACO_ENTRE_BLOCOS;
+      const extra = Math.max(0, alturaEmpilhada - alturaNatural);
+      if (extra > 0) {
+        pixelsAcrescidos += extra;
+        acrescimos.push({ depoisDe: fimGrupo, pixels: extra });
+      }
     };
     ordenados.forEach((evento) => {
       if (grupo.length > 0 && evento.inicio >= fimDoGrupo) {
@@ -118,13 +131,12 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       fimDoGrupo = Math.max(fimDoGrupo, evento.fim);
     });
     if (grupo.length > 0) distribuir();
-    return resultado;
-  }, [fuso, itens]);
+    return { posicoes: resultado, acrescimos, pixelsAcrescidos };
+  }, [escala.inicio, fuso, itens]);
 
-  const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO;
-  const posicaoAgora = (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO;
-  const maiorNumeroDeRaias = Math.max(1, ...Array.from(posicoes.values(), (posicao) => posicao.raias));
-  const larguraMinima = maiorNumeroDeRaias > 2 ? maiorNumeroDeRaias * 168 : 0;
+  const deslocamentoAte = (minuto: number) => layout.acrescimos.reduce((total, item) => total + (item.depoisDe <= minuto ? item.pixels : 0), 0);
+  const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;
+  const posicaoAgora = (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
@@ -162,21 +174,19 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
         </Button>
       ) : null}
       <div ref={rolagemRef} className="agenda-timeline-scroll" aria-label="Timeline de atendimentos" onScroll={acompanharAgora}>
-        <div className="agenda-timeline" style={{ height: `${altura}px`, minWidth: larguraMinima ? `${larguraMinima}px` : undefined }}>
+        <div className="agenda-timeline" style={{ height: `${altura}px` }}>
           {marcas.map((minuto) => (
-            <div key={minuto} className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`} style={{ top: `${(minuto - escala.inicio) * PX_POR_MINUTO}px` }}>
+            <div key={minuto} className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`} style={{ top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px` }}>
               <span>{minuto % 60 === 0 ? horaMinuto(minuto) : ""}</span>
             </div>
           ))}
 
           {itens.map((item) => {
-            const posicao = posicoes.get(item.id);
+            const posicao = layout.posicoes.get(item.id);
             const inicio = posicao?.inicio ?? minutosNoFuso(item.inicio, fuso);
             const fim = minutosNoFuso(item.fim, fuso);
-            const topo = (inicio - escala.inicio) * PX_POR_MINUTO;
-            const blocoAltura = Math.max(48, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4);
-            const raias = posicao?.raias ?? 1;
-            const raia = posicao?.raia ?? 0;
+            const topo = posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
+            const blocoAltura = posicao?.altura ?? Math.max(ALTURA_MINIMA_BLOCO, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4);
             const reais = [
               horaReal(item.arrivedAt, fuso) ? `Chegou ${horaReal(item.arrivedAt, fuso)}` : null,
               horaReal(item.startedAt, fuso) ? `Começou ${horaReal(item.startedAt, fuso)}` : null,
@@ -188,7 +198,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
                 type="button"
                 variant="ghost"
                 className={`agenda-timeline-bloco agenda-timeline-${item.status} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""}`}
-                style={{ top: `${topo}px`, left: `calc(${(raia / raias) * 100}% + 8px)`, width: `calc(${100 / raias}% - 12px)`, minHeight: `${blocoAltura}px` }}
+                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px` }}
                 aria-pressed={selecionado === item.id}
                 onClick={() => onSelecionar(item.id)}
               >
