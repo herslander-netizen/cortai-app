@@ -1,5 +1,7 @@
 import {
+  Armchair,
   Banknote,
+  Gauge,
   BarChart3,
   Bot,
   Megaphone,
@@ -17,6 +19,8 @@ import {
 import type { ChaveDePermissao } from "@/lib/permissoes";
 
 export const MODULOS_DE_NAVEGACAO = [
+  { grupo: "Gestão", to: "/barbeiro/hoje", label: "Hoje", detail: "O dia da barbearia em cinco números", icon: Gauge, permissao: "relatorios" },
+  { grupo: "Operação", to: "/barbeiro/casa", label: "Visão Casa", detail: "Todas as cadeiras, fila e caixa ao vivo", icon: Armchair, permissao: "confirmar_pagamento" },
   { grupo: "Operação", to: "/barbeiro/agendamentos", label: "Agendamentos confirmados", detail: "Nome, WhatsApp e horário de cada cliente", icon: Clock3, permissao: "visualizar_clientes" },
   { grupo: "Operação", to: "/barbeiro/caixa", label: "Caixa", detail: "Entradas, saídas e fiado em aberto", icon: Banknote, permissao: "visualizar_financeiro" },
   { grupo: "Gestão", to: "/barbeiro/comissoes", label: "Comissões", detail: "Gerada, paga e pendente por profissional", icon: Banknote, permissao: "visualizar_financeiro" },
