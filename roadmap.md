@@ -189,3 +189,5 @@
 - [x] Posicionar blocos e horários reais no fuso da barbearia
 - [x] Adicionar linha Agora, abertura posicionada e retorno rápido
 - [x] Validar seleção, realtime e rolagem fluida no celular
+
+- [x] Prompt 7: finalizar → comanda → pagamento (plano/Pix/Cartão/Dinheiro/fiado), recepção, retorno, Meu dia
