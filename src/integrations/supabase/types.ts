@@ -152,6 +152,7 @@ export type Database = {
           arrived_inferido: boolean
           cancelado_em: string | null
           cliente_id: string
+          confirmado_em: string | null
           criado_em: string
           fim: string
           finished_at: string | null
@@ -178,6 +179,7 @@ export type Database = {
           arrived_inferido?: boolean
           cancelado_em?: string | null
           cliente_id: string
+          confirmado_em?: string | null
           criado_em?: string
           fim: string
           finished_at?: string | null
@@ -204,6 +206,7 @@ export type Database = {
           arrived_inferido?: boolean
           cancelado_em?: string | null
           cliente_id?: string
+          confirmado_em?: string | null
           criado_em?: string
           fim?: string
           finished_at?: string | null
@@ -3666,6 +3669,7 @@ export type Database = {
         Args: { _carteira_id: string }
         Returns: boolean
       }
+      checkin_whatsapp: { Args: { _agendamento_id: string }; Returns: Json }
       configuracao_visual_global: {
         Args: never
         Returns: {
@@ -3697,6 +3701,10 @@ export type Database = {
           _forma: string
           _somente_preparar_pix?: boolean
         }
+        Returns: Json
+      }
+      confirmar_presenca_whatsapp: {
+        Args: { _agendamento_id: string }
         Returns: Json
       }
       contato_da_plataforma: {
