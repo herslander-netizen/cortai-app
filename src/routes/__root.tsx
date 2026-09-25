@@ -85,7 +85,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#111110" },
+      { name: "theme-color", content: "#1E2221" },
 
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Cortaí" },
@@ -117,7 +117,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.getItem("cortai-tema")==="claro")document.documentElement.classList.add("light")}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo")||localStorage.getItem("cortai-tema")||"sistema",i=localStorage.getItem("cortai-identidade")||"moderno",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade=i;d.classList.toggle("light",l);d.classList.toggle("dark",!l)}catch{}` }} />
       </head>
       <body>
         {children}

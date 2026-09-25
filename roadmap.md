@@ -21,6 +21,14 @@
 - [ ] Validar tipagem, testes relevantes e build
 - [ ] Validar explicitamente dark/light e mobile/desktop antes da entrega
 
+## Interface V3.0
+
+- [x] Separar identidades Moderno, Blue, Indigo, Copper e Clássico dos modos Claro, Escuro e Sistema
+- [x] Tornar Moderno a identidade padrão e manter Clássico como opção preta e dourada
+- [x] Unificar tokens, Manrope, contraste, alvos de toque e ícones Lucide
+- [x] Adicionar controles de aparência nas telas de Conta
+- [x] Validar visualmente identidades e modos no celular e no desktop
+
 ## Assistente Cortaí e configuração inicial (aprovado)
 
 - [ ] Banco: horários, onboarding, conversas de IA e fila pública
