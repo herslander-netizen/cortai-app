@@ -67,7 +67,8 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
     for (const c of comandasRes.data ?? []) if (c.agendamento_id) pagoPorAg.set(c.agendamento_id, c.total_centavos ?? 0);
 
     const agora = Date.now();
-    const historico = (agRes.data ?? []).map((a: any) => ({
+    type H = { id: string; inicio: string; servico: string; profissional: string; status: string; valorCentavos: number };
+    const historico: H[] = (agRes.data ?? []).map((a: any) => ({
       id: a.id,
       inicio: a.inicio,
       servico: a.servicos?.nome ?? "Serviço",
