@@ -40,6 +40,14 @@ import {
 
 export const Route = createFileRoute("/barbeiro/cortai")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    aba:
+      search["aba"] === "conversas" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
+        ? search["aba"]
+        : undefined,
+    conversa: typeof search["conversa"] === "string" ? search["conversa"] : undefined,
+    cliente: typeof search["cliente"] === "string" ? search["cliente"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "CortAI no WhatsApp — Cortaí Gestão" },
