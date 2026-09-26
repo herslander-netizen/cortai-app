@@ -542,6 +542,43 @@ export const buscarConversaDoCliente = createServerFn({ method: "GET" })
     return { conversaId: conversa?.id ?? null };
   });
 
+export type AtendenteDaBarbearia = {
+  userId: string;
+  nome: string;
+  papel: string;
+};
+
+/** Equipe que pode atender conversas, para o painel de atendentes. */
+export const listarAtendentes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ euSouId: string; atendentes: AtendenteDaBarbearia[] }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const { data: membros, error } = await db
+      .from("tenant_usuarios")
+      .select("user_id, papel")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true);
+    if (error) {
+      console.error("[whatsapp] listarAtendentes falhou:", error.message);
+      throw new Error("Não foi possível carregar a equipe agora. Tente novamente.");
+    }
+    const ids = (membros ?? []).map((m) => m.user_id);
+    const { data: perfis } = ids.length
+      ? await db.from("perfis").select("user_id, nome").in("user_id", ids)
+      : { data: [] as { user_id: string; nome: string | null }[] };
+    const nomes = new Map((perfis ?? []).map((p) => [p.user_id, p.nome]));
+    return {
+      euSouId: context.userId,
+      atendentes: (membros ?? []).map((m) => ({
+        userId: m.user_id,
+        nome: nomes.get(m.user_id) ?? "Sem nome",
+        papel: m.papel,
+      })),
+    };
+  });
+
 export const lerConversa = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ conversaId: z.string().uuid() }).parse(input))
