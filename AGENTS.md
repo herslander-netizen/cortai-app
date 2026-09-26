@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Sobreposição de horários: trava no banco (exclusion constraint `agendamentos_sem_sobreposicao` em agendamentos ativos, exceto `encaixe=true`, que só membros da barbearia conseguem marcar), para valer em todos os canais.
+- Webhooks públicos passam por `src/lib/webhook-guard.server.ts` (limite rígido 10/min por IP com rejeições, folgado 1200/min autenticado, rejeições em `webhook_rejeicoes`): contadores no banco porque o servidor não compartilha memória entre instâncias.
