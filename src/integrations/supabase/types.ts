@@ -1134,6 +1134,7 @@ export type Database = {
       conexoes_whatsapp: {
         Row: {
           atualizado_em: string
+          compartilhada: boolean
           conectado_em: string | null
           criado_em: string
           desconectado_em: string | null
@@ -1151,6 +1152,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          compartilhada?: boolean
           conectado_em?: string | null
           criado_em?: string
           desconectado_em?: string | null
@@ -1168,6 +1170,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          compartilhada?: boolean
           conectado_em?: string | null
           criado_em?: string
           desconectado_em?: string | null
