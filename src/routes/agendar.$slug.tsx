@@ -38,7 +38,10 @@ export const Route = createFileRoute("/agendar/$slug")({
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function proximosDias(qtd: number, fuso: string) {
-  const [ano, mes, diaMes] = hojeNoFuso(fuso).split("-").map(Number);
+  const partes = hojeNoFuso(fuso).split("-").map(Number);
+  const ano = partes[0] ?? 2026;
+  const mes = partes[1] ?? 1;
+  const diaMes = partes[2] ?? 1;
   return Array.from({ length: qtd }, (_, i) => {
     const d = new Date(Date.UTC(ano, mes - 1, diaMes + i));
     const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
