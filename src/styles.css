@@ -187,8 +187,19 @@
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
   --gold: var(--identity-accent-light);
   --gold-soft: color-mix(in oklab, var(--identity-accent) 14%, transparent);
+  --primary-foreground: #ffffff;
   --sage: #4e785f;
   --brick: #a45f55;
+
+  --status-scheduled: #696862;
+  --status-confirmed: #557966;
+  --status-arrived: #4e7583;
+  --status-active: #806a43;
+  --status-completed: #54695b;
+  --status-missed: #93534b;
+  --status-cancelled: #725f5b;
+  --status-rescheduled: #665f7d;
+  --status-walk-in: #715846;
 
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
@@ -458,7 +469,7 @@ html.light .brand-logo-on-light,
 .agenda-acao-lista > span { min-width: 0; }
 .agenda-acao-lista strong, .agenda-acao-lista small { display: block; }
 .agenda-acao-lista strong { color: var(--paper); font-size: 13px; }
-.agenda-acao-lista small { margin-top: 2px; color: var(--mute); font-size: 11px; font-weight: 500; }
+.agenda-acao-lista small { margin-top: 2px; color: var(--mute); font-size: 12px; font-weight: 500; }
 .agenda-folha { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--surface-overlay); }
 .agenda-folha-conteudo { width: 100%; max-width: 520px; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; background: var(--ink2); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: agenda-sheet-in 180ms ease-out; }
 .agenda-manual-auto > button { display: none; }
