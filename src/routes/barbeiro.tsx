@@ -4,6 +4,7 @@ import { useSessaoTempoReal } from "@/lib/use-sessao-tempo-real";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { SeloDemonstracao } from "@/components/demo/SeloDemonstracao";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
+import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
@@ -15,10 +16,13 @@ function BarberLayout() {
   const { userId } = Route.useRouteContext();
   useSessaoTempoReal(userId);
   return (
-    <div className="management-shell">
+    <div className="management-shell equipe-shell">
       <SeloDemonstracao />
       <ManagementHeader />
-      <Outlet />
+      <NavegacaoEquipe />
+      <div className="equipe-conteudo">
+        <Outlet />
+      </div>
       <ConviteDeInstalacao />
     </div>
   );
