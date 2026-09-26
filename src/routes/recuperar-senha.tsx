@@ -61,20 +61,23 @@ function RecuperarSenhaPage() {
             setEnviando(false);
             if (error) {
               const texto = error.message.toLowerCase();
-              // Quando o envio de e-mail da conta não está configurado, o serviço
-              // responde com erro de envio. Dizemos isso com honestidade.
+              // Falhas de infraestrutura (envio indisponível) podem aparecer.
+              // Qualquer outra falha vira a mesma resposta neutra: nunca dizemos
+              // se o e-mail existe ou não na base.
               const envioIndisponivel =
-                texto.includes("smtp") ||
-                texto.includes("sending") ||
-                texto.includes("email provider") ||
-                error.status === 500;
-              setErro(
-                error.status === 429
-                  ? "Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo."
-                  : envioIndisponivel
-                    ? "O envio de e-mails ainda não está configurado nesta conta, então o e-mail de recuperação não pode sair. Fale com o suporte do Cortaí pelo falecomaalvo@gmail.com para recuperar seu acesso."
-                    : "Não foi possível enviar o e-mail de recuperação agora. Tente novamente em instantes.",
-              );
+                texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider");
+              if (error.status === 429) {
+                setErro("Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo.");
+                return;
+              }
+              if (envioIndisponivel) {
+                setErro(
+                  "O envio de e-mails ainda não está configurado nesta conta, então o e-mail de recuperação não pode sair. Fale com o suporte do Cortaí pelo falecomaalvo@gmail.com para recuperar seu acesso.",
+                );
+                return;
+              }
+              // Inclui \"usuário não encontrado\" e variações: resposta idêntica ao sucesso.
+              setEnviado(true);
               return;
             }
             setEnviado(true);
