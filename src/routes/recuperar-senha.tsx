@@ -38,7 +38,7 @@ function RecuperarSenhaPage() {
 
       {enviado ? (
         <div className="mt-8 space-y-5">
-          <Aviso tom="sucesso" titulo="Enviamos as instruções para recuperar seu acesso.">
+          <Aviso tom="sucesso" titulo="Se esse e-mail estiver cadastrado, as instruções já foram enviadas.">
             Confira sua caixa de entrada e o spam. O link vale por um tempo curto, por segurança.
           </Aviso>
           <Link to="/login" className="btn-primary block w-full py-3.5 text-center">
