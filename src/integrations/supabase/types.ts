@@ -3917,6 +3917,10 @@ export type Database = {
         }
         Returns: string[]
       }
+      estornar_pagamento_seguro: {
+        Args: { _ator: string; _motivo: string; _pagamento_id: string }
+        Returns: Json
+      }
       fila_publica_status: { Args: { _token: string }; Returns: Json }
       financeiro_tem_permissao: {
         Args: { _ator: string; _permissao: string; _tenant: string }
