@@ -76,7 +76,7 @@ function RecuperarSenhaPage() {
                 );
                 return;
               }
-              // Inclui \"usuário não encontrado\" e variações: resposta idêntica ao sucesso.
+              // Inclui usuário não encontrado e variações: resposta idêntica ao sucesso.
               setEnviado(true);
               return;
             }
