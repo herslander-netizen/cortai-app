@@ -8,6 +8,7 @@ export const Route = createFileRoute("/barbeiro/agenda")({
       search["acao"] === "agendamento" || search["acao"] === "atendimento" || search["acao"] === "cliente"
         ? search["acao"]
         : undefined,
+    agendamento: typeof search["agendamento"] === "string" ? (search["agendamento"] as string) : undefined,
   }),
   head: () => ({
     meta: [

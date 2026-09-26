@@ -234,6 +234,26 @@ export function AgendaOperacional() {
     return () => { void supabase.removeChannel(canal); };
   }, [tenantId, queryClient]);
 
+  // Link direto de aviso: /barbeiro/agenda?agendamento=<id> vai ao dia e abre o painel.
+  const alvoLink = typeof busca["agendamento"] === "string" ? (busca["agendamento"] as string) : null;
+  const linkTratado = useRef<string | null>(null);
+  useEffect(() => {
+    if (!alvoLink || linkTratado.current === alvoLink || !agenda.data) return;
+    if (agenda.data.itens.some((i) => i.id === alvoLink)) {
+      linkTratado.current = alvoLink;
+      abrir(alvoLink);
+      return;
+    }
+    let ativo = true;
+    void supabase.from("agendamentos").select("inicio").eq("id", alvoLink).maybeSingle().then(({ data }) => {
+      if (!ativo || !data?.inicio) { linkTratado.current = alvoLink; return; }
+      const diaAlvo = new Intl.DateTimeFormat("en-CA", { timeZone: agenda.data?.fuso || "America/Sao_Paulo" }).format(new Date(data.inicio));
+      if (diaAlvo !== dia) setDia(diaAlvo);
+      else linkTratado.current = alvoLink;
+    });
+    return () => { ativo = false; };
+  }, [alvoLink, agenda.data, dia]);
+
   const profissionaisDoDia = useMemo(
     () => [...new Set((agenda.data?.itens ?? []).map((item) => item.profissional).filter((nome) => nome && nome !== "—"))].sort(),
     [agenda.data?.itens],

@@ -152,7 +152,7 @@ function AtendentesPage() {
               onClick={() => mudarAtendimento.mutate({ conversaId: c.id, modo: "humano" })}
             >
               <UserCheck size={16} strokeWidth={1.75} />
-              Assumir
+              Assumir conversa
             </Button>
           )}
         />
@@ -206,7 +206,7 @@ function AtendentesPage() {
               onClick={() => mudarAtendimento.mutate({ conversaId: c.id, modo: "humano" })}
             >
               <UserCheck size={16} strokeWidth={1.75} />
-              Assumir
+              Assumir conversa
             </Button>
           )}
         />
