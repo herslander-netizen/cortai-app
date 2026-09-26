@@ -40,6 +40,7 @@ export const MODULOS_DE_NAVEGACAO = [
   { grupo: "Operação", to: "/barbeiro/cortai", label: "CortAI no WhatsApp", detail: "Conexão, conversas e atendimento", icon: MessageCircle, permissao: "ver_cortai" },
   { grupo: "Gestão", to: "/barbeiro/cortai-atividade", label: "Atividade do CortAI", detail: "Assuntos, consultas e falhas", icon: Bot, permissao: "ver_cortai" },
   { grupo: "Gestão", to: "/barbeiro/painel-ia", label: "Painel do atendente", detail: "Resumo, agenda, clientes e serviços", icon: BarChart3, permissao: "ver_cortai" },
+  { grupo: "Operação", to: "/barbeiro/atendentes", label: "Painel de atendentes", detail: "Quem está online e assumir conversas", icon: UsersRound, permissao: "ver_cortai" },
 ] as const satisfies ReadonlyArray<{ grupo: string; to: string; label: string; detail: string; icon: typeof Banknote; permissao: ChaveDePermissao }>;
 
 export const GRUPOS_DE_NAVEGACAO = ["Operação", "Gestão", "Configurações"] as const;
