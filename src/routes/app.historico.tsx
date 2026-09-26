@@ -19,6 +19,7 @@ export const Route = createFileRoute("/app/historico")({
       { property: "og:description", content: "Seus agendamentos e a regra de cancelamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: HistoricoPage,

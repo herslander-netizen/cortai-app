@@ -25,6 +25,7 @@ export const Route = createFileRoute("/barbeiro/integracoes")({
       { property: "og:description", content: "Atendimento inteligente ligado à sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: IntegracoesPage,

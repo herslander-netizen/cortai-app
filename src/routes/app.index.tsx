@@ -19,6 +19,7 @@ export const Route = createFileRoute("/app/")({
       { property: "og:description", content: "Seu próximo corte em um toque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: InicioCliente,

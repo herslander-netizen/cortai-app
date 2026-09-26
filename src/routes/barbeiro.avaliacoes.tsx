@@ -20,6 +20,7 @@ export const Route = createFileRoute("/barbeiro/avaliacoes")({
       { property: "og:description", content: "Feedback interno e convite público na medida certa." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AvaliacoesPage,

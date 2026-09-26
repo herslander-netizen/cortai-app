@@ -20,6 +20,7 @@ export const Route = createFileRoute("/admin/perfil")({
       { property: "og:description", content: "Conta de administração da plataforma Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AdminPerfilPage,

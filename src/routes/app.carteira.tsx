@@ -16,6 +16,7 @@ export const Route = createFileRoute("/app/carteira")({
       { property: "og:description", content: "Seu saldo, seu cartão de fidelidade e cada lançamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: CarteiraPage,

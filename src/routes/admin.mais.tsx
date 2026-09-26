@@ -12,6 +12,7 @@ export const Route = createFileRoute("/admin/mais")({
       { property: "og:description", content: "Configurações e áreas administrativas da plataforma." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AdminMaisPage,

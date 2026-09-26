@@ -23,6 +23,7 @@ export const Route = createFileRoute("/admin/barbearias")({
     { title: "Barbearias da plataforma — Cortaí" }, { name: "description", content: "Acompanhe planos, uso e risco das barbearias do Cortaí." },
     { property: "og:title", content: "Barbearias da plataforma — Cortaí" }, { property: "og:description", content: "Planos, uso e retenção das barbearias." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }), component: BarbeariasPage,
 });
 

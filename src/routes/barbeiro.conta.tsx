@@ -22,6 +22,7 @@ export const Route = createFileRoute("/barbeiro/conta")({
       { property: "og:description", content: "Sua conta e sua barbearia no Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ContaPage,

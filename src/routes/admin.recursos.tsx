@@ -17,6 +17,7 @@ export const Route = createFileRoute("/admin/recursos")({
     { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: RecursosPage,
 });

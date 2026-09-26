@@ -18,6 +18,7 @@ export const Route = createFileRoute("/redefinir-senha")({
       { property: "og:description", content: "Defina sua nova senha do Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: RedefinirSenhaPage,

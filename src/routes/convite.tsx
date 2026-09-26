@@ -17,6 +17,7 @@ export const Route = createFileRoute("/convite")({
       { property: "og:description", content: "Confirme o acesso que a barbearia liberou para você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ConvitePage,

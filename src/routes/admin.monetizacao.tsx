@@ -35,6 +35,7 @@ export const Route = createFileRoute("/admin/monetizacao")({
       { property: "og:description", content: "Administre preços, condições especiais, cupons e banners." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: MonetizacaoPage,

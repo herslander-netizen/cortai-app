@@ -9,6 +9,7 @@ export const Route = createFileRoute("/barbeiro/hoje")({
       { property: "og:description", content: "Entenda o dia da barbearia em segundos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
 });

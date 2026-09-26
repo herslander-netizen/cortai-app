@@ -28,6 +28,7 @@ export const Route = createFileRoute("/barbeiro/cortai-atividade")({
       { property: "og:description", content: "Conversas, assuntos, consultas e falhas do atendimento inteligente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AtividadePage,

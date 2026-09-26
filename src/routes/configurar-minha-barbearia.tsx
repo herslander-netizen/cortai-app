@@ -33,6 +33,7 @@ export const Route = createFileRoute("/configurar-minha-barbearia")({
       { property: "og:description", content: "Nome, horários e serviços: sua barbearia publicada em minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ConfigurarMinhaBarbearia,

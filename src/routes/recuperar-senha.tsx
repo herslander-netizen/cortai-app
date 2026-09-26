@@ -16,6 +16,7 @@ export const Route = createFileRoute("/recuperar-senha")({
       { property: "og:description", content: "Recupere o acesso à sua conta Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: RecuperarSenhaPage,

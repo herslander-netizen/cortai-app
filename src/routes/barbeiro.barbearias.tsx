@@ -21,6 +21,7 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
       { property: "og:description", content: "Troque de barbearia e retome a configuração de onde parou." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: MinhasBarbeariasPage,

@@ -17,6 +17,7 @@ export const Route = createFileRoute("/comecar")({
       { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   beforeLoad: async () => {

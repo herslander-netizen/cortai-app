@@ -22,6 +22,7 @@ export const Route = createFileRoute("/barbeiro/temas")({
     { property: "og:description", content: "Escolha cores, layout e fontes com prévia ao vivo." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: TemasPage,
 });

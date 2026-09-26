@@ -36,6 +36,7 @@ export const Route = createFileRoute("/barbeiro/equipe")({
       { property: "og:description", content: "Gerencie quem tem acesso à sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: EquipePage,

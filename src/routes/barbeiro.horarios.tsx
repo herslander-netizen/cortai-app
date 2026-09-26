@@ -21,6 +21,7 @@ export const Route = createFileRoute("/barbeiro/horarios")({
       { property: "og:description", content: "Dias e horários de funcionamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: HorariosPage,
