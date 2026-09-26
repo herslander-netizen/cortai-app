@@ -409,7 +409,7 @@ export function AgendaOperacional() {
   }
 
   return (
-    <Screen title="Agenda" hideHeader>
+    <Screen title="Agenda" hideHeader wide>
       <div key={dia} className="agenda-operacional agenda-troca-dia pb-32" onTouchStart={inicioToque} onTouchEnd={fimToque}>
         <header className="agenda-cabecalho-compacto">
           <h1 className="sr-only">Agenda</h1>
