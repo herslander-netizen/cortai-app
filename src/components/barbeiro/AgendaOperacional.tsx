@@ -355,24 +355,29 @@ export function AgendaOperacional() {
     const anterior = item.status as EstadoAtendimento;
     setEstadosLocais((mapa) => ({ ...mapa, [item.id]: novo }));
     setOcupado(true);
+    let pedido: Promise<unknown> | null = null;
+    // Otimista: "Desfazer" aparece no toque; desfazer espera o pedido original terminar.
+    if (oferecerUndo) {
+      comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
+        setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
+        try {
+          if (pedido) await pedido.catch(() => undefined);
+          await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
+          await sincronizar();
+        } finally {
+          setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+        }
+      });
+    }
     try {
-      await mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
+      pedido = mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
+      await pedido;
       await sincronizar();
-      setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      setEstadosLocais((mapa) => (mapa[item.id] === novo ? (() => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; })() : mapa));
       if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0) setSugestaoFila(true);
-      if (oferecerUndo) {
-        comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
-          setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
-          try {
-            await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
-            await sincronizar();
-          } finally {
-            setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
-          }
-        });
-      }
     } catch {
       setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      toast.dismiss();
       aviso.erro("Não foi possível mudar o atendimento. A agenda voltou ao estado anterior.");
     } finally {
       setOcupado(false);
