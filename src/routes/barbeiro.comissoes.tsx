@@ -24,6 +24,7 @@ export const Route = createFileRoute("/barbeiro/comissoes")({
       { property: "og:description", content: "Quanto cada profissional gerou e quanto ainda tem a receber." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ComissoesPage,

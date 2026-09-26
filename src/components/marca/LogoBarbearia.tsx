@@ -15,12 +15,14 @@ export function LogoBarbearia({
 }) {
   const inicial = (nome.trim()[0] ?? "C").toUpperCase();
   if (url) {
+    // Fundo neutro sólido: logos claras ou escuras continuam legíveis
+    // em qualquer identidade e nos modos claro e escuro.
     return (
       <img
         src={url}
         alt={`Logo ${nome}`}
         style={{ width: size, height: size }}
-        className={`shrink-0 rounded-xl border border-line bg-ink2/80 object-contain p-1 ${className}`}
+        className={`shrink-0 rounded-xl border border-border bg-card object-contain p-1 ${className}`}
       />
     );
   }
@@ -29,7 +31,7 @@ export function LogoBarbearia({
       role="img"
       aria-label={`Marca ${nome}`}
       style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
-      className={`flex shrink-0 items-center justify-center rounded-xl border border-line bg-ink2 font-bold text-gold ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-xl border border-border bg-card font-bold text-foreground ${className}`}
     >
       {inicial}
     </span>

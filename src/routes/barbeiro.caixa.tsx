@@ -26,6 +26,7 @@ export const Route = createFileRoute("/barbeiro/caixa")({
       { property: "og:description", content: "Todo valor com cliente, profissional e comanda de origem." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: CaixaPage,

@@ -28,6 +28,7 @@ export const Route = createFileRoute("/barbeiro/indicacoes")({
       { property: "og:description", content: "Acompanhe quem indicou e quem já virou cliente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: IndicacoesPage,

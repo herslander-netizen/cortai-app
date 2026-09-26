@@ -19,6 +19,7 @@ export const Route = createFileRoute("/barbeiro/clientes/")({
       { property: "og:description", content: "Seu CRM de barbearia, com dados reais de cada cliente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ClientesPage,

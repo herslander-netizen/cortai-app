@@ -17,6 +17,7 @@ export const Route = createFileRoute("/convite")({
       { property: "og:description", content: "Confirme o acesso que a barbearia liberou para você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ConvitePage,
@@ -35,7 +36,7 @@ function ConvitePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
 
       {convite.isLoading ? (
         <p className="mt-8 text-sm text-mute">Carregando o seu acesso…</p>

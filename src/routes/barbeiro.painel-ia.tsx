@@ -33,6 +33,7 @@ export const Route = createFileRoute("/barbeiro/painel-ia")({
       { property: "og:description", content: "Administre sua operação com os dados reais do Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: PainelIaPage,

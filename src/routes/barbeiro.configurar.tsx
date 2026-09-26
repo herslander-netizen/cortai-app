@@ -38,6 +38,7 @@ export const Route = createFileRoute("/barbeiro/configurar")({
       { property: "og:description", content: "Barbearia, equipe, serviços, horários, regras e link — em até 5 minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ConfigurarPage,

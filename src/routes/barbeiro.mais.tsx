@@ -23,6 +23,7 @@ export const Route = createFileRoute("/barbeiro/mais")({
     { property: "og:description", content: "Configurações e recursos da barbearia." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: MaisPage,
 });

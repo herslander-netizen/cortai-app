@@ -30,7 +30,9 @@ export const Route = createFileRoute("/agendar/$slug")({
       { property: "og:description", content: "Agende em menos de um minuto, só com nome e WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: `https://cortai.dev/agendar/${params.slug}` },
     ],
+    links: [{ rel: "canonical", href: `https://cortai.dev/agendar/${params.slug}` }],
   }),
   component: AgendamentoPublico,
 });

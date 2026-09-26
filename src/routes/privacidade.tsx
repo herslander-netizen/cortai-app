@@ -25,7 +25,9 @@ export const Route = createFileRoute("/privacidade")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://cortai.dev/privacidade" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/privacidade" }],
   }),
   component: PaginaDePrivacidade,
 });

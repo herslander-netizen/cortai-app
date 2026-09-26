@@ -11,6 +11,7 @@ export const Route = createFileRoute("/barbeiro/")({
       { property: "og:description", content: "A operação diária da barbearia em um só lugar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AgendaLazy,

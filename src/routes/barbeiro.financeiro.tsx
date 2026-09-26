@@ -15,6 +15,7 @@ export const Route = createFileRoute("/barbeiro/financeiro")({
     { property: "og:description", content: "Visão clara das receitas da barbearia." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: FinanceiroPage,
 });

@@ -18,6 +18,7 @@ export const Route = createFileRoute("/redefinir-senha")({
       { property: "og:description", content: "Defina sua nova senha do Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: RedefinirSenhaPage,
@@ -53,7 +54,7 @@ function RedefinirSenhaPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Crie sua nova senha</h1>
 
       {salvo ? (

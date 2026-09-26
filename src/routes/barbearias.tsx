@@ -17,7 +17,9 @@ export const Route = createFileRoute("/barbearias")({
       { property: "og:description", content: "Busque sua barbearia e agende seu horário em poucos toques." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://cortai.dev/barbearias" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/barbearias" }],
   }),
   component: BarbeariasPage,
 });

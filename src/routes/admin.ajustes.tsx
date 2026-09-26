@@ -14,6 +14,7 @@ export const Route = createFileRoute("/admin/ajustes")({ head: () => ({ meta: [
   { title: "Design system global — Cortaí" }, { name: "description", content: "Paleta, tipografia, preços e princípios globais do Cortaí." },
   { property: "og:title", content: "Design system global — Cortaí" }, { property: "og:description", content: "Configuração visual da plataforma Cortaí." },
   { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
 ] }), component: DesignSystemPage });
 
 function DesignSystemPage() {

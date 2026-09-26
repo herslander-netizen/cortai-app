@@ -30,6 +30,7 @@ export const Route = createFileRoute("/app/agendar")({
       { property: "og:description", content: "Serviço, barbeiro, horário e pagamento em poucos toques." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AgendarPage,

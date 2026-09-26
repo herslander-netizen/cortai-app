@@ -15,6 +15,7 @@ export const Route = createFileRoute("/app/espera")({
       { property: "og:description", content: "Horário cheio? Avisamos assim que vagar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: EsperaPage,

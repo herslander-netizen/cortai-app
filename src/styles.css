@@ -353,10 +353,16 @@
 [data-identity-choice="copper"] { --choice-accent: #d98b5f; }
 [data-identity-choice="classico"] { --choice-accent: #c9a96a; }
 
-.brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; }
+/* A marca troca sozinha: clara em fundo escuro, escura em fundo claro.
+   O padrão (sem classe de modo, antes da hidratação) é o tema escuro. */
+.brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; aspect-ratio: 1774 / 887; }
 .brand-logo-auto > img { position: absolute; inset: 0; }
-.brand-logo-on-dark { display: none; }
-.brand-logo-on-light { display: block; }
+.brand-logo-on-dark { display: block; }
+.brand-logo-on-light { display: none; }
+html.light .brand-logo-on-dark,
+.light .brand-logo-on-dark { display: none; }
+html.light .brand-logo-on-light,
+.light .brand-logo-on-light { display: block; }
 .dark .brand-logo-on-dark { display: block; }
 .dark .brand-logo-on-light { display: none; }
 

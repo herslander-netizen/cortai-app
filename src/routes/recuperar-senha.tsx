@@ -16,6 +16,7 @@ export const Route = createFileRoute("/recuperar-senha")({
       { property: "og:description", content: "Recupere o acesso à sua conta Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: RecuperarSenhaPage,
@@ -29,7 +30,7 @@ function RecuperarSenhaPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Esqueceu sua senha?</h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
         Informe o e-mail da sua conta. Se ele estiver cadastrado, enviamos o passo a passo para criar uma
@@ -38,7 +39,7 @@ function RecuperarSenhaPage() {
 
       {enviado ? (
         <div className="mt-8 space-y-5">
-          <Aviso tom="sucesso" titulo="Enviamos as instruções para recuperar seu acesso.">
+          <Aviso tom="sucesso" titulo="Se esse e-mail estiver cadastrado, as instruções já foram enviadas.">
             Confira sua caixa de entrada e o spam. O link vale por um tempo curto, por segurança.
           </Aviso>
           <Link to="/login" className="btn-primary block w-full py-3.5 text-center">
@@ -61,20 +62,23 @@ function RecuperarSenhaPage() {
             setEnviando(false);
             if (error) {
               const texto = error.message.toLowerCase();
-              // Quando o envio de e-mail da conta não está configurado, o serviço
-              // responde com erro de envio. Dizemos isso com honestidade.
+              // Falhas de infraestrutura (envio indisponível) podem aparecer.
+              // Qualquer outra falha vira a mesma resposta neutra: nunca dizemos
+              // se o e-mail existe ou não na base.
               const envioIndisponivel =
-                texto.includes("smtp") ||
-                texto.includes("sending") ||
-                texto.includes("email provider") ||
-                error.status === 500;
-              setErro(
-                error.status === 429
-                  ? "Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo."
-                  : envioIndisponivel
-                    ? "O envio de e-mails ainda não está configurado nesta conta, então o e-mail de recuperação não pode sair. Fale com o suporte do Cortaí pelo falecomaalvo@gmail.com para recuperar seu acesso."
-                    : "Não foi possível enviar o e-mail de recuperação agora. Tente novamente em instantes.",
-              );
+                texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider");
+              if (error.status === 429) {
+                setErro("Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo.");
+                return;
+              }
+              if (envioIndisponivel) {
+                setErro(
+                  "O envio de e-mails ainda não está configurado nesta conta, então o e-mail de recuperação não pode sair. Fale com o suporte do Cortaí pelo falecomaalvo@gmail.com para recuperar seu acesso.",
+                );
+                return;
+              }
+              // Inclui usuário não encontrado e variações: resposta idêntica ao sucesso.
+              setEnviado(true);
               return;
             }
             setEnviado(true);

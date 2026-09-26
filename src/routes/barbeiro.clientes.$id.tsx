@@ -26,6 +26,7 @@ export const Route = createFileRoute("/barbeiro/clientes/$id")({
       { property: "og:description", content: "Fiado, baixas e ficha técnica do corte." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: FichaPage,

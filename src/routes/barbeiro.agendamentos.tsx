@@ -21,6 +21,7 @@ export const Route = createFileRoute("/barbeiro/agendamentos")({
       { property: "og:description", content: "Nome, WhatsApp e horário de cada cliente confirmado." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AgendamentosPage,

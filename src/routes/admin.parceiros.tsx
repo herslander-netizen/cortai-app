@@ -19,6 +19,7 @@ export const Route = createFileRoute("/admin/parceiros")({
       { property: "og:description", content: "Gestão da faixa de parceiros da página inicial." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ParceirosAdmin,

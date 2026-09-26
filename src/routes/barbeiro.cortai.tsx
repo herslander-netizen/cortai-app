@@ -51,6 +51,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
       { property: "og:description", content: "Atendimento pelo WhatsApp com os dados reais da sua barbearia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   errorComponent: RouteError,

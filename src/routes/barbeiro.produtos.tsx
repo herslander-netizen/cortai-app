@@ -22,6 +22,7 @@ export const Route = createFileRoute("/barbeiro/produtos")({
     { property: "og:description", content: "Controle de produtos, estoque e loja." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: ProdutosPage,
 });

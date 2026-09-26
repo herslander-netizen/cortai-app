@@ -19,7 +19,9 @@ export const Route = createFileRoute("/demonstracao")({
       { property: "og:description", content: "Veja o Cortaí funcionando com uma barbearia fictícia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://cortai.dev/demonstracao" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/demonstracao" }],
   }),
   component: DemonstracaoPage,
 });
@@ -53,7 +55,7 @@ function DemonstracaoPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col justify-center px-6 py-12">
-      <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
       <h1 className="mt-4 text-[26px] font-bold leading-tight text-paper">
         Preparando a barbearia de demonstração…
       </h1>

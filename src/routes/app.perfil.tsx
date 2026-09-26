@@ -20,6 +20,7 @@ export const Route = createFileRoute("/app/perfil")({
       { property: "og:description", content: "Seus dados e preferências." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: PerfilPage,

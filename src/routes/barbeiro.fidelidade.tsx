@@ -24,6 +24,7 @@ export const Route = createFileRoute("/barbeiro/fidelidade")({
       { property: "og:description", content: "Desconto real e ticket efetivo do seu cartão de fidelidade." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: FidelidadePage,

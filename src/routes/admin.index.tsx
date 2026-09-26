@@ -13,6 +13,7 @@ export const Route = createFileRoute("/admin/")({
     { property: "og:title", content: "Visão da plataforma — Cortaí" },
     { property: "og:description", content: "Indicadores reais da plataforma Cortaí." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }), component: AdminOverview,
 });
 

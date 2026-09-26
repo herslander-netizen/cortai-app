@@ -9,6 +9,7 @@ export const Route = createFileRoute("/barbeiro/casa")({
       { property: "og:description", content: "Quem está na cadeira, quem chegou e quem está livre, ao vivo." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
 });

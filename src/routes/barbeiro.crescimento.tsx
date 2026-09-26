@@ -20,6 +20,7 @@ export const Route = createFileRoute("/barbeiro/crescimento")({
       { property: "og:description", content: "O que faz sua barbearia crescer, em números reais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: CrescimentoPage,

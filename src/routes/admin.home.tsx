@@ -58,6 +58,7 @@ export const Route = createFileRoute("/admin/home")({
       { property: "og:description", content: "Editor da página inicial pública do Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: EditorDaHome,

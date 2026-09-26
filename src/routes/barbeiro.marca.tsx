@@ -25,6 +25,7 @@ export const Route = createFileRoute("/barbeiro/marca")({
     { property: "og:description", content: "Visual, conteúdo, seções e links da página da barbearia." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
   ] }),
   component: MarcaPage,
 });

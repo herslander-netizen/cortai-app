@@ -13,6 +13,7 @@ export const Route = createFileRoute("/admin/pedidos")({ head: () => ({ meta: [
   { title: "Pedidos das barbearias — Cortaí" }, { name: "description", content: "Sugestões agrupadas e priorizadas das barbearias do Cortaí." },
   { property: "og:title", content: "Pedidos das barbearias — Cortaí" }, { property: "og:description", content: "Demanda real das barbearias por novas soluções." },
   { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
 ] }), component: PedidosPage });
 
 const statuses = { em_analise: "Em análise", no_roteiro: "No roteiro", em_desenvolvimento: "Em desenvolvimento", implementada: "Implementada", recusada: "Recusada" } as const;

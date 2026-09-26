@@ -19,9 +19,10 @@ export const Route = createFileRoute("/")({
         { property: "og:description", content: seo.descricao },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
+        { property: "og:url", content: "https://cortai.dev/" },
         ...(imagem ? [{ property: "og:image", content: imagem }, { name: "twitter:image", content: imagem }] : []),
       ],
-      links: seo.canonica ? [{ rel: "canonical", href: seo.canonica }] : [],
+      links: [{ rel: "canonical", href: seo.canonica || "https://cortai.dev/" }],
     };
   },
   errorComponent: () => <ConteudoHome config={HOME_PADRAO} />,

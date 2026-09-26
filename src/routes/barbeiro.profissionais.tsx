@@ -18,6 +18,7 @@ export const Route = createFileRoute("/barbeiro/profissionais")({
       { property: "og:description", content: "Mostre o trabalho de cada profissional da equipe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: ProfissionaisPage,
