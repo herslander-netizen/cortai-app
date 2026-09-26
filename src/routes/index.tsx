@@ -39,7 +39,6 @@ function ConteudoHome({ config }: { config: ConfigHome }) {
   const estilo = {
     "--home-largura": `${aparencia.larguraPx}px`,
     "--home-espaco": `${ESPACAMENTO_PX[aparencia.espacamento]}px`,
-    "--gold": aparencia.corDestaque,
     "--radius": `${aparencia.raioPx}px`,
     fontFamily: `"${aparencia.tipografia}", system-ui, sans-serif`,
   } as React.CSSProperties;

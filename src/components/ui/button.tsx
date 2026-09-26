@@ -6,14 +6,14 @@ import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold cursor-pointer transition-[color,background-color,border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-px [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer transition-[color,background-color,border-color,transform,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed active:translate-y-px [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-        secondary: "border border-input bg-transparent text-foreground hover:border-line2 hover:bg-ink3 active:bg-ink2",
-        outline: "border border-input bg-transparent text-foreground hover:border-line2 hover:bg-ink3 active:bg-ink2",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
+        primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
+        secondary: "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
+        outline: "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
         ghost: "bg-transparent text-foreground hover:bg-ink3 active:bg-ink2",
         text: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
         link: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
