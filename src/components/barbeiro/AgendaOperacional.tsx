@@ -13,6 +13,7 @@ import {
   Scissors,
   UserRoundPlus,
   ListOrdered,
+  Ban,
 } from "lucide-react";
 import type React from "react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
@@ -671,7 +672,7 @@ export function AgendaOperacional() {
                 {itemSelecionado.status === "na_cadeira" ? <Button variant="outline" onClick={() => { setPainelAberto(false); setFechando(itemSelecionado.id); }}><Check />Concluir</Button> : null}
                 {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" onClick={() => setRemarcarHora(hora(itemSelecionado.inicio, fuso))}><CalendarPlus />Remarcar</Button> : null}
                 {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "nao_compareceu"); }}><Clock3 />Falta</Button> : null}
-                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "cancelado"); }}><ChevronLeft />Cancelar</Button> : null}
+                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "cancelado"); }}><Ban />Cancelar</Button> : null}
                 {itemSelecionado.clienteId ? <Button asChild variant="outline"><Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: itemSelecionado.clienteId }}><MessageCircle />WhatsApp</Link></Button> : null}
                 {itemSelecionado.status !== "cancelado" && itemSelecionado.status !== "nao_compareceu" && itemSelecionado.status !== "remarcado" ? <Button variant="outline" onClick={() => { setPainelAberto(false); setFechando(itemSelecionado.id); }}><HandCoins />Comanda</Button> : null}
               </div>
