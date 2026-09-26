@@ -1,4 +1,5 @@
 import { Link, useSearch } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -234,6 +235,26 @@ export function AgendaOperacional() {
     return () => { void supabase.removeChannel(canal); };
   }, [tenantId, queryClient]);
 
+  // Link direto de aviso: /barbeiro/agenda?agendamento=<id> vai ao dia e abre o painel.
+  const alvoLink = typeof busca["agendamento"] === "string" ? (busca["agendamento"] as string) : null;
+  const linkTratado = useRef<string | null>(null);
+  useEffect(() => {
+    if (!alvoLink || linkTratado.current === alvoLink || !agenda.data) return;
+    if (agenda.data.itens.some((i) => i.id === alvoLink)) {
+      linkTratado.current = alvoLink;
+      abrir(alvoLink);
+      return;
+    }
+    let ativo = true;
+    void supabase.from("agendamentos").select("inicio").eq("id", alvoLink).maybeSingle().then(({ data }) => {
+      if (!ativo || !data?.inicio) { linkTratado.current = alvoLink; return; }
+      const diaAlvo = new Intl.DateTimeFormat("en-CA", { timeZone: agenda.data?.fuso || "America/Sao_Paulo" }).format(new Date(data.inicio));
+      if (diaAlvo !== dia) setDia(diaAlvo);
+      else linkTratado.current = alvoLink;
+    });
+    return () => { ativo = false; };
+  }, [alvoLink, agenda.data, dia]);
+
   const profissionaisDoDia = useMemo(
     () => [...new Set((agenda.data?.itens ?? []).map((item) => item.profissional).filter((nome) => nome && nome !== "—"))].sort(),
     [agenda.data?.itens],
@@ -335,24 +356,29 @@ export function AgendaOperacional() {
     const anterior = item.status as EstadoAtendimento;
     setEstadosLocais((mapa) => ({ ...mapa, [item.id]: novo }));
     setOcupado(true);
+    let pedido: Promise<unknown> | null = null;
+    // Otimista: "Desfazer" aparece no toque; desfazer espera o pedido original terminar.
+    if (oferecerUndo) {
+      comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
+        setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
+        try {
+          if (pedido) await pedido.catch(() => undefined);
+          await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
+          await sincronizar();
+        } finally {
+          setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+        }
+      });
+    }
     try {
-      await mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
+      pedido = mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
+      await pedido;
       await sincronizar();
-      setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      setEstadosLocais((mapa) => (mapa[item.id] === novo ? (() => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; })() : mapa));
       if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0) setSugestaoFila(true);
-      if (oferecerUndo) {
-        comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
-          setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
-          try {
-            await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
-            await sincronizar();
-          } finally {
-            setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
-          }
-        });
-      }
     } catch {
       setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
+      toast.dismiss();
       aviso.erro("Não foi possível mudar o atendimento. A agenda voltou ao estado anterior.");
     } finally {
       setOcupado(false);
