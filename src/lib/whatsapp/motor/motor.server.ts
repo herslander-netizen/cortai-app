@@ -203,7 +203,40 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
 
   switch (cls.intencao) {
     case "SAUDACAO": {
-      const saudacao = (entrada.config.mensagemBoasVindas ?? "").trim() || SAUDACAO_PADRAO;
+      const escrita = (entrada.config.mensagemBoasVindas ?? "").trim();
+      const saudacao =
+        escrita ||
+        frase(entrada, "saudacao_nova", { barbearia: entrada.nomeDaBarbearia }, SAUDACAO_PADRAO);
+
+      // Cliente já conhecido: oferece o de sempre em vez de repetir o menu seco.
+      if (contexto.clienteId) {
+        const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
+        const h = await historicoDoCliente(ctx, { clienteId: contexto.clienteId });
+        const conhecida = frase(
+          entrada,
+          "saudacao_conhecido",
+          {
+            nome: (entrada.nomeContato ?? "").split(" ")[0] || null,
+            ultimo_servico: h.servicoPreferido?.nome ?? null,
+            ultimo_profissional: h.profissionalPreferido?.nome ?? null,
+          },
+          "",
+        );
+        if (conhecida && h.servicoPreferido?.id) {
+          return responder(
+            conhecida,
+            {
+              ...limparFluxo(contexto),
+              estado: "CHOOSING_DATE",
+              servicoId: h.servicoPreferido.id,
+              servicoNome: h.servicoPreferido.nome,
+              profissionalId: h.profissionalPreferido?.id ?? null,
+            },
+            { intencao: "saudacao" },
+          );
+        }
+      }
+
       return responder([saudacao, "", MENU_PRINCIPAL].join("\n"), {
         ...limparFluxo(contexto),
         menuTipo: "retomar",
