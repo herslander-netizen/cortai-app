@@ -20,6 +20,8 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentPro
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
+import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Screen } from "@/components/layout/Screen";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import {
@@ -156,7 +158,9 @@ export function AgendaOperacional() {
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   const [ocupado, setOcupado] = useState(false);
-  const [visualizacao, setVisualizacao] = useState<"lista" | "timeline">("timeline");
+  const [visualizacao, setVisualizacao] = useState<"lista" | "timeline" | "semana">("timeline");
+  const celular = useIsMobile();
+  const [profVazio, setProfVazio] = useState<string | null>(null);
   const [filaAberta, setFilaAberta] = useState(false);
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
   const filtroInicial = useRef(false);
@@ -557,18 +561,42 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
-        <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1" role="tablist" aria-label="Visualização da agenda">
+        <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1 md:grid-cols-3" role="tablist" aria-label="Visualização da agenda">
           <Button role="tab" aria-selected={visualizacao === "lista"} variant={visualizacao === "lista" ? "secondary" : "ghost"} size="sm" className={visualizacao === "lista" ? "bg-ink2 shadow-sm" : "text-mute"} onClick={() => setVisualizacao("lista")}>Lista</Button>
           <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : "text-mute"} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
+          <Button role="tab" aria-selected={visualizacao === "semana"} variant={visualizacao === "semana" ? "secondary" : "ghost"} size="sm" className={`hidden md:inline-flex ${visualizacao === "semana" ? "bg-ink2 shadow-sm" : "text-mute"}`} onClick={() => setVisualizacao("semana")}>Semana</Button>
         </div>
 
         {agenda.isLoading && !agenda.data ? <EsqueletoAgenda linhas={5} /> : null}
-        {diaSemAgenda ? (
+        {visualizacao === "semana" && !celular ? (
+          <AgendaSemana semana={semana} fuso={fuso} hoje={hojeNoFuso(fuso)} profissional={profFiltro} onAbrirDia={(d) => { setDia(d); setVisualizacao("timeline"); }} />
+        ) : diaSemAgenda ? (
           <div className="border-y border-line py-10 text-center">
             <p className="text-base font-bold text-paper">Dia livre — compartilhe seu link</p>
             <Link to="/barbeiro/marca" className="mt-3 inline-block text-sm font-semibold text-gold underline underline-offset-4">Abrir página da barbearia</Link>
           </div>
-        ) : visualizacao === "timeline" ? (
+        ) : visualizacao !== "lista" && !celular && !profFiltro && profissionaisDoDia.length > 1 ? (
+          <div className="agenda-colunas" style={{ gridTemplateColumns: `repeat(${profissionaisDoDia.length}, minmax(220px, 1fr))` }}>
+            {profissionaisDoDia.map((nome) => (
+              <section key={nome} className="min-w-0">
+                <button type="button" className="agenda-coluna-titulo" onClick={() => setProfFiltro(nome)}>{nome}</button>
+                <AgendaTimeline
+                  dia={dia}
+                  fuso={fuso}
+                  agora={agora}
+                  itens={itens.filter((item) => item.profissional === nome)}
+                  horarios={agenda.data?.horarios ?? []}
+                  selecionado={selecionado}
+                  onSelecionar={(id) => abrir(id)}
+                  onMover={(item, delta) => void mover(item, delta)}
+                  onHorarioVazio={(h) => { setHoraVazia(h); setProfVazio(nome); setManualAberto("agendamento"); }}
+                  destaques={novos}
+                  renderStatus={(status) => <StatusBadge status={status} />}
+                />
+              </section>
+            ))}
+          </div>
+        ) : visualizacao !== "lista" ? (
           <AgendaTimeline
             dia={dia}
             fuso={fuso}
@@ -729,7 +757,7 @@ export function AgendaOperacional() {
         </SheetContent>
       </Sheet>
 
-      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} profissionalInicial={profFiltro ?? meuNome} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); void sincronizar(); }} /></div> : null}
+      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} profissionalInicial={profVazio ?? profFiltro ?? meuNome} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); setProfVazio(null); void sincronizar(); }} /></div> : null}
 
       {rapidoAberto ? <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}><AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /></Suspense> : null}
 
