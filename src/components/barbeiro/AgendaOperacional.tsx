@@ -12,8 +12,9 @@ import {
   MessageCircle,
   Scissors,
   UserRoundPlus,
+  ListOrdered,
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
