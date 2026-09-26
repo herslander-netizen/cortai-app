@@ -698,7 +698,13 @@ async function concluirAgendamento(
   } catch (erro) {
     const motivo = erro instanceof Error ? erro.message : "";
     if (/ocupad|conflit|indispon|reservad/i.test(motivo)) {
-      return oferecerHorarios(ctx, contexto, responder, {
+      // Nunca confirma o que não foi salvo: avisa e já mostra os próximos livres.
+      const avisar = ((texto: string, ...resto: unknown[]) =>
+        (responder as (...a: unknown[]) => unknown)(
+          `Esse horário acabou de ser reservado por outra pessoa. 😕\n\n${texto}`,
+          ...resto,
+        )) as Responder;
+      return oferecerHorarios(ctx, contexto, avisar, {
         servicoId: contexto.servicoId,
         servicoNome: contexto.servicoNome ?? null,
         dia: contexto.dia ?? hojeNoFuso(ctx.fuso),
