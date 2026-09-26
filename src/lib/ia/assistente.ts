@@ -104,7 +104,6 @@ export const DESTINOS_PERMITIDOS: Record<string, string> = {
   "/barbeiro/fidelidade": "Abrir o Voltaí",
   "/barbeiro/marca": "Abrir a marca",
   "/barbeiro/equipe": "Abrir a equipe",
-  "/barbeiro/integracoes": "Abrir integrações",
   "/barbeiro/configurar": "Abrir a configuração inicial",
   "/barbeiro/mais": "Abrir o menu",
 };

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -12,8 +12,13 @@ import type { PainelDeIntegracao } from "@/lib/ia.functions";
 import { conectarAlvoIA, desconectarAlvoIA, getIntegracaoDeIA, salvarAgenteDeIA } from "@/lib/ia.functions";
 import { Button } from "@/components/ui/button";
 
+// Integração ALVO IA em configuração (credenciais ausentes): quem abrir o
+// endereço antigo volta ao menu em vez de cair numa tela que não conecta.
 export const Route = createFileRoute("/barbeiro/integracoes")({
   ssr: false,
+  beforeLoad: () => {
+    throw redirect({ to: "/barbeiro/mais" });
+  },
   head: () => ({
     meta: [
       { title: "Integrações — Cortaí Gestão" },

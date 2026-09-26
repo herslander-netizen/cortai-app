@@ -187,7 +187,7 @@ function PainelIaPage() {
     <Screen
       title="Painel do atendente"
       subtitle="Sua operação com os dados reais do Cortaí, em um lugar só."
-      voltarPara="/barbeiro/integracoes"
+      voltarPara="/barbeiro/mais"
     >
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {isError ? (
@@ -211,9 +211,7 @@ function PainelIaPage() {
               WhatsApp: {data.whatsapp.status === "conectado" ? (data.whatsapp.numero ?? "conectado") : "não conectado"}
             </p>
             {data.estado === "nao_configurado" ? (
-              <Link to="/barbeiro/integracoes" className="mt-3 inline-block text-xs font-semibold text-gold">
-                Ir para Integrações
-              </Link>
+              <p className="mt-3 text-xs text-mute2">Atendimento inteligente externo em configuração.</p>
             ) : null}
           </section>
 
