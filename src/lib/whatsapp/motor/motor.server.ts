@@ -17,6 +17,11 @@ import { SAUDACAO_PADRAO } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
 import { normalizar } from "./vocabulario";
+import {
+  responder as textoDaConversaPadrao,
+  type ChaveDeTexto,
+  type PersonalizacaoConversa,
+} from "../conversa-padrao";
 
 type Ctx = { tenantId: string; externalAgentId: string | null; fuso: string };
 
