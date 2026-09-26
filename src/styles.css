@@ -385,9 +385,10 @@ html.light .brand-logo-on-light,
 .management-shell .screen-content > * {
   max-width: 760px;
 }
-}
+
 .management-shell .screen-shell[data-largura="larga"] .screen-content > * {
   max-width: none;
+}
 
 @keyframes management-content-in {
   from { opacity: 0.72; transform: translateY(2px); }
