@@ -54,6 +54,8 @@ export async function tratarRespostaDeLembrete(input: {
   conversaId: string;
   telefone: string;
   texto: string;
+  /** ID externo da mensagem citada pelo cliente, quando houver. */
+  citadaId?: string | null;
 }): Promise<RespostaDeLembrete | null> {
   const db = await admin();
   const bruto = input.texto.trim();
