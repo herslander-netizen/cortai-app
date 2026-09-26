@@ -3823,6 +3823,10 @@ export type Database = {
         Args: { _email: string; _papel: string; _tenant_id: string }
         Returns: Json
       }
+      creditar_fidelidade_da_comanda: {
+        Args: { _ator: string; _comanda_id: string }
+        Returns: undefined
+      }
       criar_agendamento: {
         Args: {
           _cliente_id: string
