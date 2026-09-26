@@ -247,7 +247,10 @@ export const oferecerHorarioAFila = createServerFn({ method: "POST" })
   .inputValidator((data: { inicioIso: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
-    const hora = new Date(data.inicioIso).getHours();
+    const fuso = await fusoDoTenant(tenant.id);
+    const hora = Number(
+      new Intl.DateTimeFormat("en-US", { timeZone: fuso, hour: "2-digit", hourCycle: "h23" }).format(new Date(data.inicioIso)),
+    );
     const { data: fila } = await db
       .from("fila_de_espera")
       .select("id, janela_preferida, clientes(nome)")

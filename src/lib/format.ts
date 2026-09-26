@@ -14,16 +14,41 @@ export function diaCurto(iso: string): { dia: string; num: string; mes: string }
   };
 }
 
-export function hora(iso: string): string {
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+/**
+ * Fuso usado nas telas. Nunca o do aparelho: o painel define o fuso da
+ * barbearia assim que a sessão carrega (padrão America/Sao_Paulo).
+ */
+let fusoDasTelas = "America/Sao_Paulo";
+
+export function definirFusoDasTelas(fuso: string | null | undefined) {
+  if (fuso) fusoDasTelas = fuso;
 }
 
-export function dataHoraLonga(iso: string): string {
-  const d = new Date(iso);
-  return `${DIAS[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")} às ${hora(iso)}`;
+function partes(iso: string, fuso: string) {
+  const p = new Intl.DateTimeFormat("en-US", {
+    timeZone: fuso,
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(iso));
+  const v = (t: string) => p.find((x) => x.type === t)?.value ?? "";
+  const semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(v("weekday"));
+  return { semana, dia: v("day"), mes: v("month"), hora: `${v("hour")}:${v("minute")}` };
 }
 
-export function dataCurta(iso: string): string {
-  const d = new Date(iso);
-  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+export function hora(iso: string, fuso: string = fusoDasTelas): string {
+  return partes(iso, fuso).hora;
+}
+
+export function dataHoraLonga(iso: string, fuso: string = fusoDasTelas): string {
+  const d = partes(iso, fuso);
+  return `${DIAS[d.semana]} ${d.dia}/${d.mes} às ${d.hora}`;
+}
+
+export function dataCurta(iso: string, fuso: string = fusoDasTelas): string {
+  const d = partes(iso, fuso);
+  return `${d.dia}/${d.mes}`;
 }

@@ -1,3 +1,4 @@
+import { fusoDoTenant } from "@/lib/fuso.server";
 /**
  * Cérebro do atendimento do CortAI no WhatsApp — só roda no servidor.
  *
@@ -25,7 +26,6 @@ import {
 const ENDPOINT = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODELO = "google/gemini-3-flash";
 const MAX_PASSOS = 8;
-const FUSO = "America/Sao_Paulo";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -46,19 +46,19 @@ const TOM_EM_TEXTO: Record<TomDoAtendimento, string> = {
 
 /* --------------------------- Datas em português -------------------------- */
 
-function diaLocal(deslocamentoEmDias = 0): string {
+function diaLocal(fuso: string, deslocamentoEmDias = 0): string {
   const d = new Date(Date.now() + deslocamentoEmDias * 86_400_000);
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: FUSO,
+    timeZone: fuso,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(d);
 }
 
-function agoraLocal(): string {
+function agoraLocal(fuso: string): string {
   return new Intl.DateTimeFormat("pt-BR", {
-    timeZone: FUSO,
+    timeZone: fuso,
     dateStyle: "full",
     timeStyle: "short",
   }).format(new Date());
@@ -250,13 +250,14 @@ function instrucoes(input: {
   contexto: ContextoDaConversa;
   perfil: string | null;
   houveAtendimentoHumano: boolean;
+  fuso: string;
 }) {
-  const { config, contexto } = input;
+  const { config, contexto, fuso } = input;
   const contextoTexto = resumoDoContexto(contexto);
   return `Você é ${input.nomeDoAgente ?? "o atendente"} da barbearia ${input.nomeDaBarbearia}, atendendo pelo WhatsApp.
 Fale português do Brasil, em mensagens curtas de WhatsApp, com tom ${TOM_EM_TEXTO[config.tom]}.
 
-AGORA: ${agoraLocal()} (fuso ${FUSO}). Hoje é ${diaLocal(0)}; amanhã é ${diaLocal(1)}; depois de amanhã é ${diaLocal(2)}.
+AGORA: ${agoraLocal(fuso)} (fuso ${fuso}). Hoje é ${diaLocal(fuso, 0)}; amanhã é ${diaLocal(fuso, 1)}; depois de amanhã é ${diaLocal(fuso, 2)}.
 Telefone de quem está falando: ${input.telefone}.
 
 COMO PENSAR
@@ -404,6 +405,7 @@ export async function responderConversa(input: {
     {
       role: "system",
       content: instrucoes({
+        fuso: await fusoDoTenant(input.ctx.tenantId),
         nomeDaBarbearia: input.nomeDaBarbearia,
         nomeDoAgente: input.nomeDoAgente,
         config: input.config,
