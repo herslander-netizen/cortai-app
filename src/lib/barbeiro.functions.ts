@@ -979,3 +979,41 @@ export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/** Mover horário (arrastar na agenda): atualiza o mesmo agendamento; a trava do banco rejeita sobreposição. */
+export const moverAgendamentoPainel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { agendamentoId: string; novoInicio: string }) => {
+    if (Number.isNaN(new Date(data.novoInicio).getTime())) throw new Error("Horário inválido.");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, inicio, fim, status")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    if (atual.status !== "agendado" && atual.status !== "chegou") throw new Error("Só dá para remarcar quem ainda não começou.");
+    const duracao = new Date(atual.fim).getTime() - new Date(atual.inicio).getTime();
+    const inicio = new Date(data.novoInicio);
+    const { error } = await db
+      .from("agendamentos")
+      .update({ inicio: inicio.toISOString(), fim: new Date(inicio.getTime() + duracao).toISOString() })
+      .eq("id", atual.id)
+      .eq("tenant_id", tenant.id);
+    if (error) {
+      if (error.code === "23P01" || /sobreposicao/i.test(error.message)) throw new Error("Esse horário já está ocupado.");
+      throw new Error(error.message);
+    }
+    try {
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      await notificarAgendamento(atual.id, "remarcacao");
+    } catch {
+      /* o horário já está salvo */
+    }
+    return { ok: true, inicioAnterior: atual.inicio as string };
+  });
