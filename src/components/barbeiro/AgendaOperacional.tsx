@@ -331,7 +331,16 @@ export function AgendaOperacional() {
                         {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); if (item.clienteId) setPerfil(item.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-base underline-offset-4 active:underline ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</Button> : <p className={`truncate text-base ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</p>}
                         <p className="mt-0.5 truncate text-sm text-mute">{item.servico} · {item.profissional}</p>
                       </div>
-                      <StatusBadge status={item.status} />
+                      <div className="flex items-center gap-1">
+                        {item.clienteId ? (
+                          <Button asChild variant="ghost" size="icon" aria-label={`Abrir conversa de ${item.cliente} no WhatsApp`}>
+                            <Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: item.clienteId }} onClick={(e) => e.stopPropagation()}>
+                              <MessageCircle />
+                            </Link>
+                          </Button>
+                        ) : null}
+                        <StatusBadge status={item.status} />
+                      </div>
                     </div>
                     {alergia ? <p className="mt-3 border-l-2 border-brick pl-3 text-xs font-semibold text-paper">{alergia}</p> : null}
                     <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -365,7 +374,16 @@ export function AgendaOperacional() {
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
                     {espera > 0 ? <span className="mt-1 block text-xs font-semibold text-brick">~{espera} min de espera</span> : null}
                   </Button>
-                  {espera > 0 && telefone ? <Button asChild variant="secondary" size="sm"><a href={`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer" aria-label={`Avisar ${item.cliente} pelo WhatsApp`}><MessageCircle />Avisar</a></Button> : <StatusBadge status={item.status} />}
+                  <div className="flex items-center gap-1">
+                    {item.clienteId ? (
+                      <Button asChild variant="ghost" size="icon" aria-label={`Abrir conversa de ${item.cliente} no WhatsApp`}>
+                        <Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: item.clienteId }}>
+                          <MessageCircle />
+                        </Link>
+                      </Button>
+                    ) : null}
+                    {espera > 0 && telefone ? <Button asChild variant="secondary" size="sm"><a href={`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`} target="_blank" rel="noreferrer" aria-label={`Avisar ${item.cliente} pelo WhatsApp`}><MessageCircle />Avisar</a></Button> : <StatusBadge status={item.status} />}
+                  </div>
                 </div>
               );
             })}
