@@ -21,7 +21,7 @@ export function BannerDeCookies() {
   if (!pronto || consentimento) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+    <div className="banner-cookies pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
       <div
         role="dialog"
         aria-label="Privacidade e cookies"
