@@ -5,12 +5,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarPlus, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { normalizarFuso, slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, normalizarFuso, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
