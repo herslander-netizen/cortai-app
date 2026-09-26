@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Aplicar identidade urbana Cortaí nos tokens e componentes compartilhados
-- [ ] Substituir marca e ícones PWA mantendo todos os pontos de uso
+- [x] Aplicar identidade urbana Cortaí nos tokens e componentes compartilhados
+- [x] Substituir marca e ícones PWA mantendo todos os pontos de uso
 - [ ] Revisar telas principais em celular e computador, claro e escuro
 
 - [x] V3 Etapa 2: aplicar paleta neutra e destaques dessaturados por identidade

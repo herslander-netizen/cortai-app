@@ -785,6 +785,28 @@ html.light {
   clip-path: inset(0 -100vmax);
 }
 
+body:has(.auth-screen) {
+  --background: #0e0e0e;
+  --foreground: #f5f4f0;
+  --card: #181818;
+  --card-foreground: #f5f4f0;
+  --popover: #222221;
+  --popover-foreground: #f5f4f0;
+  --primary: #c8f43c;
+  --primary-foreground: #0e0e0e;
+  --secondary: #222221;
+  --secondary-foreground: #f5f4f0;
+  --muted: #222221;
+  --muted-foreground: #a2a19c;
+  --accent: #222221;
+  --accent-foreground: #f5f4f0;
+  --border: #30302e;
+  --input: #464641;
+  --ring: #c8f43c;
+  background: #0e0e0e;
+  color: #f5f4f0;
+}
+
 .light .landing-page {
   --ink: var(--identity-graphite);
   --ink2: var(--surface-raised);
