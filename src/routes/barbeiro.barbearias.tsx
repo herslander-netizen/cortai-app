@@ -78,7 +78,7 @@ function MinhasBarbeariasPage() {
           {data.map((b) => (
             <article key={b.id} className={`card p-5 ${b.ehAtiva ? "border-gold" : ""}`}>
               <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-ink2">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden surface">
                   {b.logoUrl ? (
                     <img src={b.logoUrl} alt="" className="h-full w-full object-cover" />
                   ) : (

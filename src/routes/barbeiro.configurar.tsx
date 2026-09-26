@@ -384,7 +384,7 @@ function ConfigurarPage() {
                 ))}
               </ul>
 
-              <div className="mt-4 space-y-3 rounded-xl border border-line bg-ink2 p-4">
+              <div className="mt-4 space-y-3 surface p-4">
                 <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
                   {FUNCOES.map((f) => (
                     <Button variant="ghost"

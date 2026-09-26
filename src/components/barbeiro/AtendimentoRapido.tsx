@@ -64,7 +64,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
         ) : (
           <div className="space-y-5">
             <section aria-label="Cliente">
-              <p className="mb-2 text-[11px] font-bold uppercase text-mute">Cliente</p>
+              <p className="mb-2 text-xs font-bold uppercase text-mute">Cliente</p>
               <label className="relative block">
                 <Search aria-hidden size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
                 <input value={termo} onChange={(e) => setTermo(e.target.value)} placeholder="Buscar por nome ou telefone" className="h-12 w-full rounded-lg border border-line bg-ink pl-9 pr-3 text-sm text-paper outline-none focus:border-paper" />
@@ -79,7 +79,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
             </section>
 
             <section aria-label="Serviço">
-              <p className="mb-2 text-[11px] font-bold uppercase text-mute">Serviço</p>
+              <p className="mb-2 text-xs font-bold uppercase text-mute">Serviço</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.servicos.map((s) => (
                   <Button variant="ghost" key={s.id} type="button" className={chip(servicoId === s.id)} onClick={() => setServicoId(s.id)}>{s.nome} · {s.duracao_min} min</Button>
@@ -88,7 +88,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
             </section>
 
             <section aria-label="Profissional">
-              <p className="mb-2 text-[11px] font-bold uppercase text-mute">Profissional</p>
+              <p className="mb-2 text-xs font-bold uppercase text-mute">Profissional</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.profissionais.map((p) => (
                   <Button variant="ghost" key={p.id} type="button" className={chip(profissionalId === p.id)} onClick={() => setProfissionalId(p.id)}>{p.nome}{p.livre ? "" : " · ocupado"}</Button>

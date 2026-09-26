@@ -82,7 +82,7 @@ export function AcoesRapidas() {
                 key={acao.label}
                 type="button"
                 variant="ghost"
-                className="h-auto min-h-16 w-full justify-start gap-4 whitespace-normal rounded-lg border border-line bg-ink2 px-4 py-3 text-left hover:bg-ink active:bg-ink2"
+                className="h-auto min-h-16 w-full justify-start gap-4 whitespace-normal surface px-4 py-3 text-left hover:bg-ink active:bg-ink2"
                 onClick={async () => {
                   setAberto(false);
                   if ("search" in acao) {

@@ -65,7 +65,7 @@ function AvaliacoesPage() {
       {isLoading ? <Carregando /> : null}
 
       {data ? (
-        <div className="rounded-xl border border-line bg-ink2 px-5 py-5">
+        <div className="surface px-5 py-5">
           <p className="text-xs text-mute">Média interna</p>
           <p className="mt-1 text-[30px] font-bold leading-none text-paper">{data.media ?? "—"}</p>
           <p className="mt-2 text-xs text-mute2">

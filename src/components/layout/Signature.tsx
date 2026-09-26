@@ -34,7 +34,7 @@ export function Signature() {
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-4 inline-flex items-center gap-2 text-[11px] text-mute transition-colors hover:text-gold"
+          className="mb-4 inline-flex items-center gap-2 text-xs text-mute transition-colors hover:text-gold"
         >
           <MessageCircle size={13} aria-hidden />
           Fale com a Alvo Digital
@@ -58,14 +58,14 @@ export function Signature() {
           "by ALVO DIGITAL"
         )}
       </p>
-      <p className="mt-1 text-[11px] text-mute2">Tecnologia que conecta a cidade.</p>
+      <p className="mt-1 text-xs text-mute2">Tecnologia que conecta a cidade.</p>
       <Link
         to="/privacidade"
-        className="mt-3 inline-block text-[11px] text-mute2 transition-colors hover:text-gold"
+        className="mt-3 inline-block text-xs text-mute2 transition-colors hover:text-gold"
       >
         Política de Privacidade
       </Link>
-      <p className="mt-3 text-[10px] text-mute2">© 2026 Herslander</p>
+      <p className="mt-3 text-xs text-mute2">© 2026 Herslander</p>
     </footer>
   );
 }

@@ -61,7 +61,7 @@ function IndicacoesPage() {
     <Screen voltarPara="/barbeiro/mais" title="Indicações" subtitle="Cliente que traz cliente.">
       {isLoading ? <Carregando /> : null}
 
-      <div className="rounded-xl border border-line bg-ink2 p-5">
+      <div className="surface p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-paper">Programa de indicação</p>

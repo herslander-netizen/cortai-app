@@ -50,7 +50,7 @@ const emCentavos = (texto: string) => Math.round(Number(texto.replace(/\./g, "")
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11px] uppercase text-mute2">{label}</span>
+      <span className="mb-1 block text-xs uppercase text-mute2">{label}</span>
       {children}
     </label>
   );
@@ -75,7 +75,7 @@ function MonetizacaoPage() {
           </button>
         ))}
       </nav>
-      <Link to="/admin/recursos" className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-line bg-ink2 px-4 py-3 text-sm text-paper"><span><span className="block font-semibold">Recursos e limites dos planos</span><span className="mt-1 block text-xs text-mute">Defina o que cada plano libera, sem alterar preços.</span></span><span className="text-xs text-gold">Abrir</span></Link>
+      <Link to="/admin/recursos" className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 surface px-4 py-3 text-sm text-paper"><span><span className="block font-semibold">Recursos e limites dos planos</span><span className="mt-1 block text-xs text-mute">Defina o que cada plano libera, sem alterar preços.</span></span><span className="text-xs text-gold">Abrir</span></Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
       {aba === "Por barbearia" ? <AbaBarbearia /> : null}
       {aba === "Cupons" ? <AbaCupons /> : null}
@@ -119,12 +119,12 @@ function AbaPlanos() {
 
       <ul className="space-y-3">
         {query.data.map((p) => (
-          <li key={p.id} className="rounded-xl border border-line bg-ink2 px-4 py-4">
+          <li key={p.id} className="surface px-4 py-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-paper">{p.nome} {p.ativo ? null : <span className="text-xs text-mute2">(inativo)</span>}</p>
                 <p className="mt-1 text-xs text-mute">{brl(p.precoMensalCentavos)}/mês · {brl(p.precoAnualCentavos)}/ano · {p.diasTeste} dias de teste</p>
-                <p className="mt-1 text-[11px] text-mute2">
+                <p className="mt-1 text-xs text-mute2">
                   Limites: {p.limiteProfissionais ?? "sem limite"} profissionais · {p.limiteClientes ?? "sem limite"} clientes · {p.limiteAgendamentosMes ?? "sem limite"} agendamentos/mês
                 </p>
               </div>
@@ -186,7 +186,7 @@ function FormularioPlano({
 
   return (
     <form
-      className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+      className="mt-5 space-y-3 surface p-4"
       onSubmit={(e) => {
         e.preventDefault();
         void acao.executar("plano", () => onSalvar({
@@ -281,7 +281,7 @@ function AbaBarbearia() {
 
       {visao.data ? (
         <>
-          <div className="mt-6 rounded-xl border border-line bg-ink2 px-4 py-4">
+          <div className="mt-6 surface px-4 py-4">
             <p className="text-sm font-semibold text-paper">{visao.data.tenantNome}</p>
             <p className="mt-1 text-xs text-mute">
               Plano {visao.data.planoChave} · {visao.data.ciclo} · situação {visao.data.status}
@@ -291,13 +291,13 @@ function AbaBarbearia() {
               Preço padrão {brl(visao.data.precoPadraoCentavos)} · cobrando {" "}
               <span className="text-gold">{brl(visao.data.precoEfetivoCentavos)}</span>
             </p>
-            <p className="mt-2 text-[11px] text-mute2">
+            <p className="mt-2 text-xs text-mute2">
               Uso: {visao.data.uso.profissionais}/{visao.data.limites.profissionais ?? "∞"} profissionais ·{" "}
               {visao.data.uso.clientes}/{visao.data.limites.clientes ?? "∞"} clientes ·{" "}
               {visao.data.uso.agendamentosMes}/{visao.data.limites.agendamentos_mes ?? "∞"} agendamentos no mês
             </p>
             {visao.data.cuponsAplicados.length ? (
-              <p className="mt-2 text-[11px] text-mute2">Cupons usados: {visao.data.cuponsAplicados.map((c) => c.codigo).join(", ")}</p>
+              <p className="mt-2 text-xs text-mute2">Cupons usados: {visao.data.cuponsAplicados.map((c) => c.codigo).join(", ")}</p>
             ) : null}
           </div>
 
@@ -319,12 +319,12 @@ function AbaBarbearia() {
           <h3 className="mb-2 mt-8 text-sm font-semibold text-paper">Condições especiais</h3>
           <ul className="space-y-2">
             {visao.data.condicoes.map((c) => (
-              <li key={c.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+              <li key={c.id} className="flex items-start justify-between gap-4 surface px-4 py-3">
                 <div>
                   <p className="text-xs text-paper">
                     {c.planoChave} · {c.precoPersonalizadoCentavos != null ? brl(c.precoPersonalizadoCentavos) : `${c.descontoPercentual}% + ${brl(c.descontoCentavos)}`}
                   </p>
-                  <p className="mt-1 text-[11px] text-mute2">
+                  <p className="mt-1 text-xs text-mute2">
                     {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.ativo ? "ativa" : "encerrada"}
                     {c.motivo ? ` · ${c.motivo}` : ""}
                   </p>
@@ -332,7 +332,7 @@ function AbaBarbearia() {
                 {c.ativo ? (
                   <button
                     type="button"
-                    className="btn-secondary px-3 text-[11px] disabled:opacity-60"
+                    className="btn-secondary px-3 text-xs disabled:opacity-60"
                     disabled={acao.ocupado}
                     onClick={() => {
                       if (!window.confirm("Encerrar esta condição especial? A barbearia volta ao preço padrão.")) return;
@@ -351,7 +351,7 @@ function AbaBarbearia() {
           </ul>
 
           <form
-            className="mt-5 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+            className="mt-5 space-y-3 surface p-4"
             onSubmit={(e) => {
               e.preventDefault();
               setErro("");
@@ -421,7 +421,7 @@ function MudarPlano({
   const acao = useAcao();
   return (
     <form
-      className="mt-4 grid gap-3 rounded-xl border border-line bg-ink2 p-4 sm:grid-cols-4"
+      className="mt-4 grid gap-3 surface p-4 sm:grid-cols-4"
       onSubmit={(e) => {
         e.preventDefault();
         void acao.executar("plano", () => onSalvar({
@@ -488,13 +488,13 @@ function AbaCupons() {
 
       <ul className="space-y-2">
         {(query.data ?? []).map((c) => (
-          <li key={c.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+          <li key={c.id} className="flex items-start justify-between gap-4 surface px-4 py-3">
             <div>
               <p className="text-sm font-semibold text-paper">{c.codigo}</p>
               <p className="mt-1 text-xs text-mute">
                 {c.tipo === "percentual" ? `${c.valor}% de desconto` : `${brl(c.valor)} de desconto`} · {c.publico === "todos" ? "todas as barbearias" : c.publico === "novos" ? "barbearias novas" : "barbearias já clientes"}
               </p>
-              <p className="mt-1 text-[11px] text-mute2">
+              <p className="mt-1 text-xs text-mute2">
                 {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.usos}
                 {c.usosMax ? `/${c.usosMax}` : ""} usos{c.planos.length ? ` · planos: ${c.planos.join(", ")}` : ""}
               </p>
@@ -506,7 +506,7 @@ function AbaCupons() {
       </ul>
 
       <form
-        className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+        className="mt-6 space-y-3 surface p-4"
         onSubmit={async (e) => {
           e.preventDefault();
           setStatus("");
@@ -607,11 +607,11 @@ function AbaBanners() {
 
       <ul className="space-y-2">
         {(query.data ?? []).map((b) => (
-          <li key={b.id} className="flex items-start justify-between gap-4 rounded-lg border border-line bg-ink2 px-4 py-3">
+          <li key={b.id} className="flex items-start justify-between gap-4 surface px-4 py-3">
             <div>
               <p className="text-sm font-semibold text-paper">{b.titulo}</p>
               {b.subtitulo ? <p className="mt-1 text-xs text-mute">{b.subtitulo}</p> : null}
-              <p className="mt-1 text-[11px] text-mute2">
+              <p className="mt-1 text-xs text-mute2">
                 {dataCurta(b.inicio)} até {b.fim ? dataCurta(b.fim) : "sem prazo"} · público: {b.segmento} · prioridade {b.prioridade}
               </p>
             </div>
@@ -619,7 +619,7 @@ function AbaBanners() {
               <Switch checked={b.ativo} aria-label={`Campanha ${b.titulo} ativa`} onCheckedChange={(v) => void alternar(b, v)} />
               <button
                 type="button"
-                className="text-[11px] text-brick"
+                className="text-xs text-brick"
                 onClick={async () => {
                   await remover({ data: { id: b.id } });
                   await query.refetch();
@@ -635,7 +635,7 @@ function AbaBanners() {
       </ul>
 
       <form
-        className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+        className="mt-6 space-y-3 surface p-4"
         onSubmit={async (e) => {
           e.preventDefault();
           setStatus("");

@@ -14,7 +14,7 @@ export function SobreOCortai() {
   return (
     <section className="mt-10">
       <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sobre o Cortaí</h2>
-      <div className="rounded-xl border border-line bg-ink2 p-4">
+      <div className="surface p-4">
         <p className="text-sm font-semibold text-paper">Cortaí · v{APP_VERSION}</p>
         <p className="mt-1 text-xs text-mute">
           {emDia ? "Você está na versão mais recente." : `Versão disponível: ${publicada}. Atualize para ver as novidades.`}

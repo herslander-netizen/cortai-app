@@ -73,7 +73,7 @@ function RecursosPage() {
                               onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)}
                             />
 
-                            <span className={`text-[10px] uppercase ${linha?.liberado ? "text-sage" : "text-mute2"}`}>{linha?.liberado ? "Ativo" : "Bloqueado"}</span>
+                            <span className={`text-xs uppercase ${linha?.liberado ? "text-sage" : "text-mute2"}`}>{linha?.liberado ? "Ativo" : "Bloqueado"}</span>
                           </div>
                         </td>
                       );
@@ -84,7 +84,7 @@ function RecursosPage() {
             </table>
           </div>
           <div className="space-y-3 sm:hidden">
-            {recursos.map((recurso) => <section key={recurso.chave} className="surface-card p-4"><p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>{recurso.descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{recurso.descricao}</p> : null}<div className="mt-4 grid grid-cols-3 gap-2">{PLANOS.map((plano) => { const linha = linhas.find((l) => l.chave === recurso.chave && l.plano === plano); return <label key={plano} className="flex flex-col items-center gap-2 rounded-md bg-ink3 p-2 text-center"><span className="text-[10px] font-semibold text-mute">{ROTULO_DO_PLANO[plano]}</span><Switch checked={Boolean(linha?.liberado)} disabled={acao.ocupado} aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`} onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)} /></label>; })}</div></section>)}
+            {recursos.map((recurso) => <section key={recurso.chave} className="surface-card p-4"><p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>{recurso.descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{recurso.descricao}</p> : null}<div className="mt-4 grid grid-cols-3 gap-2">{PLANOS.map((plano) => { const linha = linhas.find((l) => l.chave === recurso.chave && l.plano === plano); return <label key={plano} className="flex flex-col items-center gap-2 rounded-md bg-ink3 p-2 text-center"><span className="text-xs font-semibold text-mute">{ROTULO_DO_PLANO[plano]}</span><Switch checked={Boolean(linha?.liberado)} disabled={acao.ocupado} aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`} onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)} /></label>; })}</div></section>)}
           </div>
           <p className="mt-6 text-xs leading-relaxed text-mute2">
             A liberação é conferida no servidor sempre que a barbearia abre ou salva o recurso. Bloquear aqui não apaga nenhum dado já cadastrado.

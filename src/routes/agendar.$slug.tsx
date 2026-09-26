@@ -186,7 +186,7 @@ function AgendamentoPublico() {
           {cancelado ? "Agendamento cancelado" : "Agendamento confirmado"}
         </h1>
         {!cancelado ? (
-          <dl className="mt-6 divide-y divide-line rounded-2xl border border-line bg-ink2">
+          <dl className="mt-6 divide-y divide-line surface">
             {[
               ["Cliente", confirmado.cliente],
               ["Serviço", `${confirmado.servico} · ${brl(confirmado.valor_centavos)}`],
@@ -348,7 +348,7 @@ function AgendamentoPublico() {
                   dia === d.iso ? "border-gold bg-ink2 text-paper" : "border-line text-mute"
                 }`}
               >
-                <span className="text-[11px] uppercase">{d.rotulo}</span>
+                <span className="text-xs uppercase">{d.rotulo}</span>
                 <span className="text-lg font-semibold">{d.numero}</span>
               </button>
             ))}

@@ -36,7 +36,7 @@ function FinanceiroPage() {
           { label: "Serviços", value: data.servicos, icon: Scissors },
           { label: "Produtos", value: data.produtos, icon: PackageCheck },
           { label: "Outros", value: data.outros, icon: Shapes },
-        ].map((item) => { const Icon = item.icon; return <div key={item.label} className="min-w-0 rounded-lg border border-line bg-ink2 p-3"><Icon size={16} className="text-mute" /><p className="mt-3 truncate text-[10px] text-mute">{item.label}</p><p className="mt-1 truncate text-sm font-semibold text-paper">{brl(item.value)}</p></div>; })}
+        ].map((item) => { const Icon = item.icon; return <div key={item.label} className="min-w-0 surface p-3"><Icon size={16} className="text-mute" /><p className="mt-3 truncate text-xs text-mute">{item.label}</p><p className="mt-1 truncate text-sm font-semibold text-paper">{brl(item.value)}</p></div>; })}
       </div>
       <h2 className="mt-8 text-sm font-semibold text-paper">Movimentações recentes</h2>
       <ul data-guia="financeiro-movimentos" className="mt-2">

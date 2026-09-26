@@ -54,8 +54,8 @@ const ESTADOS: Record<PainelOperacional["estado"], { rotulo: string; cor: string
 
 function Cartao({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 p-4">
-      <p className="text-[11px] uppercase tracking-wide text-mute2">{rotulo}</p>
+    <div className="surface p-4">
+      <p className="text-xs uppercase tracking-wide text-mute2">{rotulo}</p>
       <p className="mt-1 text-lg font-semibold text-paper">{valor}</p>
     </div>
   );
@@ -91,7 +91,7 @@ function LinhaAgendamento({
           <span className="block text-xs font-semibold text-paper">
             {brl(a.valorCentavos || (a.servico?.precoCentavos ?? 0))}
           </span>
-          <span className="block text-[11px] text-mute2">{a.status}</span>
+          <span className="block text-xs text-mute2">{a.status}</span>
         </span>
       </div>
 
@@ -99,7 +99,7 @@ function LinhaAgendamento({
         <div className="mt-2 flex gap-2">
           <Button variant="ghost"
             type="button"
-            className="btn-tertiary text-[11px]"
+            className="btn-tertiary text-xs"
             onClick={() => {
               setErro(null);
               setEditando((v) => !v);
@@ -109,7 +109,7 @@ function LinhaAgendamento({
           </Button>
           <Button variant="ghost"
             type="button"
-            className="btn-tertiary text-[11px] text-brick"
+            className="btn-tertiary text-xs text-brick"
             disabled={ocupado}
             onClick={async () => {
               if (!window.confirm("Cancelar este atendimento?")) return;
@@ -199,7 +199,7 @@ function PainelIaPage() {
 
       {data ? (
         <div className="space-y-6">
-          <section className="rounded-lg border border-line bg-ink2 p-4">
+          <section className="surface p-4">
             <p className={`text-sm font-semibold ${ESTADOS[data.estado].cor}`}>{ESTADOS[data.estado].rotulo}</p>
             <p className="mt-1 text-xs leading-relaxed text-mute">
               {data.motivo ??
@@ -242,7 +242,7 @@ function PainelIaPage() {
               </div>
               <section>
                 <SectionHeading title="Horários de atendimento" description="Base usada para oferecer vagas." />
-                <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+                <div className="mt-3 surface px-4">
                   {data.horarios.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nenhum horário cadastrado.</p>
                   ) : (
@@ -271,7 +271,7 @@ function PainelIaPage() {
               />
               <section>
                 <SectionHeading title="Atendimentos de hoje" />
-                <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+                <div className="mt-3 surface px-4">
                   {data.hoje.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nenhum atendimento hoje.</p>
                   ) : (
@@ -287,7 +287,7 @@ function PainelIaPage() {
               </section>
               <section>
                 <SectionHeading title="Próximos atendimentos" />
-                <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+                <div className="mt-3 surface px-4">
                   {data.proximos.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nada marcado para os próximos dias.</p>
                   ) : (
@@ -302,7 +302,7 @@ function PainelIaPage() {
               </section>
               <section>
                 <SectionHeading title="Profissionais" />
-                <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+                <div className="mt-3 surface px-4">
                   {data.profissionais.length === 0 ? (
                     <p className="py-4 text-xs text-mute">Nenhum profissional cadastrado.</p>
                   ) : (
@@ -324,7 +324,7 @@ function PainelIaPage() {
           {aba === "Clientes" ? (
             <section>
               <SectionHeading title="Clientes" description="Toque para abrir a ficha completa." />
-              <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+              <div className="mt-3 surface px-4">
                 {data.clientes.length === 0 ? (
                   <p className="py-4 text-xs text-mute">Nenhum cliente cadastrado ainda.</p>
                 ) : (
@@ -339,7 +339,7 @@ function PainelIaPage() {
                         <span className="block truncate text-sm text-paper">{c.nome}</span>
                         <span className="block truncate text-xs text-mute">{c.telefone ?? "sem telefone"}</span>
                       </span>
-                      <span className="shrink-0 text-right text-[11px] text-mute2">
+                      <span className="shrink-0 text-right text-xs text-mute2">
                         {c.visitas} visita{c.visitas === 1 ? "" : "s"}
                         {c.ultimaVisita ? ` · ${dataHoraLonga(c.ultimaVisita)}` : ""}
                       </span>
@@ -353,7 +353,7 @@ function PainelIaPage() {
           {aba === "Serviços" ? (
             <section>
               <SectionHeading title="Serviços" description="Preços e durações usados pelo atendente." />
-              <div className="mt-3 rounded-lg border border-line bg-ink2 px-4">
+              <div className="mt-3 surface px-4">
                 {data.servicos.length === 0 ? (
                   <p className="py-4 text-xs text-mute">Nenhum serviço cadastrado.</p>
                 ) : (

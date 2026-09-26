@@ -86,7 +86,7 @@ function Passo({
   return (
     <section data-guia={guia} className="border-t border-line py-6 first:border-t-0 first:pt-0">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-[11px] text-mute">{n}</span>
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-xs text-mute">{n}</span>
         {titulo}
       </h2>
       {children}
@@ -187,7 +187,7 @@ function Fluxo({
   if (sucesso) {
     return (
       <Screen title="Agendado!" subtitle={dataHoraLonga(sucesso.inicio)}>
-        <div className="rounded-lg border border-line bg-ink2 p-5">
+        <div className="surface p-5">
           <p className="text-xs uppercase tracking-wider text-mute">Sua carteira</p>
           <p className="mt-2 text-2xl font-bold text-paper">
             {sucesso.saldo_creditos} {sucesso.saldo_creditos === 1 ? "crédito" : "créditos"}

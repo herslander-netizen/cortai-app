@@ -123,7 +123,7 @@ function IntegracoesPage() {
       {data ? <PainelDeSincronizacao /> : null}
 
       {data ? (
-        <section className="mt-5 rounded-lg border border-line bg-ink2 p-5">
+        <section className="mt-5 surface p-5">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
               <Bot size={18} />
@@ -233,13 +233,13 @@ function IntegracoesPage() {
                   Guarde esta chave agora: ela aparece uma única vez. É com ela que o atendente consulta a sua
                   agenda.
                 </p>
-                <code className="block break-all rounded bg-ink2 px-3 py-2 text-[11px] text-paper">{chave.token}</code>
-                <p className="text-[11px] text-mute">Endereço: {chave.url}</p>
+                <code className="block break-all rounded bg-ink2 px-3 py-2 text-xs text-paper">{chave.token}</code>
+                <p className="text-xs text-mute">Endereço: {chave.url}</p>
               </div>
             ) : null}
 
             {data.ponte && !chave ? (
-              <p className="rounded-md border border-line bg-ink px-4 py-3 text-[11px] text-mute">
+              <p className="rounded-md border border-line bg-ink px-4 py-3 text-xs text-mute">
                 Chave ativa {data.ponte.prefixo}… · último uso{" "}
                 {data.ponte.usadoEm ? new Date(data.ponte.usadoEm).toLocaleString("pt-BR") : "ainda não usada"}
               </p>

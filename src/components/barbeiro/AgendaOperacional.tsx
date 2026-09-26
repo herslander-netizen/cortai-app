@@ -119,7 +119,7 @@ function nomeEhGenerico(nome: string) {
 
 function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) {
   return (
-    <Suspense fallback={<div aria-hidden className="h-11 rounded-lg border border-line bg-ink2" />}>
+    <Suspense fallback={<div aria-hidden className="h-11 surface" />}>
       <AgendamentoManualLazy {...props} />
     </Suspense>
   );

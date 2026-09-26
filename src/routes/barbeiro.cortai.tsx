@@ -109,22 +109,22 @@ function CortaiPage() {
       {painel.data ? (
         <>
           <section className="grid grid-cols-3 gap-2" aria-label="Situação do atendimento">
-            <div className="rounded-lg border border-line bg-ink2 px-3 py-3">
-              <p className="text-[10px] text-mute2">WhatsApp</p>
+            <div className="surface px-3 py-3">
+              <p className="text-xs text-mute2">WhatsApp</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto ligado={painel.data.conexao?.status === "conectado"} />
                 {painel.data.conexao?.status === "conectado" ? "Ligado" : "Desligado"}
               </p>
             </div>
-            <div className="rounded-lg border border-line bg-ink2 px-3 py-3">
-              <p className="text-[10px] text-mute2">CortAI</p>
+            <div className="surface px-3 py-3">
+              <p className="text-xs text-mute2">CortAI</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto ligado={painel.data.iaDisponivel} />
                 {painel.data.iaDisponivel ? "Pronto" : "Indisponível"}
               </p>
             </div>
-            <div className="rounded-lg border border-line bg-ink2 px-3 py-3">
-              <p className="text-[10px] text-mute2">Automático</p>
+            <div className="surface px-3 py-3">
+              <p className="text-xs text-mute2">Automático</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto ligado={painel.data.configuracao.atendimentoAutomatico} />
                 {painel.data.configuracao.atendimentoAutomatico ? "Ligado" : "Desligado"}
@@ -180,7 +180,7 @@ const CORES_DO_ESTADO: Record<"desconectado" | "conectando" | "conectado" | "err
 
 function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] ${CORES_DO_ESTADO[estado]}`}>
+    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs ${CORES_DO_ESTADO[estado]}`}>
       <span
         aria-hidden
         className={`inline-block h-2 w-2 rounded-full ${
@@ -268,7 +268,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
   if (!painel.gatewayConfigurado) {
     return (
-      <section className="rounded-xl border border-line bg-ink2 p-5">
+      <section className="surface p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
             <Smartphone size={18} />
@@ -282,7 +282,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Cortaí. Enquanto ele
               não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar algo que não funciona.
             </p>
-            <p className="mt-3 text-[11px] text-mute2">
+            <p className="mt-3 text-xs text-mute2">
               Para a equipe técnica: falta configurar{" "}
               {(painel.credenciaisFaltantes.length ? painel.credenciaisFaltantes : ["EVOLUTION_API_URL", "EVOLUTION_API_KEY"]).join(", ")}
               . O serviço (Evolution API) deve enviar os eventos para /api/public/whatsapp/evolution com o cabeçalho
@@ -293,7 +293,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
         <Button variant="ghost" type="button" className="btn-primary mt-5 w-full opacity-50" disabled aria-disabled>
           Conectar WhatsApp
         </Button>
-        <p className="mt-2 text-center text-[11px] text-mute2">
+        <p className="mt-2 text-center text-xs text-mute2">
           O botão será liberado assim que o serviço estiver publicado.
         </p>
       </section>
@@ -354,7 +354,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
             : "Conectar WhatsApp";
 
   return (
-    <section className="rounded-xl border border-line bg-ink2 p-5">
+    <section className="surface p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
           <MessageCircle size={18} />
@@ -510,7 +510,7 @@ function BlocoDiagnostico() {
   const d = consulta.data;
 
   return (
-    <section className="mt-4 rounded-xl border border-line bg-ink2 p-5">
+    <section className="mt-4 surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-paper">Status detalhado da conexão</h2>
         <Button variant="ghost"
@@ -630,7 +630,7 @@ function ModalQr({
       onClick={aoFechar}
     >
       <div
-        className="w-full max-w-sm rounded-2xl border border-line bg-ink2 p-5 text-center"
+        className="w-full max-w-sm surface p-5 text-center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -648,7 +648,7 @@ function ModalQr({
           Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → escaneie o QR Code.
         </p>
         {restante !== null ? (
-          <p className="mt-2 text-[11px] text-mute2">Este código expira em {restante} segundos.</p>
+          <p className="mt-2 text-xs text-mute2">Este código expira em {restante} segundos.</p>
         ) : null}
 
         <Button variant="ghost"
@@ -711,7 +711,7 @@ function BlocoConversas({ conversaInicial, clienteInicial }: { conversaInicial?:
             key={id}
             type="button"
             onClick={() => setFiltro(id)}
-            className={`rounded-full border px-3 py-1 text-[11px] transition-colors ${
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               filtro === id ? "border-gold text-gold" : "border-line2 text-mute hover:text-paper"
             }`}
           >
@@ -744,7 +744,7 @@ function BlocoConversas({ conversaInicial, clienteInicial }: { conversaInicial?:
                   </p>
                 </div>
                 {c.naoLidas > 0 ? (
-                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-semibold text-ink">
+                  <span className="rounded-full bg-gold px-2 py-0.5 text-xs font-semibold text-ink">
                     {c.naoLidas}
                   </span>
                 ) : null}
@@ -855,7 +855,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
   const humano = conversa?.status === "humano";
 
   return (
-    <section className="cortai-conversa h-[calc(100dvh-230px)] min-h-[380px] rounded-xl border border-line bg-ink2 lg:h-[560px]">
+    <section className="cortai-conversa h-[calc(100dvh-230px)] min-h-[380px] surface lg:h-[560px]">
       <header className="shrink-0 border-b border-line px-4 py-3">
         <div className="flex items-start gap-3">
           <Button variant="ghost"
@@ -870,7 +870,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
             <p className="truncate text-sm font-semibold text-paper">
               {conversa?.nomeContato ?? dados.data?.cliente?.nome ?? conversa?.telefone ?? "Conversa"}
             </p>
-            <p className="mt-0.5 flex items-center gap-2 text-[11px] text-mute">
+            <p className="mt-0.5 flex items-center gap-2 text-xs text-mute">
               <Ponto ligado={!humano} />
               {conversa?.status === "encerrada"
                 ? "Conversa encerrada"
@@ -929,7 +929,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
               if (sistema) {
                 return (
                   <li key={m.id} className="flex justify-center">
-                    <span className="rounded-full border border-line2 px-3 py-1 text-[11px] text-mute2">
+                    <span className="rounded-full border border-line2 px-3 py-1 text-xs text-mute2">
                       {m.conteudo}
                     </span>
                   </li>
@@ -944,7 +944,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
                     }`}
                   >
                     <p className="whitespace-pre-wrap break-words leading-relaxed">{m.conteudo}</p>
-                    <p className="mt-1 text-[10px] text-mute2">
+                    <p className="mt-1 text-xs text-mute2">
                       {entrada ? "Cliente" : m.geradaPorIa ? "CortAI" : "Equipe"} ·{" "}
                       {new Date(m.criadoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                       {m.status === "falhou" ? " · não enviada" : ""}
@@ -959,10 +959,10 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
                 <div className="max-w-[85%] min-w-0 rounded-2xl rounded-br-sm border border-brick/50 px-3.5 py-2.5 text-sm">
                   <p className="whitespace-pre-wrap break-words text-paper">{f.texto}</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-[10px] text-brick">Não foi possível enviar.</span>
+                    <span className="text-xs text-brick">Não foi possível enviar.</span>
                     <Button variant="ghost"
                       type="button"
-                      className="text-[10px] text-gold underline"
+                      className="text-xs text-gold underline"
                       onClick={() => enviar.mutate(f.texto)}
                     >
                       Tentar novamente
@@ -974,7 +974,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
 
             {enviar.isPending ? (
               <li className="flex justify-end">
-                <span className="text-[11px] text-mute2">Enviando…</span>
+                <span className="text-xs text-mute2">Enviando…</span>
               </li>
             ) : null}
           </ul>
@@ -984,7 +984,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
           <Button variant="ghost"
             type="button"
             onClick={() => irAoFim()}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-line2 bg-ink px-3 py-1.5 text-xs text-paper shadow-lg"
           >
             Nova mensagem ↓
           </Button>
@@ -1026,7 +1026,7 @@ function Conversa({ id, aoVoltar }: { id: string; aoVoltar: () => void }) {
 
 function Bloco({ titulo, descricao, children }: { titulo: string; descricao?: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 p-5">
+    <div className="surface p-5">
       <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
       {descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p> : null}
       <div className="mt-4">{children}</div>
@@ -1051,7 +1051,7 @@ function Chave({
     <li className={`flex items-start justify-between gap-4 ${desabilitado ? "opacity-60" : ""}`}>
       <div className="min-w-0">
         <p className="text-xs text-paper">{rotulo}</p>
-        {detalhe ? <p className="mt-0.5 text-[11px] leading-relaxed text-mute2">{detalhe}</p> : null}
+        {detalhe ? <p className="mt-0.5 text-xs leading-relaxed text-mute2">{detalhe}</p> : null}
       </div>
       <input
         type="checkbox"
@@ -1115,7 +1115,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
 
   return (
     <section className="space-y-5">
-      <div className="rounded-lg border border-line bg-ink2 p-5">
+      <div className="surface p-5">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
             <Bot size={16} className="text-gold" /> IA do Cortaí
@@ -1189,7 +1189,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
               placeholder="https://..."
               className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
             />
-            <span className="mt-1 block text-[11px] text-mute2">
+            <span className="mt-1 block text-xs text-mute2">
               {config.linkPagamento.trim() === ""
                 ? "Enquanto o link estiver vazio, a mensagem é enviada sem a parte de pagamento."
                 : "Esse link é enviado como “Pagar agora” na confirmação."}
@@ -1244,7 +1244,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
             placeholder="Ex.: sempre confirmar o profissional antes de marcar; não prometer desconto."
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
-          <span className="mt-1 block text-[11px] text-mute2">
+          <span className="mt-1 block text-xs text-mute2">
             Instruções do estabelecimento que a IA deve seguir em toda conversa.
           </span>
         </label>
@@ -1276,7 +1276,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
                           : [...config.horarioDias, indice].sort((a, b) => a - b),
                       })
                     }
-                    className={`rounded-full border px-3 py-1 text-[11px] ${
+                    className={`rounded-full border px-3 py-1 text-xs ${
                       marcado ? "border-gold text-gold" : "border-line2 text-mute"
                     }`}
                   >
@@ -1356,7 +1356,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </ul>
       </Bloco>
 
-      <div className="rounded-lg border border-line bg-ink2 p-5">
+      <div className="surface p-5">
         <Button variant="ghost" type="button" className="btn-primary w-full" disabled={gravar.isPending} onClick={() => gravar.mutate()}>
           {gravar.isPending ? "Salvando…" : "Salvar configurações"}
         </Button>
@@ -1434,7 +1434,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
               descricao="Mensagens enviadas pela barbearia, sem IA. Desligada, a mensagem não é enviada."
             >
               <ul className="space-y-3">{operacionais.map(item)}</ul>
-              <p className="mt-3 text-[11px] text-mute">
+              <p className="mt-3 text-xs text-mute">
                 O pagamento antecipado é ligado acima, em Atendimento, junto do link de pagamento.
               </p>
             </Bloco>
@@ -1478,7 +1478,7 @@ function BlocoInformacoes() {
   });
 
   return (
-    <div className="rounded-lg border border-line bg-ink2 p-5">
+    <div className="surface p-5">
       <h2 className="text-sm font-semibold text-paper">Informações da barbearia</h2>
       <p className="mt-1 text-xs text-mute">
         Endereço, estacionamento, formas de pagamento, políticas. O CortAI só responde essas dúvidas com o que estiver
@@ -1494,7 +1494,7 @@ function BlocoInformacoes() {
                   <p className="text-xs font-semibold text-paper">{i.pergunta}</p>
                   <p className="mt-1 whitespace-pre-wrap text-xs text-mute">{i.resposta}</p>
                 </div>
-                <Button variant="ghost" type="button" className="text-[11px] text-brick" onClick={() => apagar.mutate(i.id)}>
+                <Button variant="ghost" type="button" className="text-xs text-brick" onClick={() => apagar.mutate(i.id)}>
                   Apagar
                 </Button>
               </div>

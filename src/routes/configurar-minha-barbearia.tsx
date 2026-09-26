@@ -163,7 +163,7 @@ function ConfigurarMinhaBarbearia() {
       </header>
 
       <main className="mx-auto max-w-[720px] px-5 pb-20 pt-8">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gold">Configurar minha barbearia</p>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar minha barbearia</p>
         <h1 className="mt-2 text-3xl font-bold leading-tight">Sua barbearia no ar, em minutos.</h1>
         <p className="mt-2 text-sm text-mute">
           Comece sem login. No fim você publica a página e pode assumir o acesso ao painel com sua conta.

@@ -42,7 +42,7 @@ function EsperaPage() {
   return (
     <Screen title="Lista de espera" subtitle="Avisamos assim que um horário vagar.">
       {pronto ? (
-        <div className="rounded-xl border border-line bg-ink2 px-5 py-6">
+        <div className="surface px-5 py-6">
           <p className="text-sm text-paper">Você está na lista.</p>
           <p className="mt-1 text-xs text-mute">{status}</p>
         </div>

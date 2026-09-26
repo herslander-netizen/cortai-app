@@ -33,7 +33,7 @@ export function EsqueletoMetricas({ colunas = 3 }: { colunas?: number }) {
   return (
     <div role="status" aria-label="Carregando" className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${colunas}, minmax(0,1fr))` }}>
       {Array.from({ length: colunas }).map((_, i) => (
-        <div key={i} className="rounded-lg border border-line bg-ink2 px-3 py-3">
+        <div key={i} className="surface px-3 py-3">
           <Barra w="60%" h={9} />
           <Barra w="45%" h={16} className="mt-2" />
         </div>
@@ -47,7 +47,7 @@ export function EsqueletoAgenda({ linhas = 4 }: { linhas?: number }) {
   return (
     <div role="status" aria-label="Carregando" className="mt-4 space-y-2">
       {Array.from({ length: linhas }).map((_, i) => (
-        <div key={i} className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line bg-ink2 p-3">
+        <div key={i} className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-3 surface p-3">
           <Barra w="42px" h={14} />
           <div className="space-y-2">
             <Barra w="50%" h={13} />

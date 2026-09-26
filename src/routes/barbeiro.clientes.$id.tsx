@@ -85,7 +85,7 @@ function FichaPage() {
 
       {data ? (
         <>
-          <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
+          <div className="surface px-5 py-5">
             <p className="text-xs text-mute">Fiado em aberto</p>
             <p className={`mt-1 text-[28px] font-bold leading-none ${cor}`}>{brl(aberto)}</p>
             <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-ink3">
@@ -188,7 +188,7 @@ function FichaPage() {
           ) : null}
 
           <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">Ficha técnica do corte</h2>
-          <p className="rounded-lg border border-line bg-ink2 px-4 py-4 text-sm text-mute">
+          <p className="surface px-4 py-4 text-sm text-mute">
             {data.cliente.ficha_tecnica ?? "Nada anotado ainda sobre máquina, tesoura ou preferências."}
           </p>
 

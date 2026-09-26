@@ -27,7 +27,7 @@ export function DescobrirBarbearias({
     <section className={discreto ? "mt-12 border-t border-line pt-8" : ""}>
       {discreto ? (
         <>
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mute2">Já é cliente?</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">Já é cliente?</h2>
           <p className="mt-2 text-sm text-mute">Busque sua barbearia pelo nome ou pelo endereço.</p>
         </>
       ) : (

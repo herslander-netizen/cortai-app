@@ -332,7 +332,7 @@ function GuiaOverlay({
         <p id="guia-texto" className="mt-2 text-sm leading-relaxed text-mute">
           {atual.texto}
         </p>
-        <p className="mt-4 text-[11px] uppercase tracking-wider text-mute2">
+        <p className="mt-4 text-xs uppercase tracking-wider text-mute2">
           {passo + 1} de {guia.passos.length}
         </p>
         <div className="mt-3 flex items-center justify-between gap-3">

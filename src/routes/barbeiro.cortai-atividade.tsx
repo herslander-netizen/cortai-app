@@ -85,8 +85,8 @@ function quando(iso: string) {
 
 function Cartao({ rotulo, valor, alerta }: { rotulo: string; valor: number; alerta?: boolean }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 px-3 py-3">
-      <p className="text-[10px] text-mute2">{rotulo}</p>
+    <div className="surface px-3 py-3">
+      <p className="text-xs text-mute2">{rotulo}</p>
       <p className={`mt-1 text-lg ${alerta && valor > 0 ? "text-brick" : "text-paper"}`}>{valor}</p>
     </div>
   );
@@ -149,7 +149,7 @@ function AtividadePage() {
       {atividade.data && atividade.data.ferramentas.length > 0 ? (
         <section className="mt-5" aria-label="Consultas feitas pelo CortAI">
           <h2 className="text-sm text-paper">O que o CortAI consultou</h2>
-          <ul className="mt-2 divide-y divide-line rounded-xl border border-line bg-ink2">
+          <ul className="mt-2 divide-y divide-line surface">
             {atividade.data.ferramentas.map((f) => (
               <li key={f.acao} className="flex items-center justify-between gap-3 px-4 py-3">
                 <span className="text-xs text-paper">{rotuloDaAcao(f.acao)}</span>
@@ -166,14 +166,14 @@ function AtividadePage() {
       {termos.data && termos.data.length > 0 ? (
         <section className="mt-5" aria-label="Palavras que o CortAI não entendeu">
           <h2 className="text-sm text-paper">Palavras que os clientes usam e o CortAI não entendeu</h2>
-          <p className="mt-1 text-[11px] text-mute2">
+          <p className="mt-1 text-xs text-mute2">
             Cadastre estes pedidos como serviço ou pergunta frequente para o CortAI passar a responder sozinho.
           </p>
-          <ul className="mt-2 divide-y divide-line rounded-xl border border-line bg-ink2">
+          <ul className="mt-2 divide-y divide-line surface">
             {termos.data.map((t) => (
               <li key={t.texto} className="flex items-center justify-between gap-3 px-4 py-3">
                 <span className="min-w-0 truncate text-xs text-paper">“{t.texto}”</span>
-                <span className="shrink-0 text-[11px] text-mute">{t.total}x</span>
+                <span className="shrink-0 text-xs text-mute">{t.total}x</span>
               </li>
             ))}
           </ul>
@@ -203,7 +203,7 @@ function AtividadePage() {
           {(atividade.data?.registros ?? []).map((r) => (
             <li
               key={r.id}
-              className="rounded-xl border border-line bg-ink2 px-4 py-3"
+              className="surface px-4 py-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -215,13 +215,13 @@ function AtividadePage() {
                     )}
                     {rotuloDaAcao(r.acao)}
                   </p>
-                  <p className="mt-1 truncate text-[11px] text-mute">
+                  <p className="mt-1 truncate text-xs text-mute">
                     {r.nomeDoCliente ?? r.telefone ?? "Cliente sem cadastro"}
                     {r.intencao ? ` · ${rotuloDaIntencao(r.intencao)}` : ""}
                   </p>
-                  {r.erro ? <p className="mt-1 text-[11px] text-brick">{r.erro}</p> : null}
+                  {r.erro ? <p className="mt-1 text-xs text-brick">{r.erro}</p> : null}
                 </div>
-                <span className="shrink-0 text-[11px] text-mute2">{quando(r.criadoEm)}</span>
+                <span className="shrink-0 text-xs text-mute2">{quando(r.criadoEm)}</span>
               </div>
             </li>
           ))}

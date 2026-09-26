@@ -31,7 +31,7 @@ function Metrica({ rotulo, valor, detalhe }: { rotulo: string; valor: string; de
     <div className="surface-card px-4 py-4">
       <p className="text-xs text-mute">{rotulo}</p>
       <p className="mt-1 text-xl font-bold leading-tight text-paper">{valor}</p>
-      <p className="mt-1 text-[11px] text-mute2">{detalhe}</p>
+      <p className="mt-1 text-xs text-mute2">{detalhe}</p>
     </div>
   );
 }
@@ -109,7 +109,7 @@ function CrescimentoPage() {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Button variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
+                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
                 onClick={async () => {
                   await navigator.clipboard.writeText(link);
                   setCopiado(true);
@@ -120,7 +120,7 @@ function CrescimentoPage() {
               </Button>
               <Button variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
+                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
                 onClick={() => navigator.share?.({ title: data.tenant.nome, url: link })}
               >
                 <Share2 size={16} className="text-gold" />
@@ -128,7 +128,7 @@ function CrescimentoPage() {
               </Button>
               <Button variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-[11px] text-paper"
+                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
                 onClick={() => setMostrarQr((v) => !v)}
               >
                 <QrCode size={16} className="text-gold" />
@@ -142,7 +142,7 @@ function CrescimentoPage() {
                 <p className="text-center text-xs font-semibold uppercase tracking-wide text-ink">
                   {data.tenant.nome}
                 </p>
-                <p className="text-center text-[11px] text-ink/70">Aponte a câmera para agendar</p>
+                <p className="text-center text-xs text-ink/70">Aponte a câmera para agendar</p>
               </div>
             ) : null}
             <a

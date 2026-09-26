@@ -17,7 +17,7 @@ export function RecursoBloqueado({ titulo, erro, children }: { titulo: string; e
       ? erro.message
       : "Este recurso não está incluído no plano atual da sua barbearia.";
   return (
-    <section className="rounded-xl border border-line bg-ink2 p-6 text-center">
+    <section className="surface p-6 text-center">
       <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-ink3 text-gold">
         <Lock size={18} />
       </span>

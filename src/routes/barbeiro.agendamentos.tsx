@@ -52,7 +52,7 @@ function Cartao({ item }: { item: AgendamentoConfirmado }) {
         </div>
         <div className="shrink-0 text-right">
           <p className="text-sm text-gold">{hora(item.inicio)}</p>
-          <p className="text-[11px] text-mute2">{dataHoraLonga(item.inicio).split(" às")[0]}</p>
+          <p className="text-xs text-mute2">{dataHoraLonga(item.inicio).split(" às")[0]}</p>
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between gap-3">
@@ -68,7 +68,7 @@ function Cartao({ item }: { item: AgendamentoConfirmado }) {
         ) : (
           <span className="text-xs text-mute2">Sem WhatsApp cadastrado</span>
         )}
-        <span className="text-[11px] text-mute2">
+        <span className="text-xs text-mute2">
           {item.valorCentavos ? brl(item.valorCentavos) : ""}
         </span>
       </div>

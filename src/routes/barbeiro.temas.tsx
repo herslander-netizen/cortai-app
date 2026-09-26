@@ -80,7 +80,7 @@ function EditorDeTemas({ marca, recarregar }: { marca: MarcaData; recarregar: ()
             {Object.entries(TEMAS).map(([id, tema]) => <Button variant="ghost" type="button" key={id} onClick={() => setConfig((old) => ({ ...old, tema: id as TemaId, cores: tema.cores }))} className={`rounded-lg border p-3 text-left ${config.tema === id ? "border-gold" : "border-line"}`}>
               <span className="mb-3 flex gap-1">{Object.values(tema.cores).slice(0, 4).map((cor) => <i key={cor} className="h-5 flex-1 rounded-sm" style={{ backgroundColor: cor }} />)}</span>
               <span className="flex items-center justify-between text-xs font-semibold text-paper">{tema.nome}{config.tema === id ? <Check size={14} className="text-gold" /> : null}</span>
-              <small className="mt-1 block text-[10px] text-mute">{tema.descricao}</small>
+              <small className="mt-1 block text-xs text-mute">{tema.descricao}</small>
             </Button>)}
           </div>
         </section>
@@ -113,7 +113,7 @@ function EditorDeTemas({ marca, recarregar }: { marca: MarcaData; recarregar: ()
           <Button variant={device === "desktop" ? "default" : "outline"} size="icon" aria-label="Prévia no computador" onClick={() => setDevice("desktop")}><Monitor /></Button>
           <span className="text-xs text-mute">Prévia ao vivo</span>
         </div>
-        <div className={`overflow-hidden rounded-xl border border-line bg-ink2 ${device === "mobile" ? "mx-auto w-full max-w-[390px]" : "w-full"}`}>
+        <div className={`overflow-hidden surface ${device === "mobile" ? "mx-auto w-full max-w-[390px]" : "w-full"}`}>
           <div className="max-h-[70vh] overflow-y-auto">
             {preview ? <PaginaPublicaConteudo data={preview} config={config} /> : <div className="p-6"><Carregando /></div>}
           </div>

@@ -198,15 +198,15 @@ function EditorDaHome() {
             <section className="space-y-4">
               <SectionHeading title="Situação da página" description="Acompanhe o que está no ar e o que ainda é rascunho." />
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-line bg-ink2 p-4">
+                <div className="surface p-4">
                   <p className="text-xs text-mute">Estado</p>
                   <p className="mt-1 text-sm font-semibold text-paper">{data?.temRascunho ? "Rascunho não publicado" : "Publicada"}</p>
                 </div>
-                <div className="rounded-lg border border-line bg-ink2 p-4">
+                <div className="surface p-4">
                   <p className="text-xs text-mute">Última publicação</p>
                   <p className="mt-1 text-sm font-semibold text-paper">{DATA(data?.publicadoEm)}</p>
                 </div>
-                <div className="rounded-lg border border-line bg-ink2 p-4">
+                <div className="surface p-4">
                   <p className="text-xs text-mute">Última edição</p>
                   <p className="mt-1 text-sm font-semibold text-paper">{DATA(data?.atualizadoEm)}</p>
                 </div>
@@ -242,14 +242,14 @@ function EditorDaHome() {
           {aba === "hero" ? (
             <section className="space-y-4">
               <SectionHeading title="Topo da página" description="A primeira coisa que a pessoa vê ao abrir o Cortaí." />
-              <label className="flex items-center justify-between rounded-lg border border-line bg-ink2 p-4">
+              <label className="flex items-center justify-between surface p-4">
                 <span className="text-sm text-paper">Mostrar o topo</span>
                 <Switch checked={config.hero.ativo} onCheckedChange={(v) => atualizar({ hero: { ...config.hero, ativo: v } })} />
               </label>
               <Field label="Selo (texto pequeno acima do título)">
                 <Input value={config.hero.etiqueta} onChange={(e) => atualizar({ hero: { ...config.hero, etiqueta: e.target.value } })} />
               </Field>
-              <label className="flex items-center justify-between rounded-lg border border-line bg-ink2 p-4">
+              <label className="flex items-center justify-between surface p-4">
                 <span className="text-sm text-paper">Exibir o selo dourado</span>
                 <Switch checked={config.hero.mostrarSelo} onCheckedChange={(v) => atualizar({ hero: { ...config.hero, mostrarSelo: v } })} />
               </label>
@@ -298,7 +298,7 @@ function EditorDaHome() {
               <SectionHeading title="Seções da página" description="Ligue, desligue, reordene e edite cada bloco." />
               <ul className="space-y-2">
                 {config.secoes.map((secao, index) => (
-                  <li key={secao.id} className="rounded-lg border border-line bg-ink2">
+                  <li key={secao.id} className="surface">
                     <div className="flex flex-wrap items-center gap-3 p-3">
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold text-paper">{secao.nome}</span>
@@ -443,7 +443,7 @@ function EditorDaHome() {
             <section className="space-y-4">
               <SectionHeading title="Publicação" description="Revise o que mudou antes de colocar no ar." />
               {mudancas.length ? (
-                <ul className="space-y-1 rounded-lg border border-line bg-ink2 p-4 text-sm text-paper">
+                <ul className="space-y-1 surface p-4 text-sm text-paper">
                   {mudancas.map((m) => <li key={m}>• {m}</li>)}
                 </ul>
               ) : (
@@ -561,7 +561,7 @@ function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string 
   };
 
   return (
-    <div className="rounded-lg border border-line bg-ink2 p-4">
+    <div className="surface p-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex h-16 w-24 items-center justify-center overflow-hidden rounded-md border border-line bg-ink3">
           {url || valor.startsWith("http") ? (
@@ -592,9 +592,9 @@ function Biblioteca({ listar }: { listar: (o: Record<string, never>) => Promise<
       {data?.length ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {data.map((img) => (
-            <figure key={img.caminho} className="overflow-hidden rounded-lg border border-line bg-ink2">
+            <figure key={img.caminho} className="overflow-hidden surface">
               <img src={img.url} alt={img.caminho} className="h-28 w-full object-cover" />
-              <figcaption className="truncate p-2 text-[11px] text-mute">{img.caminho}</figcaption>
+              <figcaption className="truncate p-2 text-xs text-mute">{img.caminho}</figcaption>
             </figure>
           ))}
         </div>
