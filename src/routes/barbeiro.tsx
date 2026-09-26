@@ -12,8 +12,8 @@ export const Route = createFileRoute("/barbeiro")({
 });
 
 function BarberLayout() {
-  const { sessao } = Route.useRouteContext();
-  useSessaoTempoReal(sessao.userId);
+  const { userId } = Route.useRouteContext();
+  useSessaoTempoReal(userId);
   return (
     <div className="management-shell">
       <SeloDemonstracao />
