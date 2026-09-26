@@ -317,7 +317,7 @@ export function AgendaOperacional() {
 
         {ativos.length > 0 ? (
           <section aria-labelledby="agora-titulo" className="mb-6">
-            <p id="agora-titulo" className="mb-2 text-[11px] font-bold uppercase text-mute">Agora</p>
+            <p id="agora-titulo" className="mb-2 text-xs font-bold uppercase text-mute">Agora</p>
             <div className="space-y-2">
               {ativos.map((item) => {
                 const decorrido = minutos(item.startedAt ?? item.inicio, agora);
@@ -368,7 +368,7 @@ export function AgendaOperacional() {
               const mensagem = `Olá, ${item.cliente}! O atendimento anterior atrasou um pouco. A previsão de espera é de cerca de ${espera} minutos. Avisamos assim que liberar.`;
               return (
                 <div key={item.id} className="grid grid-cols-[70px_minmax(0,1fr)_auto] items-center gap-3 py-3">
-                  <div><p className="text-[10px] font-bold uppercase text-mute2">{indice === 0 ? "Próximo" : "Depois"}</p><p className="mt-1 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p></div>
+                   <div><p className="text-xs font-bold uppercase text-mute2">{indice === 0 ? "Próximo" : "Depois"}</p><p className="mt-1 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p></div>
                   <Button variant="ghost" type="button" className="min-w-0 text-left" onClick={() => setSelecionado(item.id)}>
                     <span className="block truncate text-sm font-semibold text-paper">{item.cliente}</span>
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
@@ -393,7 +393,7 @@ export function AgendaOperacional() {
         {chegada.length > 0 ? (
           <section aria-labelledby="fila-titulo" className="mb-6">
             <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <p id="fila-titulo" className="text-[11px] font-bold uppercase text-mute">Fila · {chegada.length}</p>
+              <p id="fila-titulo" className="text-xs font-bold uppercase text-mute">Fila · {chegada.length}</p>
               <Button size="sm" variant="outline" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo</Button>
             </div>
             {sugestaoFila ? (
@@ -456,7 +456,7 @@ export function AgendaOperacional() {
                       {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); if (item.clienteId) setPerfil(item.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-sm underline-offset-4 hover:underline ${nomeEhGenerico(item.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{item.cliente}</Button> : <p className={`truncate text-sm ${nomeEhGenerico(item.cliente) ? "font-medium text-mute" : "font-bold text-paper"}`}>{item.cliente}</p>}
                       <p className="mt-0.5 truncate text-xs text-mute">{item.servico} · {item.profissional}</p>
                       {(item as { confirmadoEm?: string | null }).confirmadoEm && item.status === "agendado" ? (
-                        <p className="mt-1 inline-flex items-center gap-1 rounded-sm bg-sage px-1.5 py-0.5 text-[11px] font-semibold text-ink">
+                         <p className="status-badge status-badge-confirmado mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold">
                           <Check className="size-3" aria-hidden />Confirmou pelo WhatsApp
                         </p>
                       ) : null}
@@ -481,7 +481,7 @@ export function AgendaOperacional() {
 
         {aReceber.length ? (
           <section aria-labelledby="receber-titulo" className="mt-6">
-            <p id="receber-titulo" className="mb-2 text-[11px] font-bold uppercase text-mute">Aguardando pagamento · {aReceber.length}</p>
+             <p id="receber-titulo" className="mb-2 text-xs font-bold uppercase text-mute">Aguardando pagamento · {aReceber.length}</p>
             <ul className="divide-y divide-line border-y border-line">
               {aReceber.map((c) => (
                 <li key={c.id}>

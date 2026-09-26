@@ -9,10 +9,10 @@
  */
 
 @theme inline {
-  --radius-sm: 10px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-xl: 14px;
 
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
@@ -68,43 +68,73 @@
   --radius: 14px;
   --tabbar-height: 72px;
 
-  /* Interface V3.0 — Moderno escuro. --gold é alias legado do destaque ativo. */
-  --identity-accent: #19c37d;
-  --identity-deep: #102a22;
-  --identity-graphite: #1e2221;
-  --identity-muted: #59615e;
-  --identity-off-white: #f4f5f2;
+  /* Base neutra V3.0. --gold permanece somente como alias de compatibilidade. */
+  --identity-accent: #6fb08e;
+  --identity-accent-light: #2f6b52;
+  --identity-deep: #163527;
+  --identity-graphite: #121211;
+  --identity-muted: #6e6d69;
+  --identity-off-white: #f7f7f5;
   --identity-white: #ffffff;
-  --identity-border: #e5e7e6;
+  --identity-border: #e6e5e1;
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
   --ink: var(--identity-graphite);
-  --ink2: #262b29;
-  --ink3: #303634;
+  --ink2: #1a1a18;
+  --ink3: #222220;
   --gold: var(--identity-accent);
   --gold-soft: color-mix(in oklab, var(--identity-accent) 16%, transparent);
-  --paper: var(--identity-off-white);
-  --mute: #aeb6b2;
-  --mute2: #8e9893;
-  --sage: #6fae84;
+  --paper: #ededea;
+  --mute: #a09f9a;
+  --mute2: #85847f;
+  --sage: #78a78d;
   --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
-  --brick: #c47762;
+  --brick: #c98276;
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
-  --line: #3a403e;
-  --line2: #4a524f;
-  --landing-light-surface: #f7f6f2;
-  --landing-light-ink: #181817;
-  --landing-light-muted: #6f6b62;
-  --landing-light-line: #e9e6df;
-  --landing-light-gold: #0d754b;
+  --line: #2a2926;
+  --line2: #3a3935;
+  --landing-light-surface: #f7f7f5;
+  --landing-light-ink: #1c1c1a;
+  --landing-light-muted: #6e6d69;
+  --landing-light-line: #e6e5e1;
+  --landing-light-gold: #2f6b52;
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--ink) 82%, transparent);
   --shadow-sm: 0 1px 2px color-mix(in oklab, var(--ink) 65%, transparent);
-  --shadow-md: 0 12px 28px color-mix(in oklab, var(--ink) 48%, transparent);
+  --shadow-md: 0 8px 24px color-mix(in oklab, var(--ink) 42%, transparent);
+  --shadow-xl: 0 16px 40px color-mix(in oklab, var(--ink) 48%, transparent);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Estados operacionais são fixos e não mudam com a identidade. */
+  --status-scheduled: #9c9b96;
+  --status-scheduled-soft: color-mix(in oklab, var(--status-scheduled) 12%, transparent);
+  --status-confirmed: #6f9682;
+  --status-confirmed-soft: color-mix(in oklab, var(--status-confirmed) 14%, transparent);
+  --status-arrived: #7197a6;
+  --status-arrived-soft: color-mix(in oklab, var(--status-arrived) 14%, transparent);
+  --status-active: #b79a67;
+  --status-active-soft: color-mix(in oklab, var(--status-active) 14%, transparent);
+  --status-completed: #7e9184;
+  --status-completed-soft: color-mix(in oklab, var(--status-completed) 14%, transparent);
+  --status-missed: #bd796f;
+  --status-missed-soft: color-mix(in oklab, var(--status-missed) 14%, transparent);
+  --status-cancelled: #9b8580;
+  --status-cancelled-soft: color-mix(in oklab, var(--status-cancelled) 12%, transparent);
+  --status-rescheduled: #8f88a7;
+  --status-rescheduled-soft: color-mix(in oklab, var(--status-rescheduled) 12%, transparent);
+  --status-walk-in: #9a806d;
+  --status-walk-in-soft: color-mix(in oklab, var(--status-walk-in) 12%, transparent);
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -131,12 +161,12 @@
 :root[data-identidade="moderno"].light {
   --ink: var(--identity-off-white);
   --ink2: var(--identity-white);
-  --ink3: #edf0ec;
-  --paper: var(--identity-graphite);
+  --ink3: #f0f0ed;
+  --paper: #1c1c1a;
   --mute: var(--identity-muted);
-  --mute2: #747d79;
+  --mute2: #85847f;
   --line: var(--identity-border);
-  --line2: #d1d6d3;
+  --line2: #d3d2cd;
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -155,76 +185,53 @@
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 8%, transparent);
   --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
-  --gold: var(--identity-accent);
+  --gold: var(--identity-accent-light);
   --gold-soft: color-mix(in oklab, var(--identity-accent) 14%, transparent);
-  --sage: #477557;
-  --brick: #a85a44;
+  --primary-foreground: #ffffff;
+  --sage: #4e785f;
+  --brick: #a45f55;
+
+  --status-scheduled: #696862;
+  --status-confirmed: #557966;
+  --status-arrived: #4e7583;
+  --status-active: #806a43;
+  --status-completed: #54695b;
+  --status-missed: #93534b;
+  --status-cancelled: #725f5b;
+  --status-rescheduled: #665f7d;
+  --status-walk-in: #715846;
 
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);
   --shadow-sm: 0 1px 2px color-mix(in oklab, var(--paper) 8%, transparent);
-  --shadow-md: 0 12px 28px color-mix(in oklab, var(--paper) 12%, transparent);
+  --shadow-md: 0 8px 24px color-mix(in oklab, var(--paper) 10%, transparent);
+  --shadow-xl: 0 16px 40px color-mix(in oklab, var(--paper) 14%, transparent);
   color-scheme: light;
 }
 
 :root[data-identidade="blue"] {
-  --identity-accent: #38a9e8;
-  --identity-deep: #0c2b3c;
-  --identity-graphite: #172329;
-  --identity-muted: #52646c;
-  --identity-off-white: #f3f6f7;
-  --identity-white: #ffffff;
-  --identity-border: #dde5e8;
+  --identity-accent: #82a9ba;
+  --identity-accent-light: #416f82;
+  --identity-deep: #17333f;
 }
 
 :root[data-identidade="indigo"] {
-  --identity-accent: #8f9cff;
-  --identity-deep: #20264d;
-  --identity-graphite: #202126;
-  --identity-muted: #60616c;
-  --identity-off-white: #f5f5f7;
-  --identity-white: #ffffff;
-  --identity-border: #e3e3e9;
+  --identity-accent: #999dbd;
+  --identity-accent-light: #5e638c;
+  --identity-deep: #292d4a;
 }
 
 :root[data-identidade="copper"] {
-  --identity-accent: #d98b5f;
-  --identity-deep: #3d2117;
-  --identity-graphite: #282220;
-  --identity-muted: #6b5c56;
-  --identity-off-white: #f6f3f1;
-  --identity-white: #ffffff;
-  --identity-border: #e9dfda;
+  --identity-accent: #c69a7e;
+  --identity-accent-light: #855a42;
+  --identity-deep: #43281d;
 }
 
 :root[data-identidade="classico"] {
-  --identity-accent: #c9a96a;
-  --identity-deep: #111110;
-  --identity-graphite: #111110;
-  --identity-muted: #6f6b62;
-  --identity-off-white: #f7f6f2;
-  --identity-white: #ffffff;
-  --identity-border: #e9e6df;
-  --ink: #111110;
-  --ink2: #181817;
-  --ink3: #201f1d;
-  --paper: #f7f6f2;
-  --mute: #a7a39a;
-  --mute2: #8b877e;
-  --line: #2a2926;
-  --line2: #363430;
-}
-
-:root[data-identidade="classico"].light {
-  --ink: #f7f6f2;
-  --ink2: #ffffff;
-  --ink3: #e9e6df;
-  --paper: #181817;
-  --mute: #6f6b62;
-  --mute2: #8b877e;
-  --line: #e2dfd7;
-  --line2: #d6d2c8;
+  --identity-accent: #b8a178;
+  --identity-accent-light: #75613e;
+  --identity-deep: #332b1f;
 }
 
 @layer base {
@@ -274,7 +281,6 @@
 
 .management-shell,
 .admin-shell {
-  --radius: 8px;
   --operation-gold: var(--gold);
   min-height: 100dvh;
   overflow-x: clip;
@@ -338,8 +344,6 @@
 .drawer-link-active { background: var(--gold-soft); color: var(--paper); font-weight: 700; }
 .drawer-link-active svg { color: var(--gold); }
 
-.management-shell .rounded-xl { border-radius: 8px; }
-.management-shell .rounded-2xl { border-radius: 10px; }
 .management-shell .shadow-xl,
 .management-shell .shadow-lg { box-shadow: var(--shadow-md); }
 .management-shell [class*="backdrop-blur"] { backdrop-filter: none; }
@@ -347,11 +351,11 @@
 
 .identity-choice[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
 .identity-swatch { width: 16px; height: 16px; flex-shrink: 0; border: 1px solid var(--line2); border-radius: 50%; background: var(--choice-accent); }
-[data-identity-choice="moderno"] { --choice-accent: #19c37d; }
-[data-identity-choice="blue"] { --choice-accent: #38a9e8; }
-[data-identity-choice="indigo"] { --choice-accent: #8f9cff; }
-[data-identity-choice="copper"] { --choice-accent: #d98b5f; }
-[data-identity-choice="classico"] { --choice-accent: #c9a96a; }
+[data-identity-choice="moderno"] { --choice-accent: #2f6b52; }
+[data-identity-choice="blue"] { --choice-accent: #416f82; }
+[data-identity-choice="indigo"] { --choice-accent: #5e638c; }
+[data-identity-choice="copper"] { --choice-accent: #855a42; }
+[data-identity-choice="classico"] { --choice-accent: #75613e; }
 
 /* A marca troca sozinha: clara em fundo escuro, escura em fundo claro.
    O padrão (sem classe de modo, antes da hidratação) é o tema escuro. */
@@ -397,17 +401,27 @@ html.light .brand-logo-on-light,
   border-radius: 999px;
   padding: 3px 7px;
   color: var(--mute);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
 
-.agenda-status-chegou { border-color: var(--sage); background: var(--sage-soft); color: var(--sage); }
-.agenda-status-cadeira { border-color: var(--operation-gold); background: color-mix(in oklab, var(--operation-gold) 18%, transparent); color: var(--paper); }
-.agenda-status-finalizado { border-color: var(--paper); background: var(--paper); color: var(--ink); }
-.agenda-status-falta { border-color: var(--brick); background: var(--brick-soft); color: var(--brick); }
+.agenda-status-chegou { border-color: var(--status-arrived); background: var(--status-arrived-soft); color: var(--status-arrived); }
+.agenda-status-cadeira { border-color: var(--status-active); background: var(--status-active-soft); color: var(--status-active); }
+.agenda-status-finalizado { border-color: var(--status-completed); background: var(--status-completed-soft); color: var(--status-completed); }
+.agenda-status-falta { border-color: var(--status-missed); background: var(--status-missed-soft); color: var(--status-missed); }
+.status-badge { background: transparent; }
+.status-badge-agendado, .status-badge-pendente { border-color: var(--status-scheduled); background: var(--status-scheduled-soft); color: var(--status-scheduled); }
+.status-badge-confirmado { border-color: var(--status-confirmed); background: var(--status-confirmed-soft); color: var(--status-confirmed); }
+.status-badge-chegou { border-color: var(--status-arrived); background: var(--status-arrived-soft); color: var(--status-arrived); }
+.status-badge-na_cadeira { border-color: var(--status-active); background: var(--status-active-soft); color: var(--status-active); }
+.status-badge-finalizado, .status-badge-pago { border-color: var(--status-completed); background: var(--status-completed-soft); color: var(--status-completed); }
+.status-badge-nao_compareceu { border-color: var(--status-missed); background: var(--status-missed-soft); color: var(--status-missed); }
+.status-badge-cancelado { border-color: var(--status-cancelled); background: var(--status-cancelled-soft); color: var(--status-cancelled); }
+.status-badge-remarcado { border-color: var(--status-rescheduled); background: var(--status-rescheduled-soft); color: var(--status-rescheduled); }
+.status-badge-encaixe { border-color: var(--status-walk-in); background: var(--status-walk-in-soft); color: var(--status-walk-in); border-style: dashed; }
 .money-value { font-variant-numeric: tabular-nums; font-weight: 600; }
-.agenda-agora { border: 1px solid var(--line); border-left: 3px solid var(--operation-gold); border-radius: 8px; background: var(--ink2); padding: 12px 14px; transition: border-color 150ms ease, transform 100ms ease; }
+.agenda-agora { border: 1px solid var(--line); border-left: 3px solid var(--status-active); border-radius: var(--radius); background: var(--ink2); padding: 12px 16px; transition: border-color 150ms ease, transform 100ms ease; }
 .agenda-operacional { min-width: 0; overflow-x: clip; }
 .agenda-cabecalho-compacto { position: sticky; top: 3.5rem; z-index: 20; margin: 0 -1.25rem 14px; border-bottom: 1px solid var(--line); background: var(--ink); padding: 7px 1.25rem 8px; }
 .agenda-lista-item { min-width: 0; padding: 12px 4px; border-left: 2px solid transparent; transition: background-color 150ms ease, border-color 150ms ease; }
@@ -425,22 +439,25 @@ html.light .brand-logo-on-light,
 .agenda-timeline-scroll { width: 100%; max-width: 100%; max-height: min(56dvh, 560px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 .agenda-timeline { position: relative; width: calc(100% - 48px); min-width: 0; margin-left: 48px; border-left: 1px solid var(--line2); }
 .agenda-timeline-marca { position: absolute; right: 0; left: 0; height: 1px; border-top: 1px solid color-mix(in oklab, var(--line) 58%, transparent); pointer-events: none; }
-.agenda-timeline-marca span { position: absolute; top: -9px; right: calc(100% + 10px); width: 43px; color: var(--mute2); font-size: 10px; font-weight: 650; text-align: right; }
+.agenda-timeline-marca span { position: absolute; top: -9px; right: calc(100% + 10px); width: 43px; color: var(--mute2); font-size: 12px; font-weight: 650; text-align: right; }
 .agenda-timeline-hora { border-color: var(--line); }
-.agenda-timeline-bloco { position: absolute; z-index: 2; right: 4px; left: 7px; display: flex; width: auto; max-width: none; height: auto; min-width: 0; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 2px; overflow: hidden; border: 1px solid var(--line2); border-left-width: 4px; border-radius: 6px; background: var(--ink2); padding: 7px 9px; color: var(--paper); text-align: left; white-space: normal; transition: border-color 140ms ease, background-color 140ms ease; }
+.agenda-timeline-bloco { position: absolute; z-index: 2; right: 4px; left: 7px; display: flex; width: auto; max-width: none; height: auto; min-width: 0; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 2px; overflow: hidden; border: 1px solid var(--line2); border-left-width: 3px; border-radius: var(--radius); background: var(--ink2); padding: 8px 12px; color: var(--paper); text-align: left; white-space: normal; transition: border-color 140ms ease, background-color 140ms ease; }
 .agenda-timeline-bloco-topo { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; width: 100%; }
 .agenda-timeline-bloco-topo strong { overflow: hidden; font-size: 12px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
-.agenda-timeline-servico, .agenda-timeline-reais { display: block; overflow: hidden; width: 100%; color: var(--mute); font-size: 10px; font-weight: 500; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-timeline-servico, .agenda-timeline-reais { display: block; overflow: hidden; width: 100%; color: var(--mute); font-size: 12px; font-weight: 500; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .agenda-timeline-reais { color: var(--paper); font-weight: 650; }
-.agenda-timeline-agendado, .agenda-timeline-remarcado { border-left-color: var(--mute2); }
-.agenda-timeline-chegou { border-left-color: var(--sage); background: var(--sage-soft); }
-.agenda-timeline-na_cadeira { border-left-color: var(--operation-gold); background: color-mix(in oklab, var(--operation-gold) 12%, var(--ink2)); }
-.agenda-timeline-finalizado { border-left-color: var(--paper); background: var(--ink3); }
-.agenda-timeline-cancelado, .agenda-timeline-nao_compareceu { border-left-color: var(--brick); background: var(--brick-soft); }
+.agenda-timeline-agendado { border-left-color: var(--status-scheduled); background: var(--status-scheduled-soft); }
+.agenda-timeline-remarcado { border-left-color: var(--status-rescheduled); background: var(--status-rescheduled-soft); }
+.agenda-timeline-chegou { border-left-color: var(--status-arrived); background: var(--status-arrived-soft); }
+.agenda-timeline-na_cadeira { border-left-color: var(--status-active); background: var(--status-active-soft); }
+.agenda-timeline-finalizado { border-left-color: var(--status-completed); background: var(--status-completed-soft); }
+.agenda-timeline-cancelado { border-left-color: var(--status-cancelled); background: var(--status-cancelled-soft); }
+.agenda-timeline-nao_compareceu { border-left-color: var(--status-missed); background: var(--status-missed-soft); }
+.agenda-timeline-encaixe { border-color: var(--status-walk-in); border-style: dashed; background: var(--status-walk-in-soft); }
 .agenda-timeline-selecionado { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-soft); }
 .agenda-linha-agora { position: absolute; right: 0; left: -7px; z-index: 5; height: 2px; border-top: 2px solid var(--brick); pointer-events: none; }
 .agenda-linha-agora::before { position: absolute; top: -5px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--brick); content: ""; }
-.agenda-linha-agora span { position: absolute; right: 4px; bottom: 4px; border-radius: 4px; background: var(--brick); padding: 2px 5px; color: var(--ink2); font-size: 9px; font-weight: 800; }
+.agenda-linha-agora span { position: absolute; right: 4px; bottom: 4px; border-radius: var(--radius-sm); background: var(--brick); padding: 2px 8px; color: var(--ink2); font-size: 12px; font-weight: 800; }
 .agenda-voltar-agora { display: flex; min-height: 40px; margin: 0 0 8px auto; border-color: var(--line); background: var(--ink2); box-shadow: none; }
 .agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .agenda-acao-redonda { width: 56px; min-width: 56px; height: 56px; padding: 0; border-radius: 999px; box-shadow: var(--shadow-md); }
@@ -452,9 +469,9 @@ html.light .brand-logo-on-light,
 .agenda-acao-lista > span { min-width: 0; }
 .agenda-acao-lista strong, .agenda-acao-lista small { display: block; }
 .agenda-acao-lista strong { color: var(--paper); font-size: 13px; }
-.agenda-acao-lista small { margin-top: 2px; color: var(--mute); font-size: 11px; font-weight: 500; }
+.agenda-acao-lista small { margin-top: 2px; color: var(--mute); font-size: 12px; font-weight: 500; }
 .agenda-folha { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: var(--surface-overlay); }
-.agenda-folha-conteudo { width: 100%; max-width: 520px; border-top: 1px solid var(--line); border-radius: 12px 12px 0 0; background: var(--ink2); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: agenda-sheet-in 180ms ease-out; }
+.agenda-folha-conteudo { width: 100%; max-width: 520px; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; background: var(--ink2); padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: agenda-sheet-in 180ms ease-out; }
 .agenda-manual-auto > button { display: none; }
 @keyframes agenda-sheet-in { from { transform: translateY(14px); opacity: 0.7; } to { transform: translateY(0); opacity: 1; } }
 

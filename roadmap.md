@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] V3 Etapa 2: aplicar paleta neutra e destaques dessaturados por identidade
+- [x] V3 Etapa 2: consolidar tokens de espaçamento, raio e estados da agenda
+- [x] V3 Etapa 2: sincronizar cor do navegador e validar Agenda em 390/1280, claro/escuro
+
 - [ ] Compactar header global: remover nome gigante da barbearia e H1 "Agenda"
 - [ ] Corrigir logo escura invisível na home de início (/index, DescobrirBarbearias)
 - [x] A1: fuso da barbearia na página pública de agendamento (lista de dias usava fuso do navegador)
