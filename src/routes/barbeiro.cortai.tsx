@@ -41,7 +41,7 @@ import {
 
 export const Route = createFileRoute("/barbeiro/cortai")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { aba?: Aba; conversa?: string; cliente?: string } => ({
     aba:
       search["aba"] === "conversas" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
         ? search["aba"]
@@ -677,7 +677,7 @@ const FILTROS = [
   ["falhas", "Falhas de entrega"],
 ] as const;
 
-function BlocoConversas({ conversaInicial, clienteInicial }: { conversaInicial?: string; clienteInicial?: string }) {
+function BlocoConversas({ conversaInicial, clienteInicial }: { conversaInicial?: string | undefined; clienteInicial?: string | undefined }) {
   const cliente = useQueryClient();
   const [filtro, setFiltro] = useState<(typeof FILTROS)[number][0]>("todas");
   const [aberta, setAberta] = useState<string | null>(conversaInicial ?? null);
