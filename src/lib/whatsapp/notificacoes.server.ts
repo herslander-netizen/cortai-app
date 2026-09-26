@@ -239,6 +239,16 @@ export async function notificarAgendamento(
     await avisarListaDeEspera(agendamentoId).catch(() => undefined);
   }
   try {
+    // WhatsApp automático só a partir do Pro; a operação nunca é bloqueada.
+    const db = await admin();
+    const { data: ag } = await db.from("agendamentos").select("tenant_id").eq("id", agendamentoId).maybeSingle();
+    if (ag?.tenant_id) {
+      const { data: liberado, error } = await db.rpc("recurso_do_tenant_ativo", {
+        _tenant_id: ag.tenant_id,
+        _chave: "cortai_whatsapp",
+      });
+      if (!error && liberado === false) return { enviado: false, motivo: "plano_sem_whatsapp" } as Resultado;
+    }
     return await executar(agendamentoId, tipo);
   } catch (e) {
     const motivo = e instanceof Error ? e.message : "Falha inesperada no envio.";
