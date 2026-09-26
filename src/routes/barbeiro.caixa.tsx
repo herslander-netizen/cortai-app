@@ -2,14 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
-
+import { ChevronRight, Undo2 } from "lucide-react";
 import { Carregando } from "@/components/layout/Carregando";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, dataCurta, hora } from "@/lib/format";
 import {
   abrirOuFecharCaixa,
+  estornarPagamento,
   getCaixa,
   getFiados,
   quitarFiado,
@@ -47,6 +47,8 @@ function CaixaPage() {
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
   const quitar = useServerFn(quitarFiado);
+  const estornar = useServerFn(estornarPagamento);
+  const [motivoEstorno, setMotivoEstorno] = useState("");
   const queryClient = useQueryClient();
 
   const [valorCaixa, setValorCaixa] = useState("");
@@ -233,6 +235,32 @@ function CaixaPage() {
                         <dd className="text-paper">{profissional ?? "—"}</dd>
                       </div>
                     </dl>
+                  ) : null}
+                  {aberto && m.tipo === "entrada" && m.pagamento_id && m.pagamentos?.status === "confirmado" ? (
+                    <div className="flex gap-2 pb-4">
+                      <input
+                        value={motivoEstorno}
+                        onChange={(e) => setMotivoEstorno(e.target.value)}
+                        placeholder="Motivo do estorno"
+                        className="h-12 min-w-0 flex-1 rounded-lg border border-line bg-ink2 px-3 text-sm text-paper"
+                      />
+                      <Button
+                        variant="outline"
+                        className="h-12"
+                        disabled={ocupado || motivoEstorno.trim().length < 3}
+                        onClick={() =>
+                          executar(async () => {
+                            await estornar({ data: { pagamentoId: m.pagamento_id, motivo: motivoEstorno } });
+                            setMotivoEstorno("");
+                          }, "Estorno registrado.")
+                        }
+                      >
+                        <Undo2 size={16} strokeWidth={1.75} /> Estornar
+                      </Button>
+                    </div>
+                  ) : null}
+                  {m.pagamentos?.status === "estornado" && m.tipo === "entrada" ? (
+                    <p className="flex items-center gap-1.5 pb-3 text-xs text-brick"><Undo2 size={14} strokeWidth={1.75} /> Estornado</p>
                   ) : null}
                 </li>
               );
