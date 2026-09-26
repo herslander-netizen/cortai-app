@@ -17,7 +17,8 @@ export const Route = createFileRoute("/loja/$slug")({
     { property: "og:description", content: "Produtos da barbearia, com retirada no balcão." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
-  ] }),
+    { property: "og:url", content: `https://cortai.dev/loja/${params.slug}` },
+  ], links: [{ rel: "canonical", href: `https://cortai.dev/loja/${params.slug}` }] }),
   component: LojaPage,
 });
 

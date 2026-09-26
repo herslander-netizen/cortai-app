@@ -10,7 +10,8 @@ export const Route = createFileRoute("/b/$slug")({
     { property: "og:description", content: "Serviços, profissionais, horários e agendamento em um só lugar." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
-  ] }),
+    { property: "og:url", content: `https://cortai.dev/b/${params.slug}` },
+  ], links: [{ rel: "canonical", href: `https://cortai.dev/b/${params.slug}` }] }),
   component: PaginaBarbearia,
 });
 

@@ -20,7 +20,9 @@ export const Route = createFileRoute("/f/$slug")({
       { property: "og:description", content: "Escolha o serviço e acompanhe sua vez." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: `https://cortai.dev/f/${params.slug}` },
     ],
+    links: [{ rel: "canonical", href: `https://cortai.dev/f/${params.slug}` }],
   }),
   component: FilaPublicaPage,
 });

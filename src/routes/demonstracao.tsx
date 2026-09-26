@@ -19,7 +19,9 @@ export const Route = createFileRoute("/demonstracao")({
       { property: "og:description", content: "Veja o Cortaí funcionando com uma barbearia fictícia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://cortai.dev/demonstracao" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/demonstracao" }],
   }),
   component: DemonstracaoPage,
 });
