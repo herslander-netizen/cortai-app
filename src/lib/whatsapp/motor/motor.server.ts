@@ -707,7 +707,7 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
     contexto.servicoId ? consultarServico(ctx, { servicoId: contexto.servicoId }) : Promise.resolve(null),
     consultarBarbearia(ctx),
   ]);
-  return [
+  const texto = [
     servico ? `✂️ ${servico.nome}` : null,
     `💈 ${item.rotulo.replace(/^\d{2}:\d{2} com /, "")}`,
     `📅 ${dataBr(item.valor, ctx.fuso)} às ${horaBr(item.valor, ctx.fuso)}`,
@@ -716,6 +716,18 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
   ]
     .filter(Boolean)
     .join("\n");
+
+  // Dados soltos para os textos da Conversa Padrão (nunca inventados).
+  const vars = {
+    servico: servico?.nome ?? null,
+    profissional: item.rotulo.replace(/^\d{2}:\d{2} com /, "") || null,
+    dia_semana: new Intl.DateTimeFormat("pt-BR", { timeZone: ctx.fuso, weekday: "long" }).format(new Date(item.valor)),
+    data: dataBr(item.valor, ctx.fuso),
+    horario: horaBr(item.valor, ctx.fuso),
+    valor: servico ? reais(servico.preco_centavos ?? 0) : null,
+    endereco: casa.endereco ?? null,
+  };
+  return { texto, vars };
 }
 
 async function concluirAgendamento(
