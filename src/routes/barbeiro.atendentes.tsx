@@ -7,12 +7,8 @@ import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  definirAtendimentoDaConversa,
-  listarAtendentes,
-  listarConversas,
-  type ConversaDeWhatsapp,
-} from "@/lib/whatsapp.functions";
+import { definirAtendimentoDaConversa, listarAtendentes, listarConversas } from "@/lib/whatsapp.functions";
+import type { ConversaDeWhatsapp } from "@/lib/whatsapp/contrato";
 
 export const Route = createFileRoute("/barbeiro/atendentes")({
   ssr: false,
