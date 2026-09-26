@@ -3,9 +3,9 @@ import blackAsset from "@/assets/cortai-logo-urban.png";
 import whiteAsset from "@/assets/cortai-logo-urban-negative.png";
 
 const marcas = {
-  preta: blackAsset.url,
+  preta: blackAsset,
   clara: whiteAsset,
-  escura: blackAsset.url,
+  escura: blackAsset,
   branca: whiteAsset,
 } as const;
 
