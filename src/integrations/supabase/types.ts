@@ -1651,49 +1651,67 @@ export type Database = {
       }
       envios_de_whatsapp: {
         Row: {
+          acoes: string[]
           agendamento_id: string | null
+          aguarda_resposta: boolean
           atualizado_em: string
+          canal: string
           cliente_id: string | null
           conteudo: string | null
           criado_em: string
           enviado_em: string | null
           erro: string | null
           id: string
+          mensagem_externa_id: string | null
+          respondido_em: string | null
           status: string
           telefone: string
           tenant_id: string
           tentativas: number
           tipo: string
+          valido_ate: string | null
         }
         Insert: {
+          acoes?: string[]
           agendamento_id?: string | null
+          aguarda_resposta?: boolean
           atualizado_em?: string
+          canal?: string
           cliente_id?: string | null
           conteudo?: string | null
           criado_em?: string
           enviado_em?: string | null
           erro?: string | null
           id?: string
+          mensagem_externa_id?: string | null
+          respondido_em?: string | null
           status?: string
           telefone: string
           tenant_id: string
           tentativas?: number
           tipo?: string
+          valido_ate?: string | null
         }
         Update: {
+          acoes?: string[]
           agendamento_id?: string | null
+          aguarda_resposta?: boolean
           atualizado_em?: string
+          canal?: string
           cliente_id?: string | null
           conteudo?: string | null
           criado_em?: string
           enviado_em?: string | null
           erro?: string | null
           id?: string
+          mensagem_externa_id?: string | null
+          respondido_em?: string | null
           status?: string
           telefone?: string
           tenant_id?: string
           tentativas?: number
           tipo?: string
+          valido_ate?: string | null
         }
         Relationships: [
           {
