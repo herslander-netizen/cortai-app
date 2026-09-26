@@ -37,15 +37,12 @@ export const Route = createFileRoute("/agendar/$slug")({
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-function diaIso(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function proximosDias(qtd: number) {
-  const hoje = new Date();
+function proximosDias(qtd: number, fuso: string) {
+  const [ano, mes, diaMes] = hojeNoFuso(fuso).split("-").map(Number);
   return Array.from({ length: qtd }, (_, i) => {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
-    return { iso: diaIso(d), rotulo: DIAS[d.getDay()] ?? "", numero: d.getDate() };
+    const d = new Date(Date.UTC(ano, mes - 1, diaMes + i));
+    const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+    return { iso, rotulo: DIAS[d.getUTCDay()] ?? "", numero: d.getUTCDate() };
   });
 }
 
