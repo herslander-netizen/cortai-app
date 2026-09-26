@@ -1,3 +1,4 @@
+import { fusoDoTenant } from "@/lib/fuso.server";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *
@@ -62,10 +63,24 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
 }
 
 /** A IA só atende dentro do horário próprio, quando a barbearia define um. */
-export function dentroDoHorarioDaIa(config: ConfiguracaoDoAtendimento, agora = new Date()): boolean {
+export function dentroDoHorarioDaIa(
+  config: ConfiguracaoDoAtendimento,
+  fuso: string,
+  agora = new Date(),
+): boolean {
   if (!config.horarioProprio) return true;
-  if (!config.horarioDias.includes(agora.getDay())) return false;
-  const minutos = agora.getHours() * 60 + agora.getMinutes();
+  // Relógio da barbearia, nunca o do servidor.
+  const p = new Intl.DateTimeFormat("en-US", {
+    timeZone: fuso,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(agora);
+  const v = (t: string) => p.find((x) => x.type === t)?.value ?? "";
+  const semana = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(v("weekday"));
+  if (!config.horarioDias.includes(semana)) return false;
+  const minutos = Number(v("hour")) * 60 + Number(v("minute"));
   const paraMinutos = (h: string) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5));
   return minutos >= paraMinutos(config.horarioInicio) && minutos <= paraMinutos(config.horarioFim);
 }
@@ -265,7 +280,7 @@ export async function processarMensagemRecebida(input: {
   if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
   if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
   if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
-  if (!dentroDoHorarioDaIa(config)) return { tratada: true, motivo: "fora_do_horario_da_ia" };
+  if (!dentroDoHorarioDaIa(config, await fusoDoTenant(tenantId))) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
   // Proteção contra rajada na mesma conversa (abuso e custo de IA).
   const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");

@@ -31,6 +31,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from 
 import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
 import { IconeCortai } from "@/components/marca/MarcaCortai";
 import { getSessao } from "@/lib/sessao.functions";
+import { definirFusoDasTelas } from "@/lib/format";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { CAPACIDADES } from "@/lib/capacidades";
 import { getAgendaDia } from "@/lib/barbeiro.functions";
@@ -121,6 +122,9 @@ export function ManagementHeader() {
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
   }, [sessao?.identidadeApp]);
+  useEffect(() => {
+    definirFusoDasTelas(sessao?.tenantFuso);
+  }, [sessao?.tenantFuso]);
 
   const grupos = useMemo(
     () =>
