@@ -3633,6 +3633,48 @@ export type Database = {
           },
         ]
       }
+      webhook_limites: {
+        Row: {
+          chave: string
+          janela: string
+          total: number
+        }
+        Insert: {
+          chave: string
+          janela: string
+          total?: number
+        }
+        Update: {
+          chave?: string
+          janela?: string
+          total?: number
+        }
+        Relationships: []
+      }
+      webhook_rejeicoes: {
+        Row: {
+          criado_em: string
+          endpoint: string
+          id: number
+          ip: string | null
+          motivo: string
+        }
+        Insert: {
+          criado_em?: string
+          endpoint: string
+          id?: never
+          ip?: string | null
+          motivo: string
+        }
+        Update: {
+          criado_em?: string
+          endpoint?: string
+          id?: never
+          ip?: string | null
+          motivo?: string
+        }
+        Relationships: []
+      }
       whatsapp_webhook_events: {
         Row: {
           delivery_id: string
@@ -3978,6 +4020,11 @@ export type Database = {
       }
       teto_do_papel: { Args: { _papel: string }; Returns: string[] }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }
+      webhook_consumir: {
+        Args: { _chave: string; _limite: number }
+        Returns: boolean
+      }
+      webhook_rejeicoes_recentes: { Args: { _ip: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "suporte"

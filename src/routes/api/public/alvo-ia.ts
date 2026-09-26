@@ -29,11 +29,16 @@ export const Route = createFileRoute("/api/public/alvo-ia")({
         const { segredoDeWebhook, provedorDeIA } = await import("@/lib/ia/alvo-ia.server");
         const segredo = segredoDeWebhook();
         if (!segredo) return new Response("Integration not enabled", { status: 503 });
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "alvo-ia");
+        if (abuso) return abuso;
 
         const corpo = await request.text();
         if (!(await assinaturaValida(corpo, request.headers.get("x-alvo-signature"), segredo))) {
-          return new Response("Invalid signature", { status: 401 });
+          return guard.rejeitar(request, "alvo-ia", "assinatura invalida");
         }
+        const limite = await guard.limiteAutenticado(request, "alvo-ia");
+        if (limite) return limite;
 
         let evento;
         try {
