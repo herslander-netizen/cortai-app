@@ -97,7 +97,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
   }, [escala.fim, escala.inicio]);
 
   const layout = useMemo(() => {
-    const resultado = new Map<string, { inicio: number; fim: number; topo: number; altura: number }>();
+    const resultado = new Map<string, { inicio: number; fim: number; topo: number; altura: number; coluna?: number; colunas?: number }>();
     const acrescimos: Array<{ depoisDe: number; pixels: number }> = [];
     const ordenados = itens
       .map((item) => {
@@ -114,11 +114,22 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       const topoNatural = (inicioGrupo - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
       let cursor = topoNatural;
 
-      grupo.forEach((evento) => {
-        const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
-        resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo: cursor, altura });
-        cursor += altura + ESPACO_ENTRE_BLOCOS;
-      });
+      // Encaixe sobreposto aparece lado a lado, no horário real.
+      if (grupo.length > 1 && grupo.some((evento) => evento.item.encaixe)) {
+        const colunas = Math.min(grupo.length, 3);
+        grupo.forEach((evento, i) => {
+          const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
+          resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura, coluna: i % colunas, colunas });
+          cursor = Math.max(cursor, topo + altura + ESPACO_ENTRE_BLOCOS);
+        });
+      } else {
+        grupo.forEach((evento) => {
+          const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo: cursor, altura });
+          cursor += altura + ESPACO_ENTRE_BLOCOS;
+        });
+      }
 
       const alturaNatural = (fimGrupo - inicioGrupo) * PX_POR_MINUTO;
       const alturaEmpilhada = cursor - topoNatural - ESPACO_ENTRE_BLOCOS;
