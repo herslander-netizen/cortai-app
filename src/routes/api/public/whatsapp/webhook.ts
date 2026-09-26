@@ -29,6 +29,7 @@ type MudancaMeta = {
       document?: { id?: string; caption?: string };
       location?: { latitude?: number; longitude?: number };
       button?: { payload?: string; text?: string };
+      context?: { id?: string };
       interactive?: { button_reply?: { id?: string; title?: string } };
     }[];
     statuses?: {
@@ -100,6 +101,7 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
       tipo,
       conteudo,
       midiaUrl: null,
+      citadaId: mensagem.context?.id ?? null,
     });
   }
 }

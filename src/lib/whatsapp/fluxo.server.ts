@@ -39,9 +39,30 @@ async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
 async function barbeariaDoNumeroCompartilhado(
   telefone: string,
   texto: string,
+  citadaId: string | null = null,
 ): Promise<{ tenantId: string } | { perguntar: string }> {
   const db = await admin();
   const variantes = variantesDoTelefone(telefone);
+
+  // Resposta a notificação: o ID no botão ou na mensagem citada define a barbearia.
+  const idNoBotao = texto.trim().match(/^CORTAI_[A-Z_]+:([0-9a-fA-F-]{36})$/)?.[1];
+  if (idNoBotao || citadaId) {
+    const q = db.from("envios_de_whatsapp").select("tenant_id");
+    const { data } = idNoBotao
+      ? await q.eq("id", idNoBotao.toLowerCase()).maybeSingle()
+      : await q.eq("mensagem_externa_id", citadaId!).maybeSingle();
+    if (data?.tenant_id) return { tenantId: data.tenant_id };
+  }
+  // Notificações abertas: de uma só barbearia, ela atende; de várias, pergunta abaixo.
+  const { data: abertas } = await db
+    .from("envios_de_whatsapp")
+    .select("tenant_id")
+    .in("telefone", variantes)
+    .eq("aguarda_resposta", true)
+    .is("respondido_em", null)
+    .gt("valido_ate", new Date().toISOString());
+  const tenantsAbertos = [...new Set((abertas ?? []).map((a) => a.tenant_id))];
+  if (tenantsAbertos.length === 1 && !/^\d{1,2}$/.test(texto.trim())) return { tenantId: tenantsAbertos[0]! };
   const [{ data: conversas }, { data: clientes }] = await Promise.all([
     db.from("conversas_whatsapp").select("tenant_id, ultima_mensagem_em").in("telefone", variantes),
     db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null),
@@ -289,6 +310,8 @@ export async function processarMensagemRecebida(input: {
   tipo: string;
   conteudo: string;
   midiaUrl?: string | null;
+  /** ID externo da mensagem citada (resposta a uma notificação). */
+  citadaId?: string | null;
 }): Promise<{ tratada: boolean; motivo?: string }> {
   const db = await admin();
   const conexao = await conexaoPorSessao(input.sessaoId);
@@ -297,7 +320,7 @@ export async function processarMensagemRecebida(input: {
   const telefone = somenteDigitos(input.telefone);
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
-    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "");
+    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "", input.citadaId ?? null);
     if ("perguntar" in r) {
       const { gatewayDeWhatsapp } = await import("./gateway.server");
       await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, r.perguntar).catch(() => undefined);
@@ -353,6 +376,7 @@ export async function processarMensagemRecebida(input: {
       conversaId: conversa.id,
       telefone,
       texto: input.conteudo,
+      citadaId: input.citadaId ?? null,
     }).catch(() => null);
     if (lembrete) {
       if (lembrete.texto) {
