@@ -186,7 +186,7 @@
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 8%, transparent);
   --sage-soft: color-mix(in oklab, var(--sage) 12%, transparent);
   --brick-soft: color-mix(in oklab, var(--brick) 12%, transparent);
-  --gold: var(--identity-accent-light);
+  --gold: var(--identity-accent);
   --gold-soft: color-mix(in oklab, var(--identity-accent) 14%, transparent);
   --primary-foreground: #0e0e0e;
   --sage: #4e785f;
