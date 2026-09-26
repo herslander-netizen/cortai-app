@@ -519,6 +519,29 @@ export const listarConversas = createServerFn({ method: "GET" })
     }));
   });
 
+/** Última conversa de um cliente nesta barbearia (para abrir a partir da agenda). */
+export const buscarConversaDoCliente = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ clienteId: z.string().uuid() }).parse(input))
+  .handler(async ({ context, data }): Promise<{ conversaId: string | null }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const { data: conversa, error } = await db
+      .from("conversas_whatsapp")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("cliente_id", data.clienteId)
+      .order("ultima_mensagem_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.error("[whatsapp] buscarConversaDoCliente falhou:", error.message);
+      throw new Error("Não foi possível localizar a conversa agora. Tente novamente.");
+    }
+    return { conversaId: conversa?.id ?? null };
+  });
+
 export const lerConversa = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ conversaId: z.string().uuid() }).parse(input))

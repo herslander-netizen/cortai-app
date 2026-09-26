@@ -28,6 +28,7 @@ import {
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
   type DiagnosticoDoWhatsapp,
+  buscarConversaDoCliente,
   lerConversa,
   listarConversas,
   reconectarWhatsapp,
@@ -40,6 +41,14 @@ import {
 
 export const Route = createFileRoute("/barbeiro/cortai")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { aba?: Aba | undefined; conversa?: string | undefined; cliente?: string | undefined } => ({
+    aba:
+      search["aba"] === "conversas" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
+        ? search["aba"]
+        : undefined,
+    conversa: typeof search["conversa"] === "string" ? search["conversa"] : undefined,
+    cliente: typeof search["cliente"] === "string" ? search["cliente"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "CortAI no WhatsApp — Cortaí Gestão" },
@@ -70,7 +79,8 @@ function Ponto({ ligado }: { ligado: boolean }) {
 }
 
 function CortaiPage() {
-  const [aba, setAba] = useState<Aba>("whatsapp");
+  const busca = Route.useSearch();
+  const [aba, setAba] = useState<Aba>(busca.aba ?? "whatsapp");
   const painel = useQuery({ queryKey: ["cortai-painel"], queryFn: () => getPainelDoCortai() as Promise<PainelDoCortai> });
 
   return (
@@ -150,7 +160,7 @@ function CortaiPage() {
                 {painel.data.podeGerenciarWhatsapp ? <BlocoDiagnostico /> : null}
               </>
             ) : null}
-            {aba === "conversas" ? <BlocoConversas /> : null}
+            {aba === "conversas" ? <BlocoConversas conversaInicial={busca.conversa} clienteInicial={busca.cliente} /> : null}
             {aba === "ajustes" ? <BlocoAjustes painel={painel.data} /> : null}
           </div>
         </>
@@ -667,10 +677,20 @@ const FILTROS = [
   ["falhas", "Falhas de entrega"],
 ] as const;
 
-function BlocoConversas() {
+function BlocoConversas({ conversaInicial, clienteInicial }: { conversaInicial?: string | undefined; clienteInicial?: string | undefined }) {
   const cliente = useQueryClient();
   const [filtro, setFiltro] = useState<(typeof FILTROS)[number][0]>("todas");
-  const [aberta, setAberta] = useState<string | null>(null);
+  const [aberta, setAberta] = useState<string | null>(conversaInicial ?? null);
+
+  // Vindo da agenda: abre direto a conversa mais recente daquele cliente.
+  const doCliente = useQuery({
+    queryKey: ["cortai-conversa-do-cliente", clienteInicial],
+    queryFn: () => buscarConversaDoCliente({ data: { clienteId: clienteInicial! } }),
+    enabled: Boolean(clienteInicial) && !conversaInicial,
+  });
+  useEffect(() => {
+    if (doCliente.data?.conversaId) setAberta(doCliente.data.conversaId);
+  }, [doCliente.data?.conversaId]);
 
   const lista = useQuery({
     queryKey: ["cortai-conversas", filtro],
