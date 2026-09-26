@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AgendaLazy } from "@/components/barbeiro/AgendaLazy";
 
 export const Route = createFileRoute("/barbeiro/agenda")({
-  validateSearch: (search: Record<string, unknown>): { acao?: "agendamento" | "atendimento" | "cliente"; agendamento?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { acao?: "agendamento" | "atendimento" | "cliente" | undefined; agendamento?: string | undefined } => ({
     acao:
       search["acao"] === "agendamento" || search["acao"] === "atendimento" || search["acao"] === "cliente"
         ? search["acao"]
