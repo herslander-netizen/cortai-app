@@ -153,7 +153,7 @@ function ConfigurarMinhaBarbearia() {
       <header className="border-b border-paper/10">
         <div className="mx-auto flex h-16 max-w-[720px] items-center justify-between px-5">
           <Link to="/" className="flex items-center gap-2 text-sm text-mute">
-            <ArrowLeft size={16} /> <MarcaCortai variante="escura" className="h-6 w-auto" />
+            <ArrowLeft size={16} /> <MarcaCortai variante="automatica" className="h-6 w-auto" />
           </Link>
           <Link to="/login" className="text-sm text-mute hover:text-paper">
             Entrar

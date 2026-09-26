@@ -53,7 +53,7 @@ function RedefinirSenhaPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Crie sua nova senha</h1>
 
       {salvo ? (

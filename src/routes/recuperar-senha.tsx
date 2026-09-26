@@ -29,7 +29,7 @@ function RecuperarSenhaPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Esqueceu sua senha?</h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
         Informe o e-mail da sua conta. Se ele estiver cadastrado, enviamos o passo a passo para criar uma

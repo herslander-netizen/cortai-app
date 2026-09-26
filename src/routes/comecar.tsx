@@ -46,7 +46,7 @@ function ComecarPage() {
   if (sessao.acessoSuspenso) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
-        <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
+        <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
         <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Seu acesso foi desativado.</h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
           Quem gerencia a equipe da barbearia desativou seu acesso ao painel. Se você acha que isso
@@ -85,7 +85,7 @@ function ComecarPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
-      <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
         {concluido ? "Barbearia criada." : modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
       </h1>

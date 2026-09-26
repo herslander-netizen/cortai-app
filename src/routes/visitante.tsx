@@ -49,7 +49,7 @@ function VisitantePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 max-w-xs text-[30px] font-bold leading-tight text-paper">
         {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu corte."}
       </h1>

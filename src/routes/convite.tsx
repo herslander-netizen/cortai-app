@@ -35,7 +35,7 @@ function ConvitePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-12">
-      <MarcaCortai variante="escura" className="h-auto w-44" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
 
       {convite.isLoading ? (
         <p className="mt-8 text-sm text-mute">Carregando o seu acesso…</p>

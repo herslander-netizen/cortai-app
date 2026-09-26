@@ -53,7 +53,7 @@ function DemonstracaoPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col justify-center px-6 py-12">
-      <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
+      <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
       <h1 className="mt-4 text-[26px] font-bold leading-tight text-paper">
         Preparando a barbearia de demonstração…
       </h1>
