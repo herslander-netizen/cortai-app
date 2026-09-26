@@ -140,7 +140,10 @@ export function AgendaOperacional() {
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   const [ocupado, setOcupado] = useState(false);
-  const [visualizacao, setVisualizacao] = useState<"lista" | "timeline">("lista");
+  const [visualizacao, setVisualizacao] = useState<"lista" | "timeline">("timeline");
+  const [filaAberta, setFilaAberta] = useState(false);
+  const [profFiltro, setProfFiltro] = useState<string | null>(null);
+  const filtroInicial = useRef(false);
   const ehHoje = dia === hojeNoFuso(fuso);
 
   const rapido = useQuery({
@@ -203,10 +206,30 @@ export function AgendaOperacional() {
     return () => { void supabase.removeChannel(canal); };
   }, [tenantId, queryClient]);
 
-  const itens = useMemo(
-    () => (agenda.data?.itens ?? []).map((item) => ({ ...item, status: estadosLocais[item.id] ?? item.status })).sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime()),
-    [agenda.data?.itens, estadosLocais],
+  const profissionaisDoDia = useMemo(
+    () => [...new Set((agenda.data?.itens ?? []).map((item) => item.profissional).filter((nome) => nome && nome !== "—"))].sort(),
+    [agenda.data?.itens],
   );
+  // Barbeiro vê a própria agenda por padrão; dono/recepção vê todos.
+  const meuNome = filaQ.data?.profissionais.find((p) => p.id === filaQ.data?.meuProfissionalId)?.nome ?? null;
+  useEffect(() => {
+    if (filtroInicial.current || !filaQ.data) return;
+    filtroInicial.current = true;
+    if (meuNome) setProfFiltro(meuNome);
+  }, [filaQ.data, meuNome]);
+  const itens = useMemo(
+    () => (agenda.data?.itens ?? [])
+      .filter((item) => !profFiltro || item.profissional === profFiltro)
+      .map((item) => ({ ...item, status: estadosLocais[item.id] ?? item.status }))
+      .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime()),
+    [agenda.data?.itens, estadosLocais, profFiltro],
+  );
+  const semana = useMemo(() => {
+    const dow = (new Date(`${dia}T12:00:00Z`).getUTCDay() + 6) % 7;
+    return Array.from({ length: 7 }, (_, i) => somarDias(dia, i - dow));
+  }, [dia]);
+  const agendadosDia = itens.filter((item) => !TERMINAIS.has(item.status) || item.status === "finalizado").length;
+  const resumo = `${agendadosDia} ${agendadosDia === 1 ? "agendado" : "agendados"}${chegada.length ? ` · ${chegada.length} na fila` : ""}`;
   const ativos = itens.filter((item) => item.status === "na_cadeira");
   const futuros = itens.filter((item) => !TERMINAIS.has(item.status) && item.status !== "na_cadeira" && new Date(item.fim).getTime() >= agora);
   const destaques = futuros.slice(0, 2);
@@ -300,17 +323,38 @@ export function AgendaOperacional() {
       <div className="agenda-operacional pb-32">
         <header className="agenda-cabecalho-compacto">
           <h1 className="sr-only">Agenda</h1>
-          <div className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-1" aria-label="Navegar pelos dias">
-          <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => setDia(somarDias(dia, -1))}><ChevronLeft /></Button>
-          <div className="min-w-0 text-center">
-            <p className="truncate text-base font-extrabold text-paper">{dataEditorial(dia)}</p>
-            {!ehHoje ? <Button variant="link" size="sm" className="h-auto min-h-0 p-1 text-xs text-mute" onClick={() => setDia(hojeNoFuso(fuso))}>Ir para hoje</Button> : <span className="text-xs font-semibold text-mute">Hoje</span>}
+          <div className="mb-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+            <div className="flex min-w-0 items-center gap-1">
+              <Button variant="ghost" size="icon" aria-label="Semana anterior" onClick={() => setDia(somarDias(dia, -7))}><ChevronLeft /></Button>
+              <p className="truncate text-sm font-extrabold text-paper">{dataEditorial(dia)}</p>
+              <Button variant="ghost" size="icon" aria-label="Próxima semana" onClick={() => setDia(somarDias(dia, 7))}><ChevronRight /></Button>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {chegada.length > 0 ? <Button size="sm" variant="outline" onClick={() => setFilaAberta(true)}><ListOrdered />Fila ({chegada.length})</Button> : null}
+              <Button size="sm" variant={ehHoje ? "ghost" : "secondary"} disabled={ehHoje} onClick={() => setDia(hojeNoFuso(fuso))}>Hoje</Button>
+              <BotaoAjuda />
+            </div>
           </div>
-          <div className="flex shrink-0 items-center gap-0.5">
-            <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => setDia(somarDias(dia, 1))}><ChevronRight /></Button>
-            <BotaoAjuda />
+          <div className="agenda-semana" role="group" aria-label="Dias da semana">
+            {semana.map((d) => {
+              const data = new Date(`${d}T12:00:00Z`);
+              return (
+                <button key={d} type="button" className="agenda-semana-dia" aria-pressed={d === dia} data-hoje={d === hojeNoFuso(fuso)} onClick={() => setDia(d)}>
+                  <span>{data.toLocaleDateString("pt-BR", { weekday: "short", timeZone: "UTC" }).replace(".", "").slice(0, 3)}</span>
+                  <strong>{data.getUTCDate()}</strong>
+                </button>
+              );
+            })}
           </div>
-          </div>
+          <p className="mt-2 text-xs font-semibold text-mute" aria-live="polite">{resumo}</p>
+          {profissionaisDoDia.length > 1 ? (
+            <div className="agenda-chips mt-2" role="group" aria-label="Profissional">
+              <Button variant="ghost" size="sm" className={`agenda-chip ${profFiltro === null ? "agenda-chip-ativo" : ""}`} onClick={() => setProfFiltro(null)}>Todos</Button>
+              {profissionaisDoDia.map((nome) => (
+                <Button key={nome} variant="ghost" size="sm" className={`agenda-chip ${profFiltro === nome ? "agenda-chip-ativo" : ""}`} onClick={() => setProfFiltro(nome)}>{nome}</Button>
+              ))}
+            </div>
+          ) : null}
         </header>
 
         {ehHoje && (rapido.isLoading && !agenda.data) ? <EsqueletoAgenda linhas={2} /> : null}
@@ -390,18 +434,16 @@ export function AgendaOperacional() {
           </section>
         ) : null}
 
-        {chegada.length > 0 ? (
-          <section aria-labelledby="fila-titulo" className="mb-6">
-            <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <p id="fila-titulo" className="text-xs font-bold uppercase text-mute">Fila · {chegada.length}</p>
-              <Button size="sm" variant="outline" disabled={ocupado} onClick={() => void chamarFila()}><UserRoundPlus />Chamar próximo</Button>
+        <Sheet open={filaAberta && chegada.length > 0} onOpenChange={setFilaAberta}>
+          <SheetContent side="bottom" className="mx-auto max-h-[80dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink2 px-5 pt-5">
+            <SheetHeader className="pr-10 text-left">
+              <SheetTitle className="text-base text-paper">Fila · {chegada.length}</SheetTitle>
+              <SheetDescription className="text-xs text-mute">Quem chegou sem horário, por ordem de chegada.</SheetDescription>
+            </SheetHeader>
+          <section aria-label="Fila de chegada" className="mt-3 pb-4">
+            <div className="mb-2 flex justify-end">
+              <Button size="sm" variant="outline" disabled={ocupado} onClick={() => { setFilaAberta(false); void chamarFila(); }}><UserRoundPlus />Chamar próximo</Button>
             </div>
-            {sugestaoFila ? (
-              <div className="agenda-sugestao-fila mb-2">
-                <p className="text-sm font-semibold text-paper">Horário liberado. Chamar {chegada[0]?.cliente} da fila?</p>
-                <div className="mt-2 flex gap-2"><Button size="sm" disabled={ocupado} onClick={() => void chamarFila()}>Chamar próximo da fila</Button><Button size="sm" variant="ghost" onClick={() => setSugestaoFila(false)}>Agora não</Button></div>
-              </div>
-            ) : null}
             {souRecepcao && filaQ.data ? (
               <div className="mb-2 flex flex-wrap gap-2" aria-label="Profissional que vai atender">
                 {filaQ.data.profissionais.map((p) => (
@@ -419,6 +461,14 @@ export function AgendaOperacional() {
               ))}
             </ol>
           </section>
+          </SheetContent>
+        </Sheet>
+
+        {sugestaoFila && chegada.length > 0 ? (
+          <div className="agenda-sugestao-fila mb-4">
+            <p className="text-sm font-semibold text-paper">Horário liberado. Chamar {chegada[0]?.cliente} da fila?</p>
+            <div className="mt-2 flex gap-2"><Button size="sm" disabled={ocupado} onClick={() => void chamarFila()}>Chamar próximo da fila</Button><Button size="sm" variant="ghost" onClick={() => setSugestaoFila(false)}>Agora não</Button></div>
+          </div>
         ) : null}
 
         <div className="mb-4 grid grid-cols-2 rounded-lg bg-ink3 p-1" role="tablist" aria-label="Visualização da agenda">
