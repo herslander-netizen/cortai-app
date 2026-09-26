@@ -1220,7 +1220,9 @@ export type Database = {
           recuperacao_dias: number
           responder_whatsapp: boolean
           saudacao_ativa: boolean
+          situacoes_desligadas: string[]
           tenant_id: string
+          textos_conversa: Json
           tom: string
         }
         Insert: {
@@ -1246,7 +1248,9 @@ export type Database = {
           recuperacao_dias?: number
           responder_whatsapp?: boolean
           saudacao_ativa?: boolean
+          situacoes_desligadas?: string[]
           tenant_id: string
+          textos_conversa?: Json
           tom?: string
         }
         Update: {
@@ -1272,7 +1276,9 @@ export type Database = {
           recuperacao_dias?: number
           responder_whatsapp?: boolean
           saudacao_ativa?: boolean
+          situacoes_desligadas?: string[]
           tenant_id?: string
+          textos_conversa?: Json
           tom?: string
         }
         Relationships: [
