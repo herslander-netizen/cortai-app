@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { responder, textoDaSituacao, limitarEmojis } from "./conversa-padrao";
-import { detectarIntencao } from "./motor/intencoes";
+import { classificar } from "./motor/intencoes";
 
 describe("Conversa padrão", () => {
   it("cliente de sempre recebe o de sempre", () => {
@@ -24,12 +24,19 @@ describe("Conversa padrão", () => {
 describe("Conversas de teste — intenção reconhecida", () => {
   const casos: [string, string, string][] = [
     ["1. Cliente novo, tudo numa frase", "oi, quero marcar corte amanhã de tarde", "AGENDAR"],
+    ["2. Cliente de sempre", "oi, quero marcar", "AGENDAR"],
     ["3. Lembrete e remarcação", "preciso remarcar", "REMARCAR"],
+    ["4. Atraso", "vou atrasar 20 min", "HUMANO"],
+    ["5. Preço fora do horário", "quanto custa o corte?", "PRECO"],
+    ["6. Agenda cheia", "tem horário hoje?", "DISPONIBILIDADE"],
     ["7. Reclamação", "quero falar com um atendente", "HUMANO"],
+    ["8. Não entendeu", "asdfgh", "DESCONHECIDA"],
   ];
   for (const [nome, msg, esperado] of casos) {
     it(nome, () => {
-      expect(String(detectarIntencao(msg))).toContain(esperado);
+      const r = classificar(msg, { fuso: "America/Sao_Paulo" }).intencao;
+      console.log(`${nome}: "${msg}" → ${r}`);
+      expect(r).toBe(esperado);
     });
   }
 });
