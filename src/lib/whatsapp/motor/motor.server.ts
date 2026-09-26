@@ -633,7 +633,7 @@ async function tratarSelecao(
     }
 
     case "horario": {
-      const resumo = await resumoDoHorario(ctx, contexto, item);
+      const { texto: resumo, vars } = await resumoDoHorario(ctx, contexto, item);
       if (contexto.pendente === "remarcar" && contexto.agendamentoId) {
         return responder(
           [
@@ -654,14 +654,15 @@ async function tratarSelecao(
           { intencao: "reagendamento" },
         );
       }
+      const padrao = [
+        "Confere para mim:",
+        "",
+        resumo,
+        "",
+        "Posso confirmar? Responda *sim* para fechar ou *não* para escolher outro.",
+      ].join("\n");
       return responder(
-        [
-          "Confere para mim:",
-          "",
-          resumo,
-          "",
-          "Posso confirmar? Responda *sim* para fechar ou *não* para escolher outro.",
-        ].join("\n"),
+        frase(entrada, "resumo_confirmacao", vars, padrao),
         {
           estado: "CONFIRMING_BOOKING",
           inicioEscolhido: item.valor,
