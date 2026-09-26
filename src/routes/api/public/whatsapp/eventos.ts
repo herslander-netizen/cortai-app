@@ -48,13 +48,18 @@ export const Route = createFileRoute("/api/public/whatsapp/eventos")({
         const { segredoDoWebhookDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
         const segredo = segredoDoWebhookDeWhatsapp();
         if (!segredo) return new Response("Integration not enabled", { status: 503 });
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "whatsapp/eventos");
+        if (abuso) return abuso;
 
         const corpo = await request.text();
         const assinatura =
           request.headers.get("x-whatsapp-signature") ?? request.headers.get("x-hub-signature-256");
         if (!(await assinaturaValida(corpo, assinatura, segredo))) {
-          return new Response("Invalid signature", { status: 401 });
+          return guard.rejeitar(request, "whatsapp/eventos", assinatura ? "assinatura invalida" : "sem assinatura");
         }
+        const limite = await guard.limiteAutenticado(request, "whatsapp/eventos");
+        if (limite) return limite;
 
         const analise = evento.safeParse(JSON.parse(corpo || "{}"));
         if (!analise.success) return new Response("Invalid payload", { status: 400 });

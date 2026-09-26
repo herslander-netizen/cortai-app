@@ -13,8 +13,14 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "whatsapp/automacoes");
+        if (abuso) return abuso;
         const negado = await authenticateCronRequest(request);
-        if (negado) return negado;
+        if (negado) {
+          await guard.rejeitar(request, "whatsapp/automacoes", "cron sem autenticacao");
+          return negado;
+        }
         const { processarAutomacoesDeWhatsapp } = await import("@/lib/whatsapp/notificacoes.server");
         const resumo = await processarAutomacoesDeWhatsapp();
         return Response.json({ ok: true, ...resumo });

@@ -41,15 +41,21 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const { segredoDoWebhookDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
         const segredo = segredoDoWebhookDeWhatsapp();
         if (!segredo) return new Response("Integration not enabled", { status: 503 });
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "whatsapp/evolution");
+        if (abuso) return abuso;
 
         const recebido =
           request.headers.get("x-webhook-secret") ??
           request.headers.get("apikey") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+          new URL(request.url).searchParams.get("token") ??
           null;
         if (!(await segredoConfere(recebido, segredo))) {
-          return new Response("Invalid signature", { status: 401 });
+          return guard.rejeitar(request, "whatsapp/evolution", recebido ? "token invalido" : "sem token");
         }
+        const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
+        if (limite) return limite;
 
         const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
         if (!corpo) return new Response("Invalid payload", { status: 400 });
