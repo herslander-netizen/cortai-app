@@ -64,7 +64,8 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
     const maisVendidos = [...contagem.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id).filter((id) => (produtos ?? []).some((p: any) => p.id === id)).slice(0, 4);
     let creditos = 0; let fiadoDisponivel = 0;
     const cliente: any = (comanda as any).clientes;
-    if (comanda.cliente_id && cliente?.telefone !== "avulso") {
+    const { data: podeFiado } = await context.supabase.rpc("has_tenant_permission", { _tenant_id: tenantId, _permission: "liberar_fiado" });
+    if (comanda.cliente_id && cliente?.telefone !== "avulso" && podeFiado) {
       const [{ data: cart }, { data: abertos }] = await Promise.all([
         db.from("carteiras").select("saldo_creditos").eq("tenant_id", tenantId).eq("cliente_id", comanda.cliente_id).maybeSingle(),
         db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).eq("cliente_id", comanda.cliente_id).in("status", ["pendente", "parcial"]),
@@ -72,9 +73,13 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
       creditos = cart?.saldo_creditos ?? 0;
       const limite = cliente?.limite_fiado_centavos ?? 0;
       fiadoDisponivel = limite > 0 ? Math.max(0, limite - (abertos ?? []).reduce((s: number, f: any) => s + f.saldo_centavos, 0)) : 0;
+    } else if (comanda.cliente_id && cliente?.telefone !== "avulso") {
+      const { data: cart } = await db.from("carteiras").select("saldo_creditos").eq("tenant_id", tenantId).eq("cliente_id", comanda.cliente_id).maybeSingle();
+      creditos = cart?.saldo_creditos ?? 0;
     }
     const planoReservado = (comanda as any).agendamentos?.forma_pagamento === "credito";
     return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
+
   });
 
 const salvarSchema = z.object({ comandaId: z.string().uuid(), itens: z.array(itemSchema).min(1), descontoCentavos: z.number().int().min(0) });
