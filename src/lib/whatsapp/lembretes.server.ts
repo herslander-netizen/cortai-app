@@ -189,6 +189,11 @@ export async function tratarRespostaDeLembrete(input: {
       const { data } = await db.rpc("confirmar_presenca_whatsapp" as never, { _agendamento_id: ag.id } as never);
       const r = (data ?? {}) as { ok?: boolean };
       await registrar("lembrete_confirmar", Boolean(r.ok));
+      if (r.ok) {
+        // A equipe fica sabendo na agenda e no WhatsApp; falha aqui não afeta o cliente.
+        const { avisarEquipeDaConfirmacao } = await import("./aviso-equipe.server");
+        await avisarEquipeDaConfirmacao(ag.id);
+      }
       return r.ok
         ? { texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.` }
         : { texto: "Esse horário não está mais ativo. Quer marcar outro? É só me dizer o dia." };
