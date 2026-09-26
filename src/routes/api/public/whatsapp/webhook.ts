@@ -191,28 +191,81 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
 export const Route = createFileRoute("/api/public/whatsapp/webhook")({
   server: {
     handlers: {
+      /** Verificação de URL da Meta (quando a Meta chama direto, sem intermediário). */
+      GET: async ({ request }) => {
+        const url = new URL(request.url);
+        const token = process.env["META_VERIFY_TOKEN"];
+        if (
+          token &&
+          url.searchParams.get("hub.mode") === "subscribe" &&
+          url.searchParams.get("hub.verify_token") === token
+        ) {
+          return new Response(url.searchParams.get("hub.challenge") ?? "", { status: 200 });
+        }
+        const guard = await import("@/lib/webhook-guard.server");
+        return guard.rejeitar(request, "whatsapp/meta", "verify_token invalido", 403);
+      },
       POST: async ({ request }) => {
-        const segredo = process.env["WHATSAPP_API_KEY"];
-        if (!segredo) return new Response("Integration not enabled", { status: 503 });
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "whatsapp/meta");
+        if (abuso) return abuso;
 
-        let verificado;
-        try {
-          verificado = await verifyWebhookRequest({
-            req: request,
-            secret: segredo,
-            maxBodyBytes: 4 * 1024 * 1024,
-          });
-        } catch (erro) {
-          if (erro instanceof WebhookError) {
-            const status = erro.code === "invalid_signature" ? 401 : 400;
-            return new Response(erro.message, { status });
+        const appSecret = process.env["META_APP_SECRET"];
+        const assinaturaMeta = request.headers.get("x-hub-signature-256");
+        const segredo = process.env["WHATSAPP_API_KEY"];
+
+        let payload: unknown;
+        let entregaId: string | null;
+        let evento: string | null;
+
+        if (assinaturaMeta) {
+          // Chamada direta da Meta: X-Hub-Signature-256 = HMAC-SHA256(corpo cru, App Secret).
+          if (!appSecret) return guard.rejeitar(request, "whatsapp/meta", "META_APP_SECRET ausente");
+          const corpo = await request.text();
+          if (corpo.length > 4 * 1024 * 1024) return guard.rejeitar(request, "whatsapp/meta", "corpo grande", 413);
+          const { createHmac, timingSafeEqual } = await import("node:crypto");
+          const esperado = "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
+          const a = Buffer.from(assinaturaMeta, "utf8");
+          const b = Buffer.from(esperado, "utf8");
+          if (a.length !== b.length || !timingSafeEqual(a, b)) {
+            return guard.rejeitar(request, "whatsapp/meta", "x-hub-signature-256 invalida");
           }
-          throw erro;
+          try {
+            payload = JSON.parse(corpo);
+          } catch {
+            return new Response("Invalid payload", { status: 400 });
+          }
+          entregaId = "meta:" + createHmac("sha256", "id").update(corpo).digest("hex");
+          evento = "whatsapp.meta";
+        } else {
+          // Entrega pelo conector do Lovable, assinada com a chave da integração.
+          if (!segredo) return guard.rejeitar(request, "whatsapp/meta", "sem assinatura");
+          try {
+            const verificado = await verifyWebhookRequest({
+              req: request,
+              secret: segredo,
+              maxBodyBytes: 4 * 1024 * 1024,
+            });
+            payload = verificado.payload;
+          } catch (erro) {
+            if (erro instanceof WebhookError) {
+              return guard.rejeitar(
+                request,
+                "whatsapp/meta",
+                erro.code,
+                erro.code === "invalid_signature" ? 401 : 400,
+              );
+            }
+            throw erro;
+          }
+          entregaId = request.headers.get("x-lovable-delivery");
+          evento = request.headers.get("x-lovable-event");
         }
 
-        const entregaId = request.headers.get("x-lovable-delivery");
-        const evento = request.headers.get("x-lovable-event");
+        const limite = await guard.limiteAutenticado(request, "whatsapp/meta");
+        if (limite) return limite;
         if (!entregaId || !evento) return new Response("Missing delivery headers", { status: 400 });
+        const verificado = { payload };
 
         const db = await admin();
         const { data: existente } = await db
