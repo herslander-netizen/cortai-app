@@ -154,6 +154,7 @@ export type Database = {
           cliente_id: string
           confirmado_em: string | null
           criado_em: string
+          encaixe: boolean
           fim: string
           finished_at: string | null
           finished_inferido: boolean
@@ -181,6 +182,7 @@ export type Database = {
           cliente_id: string
           confirmado_em?: string | null
           criado_em?: string
+          encaixe?: boolean
           fim: string
           finished_at?: string | null
           finished_inferido?: boolean
@@ -208,6 +210,7 @@ export type Database = {
           cliente_id?: string
           confirmado_em?: string | null
           criado_em?: string
+          encaixe?: boolean
           fim?: string
           finished_at?: string | null
           finished_inferido?: boolean
@@ -3754,6 +3757,7 @@ export type Database = {
       criar_agendamento: {
         Args: {
           _cliente_id: string
+          _encaixe?: boolean
           _forma_pagamento: string
           _inicio: string
           _profissional_id: string
