@@ -1,4 +1,5 @@
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *
@@ -20,7 +21,69 @@ async function admin() {
 }
 
 function somenteDigitos(telefone: string) {
-  return telefone.replace(/\D/g, "");
+  return normalizarTelefone(telefone);
+}
+
+/** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
+async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
+  const db = await admin();
+  const { data, error } = await db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenantId, _chave: "cortai_whatsapp" });
+  if (error) return true;
+  return data !== false;
+}
+
+/**
+ * Número compartilhado: descobre a barbearia por código/link na mensagem,
+ * pela escolha numerada, pelo histórico recente ou pergunta quando houver dúvida.
+ */
+async function barbeariaDoNumeroCompartilhado(
+  telefone: string,
+  texto: string,
+): Promise<{ tenantId: string } | { perguntar: string }> {
+  const db = await admin();
+  const variantes = variantesDoTelefone(telefone);
+  const [{ data: conversas }, { data: clientes }] = await Promise.all([
+    db.from("conversas_whatsapp").select("tenant_id, ultima_mensagem_em").in("telefone", variantes),
+    db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null),
+  ]);
+  const ids = [...new Set([...(conversas ?? []).map((c) => c.tenant_id), ...(clientes ?? []).map((c) => c.tenant_id)])];
+
+  // 1) Código ou link de entrada (slug) citado na mensagem.
+  const tokens = (texto.toLowerCase().match(/[a-z0-9][a-z0-9-]{2,}/g) ?? []).slice(0, 40);
+  if (tokens.length) {
+    const { data: porSlug } = await db.from("tenants").select("id").in("slug", tokens).limit(1);
+    if (porSlug?.[0]) return { tenantId: porSlug[0].id };
+  }
+  if (ids.length === 1) return { tenantId: ids[0]! };
+
+  const { data: nomes } = ids.length
+    ? await db.from("tenants").select("id, nome").in("id", ids).order("nome")
+    : { data: [] as { id: string; nome: string }[] };
+  const lista = nomes ?? [];
+
+  // 2) Resposta numerada à pergunta anterior.
+  const escolha = texto.trim().match(/^(\d{1,2})$/);
+  if (escolha && lista[Number(escolha[1]) - 1]) return { tenantId: lista[Number(escolha[1]) - 1]!.id };
+
+  // 3) Conversa recente (12h) define a barbearia.
+  const recente = (conversas ?? [])
+    .filter((c) => c.ultima_mensagem_em && Date.now() - new Date(c.ultima_mensagem_em).getTime() < 12 * 3600_000)
+    .sort((a, b) => String(b.ultima_mensagem_em).localeCompare(String(a.ultima_mensagem_em)))[0];
+  if (recente) return { tenantId: recente.tenant_id };
+
+  if (lista.length > 1) {
+    return {
+      perguntar: [
+        "Olá! Com qual barbearia você quer falar?",
+        ...lista.map((t, i) => `${i + 1} - ${t.nome}`),
+        "",
+        "Responda com o número.",
+      ].join("\n"),
+    };
+  }
+  return {
+    perguntar: "Olá! Qual barbearia você procura? Envie o link ou o código da barbearia que eu te atendo.",
+  };
 }
 
 export async function conexaoPorSessao(sessaoId: string) {
