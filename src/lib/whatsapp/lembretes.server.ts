@@ -8,14 +8,13 @@
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 
-import { OPCOES_DO_LEMBRETE, type TipoDeNotificacao } from "./notificacoes.server";
+
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-const TIPOS_COM_RESPOSTA = ["lembrete_24h", "lembrete_2h", "retorno"] as const;
 
 function normalizar(t: string) {
   return t
