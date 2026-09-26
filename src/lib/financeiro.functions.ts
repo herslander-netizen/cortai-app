@@ -214,7 +214,7 @@ export const criarRetorno = createServerFn({ method: "POST" })
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenantId, _cliente_id: c.cliente_id, _profissional_id: c.profissional_id, _servico_id: servicoId, _inicio: data.inicio, _forma_pagamento: "balcao",
     });
-    if (error) throw new Error(error.message === "horario ja ocupado" ? "Esse horário acabou de ser ocupado." : error.message);
+    if (error) throw new Error(error.message.includes("horario ja ocupado") ? "Esse horário acabou de ser reservado, escolha outro" : error.message);
     const criado = res as unknown as { agendamento_id: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
     return { agendamentoId: criado.agendamento_id };

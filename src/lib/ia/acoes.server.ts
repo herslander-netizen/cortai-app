@@ -278,7 +278,7 @@ export async function criarAgendamento(
     _inicio: input.inicio,
     _forma_pagamento: input.formaPagamento,
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message.includes("horario ja ocupado") ? "Esse horário acabou de ser reservado, escolha outro" : error.message);
   const resultado = data as { agendamento_id?: string };
   await registrarAuditoria(ctx, "agendamento_criado", resultado.agendamento_id ?? "-", {
     inicio: input.inicio,

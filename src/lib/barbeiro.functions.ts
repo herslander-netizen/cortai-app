@@ -633,7 +633,7 @@ export type ResultadoManual = {
   agendamentoId?: string;
   inicio?: string;
   clienteNome?: string;
-  conflito?: { mensagem: string; sugestoes: { iso: string; label: string }[] };
+  conflito?: { mensagem: string; sugestoes: { iso: string; label: string }[]; podeEncaixar?: boolean };
 };
 
 /**
@@ -651,6 +651,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       profissionalId: string;
       inicio: string;
       formaPagamento: "pix" | "balcao" | "fiado" | "credito";
+      encaixe?: boolean | undefined;
     }) => data,
   )
   .handler(async ({ data, context }): Promise<ResultadoManual> => {
@@ -727,12 +728,13 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       .eq("profissional_id", data.profissionalId)
       .gte("inicio", dia.toISOString())
       .lt("inicio", fimDia.toISOString())
-      .not("status", "in", "(cancelado,falta)");
+      .in("status", ["agendado", "chegou", "na_cadeira"])
+      .eq("encaixe", false);
 
     const ocupados = (doDia ?? []).map((a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const);
     const livre = (i: number, f: number) => !ocupados.some(([oi, of]) => i < of && f > oi);
 
-    if (!livre(inicio.getTime(), fim.getTime())) {
+    const sugerir = () => {
       const sugestoes: { iso: string; label: string }[] = [];
       for (let h = 9; h < 19 && sugestoes.length < 4; h++) {
         for (const m of [0, 30]) {
@@ -748,14 +750,18 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
           }
         }
       }
-      return {
-        ok: false,
-        conflito: {
-          mensagem: "Esse horário já está ocupado para o profissional escolhido.",
-          sugestoes,
-        },
-      };
-    }
+      return sugestoes;
+    };
+    const conflitoDoPainel = (): ResultadoManual => ({
+      ok: false,
+      conflito: {
+        mensagem: "Esse horário já tem agendamento. Encaixar mesmo assim?",
+        sugestoes: sugerir(),
+        podeEncaixar: true,
+      },
+    });
+
+    if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) return conflitoDoPainel();
 
     // 3. Criar pelas mesmas regras do app e marcar a origem como manual.
     const { data: res, error } = await db.rpc("criar_agendamento", {
@@ -765,7 +771,9 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       _servico_id: data.servicoId,
       _inicio: inicio.toISOString(),
       _forma_pagamento: data.formaPagamento,
+      _encaixe: Boolean(data.encaixe),
     });
+    if (error?.message.includes("horario ja ocupado")) return conflitoDoPainel();
     if (error) throw new Error(error.message);
     const criado = res as unknown as { agendamento_id: string; inicio: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);

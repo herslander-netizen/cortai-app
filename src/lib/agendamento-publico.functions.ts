@@ -213,7 +213,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       _forma_pagamento: "balcao",
     });
     if (error) {
-      if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser ocupado. Escolha outro.");
+      if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser reservado, escolha outro");
       throw new Error("Não foi possível concluir o agendamento agora.");
     }
     const criado = res as any;
