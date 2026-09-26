@@ -28,6 +28,7 @@ import {
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
   type DiagnosticoDoWhatsapp,
+  buscarConversaDoCliente,
   lerConversa,
   listarConversas,
   reconectarWhatsapp,
@@ -78,7 +79,8 @@ function Ponto({ ligado }: { ligado: boolean }) {
 }
 
 function CortaiPage() {
-  const [aba, setAba] = useState<Aba>("whatsapp");
+  const busca = Route.useSearch();
+  const [aba, setAba] = useState<Aba>(busca.aba ?? "whatsapp");
   const painel = useQuery({ queryKey: ["cortai-painel"], queryFn: () => getPainelDoCortai() as Promise<PainelDoCortai> });
 
   return (
