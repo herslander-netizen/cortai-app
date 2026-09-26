@@ -160,7 +160,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       );
     }
     return responder(
-      "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋",
+      frase(entrada, "humano", {}, "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋"),
       { ...limparFluxo(contexto), estado: "WAITING_HUMAN" },
       { intencao: "atendimento_humano", pedirHumano: true },
     );
