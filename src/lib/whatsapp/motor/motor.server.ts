@@ -530,14 +530,15 @@ async function oferecerHorarios(
 
   if (livres.length === 0) {
     const proximo = somarDias(opcoes.dia, 1);
+    const padrao = [
+      opcoes.periodo
+        ? `Não encontrei horário livre no período pedido em ${diaPorExtenso(opcoes.dia)}. 😕`
+        : `Para ${diaPorExtenso(opcoes.dia)} não tenho mais horário livre. 😕`,
+      "",
+      `Quer que eu procure em ${diaPorExtenso(proximo)}? Responda com o dia que preferir.`,
+    ].join("\n");
     return responder(
-      [
-        opcoes.periodo
-          ? `Não encontrei horário livre no período pedido em ${diaPorExtenso(opcoes.dia)}. 😕`
-          : `Para ${diaPorExtenso(opcoes.dia)} não tenho mais horário livre. 😕`,
-        "",
-        `Quer que eu procure em ${diaPorExtenso(proximo)}? Responda com o dia que preferir.`,
-      ].join("\n"),
+      opcoes.entrada && !opcoes.periodo ? frase(opcoes.entrada, "agenda_cheia", {}, padrao) : padrao,
       { ...base, estado: "CHOOSING_DATE", menuTipo: null, menuItens: null },
       { intencao: "disponibilidade" },
     );
