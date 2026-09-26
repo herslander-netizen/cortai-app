@@ -1152,3 +1152,16 @@ html.light {
 .agenda-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .agenda-chips::-webkit-scrollbar { display: none; }
 .agenda-chips .agenda-chip { flex-shrink: 0; }
+
+/* Etapa 4 — ações rápidas e fluidez */
+.agenda-painel-acoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-bottom: 16px; }
+.agenda-painel-acoes > * { min-height: 52px; justify-content: flex-start; }
+.agenda-timeline-encaixe { border-style: dashed !important; }
+.agenda-arrastando { z-index: 5; box-shadow: var(--shadow-md); opacity: 0.92; cursor: grabbing; touch-action: none; transition: none !important; }
+.agenda-timeline-bloco { touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.agenda-timeline { cursor: cell; }
+.agenda-novo { animation: agenda-novo 4s ease-out; }
+@keyframes agenda-novo { 0%, 60% { background-color: var(--gold-soft); } 100% { background-color: transparent; } }
+.agenda-troca-dia { animation: agenda-troca 180ms ease-out; }
+@keyframes agenda-troca { from { opacity: 0.6; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .agenda-troca-dia, .agenda-novo { animation: none; } }

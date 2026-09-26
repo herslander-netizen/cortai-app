@@ -1,5 +1,5 @@
 import { Link, useSearch } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarPlus,
@@ -13,7 +13,9 @@ import {
   Scissors,
   UserRoundPlus,
   ListOrdered,
+  Ban,
 } from "lucide-react";
+import type React from "react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
@@ -40,6 +42,7 @@ import {
   getAgendaDia,
   getAgoraProximo,
   mudarEstadoAtendimento,
+  moverAgendamentoPainel,
   type AgendaDia,
   type AgendaItem,
   type EstadoAtendimento,
@@ -120,10 +123,22 @@ function AgendamentoManual(props: ComponentProps<typeof AgendamentoManualLazy>) 
   );
 }
 
+function useEhDesktop() {
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const f = () => setV(mq.matches);
+    f(); mq.addEventListener("change", f);
+    return () => mq.removeEventListener("change", f);
+  }, []);
+  return v;
+}
+
 export function AgendaOperacional() {
   const busca = useSearch({ strict: false });
   const acaoInicial = busca["acao"] === "agendamento" || busca["acao"] === "atendimento" || busca["acao"] === "cliente" ? busca["acao"] : undefined;
   const mudarEstado = useServerFn(mudarEstadoAtendimento);
+  const moverAgendamento = useServerFn(moverAgendamentoPainel);
   const queryClient = useQueryClient();
   const [dia, setDia] = useState(() => hojeNoFuso());
   const [fuso, setFuso] = useState<string>();
@@ -145,7 +160,14 @@ export function AgendaOperacional() {
   const [filaAberta, setFilaAberta] = useState(false);
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
   const filtroInicial = useRef(false);
+  const [painelAberto, setPainelAberto] = useState(false);
+  const [horaVazia, setHoraVazia] = useState<string | undefined>();
+  const [remarcarHora, setRemarcarHora] = useState("");
+  const [novos, setNovos] = useState<Set<string>>(() => new Set());
+  const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
+  const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
+  const ehDesktop = useEhDesktop();
 
   const rapido = useQuery({
     queryKey: ["agenda-agora-proximo"],
@@ -160,6 +182,7 @@ export function AgendaOperacional() {
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: true,
     refetchInterval: 60_000,
+    placeholderData: keepPreviousData,
   });
 
   const filaQ = useQuery({ queryKey: ["agenda-fila"], queryFn: () => getOperacaoFila(), staleTime: 30_000, refetchOnWindowFocus: true });
@@ -225,6 +248,19 @@ export function AgendaOperacional() {
       .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime()),
     [agenda.data?.itens, estadosLocais, profFiltro],
   );
+  useEffect(() => {
+    const lista = agenda.data?.itens;
+    if (!lista || agenda.isPlaceholderData) return;
+    const ids = new Set(lista.map((i) => i.id));
+    const antes = idsConhecidos.current;
+    idsConhecidos.current = { dia, ids };
+    if (!antes || antes.dia !== dia) return;
+    const chegaram = [...ids].filter((id) => !antes.ids.has(id));
+    if (!chegaram.length) return;
+    setNovos((atual) => new Set([...atual, ...chegaram]));
+    const t = window.setTimeout(() => setNovos((atual) => { const n = new Set(atual); chegaram.forEach((id) => n.delete(id)); return n; }), 4000);
+    return () => window.clearTimeout(t);
+  }, [agenda.data?.itens, agenda.isPlaceholderData, dia]);
   const semana = useMemo(() => {
     const dow = (new Date(`${dia}T12:00:00Z`).getUTCDay() + 6) % 7;
     return Array.from({ length: 7 }, (_, i) => somarDias(dia, i - dow));
@@ -310,6 +346,26 @@ export function AgendaOperacional() {
     else void transicionar(item, "na_cadeira");
   }
 
+  function abrir(id: string | null) {
+    setSelecionado(id);
+    setPainelAberto(Boolean(id));
+  }
+
+  async function mover(item: AgendaItem, deltaMin: number, desfazivel = true) {
+    const novoInicio = new Date(new Date(item.inicio).getTime() + deltaMin * 60_000).toISOString();
+    queryClient.setQueryData<AgendaDia>(["agenda-dia", dia], (atual) => atual ? { ...atual, itens: atual.itens.map((i) => i.id === item.id ? { ...i, inicio: novoInicio, fim: new Date(new Date(i.fim).getTime() + deltaMin * 60_000).toISOString() } : i) } : atual);
+    try {
+      await moverAgendamento({ data: { agendamentoId: item.id, novoInicio } });
+      if (desfazivel) comDesfazer(`Remarcado · ${item.cliente} às ${hora(novoInicio, fuso)}`, async () => {
+        await mover({ ...item, inicio: novoInicio, fim: new Date(new Date(item.fim).getTime() + deltaMin * 60_000).toISOString() }, -deltaMin, false);
+      });
+    } catch (e) {
+      aviso.erro(e instanceof Error ? e.message : "Não foi possível remarcar.");
+    } finally {
+      await sincronizar();
+    }
+  }
+
   function acaoPrincipal() {
     if (!itemSelecionado) { setMenuAberto((aberto) => !aberto); return; }
     if (itemSelecionado.status === "na_cadeira") { setFechando(itemSelecionado.id); return; }
@@ -319,9 +375,23 @@ export function AgendaOperacional() {
   const proximoLivre = futuros[0];
   const diaSemAgenda = !agenda.isLoading && itens.length === 0;
 
+  function inicioToque(e: React.TouchEvent) {
+    const alvo = e.target as HTMLElement;
+    if (alvo.closest(".agenda-timeline-bloco, .agenda-chips, input, [role=dialog]")) { toque.current = null; return; }
+    const t = e.touches[0];
+    toque.current = t ? { x: t.clientX, y: t.clientY } : null;
+  }
+  function fimToque(e: React.TouchEvent) {
+    const ini = toque.current; toque.current = null;
+    const t = e.changedTouches[0];
+    if (!ini || !t) return;
+    const dx = t.clientX - ini.x; const dy = t.clientY - ini.y;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 40) setDia(somarDias(dia, dx < 0 ? 1 : -1));
+  }
+
   return (
     <Screen title="Agenda" hideHeader>
-      <div className="agenda-operacional pb-32">
+      <div key={dia} className="agenda-operacional agenda-troca-dia pb-32" onTouchStart={inicioToque} onTouchEnd={fimToque}>
         <header className="agenda-cabecalho-compacto">
           <h1 className="sr-only">Agenda</h1>
           <div className="mb-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
@@ -370,7 +440,7 @@ export function AgendaOperacional() {
                 const alergia = fichaRelevante(item.ficha);
                 return (
                   <Card asChild variant="touchable" key={item.id} className={`agenda-agora ${selecionado === item.id ? "agenda-item-selecionado" : ""}`}>
-                  <article onClick={() => setSelecionado(item.id)}>
+                  <article onClick={() => abrir(item.id)}>
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
                         {item.clienteId ? <Button variant="ghost" type="button" onClick={(e) => { e.stopPropagation(); if (item.clienteId) setPerfil(item.clienteId); }} className={`block h-auto max-w-full justify-start truncate p-0 text-left text-base underline-offset-4 active:underline ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</Button> : <p className={`truncate text-base ${nomeEhGenerico(item.cliente) ? "font-semibold text-mute" : "font-extrabold text-paper"}`}>{item.cliente}</p>}
@@ -414,7 +484,7 @@ export function AgendaOperacional() {
               return (
                 <div key={item.id} className="grid grid-cols-[70px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                    <div><p className="text-xs font-bold uppercase text-mute2">{indice === 0 ? "Próximo" : "Depois"}</p><p className="mt-1 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p></div>
-                  <Button variant="ghost" type="button" className="min-w-0 text-left" onClick={() => setSelecionado(item.id)}>
+                  <Button variant="ghost" type="button" className="min-w-0 text-left" onClick={() => abrir(item.id)}>
                     <span className="block truncate text-sm font-semibold text-paper">{item.cliente}</span>
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
                     {espera > 0 ? <span className="mt-1 block text-xs font-semibold text-brick">~{espera} min de espera</span> : null}
@@ -477,7 +547,7 @@ export function AgendaOperacional() {
           <Button role="tab" aria-selected={visualizacao === "timeline"} variant={visualizacao === "timeline" ? "secondary" : "ghost"} size="sm" className={visualizacao === "timeline" ? "bg-ink2 shadow-sm" : "text-mute"} onClick={() => setVisualizacao("timeline")}>Timeline</Button>
         </div>
 
-        {agenda.isLoading ? <EsqueletoAgenda linhas={5} /> : null}
+        {agenda.isLoading && !agenda.data ? <EsqueletoAgenda linhas={5} /> : null}
         {diaSemAgenda ? (
           <div className="border-y border-line py-10 text-center">
             <p className="text-base font-bold text-paper">Dia livre — compartilhe seu link</p>
@@ -491,7 +561,10 @@ export function AgendaOperacional() {
             itens={itens}
             horarios={agenda.data?.horarios ?? []}
             selecionado={selecionado}
-            onSelecionar={(id) => setSelecionado((atual) => atual === id ? null : id)}
+            onSelecionar={(id) => abrir(id)}
+            onMover={(item, delta) => void mover(item, delta)}
+            onHorarioVazio={(h) => { setHoraVazia(h); setManualAberto("agendamento"); }}
+            destaques={novos}
             renderStatus={(status) => <StatusBadge status={status} />}
           />
         ) : (
@@ -500,7 +573,7 @@ export function AgendaOperacional() {
               const atrasado = ehHoje && item.status === "agendado" && !aguardando.has(item.id) && agora > new Date(item.inicio).getTime() + TOLERANCIA_MIN * 60_000;
               const selecionada = selecionado === item.id;
               return (
-                <li key={item.id} className={`agenda-lista-item ${selecionada ? "agenda-item-selecionado" : ""}`} onClick={() => setSelecionado(selecionada ? null : item.id)}>
+                <li key={item.id} className={`agenda-lista-item ${selecionada ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`} onClick={() => abrir(item.id)}>
                   <div className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-start gap-3">
                     <p className="pt-0.5 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
                     <div className="min-w-0">
@@ -584,6 +657,43 @@ export function AgendaOperacional() {
         </Button>
       </div>
 
+      <Sheet open={painelAberto && Boolean(itemSelecionado)} onOpenChange={(v) => { setPainelAberto(v); if (!v) setRemarcarHora(""); }}>
+        <SheetContent side={ehDesktop ? "right" : "bottom"} className={`agenda-painel border-line bg-ink2 px-5 pt-5 ${ehDesktop ? "w-[380px]" : "mx-auto w-full max-w-[520px] rounded-t-xl"}`}>
+          {itemSelecionado ? (
+            <>
+              <SheetHeader className="pr-10 text-left">
+                <SheetTitle className="truncate text-lg text-paper">{itemSelecionado.cliente}</SheetTitle>
+                <SheetDescription className="text-sm text-mute">{hora(itemSelecionado.inicio, fuso)} · {itemSelecionado.servico} · {itemSelecionado.profissional}</SheetDescription>
+                <div><StatusBadge status={itemSelecionado.status} /></div>
+              </SheetHeader>
+              <div className="agenda-painel-acoes mt-4">
+                {itemSelecionado.status === "agendado" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "chegou"); }}><UserRoundPlus />Chegou</Button> : null}
+                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); iniciar(itemSelecionado); }}><Scissors />Iniciar</Button> : null}
+                {itemSelecionado.status === "na_cadeira" ? <Button variant="outline" onClick={() => { setPainelAberto(false); setFechando(itemSelecionado.id); }}><Check />Concluir</Button> : null}
+                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" onClick={() => setRemarcarHora(hora(itemSelecionado.inicio, fuso))}><CalendarPlus />Remarcar</Button> : null}
+                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "nao_compareceu"); }}><Clock3 />Falta</Button> : null}
+                {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "cancelado"); }}><Ban />Cancelar</Button> : null}
+                {itemSelecionado.clienteId ? <Button asChild variant="outline"><Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: itemSelecionado.clienteId }}><MessageCircle />WhatsApp</Link></Button> : null}
+                {itemSelecionado.status !== "cancelado" && itemSelecionado.status !== "nao_compareceu" && itemSelecionado.status !== "remarcado" ? <Button variant="outline" onClick={() => { setPainelAberto(false); setFechando(itemSelecionado.id); }}><HandCoins />Comanda</Button> : null}
+              </div>
+              {remarcarHora ? (
+                <form className="mt-4 flex items-end gap-2 border-t border-line pt-4" onSubmit={(e) => {
+                  e.preventDefault();
+                  const [h = 0, m = 0] = remarcarHora.split(":").map(Number);
+                  const [h0 = 0, m0 = 0] = hora(itemSelecionado.inicio, fuso).split(":").map(Number);
+                  const delta = (h * 60 + m) - (h0 * 60 + m0);
+                  setPainelAberto(false); setRemarcarHora("");
+                  if (delta) void mover(itemSelecionado, delta);
+                }}>
+                  <label className="flex-1 text-xs font-semibold text-mute">Novo horário<input type="time" step={900} value={remarcarHora} onChange={(e) => setRemarcarHora(e.target.value)} className="mt-1 block h-12 w-full rounded-md border border-line bg-ink px-3 text-base text-paper" /></label>
+                  <Button type="submit" size="lg">Remarcar</Button>
+                </form>
+              ) : null}
+            </>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+
       <Sheet open={menuAberto} onOpenChange={setMenuAberto}>
         <SheetContent side="bottom" className="agenda-acoes-folha mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5">
           <SheetClose asChild>
@@ -604,7 +714,7 @@ export function AgendaOperacional() {
         </SheetContent>
       </Sheet>
 
-      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={manualAberto} dia={dia} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); void sincronizar(); }} /></div> : null}
+      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); void sincronizar(); }} /></div> : null}
 
       {rapidoAberto ? <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}><AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /></Suspense> : null}
 

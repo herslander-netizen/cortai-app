@@ -1,5 +1,6 @@
 import { Clock3 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
@@ -20,6 +21,9 @@ type AgendaTimelineProps = {
   selecionado: string | null;
   onSelecionar: (id: string) => void;
   renderStatus: (status: string) => ReactNode;
+  onMover?: (item: AgendaItem, deltaMin: number) => void;
+  onHorarioVazio?: (horaMin: string) => void;
+  destaques?: Set<string>;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -59,11 +63,14 @@ function diaDaSemana(dia: string) {
   return new Date(`${dia}T12:00:00Z`).getUTCDay();
 }
 
-export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado, onSelecionar, renderStatus }: AgendaTimelineProps) {
+export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado, onSelecionar, renderStatus, onMover, onHorarioVazio, destaques }: AgendaTimelineProps) {
   const rolagemRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
+  const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
+  const gesto = useRef<{ id: string; y0: number; x0: number; ativo: boolean; timer?: number; arrastou: boolean } | null>(null);
+  const ignorarClique = useRef(false);
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(agora));
   const ehHoje = dia === hoje;
 
@@ -165,6 +172,52 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
   }
 
+  const podeMover = (item: AgendaItem) => Boolean(onMover) && (item.status === "agendado" || item.status === "chegou");
+
+  function inicioGesto(e: React.PointerEvent, item: AgendaItem) {
+    if (!podeMover(item)) return;
+    const g = { id: item.id, y0: e.clientY, x0: e.clientX, ativo: e.pointerType === "mouse", arrastou: false } as NonNullable<typeof gesto.current>;
+    const alvo = e.currentTarget as HTMLElement;
+    const pid = e.pointerId;
+    if (e.pointerType !== "mouse") {
+      g.timer = window.setTimeout(() => { g.ativo = true; try { alvo.setPointerCapture(pid); } catch { /* */ } setArrasto({ id: item.id, dy: 0 }); navigator.vibrate?.(10); }, 300);
+    }
+    gesto.current = g;
+  }
+  function moverGesto(e: React.PointerEvent) {
+    const g = gesto.current;
+    if (!g) return;
+    const dy = e.clientY - g.y0;
+    if (!g.ativo) {
+      if (Math.abs(dy) > 8 || Math.abs(e.clientX - g.x0) > 8) { window.clearTimeout(g.timer); gesto.current = null; }
+      return;
+    }
+    if (!g.arrastou && Math.abs(dy) < 5) return;
+    if (!g.arrastou) { try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ } }
+    g.arrastou = true;
+    e.preventDefault();
+    setArrasto({ id: g.id, dy });
+  }
+  function fimGesto(item: AgendaItem) {
+    const g = gesto.current;
+    gesto.current = null;
+    if (!g) return;
+    window.clearTimeout(g.timer);
+    const dy = arrasto?.id === item.id ? arrasto.dy : 0;
+    setArrasto(null);
+    if (!g.arrastou) return;
+    ignorarClique.current = true;
+    const delta = Math.round(dy / PX_POR_MINUTO / 15) * 15;
+    if (delta !== 0) onMover?.(item, delta);
+  }
+  function cliqueNoVazio(e: React.MouseEvent<HTMLDivElement>) {
+    if (!onHorarioVazio || e.target !== e.currentTarget) return;
+    const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
+    let minuto = escala.inicio + y / PX_POR_MINUTO;
+    minuto -= deslocamentoAte(minuto) / PX_POR_MINUTO;
+    onHorarioVazio(horaMinuto(Math.floor(minuto / 15) * 15));
+  }
+
   return (
     <div className="agenda-timeline-wrap">
       {ehHoje && !agoraVisivel ? (
@@ -174,7 +227,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
         </Button>
       ) : null}
       <div ref={rolagemRef} className="agenda-timeline-scroll" aria-label="Timeline de atendimentos" onScroll={acompanharAgora}>
-        <div className="agenda-timeline" style={{ height: `${altura}px` }}>
+        <div className="agenda-timeline" style={{ height: `${altura}px` }} onClick={cliqueNoVazio} title={onHorarioVazio ? "Toque num horário livre para agendar" : undefined}>
           {marcas.map((minuto) => (
             <div key={minuto} className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`} style={{ top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px` }}>
               <span>{minuto % 60 === 0 ? horaMinuto(minuto) : ""}</span>
@@ -197,13 +250,18 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
                 key={item.id}
                 type="button"
                 variant="ghost"
-                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""}`}
-                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px` }}
+                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px`, ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}) }}
                 aria-pressed={selecionado === item.id}
-                onClick={() => onSelecionar(item.id)}
+                onPointerDown={(e) => inicioGesto(e, item)}
+                onPointerMove={moverGesto}
+                onPointerUp={() => fimGesto(item)}
+                onPointerCancel={() => { if (gesto.current) window.clearTimeout(gesto.current.timer); gesto.current = null; setArrasto(null); }}
+                onContextMenu={(e) => { if (podeMover(item)) e.preventDefault(); }}
+                onClick={() => { if (ignorarClique.current) { ignorarClique.current = false; return; } onSelecionar(item.id); }}
               >
                 <span className="agenda-timeline-bloco-topo">
-                  <strong>{horaMinuto(inicio)} · {item.cliente}</strong>
+                  <strong>{horaMinuto(arrasto?.id === item.id ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : inicio)} · {item.cliente}</strong>
                   {renderStatus(item.status)}
                 </span>
                 <span className="agenda-timeline-servico">{item.servico} · {item.profissional}</span>
