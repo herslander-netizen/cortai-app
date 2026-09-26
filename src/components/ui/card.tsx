@@ -4,12 +4,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("rounded-xl border border-border text-card-foreground", {
+const cardVariants = cva("rounded-xl border border-border text-card-foreground transition-[border-color,background-color,box-shadow] duration-150", {
   variants: {
     variant: {
       surface: "bg-card",
       elevated: "bg-card shadow-md",
-      touchable: "bg-card transition-[border-color,background-color,transform] duration-150 active:translate-y-px active:border-line2 active:bg-ink3",
+      touchable: "bg-card hover:border-line2 active:translate-y-px active:border-primary/40 active:bg-ink3",
     },
     density: { default: "p-4", compact: "p-3", none: "p-0" },
   },

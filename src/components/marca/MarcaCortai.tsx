@@ -1,16 +1,15 @@
-import iconAsset from "@/assets/cortai-icon-official.png.asset.json";
-import blackAsset from "@/assets/cortai-logo-black.png.asset.json";
-import lightBackgroundAsset from "@/assets/cortai-logo-light-bg.png.asset.json";
-import whiteAsset from "@/assets/cortai-logo-white.png.asset.json";
+import iconAsset from "@/assets/cortai-symbol-urban.png";
+import blackAsset from "@/assets/cortai-logo-urban.png";
+import whiteAsset from "@/assets/cortai-logo-urban-negative.png";
 
 const marcas = {
   preta: blackAsset.url,
-  clara: lightBackgroundAsset.url,
+  clara: whiteAsset,
   escura: blackAsset.url,
-  branca: whiteAsset.url,
+  branca: whiteAsset,
 } as const;
 
-export const iconeCortaiUrl = iconAsset.url;
+export const iconeCortaiUrl = iconAsset;
 
 export function IconeCortai({ className = "h-12 w-12" }: { className?: string }) {
   return (
@@ -36,8 +35,8 @@ export function MarcaCortai({
   if (variante === "automatica") {
     return (
       <span className={`brand-logo-auto ${className}`} role="img" aria-label="Cortaí">
-        <img src={marcas.branca} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-dark h-full w-full object-contain" />
-        <img src={marcas.escura} alt="" width={1774} height={887} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-light h-full w-full object-contain" />
+        <img src={marcas.branca} alt="" width={1536} height={768} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-dark h-full w-full object-contain" />
+        <img src={marcas.escura} alt="" width={1536} height={768} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-light h-full w-full object-contain" />
       </span>
     );
   }
@@ -46,8 +45,8 @@ export function MarcaCortai({
     <img
       src={marcas[variante]}
       alt="Cortaí"
-      width={variante === "clara" ? 1536 : 1774}
-      height={variante === "clara" ? 768 : 887}
+      width={1536}
+      height={768}
       loading={prioridade ? "eager" : "lazy"}
       fetchPriority={prioridade ? "high" : "auto"}
       className={`object-contain ${className}`}
