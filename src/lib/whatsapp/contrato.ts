@@ -104,6 +104,10 @@ export type ConfiguracaoDoAtendimento = {
   pagamentoAntecipado: boolean;
   /** Link externo de pagamento informado pela barbearia. */
   linkPagamento: string;
+  /** Textos da Conversa Padrão sobrescritos pela barbearia (chave → texto). */
+  textosConversa: Record<string, string>;
+  /** Situações da Conversa Padrão desligadas pela barbearia. */
+  situacoesDesligadas: string[];
 };
 
 export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
@@ -138,6 +142,8 @@ export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   confirmacaoAutomatica: true,
   pagamentoAntecipado: false,
   linkPagamento: "",
+  textosConversa: {},
+  situacoesDesligadas: [],
 };
 
 /** Erro usado quando não existe serviço de WhatsApp configurado no ambiente. */
