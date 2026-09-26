@@ -385,8 +385,15 @@ export const quitarFiado = createServerFn({ method: "POST" })
     if (movErro) throw new Error(movErro.message);
     const { error } = await db.from("fiados").update({ valor_pago_centavos: fiado.valor_pago_centavos + valor, saldo_centavos: saldo, status: saldo === 0 ? "quitado" : "parcial", quitado_em: saldo === 0 ? new Date().toISOString() : null }).eq("id", fiado.id);
     if (error) throw new Error(error.message);
+    if (fiado.cliente_id) {
+      const { data: carteira } = await db.from("carteiras").select("id").eq("tenant_id", tenantId).eq("cliente_id", fiado.cliente_id).maybeSingle();
+      if (carteira) {
+        await db.from("movimentos").insert({ carteira_id: carteira.id, tipo: "baixa", centavos_delta: valor, origem: "fiado", comanda_id: fiado.comanda_id, descricao: saldo === 0 ? "Fiado quitado" : "Baixa parcial de fiado", criado_por: context.userId });
+      }
+    }
     return { ok: true, saldoCentavos: saldo };
   });
+
 
 export const identificarClienteAvulso = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
