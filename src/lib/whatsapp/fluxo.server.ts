@@ -156,11 +156,13 @@ export async function conversaDoTelefone(input: {
 }) {
   const db = await admin();
   const telefone = somenteDigitos(input.telefone);
+  const variantes = variantesDoTelefone(telefone);
   const { data: existente } = await db
     .from("conversas_whatsapp")
     .select("id, status, ia_ativa, modo_humano, cliente_id, contexto")
     .eq("tenant_id", input.tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantes)
+    .limit(1)
     .maybeSingle();
   if (existente) return existente;
 
@@ -168,8 +170,9 @@ export async function conversaDoTelefone(input: {
     .from("clientes")
     .select("id")
     .eq("tenant_id", input.tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantes)
     .is("arquivado_em", null)
+    .limit(1)
     .maybeSingle();
 
   const { data, error } = await db
@@ -199,9 +202,28 @@ export async function enviarPelaBarbearia(input: {
   autorUserId?: string | null;
   /** Modelo com botões (API oficial). Se o canal não suportar, vai o texto. */
   modelo?: import("./gateway.server").ModeloComBotoes | null;
+  /** Lembrete, pós-atendimento, reativação: sujeito à janela de 24h no canal oficial. */
+  iniciadaPelaBarbearia?: boolean;
 }) {
   const db = await admin();
   const { gatewayDeWhatsapp } = await import("./gateway.server");
+
+  // Fora da janela de 24h, o canal oficial só aceita template aprovado.
+  if (input.iniciadaPelaBarbearia && gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela && !input.modelo) {
+    const { data: ultima } = await db
+      .from("mensagens_whatsapp")
+      .select("criado_em")
+      .eq("conversa_id", input.conversaId)
+      .eq("direcao", "entrada")
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const em = (ultima as { criado_em?: string } | null)?.criado_em;
+    if (!em || Date.now() - new Date(em).getTime() > 24 * 3600_000) {
+      throw new Error("Fora da janela de 24h: só sai por template aprovado.");
+    }
+  }
+
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
@@ -249,8 +271,9 @@ async function vincularCliente(tenantId: string, conversaId: string, telefone: s
     .from("clientes")
     .select("id")
     .eq("tenant_id", tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantesDoTelefone(telefone))
     .is("arquivado_em", null)
+    .limit(1)
     .maybeSingle();
   if (!data) return null;
   await db.from("conversas_whatsapp").update({ cliente_id: data.id }).eq("id", conversaId);
@@ -271,8 +294,17 @@ export async function processarMensagemRecebida(input: {
   const conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao) return { tratada: false, motivo: "sessao_desconhecida" };
 
-  const tenantId = conexao.tenant_id;
   const telefone = somenteDigitos(input.telefone);
+  let tenantId = conexao.tenant_id;
+  if ((conexao as { compartilhada?: boolean }).compartilhada) {
+    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "");
+    if ("perguntar" in r) {
+      const { gatewayDeWhatsapp } = await import("./gateway.server");
+      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, r.perguntar).catch(() => undefined);
+      return { tratada: true, motivo: "identificando_barbearia" };
+    }
+    tenantId = r.tenantId;
+  }
   const conversa = await conversaDoTelefone({
     tenantId,
     conexaoId: conexao.id,
