@@ -4,17 +4,17 @@ Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao
 
 ## Etapa 1 — Correções da auditoria
 - [x] Trava de horário sobreposto no banco
-- [~] Bot avisa quando o horário é pego no meio da conversa e oferece outros (tratado nas ações do assistente; conferir no motor do WhatsApp)
+- [x] Bot avisa quando o horário é pego no meio da conversa e oferece outros
 - [x] Webhooks: rejeição cedo sem assinatura/token, limite rígido 10/min e folgado 1200/min
 - [x] Meta: cada entrega gravada uma vez (caixa de entrada durável)
 - [~] Evolution/serviço genérico: mensagem de entrada não duplica (trava no registro), mas não há caixa de entrada por entrega como a Meta
-- [~] Lembrete sai uma vez só: confere antes de enviar, mas não reserva antes (dois disparos simultâneos podem duplicar)
-- [ ] Confirmar se o serviço de WhatsApp genérico está em uso (perguntar antes de mexer)
+- [x] Lembrete sai uma vez só: reserva antes de enviar (inclusive nova tentativa)
+- [x] Serviço genérico não está em uso — não mexer
 - [x] Fuso da barbearia em telas, lembretes e WhatsApp
 - [ ] Fuso nos e-mails (conferir)
 - [x] Telefone: com e sem o 9 são o mesmo cliente; busca direta por variantes
-- [ ] Telefones salvos convertidos para padrão único 55+DDD+número (mostrar contagem e duplicados antes)
-- [ ] Índice de telefone para busca de cliente (conferir)
+- [~] Telefones: 20 de 30 mudam, 0 duplicados — aguardando aprovação para converter
+- [x] Índice de telefone por barbearia já existe
 - [x] Permissões no banco (RLS), atualização na hora, tela clara para desvinculado
 - [x] Recuperação de senha neutra, logo legível, metatags padronizadas
 
