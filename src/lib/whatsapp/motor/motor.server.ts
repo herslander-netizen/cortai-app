@@ -459,6 +459,7 @@ async function avancarAgendamento(
   }
 
   return oferecerHorarios(ctx, contexto, responder, {
+    entrada,
     servicoId,
     servicoNome,
     dia,
@@ -622,6 +623,7 @@ async function tratarSelecao(
         );
       }
       return oferecerHorarios(ctx, contexto, responder, {
+        entrada,
         servicoId: servico.id,
         servicoNome: servico.nome,
         dia,
@@ -761,6 +763,7 @@ async function concluirAgendamento(
           ...resto,
         )) as Responder;
       return oferecerHorarios(ctx, contexto, avisar, {
+        entrada,
         servicoId: contexto.servicoId,
         servicoNome: contexto.servicoNome ?? null,
         dia: contexto.dia ?? hojeNoFuso(ctx.fuso),
