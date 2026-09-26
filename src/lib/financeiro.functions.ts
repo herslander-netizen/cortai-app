@@ -258,7 +258,7 @@ export const getCaixa = createServerFn({ method: "GET" })
     const db = await admin();
     const inicio = new Date(); inicio.setHours(0, 0, 0, 0);
     const [{ data: movimentos }, { data: fiados }, { data: sessao }] = await Promise.all([
-      db.from("caixa_movimentos").select("id, tipo, categoria, descricao, valor_centavos, forma_pagamento, criado_em, comandas(numero, clientes(nome), profissionais(nome)), clientes(nome), profissionais(nome)").eq("tenant_id", tenantId).gte("criado_em", inicio.toISOString()).order("criado_em", { ascending: false }),
+      db.from("caixa_movimentos").select("id, tipo, categoria, descricao, valor_centavos, forma_pagamento, criado_em, pagamento_id, pagamentos(status), comandas(numero, clientes(nome), profissionais(nome)), clientes(nome), profissionais(nome)").eq("tenant_id", tenantId).gte("criado_em", inicio.toISOString()).order("criado_em", { ascending: false }),
       db.from("fiados").select("id, saldo_centavos").eq("tenant_id", tenantId).in("status", ["pendente", "parcial"]),
       db.from("caixa_sessoes").select("id, status, saldo_inicial_centavos, aberto_em").eq("tenant_id", tenantId).eq("status", "aberto").maybeSingle(),
     ]);
@@ -267,6 +267,19 @@ export const getCaixa = createServerFn({ method: "GET" })
     const saidas = lista.filter((m: any) => m.tipo !== "entrada").reduce((s: number, m: any) => s + m.valor_centavos, 0);
     const porForma = (forma: string) => lista.filter((m: any) => m.tipo === "entrada" && m.forma_pagamento === forma).reduce((s: number, m: any) => s + m.valor_centavos, 0);
     return { sessao, movimentos: lista, resumo: { entradas, saidas, liquido: entradas - saidas, pix: porForma("pix"), dinheiro: porForma("dinheiro"), cartao: porForma("cartao"), fiado: (fiados ?? []).reduce((s: number, f: any) => s + f.saldo_centavos, 0) } };
+  });
+
+/** Estorno supervisionado: só quem pode autorizar estorno; nada é apagado, vira lançamento de saída. */
+export const estornarPagamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ pagamentoId: z.string().uuid(), motivo: z.string().trim().min(3).max(200) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "estorno_autorizar");
+    const db = await admin();
+    const { data: r, error } = await db.rpc("estornar_pagamento_seguro" as never, { _ator: context.userId, _pagamento_id: data.pagamentoId, _motivo: data.motivo } as never);
+    if (error) throw new Error(error.message.includes("permissao") ? "Só quem pode autorizar estorno consegue estornar." : error.message.includes("ja estornado") ? "Este pagamento já foi estornado." : error.message);
+    return r as unknown as { ok: boolean; valor_centavos: number };
   });
 
 export const getComissoes = createServerFn({ method: "GET" })
