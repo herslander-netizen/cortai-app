@@ -11,9 +11,9 @@ Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao
 - [x] Lembrete sai uma vez só: reserva antes de enviar (inclusive nova tentativa)
 - [x] Serviço genérico não está em uso — não mexer
 - [x] Fuso da barbearia em telas, lembretes e WhatsApp
-- [ ] Fuso nos e-mails (conferir)
+- [x] E-mails: só login e senha, sem horários de agenda
 - [x] Telefone: com e sem o 9 são o mesmo cliente; busca direta por variantes
-- [~] Telefones: 20 de 30 mudam, 0 duplicados — aguardando aprovação para converter
+- [x] Telefones convertidos para 55+DDD+número e ajuste automático nos novos
 - [x] Índice de telefone por barbearia já existe
 - [x] Permissões no banco (RLS), atualização na hora, tela clara para desvinculado
 - [x] Recuperação de senha neutra, logo legível, metatags padronizadas
