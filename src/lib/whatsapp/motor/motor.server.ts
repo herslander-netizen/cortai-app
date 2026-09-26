@@ -17,6 +17,11 @@ import { SAUDACAO_PADRAO } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
 import { normalizar } from "./vocabulario";
+import {
+  responder as textoDaConversaPadrao,
+  type ChaveDeTexto,
+  type PersonalizacaoConversa,
+} from "../conversa-padrao";
 
 type Ctx = { tenantId: string; externalAgentId: string | null; fuso: string };
 
@@ -88,6 +93,27 @@ const MENU_PRINCIPAL = [
   "5. Falar com a equipe",
 ].join("\n");
 
+/**
+ * Conversa Padrão de Excelência: o texto da barbearia vem primeiro, depois o
+ * padrão do Cortaí. Situação desligada ou variável sem dado cai na frase que o
+ * motor já usava — nunca inventa informação.
+ */
+function frase(
+  entrada: EntradaDoMotor,
+  chave: ChaveDeTexto,
+  vars: Record<string, string | number | null | undefined>,
+  alternativa: string,
+): string {
+  const p: PersonalizacaoConversa = {
+    textos: entrada.config.textosConversa ?? null,
+    desligadas: entrada.config.situacoesDesligadas ?? null,
+  };
+  const r = textoDaConversaPadrao(chave, vars, p);
+  if (!r || r.precisaHumano) return alternativa;
+  return r.texto;
+}
+
+
 /** Ponto único de entrada: recebe a mensagem e devolve a resposta pronta. */
 export async function responderComMotor(entrada: EntradaDoMotor): Promise<RespostaDoMotor> {
   const ctx: Ctx = { tenantId: entrada.tenantId, externalAgentId: null, fuso: await fusoDoTenant(entrada.tenantId) };
@@ -134,7 +160,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       );
     }
     return responder(
-      "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋",
+      frase(entrada, "humano", {}, "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋"),
       { ...limparFluxo(contexto), estado: "WAITING_HUMAN" },
       { intencao: "atendimento_humano", pedirHumano: true },
     );
@@ -177,7 +203,34 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
 
   switch (cls.intencao) {
     case "SAUDACAO": {
-      const saudacao = (entrada.config.mensagemBoasVindas ?? "").trim() || SAUDACAO_PADRAO;
+      const escrita = (entrada.config.mensagemBoasVindas ?? "").trim();
+      const saudacao =
+        escrita ||
+        frase(entrada, "saudacao_nova", { barbearia: entrada.nomeDaBarbearia }, SAUDACAO_PADRAO);
+
+      // Cliente já conhecido: oferece o de sempre em vez de repetir o menu seco.
+      if (contexto.clienteId) {
+        const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
+        const h = await historicoDoCliente(ctx, { clienteId: contexto.clienteId });
+        const conhecida = frase(
+          entrada,
+          "saudacao_conhecido",
+          {
+            nome: (entrada.nomeContato ?? "").split(" ")[0] || null,
+            ultimo_servico: h.servicoPreferido?.nome ?? null,
+            ultimo_profissional: h.profissionalPreferido?.nome ?? null,
+          },
+          "",
+        );
+        if (conhecida && h.servicoPreferido?.id) {
+          return responder(
+            [conhecida, "", MENU_PRINCIPAL].join("\n"),
+            { ...limparFluxo(contexto), menuTipo: "retomar", menuItens: menuPrincipalItens() },
+            { intencao: "saudacao" },
+          );
+        }
+      }
+
       return responder([saudacao, "", MENU_PRINCIPAL].join("\n"), {
         ...limparFluxo(contexto),
         menuTipo: "retomar",
@@ -331,7 +384,7 @@ async function informacoesDaCasa(
   if (intencao === "LOCALIZACAO") {
     return responder(
       casa.endereco
-        ? `📍 Estamos em: ${casa.endereco}`
+        ? frase(entrada, "localizacao", { endereco: casa.endereco }, `📍 Estamos em: ${casa.endereco}`)
         : "Ainda não tenho o endereço cadastrado aqui. Posso chamar alguém da equipe para te passar?",
       {},
       { intencao: "localizacao" },
@@ -406,6 +459,7 @@ async function avancarAgendamento(
   }
 
   return oferecerHorarios(ctx, contexto, responder, {
+    entrada,
     servicoId,
     servicoNome,
     dia,
@@ -425,6 +479,8 @@ async function oferecerHorarios(
     profissionalId: string | null;
     periodo: { deMinutos: number; ateMinutos: number } | null;
     remarcando?: boolean;
+    /** Usada só para aplicar os textos da Conversa Padrão da barbearia. */
+    entrada?: EntradaDoMotor;
   },
 ) {
   const { consultarDisponibilidade, listarProfissionais } = await import("@/lib/ia/acoes.server");
@@ -477,14 +533,15 @@ async function oferecerHorarios(
 
   if (livres.length === 0) {
     const proximo = somarDias(opcoes.dia, 1);
+    const padrao = [
+      opcoes.periodo
+        ? `Não encontrei horário livre no período pedido em ${diaPorExtenso(opcoes.dia)}. 😕`
+        : `Para ${diaPorExtenso(opcoes.dia)} não tenho mais horário livre. 😕`,
+      "",
+      `Quer que eu procure em ${diaPorExtenso(proximo)}? Responda com o dia que preferir.`,
+    ].join("\n");
     return responder(
-      [
-        opcoes.periodo
-          ? `Não encontrei horário livre no período pedido em ${diaPorExtenso(opcoes.dia)}. 😕`
-          : `Para ${diaPorExtenso(opcoes.dia)} não tenho mais horário livre. 😕`,
-        "",
-        `Quer que eu procure em ${diaPorExtenso(proximo)}? Responda com o dia que preferir.`,
-      ].join("\n"),
+      opcoes.entrada && !opcoes.periodo ? frase(opcoes.entrada, "agenda_cheia", {}, padrao) : padrao,
       { ...base, estado: "CHOOSING_DATE", menuTipo: null, menuItens: null },
       { intencao: "disponibilidade" },
     );
@@ -566,6 +623,7 @@ async function tratarSelecao(
         );
       }
       return oferecerHorarios(ctx, contexto, responder, {
+        entrada,
         servicoId: servico.id,
         servicoNome: servico.nome,
         dia,
@@ -575,7 +633,7 @@ async function tratarSelecao(
     }
 
     case "horario": {
-      const resumo = await resumoDoHorario(ctx, contexto, item);
+      const { texto: resumo, vars } = await resumoDoHorario(ctx, contexto, item);
       if (contexto.pendente === "remarcar" && contexto.agendamentoId) {
         return responder(
           [
@@ -596,14 +654,15 @@ async function tratarSelecao(
           { intencao: "reagendamento" },
         );
       }
+      const padrao = [
+        "Confere para mim:",
+        "",
+        resumo,
+        "",
+        "Posso confirmar? Responda *sim* para fechar ou *não* para escolher outro.",
+      ].join("\n");
       return responder(
-        [
-          "Confere para mim:",
-          "",
-          resumo,
-          "",
-          "Posso confirmar? Responda *sim* para fechar ou *não* para escolher outro.",
-        ].join("\n"),
+        frase(entrada, "resumo_confirmacao", vars, padrao),
         {
           estado: "CONFIRMING_BOOKING",
           inicioEscolhido: item.valor,
@@ -649,7 +708,7 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
     contexto.servicoId ? consultarServico(ctx, { servicoId: contexto.servicoId }) : Promise.resolve(null),
     consultarBarbearia(ctx),
   ]);
-  return [
+  const texto = [
     servico ? `✂️ ${servico.nome}` : null,
     `💈 ${item.rotulo.replace(/^\d{2}:\d{2} com /, "")}`,
     `📅 ${dataBr(item.valor, ctx.fuso)} às ${horaBr(item.valor, ctx.fuso)}`,
@@ -658,6 +717,18 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
   ]
     .filter(Boolean)
     .join("\n");
+
+  // Dados soltos para os textos da Conversa Padrão (nunca inventados).
+  const vars = {
+    servico: servico?.nome ?? null,
+    profissional: item.rotulo.replace(/^\d{2}:\d{2} com /, "") || null,
+    dia_semana: new Intl.DateTimeFormat("pt-BR", { timeZone: ctx.fuso, weekday: "long" }).format(new Date(item.valor)),
+    data: dataBr(item.valor, ctx.fuso),
+    horario: horaBr(item.valor, ctx.fuso),
+    valor: servico ? reais(servico.preco_centavos ?? 0) : null,
+    endereco: casa.endereco ?? null,
+  };
+  return { texto, vars };
 }
 
 async function concluirAgendamento(
@@ -705,6 +776,7 @@ async function concluirAgendamento(
           ...resto,
         )) as Responder;
       return oferecerHorarios(ctx, contexto, avisar, {
+        entrada,
         servicoId: contexto.servicoId,
         servicoNome: contexto.servicoNome ?? null,
         dia: contexto.dia ?? hojeNoFuso(ctx.fuso),
@@ -961,7 +1033,12 @@ async function naoEntendi(
   }
 
   return responder(
-    ["Não tenho certeza se entendi. 🤔", "", "Posso ajudar com:", "", MENU_PRINCIPAL].join("\n"),
+    frase(
+      entrada,
+      "nao_entendeu",
+      {},
+      ["Não tenho certeza se entendi. 🤔", "", "Posso ajudar com:", "", MENU_PRINCIPAL].join("\n"),
+    ),
     { ...limparFluxo(contexto), semEntender: tentativas, estado: "MAIN_MENU", menuTipo: "retomar", menuItens: menuPrincipalItens() },
     { intencao: "desconhecida" },
   );

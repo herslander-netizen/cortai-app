@@ -137,6 +137,11 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     confirmacaoAutomatica: data.confirmacao_automatica ?? true,
     pagamentoAntecipado: data.pagamento_antecipado ?? false,
     linkPagamento: data.link_pagamento ?? "",
+    textosConversa:
+      data.textos_conversa && typeof data.textos_conversa === "object" && !Array.isArray(data.textos_conversa)
+        ? (data.textos_conversa as Record<string, string>)
+        : {},
+    situacoesDesligadas: (data.situacoes_desligadas as string[] | null) ?? [],
   };
 }
 

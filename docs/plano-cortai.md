@@ -36,7 +36,7 @@ Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao
 - [ ] Cancelar/remarcar refaz os lembretes
 
 ## Etapa 4 — Conversa padrão e barbeiro sem perder tempo
-- [~] Textos padrão prontos, ainda não ligados ao motor
+- [x] Textos padrão ligados ao motor (saudação nova/conhecida, resumo de confirmação, agenda cheia, falar com a equipe, não entendi, localização); texto da barbearia tem prioridade e situação desligada volta ao texto do motor
 - [ ] Situações novas (atraso, elogio, objeto esquecido, eventos, terceiros)
 - [ ] Novos avisos pelos canais gratuitos
 - [ ] Zero configuração, seção "Conversa" com Avançado fechado
