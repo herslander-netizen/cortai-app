@@ -1190,3 +1190,8 @@ html.light {
   border-radius: var(--radius);
   background: var(--ink2);
 }
+
+/* Aviso de privacidade acima da barra inferior da equipe (celular) */
+@media (max-width: 767px) {
+  body:has(.equipe-barra) .banner-cookies { bottom: calc(56px + env(safe-area-inset-bottom)); }
+}

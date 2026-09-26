@@ -24,6 +24,8 @@ type AgendaTimelineProps = {
   onMover?: (item: AgendaItem, deltaMin: number) => void;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
+  itensEscala?: AgendaItem[];
+  alinhado?: boolean;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -63,7 +65,7 @@ function diaDaSemana(dia: string) {
   return new Date(`${dia}T12:00:00Z`).getUTCDay();
 }
 
-export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado, onSelecionar, renderStatus, onMover, onHorarioVazio, destaques }: AgendaTimelineProps) {
+export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado, onSelecionar, renderStatus, onMover, onHorarioVazio, destaques, itensEscala, alinhado }: AgendaTimelineProps) {
   const rolagemRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
@@ -76,8 +78,9 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
 
   const escala = useMemo(() => {
     const funcionamento = horarios.find((item) => item.diaSemana === diaDaSemana(dia) && !item.fechado);
-    const inicios = itens.map((item) => minutosNoFuso(item.inicio, fuso));
-    const finais = itens.map((item) => minutosNoFuso(item.fim, fuso));
+    const base = itensEscala ?? itens;
+    const inicios = base.map((item) => minutosNoFuso(item.inicio, fuso));
+    const finais = base.map((item) => minutosNoFuso(item.fim, fuso));
     const minutoAtual = minutosNoFuso(agora, fuso);
     const referenciasInicio = [funcionamento ? minutosDoHorario(funcionamento.abre) : 8 * 60, ...inicios];
     const referenciasFim = [funcionamento ? minutosDoHorario(funcionamento.fecha) : 20 * 60, ...finais];
@@ -88,7 +91,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     const inicio = Math.max(0, Math.floor(Math.min(...referenciasInicio) / 30) * 30);
     const fim = Math.min(24 * 60, Math.ceil(Math.max(...referenciasFim) / 30) * 30);
     return { inicio, fim: Math.max(inicio + 60, fim), minutoAtual };
-  }, [agora, dia, ehHoje, fuso, horarios, itens]);
+  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala]);
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
@@ -115,16 +118,23 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       let cursor = topoNatural;
 
       // Encaixe sobreposto aparece lado a lado, no horário real.
-      if (grupo.length > 1 && grupo.some((evento) => evento.item.encaixe)) {
+      if (grupo.length > 1 && (alinhado || grupo.some((evento) => evento.item.encaixe))) {
         const colunas = Math.min(grupo.length, 3);
         grupo.forEach((evento, i) => {
-          const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          const altura = alinhado ? Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4) : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
           const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
           resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura, coluna: i % colunas, colunas });
           cursor = Math.max(cursor, topo + altura + ESPACO_ENTRE_BLOCOS);
         });
       } else {
         grupo.forEach((evento) => {
+          if (alinhado) {
+            const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO;
+            const altura = Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+            resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura });
+            cursor = topo + altura + ESPACO_ENTRE_BLOCOS;
+            return;
+          }
           const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
           resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo: cursor, altura });
           cursor += altura + ESPACO_ENTRE_BLOCOS;
@@ -134,7 +144,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       const alturaNatural = (fimGrupo - inicioGrupo) * PX_POR_MINUTO;
       const alturaEmpilhada = cursor - topoNatural - ESPACO_ENTRE_BLOCOS;
       const extra = Math.max(0, alturaEmpilhada - alturaNatural);
-      if (extra > 0) {
+      if (extra > 0 && !alinhado) {
         pixelsAcrescidos += extra;
         acrescimos.push({ depoisDe: fimGrupo, pixels: extra });
       }
@@ -150,7 +160,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     });
     if (grupo.length > 0) distribuir();
     return { posicoes: resultado, acrescimos, pixelsAcrescidos };
-  }, [escala.inicio, fuso, itens]);
+  }, [alinhado, escala.inicio, fuso, itens]);
 
   const deslocamentoAte = (minuto: number) => layout.acrescimos.reduce((total, item) => total + (item.depoisDe <= minuto ? item.pixels : 0), 0);
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;

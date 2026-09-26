@@ -585,6 +585,8 @@ export function AgendaOperacional() {
                   fuso={fuso}
                   agora={agora}
                   itens={itens.filter((item) => item.profissional === nome)}
+                  itensEscala={itens}
+                  alinhado
                   horarios={agenda.data?.horarios ?? []}
                   selecionado={selecionado}
                   onSelecionar={(id) => abrir(id)}
