@@ -2529,6 +2529,7 @@ export type Database = {
           agendamento_id: string | null
           carteira_id: string
           centavos_delta: number
+          comanda_id: string | null
           creditos_delta: number
           criado_em: string
           criado_por: string | null
@@ -2542,6 +2543,7 @@ export type Database = {
           agendamento_id?: string | null
           carteira_id: string
           centavos_delta?: number
+          comanda_id?: string | null
           creditos_delta?: number
           criado_em?: string
           criado_por?: string | null
@@ -2555,6 +2557,7 @@ export type Database = {
           agendamento_id?: string | null
           carteira_id?: string
           centavos_delta?: number
+          comanda_id?: string | null
           creditos_delta?: number
           criado_em?: string
           criado_por?: string | null
@@ -2570,6 +2573,13 @@ export type Database = {
             columns: ["carteira_id"]
             isOneToOne: false
             referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentos_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
             referencedColumns: ["id"]
           },
         ]
