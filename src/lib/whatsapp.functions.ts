@@ -551,7 +551,7 @@ export type AtendenteDaBarbearia = {
 /** Equipe que pode atender conversas, para o painel de atendentes. */
 export const listarAtendentes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ euSouId: string; atendentes: AtendenteDaBarbearia[] }> => {
+  .handler(async ({ context }): Promise<{ euSouId: string; tenantId: string; atendentes: AtendenteDaBarbearia[] }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
