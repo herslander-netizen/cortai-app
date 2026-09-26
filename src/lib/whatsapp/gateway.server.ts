@@ -372,6 +372,14 @@ export const gatewayDeWhatsapp = {
   /** Só a API oficial garante botões; nos demais provedores devolve null. */
   enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
     lerConfig()?.provedor === "meta" ? meta.enviarTemplate(telefone, t) : Promise.resolve(null),
+  /**
+   * O que o canal atual suporta. Oficial: botões via template e janela de 24h
+   * para mensagens iniciadas pela barbearia. Demais: opções numeradas, sem janela.
+   */
+  capacidades: () => {
+    const oficial = lerConfig()?.provedor === "meta";
+    return { botoes: oficial, exigeTemplateForaDaJanela: oficial };
+  },
   reiniciarSessao: (sessaoId: string) => provedor().reiniciarSessao(sessaoId),
   desconectar: (sessaoId: string) => provedor().desconectar(sessaoId),
 };
