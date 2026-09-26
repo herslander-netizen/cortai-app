@@ -697,7 +697,7 @@ async function concluirAgendamento(
     });
   } catch (erro) {
     const motivo = erro instanceof Error ? erro.message : "";
-    if (/ocupad|conflit|indispon/i.test(motivo)) {
+    if (/ocupad|conflit|indispon|reservad/i.test(motivo)) {
       return oferecerHorarios(ctx, contexto, responder, {
         servicoId: contexto.servicoId,
         servicoNome: contexto.servicoNome ?? null,

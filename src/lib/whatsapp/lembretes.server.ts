@@ -264,6 +264,7 @@ export async function avisarListaDeEspera(agendamentoId: string) {
       "Quer esse horário? Responda *quero agendar* que eu reservo para você.",
     ].join("\n"),
     porIa: false,
+    iniciadaPelaBarbearia: true,
   }).catch(() => undefined);
 }
 

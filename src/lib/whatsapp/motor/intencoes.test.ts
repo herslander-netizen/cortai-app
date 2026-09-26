@@ -56,3 +56,9 @@ describe("intencoes deterministicas do WhatsApp", () => {
     expect(limpo.menuItens).toBeNull();
   });
 });
+describe("ajustes obrigatorios", () => {
+  it("'barbeiro' em pedido de agendamento nao transfere para humano", () => {
+    expect(classificar("quero marcar com o barbeiro João amanhã", opcoes).intencao).not.toBe("HUMANO");
+    expect(classificar("tem barbeiro livre hoje?", opcoes).intencao).not.toBe("HUMANO");
+  });
+});

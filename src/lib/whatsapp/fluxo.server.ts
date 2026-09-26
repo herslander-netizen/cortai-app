@@ -1,4 +1,5 @@
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *
@@ -20,7 +21,69 @@ async function admin() {
 }
 
 function somenteDigitos(telefone: string) {
-  return telefone.replace(/\D/g, "");
+  return normalizarTelefone(telefone);
+}
+
+/** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
+async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
+  const db = await admin();
+  const { data, error } = await db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenantId, _chave: "cortai_whatsapp" });
+  if (error) return true;
+  return data !== false;
+}
+
+/**
+ * Número compartilhado: descobre a barbearia por código/link na mensagem,
+ * pela escolha numerada, pelo histórico recente ou pergunta quando houver dúvida.
+ */
+async function barbeariaDoNumeroCompartilhado(
+  telefone: string,
+  texto: string,
+): Promise<{ tenantId: string } | { perguntar: string }> {
+  const db = await admin();
+  const variantes = variantesDoTelefone(telefone);
+  const [{ data: conversas }, { data: clientes }] = await Promise.all([
+    db.from("conversas_whatsapp").select("tenant_id, ultima_mensagem_em").in("telefone", variantes),
+    db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null),
+  ]);
+  const ids = [...new Set([...(conversas ?? []).map((c) => c.tenant_id), ...(clientes ?? []).map((c) => c.tenant_id)])];
+
+  // 1) Código ou link de entrada (slug) citado na mensagem.
+  const tokens = (texto.toLowerCase().match(/[a-z0-9][a-z0-9-]{2,}/g) ?? []).slice(0, 40);
+  if (tokens.length) {
+    const { data: porSlug } = await db.from("tenants").select("id").in("slug", tokens).limit(1);
+    if (porSlug?.[0]) return { tenantId: porSlug[0].id };
+  }
+  if (ids.length === 1) return { tenantId: ids[0]! };
+
+  const { data: nomes } = ids.length
+    ? await db.from("tenants").select("id, nome").in("id", ids).order("nome")
+    : { data: [] as { id: string; nome: string }[] };
+  const lista = nomes ?? [];
+
+  // 2) Resposta numerada à pergunta anterior.
+  const escolha = texto.trim().match(/^(\d{1,2})$/);
+  if (escolha && lista[Number(escolha[1]) - 1]) return { tenantId: lista[Number(escolha[1]) - 1]!.id };
+
+  // 3) Conversa recente (12h) define a barbearia.
+  const recente = (conversas ?? [])
+    .filter((c) => c.ultima_mensagem_em && Date.now() - new Date(c.ultima_mensagem_em).getTime() < 12 * 3600_000)
+    .sort((a, b) => String(b.ultima_mensagem_em).localeCompare(String(a.ultima_mensagem_em)))[0];
+  if (recente) return { tenantId: recente.tenant_id };
+
+  if (lista.length > 1) {
+    return {
+      perguntar: [
+        "Olá! Com qual barbearia você quer falar?",
+        ...lista.map((t, i) => `${i + 1} - ${t.nome}`),
+        "",
+        "Responda com o número.",
+      ].join("\n"),
+    };
+  }
+  return {
+    perguntar: "Olá! Qual barbearia você procura? Envie o link ou o código da barbearia que eu te atendo.",
+  };
 }
 
 export async function conexaoPorSessao(sessaoId: string) {
@@ -93,11 +156,13 @@ export async function conversaDoTelefone(input: {
 }) {
   const db = await admin();
   const telefone = somenteDigitos(input.telefone);
+  const variantes = variantesDoTelefone(telefone);
   const { data: existente } = await db
     .from("conversas_whatsapp")
     .select("id, status, ia_ativa, modo_humano, cliente_id, contexto")
     .eq("tenant_id", input.tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantes)
+    .limit(1)
     .maybeSingle();
   if (existente) return existente;
 
@@ -105,8 +170,9 @@ export async function conversaDoTelefone(input: {
     .from("clientes")
     .select("id")
     .eq("tenant_id", input.tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantes)
     .is("arquivado_em", null)
+    .limit(1)
     .maybeSingle();
 
   const { data, error } = await db
@@ -136,9 +202,28 @@ export async function enviarPelaBarbearia(input: {
   autorUserId?: string | null;
   /** Modelo com botões (API oficial). Se o canal não suportar, vai o texto. */
   modelo?: import("./gateway.server").ModeloComBotoes | null;
+  /** Lembrete, pós-atendimento, reativação: sujeito à janela de 24h no canal oficial. */
+  iniciadaPelaBarbearia?: boolean;
 }) {
   const db = await admin();
   const { gatewayDeWhatsapp } = await import("./gateway.server");
+
+  // Fora da janela de 24h, o canal oficial só aceita template aprovado.
+  if (input.iniciadaPelaBarbearia && gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela && !input.modelo) {
+    const { data: ultima } = await db
+      .from("mensagens_whatsapp")
+      .select("criado_em")
+      .eq("conversa_id", input.conversaId)
+      .eq("direcao", "entrada")
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const em = (ultima as { criado_em?: string } | null)?.criado_em;
+    if (!em || Date.now() - new Date(em).getTime() > 24 * 3600_000) {
+      throw new Error("Fora da janela de 24h: só sai por template aprovado.");
+    }
+  }
+
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
@@ -186,8 +271,9 @@ async function vincularCliente(tenantId: string, conversaId: string, telefone: s
     .from("clientes")
     .select("id")
     .eq("tenant_id", tenantId)
-    .eq("telefone", telefone)
+    .in("telefone", variantesDoTelefone(telefone))
     .is("arquivado_em", null)
+    .limit(1)
     .maybeSingle();
   if (!data) return null;
   await db.from("conversas_whatsapp").update({ cliente_id: data.id }).eq("id", conversaId);
@@ -208,8 +294,17 @@ export async function processarMensagemRecebida(input: {
   const conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao) return { tratada: false, motivo: "sessao_desconhecida" };
 
-  const tenantId = conexao.tenant_id;
   const telefone = somenteDigitos(input.telefone);
+  let tenantId = conexao.tenant_id;
+  if ((conexao as { compartilhada?: boolean }).compartilhada) {
+    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "");
+    if ("perguntar" in r) {
+      const { gatewayDeWhatsapp } = await import("./gateway.server");
+      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, r.perguntar).catch(() => undefined);
+      return { tratada: true, motivo: "identificando_barbearia" };
+    }
+    tenantId = r.tenantId;
+  }
   const conversa = await conversaDoTelefone({
     tenantId,
     conexaoId: conexao.id,
@@ -280,6 +375,7 @@ export async function processarMensagemRecebida(input: {
   if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
   if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
   if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
+  if (!(await whatsappLiberadoNoPlano(tenantId))) return { tratada: true, motivo: "plano_sem_whatsapp" };
   if (!dentroDoHorarioDaIa(config, await fusoDoTenant(tenantId))) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
   // Proteção contra rajada na mesma conversa (abuso e custo de IA).

@@ -1,0 +1,1 @@
+ALTER TABLE public.conexoes_whatsapp ADD COLUMN IF NOT EXISTS compartilhada boolean NOT NULL DEFAULT false;
