@@ -247,8 +247,12 @@ export async function enviarPelaBarbearia(input: {
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
+    // Modelo ainda em análise ou recusado: tenta o texto livre (a Meta só aceita dentro da janela de 24h).
     const viaModelo = input.modelo
-      ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo)
+      ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo).catch((e) => {
+          console.warn("[whatsapp] modelo recusado, tentando texto livre:", e instanceof Error ? e.message : e);
+          return null;
+        })
       : null;
     const r = viaModelo ?? (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
     externoId = r.id;
