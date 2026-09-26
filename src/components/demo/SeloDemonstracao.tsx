@@ -11,7 +11,7 @@ export function SeloDemonstracao() {
   if (data?.tenantSlug !== SLUG_DEMONSTRACAO) return null;
 
   return (
-    <div className="relative z-30 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-line bg-gold-soft px-4 py-2">
+    <div className="selo-demo relative z-30 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-line bg-gold-soft px-4 py-2">
       <FlaskConical size={14} className="text-gold" aria-hidden />
       <p className="truncate text-xs font-medium tracking-wide text-paper">
         Modo demonstração · dados fictícios

@@ -15,7 +15,8 @@ export function NovidadesDaVersao() {
   const caminho = useRouterState({ select: (s) => s.location.pathname });
   const [aberto, setAberto] = useState(false);
 
-  const areaLogada = caminho.startsWith("/barbeiro") || caminho.startsWith("/app") || caminho.startsWith("/admin");
+  // Sem popup na operação da equipe: a agenda nunca é interrompida.
+  const areaLogada = caminho.startsWith("/app") || caminho.startsWith("/admin");
 
   useEffect(() => {
     if (!areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
@@ -36,6 +37,13 @@ export function NovidadesDaVersao() {
       /* navegador sem armazenamento: só não registra a leitura */
     }
   }
+
+  useEffect(() => {
+    if (!aberto) return;
+    const tecla = (e: KeyboardEvent) => e.key === "Escape" && fechar();
+    window.addEventListener("keydown", tecla);
+    return () => window.removeEventListener("keydown", tecla);
+  }, [aberto]);
 
   if (!aberto) return null;
 

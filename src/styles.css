@@ -386,6 +386,10 @@ html.light .brand-logo-on-light,
   max-width: 760px;
 }
 
+.management-shell .screen-shell[data-largura="larga"] .screen-content > * {
+  max-width: none;
+}
+
 @keyframes management-content-in {
   from { opacity: 0.72; transform: translateY(2px); }
   to { opacity: 1; transform: translateY(0); }
@@ -458,7 +462,7 @@ html.light .brand-logo-on-light,
 .agenda-linha-agora { position: absolute; right: 0; left: -7px; z-index: 5; height: 2px; border-top: 2px solid var(--brick); pointer-events: none; }
 .agenda-linha-agora::before { position: absolute; top: -5px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--brick); content: ""; }
 .agenda-linha-agora span { position: absolute; right: 4px; bottom: 4px; border-radius: var(--radius-sm); background: var(--brick); padding: 2px 8px; color: var(--ink2); font-size: 12px; font-weight: 800; }
-.agenda-voltar-agora { display: flex; min-height: 40px; margin: 0 0 8px auto; border-color: var(--line); background: var(--ink2); box-shadow: none; }
+.agenda-voltar-agora { position: absolute; z-index: 5; top: 8px; right: 8px; display: flex; min-height: 40px; border-color: var(--line); background: var(--ink2); box-shadow: none; }
 .agenda-acao-fixa { position: fixed; z-index: 25; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .agenda-acao-redonda { width: 56px; min-width: 56px; height: 56px; padding: 0; border-radius: 999px; box-shadow: var(--shadow-md); }
 .agenda-acao-fechar { position: fixed; z-index: 60; right: max(20px, calc((100vw - 760px) / 2 + 32px)); bottom: calc(16px + env(safe-area-inset-bottom)); }
@@ -1135,6 +1139,7 @@ html.light {
   :root[data-lateral="recolhida"] .equipe-conteudo { padding-left: 64px; }
   .equipe-lateral { position: fixed; top: 3.5rem; bottom: 0; left: 0; z-index: 20; display: flex; width: 208px; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--line); background: var(--ink); padding: 12px 8px; transition: width 180ms ease; }
   :root[data-lateral="recolhida"] .equipe-lateral { width: 64px; }
+  :root:has(.selo-demo) .equipe-lateral { top: calc(3.5rem + 41px); }
   :root[data-lateral="recolhida"] .equipe-lateral-rotulo { display: none; }
   .equipe-lateral-link { display: flex; width: 100%; min-height: 48px; align-items: center; gap: 12px; border-radius: var(--radius-md, 12px); padding: 0 14px; color: var(--mute); font-size: 14px; font-weight: 600; transition: background-color 150ms ease, color 150ms ease; }
   .equipe-lateral-link:hover { background: var(--ink3); color: var(--paper); }

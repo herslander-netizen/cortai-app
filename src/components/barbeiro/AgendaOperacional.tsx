@@ -409,7 +409,7 @@ export function AgendaOperacional() {
   }
 
   return (
-    <Screen title="Agenda" hideHeader>
+    <Screen title="Agenda" hideHeader wide>
       <div key={dia} className="agenda-operacional agenda-troca-dia pb-32" onTouchStart={inicioToque} onTouchEnd={fimToque}>
         <header className="agenda-cabecalho-compacto">
           <h1 className="sr-only">Agenda</h1>
@@ -503,7 +503,7 @@ export function AgendaOperacional() {
               return (
                 <div key={item.id} className="grid grid-cols-[70px_minmax(0,1fr)_auto] items-center gap-3 py-3">
                    <div><p className="text-xs font-bold uppercase text-mute2">{indice === 0 ? "Próximo" : "Depois"}</p><p className="mt-1 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p></div>
-                  <Button variant="ghost" type="button" className="min-w-0 text-left" onClick={() => abrir(item.id)}>
+                  <Button variant="ghost" type="button" className="h-auto min-w-0 flex-col items-start justify-center gap-0 px-2 text-left" onClick={() => abrir(item.id)}>
                     <span className="block truncate text-sm font-semibold text-paper">{item.cliente}</span>
                     <span className="block truncate text-xs text-mute">{item.servico}</span>
                     {espera > 0 ? <span className="mt-1 block text-xs font-semibold text-brick">~{espera} min de espera</span> : null}
