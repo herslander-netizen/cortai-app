@@ -76,7 +76,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
         },
       });
       if (!r.ok) {
-        setErro(r.conflito?.mensagem ?? "Esse horário acabou de ser ocupado. Escolha outro.");
+        setErro("Esse horário acabou de ser reservado, escolha outro");
         setEscolhido(null);
         await grade.refetch();
         return;
