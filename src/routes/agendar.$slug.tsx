@@ -100,7 +100,10 @@ function AgendamentoPublico() {
   const [confirmado, setConfirmado] = useState<ConfirmacaoPublica | null>(null);
   const [cancelado, setCancelado] = useState(false);
 
-  const fuso = normalizarFuso(data?.tenant.fuso);
+  useEffect(() => {
+    if (!dia || !dias.some((d) => d.iso === dia)) setDia(dias[0]?.iso ?? "");
+  }, [dias, dia]);
+
   const servico = data?.servicos.find((s) => s.id === servicoId) ?? null;
 
   const agenda = useMemo(() => {
