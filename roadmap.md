@@ -8,3 +8,12 @@
 - [x] M2: recuperação de senha com resposta neutra (não revela se o e-mail existe)
 - [x] B1: logo do Cortaí e da barbearia legíveis em todas as identidades e nos dois modos
 - [x] B2: metatags padronizadas (og:url + canônica nas páginas públicas, noindex nas internas)
+
+## Conversa Padrão (docs/conversa-padrao.md)
+- [x] Textos padrão + variáveis + editar/desligar (conversa-padrao.ts, colunas em config_atendimento_ia)
+- [x] Lista de templates Meta (docs/templates-meta.md)
+- [x] 8 conversas de teste (7 passam; atraso é lacuna)
+- [ ] Ligar os textos ao motor e acrescentar vocabulário
+- [ ] Situações novas no motor (atraso, elogio, objeto esquecido, eventos, terceiros...)
+- [ ] Seção "Conversa" no painel (textos, liga/desliga, FAQ)
+- [ ] Notificações novas no agendador (horário próximo, pós-atendimento, falta, valor a pagar, aniversário)
