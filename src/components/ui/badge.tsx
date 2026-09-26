@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap [&_svg]:size-3.5",
+  "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold whitespace-nowrap [&_svg]:size-3.5",
   { variants: { variant: {
     default: "border-transparent bg-primary text-primary-foreground",
     secondary: "border-transparent bg-secondary text-secondary-foreground",
@@ -21,12 +21,14 @@ function Badge({ className, variant, ...props }: BadgeProps) { return <span clas
 
 const STATUS = {
   agendado: { label: "Agendado", variant: "outline", Icon: Clock3 },
+  confirmado: { label: "Confirmado", variant: "outline", Icon: Check },
   chegou: { label: "Chegou", variant: "success", Icon: UserRoundPlus },
   na_cadeira: { label: "Na cadeira", variant: "default", Icon: Scissors },
   finalizado: { label: "Finalizado", variant: "strong", Icon: Check },
   remarcado: { label: "Remarcado", variant: "outline", Icon: CalendarClock },
   cancelado: { label: "Cancelado", variant: "destructive", Icon: X },
   nao_compareceu: { label: "Não compareceu", variant: "destructive", Icon: UserX },
+  encaixe: { label: "Encaixe", variant: "outline", Icon: Scissors },
   aguardando_pagamento: { label: "Aguardando pagamento", variant: "outline", Icon: HandCoins },
   pago: { label: "Pago", variant: "success", Icon: Check },
   pendente: { label: "Pendente", variant: "outline", Icon: Clock3 },
@@ -38,7 +40,7 @@ export function StatusBadge({ status, label, className }: { status: StatusKey | 
   const fallback = STATUS.agendado;
   const item = STATUS[status as StatusKey] ?? fallback;
   const Icon = item.Icon;
-  return <Badge variant={item.variant} className={className}><Icon aria-hidden />{label ?? item.label}</Badge>;
+  return <Badge variant={item.variant} className={cn("status-badge", `status-badge-${status}`, className)}><Icon aria-hidden />{label ?? item.label}</Badge>;
 }
 
 export { Badge, badgeVariants };
