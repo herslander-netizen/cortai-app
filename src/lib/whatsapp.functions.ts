@@ -571,6 +571,7 @@ export const listarAtendentes = createServerFn({ method: "GET" })
     const nomes = new Map((perfis ?? []).map((p) => [p.user_id, p.nome]));
     return {
       euSouId: context.userId,
+      tenantId,
       atendentes: (membros ?? []).map((m) => ({
         userId: m.user_id,
         nome: nomes.get(m.user_id) ?? "Sem nome",
