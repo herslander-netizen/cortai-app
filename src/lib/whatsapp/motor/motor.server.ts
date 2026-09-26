@@ -93,6 +93,27 @@ const MENU_PRINCIPAL = [
   "5. Falar com a equipe",
 ].join("\n");
 
+/**
+ * Conversa Padrão de Excelência: o texto da barbearia vem primeiro, depois o
+ * padrão do Cortaí. Situação desligada ou variável sem dado cai na frase que o
+ * motor já usava — nunca inventa informação.
+ */
+function frase(
+  entrada: EntradaDoMotor,
+  chave: ChaveDeTexto,
+  vars: Record<string, string | number | null | undefined>,
+  alternativa: string,
+): string {
+  const p: PersonalizacaoConversa = {
+    textos: entrada.config.textosConversa ?? null,
+    desligadas: entrada.config.situacoesDesligadas ?? null,
+  };
+  const r = textoDaConversaPadrao(chave, vars, p);
+  if (!r || r.precisaHumano) return alternativa;
+  return r.texto;
+}
+
+
 /** Ponto único de entrada: recebe a mensagem e devolve a resposta pronta. */
 export async function responderComMotor(entrada: EntradaDoMotor): Promise<RespostaDoMotor> {
   const ctx: Ctx = { tenantId: entrada.tenantId, externalAgentId: null, fuso: await fusoDoTenant(entrada.tenantId) };
