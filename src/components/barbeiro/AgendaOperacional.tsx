@@ -266,7 +266,22 @@ export function AgendaOperacional() {
     return Array.from({ length: 7 }, (_, i) => somarDias(dia, i - dow));
   }, [dia]);
   const agendadosDia = itens.filter((item) => !TERMINAIS.has(item.status) || item.status === "finalizado").length;
-  const resumo = `${agendadosDia} ${agendadosDia === 1 ? "agendado" : "agendados"}${chegada.length ? ` · ${chegada.length} na fila` : ""}`;
+  // Horários livres (blocos de 30 min) do profissional em foco, a partir de agora.
+  const livres = useMemo(() => {
+    if (!profFiltro && profissionaisDoDia.length > 1) return null;
+    const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
+    const h = (agenda.data?.horarios ?? []).find((x) => x.diaSemana === dow && !x.fechado);
+    if (!h) return null;
+    const minDe = (v: string) => { const [a = 0, b = 0] = v.split(":").map(Number); return a * 60 + b; };
+    const minNoFuso = (v: string | number) => { const p = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: fuso }).formatToParts(new Date(v)); return Number(p.find((x) => x.type === "hour")?.value ?? 0) * 60 + Number(p.find((x) => x.type === "minute")?.value ?? 0); };
+    const ocupados = itens.filter((i) => !["cancelado", "remarcado", "nao_compareceu"].includes(i.status)).map((i) => [minNoFuso(i.inicio), minNoFuso(i.fim)] as const);
+    let ini = minDe(h.abre); const fim = minDe(h.fecha);
+    if (ehHoje) ini = Math.max(ini, Math.ceil(minNoFuso(agora) / 30) * 30);
+    let n = 0;
+    for (let m = ini; m + 30 <= fim; m += 30) if (!ocupados.some(([a, b]) => m < b && m + 30 > a)) n++;
+    return n;
+  }, [agenda.data?.horarios, agora, dia, ehHoje, fuso, itens, profFiltro, profissionaisDoDia.length]);
+  const resumo = `${agendadosDia} ${agendadosDia === 1 ? "agendado" : "agendados"}${livres !== null ? ` · ${livres} ${livres === 1 ? "livre" : "livres"}` : ""}${chegada.length ? ` · ${chegada.length} na fila` : ""}`;
   const ativos = itens.filter((item) => item.status === "na_cadeira");
   const futuros = itens.filter((item) => !TERMINAIS.has(item.status) && item.status !== "na_cadeira" && new Date(item.fim).getTime() >= agora);
   const destaques = futuros.slice(0, 2);
@@ -714,7 +729,7 @@ export function AgendaOperacional() {
         </SheetContent>
       </Sheet>
 
-      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); void sincronizar(); }} /></div> : null}
+      {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} profissionalInicial={profFiltro ?? meuNome} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); void sincronizar(); }} /></div> : null}
 
       {rapidoAberto ? <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}><AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /></Suspense> : null}
 
