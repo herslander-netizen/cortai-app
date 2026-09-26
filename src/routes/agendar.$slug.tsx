@@ -87,10 +87,11 @@ function AgendamentoPublico() {
     refetchOnWindowFocus: false,
   });
 
-  const dias = useMemo(() => proximosDias(14), []);
+  const fuso = normalizarFuso(data?.tenant.fuso);
+  const dias = useMemo(() => proximosDias(14, fuso), [fuso]);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profId, setProfId] = useState<string>("qualquer");
-  const [dia, setDia] = useState<string>(dias[0]?.iso ?? "");
+  const [dia, setDia] = useState<string>("");
   const [horario, setHorario] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
