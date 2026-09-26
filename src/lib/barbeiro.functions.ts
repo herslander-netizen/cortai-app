@@ -625,6 +625,22 @@ export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
       const t = data.termo.replace(/[%,()]/g, "");
       q = q.or(`nome.ilike.%${t}%,telefone.ilike.%${t}%`);
     }
+    if (!data.termo) {
+      // Sem busca: clientes atendidos mais recentemente primeiro.
+      const { data: recentes } = await db
+        .from("agendamentos")
+        .select("cliente_id, inicio, clientes!inner(id, nome, telefone, arquivado_em)")
+        .eq("tenant_id", tenant.id)
+        .is("clientes.arquivado_em", null)
+        .order("inicio", { ascending: false })
+        .limit(60);
+      const vistos = new Map<string, { id: string; nome: string; telefone: string }>();
+      for (const r of (recentes ?? []) as unknown as { clientes: { id: string; nome: string; telefone: string } | null }[]) {
+        if (r.clientes && !vistos.has(r.clientes.id)) vistos.set(r.clientes.id, { id: r.clientes.id, nome: r.clientes.nome, telefone: r.clientes.telefone });
+        if (vistos.size >= 8) break;
+      }
+      if (vistos.size) return [...vistos.values()];
+    }
     const { data: rows } = await q;
     return (rows ?? []) as { id: string; nome: string; telefone: string }[];
   });

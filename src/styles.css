@@ -1165,3 +1165,16 @@ html.light {
 .agenda-troca-dia { animation: agenda-troca 180ms ease-out; }
 @keyframes agenda-troca { from { opacity: 0.6; transform: translateX(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .agenda-troca-dia, .agenda-novo { animation: none; } }
+
+/* Agenda: colunas por profissional e visão Semana (desktop) */
+.agenda-colunas { display: grid; gap: 12px; overflow-x: auto; }
+.agenda-coluna-titulo { display: block; width: 100%; min-height: 40px; margin-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--paper); font-size: 13px; font-weight: 700; text-align: left; }
+.agenda-semana-grade { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.agenda-semana-coluna { min-width: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink2); padding: 8px; }
+.agenda-semana-coluna[data-hoje="true"] { border-color: var(--gold); }
+.agenda-semana-coluna-topo { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 8px; color: var(--mute); font-size: 12px; text-align: left; }
+.agenda-semana-coluna-topo strong { color: var(--paper); font-size: 18px; }
+.agenda-semana-coluna ul { display: flex; flex-direction: column; gap: 6px; }
+.agenda-semana-item { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; border: 1px solid var(--line2); border-left-width: 3px; border-radius: 10px; padding: 6px 8px; color: var(--paper); font-size: 12px; text-align: left; }
+.agenda-semana-item strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-semana-item span { max-width: 100%; overflow: hidden; color: var(--mute); text-overflow: ellipsis; white-space: nowrap; }

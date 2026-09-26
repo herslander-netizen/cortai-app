@@ -33,6 +33,7 @@ function horasDoDia() {
 export function AgendamentoManual({
   dia,
   horaInicial,
+  profissionalInicial,
   onCriado,
   gatilho = "primario",
   rotulo,
@@ -41,6 +42,7 @@ export function AgendamentoManual({
 }: {
   dia: string;
   horaInicial?: string;
+  profissionalInicial?: string | null;
   onCriado?: () => void;
   gatilho?: "primario" | "discreto";
   rotulo?: string;
@@ -66,6 +68,7 @@ export function AgendamentoManual({
         <Formulario
           dia={dia}
           {...(horaInicial ? { horaInicial } : {})}
+          profissionalInicial={profissionalInicial ?? null}
           iniciarNovoCliente={iniciarNovoCliente}
           onFechar={() => setAberto(false)}
           onCriado={() => {
@@ -81,12 +84,14 @@ export function AgendamentoManual({
 function Formulario({
   dia,
   horaInicial = "09:00",
+  profissionalInicial = null,
   onFechar,
   onCriado,
   iniciarNovoCliente = false,
 }: {
   dia: string;
   horaInicial?: string;
+  profissionalInicial?: string | null;
   onFechar: () => void;
   onCriado: () => void;
   iniciarNovoCliente?: boolean;
@@ -137,8 +142,11 @@ function Formulario({
 
   useEffect(() => {
     if (base && !servicoId && base.servicos[0]) setServicoId(base.servicos[0].id);
-    if (base && !profissionalId && base.profissionais[0]) setProfissionalId(base.profissionais[0].id);
-  }, [base, servicoId, profissionalId]);
+    if (base && !profissionalId && base.profissionais[0]) {
+      const escolhido = profissionalInicial ? base.profissionais.find((p) => p.nome === profissionalInicial) : undefined;
+      setProfissionalId((escolhido ?? base.profissionais[0]).id);
+    }
+  }, [base, servicoId, profissionalId, profissionalInicial]);
 
   const clienteOk = clienteId ? true : novo && novoNome.trim().length >= 2 && novoTelefone.replace(/\D/g, "").length >= 10;
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
