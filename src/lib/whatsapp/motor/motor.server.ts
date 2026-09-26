@@ -478,6 +478,8 @@ async function oferecerHorarios(
     profissionalId: string | null;
     periodo: { deMinutos: number; ateMinutos: number } | null;
     remarcando?: boolean;
+    /** Usada só para aplicar os textos da Conversa Padrão da barbearia. */
+    entrada?: EntradaDoMotor;
   },
 ) {
   const { consultarDisponibilidade, listarProfissionais } = await import("@/lib/ia/acoes.server");
