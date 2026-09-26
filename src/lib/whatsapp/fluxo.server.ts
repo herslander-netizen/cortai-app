@@ -375,6 +375,7 @@ export async function processarMensagemRecebida(input: {
   if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
   if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
   if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
+  if (!(await whatsappLiberadoNoPlano(tenantId))) return { tratada: true, motivo: "plano_sem_whatsapp" };
   if (!dentroDoHorarioDaIa(config, await fusoDoTenant(tenantId))) return { tratada: true, motivo: "fora_do_horario_da_ia" };
 
   // Proteção contra rajada na mesma conversa (abuso e custo de IA).

@@ -419,6 +419,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       texto,
       porIa: false,
       modelo,
+      iniciadaPelaBarbearia: true,
     });
   } catch (e) {
     return marcarErro(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.");
