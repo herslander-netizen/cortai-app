@@ -3712,6 +3712,35 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_contexto_numero: {
+        Row: {
+          aguardando_escolha: boolean
+          atualizado_em: string
+          telefone: string
+          tenant_id: string | null
+        }
+        Insert: {
+          aguardando_escolha?: boolean
+          atualizado_em?: string
+          telefone: string
+          tenant_id?: string | null
+        }
+        Update: {
+          aguardando_escolha?: boolean
+          atualizado_em?: string
+          telefone?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_contexto_numero_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_webhook_events: {
         Row: {
           delivery_id: string

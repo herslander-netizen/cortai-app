@@ -33,85 +33,79 @@ async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
 }
 
 /**
- * Número compartilhado: descobre a barbearia por código/link na mensagem,
- * pela escolha numerada, pelo histórico recente ou pergunta quando houver dúvida.
+ * Número compartilhado: a barbearia escolhida fica salva por telefone
+ * (whatsapp_contexto_numero) até o cliente pedir troca. Regras, sem IA.
  */
 async function barbeariaDoNumeroCompartilhado(
   telefone: string,
   texto: string,
   citadaId: string | null = null,
-): Promise<{ tenantId: string } | { perguntar: string }> {
+): Promise<{ tenantId: string; escolheuAgora: boolean } | { perguntar: string }> {
   const db = await admin();
-  const variantes = variantesDoTelefone(telefone);
+  const { decidirBarbearia } = await import("./multi-barbearia");
 
-  // Resposta a notificação: o ID no botão ou na mensagem citada define a barbearia.
+  // Opções: barbearias ativas que compartilham o número oficial.
+  const { data: conexoes } = await db.from("conexoes_whatsapp").select("tenant_id").eq("compartilhada", true);
+  const idsCompartilhados = [...new Set((conexoes ?? []).map((c) => c.tenant_id))];
+  const { data: tenants } = idsCompartilhados.length
+    ? await db.from("tenants").select("id, nome, ativo").in("id", idsCompartilhados).order("nome")
+    : { data: [] as { id: string; nome: string; ativo: boolean | null }[] };
+  const opcoes = (tenants ?? []).filter((t) => t.ativo !== false).map((t) => ({ id: t.id, nome: t.nome }));
+
+  const { data: ctx } = await db
+    .from("whatsapp_contexto_numero")
+    .select("tenant_id, aguardando_escolha")
+    .eq("telefone", telefone)
+    .maybeSingle();
+
+  let porNotificacao: string | null = null;
   const idNoBotao = texto.trim().match(/^CORTAI_[A-Z_]+:([0-9a-fA-F-]{36})$/)?.[1];
   if (idNoBotao || citadaId) {
     const q = db.from("envios_de_whatsapp").select("tenant_id");
     const { data } = idNoBotao
       ? await q.eq("id", idNoBotao.toLowerCase()).maybeSingle()
       : await q.eq("mensagem_externa_id", citadaId!).maybeSingle();
-    if (data?.tenant_id) return { tenantId: data.tenant_id };
+    porNotificacao = data?.tenant_id ?? null;
   }
-  // Notificações abertas: de uma só barbearia, ela atende; de várias, pergunta abaixo.
-  const { data: abertas } = await db
-    .from("envios_de_whatsapp")
-    .select("tenant_id")
-    .in("telefone", variantes)
-    .eq("aguarda_resposta", true)
-    .is("respondido_em", null)
-    .gt("valido_ate", new Date().toISOString());
-  const tenantsAbertos = [...new Set((abertas ?? []).map((a) => a.tenant_id))];
-  if (tenantsAbertos.length === 1 && !/^\d{1,2}$/.test(texto.trim())) return { tenantId: tenantsAbertos[0]! };
-  const [{ data: conversas }, { data: clientes }] = await Promise.all([
-    db.from("conversas_whatsapp").select("tenant_id, ultima_mensagem_em").in("telefone", variantes),
-    db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null),
-  ]);
-  const ids = [...new Set([...(conversas ?? []).map((c) => c.tenant_id), ...(clientes ?? []).map((c) => c.tenant_id)])];
-
-  // 1) Código ou link de entrada (slug) citado na mensagem.
+  let porSlug: string | null = null;
   const tokens = (texto.toLowerCase().match(/[a-z0-9][a-z0-9-]{2,}/g) ?? []).slice(0, 40);
-  if (tokens.length) {
-    const { data: porSlug } = await db.from("tenants").select("id").in("slug", tokens).limit(1);
-    if (porSlug?.[0]) return { tenantId: porSlug[0].id };
+  if (tokens.length && !ctx?.tenant_id) {
+    const { data } = await db.from("tenants").select("id").in("slug", tokens).limit(1);
+    porSlug = data?.[0]?.id ?? null;
   }
-  if (ids.length === 1) return { tenantId: ids[0]! };
 
-  const { data: nomes } = ids.length
-    ? await db.from("tenants").select("id, nome").in("id", ids).order("nome")
-    : { data: [] as { id: string; nome: string }[] };
-  const lista = nomes ?? [];
-
-  // 2) Resposta numerada à pergunta anterior.
-  const escolha = texto.trim().match(/^(\d{1,2})$/);
-  if (escolha && lista[Number(escolha[1]) - 1]) return { tenantId: lista[Number(escolha[1]) - 1]!.id };
-
-  // 3) Conversa recente (12h) define a barbearia.
-  const recente = (conversas ?? [])
-    .filter((c) => c.ultima_mensagem_em && Date.now() - new Date(c.ultima_mensagem_em).getTime() < 12 * 3600_000)
-    .sort((a, b) => String(b.ultima_mensagem_em).localeCompare(String(a.ultima_mensagem_em)))[0];
-  if (recente) return { tenantId: recente.tenant_id };
-
-  if (lista.length > 1) {
-    return {
-      perguntar: [
-        "Olá! Com qual barbearia você quer falar?",
-        ...lista.map((t, i) => `${i + 1} - ${t.nome}`),
-        "",
-        "Responda com o número.",
-      ].join("\n"),
-    };
+  const d = decidirBarbearia({
+    texto,
+    opcoes,
+    contexto: ctx ? { tenantId: ctx.tenant_id, aguardandoEscolha: ctx.aguardando_escolha } : null,
+    porNotificacao,
+    porSlug,
+  });
+  const agora = new Date().toISOString();
+  if (d.tipo === "menu") {
+    await db
+      .from("whatsapp_contexto_numero")
+      .upsert({ telefone, tenant_id: null, aguardando_escolha: true, atualizado_em: agora });
+    if (d.evento === "troca") {
+      console.info("[whatsapp/multi] troca de barbearia", { telefone: telefone.slice(-4), anterior: ctx?.tenant_id ?? null });
+    }
+    return { perguntar: d.texto };
   }
-  return {
-    perguntar: "Olá! Qual barbearia você procura? Envie o link ou o código da barbearia que eu te atendo.",
-  };
+  if (d.salvar) {
+    const { error } = await db
+      .from("whatsapp_contexto_numero")
+      .upsert({ telefone, tenant_id: d.tenantId, aguardando_escolha: false, atualizado_em: agora });
+    if (error) throw new Error(error.message);
+    console.info("[whatsapp/multi] barbearia selecionada", { telefone: telefone.slice(-4), tenant: d.tenantId });
+  }
+  return { tenantId: d.tenantId, escolheuAgora: d.salvar && !porNotificacao && Boolean(ctx?.aguardando_escolha || /^\d{1,2}$/.test(texto.trim())) };
 }
 
 export async function conexaoPorSessao(sessaoId: string) {
   const db = await admin();
   const { data } = await db
     .from("conexoes_whatsapp")
-    .select("id, tenant_id, sessao_id, status")
+    .select("id, tenant_id, sessao_id, status, compartilhada")
     .eq("sessao_id", sessaoId)
     .maybeSingle();
   return data ?? null;
@@ -327,6 +321,8 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "identificando_barbearia" };
     }
     tenantId = r.tenantId;
+    // A escolha "1"/"2" não segue ao motor como texto: vira uma saudação na barbearia escolhida.
+    if (r.escolheuAgora) input = { ...input, conteudo: "oi" };
   }
   const conversa = await conversaDoTelefone({
     tenantId,
