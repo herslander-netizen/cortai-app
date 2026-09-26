@@ -77,7 +77,7 @@ function HistoricoPage() {
                     <p className="mt-1 text-sm leading-relaxed text-mute">{dataHoraLonga(p.inicio)}</p>
                     <p className="mt-0.5 text-xs text-mute2">com {p.profissionais?.nome ?? "profissional"}</p>
                   </div>
-                  <span className="shrink-0 text-[10px] font-semibold uppercase text-sage">Confirmado</span>
+                  <span className="shrink-0 text-xs font-semibold uppercase text-sage">Confirmado</span>
                 </div>
                 <div
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}

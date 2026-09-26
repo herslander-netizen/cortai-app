@@ -41,7 +41,7 @@ function ProgressoDaConfiguracao() {
 
   return (
     <div className="flex items-center gap-2.5 border-b border-line px-5 pb-2.5">
-      <span className="shrink-0 text-[11px] text-mute2">
+      <span className="shrink-0 text-xs text-mute2">
         Configuração · {progresso.feitos}/{progresso.total}
       </span>
       <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-ink3">
@@ -219,7 +219,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold tracking-wide text-paper">CortAI</span>
-              <span className="block truncate text-[10px] uppercase tracking-[.12em] text-mute2">
+              <span className="block truncate text-xs uppercase tracking-[.12em] text-mute2">
                 Alimentada pela Alvo IA
               </span>
             </span>
@@ -337,7 +337,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                 <button
                   type="button"
                   onClick={() => setAgendando(false)}
-                  className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-[11px] text-mute"
+                  className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-mute"
                 >
                   Fechar agenda
                 </button>
@@ -368,7 +368,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
             <button
               type="button"
               onClick={() => irAoFim()}
-              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-[11px] text-paper shadow-lg"
+              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-lg"
             >
               Nova mensagem ↓
             </button>
@@ -384,7 +384,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                   setAgendando(true);
                   irAoFim();
                 }}
-                className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-[11px] font-semibold text-ink"
+                className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-ink"
               >
                 Marcar horário
               </button>
@@ -394,7 +394,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                   type="button"
                   disabled={enviando}
                   onClick={() => void enviar(s)}
-                  className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-[11px] text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
+                  className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-xs text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
                 >
                   {s}
                 </button>

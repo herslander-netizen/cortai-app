@@ -39,7 +39,7 @@ export function FaixaPendencias() {
           encolhida ? "w-fit px-3 py-1.5" : "w-full px-4 py-3"
         }`}
       >
-        <span className={`min-w-0 truncate ${encolhida ? "text-[11px]" : "text-xs"}`}>
+        <span className={`min-w-0 truncate ${encolhida ? "text-xs" : "text-xs"}`}>
           {encolhida ? `${pendentes.length} pendente${pendentes.length > 1 ? "s" : ""}` : texto}
         </span>
         <ChevronRight size={14} className="ml-auto shrink-0" aria-hidden />

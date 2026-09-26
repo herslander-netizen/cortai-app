@@ -210,7 +210,7 @@ function VisitantePage() {
       </Link>
 
       <footer className="mt-auto pt-10 text-center">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
       </footer>
     </main>
   );

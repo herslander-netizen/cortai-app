@@ -113,7 +113,7 @@ export function PreferenciasDeAvisos() {
                       aria-label={`${ROTULO_DO_CANAL[canal]} — ${t.rotulo}`}
                       disabled={isLoading}
                       onClick={() => alternar(t.chave, canal)}
-                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] transition-transform duration-100 active:scale-[0.97] disabled:opacity-50 ${
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-transform duration-100 active:scale-[0.97] disabled:opacity-50 ${
                         ativo ? "border-gold/45 bg-gold-soft text-gold" : "border-line text-mute"
                       }`}
                     >

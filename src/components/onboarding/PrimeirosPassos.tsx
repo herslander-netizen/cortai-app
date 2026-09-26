@@ -43,7 +43,7 @@ export function PrimeirosPassos() {
   if (feitos === ITENS_DO_CHECKLIST.length) return null;
 
   return (
-    <section className="mt-4 rounded-xl border border-line bg-ink2 px-4 py-3" aria-label="Primeiros passos">
+    <section className="mt-4 surface px-4 py-3" aria-label="Primeiros passos">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-semibold text-paper">Primeiros passos</h2>
         <span className="text-xs text-mute">

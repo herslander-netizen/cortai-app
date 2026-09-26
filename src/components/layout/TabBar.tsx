@@ -38,7 +38,7 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
                 <span className="flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150 group-aria-[current=page]:bg-gold-soft">
                   <Icon size={19} strokeWidth={1.7} aria-hidden className="group-aria-[current=page]:stroke-[2.2]" />
                 </span>
-                <span className="w-full truncate text-center text-[10px] font-medium leading-none tracking-tight group-aria-[current=page]:font-semibold">
+                <span className="w-full truncate text-center text-xs font-medium leading-none tracking-tight group-aria-[current=page]:font-semibold">
                   {item.label}
                 </span>
               </Link>

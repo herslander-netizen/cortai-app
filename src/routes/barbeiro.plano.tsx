@@ -83,7 +83,7 @@ function PlanoPage() {
                     {plano.descricao ? <p className="mt-1 text-xs text-mute">{plano.descricao}</p> : null}
                   </div>
                   {atual ? (
-                    <span className="rounded-full border border-gold px-2.5 py-1 text-[10px] font-bold uppercase text-gold">
+                    <span className="rounded-full border border-gold px-2.5 py-1 text-xs font-bold uppercase text-gold">
                       Plano atual
                     </span>
                   ) : null}
@@ -94,7 +94,7 @@ function PlanoPage() {
                   {plano.diasTeste > 0 ? <span className="text-xs font-normal text-mute"> · {plano.diasTeste} dias de teste</span> : null}
                 </p>
 
-                <ul className="mt-3 grid grid-cols-2 gap-1 text-[11px] text-mute">
+                <ul className="mt-3 grid grid-cols-2 gap-1 text-xs text-mute">
                   <li>Profissionais: {limite(plano.limites.profissionais)}</li>
                   <li>Clientes: {limite(plano.limites.clientes)}</li>
                   <li>Agendamentos/mês: {limite(plano.limites.agendamentosMes)}</li>
@@ -109,7 +109,7 @@ function PlanoPage() {
                   ))}
                   {fora.length ? (
                     <div className="mt-2 border-t border-line pt-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-mute2">
+                      <p className="text-xs font-bold uppercase tracking-wide text-mute2">
                         Disponíveis em outros planos
                       </p>
                       {fora.map((r) => (

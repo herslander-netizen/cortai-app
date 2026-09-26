@@ -16,7 +16,7 @@ export function BannersDaPlataforma() {
   return (
     <ul className="mb-4 space-y-3">
       {data.map((b) => (
-        <li key={b.id} className="overflow-hidden rounded-xl border border-line bg-ink2">
+        <li key={b.id} className="overflow-hidden surface">
           {b.imagemUrl ? (
             <img src={b.imagemUrl} alt="" className="h-28 w-full object-cover" loading="lazy" />
           ) : null}
@@ -51,7 +51,7 @@ export function MeuPlano() {
   const comDesconto = a.precoEfetivoCentavos < a.precoPadraoCentavos;
 
   return (
-    <section className="mt-6 rounded-xl border border-line bg-ink2 px-5 py-5">
+    <section className="mt-6 surface px-5 py-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs text-mute">Seu plano</p>
@@ -86,7 +86,7 @@ export function MeuPlano() {
             const pct = Math.min(100, Math.round((l.uso / Math.max(1, l.limite ?? 1)) * 100));
             return (
               <li key={l.tipo}>
-                <div className="flex items-baseline justify-between text-[11px] text-mute">
+                <div className="flex items-baseline justify-between text-xs text-mute">
                   <span>{ROTULO_DO_LIMITE[l.tipo as TipoDeLimite]}</span>
                   <span>
                     {l.uso}/{l.limite}

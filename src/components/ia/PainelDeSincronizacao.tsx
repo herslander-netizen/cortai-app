@@ -31,7 +31,7 @@ export function PainelDeSincronizacao() {
   });
 
   return (
-    <section className="rounded-lg border border-line bg-ink2 p-5">
+    <section className="surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-paper">Sincronização com o Cortaí</h2>
@@ -90,7 +90,7 @@ export function PainelDeSincronizacao() {
                 : "Não conectado"
             }
           />
-          <p className="pt-3 text-[11px] text-mute2">
+          <p className="pt-3 text-xs text-mute2">
             Última consulta do atendente:{" "}
             {data.ultimaSincronizacao
               ? new Date(data.ultimaSincronizacao).toLocaleString("pt-BR")

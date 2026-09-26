@@ -75,7 +75,7 @@ function InicioCliente() {
           <img src={data.capa_signed_url ?? coverAsset.url} alt="Cadeira de barbearia em ambiente sofisticado" width={1200} height={1500} className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-ink/55" />
           <div className="relative flex min-h-[340px] flex-col justify-end p-5">
-            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase text-gold"><Sparkles size={13} /> Sua melhor versão</p>
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-gold"><Sparkles size={13} /> Sua melhor versão</p>
             <p className="mt-2 max-w-[300px] text-[30px] font-bold leading-[1.1] text-paper">Seu estilo, no seu horário.</p>
             <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-paper/75">{data.texto_boas_vindas ?? "Sua barbearia, no seu tempo."}</p>
             <Link to="/app/agendar" search={{ b: data.slug }} className="btn-primary mt-5 self-start px-6 py-3.5">Agendar horário</Link>
@@ -109,7 +109,7 @@ function InicioCliente() {
             <ul className="mt-4 grid grid-cols-2 gap-3">
               {data.loja.destaques.slice(0, 4).map((produto) => (
                 <li key={produto.id}>
-                  <Link to="/loja/$slug" params={{ slug: data.slug }} className="block overflow-hidden rounded-xl border border-line bg-ink2">
+                  <Link to="/loja/$slug" params={{ slug: data.slug }} className="block overflow-hidden surface">
                     {produto.foto_url ? (
                       <img src={produto.foto_url} alt={produto.nome} loading="lazy" className="aspect-square w-full object-cover" />
                     ) : (

@@ -95,7 +95,7 @@ export function SinoDeAvisos() {
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
         <div>
           <p className="text-sm font-semibold text-paper">Avisos</p>
-          <p className="text-[11px] text-mute2">{naoLidas ? `${naoLidas} não lidos` : "tudo lido"}</p>
+          <p className="text-xs text-mute2">{naoLidas ? `${naoLidas} não lidos` : "tudo lido"}</p>
         </div>
         <div className="flex items-center gap-3">
           {naoLidas ? (
@@ -122,7 +122,7 @@ export function SinoDeAvisos() {
         ) : (
           agrupar(lista).map((grupo) => (
             <section key={grupo.rotulo}>
-              <p className="px-5 pb-1 pt-4 text-[11px] uppercase tracking-wide text-mute2">{grupo.rotulo}</p>
+              <p className="px-5 pb-1 pt-4 text-xs uppercase tracking-wide text-mute2">{grupo.rotulo}</p>
               <ul>
                 {grupo.itens.map((aviso) => (
                   <li key={aviso.id} className="border-b border-line">
@@ -140,7 +140,7 @@ export function SinoDeAvisos() {
                         </span>
                         {aviso.corpo ? <span className="block truncate text-xs text-mute2">{aviso.corpo}</span> : null}
                       </span>
-                      <span className="text-[11px] text-mute2">{quando(aviso.criado_em)}</span>
+                      <span className="text-xs text-mute2">{quando(aviso.criado_em)}</span>
                     </button>
                   </li>
                 ))}
@@ -164,7 +164,7 @@ export function SinoDeAvisos() {
       >
         <Bell size={17} strokeWidth={1.7} aria-hidden />
         {naoLidas ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-ink">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-xs font-bold text-ink">
             {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}

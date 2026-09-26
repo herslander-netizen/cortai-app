@@ -130,7 +130,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setServicoId(s.id);
               setEscolhido(null);
             }}
-            className={`shrink-0 rounded-xl border px-3 py-2 text-left text-[11px] ${
+            className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs ${
               servicoAtivo === s.id ? "border-gold bg-gold-soft text-paper" : "border-line2 text-mute"
             }`}
           >
@@ -156,7 +156,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
                 setProfissionalId(p.id);
                 setEscolhido(null);
               }}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] ${
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
                 profissionalAtivo === p.id ? "border-gold text-gold" : "border-line2 text-mute"
               }`}
             >
@@ -176,7 +176,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setDia(d.iso);
               setEscolhido(null);
             }}
-            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[11px] ${
+            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs ${
               dia === d.iso ? "border-gold bg-gold text-ink font-semibold" : "border-line2 text-mute"
             }`}
           >
@@ -206,7 +206,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
                     disabled={indisponivel}
                     title={s.ocupadoPor ? `Ocupado · ${s.ocupadoPor}` : undefined}
                     onClick={() => setEscolhido({ iso: s.iso, label: s.label })}
-                    className={`rounded-lg border py-2 text-[11px] transition-colors ${
+                    className={`rounded-lg border py-2 text-xs transition-colors ${
                       ativo
                         ? "border-gold bg-gold font-semibold text-ink"
                         : indisponivel
@@ -219,7 +219,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
                 );
               })}
             </div>
-            <p className="mt-2 flex items-center gap-3 text-[10px] text-mute2">
+            <p className="mt-2 flex items-center gap-3 text-xs text-mute2">
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-gold" /> livre
               </span>

@@ -53,7 +53,7 @@ function ClientesPage() {
 
 
       {data && data.trazerDeVolta.length > 0 ? (
-        <section data-guia="clientes-retorno" className="rounded-xl border border-line bg-ink2 p-5">
+        <section data-guia="clientes-retorno" className="surface p-5">
           <p className="text-xs font-semibold uppercase text-gold">Voltaí</p>
           <p className="mt-1 text-sm font-semibold text-paper">Seu cliente corta. Ganha. Volta.</p>
           <p className="mt-1 text-xs text-mute2">Quem passou do intervalo habitual e merece um chamado.</p>
@@ -90,9 +90,9 @@ function ClientesPage() {
       ) : null}
 
       <div className="mt-5 grid grid-cols-3 gap-2" aria-label="Resumo dos clientes">
-        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Ativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status !== "inativo").length ?? "—"}</p></div>
-        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Inativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status === "inativo").length ?? "—"}</p></div>
-        <div className="rounded-lg border border-line bg-ink2 px-3 py-3"><p className="text-[10px] text-mute2">Voltaí</p><p className="mt-1 text-lg font-bold text-gold">{data?.trazerDeVolta.length ?? "—"}</p></div>
+        <div className="surface px-3 py-3"><p className="text-xs text-mute2">Ativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status !== "inativo").length ?? "—"}</p></div>
+        <div className="surface px-3 py-3"><p className="text-xs text-mute2">Inativos</p><p className="mt-1 text-lg font-bold text-paper">{data?.clientes.filter((c) => c.status === "inativo").length ?? "—"}</p></div>
+        <div className="surface px-3 py-3"><p className="text-xs text-mute2">Voltaí</p><p className="mt-1 text-lg font-bold text-gold">{data?.trazerDeVolta.length ?? "—"}</p></div>
       </div>
 
       <input
@@ -129,7 +129,7 @@ function ClientesPage() {
                     ) : null}
                   </div>
                   <div className="shrink-0 text-right">
-                    <span className={`text-[11px] font-semibold ${rotulo.classe}`}>{rotulo.texto}</span>
+                    <span className={`text-xs font-semibold ${rotulo.classe}`}>{rotulo.texto}</span>
                     {c.saldoCentavos < 0 ? (
                       <p className="mt-1 text-sm font-semibold text-brick">{brl(Math.abs(c.saldoCentavos))}</p>
                     ) : c.creditos > 0 ? (

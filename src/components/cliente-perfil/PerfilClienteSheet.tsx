@@ -65,7 +65,7 @@ function Conteudo({ p }: { p: PerfilCliente }) {
           <div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-line px-2 text-center text-xs text-mute">Sem foto do corte</div>
         )}
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase text-mute">Ficha de corte</p>
+          <p className="text-xs font-bold uppercase text-mute">Ficha de corte</p>
           {p.ficha.chips.length ? (
             <div className="mt-2 flex flex-wrap gap-1.5">{p.ficha.chips.map((c) => <span key={c} className="rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-paper">{c}</span>)}</div>
           ) : <p className="mt-2 text-sm text-mute">Nada marcado ainda.</p>}
@@ -87,7 +87,7 @@ function Conteudo({ p }: { p: PerfilCliente }) {
 
       {!p.cliente.avulso ? (
         <section className="mt-6">
-          <p className="mb-2 text-[11px] font-bold uppercase text-mute">Fotos do corte</p>
+          <p className="mb-2 text-xs font-bold uppercase text-mute">Fotos do corte</p>
           {p.fotos.length ? (
             <ul className="mb-3 grid grid-cols-3 gap-2">
               {p.fotos.map((f) => (
@@ -103,7 +103,7 @@ function Conteudo({ p }: { p: PerfilCliente }) {
       ) : null}
 
       <section className="mt-6">
-        <p className="mb-1 text-[11px] font-bold uppercase text-mute">Histórico</p>
+        <p className="mb-1 text-xs font-bold uppercase text-mute">Histórico</p>
         {p.historico.length ? (
           <ul className="divide-y divide-line border-y border-line">
             {p.historico.map((h) => (
@@ -150,7 +150,7 @@ function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) 
 
   return (
     <section className="mt-6">
-      <p className="mb-2 text-[11px] font-bold uppercase text-mute">Editar ficha</p>
+      <p className="mb-2 text-xs font-bold uppercase text-mute">Editar ficha</p>
       <div className="flex flex-wrap gap-2">
         {opcoes.map((c) => {
           const ativo = chips.includes(c);

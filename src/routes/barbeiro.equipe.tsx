@@ -125,7 +125,7 @@ function EquipePage() {
         <div className="space-y-8">
           {mensagem ? <Aviso tom={mensagem.tom}>{mensagem.texto}</Aviso> : null}
 
-          <section className="rounded-lg border border-line bg-ink2 p-4">
+          <section className="surface p-4">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
               <UserPlus size={16} className="text-gold" /> Dar acesso a alguém
             </h2>
@@ -182,7 +182,7 @@ function EquipePage() {
             ) : (
               <ul className="space-y-3">
                 {(equipe.data ?? []).map((membro) => (
-                  <li key={membro.userId} className="rounded-lg border border-line bg-ink2 p-4">
+                  <li key={membro.userId} className="surface p-4">
                     <CartaoMembro
                       membro={membro}
                       aberto={editando === membro.userId}
@@ -313,7 +313,7 @@ function CartaoMembro({
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
                   {modulo.titulo}
                 </legend>
-                <p className="text-[11px] leading-relaxed text-mute2">{modulo.descricao}</p>
+                <p className="text-xs leading-relaxed text-mute2">{modulo.descricao}</p>
                 <div className="mt-2 space-y-1.5">
                   {modulo.itens.filter((item) => TETO_DO_PAPEL[papel].includes(item.chave)).map((item) => (
                     <label key={item.chave} className="flex items-start gap-3 text-sm text-paper">
@@ -331,7 +331,7 @@ function CartaoMembro({
                       />
                       <span className="min-w-0">
                         <span className="block leading-snug">{item.rotulo}</span>
-                        <span className="text-[11px] uppercase tracking-wide text-mute2">
+                        <span className="text-xs uppercase tracking-wide text-mute2">
                           {ACOES[item.acao]}
                         </span>
                       </span>
@@ -398,7 +398,7 @@ function RegraDeRecebimento() {
   });
   const ativo = regra.data?.ativo ?? false;
   return (
-    <section className="rounded-lg border border-line bg-ink2 p-4">
+    <section className="surface p-4">
       <label className="flex min-h-12 items-center justify-between gap-4">
         <span className="min-w-0">
           <span className="block text-sm font-semibold text-paper">Barbeiro recebe pagamento</span>

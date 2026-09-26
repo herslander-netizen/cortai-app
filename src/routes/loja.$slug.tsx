@@ -60,7 +60,7 @@ function LojaPage() {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {data.produtos.map((produto) => (
               <li key={produto.id}>
-                <button type="button" onClick={() => setAberto(produto)} className="w-full overflow-hidden rounded-xl border border-line bg-ink2 text-left">
+                <button type="button" onClick={() => setAberto(produto)} className="w-full overflow-hidden surface text-left">
                   {produto.foto_url ? (
                     <img src={produto.foto_url} alt={produto.nome} loading="lazy" className="aspect-square w-full object-cover" />
                   ) : (
@@ -68,7 +68,7 @@ function LojaPage() {
                   )}
                   <span className="block p-3">
                     <span className="block truncate text-sm font-semibold text-paper">{produto.nome}</span>
-                    <span className="mt-0.5 block truncate text-[11px] text-mute2">{produto.categoria}</span>
+                    <span className="mt-0.5 block truncate text-xs text-mute2">{produto.categoria}</span>
                     <span className="mt-1.5 block text-sm font-semibold text-gold">{brl(produto.preco_centavos)}</span>
                   </span>
                 </button>

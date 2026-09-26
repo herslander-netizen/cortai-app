@@ -34,8 +34,8 @@ export const Route = createFileRoute("/barbeiro/caixa")({
 
 function Linha({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: string }) {
   return (
-    <div className="rounded-lg border border-line bg-ink2 px-3 py-3">
-      <p className="text-[10px] uppercase text-mute2">{rotulo}</p>
+    <div className="surface px-3 py-3">
+      <p className="text-xs uppercase text-mute2">{rotulo}</p>
       <p className={`mt-1 text-sm font-semibold ${cor ?? "text-paper"}`}>{valor}</p>
     </div>
   );
@@ -242,7 +242,7 @@ function CaixaPage() {
                         value={motivoEstorno}
                         onChange={(e) => setMotivoEstorno(e.target.value)}
                         placeholder="Motivo do estorno"
-                        className="h-12 min-w-0 flex-1 rounded-lg border border-line bg-ink2 px-3 text-sm text-paper"
+                        className="h-12 min-w-0 flex-1 surface px-3 text-sm text-paper"
                       />
                       <Button
                         variant="outline"

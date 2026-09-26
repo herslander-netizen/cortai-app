@@ -59,7 +59,7 @@ export function EditorDeServicos({
 
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
-          <li key={s.id ?? `novo-${i}`} className="rounded-xl border border-line bg-ink2 px-4 py-3">
+          <li key={s.id ?? `novo-${i}`} className="surface px-4 py-3">
             <div className="flex items-center gap-3">
               <input
                 value={s.nome}
@@ -76,7 +76,7 @@ export function EditorDeServicos({
                 <Trash2 size={16} />
               </button>
             </div>
-            <label className="mt-2 block text-[11px] text-mute">
+            <label className="mt-2 block text-xs text-mute">
               Categoria
               <input
                 value={s.categoria}
@@ -86,7 +86,7 @@ export function EditorDeServicos({
               />
             </label>
             <div className="mt-2 grid grid-cols-2 gap-3">
-              <label className="block text-[11px] text-mute">
+              <label className="block text-xs text-mute">
                 Duração (min)
                 <input
                   type="number"
@@ -104,7 +104,7 @@ export function EditorDeServicos({
                   className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
                 />
               </label>
-              <label className="block text-[11px] text-mute">
+              <label className="block text-xs text-mute">
                 Preço (R$)
                 <input
                   type="number"
@@ -124,7 +124,7 @@ export function EditorDeServicos({
             </div>
             {profissionais && profissionais.length > 1 ? (
               <div className="mt-3">
-                <p className="text-[11px] text-mute">Quem faz</p>
+                <p className="text-xs text-mute">Quem faz</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {profissionais.map((p) => {
                     const marcados = s.profissionalIds ?? [];

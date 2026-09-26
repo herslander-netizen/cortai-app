@@ -1178,3 +1178,10 @@ html.light {
 .agenda-semana-item { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; border: 1px solid var(--line2); border-left-width: 3px; border-radius: 10px; padding: 6px 8px; color: var(--paper); font-size: 12px; text-align: left; }
 .agenda-semana-item strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda-semana-item span { max-width: 100%; overflow: hidden; color: var(--mute); text-overflow: ellipsis; white-space: nowrap; }
+
+/* Etapa 5: superfície única (cartão) usada por todas as telas */
+@utility surface {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink2);
+}

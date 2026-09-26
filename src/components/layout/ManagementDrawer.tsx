@@ -149,7 +149,7 @@ export function ManagementHeader() {
               <IconeCortai className="h-8 w-8 rounded-md" />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold leading-tight text-paper">{sessao?.tenantNome ?? "Cortaí"}</span>
-                <span className="flex items-center gap-1 text-[10px] leading-tight text-mute"><Menu size={11} /> Menu</span>
+                <span className="flex items-center gap-1 text-xs leading-tight text-mute"><Menu size={11} /> Menu</span>
               </span>
             </Button>
           </SheetTrigger>
@@ -169,7 +169,7 @@ export function ManagementHeader() {
               {grupos.map((grupo) =>
                 grupo.itens.length ? (
                   <section key={grupo.titulo} className="mb-4">
-                    <h2 className="px-2 pb-1.5 text-[10px] font-bold uppercase text-mute2">{grupo.titulo}</h2>
+                    <h2 className="px-2 pb-1.5 text-xs font-bold uppercase text-mute2">{grupo.titulo}</h2>
                     <ul>
                       {grupo.itens.map((item) => {
                         const Icon = item.icon;

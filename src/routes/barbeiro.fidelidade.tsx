@@ -121,7 +121,7 @@ function FidelidadePage() {
         <p className={`mt-3 text-xs ${a.classe}`}>{a.texto}</p>
       </div>
 
-      <div className="rounded-lg border border-line bg-ink2 px-5 py-5">
+      <div className="surface px-5 py-5">
         <div className="flex items-baseline justify-between">
           <span className="text-sm text-mute">Desconto real</span>
           <span className="text-xl font-bold text-paper">

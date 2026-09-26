@@ -44,7 +44,7 @@ function ParceirosAdmin() {
       {consulta.isError ? <AdminNotice error={consulta.error} /> : null}
 
       <form
-        className="mt-6 space-y-3 rounded-xl border border-line bg-ink2 p-4"
+        className="mt-6 space-y-3 surface p-4"
         onSubmit={(event) => {
           event.preventDefault();
           setErro(null);

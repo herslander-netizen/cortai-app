@@ -99,9 +99,9 @@ function ProdutosPage() {
           <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.</p>
         ) : null}
         <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center">
-          <div><dt className="text-[10px] uppercase text-mute2">Situação</dt><dd className={`mt-1 text-sm font-semibold ${loja.ativa ? "text-sage" : "text-mute"}`}>{loja.ativa ? "Ativa" : "Desativada"}</dd></div>
-          <div><dt className="text-[10px] uppercase text-mute2">À venda</dt><dd className="mt-1 text-sm font-semibold text-paper">{loja.aVenda}</dd></div>
-          <div><dt className="text-[10px] uppercase text-mute2">Estoque baixo</dt><dd className={`mt-1 text-sm font-semibold ${loja.estoqueBaixo ? "text-brick" : "text-paper"}`}>{loja.estoqueBaixo}</dd></div>
+          <div><dt className="text-xs uppercase text-mute2">Situação</dt><dd className={`mt-1 text-sm font-semibold ${loja.ativa ? "text-sage" : "text-mute"}`}>{loja.ativa ? "Ativa" : "Desativada"}</dd></div>
+          <div><dt className="text-xs uppercase text-mute2">À venda</dt><dd className="mt-1 text-sm font-semibold text-paper">{loja.aVenda}</dd></div>
+          <div><dt className="text-xs uppercase text-mute2">Estoque baixo</dt><dd className={`mt-1 text-sm font-semibold ${loja.estoqueBaixo ? "text-brick" : "text-paper"}`}>{loja.estoqueBaixo}</dd></div>
         </dl>
       </section>
     ) : null}
@@ -165,8 +165,8 @@ function ProdutosPage() {
           <p className="truncate text-sm font-semibold text-paper">{produto.nome}</p>
           <p className="mt-0.5 text-xs text-mute">{produto.categoria} · {brl(produto.preco_centavos)}</p>
           <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {produto.controla_estoque ? <span className="rounded border border-line2 px-1.5 py-0.5 text-[10px] uppercase text-mute">Estoque</span> : null}
-            {produto.disponivel_venda && produto.preco_centavos > 0 ? <span className="rounded border border-gold/50 px-1.5 py-0.5 text-[10px] uppercase text-gold">À venda</span> : null}
+            {produto.controla_estoque ? <span className="rounded border border-line2 px-1.5 py-0.5 text-xs uppercase text-mute">Estoque</span> : null}
+            {produto.disponivel_venda && produto.preco_centavos > 0 ? <span className="rounded border border-gold/50 px-1.5 py-0.5 text-xs uppercase text-gold">À venda</span> : null}
             <span className={`text-xs ${baixo ? "text-brick" : "text-mute2"}`}>{baixo ? <AlertTriangle size={11} className="mr-1 inline" /> : null}{produto.quantidade} em estoque</span>
           </p>
         </div>
@@ -185,7 +185,7 @@ function ProdutosPage() {
           >
             {acao.estaEm(`vender-${produto.id}`) ? "Registrando…" : "Vender"}
           </Button>
-          <Button size="sm" variant="ghost" className="text-[11px]" disabled={acao.ocupado} onClick={() =>
+          <Button size="sm" variant="ghost" className="text-xs" disabled={acao.ocupado} onClick={() =>
             acao.executar(
               `loja-${produto.id}`,
               () => salvar({ data: {

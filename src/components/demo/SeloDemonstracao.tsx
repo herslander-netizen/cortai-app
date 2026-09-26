@@ -13,12 +13,12 @@ export function SeloDemonstracao() {
   return (
     <div className="relative z-30 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-line bg-gold-soft px-4 py-2">
       <FlaskConical size={14} className="text-gold" aria-hidden />
-      <p className="truncate text-[11px] font-medium tracking-wide text-paper">
+      <p className="truncate text-xs font-medium tracking-wide text-paper">
         Modo demonstração · dados fictícios
       </p>
       <button
         type="button"
-        className="inline-flex items-center gap-1.5 rounded-full border border-line2 px-3 py-1 text-[11px] text-mute"
+        className="inline-flex items-center gap-1.5 rounded-full border border-line2 px-3 py-1 text-xs text-mute"
         onClick={async () => {
           await supabase.auth.signOut();
           window.location.assign("/");

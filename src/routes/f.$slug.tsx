@@ -72,7 +72,7 @@ function FilaPublicaPage() {
       </div>
 
       {acompanhando ? (
-        <section className="mt-8 rounded-2xl border border-line bg-ink2 px-5 py-6 text-center">
+        <section className="mt-8 surface px-5 py-6 text-center">
           {status!.status === "atendido" || status!.status === "saiu" ? (
             <>
               <p className="text-sm text-mute">
@@ -107,7 +107,7 @@ function FilaPublicaPage() {
                   É quase a sua vez — fique por perto.
                 </p>
               ) : null}
-              <p className="mt-4 text-[11px] text-mute2">
+              <p className="mt-4 text-xs text-mute2">
                 A posição atualiza sozinha. Você pode deixar esta tela aberta.
               </p>
             </>
@@ -179,7 +179,7 @@ function FilaPublicaPage() {
           <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
             {enviando ? "Entrando…" : "Entrar na fila"}
           </button>
-          <p className="mt-3 text-center text-[11px] text-mute2">
+          <p className="mt-3 text-center text-xs text-mute2">
             Sem cadastro e sem senha. Usamos seu WhatsApp só para te chamar.
           </p>
           {erro ? (

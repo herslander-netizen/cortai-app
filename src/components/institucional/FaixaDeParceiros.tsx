@@ -41,7 +41,7 @@ export function FaixaDeParceiros() {
 
   return (
     <section className="mt-12" aria-label="Nossos parceiros">
-      <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mute2">Nossos parceiros</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">Nossos parceiros</h2>
       <div
         ref={trilho}
         className="sem-barra mt-4 flex gap-3 overflow-x-auto"
@@ -66,7 +66,7 @@ export function FaixaDeParceiros() {
                   className="h-7 w-7 shrink-0 rounded-md object-cover"
                 />
               ) : (
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink text-[11px] font-bold text-gold">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-ink text-xs font-bold text-gold">
                   {parceiro.nome.slice(0, 1).toUpperCase()}
                 </span>
               )}
@@ -74,7 +74,7 @@ export function FaixaDeParceiros() {
             </>
           );
           const classe =
-            "flex min-w-[150px] items-center gap-2 rounded-lg border border-line bg-ink2 px-3 py-2.5";
+            "flex min-w-[150px] items-center gap-2 surface px-3 py-2.5";
           return parceiro.link ? (
             <a
               key={`${parceiro.id}-${indice}`}

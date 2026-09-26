@@ -71,7 +71,7 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
         {c.nome}.
       </p>
 
-      <div className="mt-5 rounded-lg border border-line bg-ink2 px-4 py-4">
+      <div className="mt-5 surface px-4 py-4">
         <p className="text-xs uppercase tracking-wide text-mute2">Padrão da barbearia</p>
         <p className="mt-1 text-sm text-paper">Fidelidade: {padraoTexto}</p>
       </div>

@@ -44,7 +44,7 @@ export function Metrica({
     <div className="border-b border-line bg-ink2 px-3 py-4">
       <p className="text-xs text-mute">{rotulo}</p>
       <p className={`mt-1 text-xl font-bold leading-tight ${cor ?? "text-paper"}`}>{valor}</p>
-      {detalhe ? <p className="mt-1 text-[11px] text-mute2">{detalhe}</p> : null}
+      {detalhe ? <p className="mt-1 text-xs text-mute2">{detalhe}</p> : null}
     </div>
   );
 }
@@ -104,7 +104,7 @@ export function Esqueleto() {
 
 export function Erro({ onTentar }: { onTentar: () => void }) {
   return (
-    <div className="rounded-xl border border-line bg-ink2 px-5 py-6">
+    <div className="surface px-5 py-6">
       <p className="text-sm font-semibold text-paper">Não consegui carregar o painel agora.</p>
       <p className="mt-1 text-xs text-mute">Pode ter sido a conexão. Tente de novo.</p>
       <button type="button" className="btn-primary mt-4" onClick={onTentar}>
@@ -116,7 +116,7 @@ export function Erro({ onTentar }: { onTentar: () => void }) {
 
 export function SemPermissao({ texto }: { texto: string }) {
   return (
-    <div className="rounded-xl border border-line bg-ink2 px-4 py-4">
+    <div className="surface px-4 py-4">
       <p className="text-xs text-mute">{texto}</p>
     </div>
   );
