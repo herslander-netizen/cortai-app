@@ -1,0 +1,2 @@
+ALTER TABLE public.movimentos ADD COLUMN IF NOT EXISTS comanda_id uuid REFERENCES public.comandas(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS movimentos_comanda_id_idx ON public.movimentos(comanda_id);

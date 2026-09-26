@@ -2529,6 +2529,7 @@ export type Database = {
           agendamento_id: string | null
           carteira_id: string
           centavos_delta: number
+          comanda_id: string | null
           creditos_delta: number
           criado_em: string
           criado_por: string | null
@@ -2542,6 +2543,7 @@ export type Database = {
           agendamento_id?: string | null
           carteira_id: string
           centavos_delta?: number
+          comanda_id?: string | null
           creditos_delta?: number
           criado_em?: string
           criado_por?: string | null
@@ -2555,6 +2557,7 @@ export type Database = {
           agendamento_id?: string | null
           carteira_id?: string
           centavos_delta?: number
+          comanda_id?: string | null
           creditos_delta?: number
           criado_em?: string
           criado_por?: string | null
@@ -2570,6 +2573,13 @@ export type Database = {
             columns: ["carteira_id"]
             isOneToOne: false
             referencedRelation: "carteiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentos_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
             referencedColumns: ["id"]
           },
         ]
@@ -3822,6 +3832,10 @@ export type Database = {
       convidar_membro: {
         Args: { _email: string; _papel: string; _tenant_id: string }
         Returns: Json
+      }
+      creditar_fidelidade_da_comanda: {
+        Args: { _ator: string; _comanda_id: string }
+        Returns: undefined
       }
       criar_agendamento: {
         Args: {
