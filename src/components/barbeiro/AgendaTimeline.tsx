@@ -262,7 +262,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
                 type="button"
                 variant="ghost"
                 className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
-                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px`, ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}) }}
+                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px`, ...(posicao?.colunas ? { left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`, right: "auto", width: `calc((100% - 11px) / ${posicao.colunas} - 4px)` } : {}), ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}) }}
                 aria-pressed={selecionado === item.id}
                 onPointerDown={(e) => inicioGesto(e, item)}
                 onPointerMove={moverGesto}
