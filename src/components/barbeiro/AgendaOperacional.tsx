@@ -461,7 +461,16 @@ export function AgendaOperacional() {
                         </p>
                       ) : null}
                     </div>
-                    <StatusBadge status={item.status} />
+                    <div className="flex items-center gap-1">
+                      {item.clienteId ? (
+                        <Button asChild variant="ghost" size="icon" aria-label={`Abrir conversa de ${item.cliente} no WhatsApp`}>
+                          <Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: item.clienteId }} onClick={(e) => e.stopPropagation()}>
+                            <MessageCircle />
+                          </Link>
+                        </Button>
+                      ) : null}
+                      <StatusBadge status={item.status} />
+                    </div>
                   </div>
                   {atrasado ? <div className="mt-3 ml-[66px] flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-brick">Não chegou?</span><Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); void transicionar(item, "nao_compareceu"); }}>Marcar falta</Button><Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setAguardando((atuais) => new Set(atuais).add(item.id)); }}>Aguardar</Button></div> : null}
                 </li>
