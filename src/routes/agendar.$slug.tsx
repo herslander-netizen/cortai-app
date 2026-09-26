@@ -5,12 +5,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarPlus, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { normalizarFuso, slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, normalizarFuso, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -37,15 +37,15 @@ export const Route = createFileRoute("/agendar/$slug")({
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-function diaIso(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function proximosDias(qtd: number) {
-  const hoje = new Date();
+function proximosDias(qtd: number, fuso: string) {
+  const partes = hojeNoFuso(fuso).split("-").map(Number);
+  const ano = partes[0] ?? 2026;
+  const mes = partes[1] ?? 1;
+  const diaMes = partes[2] ?? 1;
   return Array.from({ length: qtd }, (_, i) => {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
-    return { iso: diaIso(d), rotulo: DIAS[d.getDay()] ?? "", numero: d.getDate() };
+    const d = new Date(Date.UTC(ano, mes - 1, diaMes + i));
+    const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+    return { iso, rotulo: DIAS[d.getUTCDay()] ?? "", numero: d.getUTCDate() };
   });
 }
 
@@ -90,10 +90,11 @@ function AgendamentoPublico() {
     refetchOnWindowFocus: false,
   });
 
-  const dias = useMemo(() => proximosDias(14), []);
+  const fuso = normalizarFuso(data?.tenant.fuso);
+  const dias = useMemo(() => proximosDias(14, fuso), [fuso]);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profId, setProfId] = useState<string>("qualquer");
-  const [dia, setDia] = useState<string>(dias[0]?.iso ?? "");
+  const [dia, setDia] = useState<string>("");
   const [horario, setHorario] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -102,7 +103,10 @@ function AgendamentoPublico() {
   const [confirmado, setConfirmado] = useState<ConfirmacaoPublica | null>(null);
   const [cancelado, setCancelado] = useState(false);
 
-  const fuso = normalizarFuso(data?.tenant.fuso);
+  useEffect(() => {
+    if (!dia || !dias.some((d) => d.iso === dia)) setDia(dias[0]?.iso ?? "");
+  }, [dias, dia]);
+
   const servico = data?.servicos.find((s) => s.id === servicoId) ?? null;
 
   const agenda = useMemo(() => {

@@ -3,7 +3,7 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel, esquecerSessao, sessaoDoUsuario } from "@/lib/guarda";
+import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 
@@ -43,12 +43,59 @@ function ComecarPage() {
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
 
+  if (sessao.acessoSuspenso) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
+        <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
+        <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Seu acesso foi desativado.</h1>
+        <p className="mt-4 text-base leading-relaxed text-mute">
+          Quem gerencia a equipe da barbearia desativou seu acesso ao painel. Se você acha que isso
+          é um engano, fale com a barbearia para reativar. Você pode continuar usando o Cortaí
+          para agendar como cliente.
+        </p>
+        <button
+          type="button"
+          className="btn-primary mt-8 w-full py-3.5"
+          disabled={enviando}
+          onClick={async () => {
+            setEnviando(true);
+            try {
+              await definirTipoDePerfil({ data: { tipo: "cliente" } });
+              esquecerSessao();
+              await navigate({ to: "/app" });
+            } catch {
+              setErro("Não foi possível continuar agora.");
+              setEnviando(false);
+            }
+          }}
+        >
+          Continuar como cliente
+        </button>
+        <button type="button" className="mt-4 w-full text-center text-xs text-mute" onClick={() => void sair()}>
+          Sair da conta
+        </button>
+        {erro ? (
+          <p className="mt-4 text-sm text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
       <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
         {concluido ? "Barbearia criada." : modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
       </h1>
+
+      {sessao.papel === "barbeiro" && !sessao.tenantId && !concluido ? (
+        <p className="mt-4 text-sm leading-relaxed text-mute">
+          Se você fazia parte de uma equipe e perdeu o acesso, peça um novo convite à barbearia —
+          ou crie a sua própria abaixo.
+        </p>
+      ) : null}
 
       {concluido ? (
         <div className="mt-8">
