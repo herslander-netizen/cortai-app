@@ -384,7 +384,7 @@ async function informacoesDaCasa(
   if (intencao === "LOCALIZACAO") {
     return responder(
       casa.endereco
-        ? `📍 Estamos em: ${casa.endereco}`
+        ? frase(entrada, "localizacao", { endereco: casa.endereco }, `📍 Estamos em: ${casa.endereco}`)
         : "Ainda não tenho o endereço cadastrado aqui. Posso chamar alguém da equipe para te passar?",
       {},
       { intencao: "localizacao" },
@@ -1033,7 +1033,12 @@ async function naoEntendi(
   }
 
   return responder(
-    ["Não tenho certeza se entendi. 🤔", "", "Posso ajudar com:", "", MENU_PRINCIPAL].join("\n"),
+    frase(
+      entrada,
+      "nao_entendeu",
+      {},
+      ["Não tenho certeza se entendi. 🤔", "", "Posso ajudar com:", "", MENU_PRINCIPAL].join("\n"),
+    ),
     { ...limparFluxo(contexto), semEntender: tentativas, estado: "MAIN_MENU", menuTipo: "retomar", menuItens: menuPrincipalItens() },
     { intencao: "desconhecida" },
   );
