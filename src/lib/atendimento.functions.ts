@@ -160,6 +160,8 @@ async function abrirNaCadeira(
       forma_pagamento: "balcao",
       valor_centavos: preco,
       origem: "manual",
+      // Cliente sem horário entrando agora pelo painel: encaixe proposital da equipe.
+      encaixe: true,
       status_alterado_por: userId,
     })
     .select("id")

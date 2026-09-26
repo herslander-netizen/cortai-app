@@ -118,7 +118,7 @@ function Formulario({
   const [horaMin, setHoraMin] = useState(horaInicial);
   const [forma, setForma] = useState<Forma>("balcao");
   const [erro, setErro] = useState<string | null>(null);
-  const [conflito, setConflito] = useState<{ mensagem: string; sugestoes: { iso: string; label: string }[] } | null>(
+  const [conflito, setConflito] = useState<{ mensagem: string; sugestoes: { iso: string; label: string }[]; podeEncaixar?: boolean } | null>(
     null,
   );
   const [salvando, setSalvando] = useState(false);
@@ -143,7 +143,7 @@ function Formulario({
   const clienteOk = clienteId ? true : novo && novoNome.trim().length >= 2 && novoTelefone.replace(/\D/g, "").length >= 10;
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
 
-  async function salvar(isoForcado?: string) {
+  async function salvar(isoForcado?: string, encaixe = false) {
     if (!pronto || salvando) return;
     setSalvando(true);
     setErro(null);
@@ -156,6 +156,7 @@ function Formulario({
           profissionalId,
           inicio: isoForcado ?? isoLocal(data, horaMin),
           formaPagamento: forma,
+          ...(encaixe ? { encaixe: true } : {}),
         },
       });
       if (!r.ok && r.conflito) {
@@ -377,8 +378,19 @@ function Formulario({
         </div>
 
         {conflito ? (
-          <Aviso tom="acao" titulo="Horário indisponível" className="mt-4">
+          <Aviso tom="acao" titulo="Horário ocupado" className="mt-4">
             <p>{conflito.mensagem}</p>
+            {conflito.podeEncaixar ? (
+              <Button
+                type="button"
+                variant="secondary"
+                className="mt-2 w-full"
+                disabled={salvando}
+                onClick={() => void salvar(undefined, true)}
+              >
+                Encaixar mesmo assim
+              </Button>
+            ) : null}
             {conflito.sugestoes.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {conflito.sugestoes.map((s) => (
@@ -396,7 +408,7 @@ function Formulario({
                 ))}
               </div>
             ) : (
-              <p className="mt-1 text-xs text-mute">Sem horários livres neste dia para este profissional.</p>
+              <p className="mt-1 text-xs text-mute">Ou escolha outro horário.</p>
             )}
           </Aviso>
         ) : null}

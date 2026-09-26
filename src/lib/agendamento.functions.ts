@@ -211,6 +211,6 @@ export const listarAgendamentosCliente = createServerFn({ method: "GET" })
 function traduz(msg: string): string {
   if (msg.includes("limite de fiado")) return "O limite de fiado foi atingido.";
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
-  if (msg.includes("horario ja ocupado")) return "Esse horário acabou de ser ocupado.";
+  if (msg.includes("horario ja ocupado")) return "Esse horário acabou de ser reservado, escolha outro";
   return msg;
 }

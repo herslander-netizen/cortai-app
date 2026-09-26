@@ -82,7 +82,7 @@ function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode
 
 function AgendamentoPublico() {
   const { slug } = Route.useParams();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["agenda-publica", slug],
     queryFn: () => getAgendaPublica({ data: { slug } }),
     staleTime: 60_000,
@@ -141,7 +141,13 @@ function AgendamentoPublico() {
       setErro(null);
       setConfirmado(res);
     },
-    onError: (e: Error) => setErro(e.message),
+    onError: (e: Error) => {
+      setErro(e.message);
+      if (e.message.includes("acabou de ser reservado")) {
+        setHorario(null);
+        void refetch();
+      }
+    },
   });
 
   const cancelar = useMutation({

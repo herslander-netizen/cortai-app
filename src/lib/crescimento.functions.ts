@@ -458,7 +458,8 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
       .from("agendamentos")
       .select("id")
       .eq("profissional_id", ag.profissional_id ?? "")
-      .not("status", "in", "(cancelado,falta)")
+      .in("status", ["agendado", "chegou", "na_cadeira"])
+      .eq("encaixe", false)
       .lt("inicio", fim.toISOString())
       .gt("fim", inicio.toISOString())
       .maybeSingle();
@@ -478,7 +479,7 @@ export const repetirAgendamento = createServerFn({ method: "POST" })
       valor_centavos: ag.valor_centavos,
       recorrencia: data.periodicidade,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(error.code === "23P01" ? "Esse horário já está ocupado na próxima data." : error.message);
     return { ok: true, inicio: inicio.toISOString() };
   });
 

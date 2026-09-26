@@ -420,7 +420,12 @@ function Fluxo({
               });
               setSucesso(res);
             } catch (e) {
-              setErro(e instanceof Error ? e.message : "Não foi possível agendar.");
+              const msg = e instanceof Error ? e.message : "Não foi possível agendar.";
+              setErro(msg);
+              if (msg.includes("acabou de ser reservado")) {
+                setInicio(null);
+                void recarregar();
+              }
             } finally {
               setEnviando(false);
             }
