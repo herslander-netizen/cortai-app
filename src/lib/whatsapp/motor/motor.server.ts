@@ -224,14 +224,8 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
         );
         if (conhecida && h.servicoPreferido?.id) {
           return responder(
-            conhecida,
-            {
-              ...limparFluxo(contexto),
-              estado: "CHOOSING_DATE",
-              servicoId: h.servicoPreferido.id,
-              servicoNome: h.servicoPreferido.nome,
-              profissionalId: h.profissionalPreferido?.id ?? null,
-            },
+            [conhecida, "", MENU_PRINCIPAL].join("\n"),
+            { ...limparFluxo(contexto), menuTipo: "retomar", menuItens: menuPrincipalItens() },
             { intencao: "saudacao" },
           );
         }
