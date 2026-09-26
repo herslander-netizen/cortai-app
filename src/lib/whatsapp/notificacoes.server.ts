@@ -408,7 +408,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
                   dataBr(ag.inicio, fusoModelo),
                   horaBr(ag.inicio, fusoModelo),
                 ],
-          botoes: opcoes.map((o) => o.acao),
+          // O ID da notificação vai no payload do botão: a resposta nunca é adivinhada.
+          botoes: opcoes.map((o) => `${o.acao}:${registroId}`),
         }
       : null;
 
@@ -419,8 +420,9 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     nomeContato: cliente?.nome ?? null,
   });
 
+  let externoId: string | null = null;
   try {
-    await enviarPelaBarbearia({
+    const r = await enviarPelaBarbearia({
       tenantId: ag.tenant_id,
       conversaId: conversa.id,
       conexaoId: conexao.id,
@@ -431,14 +433,47 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       modelo,
       iniciadaPelaBarbearia: true,
     });
+    externoId = r.externoId;
   } catch (e) {
     return marcarErro(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.");
   }
 
+  // Notificação que espera resposta: guarda ações e prazo, e a conversa passa
+  // a interpretar a resposta por esse estado até o prazo vencer.
+  const aguarda = Boolean(opcoes?.length);
+  const validoAte = aguarda
+    ? tipo === "retorno"
+      ? new Date(Date.now() + 7 * 24 * 3600_000).toISOString()
+      : new Date(new Date(ag.inicio).getTime() + 15 * 60_000).toISOString()
+    : null;
   await db
     .from("envios_de_whatsapp")
-    .update({ status: "enviado", conteudo: texto, erro: null, enviado_em: new Date().toISOString() })
+    .update({
+      status: "enviado",
+      conteudo: texto,
+      erro: null,
+      enviado_em: new Date().toISOString(),
+      canal: "whatsapp",
+      aguarda_resposta: aguarda,
+      acoes: (opcoes ?? []).map((o) => o.acao),
+      valido_ate: validoAte,
+      mensagem_externa_id: externoId,
+    } as never)
     .eq("id", registroId);
+
+  if (aguarda) {
+    const ctx = ((conversa as { contexto?: unknown }).contexto ?? {}) as Record<string, unknown>;
+    await db
+      .from("conversas_whatsapp")
+      .update({
+        contexto: {
+          ...ctx,
+          estado: "AGUARDANDO_RESPOSTA_LEMBRETE",
+          notificacao: { id: registroId, agendamentoId: ag.id, acoes: (opcoes ?? []).map((o) => o.acao), validoAte },
+        } as never,
+      })
+      .eq("id", conversa.id);
+  }
 
   return { enviado: true };
 }

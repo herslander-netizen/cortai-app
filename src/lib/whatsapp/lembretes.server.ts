@@ -8,14 +8,13 @@
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 
-import { OPCOES_DO_LEMBRETE, type TipoDeNotificacao } from "./notificacoes.server";
+
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-const TIPOS_COM_RESPOSTA = ["lembrete_24h", "lembrete_2h", "retorno"] as const;
 
 function normalizar(t: string) {
   return t
@@ -54,6 +53,8 @@ export async function tratarRespostaDeLembrete(input: {
   conversaId: string;
   telefone: string;
   texto: string;
+  /** ID externo da mensagem citada pelo cliente, quando houver. */
+  citadaId?: string | null;
 }): Promise<RespostaDeLembrete | null> {
   const db = await admin();
   const bruto = input.texto.trim();
@@ -72,50 +73,96 @@ export async function tratarRespostaDeLembrete(input: {
     };
   }
 
-  // Lembrete ativo mais recente enviado para este número nesta barbearia.
-  const desde = new Date(Date.now() - 4 * 24 * 3600_000).toISOString();
-  const { data: envio } = await db
-    .from("envios_de_whatsapp")
-    .select("agendamento_id, tipo, conteudo, enviado_em")
-    .eq("tenant_id", input.tenantId)
-    .eq("telefone", input.telefone)
-    .eq("status", "enviado")
-    .in("tipo", TIPOS_COM_RESPOSTA as unknown as string[])
-    .gte("enviado_em", desde)
-    .order("enviado_em", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!envio?.agendamento_id) return null;
-  const tipo = envio.tipo as TipoDeNotificacao;
-  const opcoes = OPCOES_DO_LEMBRETE[tipo] ?? [];
-  const idadeHoras = (Date.now() - new Date(envio.enviado_em ?? 0).getTime()) / 3600_000;
-  if (tipo !== "retorno" && idadeHoras > 30) return null;
-
+  type Envio = { id: string; agendamento_id: string | null; tipo: string; conteudo: string | null; acoes: string[] | null };
+  const campos = "id, agendamento_id, tipo, conteudo, acoes";
+  const bruto2 = bruto.toUpperCase();
+  const agoraIso = new Date().toISOString();
+  let envio: Envio | null = null;
   let acao: string | null = null;
-  const botao = bruto.toUpperCase();
-  if (opcoes.some((o) => o.acao === botao)) acao = botao;
 
-  // Número só vale se a última mensagem enviada nesta conversa foi o lembrete.
-  if (!acao && /^\d$/.test(t)) {
-    const { data: ultima } = await db
-      .from("mensagens_whatsapp")
-      .select("conteudo")
-      .eq("conversa_id", input.conversaId)
-      .eq("direcao", "saida")
-      .order("criado_em", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (ultima?.conteudo && ultima.conteudo === envio.conteudo) {
-      acao = opcoes[Number(t) - 1]?.acao ?? null;
+  // 1) Botão do canal oficial: "ACAO:<id da notificação>".
+  const porPayload = bruto2.match(/^(CORTAI_[A-Z_]+):([0-9A-F-]{36})$/);
+  if (porPayload) {
+    const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", porPayload[2]!.toLowerCase())
+      .eq("tenant_id", input.tenantId).maybeSingle();
+    if (data) { envio = data as Envio; acao = porPayload[1]!; }
+  }
+
+  // 2) Resposta citando a notificação: usa o ID da mensagem citada.
+  if (!envio && input.citadaId) {
+    const { data } = await db.from("envios_de_whatsapp").select(campos).eq("mensagem_externa_id", input.citadaId)
+      .eq("tenant_id", input.tenantId).maybeSingle();
+    if (data) envio = data as Envio;
+  }
+
+  // Escolha pendente ("a qual horário você se refere?").
+  const { data: conv } = await db.from("conversas_whatsapp").select("contexto").eq("id", input.conversaId).maybeSingle();
+  const ctx = ((conv?.contexto ?? {}) as Record<string, unknown>);
+  const escolha = ctx["escolherNotificacao"] as { ids: string[]; acao: string | null } | undefined;
+  if (!envio && escolha && /^\d$/.test(t)) {
+    const id = escolha.ids[Number(t) - 1];
+    if (id) {
+      const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", id).maybeSingle();
+      if (data) { envio = data as Envio; acao = escolha.acao; }
     }
   }
 
-  // Palavras exatas (sem ambiguidade com o motor).
-  if (!acao && tipo !== "retorno") {
+  // 3) Notificações abertas dentro do prazo, para este número nesta barbearia.
+  let abertas: Envio[] = [];
+  if (!envio) {
+    const { variantesDoTelefone } = await import("@/lib/telefone");
+    const { data } = await db.from("envios_de_whatsapp").select(campos)
+      .eq("tenant_id", input.tenantId).in("telefone", variantesDoTelefone(input.telefone))
+      .eq("aguarda_resposta", true).is("respondido_em", null).gt("valido_ate", agoraIso)
+      .order("enviado_em", { ascending: false });
+    abertas = (data ?? []) as Envio[];
+    if (!abertas.length) return null; // prazo vencido: volta ao fluxo normal
+    if (abertas.length === 1) envio = abertas[0]!;
+  }
+
+  // Ação pelo texto: botão sem ID, número da lista ou palavra exata.
+  const acoesPossiveis = new Set((envio ? [envio] : abertas).flatMap((e) => e.acoes ?? []));
+  if (!acao && acoesPossiveis.has(bruto2)) acao = bruto2;
+  if (!acao && envio && /^\d$/.test(t)) {
+    const { data: ultima } = await db.from("mensagens_whatsapp").select("conteudo").eq("conversa_id", input.conversaId)
+      .eq("direcao", "saida").order("criado_em", { ascending: false }).limit(1).maybeSingle();
+    if (ultima?.conteudo && ultima.conteudo === envio.conteudo) acao = envio.acoes?.[Number(t) - 1] ?? null;
+  }
+  if (!acao) {
     if (["confirmar", "confirmo", "confirmado", "confirma"].includes(t)) acao = "CORTAI_CONFIRMAR";
     else if (/^(cheguei|to aqui|estou aqui|ja cheguei|cheguei aqui)$/.test(t)) acao = "CORTAI_CHEGUEI";
+    else if (/^(cancelar|cancela|quero cancelar)$/.test(t)) acao = "CORTAI_CANCELAR";
+    if (acao && !acoesPossiveis.has(acao)) acao = null;
   }
   if (!acao) return null;
+
+  // Mais de uma notificação aberta: pergunta, nunca adivinha.
+  if (!envio) {
+    const fusoP = await fusoDoTenant(input.tenantId);
+    const ids = abertas.map((e) => e.agendamento_id).filter(Boolean) as string[];
+    const { data: ags } = await db.from("agendamentos").select("id, inicio").in("id", ids);
+    const inicioDe = new Map((ags ?? []).map((a) => [a.id, a.inicio as string]));
+    await db.from("conversas_whatsapp").update({
+      contexto: { ...ctx, escolherNotificacao: { ids: abertas.map((e) => e.id), acao } } as never,
+    }).eq("id", input.conversaId);
+    return {
+      texto: [
+        "Você tem mais de um horário. A qual deles se refere?",
+        ...abertas.map((e, i) => {
+          const ini = e.agendamento_id ? inicioDe.get(e.agendamento_id) : null;
+          return `${i + 1} - ${ini ? `${dia(ini, fusoP)} às ${hora(ini, fusoP)}` : "Retorno"}`;
+        }),
+        "",
+        "Responda com o número.",
+      ].join("\n"),
+    };
+  }
+  if (!envio.agendamento_id) return null;
+
+  // Respondida: encerra o estado da notificação e da conversa.
+  await db.from("envios_de_whatsapp").update({ respondido_em: agoraIso } as never).eq("id", envio.id);
+  const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
+  await db.from("conversas_whatsapp").update({ contexto: resto as never }).eq("id", input.conversaId);
 
   const agendamentoId = envio.agendamento_id;
   const { data: ag } = await db
