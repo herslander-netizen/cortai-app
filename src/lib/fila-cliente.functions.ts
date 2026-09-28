@@ -6,7 +6,7 @@ import { clienteDoUsuario } from "@/lib/cliente";
 export const entrarNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { nome: string; telefone: string; janelaInicio: number | null; janelaFim: number | null; slug?: string }) => {
+    (data: { nome: string; telefone: string; janelaInicio: number | null; janelaFim: number | null; slug?: string; servicoId?: string; dia?: string }) => {
       if (!data.nome.trim()) throw new Error("Informe seu nome.");
       if (data.telefone.replace(/\D/g, "").length < 10) throw new Error("Informe um WhatsApp válido.");
       return data;
@@ -39,15 +39,24 @@ export const entrarNaFila = createServerFn({ method: "POST" })
     if (jaNaFila) return { posicao: jaNaFila.posicao };
 
     const posicao = (ultimo?.posicao ?? 0) + 1;
+    const dia = data.dia && /^\d{4}-\d{2}-\d{2}$/.test(data.dia) ? data.dia : null;
     const janela =
       data.janelaInicio !== null && data.janelaFim !== null
-        ? { inicio: data.janelaInicio, fim: data.janelaFim }
-        : null;
+        ? { inicio: data.janelaInicio, fim: data.janelaFim, ...(dia ? { dia } : {}) }
+        : dia
+          ? { dia }
+          : null;
+    let servicoId: string | null = null;
+    if (data.servicoId) {
+      const { data: s } = await db.from("servicos").select("id").eq("id", data.servicoId).eq("tenant_id", tenant.id).maybeSingle();
+      servicoId = (s?.id as string) ?? null;
+    }
 
     const { error } = await db.from("fila_de_espera").insert({
       tenant_id: tenant.id,
       cliente_id: cliente.id,
       janela_preferida: janela,
+      servico_id: servicoId,
       posicao,
     });
     if (error) {

@@ -7,6 +7,11 @@ import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
 
 export const Route = createFileRoute("/app/espera")({
+  validateSearch: (search: Record<string, unknown>): { b?: string; servico?: string; dia?: string } => ({
+    ...(typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {}),
+    ...(typeof search["servico"] === "string" && search["servico"] ? { servico: search["servico"] } : {}),
+    ...(typeof search["dia"] === "string" && search["dia"] ? { dia: search["dia"] } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Lista de espera — Cortaí" },
@@ -30,6 +35,7 @@ const JANELAS = [
 
 function EsperaPage() {
   const entrar = useServerFn(entrarNaFila);
+  const { b, servico, dia } = Route.useSearch();
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [janela, setJanela] = useState(0);
@@ -40,7 +46,7 @@ function EsperaPage() {
   const escolhida = JANELAS[janela] ?? JANELAS[0];
 
   return (
-    <Screen title="Lista de espera" subtitle="Avisamos assim que um horário vagar.">
+    <Screen title="Lista de espera" subtitle={dia ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")} — avisamos assim que vagar.` : "Avisamos assim que um horário vagar."}>
       {pronto ? (
         <div className="surface px-5 py-6">
           <p className="text-sm text-paper">Você está na lista.</p>
@@ -92,6 +98,9 @@ function EsperaPage() {
                       telefone: telefone.trim(),
                       janelaInicio: escolhida.inicio,
                       janelaFim: escolhida.fim,
+                      ...(b ? { slug: b } : {}),
+                      ...(servico ? { servicoId: servico } : {}),
+                      ...(dia ? { dia } : {}),
                     },
                   }),
                 {
