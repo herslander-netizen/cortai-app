@@ -22,7 +22,9 @@ export const Route = createFileRoute("/login")({
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: "https://cortai.dev/capa-social.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social.jpg" },
     ],
   }),
   beforeLoad: async () => {
