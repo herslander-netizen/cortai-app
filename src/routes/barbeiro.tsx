@@ -2,7 +2,6 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { useSessaoTempoReal } from "@/lib/use-sessao-tempo-real";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
-import { SeloDemonstracao } from "@/components/demo/SeloDemonstracao";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
 
@@ -17,7 +16,6 @@ function BarberLayout() {
   useSessaoTempoReal(userId);
   return (
     <div className="management-shell equipe-shell">
-      <SeloDemonstracao />
       <ManagementHeader />
       <NavegacaoEquipe />
       <div className="equipe-conteudo">

@@ -1,17 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { TelaPublicaBarbearia } from "@/components/marca/TelaPublicaBarbearia";
+import { getPreviaDaBarbearia } from "@/lib/agendamento-publico.functions";
+import { headDaBarbearia } from "@/lib/previa";
 
 export const Route = createFileRoute("/b/$slug")({
-  head: ({ params }) => ({ meta: [
-    { title: `${params.slug} — Agendamento online | Cortaí` },
-    { name: "description", content: "Conheça a barbearia, seus serviços e profissionais, e reserve seu horário online." },
-    { property: "og:title", content: `${params.slug} — Agendamento online | Cortaí` },
-    { property: "og:description", content: "Serviços, profissionais, horários e agendamento em um só lugar." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-    { property: "og:url", content: `https://cortai.dev/b/${params.slug}` },
-  ], links: [{ rel: "canonical", href: `https://cortai.dev/b/${params.slug}` }] }),
+  loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
+  head: ({ params, loaderData }) => headDaBarbearia(params.slug, loaderData, `/b/${params.slug}`),
   component: PaginaBarbearia,
 });
 

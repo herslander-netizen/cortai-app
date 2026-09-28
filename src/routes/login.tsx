@@ -159,12 +159,6 @@ function LoginPage() {
         ) : null}
       </form>
 
-      <Link
-        to="/demonstracao"
-        className="mt-4 flex h-12 w-full items-center justify-center rounded-lg border border-gold/30 bg-gold/10 text-sm font-semibold text-paper"
-      >
-        Explorar demonstração
-      </Link>
 
 
       <button

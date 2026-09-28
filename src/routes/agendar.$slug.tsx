@@ -4,52 +4,39 @@
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CalendarPlus, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
+import { CalendarPlus, CalendarX, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { profissionalLivre } from "@/lib/disponibilidade";
-import { hojeNoFuso, normalizarFuso, slotsDoDia } from "@/lib/horarios";
+import { horariosDisponiveis, profissionaisDoServico, proximosDiasNoFuso } from "@/lib/disponibilidade";
+import { horarioDoDia, normalizarFuso } from "@/lib/horarios";
+import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
+import { CHAVE_VINCULO } from "@/lib/vinculo";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
   getAgendaPublica,
+  getPreviaDaBarbearia,
   reconhecerCliente,
-  type AgendaPublica,
+  situacaoComoConvidado,
   type ConfirmacaoPublica,
 } from "@/lib/agendamento-publico.functions";
 
 export const Route = createFileRoute("/agendar/$slug")({
-  ssr: false,
-  head: ({ params }) => ({
-    meta: [
-      { title: `Agendar horário — ${params.slug} | Cortaí` },
-      { name: "description", content: "Escolha serviço, profissional e horário. Sem cadastro e sem senha." },
-      { property: "og:title", content: `Agendar horário — ${params.slug}` },
-      { property: "og:description", content: "Agende em menos de um minuto, só com nome e WhatsApp." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { property: "og:url", content: `https://cortai.dev/agendar/${params.slug}` },
-    ],
-    links: [{ rel: "canonical", href: `https://cortai.dev/agendar/${params.slug}` }],
-  }),
+  ssr: "data-only",
+  loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
+  head: ({ params, loaderData }) => headDaBarbearia(params.slug, loaderData, `/agendar/${params.slug}`, "Agende seu horário"),
   component: AgendamentoPublico,
 });
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-function proximosDias(qtd: number, fuso: string) {
-  const partes = hojeNoFuso(fuso).split("-").map(Number);
-  const ano = partes[0] ?? 2026;
-  const mes = partes[1] ?? 1;
-  const diaMes = partes[2] ?? 1;
-  return Array.from({ length: qtd }, (_, i) => {
-    const d = new Date(Date.UTC(ano, mes - 1, diaMes + i));
-    const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
-    return { iso, rotulo: DIAS[d.getUTCDay()] ?? "", numero: d.getUTCDate() };
-  });
+function rotuloDoDia(iso: string) {
+  const [a, m, d] = iso.split("-").map(Number);
+  const x = new Date(Date.UTC(a ?? 2026, (m ?? 1) - 1, d ?? 1));
+  return { rotulo: DIAS[x.getUTCDay()] ?? "", numero: x.getUTCDate() };
 }
 
 function horaLocal(iso: string, fuso: string) {
@@ -69,6 +56,9 @@ function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode
   );
 }
 
+type Salvo = { confirmacao: ConfirmacaoPublica; telefone: string; nome: string };
+type Situacao = "confirmado" | "cancelado" | "cancelado_pela_barbearia" | "remarcado" | "nao_compareceu";
+
 function AgendamentoPublico() {
   const { slug } = Route.useParams();
   const { data, isLoading, refetch } = useQuery({
@@ -80,67 +70,114 @@ function AgendamentoPublico() {
   });
 
   const fuso = normalizarFuso(data?.tenant.fuso);
-  const dias = useMemo(() => proximosDias(14, fuso), [fuso]);
+  const dias = useMemo(() => proximosDiasNoFuso(14, fuso), [fuso]);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profId, setProfId] = useState<string>("qualquer");
   const [dia, setDia] = useState<string>("");
+  const [diaManual, setDiaManual] = useState(false);
   const [horario, setHorario] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [tocouTelefone, setTocouTelefone] = useState(false);
+  const [tocouNome, setTocouNome] = useState(false);
   const [saudacao, setSaudacao] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [conflito, setConflito] = useState<{ agendamentoId: string; hora: string } | null>(null);
   const [confirmado, setConfirmado] = useState<ConfirmacaoPublica | null>(null);
-  const [cancelado, setCancelado] = useState(false);
+  const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
   const chaveSalva = `cortai-agendamento-publico:${slug}`;
 
-  // A confirmação sobrevive a recarregar a página.
+  // A confirmação sobrevive a recarregar a página — e é conferida no servidor.
   useEffect(() => {
+    let salvo: Salvo | null = null;
     try {
       const bruto = localStorage.getItem(chaveSalva);
-      if (!bruto) return;
-      const salvo = JSON.parse(bruto) as { confirmacao: ConfirmacaoPublica; telefone: string; nome: string };
-      if (new Date(salvo.confirmacao.fim).getTime() < Date.now()) {
-        localStorage.removeItem(chaveSalva);
-        return;
-      }
-      setConfirmado(salvo.confirmacao);
-      setTelefone(salvo.telefone);
-      setNome(salvo.nome);
+      salvo = bruto ? (JSON.parse(bruto) as Salvo) : null;
     } catch {
-      /* cache opcional */
+      salvo = null;
     }
+    if (!salvo) return;
+    if (new Date(salvo.confirmacao.fim).getTime() < Date.now()) {
+      localStorage.removeItem(chaveSalva);
+      return;
+    }
+    setConfirmado(salvo.confirmacao);
+    setTelefone(mascaraTelefone(salvo.telefone));
+    setNome(salvo.nome);
+    const atual = salvo;
+    void situacaoComoConvidado({ data: { agendamentoId: atual.confirmacao.agendamentoId, telefone: atual.telefone } })
+      .then((s) => {
+        if (!s) return;
+        if (s.status === "cancelado") setSituacao("cancelado_pela_barbearia");
+        else if (s.status === "remarcado") setSituacao("remarcado");
+        else if (s.status === "nao_compareceu") setSituacao("nao_compareceu");
+        if (s.inicio !== atual.confirmacao.inicio) {
+          const nova = { ...atual.confirmacao, inicio: s.inicio, fim: s.fim };
+          setConfirmado(nova);
+          localStorage.setItem(chaveSalva, JSON.stringify({ ...atual, confirmacao: nova }));
+        }
+      })
+      .catch(() => undefined);
   }, [chaveSalva]);
 
-  useEffect(() => {
-    if (!dia || !dias.some((d) => d.iso === dia)) setDia(dias[0]?.iso ?? "");
-  }, [dias, dia]);
-
   const servico = data?.servicos.find((s) => s.id === servicoId) ?? null;
+  const aptos = useMemo(() => (data ? profissionaisDoServico(servico, data.profissionais) : []), [data, servico]);
 
-  const agenda = useMemo(() => {
-    if (!data || !servico || !dia) return null;
-    const { fechado, slots } = slotsDoDia(dia, data.horarios, 30, fuso);
-    if (fechado) return { fechado: true, opcoes: [] as { iso: string; label: string; profId: string }[] };
-    const agora = Date.now();
-    const candidatos = profId === "qualquer" ? data.profissionais.map((p) => p.id) : [profId];
-    const opcoes = slots
-      .map((slot) => {
-        const inicio = new Date(slot.iso).getTime();
-        const fim = inicio + servico.duracao_min * 60_000;
-        if (inicio < agora) return null;
-        const disponivel = candidatos.find((id) => profissionalLivre(id, inicio, fim, data.ocupados));
-        return disponivel ? { iso: slot.iso, label: slot.label, profId: disponivel } : null;
-      })
-      .filter((v): v is { iso: string; label: string; profId: string } => v !== null);
-    return { fechado: false, opcoes };
-  }, [data, servico, dia, profId]);
+  // Profissional escolhido que não faz o novo serviço volta para "Qualquer profissional".
+  useEffect(() => {
+    if (profId !== "qualquer" && !aptos.some((p) => p.id === profId)) setProfId("qualquer");
+  }, [aptos, profId]);
 
+  const porDia = useMemo(() => {
+    if (!data) return new Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>();
+    const mapa = new Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>();
+    for (const d of dias) {
+      if (!servico) {
+        mapa.set(d, { fechado: horarioDoDia(d, data.horarios).fechado, opcoes: [] });
+        continue;
+      }
+      mapa.set(
+        d,
+        horariosDisponiveis({
+          dia: d,
+          servico,
+          profissionais: data.profissionais,
+          escolhido: profId,
+          horarios: data.horarios,
+          fuso,
+          ocupados: data.ocupados,
+          regras: data.regras,
+        }),
+      );
+    }
+    return mapa;
+  }, [data, dias, servico, profId, fuso]);
+
+  // Abre no primeiro dia com vaga (ou no primeiro dia aberto, antes de escolher o serviço).
+  useEffect(() => {
+    if (diaManual && dia && porDia.has(dia)) return;
+    const primeiro = servico
+      ? dias.find((d) => (porDia.get(d)?.opcoes.length ?? 0) > 0)
+      : dias.find((d) => !porDia.get(d)?.fechado);
+    const alvo = primeiro ?? dias[0] ?? "";
+    if (alvo !== dia) setDia(alvo);
+  }, [porDia, dias, servico, diaManual, dia]);
+
+  const agenda = servico && dia ? (porDia.get(dia) ?? null) : null;
   const escolhido = agenda?.opcoes.find((o) => o.iso === horario) ?? null;
+  const digitosTel = telefone.replace(/\D/g, "");
+  const erroTelefone = digitosTel.length < 10 ? "Informe seu WhatsApp com DDD" : null;
+  const erroNome = nome.trim().length < 2 ? "Informe seu nome" : null;
+  const falta = !servico
+    ? "Escolha um serviço"
+    : !escolhido
+      ? "Escolha um horário"
+      : erroTelefone ?? erroNome;
 
   const criar = useMutation({
-    mutationFn: () =>
+    mutationFn: (troca?: string) =>
       agendarComoConvidado({
         data: {
           slug,
@@ -148,16 +185,22 @@ function AgendamentoPublico() {
           profissionalId: escolhido!.profId,
           inicio: escolhido!.iso,
           nome: nome.trim(),
-          telefone,
-          ...(substituiId ? { substituiId } : {}),
+          telefone: digitosTel,
+          ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
         },
       }),
     onSuccess: (res) => {
+      if (res.tipo === "conflito") {
+        setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
+        return;
+      }
       setErro(null);
+      setConflito(null);
       setSubstituiId(null);
-      setConfirmado(res);
+      setSituacao("confirmado");
+      setConfirmado(res.confirmacao);
       try {
-        localStorage.setItem(chaveSalva, JSON.stringify({ confirmacao: res, telefone, nome: nome.trim() }));
+        localStorage.setItem(chaveSalva, JSON.stringify({ confirmacao: res.confirmacao, telefone: digitosTel, nome: nome.trim() }));
       } catch {
         /* cache opcional */
       }
@@ -173,14 +216,32 @@ function AgendamentoPublico() {
   });
 
   const cancelar = useMutation({
-    mutationFn: () => cancelarComoConvidado({ data: { agendamentoId: confirmado!.agendamentoId, telefone } }),
+    mutationFn: () =>
+      cancelarComoConvidado({ data: { agendamentoId: confirmado!.agendamentoId, telefone: digitosTel } }),
     onSuccess: () => {
-      setCancelado(true);
-      try { localStorage.removeItem(chaveSalva); } catch { /* opcional */ }
+      setSituacao("cancelado");
+      try {
+        localStorage.removeItem(chaveSalva);
+      } catch {
+        /* opcional */
+      }
       void refetch();
     },
     onError: (e: Error) => setErro(e.message),
   });
+
+  function novoAgendamento() {
+    try {
+      localStorage.removeItem(chaveSalva);
+    } catch {
+      /* opcional */
+    }
+    setConfirmado(null);
+    setSituacao("confirmado");
+    setHorario(null);
+    setSubstituiId(null);
+    setErro(null);
+  }
 
   if (isLoading) return <TelaDeCarregamento texto="Abrindo a agenda…" />;
   if (!data) {
@@ -214,15 +275,34 @@ function AgendamentoPublico() {
     const texto = encodeURIComponent(
       `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio, fuso)} às ${horaLocal(confirmado.inicio, fuso)}.`,
     );
+    const ativo = situacao === "confirmado";
+    const titulo = {
+      confirmado: "Agendamento confirmado",
+      cancelado: "Agendamento cancelado",
+      cancelado_pela_barbearia: "A barbearia cancelou este horário",
+      remarcado: "A barbearia remarcou este horário",
+      nao_compareceu: "Este horário foi marcado como falta",
+    }[situacao];
+    const ics = gerarIcs({
+      id: confirmado.agendamentoId,
+      inicio: confirmado.inicio,
+      fim: confirmado.fim,
+      titulo: `${confirmado.servico} — ${confirmado.barbearia}`,
+      local: confirmado.endereco ?? confirmado.barbearia,
+      descricao: `Com ${confirmado.profissional}. Agendado pelo Cortaí.`,
+    });
     return (
       <main className="mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gold/15 text-gold">
-          <Check size={28} />
+        <span
+          className={`flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
+        >
+          {ativo ? <Check size={28} aria-hidden /> : <CalendarX size={28} aria-hidden />}
         </span>
-        <h1 className="mt-5 text-2xl font-bold text-paper">
-          {cancelado ? "Agendamento cancelado" : "Agendamento confirmado"}
-        </h1>
-        {!cancelado ? (
+        <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
+        {situacao === "cancelado_pela_barbearia" || situacao === "remarcado" ? (
+          <p className="mt-2 text-sm text-mute">Fale com a barbearia ou escolha outro horário abaixo.</p>
+        ) : null}
+        {ativo ? (
           <dl className="mt-6 divide-y divide-line surface">
             {[
               ["Cliente", confirmado.cliente],
@@ -238,11 +318,11 @@ function AgendamentoPublico() {
               </div>
             ))}
           </dl>
-        ) : (
-          <p className="mt-4 text-sm text-mute">Se quiser, escolha outro horário abaixo.</p>
-        )}
+        ) : situacao === "cancelado" ? (
+          <p className="mt-4 text-sm text-mute">Se quiser, escolha outro horário.</p>
+        ) : null}
 
-        {!cancelado ? (
+        {ativo ? (
           <p className="mt-4 text-sm leading-relaxed text-mute">
             Guarde esta página: por ela você altera ou cancela quando quiser. Se a barbearia usa WhatsApp, você recebe a confirmação e o lembrete por lá — é só responder para confirmar a chegada.
           </p>
@@ -250,24 +330,10 @@ function AgendamentoPublico() {
 
         {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
 
-        {!cancelado ? (
+        {ativo ? (
           <div className="mt-6 grid gap-2">
             <Button asChild variant="outline" className="h-12">
-              <a
-                href={`data:text/calendar;charset=utf-8,${encodeURIComponent(
-                  [
-                    "BEGIN:VCALENDAR",
-                    "VERSION:2.0",
-                    "BEGIN:VEVENT",
-                    `SUMMARY:${confirmado.servico} — ${confirmado.barbearia}`,
-                    `DTSTART:${confirmado.inicio.replace(/[-:]/g, "").split(".")[0]}Z`,
-                    `DTEND:${confirmado.fim.replace(/[-:]/g, "").split(".")[0]}Z`,
-                    "END:VEVENT",
-                    "END:VCALENDAR",
-                  ].join("\n"),
-                )}`}
-                download="agendamento.ics"
-              >
+              <a href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`} download="agendamento.ics">
                 <CalendarPlus />Adicionar à agenda
               </a>
             </Button>
@@ -290,17 +356,15 @@ function AgendamentoPublico() {
             >
               Alterar agendamento
             </Button>
-            <Button
-              variant="ghost"
-              className="h-12 text-brick"
-              disabled={cancelar.isPending}
-              onClick={() => cancelar.mutate()}
-            >
+            <Button variant="ghost" className="h-12 text-brick" disabled={cancelar.isPending} onClick={() => cancelar.mutate()}>
               {cancelar.isPending ? "Cancelando…" : "Cancelar agendamento"}
+            </Button>
+            <Button variant="ghost" className="h-12" onClick={novoAgendamento}>
+              Fazer outro agendamento
             </Button>
           </div>
         ) : (
-          <Button className="mt-6 h-12 w-full font-bold" onClick={() => { setConfirmado(null); setCancelado(false); setHorario(null); }}>
+          <Button className="mt-6 h-12 w-full font-bold" onClick={novoAgendamento}>
             Escolher outro horário
           </Button>
         )}
@@ -308,10 +372,22 @@ function AgendamentoPublico() {
         <div className="mt-10 rounded-2xl border border-line p-5">
           <p className="text-sm font-semibold text-paper">Ganhe pontos a cada corte</p>
           <p className="mt-1 text-xs leading-relaxed text-mute">
-            Com uma conta gratuita você acumula fidelidade, recebe descontos da casa e vê seu histórico. É opcional — seu horário já está marcado.
+            Com uma conta gratuita você acumula fidelidade, recebe descontos da casa e vê seus horários. É opcional — seu horário já está marcado.
           </p>
           <Button asChild variant="outline" className="mt-3 h-12">
-            <Link to="/visitante">Criar conta grátis</Link>
+            <Link
+              to="/visitante"
+              search={{ b: slug }}
+              onClick={() => {
+                try {
+                  localStorage.setItem(CHAVE_VINCULO, JSON.stringify({ agendamentoId: confirmado.agendamentoId, telefone: digitosTel }));
+                } catch {
+                  /* opcional */
+                }
+              }}
+            >
+              Criar conta grátis
+            </Link>
           </Button>
         </div>
       </main>
@@ -319,7 +395,7 @@ function AgendamentoPublico() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 pb-32 pt-10">
+    <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 pb-36 pt-10">
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
       {substituiId ? (
@@ -340,6 +416,7 @@ function AgendamentoPublico() {
               onClick={() => {
                 setServicoId(s.id);
                 setHorario(null);
+                setDiaManual(false);
               }}
               className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 text-left ${
                 servicoId === s.id ? "border-gold bg-ink2" : "border-line bg-ink2/60"
@@ -359,16 +436,17 @@ function AgendamentoPublico() {
         </div>
       </Bloco>
 
-      {servicoId && data.profissionais.length ? (
+      {servicoId && aptos.length ? (
         <Bloco titulo="Profissional">
           <div className="flex flex-wrap gap-2">
-            {[{ id: "qualquer", nome: "Qualquer profissional" }, ...data.profissionais].map((p) => (
+            {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => {
                   setProfId(p.id);
                   setHorario(null);
+                  setDiaManual(false);
                 }}
                 className={`flex min-h-12 items-center gap-2 rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "border-gold text-paper" : "border-line text-mute"
@@ -385,22 +463,35 @@ function AgendamentoPublico() {
       {servicoId ? (
         <Bloco titulo="Data">
           <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
-            {dias.map((d) => (
-              <button
-                key={d.iso}
-                type="button"
-                onClick={() => {
-                  setDia(d.iso);
-                  setHorario(null);
-                }}
-                className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl border ${
-                  dia === d.iso ? "border-gold bg-ink2 text-paper" : "border-line text-mute"
-                }`}
-              >
-                <span className="text-xs uppercase">{d.rotulo}</span>
-                <span className="text-lg font-semibold">{d.numero}</span>
-              </button>
-            ))}
+            {dias.map((d) => {
+              const info = porDia.get(d);
+              const fechado = Boolean(info?.fechado);
+              const { rotulo, numero } = rotuloDoDia(d);
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  disabled={fechado}
+                  aria-label={fechado ? `${rotulo} ${numero}, fechado` : `${rotulo} ${numero}`}
+                  onClick={() => {
+                    setDia(d);
+                    setDiaManual(true);
+                    setHorario(null);
+                  }}
+                  className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl border ${
+                    fechado
+                      ? "cursor-not-allowed border-line text-mute2 opacity-50"
+                      : dia === d
+                        ? "border-gold bg-ink2 text-paper"
+                        : "border-line text-mute"
+                  }`}
+                >
+                  <span className="text-xs uppercase">{rotulo}</span>
+                  <span className="text-lg font-semibold">{numero}</span>
+                  {fechado ? <span className="text-[10px] leading-none">Fechado</span> : null}
+                </button>
+              );
+            })}
           </div>
         </Bloco>
       ) : null}
@@ -417,7 +508,10 @@ function AgendamentoPublico() {
                 <button
                   key={o.iso}
                   type="button"
-                  onClick={() => setHorario(o.iso)}
+                  onClick={() => {
+                    setHorario(o.iso);
+                    setConflito(null);
+                  }}
                   className={`h-12 rounded-lg border text-sm font-semibold ${
                     horario === o.iso ? "border-gold bg-gold/15 text-paper" : "border-line text-mute"
                   }`}
@@ -441,12 +535,12 @@ function AgendamentoPublico() {
               WhatsApp
               <input
                 value={telefone}
-                onChange={(e) => setTelefone(e.target.value)}
+                onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
                 onBlur={async () => {
-                  const limpo = telefone.replace(/\D/g, "");
-                  if (limpo.length < 10) return;
+                  setTocouTelefone(true);
+                  if (digitosTel.length < 10) return;
                   try {
-                    const res = await reconhecerCliente({ data: { slug, telefone: limpo } });
+                    const res = await reconhecerCliente({ data: { slug, telefone: digitosTel } });
                     if (res.nome) {
                       setSaudacao(res.nome);
                       if (!nome.trim()) setNome(res.nome);
@@ -458,21 +552,48 @@ function AgendamentoPublico() {
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="(00) 00000-0000"
-                className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+                aria-invalid={tocouTelefone && Boolean(erroTelefone)}
+                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
+                  tocouTelefone && erroTelefone ? "border-brick" : "border-line2"
+                }`}
               />
+              {tocouTelefone && erroTelefone ? <span className="mt-1 block text-xs text-brick">{erroTelefone}</span> : null}
             </label>
             <label className="block text-xs font-medium text-mute">
               Nome
               <input
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
+                onBlur={() => setTocouNome(true)}
                 autoComplete="name"
                 placeholder="Como quer ser chamado"
-                className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+                aria-invalid={tocouNome && Boolean(erroNome)}
+                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
+                  tocouNome && erroNome ? "border-brick" : "border-line2"
+                }`}
               />
+              {tocouNome && erroNome ? <span className="mt-1 block text-xs text-brick">{erroNome}</span> : null}
             </label>
           </div>
         </Bloco>
+      ) : null}
+
+      {conflito ? (
+        <div className="mt-4 rounded-xl border border-brick/40 px-4 py-3" role="alert">
+          <p className="text-sm text-paper">Você já tem um horário às {conflito.hora} nesse dia.</p>
+          <Button
+            variant="outline"
+            className="mt-3 h-12 w-full"
+            disabled={criar.isPending}
+            onClick={() => {
+              setSubstituiId(conflito.agendamentoId);
+              setConflito(null);
+              criar.mutate(conflito.agendamentoId);
+            }}
+          >
+            Alterar esse horário
+          </Button>
+        </div>
       ) : null}
 
       {erro ? (
@@ -490,14 +611,16 @@ function AgendamentoPublico() {
           ) : null}
           <Button
             className="h-12 w-full font-bold"
-            disabled={!escolhido || nome.trim().length < 2 || telefone.replace(/\D/g, "").length < 10 || criar.isPending}
+            disabled={Boolean(falta) || criar.isPending}
             onClick={() => {
               setErro(null);
-              criar.mutate();
+              setConflito(null);
+              criar.mutate(undefined);
             }}
           >
             {criar.isPending ? "Confirmando…" : substituiId ? "Confirmar novo horário" : "Agendar horário"}
           </Button>
+          {falta && !criar.isPending ? <p className="mt-2 text-center text-xs text-mute">{falta}</p> : null}
         </div>
       </div>
     </main>

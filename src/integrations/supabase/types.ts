@@ -3515,6 +3515,7 @@ export type Database = {
           instagram: string | null
           intervalo_entre_min: number
           link_avaliacao_publica: string | null
+          listada: boolean
           logo_url: string | null
           loja_ativa: boolean
           modo: string
@@ -3558,6 +3559,7 @@ export type Database = {
           instagram?: string | null
           intervalo_entre_min?: number
           link_avaliacao_publica?: string | null
+          listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
           modo?: string
@@ -3601,6 +3603,7 @@ export type Database = {
           instagram?: string | null
           intervalo_entre_min?: number
           link_avaliacao_publica?: string | null
+          listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
           modo?: string
@@ -3885,6 +3888,7 @@ export type Database = {
         Args: { _carteira_id: string }
         Returns: boolean
       }
+      chamada_do_servidor: { Args: never; Returns: boolean }
       checkin_whatsapp: { Args: { _agendamento_id: string }; Returns: Json }
       configuracao_visual_global: {
         Args: never
