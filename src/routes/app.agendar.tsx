@@ -1,12 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { brl, dataHoraLonga, diaCurto } from "@/lib/format";
-import { horarioDoDia, slotsDoDia } from "@/lib/horarios";
+import { horarioDoDia } from "@/lib/horarios";
+import { horariosDisponiveis, profissionaisDoServico, proximosDiasNoFuso, type Opcao } from "@/lib/disponibilidade";
 import {
   criarAgendamento,
   getDadosAgendar,
@@ -135,54 +136,94 @@ function Fluxo({
 }) {
   const criar = useServerFn(criarAgendamento);
   const [servicoId, setServicoId] = useState<string | null>(null);
-  const [profId, setProfId] = useState<string | null>(null);
+  const [profId, setProfId] = useState<string>("qualquer");
   const [dia, setDia] = useState<string | null>(null);
   const [inicio, setInicio] = useState<string | null>(null);
-  const [forma, setForma] = useState<Forma | null>(null);
+  const [forma, setForma] = useState<Forma>("balcao");
   const [erro, setErro] = useState<string | null>(null);
+  const [conflito, setConflito] = useState<{ agendamentoId: string; hora: string } | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState<ResultadoAgendamento | null>(null);
 
   const servico = dados.servicos.find((s) => s.id === servicoId) ?? null;
   const regra = (tipo: string) => dados.regras.find((r) => r.tipo === tipo && r.ativo);
   const regraFiado = regra("fiado");
-  const regraFidelidade = regra("fidelidade");
+  const regraMensal = regra("mensal");
+  const aptos = useMemo(() => profissionaisDoServico(servico, dados.profissionais), [servico, dados.profissionais]);
 
-  const dias = useMemo(() => {
-    const out: string[] = [];
-    const base = new Date();
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(base.getTime() + i * 86400000);
-      out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
-    }
-    return out;
-  }, []);
+  useEffect(() => {
+    if (profId !== "qualquer" && !aptos.some((p) => p.id === profId)) setProfId("qualquer");
+  }, [aptos, profId]);
 
-  const fechadoNoDia = useMemo(
-    () => (dia ? horarioDoDia(dia, dados.horarios).fechado : false),
-    [dia, dados.horarios],
-  );
+  const dias = useMemo(() => proximosDiasNoFuso(14, dados.fuso), [dados.fuso]);
 
-  const horarios = useMemo(() => {
-    if (!dia || !servico || !profId) return [] as { iso: string; label: string; ocupado: boolean; passado: boolean }[];
-    const agora = Date.now();
-    return slotsDoDia(dia, dados.horarios).slots.map((s) => {
-      const inicio = new Date(s.iso).getTime();
-      const fim = inicio + servico.duracao_min * 60000;
-      const ocupado = dados.ocupados.some(
-        (o) =>
-          o.profissional_id === profId &&
-          new Date(o.inicio).getTime() < fim &&
-          new Date(o.fim).getTime() > inicio,
+  const porDia = useMemo(() => {
+    const mapa = new Map<string, { fechado: boolean; opcoes: Opcao[] }>();
+    for (const d of dias) {
+      mapa.set(
+        d,
+        servico
+          ? horariosDisponiveis({
+              dia: d,
+              servico,
+              profissionais: dados.profissionais,
+              escolhido: profId,
+              horarios: dados.horarios,
+              fuso: dados.fuso,
+              ocupados: dados.ocupados,
+              regras: dados.regrasAgenda,
+            })
+          : { fechado: horarioDoDia(d, dados.horarios).fechado, opcoes: [] },
       );
-      return { iso: s.iso, label: s.label, ocupado, passado: inicio <= agora };
-    });
-  }, [dia, servico, profId, dados.ocupados, dados.horarios]);
+    }
+    return mapa;
+  }, [dias, servico, profId, dados]);
+
+  // Abre no primeiro dia com vaga para o serviço escolhido.
+  useEffect(() => {
+    if (!servico) return;
+    if (dia && (porDia.get(dia)?.opcoes.length ?? 0) > 0) return;
+    const primeiro = dias.find((d) => (porDia.get(d)?.opcoes.length ?? 0) > 0);
+    if (primeiro && primeiro !== dia) setDia(primeiro);
+  }, [servico, porDia, dias, dia]);
+
+  const agenda = dia ? porDia.get(dia) : undefined;
+  const escolhido = agenda?.opcoes.find((o) => o.iso === inicio) ?? null;
 
   const preco = servico?.preco_centavos ?? 0;
   const disponivelFiado = dados.cliente.limite_fiado_centavos + Math.min(dados.carteira.saldo_centavos, 0);
   const estourouFiado = preco > disponivelFiado;
   const fiadoBloqueado = !!regraFiado?.bloqueia_agendamento_no_limite && estourouFiado;
+
+  async function confirmar(substituiId?: string) {
+    if (!servico || !escolhido) return;
+    setErro(null);
+    setConflito(null);
+    setEnviando(true);
+    try {
+      const res = await criar({
+        data: {
+          ...(slug ? { slug } : {}),
+          profissionalId: escolhido.profId,
+          servicoId: servico.id,
+          inicio: escolhido.iso,
+          formaPagamento: forma,
+          ...(substituiId ? { substituiId } : {}),
+        },
+      });
+      if ("conflito" in res) setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
+      else setSucesso(res);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Não foi possível agendar.";
+      setErro(msg);
+      if (msg.includes("acabou de ser reservado")) {
+        setInicio(null);
+        void recarregar();
+      }
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   if (sucesso) {
     return (
@@ -210,9 +251,7 @@ function Fluxo({
               <div className="mt-2 h-1.5 w-full rounded-full bg-ink3">
                 <div
                   className="h-1.5 rounded-full bg-gold"
-                  style={{
-                    width: `${Math.min(100, (sucesso.fidelidade_progresso / sucesso.fidelidade_alvo) * 100)}%`,
-                  }}
+                  style={{ width: `${Math.min(100, (sucesso.fidelidade_progresso / sucesso.fidelidade_alvo) * 100)}%` }}
                 />
               </div>
               <p className="mt-2 text-xs text-mute">
@@ -227,10 +266,10 @@ function Fluxo({
           onClick={() => {
             setSucesso(null);
             setServicoId(null);
-            setProfId(null);
+            setProfId("qualquer");
             setDia(null);
             setInicio(null);
-            setForma(null);
+            setForma("balcao");
             recarregar();
           }}
         >
@@ -253,7 +292,6 @@ function Fluxo({
               onClick={() => {
                 setServicoId(s.id);
                 setInicio(null);
-                setForma(null);
               }}
             />
           ))}
@@ -262,7 +300,7 @@ function Fluxo({
 
       <Passo n={2} titulo="Profissional" guia="agendar-profissional">
         <div className="flex flex-wrap gap-2">
-          {dados.profissionais.map((p) => (
+          {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
             <Chip
               key={p.id}
               label={p.nome}
@@ -280,11 +318,13 @@ function Fluxo({
         <TiraHorizontal rotulo="Escolha o dia">
           {dias.map((d) => {
             const { dia: sem, num, mes } = diaCurto(d);
+            const fechado = Boolean(porDia.get(d)?.fechado);
             return (
               <div key={d} className="shrink-0 snap-start">
                 <Chip
-                  label={`${sem} ${num}/${mes}`}
+                  label={fechado ? `${sem} ${num}/${mes} · Fechado` : `${sem} ${num}/${mes}`}
                   selected={d === dia}
+                  disabled={fechado}
                   onClick={() => {
                     setDia(d);
                     setInicio(null);
@@ -294,35 +334,32 @@ function Fluxo({
             );
           })}
         </TiraHorizontal>
-
       </Passo>
 
       <Passo n={4} titulo="Horário" guia="agendar-horario">
-        {!servico || !profId || !dia ? (
-          <p className="text-sm text-mute">Escolha serviço, profissional e dia para ver os horários.</p>
-        ) : fechadoNoDia ? (
+        {!servico || !dia ? (
+          <p className="text-sm text-mute">Escolha serviço e dia para ver os horários.</p>
+        ) : agenda?.fechado ? (
           <p className="text-sm text-mute">A barbearia não abre neste dia. Escolha outro dia.</p>
+        ) : agenda?.opcoes.length ? (
+          <div className="flex flex-wrap gap-2">
+            {agenda.opcoes.map((h) => (
+              <Chip key={h.iso} label={h.label} selected={h.iso === inicio} onClick={() => setInicio(h.iso)} />
+            ))}
+          </div>
         ) : (
-          <>
-            <div className="flex flex-wrap gap-2">
-              {horarios.map((h) => (
-                <Chip
-                  key={h.iso}
-                  label={h.label}
-                  selected={h.iso === inicio}
-                  disabled={h.ocupado || h.passado}
-                  strike={h.ocupado}
-                  onClick={() => setInicio(h.iso)}
-                />
-              ))}
-            </div>
-            {horarios.some((h) => h.ocupado) ? (
-              <p className="mt-3 text-xs text-mute">
-                Horários riscados já estão ocupados. Se o dia estiver cheio, você pode entrar na fila de espera e ser
-                avisado se abrir vaga.
-              </p>
-            ) : null}
-          </>
+          <div>
+            <p className="text-sm text-mute">
+              Não há horários livres neste dia. Entre na fila de espera e avisamos se abrir vaga.
+            </p>
+            <Link
+              to="/app/espera"
+              search={{ ...(slug ? { b: slug } : {}), servico: servico.id, dia }}
+              className="btn-primary mt-3 inline-flex px-5 py-3"
+            >
+              Entrar na fila
+            </Link>
+          </div>
         )}
       </Passo>
 
@@ -331,44 +368,37 @@ function Fluxo({
           <p className="text-sm text-mute">Escolha um serviço primeiro.</p>
         ) : (
           <ul>
-            {regra("mensal") ? (
+            <li>
+              <LinhaPagamento
+                titulo="Pagar na barbearia"
+                detalhe="Dinheiro, cartão ou Pix no balcão"
+                valor={brl(preco)}
+                selecionado={forma === "balcao"}
+                onClick={() => setForma("balcao")}
+              />
+            </li>
+            {dados.pixAtivo ? (
               <li>
                 <LinhaPagamento
-                  titulo="Usar 1 crédito"
-                  detalhe={
-                    dados.carteira.saldo_creditos > 0
-                      ? `Sobram ${dados.carteira.saldo_creditos - 1} depois deste`
-                      : "Você não tem créditos no momento"
-                  }
-                  valor="R$ 0,00"
-                  valorClasse="text-sage"
-                  selecionado={forma === "credito"}
-                  desabilitado={dados.carteira.saldo_creditos < 1}
-                  onClick={() => setForma("credito")}
+                  titulo="Pagar no Pix"
+                  detalhe="Chave enviada no WhatsApp"
+                  valor={brl(preco)}
+                  selecionado={forma === "pix"}
+                  onClick={() => setForma("pix")}
                 />
               </li>
             ) : null}
-            {regra("avulso") ? (
-              <>
-                <li>
-                  <LinhaPagamento
-                    titulo="Pagar no Pix"
-                    detalhe="Chave enviada no WhatsApp"
-                    valor={brl(preco)}
-                    selecionado={forma === "pix"}
-                    onClick={() => setForma("pix")}
-                  />
-                </li>
-                <li>
-                  <LinhaPagamento
-                    titulo="Pagar na barbearia"
-                    detalhe="Dinheiro ou cartão no balcão"
-                    valor={brl(preco)}
-                    selecionado={forma === "balcao"}
-                    onClick={() => setForma("balcao")}
-                  />
-                </li>
-              </>
+            {regraMensal && dados.carteira.saldo_creditos > 0 ? (
+              <li>
+                <LinhaPagamento
+                  titulo="Usar 1 crédito"
+                  detalhe={`Sobram ${dados.carteira.saldo_creditos - 1} depois deste`}
+                  valor="R$ 0,00"
+                  valorClasse="text-sage"
+                  selecionado={forma === "credito"}
+                  onClick={() => setForma("credito")}
+                />
+              </li>
             ) : null}
             {regraFiado ? (
               <li>
@@ -376,7 +406,7 @@ function Fluxo({
                   titulo="Deixar no fiado"
                   detalhe={
                     fiadoBloqueado
-                      ? `Limite de fiado atingido (${brl(Math.abs(dados.carteira.saldo_centavos))} em aberto de ${brl(dados.cliente.limite_fiado_centavos)}). Fale com a barbearia para agendar.`
+                      ? `Limite de fiado atingido (${brl(Math.abs(dados.carteira.saldo_centavos))} em aberto de ${brl(dados.cliente.limite_fiado_centavos)}). Fale com a barbearia.`
                       : `Ainda cabe ${brl(Math.max(0, disponivelFiado))} no seu limite`
                   }
                   valor={brl(preco)}
@@ -392,48 +422,43 @@ function Fluxo({
       </Passo>
 
       <Passo n={6} titulo="Confirmação" guia="agendar-confirmar">
-        <p className="text-sm text-mute">
-          Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
-        </p>
-        {inicio && servico ? (
-          <p className="mt-3 text-sm text-paper">
-            {servico.nome} · {dataHoraLonga(inicio)}
+        {forma === "credito" ? (
+          <p className="text-sm text-mute">
+            Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
           </p>
+        ) : null}
+        {escolhido && servico ? (
+          <p className="mt-3 text-sm text-paper">
+            {servico.nome} · {dataHoraLonga(escolhido.iso)}
+          </p>
+        ) : null}
+        {conflito ? (
+          <div className="mt-3 rounded-xl border border-brick/40 px-4 py-3" role="alert">
+            <p className="text-sm text-paper">Você já tem um horário às {conflito.hora} nesse dia.</p>
+            <button
+              type="button"
+              className="mt-3 h-12 w-full rounded-lg border border-line2 text-sm font-semibold text-paper"
+              disabled={enviando}
+              onClick={() => void confirmar(conflito.agendamentoId)}
+            >
+              Alterar esse horário
+            </button>
+          </div>
         ) : null}
         {erro ? <p className="mt-3 text-sm text-brick">{erro}</p> : null}
         <button
           type="button"
           className="btn-primary mt-5 min-w-[180px] px-6 py-3.5 disabled:opacity-40"
-          disabled={!servico || !profId || !inicio || !forma || enviando}
-          onClick={async () => {
-            if (!servico || !profId || !inicio || !forma) return;
-            setErro(null);
-            setEnviando(true);
-            try {
-              const res = await criar({
-                data: {
-                  ...(slug ? { slug } : {}),
-                  profissionalId: profId,
-                  servicoId: servico.id,
-                  inicio,
-                  formaPagamento: forma,
-                },
-              });
-              setSucesso(res);
-            } catch (e) {
-              const msg = e instanceof Error ? e.message : "Não foi possível agendar.";
-              setErro(msg);
-              if (msg.includes("acabou de ser reservado")) {
-                setInicio(null);
-                void recarregar();
-              }
-            } finally {
-              setEnviando(false);
-            }
-          }}
+          disabled={!servico || !escolhido || enviando}
+          onClick={() => void confirmar()}
         >
           {enviando ? "Confirmando…" : "Confirmar agendamento"}
         </button>
+        {!servico ? (
+          <p className="mt-2 text-xs text-mute">Escolha um serviço</p>
+        ) : !escolhido ? (
+          <p className="mt-2 text-xs text-mute">Escolha um horário</p>
+        ) : null}
       </Passo>
     </Screen>
   );
