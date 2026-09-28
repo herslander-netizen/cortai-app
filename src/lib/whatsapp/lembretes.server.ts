@@ -160,7 +160,18 @@ export async function tratarRespostaDeLembrete(input: {
   if (!envio.agendamento_id) return null;
 
   // Respondida: encerra o estado da notificação e da conversa.
-  await db.from("envios_de_whatsapp").update({ respondido_em: agoraIso } as never).eq("id", envio.id);
+  const RESPOSTA: Record<string, string> = {
+    CORTAI_CONFIRMAR: "confirmado",
+    CORTAI_CHEGUEI: "cheguei",
+    CORTAI_CANCELAR: "cancelado",
+    CORTAI_REMARCAR: "remarcar",
+    CORTAI_AGENDAR: "agendar",
+    CORTAI_AGORA_NAO: "agora_nao",
+  };
+  await db
+    .from("envios_de_whatsapp")
+    .update({ respondido_em: agoraIso, resposta: RESPOSTA[acao] ?? acao.toLowerCase() } as never)
+    .eq("id", envio.id);
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
   await db.from("conversas_whatsapp").update({ contexto: resto as never }).eq("id", input.conversaId);
 
