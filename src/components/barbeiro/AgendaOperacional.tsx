@@ -876,9 +876,6 @@ export function AgendaOperacional() {
 
       {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} profissionalInicial={profVazio ?? profFiltro ?? meuNome} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); setProfVazio(null); void sincronizar(); }} /></div> : null}
 
-      <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}>
-        {rapidoAberto ? <AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /> : null}
-
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => { if (!aberto) setConflito(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader><AlertDialogTitle>{conflito ? `Finalizar ${conflito.atual.cliente} ou manter os dois?` : "Atendimento aberto"}</AlertDialogTitle><AlertDialogDescription>Você já tem um cliente na cadeira. Escolha como continuar.</AlertDialogDescription></AlertDialogHeader>
@@ -888,6 +885,10 @@ export function AgendaOperacional() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}>
+        {rapidoAberto ? <AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /> : null}
+
 
         {fechando ? <FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); setSelecionado(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /> : null}
         {perfil ? <PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /> : null}
