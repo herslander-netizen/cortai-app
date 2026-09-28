@@ -213,8 +213,8 @@ export function AgendaFocoMobile(props: Props) {
           <nav className="mt-5 divide-y divide-line">
             <Link to="/barbeiro/conta" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><UserRound />Perfil</Link>
             <Link to="/barbeiro/configurar" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><Settings />Configurações</Link>
-            <Button variant="ghost" className="agenda-foco-menu-link" role="switch" aria-checked={foco} onClick={() => void alternarFoco()}><Maximize2 />Modo foco<span className="ml-auto text-xs text-mute">{foco ? "Ligado" : "Desligado"}</span></Button>
-            <Button variant="ghost" className="agenda-foco-menu-link" onClick={() => { setMenu(false); void sair(); }}><LogOut />Sair</Button>
+            <Button variant="ghost" className="agenda-foco-menu-link px-2" role="switch" aria-checked={foco} onClick={() => void alternarFoco()}><Maximize2 />Modo foco<span className="ml-auto text-xs text-mute">{foco ? "Ligado" : "Desligado"}</span></Button>
+            <Button variant="ghost" className="agenda-foco-menu-link px-2" onClick={() => { setMenu(false); void sair(); }}><LogOut />Sair</Button>
           </nav>
         </SheetContent>
       </Sheet>
