@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { sair } from "@/lib/guarda";
+import { brl } from "@/lib/format";
+import { resumoDoDia } from "@/lib/resumo-dia";
 
 type Props = {
   dia: string;
@@ -65,6 +67,9 @@ function minutosAte(iso: string, agora: number) {
 
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
+  const [verFeitos, setVerFeitos] = useState(false);
+  const resumo = resumoDoDia(props.itens, props.agora);
+  const feitos = props.itens.filter((i) => i.status === "finalizado");
   const toqueLongo = useRef<number | null>(null);
 
   const operacionais = props.itens.filter((item) => !["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status));
@@ -124,9 +129,17 @@ export function AgendaFocoMobile(props: Props) {
         </div>
       ) : null}
 
+      {props.itens.length ? (
+        <dl className="agenda-foco-resumo" aria-label="Resumo do dia">
+          <div><dt>Faturado</dt><dd>{brl(resumo.faturado)}</dd></div>
+          <div><dt>Faltam</dt><dd>{resumo.restantes}{resumo.atrasados ? <small> · {resumo.atrasados} atrasado{resumo.atrasados > 1 ? "s" : ""}</small> : null}</dd></div>
+          <div><dt>Tempo médio</dt><dd>{resumo.tempoMedio ? `${resumo.tempoMedio} min` : "—"}</dd></div>
+        </dl>
+      ) : null}
+
       <div className="agenda-foco-lista">
         {props.itens.length === 0 ? <div className="agenda-foco-vazio"><Scissors aria-hidden /><strong>Agenda livre</strong><span>Nenhum atendimento neste dia.</span></div> : null}
-        {props.itens.map((item) => {
+        {props.itens.filter((i) => verFeitos || i.status !== "finalizado").map((item) => {
           const ativo = item.status === "na_cadeira";
           const seguinte = proximo?.id === item.id;
           const telefone = item.telefone?.replace(/\D/g, "") ?? "";
@@ -161,6 +174,11 @@ export function AgendaFocoMobile(props: Props) {
             </article>
           );
         })}
+        {feitos.length ? (
+          <Button variant="ghost" className="agenda-foco-feitos" onClick={() => setVerFeitos((v) => !v)}>
+            <Check />{verFeitos ? "Esconder finalizados" : `Ver ${feitos.length} finalizado${feitos.length > 1 ? "s" : ""} hoje · ${brl(resumo.faturado)}`}
+          </Button>
+        ) : null}
       </div>
 
       <Sheet open={menu} onOpenChange={setMenu}>
