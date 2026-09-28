@@ -10,6 +10,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import type { HorarioDeFuncionamento } from "@/lib/horarios";
+import { variantesDoTelefone } from "@/lib/telefone";
+
+/** Estados que ocupam a cadeira — espelha a trava do banco. */
+export const STATUS_QUE_OCUPAM = ["agendado", "chegou", "na_cadeira", "finalizado"] as const;
+
+async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
+  const { data } = await db
+    .from("clientes")
+    .select("id, nome, telefone")
+    .eq("tenant_id", tenantId)
+    .in("telefone", variantesDoTelefone(telefone))
+    .is("arquivado_em", null)
+    .limit(1)
+    .maybeSingle();
+  return data as { id: string; nome: string; telefone: string } | null;
+}
 
 export type AgendaPublica = {
   tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string };
@@ -80,7 +96,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .gte("inicio", desde.toISOString())
         .lte("inicio", ate.toISOString())
-        .not("status", "in", "(cancelado,falta)"),
+        .in("status", [...STATUS_QUE_OCUPAM]),
     ]);
 
     return {
@@ -105,13 +121,7 @@ export const reconhecerCliente = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ nome: string | null }> => {
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
-    const { data: clientes } = await db
-      .from("clientes")
-      .select("nome, telefone")
-      .eq("tenant_id", tenant.id)
-      .is("arquivado_em", null)
-      .limit(500);
-    const achado = (clientes ?? []).find((c: any) => digitos(String(c.telefone ?? "")) === data.telefone);
+    const achado = await clientePorTelefone(db, tenant.id, data.telefone);
     return { nome: achado ? String(achado.nome).split(" ")[0] ?? null : null };
   });
 
@@ -137,6 +147,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         inicio: z.string().min(10),
         nome: z.string().trim().min(2).max(80),
         telefone: telefoneSchema,
+        substituiId: z.string().uuid().optional(),
       })
       .parse(input),
   )
@@ -176,12 +187,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     if (!profissional) throw new Error("Esse profissional não está disponível.");
 
     // Ficha do cliente: reaproveita pelo WhatsApp para não duplicar cadastro.
-    const { data: clientes } = await db
-      .from("clientes")
-      .select("id, nome, telefone")
-      .eq("tenant_id", tenant.id)
-      .limit(1000);
-    const existente = (clientes ?? []).find((c: any) => digitos(String(c.telefone ?? "")) === data.telefone);
+    const existente = await clientePorTelefone(db, tenant.id, data.telefone);
 
     let clienteId: string;
     let clienteNome: string;
@@ -218,6 +224,19 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     }
     const criado = res as any;
 
+    // Alteração: o horário antigo só é liberado depois que o novo está garantido.
+    if (data.substituiId) {
+      const { data: antigo } = await db
+        .from("agendamentos")
+        .select("id, tenant_id, clientes!inner(telefone)")
+        .eq("id", data.substituiId)
+        .maybeSingle();
+      const tel = String((antigo as any)?.clientes?.telefone ?? "");
+      if (antigo && (antigo as any).tenant_id === tenant.id && variantesDoTelefone(tel).includes(variantesDoTelefone(data.telefone)[0] ?? "")) {
+        await db.rpc("cancelar_agendamento", { _agendamento_id: data.substituiId });
+      }
+    }
+
     // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
     try {
       const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
@@ -252,8 +271,8 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .maybeSingle();
     if (!ag) throw new Error("Agendamento não encontrado.");
-    const telefone = digitos(String((ag as any).clientes?.telefone ?? ""));
-    if (telefone !== data.telefone) throw new Error("Agendamento não encontrado.");
+    const telefone = String((ag as any).clientes?.telefone ?? "");
+    if (!variantesDoTelefone(telefone).some((v) => variantesDoTelefone(data.telefone).includes(v))) throw new Error("Agendamento não encontrado.");
     const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
     if (error) throw new Error("Não foi possível cancelar agora.");
     try {
