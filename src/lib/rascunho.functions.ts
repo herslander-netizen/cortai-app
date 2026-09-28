@@ -16,7 +16,7 @@ import type { HorarioSugerido } from "@/lib/ia/assistente";
 import { SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 
-export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number; retornoDias?: number | null };
+export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number; retornoDias?: number | null | undefined };
 
 export type DadosDoRascunho = {
   nome: string;

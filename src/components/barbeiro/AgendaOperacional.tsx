@@ -187,8 +187,6 @@ export function AgendaOperacional() {
     queryFn: async () => {
       try {
         const dados = await getAgendaDia({ data: { dia } });
-  const segmentoAgenda = agenda.data?.tenant.segmento ?? "barbearia";
-  const rotuloAtendimento = segmentoAgenda === "barbearia" ? "Na cadeira" : "Em atendimento";
         window.localStorage.setItem("cortai-agenda-tenant-atual", dados.tenant.id);
         window.localStorage.setItem(`cortai-agenda-cache:${dados.tenant.id}:${dia}`, JSON.stringify(dados));
         return dados;
@@ -206,6 +204,8 @@ export function AgendaOperacional() {
     refetchIntervalInBackground: false,
     placeholderData: keepPreviousData,
   });
+  const segmentoAgenda = agenda.data?.tenant.segmento ?? "barbearia";
+  const rotuloAtendimento = segmentoAgenda === "barbearia" ? "Na cadeira" : "Em atendimento";
 
   const filaQ = useQuery({ queryKey: ["agenda-fila"], queryFn: () => getOperacaoFila(), staleTime: 30_000, refetchOnWindowFocus: true });
   const aReceberQ = useQuery({ queryKey: ["agenda-a-receber"], queryFn: () => getAguardandoPagamento(), staleTime: 30_000, refetchOnWindowFocus: true });

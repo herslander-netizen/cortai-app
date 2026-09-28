@@ -18,7 +18,7 @@ async function tenantPadrao(context: ContextoAutenticado) {
   const tenantId = await tenantIdDoMembro(context);
   const { data: tenant } = await db
     .from("tenants")
-    .select("id, nome, slug, indicacao_ativa, indicacao_codigo, indicacao_recompensa, link_avaliacao_publica")
+    .select("id, nome, slug, segmento, indicacao_ativa, indicacao_codigo, indicacao_recompensa, link_avaliacao_publica")
     .eq("id", tenantId)
     .maybeSingle();
   if (!tenant) throw new Error("Barbearia não encontrada");
