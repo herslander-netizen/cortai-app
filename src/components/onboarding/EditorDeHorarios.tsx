@@ -2,17 +2,20 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles } from "lucide-react";
 
-import { DIAS_DA_SEMANA, horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import { DIAS_DA_SEMANA, type HorarioSugerido } from "@/lib/ia/assistente";
 import { interpretarHorarios } from "@/lib/assistente.functions";
+import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export function EditorDeHorarios({
   horarios,
   onChange,
   semIA = false,
+  segmento = "barbearia",
 }: {
   horarios: HorarioSugerido[];
   onChange: (h: HorarioSugerido[]) => void;
   semIA?: boolean;
+  segmento?: Segmento;
 }) {
   const interpretar = useServerFn(interpretarHorarios);
   const [texto, setTexto] = useState("");
@@ -20,6 +23,8 @@ export function EditorDeHorarios({
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [previa, setPrevia] = useState<HorarioSugerido[] | null>(null);
+  const padrao = SEGMENTOS_CONFIG[segmentoValido(segmento)].horariosPadrao;
+  const rotuloPadrao = segmento === "barbearia" || segmento === "outro" ? "Usar Seg–Sáb, 09:00 às 19:00" : "Usar Ter–Sáb, 09:00 às 19:00";
 
   function atualizar(dia: number, campos: Partial<HorarioSugerido>) {
     onChange(horarios.map((h) => (h.diaSemana === dia ? { ...h, ...campos } : h)));
@@ -30,9 +35,9 @@ export function EditorDeHorarios({
       <button
         type="button"
         className="btn-secondary w-full py-2.5 text-sm"
-        onClick={() => onChange(horariosPadrao())}
+        onClick={() => onChange(padrao.map((horario) => ({ ...horario })))}
       >
-        Usar Seg–Sáb, 09:00 às 19:00
+        {rotuloPadrao}
       </button>
 
       <ul className="mt-4 divide-y divide-line border-y border-line">
@@ -162,7 +167,7 @@ export function EditorDeHorarios({
                 className="btn-primary flex-1 py-2 text-sm"
                 onClick={() => {
                   const mapa = new Map(previa.map((h) => [h.diaSemana, h]));
-                  onChange(horariosPadrao().map((h) => mapa.get(h.diaSemana) ?? h));
+                  onChange(padrao.map((h) => mapa.get(h.diaSemana) ?? { ...h }));
                   setPrevia(null);
                   setTexto("");
                 }}

@@ -3,8 +3,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 
 import { brl } from "@/lib/format";
-import { SERVICOS_SUGERIDOS, type ServicoSugerido } from "@/lib/ia/assistente";
+import type { ServicoSugerido } from "@/lib/ia/assistente";
 import { interpretarServicos } from "@/lib/assistente.functions";
+import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { Button } from "@/components/ui/button";
 
 export type ServicoEditavel = ServicoSugerido & { id?: string; profissionalIds?: string[] };
 
@@ -13,12 +15,14 @@ export function EditorDeServicos({
   onChange,
   profissionais,
   semIA = false,
+  segmento = "barbearia",
 }: {
   servicos: ServicoEditavel[];
   onChange: (s: ServicoEditavel[]) => void;
   /** Quando há mais de um profissional, mostra quem faz cada serviço. */
   profissionais?: { id: string; nome: string }[];
   semIA?: boolean;
+  segmento?: Segmento;
 }) {
   const interpretar = useServerFn(interpretarServicos);
   const [texto, setTexto] = useState("");
@@ -28,12 +32,14 @@ export function EditorDeServicos({
   const [previa, setPrevia] = useState<ServicoSugerido[] | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [mostrarTodas, setMostrarTodas] = useState(false);
+  const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
 
   function atualizar(indice: number, campos: Partial<ServicoEditavel>) {
     onChange(servicos.map((s, i) => (i === indice ? { ...s, ...campos } : s)));
   }
 
-  const naoAdicionados = SERVICOS_SUGERIDOS.filter(
+  const naoAdicionados = definicao.servicosSugeridos.filter(
     (s) => !servicos.some((a) => a.nome.toLowerCase() === s.nome.toLowerCase()),
   );
 
@@ -56,6 +62,22 @@ export function EditorDeServicos({
           </div>
         </>
       ) : null}
+
+      <Button variant="link" type="button" className="mt-2 h-auto px-0 text-xs text-mute" onClick={() => setMostrarTodas((valor) => !valor)}>
+        {mostrarTodas ? "Ocultar outras sugestões" : "Ver sugestões de outros segmentos"}
+      </Button>
+      {mostrarTodas ? <div className="mt-3 space-y-4 border-t border-line pt-4">
+        {LISTA_DE_SEGMENTOS.filter((item) => item.id !== definicao.id && item.servicosSugeridos.length).map((item) => (
+          <section key={item.id}>
+            <p className="text-xs font-semibold text-paper">{item.rotulo}</p>
+            <div className="mt-2 flex flex-wrap gap-2">{item.servicosSugeridos.map((servico) => (
+              <Button key={`${item.id}-${servico.nome}`} variant="outline" type="button" className="min-h-10 rounded-full px-3 text-xs" onClick={() => onChange([...servicos, { ...servico }])}>
+                <Plus size={13} aria-hidden /> {servico.nome}
+              </Button>
+            ))}</div>
+          </section>
+        ))}
+      </div> : null}
 
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
@@ -166,7 +188,7 @@ export function EditorDeServicos({
       </button>
 
       <datalist id="categorias-de-servico">
-        {["Cabelo", "Barba", "Combo", "Acabamento", "Química"].map((c) => (
+        {definicao.categorias.map((c) => (
           <option key={c} value={c} />
         ))}
       </datalist>
@@ -180,7 +202,7 @@ export function EditorDeServicos({
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           rows={2}
-          placeholder="Cadastre corte por 35 reais e barba por 25, os dois levam 30 minutos"
+          placeholder={definicao.exemploIA}
           className="mt-3 w-full resize-none rounded-lg border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
         />
         <button
