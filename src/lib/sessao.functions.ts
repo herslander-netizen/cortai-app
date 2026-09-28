@@ -193,7 +193,7 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     const baseSlug = data.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "negocio";
     const { data: slugExistente } = await db.from("tenants").select("id").eq("slug", baseSlug).maybeSingle();
     const slug = slugExistente ? `${baseSlug}-${crypto.randomUUID().slice(0, 4)}` : baseSlug;
-    const { data: tenant, error } = await db.from("tenants").insert({ nome: data.nome, slug, segmento: data.segmento, identidade_app: definicao.identidade, modo: definicao.modoPadrao }).select("id").single();
+    const { data: tenant, error } = await db.from("tenants").insert({ nome: data.nome, slug, segmento: data.segmento, identidade_app: definicao.identidade, modo: definicao.modoPadrao, chips_ficha: definicao.chipsFicha }).select("id").single();
     if (error || !tenant) throw new Error("Não foi possível criar seu negócio agora.");
     const tenantId = tenant.id;
     const pagina = configPadrao(definicao.temaPagina === "rose-creme" ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" } : undefined);

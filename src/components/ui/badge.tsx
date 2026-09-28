@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import { termos, type Segmento } from "@/lib/segmentos";
+import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 
 const badgeVariants = cva(
   "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",
@@ -37,7 +38,9 @@ const STATUS = {
 } as const;
 
 export type StatusKey = keyof typeof STATUS;
-export function StatusBadge({ status, label, className, segmento = "barbearia" }: { status: StatusKey | string; label?: string; className?: string; segmento?: Segmento }) {
+export function StatusBadge({ status, label, className, segmento: segmentoProp }: { status: StatusKey | string; label?: string; className?: string; segmento?: Segmento }) {
+  const segmentoDoPainel = useSegmentoDoPainel();
+  const segmento = segmentoProp ?? segmentoDoPainel;
   const fallback = STATUS.agendado;
   const item = STATUS[status as StatusKey] ?? fallback;
   const Icon = item.Icon;

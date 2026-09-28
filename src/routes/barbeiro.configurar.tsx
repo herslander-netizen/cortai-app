@@ -147,6 +147,7 @@ function ConfigurarPage() {
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
           profissionalIds: s.profissionalIds,
+          retornoDias: s.retornoDias,
         }))
       : definicao.servicosSugeridos.map((s) => ({ ...s })));
   const profissionais = (data?.profissionais ?? []).filter((p) => p.ativo);
@@ -238,6 +239,7 @@ function ConfigurarPage() {
           precoCentavos: s.precoCentavos,
           categoria: s.categoria?.trim() || "Serviço",
           ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
+          ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
         })),
       },
     }).then(() => setServicos(null));

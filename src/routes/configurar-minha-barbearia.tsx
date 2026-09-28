@@ -157,6 +157,7 @@ function ConfigurarMinhaBarbearia() {
     categoria: s.categoria,
     duracaoMin: s.duracaoMin,
     precoCentavos: s.precoCentavos,
+    retornoDias: s.retornoDias ?? null,
   }));
 
   return (
@@ -239,6 +240,7 @@ function ConfigurarMinhaBarbearia() {
                     categoria: item.categoria,
                     duracaoMin: item.duracaoMin,
                     precoCentavos: item.precoCentavos,
+                    retornoDias: item.retornoDias ?? null,
                   })),
                 })
               }

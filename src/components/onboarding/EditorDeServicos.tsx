@@ -8,7 +8,7 @@ import { interpretarServicos } from "@/lib/assistente.functions";
 import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
 
-export type ServicoEditavel = ServicoSugerido & { id?: string; profissionalIds?: string[] };
+export type ServicoEditavel = Omit<ServicoSugerido, "retornoDias"> & { id?: string; profissionalIds?: string[]; retornoDias?: number | null };
 
 export function EditorDeServicos({
   servicos,
@@ -144,6 +144,27 @@ export function EditorDeServicos({
                 />
               </label>
             </div>
+            <label className="mt-2 block text-xs text-mute">
+              Voltar em (dias) <span className="text-mute2">— opcional</span>
+              <input
+                type="number"
+                min={3}
+                max={365}
+                inputMode="numeric"
+                placeholder="—"
+                value={rascunho[`${i}-retorno`] ?? (s.retornoDias ? String(s.retornoDias) : "")}
+                onChange={(e) => {
+                  setRascunho({ ...rascunho, [`${i}-retorno`]: e.target.value });
+                  const v = e.target.value.trim();
+                  const n = Number(v);
+                  if (v === "") atualizar(i, { retornoDias: null });
+                  else if (Number.isInteger(n) && n >= 3 && n <= 365) atualizar(i, { retornoDias: n });
+                }}
+                onBlur={() => setRascunho(Object.fromEntries(Object.entries(rascunho).filter(([k]) => k !== `${i}-retorno`)))}
+                className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+              />
+              <span className="mt-1 block text-mute2">A CortAI lembra o cliente no WhatsApp quando chegar a hora.</span>
+            </label>
             {profissionais && profissionais.length > 1 ? (
               <div className="mt-3">
                 <p className="text-xs text-mute">Quem faz</p>

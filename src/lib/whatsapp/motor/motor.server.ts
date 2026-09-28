@@ -13,10 +13,10 @@
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 import type { ConfiguracaoDoAtendimento, Intencao } from "../contrato";
-import { SAUDACAO_PADRAO } from "../contrato";
+import { saudacaoPadrao } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
-import { servicoCombinaComCanonico } from "./vocabulario";
+import { escolherServicoPorCanonico } from "./vocabulario";
 import {
   responder as textoDaConversaPadrao,
   type ChaveDeTexto,
@@ -206,7 +206,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       const escrita = (entrada.config.mensagemBoasVindas ?? "").trim();
       const saudacao =
         escrita ||
-        frase(entrada, "saudacao_nova", { barbearia: entrada.nomeDaBarbearia }, SAUDACAO_PADRAO);
+        frase(entrada, "saudacao_nova", { barbearia: entrada.nomeDaBarbearia }, saudacaoPadrao(entrada.config.segmento));
 
       // Cliente já conhecido: oferece o de sempre em vez de repetir o menu seco.
       if (contexto.clienteId) {
@@ -423,8 +423,9 @@ async function avancarAgendamento(
   let servicoNome = contexto.servicoNome ?? null;
   if (!servicoId && cls.entidades.servico) {
     const alvo = cls.entidades.servico;
-    const compativeis = servicos.filter((s) => servicoCombinaComCanonico(s.nome, alvo));
-    const achado = compativeis.length === 1 ? compativeis[0] : null;
+    const escolha = escolherServicoPorCanonico(servicos, alvo);
+    const achado = escolha.tipo === "unico" ? escolha.servico : null;
+    const compativeis = escolha.tipo === "varios" ? escolha.servicos : [];
     if (achado) {
       servicoId = achado.id;
       servicoNome = achado.nome;

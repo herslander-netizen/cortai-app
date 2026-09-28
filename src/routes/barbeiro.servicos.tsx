@@ -48,6 +48,7 @@ function ServicosPage() {
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
            profissionalIds: s.profissionalIds,
+          retornoDias: s.retornoDias,
         })),
     );
     setIniciado(true);
@@ -79,6 +80,7 @@ function ServicosPage() {
                     precoCentavos: s.precoCentavos,
                     categoria: s.categoria,
                     ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
+          ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
                   })),
               },
             });

@@ -68,11 +68,12 @@ function Conteudo({ p, segmento }: { p: PerfilCliente; segmento: Segmento }) {
           <div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-line px-2 text-center text-xs text-mute">Sem {termos.fotoAtendimento.toLocaleLowerCase("pt-BR")}</div>
         )}
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase text-mute">Ficha de corte</p>
+          <p className="text-xs font-bold uppercase text-mute">{barbeiro ? "Ficha de corte" : "Ficha"}</p>
           {p.ficha.chips.length ? (
             <div className="mt-2 flex flex-wrap gap-1.5">{p.ficha.chips.map((c) => <span key={c} className="rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-paper">{c}</span>)}</div>
           ) : <p className="mt-2 text-sm text-mute">Nada marcado ainda.</p>}
           {p.ficha.texto ? <p className="mt-2 line-clamp-4 text-sm text-paper">{p.ficha.texto}</p> : null}
+          {p.retornoSugerido ? <p className="mt-2 text-xs text-mute">Retorno sugerido: <span className="font-semibold text-paper">{data(p.retornoSugerido.data, p.fuso)}</span> ({p.retornoSugerido.servico})</p> : null}
         </div>
       </div>
 
@@ -112,7 +113,7 @@ function Conteudo({ p, segmento }: { p: PerfilCliente; segmento: Segmento }) {
             {p.historico.map((h) => (
               <li key={h.id} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 py-3 text-sm">
                 <span className="text-xs text-mute">{data(h.inicio, p.fuso)}</span>
-                <span className="min-w-0"><span className="block truncate font-semibold text-paper">{h.servico}</span><span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-mute"><span className="truncate">{h.profissional}</span><StatusBadge status={h.status} /></span></span>
+                <span className="min-w-0"><span className="block truncate font-semibold text-paper">{h.servico}</span><span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-mute"><span className="truncate">{h.profissional}</span><StatusBadge status={h.status} segmento={segmento} /></span></span>
                 <span className={`money-value ${h.status === "finalizado" ? "text-paper" : "text-mute"}`}>{h.status === "finalizado" ? brl(h.valorCentavos) : "—"}</span>
               </li>
             ))}

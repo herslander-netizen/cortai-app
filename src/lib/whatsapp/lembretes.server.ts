@@ -336,12 +336,46 @@ export async function avisarListaDeEspera(agendamentoId: string) {
  * último atendimento finalizado + intervalo médio (30 dias com pouco histórico),
  * sem nenhum horário depois dele, com consentimento de WhatsApp.
  */
+export type AtendimentoParaRetorno = { id: string; inicio: number; status: string; retornoDias: number | null };
+
+const DIA_MS = 24 * 3600_000;
+
+/**
+ * Prazo de retorno: o do último serviço concluído (retorno_dias); sem prazo
+ * no serviço, o prazo geral de hoje (30 dias ou a média do cliente).
+ */
+export function prazoDeRetornoMs(finalizados: AtendimentoParaRetorno[]): number {
+  const ultimo = finalizados[finalizados.length - 1];
+  if (ultimo?.retornoDias) return ultimo.retornoDias * DIA_MS;
+  if (finalizados.length >= 3) {
+    const gaps = finalizados.slice(1).map((a, i) => a.inicio - finalizados[i]!.inicio);
+    const media = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+    return Math.min(120 * DIA_MS, Math.max(10 * DIA_MS, media));
+  }
+  return 30 * DIA_MS;
+}
+
+/** Regra pura: último atendimento finalizado, sem horário depois, dentro da janela do prazo. */
+export function selecionarCandidatosAoRetorno(porCliente: Iterable<AtendimentoParaRetorno[]>, agora: number, jaAvisados: Set<string> = new Set()): string[] {
+  const candidatos: string[] = [];
+  for (const lista of porCliente) {
+    const ordenada = [...lista].sort((a, b) => a.inicio - b.inicio);
+    const ultimo = ordenada[ordenada.length - 1];
+    if (!ultimo || ultimo.status !== "finalizado") continue; // já tem horário marcado depois
+    if (jaAvisados.has(ultimo.id)) continue; // um aviso por atendimento
+    const sugerido = ultimo.inicio + prazoDeRetornoMs(ordenada.filter((a) => a.status === "finalizado"));
+    // Janela: 2 dias antes até 5 dias depois da data sugerida.
+    if (agora >= sugerido - 2 * DIA_MS && agora <= sugerido + 5 * DIA_MS) candidatos.push(ultimo.id);
+  }
+  return candidatos;
+}
+
 export async function candidatosAoRetorno(agora = new Date()): Promise<string[]> {
   const db = await admin();
-  const desde = new Date(agora.getTime() - 200 * 24 * 3600_000).toISOString();
+  const desde = new Date(agora.getTime() - 400 * DIA_MS).toISOString();
   const { data } = await db
     .from("agendamentos")
-    .select("id, cliente_id, inicio, status, clientes!inner(opt_in_whatsapp, arquivado_em)")
+    .select("id, cliente_id, inicio, status, servicos(retorno_dias), clientes!inner(opt_in_whatsapp, arquivado_em)")
     .gte("inicio", desde)
     .not("status", "in", "(cancelado,nao_compareceu,remarcado,falta)")
     .eq("clientes.opt_in_whatsapp", true)
@@ -349,30 +383,16 @@ export async function candidatosAoRetorno(agora = new Date()): Promise<string[]>
     .order("inicio", { ascending: true })
     .limit(5000);
 
-  const porCliente = new Map<string, { id: string; inicio: number; status: string }[]>();
+  const porCliente = new Map<string, AtendimentoParaRetorno[]>();
   for (const a of data ?? []) {
     if (!a.cliente_id) continue;
     const lista = porCliente.get(a.cliente_id) ?? [];
-    lista.push({ id: a.id, inicio: new Date(a.inicio).getTime(), status: String(a.status) });
+    const retornoDias = ((a as { servicos?: { retorno_dias: number | null } | null }).servicos?.retorno_dias) ?? null;
+    lista.push({ id: a.id, inicio: new Date(a.inicio).getTime(), status: String(a.status), retornoDias });
     porCliente.set(a.cliente_id, lista);
   }
 
-  const DIA = 24 * 3600_000;
-  const candidatos: string[] = [];
-  for (const lista of porCliente.values()) {
-    const ultimo = lista[lista.length - 1];
-    if (!ultimo || ultimo.status !== "finalizado") continue; // já tem horário marcado depois
-    const finalizados = lista.filter((a) => a.status === "finalizado");
-    let intervalo = 30 * DIA;
-    if (finalizados.length >= 3) {
-      const gaps = finalizados.slice(1).map((a, i) => a.inicio - finalizados[i]!.inicio);
-      const media = gaps.reduce((s, g) => s + g, 0) / gaps.length;
-      intervalo = Math.min(120 * DIA, Math.max(10 * DIA, media));
-    }
-    const sugerido = ultimo.inicio + intervalo;
-    // Janela: 2 dias antes até 5 dias depois da data sugerida.
-    if (agora.getTime() >= sugerido - 2 * DIA && agora.getTime() <= sugerido + 5 * DIA) candidatos.push(ultimo.id);
-  }
+  const candidatos = selecionarCandidatosAoRetorno(porCliente.values(), agora.getTime());
   if (candidatos.length === 0) return [];
 
   const { data: jaEnviados } = await db

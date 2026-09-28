@@ -14,7 +14,7 @@ import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { alterarSegmento } from "@/lib/onboarding.functions";
+import { alterarSegmento, trocarAtalhosDaFicha } from "@/lib/onboarding.functions";
 import { LISTA_DE_SEGMENTOS, termos } from "@/lib/segmentos";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 import { aviso } from "@/lib/avisos";
@@ -39,6 +39,7 @@ function ContaPage() {
   const [saindo, setSaindo] = useState(false);
   const queryClient = useQueryClient();
   const salvarSegmento = useServerFn(alterarSegmento);
+  const trocarAtalhos = useServerFn(trocarAtalhosDaFicha);
   const [segmento, setSegmento] = useState(data?.segmento ?? "barbearia");
   const [salvandoSegmento, setSalvandoSegmento] = useState(false);
 
@@ -119,7 +120,7 @@ function ContaPage() {
       {data?.permissoes.includes("alterar_dados_barbearia") ? <section className="border-b border-line py-5">
         <label className="block text-xs font-medium text-mute">Tipo de negócio<select className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper" value={segmento} onChange={(event) => setSegmento(event.target.value as typeof segmento)}>{LISTA_DE_SEGMENTOS.map((item) => <option key={item.id} value={item.id}>{item.rotulo}</option>)}</select></label>
         <p className="mt-2 text-xs text-mute">Ajusta sugestões e palavras. Seus serviços, clientes e horários não mudam.</p>
-        <Button variant="outline" type="button" className="mt-3 min-h-12 w-full" disabled={salvandoSegmento || segmento === data.segmento} onClick={async () => { setSalvandoSegmento(true); try { const aplicarCores = window.confirm(`Usar também as cores recomendadas para ${termos(segmento).nome}?`); const resultado = await salvarSegmento({ data: { segmento, aplicarCores } }); if (aplicarCores) { aplicarIdentidade(resultado.identidade); aplicarModo(resultado.modo, true); } await queryClient.invalidateQueries({ queryKey: ["sessao"] }); await queryClient.invalidateQueries({ queryKey: ["implantacao"] }); aviso.ok("Tipo de negócio atualizado."); } catch (erro) { aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar."); } finally { setSalvandoSegmento(false); } }}>Salvar tipo de negócio</Button>
+        <Button variant="outline" type="button" className="mt-3 min-h-12 w-full" disabled={salvandoSegmento || segmento === data.segmento} onClick={async () => { setSalvandoSegmento(true); try { const aplicarCores = window.confirm(`Usar também as cores recomendadas para ${termos(segmento).nome}?`); const resultado = await salvarSegmento({ data: { segmento, aplicarCores } }); if (aplicarCores) { aplicarIdentidade(resultado.identidade); aplicarModo(resultado.modo, true); } if (resultado.ofereceTrocarAtalhos && window.confirm(`Trocar os atalhos da ficha do cliente pelos sugeridos para ${termos(segmento).nome}?`)) await trocarAtalhos(); await queryClient.invalidateQueries({ queryKey: ["sessao"] }); await queryClient.invalidateQueries({ queryKey: ["implantacao"] }); aviso.ok("Tipo de negócio atualizado."); } catch (erro) { aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar."); } finally { setSalvandoSegmento(false); } }}>Salvar tipo de negócio</Button>
       </section> : null}
 
       <PreferenciasDicas />

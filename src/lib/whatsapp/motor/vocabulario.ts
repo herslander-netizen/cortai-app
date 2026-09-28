@@ -161,9 +161,33 @@ export function servicoCitado(textoNormalizado: string, segmento = "barbearia"):
   return null;
 }
 
-export function servicoCombinaComCanonico(nome: string, canonico: string): boolean {
-  const nomeNormalizado = normalizar(nome);
-  return [canonico, ...(ALIASES_DE_SERVICO[canonico] ?? [])].some((termo) => nomeNormalizado.includes(termo) || normalizar(termo).includes(nomeNormalizado));
+/** Nome comparável: normalizado e sem conectores ("Corte + Barba" = "corte e barba"). */
+function chaveDeNome(texto: string): string {
+  return normalizar(texto.replace(/[+&]/g, " ")).split(" ").filter((p) => p && p !== "e").join(" ");
+}
+
+export type EscolhaDeServico<T> =
+  | { tipo: "unico"; servico: T }
+  | { tipo: "varios"; servicos: T[] }
+  | { tipo: "nenhum" };
+
+/**
+ * Escolhe o serviço do negócio para um termo canônico:
+ * 1) nome igual ao termo/sinônimo; 2) um único nome que contém o termo;
+ * 3) vários → perguntar; 4) nenhum → lista completa.
+ */
+export function escolherServicoPorCanonico<T extends { nome: string }>(servicos: T[], canonico: string): EscolhaDeServico<T> {
+  const termos = [...new Set([canonico.replace(/_/g, " "), ...(ALIASES_DE_SERVICO[canonico] ?? [])].map(chaveDeNome))].filter(Boolean);
+  const iguais = servicos.filter((s) => termos.includes(chaveDeNome(s.nome)));
+  if (iguais.length === 1) return { tipo: "unico", servico: iguais[0]! };
+  if (iguais.length > 1) return { tipo: "varios", servicos: iguais };
+  const contem = servicos.filter((s) => {
+    const nome = chaveDeNome(s.nome);
+    return termos.some((t) => new RegExp(`(^|\\s)${t}(\\s|$)`).test(nome));
+  });
+  if (contem.length === 1) return { tipo: "unico", servico: contem[0]! };
+  if (contem.length > 1) return { tipo: "varios", servicos: contem };
+  return { tipo: "nenhum" };
 }
 
 const NUMEROS_ESCRITOS: Record<string, number> = {

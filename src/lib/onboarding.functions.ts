@@ -8,7 +8,7 @@ import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
 import { capacidadesDoTenant } from "@/lib/capacidades.functions";
 import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, chipsSaoPadraoBarbearia, segmentoValido, type Segmento } from "@/lib/segmentos";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
@@ -28,6 +28,8 @@ export type ServicoDaBarbearia = {
   ativo: boolean;
   categoria: string;
   profissionalIds: string[];
+  /** Prazo para lembrar o cliente de voltar; null = prazo geral. */
+  retornoDias: number | null;
 };
 
 export type RegrasDeAgendamento = {
@@ -53,6 +55,7 @@ function paraServico(s: Record<string, any>): ServicoDaBarbearia {
     ativo: Boolean(s["ativo"]),
     categoria: (s["categoria"] as string | null) ?? "Serviço",
     profissionalIds: (s["profissional_ids"] as string[] | null) ?? [],
+    retornoDias: (s["retorno_dias"] as number | null) ?? null,
   };
 }
 
@@ -108,6 +111,7 @@ const servicoSchema = z.object({
   precoCentavos: z.number().int().min(0).max(10_000_000),
   categoria: z.string().trim().max(40).optional(),
   profissionalIds: z.array(z.string().uuid()).max(50).optional(),
+  retornoDias: z.number().int().min(3).max(365).nullable().optional(),
 });
 
 export const getConfiguracaoInicial = createServerFn({ method: "GET" })
@@ -264,6 +268,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
           preco_centavos: s.precoCentavos,
           categoria: s.categoria ?? null,
           profissional_ids: s.profissionalIds ?? [],
+          retorno_dias: s.retornoDias ?? null,
           ordem: i,
         })),
       );
@@ -279,6 +284,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
           preco_centavos: s.precoCentavos,
           ...(s.categoria !== undefined ? { categoria: s.categoria } : {}),
           ...(s.profissionalIds !== undefined ? { profissional_ids: s.profissionalIds } : {}),
+          ...(s.retornoDias !== undefined ? { retorno_dias: s.retornoDias } : {}),
         })
         .eq("id", s.id)
         .eq("tenant_id", tenantId);
@@ -481,7 +487,23 @@ export const alterarSegmento = createServerFn({ method: "POST" })
       : { segmento: data.segmento };
     const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
     if (error) throw new Error("Não foi possível alterar o tipo de negócio.");
-    return { ok: true, identidade: definicao.identidade, modo: definicao.modoPadrao };
+    const { data: t } = await context.supabase.from("tenants").select("chips_ficha").eq("id", tenantId).maybeSingle();
+    const ofereceTrocarAtalhos = data.segmento !== "barbearia" && chipsSaoPadraoBarbearia(t?.chips_ficha);
+    return { ok: true, identidade: definicao.identidade, modo: definicao.modoPadrao, ofereceTrocarAtalhos };
+  });
+
+/** Troca os atalhos da ficha pelos do segmento — só se ainda forem os padrão da barbearia. */
+export const trocarAtalhosDaFicha = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { data: t } = await context.supabase.from("tenants").select("chips_ficha, segmento").eq("id", tenantId).maybeSingle();
+    if (!t || !chipsSaoPadraoBarbearia(t.chips_ficha)) return { ok: false };
+    const chips = SEGMENTOS_CONFIG[segmentoValido(t.segmento)].chipsFicha;
+    const { error } = await context.supabase.from("tenants").update({ chips_ficha: chips }).eq("id", tenantId);
+    if (error) throw new Error("Não foi possível trocar os atalhos da ficha.");
+    return { ok: true };
   });
 
 /** Guarda a etapa alcançada, para a pessoa poder sair e voltar sem perder nada. */

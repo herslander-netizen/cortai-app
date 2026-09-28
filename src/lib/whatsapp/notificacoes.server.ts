@@ -13,6 +13,7 @@
  *   agendamento, nunca outra.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { segmentoValido } from "@/lib/segmentos";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
 
@@ -115,6 +116,10 @@ export type DadosDaMensagem = {
   linkPagamento: string | null;
   /** Fuso da barbearia; garante data e hora corretas para o cliente. */
   fuso: string;
+  /** Segmento do negócio: fora da barbearia, o retorno usa o texto do segmento. */
+  segmento?: string | null;
+  /** Texto de retorno já preenchido (personalização > padrão do segmento). */
+  textoRetorno?: string | null;
 };
 
 /**
@@ -165,6 +170,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Até daqui a pouco! ✂️",
     );
+  } else if (tipo === "retorno" && d.textoRetorno) {
+    blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
     blocos.push(
       `Olá, ${nome}! 👋`,
@@ -426,9 +433,25 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   const { data: tenant } = await db
     .from("tenants")
-    .select("nome, endereco, slug, fuso")
+    .select("nome, endereco, slug, fuso, segmento")
     .eq("id", ag.tenant_id)
     .maybeSingle();
+
+  let textoRetorno: string | null = null;
+  if (tipo === "retorno" && tenant?.segmento && tenant.segmento !== "barbearia") {
+    const { textoDaSituacao, preencher } = await import("./conversa-padrao");
+    const base = textoDaSituacao("retorno", { textos: config.textosConversa, desligadas: config.situacoesDesligadas }, segmentoValido(tenant.segmento));
+    const dias = Math.max(1, Math.round((Date.now() - new Date(ag.inicio).getTime()) / 86_400_000));
+    textoRetorno = base
+      ? preencher(base, {
+          nome: primeiroNome(cliente?.nome ?? "cliente"),
+          dias,
+          ultimo_servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
+          profissional: ((ag as any).profissionais?.nome as string | undefined) ?? "a equipe",
+          barbearia: tenant.nome,
+        })
+      : null;
+  }
 
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
@@ -439,6 +462,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     valorCentavos: ag.valor_centavos ?? 0,
     endereco: tenant?.endereco ?? null,
     fuso: await fusoDoTenant(ag.tenant_id),
+    segmento: tenant?.segmento ?? null,
+    textoRetorno,
     linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
     linkPagamento:
       tipo === "confirmacao_agendamento" && config.pagamentoAntecipado && config.linkPagamento?.startsWith("http")

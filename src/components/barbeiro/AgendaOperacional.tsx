@@ -187,6 +187,8 @@ export function AgendaOperacional() {
     queryFn: async () => {
       try {
         const dados = await getAgendaDia({ data: { dia } });
+  const segmentoAgenda = agenda.data?.tenant.segmento ?? "barbearia";
+  const rotuloAtendimento = segmentoAgenda === "barbearia" ? "Na cadeira" : "Em atendimento";
         window.localStorage.setItem("cortai-agenda-tenant-atual", dados.tenant.id);
         window.localStorage.setItem(`cortai-agenda-cache:${dados.tenant.id}:${dia}`, JSON.stringify(dados));
         return dados;
@@ -365,7 +367,7 @@ export function AgendaOperacional() {
   }
 
   function oferecerDesfazerInicio(r: { agendamentoId: string; cliente: string; filaId?: string; statusAnterior?: string }) {
-    comDesfazer(`${r.cliente}: Na cadeira.`, async () => {
+    comDesfazer(`${r.cliente}: ${rotuloAtendimento}.`, async () => {
       try {
         await desfazerInicioRapido({ data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null, statusAnterior: r.statusAnterior ?? null } });
       } catch {
@@ -399,7 +401,7 @@ export function AgendaOperacional() {
     let pedido: Promise<unknown> | null = null;
     // Otimista: "Desfazer" aparece no toque; desfazer espera o pedido original terminar.
     if (oferecerUndo) {
-      comDesfazer(`${item.cliente}: ${ROTULO_ESTADO[novo] ?? novo}.`, async () => {
+      comDesfazer(`${item.cliente}: ${novo === "na_cadeira" ? rotuloAtendimento : ROTULO_ESTADO[novo] ?? novo}.`, async () => {
         setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
         try {
           if (pedido) await pedido.catch(() => undefined);
@@ -880,7 +882,7 @@ export function AgendaOperacional() {
 
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => { if (!aberto) setConflito(null); }}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>{conflito ? `Finalizar ${conflito.atual.cliente} ou manter os dois?` : "Atendimento aberto"}</AlertDialogTitle><AlertDialogDescription>Você já tem um cliente na cadeira. Escolha como continuar.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogHeader><AlertDialogTitle>{conflito ? `Finalizar ${conflito.atual.cliente} ou manter os dois?` : "Atendimento aberto"}</AlertDialogTitle><AlertDialogDescription>{segmentoAgenda === "barbearia" ? "Você já tem um cliente na cadeira." : "Você já tem um atendimento em andamento."} Escolha como continuar.</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => { if (conflito) void transicionar(conflito.novo, "na_cadeira"); setConflito(null); }}>Manter os dois</AlertDialogCancel>
             <AlertDialogAction onClick={() => { if (conflito) { setIniciarDepois(conflito.novo.id); setFechando(conflito.atual.id); } setConflito(null); }}>Finalizar atual</AlertDialogAction>
