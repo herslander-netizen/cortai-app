@@ -2,12 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 
-import { MODULOS_DE_NAVEGACAO } from "@/lib/navegacao-barbeiro";
+import { modulosDeNavegacao } from "@/lib/navegacao-barbeiro";
 import { getSessao } from "@/lib/sessao.functions";
 
 export function HubModulos() {
   const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
-  const modulos = MODULOS_DE_NAVEGACAO.filter((modulo) => sessao?.permissoes.includes(modulo.permissao)).slice(0, 4);
+  const modulos = modulosDeNavegacao(sessao?.tenant.segmento ?? "barbearia").filter((modulo) => sessao?.permissoes.includes(modulo.permissao)).slice(0, 4);
   if (!modulos.length) return null;
   return (
     <section className="mt-8">

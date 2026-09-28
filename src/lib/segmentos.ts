@@ -184,3 +184,7 @@ export function segmentoValido(valor: unknown): Segmento {
 export function termos(segmento: unknown): TermosDoSegmento {
   return SEGMENTOS_CONFIG[segmentoValido(segmento)].termos;
 }
+
+export function definicaoDoSegmento(segmento: unknown): DefinicaoDeSegmento {
+  return SEGMENTOS_CONFIG[segmentoValido(segmento)];
+}
