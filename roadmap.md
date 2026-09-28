@@ -43,4 +43,7 @@
 - [x] Tornar escuro padrão, atualizar identidades, cliente, página pública e PWA
 - [x] Migrar preferências e padrões do tenant no banco
 - [x] Limpar cores fixas, atualizar documentação/novidades e validar telas em 390px
+- [x] Fechar contraste destrutivo e da landing nos dois modos
+- [x] Tratar azuis Cortaí como marca padrão e validar pares preenchidos
+- [x] Recolorir o verde-lima dos sete PNGs oficiais sem alterar o desenho
 

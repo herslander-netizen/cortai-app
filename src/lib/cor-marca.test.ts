@@ -3,15 +3,15 @@ import { describe, expect, it } from "vitest";
 import { estiloDaMarca } from "@/lib/cor-marca";
 
 describe("cor personalizada do cliente", () => {
-  it.each([null, "", "#C9A96A", "#D4AF6A", "#C9A227"])("mantém a identidade Cortaí para %s", (cor) => {
+  it.each([null, "", "#C9A96A", "#D4AF6A", "#C9A227", "#1653A1", "#426AA2", "#88ADE0"])("mantém a identidade Cortaí para %s", (cor) => {
     expect(estiloDaMarca(cor)).toEqual({ personalizada: false });
   });
 
   it("troca somente os tokens reservados da marca", () => {
-    const resultado = estiloDaMarca("#1653A1");
+    const resultado = estiloDaMarca("#006B5F");
     expect(resultado.personalizada).toBe(true);
     expect(resultado.style).toMatchObject({
-      "--client-primary": "#1653A1",
+      "--client-primary": "#006B5F",
       "--client-primary-foreground": "#FFFFFF",
     });
     expect(resultado.style).not.toHaveProperty("--sage");
