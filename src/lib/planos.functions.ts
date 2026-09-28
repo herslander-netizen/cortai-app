@@ -98,10 +98,15 @@ export const escolherPlanoDaBarbearia = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: plano } = await supabaseAdmin
       .from("planos_da_plataforma")
-      .select("chave, nome, ativo")
+      .select("chave, nome, ativo, preco_mensal_centavos")
       .eq("chave", data.chave)
       .maybeSingle();
     if (!plano || plano.ativo === false) throw new Error("Este plano não está disponível.");
+    if ((plano.preco_mensal_centavos ?? 0) <= 0) throw new Error("Este plano só pode ser atribuído pelo admin.");
+    const { configDeCobranca } = await import("@/lib/cobranca.server");
+    if ((await configDeCobranca()).ligada) {
+      throw new Error("Com a cobrança ligada, o plano pago é ativado pelo pagamento ou pelo teste grátis.");
+    }
 
     const { error } = await context.supabase.from("tenants").update({ plano: data.chave }).eq("id", tenantId);
     if (error) throw new Error(error.message);
