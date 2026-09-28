@@ -24,7 +24,7 @@ import { sair } from "@/lib/guarda";
 type Props = {
   dia: string;
   hoje: boolean;
-  fuso?: string;
+  fuso: string | undefined;
   agora: number;
   itens: AgendaItem[];
   profissional: string | null;
@@ -145,7 +145,7 @@ export function AgendaFocoMobile(props: Props) {
                 <time dateTime={item.inicio}>{hora(item.inicio, props.fuso)}{ativo ? <span>AGORA</span> : null}</time>
                 <h2>{item.cliente}</h2>
                 <p>{item.servico}{item.profissional !== "—" ? ` · ${item.profissional}` : ""}</p>
-                <StatusBadge status={item.status} label={ativo ? "Em atendimento" : seguinte ? "Próximo" : undefined} />
+                <StatusBadge status={item.status} {...(ativo ? { label: "Em atendimento" } : seguinte ? { label: "Próximo" } : {})} />
               </div>
               {!(["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status)) ? (
                 <div className="agenda-foco-acoes" onPointerDown={(evento) => evento.stopPropagation()}>
