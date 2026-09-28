@@ -150,7 +150,7 @@ function ComecarPage() {
         <div className="mt-8 space-y-3">
           {LISTA_DE_SEGMENTOS.map((item) => {
             const Icon = item.icone;
-            return <Button key={item.id} variant="outline" type="button" className="h-auto min-h-16 w-full justify-start gap-4 px-4 py-3 text-left" onClick={() => { setSegmento(item.id); setModo("negocio"); }}>
+            return <Button key={item.id} variant="outline" type="button" className="h-auto min-h-16 w-full justify-start gap-4 px-4 py-3 text-left" onClick={() => { setSegmento(item.id); aplicarIdentidade(item.identidade); aplicarModo(item.modoPadrao); setModo("negocio"); }}>
               <Icon size={20} className="shrink-0 text-gold" aria-hidden />
               <span><span className="block text-sm font-semibold text-paper">{item.rotulo}</span><span className="mt-1 block text-xs font-normal text-mute">{item.descricao}</span></span>
             </Button>;

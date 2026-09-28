@@ -1046,8 +1046,8 @@ body:has(.auth-screen--claro) {
 }
 
 .landing-page img,
-.public-brand .brand-cover,
-.public-brand .brand-gallery img,
+.public-brand[data-segmento="barbearia"] .brand-cover,
+.public-brand[data-segmento="barbearia"] .brand-gallery img,
 .public-brand[data-segmento="barbearia"] .brand-products img {
   filter: saturate(0.78) contrast(1.08);
 }

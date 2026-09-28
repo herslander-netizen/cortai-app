@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
+import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 
 const CHAVE_LOCAL = "cortai:rascunho";
 
@@ -92,6 +93,13 @@ function ConfigurarMinhaBarbearia() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!dados) return;
+    const aparencia = SEGMENTOS_CONFIG[dados.segmento];
+    aplicarIdentidade(aparencia.identidade);
+    aplicarModo(aparencia.modoPadrao);
+  }, [dados?.segmento]);
 
   function atualizar(campos: Partial<DadosDoRascunho>) {
     setDados((atual) => (atual ? { ...atual, ...campos } : atual));
