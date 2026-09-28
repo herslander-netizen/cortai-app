@@ -20,14 +20,14 @@ function normalizar(t: string): string {
 export function ehPedidoDeTroca(texto: string): boolean {
   const t = normalizar(texto);
   return (
-    /\b(trocar|mudar|alterar)( de)? (barbearia|unidade)\b/.test(t) ||
-    /\boutra (barbearia|unidade)\b/.test(t)
+    /\b(trocar|mudar|alterar)( de)? (barbearia|unidade|salao|studio|lugar)\b/.test(t) ||
+    /\b(outra|outro) (barbearia|unidade|salao|studio|lugar)\b/.test(t)
   );
 }
 
 export function menuDeBarbearias(opcoes: OpcaoBarbearia[], prefixo?: string): string {
   return [
-    prefixo ?? "Olá! Com qual barbearia você quer falar?",
+    prefixo ?? "Olá! Com qual lugar você quer falar?",
     ...opcoes.map((o, i) => `${EMOJIS[i] ?? `${i + 1} -`} ${o.nome}`),
     "",
     "Responda com o número.",
@@ -64,7 +64,7 @@ export function decidirBarbearia(input: {
   if (contexto?.aguardandoEscolha) {
     return {
       tipo: "menu",
-      texto: menuDeBarbearias(opcoes, "Não entendi a opção. Com qual barbearia você quer falar?"),
+      texto: menuDeBarbearias(opcoes, "Não entendi a opção. Com qual lugar você quer falar?"),
       evento: "invalida",
     };
   }

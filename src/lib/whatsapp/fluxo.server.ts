@@ -1,4 +1,5 @@
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { segmentoValido } from "@/lib/segmentos";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
@@ -113,9 +114,14 @@ export async function conexaoPorSessao(sessaoId: string) {
 
 export async function configuracaoDoTenant(tenantId: string): Promise<ConfiguracaoDoAtendimento> {
   const db = await admin();
-  const { data } = await db.from("config_atendimento_ia").select("*").eq("tenant_id", tenantId).maybeSingle();
-  if (!data) return CONFIGURACAO_PADRAO;
+  const [{ data }, { data: tenant }] = await Promise.all([
+    db.from("config_atendimento_ia").select("*").eq("tenant_id", tenantId).maybeSingle(),
+    db.from("tenants").select("segmento").eq("id", tenantId).maybeSingle(),
+  ]);
+  const segmento = segmentoValido(tenant?.segmento);
+  if (!data) return { ...CONFIGURACAO_PADRAO, segmento };
   return {
+    segmento,
     atendimentoAutomatico: data.atendimento_automatico,
     saudacaoAtiva: data.saudacao_ativa,
     mensagemBoasVindas: data.mensagem_boas_vindas,
@@ -411,7 +417,7 @@ export async function processarMensagemRecebida(input: {
   const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
   if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
 
-  const { data: tenant } = await db.from("tenants").select("nome").eq("id", tenantId).maybeSingle();
+  const { data: tenant } = await db.from("tenants").select("nome, segmento").eq("id", tenantId).maybeSingle();
 
 
   // Mídia (áudio, imagem, figurinha): resposta padrão, sem transcrição e sem

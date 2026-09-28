@@ -38,7 +38,7 @@ export async function listarServicos(ctx: ContextoDoAgente) {
   const db = await admin();
   const { data, error } = await db
     .from("servicos")
-    .select("id, nome, duracao_min, preco_centavos")
+    .select("id, nome, categoria, duracao_min, preco_centavos")
     .eq("tenant_id", ctx.tenantId)
     .eq("ativo", true)
     .order("ordem");
