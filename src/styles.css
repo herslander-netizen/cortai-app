@@ -73,12 +73,12 @@
   --tabbar-height: 72px;
 
   /* Grafite + azul + rosa. --gold permanece como alias azul de compatibilidade. */
-  --identity-accent: #88ade0;
-  --identity-accent-light: #1653a1;
-  --identity-secondary: #dc8baa;
-  --identity-secondary-light: #c41f61;
-  --identity-primary: #426aa2;
-  --identity-secondary-strong: #ab4d74;
+  --identity-accent: #6a9eff;
+  --identity-accent-light: #0068fe;
+  --identity-secondary: #f05f96;
+  --identity-secondary-light: #f42375;
+  --identity-primary: #3d79dc;
+  --identity-secondary-strong: #d71c65;
   --identity-deep: #17181b;
   --identity-graphite: #17181b;
   --identity-muted: #62625e;
@@ -407,7 +407,7 @@
 
 /* A marca troca sozinha: clara em fundo escuro, escura em fundo claro.
    O padrão (sem classe de modo, antes da hidratação) é o tema escuro. */
-.brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; aspect-ratio: 1447 / 530; }
+.brand-logo-auto { position: relative; display: inline-block; flex-shrink: 0; aspect-ratio: 1296 / 383; }
 .brand-logo-auto > img { position: absolute; inset: 0; }
 .brand-logo-on-dark { display: block; }
 .brand-logo-on-light { display: none; }
@@ -863,6 +863,26 @@ body:has(.auth-screen) {
 
 .auth-screen .brand-logo-on-dark { display: block; }
 .auth-screen .brand-logo-on-light { display: none; }
+
+.auth-login-shell {
+  min-height: 100svh;
+}
+
+.auth-login-brand {
+  padding-top: clamp(16px, 7svh, 72px);
+}
+
+.auth-google-mark {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
 
 .light .landing-page {
   --ink: var(--identity-graphite);

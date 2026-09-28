@@ -65,19 +65,55 @@ function LoginPage() {
   }
 
   return (
-    <main className="auth-screen mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
-      <h1 className="mt-2 max-w-xs text-[32px] font-bold leading-tight text-paper">
-        {modo === "entrar" ? "Seu próximo corte começa aqui." : "Crie sua conta no Cortaí."}
-      </h1>
-      <p className="mt-3 text-sm leading-relaxed text-mute">
-        {modo === "entrar"
-          ? "Entre para agendar ou para abrir o Cortaí Gestão."
-          : "Depois você escolhe se quer agendar ou gerenciar uma barbearia."}
-      </p>
+    <main className="auth-screen auth-login-shell mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-10 sm:pt-14">
+      <header className="auth-login-brand text-center">
+        <MarcaCortai variante="automatica" className="mx-auto h-auto w-48" prioridade />
+        <h1 className="mt-5 text-[28px] font-bold leading-tight text-paper">
+          {modo === "entrar" ? "Entre no Cortaí" : "Crie sua conta"}
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-mute">
+          {modo === "entrar" ? "Sua agenda e sua barbearia em um só lugar." : "Comece agora, sem complicação."}
+        </p>
+      </header>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-10 h-14 w-full rounded-full border-line2 bg-ink2 text-paper"
+        disabled={enviando}
+        onClick={async () => {
+          setErro(null);
+          setEnviando(true);
+          try {
+            const retorno = new URL("/entrar/retorno", window.location.origin);
+            if (proximo && proximo.startsWith("/") && !proximo.startsWith("//")) retorno.searchParams.set("proximo", proximo);
+            const resultado = await lovable.auth.signInWithOAuth("google", { redirect_uri: retorno.toString() });
+            if (resultado.error) {
+              setEnviando(false);
+              setErro("Não foi possível continuar com o Google.");
+              return;
+            }
+            if (resultado.redirected) return;
+            await seguirParaMinhaArea();
+            setEnviando(false);
+          } catch {
+            setEnviando(false);
+            setErro("Não foi possível continuar com o Google.");
+          }
+        }}
+      >
+        <span aria-hidden className="auth-google-mark">G</span>
+        Continuar com Google
+      </Button>
+
+      <div className="my-7 flex items-center gap-4" aria-hidden>
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-xs text-mute2">ou entre com e-mail</span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
 
       <form
-        className="mt-10 space-y-4"
+        className="space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
           setEnviando(true);
@@ -121,6 +157,7 @@ function LoginPage() {
               type="email"
               autoComplete="email"
               required
+              placeholder="voce@exemplo.com"
               className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
             />
           </span>
@@ -136,6 +173,7 @@ function LoginPage() {
               autoComplete={modo === "entrar" ? "current-password" : "new-password"}
               required
               minLength={8}
+              placeholder="Sua senha"
               className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
             />
           </span>
@@ -146,58 +184,23 @@ function LoginPage() {
           </p>
         ) : null}
         {aviso ? <Aviso tom="info" className="">{aviso}</Aviso> : null}
-        <Button className="h-12 w-full font-bold" disabled={enviando}>
+        <Button className="h-14 w-full rounded-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
         {modo === "entrar" ? (
           <Link
             to="/recuperar-senha"
-            className="block pt-1 text-center text-xs text-mute transition-colors hover:text-paper"
+            className="block pt-1 text-center text-sm text-mute transition-colors hover:text-paper"
           >
             Esqueceu sua senha?
           </Link>
         ) : null}
       </form>
 
-
-
-      <button
+      <Button
         type="button"
-        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
-        disabled={enviando}
-        onClick={async () => {
-          setErro(null);
-          setEnviando(true);
-          try {
-            const retorno = new URL("/entrar/retorno", window.location.origin);
-            if (proximo && proximo.startsWith("/") && !proximo.startsWith("//")) {
-              retorno.searchParams.set("proximo", proximo);
-            }
-            const resultado = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: retorno.toString(),
-            });
-            if (resultado.error) {
-              setEnviando(false);
-              setErro("Não foi possível continuar com o Google.");
-              return;
-            }
-            // Redirecionamento de página inteira: o retorno assume daqui.
-            if (resultado.redirected) return;
-            // Fluxo em popup: a sessão já está definida, segue direto para a área certa.
-            await seguirParaMinhaArea();
-            setEnviando(false);
-          } catch {
-            setEnviando(false);
-            setErro("Não foi possível continuar com o Google.");
-          }
-        }}
-      >
-        Continuar com Google
-      </button>
-
-      <button
-        type="button"
-        className="mt-8 text-center text-xs text-mute transition-colors hover:text-paper"
+        variant="text"
+        className="mt-6 h-12 w-full text-center text-sm text-mute"
         onClick={() => {
           setModo(modo === "entrar" ? "criar" : "entrar");
           setErro(null);
@@ -213,15 +216,14 @@ function LoginPage() {
             Já tem conta? <span className="font-semibold text-paper">Entrar</span>
           </>
         )}
-      </button>
+      </Button>
 
-      <Link to="/visitante" className="mt-6 text-center text-xs text-mute2 transition-colors hover:text-paper">
+      <Link to="/visitante" className="mt-2 flex min-h-12 items-center justify-center text-center text-sm text-mute2 transition-colors hover:text-paper">
         Sou cliente e quero só agendar um corte
       </Link>
 
-      <footer className="mt-auto pt-10 text-center">
-        <p className="text-xs uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
-        <p className="mt-1 text-xs text-mute2">© 2026 Herslander</p>
+      <footer className="mt-auto pt-8 text-center">
+        <p className="text-xs text-mute2">Cortaí · by Alvo Digital</p>
       </footer>
     </main>
   );
