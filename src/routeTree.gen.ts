@@ -80,6 +80,8 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
+import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
+import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
@@ -442,6 +444,16 @@ const ApiPublicAiSplatRoute = ApiPublicAiSplatRouteImport.update({
   path: '/api/public/ai/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAsaasVarreduraRoute = ApiPublicAsaasVarreduraRouteImport.update({
+  id: '/api/public/asaas/varredura',
+  path: '/api/public/asaas/varredura',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAsaasWebhookRoute = ApiPublicAsaasWebhookRouteImport.update({
+  id: '/api/public/asaas/webhook',
+  path: '/api/public/asaas/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   id: '/api/public/cortai/acoes',
   path: '/api/public/cortai/acoes',
@@ -544,6 +556,8 @@ export interface FileRoutesByFullPath {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
+  '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
+  '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -618,6 +632,8 @@ export interface FileRoutesByTo {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
+  '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
+  '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -697,6 +713,8 @@ export interface FileRoutesById {
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
+  '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
+  '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -777,6 +795,8 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
+    | '/api/public/asaas/varredura'
+    | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -851,6 +871,8 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
     | '/api/public/ai/$'
+    | '/api/public/asaas/varredura'
+    | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -929,6 +951,8 @@ export interface FileRouteTypes {
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
+    | '/api/public/asaas/varredura'
+    | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -959,6 +983,8 @@ export interface RootRouteChildren {
   LojaSlugRoute: typeof LojaSlugRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
+  ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
+  ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
@@ -1465,6 +1491,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/asaas/varredura': {
+      id: '/api/public/asaas/varredura'
+      path: '/api/public/asaas/varredura'
+      fullPath: '/api/public/asaas/varredura'
+      preLoaderRoute: typeof ApiPublicAsaasVarreduraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/asaas/webhook': {
+      id: '/api/public/asaas/webhook'
+      path: '/api/public/asaas/webhook'
+      fullPath: '/api/public/asaas/webhook'
+      preLoaderRoute: typeof ApiPublicAsaasWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cortai/acoes': {
       id: '/api/public/cortai/acoes'
       path: '/api/public/cortai/acoes'
@@ -1659,6 +1699,8 @@ const rootRouteChildren: RootRouteChildren = {
   LojaSlugRoute: LojaSlugRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
+  ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,
+  ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
