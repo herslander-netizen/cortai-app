@@ -15,4 +15,5 @@
 - Vocabulário, sugestões, horários iniciais e aparência por segmento vivem em `src/lib/segmentos.ts`; novos fluxos devem consumir essa fonte única para preservar negócios existentes.
 - Marca oficial: wordmark arredondado com `corta` azul-marinho, haste do `í` azul royal e pingo rosa; versões monocromáticas somente quando o contraste exigir.
 - Compartilhamento e instalação usam a capa oficial 1200×630 e o “í” isolado sobre fundo branco, sempre derivados dos arquivos oficiais.
+- O ícone da CortAI vem de `IconeDaIA`: bigode na barbearia e pingo da marca nos demais segmentos.
 - A agenda em celular usa uma timeline operacional própria em tela cheia; reaproveita as mesmas funções de estado/comanda e nunca grava ações offline para evitar conflitos.

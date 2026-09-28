@@ -237,7 +237,7 @@ function ConfigurarPage() {
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
           categoria: s.categoria?.trim() || "Serviço",
-          profissionalIds: s.profissionalIds ?? [],
+          ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
         })),
       },
     }).then(() => setServicos(null));
@@ -559,7 +559,7 @@ function ConfigurarPage() {
               <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
                 <Check size={28} className="text-ink" aria-hidden />
               </span>
-              <h2 className="mt-5 text-xl font-semibold text-paper">{vocabulario.possessivo.charAt(0).toUpperCase()}{vocabulario.possessivo.slice(1)} está pronto para receber agendamentos.</h2>
+              <h2 className="mt-5 text-xl font-semibold text-paper">{vocabulario.possessivo.charAt(0).toUpperCase()}{vocabulario.possessivo.slice(1)} já pode receber agendamentos.</h2>
               <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
               <Button variant="ghost"
                 type="button"

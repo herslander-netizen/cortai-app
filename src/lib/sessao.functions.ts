@@ -198,7 +198,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     const tenantId = tenant.id;
     const pagina = configPadrao(definicao.temaPagina === "rose-creme" ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" } : undefined);
     const { error: erroVinculo } = await db.from("tenant_usuarios").insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });
-    if (erroVinculo) throw new Error("Não foi possível liberar o acesso ao seu negócio.");
+    if (erroVinculo) {
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("Não foi possível liberar o acesso ao seu negócio.");
+    }
     await db.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } }, { onConflict: "tenant_id" });
     await db.from("perfis").upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
     return { tenantId: tenantId as string, identidade: definicao.identidade, modo: definicao.modoPadrao };
