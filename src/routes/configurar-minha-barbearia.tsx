@@ -26,13 +26,13 @@ export const Route = createFileRoute("/configurar-minha-barbearia")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configurar minha barbearia — Cortaí" },
+      { title: "Configurar meu negócio — Cortaí" },
       {
         name: "description",
-        content: "Monte a página da sua barbearia em poucos minutos: nome, horários e serviços. Sem login para começar.",
+        content: "Monte a página do seu negócio em poucos minutos: nome, horários e serviços. Sem login para começar.",
       },
-      { property: "og:title", content: "Configurar minha barbearia — Cortaí" },
-      { property: "og:description", content: "Nome, horários e serviços: sua barbearia publicada em minutos." },
+      { property: "og:title", content: "Configurar meu negócio — Cortaí" },
+      { property: "og:description", content: "Nome, horários e serviços: seu negócio publicado em minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -165,8 +165,8 @@ function ConfigurarMinhaBarbearia() {
       </header>
 
       <main className="mx-auto max-w-[720px] px-5 pb-20 pt-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar minha barbearia</p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight">Sua barbearia no ar, em minutos.</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar meu negócio</p>
+        <h1 className="mt-2 text-3xl font-bold leading-tight">Seu negócio no ar, em minutos.</h1>
         <p className="mt-2 text-sm text-mute">
           Comece sem login. No fim você publica a página e pode assumir o acesso ao painel com sua conta.
         </p>
@@ -247,7 +247,7 @@ function ConfigurarMinhaBarbearia() {
           <section className="mt-8 space-y-4">
             {slug ? (
               <div className="card p-5">
-                <p className="text-sm font-semibold text-paper">Sua barbearia está publicada.</p>
+                <p className="text-sm font-semibold text-paper">Seu negócio está publicado.</p>
                 <p className="mt-1 break-all text-xs text-mute">{link}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -271,7 +271,7 @@ function ConfigurarMinhaBarbearia() {
                   <>
                     <p className="mt-5 text-xs text-mute">
                       Para gerenciar agenda, clientes e financeiro, assuma o acesso com sua conta. Ninguém mais
-                      consegue administrar esta barbearia sem este aparelho.
+                      consegue administrar este negócio sem este aparelho.
                     </p>
                     <button
                       type="button"
@@ -286,7 +286,7 @@ function ConfigurarMinhaBarbearia() {
               </div>
             ) : (
               <div className="card p-5">
-                <p className="text-sm text-paper">Tudo pronto para publicar a página da sua barbearia.</p>
+                <p className="text-sm text-paper">Tudo pronto para publicar a página do seu negócio.</p>
                 <ul className="mt-3 space-y-1 text-xs text-mute">
                   <li>Nome: {dados.nome || "—"}</li>
                   <li>Serviços: {dados.servicos.length}</li>
@@ -298,7 +298,7 @@ function ConfigurarMinhaBarbearia() {
                   disabled={ocupado}
                   onClick={() => void publicarAgora()}
                 >
-                  {ocupado ? "Publicando…" : "Publicar minha barbearia"}
+                  {ocupado ? "Publicando…" : "Publicar meu negócio"}
                 </button>
                 <button type="button" className="btn-tertiary mt-3 w-full text-sm" onClick={() => setPasso(2)}>
                   Voltar

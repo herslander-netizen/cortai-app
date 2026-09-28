@@ -39,7 +39,7 @@ import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeShortcut } from "@/components/layout/ThemeToggle";
-import { aplicarIdentidade, identidadeValida } from "@/lib/aparencia";
+import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
 
 type ItemDoMenu = {
   label: string;
@@ -121,7 +121,8 @@ export function ManagementHeader() {
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
-  }, [sessao?.identidadeApp]);
+    if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY)) aplicarModo(sessao.tenantModo, true);
+  }, [sessao?.identidadeApp, sessao?.tenantModo]);
   useEffect(() => {
     definirFusoDasTelas(sessao?.tenantFuso);
   }, [sessao?.tenantFuso]);

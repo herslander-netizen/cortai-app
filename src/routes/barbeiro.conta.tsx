@@ -47,7 +47,7 @@ function ContaPage() {
   }, [data?.segmento]);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os da sua barbearia.">
+    <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os do seu negócio.">
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
           <UserRound size={22} />
@@ -63,9 +63,9 @@ function ContaPage() {
           <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
             <Building2 size={18} className="text-mute" />
             <span className="min-w-0">
-              <span className="block text-sm text-paper">Barbearia</span>
+              <span className="block text-sm text-paper">Negócio</span>
               <span className="mt-0.5 block truncate text-xs text-mute">
-                {data?.tenantNome ?? "Sem barbearia vinculada"}
+                {data?.tenantNome ?? "Sem negócio vinculado"}
               </span>
             </span>
           </div>
