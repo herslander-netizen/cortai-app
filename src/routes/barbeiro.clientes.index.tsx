@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
+import { CalendarClock, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -151,6 +152,16 @@ function ClientesPage() {
                   </div>
                 </div>
               </Link>
+              {c.horaDeVoltar && c.retornoEm ? (
+                <div className="-mt-2 flex items-center justify-between gap-3 pb-3 text-xs text-mute">
+                  <span>Retorno sugerido: {dataCurta(c.retornoEm)}{c.retornoServico ? ` (${c.retornoServico})` : ""}</span>
+                  {c.telefone ? (
+                    <a href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 font-semibold text-gold" aria-label={`Chamar ${c.nome} no WhatsApp`}>
+                      <MessageCircle size={15} aria-hidden /> Chamar
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </ItemCascata>
           );
         })}
