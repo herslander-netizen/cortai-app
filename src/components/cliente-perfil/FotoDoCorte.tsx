@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { enviarFotoCorte } from "@/lib/perfil-cliente.functions";
-import { termosDoSegmento, type Segmento } from "@/lib/segmentos";
+import { termos as termosPara, type Segmento } from "@/lib/segmentos";
 
 /** Reduz a foto para no máximo 1080px e JPEG ~0,72 antes de enviar. */
 async function comprimir(arquivo: File): Promise<string> {
@@ -19,7 +19,7 @@ async function comprimir(arquivo: File): Promise<string> {
 }
 
 export function FotoDoCorte({ clienteId, agendamentoId, onEnviada, segmento = "barbearia" }: { clienteId: string; agendamentoId?: string | null; onEnviada?: () => void; segmento?: Segmento }) {
-  const termos = termosDoSegmento(segmento);
+  const termos = termosPara(segmento);
   const barbeiro = segmento === "barbearia";
   const enviar = useServerFn(enviarFotoCorte);
   const input = useRef<HTMLInputElement>(null);

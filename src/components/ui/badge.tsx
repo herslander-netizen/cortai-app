@@ -3,7 +3,7 @@ import { CalendarClock, Check, Circle, Clock3, HandCoins, Scissors, UserRoundPlu
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { termosDoSegmento, type Segmento } from "@/lib/segmentos";
+import { termos, type Segmento } from "@/lib/segmentos";
 
 const badgeVariants = cva(
   "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",
@@ -41,7 +41,7 @@ export function StatusBadge({ status, label, className, segmento = "barbearia" }
   const fallback = STATUS.agendado;
   const item = STATUS[status as StatusKey] ?? fallback;
   const Icon = item.Icon;
-  const rotulo = status === "na_cadeira" ? termosDoSegmento(segmento).statusAtendimento : item.label;
+  const rotulo = status === "na_cadeira" ? termos(segmento).statusAtendimento : item.label;
   return <Badge variant={item.variant} className={cn("status-badge", `status-badge-${status}`, className)}><Icon aria-hidden />{label ?? rotulo}</Badge>;
 }
 

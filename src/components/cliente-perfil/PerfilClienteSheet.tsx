@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl } from "@/lib/format";
 import { apagarFotoCorte, getPerfilCliente, salvarFichaCorte, type PerfilCliente } from "@/lib/perfil-cliente.functions";
-import { termosDoSegmento, type Segmento } from "@/lib/segmentos";
+import { termos as termosPara, type Segmento } from "@/lib/segmentos";
 
 function data(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit", year: "2-digit" }).format(new Date(iso));
@@ -45,7 +45,7 @@ export function PerfilClienteSheet({ clienteId, onFechar, segmento = "barbearia"
 }
 
 function Conteudo({ p, segmento }: { p: PerfilCliente; segmento: Segmento }) {
-  const termos = termosDoSegmento(segmento);
+  const termos = termosPara(segmento);
   const barbeiro = segmento === "barbearia";
   const qc = useQueryClient();
   const apagar = useServerFn(apagarFotoCorte);

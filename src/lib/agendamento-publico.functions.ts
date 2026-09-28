@@ -47,7 +47,7 @@ async function barbeariaPorSlug(db: any, slug: string) {
     .eq("slug", slug)
     .eq("ativo", true)
     .maybeSingle();
-  if (!data) throw new Error("Barbearia não encontrada.");
+  if (!data) throw new Error("Negócio não encontrado.");
   return data as AgendaPublica["tenant"] & { antecedencia_min_minutos: number | null; intervalo_entre_min: number | null };
 }
 

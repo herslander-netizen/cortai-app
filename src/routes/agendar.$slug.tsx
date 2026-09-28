@@ -247,7 +247,7 @@ function AgendamentoPublico() {
   if (!data) {
     return (
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
-        <h1 className="text-xl font-bold text-paper">Barbearia não encontrada</h1>
+        <h1 className="text-xl font-bold text-paper">Negócio não encontrado</h1>
         <p className="mt-2 text-sm text-mute">Confira o link que você recebeu.</p>
       </main>
     );
