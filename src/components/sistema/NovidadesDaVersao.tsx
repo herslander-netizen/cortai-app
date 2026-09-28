@@ -54,7 +54,7 @@ export function NovidadesDaVersao() {
       <div role="dialog" aria-label="Novidades do Cortaí" className="w-full max-w-md surface p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-[0.2em] text-gold">NOVIDADES</p>
+            <p className="text-xs font-semibold tracking-[0.2em] text-rosa">NOVIDADES</p>
             <h2 className="mt-2 text-2xl font-semibold text-paper">{VERSAO_ATUAL_INFO.titulo} chegou.</h2>
           </div>
           <button type="button" onClick={fechar} aria-label="Fechar novidades" className="rounded-full p-2 text-mute hover:text-paper">

@@ -16,7 +16,7 @@ export function Carregando({ texto = "Carregando…", className = "" }: { texto?
       <div className="min-w-0 flex-1">
         <p className="text-sm text-paper">{texto}</p>
         <span className="mt-2 block h-0.5 w-full overflow-hidden rounded-full bg-ink3">
-          <span className="cortai-progresso block h-full w-1/3 rounded-full bg-gold" />
+          <span className="cortai-progresso block h-full w-1/3 rounded-full bg-rosa" />
         </span>
       </div>
     </div>
@@ -38,7 +38,7 @@ export function TelaDeCarregamento({ texto = "Preparando tudo…" }: { texto?: s
         <p className="mt-4 text-xs font-bold uppercase tracking-[0.28em] text-gold">Cortaí</p>
         <p className="mt-1.5 text-xs text-mute">{texto}</p>
         <span className="mt-4 block h-0.5 w-full overflow-hidden rounded-full bg-ink3">
-          <span className="cortai-progresso block h-full w-1/3 rounded-full bg-gold" />
+          <span className="cortai-progresso block h-full w-1/3 rounded-full bg-rosa" />
         </span>
       </div>
     </div>

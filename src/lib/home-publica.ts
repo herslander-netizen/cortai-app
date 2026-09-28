@@ -339,7 +339,7 @@ export const HOME_PADRAO: ConfigHome = {
   ],
   aparencia: {
     preset: "premium",
-    corDestaque: "#C9A96A",
+    corDestaque: "#1653A1",
     estiloBotao: "solido",
     raioPx: 14,
     bordas: "sutil",

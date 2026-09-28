@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { LockKeyhole, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -43,6 +44,13 @@ function LoginPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const grafite = getComputedStyle(document.documentElement).getPropertyValue("--grafite-ink").trim();
+    if (meta && grafite) meta.content = grafite;
+    return sincronizarCorDoNavegador;
+  }, []);
 
   async function seguirParaMinhaArea() {
     const sessao = await getSessao();
