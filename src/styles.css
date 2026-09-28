@@ -864,6 +864,48 @@ body:has(.auth-screen) {
 .auth-screen .brand-logo-on-dark { display: block; }
 .auth-screen .brand-logo-on-light { display: none; }
 
+/* Variante clara da tela de acesso: fundo branco com a marca oficial colorida. */
+.auth-screen--claro {
+  --ink: #ffffff;
+  --ink2: #ffffff;
+  --ink3: #f5f4f0;
+  --paper: #17181b;
+  --mute: #62625e;
+  --mute2: #6a6a65;
+  --line: #e4e2dc;
+  --line2: #d5d3cc;
+  --gold: #1653a1;
+  --primary: #1653a1;
+  --primary-foreground: #ffffff;
+  --ring: #1653a1;
+}
+
+.auth-screen--claro .brand-logo-on-dark { display: none; }
+.auth-screen--claro .brand-logo-on-light { display: block; }
+
+body:has(.auth-screen--claro) {
+  --background: #ffffff;
+  --foreground: #17181b;
+  --card: #ffffff;
+  --card-foreground: #17181b;
+  --popover: #ffffff;
+  --popover-foreground: #17181b;
+  --primary: #1653a1;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f4f0;
+  --secondary-foreground: #17181b;
+  --muted: #f5f4f0;
+  --muted-foreground: #62625e;
+  --accent: #f5f4f0;
+  --accent-foreground: #17181b;
+  --border: #e4e2dc;
+  --input: #d5d3cc;
+  --ring: #1653a1;
+  background: #ffffff;
+  color: #17181b;
+}
+
+
 .auth-login-shell {
   min-height: 100svh;
 }
