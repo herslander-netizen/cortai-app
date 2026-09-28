@@ -12,7 +12,7 @@ import { z } from "zod";
 import type { HorarioDeFuncionamento } from "@/lib/horarios";
 import { variantesDoTelefone } from "@/lib/telefone";
 
-import { STATUS_QUE_OCUPAM, mapearHorarios, validarAgendamento } from "@/lib/agenda-regras.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   const { data } = await db
@@ -65,6 +65,7 @@ const telefoneSchema = z
 export const getAgendaPublica = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
+    const { STATUS_QUE_OCUPAM, mapearHorarios } = await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
 
@@ -150,6 +151,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<ResultadoConvidado> => {
+    const { validarAgendamento } = await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
 
@@ -334,4 +336,41 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
       /* o cancelamento já está salvo */
     }
     return { cancelado: true };
+  });
+
+
+/**
+ * Liga a ficha criada pelo link público à conta que o cliente acabou de criar.
+ * Prova: id do agendamento + WhatsApp guardados no aparelho. Só se a ficha ainda não tem conta.
+ */
+export const vincularFichaDoConvidado = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ vinculado: boolean; slug: string | null }> => {
+    const db = await admin();
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("cliente_id, tenant_id, clientes!inner(id, telefone, user_id), tenants!inner(slug)")
+      .eq("id", data.agendamentoId)
+      .maybeSingle();
+    if (!ag) return { vinculado: false, slug: null };
+    const cli = (ag as any).clientes;
+    const slug = ((ag as any).tenants?.slug as string) ?? null;
+    if (!variantesDoTelefone(String(cli?.telefone ?? "")).some((v) => variantesDoTelefone(data.telefone).includes(v))) {
+      return { vinculado: false, slug };
+    }
+    if (cli.user_id) return { vinculado: cli.user_id === context.userId, slug };
+    // Uma ficha por conta em cada barbearia.
+    const { data: jaTem } = await db
+      .from("clientes")
+      .select("id")
+      .eq("tenant_id", (ag as any).tenant_id)
+      .eq("user_id", context.userId)
+      .limit(1)
+      .maybeSingle();
+    if (jaTem) return { vinculado: false, slug };
+    const { error } = await db.from("clientes").update({ user_id: context.userId }).eq("id", cli.id).is("user_id", null);
+    return { vinculado: !error, slug };
   });
