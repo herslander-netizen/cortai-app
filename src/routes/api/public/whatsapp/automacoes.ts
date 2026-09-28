@@ -16,10 +16,28 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
         const guard = await import("@/lib/webhook-guard.server");
         const abuso = await guard.barrarAbusivo(request, "whatsapp/automacoes");
         if (abuso) return abuso;
-        const negado = await authenticateCronRequest(request);
-        if (negado) {
-          await guard.rejeitar(request, "whatsapp/automacoes", "cron sem autenticacao");
-          return negado;
+        // Aceita o segredo de tarefas da plataforma ou a chave interna do agendador do banco.
+        const chaveInterna = request.headers.get("x-cortai-varredura");
+        let autorizado = false;
+        if (chaveInterna && chaveInterna.length >= 32) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data } = await supabaseAdmin
+            .from("chaves_internas" as never)
+            .select("valor")
+            .eq("nome", "varredura_whatsapp")
+            .maybeSingle();
+          const valor = (data as { valor?: string } | null)?.valor ?? "";
+          if (valor.length === chaveInterna.length) {
+            const { timingSafeEqual } = await import("node:crypto");
+            autorizado = timingSafeEqual(Buffer.from(valor), Buffer.from(chaveInterna));
+          }
+        }
+        if (!autorizado) {
+          const negado = await authenticateCronRequest(request);
+          if (negado) {
+            await guard.rejeitar(request, "whatsapp/automacoes", "cron sem autenticacao");
+            return negado;
+          }
         }
         const { processarAutomacoesDeWhatsapp } = await import("@/lib/whatsapp/notificacoes.server");
         const resumo = await processarAutomacoesDeWhatsapp();
