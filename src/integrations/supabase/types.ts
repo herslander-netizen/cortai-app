@@ -3282,6 +3282,7 @@ export type Database = {
           ordem: number
           preco_centavos: number
           profissional_ids: string[]
+          retorno_dias: number | null
           tenant_id: string
         }
         Insert: {
@@ -3295,6 +3296,7 @@ export type Database = {
           ordem?: number
           preco_centavos?: number
           profissional_ids?: string[]
+          retorno_dias?: number | null
           tenant_id: string
         }
         Update: {
@@ -3308,6 +3310,7 @@ export type Database = {
           ordem?: number
           preco_centavos?: number
           profissional_ids?: string[]
+          retorno_dias?: number | null
           tenant_id?: string
         }
         Relationships: [

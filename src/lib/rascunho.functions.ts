@@ -16,7 +16,7 @@ import type { HorarioSugerido } from "@/lib/ia/assistente";
 import { SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 
-export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number };
+export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number; retornoDias?: number | null | undefined };
 
 export type DadosDoRascunho = {
   nome: string;
@@ -57,6 +57,7 @@ const dadosSchema = z.object({
         categoria: z.string().trim().max(40).default("Serviço"),
         duracaoMin: z.number().int().min(5).max(480),
         precoCentavos: z.number().int().min(0).max(10_000_000),
+        retornoDias: z.number().int().min(3).max(365).nullable().optional(),
       }),
     )
     .max(40)
@@ -247,6 +248,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
         segmento: dados.segmento,
         identidade_app: definicao.identidade,
         modo: definicao.modoPadrao,
+        chips_ficha: definicao.chipsFicha,
         whatsapp: dados.whatsapp.replace(/\D/g, "") || null,
         telefone: dados.whatsapp.replace(/\D/g, "") || null,
         endereco: limparTexto(dados.endereco) || null,
@@ -279,6 +281,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
           duracao_min: s.duracaoMin,
           preco_centavos: s.precoCentavos,
           categoria: s.categoria,
+          retorno_dias: s.retornoDias ?? null,
           ordem: i,
         })),
       );

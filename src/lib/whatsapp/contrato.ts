@@ -1,3 +1,4 @@
+import { termos as termosDoSegmento } from "@/lib/segmentos";
 /**
  * Contrato do atendimento do CortAI no WhatsApp.
  *
@@ -120,6 +121,13 @@ export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta
  */
 export const SAUDACAO_PADRAO =
   "Olá! 👋 Sou o CortAI, assistente da sua barbearia. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.";
+
+/** Saudação padrão por segmento; barbearia mantém o texto de sempre. */
+export function saudacaoPadrao(segmento: string | null | undefined): string {
+  if (!segmento || segmento === "barbearia") return SAUDACAO_PADRAO;
+  const de = termosDoSegmento(segmento).de;
+  return `Olá! 👋 Sou o CortAI, assistente ${de}. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.`;
+}
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   segmento: "barbearia",

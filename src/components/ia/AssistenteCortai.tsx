@@ -18,10 +18,14 @@ import {
   perguntarAoCortai,
   type TurnoDaConversa,
 } from "@/lib/assistente.functions";
-import type { Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
-const ATALHOS = [
-  "Tenho corte 35, barba 25 e combo 50",
+function atalhosDo(segmento: Segmento | undefined) {
+  const s = segmentoValido(segmento);
+  return [s === "barbearia" ? "Tenho corte 35, barba 25 e combo 50" : SEGMENTOS_CONFIG[s].exemploIA, ...ATALHOS_FIXOS];
+}
+
+const ATALHOS_FIXOS = [
   "Trabalho de segunda a sábado das 8 às 18",
   "Como coloco um cliente na fila?",
   "Quais serviços estão cadastrados?",
@@ -261,7 +265,7 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
                 <ArrowRight size={13} aria-hidden />
               </button>
               <div className="mt-3 space-y-2">
-                {ATALHOS.map((a) => (
+                {atalhosDo(segmento).map((a) => (
                   <button
                     key={a}
                     type="button"

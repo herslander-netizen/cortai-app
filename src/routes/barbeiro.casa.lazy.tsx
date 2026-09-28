@@ -1,3 +1,4 @@
+import { useTermosDoPainel } from "@/lib/segmento-contexto";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -55,6 +56,7 @@ function Linha({ l, agora, fuso }: { l: LinhaDaCasa; agora: number; fuso: string
 }
 
 function CasaPage() {
+  const tp = useTermosDoPainel();
   const buscar = useServerFn(getVisaoCasa);
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["visao-casa"], queryFn: () => buscar(), retry: false, refetchInterval: 60_000 });
@@ -86,7 +88,7 @@ function CasaPage() {
       <div className="md:max-w-xl">
         {!d ? <EsqueletoLista linhas={4} /> : (
           <>
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-mute">Cadeiras</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-mute">{tp.barbearia ? "Cadeiras" : "Atendimentos"}</h2>
             {d.linhas.length ? <ul className="divide-y divide-line border-b border-line">{d.linhas.map((l) => <Linha key={l.profissionalId} l={l} agora={agora} fuso={d.fuso} />)}</ul>
               : <p className="py-3 text-sm text-mute">Nenhum profissional ativo.</p>}
 

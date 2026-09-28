@@ -33,6 +33,8 @@ export type PerfilCliente = {
   cancelamentos: number;
   fotos: { id: string; url: string; criadoEm: string }[];
   historico: { id: string; inicio: string; servico: string; profissional: string; status: string; valorCentavos: number }[];
+  /** Data sugerida de retorno pelo último serviço concluído (ou prazo geral de 30 dias). */
+  retornoSugerido: { data: string; servico: string } | null;
   fuso: string;
 };
 
@@ -48,7 +50,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
       db.from("tenants").select("chips_ficha, fuso").eq("id", tenantId).maybeSingle(),
       db
         .from("agendamentos")
-        .select("id, inicio, status, valor_centavos, servicos(nome), profissionais(nome)")
+        .select("id, inicio, status, valor_centavos, servicos(nome, retorno_dias), profissionais(nome)")
         .eq("tenant_id", tenantId)
         .eq("cliente_id", cliente.id)
         .order("inicio", { ascending: false })
@@ -77,6 +79,13 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
       valorCentavos: pagoPorAg.get(a.id) ?? a.valor_centavos ?? 0,
     }));
     const feitos = historico.filter((h) => h.status === "finalizado");
+    const ultimoFeitoBruto = (agRes.data ?? []).find((a: any) => a.status === "finalizado") as any;
+    const retornoSugerido = ultimoFeitoBruto
+      ? {
+          data: new Date(new Date(ultimoFeitoBruto.inicio).getTime() + (ultimoFeitoBruto.servicos?.retorno_dias ?? 30) * 86_400_000).toISOString(),
+          servico: ultimoFeitoBruto.servicos?.nome ?? "Serviço",
+        }
+      : null;
     const ultimo = feitos[0] ?? historico.find((h) => new Date(h.inicio).getTime() <= agora) ?? null;
     const servicosFreq = new Map<string, number>();
     for (const h of feitos) servicosFreq.set(h.servico, (servicosFreq.get(h.servico) ?? 0) + 1);
@@ -103,6 +112,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
       cancelamentos: historico.filter((h) => h.status === "cancelado").length,
       fotos: fotos.filter((f) => f.url),
       historico: historico.slice(0, 30),
+      retornoSugerido,
       fuso: tenantRes.data?.fuso ?? "America/Sao_Paulo",
     };
   });

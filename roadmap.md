@@ -62,3 +62,12 @@
  - [x] Ampliar conversa e vocabulário do WhatsApp sem alterar o motor determinístico
 - [ ] Validar barbearia e negócio de beleza em 390/1280px, claro/escuro
 
+
+## Segmentos de beleza — Etapa 3
+- [x] A1 Escolha de serviço no WhatsApp: nome igual > único que contém > perguntar > lista (sem comparação invertida)
+- [x] A2 Status "Em atendimento" fora da barbearia em todo o painel (segmento via contexto do painel)
+- [x] A3 Textos com "barbearia" no menu Mais, ficha, atalhos da CortAI e saudação do WhatsApp
+- [x] A4 Ícone "pingo" como acento inclinado do "í" (Sparkles abaixo de 15px)
+- [x] B Retorno por serviço (servicos.retorno_dias), aviso no WhatsApp, ficha e filtro "Hora de voltar"
+- [x] C Atalhos da ficha por segmento na criação e oferta de troca na Conta
+- [x] D Testes, typecheck e conferência em 390/1280px

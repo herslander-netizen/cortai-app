@@ -11,6 +11,8 @@ import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
  */
 import {
   CONFIGURACAO_PADRAO,
+  SAUDACAO_PADRAO,
+  saudacaoPadrao,
   type ConfiguracaoDoAtendimento,
   type ContextoDaConversa,
   type TomDoAtendimento,
@@ -119,12 +121,12 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     db.from("tenants").select("segmento").eq("id", tenantId).maybeSingle(),
   ]);
   const segmento = segmentoValido(tenant?.segmento);
-  if (!data) return { ...CONFIGURACAO_PADRAO, segmento };
+  if (!data) return { ...CONFIGURACAO_PADRAO, segmento, mensagemBoasVindas: saudacaoPadrao(segmento) };
   return {
     segmento,
     atendimentoAutomatico: data.atendimento_automatico,
     saudacaoAtiva: data.saudacao_ativa,
-    mensagemBoasVindas: data.mensagem_boas_vindas,
+    mensagemBoasVindas: !data.mensagem_boas_vindas || data.mensagem_boas_vindas === SAUDACAO_PADRAO ? saudacaoPadrao(segmento) : data.mensagem_boas_vindas,
     mensagemForaDoHorario: data.mensagem_fora_do_horario,
     permiteConfirmar: data.permite_confirmar,
     permiteCancelar: data.permite_cancelar,

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
+import { CalendarClock, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -32,20 +33,28 @@ const ROTULOS: Record<ClienteCRM["status"], { texto: string; classe: string }> =
   inativo: { texto: "Inativo", classe: "text-brick" },
 };
 
-function whatsappLink(telefone: string, nome: string) {
+function whatsappLink(telefone: string, nome: string, barbearia = true, servico?: string | null) {
   const numero = telefone.replace(/\D/g, "");
-  const texto = encodeURIComponent(`Olá, ${nome}! Faz um tempinho desde seu último corte. Quer marcar um horário?`);
+  const texto = encodeURIComponent(
+    barbearia
+      ? `Olá, ${nome}! Faz um tempinho desde seu último corte. Quer marcar um horário?`
+      : `Olá, ${nome}! Já está na hora de ${servico ? `repetir ${servico.toLocaleLowerCase("pt-BR")}` : "voltar"}. Quer marcar um horário?`,
+  );
   return `https://wa.me/55${numero}?text=${texto}`;
 }
 
 function ClientesPage() {
   const { data, isLoading } = useQuery({ queryKey: ["clientes-crm"], queryFn: () => getClientesCRM() });
   const [busca, setBusca] = useState("");
+  const [soHoraDeVoltar, setSoHoraDeVoltar] = useState(false);
+  const segmentoClientes = data?.tenant.segmento ?? "barbearia";
+  const ehBarbearia = segmentoClientes === "barbearia";
   const buscaAdiada = useDebounce(busca, 250);
 
   const lista = (data?.clientes ?? []).filter((c) =>
-    c.nome.toLowerCase().includes(buscaAdiada.trim().toLowerCase()),
+    c.nome.toLowerCase().includes(buscaAdiada.trim().toLowerCase()) && (!soHoraDeVoltar || c.horaDeVoltar),
   );
+  const totalHoraDeVoltar = (data?.clientes ?? []).filter((c) => c.horaDeVoltar).length;
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
@@ -55,7 +64,7 @@ function ClientesPage() {
       {data && data.trazerDeVolta.length > 0 ? (
         <section data-guia="clientes-retorno" className="surface p-5">
           <p className="text-xs font-semibold uppercase text-gold">Voltaí</p>
-          <p className="mt-1 text-sm font-semibold text-paper">Seu cliente corta. Ganha. Volta.</p>
+          <p className="mt-1 text-sm font-semibold text-paper">{ehBarbearia ? "Seu cliente corta. Ganha. Volta." : "Cliente vem. Ganha. Volta."}</p>
           <p className="mt-1 text-xs text-mute2">Quem passou do intervalo habitual e merece um chamado.</p>
           <ul className="mt-4 space-y-3">
             {data.trazerDeVolta.slice(0, 5).map((c) => (
@@ -74,7 +83,7 @@ function ClientesPage() {
                 </div>
                 {c.telefone ? (
                   <a
-                    href={whatsappLink(c.telefone, c.nome)}
+                    href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)}
                     target="_blank"
                     rel="noreferrer"
                     aria-label={`Chamar ${c.nome} no WhatsApp`}
@@ -101,6 +110,11 @@ function ClientesPage() {
         placeholder="Buscar cliente"
         className="input-premium mt-6 w-full"
       />
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button type="button" variant={soHoraDeVoltar ? "primary" : "outline"} size="sm" aria-pressed={soHoraDeVoltar} onClick={() => setSoHoraDeVoltar((v) => !v)}>
+          <CalendarClock aria-hidden /> Hora de voltar{totalHoraDeVoltar ? ` (${totalHoraDeVoltar})` : ""}
+        </Button>
+      </div>
 
       {isLoading ? <EsqueletoLista linhas={6} /> : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
@@ -138,6 +152,16 @@ function ClientesPage() {
                   </div>
                 </div>
               </Link>
+              {c.horaDeVoltar && c.retornoEm ? (
+                <div className="-mt-2 flex items-center justify-between gap-3 pb-3 text-xs text-mute">
+                  <span>Retorno sugerido: {dataCurta(c.retornoEm)}{c.retornoServico ? ` (${c.retornoServico})` : ""}</span>
+                  {c.telefone ? (
+                    <a href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 font-semibold text-gold" aria-label={`Chamar ${c.nome} no WhatsApp`}>
+                      <MessageCircle size={15} aria-hidden /> Chamar
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </ItemCascata>
           );
         })}

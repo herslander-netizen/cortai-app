@@ -1,3 +1,4 @@
+import { useTermosDoPainel } from "@/lib/segmento-contexto";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -41,6 +42,7 @@ function diasDesde(iso: string) {
 }
 
 function FichaPage() {
+  const tp = useTermosDoPainel();
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
   const baixar = useServerFn(registrarBaixaFiado);
@@ -161,7 +163,7 @@ function FichaPage() {
             <a
               className="btn-tertiary mt-4 inline-block text-sm"
               href={`https://wa.me/55${data.cliente.telefone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                `Olá, ${data.cliente.nome}! Passando para lembrar do valor de ${brl(aberto)} em aberto na barbearia.`,
+                `Olá, ${data.cliente.nome}! Passando para lembrar do valor de ${brl(aberto)} em aberto ${tp.barbearia ? "na barbearia" : tp.em}.`,
               )}`}
               target="_blank"
               rel="noreferrer"
@@ -187,7 +189,7 @@ function FichaPage() {
             </>
           ) : null}
 
-          <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">Ficha técnica do corte</h2>
+          <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">{tp.barbearia ? "Ficha técnica do corte" : "Ficha técnica"}</h2>
           <p className="surface px-4 py-4 text-sm text-mute">
             {data.cliente.ficha_tecnica ?? "Nada anotado ainda sobre máquina, tesoura ou preferências."}
           </p>

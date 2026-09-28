@@ -18,6 +18,8 @@ export type ServicoSugerido = {
   categoria: string;
   duracaoMin: number;
   precoCentavos: number;
+  /** Prazo sugerido para o cliente voltar (dias); ausente = prazo geral. */
+  retornoDias?: number;
 };
 
 export type HorarioSugerido = {

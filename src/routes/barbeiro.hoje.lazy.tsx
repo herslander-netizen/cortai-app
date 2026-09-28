@@ -1,3 +1,4 @@
+import { useTermosDoPainel } from "@/lib/segmento-contexto";
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -63,6 +64,7 @@ function Numero({ rotulo, valor, atual, antes, destaque }: { rotulo: string; val
 }
 
 function HojePage() {
+  const tp = useTermosDoPainel();
   const buscar = useServerFn(getHojeDoDono);
   const q = useQuery({ queryKey: ["dono-hoje"], queryFn: () => buscar(), retry: false, refetchInterval: 60_000 });
   const [aberta, setAberta] = useState<string | null>(null);
@@ -93,7 +95,7 @@ function HojePage() {
         {q.isLoading ? <EsqueletoMetricas colunas={2} /> : numeros.map((n) => <Numero key={n.rotulo} rotulo={n.rotulo} valor={n.valor} atual={n.a} antes={n.b} destaque={Boolean(n.destaque)} />)}
       </section>
 
-      <Button asChild variant="secondary" className="mt-5 md:max-w-xl"><Link to="/barbeiro/casa"><Armchair size={18} className="text-mute" /> Ver todas as cadeiras agora</Link></Button>
+      <Button asChild variant="secondary" className="mt-5 md:max-w-xl"><Link to="/barbeiro/casa"><Armchair size={18} className="text-mute" />{tp.barbearia ? " Ver todas as cadeiras agora" : " Ver todos os atendimentos agora"}</Link></Button>
 
       <div className="mt-8 divide-y divide-line border-y border-line md:max-w-xl">
         {secoes.map(({ id, titulo, detalhe, C }) => (
