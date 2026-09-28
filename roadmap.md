@@ -55,3 +55,10 @@
 - [x] Criar identidade Rosé e temas públicos Rosé, Rosé Creme e Nude
 - [x] Adaptar criação, cadastro guiado, serviços, horários e página pública
 
+## Segmentos de beleza — Etapa 2
+- [ ] Corrigir vínculos dos serviços, concordância, criação e textos de entrada
+- [ ] Adaptar linguagem visível do painel, agenda, páginas públicas e app da cliente
+- [ ] Trocar o ícone da CortAI conforme o segmento
+- [ ] Ampliar conversa e vocabulário do WhatsApp sem alterar o motor determinístico
+- [ ] Validar barbearia e negócio de beleza em 390/1280px, claro/escuro
+
