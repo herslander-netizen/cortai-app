@@ -140,7 +140,7 @@ function PreviaDaAcao({
   );
 }
 
-export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFechar: () => void; segmento?: Segmento }) {
+export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFechar: () => void; segmento?: Segmento | undefined }) {
   const perguntar = useServerFn(perguntarAoCortai);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);

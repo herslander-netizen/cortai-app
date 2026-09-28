@@ -7,12 +7,12 @@ export function IconeDaIA({
   size = 24,
   className,
 }: {
-  segmento?: Segmento;
+  segmento?: Segmento | undefined;
   size?: number;
-  className?: string;
+  className?: string | undefined;
 }) {
   if (SEGMENTOS_CONFIG[segmentoValido(segmento)].iconeIA === "bigode") {
-    return <BigodeCortai size={size} className={className} />;
+    return <BigodeCortai size={size} {...(className ? { className } : {})} />;
   }
 
   return (
