@@ -22,6 +22,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentPro
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
+import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Screen } from "@/components/layout/Screen";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
@@ -169,6 +170,7 @@ export function AgendaOperacional() {
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
   const [remarcarHora, setRemarcarHora] = useState("");
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
+  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
@@ -182,11 +184,23 @@ export function AgendaOperacional() {
   });
   const agenda = useQuery<AgendaDia>({
     queryKey: ["agenda-dia", dia],
-    queryFn: () => getAgendaDia({ data: { dia } }),
+    queryFn: async () => {
+      try {
+        const dados = await getAgendaDia({ data: { dia } });
+        window.localStorage.setItem("cortai-agenda-tenant-atual", dados.tenant.id);
+        window.localStorage.setItem(`cortai-agenda-cache:${dados.tenant.id}:${dia}`, JSON.stringify(dados));
+        return dados;
+      } catch (erro) {
+        const tenantAtual = window.localStorage.getItem("cortai-agenda-tenant-atual");
+        const salvo = tenantAtual ? window.localStorage.getItem(`cortai-agenda-cache:${tenantAtual}:${dia}`) : null;
+        if (salvo) return JSON.parse(salvo) as AgendaDia;
+        throw erro;
+      }
+    },
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: true,
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
     placeholderData: keepPreviousData,
   });
 
@@ -201,6 +215,13 @@ export function AgendaOperacional() {
   const profEscolhido = profChamada ?? profPadrao;
 
   const tenantId = agenda.data?.tenant.id;
+  useEffect(() => {
+    const conectar = () => { setOnline(true); void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }); };
+    const desconectar = () => setOnline(false);
+    window.addEventListener("online", conectar);
+    window.addEventListener("offline", desconectar);
+    return () => { window.removeEventListener("online", conectar); window.removeEventListener("offline", desconectar); };
+  }, [queryClient]);
   useEffect(() => {
     if (agenda.data?.fuso && agenda.data.fuso !== fuso) setFuso(agenda.data.fuso);
   }, [agenda.data?.fuso, fuso]);
@@ -419,6 +440,52 @@ export function AgendaOperacional() {
 
   const proximoLivre = futuros[0];
   const diaSemAgenda = !agenda.isLoading && itens.length === 0;
+
+  if (celular) {
+    return (
+      <Screen title="Agenda" hideHeader wide>
+        <AgendaFocoMobile
+          dia={dia}
+          hoje={ehHoje}
+          fuso={fuso}
+          agora={agora}
+          itens={itens}
+          profissional={profFiltro}
+          profissionais={profissionaisDoDia}
+          online={online}
+          ocupado={ocupado}
+          onDia={setDia}
+          onProfissional={setProfFiltro}
+          onChegou={(item) => void transicionar(item, "chegou")}
+          onComecar={iniciar}
+          onTerminar={(item) => setFechando(item.id)}
+          onMaisOpcoes={(item) => abrir(item.id)}
+        />
+        <Sheet open={painelAberto && Boolean(itemSelecionado)} onOpenChange={(v) => { setPainelAberto(v); if (!v) setRemarcarHora(""); }}>
+          <SheetContent side="bottom" className="agenda-painel mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5">
+            {itemSelecionado ? (
+              <>
+                <SheetHeader className="pr-10 text-left"><SheetTitle className="truncate text-lg text-paper">{itemSelecionado.cliente}</SheetTitle><SheetDescription className="text-sm text-mute">{hora(itemSelecionado.inicio, fuso)} · {itemSelecionado.servico} · {itemSelecionado.profissional}</SheetDescription><div><StatusBadge status={itemSelecionado.status} /></div></SheetHeader>
+                <div className="agenda-painel-acoes mt-4">
+                  {itemSelecionado.status === "agendado" ? <Button variant="outline" disabled={ocupado || !online} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "chegou"); }}><UserRoundPlus />Chegou</Button> : null}
+                  {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado || !online} onClick={() => { setPainelAberto(false); iniciar(itemSelecionado); }}><Scissors />Iniciar</Button> : null}
+                  {itemSelecionado.status === "na_cadeira" ? <Button variant="outline" disabled={!online} onClick={() => { setPainelAberto(false); setFechando(itemSelecionado.id); }}><Check />Concluir</Button> : null}
+                  {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={!online} onClick={() => setRemarcarHora(hora(itemSelecionado.inicio, fuso))}><CalendarPlus />Remarcar</Button> : null}
+                  {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado || !online} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "nao_compareceu"); }}><Clock3 />Falta</Button> : null}
+                  {itemSelecionado.status === "agendado" || itemSelecionado.status === "chegou" ? <Button variant="outline" disabled={ocupado || !online} onClick={() => { setPainelAberto(false); void transicionar(itemSelecionado, "cancelado"); }}><Ban />Cancelar</Button> : null}
+                  {itemSelecionado.clienteId ? <Button asChild variant="outline"><Link to="/barbeiro/cortai" search={{ aba: "conversas", cliente: itemSelecionado.clienteId }}><MessageCircle />WhatsApp</Link></Button> : null}
+                  {itemSelecionado.clienteId ? <Button variant="outline" onClick={() => { setPainelAberto(false); if (itemSelecionado.clienteId) setPerfil(itemSelecionado.clienteId); }}><UserRoundPlus />Notas</Button> : null}
+                </div>
+                {remarcarHora ? <form className="mt-4 flex items-end gap-2 border-t border-line pt-4" onSubmit={(e) => { e.preventDefault(); const [h = 0, m = 0] = remarcarHora.split(":").map(Number); const [h0 = 0, m0 = 0] = hora(itemSelecionado.inicio, fuso).split(":").map(Number); const delta = (h * 60 + m) - (h0 * 60 + m0); setPainelAberto(false); setRemarcarHora(""); if (delta) void mover(itemSelecionado, delta); }}><label className="flex-1 text-xs font-semibold text-mute">Novo horário<input type="time" step={900} value={remarcarHora} onChange={(e) => setRemarcarHora(e.target.value)} className="mt-1 block h-12 w-full rounded-md border border-line bg-ink px-3 text-base text-paper" /></label><Button type="submit" size="lg" disabled={!online}>Remarcar</Button></form> : null}
+              </>
+            ) : null}
+          </SheetContent>
+        </Sheet>
+        {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => setFechando(null)} onConcluido={() => { setFechando(null); setSelecionado(null); void sincronizar(); }} /></Suspense> : null}
+        {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /></Suspense> : null}
+      </Screen>
+    );
+  }
 
   function inicioToque(e: React.TouchEvent) {
     const alvo = e.target as HTMLElement;
