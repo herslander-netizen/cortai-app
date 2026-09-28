@@ -27,6 +27,6 @@
 - [ ] Notificações novas no agendador (horário próximo, pós-atendimento, falta, valor a pagar, aniversário)
 
 ## Agenda móvel em modo foco
-- [ ] Timeline móvel em tela cheia com ações diretas e menu mínimo
-- [ ] Leitura offline da última agenda e bloqueio seguro de ações sem conexão
-- [ ] Validar ações, toque longo, tela cheia e atualização ao vivo em 390 px
+- [x] Timeline móvel em tela cheia com ações diretas e menu mínimo
+- [x] Leitura offline da última agenda e bloqueio seguro de ações sem conexão
+- [x] Validar ações, toque longo, tela cheia e atualização ao vivo em 390 px
