@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export type BarbeariaResumo = {
   id: string;
@@ -7,6 +8,7 @@ export type BarbeariaResumo = {
   slug: string;
   endereco: string | null;
   descricao: string | null;
+  segmento: Segmento;
 };
 
 /** Busca pública de barbearias ativas. Nunca retorna barbearias inativas. */
@@ -18,7 +20,7 @@ export const buscarBarbearias = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let consulta = supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, endereco, descricao")
+      .select("id, nome, slug, endereco, descricao, segmento")
       .eq("ativo", true)
       .order("nome")
       .limit(30);
@@ -30,6 +32,6 @@ export const buscarBarbearias = createServerFn({ method: "GET" })
     }
 
     const { data: linhas, error } = await consulta;
-    if (error) throw new Error("Não foi possível buscar barbearias agora.");
-    return (linhas ?? []) as BarbeariaResumo[];
+    if (error) throw new Error("Não foi possível buscar lugares agora.");
+    return (linhas ?? []).map((linha) => ({ ...linha, segmento: segmentoValido(linha.segmento) })) as BarbeariaResumo[];
   });
