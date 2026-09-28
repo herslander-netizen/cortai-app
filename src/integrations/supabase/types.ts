@@ -3964,17 +3964,7 @@ export type Database = {
         }
         Returns: Json
       }
-      criar_barbearia:
-        | { Args: { _nome: string }; Returns: string }
-        | {
-            Args: {
-              _identidade_app?: string
-              _modo?: string
-              _nome: string
-              _segmento?: string
-            }
-            Returns: string
-          }
+      criar_barbearia: { Args: { _nome: string }; Returns: string }
       criar_notificacao: {
         Args: {
           _corpo: string

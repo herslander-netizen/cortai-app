@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.criar_barbearia(text, text, text, text);
