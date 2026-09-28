@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export type PaginaPublica = {
   tenant: {
@@ -20,6 +21,7 @@ export type PaginaPublica = {
     logo_signed_url: string | null;
     capa_signed_url: string | null;
     fotos_signed_urls: string[];
+    segmento: Segmento;
   };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: {
@@ -49,7 +51,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
   .handler(async ({ data }): Promise<PaginaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const colunas = "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos";
+    const colunas = "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos, segmento";
     const chave = UUID_RE.test(data.slug) ? "id" : "slug";
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
@@ -99,6 +101,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         logo_signed_url: logo,
         capa_signed_url: capa,
         fotos_signed_urls: galeria.filter((url): url is string => Boolean(url)),
+        segmento: segmentoValido(tenant.segmento),
       },
       servicos: servicos ?? [],
       profissionais: (profissionais ?? []).map((p) => ({

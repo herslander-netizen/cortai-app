@@ -48,3 +48,9 @@
 - [x] Recolorir o verde-lima dos sete PNGs oficiais sem alterar o desenho
 - [x] Aplicar a nova logo oficial e simplificar a experiência de login
 
+## Segmentos de beleza — Etapa 1
+- [x] Adicionar segmento seguro ao negócio, preservando barbearias existentes
+- [x] Centralizar vocabulário, sugestões, horários e aparência por segmento
+- [x] Criar identidade Rosé e temas públicos Rosé, Rosé Creme e Nude
+- [x] Adaptar criação, cadastro guiado, serviços, horários e página pública
+

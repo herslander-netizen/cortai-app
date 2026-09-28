@@ -72,7 +72,7 @@ function HorariosPage() {
       </label>
 
       <div className="mt-6" data-guia="horarios-editor">
-        <EditorDeHorarios horarios={horarios} onChange={setHorarios} />
+        <EditorDeHorarios horarios={horarios} onChange={setHorarios} segmento={data?.tenant.segmento ?? "barbearia"} />
       </div>
 
       <Button variant="ghost"

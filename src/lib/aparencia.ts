@@ -1,5 +1,5 @@
 export const MODOS = ["claro", "escuro", "sistema"] as const;
-export const IDENTIDADES = ["moderno", "indigo", "copper", "classico"] as const;
+export const IDENTIDADES = ["moderno", "rose", "indigo", "copper", "classico"] as const;
 
 export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];

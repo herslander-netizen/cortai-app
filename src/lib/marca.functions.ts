@@ -6,6 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
 import { normalizarPagina, paginaConfigSchema, type PaginaConfig } from "@/lib/pagina-config";
+import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -41,6 +42,7 @@ export type MarcaData = MarcaForm & {
   pagina: PaginaConfig;
   publicada: PaginaConfig;
   alteracoes_pendentes: boolean;
+  segmento: Segmento;
 };
 
 export type MarcaVersion = {
@@ -130,6 +132,7 @@ export const getMarca = createServerFn({ method: "GET" })
         pagina: normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
         publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
+        segmento: segmentoValido(tenant.segmento),
       },
       versoes: (versoes ?? []).map((item) => {
         const composto = z.object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() }).safeParse(item.snapshot);

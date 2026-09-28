@@ -21,7 +21,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQr);
   }, [mostrarQr, qr]);
 
-  if (isLoading) return <TelaDeCarregamento texto="Abrindo a barbearia…" />;
+  if (isLoading) return <TelaDeCarregamento texto="Abrindo o negócio…" />;
   if (!data) throw notFound();
 
   return <div className="min-h-screen bg-background">

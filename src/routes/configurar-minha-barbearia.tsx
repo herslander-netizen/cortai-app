@@ -7,7 +7,7 @@ import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { aviso } from "@/lib/avisos";
-import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import type { HorarioSugerido } from "@/lib/ia/assistente";
 import {
   criarRascunhoDeBarbearia,
   getRascunhoDeBarbearia,
@@ -17,6 +17,9 @@ import {
   type DadosDoRascunho,
 } from "@/lib/rascunho.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
+import { Button } from "@/components/ui/button";
+import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 
 const CHAVE_LOCAL = "cortai:rascunho";
 
@@ -24,13 +27,13 @@ export const Route = createFileRoute("/configurar-minha-barbearia")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configurar minha barbearia — Cortaí" },
+      { title: "Configurar meu negócio — Cortaí" },
       {
         name: "description",
-        content: "Monte a página da sua barbearia em poucos minutos: nome, horários e serviços. Sem login para começar.",
+        content: "Monte a página do seu negócio em poucos minutos: nome, horários e serviços. Sem login para começar.",
       },
-      { property: "og:title", content: "Configurar minha barbearia — Cortaí" },
-      { property: "og:description", content: "Nome, horários e serviços: sua barbearia publicada em minutos." },
+      { property: "og:title", content: "Configurar meu negócio — Cortaí" },
+      { property: "og:description", content: "Nome, horários e serviços: seu negócio publicado em minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -91,6 +94,13 @@ function ConfigurarMinhaBarbearia() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (!dados) return;
+    const aparencia = SEGMENTOS_CONFIG[dados.segmento];
+    aplicarIdentidade(aparencia.identidade);
+    aplicarModo(aparencia.modoPadrao);
+  }, [dados?.segmento]);
+
   function atualizar(campos: Partial<DadosDoRascunho>) {
     setDados((atual) => (atual ? { ...atual, ...campos } : atual));
   }
@@ -144,7 +154,7 @@ function ConfigurarMinhaBarbearia() {
   const link = slug ? `${window.location.origin}/b/${slug}` : "";
   const servicosEditaveis: ServicoEditavel[] = (dados?.servicos ?? []).map((s) => ({
     nome: s.nome,
-    categoria: "Serviço",
+    categoria: s.categoria,
     duracaoMin: s.duracaoMin,
     precoCentavos: s.precoCentavos,
   }));
@@ -163,8 +173,8 @@ function ConfigurarMinhaBarbearia() {
       </header>
 
       <main className="mx-auto max-w-[720px] px-5 pb-20 pt-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar minha barbearia</p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight">Sua barbearia no ar, em minutos.</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar meu negócio</p>
+        <h1 className="mt-2 text-3xl font-bold leading-tight">Seu negócio no ar, em minutos.</h1>
         <p className="mt-2 text-sm text-mute">
           Comece sem login. No fim você publica a página e pode assumir o acesso ao painel com sua conta.
         </p>
@@ -182,7 +192,8 @@ function ConfigurarMinhaBarbearia() {
           <p className="mt-10 text-sm text-mute">Preparando sua configuração…</p>
         ) : passo === 0 ? (
           <section className="mt-8 space-y-4">
-            <Campo rotulo="Nome da barbearia" valor={dados.nome} onChange={(v) => atualizar({ nome: v })} />
+            <fieldset><legend className="text-xs font-semibold uppercase tracking-wide text-mute">Tipo de negócio</legend><div className="mt-2 grid grid-cols-2 gap-2">{LISTA_DE_SEGMENTOS.map((item) => { const Icon = item.icone; return <Button key={item.id} variant={dados.segmento === item.id ? "default" : "outline"} type="button" className="h-auto min-h-14 justify-start gap-2 px-3 text-left text-xs" onClick={() => atualizar({ segmento: item.id, horarios: SEGMENTOS_CONFIG[item.id].horariosPadrao.map((horario) => ({ ...horario })), servicos: [] })}><Icon size={16} />{item.rotulo}</Button>; })}</div></fieldset>
+            <Campo rotulo={`Nome ${termos(dados.segmento).de}`} valor={dados.nome} onChange={(v) => atualizar({ nome: v })} />
             <Campo
               rotulo="WhatsApp"
               valor={dados.whatsapp}
@@ -211,8 +222,9 @@ function ConfigurarMinhaBarbearia() {
         ) : passo === 1 ? (
           <section className="mt-8">
             <EditorDeHorarios
-              horarios={dados.horarios.length ? dados.horarios : horariosPadrao()}
+              horarios={dados.horarios.length ? dados.horarios : SEGMENTOS_CONFIG[dados.segmento].horariosPadrao}
               onChange={(h: HorarioSugerido[]) => atualizar({ horarios: h })}
+              segmento={dados.segmento}
             />
             <Rodape podeAvancar onAvancar={() => avancar(2)} onVoltar={() => setPasso(0)} />
           </section>
@@ -224,11 +236,13 @@ function ConfigurarMinhaBarbearia() {
                 atualizar({
                   servicos: s.map((item) => ({
                     nome: item.nome,
+                    categoria: item.categoria,
                     duracaoMin: item.duracaoMin,
                     precoCentavos: item.precoCentavos,
                   })),
                 })
               }
+              segmento={dados.segmento}
             />
             <Rodape
               podeAvancar={dados.servicos.some((s) => s.nome.trim().length >= 2)}
@@ -241,7 +255,7 @@ function ConfigurarMinhaBarbearia() {
           <section className="mt-8 space-y-4">
             {slug ? (
               <div className="card p-5">
-                <p className="text-sm font-semibold text-paper">Sua barbearia está publicada.</p>
+                <p className="text-sm font-semibold text-paper">Seu negócio está publicado.</p>
                 <p className="mt-1 break-all text-xs text-mute">{link}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -265,7 +279,7 @@ function ConfigurarMinhaBarbearia() {
                   <>
                     <p className="mt-5 text-xs text-mute">
                       Para gerenciar agenda, clientes e financeiro, assuma o acesso com sua conta. Ninguém mais
-                      consegue administrar esta barbearia sem este aparelho.
+                      consegue administrar este negócio sem este aparelho.
                     </p>
                     <button
                       type="button"
@@ -280,7 +294,7 @@ function ConfigurarMinhaBarbearia() {
               </div>
             ) : (
               <div className="card p-5">
-                <p className="text-sm text-paper">Tudo pronto para publicar a página da sua barbearia.</p>
+                <p className="text-sm text-paper">Tudo pronto para publicar a página do seu negócio.</p>
                 <ul className="mt-3 space-y-1 text-xs text-mute">
                   <li>Nome: {dados.nome || "—"}</li>
                   <li>Serviços: {dados.servicos.length}</li>
@@ -292,7 +306,7 @@ function ConfigurarMinhaBarbearia() {
                   disabled={ocupado}
                   onClick={() => void publicarAgora()}
                 >
-                  {ocupado ? "Publicando…" : "Publicar minha barbearia"}
+                  {ocupado ? "Publicando…" : "Publicar meu negócio"}
                 </button>
                 <button type="button" className="btn-tertiary mt-3 w-full text-sm" onClick={() => setPasso(2)}>
                   Voltar

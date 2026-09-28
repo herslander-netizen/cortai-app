@@ -1,11 +1,14 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarDays, Scissors } from "lucide-react";
+import { ArrowLeft, CalendarDays, Scissors } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { Button } from "@/components/ui/button";
+import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
+import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos, type Segmento } from "@/lib/segmentos";
 
 export const Route = createFileRoute("/comecar")({
   ssr: false,
@@ -36,9 +39,10 @@ export const Route = createFileRoute("/comecar")({
 function ComecarPage() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
-  const [modo, setModo] = useState<"escolha" | "barbearia">(
-    sessao.papel === "barbeiro" ? "barbearia" : "escolha",
+  const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
+    sessao.papel === "barbeiro" ? "segmento" : "escolha",
   );
+  const [segmento, setSegmento] = useState<Segmento>("barbearia");
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -88,7 +92,7 @@ function ComecarPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
       <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
       <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
-        {concluido ? "Barbearia criada." : modo === "escolha" ? "Como você vai usar o Cortaí?" : "Qual o nome da sua barbearia?"}
+        {concluido ? "Negócio criado." : modo === "escolha" ? "Como você vai usar o Cortaí?" : modo === "segmento" ? "Qual é o seu negócio?" : `Qual o nome ${termos(segmento).de}?`}
       </h1>
 
       {sessao.papel === "barbeiro" && !sessao.tenantId && !concluido ? (
@@ -133,14 +137,25 @@ function ComecarPage() {
           <button
             type="button"
             className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-xl border border-line2 bg-ink2 px-5 py-5 text-left"
-            onClick={() => setModo("barbearia")}
+            onClick={() => setModo("segmento")}
           >
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
-              <span className="block text-sm font-semibold text-paper">Tenho uma barbearia</span>
+              <span className="block text-sm font-semibold text-paper">Tenho um negócio de beleza</span>
               <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no Cortaí Gestão.</span>
             </span>
           </button>
+        </div>
+      ) : modo === "segmento" ? (
+        <div className="mt-8 space-y-3">
+          {LISTA_DE_SEGMENTOS.map((item) => {
+            const Icon = item.icone;
+            return <Button key={item.id} variant="outline" type="button" className="h-auto min-h-16 w-full justify-start gap-4 px-4 py-3 text-left" onClick={() => { setSegmento(item.id); aplicarIdentidade(item.identidade); aplicarModo(item.modoPadrao); setModo("negocio"); }}>
+              <Icon size={20} className="shrink-0 text-gold" aria-hidden />
+              <span><span className="block text-sm font-semibold text-paper">{item.rotulo}</span><span className="mt-1 block text-xs font-normal text-mute">{item.descricao}</span></span>
+            </Button>;
+          })}
+          {sessao.papel !== "barbeiro" ? <Button variant="ghost" type="button" className="mt-3 w-full" onClick={() => setModo("escolha")}><ArrowLeft /> Voltar</Button> : null}
         </div>
       ) : (
         <form
@@ -150,7 +165,9 @@ function ComecarPage() {
             setEnviando(true);
             setErro(null);
             try {
-              await criarBarbearia({ data: { nome: nome.trim() } });
+               const resultado = await criarBarbearia({ data: { nome: nome.trim(), segmento } });
+               aplicarIdentidade(resultado.identidade);
+               aplicarModo(resultado.modo, true);
               esquecerSessao();
                setConcluido(true);
             } catch (e) {
@@ -160,7 +177,7 @@ function ComecarPage() {
           }}
         >
           <label className="block text-xs font-medium text-mute">
-            Nome da barbearia
+            Nome {termos(segmento).de}
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
@@ -170,12 +187,12 @@ function ComecarPage() {
             />
           </label>
           <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
-            {enviando ? "Criando…" : "Criar minha barbearia"}
+             {enviando ? "Criando…" : "Criar meu negócio"}
           </button>
           <button
             type="button"
             className="mt-4 w-full text-center text-xs text-mute"
-            onClick={() => setModo("escolha")}
+            onClick={() => setModo("segmento")}
           >
             Voltar
           </button>

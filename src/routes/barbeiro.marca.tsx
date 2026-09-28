@@ -15,6 +15,7 @@ import { getMarca, publicarPagina, restaurarMarca, salvarRascunhoPagina, type Ma
 import { componenteIds, FONTES, LAYOUTS, TEMAS, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { termos } from "@/lib/segmentos";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -63,6 +64,7 @@ function Editor({ initial, versions, reload }: { initial: MarcaData; versions: N
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(initial.alteracoes_pendentes ? "Há alterações salvas que ainda não foram publicadas." : null);
+  const vocabulario = termos(initial.segmento);
 
   useEffect(() => { setForm(initial); setConfig(initial.pagina); setLogoPreview(initial.logo_signed_url); setCoverPreview(initial.capa_signed_url); }, [initial]);
   const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) => setForm((old) => ({ ...old, [key]: value }));
@@ -99,7 +101,7 @@ function Editor({ initial, versions, reload }: { initial: MarcaData; versions: N
 
   const previewData = publicQuery.data ? { ...publicQuery.data, tenant: { ...publicQuery.data.tenant, ...form, logo_signed_url: logoPreview, capa_signed_url: coverPreview } } : null;
 
-  return <Screen wide voltarPara="/barbeiro/mais" title="Personalizar página" subtitle="Seu mini-site para apresentar a barbearia e transformar visitas em agendamentos.">
+  return <Screen wide voltarPara="/barbeiro/mais" title="Personalizar página" subtitle={`Seu mini-site para apresentar ${vocabulario.comArtigo} e transformar visitas em agendamentos.`}>
     <div className="mb-5 flex flex-wrap items-center gap-2">
       <Button variant="outline" size="sm" asChild><a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer"><Eye />Ver publicada</a></Button>
       <Button variant="outline" size="sm" onClick={() => navigator.share?.({ title: form.nome, url: `${window.location.origin}/b/${initial.slug}` })}><Share2 />Compartilhar</Button>
@@ -123,7 +125,7 @@ function Editor({ initial, versions, reload }: { initial: MarcaData; versions: N
             <EditorSection title="Cores"><div className="grid grid-cols-3 gap-3">{Object.entries(config.cores).map(([key, value]) => <label key={key} className="text-xs capitalize text-mute">{key}<input type="color" className="mt-2 h-11 w-full rounded-md border border-line bg-ink2 p-1" value={value} onChange={(event) => setPagina("cores", { ...config.cores, [key]: event.target.value.toUpperCase() })} /></label>)}</div></EditorSection>
           </TabsContent>
 
-          <TabsContent value="conteudo" className="space-y-5 pt-4"><Campo label="Nome da barbearia" value={form.nome} onChange={(value) => setMarca("nome", value)} /><Campo label="Frase principal" value={config.frase} onChange={(value) => setPagina("frase", value)} /><label className="block text-xs font-medium text-mute">Sobre a barbearia<textarea className={`${fieldClass} min-h-32 resize-y`} maxLength={1200} value={config.sobre} onChange={(event) => setPagina("sobre", event.target.value)} /></label><Campo label="Texto do botão principal" value={config.cta} onChange={(value) => setPagina("cta", value)} /><Campo label="Endereço" value={form.endereco} onChange={(value) => setMarca("endereco", value || null)} /></TabsContent>
+          <TabsContent value="conteudo" className="space-y-5 pt-4"><Campo label={`Nome ${vocabulario.de}`} value={form.nome} onChange={(value) => setMarca("nome", value)} /><Campo label="Frase principal" value={config.frase} onChange={(value) => setPagina("frase", value)} /><label className="block text-xs font-medium text-mute">Sobre {vocabulario.comArtigo}<textarea className={`${fieldClass} min-h-32 resize-y`} maxLength={1200} value={config.sobre} onChange={(event) => setPagina("sobre", event.target.value)} /></label><Campo label="Texto do botão principal" value={config.cta} onChange={(value) => setPagina("cta", value)} /><Campo label="Endereço" value={form.endereco} onChange={(value) => setMarca("endereco", value || null)} /></TabsContent>
 
           <TabsContent value="secoes" className="pt-4"><div className="divide-y divide-line rounded-lg border border-line">{componenteIds.map((id) => <label key={id} className="flex items-center justify-between gap-4 px-4 py-3"><span className="text-sm text-paper">{componentes[id]}</span><Switch checked={config.componentes[id] ?? false} onCheckedChange={(checked) => setPagina("componentes", { ...config.componentes, [id]: checked })} /></label>)}</div><p className="mt-3 text-xs leading-relaxed text-mute">Uma seção só aparece quando estiver ativa e houver informações reais cadastradas.</p></TabsContent>
 

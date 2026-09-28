@@ -44,7 +44,7 @@ function ServicosPage() {
         .map((s) => ({
           id: s.id,
           nome: s.nome,
-          categoria: "Serviço",
+          categoria: s.categoria,
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
         })),
@@ -56,7 +56,7 @@ function ServicosPage() {
     <Screen voltarPara="/barbeiro/mais" title="Serviços" subtitle="O que você oferece e por quanto.">
       {isLoading ? <Carregando /> : null}
       <div data-guia="servicos-editor">
-        <EditorDeServicos servicos={servicos} onChange={setServicos} />
+        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "barbearia"} />
       </div>
 
       <Button variant="ghost"
@@ -76,6 +76,8 @@ function ServicosPage() {
                     nome: s.nome.trim(),
                     duracaoMin: s.duracaoMin,
                     precoCentavos: s.precoCentavos,
+                    categoria: s.categoria,
+                    profissionalIds: s.profissionalIds ?? [],
                   })),
               },
             });

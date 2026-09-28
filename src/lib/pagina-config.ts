@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { CSSProperties } from "react";
 
-export const temaIds = ["cortai", "cortai-creme", "premium", "urbano", "classico", "clean", "dark", "industrial", "street", "editorial"] as const;
+export const temaIds = ["cortai", "cortai-creme", "rose", "rose-creme", "nude", "premium", "urbano", "classico", "clean", "dark", "industrial", "street", "editorial"] as const;
 export const layoutIds = ["cinematografico", "logo-central", "minimalista", "foto-destaque", "editorial"] as const;
 export const fonteIds = ["inter", "poppins", "montserrat", "oswald", "roboto", "serif"] as const;
 export const componenteIds = ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"] as const;
@@ -30,6 +30,9 @@ export type FonteId = (typeof fonteIds)[number];
 export const TEMAS: Record<TemaId, { nome: string; descricao: string; cores: PaginaConfig["cores"] }> = {
   cortai: { nome: "Cortaí", descricao: "Grafite com azul e rosa", cores: { principal: "#88ADE0", secundaria: "#1F2024", botao: "#88ADE0", fundo: "#17181B", texto: "#EEECE7", destaque: "#DC8BAA" } },
   "cortai-creme": { nome: "Cortaí Creme", descricao: "Creme com azul e rosa", cores: { principal: "#1653A1", secundaria: "#ECEAE4", botao: "#1653A1", fundo: "#F5F4F0", texto: "#1B1C1F", destaque: "#C41F61" } },
+  rose: { nome: "Rosé", descricao: "Grafite com rosa e azul", cores: { principal: "#F05F96", secundaria: "#231E22", botao: "#F05F96", fundo: "#17181B", texto: "#EEECE7", destaque: "#88ADE0" } },
+  "rose-creme": { nome: "Rosé Creme", descricao: "Creme rosado com rosa e azul", cores: { principal: "#C41F61", secundaria: "#F1E4E6", botao: "#C41F61", fundo: "#F8F2F0", texto: "#1B1C1F", destaque: "#1653A1" } },
+  nude: { nome: "Nude", descricao: "Bege e terracota, delicado", cores: { principal: "#8C4F42", secundaria: "#EADBD0", botao: "#8C4F42", fundo: "#F6F0EA", texto: "#2B2220", destaque: "#7A5A4F" } },
   premium: { nome: "Premium", descricao: "Sofisticado e fotográfico", cores: { principal: "#C9A96A", secundaria: "#27231C", botao: "#C9A96A", fundo: "#111110", texto: "#F7F6F2", destaque: "#E7D1A4" } },
   urbano: { nome: "Urbano", descricao: "Forte e contemporâneo", cores: { principal: "#C9A96A", secundaria: "#262624", botao: "#C9A96A", fundo: "#121212", texto: "#F7F6F2", destaque: "#C9A96A" } },
   classico: { nome: "Clássico", descricao: "Tradição e elegância", cores: { principal: "#26483B", secundaria: "#71543C", botao: "#B38B57", fundo: "#F3EBDD", texto: "#1E3029", destaque: "#8A6747" } },

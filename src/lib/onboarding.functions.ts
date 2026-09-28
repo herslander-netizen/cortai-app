@@ -3,11 +3,12 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
-import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import type { HorarioSugerido } from "@/lib/ia/assistente";
 import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
 import { capacidadesDoTenant } from "@/lib/capacidades.functions";
 import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
+import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
@@ -82,7 +83,7 @@ async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<
 }
 
 export type ConfiguracaoInicial = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null; fuso: string };
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null; fuso: string; segmento: Segmento };
   horarios: HorarioSugerido[];
   servicos: ServicoDaBarbearia[];
   etapa: string;
@@ -115,7 +116,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = context.supabase;
     const [tenantRes, horariosRes, servicosRes, onbRes] = await Promise.all([
-      db.from("tenants").select("id, nome, slug, whatsapp, logo_url, fuso").eq("id", tenantId).maybeSingle(),
+      db.from("tenants").select("id, nome, slug, whatsapp, logo_url, fuso, segmento").eq("id", tenantId).maybeSingle(),
       db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
       db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
@@ -124,9 +125,10 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Barbearia não encontrada.");
 
+    const segmento = segmentoValido(tenant.segmento);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
       ? (horariosRes.data ?? []).map(paraHorario)
-      : horariosPadrao();
+      : SEGMENTOS_CONFIG[segmento].horariosPadrao.map((horario) => ({ ...horario }));
 
     const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map(paraServico);
 
@@ -142,6 +144,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
         whatsapp: (tenant.whatsapp as string) ?? null,
         logoUrl: (tenant.logo_url as string) ?? null,
         fuso: normalizarFuso(tenant.fuso as string | null),
+        segmento,
       },
       horarios,
       servicos,
@@ -383,7 +386,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
       await Promise.all([
         db
           .from("tenants")
-          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe")
+          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe")
           .eq("id", tenantId)
           .maybeSingle(),
         db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
@@ -398,9 +401,10 @@ export const getImplantacao = createServerFn({ method: "GET" })
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Barbearia não encontrada.");
 
+    const segmento = segmentoValido((tenant as Record<string, unknown>)["segmento"]);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
       ? (horariosRes.data ?? []).map(paraHorario)
-      : horariosPadrao();
+      : SEGMENTOS_CONFIG[segmento].horariosPadrao.map((horario) => ({ ...horario }));
 
     const servicos: ServicoDaBarbearia[] = (servicosRes.data ?? []).map(paraServico);
     const t = tenant as Record<string, any>;
@@ -429,6 +433,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
         telefone: (tenant.telefone as string) ?? null,
         endereco: (tenant.endereco as string) ?? null,
         logoAssinada,
+        segmento,
       },
       regras: {
         antecedenciaMinMinutos: Number(t["antecedencia_min_minutos"] ?? REGRAS_RECOMENDADAS.antecedenciaMinMinutos),
@@ -461,6 +466,21 @@ export const getImplantacao = createServerFn({ method: "GET" })
 
       whatsappConectado: (conexaoRes.data?.status as string | undefined) === "conectado",
     };
+  });
+
+export const alterarSegmento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ segmento: z.enum(["barbearia", "salao", "cabeleireiro", "esmalteria", "sobrancelha_cilios", "estetica", "outro"]), aplicarCores: z.boolean().default(false) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const definicao = SEGMENTOS_CONFIG[data.segmento];
+    const campos = data.aplicarCores
+      ? { segmento: data.segmento, identidade_app: definicao.identidade, modo: definicao.modoPadrao }
+      : { segmento: data.segmento };
+    const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
+    if (error) throw new Error("Não foi possível alterar o tipo de negócio.");
+    return { ok: true, identidade: definicao.identidade, modo: definicao.modoPadrao };
   });
 
 /** Guarda a etapa alcançada, para a pessoa poder sair e voltar sem perder nada. */

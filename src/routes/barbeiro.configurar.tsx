@@ -8,7 +8,7 @@ import { Screen } from "@/components/layout/Screen";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { supabase } from "@/integrations/supabase/client";
-import { horariosPadrao, SERVICOS_SUGERIDOS, type HorarioSugerido } from "@/lib/ia/assistente";
+import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { aviso } from "@/lib/avisos";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
@@ -27,6 +27,7 @@ import {
   salvarServicos,
   type RegrasDeAgendamento,
 } from "@/lib/onboarding.functions";
+import { SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
 
 export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
@@ -128,6 +129,9 @@ function ConfigurarPage() {
   const arquivoRef = useRef<HTMLInputElement>(null);
 
   const valorNome = nome ?? data?.tenant.nome ?? "";
+  const segmento = data?.tenant.segmento ?? "barbearia";
+  const definicao = SEGMENTOS_CONFIG[segmento];
+  const vocabulario = termos(segmento);
   const valorWhatsapp = whatsapp ?? data?.tenant.whatsapp ?? "";
   const valorEndereco = endereco ?? data?.tenant.endereco ?? "";
   const valorHorarios = horarios ?? data?.horarios ?? horariosPadrao();
@@ -144,7 +148,7 @@ function ConfigurarPage() {
           precoCentavos: s.precoCentavos,
           profissionalIds: s.profissionalIds,
         }))
-      : SERVICOS_SUGERIDOS.map((s) => ({ ...s })));
+      : definicao.servicosSugeridos.map((s) => ({ ...s })));
   const profissionais = (data?.profissionais ?? []).filter((p) => p.ativo);
 
   const origem = typeof window !== "undefined" ? window.location.origin : "https://cortai.dev";
@@ -268,7 +272,7 @@ function ConfigurarPage() {
 
   return (
     <Screen
-      title={etapa === "pronto" ? "Tudo pronto" : "Sua barbearia em 5 minutos"}
+      title={etapa === "pronto" ? "Tudo pronto" : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`}
       subtitle={etapa === "pronto" ? "Seu link já recebe agendamentos." : "O progresso fica salvo. Dá para parar e voltar depois."}
     >
       {isLoading && !data ? <Esqueleto /> : null}
@@ -312,11 +316,11 @@ function ConfigurarPage() {
                 <input ref={arquivoRef} type="file" accept="image/*" className="hidden" onChange={enviarLogo} />
               </div>
               <label className="block text-xs font-medium text-mute">
-                Nome da barbearia
+                Nome {vocabulario.de}
                 <input value={valorNome} onChange={(e) => setNome(e.target.value)} className={campo} />
               </label>
               <label className="block text-xs font-medium text-mute">
-                WhatsApp da barbearia
+                WhatsApp {vocabulario.de}
                 <input
                   value={valorWhatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
@@ -445,6 +449,7 @@ function ConfigurarPage() {
                 onChange={setServicos}
                 profissionais={profissionais.map((p) => ({ id: p.id, nome: p.nome }))}
                 semIA
+                segmento={segmento}
               />
               {rodape(
                 () => proxima(salvarServicosAgora),
@@ -457,7 +462,7 @@ function ConfigurarPage() {
           {etapa === "horarios" ? (
             <div>
               <p className="mb-3 text-xs text-mute">Já vem preenchido. Mude só o que for diferente.</p>
-              <EditorDeHorarios horarios={valorHorarios} onChange={setHorarios} semIA />
+              <EditorDeHorarios horarios={valorHorarios} onChange={setHorarios} semIA segmento={segmento} />
               {rodape(() => proxima(() => gravarHorarios({ data: { horarios: valorHorarios } })))}
             </div>
           ) : null}
@@ -515,7 +520,7 @@ function ConfigurarPage() {
 
           {etapa === "link" ? (
             <div>
-              <p className="text-sm text-paper">Este é o link da sua barbearia. Mande para seus clientes agendarem.</p>
+              <p className="text-sm text-paper">Este é o link {vocabulario.de}. Mande para seus clientes agendarem.</p>
               <p className="mt-4 break-all rounded-lg border border-line2 bg-ink2 px-4 py-4 text-base font-semibold text-paper">
                 {linkCurto}
               </p>
@@ -554,7 +559,7 @@ function ConfigurarPage() {
               <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
                 <Check size={28} className="text-ink" aria-hidden />
               </span>
-              <h2 className="mt-5 text-xl font-semibold text-paper">Sua barbearia está pronta para receber agendamentos.</h2>
+              <h2 className="mt-5 text-xl font-semibold text-paper">{vocabulario.possessivo.charAt(0).toUpperCase()}{vocabulario.possessivo.slice(1)} está pronto para receber agendamentos.</h2>
               <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
               <Button variant="ghost"
                 type="button"

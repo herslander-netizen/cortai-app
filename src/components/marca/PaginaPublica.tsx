@@ -7,6 +7,7 @@ import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { brl } from "@/lib/format";
 import { type PaginaConfig, paginaStyle } from "@/lib/pagina-config";
 import type { PaginaPublica } from "@/lib/publico.functions";
+import { SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
 
 const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
@@ -22,14 +23,16 @@ export function PaginaPublicaConteudo({ data, config, preview = false }: { data:
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
   const agendar = <Link to="/agendar/$slug" params={{ slug: tenant.slug }} className="brand-cta"><CalendarDays size={18} />{config.cta}</Link>;
   const layout = config.layout;
+  const definicao = SEGMENTOS_CONFIG[tenant.segmento];
+  const vocabulario = termos(tenant.segmento);
 
-  return <div className={`client-brand public-brand theme-${config.tema} layout-${layout} buttons-${config.botoes} ${preview ? "is-preview" : ""}`} style={paginaStyle(config)} data-hide-signature={tenant.assinatura_visivel === false}>
+  return <div className={`client-brand public-brand theme-${config.tema} layout-${layout} buttons-${config.botoes} ${preview ? "is-preview" : ""}`} style={paginaStyle(config)} data-hide-signature={tenant.assinatura_visivel === false} data-segmento={tenant.segmento}>
     <header className="brand-hero">
       <img src={tenant.capa_signed_url ?? coverAsset.url} alt={`Ambiente da ${tenant.nome}`} width={1200} height={1500} fetchPriority="high" className="brand-cover" />
       <div className="brand-overlay" />
       <div className="brand-hero-content">
         <LogoBarbearia nome={tenant.nome} url={tenant.logo_signed_url} size={preview ? 48 : 68} className="brand-logo" />
-        <p className="brand-eyebrow">Barbearia</p>
+        <p className="brand-eyebrow">{definicao.rotulo}</p>
         <h1>{tenant.nome}</h1>
         {config.componentes.apresentacao ? <p className="brand-lead">{config.frase || tenant.descricao || tenant.texto_boas_vindas}</p> : null}
         <div className="brand-actions">{agendar}{config.componentes.whatsapp && linkContato ? <a className="brand-secondary-action" href={linkContato} target={whatsapp ? "_blank" : undefined} rel="noreferrer">{whatsapp ? <MessageCircle size={17} /> : <Phone size={17} />}WhatsApp</a> : null}</div>
@@ -43,7 +46,7 @@ export function PaginaPublicaConteudo({ data, config, preview = false }: { data:
 
       {config.componentes.galeria && tenant.fotos_signed_urls.length ? <Secao titulo="Destaques" id="galeria"><div className="brand-gallery">{tenant.fotos_signed_urls.map((foto, index) => <img key={foto} src={foto} alt={`Ambiente da ${tenant.nome} ${index + 1}`} loading="lazy" />)}</div></Secao> : null}
 
-      {config.componentes.apresentacao && config.sobre ? <Secao titulo="Sobre a barbearia" id="sobre"><p className="brand-about">{config.sobre}</p></Secao> : null}
+      {config.componentes.apresentacao && config.sobre ? <Secao titulo={`Sobre ${vocabulario.comArtigo}`} id="sobre"><p className="brand-about">{config.sobre}</p></Secao> : null}
 
       {config.componentes.avaliacoes && data.avaliacoes.quantidade > 0 ? <Secao titulo="Avaliações" id="avaliacoes"><div className="brand-rating"><Star fill="currentColor" /><strong>{data.avaliacoes.media?.toFixed(1)}</strong><span>{data.avaliacoes.quantidade} avaliações verificadas</span></div></Secao> : null}
 
@@ -56,7 +59,7 @@ export function PaginaPublicaConteudo({ data, config, preview = false }: { data:
       </div>
 
       {config.componentes.cta_final ? <section className="brand-final"><p>Seu próximo horário começa aqui.</p><h2>Escolha o serviço e reserve em poucos passos.</h2>{agendar}</section> : null}
-      {!preview ? <section className="brand-share"><Share2 size={16} /><span>Compartilhe esta barbearia</span></section> : null}
+      {!preview ? <section className="brand-share"><Share2 size={16} /><span>Compartilhe {vocabulario.comArtigo}</span></section> : null}
     </main>
   </div>;
 }
