@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { Button } from "@/components/ui/button";
+import { PainelDeLembretes } from "@/components/notificacoes/PainelDeLembretes";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
@@ -227,6 +228,7 @@ function AtividadePage() {
           ))}
         </ul>
       </section>
+      <PainelDeLembretes />
     </Screen>
   );
 }
