@@ -72,7 +72,7 @@ export function ExclusaoPermanente({
             <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>
 
             <label className="mt-4 block text-xs text-mute2" htmlFor={campoId}>
-              Digite sua senha para confirmar
+              Digite a senha da sua conta de administrador para confirmar
             </label>
             <input
               id={campoId}
@@ -83,7 +83,14 @@ export function ExclusaoPermanente({
               onChange={(e) => setSenha(e.target.value)}
               className="input-premium mt-2 w-full"
             />
+            <a
+              href="/recuperar-senha"
+              className="mt-2 inline-block text-xs text-mute underline transition-colors hover:text-paper"
+            >
+              Esqueci minha senha
+            </a>
             {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
+
 
             <div className="mt-5 flex justify-end gap-4">
               <button type="button" className="btn-tertiary text-xs" onClick={fechar} disabled={processando}>
