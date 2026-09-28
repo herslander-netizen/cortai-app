@@ -173,7 +173,7 @@
   --accent: var(--ink3);
   --accent-foreground: var(--paper);
   --destructive: var(--brick);
-  --destructive-foreground: #ffffff;
+  --destructive-foreground: var(--grafite-ink);
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
@@ -813,6 +813,12 @@ html.light {
 .landing-page {
   isolation: isolate;
   --gold: var(--identity-accent);
+  --primary: var(--identity-primary);
+  --primary-foreground: #ffffff;
+  --rosa: var(--identity-secondary);
+  --rosa-forte: var(--identity-secondary-strong);
+  --rosa-soft: color-mix(in oklab, var(--identity-secondary) 16%, transparent);
+  --landing-light-rosa: var(--identity-secondary-light);
 }
 
 .auth-screen {
@@ -926,7 +932,8 @@ body:has(.auth-screen) {
   text-transform: uppercase;
 }
 
-.landing-kicker, .landing-kicker-light { color: var(--rosa); }
+.landing-kicker { color: var(--rosa); }
+.landing-kicker-light { color: var(--landing-light-rosa); }
 
 .landing-heading,
 .landing-heading-light {

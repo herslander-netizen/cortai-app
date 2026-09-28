@@ -1,6 +1,13 @@
 import type { CSSProperties } from "react";
 
-const DOURADOS_LEGADOS = new Set(["#C9A96A", "#D4AF6A", "#C9A227"]);
+const CORES_PADRAO_CORTAI = new Set([
+  "#C9A96A",
+  "#D4AF6A",
+  "#C9A227",
+  "#1653A1",
+  "#426AA2",
+  "#88ADE0",
+]);
 
 function rgb(hex: string) {
   const valor = hex.slice(1);
@@ -40,7 +47,7 @@ function ajustarParaFundo(cor: string, fundo: string, destino: string) {
 
 function normalizar(cor: string | null | undefined) {
   const valor = cor?.trim().toUpperCase();
-  if (!valor || !/^#[0-9A-F]{6}$/.test(valor) || DOURADOS_LEGADOS.has(valor)) return null;
+  if (!valor || !/^#[0-9A-F]{6}$/.test(valor) || CORES_PADRAO_CORTAI.has(valor)) return null;
   return valor;
 }
 
