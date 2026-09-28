@@ -28,9 +28,11 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
     const { STATUS_QUE_OCUPAM, regrasDaBarbearia } = await import("@/lib/agenda-regras.server");
 
     const [regrasAgenda, { data: financeiro }, servicosRes, profRes, regrasRes, carteiraRes] = await Promise.all([
+      regrasDaBarbearia(db, tenant.id),
+      db.from("configuracoes_financeiras").select("pix_ativo, pix_chave").eq("tenant_id", tenant.id).maybeSingle(),
       db
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
