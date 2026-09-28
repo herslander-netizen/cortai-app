@@ -5,6 +5,7 @@ import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/l
 import { exigirRecurso } from "@/lib/planos";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -14,9 +15,9 @@ async function admin() {
 async function tenantPadrao(context: ContextoAutenticado) {
   const db = await admin();
   const tenantId = await tenantIdDoMembro(context);
-  const { data: tenant } = await db.from("tenants").select("id, nome").eq("id", tenantId).maybeSingle();
-  if (!tenant) throw new Error("Barbearia não encontrada");
-  return { db, tenant };
+  const { data: tenant } = await db.from("tenants").select("id, nome, segmento").eq("id", tenantId).maybeSingle();
+  if (!tenant) throw new Error("Negócio não encontrado");
+  return { db, tenant: { ...tenant, segmento: segmentoValido(tenant.segmento) } };
 }
 
 
@@ -25,7 +26,7 @@ async function tenantPadrao(context: ContextoAutenticado) {
 export type Alerta = { chave: string; numero: number; titulo: string; detalhe: string };
 
 export type PainelHoje = {
-  tenant: { id: string; nome: string };
+  tenant: { id: string; nome: string; segmento: Segmento };
   caixaCentavos: number;
   ocupacaoPct: number;
   ocupacaoDetalhe: string;
