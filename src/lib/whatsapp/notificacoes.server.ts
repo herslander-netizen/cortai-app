@@ -132,11 +132,13 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
 
   const blocos: (string | null)[] = [];
+  const barbearia = !d.segmento || segmentoValido(d.segmento) === "barbearia";
+  const em = barbearia ? `na ${d.barbearia}` : `em ${d.barbearia}`;
 
   if (tipo === "confirmacao_agendamento") {
     blocos.push(
       `Olá, ${nome}! 👋`,
-      `Seu horário na ${d.barbearia} está confirmado.`,
+      `Seu horário ${em} está confirmado.`,
       "",
       linha(d.servico, "✂️ Serviço: "),
       linha(d.profissional, "💈 Profissional: "),
@@ -150,7 +152,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
   } else if (tipo === "lembrete_24h") {
     blocos.push(
       `Olá, ${nome}! 👋`,
-      `Lembrete do seu horário na ${d.barbearia}.`,
+      `Lembrete do seu horário ${em}.`,
       "",
       linha(d.servico, "✂️ "),
       linha(d.profissional, "💈 "),
@@ -175,14 +177,14 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
   } else if (tipo === "retorno") {
     blocos.push(
       `Olá, ${nome}! 👋`,
-      `Já está chegando a hora do seu próximo corte na ${d.barbearia}.`,
+      `Já está chegando a hora do seu próximo ${barbearia ? "corte" : "atendimento"} ${em}.`,
       "",
       "Quer que eu veja um horário para você?",
     );
   } else if (tipo === "cancelamento") {
     blocos.push(
       `Olá, ${nome}.`,
-      `Seu agendamento na ${d.barbearia} foi cancelado.`,
+      `Seu agendamento ${em} foi cancelado.`,
       "",
       `📅 ${dataBr(d.inicio, d.fuso)}`,
       `⏰ ${horaBr(d.inicio, d.fuso)}`,
