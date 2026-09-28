@@ -75,6 +75,7 @@ export type MensagemDeWhatsapp = {
 };
 
 export type ConfiguracaoDoAtendimento = {
+  segmento: import("@/lib/segmentos").Segmento;
   atendimentoAutomatico: boolean;
   saudacaoAtiva: boolean;
   mensagemBoasVindas: string;
@@ -121,6 +122,7 @@ export const SAUDACAO_PADRAO =
   "Olá! 👋 Sou o CortAI, assistente da sua barbearia. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.";
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
+  segmento: "barbearia",
   atendimentoAutomatico: true,
   saudacaoAtiva: true,
   mensagemBoasVindas: SAUDACAO_PADRAO,

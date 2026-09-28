@@ -20,7 +20,7 @@ async function tenantPorSlug(db: any, slug: string): Promise<TenantCliente> {
     .eq("slug", slug)
     .eq("ativo", true)
     .maybeSingle();
-  if (!data) throw new Error("Barbearia não encontrada ou indisponível.");
+  if (!data) throw new Error("Negócio não encontrado ou indisponível.");
   return data as TenantCliente;
 }
 

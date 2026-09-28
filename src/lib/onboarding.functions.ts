@@ -270,6 +270,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
     for (const s of existentes) {
+      if (!s.id) continue;
       const { error } = await db
         .from("servicos")
         .update({
@@ -279,7 +280,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
           ...(s.categoria !== undefined ? { categoria: s.categoria } : {}),
           ...(s.profissionalIds !== undefined ? { profissional_ids: s.profissionalIds } : {}),
         })
-        .eq("id", s.id!)
+        .eq("id", s.id)
         .eq("tenant_id", tenantId);
       if (error) throw new Error(error.message);
     }

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import type { ChaveDePermissao } from "@/lib/permissoes";
+import { termos, type Segmento } from "@/lib/segmentos";
 
 export const MODULOS_DE_NAVEGACAO = [
   { grupo: "Gestão", to: "/barbeiro/hoje", label: "Hoje", detail: "O dia da barbearia em cinco números", icon: Gauge, permissao: "relatorios" },
@@ -44,3 +45,15 @@ export const MODULOS_DE_NAVEGACAO = [
 ] as const satisfies ReadonlyArray<{ grupo: string; to: string; label: string; detail: string; icon: typeof Banknote; permissao: ChaveDePermissao }>;
 
 export const GRUPOS_DE_NAVEGACAO = ["Operação", "Gestão", "Configurações"] as const;
+
+export function modulosDeNavegacao(segmento: Segmento) {
+  if (segmento === "barbearia") return MODULOS_DE_NAVEGACAO;
+  const t = termos(segmento);
+  return MODULOS_DE_NAVEGACAO.map((item) => ({
+    ...item,
+    detail: item.to === "/barbeiro/hoje" ? `O dia ${t.de} em cinco números`
+      : item.to === "/barbeiro/casa" ? "Todos os atendimentos, fila e caixa ao vivo"
+      : item.to === "/barbeiro/fidelidade" ? "Cliente vem. Ganha. Volta."
+      : item.detail,
+  }));
+}

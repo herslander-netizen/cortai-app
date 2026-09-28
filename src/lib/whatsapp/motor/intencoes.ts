@@ -63,7 +63,7 @@ export type Classificacao = {
  */
 export function classificar(
   textoOriginal: string,
-  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date } = { fuso: "America/Sao_Paulo" },
+  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date; segmento?: string } = { fuso: "America/Sao_Paulo" },
 ): Classificacao {
   const fuso = opcoes.fuso || "America/Sao_Paulo";
   const t = normalizar(textoOriginal);
@@ -73,7 +73,7 @@ export function classificar(
 
 
   const entidades: Entidades = {
-    servico: servicoCitado(semCumprimento),
+    servico: servicoCitado(semCumprimento, opcoes.segmento),
     dia: dataCitada(semCumprimento, fuso, opcoes.agora),
     periodo: periodoCitado(semCumprimento),
     selecao: total > 0 ? selecaoNumerica(t, total) : null,

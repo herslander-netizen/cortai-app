@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { buscarBarbearias } from "@/lib/descoberta.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { definicaoDoSegmento } from "@/lib/segmentos";
 
 export function DescobrirBarbearias({
   titulo = "Onde você quer agendar?",
@@ -28,19 +29,19 @@ export function DescobrirBarbearias({
       {discreto ? (
         <>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">Já é cliente?</h2>
-          <p className="mt-2 text-sm text-mute">Busque sua barbearia pelo nome ou pelo endereço.</p>
+          <p className="mt-2 text-sm text-mute">Busque pelo nome ou endereço.</p>
         </>
       ) : (
         <>
           <h2 className="text-[26px] font-bold leading-tight text-paper">{titulo}</h2>
           <p className="mt-2 text-sm text-mute">
-            Busque pelo nome ou pelo endereço da barbearia. Nenhuma é escolhida para você.
+            Busque pelo nome ou endereço. Nenhum lugar é escolhido para você.
           </p>
         </>
       )}
 
       <label className={discreto ? "mt-4 block" : "mt-6 block"}>
-        <span className="sr-only">Buscar barbearia</span>
+        <span className="sr-only">Buscar lugar</span>
         <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
           <Search size={17} className="text-mute" aria-hidden />
           <input
@@ -55,17 +56,17 @@ export function DescobrirBarbearias({
 
       <div className={discreto ? "mt-3" : "mt-6"}>
         {discreto && busca.length < 2 ? (
-          <p className="text-xs text-mute2">Digite ao menos duas letras para ver as barbearias.</p>
+          <p className="text-xs text-mute2">Digite ao menos duas letras para ver os lugares.</p>
         ) : null}
-        {consulta.isFetching ? <Carregando texto="Carregando barbearias…" /> : null}
+        {consulta.isFetching ? <Carregando texto="Carregando…" /> : null}
         {consulta.isError ? (
           <p className="text-sm text-brick" role="alert">
-            Não foi possível carregar as barbearias. Tente de novo em instantes.
+            Não foi possível carregar os lugares. Tente de novo em instantes.
           </p>
         ) : null}
         {consulta.data && consulta.data.length === 0 && (!discreto || busca.length >= 2) ? (
           <p className="text-sm text-mute">
-            {termo ? "Nenhuma barbearia encontrada para essa busca." : "Ainda não há barbearias disponíveis."}
+            {termo ? "Nada encontrado para essa busca." : "Ainda não há lugares disponíveis."}
           </p>
         ) : null}
 
@@ -79,6 +80,7 @@ export function DescobrirBarbearias({
               >
                 <span className="min-w-0">
                   <span className={`block truncate font-semibold text-paper ${discreto ? "text-sm" : "text-base"}`}>{barbearia.nome}</span>
+                  <span className="mt-0.5 block text-[11px] font-semibold text-mute2">{definicaoDoSegmento(barbearia.segmento).rotulo}</span>
                   {barbearia.endereco ? (
                     <span className="mt-1 flex items-center gap-1.5 text-xs text-mute">
                       <MapPin size={12} className="shrink-0" aria-hidden />

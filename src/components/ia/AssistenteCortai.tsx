@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Check, Send, X } from "lucide-react";
 
 import { AgendarNoChat } from "./AgendarNoChat";
-import { BigodeCortai } from "./BigodeCortai";
+import { IconeDaIA } from "./IconeDaIA";
 import { Digitando } from "./Digitando";
 import { FolhaCortai } from "./FolhaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
@@ -18,6 +18,7 @@ import {
   perguntarAoCortai,
   type TurnoDaConversa,
 } from "@/lib/assistente.functions";
+import type { Segmento } from "@/lib/segmentos";
 
 const ATALHOS = [
   "Tenho corte 35, barba 25 e combo 50",
@@ -139,7 +140,7 @@ function PreviaDaAcao({
   );
 }
 
-export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
+export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFechar: () => void; segmento?: Segmento | undefined }) {
   const perguntar = useServerFn(perguntarAoCortai);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -215,7 +216,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
               aria-hidden
             >
-              <BigodeCortai size={18} />
+              <IconeDaIA segmento={segmento} size={18} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold tracking-wide text-paper">CortAI</span>
@@ -293,7 +294,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                       className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
                       aria-hidden
                     >
-                      <BigodeCortai size={15} />
+                      <IconeDaIA segmento={segmento} size={15} />
                     </span>
                     <div className="min-w-0 max-w-[88%]">
                       <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
@@ -325,7 +326,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                 className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
                 aria-hidden
               >
-                <BigodeCortai size={15} />
+                <IconeDaIA segmento={segmento} size={15} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
@@ -352,7 +353,7 @@ export function AssistenteCortai({ onFechar }: { onFechar: () => void }) {
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
                 aria-hidden
               >
-                <BigodeCortai size={15} />
+                <IconeDaIA segmento={segmento} size={15} />
               </span>
               <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
                 <Digitando />

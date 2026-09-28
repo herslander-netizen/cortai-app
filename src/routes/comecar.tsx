@@ -106,7 +106,7 @@ function ComecarPage() {
         <div className="mt-8">
           <p className="text-base leading-relaxed text-mute">Agora são 5 minutos para deixar seu link de agendamento pronto.</p>
           <button type="button" className="btn-primary mt-8 w-full" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
-            Configurar minha barbearia
+            Configurar {termos(segmento).possessivo}
           </button>
         </div>
       ) : modo === "escolha" ? (
@@ -131,7 +131,7 @@ function ComecarPage() {
             <CalendarDays size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
-              <span className="mt-1 block text-xs text-mute">Marcar horários na minha barbearia.</span>
+              <span className="mt-1 block text-xs text-mute">Marcar horários no meu salão, barbearia ou studio.</span>
             </span>
           </button>
           <button
@@ -141,8 +141,8 @@ function ComecarPage() {
           >
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
-              <span className="block text-sm font-semibold text-paper">Tenho um negócio de beleza</span>
-              <span className="mt-1 block text-xs text-mute">Agenda, clientes e financeiro no Cortaí Gestão.</span>
+              <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
+              <span className="mt-1 block text-xs text-mute">Barbearia, salão, esmalteria, estética…</span>
             </span>
           </button>
         </div>

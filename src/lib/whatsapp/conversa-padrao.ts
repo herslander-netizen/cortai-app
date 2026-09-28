@@ -1,9 +1,10 @@
 // Conversa Padrão de Excelência (docs/conversa-padrao.md).
 // Textos padrão por situação; cada barbearia pode sobrescrever (config_atendimento_ia.textos_conversa)
 // e desligar situações (config_atendimento_ia.situacoes_desligadas). Dados sempre por variável.
+import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export const SITUACOES = {
-  saudacao_nova: "Oi! Aqui é da {{barbearia}}. Como posso ajudar?",
+  saudacao_nova: "Oi! Você está falando com {{barbearia}}. Como posso ajudar?",
   saudacao_conhecido:
     "Oi, {{nome}}! Tudo certo? Quer agendar o de sempre ({{ultimo_servico}} com {{ultimo_profissional}}) ou prefere outra coisa?",
   sem_dado: "Vou confirmar com a equipe e já te retorno.",
@@ -65,19 +66,26 @@ export type PersonalizacaoConversa = {
   desligadas?: string[] | null;
 };
 
+const PADRAO_BELEZA: Partial<Record<ChaveDeTexto, string>> = {
+  pos_atendimento: "Foi um prazer te atender, {{nome}}! Gostou do resultado? ✨",
+  elogio: "Que bom saber, {{nome}}! Vou passar pra equipe.",
+  retorno: "Oi, {{nome}}! Já faz {{dias}} dias do seu último atendimento ({{ultimo_servico}}). Quer que eu veja um horário com {{profissional}}?",
+};
+
 /** Texto da situação: personalizado > padrão. null se a barbearia desligou. */
-export function textoDaSituacao(chave: ChaveDeTexto, p?: PersonalizacaoConversa): string | null {
+export function textoDaSituacao(chave: ChaveDeTexto, p?: PersonalizacaoConversa, segmento: Segmento = "barbearia"): string | null {
   if (p?.desligadas?.includes(chave)) return null;
   const custom = p?.textos?.[chave]?.trim();
   if (custom) return custom;
-  return (SITUACOES as Record<string, string>)[chave] ?? (NOTIFICACOES as Record<string, string>)[chave] ?? null;
+  const porSegmento = segmentoValido(segmento) === "barbearia" ? null : PADRAO_BELEZA[chave];
+  return porSegmento ?? (SITUACOES as Record<string, string>)[chave] ?? (NOTIFICACOES as Record<string, string>)[chave] ?? null;
 }
 
 /** Troca {{variavel}}. Variável sem dado vira null (nunca inventar). */
 export function preencher(texto: string, vars: Record<string, string | number | null | undefined>): string | null {
   let faltou = false;
   const out = texto.replace(/\{\{(\w+)\}\}/g, (_, k: string) => {
-    const v = vars[k];
+    const v = vars[k] ?? (k === "negocio" ? vars["barbearia"] : k === "barbearia" ? vars["negocio"] : undefined);
     if (v === null || v === undefined || v === "") {
       faltou = true;
       return "";
@@ -102,8 +110,9 @@ export function responder(
   chave: ChaveDeTexto,
   vars: Record<string, string | number | null | undefined>,
   p?: PersonalizacaoConversa,
+  segmento: Segmento = "barbearia",
 ): { texto: string; precisaHumano: boolean } | null {
-  const base = textoDaSituacao(chave, p);
+  const base = textoDaSituacao(chave, p, segmento);
   if (base === null) return null;
   const pronto = preencher(base, vars);
   if (pronto === null) return { texto: SITUACOES.sem_dado, precisaHumano: true };

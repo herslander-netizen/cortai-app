@@ -123,7 +123,7 @@ function ConfigurarMinhaBarbearia() {
       const r = await publicar({ data: { token } });
       setSlug(r.slug);
       setPasso(PASSOS.length - 1);
-      aviso.ok("Sua barbearia está publicada.");
+      aviso.ok(`${termos(dados.segmento).possessivo.charAt(0).toUpperCase()}${termos(dados.segmento).possessivo.slice(1)} já está no ar.`);
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não consegui publicar agora.");
     } finally {

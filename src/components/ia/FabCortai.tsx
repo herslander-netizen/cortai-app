@@ -1,7 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import { BigodeCortai } from "./BigodeCortai";
+import { IconeDaIA } from "./IconeDaIA";
 import { useProgressoCortai } from "./useProgressoCortai";
+import { getSessao } from "@/lib/sessao.functions";
 
 const AssistenteCortai = lazy(() =>
   import("./AssistenteCortai").then((m) => ({ default: m.AssistenteCortai })),
@@ -17,6 +19,7 @@ export function FabCortai() {
   const [aberto, setAberto] = useState(false);
   const [rotulo, setRotulo] = useState(false);
   const progresso = useProgressoCortai();
+  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
   const pendentes = progresso?.pendentes ?? 0;
 
   useEffect(() => {
@@ -49,7 +52,7 @@ export function FabCortai() {
           className="cortai-fab"
         >
           {pendentes > 0 ? <span aria-hidden className="cortai-fab-pulso" /> : null}
-          <BigodeCortai size={30} />
+          <IconeDaIA segmento={sessao?.segmento} size={30} />
           {pendentes > 0 ? (
             <span aria-hidden className="cortai-fab-badge">
               {pendentes}
@@ -60,7 +63,7 @@ export function FabCortai() {
 
       {aberto ? (
         <Suspense fallback={null}>
-          <AssistenteCortai onFechar={() => setAberto(false)} />
+          <AssistenteCortai segmento={sessao?.segmento} onFechar={() => setAberto(false)} />
         </Suspense>
       ) : null}
     </>

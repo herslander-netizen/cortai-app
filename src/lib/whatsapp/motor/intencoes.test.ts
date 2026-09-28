@@ -61,4 +61,18 @@ describe("ajustes obrigatorios", () => {
     expect(classificar("quero marcar com o barbeiro João amanhã", opcoes).intencao).not.toBe("HUMANO");
     expect(classificar("tem barbeiro livre hoje?", opcoes).intencao).not.toBe("HUMANO");
   });
+  it("entende serviços de beleza e preserva corte na barbearia", () => {
+    const unhas = classificar("quero fazer as unhas amanhã às 15h", { ...opcoes, segmento: "salao" });
+    expect(unhas.intencao).toBe("AGENDAR");
+    expect(unhas.entidades.servico).toBe("manicure");
+    expect(unhas.entidades.dia).toBe("2026-09-24");
+    expect(unhas.entidades.periodo).toEqual({ deMinutos: 900, ateMinutos: 959 });
+
+    const escova = classificar("tem horário pra escova sábado?", { ...opcoes, segmento: "salao" });
+    expect(escova.intencao).toBe("DISPONIBILIDADE");
+    expect(escova.entidades.servico).toBe("escova");
+
+    expect(classificar("quero fazer o cabelo", { ...opcoes, segmento: "salao" }).entidades.servico).toBeNull();
+    expect(classificar("quero cortar o cabelo", { ...opcoes, segmento: "barbearia" }).entidades.servico).toBe("corte");
+  });
 });
