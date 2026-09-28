@@ -18,7 +18,6 @@ import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
-import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
@@ -131,11 +130,6 @@ const ConfigurarMinhaBarbeariaRoute =
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemonstracaoRoute = DemonstracaoRouteImport.update({
-  id: '/demonstracao',
-  path: '/demonstracao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -488,7 +482,6 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -564,7 +557,6 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -643,7 +635,6 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/demonstracao': typeof DemonstracaoRoute
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -724,7 +715,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -800,7 +790,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -878,7 +867,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/demonstracao'
     | '/login'
     | '/privacidade'
     | '/recuperar-senha'
@@ -958,7 +946,6 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
-  DemonstracaoRoute: typeof DemonstracaoRoute
   LoginRoute: typeof LoginRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
@@ -1042,13 +1029,6 @@ declare module '@tanstack/react-router' {
       path: '/convite'
       fullPath: '/convite'
       preLoaderRoute: typeof ConviteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demonstracao': {
-      id: '/demonstracao'
-      path: '/demonstracao'
-      fullPath: '/demonstracao'
-      preLoaderRoute: typeof DemonstracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1666,7 +1646,6 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
-  DemonstracaoRoute: DemonstracaoRoute,
   LoginRoute: LoginRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
