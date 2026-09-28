@@ -12,9 +12,11 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import type { HorarioSugerido } from "@/lib/ia/assistente";
+import { SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { configPadrao, TEMAS } from "@/lib/pagina-config";
 
-export type ServicoDoRascunho = { nome: string; duracaoMin: number; precoCentavos: number };
+export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number };
 
 export type DadosDoRascunho = {
   nome: string;
@@ -24,6 +26,7 @@ export type DadosDoRascunho = {
   horarios: HorarioSugerido[];
   servicos: ServicoDoRascunho[];
   profissional: string;
+  segmento: Segmento;
 };
 
 export type RascunhoPublico = {
@@ -41,6 +44,7 @@ const horarioSchema = z.object({
 });
 
 const dadosSchema = z.object({
+  segmento: z.enum(SEGMENTOS).default("barbearia"),
   nome: z.string().trim().max(80).default(""),
   whatsapp: z.string().trim().max(30).default(""),
   endereco: z.string().trim().max(160).default(""),
@@ -50,6 +54,7 @@ const dadosSchema = z.object({
     .array(
       z.object({
         nome: z.string().trim().max(60),
+        categoria: z.string().trim().max(40).default("Serviço"),
         duracaoMin: z.number().int().min(5).max(480),
         precoCentavos: z.number().int().min(0).max(10_000_000),
       }),
@@ -63,10 +68,11 @@ const tokenSchema = z.string().trim().regex(/^[a-f0-9]{64}$/, "Rascunho inválid
 
 export const RASCUNHO_VAZIO: DadosDoRascunho = {
   nome: "",
+  segmento: "barbearia",
   whatsapp: "",
   endereco: "",
   logoUrl: "",
-  horarios: horariosPadrao(),
+  horarios: SEGMENTOS_CONFIG.barbearia.horariosPadrao.map((horario) => ({ ...horario })),
   servicos: [],
   profissional: "",
 };
@@ -106,7 +112,7 @@ function comDefaults(dados: unknown): DadosDoRascunho {
   const base = dadosSchema.parse(dados ?? {});
   return {
     ...base,
-    horarios: base.horarios.length ? base.horarios : horariosPadrao(),
+    horarios: base.horarios.length ? base.horarios : SEGMENTOS_CONFIG[segmentoValido(base.segmento)].horariosPadrao.map((horario) => ({ ...horario })),
   };
 }
 
@@ -231,12 +237,16 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     }
 
     const slug = await slugLivre(db, nome);
+    const definicao = SEGMENTOS_CONFIG[dados.segmento];
     const { data: criado, error } = await db
       .from("tenants")
       .insert({
         nome,
         slug,
         ativo: true,
+        segmento: dados.segmento,
+        identidade_app: definicao.identidade,
+        modo: definicao.modoPadrao,
         whatsapp: dados.whatsapp.replace(/\D/g, "") || null,
         telefone: dados.whatsapp.replace(/\D/g, "") || null,
         endereco: limparTexto(dados.endereco) || null,
@@ -268,6 +278,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
           nome: limparTexto(s.nome),
           duracao_min: s.duracaoMin,
           preco_centavos: s.precoCentavos,
+          categoria: s.categoria,
           ordem: i,
         })),
       );
@@ -281,6 +292,8 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
       { tenant_id: tenantId, etapa: "recursos", itens: { servicos: true, configurar: true } },
       { onConflict: "tenant_id" },
     );
+    const pagina = configPadrao(definicao.temaPagina === "rose-creme" ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" } : undefined);
+    await db.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } }, { onConflict: "tenant_id" });
 
     await db
       .from("rascunhos_de_barbearia")

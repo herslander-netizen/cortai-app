@@ -17,6 +17,8 @@ import {
   type DadosDoRascunho,
 } from "@/lib/rascunho.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
+import { Button } from "@/components/ui/button";
 
 const CHAVE_LOCAL = "cortai:rascunho";
 
@@ -144,7 +146,7 @@ function ConfigurarMinhaBarbearia() {
   const link = slug ? `${window.location.origin}/b/${slug}` : "";
   const servicosEditaveis: ServicoEditavel[] = (dados?.servicos ?? []).map((s) => ({
     nome: s.nome,
-    categoria: "Serviço",
+    categoria: s.categoria,
     duracaoMin: s.duracaoMin,
     precoCentavos: s.precoCentavos,
   }));
@@ -182,7 +184,8 @@ function ConfigurarMinhaBarbearia() {
           <p className="mt-10 text-sm text-mute">Preparando sua configuração…</p>
         ) : passo === 0 ? (
           <section className="mt-8 space-y-4">
-            <Campo rotulo="Nome da barbearia" valor={dados.nome} onChange={(v) => atualizar({ nome: v })} />
+            <fieldset><legend className="text-xs font-semibold uppercase tracking-wide text-mute">Tipo de negócio</legend><div className="mt-2 grid grid-cols-2 gap-2">{LISTA_DE_SEGMENTOS.map((item) => { const Icon = item.icone; return <Button key={item.id} variant={dados.segmento === item.id ? "default" : "outline"} type="button" className="h-auto min-h-14 justify-start gap-2 px-3 text-left text-xs" onClick={() => atualizar({ segmento: item.id, horarios: SEGMENTOS_CONFIG[item.id].horariosPadrao.map((horario) => ({ ...horario })), servicos: [] })}><Icon size={16} />{item.rotulo}</Button>; })}</div></fieldset>
+            <Campo rotulo={`Nome ${termos(dados.segmento).de}`} valor={dados.nome} onChange={(v) => atualizar({ nome: v })} />
             <Campo
               rotulo="WhatsApp"
               valor={dados.whatsapp}
@@ -211,8 +214,9 @@ function ConfigurarMinhaBarbearia() {
         ) : passo === 1 ? (
           <section className="mt-8">
             <EditorDeHorarios
-              horarios={dados.horarios.length ? dados.horarios : horariosPadrao()}
+              horarios={dados.horarios.length ? dados.horarios : SEGMENTOS_CONFIG[dados.segmento].horariosPadrao}
               onChange={(h: HorarioSugerido[]) => atualizar({ horarios: h })}
+              segmento={dados.segmento}
             />
             <Rodape podeAvancar onAvancar={() => avancar(2)} onVoltar={() => setPasso(0)} />
           </section>
@@ -224,11 +228,13 @@ function ConfigurarMinhaBarbearia() {
                 atualizar({
                   servicos: s.map((item) => ({
                     nome: item.nome,
+                    categoria: item.categoria,
                     duracaoMin: item.duracaoMin,
                     precoCentavos: item.precoCentavos,
                   })),
                 })
               }
+              segmento={dados.segmento}
             />
             <Rodape
               podeAvancar={dados.servicos.some((s) => s.nome.trim().length >= 2)}
