@@ -8,6 +8,7 @@ import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { InstalarCortai } from "@/components/pwa/InstalarCortai";
 import { PreferenciasDePrivacidade } from "@/components/privacidade/PreferenciasDePrivacidade";
 import { getSessao } from "@/lib/sessao.functions";
+import { PreferenciasDoCliente } from "@/components/notificacoes/PreferenciasDoCliente";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
@@ -68,6 +69,7 @@ function PerfilPage() {
           </button>
         </li>
       </ul>
+      <PreferenciasDoCliente />
       <PreferenciasDicas />
       <PreferenciasDePrivacidade />
     </Screen>

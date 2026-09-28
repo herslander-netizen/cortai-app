@@ -225,6 +225,50 @@ async function automacaoAtiva(tenantId: string, tipo: TipoDeNotificacao, padrao:
   return data ? data.ativa : padrao;
 }
 
+async function modelosPagosLigados(tenantId: string) {
+  const db = await admin();
+  const { data } = await db
+    .from("automacoes_de_ia")
+    .select("ativa")
+    .eq("tenant_id", tenantId)
+    .eq("chave", "whatsapp_modelos_pagos")
+    .maybeSingle();
+  return data?.ativa === true;
+}
+
+/** Preferências do cliente: canal desligado, frequência e horário de silêncio. */
+async function preferenciaBloqueia(clienteId: string | null, tipo: TipoDeNotificacao, fuso: string) {
+  if (!clienteId) return null;
+  const db = await admin();
+  const { data: p } = await db
+    .from("preferencias_do_cliente_avisos")
+    .select("whatsapp_ativo, frequencia, silencio_inicio, silencio_fim")
+    .eq("cliente_id", clienteId)
+    .maybeSingle();
+  if (!p) return null;
+  return motivoDeBloqueio(p, tipo, new Date(), fuso);
+}
+
+export function motivoDeBloqueio(
+  p: { whatsapp_ativo: boolean; frequencia: string; silencio_inicio: string | null; silencio_fim: string | null },
+  tipo: string,
+  agora: Date,
+  fuso: string,
+): string | null {
+  if (!p.whatsapp_ativo) return "Cliente desligou avisos por WhatsApp.";
+  if (p.frequencia === "minima" && tipo === "lembrete_24h") return "Cliente prefere só o aviso mais próximo.";
+  if (p.silencio_inicio && p.silencio_fim) {
+    const hm = new Intl.DateTimeFormat("en-GB", { timeZone: fuso, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .format(agora);
+    const ini = p.silencio_inicio.slice(0, 5);
+    const fim = p.silencio_fim.slice(0, 5);
+    const dentro = ini <= fim ? hm >= ini && hm < fim : hm >= ini || hm < fim;
+    if (dentro) return "Horário de silêncio do cliente.";
+  }
+  return null;
+}
+
+
 /**
  * Único ponto de envio transacional. Nunca lança: o agendamento já existe e
  * não pode ser afetado por uma falha de WhatsApp.
@@ -299,6 +343,11 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
   if (tipo === "retorno" && cliente?.opt_in_whatsapp !== true) {
     return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
+  }
+
+  if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
+    const bloqueio = await preferenciaBloqueia(ag.cliente_id, tipo, await fusoDoTenant(ag.tenant_id));
+    if (bloqueio) return { enviado: false, motivo: bloqueio };
   }
 
   const config = await configuracaoDoTenant(ag.tenant_id);
@@ -397,7 +446,9 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         : null,
   });
 
-  const nomeModelo = modeloDoTipo(tipo);
+  // Modelos da Meta são cobrados: só com o interruptor da barbearia ligado (padrão desligado).
+  const modelosPagos = await modelosPagosLigados(ag.tenant_id);
+  const nomeModelo = modelosPagos ? modeloDoTipo(tipo) : null;
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
   const modelo =
@@ -521,7 +572,8 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
     const r = await notificarAgendamento(id, "lembrete_24h");
     if (r.enviado) resumo.lembrete24h += 1;
   }
-  for (const id of await janela("lembrete_2h", 2, 15)) {
+  // "Você é o próximo": 2h ± 5 min (varredura a cada 15 min, dedupe pelo índice único).
+  for (const id of await janela("lembrete_2h", 2, 8)) {
     const r = await notificarAgendamento(id, "lembrete_2h");
     if (r.enviado) resumo.lembrete2h += 1;
   }
