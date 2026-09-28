@@ -31,8 +31,12 @@ async function titular(tenantId: string, clienteId: string, telefone: string) {
   return confere ? data : null;
 }
 
-const NAO_IDENTIFICADO =
+const NAO_IDENTIFICADO_BARBEARIA =
   "Para falar de saldo ou valores, este número precisa estar cadastrado aqui na barbearia. Quer que eu chame alguém da equipe?";
+const naoIdentificado = (segmento?: string | null) =>
+  !segmento || segmento === "barbearia"
+    ? NAO_IDENTIFICADO_BARBEARIA
+    : "Para falar de saldo ou valores, este número precisa estar cadastrado aqui. Quer que eu chame alguém da equipe?";
 const NAO_AUTORIZADO =
   "Por segurança, só consigo tratar de valores com o titular do cadastro. Posso chamar alguém da equipe para te ajudar?";
 
@@ -41,7 +45,9 @@ export async function resumoFinanceiroDoCliente(input: {
   tenantId: string;
   clienteId: string | null;
   telefone: string;
+  segmento?: string | null;
 }): Promise<ResumoFinanceiroDoCliente> {
+  const NAO_IDENTIFICADO = naoIdentificado(input.segmento);
   if (!input.clienteId) return { autorizado: false, texto: NAO_IDENTIFICADO };
   const cliente = await titular(input.tenantId, input.clienteId, input.telefone);
   if (!cliente) return { autorizado: false, texto: NAO_AUTORIZADO };
@@ -82,7 +88,9 @@ export async function fidelidadeDoCliente(input: {
   tenantId: string;
   clienteId: string | null;
   telefone: string;
+  segmento?: string | null;
 }): Promise<ResumoFinanceiroDoCliente> {
+  const NAO_IDENTIFICADO = naoIdentificado(input.segmento);
   if (!input.clienteId) return { autorizado: false, texto: NAO_IDENTIFICADO };
   const cliente = await titular(input.tenantId, input.clienteId, input.telefone);
   if (!cliente) return { autorizado: false, texto: NAO_AUTORIZADO };

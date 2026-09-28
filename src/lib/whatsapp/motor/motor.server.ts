@@ -272,6 +272,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
         tenantId: entrada.tenantId,
         clienteId: contexto.clienteId ?? null,
         telefone: entrada.telefone,
+        segmento: entrada.config.segmento,
       });
       return responder(r.texto, {}, { intencao: "duvida_geral" });
     }
@@ -282,6 +283,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
         tenantId: entrada.tenantId,
         clienteId: contexto.clienteId ?? null,
         telefone: entrada.telefone,
+        segmento: entrada.config.segmento,
       });
       return responder(r.texto, {}, { intencao: "duvida_geral" });
     }
