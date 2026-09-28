@@ -27,45 +27,39 @@ export function Signature() {
   const link = useWhatsappAlvo();
 
   return (
-    <footer className="mt-10 px-5 pb-6 pt-8 text-center">
-      <MarcaCortai variante="automatica" className="mx-auto mb-5 h-auto w-24 opacity-70" />
+    <footer className="mt-10 flex flex-col items-center gap-3 px-5 pb-6 pt-8 text-center">
+      <MarcaCortai variante="automatica" className="h-auto w-24 opacity-70" />
+
       {link ? (
         <a
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-4 inline-flex items-center gap-2 text-xs text-mute transition-colors hover:text-gold"
+          className="inline-flex items-center gap-2 text-xs leading-none text-mute transition-colors hover:text-gold"
         >
           <MessageCircle size={13} aria-hidden />
           Fale com a Alvo Digital
         </a>
       ) : null}
 
-      <p
-        className="text-mute"
-        style={{
-          fontVariant: "small-caps",
-          fontSize: "12px",
-          letterSpacing: "0.18em",
-          fontWeight: 500,
-        }}
-      >
+      <p className="text-xs font-semibold uppercase leading-none tracking-[0.12em] text-mute">
         {link ? (
           <a href={link} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gold">
-            by ALVO DIGITAL
+            by Alvo Digital
           </a>
         ) : (
-          "by ALVO DIGITAL"
+          "by Alvo Digital"
         )}
       </p>
-      <p className="mt-1 text-xs text-mute2">Tecnologia que conecta a cidade.</p>
-      <Link
-        to="/privacidade"
-        className="mt-3 inline-block text-xs text-mute2 transition-colors hover:text-gold"
-      >
+
+      <p className="text-xs leading-relaxed text-mute2">Tecnologia que conecta a cidade.</p>
+
+      <Link to="/privacidade" className="text-xs leading-none text-mute2 transition-colors hover:text-gold">
         Política de Privacidade
       </Link>
-      <p className="mt-3 text-xs text-mute2">© 2026 Herslander</p>
+
+      <p className="text-xs leading-none text-mute2">© 2026 Herslander</p>
     </footer>
   );
 }
+
