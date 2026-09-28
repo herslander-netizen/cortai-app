@@ -26,4 +26,11 @@ describe("StatusBadge", () => {
     expect(host.textContent).toContain(texto);
     expect(host.querySelector("svg")).not.toBeNull();
   });
+  it("usa atendimento fora da barbearia", () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    act(() => root.render(<StatusBadge status="na_cadeira" segmento="salao" />));
+    expect(host.textContent).toContain("Em atendimento");
+  });
 });

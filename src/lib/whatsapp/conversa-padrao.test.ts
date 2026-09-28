@@ -18,6 +18,14 @@ describe("Conversa padrão", () => {
   it("no máximo 1 emoji", () => {
     expect(limitarEmojis("Oi 🎉 tudo 👊 bem")).toBe("Oi 🎉 tudo bem");
   });
+  it("usa saudação neutra e pós-atendimento por segmento", () => {
+    expect(responder("saudacao_nova", { negocio: "Studio Ana" }, undefined, "salao")?.texto)
+      .toBe("Oi! Você está falando com Studio Ana. Como posso ajudar?");
+    expect(responder("pos_atendimento", { nome: "Ana" }, undefined, "salao")?.texto)
+      .toContain("Foi um prazer te atender, Ana");
+    expect(responder("pos_atendimento", { nome: "João" }, undefined, "barbearia")?.texto)
+      .toContain("Valeu pela visita, João");
+  });
 });
 
 // Conversas de teste (parte 7) contra o motor determinístico, sem enviar nada.
