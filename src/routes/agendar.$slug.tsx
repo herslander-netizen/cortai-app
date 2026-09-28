@@ -242,6 +242,12 @@ function AgendamentoPublico() {
           <p className="mt-4 text-sm text-mute">Se quiser, escolha outro horário abaixo.</p>
         )}
 
+        {!cancelado ? (
+          <p className="mt-4 text-sm leading-relaxed text-mute">
+            Guarde esta página: por ela você altera ou cancela quando quiser. Se a barbearia usa WhatsApp, você recebe a confirmação e o lembrete por lá — é só responder para confirmar a chegada.
+          </p>
+        ) : null}
+
         {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
 
         {!cancelado ? (
@@ -300,12 +306,12 @@ function AgendamentoPublico() {
         )}
 
         <div className="mt-10 rounded-2xl border border-line p-5">
-          <p className="text-sm font-semibold text-paper">Quer acompanhar seus agendamentos?</p>
+          <p className="text-sm font-semibold text-paper">Ganhe pontos a cada corte</p>
           <p className="mt-1 text-xs leading-relaxed text-mute">
-            Criar conta é opcional — seu horário já está marcado.
+            Com uma conta gratuita você acumula fidelidade, recebe descontos da casa e vê seu histórico. É opcional — seu horário já está marcado.
           </p>
-          <Button asChild variant="outline" size="sm" className="mt-3">
-            <Link to="/visitante">Criar conta</Link>
+          <Button asChild variant="outline" className="mt-3 h-12">
+            <Link to="/visitante">Criar conta grátis</Link>
           </Button>
         </div>
       </main>
