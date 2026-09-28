@@ -57,7 +57,7 @@ export const getClientesCRM = createServerFn({ method: "GET" })
     db.from("clientes").select("id, nome, telefone, criado_em").eq("tenant_id", tenant.id).is("arquivado_em", null).order("nome"),
     db
       .from("agendamentos")
-      .select("cliente_id, inicio, valor_centavos, status, servicos(nome), profissionais(nome)")
+      .select("cliente_id, inicio, valor_centavos, status, servicos(nome, retorno_dias), profissionais(nome)")
       .eq("tenant_id", tenant.id)
       .not("status", "in", "(cancelado,falta)")
       .order("inicio"),
@@ -97,6 +97,10 @@ export const getClientesCRM = createServerFn({ method: "GET" })
     else status = "recorrente";
 
     const carteira = carteiras.get(c.id);
+    const doCliente = (agRes.data ?? []).filter((a) => a.cliente_id === c.id);
+    const ultimoFeito = [...doCliente].reverse().find((a) => a.status === "finalizado" && new Date(a.inicio).getTime() <= agora);
+    const temHorarioFuturo = doCliente.some((a) => new Date(a.inicio).getTime() > agora && !["finalizado", "nao_compareceu", "remarcado", "estornado"].includes(String(a.status)));
+    const retornoEm = ultimoFeito ? dataDeRetorno(ultimoFeito.inicio, (ultimoFeito.servicos as { retorno_dias?: number | null } | null)?.retorno_dias) : null;
     return {
       id: c.id,
       nome: c.nome,
@@ -114,6 +118,9 @@ export const getClientesCRM = createServerFn({ method: "GET" })
       creditos: carteira?.saldo_creditos ?? 0,
       status,
       atrasoDias: atraso !== null && atraso > 0 ? atraso : null,
+      retornoEm: retornoEm === null ? null : new Date(retornoEm).toISOString(),
+      retornoServico: ultimoFeito?.servicos?.nome ?? null,
+      horaDeVoltar: estaNaHoraDeVoltar(retornoEm, temHorarioFuturo, agora),
     };
   });
 
@@ -122,7 +129,7 @@ export const getClientesCRM = createServerFn({ method: "GET" })
     .sort((a, b) => (b.atrasoDias ?? 0) - (a.atrasoDias ?? 0))
     .slice(0, 12);
 
-  return { tenant: { id: tenant.id, nome: tenant.nome, slug: tenant.slug }, clientes, trazerDeVolta };
+  return { tenant: { id: tenant.id, nome: tenant.nome, slug: tenant.slug, segmento: tenant.segmento }, clientes, trazerDeVolta };
 });
 
 /* ------------------------------- CRESCIMENTO ------------------------------ */
