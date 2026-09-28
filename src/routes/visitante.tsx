@@ -12,6 +12,8 @@ import { getSessao } from "@/lib/sessao.functions";
 
 export const Route = createFileRoute("/visitante")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && /^[a-z0-9-]{1,100}$/.test(search["b"]) ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Entrar como cliente — Cortaí" },
@@ -34,6 +36,7 @@ export const Route = createFileRoute("/visitante")({
 
 function VisitantePage() {
   const navigate = useNavigate();
+  const { b } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">("criar");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -44,7 +47,9 @@ function VisitantePage() {
 
   async function seguir() {
     const sessao = await getSessao();
-    await navigate({ to: destinoDoPapel(sessao) });
+    const destino = destinoDoPapel(sessao);
+    if (b && destino === "/app") await navigate({ to: "/app", search: { b } });
+    else await navigate({ to: destino });
   }
 
   return (
