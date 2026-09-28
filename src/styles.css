@@ -1267,4 +1267,41 @@ body:has(.auth-screen) {
 /* Aviso de privacidade acima da barra inferior da equipe (celular) */
 @media (max-width: 767px) {
   body:has(.equipe-barra) .banner-cookies { bottom: calc(56px + env(safe-area-inset-bottom)); }
+
+  body:has(.agenda-foco-mobile) .management-header,
+  body:has(.agenda-foco-mobile) .equipe-barra,
+  body:has(.agenda-foco-mobile) .cortai-fab-area,
+  body:has(.agenda-foco-mobile) .screen-shell > footer,
+  body:has(.agenda-foco-mobile) .banner-cookies { display: none; }
+  body:has(.agenda-foco-mobile) .equipe-conteudo { padding-bottom: 0; }
+  body:has(.agenda-foco-mobile) .screen-shell { min-height: 100dvh; padding-bottom: 0; }
+  body:has(.agenda-foco-mobile) .screen-content { padding: 0; }
 }
+
+/* Agenda móvel — operação com uma mão, sem navegação concorrente. */
+.agenda-foco-mobile { min-height: 100dvh; background: var(--ink); padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+.agenda-foco-topo { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 48px minmax(0,1fr) 48px; align-items: center; gap: 8px; min-height: 64px; border-bottom: 1px solid var(--line); background: color-mix(in oklab, var(--ink) 96%, transparent); padding: 6px 12px; backdrop-filter: blur(12px); }
+.agenda-foco-aviso { position: sticky; top: 64px; z-index: 18; display: grid; min-height: 52px; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 10px; border-bottom: 1px solid color-mix(in oklab, var(--gold) 45%, var(--line)); background: var(--gold-soft); padding: 10px 16px; color: var(--paper); font-size: 14px; font-weight: 800; }
+.agenda-foco-aviso svg { width: 19px; color: var(--gold); }
+.agenda-foco-dia { display: grid; grid-template-columns: 48px minmax(0,1fr) 48px; align-items: center; border-bottom: 1px solid var(--line); padding: 5px 12px; text-align: center; }
+.agenda-foco-dia span { font-family: var(--font-display); font-size: 21px; font-weight: 800; text-transform: uppercase; }
+.agenda-foco-profissionais { display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--line); padding: 8px 12px; }
+.agenda-foco-profissionais > * { min-height: 48px; flex-shrink: 0; border: 1px solid var(--line); border-radius: var(--radius); padding-inline: 15px; }
+.agenda-foco-lista { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+.agenda-foco-item { position: relative; border-bottom: 1px solid var(--line); border-left: 4px solid var(--status-scheduled); background: var(--ink); padding: 18px 16px 14px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.agenda-foco-item-ativo { border-left-color: var(--status-active); background: var(--status-active-soft); }
+.agenda-foco-item-proximo { border-left-color: var(--status-arrived); background: var(--status-arrived-soft); }
+.agenda-foco-item-agendado { border-left-color: var(--status-scheduled); }
+.agenda-foco-item-corpo time { display: flex; align-items: center; gap: 8px; color: var(--paper); font-family: var(--font-display); font-size: 24px; font-weight: 800; }
+.agenda-foco-item-corpo time span { border-radius: var(--radius-sm); background: var(--status-active); padding: 3px 7px; color: var(--ink); font-family: var(--font-sans); font-size: 12px; }
+.agenda-foco-item-corpo h2 { margin-top: 9px; overflow-wrap: anywhere; color: var(--paper); font-size: 21px; font-weight: 800; line-height: 1.15; }
+.agenda-foco-item-corpo p { margin: 5px 0 12px; color: var(--mute); font-size: 14px; line-height: 1.4; }
+.agenda-foco-acoes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 16px; }
+.agenda-foco-acoes > * { min-height: 56px; width: 100%; padding-inline: 10px; }
+.agenda-foco-acoes > :only-child { grid-column: 1 / -1; }
+.agenda-foco-dica { margin-top: 10px; color: var(--mute2); font-size: 12px; text-align: center; }
+.agenda-foco-vazio { display: flex; min-height: 54dvh; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--mute); text-align: center; }
+.agenda-foco-vazio svg { width: 28px; height: 28px; color: var(--gold); }
+.agenda-foco-vazio strong { color: var(--paper); font-size: 18px; }
+.agenda-foco-vazio span { font-size: 13px; }
+.agenda-foco-menu-link { min-height: 60px; width: 100%; justify-content: flex-start; border-radius: 0; }

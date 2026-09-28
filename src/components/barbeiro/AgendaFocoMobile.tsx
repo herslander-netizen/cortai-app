@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
   Bell,
-  CalendarClock,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -67,7 +66,6 @@ function minutosAte(iso: string, agora: number) {
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
   const toqueLongo = useRef<number | null>(null);
-  const abriuOpcoes = useRef(false);
 
   const operacionais = props.itens.filter((item) => !["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status));
   const proximo = operacionais.find((item) => item.status !== "na_cadeira" && new Date(item.inicio).getTime() >= props.agora);
@@ -75,9 +73,7 @@ export function AgendaFocoMobile(props: Props) {
 
   function iniciarToque(evento: ReactPointerEvent, item: AgendaItem) {
     if (evento.pointerType === "mouse") return;
-    abriuOpcoes.current = false;
     toqueLongo.current = window.setTimeout(() => {
-      abriuOpcoes.current = true;
       navigator.vibrate?.(10);
       props.onMaisOpcoes(item);
     }, 520);
@@ -153,11 +149,9 @@ export function AgendaFocoMobile(props: Props) {
               </div>
               {!(["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status)) ? (
                 <div className="agenda-foco-acoes" onPointerDown={(evento) => evento.stopPropagation()}>
-                  {item.status === "agendado" && telefone ? (
-                    <Button asChild variant="outline" disabled={!props.online || props.ocupado}>
-                      <a href={`https://wa.me/${telefone.startsWith("55") ? telefone : `55${telefone}`}?text=${encodeURIComponent(texto)}`} target="_blank" rel="noreferrer"><MessageCircle />Chamar</a>
-                    </Button>
-                  ) : null}
+                  {item.status === "agendado" && telefone ? (props.online ? (
+                    <Button asChild variant="outline"><a href={`https://wa.me/${telefone.startsWith("55") ? telefone : `55${telefone}`}?text=${encodeURIComponent(texto)}`} target="_blank" rel="noreferrer"><MessageCircle />Chamar</a></Button>
+                  ) : <Button variant="outline" disabled><MessageCircle />Chamar</Button>) : null}
                   {item.status === "agendado" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onChegou(item)}><UserRoundCheck />Chegou</Button> : null}
                   {item.status === "chegou" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onComecar(item)}><Scissors />Começar</Button> : null}
                   {item.status === "na_cadeira" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onTerminar(item)}><Check />Terminar</Button> : null}
