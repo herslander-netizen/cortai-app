@@ -145,7 +145,7 @@ export function AgendaOperacional() {
   const moverAgendamento = useServerFn(moverAgendamentoPainel);
   const queryClient = useQueryClient();
   const [dia, setDia] = useState(() => hojeNoFuso());
-  const [fuso, setFuso] = useState<string>();
+  const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
   const [agora, setAgora] = useState(Date.now());
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [estadosLocais, setEstadosLocais] = useState<Record<string, string>>({});
@@ -200,7 +200,8 @@ export function AgendaOperacional() {
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: true,
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
     placeholderData: keepPreviousData,
   });
 
@@ -222,6 +223,24 @@ export function AgendaOperacional() {
     window.addEventListener("offline", desconectar);
     return () => { window.removeEventListener("online", conectar); window.removeEventListener("offline", desconectar); };
   }, [queryClient]);
+  // Troca de barbearia: apaga o cache offline da anterior para não misturar dados.
+  useEffect(() => {
+    if (!tenantId) return;
+    try {
+      const anterior = window.localStorage.getItem("cortai-agenda-tenant-atual");
+      if (anterior && anterior !== tenantId) {
+        Object.keys(window.localStorage)
+          .filter((k) => k.startsWith(`cortai-agenda-cache:${anterior}:`))
+          .forEach((k) => window.localStorage.removeItem(k));
+      }
+      window.localStorage.setItem("cortai-agenda-tenant-atual", tenantId);
+    } catch {
+      /* cache opcional */
+    }
+  }, [tenantId]);
+  useEffect(() => {
+    idsConhecidos.current = null;
+  }, [dia]);
   useEffect(() => {
     if (agenda.data?.fuso && agenda.data.fuso !== fuso) setFuso(agenda.data.fuso);
   }, [agenda.data?.fuso, fuso]);
@@ -408,7 +427,10 @@ export function AgendaOperacional() {
 
   function iniciar(item: AgendaItem) {
     const outro = ativos.find((atual) => atual.id !== item.id);
-    if (outro) setConflito({ atual: outro, novo: item });
+    if (outro) {
+      if (import.meta.env.DEV) console.info("[agenda] conflito: já há cliente na cadeira", { atual: outro.id, novo: item.id });
+      setConflito({ atual: outro, novo: item });
+    }
     else void transicionar(item, "na_cadeira");
   }
 
@@ -854,7 +876,8 @@ export function AgendaOperacional() {
 
       {manualAberto ? <div className="agenda-manual-auto"><AgendamentoManual key={`${manualAberto}-${horaVazia ?? ""}`} dia={dia} {...(horaVazia ? { horaInicial: horaVazia } : {})} profissionalInicial={profVazio ?? profFiltro ?? meuNome} autoAbrir rotulo="Novo agendamento" onCriado={() => { setManualAberto(null); setHoraVazia(undefined); setProfVazio(null); void sincronizar(); }} /></div> : null}
 
-      {rapidoAberto ? <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}><AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /></Suspense> : null}
+      <Suspense fallback={<div className="agenda-folha"><div className="agenda-folha-conteudo"><EsqueletoAgenda linhas={3} /></div></div>}>
+        {rapidoAberto ? <AtendimentoRapidoLazy onFechar={() => setRapidoAberto(false)} onIniciado={(r) => { setRapidoAberto(false); setDia(hojeNoFuso(fuso)); void sincronizar(); oferecerDesfazerInicio(r); }} /> : null}
 
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => { if (!aberto) setConflito(null); }}>
         <AlertDialogContent>
@@ -866,8 +889,9 @@ export function AgendaOperacional() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); setSelecionado(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /></Suspense> : null}
-      {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /></Suspense> : null}
+        {fechando ? <FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); setSelecionado(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /> : null}
+        {perfil ? <PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} /> : null}
+      </Suspense>
     </Screen>
   );
 }
