@@ -47,6 +47,7 @@
 - [x] Tratar azuis Cortaí como marca padrão e validar pares preenchidos
 - [x] Recolorir o verde-lima dos sete PNGs oficiais sem alterar o desenho
 - [x] Aplicar a nova logo oficial e simplificar a experiência de login
+- [x] Aplicar capa social 1200×630 e ícone oficial do “í” em fundo branco no favicon e PWA
 
 ## Segmentos de beleza — Etapa 1
 - [x] Adicionar segmento seguro ao negócio, preservando barbearias existentes

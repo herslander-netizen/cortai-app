@@ -15,10 +15,12 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Cortaí — Sistema da barbearia" },
       { property: "og:description", content: "Agenda, clientes e caixa da barbearia em um só lugar." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://cortai.dev/capa-social.jpg" },
+      { property: "og:url", content: "https://cortai.dev/" },
+      { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://cortai.dev/capa-social.jpg" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/" }],
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();

@@ -22,10 +22,12 @@ export const Route = createFileRoute("/login")({
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://cortai.dev/capa-social.jpg" },
+      { property: "og:url", content: "https://cortai.dev/login" },
+      { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://cortai.dev/capa-social.jpg" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
