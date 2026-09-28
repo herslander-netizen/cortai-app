@@ -1,16 +1,15 @@
 export const MODOS = ["claro", "escuro", "sistema"] as const;
-export const IDENTIDADES = ["moderno", "blue", "indigo", "copper", "classico"] as const;
+export const IDENTIDADES = ["moderno", "indigo", "copper", "classico"] as const;
 
 export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];
 
-export const MODE_KEY = "cortai-modo";
-const LEGACY_MODE_KEY = "cortai-tema";
+export const MODE_KEY = "cortai-modo-v2";
 export const APPEARANCE_EVENT = "cortai-aparencia";
 
 export function modoSalvo(): Modo {
-  const salvo = window.localStorage.getItem(MODE_KEY) ?? window.localStorage.getItem(LEGACY_MODE_KEY);
-  return MODOS.includes(salvo as Modo) ? (salvo as Modo) : "sistema";
+  const salvo = window.localStorage.getItem(MODE_KEY);
+  return MODOS.includes(salvo as Modo) ? (salvo as Modo) : "escuro";
 }
 
 export function modoClaro(modo: Modo) {

@@ -1,12 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageCircle, Phone, ShoppingBag, X } from "lucide-react";
-import { type CSSProperties, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
+import { estiloDaMarca } from "@/lib/cor-marca";
 import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
 
 export const Route = createFileRoute("/loja/$slug")({
@@ -31,13 +32,13 @@ function LojaPage() {
   if (!data || data.produtos.length === 0) throw notFound();
 
   const { tenant } = data;
-  const style = { "--gold": tenant.cor_primaria, "--primary": tenant.cor_primaria } as CSSProperties;
+  const marca = estiloDaMarca(tenant.cor_primaria);
   const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
   const telefone = tenant.telefone?.replace(/\D/g, "") || null;
   const contato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
 
   return (
-    <div className="client-brand min-h-screen bg-ink" style={style}>
+    <div className="client-brand min-h-screen bg-ink" data-custom-brand={marca.personalizada || undefined} style={marca.style}>
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-5 pb-10 pt-8">
         <header>
           <Link to="/b/$slug" params={{ slug }} className="flex items-center gap-2 text-xs text-mute hover:text-paper">

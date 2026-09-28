@@ -18,7 +18,7 @@ export function useSessaoTempoReal(userId: string | null | undefined) {
   useEffect(() => {
     if (!userId) return;
     const canal = supabase
-      .channel(`sessao-vinculo-${userId}`)
+      .channel(`sessao-vinculo-${userId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tenant_usuarios", filter: `user_id=eq.${userId}` },

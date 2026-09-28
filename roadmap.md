@@ -38,3 +38,9 @@
 - [x] Agenda móvel: resumo do dia (faturado, faltam/atrasados, tempo médio) e finalizados recolhíveis
 - [x] Confirmação pública explica alterar/cancelar e convite de conta com fidelidade
 - [ ] WhatsApp: barbearias sem WhatsApp conectado — confirmações falham (precisa conectar em Integrações)
+## Nova identidade visual Cortaí
+- [x] Aplicar tokens Grafite/Creme e uso restrito do rosa em todo o app
+- [x] Tornar escuro padrão, atualizar identidades, cliente, página pública e PWA
+- [x] Migrar preferências e padrões do tenant no banco
+- [ ] Limpar cores fixas, atualizar documentação/novidades e validar telas em 390px
+

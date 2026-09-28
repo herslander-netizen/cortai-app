@@ -13,7 +13,7 @@ export type PaginaPublica = {
     whatsapp: string | null;
     instagram: string | null;
     texto_boas_vindas: string | null;
-    cor_primaria: string;
+    cor_primaria: string | null;
     cor_secundaria: string | null;
     cor_accent: string | null;
     assinatura_visivel: boolean;

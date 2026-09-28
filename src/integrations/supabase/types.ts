@@ -3498,7 +3498,7 @@ export type Database = {
           chips_ficha: string[]
           ciclo: string
           cor_accent: string | null
-          cor_primaria: string
+          cor_primaria: string | null
           cor_secundaria: string | null
           criado_em: string
           desconto_percentual: number
@@ -3541,7 +3541,7 @@ export type Database = {
           chips_ficha?: string[]
           ciclo?: string
           cor_accent?: string | null
-          cor_primaria?: string
+          cor_primaria?: string | null
           cor_secundaria?: string | null
           criado_em?: string
           desconto_percentual?: number
@@ -3584,7 +3584,7 @@ export type Database = {
           chips_ficha?: string[]
           ciclo?: string
           cor_accent?: string | null
-          cor_primaria?: string
+          cor_primaria?: string | null
           cor_secundaria?: string | null
           criado_em?: string
           desconto_percentual?: number

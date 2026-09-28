@@ -9,8 +9,7 @@ import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, mod
 import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 
 const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string }> = [
-  { id: "moderno", nome: "Moderno" },
-  { id: "blue", nome: "Blue" },
+  { id: "moderno", nome: "Cortaí" },
   { id: "indigo", nome: "Indigo" },
   { id: "copper", nome: "Copper" },
   { id: "classico", nome: "Clássico" },
@@ -25,7 +24,7 @@ const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
 export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string | undefined; tenantId?: string | undefined; podeAlterarIdentidade?: boolean | undefined }) {
   const queryClient = useQueryClient();
   const salvarIdentidade = useServerFn(salvarIdentidadeApp);
-  const [modo, setModo] = useState<Modo>("sistema");
+  const [modo, setModo] = useState<Modo>("escuro");
   const [identidade, setIdentidade] = useState<Identidade>(() => identidadeValida(identidadeDaBarbearia));
   const [salvando, setSalvando] = useState(false);
 
@@ -110,7 +109,7 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
 }
 
 export function ModeShortcut() {
-  const [modo, setModo] = useState<Modo>("sistema");
+  const [modo, setModo] = useState<Modo>("escuro");
 
   useEffect(() => {
     setModo(modoSalvo());

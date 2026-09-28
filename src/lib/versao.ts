@@ -50,6 +50,7 @@ export const CHANGELOG: ItemDoChangelog[] = [
       "Novidades da versão apresentadas uma única vez ao entrar.",
     ],
     visual: [
+      "Nova identidade visual.",
       "Novo sistema de cores: ink, paper, stone, gold, sage e clay.",
       "Tipografia Manrope e cantos mais suaves (12 a 18px).",
       "Fotografia editorial de barbearia no lugar de imagens genéricas.",

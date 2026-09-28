@@ -18,7 +18,7 @@ export type LojaPublica = {
     slug: string;
     whatsapp: string | null;
     telefone: string | null;
-    cor_primaria: string;
+    cor_primaria: string | null;
     logo_url: string | null;
   };
   produtos: ProdutoPublico[];
