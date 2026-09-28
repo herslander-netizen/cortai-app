@@ -43,10 +43,27 @@ export const ALIASES_DE_SERVICO: Record<string, string[]> = {
   sobrancelha: ["sobrancelha", "sobrancelhas", "design de sobrancelha", "pezinho da sobrancelha"],
   pezinho: ["pezinho", "acabamento", "contorno"],
   pigmentacao: ["pigmentacao", "pigmentar", "camuflagem"],
-  luzes: ["luzes", "platinado", "descoloracao", "descolorir", "mechas"],
+  luzes: ["luzes", "platinado", "descoloracao", "descolorir", "mechas", "balayage", "morena iluminada"],
   hidratacao: ["hidratacao", "hidratar", "relaxamento", "botox capilar"],
   infantil: ["infantil", "crianca", "corte infantil", "kids"],
   combo: ["combo", "corte e barba", "cabelo e barba", "completo", "pacotao"],
+  manicure: ["manicure", "fazer a unha", "fazer as unhas", "unha", "unhas", "mao", "maos", "esmaltar", "esmaltacao"],
+  pedicure: ["pedicure", "fazer o pe", "fazer os pes", "unha do pe"],
+  maos_e_pes: ["mao e pe", "maos e pes", "pe e mao", "pes e maos"],
+  gel: ["gel", "unha de gel", "esmaltacao em gel"],
+  alongamento: ["alongamento", "fibra", "fibra de vidro", "postica", "acrigel", "acrilico", "manutencao do alongamento"],
+  blindagem: ["blindagem"],
+  escova: ["escova", "escovinha", "chapinha", "babyliss"],
+  progressiva: ["progressiva", "selagem", "alisamento", "definitiva"],
+  coloracao: ["coloracao", "colorir", "pintar o cabelo", "tintura", "tinta"],
+  raiz: ["raiz", "retoque de raiz", "retocar a raiz"],
+  penteado: ["penteado", "penteado de festa", "noiva"],
+  henna: ["henna", "design com henna"],
+  cilios: ["cilios", "extensao de cilios", "lash", "fio a fio", "volume russo", "manutencao de cilios", "lash lifting", "lifting de cilios"],
+  depilacao: ["depilacao", "depilar", "cera", "buco", "virilha", "axila"],
+  limpeza_de_pele: ["limpeza de pele", "limpeza facial"],
+  massagem: ["massagem", "relaxante", "drenagem", "drenagem linfatica"],
+  maquiagem: ["maquiagem", "make", "maquiar"],
 };
 
 const PALAVRAS = {
@@ -64,6 +81,7 @@ const PALAVRAS = {
     "quero marcar",
     "da pra marcar",
     "consigo marcar",
+    "fazer a unha", "fazer as unhas", "fazer o pe", "fazer escova", "fazer sobrancelha", "fazer cilios", "fazer o cabelo",
   ],
   disponibilidade: [
     "tem horario",
@@ -82,10 +100,10 @@ const PALAVRAS = {
     "encaixe",
     "encaixar",
   ],
-  barbearia: ["nome da barbearia", "qual barbearia", "como chama a barbearia", "que barbearia e essa"],
+  barbearia: ["nome da barbearia", "qual barbearia", "como chama a barbearia", "que barbearia e essa", "qual salao", "nome do salao", "que salao e esse", "esmalteria", "qual studio", "qual espaco"],
   servicos: ["servico", "servicos", "o que voces fazem", "o que faz", "fazem barba", "cardapio", "menu"],
   preco: ["preco", "precos", "valor", "valores", "quanto custa", "quanto fica", "quanto e", "tabela"],
-  profissionais: ["barbeiro", "barbeiros", "profissional", "profissionais", "quem atende", "com quem", "equipe"],
+  profissionais: ["barbeiro", "barbeiros", "profissional", "profissionais", "quem atende", "com quem", "equipe", "manicure", "manicures", "cabeleireira", "cabeleireiro", "esteticista", "designer", "nail designer", "lash designer"],
   meusAgendamentos: [
     "meu horario",
     "meus horarios",
@@ -119,7 +137,7 @@ const PALAVRAS = {
   confirmar: ["sim", "isso", "confirmo", "confirmar", "pode ser", "beleza", "ok", "fechado", "certo", "claro", "s"],
   negar: ["nao", "nao quero", "negativo", "deixa", "esquece", "nao e isso", "n"],
   ajuda: ["ajuda", "o que voce faz", "como funciona", "menu", "opcoes"],
-  trocarBarbearia: ["trocar de barbearia", "outra barbearia", "mudar barbearia", "outra unidade", "trocar barbearia"],
+  trocarBarbearia: ["trocar de barbearia", "outra barbearia", "mudar barbearia", "outra unidade", "trocar barbearia", "trocar de salao", "outro salao", "outro studio", "outro lugar"],
   recomecar: ["comecar de novo", "recomecar", "do inicio", "de novo", "voltar"],
 };
 
@@ -135,11 +153,17 @@ export function contem(textoNormalizado: string, termos: string[]): boolean {
 }
 
 /** Termo canônico de serviço citado na mensagem (ex.: "tapa no cabelo" → corte). */
-export function servicoCitado(textoNormalizado: string): string | null {
+export function servicoCitado(textoNormalizado: string, segmento = "barbearia"): string | null {
   for (const [canonico, aliases] of Object.entries(ALIASES_DE_SERVICO)) {
-    if (contem(textoNormalizado, aliases)) return canonico;
+    const termos = segmento === "barbearia" || canonico !== "corte" ? aliases : aliases.filter((alias) => alias !== "cabelo");
+    if (contem(textoNormalizado, termos)) return canonico;
   }
   return null;
+}
+
+export function servicoCombinaComCanonico(nome: string, canonico: string): boolean {
+  const nomeNormalizado = normalizar(nome);
+  return [canonico, ...(ALIASES_DE_SERVICO[canonico] ?? [])].some((termo) => nomeNormalizado.includes(termo) || normalizar(termo).includes(nomeNormalizado));
 }
 
 const NUMEROS_ESCRITOS: Record<string, number> = {

@@ -16,7 +16,7 @@ import type { ConfiguracaoDoAtendimento, Intencao } from "../contrato";
 import { SAUDACAO_PADRAO } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
-import { normalizar } from "./vocabulario";
+import { servicoCombinaComCanonico } from "./vocabulario";
 import {
   responder as textoDaConversaPadrao,
   type ChaveDeTexto,
@@ -108,7 +108,7 @@ function frase(
     textos: entrada.config.textosConversa ?? null,
     desligadas: entrada.config.situacoesDesligadas ?? null,
   };
-  const r = textoDaConversaPadrao(chave, vars, p);
+  const r = textoDaConversaPadrao(chave, { ...vars, negocio: vars["negocio"] ?? entrada.nomeDaBarbearia, barbearia: vars["barbearia"] ?? entrada.nomeDaBarbearia }, p, entrada.config.segmento);
   if (!r || r.precisaHumano) return alternativa;
   return r.texto;
 }
@@ -148,7 +148,7 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
   }
 
   const menuItens = contexto.menuItens ?? [];
-  const cls = classificar(entrada.texto, { fuso: ctx.fuso, totalDeOpcoes: menuItens.length });
+  const cls = classificar(entrada.texto, { fuso: ctx.fuso, totalDeOpcoes: menuItens.length, segmento: entrada.config.segmento });
 
   // Pedido de atendimento humano tem prioridade absoluta.
   if (cls.intencao === "HUMANO") {
@@ -423,10 +423,14 @@ async function avancarAgendamento(
   let servicoNome = contexto.servicoNome ?? null;
   if (!servicoId && cls.entidades.servico) {
     const alvo = cls.entidades.servico;
-    const achado = servicos.find((s) => normalizar(s.nome).includes(alvo));
+    const compativeis = servicos.filter((s) => servicoCombinaComCanonico(s.nome, alvo));
+    const achado = compativeis.length === 1 ? compativeis[0] : null;
     if (achado) {
       servicoId = achado.id;
       servicoNome = achado.nome;
+    } else if (compativeis.length > 1) {
+      const itens: ItemDeMenu[] = compativeis.slice(0, 8).map((s) => ({ rotulo: `${s.nome} — ${reais(s.preco_centavos ?? 0)}`, valor: s.id }));
+      return responder(["Qual deles você quer?", "", listar(itens), "", "Responda com o número."].join("\n"), { estado: "CHOOSING_SERVICE", menuTipo: "servico", menuItens: itens }, { intencao: "agendamento" });
     }
   }
   if (!servicoId) {
