@@ -7,7 +7,7 @@ import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { aviso } from "@/lib/avisos";
-import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
+import type { HorarioSugerido } from "@/lib/ia/assistente";
 import {
   criarRascunhoDeBarbearia,
   getRascunhoDeBarbearia,

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "lucide-react";
@@ -15,7 +15,7 @@ import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { alterarSegmento } from "@/lib/onboarding.functions";
-import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
+import { LISTA_DE_SEGMENTOS, termos } from "@/lib/segmentos";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 import { aviso } from "@/lib/avisos";
 
@@ -41,6 +41,10 @@ function ContaPage() {
   const salvarSegmento = useServerFn(alterarSegmento);
   const [segmento, setSegmento] = useState(data?.segmento ?? "barbearia");
   const [salvandoSegmento, setSalvandoSegmento] = useState(false);
+
+  useEffect(() => {
+    if (data?.segmento) setSegmento(data.segmento);
+  }, [data?.segmento]);
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os da sua barbearia.">
@@ -115,7 +119,7 @@ function ContaPage() {
       {data?.permissoes.includes("alterar_dados_barbearia") ? <section className="border-b border-line py-5">
         <label className="block text-xs font-medium text-mute">Tipo de negócio<select className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper" value={segmento} onChange={(event) => setSegmento(event.target.value as typeof segmento)}>{LISTA_DE_SEGMENTOS.map((item) => <option key={item.id} value={item.id}>{item.rotulo}</option>)}</select></label>
         <p className="mt-2 text-xs text-mute">Ajusta sugestões e palavras. Seus serviços, clientes e horários não mudam.</p>
-        <Button variant="outline" type="button" className="mt-3 min-h-12 w-full" disabled={salvandoSegmento || segmento === data.segmento} onClick={async () => { setSalvandoSegmento(true); try { const novo = SEGMENTOS_CONFIG[segmento]; const aplicarCores = window.confirm(`Usar também as cores recomendadas para ${termos(segmento).nome}?`); const resultado = await salvarSegmento({ data: { segmento, aplicarCores } }); if (aplicarCores) { aplicarIdentidade(resultado.identidade); aplicarModo(resultado.modo, true); } await queryClient.invalidateQueries({ queryKey: ["sessao"] }); await queryClient.invalidateQueries({ queryKey: ["implantacao"] }); aviso.ok("Tipo de negócio atualizado."); } catch (erro) { aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar."); } finally { setSalvandoSegmento(false); } }}>Salvar tipo de negócio</Button>
+        <Button variant="outline" type="button" className="mt-3 min-h-12 w-full" disabled={salvandoSegmento || segmento === data.segmento} onClick={async () => { setSalvandoSegmento(true); try { const aplicarCores = window.confirm(`Usar também as cores recomendadas para ${termos(segmento).nome}?`); const resultado = await salvarSegmento({ data: { segmento, aplicarCores } }); if (aplicarCores) { aplicarIdentidade(resultado.identidade); aplicarModo(resultado.modo, true); } await queryClient.invalidateQueries({ queryKey: ["sessao"] }); await queryClient.invalidateQueries({ queryKey: ["implantacao"] }); aviso.ok("Tipo de negócio atualizado."); } catch (erro) { aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar."); } finally { setSalvandoSegmento(false); } }}>Salvar tipo de negócio</Button>
       </section> : null}
 
       <PreferenciasDicas />
