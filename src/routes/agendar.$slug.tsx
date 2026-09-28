@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
+import { profissionalLivre } from "@/lib/disponibilidade";
 import { hojeNoFuso, normalizarFuso, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
@@ -57,20 +58,6 @@ function horaLocal(iso: string, fuso: string) {
 
 function dataLocal(iso: string, fuso: string) {
   return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: fuso });
-}
-
-function livre(
-  profId: string,
-  inicio: number,
-  fim: number,
-  ocupados: AgendaPublica["ocupados"],
-) {
-  return !ocupados.some(
-    (o) =>
-      o.profissional_id === profId &&
-      new Date(o.inicio).getTime() < fim &&
-      new Date(o.fim).getTime() > inicio,
-  );
 }
 
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -143,7 +130,7 @@ function AgendamentoPublico() {
         const inicio = new Date(slot.iso).getTime();
         const fim = inicio + servico.duracao_min * 60_000;
         if (inicio < agora) return null;
-        const disponivel = candidatos.find((id) => livre(id, inicio, fim, data.ocupados));
+        const disponivel = candidatos.find((id) => profissionalLivre(id, inicio, fim, data.ocupados));
         return disponivel ? { iso: slot.iso, label: slot.label, profId: disponivel } : null;
       })
       .filter((v): v is { iso: string; label: string; profId: string } => v !== null);
