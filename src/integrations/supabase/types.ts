@@ -711,6 +711,24 @@ export type Database = {
           },
         ]
       }
+      chaves_internas: {
+        Row: {
+          criado_em: string
+          nome: string
+          valor: string
+        }
+        Insert: {
+          criado_em?: string
+          nome: string
+          valor: string
+        }
+        Update: {
+          criado_em?: string
+          nome?: string
+          valor?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           alergias: string | null
