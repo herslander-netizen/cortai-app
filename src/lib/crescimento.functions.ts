@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado, exigirPermissao } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import { z } from "zod";
+import { dataDeRetorno, estaNaHoraDeVoltar } from "@/lib/retorno";
 
 const DIA = 24 * 60 * 60 * 1000;
 
@@ -48,6 +49,9 @@ export type ClienteCRM = {
   creditos: number;
   status: "novo" | "recorrente" | "em_retorno" | "inativo";
   atrasoDias: number | null;
+  retornoEm: string | null;
+  retornoServico: string | null;
+  horaDeVoltar: boolean;
 };
 
 export const getClientesCRM = createServerFn({ method: "GET" })
