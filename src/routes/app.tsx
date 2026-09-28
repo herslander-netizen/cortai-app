@@ -8,9 +8,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { vincularFichaDoConvidado } from "@/lib/agendamento-publico.functions";
-
-/** Chave com a prova (agendamento + WhatsApp) deixada pela página pública ao pedir "Criar conta". */
-export const CHAVE_VINCULO = "cortai-vincular-ficha";
+import { CHAVE_VINCULO } from "@/lib/vinculo";
 
 const tabs: TabItem[] = [
   { to: "/app", label: "Início", icon: Scissors },
