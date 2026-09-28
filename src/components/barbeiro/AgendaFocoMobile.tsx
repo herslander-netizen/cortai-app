@@ -167,9 +167,9 @@ export function AgendaFocoMobile(props: Props) {
         <SheetContent side="left" className="w-[82vw] max-w-[320px] border-line bg-ink2 px-5 pt-5">
           <SheetHeader className="pr-10 text-left"><SheetTitle className="text-paper">Menu</SheetTitle><SheetDescription className="text-mute">Acesso rápido da operação.</SheetDescription></SheetHeader>
           <nav className="mt-5 divide-y divide-line">
-            <Button asChild variant="ghost" className="agenda-foco-menu-link"><Link to="/barbeiro/conta" onClick={() => setMenu(false)}><UserRound />Perfil</Link></Button>
-            <Button asChild variant="ghost" className="agenda-foco-menu-link"><Link to="/barbeiro/configurar" onClick={() => setMenu(false)}><Settings />Configurações</Link></Button>
-            <Button variant="ghost" className="agenda-foco-menu-link" onClick={() => void sair()}><LogOut />Sair</Button>
+            <Link to="/barbeiro/conta" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><UserRound />Perfil</Link>
+            <Link to="/barbeiro/configurar" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><Settings />Configurações</Link>
+            <Button variant="ghost" className="agenda-foco-menu-link" onClick={() => { setMenu(false); void sair(); }}><LogOut />Sair</Button>
           </nav>
         </SheetContent>
       </Sheet>
