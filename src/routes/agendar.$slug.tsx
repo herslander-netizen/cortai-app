@@ -192,6 +192,23 @@ function AgendamentoPublico() {
     );
   }
 
+  if (!data.profissionais.length || !data.servicos.length) {
+    const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
+    return (
+      <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
+        <h1 className="text-xl font-bold text-paper">{data.tenant.nome}</h1>
+        <p className="mt-2 text-sm text-mute">A agenda online ainda não está aberta. Fale direto com a barbearia para marcar.</p>
+        {zap ? (
+          <Button asChild className="mt-6 h-12 font-bold">
+            <a href={`https://wa.me/${zap}?text=${encodeURIComponent("Olá! Quero agendar um horário.")}`} target="_blank" rel="noreferrer">
+              <MessageCircle />Chamar no WhatsApp
+            </a>
+          </Button>
+        ) : null}
+      </main>
+    );
+  }
+
   if (confirmado) {
     const whatsapp = confirmado.whatsapp?.replace(/\D/g, "") || null;
     const texto = encodeURIComponent(
