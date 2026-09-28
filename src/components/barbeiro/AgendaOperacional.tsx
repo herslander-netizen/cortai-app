@@ -506,7 +506,7 @@ export function AgendaOperacional() {
           </SheetContent>
         </Sheet>
         {fechando ? <Suspense fallback={<div className="agenda-folha"><EsqueletoAgenda linhas={3} /></div>}><FechamentoComandaLazy agendamentoId={fechando} onFechar={() => setFechando(null)} onConcluido={() => { setFechando(null); setSelecionado(null); void sincronizar(); }} /></Suspense> : null}
-        {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} segmento={agenda.tenant.segmento} /></Suspense> : null}
+        {perfil ? <Suspense fallback={null}><PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} segmento={agenda.data?.tenant.segmento ?? "barbearia"} /></Suspense> : null}
       </Screen>
     );
   }
@@ -893,7 +893,7 @@ export function AgendaOperacional() {
 
 
         {fechando ? <FechamentoComandaLazy agendamentoId={fechando} onFechar={() => { setFechando(null); setIniciarDepois(null); }} onConcluido={() => { const proximo = itens.find((item) => item.id === iniciarDepois); setFechando(null); setIniciarDepois(null); setSelecionado(null); if (proximo) void transicionar(proximo, "na_cadeira"); void sincronizar(); void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] }); void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] }); }} /> : null}
-        {perfil ? <PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} segmento={agenda.tenant.segmento} /> : null}
+        {perfil ? <PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} segmento={agenda.data?.tenant.segmento ?? "barbearia"} /> : null}
       </Suspense>
     </Screen>
   );

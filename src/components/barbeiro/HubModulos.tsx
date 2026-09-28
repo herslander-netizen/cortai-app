@@ -7,7 +7,7 @@ import { getSessao } from "@/lib/sessao.functions";
 
 export function HubModulos() {
   const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
-  const modulos = modulosDeNavegacao(sessao?.tenant.segmento ?? "barbearia").filter((modulo) => sessao?.permissoes.includes(modulo.permissao)).slice(0, 4);
+  const modulos = modulosDeNavegacao(sessao?.segmento ?? "barbearia").filter((modulo) => sessao?.permissoes.includes(modulo.permissao)).slice(0, 4);
   if (!modulos.length) return null;
   return (
     <section className="mt-8">
