@@ -262,6 +262,81 @@ export type Database = {
           },
         ]
       }
+      assinaturas: {
+        Row: {
+          asaas_subscription_id: string | null
+          atualizado_em: string
+          cancelar_no_fim: boolean
+          ciclo: string
+          ciclo_agendado: string | null
+          cobrancas_com_desconto_restantes: number | null
+          criado_em: string
+          cupom_id: string | null
+          forma: string | null
+          id: string
+          pago_ate: string | null
+          plano_agendado: string | null
+          plano_chave: string
+          proximo_vencimento: string | null
+          status: string
+          tenant_id: string
+          valor_centavos: number
+        }
+        Insert: {
+          asaas_subscription_id?: string | null
+          atualizado_em?: string
+          cancelar_no_fim?: boolean
+          ciclo?: string
+          ciclo_agendado?: string | null
+          cobrancas_com_desconto_restantes?: number | null
+          criado_em?: string
+          cupom_id?: string | null
+          forma?: string | null
+          id?: string
+          pago_ate?: string | null
+          plano_agendado?: string | null
+          plano_chave: string
+          proximo_vencimento?: string | null
+          status: string
+          tenant_id: string
+          valor_centavos?: number
+        }
+        Update: {
+          asaas_subscription_id?: string | null
+          atualizado_em?: string
+          cancelar_no_fim?: boolean
+          ciclo?: string
+          ciclo_agendado?: string | null
+          cobrancas_com_desconto_restantes?: number | null
+          criado_em?: string
+          cupom_id?: string | null
+          forma?: string | null
+          id?: string
+          pago_ate?: string | null
+          plano_agendado?: string | null
+          plano_chave?: string
+          proximo_vencimento?: string | null
+          status?: string
+          tenant_id?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_cupom_id_fkey"
+            columns: ["cupom_id"]
+            isOneToOne: false
+            referencedRelation: "cupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auditoria_da_barbearia: {
         Row: {
           acao: string
@@ -1313,6 +1388,7 @@ export type Database = {
         Row: {
           atualizado_em: string
           atualizado_por: string | null
+          cobranca_ligada: boolean
           cor_fundo: string
           cor_primaria: string
           cor_superficie: string
@@ -1320,18 +1396,21 @@ export type Database = {
           facebook_cortai: string | null
           id: boolean
           instagram_cortai: string | null
+          plano_inicial: string
           preco_essencial_centavos: number
           preco_pro_centavos: number
           preco_studio_centavos: number
           raio_px: number
           tiktok_cortai: string | null
           tipografia: string
+          tolerancia_dias: number
           whatsapp_alvo: string | null
           youtube_cortai: string | null
         }
         Insert: {
           atualizado_em?: string
           atualizado_por?: string | null
+          cobranca_ligada?: boolean
           cor_fundo?: string
           cor_primaria?: string
           cor_superficie?: string
@@ -1339,18 +1418,21 @@ export type Database = {
           facebook_cortai?: string | null
           id?: boolean
           instagram_cortai?: string | null
+          plano_inicial?: string
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
           tiktok_cortai?: string | null
           tipografia?: string
+          tolerancia_dias?: number
           whatsapp_alvo?: string | null
           youtube_cortai?: string | null
         }
         Update: {
           atualizado_em?: string
           atualizado_por?: string | null
+          cobranca_ligada?: boolean
           cor_fundo?: string
           cor_primaria?: string
           cor_superficie?: string
@@ -1358,12 +1440,14 @@ export type Database = {
           facebook_cortai?: string | null
           id?: boolean
           instagram_cortai?: string | null
+          plano_inicial?: string
           preco_essencial_centavos?: number
           preco_pro_centavos?: number
           preco_studio_centavos?: number
           raio_px?: number
           tiktok_cortai?: string | null
           tipografia?: string
+          tolerancia_dias?: number
           whatsapp_alvo?: string | null
           youtube_cortai?: string | null
         }
@@ -1569,6 +1653,7 @@ export type Database = {
         Row: {
           ativo: boolean
           atualizado_em: string
+          cobrancas_com_desconto: number | null
           codigo: string
           criado_em: string
           criado_por: string | null
@@ -1586,6 +1671,7 @@ export type Database = {
         Insert: {
           ativo?: boolean
           atualizado_em?: string
+          cobrancas_com_desconto?: number | null
           codigo: string
           criado_em?: string
           criado_por?: string | null
@@ -1603,6 +1689,7 @@ export type Database = {
         Update: {
           ativo?: boolean
           atualizado_em?: string
+          cobrancas_com_desconto?: number | null
           codigo?: string
           criado_em?: string
           criado_por?: string | null
@@ -1653,6 +1740,50 @@ export type Database = {
             foreignKeyName: "cupons_usos_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dados_de_cobranca: {
+        Row: {
+          asaas_customer_id: string | null
+          atualizado_em: string
+          cpf_cnpj: string
+          criado_em: string
+          email: string
+          id: string
+          nome: string
+          telefone: string | null
+          tenant_id: string
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          atualizado_em?: string
+          cpf_cnpj: string
+          criado_em?: string
+          email: string
+          id?: string
+          nome: string
+          telefone?: string | null
+          tenant_id: string
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          atualizado_em?: string
+          cpf_cnpj?: string
+          criado_em?: string
+          email?: string
+          id?: string
+          nome?: string
+          telefone?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dados_de_cobranca_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -1764,6 +1895,42 @@ export type Database = {
           },
         ]
       }
+      eventos_asaas: {
+        Row: {
+          corpo: Json
+          criado_em: string
+          erro: string | null
+          event_id: string
+          evento: string
+          id: string
+          payment_id: string | null
+          status: string
+          tentativas: number
+        }
+        Insert: {
+          corpo?: Json
+          criado_em?: string
+          erro?: string | null
+          event_id: string
+          evento: string
+          id?: string
+          payment_id?: string | null
+          status?: string
+          tentativas?: number
+        }
+        Update: {
+          corpo?: Json
+          criado_em?: string
+          erro?: string | null
+          event_id?: string
+          evento?: string
+          id?: string
+          payment_id?: string | null
+          status?: string
+          tentativas?: number
+        }
+        Relationships: []
+      }
       eventos_de_ia: {
         Row: {
           chave_idempotencia: string
@@ -1854,6 +2021,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "eventos_recebidos_de_ia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faturas: {
+        Row: {
+          asaas_payment_id: string
+          assinatura_id: string | null
+          criado_em: string
+          forma: string | null
+          id: string
+          link_pagamento: string | null
+          liquido_centavos: number | null
+          pago_em: string | null
+          status: string
+          tenant_id: string
+          valor_centavos: number
+          vencimento: string | null
+        }
+        Insert: {
+          asaas_payment_id: string
+          assinatura_id?: string | null
+          criado_em?: string
+          forma?: string | null
+          id?: string
+          link_pagamento?: string | null
+          liquido_centavos?: number | null
+          pago_em?: string | null
+          status: string
+          tenant_id: string
+          valor_centavos?: number
+          vencimento?: string | null
+        }
+        Update: {
+          asaas_payment_id?: string
+          assinatura_id?: string | null
+          criado_em?: string
+          forma?: string | null
+          id?: string
+          link_pagamento?: string | null
+          liquido_centavos?: number | null
+          pago_em?: string | null
+          status?: string
+          tenant_id?: string
+          valor_centavos?: number
+          vencimento?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faturas_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "faturas_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
