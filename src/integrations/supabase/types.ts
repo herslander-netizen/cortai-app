@@ -1670,6 +1670,7 @@ export type Database = {
           id: string
           mensagem_externa_id: string | null
           respondido_em: string | null
+          resposta: string | null
           status: string
           telefone: string
           tenant_id: string
@@ -1691,6 +1692,7 @@ export type Database = {
           id?: string
           mensagem_externa_id?: string | null
           respondido_em?: string | null
+          resposta?: string | null
           status?: string
           telefone: string
           tenant_id: string
@@ -1712,6 +1714,7 @@ export type Database = {
           id?: string
           mensagem_externa_id?: string | null
           respondido_em?: string | null
+          resposta?: string | null
           status?: string
           telefone?: string
           tenant_id?: string
@@ -2908,6 +2911,60 @@ export type Database = {
           preco_mensal_centavos?: number
         }
         Relationships: []
+      }
+      preferencias_do_cliente_avisos: {
+        Row: {
+          atualizado_em: string
+          cliente_id: string
+          criado_em: string
+          frequencia: string
+          id: string
+          push_ativo: boolean
+          silencio_fim: string | null
+          silencio_inicio: string | null
+          tenant_id: string
+          whatsapp_ativo: boolean
+        }
+        Insert: {
+          atualizado_em?: string
+          cliente_id: string
+          criado_em?: string
+          frequencia?: string
+          id?: string
+          push_ativo?: boolean
+          silencio_fim?: string | null
+          silencio_inicio?: string | null
+          tenant_id: string
+          whatsapp_ativo?: boolean
+        }
+        Update: {
+          atualizado_em?: string
+          cliente_id?: string
+          criado_em?: string
+          frequencia?: string
+          id?: string
+          push_ativo?: boolean
+          silencio_fim?: string | null
+          silencio_inicio?: string | null
+          tenant_id?: string
+          whatsapp_ativo?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preferencias_do_cliente_avisos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: true
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preferencias_do_cliente_avisos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       produtos: {
         Row: {
