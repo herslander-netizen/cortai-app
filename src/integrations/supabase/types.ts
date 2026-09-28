@@ -3522,6 +3522,7 @@ export type Database = {
           nome: string
           plano: string
           rotulo_carteira: string | null
+          segmento: string
           slug: string
           telefone: string | null
           tema: string
@@ -3566,6 +3567,7 @@ export type Database = {
           nome: string
           plano?: string
           rotulo_carteira?: string | null
+          segmento?: string
           slug: string
           telefone?: string | null
           tema?: string
@@ -3610,6 +3612,7 @@ export type Database = {
           nome?: string
           plano?: string
           rotulo_carteira?: string | null
+          segmento?: string
           slug?: string
           telefone?: string | null
           tema?: string
@@ -3883,6 +3886,10 @@ export type Database = {
       }
     }
     Functions: {
+      alterar_segmento_do_tenant: {
+        Args: { _segmento: string; _tenant_id: string }
+        Returns: undefined
+      }
       cancelar_agendamento: { Args: { _agendamento_id: string }; Returns: Json }
       carteira_pertence_ao_membro: {
         Args: { _carteira_id: string }
@@ -3957,7 +3964,17 @@ export type Database = {
         }
         Returns: Json
       }
-      criar_barbearia: { Args: { _nome: string }; Returns: string }
+      criar_barbearia:
+        | { Args: { _nome: string }; Returns: string }
+        | {
+            Args: {
+              _identidade_app?: string
+              _modo?: string
+              _nome: string
+              _segmento?: string
+            }
+            Returns: string
+          }
       criar_notificacao: {
         Args: {
           _corpo: string
