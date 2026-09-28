@@ -35,3 +35,6 @@
 - [x] Agendamento público: busca de cliente pelo telefone (com/sem 9), horários ocupados iguais à trava do banco, "Alterar" sem duplicar, confirmação salva ao recarregar, aviso quando a barbearia não tem profissionais
 - [x] Testes de disponibilidade
 - [ ] Barbearias sem profissional ativo (o-barbeiro, nando-do-corte, teste) precisam cadastrar equipe para abrir agenda online
+- [x] Agenda móvel: resumo do dia (faturado, faltam/atrasados, tempo médio) e finalizados recolhíveis
+- [x] Confirmação pública explica alterar/cancelar e convite de conta com fidelidade
+- [ ] WhatsApp: barbearias sem WhatsApp conectado — confirmações falham (precisa conectar em Integrações)
