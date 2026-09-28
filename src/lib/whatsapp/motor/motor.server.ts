@@ -415,7 +415,7 @@ async function avancarAgendamento(
   const { listarServicos } = await import("@/lib/ia/acoes.server");
   const servicos = await listarServicos(ctx);
   if (servicos.length === 0) {
-    return responder("Ainda não consigo agendar por aqui — a barbearia não tem serviços cadastrados. Vou avisar a equipe.");
+    return responder("Ainda não consigo agendar por aqui — o negócio não tem serviços cadastrados. Vou avisar a equipe.");
   }
 
   // 1) Serviço: o citado na mensagem, o já escolhido, ou a lista numerada.

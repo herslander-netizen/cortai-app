@@ -86,7 +86,7 @@ export type AgendaItem = {
 export type FilaJanela = { id: string; cliente: string; janelaInicio: number | null; janelaFim: number | null };
 
 export type AgendaDia = {
-  tenant: { id: string; nome: string };
+  tenant: { id: string; nome: string; segmento: Segmento };
   dia: string;
   itens: AgendaItem[];
   fila: FilaJanela[];
