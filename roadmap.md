@@ -46,4 +46,5 @@
 - [x] Fechar contraste destrutivo e da landing nos dois modos
 - [x] Tratar azuis Cortaí como marca padrão e validar pares preenchidos
 - [x] Recolorir o verde-lima dos sete PNGs oficiais sem alterar o desenho
+- [x] Aplicar a nova logo oficial e simplificar a experiência de login
 
