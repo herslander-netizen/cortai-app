@@ -265,7 +265,7 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
                 <ArrowRight size={13} aria-hidden />
               </button>
               <div className="mt-3 space-y-2">
-                {ATALHOS.map((a) => (
+                {atalhosDo(segmento).map((a) => (
                   <button
                     key={a}
                     type="button"
