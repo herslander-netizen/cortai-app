@@ -8,11 +8,12 @@ import { aviso } from "@/lib/avisos";
 import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, modoSalvo, type Identidade, type Modo } from "@/lib/aparencia";
 import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 
-const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string }> = [
-  { id: "moderno", nome: "Cortaí" },
-  { id: "indigo", nome: "Indigo" },
-  { id: "copper", nome: "Copper" },
-  { id: "classico", nome: "Clássico" },
+const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string; descricao: string }> = [
+  { id: "moderno", nome: "Cortaí", descricao: "Azul com rosa em destaque" },
+  { id: "rose", nome: "Rosé", descricao: "Rosa em destaque, azul nos detalhes" },
+  { id: "indigo", nome: "Indigo", descricao: "Índigo monocromático" },
+  { id: "copper", nome: "Copper", descricao: "Cobre monocromático" },
+  { id: "classico", nome: "Clássico", descricao: "Dourado monocromático" },
 ];
 
 const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
@@ -83,7 +84,7 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
           {OPCOES_DE_IDENTIDADE.map((item) => (
             <Button key={item.id} type="button" variant="outline" disabled={salvando} onClick={() => void alterarIdentidade(item.id)} aria-pressed={identidade === item.id} className="identity-choice h-12 justify-start px-3" data-identity-choice={item.id}>
               <span className="identity-swatch" aria-hidden />
-              <span className="truncate">{item.nome}</span>
+              <span className="min-w-0 text-left"><span className="block truncate">{item.nome}</span><span className="block truncate text-[10px] font-normal text-mute">{item.descricao}</span></span>
               {identidade === item.id ? <Check className="ml-auto" strokeWidth={1.75} /> : null}
             </Button>
           ))}

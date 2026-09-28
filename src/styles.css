@@ -76,8 +76,8 @@
   --identity-accent: #6a9eff;
   --identity-accent-light: #0068fe;
   --identity-secondary: #f05f96;
-  --identity-secondary-light: #f42375;
-  --identity-primary: #3d79dc;
+  --identity-secondary-light: #d11a63;
+  --identity-primary: #3772d6;
   --identity-secondary-strong: #d71c65;
   --identity-deep: #17181b;
   --identity-graphite: #17181b;
@@ -249,6 +249,16 @@
   --identity-deep: #292d4a;
 }
 
+:root[data-identidade="rose"] {
+  --identity-accent: #f05f96;
+  --identity-accent-light: #c41f61;
+  --identity-primary: #d71c65;
+  --identity-secondary: #88ade0;
+  --identity-secondary-light: #1653a1;
+  --identity-secondary-strong: #1653a1;
+  --identity-deep: #2a1720;
+}
+
 :root[data-identidade="copper"] {
   --identity-accent: #c69a7e;
   --identity-accent-light: #855a42;
@@ -401,6 +411,8 @@
 .identity-swatch { position: relative; width: 16px; height: 16px; flex-shrink: 0; overflow: hidden; border: 1px solid var(--line2); border-radius: 50%; background: var(--choice-accent); }
 [data-identity-choice="moderno"] .identity-swatch { background: #1653a1; }
 [data-identity-choice="moderno"] .identity-swatch::after { position: absolute; inset: 0 0 0 50%; background: #c41f61; content: ""; }
+[data-identity-choice="rose"] .identity-swatch { background: #c41f61; }
+[data-identity-choice="rose"] .identity-swatch::after { position: absolute; inset: 0 0 0 50%; background: #1653a1; content: ""; }
 [data-identity-choice="indigo"] { --choice-accent: #5e638c; }
 [data-identity-choice="copper"] { --choice-accent: #855a42; }
 [data-identity-choice="classico"] { --choice-accent: #75613e; }
@@ -1036,7 +1048,7 @@ body:has(.auth-screen--claro) {
 .landing-page img,
 .public-brand .brand-cover,
 .public-brand .brand-gallery img,
-.public-brand .brand-products img {
+.public-brand[data-segmento="barbearia"] .brand-products img {
   filter: saturate(0.78) contrast(1.08);
 }
 
