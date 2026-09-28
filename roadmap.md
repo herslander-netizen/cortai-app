@@ -42,5 +42,5 @@
 - [x] Aplicar tokens Grafite/Creme e uso restrito do rosa em todo o app
 - [x] Tornar escuro padrão, atualizar identidades, cliente, página pública e PWA
 - [x] Migrar preferências e padrões do tenant no banco
-- [ ] Limpar cores fixas, atualizar documentação/novidades e validar telas em 390px
+- [x] Limpar cores fixas, atualizar documentação/novidades e validar telas em 390px
 
