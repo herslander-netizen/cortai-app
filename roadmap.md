@@ -30,3 +30,8 @@
 - [x] Timeline móvel em tela cheia com ações diretas e menu mínimo
 - [x] Leitura offline da última agenda e bloqueio seguro de ações sem conexão
 - [x] Validar ações, toque longo, tela cheia e atualização ao vivo em 390 px
+
+## Revisão barbeiro + cliente público (set/2026)
+- [x] Agendamento público: busca de cliente pelo telefone (com/sem 9), horários ocupados iguais à trava do banco, "Alterar" sem duplicar, confirmação salva ao recarregar, aviso quando a barbearia não tem profissionais
+- [x] Testes de disponibilidade
+- [ ] Barbearias sem profissional ativo (o-barbeiro, nando-do-corte, teste) precisam cadastrar equipe para abrir agenda online

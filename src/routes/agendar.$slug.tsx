@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
+import { profissionalLivre } from "@/lib/disponibilidade";
 import { hojeNoFuso, normalizarFuso, slotsDoDia } from "@/lib/horarios";
 import {
   agendarComoConvidado,
@@ -59,20 +60,6 @@ function dataLocal(iso: string, fuso: string) {
   return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: fuso });
 }
 
-function livre(
-  profId: string,
-  inicio: number,
-  fim: number,
-  ocupados: AgendaPublica["ocupados"],
-) {
-  return !ocupados.some(
-    (o) =>
-      o.profissional_id === profId &&
-      new Date(o.inicio).getTime() < fim &&
-      new Date(o.fim).getTime() > inicio,
-  );
-}
-
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="mt-7">
@@ -104,6 +91,27 @@ function AgendamentoPublico() {
   const [erro, setErro] = useState<string | null>(null);
   const [confirmado, setConfirmado] = useState<ConfirmacaoPublica | null>(null);
   const [cancelado, setCancelado] = useState(false);
+  // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
+  const [substituiId, setSubstituiId] = useState<string | null>(null);
+  const chaveSalva = `cortai-agendamento-publico:${slug}`;
+
+  // A confirmação sobrevive a recarregar a página.
+  useEffect(() => {
+    try {
+      const bruto = localStorage.getItem(chaveSalva);
+      if (!bruto) return;
+      const salvo = JSON.parse(bruto) as { confirmacao: ConfirmacaoPublica; telefone: string; nome: string };
+      if (new Date(salvo.confirmacao.fim).getTime() < Date.now()) {
+        localStorage.removeItem(chaveSalva);
+        return;
+      }
+      setConfirmado(salvo.confirmacao);
+      setTelefone(salvo.telefone);
+      setNome(salvo.nome);
+    } catch {
+      /* cache opcional */
+    }
+  }, [chaveSalva]);
 
   useEffect(() => {
     if (!dia || !dias.some((d) => d.iso === dia)) setDia(dias[0]?.iso ?? "");
@@ -122,7 +130,7 @@ function AgendamentoPublico() {
         const inicio = new Date(slot.iso).getTime();
         const fim = inicio + servico.duracao_min * 60_000;
         if (inicio < agora) return null;
-        const disponivel = candidatos.find((id) => livre(id, inicio, fim, data.ocupados));
+        const disponivel = candidatos.find((id) => profissionalLivre(id, inicio, fim, data.ocupados));
         return disponivel ? { iso: slot.iso, label: slot.label, profId: disponivel } : null;
       })
       .filter((v): v is { iso: string; label: string; profId: string } => v !== null);
@@ -141,11 +149,19 @@ function AgendamentoPublico() {
           inicio: escolhido!.iso,
           nome: nome.trim(),
           telefone,
+          ...(substituiId ? { substituiId } : {}),
         },
       }),
     onSuccess: (res) => {
       setErro(null);
+      setSubstituiId(null);
       setConfirmado(res);
+      try {
+        localStorage.setItem(chaveSalva, JSON.stringify({ confirmacao: res, telefone, nome: nome.trim() }));
+      } catch {
+        /* cache opcional */
+      }
+      void refetch();
     },
     onError: (e: Error) => {
       setErro(e.message);
@@ -158,7 +174,11 @@ function AgendamentoPublico() {
 
   const cancelar = useMutation({
     mutationFn: () => cancelarComoConvidado({ data: { agendamentoId: confirmado!.agendamentoId, telefone } }),
-    onSuccess: () => setCancelado(true),
+    onSuccess: () => {
+      setCancelado(true);
+      try { localStorage.removeItem(chaveSalva); } catch { /* opcional */ }
+      void refetch();
+    },
     onError: (e: Error) => setErro(e.message),
   });
 
@@ -168,6 +188,23 @@ function AgendamentoPublico() {
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
         <h1 className="text-xl font-bold text-paper">Barbearia não encontrada</h1>
         <p className="mt-2 text-sm text-mute">Confira o link que você recebeu.</p>
+      </main>
+    );
+  }
+
+  if (!data.profissionais.length || !data.servicos.length) {
+    const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
+    return (
+      <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
+        <h1 className="text-xl font-bold text-paper">{data.tenant.nome}</h1>
+        <p className="mt-2 text-sm text-mute">A agenda online ainda não está aberta. Fale direto com a barbearia para marcar.</p>
+        {zap ? (
+          <Button asChild className="mt-6 h-12 font-bold">
+            <a href={`https://wa.me/${zap}?text=${encodeURIComponent("Olá! Quero agendar um horário.")}`} target="_blank" rel="noreferrer">
+              <MessageCircle />Chamar no WhatsApp
+            </a>
+          </Button>
+        ) : null}
       </main>
     );
   }
@@ -240,6 +277,7 @@ function AgendamentoPublico() {
               className="h-12"
               disabled={cancelar.isPending}
               onClick={() => {
+                setSubstituiId(confirmado.agendamentoId);
                 setHorario(null);
                 setConfirmado(null);
               }}
@@ -278,8 +316,13 @@ function AgendamentoPublico() {
     <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 pb-32 pt-10">
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
+      {substituiId ? (
+        <p className="mt-3 rounded-xl border border-line px-4 py-3 text-sm text-paper" role="status">
+          Escolha o novo horário. O anterior só é liberado quando o novo for confirmado.
+        </p>
+      ) : null}
       <p className="mt-1 text-sm text-mute">
-        {saudacao ? `Olá, ${saudacao} 👋 ` : ""}Sem cadastro e sem senha: escolha o horário e pronto.
+        {saudacao ? `Olá, ${saudacao}. ` : ""}Sem cadastro e sem senha: escolha o horário e pronto.
       </p>
 
       <Bloco titulo="Serviço">
@@ -321,7 +364,7 @@ function AgendamentoPublico() {
                   setProfId(p.id);
                   setHorario(null);
                 }}
-                className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm ${
+                className={`flex min-h-12 items-center gap-2 rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "border-gold text-paper" : "border-line text-mute"
                 }`}
               >
@@ -369,7 +412,7 @@ function AgendamentoPublico() {
                   key={o.iso}
                   type="button"
                   onClick={() => setHorario(o.iso)}
-                  className={`h-11 rounded-lg border text-sm font-semibold ${
+                  className={`h-12 rounded-lg border text-sm font-semibold ${
                     horario === o.iso ? "border-gold bg-gold/15 text-paper" : "border-line text-mute"
                   }`}
                 >
@@ -447,7 +490,7 @@ function AgendamentoPublico() {
               criar.mutate();
             }}
           >
-            {criar.isPending ? "Confirmando…" : "Agendar horário"}
+            {criar.isPending ? "Confirmando…" : substituiId ? "Confirmar novo horário" : "Agendar horário"}
           </Button>
         </div>
       </div>
