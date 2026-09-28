@@ -25,3 +25,8 @@
 - [ ] Situações novas no motor (atraso, elogio, objeto esquecido, eventos, terceiros...)
 - [ ] Seção "Conversa" no painel (textos, liga/desliga, FAQ)
 - [ ] Notificações novas no agendador (horário próximo, pós-atendimento, falta, valor a pagar, aniversário)
+
+## Agenda móvel em modo foco
+- [ ] Timeline móvel em tela cheia com ações diretas e menu mínimo
+- [ ] Leitura offline da última agenda e bloqueio seguro de ações sem conexão
+- [ ] Validar ações, toque longo, tela cheia e atualização ao vivo em 390 px
