@@ -1,0 +1,62 @@
+/** Metatags da prévia do link de uma barbearia (WhatsApp, Instagram, buscadores). */
+export type PreviaDaBarbearia = { nome: string; descricao: string | null; imagem: string | null } | null | undefined;
+
+export function headDaBarbearia(slug: string, previa: PreviaDaBarbearia, caminho: string, acao = "Agendamento online") {
+  const nome = previa?.nome ?? slug;
+  const titulo = `${nome} | Cortaí`;
+  const descricao = previa?.descricao?.slice(0, 160) || `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
+  const url = `https://cortai.dev${caminho}`;
+  const imagem = previa?.imagem?.startsWith("https://") ? previa.imagem : null;
+  return {
+    meta: [
+      { title: titulo },
+      { name: "description", content: descricao },
+      { property: "og:title", content: titulo },
+      { property: "og:description", content: descricao },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: url },
+      { name: "twitter:card", content: imagem ? "summary_large_image" : "summary" },
+      ...(imagem ? [{ property: "og:image", content: imagem }, { name: "twitter:image", content: imagem }] : []),
+    ],
+    links: [{ rel: "canonical", href: url }],
+  };
+}
+
+/** Telefone com máscara (00) 00000-0000 ou (00) 0000-0000. */
+export function mascaraTelefone(valor: string) {
+  const d = valor.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d ? `(${d}` : "";
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+function ics(texto: string) {
+  return texto.replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\r?\n/g, "\\n");
+}
+
+function carimbo(iso: string) {
+  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+/** Arquivo .ics válido (UTC, UID, DTSTAMP, LOCATION, CRLF). */
+export function gerarIcs(p: { id: string; inicio: string; fim: string; titulo: string; local: string | null; descricao?: string }) {
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Cortai//Agendamento//PT-BR",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${p.id}@cortai.dev`,
+    `DTSTAMP:${carimbo(new Date().toISOString())}`,
+    `DTSTART:${carimbo(p.inicio)}`,
+    `DTEND:${carimbo(p.fim)}`,
+    `SUMMARY:${ics(p.titulo)}`,
+    ...(p.local ? [`LOCATION:${ics(p.local)}`] : []),
+    ...(p.descricao ? [`DESCRIPTION:${ics(p.descricao)}`] : []),
+    "END:VEVENT",
+    "END:VCALENDAR",
+    "",
+  ].join("\r\n");
+}
