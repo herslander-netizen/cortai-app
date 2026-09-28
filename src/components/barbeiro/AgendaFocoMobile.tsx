@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  ListOrdered,
   Maximize2,
   Menu,
   MessageCircle,
@@ -13,7 +14,7 @@ import {
   UserRound,
   UserRoundCheck,
 } from "lucide-react";
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,8 @@ type Props = {
   onComecar: (item: AgendaItem) => void;
   onTerminar: (item: AgendaItem) => void;
   onMaisOpcoes: (item: AgendaItem) => void;
+  fila?: number;
+  onChamarFila?: () => void;
 };
 
 function somarDias(dia: string, passo: number) {
@@ -68,6 +71,8 @@ function minutosAte(iso: string, agora: number) {
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
   const [verFeitos, setVerFeitos] = useState(false);
+  const [foco, setFoco] = useState(false);
+  const rolou = useRef<string | null>(null);
   const resumo = resumoDoDia(props.itens, props.agora);
   const feitos = props.itens.filter((i) => i.status === "finalizado");
   const toqueLongo = useRef<number | null>(null);
@@ -75,6 +80,15 @@ export function AgendaFocoMobile(props: Props) {
   const operacionais = props.itens.filter((item) => !["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status));
   const proximo = operacionais.find((item) => item.status !== "na_cadeira" && new Date(item.inicio).getTime() >= props.agora);
   const emMinutos = proximo ? minutosAte(proximo.inicio, props.agora) : null;
+
+  // Abre perto da hora atual: rola até quem está na cadeira ou o próximo, uma vez por dia.
+  useEffect(() => {
+    if (!props.hoje || rolou.current === props.dia) return;
+    const alvo = operacionais.find((i) => i.status === "na_cadeira") ?? proximo;
+    if (!alvo) return;
+    rolou.current = props.dia;
+    window.requestAnimationFrame(() => document.getElementById(`agenda-item-${alvo.id}`)?.scrollIntoView({ block: "center" }));
+  }, [props.hoje, props.dia, operacionais, proximo]);
 
   function iniciarToque(evento: ReactPointerEvent, item: AgendaItem) {
     if (evento.pointerType === "mouse") return;
@@ -89,30 +103,41 @@ export function AgendaFocoMobile(props: Props) {
     toqueLongo.current = null;
   }
 
-  async function alternarTelaCheia() {
+  async function alternarFoco() {
+    const ligar = !foco;
+    setFoco(ligar);
+    setMenu(false);
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.documentElement.requestFullscreen();
+      if (ligar && !document.fullscreenElement) await document.documentElement.requestFullscreen?.();
+      if (!ligar && document.fullscreenElement) await document.exitFullscreen();
     } catch {
       // No PWA instalado a janela já ocupa a tela; alguns navegadores móveis não expõem esta API.
     }
   }
 
   return (
-    <section className="agenda-foco-mobile" aria-label="Agenda operacional">
+    <section className={`agenda-foco-mobile${foco ? " agenda-foco-ativo" : ""}`} aria-label="Agenda operacional">
       <div className="agenda-foco-topo">
         <Button variant="icon" size="icon" aria-label="Abrir menu" onClick={() => setMenu(true)}><Menu /></Button>
         <div className="min-w-0 text-center">
           <strong className="block truncate text-base font-extrabold capitalize text-paper">{dataCurta(props.dia)}</strong>
           <span className="text-xs font-semibold text-mute">{props.online ? "Ao vivo" : "Sem internet · somente leitura"}</span>
         </div>
-        <Button variant="icon" size="icon" aria-label="Usar tela cheia" onClick={() => void alternarTelaCheia()}><Maximize2 /></Button>
+        {props.fila ? (
+          <Button variant="icon" size="icon" aria-label={`Fila: ${props.fila}`} className="relative" onClick={props.onChamarFila}><ListOrdered /><span className="agenda-foco-contador">{props.fila}</span></Button>
+        ) : <span aria-hidden />}
       </div>
 
       {props.hoje && proximo && emMinutos !== null && emMinutos >= 0 && emMinutos <= 30 ? (
         <div className="agenda-foco-aviso" role="status">
           <Bell aria-hidden />
           <span className="min-w-0 truncate">{emMinutos <= 0 ? `Agora: ${proximo.cliente}` : `Próximo em ${emMinutos} min: ${proximo.cliente}`}</span>
+        </div>
+      ) : null}
+
+      {props.hoje && props.fila && props.onChamarFila ? (
+        <div className="agenda-foco-fila">
+          <Button variant="primary" disabled={!props.online || props.ocupado} onClick={props.onChamarFila}><Scissors />Chamar próximo da fila ({props.fila})</Button>
         </div>
       ) : null}
 
@@ -147,6 +172,7 @@ export function AgendaFocoMobile(props: Props) {
           return (
             <article
               key={item.id}
+              id={`agenda-item-${item.id}`}
               className={`agenda-foco-item agenda-foco-item-${ativo ? "ativo" : seguinte ? "proximo" : "agendado"}`}
               onPointerDown={(evento) => iniciarToque(evento, item)}
               onPointerUp={cancelarToque}
@@ -182,12 +208,13 @@ export function AgendaFocoMobile(props: Props) {
       </div>
 
       <Sheet open={menu} onOpenChange={setMenu}>
-        <SheetContent side="left" className="w-[82vw] max-w-[320px] border-line bg-ink2 px-5 pt-5">
+        <SheetContent side="bottom" className="mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-5">
           <SheetHeader className="pr-10 text-left"><SheetTitle className="text-paper">Menu</SheetTitle><SheetDescription className="text-mute">Acesso rápido da operação.</SheetDescription></SheetHeader>
           <nav className="mt-5 divide-y divide-line">
             <Link to="/barbeiro/conta" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><UserRound />Perfil</Link>
             <Link to="/barbeiro/configurar" className="agenda-foco-menu-link flex items-center gap-2 px-2 text-sm font-semibold text-paper" onClick={() => setMenu(false)}><Settings />Configurações</Link>
-            <Button variant="ghost" className="agenda-foco-menu-link" onClick={() => { setMenu(false); void sair(); }}><LogOut />Sair</Button>
+            <Button variant="ghost" className="agenda-foco-menu-link px-2" role="switch" aria-checked={foco} onClick={() => void alternarFoco()}><Maximize2 />Modo foco<span className="ml-auto text-xs text-mute">{foco ? "Ligado" : "Desligado"}</span></Button>
+            <Button variant="ghost" className="agenda-foco-menu-link px-2" onClick={() => { setMenu(false); void sair(); }}><LogOut />Sair</Button>
           </nav>
         </SheetContent>
       </Sheet>

@@ -482,6 +482,8 @@ export function AgendaOperacional() {
           onComecar={iniciar}
           onTerminar={(item) => setFechando(item.id)}
           onMaisOpcoes={(item) => abrir(item.id)}
+          fila={chegada.length}
+          onChamarFila={() => void chamarFila()}
         />
         <Sheet open={painelAberto && Boolean(itemSelecionado)} onOpenChange={(v) => { setPainelAberto(v); if (!v) setRemarcarHora(""); }}>
           <SheetContent side="bottom" className="agenda-painel mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5">

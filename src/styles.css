@@ -1288,7 +1288,7 @@ body:has(.auth-screen) {
 .agenda-foco-profissionais { display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--line); padding: 8px 12px; }
 .agenda-foco-profissionais > * { min-height: 48px; flex-shrink: 0; border: 1px solid var(--line); border-radius: var(--radius); padding-inline: 15px; }
 .agenda-foco-lista { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
-.agenda-foco-item { position: relative; border-bottom: 1px solid var(--line); border-left: 4px solid var(--status-scheduled); background: var(--ink); padding: 18px 16px 14px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.agenda-foco-item { position: relative; display: grid; grid-template-columns: 54px minmax(0,1fr); column-gap: 10px; min-height: 50px; border-bottom: 1px solid var(--line); border-left: 4px solid var(--status-scheduled); background: var(--ink); padding: 12px 14px 10px 10px; scroll-margin-top: 140px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .agenda-foco-item-ativo { border-left-color: var(--status-active); background: var(--status-active-soft); }
 .agenda-foco-item-proximo { border-left-color: var(--status-arrived); background: var(--status-arrived-soft); }
 .agenda-foco-item-agendado { border-left-color: var(--status-scheduled); }
@@ -1313,3 +1313,16 @@ body:has(.auth-screen) {
 .agenda-foco-resumo dd { margin-top: 2px; font-size: 16px; font-weight: 800; color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .agenda-foco-resumo small { font-size: 11px; color: var(--brick); }
 .agenda-foco-feitos { width: 100%; min-height: 56px; justify-content: center; gap: 8px; border-bottom: 1px solid var(--line); border-radius: 0; color: var(--mute); }
+
+.agenda-foco-item-corpo { display: contents; }
+.agenda-foco-item-corpo time { grid-row: 1 / span 3; flex-direction: column; align-items: flex-start; gap: 4px; font-size: 20px; line-height: 1; }
+.agenda-foco-item-corpo h2 { grid-column: 2; margin-top: 0; font-size: 18px; }
+.agenda-foco-item-corpo p { grid-column: 2; margin: 3px 0 6px; }
+.agenda-foco-item-corpo > :last-child { grid-column: 2; justify-self: start; }
+.agenda-foco-acoes, .agenda-foco-dica { grid-column: 1 / -1; }
+.agenda-foco-acoes { margin-top: 10px; }
+.agenda-foco-dica { margin-top: 6px; }
+.agenda-foco-fila { border-bottom: 1px solid var(--line); padding: 8px 12px; }
+.agenda-foco-fila > * { width: 100%; min-height: 56px; }
+.agenda-foco-contador { position: absolute; top: 4px; right: 4px; min-width: 18px; border-radius: 999px; background: var(--gold); padding: 0 4px; color: var(--ink); font-size: 11px; font-weight: 800; line-height: 18px; }
+.agenda-foco-ativo .agenda-foco-resumo, .agenda-foco-ativo .agenda-foco-dica, .agenda-foco-ativo .agenda-foco-profissionais { display: none; }
