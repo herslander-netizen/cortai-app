@@ -15,7 +15,9 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Cortaí — Sistema da barbearia" },
       { property: "og:description", content: "Agenda, clientes e caixa da barbearia em um só lugar." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: "https://cortai.dev/capa-social.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social.jpg" },
     ],
   }),
   beforeLoad: async () => {
