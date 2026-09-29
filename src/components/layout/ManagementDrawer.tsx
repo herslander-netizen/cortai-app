@@ -146,11 +146,13 @@ export function ManagementHeader() {
       <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between gap-3 px-4 md:px-8">
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
-            <Button variant="ghost" className="h-11 min-w-0 justify-start gap-2 rounded-md px-1.5 text-left hover:bg-ink3" aria-label="Abrir navegação">
-              <IconeCortai className="h-8 w-8 rounded-md" />
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-semibold leading-tight text-paper">{sessao?.tenantNome ?? "Cortaí"}</span>
-                <span className="flex items-center gap-1 text-xs leading-tight text-mute"><Menu size={11} /> Menu</span>
+            <Button variant="ghost" className="h-11 min-w-0 justify-start gap-2.5 rounded-lg px-2 text-left hover:bg-ink3" aria-label="Abrir navegação">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-paper">
+                <Menu size={18} strokeWidth={1.75} aria-hidden />
+              </span>
+              <IconeCortai className="h-7 w-7 shrink-0 rounded-md" />
+              <span className="min-w-0 truncate text-[15px] font-semibold leading-tight text-paper">
+                {sessao?.tenantNome ?? "Cortaí"}
               </span>
             </Button>
           </SheetTrigger>
