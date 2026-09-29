@@ -100,3 +100,9 @@
 - [x] Reorganizar editor de marca em Identidade, Marca, Conteúdo e Ajustes avançados
 - [x] Criar fixture idempotente Barbearia Cortaí Teste sem alterar Jjjuu ou Teste
 - [x] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build
+
+## Etapa 1 — Fluxo do cliente
+- [x] Início mostra o próximo corte real
+- [x] Estados com ícone+texto+cor (Início e Meus horários)
+- [x] Confirmação com saídas: Meus horários / Agendar outro / Início
+- [x] Cliente de teste criado e fluxo validado na barbearia de demonstração
