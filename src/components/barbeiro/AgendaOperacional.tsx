@@ -183,6 +183,7 @@ export function AgendaOperacional() {
   const queryClient = useQueryClient();
   const [dia, setDia] = useState(() => hojeNoFuso());
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
+  const fusoAnterior = useRef(fuso);
   const [agora, setAgora] = useState(Date.now());
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [estadosLocais, setEstadosLocais] = useState<Record<string, string>>({});
@@ -310,8 +311,13 @@ export function AgendaOperacional() {
     idsConhecidos.current = null;
   }, [dia]);
   useEffect(() => {
-    if (agenda.data?.fuso && agenda.data.fuso !== fuso) setFuso(agenda.data.fuso);
-  }, [agenda.data?.fuso, fuso]);
+    const recebido = agenda.data?.fuso;
+    if (!recebido || recebido === fuso) return;
+    const eraHoje = dia === hojeNoFuso(fusoAnterior.current);
+    fusoAnterior.current = recebido;
+    setFuso(recebido);
+    if (eraHoje) setDia(hojeNoFuso(recebido));
+  }, [agenda.data?.fuso, dia, fuso]);
   useEffect(() => {
     const atualizar = () => setAgora(Date.now());
     const atraso = 60_000 - (Date.now() % 60_000);

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
+import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
 import { slotsDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
 
 async function admin() {
@@ -48,6 +48,7 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }): Promise<GradeDoDia> => {
     const tenantId = await tenantIdDoMembro(context as ContextoAutenticado);
+    await exigirPermissao(context as ContextoAutenticado, tenantId, "visualizar_clientes");
     const db = await admin();
 
     const [servicosRes, profRes, horariosRes] = await Promise.all([

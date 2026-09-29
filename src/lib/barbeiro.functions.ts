@@ -541,7 +541,8 @@ export const getFila = createServerFn({ method: "GET" })
         .select("cliente_id, avisado_em")
         .eq("tenant_id", tenant.id)
         .not("avisado_em", "is", null)
-        .gte("avisado_em", inicioMes),
+        .gte("avisado_em", inicioMes)
+        .order("avisado_em", { ascending: true }),
     ]);
 
     const avisados = avisadosRes.data ?? [];
