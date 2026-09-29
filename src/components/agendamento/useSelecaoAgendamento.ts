@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { horariosDisponiveis, profissionaisDoServico, proximosDiasNoFuso, type Ocupado, type Opcao } from "@/lib/disponibilidade";
 import { horarioDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
 
-type Servico = { id: string; duracao_min: number; profissional_ids?: string[] | null };
+type Servico = { id: string; nome: string; preco_centavos: number; duracao_min: number; profissional_ids?: string[] | null };
 type Profissional = { id: string; nome: string };
 
 export function useSelecaoAgendamento({

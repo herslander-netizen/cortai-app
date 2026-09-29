@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
-import { Check, Copy, QrCode, Share2, X } from "lucide-react";
+import { Check, Copy, MessageCircle, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,7 @@ import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { Signature } from "@/components/layout/Signature";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getPaginaPublica } from "@/lib/publico.functions";
 
 export function TelaPublicaBarbearia({ chave }: { chave: string }) {
@@ -27,9 +28,15 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   return <div className="min-h-screen bg-background">
     <PaginaPublicaConteudo data={data} config={data.pagina} />
     <div className="brand-tools" aria-label="Opções da página">
-      <Button variant="outline" size="icon" aria-label="Compartilhar" title="Compartilhar" onClick={() => navigator.share?.({ title: data.tenant.nome, url: window.location.href })}><Share2 /></Button>
-      <Button variant="outline" size="icon" aria-label="Copiar link" title="Copiar link" onClick={async () => { await navigator.clipboard.writeText(window.location.href); setCopiado(true); window.setTimeout(() => setCopiado(false), 1800); }}>{copiado ? <Check /> : <Copy />}</Button>
-      <Button variant="outline" size="icon" aria-label="Mostrar código QR" title="Mostrar código QR" onClick={() => setMostrarQr((value) => !value)}>{mostrarQr ? <X /> : <QrCode />}</Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild><Button variant="outline"><Share2 /> Compartilhar</Button></DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {typeof navigator.share === "function" ? <DropdownMenuItem onSelect={() => void navigator.share({ title: data.tenant.nome, url: window.location.href })}><Share2 /> Compartilhar pelo celular</DropdownMenuItem> : null}
+          <DropdownMenuItem onSelect={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${data.tenant.nome} — ${window.location.href}`)}`, "_blank", "noopener,noreferrer")}><MessageCircle /> WhatsApp</DropdownMenuItem>
+          <DropdownMenuItem onSelect={async () => { await navigator.clipboard.writeText(window.location.href); setCopiado(true); window.setTimeout(() => setCopiado(false), 1800); }}>{copiado ? <Check /> : <Copy />} {copiado ? "Link copiado" : "Copiar link"}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setMostrarQr((value) => !value)}><QrCode /> Código QR</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
     {mostrarQr ? <div className="brand-qr" role="dialog" aria-label="Código QR da barbearia">{qr ? <img src={qr} alt={`Código para abrir a página de ${data.tenant.nome}`} /> : <span>Gerando…</span>}</div> : null}
     <Signature />

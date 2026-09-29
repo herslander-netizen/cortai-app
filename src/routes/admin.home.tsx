@@ -212,7 +212,7 @@ function EditorDaHome() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" asChild><a href="/" target="_blank" rel="noreferrer"><Eye size={14} /> Ver a página no ar</a></Button>
+                <Button size="sm" variant="outline" asChild><a href="/apresentacao" target="_blank" rel="noreferrer"><Eye size={14} /> Ver a página no ar</a></Button>
                 <Button size="sm" variant="outline" onClick={() => setAba("hero")}>Editar topo</Button>
                 <Button size="sm" variant="outline" onClick={() => setAba("secoes")}>Editar seções</Button>
                 <Button size="sm" variant="ghost" onClick={() => descartar.mutate()} disabled={!data?.temRascunho || descartar.isPending}>
