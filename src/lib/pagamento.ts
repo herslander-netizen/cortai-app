@@ -1,6 +1,7 @@
 /** Nomes das formas de pagamento mostradas ao cliente — fonte única. */
 const ROTULO_FORMA: Record<string, string> = {
   balcao: "Pagar na barbearia",
+  saldo: "Saldo da carteira",
   pix: "Pix",
   credito: "Crédito da carteira",
   fiado: "Fiado",
