@@ -17,6 +17,7 @@ import { Carregando } from "@/components/layout/Carregando";
 import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 import { Button } from "@/components/ui/button";
+import { rotuloForma } from "@/lib/pagamento";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -42,17 +43,6 @@ export const Route = createFileRoute("/app/agendar")({
 });
 
 type Forma = "credito" | "pix" | "balcao" | "fiado";
-
-const ROTULO_FORMA: Record<string, string> = {
-  balcao: "Pagar na barbearia",
-  pix: "Pix",
-  credito: "Crédito da carteira",
-  fiado: "Fiado",
-};
-
-export function rotuloForma(forma: string | null | undefined) {
-  return ROTULO_FORMA[forma ?? ""] ?? "Pagamento na barbearia";
-}
 
 function Chip({
   label,
