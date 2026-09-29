@@ -43,6 +43,17 @@ export const Route = createFileRoute("/app/agendar")({
 
 type Forma = "credito" | "pix" | "balcao" | "fiado";
 
+const ROTULO_FORMA: Record<string, string> = {
+  balcao: "Pagar na barbearia",
+  pix: "Pix",
+  credito: "Crédito da carteira",
+  fiado: "Fiado",
+};
+
+export function rotuloForma(forma: string | null | undefined) {
+  return ROTULO_FORMA[forma ?? ""] ?? "Pagamento na barbearia";
+}
+
 function Chip({
   label,
   sub,
