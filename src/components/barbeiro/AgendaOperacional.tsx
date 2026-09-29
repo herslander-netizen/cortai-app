@@ -11,10 +11,12 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Plus,
   Scissors,
   UserRoundPlus,
   ListOrdered,
   Ban,
+  X,
 } from "lucide-react";
 import type React from "react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
@@ -1630,7 +1632,7 @@ export function AgendaOperacional() {
           disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
           onClick={acaoPrincipal}
         >
-          <Scissors />
+          {itemSelecionado ? <Scissors /> : <Plus />}
           {itemSelecionado
             ? itemSelecionado.status === "na_cadeira"
               ? `Finalizar ${itemSelecionado.cliente}`
@@ -1813,7 +1815,7 @@ export function AgendaOperacional() {
               aria-expanded="true"
               className="agenda-acao-redonda agenda-acao-fechar"
             >
-              <Scissors />
+              <X />
             </Button>
           </SheetClose>
           <SheetHeader className="pr-10 text-left">
