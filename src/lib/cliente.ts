@@ -1,4 +1,8 @@
 import type { ContextoAutenticado } from "@/lib/tenant";
+import type { Database } from "@/integrations/supabase/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+type BancoPrivilegiado = SupabaseClient<Database>;
 
 export type TenantCliente = {
   id: string;
@@ -18,7 +22,7 @@ async function admin() {
 }
 
 /** Resolve a barbearia pelo slug, garantindo que ela existe e está ativa. */
-async function tenantPorSlug(db: any, slug: string): Promise<TenantCliente> {
+async function tenantPorSlug(db: BancoPrivilegiado, slug: string): Promise<TenantCliente> {
   const { data } = await db
     .from("tenants")
     .select("id, nome, slug, rotulo_carteira")
@@ -40,7 +44,7 @@ export async function fichasDoUsuario(context: ContextoAutenticado) {
     .eq("user_id", context.userId)
     .eq("tenants.ativo", true)
     .order("criado_em", { ascending: false });
-  const linhas = (data ?? []) as any[];
+  const linhas = data ?? [];
   return {
     db,
     fichas: linhas.map((linha) => ({
@@ -67,7 +71,7 @@ export async function fichasDoUsuario(context: ContextoAutenticado) {
 export async function clienteDoUsuarioOpcional(
   context: ContextoAutenticado,
   ctx?: ContextoBarbearia,
-): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual } | null> {
+): Promise<{ db: BancoPrivilegiado; tenant: TenantCliente; cliente: ClienteAtual } | null> {
   const slug = ctx?.slug?.trim() || null;
   const { db, fichas } = await fichasDoUsuario(context);
 
@@ -108,7 +112,7 @@ export async function clienteDoUsuarioOpcional(
 export async function clienteDoUsuario(
   context: ContextoAutenticado,
   ctx?: ContextoBarbearia,
-): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual }> {
+): Promise<{ db: BancoPrivilegiado; tenant: TenantCliente; cliente: ClienteAtual }> {
   const resolvido = await clienteDoUsuarioOpcional(context, ctx);
   if (!resolvido) throw new Error(SEM_BARBEARIA);
   return resolvido;
