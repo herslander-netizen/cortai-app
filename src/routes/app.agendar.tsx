@@ -17,6 +17,7 @@ import { Carregando } from "@/components/layout/Carregando";
 import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 import { Button } from "@/components/ui/button";
+import { rotuloForma } from "@/lib/pagamento";
 
 export const Route = createFileRoute("/app/agendar")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -179,6 +180,9 @@ function Fluxo({
   const [conflito, setConflito] = useState<{ agendamentoId: string; hora: string } | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState<ResultadoAgendamento | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const nomeProfissional = (id: string) =>
+    dados.profissionais.find((p) => p.id === id)?.nome ?? "profissional";
 
   const regra = (tipo: string) => dados.regras.find((r) => r.tipo === tipo && r.ativo);
   const regraFiado = regra("fiado");
@@ -224,6 +228,63 @@ function Fluxo({
     return (
       <Screen title="Agendado!" subtitle={dataHoraLonga(sucesso.inicio)}>
         <div className="surface p-5">
+          <p className="text-xs uppercase tracking-wider text-mute">Seu horário</p>
+          <p className="mt-2 text-base font-semibold text-paper">
+            {servico?.nome ?? "Serviço"}
+            {escolhido ? ` · com ${nomeProfissional(escolhido.profId)}` : ""}
+          </p>
+          <p className="mt-1 text-sm text-mute">{dataHoraLonga(sucesso.inicio)}</p>
+          <p className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm">
+            <span className="text-mute">{rotuloForma(sucesso.forma_pagamento)}</span>
+            <span className="font-semibold text-paper">
+              {sucesso.forma_pagamento === "credito" ? "1 crédito" : brl(sucesso.valor_centavos)}
+            </span>
+          </p>
+        </div>
+
+        {sucesso.forma_pagamento === "pix" && dados.pix ? (
+          <div className="surface mt-4 p-5">
+            <p className="text-sm font-semibold text-paper">Pague pelo Pix</p>
+            <p className="mt-1 text-sm text-mute">
+              Use a chave abaixo para pagar {brl(sucesso.valor_centavos)} e envie o comprovante para
+              a barbearia.
+            </p>
+            <p className="mt-4 text-xs uppercase tracking-wider text-mute">
+              Chave Pix{dados.pix.tipo ? ` · ${dados.pix.tipo}` : ""}
+            </p>
+            <p className="mt-1 break-all text-base font-semibold text-paper">{dados.pix.chave}</p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4 h-12 w-full"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(dados.pix!.chave);
+                  setCopiado(true);
+                } catch {
+                  setCopiado(false);
+                }
+              }}
+            >
+              {copiado ? "Chave copiada" : "Copiar chave Pix"}
+            </Button>
+            {dados.pix.whatsapp ? (
+              <Button asChild variant="text" className="mt-2 h-12 w-full text-sm">
+                <a
+                  href={`https://wa.me/${dados.pix.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    `Olá! Paguei ${brl(sucesso.valor_centavos)} no Pix do meu horário de ${dataHoraLonga(sucesso.inicio)}.`,
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Enviar comprovante pelo WhatsApp
+                </a>
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="surface mt-4 p-5">
           <p className="text-xs uppercase tracking-wider text-mute">Sua carteira</p>
           <p className="mt-2 text-2xl font-bold text-paper">
             {sucesso.saldo_creditos} {sucesso.saldo_creditos === 1 ? "crédito" : "créditos"}
@@ -233,7 +294,9 @@ function Fluxo({
               ? "1 crédito foi debitado agora."
               : sucesso.forma_pagamento === "fiado"
                 ? `${brl(sucesso.valor_centavos)} lançado no fiado.`
-                : "Nada foi debitado da carteira — pagamento no ato."}
+                : sucesso.forma_pagamento === "pix"
+                  ? "Nada foi debitado da carteira — o pagamento é pelo Pix."
+                  : "Nada foi debitado da carteira — pagamento no ato."}
           </p>
           {sucesso.saldo_centavos < 0 ? (
             <p className="mt-1 text-sm text-brick">
@@ -277,6 +340,7 @@ function Fluxo({
               setDia(null);
               setInicio(null);
               setForma("balcao");
+              setCopiado(false);
               recarregar();
             }}
           >
@@ -447,9 +511,31 @@ function Fluxo({
           </p>
         ) : null}
         {escolhido && servico ? (
-          <p className="mt-3 text-sm text-paper">
-            {servico.nome} · {dataHoraLonga(escolhido.iso)}
-          </p>
+          <dl className="mt-3 divide-y divide-line border-y border-line text-sm">
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Serviço</dt>
+              <dd className="text-right text-paper">
+                {servico.nome} · {servico.duracao_min} min
+              </dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Profissional</dt>
+              <dd className="text-right text-paper">{nomeProfissional(escolhido.profId)}</dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Quando</dt>
+              <dd className="text-right text-paper">{dataHoraLonga(escolhido.iso)}</dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Pagamento</dt>
+              <dd className="text-right text-paper">
+                {rotuloForma(forma)} ·{" "}
+                <span className="font-semibold">
+                  {forma === "credito" ? "1 crédito" : brl(preco)}
+                </span>
+              </dd>
+            </div>
+          </dl>
         ) : null}
         {conflito ? (
           <div className="mt-3 rounded-xl border border-brick/40 px-4 py-3" role="alert">

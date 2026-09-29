@@ -20,6 +20,8 @@ export type DadosAgendar = {
   fuso: string;
   regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number };
   pixAtivo: boolean;
+  /** Dados reais de Pix da barbearia, exibidos ao cliente depois de agendar. */
+  pix: { chave: string; tipo: string | null; whatsapp: string | null } | null;
   carteira: { saldo_creditos: number; saldo_centavos: number; fidelidade_progresso: number };
   regras: {
     tipo: string;
@@ -43,7 +45,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         regrasDaBarbearia(db, tenant.id),
         db
           .from("configuracoes_financeiras")
-          .select("pix_ativo, pix_chave")
+          .select("pix_ativo, pix_chave, pix_tipo, pix_whatsapp")
           .eq("tenant_id", tenant.id)
           .maybeSingle(),
         db
@@ -113,6 +115,14 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         intervaloEntreMin: regrasAgenda.intervaloEntreMin,
       },
       pixAtivo: Boolean(financeiro?.pix_ativo && String(financeiro?.pix_chave ?? "").trim()),
+      pix:
+        financeiro?.pix_ativo && String(financeiro?.pix_chave ?? "").trim()
+          ? {
+              chave: String(financeiro.pix_chave),
+              tipo: financeiro.pix_tipo ?? null,
+              whatsapp: financeiro.pix_whatsapp ?? null,
+            }
+          : null,
     };
   });
 

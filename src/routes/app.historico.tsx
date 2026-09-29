@@ -6,11 +6,16 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, dataHoraLonga } from "@/lib/format";
-import { cancelarAgendamento, listarAgendamentosCliente } from "@/lib/agendamento.functions";
+import {
+  cancelarAgendamento,
+  listarAgendamentosCliente,
+  type AgendamentoCliente,
+} from "@/lib/agendamento.functions";
 import { Aviso } from "@/components/ui/aviso";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 import { StatusAgendamento } from "@/components/cliente/StatusAgendamento";
+import { rotuloForma } from "@/lib/pagamento";
 
 export const Route = createFileRoute("/app/historico")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -29,11 +34,16 @@ export const Route = createFileRoute("/app/historico")({
   component: HistoricoPage,
 });
 
+function valorDoItem(a: AgendamentoCliente) {
+  return a.forma_pagamento === "credito" ? "1 crédito" : brl(a.valor_centavos);
+}
+
 function HistoricoPage() {
   const { b } = Route.useSearch();
   const slug = useContextoCliente(b);
   const cancelar = useServerFn(cancelarAgendamento);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [cancelando, setCancelando] = useState<string | null>(null);
 
   const lista = useQuery({
     queryKey: ["historico", slug],
@@ -41,7 +51,7 @@ function HistoricoPage() {
   });
 
   const agora = Date.now();
-  const ehFuturoAtivo = (a: { inicio: string; status: string }) =>
+  const ehFuturoAtivo = (a: AgendamentoCliente) =>
     new Date(a.inicio).getTime() > agora &&
     a.status !== "cancelado" &&
     a.status !== "nao_compareceu" &&
@@ -50,19 +60,29 @@ function HistoricoPage() {
     .filter(ehFuturoAtivo)
     .slice()
     .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
-  const anteriores = (lista.data ?? []).filter((a) => !ehFuturoAtivo(a));
+  const anteriores = (lista.data ?? [])
+    .filter((a) => !ehFuturoAtivo(a))
+    .slice()
+    .sort((a, b) => new Date(b.inicio).getTime() - new Date(a.inicio).getTime());
 
   const cancelarItem = async (agendamentoId: string, inicio: string) => {
     const comAntecedencia = new Date(inicio).getTime() - Date.now() > 4 * 60 * 60 * 1000;
-    const res = await cancelar({ data: { agendamentoId } });
-    setAviso(
-      res.devolvido
-        ? "Cancelado. O valor voltou para a sua carteira."
-        : comAntecedencia
-          ? "Cancelado. Não havia nada lançado na carteira para devolver."
-          : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.",
-    );
-    lista.refetch();
+    setCancelando(agendamentoId);
+    try {
+      const res = await cancelar({ data: { agendamentoId } });
+      setAviso(
+        res.devolvido
+          ? "Cancelado. O valor voltou para a sua carteira."
+          : comAntecedencia
+            ? "Cancelado. Não havia nada lançado na carteira para devolver."
+            : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.",
+      );
+      await lista.refetch();
+    } catch (e) {
+      setAviso(e instanceof Error ? e.message : "Não foi possível cancelar agora.");
+    } finally {
+      setCancelando(null);
+    }
   };
 
   return (
@@ -72,10 +92,34 @@ function HistoricoPage() {
           {aviso}
         </Aviso>
       ) : null}
-      {lista.isLoading ? <Carregando /> : null}
-      {lista.data && lista.data.length === 0 ? (
-        <EmptyState text="Você ainda não tem agendamentos." />
+
+      {lista.isLoading ? <EsqueletoLista linhas={4} /> : null}
+
+      {lista.isError ? (
+        <div className="surface p-5">
+          <p className="text-sm text-paper">Não conseguimos carregar seus horários agora.</p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 h-12 w-full"
+            onClick={() => void lista.refetch()}
+          >
+            Tentar de novo
+          </Button>
+        </div>
       ) : null}
+
+      {lista.data && lista.data.length === 0 ? (
+        <div>
+          <EmptyState text="Você ainda não tem agendamentos." />
+          <Button asChild className="mt-4 h-14 w-full text-base">
+            <Link to="/app/agendar" search={slug ? { b: slug } : {}}>
+              Agendar meu horário
+            </Link>
+          </Button>
+        </div>
+      ) : null}
+
       {proximos.length ? (
         <section>
           <p className="text-xs font-semibold uppercase text-mute">
@@ -102,9 +146,13 @@ function HistoricoPage() {
                   </div>
                   <StatusAgendamento status={p.status} />
                 </div>
+                <p className="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs">
+                  <span className="text-mute">{rotuloForma(p.forma_pagamento)}</span>
+                  <span className="font-semibold text-paper">{valorDoItem(p)}</span>
+                </p>
                 <div
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
-                  className="mt-4 flex gap-2 border-t border-line pt-3"
+                  className="mt-3 flex gap-2 border-t border-line pt-3"
                 >
                   <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper">
                     <Link to="/app/agendar" search={slug ? { b: slug } : {}}>
@@ -115,9 +163,10 @@ function HistoricoPage() {
                     variant="ghost"
                     size="sm"
                     className="text-mute hover:text-brick"
-                    onClick={() => cancelarItem(p.id, p.inicio)}
+                    disabled={cancelando === p.id}
+                    onClick={() => void cancelarItem(p.id, p.inicio)}
                   >
-                    Cancelar
+                    {cancelando === p.id ? "Cancelando…" : "Cancelar"}
                   </Button>
                 </div>
               </div>
@@ -125,49 +174,38 @@ function HistoricoPage() {
           </div>
         </section>
       ) : null}
+
       {anteriores.length ? (
         <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Histórico</h2>
       ) : null}
       <ul>
-        {anteriores.map((a) => {
-          const futuro = new Date(a.inicio).getTime() > Date.now();
-          const ativo =
-            a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
-          return (
-            <li
-              key={a.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
-            >
-              <div className="min-w-0">
-                <p className="text-sm text-paper">{a.servicos?.nome ?? "Serviço"}</p>
-                <p className="mt-0.5 text-xs text-mute">
-                  {dataHoraLonga(a.inicio)} · {a.profissionais?.nome ?? "—"}
-                </p>
-                <p className="mt-2 flex flex-wrap items-center gap-2">
-                  <StatusAgendamento status={a.status} />
-                  <span className="text-xs text-mute2">
-                    {a.forma_pagamento === "credito" ? "1 crédito" : brl(a.valor_centavos)}
-                  </span>
-                </p>
-              </div>
-              {futuro && ativo ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0 text-mute hover:text-brick"
-                  onClick={() => cancelarItem(a.id, a.inicio)}
-                >
-                  Cancelar
-                </Button>
-              ) : null}
-            </li>
-          );
-        })}
+        {anteriores.map((a) => (
+          <li
+            key={a.id}
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
+          >
+            <div className="min-w-0">
+              <p className="text-sm text-paper">{a.servicos?.nome ?? "Serviço"}</p>
+              <p className="mt-0.5 text-xs text-mute">
+                {dataHoraLonga(a.inicio)} · {a.profissionais?.nome ?? "—"}
+              </p>
+              <p className="mt-2 flex flex-wrap items-center gap-2">
+                <StatusAgendamento status={a.status} />
+                <span className="text-xs text-mute2">
+                  {rotuloForma(a.forma_pagamento)} · {valorDoItem(a)}
+                </span>
+              </p>
+            </div>
+          </li>
+        ))}
       </ul>
-      <p className="mt-6 text-xs text-mute">
-        Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é
-        consumido.
-      </p>
+
+      {lista.data && lista.data.length ? (
+        <p className="mt-6 text-xs text-mute">
+          Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é
+          consumido.
+        </p>
+      ) : null}
     </Screen>
   );
 }
