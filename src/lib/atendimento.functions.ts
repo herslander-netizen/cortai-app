@@ -61,6 +61,8 @@ export const getOperacaoFila = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<OperacaoFila> => {
     const { db, tenantId, meuProfissionalId } = await base(context);
+    await exigirRecurso(db, tenantId, "fila_espera");
+    await exigirPermissao(context, tenantId, "agendamento_manual");
     const [filaRes, profissionais] = await Promise.all([
       db
         .from("fila_de_espera")

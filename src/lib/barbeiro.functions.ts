@@ -541,7 +541,8 @@ export const getFila = createServerFn({ method: "GET" })
         .select("cliente_id, avisado_em")
         .eq("tenant_id", tenant.id)
         .not("avisado_em", "is", null)
-        .gte("avisado_em", inicioMes),
+        .gte("avisado_em", inicioMes)
+        .order("avisado_em", { ascending: true }),
     ]);
 
     const avisados = avisadosRes.data ?? [];
@@ -1102,7 +1103,7 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       _forma_pagamento: atual.forma_pagamento ?? "balcao",
     });
     if (error) throw new Error(error.message);
-    const criadoId = (novo as any)?.agendamento_id as string | undefined;
+    const criadoId = (novo as { agendamento_id?: string } | null)?.agendamento_id;
     // Aviso de remarcação: nunca bloqueia o novo horário.
     if (criadoId) {
       try {
