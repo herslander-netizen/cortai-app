@@ -106,3 +106,6 @@
 - [x] Estados com ícone+texto+cor (Início e Meus horários)
 - [x] Confirmação com saídas: Meus horários / Agendar outro / Início
 - [x] Cliente de teste criado e fluxo validado na barbearia de demonstração
+
+## Visual
+- [ ] Tela "Qual é o seu negócio?" (/comecar segmento): logo menor no topo, layout mais corporativo e bonito
