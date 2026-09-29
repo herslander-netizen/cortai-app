@@ -3,7 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
-import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
@@ -174,21 +175,30 @@ export type EstadoAtendimento = (typeof ESTADOS_ATENDIMENTO)[number];
 /** Muda a etapa do atendimento. Horários e quem fez são gravados pelo banco. */
 export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; estado: EstadoAtendimento }) => {
+  .inputValidator((data: { agendamentoId: string; estado: EstadoAtendimento; estadoAnterior: EstadoAtendimento }) => {
     if (!ESTADOS_ATENDIMENTO.includes(data.estado)) throw new Error("Estado inválido");
+    if (!ESTADOS_ATENDIMENTO.includes(data.estadoAnterior)) throw new Error("Estado anterior inválido");
     return data;
   })
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    if (data.estado === "finalizado") {
+      await exigirPermissao(context, tenant.id, "confirmar_pagamento");
+    } else if (["cancelado", "remarcado", "nao_compareceu"].includes(data.estado)) {
+      await exigirPermissao(context, tenant.id, "cancelar_agendamento");
+    } else {
+      await exigirPermissao(context, tenant.id, "agendamento_manual");
+    }
     const { data: linha, error } = await db
       .from("agendamentos")
       .update({ status: data.estado, status_alterado_por: context.userId })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
+      .eq("status", data.estadoAnterior)
       .select("id, status, arrived_at, started_at, finished_at, arrived_inferido, started_inferido, finished_inferido, status_alterado_em")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!linha) throw new Error("Atendimento não encontrado");
+    if (!linha) throw new Error("O atendimento mudou em outro aparelho. Atualize a agenda e tente novamente.");
     return linha;
   });
 
@@ -236,6 +246,8 @@ export const avisarFila = createServerFn({ method: "POST" })
   .inputValidator((data: { filaId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { error } = await db
       .from("fila_de_espera")
       .update({ avisado_em: new Date().toISOString() })
@@ -250,6 +262,8 @@ export const oferecerHorarioAFila = createServerFn({ method: "POST" })
   .inputValidator((data: { inicioIso: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
     const fuso = await fusoDoTenant(tenant.id);
     const hora = Number(
       new Intl.DateTimeFormat("en-US", { timeZone: fuso, hour: "2-digit", hourCycle: "h23" }).format(new Date(data.inicioIso)),
@@ -270,7 +284,8 @@ export const oferecerHorarioAFila = createServerFn({ method: "POST" })
     await db
       .from("fila_de_espera")
       .update({ avisado_em: new Date().toISOString() })
-      .eq("id", candidato.id);
+      .eq("id", candidato.id)
+      .eq("tenant_id", tenant.id);
     return { avisado: candidato.clientes?.nome ?? "Cliente" };
   });
 
@@ -444,9 +459,8 @@ export const getFila = createServerFn({ method: "GET" })
   const { db, tenant } = await tenantPadrao(context);
   await exigirRecurso(db, tenant.id, "fila_espera");
 
-  const inicioMes = new Date();
-  inicioMes.setDate(1);
-  inicioMes.setHours(0, 0, 0, 0);
+  const fuso = await fusoDoTenant(tenant.id);
+  const inicioMes = isoNoFusoDaBarbearia(`${hojeNoFuso(fuso).slice(0, 7)}-01`, "00:00", fuso);
 
   const [filaRes, avisadosRes] = await Promise.all([
     db
@@ -459,7 +473,7 @@ export const getFila = createServerFn({ method: "GET" })
       .select("cliente_id, avisado_em")
       .eq("tenant_id", tenant.id)
       .not("avisado_em", "is", null)
-      .gte("avisado_em", inicioMes.toISOString()),
+      .gte("avisado_em", inicioMes),
   ]);
 
   const avisados = avisadosRes.data ?? [];
@@ -470,11 +484,17 @@ export const getFila = createServerFn({ method: "GET" })
       .from("agendamentos")
       .select("cliente_id, criado_em, valor_centavos, status")
       .eq("tenant_id", tenant.id)
-      .gte("criado_em", inicioMes.toISOString())
+      .gte("criado_em", inicioMes)
       .neq("status", "cancelado");
+    const primeiroAvisoPorCliente = new Map<string, string>();
+    for (const aviso of avisados) {
+      if (aviso.cliente_id && aviso.avisado_em && !primeiroAvisoPorCliente.has(aviso.cliente_id)) {
+        primeiroAvisoPorCliente.set(aviso.cliente_id, aviso.avisado_em);
+      }
+    }
     for (const a of ags ?? []) {
-      const aviso = avisados.find((v) => v.cliente_id === a.cliente_id);
-      if (aviso && aviso.avisado_em && new Date(a.criado_em) >= new Date(aviso.avisado_em)) {
+      const avisadoEm = a.cliente_id ? primeiroAvisoPorCliente.get(a.cliente_id) : undefined;
+      if (avisadoEm && new Date(a.criado_em) >= new Date(avisadoEm)) {
         recuperadosMes += 1;
         recuperadoCentavos += a.valor_centavos;
       }
@@ -504,6 +524,8 @@ export const removerDaFila = createServerFn({ method: "POST" })
   .inputValidator((data: { filaId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { error } = await db.from("fila_de_espera").delete().eq("id", data.filaId).eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -823,6 +845,7 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
   .inputValidator((data: { profissionalId?: string | undefined; servicoId?: string | undefined }) => data ?? {})
   .handler(async ({ data, context }): Promise<{ iso: string; label: string } | null> => {
     const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
 
     let duracao = 30;
     if (data.servicoId) {
@@ -835,35 +858,43 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       if (s) duracao = s.duracao_min;
     }
 
-    const dia = new Date();
-    dia.setHours(0, 0, 0, 0);
-    const fimDia = new Date(dia.getTime() + 24 * 60 * 60 * 1000);
+    const fuso = await fusoDoTenant(tenant.id);
+    const dia = hojeNoFuso(fuso);
+    const inicioDia = new Date(isoNoFusoDaBarbearia(dia, "00:00", fuso));
+    const fimDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
 
     let q = db
       .from("agendamentos")
       .select("inicio, fim")
       .eq("tenant_id", tenant.id)
-      .gte("inicio", dia.toISOString())
+      .gte("inicio", inicioDia.toISOString())
       .lt("inicio", fimDia.toISOString())
-      .not("status", "in", "(cancelado,falta)");
+      .not("status", "in", "(cancelado,nao_compareceu,remarcado)");
     if (data.profissionalId) q = q.eq("profissional_id", data.profissionalId);
-    const { data: doDia } = await q;
+    const [{ data: doDia }, { data: horariosRes }] = await Promise.all([
+      q,
+      db
+        .from("horarios_de_funcionamento")
+        .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id),
+    ]);
 
     const ocupados = (doDia ?? []).map((a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const);
     const agora = Date.now();
-
-    for (let h = 9; h < 19; h++) {
-      for (const m of [0, 30]) {
-        const cand = new Date(dia);
-        cand.setHours(h, m, 0, 0);
-        if (cand.getTime() < agora) continue;
-        if (h >= 12 && h < 13) continue; // almoço
-        const fim = cand.getTime() + duracao * 60000;
-        const livre = !ocupados.some(([oi, of]) => cand.getTime() < of && fim > oi);
-        if (livre) {
-          return { iso: cand.toISOString(), label: `${String(h).padStart(2, "0")}:${m === 0 ? "00" : "30"}` };
-        }
-      }
+    const horarios = (horariosRes ?? []).map((h) => ({
+      diaSemana: h.dia_semana,
+      fechado: h.fechado,
+      abre: String(h.abre).slice(0, 5),
+      fecha: String(h.fecha).slice(0, 5),
+      intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
+      intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
+    }));
+    const grade = slotsDoDia(dia, horarios, 30, fuso);
+    for (const slot of grade.slots) {
+      const inicio = new Date(slot.iso).getTime();
+      if (inicio < agora || motivoForaDoHorario(inicio, duracao, horarios, fuso)) continue;
+      const fim = inicio + duracao * 60_000;
+      if (!ocupados.some(([oi, of]) => inicio < of && fim > oi)) return { iso: slot.iso, label: slot.label };
     }
     return null;
   });

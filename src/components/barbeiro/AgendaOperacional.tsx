@@ -261,20 +261,28 @@ export function AgendaOperacional() {
   }, []);
   useEffect(() => {
     if (!tenantId) return;
+    let invalidacao: number | undefined;
+    const reagendar = (incluiAgenda: boolean) => {
+      if (invalidacao !== undefined) window.clearTimeout(invalidacao);
+      invalidacao = window.setTimeout(() => {
+        if (incluiAgenda) {
+          void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
+          void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
+          void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] });
+          void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] });
+        }
+        void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
+      }, 250);
+    };
     const canal = supabase
       .channel(`agenda-${tenantId}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "agendamentos", filter: `tenant_id=eq.${tenantId}` }, () => {
-        void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
-        void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
-        void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
-        void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] });
-        void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] });
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "fila_de_espera", filter: `tenant_id=eq.${tenantId}` }, () => {
-        void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "agendamentos", filter: `tenant_id=eq.${tenantId}` }, () => reagendar(true))
+      .on("postgres_changes", { event: "*", schema: "public", table: "fila_de_espera", filter: `tenant_id=eq.${tenantId}` }, () => reagendar(false))
       .subscribe();
-    return () => { void supabase.removeChannel(canal); };
+    return () => {
+      if (invalidacao !== undefined) window.clearTimeout(invalidacao);
+      void supabase.removeChannel(canal);
+    };
   }, [tenantId, queryClient]);
 
   // Link direto de aviso: /barbeiro/agenda?agendamento=<id> vai ao dia e abre o painel.
@@ -369,9 +377,9 @@ export function AgendaOperacional() {
   function oferecerDesfazerInicio(r: { agendamentoId: string; cliente: string; filaId?: string; statusAnterior?: string }) {
     comDesfazer(`${r.cliente}: ${rotuloAtendimento}.`, async () => {
       try {
-        await desfazerInicioRapido({ data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null, statusAnterior: r.statusAnterior ?? null } });
-      } catch {
-        aviso.erro("Não foi possível desfazer.");
+        await desfazerInicioRapido({ data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null } });
+      } catch (e) {
+        aviso.erro(e instanceof Error ? e.message : "Não foi possível desfazer.");
       }
       await sincronizar();
     });
@@ -405,7 +413,7 @@ export function AgendaOperacional() {
         setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
         try {
           if (pedido) await pedido.catch(() => undefined);
-          await mudarEstado({ data: { agendamentoId: item.id, estado: anterior } });
+          await mudarEstado({ data: { agendamentoId: item.id, estado: anterior, estadoAnterior: novo } });
           await sincronizar();
         } finally {
           setEstadosLocais((mapa) => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; });
@@ -413,7 +421,7 @@ export function AgendaOperacional() {
       });
     }
     try {
-      pedido = mudarEstado({ data: { agendamentoId: item.id, estado: novo } });
+      pedido = mudarEstado({ data: { agendamentoId: item.id, estado: novo, estadoAnterior: anterior } });
       await pedido;
       await sincronizar();
       setEstadosLocais((mapa) => (mapa[item.id] === novo ? (() => { const proximo = { ...mapa }; delete proximo[item.id]; return proximo; })() : mapa));

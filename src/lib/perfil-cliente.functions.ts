@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro } from "@/lib/tenant";
+import { tenantIdDoMembro, exigirPermissao } from "@/lib/tenant";
 
 const BUCKET = "fotos-corte";
 
@@ -134,6 +134,7 @@ export const salvarFichaCorte = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     const { db, tenantId, cliente } = await contexto(context, data.clienteId);
+    await exigirPermissao(context, tenantId, "editar_clientes");
     if (cliente.telefone === "avulso") throw new Error("Identifique o cliente avulso antes de salvar a ficha.");
     const { error } = await db
       .from("clientes")
@@ -162,6 +163,7 @@ export const enviarFotoCorte = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { db, tenantId, cliente } = await contexto(context, data.clienteId);
+    await exigirPermissao(context, tenantId, "editar_clientes");
     let agendamentoId: string | null = null;
     if (data.agendamentoId) {
       const { data: ag } = await db.from("agendamentos").select("id").eq("id", data.agendamentoId).eq("tenant_id", tenantId).eq("cliente_id", cliente.id).maybeSingle();
@@ -191,6 +193,7 @@ export const apagarFotoCorte = createServerFn({ method: "POST" })
   .inputValidator((d: { fotoId: string }) => ({ fotoId: String(d.fotoId) }))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "editar_clientes");
     const db: any = await admin();
     const { data: foto } = await db.from("fotos_de_corte").select("id, caminho").eq("id", data.fotoId).eq("tenant_id", tenantId).maybeSingle();
     if (!foto) throw new Error("Foto não encontrada.");

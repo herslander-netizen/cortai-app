@@ -203,6 +203,7 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
   .inputValidator((data: { profissionalId?: string | null; filaId?: string | null }) => data ?? {})
   .handler(async ({ data, context }) => {
     const { db, tenantId, meuProfissionalId } = await base(context);
+    await exigirPermissao(context, tenantId, "agendamento_manual");
     let profissionalId = data.profissionalId ?? meuProfissionalId;
     if (profissionalId) profissionalId = await profissionalValido(db, tenantId, profissionalId);
     else {
@@ -249,21 +250,16 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
 /** Desfazer (5 s) de um atendimento aberto agora ou chamado da fila. */
 export const desfazerInicioRapido = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; filaId?: string | null; statusAnterior?: string | null }) => data)
+  .inputValidator((data: { agendamentoId: string; filaId?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await base(context);
-    const limite = new Date(Date.now() - 5 * 60_000).toISOString();
-    const { error } = await db
-      .from("agendamentos")
-      .delete()
-      .eq("id", data.agendamentoId)
-      .eq("tenant_id", tenantId)
-      .eq("origem", "manual")
-      .gte("criado_em", limite);
+    await exigirPermissao(context, tenantId, "agendamento_manual");
+    const { error } = await db.rpc("desfazer_inicio_rapido_seguro", {
+      _tenant_id: tenantId,
+      _ator_id: context.userId,
+      _agendamento_id: data.agendamentoId,
+      _fila_id: data.filaId ?? null,
+    });
     if (error) throw new Error(error.message);
-    if (data.filaId) {
-      const status = data.statusAnterior === "avisado" ? "avisado" : "aguardando";
-      await db.from("fila_de_espera").update({ status }).eq("id", data.filaId).eq("tenant_id", tenantId);
-    }
     return { ok: true };
   });
