@@ -257,7 +257,7 @@ export const excluirBarbearia = createServerFn({ method: "POST" })
     const { error } = await db.rpc("excluir_tenant_completo", {
       _tenant_id: tenantId,
       _ator: context.userId,
-      _ator_email: email,
+      _ator_email: email ?? "",
     });
     if (error) {
       console.error("[admin] excluirBarbearia falhou:", error.message);
