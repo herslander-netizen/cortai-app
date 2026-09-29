@@ -21,7 +21,17 @@ export function NovidadesDaVersao() {
   useEffect(() => {
     if (!areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
     try {
-      if (localStorage.getItem(CHAVE) === APP_VERSION) return;
+      const vista = localStorage.getItem(CHAVE);
+      if (vista === APP_VERSION) return;
+      // Primeiro acesso neste aparelho: não há "novidade" para quem acabou de chegar.
+      // Registra a versão em silêncio e deixa só as dicas de boas-vindas.
+      const jaUsou =
+        vista !== null ||
+        Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
+      if (!jaUsou) {
+        localStorage.setItem(CHAVE, APP_VERSION);
+        return;
+      }
     } catch {
       return;
     }
