@@ -7,6 +7,7 @@ import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
+import { mapearHorarios, validarAgendamento } from "@/lib/agenda-regras.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -702,7 +703,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     await exigirRecurso(db, tenant.id, "agendamento_manual");
-    const [servicosRes, profRes] = await Promise.all([
+    const [servicosRes, profRes, horariosRes] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos")
@@ -715,8 +716,18 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("nome"),
+      db
+        .from("horarios_de_funcionamento")
+        .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id),
     ]);
-    return { tenant, servicos: servicosRes.data ?? [], profissionais: profRes.data ?? [] };
+    return {
+      tenant,
+      servicos: servicosRes.data ?? [],
+      profissionais: profRes.data ?? [],
+      horarios: mapearHorarios(horariosRes.data ?? []),
+      fuso: await fusoDoTenant(tenant.id),
+    };
   });
 
 /** Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. */
@@ -806,7 +817,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
 
     const { data: servico } = await db
       .from("servicos")
-      .select("id, duracao_min")
+      .select("id, duracao_min, profissional_ids")
       .eq("id", data.servicoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
@@ -820,7 +831,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!prof) throw new Error("Profissional não encontrado nesta barbearia.");
 
-    // 1. Resolver cliente — reutiliza a ficha desta barbearia, nunca de outra.
+    // 1. Resolver a referência do cliente sem criar uma ficha ainda.
     let clienteId = data.clienteId ?? null;
     let clienteNome = "";
     if (clienteId) {
@@ -847,20 +858,45 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
         clienteId = existente.id;
         clienteNome = existente.nome;
         await db.from("clientes").update({ arquivado_em: null }).eq("id", existente.id);
-      } else {
-        const { data: novo, error } = await db
-          .from("clientes")
-          .insert({ tenant_id: tenant.id, nome, telefone, origem: "balcao" })
-          .select("id, nome")
-          .single();
-        if (error) throw new Error(error.message);
-        clienteId = novo.id;
-        clienteNome = novo.nome;
+      } else clienteNome = nome;
+    }
+
+    // 2. Conferir todas as regras antes de criar uma nova ficha de cliente.
+    const inicio = new Date(data.inicio);
+    if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");
+    if (!data.encaixe) {
+      try {
+        const conflitoCliente = await validarAgendamento(db, {
+          tenantId: tenant.id,
+          servico,
+          profissionalId: data.profissionalId,
+          inicio,
+          clienteId,
+        });
+        if (conflitoCliente) throw new Error(`O cliente já tem um horário às ${conflitoCliente.hora}.`);
+      } catch (erro) {
+        const mensagem = erro instanceof Error ? erro.message : "Horário indisponível.";
+        if (mensagem.includes("acabou de ser reservado")) {
+          return { ok: false, conflito: { mensagem: "Esse horário já tem agendamento. Encaixar mesmo assim?", sugestoes: [], podeEncaixar: true } };
+        }
+        throw erro;
       }
     }
 
-    // 2. Conferir disponibilidade e, se ocupado, sugerir horários livres.
-    const inicio = new Date(data.inicio);
+    // 3. Só agora cria o cliente novo; uma falha de disponibilidade nunca deixa cadastro órfão.
+    if (!clienteId) {
+      const telefone = soDigitos(data.novoTelefone ?? "").slice(0, 15);
+      const { data: novo, error } = await db
+        .from("clientes")
+        .insert({ tenant_id: tenant.id, nome: clienteNome, telefone, origem: "balcao" })
+        .select("id, nome")
+        .single();
+      if (error) throw new Error(error.message);
+      clienteId = novo.id;
+      clienteNome = novo.nome;
+    }
+
+    // 4. A trava atômica do banco continua sendo a última defesa contra corridas.
     const fim = new Date(inicio.getTime() + servico.duracao_min * 60000);
     const dia = new Date(inicio);
     dia.setHours(0, 0, 0, 0);
@@ -910,7 +946,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
 
     if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) return conflitoDoPainel();
 
-    // 3. Criar pelas mesmas regras do app e marcar a origem como manual.
+    // 5. Criar pelas mesmas regras do app e marcar a origem como manual.
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
       _cliente_id: clienteId,

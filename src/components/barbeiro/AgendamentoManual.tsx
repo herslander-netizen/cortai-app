@@ -7,6 +7,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -15,16 +16,6 @@ import {
 } from "@/lib/barbeiro.functions";
 
 type Forma = "balcao" | "pix" | "fiado" | "credito";
-
-function isoLocal(dia: string, horaMin: string) {
-  return new Date(`${dia}T${horaMin}:00`).toISOString();
-}
-
-function horasDoDia() {
-  const out: string[] = [];
-  for (let h = 9; h < 19; h++) for (const m of ["00", "30"]) out.push(`${String(h).padStart(2, "0")}:${m}`);
-  return out;
-}
 
 /**
  * Agendamento de balcão em poucos toques: cliente (existente ou novo),
@@ -105,8 +96,9 @@ function Formulario({
   });
 
   const proximo = useQuery({
-    queryKey: ["proximo-livre"],
-    queryFn: () => getProximoHorarioLivre({ data: {} }),
+    queryKey: ["proximo-livre", profissionalId, servicoId],
+    queryFn: () => getProximoHorarioLivre({ data: { ...(profissionalId ? { profissionalId } : {}), ...(servicoId ? { servicoId } : {}) } }),
+    enabled: Boolean(profissionalId && servicoId),
     staleTime: 30_000,
   });
 
@@ -162,7 +154,7 @@ function Formulario({
           ...(clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
-          inicio: isoForcado ?? isoLocal(data, horaMin),
+          inicio: isoForcado ?? isoNoFusoDaBarbearia(data, horaMin, base?.fuso ?? "America/Sao_Paulo"),
           formaPagamento: forma,
           ...(encaixe ? { encaixe: true } : {}),
         },
@@ -355,7 +347,7 @@ function Formulario({
             onChange={(e) => setHoraMin(e.target.value)}
             aria-label="Hora"
           >
-            {horasDoDia().map((h) => (
+            {(base ? slotsDoDia(data, base.horarios, 30, base.fuso).slots.map((slot) => slot.label) : []).map((h) => (
               <option key={h} value={h}>
                 {h}
               </option>
