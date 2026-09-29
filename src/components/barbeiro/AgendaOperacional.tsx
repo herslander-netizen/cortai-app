@@ -571,7 +571,12 @@ export function AgendaOperacional() {
           try {
             if (pedido) await pedido.catch(() => undefined);
             await mudarEstado({
-              data: { agendamentoId: item.id, estado: anterior, estadoAnterior: novo },
+              data: {
+                agendamentoId: item.id,
+                estado: anterior,
+                estadoAnterior: novo,
+                desfazer: true,
+              },
             });
             await sincronizar();
           } finally {

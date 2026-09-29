@@ -200,6 +200,7 @@ export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
       agendamentoId: string;
       estado: EstadoAtendimento;
       estadoAnterior: EstadoAtendimento;
+      desfazer?: boolean;
     }) => {
       if (!ESTADOS_ATENDIMENTO.includes(data.estado)) throw new Error("Estado inválido");
       if (!ESTADOS_ATENDIMENTO.includes(data.estadoAnterior))
@@ -216,21 +217,30 @@ export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
     } else {
       await exigirPermissao(context, tenant.id, "agendamento_manual");
     }
-    const { data: linha, error } = await db
+    const mudanca = db
       .from("agendamentos")
       .update({ status: data.estado, status_alterado_por: context.userId })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
-      .eq("status", data.estadoAnterior)
+      .eq("status", data.estadoAnterior);
+    const mudancaSegura = data.desfazer
+      ? mudanca
+          .eq("status_alterado_por", context.userId)
+          .gte("status_alterado_em", new Date(Date.now() - 5_000).toISOString())
+      : mudanca;
+    const { data: linha, error } = await mudancaSegura
       .select(
         "id, status, arrived_at, started_at, finished_at, arrived_inferido, started_inferido, finished_inferido, status_alterado_em",
       )
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!linha)
+    if (!linha) {
       throw new Error(
-        "O atendimento mudou em outro aparelho. Atualize a agenda e tente novamente.",
+        data.desfazer
+          ? "O prazo de 5 segundos para desfazer terminou ou o atendimento já mudou."
+          : "O atendimento mudou em outro aparelho. Atualize a agenda e tente novamente.",
       );
+    }
     return linha;
   });
 

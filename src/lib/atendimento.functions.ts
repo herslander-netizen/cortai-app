@@ -332,12 +332,13 @@ export const desfazerInicioRapido = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await base(context);
     await exigirPermissao(context, tenantId, "agendamento_manual");
-    const { error } = await db.rpc("desfazer_inicio_rapido_seguro", {
+    const parametros = {
       _tenant_id: tenantId,
       _ator_id: context.userId,
       _agendamento_id: data.agendamentoId,
-      _fila_id: data.filaId ?? undefined,
-    });
+      ...(data.filaId ? { _fila_id: data.filaId } : {}),
+    };
+    const { error } = await db.rpc("desfazer_inicio_rapido_seguro", parametros);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
