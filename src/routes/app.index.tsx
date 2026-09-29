@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
+import { ChevronRight, Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
 import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
-import { brl } from "@/lib/format";
+import { brl, dataHoraLonga } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
+import { StatusAgendamento } from "@/components/cliente/StatusAgendamento";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
+import { listarAgendamentosCliente } from "@/lib/agendamento.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-cliente";
 import { useEffect } from "react";
@@ -40,6 +42,22 @@ function InicioCliente() {
   useEffect(() => {
     if (data?.slug) salvarContextoCliente(data.slug);
   }, [data?.slug]);
+
+  const agendamentos = useQuery({
+    queryKey: ["historico", data?.slug ?? null],
+    queryFn: () => listarAgendamentosCliente({ data: data?.slug ? { slug: data.slug } : {} }),
+    enabled: Boolean(data?.slug),
+  });
+  const agora = Date.now();
+  const proximo = (agendamentos.data ?? [])
+    .filter(
+      (a) =>
+        new Date(a.inicio).getTime() > agora &&
+        a.status !== "cancelado" &&
+        a.status !== "remarcado" &&
+        a.status !== "nao_compareceu",
+    )
+    .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())[0];
 
   if (isLoading) {
     return <TelaDeCarregamento />;
@@ -120,13 +138,45 @@ function InicioCliente() {
 
         <section className="py-7">
           <h2 className="text-xs font-semibold uppercase text-mute">Seu próximo corte</h2>
-          <div className="mt-4 border-y border-line py-5">
-            <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
-            <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo corte.</p>
-          </div>
+          {proximo ? (
+            <Link
+              to="/app/historico"
+              search={{ b: data.slug }}
+              className="mt-4 flex min-h-[72px] items-center gap-4 border-y border-line py-5"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="text-base font-semibold text-paper">
+                    {proximo.servicos?.nome ?? "Serviço"}
+                  </span>
+                  <StatusAgendamento status={proximo.status} />
+                </span>
+                <span className="mt-1 block text-sm text-mute">
+                  {dataHoraLonga(proximo.inicio)}
+                </span>
+                <span className="mt-0.5 block text-xs text-mute2">
+                  com {proximo.profissionais?.nome ?? "profissional"}
+                </span>
+              </span>
+              <ChevronRight
+                size={18}
+                strokeWidth={1.75}
+                className="shrink-0 text-mute"
+                aria-hidden
+              />
+            </Link>
+          ) : (
+            <div className="mt-4 border-y border-line py-5">
+              <p className="text-base font-semibold text-paper">
+                {agendamentos.isLoading ? "Carregando…" : "Nenhum horário marcado"}
+              </p>
+              <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo corte.</p>
+            </div>
+          )}
           <Link
             to="/app/espera"
-            className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5"
+            search={{ b: data.slug }}
+            className="mt-5 flex min-h-12 items-center justify-between gap-4 border-b border-line pb-5"
           >
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-paper">
@@ -138,7 +188,7 @@ function InicioCliente() {
             </span>
             <span className="shrink-0 text-xs text-gold">Entrar</span>
           </Link>
-          <Link to="/" className="mt-5 block text-xs text-mute underline">
+          <Link to="/barbearias" className="mt-5 block text-xs text-mute underline">
             Trocar de barbearia
           </Link>
         </section>

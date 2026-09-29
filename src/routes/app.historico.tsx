@@ -10,6 +10,7 @@ import { cancelarAgendamento, listarAgendamentosCliente } from "@/lib/agendament
 import { Aviso } from "@/components/ui/aviso";
 import { Carregando } from "@/components/layout/Carregando";
 import { useContextoCliente } from "@/lib/contexto-cliente";
+import { StatusAgendamento } from "@/components/cliente/StatusAgendamento";
 
 export const Route = createFileRoute("/app/historico")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -99,9 +100,7 @@ function HistoricoPage() {
                       com {p.profissionais?.nome ?? "profissional"}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs font-semibold uppercase text-sage">
-                    Confirmado
-                  </span>
+                  <StatusAgendamento status={p.status} />
                 </div>
                 <div
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
@@ -144,9 +143,11 @@ function HistoricoPage() {
                 <p className="mt-0.5 text-xs text-mute">
                   {dataHoraLonga(a.inicio)} · {a.profissionais?.nome ?? "—"}
                 </p>
-                <p className="mt-0.5 text-xs text-mute2">
-                  {a.status} ·{" "}
-                  {a.forma_pagamento === "credito" ? "1 crédito" : brl(a.valor_centavos)}
+                <p className="mt-2 flex flex-wrap items-center gap-2">
+                  <StatusAgendamento status={a.status} />
+                  <span className="text-xs text-mute2">
+                    {a.forma_pagamento === "credito" ? "1 crédito" : brl(a.valor_centavos)}
+                  </span>
                 </p>
               </div>
               {futuro && ativo ? (
