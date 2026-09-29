@@ -469,7 +469,7 @@ function Fluxo({
         {erro ? <p className="mt-3 text-sm text-brick">{erro}</p> : null}
         <Button
           type="button"
-          className="mt-5 min-w-[180px] px-6 py-3.5"
+          className="mt-5 h-14 w-full text-base"
           disabled={!servico || !escolhido || enviando}
           onClick={() => void confirmar()}
         >
