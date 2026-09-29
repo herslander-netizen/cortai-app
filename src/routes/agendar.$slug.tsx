@@ -370,7 +370,6 @@ function AgendamentoPublico() {
               onClick={() => {
                 setServicoId(s.id);
                 setHorario(null);
-                setDiaManual(false);
               }}
               className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 text-left ${
                 servicoId === s.id ? "border-gold bg-ink2" : "border-line bg-ink2/60"
@@ -400,7 +399,6 @@ function AgendamentoPublico() {
                 onClick={() => {
                   setProfId(p.id);
                   setHorario(null);
-                  setDiaManual(false);
                 }}
                 className={`flex min-h-12 items-center gap-2 rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "border-gold text-paper" : "border-line text-mute"

@@ -82,12 +82,12 @@
 - [x] P2: executar typecheck, lint e todos os testes disponíveis; revisar apenas erros e transições concretos
 
 ## Consolidação arquitetural e UX (set/2026)
-- [ ] Publicar a Home institucional existente somente em /apresentacao, preservando / e /login
-- [ ] Consolidar contexto explícito do negócio no app do cliente e propagá-lo entre as quatro áreas
-- [ ] Canonicalizar a página pública em /b/$slug e preservar aliases por redirecionamento
-- [ ] Compartilhar o núcleo de seleção e disponibilidade entre booking público e autenticado
-- [ ] Unificar a ação de compartilhamento da página pública
-- [ ] Corrigir agendamento manual com funcionamento, fuso, duração e validação compartilhada antes de criar cliente
-- [ ] Reorganizar editor de marca em Identidade, Marca, Conteúdo e Ajustes avançados
-- [ ] Criar fixture idempotente Barbearia Cortaí Teste sem alterar Jjjuu ou Teste
+- [x] Publicar a Home institucional existente somente em /apresentacao, preservando / e /login
+- [x] Consolidar contexto explícito do negócio no app do cliente e propagá-lo entre as quatro áreas
+- [x] Canonicalizar a página pública em /b/$slug e preservar aliases por redirecionamento
+- [x] Compartilhar o núcleo de seleção e disponibilidade entre booking público e autenticado
+- [x] Unificar a ação de compartilhamento da página pública
+- [x] Corrigir agendamento manual com funcionamento, fuso, duração e validação compartilhada antes de criar cliente
+- [x] Reorganizar editor de marca em Identidade, Marca, Conteúdo e Ajustes avançados
+- [x] Criar fixture idempotente Barbearia Cortaí Teste sem alterar Jjjuu ou Teste
 - [ ] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build

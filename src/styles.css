@@ -137,6 +137,7 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-12: 48px;
 
   /* Estados operacionais são fixos e não mudam com a identidade. */
   --status-scheduled: #9c9b96;
