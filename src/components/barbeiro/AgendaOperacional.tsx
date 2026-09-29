@@ -262,16 +262,19 @@ export function AgendaOperacional() {
   useEffect(() => {
     if (!tenantId) return;
     let invalidacao: number | undefined;
+    let agendaPendente = false;
     const reagendar = (incluiAgenda: boolean) => {
+      agendaPendente ||= incluiAgenda;
       if (invalidacao !== undefined) window.clearTimeout(invalidacao);
       invalidacao = window.setTimeout(() => {
-        if (incluiAgenda) {
+        if (agendaPendente) {
           void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] });
         }
         void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
+        agendaPendente = false;
       }, 250);
     };
     const canal = supabase

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { exigirRecurso } from "@/lib/planos";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 
 /**
@@ -203,6 +204,7 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
   .inputValidator((data: { profissionalId?: string | null; filaId?: string | null }) => data ?? {})
   .handler(async ({ data, context }) => {
     const { db, tenantId, meuProfissionalId } = await base(context);
+    await exigirRecurso(db, tenantId, "fila_espera");
     await exigirPermissao(context, tenantId, "agendamento_manual");
     let profissionalId = data.profissionalId ?? meuProfissionalId;
     if (profissionalId) profissionalId = await profissionalValido(db, tenantId, profissionalId);
@@ -258,7 +260,7 @@ export const desfazerInicioRapido = createServerFn({ method: "POST" })
       _tenant_id: tenantId,
       _ator_id: context.userId,
       _agendamento_id: data.agendamentoId,
-      _fila_id: data.filaId ?? null,
+      _fila_id: data.filaId ?? undefined,
     });
     if (error) throw new Error(error.message);
     return { ok: true };

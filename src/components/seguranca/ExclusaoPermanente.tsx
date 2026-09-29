@@ -53,15 +53,27 @@ export function ExclusaoPermanente({
       fechar();
       onSucesso?.(aviso ?? null);
     } catch (e) {
-      setErro(e instanceof Error && e.message ? e.message : "Não foi possível excluir agora. Tente novamente.");
+      setErro(
+        e instanceof Error && e.message
+          ? e.message
+          : "Não foi possível excluir agora. Tente novamente.",
+      );
       setProcessando(false);
     }
   }
 
   return (
-    <AlertDialog open={aberto} onOpenChange={(open) => { if (open) setAberto(true); else if (!processando) fechar(); }}>
+    <AlertDialog
+      open={aberto}
+      onOpenChange={(open) => {
+        if (open) setAberto(true);
+        else if (!processando) fechar();
+      }}
+    >
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="text" className={className}>{rotulo}</Button>
+        <Button type="button" variant="text" className={className}>
+          {rotulo}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
         overlayClassName="z-[70]"
@@ -72,7 +84,10 @@ export function ExclusaoPermanente({
           <AlertDialogDescription>{descricao}</AlertDialogDescription>
         </AlertDialogHeader>
         <p className="text-xs text-brick">Esta ação é irreversível.</p>
-        <label className="flex min-h-12 cursor-pointer items-start gap-3 text-xs text-paper" htmlFor={campoId}>
+        <label
+          className="flex min-h-12 cursor-pointer items-start gap-3 text-xs text-paper"
+          htmlFor={campoId}
+        >
           <Checkbox
             id={campoId}
             checked={entendo}
@@ -82,10 +97,19 @@ export function ExclusaoPermanente({
           />
           Entendo que isso apaga tudo e não tem volta
         </label>
-        {erro ? <p className="text-xs text-brick" role="alert">{erro}</p> : null}
+        {erro ? (
+          <p className="text-xs text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
         <AlertDialogFooter className="gap-2 sm:gap-0">
           <AlertDialogCancel disabled={processando}>Cancelar</AlertDialogCancel>
-          <Button type="button" variant="destructive" onClick={() => void confirmar()} disabled={!entendo || processando}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => void confirmar()}
+            disabled={!entendo || processando}
+          >
             {processando ? "Excluindo…" : "Excluir permanentemente"}
           </Button>
         </AlertDialogFooter>
