@@ -71,3 +71,12 @@
 - [x] B Retorno por serviço (servicos.retorno_dias), aviso no WhatsApp, ficha e filtro "Hora de voltar"
 - [x] C Atalhos da ficha por segmento na criação e oferta de troca na Conta
 - [x] D Testes, typecheck e conferência em 390/1280px
+
+## Correções técnicas confirmadas — P0/P1
+- [ ] Corrigir o diálogo de exclusão permanente em camadas sobrepostas e validar em 390/1280px
+- [ ] P0: validar Desfazer da agenda em 5 segundos no servidor, sem condição de corrida
+- [ ] P0: auditar autorização das mutações de agenda, fila, clientes, financeiro e exclusões
+- [ ] P0: revisar funções SECURITY DEFINER tocadas e confirmar índices de envios_de_whatsapp antes de qualquer mudança
+- [ ] P1: reduzir atualizações redundantes da agenda preservando Realtime, polling e interface otimista
+- [ ] P1: usar funcionamento e fuso reais no próximo horário livre e revisar o cálculo mensal da fila
+- [ ] P2: executar typecheck, lint e todos os testes disponíveis; revisar apenas erros e transições concretos
