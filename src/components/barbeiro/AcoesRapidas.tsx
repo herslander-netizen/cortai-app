@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ContactRound, Scissors, ShoppingBag } from "lucide-react";
+import { CalendarPlus, ContactRound, Plus, Scissors, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
