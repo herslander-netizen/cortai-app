@@ -25,12 +25,13 @@ export function mostrarAviso(titulo: string, corpo?: string | null, link?: strin
   if (!suportado() || Notification.permission !== "granted") return;
   if (typeof document !== "undefined" && document.visibilityState === "visible") return;
   try {
-    const n = new Notification(titulo, {
-      body: corpo ?? undefined,
+    const opcoes: NotificationOptions = {
       icon: "/icone-cortai-192.png",
       badge: "/icone-cortai-192.png",
       tag: link ?? titulo,
-    });
+    };
+    if (corpo) opcoes.body = corpo;
+    const n = new Notification(titulo, opcoes);
     n.onclick = () => {
       window.focus();
       if (link) window.location.assign(link);
