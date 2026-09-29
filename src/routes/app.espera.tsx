@@ -8,15 +8,22 @@ import { entrarNaFila } from "@/lib/fila-cliente.functions";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/espera")({
-  validateSearch: (search: Record<string, unknown>): { b?: string; servico?: string; dia?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { b?: string; servico?: string; dia?: string } => ({
     ...(typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {}),
-    ...(typeof search["servico"] === "string" && search["servico"] ? { servico: search["servico"] } : {}),
+    ...(typeof search["servico"] === "string" && search["servico"]
+      ? { servico: search["servico"] }
+      : {}),
     ...(typeof search["dia"] === "string" && search["dia"] ? { dia: search["dia"] } : {}),
   }),
   head: () => ({
     meta: [
       { title: "Lista de espera — Cortaí" },
-      { name: "description", content: "Entre na lista de espera e seja avisado quando abrir um horário." },
+      {
+        name: "description",
+        content: "Entre na lista de espera e seja avisado quando abrir um horário.",
+      },
       { property: "og:title", content: "Lista de espera — Cortaí" },
       { property: "og:description", content: "Horário cheio? Avisamos assim que vagar." },
       { property: "og:type", content: "website" },
@@ -48,7 +55,14 @@ function EsperaPage() {
   const escolhida = JANELAS[janela] ?? JANELAS[0];
 
   return (
-    <Screen title="Lista de espera" subtitle={dia ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")} — avisamos assim que vagar.` : "Avisamos assim que um horário vagar."}>
+    <Screen
+      title="Lista de espera"
+      subtitle={
+        dia
+          ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")} — avisamos assim que vagar.`
+          : "Avisamos assim que um horário vagar."
+      }
+    >
       {pronto ? (
         <div className="surface px-5 py-6">
           <p className="text-sm text-paper">Você está na lista.</p>
@@ -58,7 +72,11 @@ function EsperaPage() {
         <>
           <label className="block">
             <span className="text-xs text-mute2">Seu nome</span>
-            <input value={nome} onChange={(e) => setNome(e.target.value)} className="input-premium mt-1 w-full" />
+            <input
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="input-premium mt-1 w-full"
+            />
           </label>
           <label className="mt-4 block">
             <span className="text-xs text-mute2">WhatsApp</span>
@@ -91,28 +109,32 @@ function EsperaPage() {
             disabled={acao.ocupado || nome.trim().length < 2 || telefone.trim().length < 8}
             onClick={() => {
               setStatus(null);
-              void acao.executar(
-                "fila",
-                () =>
-                  entrar({
-                    data: {
-                      nome: nome.trim(),
-                      telefone: telefone.trim(),
-                      janelaInicio: escolhida.inicio,
-                      janelaFim: escolhida.fim,
-                      ...(slug ? { slug } : {}),
-                      ...(servico ? { servicoId: servico } : {}),
-                      ...(dia ? { dia } : {}),
+              void acao
+                .executar(
+                  "fila",
+                  () =>
+                    entrar({
+                      data: {
+                        nome: nome.trim(),
+                        telefone: telefone.trim(),
+                        janelaInicio: escolhida.inicio,
+                        janelaFim: escolhida.fim,
+                        ...(slug ? { slug } : {}),
+                        ...(servico ? { servicoId: servico } : {}),
+                        ...(dia ? { dia } : {}),
+                      },
+                    }),
+                  {
+                    erro: "Confira o nome e o WhatsApp e tente de novo.",
+                    aoConcluir: (r) => {
+                      setStatus(
+                        `Você é o número ${r.posicao} da fila. Quem responder primeiro fica com a vaga.`,
+                      );
+                      setPronto(true);
                     },
-                  }),
-                {
-                  erro: "Confira o nome e o WhatsApp e tente de novo.",
-                  aoConcluir: (r) => {
-                    setStatus(`Você é o número ${r.posicao} da fila. Quem responder primeiro fica com a vaga.`);
-                    setPronto(true);
                   },
-                },
-              ).catch(() => setStatus("Confira o nome e o WhatsApp e tente de novo."));
+                )
+                .catch(() => setStatus("Confira o nome e o WhatsApp e tente de novo."));
             }}
           >
             {acao.estaEm("fila") ? "Entrando na lista…" : "Entrar na lista de espera"}

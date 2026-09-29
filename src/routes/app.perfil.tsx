@@ -61,8 +61,12 @@ function PerfilPage() {
         <li>
           <AlterarSenha />
         </li>
-        <li><ThemeToggle /></li>
-        <li><InstalarCortai /></li>
+        <li>
+          <ThemeToggle />
+        </li>
+        <li>
+          <InstalarCortai />
+        </li>
         <li className="border-b border-line">
           <button
             type="button"

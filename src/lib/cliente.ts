@@ -1,6 +1,11 @@
 import type { ContextoAutenticado } from "@/lib/tenant";
 
-export type TenantCliente = { id: string; nome: string; rotulo_carteira: string | null; slug?: string };
+export type TenantCliente = {
+  id: string;
+  nome: string;
+  rotulo_carteira: string | null;
+  slug?: string;
+};
 export type ClienteAtual = { id: string; nome: string; limite_fiado_centavos: number };
 
 export type ContextoBarbearia = { slug?: string | null | undefined };
@@ -29,7 +34,9 @@ export async function fichasDoUsuario(context: ContextoAutenticado) {
   const db = await admin();
   const { data } = await db
     .from("clientes")
-    .select("id, nome, limite_fiado_centavos, criado_em, tenants!inner(id, nome, slug, rotulo_carteira, ativo)")
+    .select(
+      "id, nome, limite_fiado_centavos, criado_em, tenants!inner(id, nome, slug, rotulo_carteira, ativo)",
+    )
     .eq("user_id", context.userId)
     .eq("tenants.ativo", true)
     .order("criado_em", { ascending: false });

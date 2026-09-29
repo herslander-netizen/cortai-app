@@ -1,13 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { horariosDisponiveis, profissionaisDoServico, proximosDiasNoFuso, type Ocupado, type Opcao } from "@/lib/disponibilidade";
+import {
+  horariosDisponiveis,
+  profissionaisDoServico,
+  proximosDiasNoFuso,
+  type Ocupado,
+  type Opcao,
+} from "@/lib/disponibilidade";
 import { horarioDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
 
-type Servico = { id: string; nome: string; preco_centavos: number; duracao_min: number; profissional_ids?: string[] | null };
+type Servico = {
+  id: string;
+  nome: string;
+  preco_centavos: number;
+  duracao_min: number;
+  profissional_ids?: string[] | null;
+};
 type Profissional = { id: string; nome: string };
 
 export function useSelecaoAgendamento({
-  servicos, profissionais, horarios, ocupados, fuso, regras, quantidadeDias = 14,
+  servicos,
+  profissionais,
+  horarios,
+  ocupados,
+  fuso,
+  regras,
+  quantidadeDias = 14,
 }: {
   servicos: Servico[];
   profissionais: Profissional[];
@@ -22,7 +40,10 @@ export function useSelecaoAgendamento({
   const [dia, setDia] = useState<string | null>(null);
   const [inicio, setInicio] = useState<string | null>(null);
   const servico = servicos.find((item) => item.id === servicoId) ?? null;
-  const aptos = useMemo(() => profissionaisDoServico(servico, profissionais), [servico, profissionais]);
+  const aptos = useMemo(
+    () => profissionaisDoServico(servico, profissionais),
+    [servico, profissionais],
+  );
   const dias = useMemo(() => proximosDiasNoFuso(quantidadeDias, fuso), [quantidadeDias, fuso]);
 
   useEffect(() => {
@@ -35,9 +56,21 @@ export function useSelecaoAgendamento({
   const porDia = useMemo(() => {
     const mapa = new Map<string, { fechado: boolean; opcoes: Opcao[] }>();
     for (const data of dias) {
-      mapa.set(data, servico
-        ? horariosDisponiveis({ dia: data, servico, profissionais, escolhido: profissionalId, horarios, fuso, ocupados, regras })
-        : { fechado: horarioDoDia(data, horarios).fechado, opcoes: [] });
+      mapa.set(
+        data,
+        servico
+          ? horariosDisponiveis({
+              dia: data,
+              servico,
+              profissionais,
+              escolhido: profissionalId,
+              horarios,
+              fuso,
+              ocupados,
+              regras,
+            })
+          : { fechado: horarioDoDia(data, horarios).fechado, opcoes: [] },
+      );
     }
     return mapa;
   }, [dias, servico, profissionais, profissionalId, horarios, fuso, ocupados, regras]);
@@ -53,12 +86,28 @@ export function useSelecaoAgendamento({
   const escolhido = agenda?.opcoes.find((opcao) => opcao.iso === inicio) ?? null;
 
   return {
-    servicoId, servico,
-    setServicoId: (id: string | null) => { setServicoId(id); setInicio(null); },
-    profissionalId, aptos,
-    setProfissionalId: (id: string) => { setProfissionalId(id); setInicio(null); },
-    dias, dia, porDia, agenda, inicio, escolhido,
-    setDia: (data: string | null) => { setDia(data); setInicio(null); },
+    servicoId,
+    servico,
+    setServicoId: (id: string | null) => {
+      setServicoId(id);
+      setInicio(null);
+    },
+    profissionalId,
+    aptos,
+    setProfissionalId: (id: string) => {
+      setProfissionalId(id);
+      setInicio(null);
+    },
+    dias,
+    dia,
+    porDia,
+    agenda,
+    inicio,
+    escolhido,
+    setDia: (data: string | null) => {
+      setDia(data);
+      setInicio(null);
+    },
     setInicio,
   };
 }

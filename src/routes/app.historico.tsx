@@ -41,7 +41,10 @@ function HistoricoPage() {
 
   const agora = Date.now();
   const ehFuturoAtivo = (a: { inicio: string; status: string }) =>
-    new Date(a.inicio).getTime() > agora && a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
+    new Date(a.inicio).getTime() > agora &&
+    a.status !== "cancelado" &&
+    a.status !== "nao_compareceu" &&
+    a.status !== "remarcado";
   const proximos = (lista.data ?? [])
     .filter(ehFuturoAtivo)
     .slice()
@@ -51,19 +54,27 @@ function HistoricoPage() {
   const cancelarItem = async (agendamentoId: string, inicio: string) => {
     const comAntecedencia = new Date(inicio).getTime() - Date.now() > 4 * 60 * 60 * 1000;
     const res = await cancelar({ data: { agendamentoId } });
-    setAviso(res.devolvido
-      ? "Cancelado. O valor voltou para a sua carteira."
-      : comAntecedencia
-        ? "Cancelado. Não havia nada lançado na carteira para devolver."
-        : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.");
+    setAviso(
+      res.devolvido
+        ? "Cancelado. O valor voltou para a sua carteira."
+        : comAntecedencia
+          ? "Cancelado. Não havia nada lançado na carteira para devolver."
+          : "Cancelado. Como faltavam menos de 4 horas, nada foi devolvido.",
+    );
     lista.refetch();
   };
 
   return (
     <Screen title="Meus horários" subtitle="Seus agendamentos no Cortaí">
-      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
+      {aviso ? (
+        <Aviso tom="info" className="mb-4">
+          {aviso}
+        </Aviso>
+      ) : null}
       {lista.isLoading ? <Carregando /> : null}
-      {lista.data && lista.data.length === 0 ? <EmptyState text="Você ainda não tem agendamentos." /> : null}
+      {lista.data && lista.data.length === 0 ? (
+        <EmptyState text="Você ainda não tem agendamentos." />
+      ) : null}
       {proximos.length ? (
         <section>
           <p className="text-xs font-semibold uppercase text-mute">
@@ -78,31 +89,56 @@ function HistoricoPage() {
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">
-                    <h2 className="text-base font-semibold text-paper">{p.servicos?.nome ?? "Serviço"}</h2>
-                    <p className="mt-1 text-sm leading-relaxed text-mute">{dataHoraLonga(p.inicio)}</p>
-                    <p className="mt-0.5 text-xs text-mute2">com {p.profissionais?.nome ?? "profissional"}</p>
+                    <h2 className="text-base font-semibold text-paper">
+                      {p.servicos?.nome ?? "Serviço"}
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-mute">
+                      {dataHoraLonga(p.inicio)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-mute2">
+                      com {p.profissionais?.nome ?? "profissional"}
+                    </p>
                   </div>
-                  <span className="shrink-0 text-xs font-semibold uppercase text-sage">Confirmado</span>
+                  <span className="shrink-0 text-xs font-semibold uppercase text-sage">
+                    Confirmado
+                  </span>
                 </div>
                 <div
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
                   className="mt-4 flex gap-2 border-t border-line pt-3"
                 >
-                  <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar" search={slug ? { b: slug } : {}}>Remarcar</Link></Button>
-                  <Button variant="ghost" size="sm" className="text-mute hover:text-brick" onClick={() => cancelarItem(p.id, p.inicio)}>Cancelar</Button>
+                  <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper">
+                    <Link to="/app/agendar" search={slug ? { b: slug } : {}}>
+                      Remarcar
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-mute hover:text-brick"
+                    onClick={() => cancelarItem(p.id, p.inicio)}
+                  >
+                    Cancelar
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         </section>
       ) : null}
-      {anteriores.length ? <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Histórico</h2> : null}
+      {anteriores.length ? (
+        <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Histórico</h2>
+      ) : null}
       <ul>
         {anteriores.map((a) => {
           const futuro = new Date(a.inicio).getTime() > Date.now();
-          const ativo = a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
+          const ativo =
+            a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado";
           return (
-            <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4">
+            <li
+              key={a.id}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
+            >
               <div className="min-w-0">
                 <p className="text-sm text-paper">{a.servicos?.nome ?? "Serviço"}</p>
                 <p className="mt-0.5 text-xs text-mute">
@@ -114,16 +150,22 @@ function HistoricoPage() {
                 </p>
               </div>
               {futuro && ativo ? (
-                 <Button variant="ghost" size="sm" className="shrink-0 text-mute hover:text-brick" onClick={() => cancelarItem(a.id, a.inicio)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-mute hover:text-brick"
+                  onClick={() => cancelarItem(a.id, a.inicio)}
+                >
                   Cancelar
-                 </Button>
+                </Button>
               ) : null}
             </li>
           );
         })}
       </ul>
       <p className="mt-6 text-xs text-mute">
-        Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
+        Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é
+        consumido.
       </p>
     </Screen>
   );

@@ -876,11 +876,19 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
           inicio,
           clienteId,
         });
-        if (conflitoCliente) throw new Error(`O cliente já tem um horário às ${conflitoCliente.hora}.`);
+        if (conflitoCliente)
+          throw new Error(`O cliente já tem um horário às ${conflitoCliente.hora}.`);
       } catch (erro) {
         const mensagem = erro instanceof Error ? erro.message : "Horário indisponível.";
         if (mensagem.includes("acabou de ser reservado")) {
-          return { ok: false, conflito: { mensagem: "Esse horário já tem agendamento. Encaixar mesmo assim?", sugestoes: [], podeEncaixar: true } };
+          return {
+            ok: false,
+            conflito: {
+              mensagem: "Esse horário já tem agendamento. Encaixar mesmo assim?",
+              sugestoes: [],
+              podeEncaixar: true,
+            },
+          };
         }
         throw erro;
       }

@@ -29,7 +29,10 @@ export const Route = createFileRoute("/app/agendar")({
         content: "Escolha serviço, barbeiro, dia, horário e forma de pagamento em uma tela só.",
       },
       { property: "og:title", content: "Agendar horário — Cortaí" },
-      { property: "og:description", content: "Serviço, barbeiro, horário e pagamento em poucos toques." },
+      {
+        property: "og:description",
+        content: "Serviço, barbeiro, horário e pagamento em poucos toques.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -69,7 +72,9 @@ function Chip({
       ].join(" ")}
     >
       {label}
-      {sub ? <span className={`ml-2 text-xs ${selected ? "text-ink" : "text-mute"}`}>{sub}</span> : null}
+      {sub ? (
+        <span className={`ml-2 text-xs ${selected ? "text-ink" : "text-mute"}`}>{sub}</span>
+      ) : null}
     </button>
   );
 }
@@ -88,7 +93,9 @@ function Passo({
   return (
     <section data-guia={guia} className="border-t border-line py-6 first:border-t-0 first:pt-0">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-xs text-mute">{n}</span>
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-xs text-mute">
+          {n}
+        </span>
         {titulo}
       </h2>
       {children}
@@ -124,7 +131,13 @@ function AgendarPage() {
     );
   }
 
-  return <Fluxo dados={dados.data} slug={contexto ?? dados.data.tenant.slug ?? undefined} recarregar={() => dados.refetch()} />;
+  return (
+    <Fluxo
+      dados={dados.data}
+      slug={contexto ?? dados.data.tenant.slug ?? undefined}
+      recarregar={() => dados.refetch()}
+    />
+  );
 }
 
 function Fluxo({
@@ -137,8 +150,30 @@ function Fluxo({
   recarregar: () => void;
 }) {
   const criar = useServerFn(criarAgendamento);
-  const selecao = useSelecaoAgendamento({ servicos: dados.servicos, profissionais: dados.profissionais, horarios: dados.horarios, ocupados: dados.ocupados, fuso: dados.fuso, regras: dados.regrasAgenda });
-  const { servicoId, setServicoId, servico, profissionalId: profId, setProfissionalId: setProfId, aptos, dias, dia, setDia, porDia, agenda, inicio, setInicio, escolhido } = selecao;
+  const selecao = useSelecaoAgendamento({
+    servicos: dados.servicos,
+    profissionais: dados.profissionais,
+    horarios: dados.horarios,
+    ocupados: dados.ocupados,
+    fuso: dados.fuso,
+    regras: dados.regrasAgenda,
+  });
+  const {
+    servicoId,
+    setServicoId,
+    servico,
+    profissionalId: profId,
+    setProfissionalId: setProfId,
+    aptos,
+    dias,
+    dia,
+    setDia,
+    porDia,
+    agenda,
+    inicio,
+    setInicio,
+    escolhido,
+  } = selecao;
   const [forma, setForma] = useState<Forma>("balcao");
   const [erro, setErro] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ agendamentoId: string; hora: string } | null>(null);
@@ -150,7 +185,8 @@ function Fluxo({
   const regraMensal = regra("mensal");
 
   const preco = servico?.preco_centavos ?? 0;
-  const disponivelFiado = dados.cliente.limite_fiado_centavos + Math.min(dados.carteira.saldo_centavos, 0);
+  const disponivelFiado =
+    dados.cliente.limite_fiado_centavos + Math.min(dados.carteira.saldo_centavos, 0);
   const estourouFiado = preco > disponivelFiado;
   const fiadoBloqueado = !!regraFiado?.bloqueia_agendamento_no_limite && estourouFiado;
 
@@ -200,7 +236,9 @@ function Fluxo({
                 : "Nada foi debitado da carteira — pagamento no ato."}
           </p>
           {sucesso.saldo_centavos < 0 ? (
-            <p className="mt-1 text-sm text-brick">Fiado em aberto: {brl(Math.abs(sucesso.saldo_centavos))}</p>
+            <p className="mt-1 text-sm text-brick">
+              Fiado em aberto: {brl(Math.abs(sucesso.saldo_centavos))}
+            </p>
           ) : null}
           {sucesso.fidelidade_alvo ? (
             <div className="mt-5 border-t border-line pt-4">
@@ -210,11 +248,14 @@ function Fluxo({
               <div className="mt-2 h-1.5 w-full rounded-full bg-ink3">
                 <div
                   className="h-1.5 rounded-full bg-gold"
-                  style={{ width: `${Math.min(100, (sucesso.fidelidade_progresso / sucesso.fidelidade_alvo) * 100)}%` }}
+                  style={{
+                    width: `${Math.min(100, (sucesso.fidelidade_progresso / sucesso.fidelidade_alvo) * 100)}%`,
+                  }}
                 />
               </div>
               <p className="mt-2 text-xs text-mute">
-                Faltam {Math.max(0, sucesso.fidelidade_alvo - sucesso.fidelidade_progresso)} para o corte grátis.
+                Faltam {Math.max(0, sucesso.fidelidade_alvo - sucesso.fidelidade_progresso)} para o
+                corte grátis.
               </p>
             </div>
           ) : null}
@@ -303,7 +344,12 @@ function Fluxo({
         ) : agenda?.opcoes.length ? (
           <div className="flex flex-wrap gap-2">
             {agenda.opcoes.map((h) => (
-              <Chip key={h.iso} label={h.label} selected={h.iso === inicio} onClick={() => setInicio(h.iso)} />
+              <Chip
+                key={h.iso}
+                label={h.label}
+                selected={h.iso === inicio}
+                onClick={() => setInicio(h.iso)}
+              />
             ))}
           </div>
         ) : (
@@ -383,7 +429,8 @@ function Fluxo({
       <Passo n={6} titulo="Confirmação" guia="agendar-confirmar">
         {forma === "credito" ? (
           <p className="text-sm text-mute">
-            Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é consumido.
+            Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é
+            consumido.
           </p>
         ) : null}
         {escolhido && servico ? (
@@ -393,7 +440,9 @@ function Fluxo({
         ) : null}
         {conflito ? (
           <div className="mt-3 rounded-xl border border-brick/40 px-4 py-3" role="alert">
-            <p className="text-sm text-paper">Você já tem um horário às {conflito.hora} nesse dia.</p>
+            <p className="text-sm text-paper">
+              Você já tem um horário às {conflito.hora} nesse dia.
+            </p>
             <button
               type="button"
               className="mt-3 h-12 w-full rounded-lg border border-line2 text-sm font-semibold text-paper"
@@ -457,7 +506,11 @@ function LinhaPagamento({
           }`}
         />
         <span>
-          <span className={`block text-sm ${selecionado ? "font-semibold text-paper" : "text-paper"}`}>{titulo}</span>
+          <span
+            className={`block text-sm ${selecionado ? "font-semibold text-paper" : "text-paper"}`}
+          >
+            {titulo}
+          </span>
           <span className="mt-0.5 block text-xs text-mute">{detalhe}</span>
         </span>
       </span>
