@@ -23,7 +23,10 @@ export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
     meta: [
       { title: "Ficha do cliente — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Fiado em aberto, baixas de pagamento e ficha técnica do corte." },
+      {
+        name: "description",
+        content: "Fiado em aberto, baixas de pagamento e ficha técnica do corte.",
+      },
       { property: "og:title", content: "Ficha do cliente — Cortaí" },
       { property: "og:description", content: "Fiado, baixas e ficha técnica do corte." },
       { property: "og:type", content: "website" },
@@ -35,7 +38,11 @@ export const Route = createFileRoute("/barbeiro/clientes/$id")({
 });
 
 function dataCurta(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
 }
 
 function diasDesde(iso: string) {
@@ -63,7 +70,8 @@ function FichaPage() {
   const aberto = data?.emAbertoCentavos ?? 0;
   const quitado = aberto === 0;
   const limite = data?.cliente.limite_fiado_centavos ?? 0;
-  const pct = limite > 0 ? Math.min(Math.round((aberto / limite) * 100), 100) : aberto > 0 ? 100 : 0;
+  const pct =
+    limite > 0 ? Math.min(Math.round((aberto / limite) * 100), 100) : aberto > 0 ? 100 : 0;
   const cor = quitado ? "text-sage" : "text-brick";
   const corFundo = quitado ? "bg-sage" : "bg-brick";
 
@@ -79,13 +87,20 @@ function FichaPage() {
   }
 
   return (
-    <Screen title={data?.cliente.nome ?? "Ficha do cliente"} subtitle={data?.cliente.telefone ?? ""}>
+    <Screen
+      title={data?.cliente.nome ?? "Ficha do cliente"}
+      subtitle={data?.cliente.telefone ?? ""}
+    >
       <Link to="/barbeiro/clientes" className="mb-4 inline-block text-xs text-mute underline">
         Voltar para clientes
       </Link>
 
       {isLoading ? <Carregando /> : null}
-      {aviso ? <Aviso tom="info" className="mb-4">{aviso}</Aviso> : null}
+      {aviso ? (
+        <Aviso tom="info" className="mb-4">
+          {aviso}
+        </Aviso>
+      ) : null}
 
       {data ? (
         <>
@@ -117,7 +132,10 @@ function FichaPage() {
               {data.debitos.map((d) => {
                 const velho = diasDesde(d.criado_em) > 30;
                 return (
-                  <li key={d.id} className="flex items-start justify-between gap-4 border-b border-line py-4">
+                  <li
+                    key={d.id}
+                    className="flex items-start justify-between gap-4 border-b border-line py-4"
+                  >
                     <div>
                       <p className="text-sm text-paper">{d.descricao ?? "Lançado no fiado"}</p>
                       <p className={`mt-0.5 text-xs ${velho ? "text-brick" : "text-mute2"}`}>
@@ -125,7 +143,9 @@ function FichaPage() {
                         {velho ? ` · ${diasDesde(d.criado_em)} dias` : ""}
                       </p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold text-brick">{brl(d.centavos)}</span>
+                    <span className="shrink-0 text-sm font-semibold text-brick">
+                      {brl(d.centavos)}
+                    </span>
                   </li>
                 );
               })}
@@ -144,19 +164,23 @@ function FichaPage() {
                 className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper disabled:opacity-50"
               />
             </label>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="btn-secondary mt-3 w-full disabled:opacity-50"
               disabled={quitado || !valor}
               onClick={() => {
-                const centavos = Math.round(Number(valor.replace(/\./g, "").replace(",", ".")) * 100);
+                const centavos = Math.round(
+                  Number(valor.replace(/\./g, "").replace(",", ".")) * 100,
+                );
                 if (!Number.isFinite(centavos) || centavos <= 0) return;
                 registrar(centavos);
               }}
             >
               Dar baixa parcial
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="btn-primary mt-3 w-full disabled:opacity-50"
               disabled={quitado}
@@ -184,12 +208,17 @@ function FichaPage() {
               <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Baixas registradas</h2>
               <ul>
                 {data.baixas.map((b) => (
-                  <li key={b.id} className="flex items-start justify-between gap-4 border-b border-line py-4">
+                  <li
+                    key={b.id}
+                    className="flex items-start justify-between gap-4 border-b border-line py-4"
+                  >
                     <div>
                       <p className="text-sm text-paper">{b.descricao ?? "Baixa do fiado"}</p>
                       <p className="mt-0.5 text-xs text-mute2">{dataCurta(b.criado_em)}</p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold text-sage">+{brl(b.centavos)}</span>
+                    <span className="shrink-0 text-sm font-semibold text-sage">
+                      +{brl(b.centavos)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -205,7 +234,6 @@ function FichaPage() {
             </>
           ) : null}
 
-
           <PersonalizacaoCliente ficha={data} onSalvo={() => refetch()} />
 
           <section className="mt-10 border-t border-line pt-6">
@@ -215,7 +243,8 @@ function FichaPage() {
                 ? "Arquivado: some das listas do dia a dia, mas o histórico continua nos relatórios."
                 : "Ativo nas listas e na agenda. Arquivar é reversível e não apaga nada."}
             </p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               disabled={arquivando}
               className="btn-secondary mt-3 w-full disabled:opacity-50"
@@ -233,12 +262,16 @@ function FichaPage() {
                 }
               }}
             >
-              {arquivando ? "Salvando…" : data.cliente.arquivado_em ? "Reativar cliente" : "Arquivar cliente"}
+              {arquivando
+                ? "Salvando…"
+                : data.cliente.arquivado_em
+                  ? "Reativar cliente"
+                  : "Arquivar cliente"}
             </Button>
             {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
             <p className="mt-5 text-xs text-mute2">
-              A exclusão definitiva só é possível para cadastros sem nenhum atendimento ou lançamento financeiro.
-              Com histórico, o caminho seguro é arquivar.
+              A exclusão definitiva só é possível para cadastros sem nenhum atendimento ou
+              lançamento financeiro. Com histórico, o caminho seguro é arquivar.
             </p>
             <div className="mt-2">
               <ExclusaoPermanente
