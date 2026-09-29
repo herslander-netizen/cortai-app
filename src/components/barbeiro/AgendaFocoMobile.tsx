@@ -95,6 +95,7 @@ function folgaEntre(anterior: AgendaItem | undefined, item: AgendaItem) {
 
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
+  const [acoes, setAcoes] = useState(false);
   const [verFeitos, setVerFeitos] = useState(false);
   const [foco, setFoco] = useState(false);
   const rolou = useRef<string | null>(null);
