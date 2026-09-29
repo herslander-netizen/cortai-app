@@ -213,9 +213,7 @@ export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
     if (data.estado === "finalizado") {
       throw new Error("Finalize o atendimento pelo fluxo seguro de comanda e pagamento.");
     }
-    if (data.estado === "finalizado") {
-      await exigirPermissao(context, tenant.id, "confirmar_pagamento");
-    } else if (["cancelado", "remarcado", "nao_compareceu"].includes(data.estado)) {
+    if (["cancelado", "remarcado", "nao_compareceu"].includes(data.estado)) {
       await exigirPermissao(context, tenant.id, "cancelar_agendamento");
     } else {
       await exigirPermissao(context, tenant.id, "agendamento_manual");
