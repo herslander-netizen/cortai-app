@@ -260,21 +260,34 @@ function Fluxo({
             </div>
           ) : null}
         </div>
-        <Button
-          type="button"
-          className="mt-6 w-full"
-          onClick={() => {
-            setSucesso(null);
-            setServicoId(null);
-            setProfId("qualquer");
-            setDia(null);
-            setInicio(null);
-            setForma("balcao");
-            recarregar();
-          }}
-        >
-          Agendar outro horário
-        </Button>
+        <div className="mt-6 space-y-3">
+          <Button asChild className="h-14 w-full text-base">
+            <Link to="/app/historico" search={slug ? { b: slug } : {}}>
+              Ver meus horários
+            </Link>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 w-full"
+            onClick={() => {
+              setSucesso(null);
+              setServicoId(null);
+              setProfId("qualquer");
+              setDia(null);
+              setInicio(null);
+              setForma("balcao");
+              recarregar();
+            }}
+          >
+            Agendar outro horário
+          </Button>
+          <Button asChild variant="text" className="h-12 w-full text-sm text-mute">
+            <Link to="/app" search={slug ? { b: slug } : {}}>
+              Voltar ao início
+            </Link>
+          </Button>
+        </div>
       </Screen>
     );
   }
