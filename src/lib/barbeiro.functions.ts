@@ -1103,7 +1103,7 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       _forma_pagamento: atual.forma_pagamento ?? "balcao",
     });
     if (error) throw new Error(error.message);
-    const criadoId = (novo as any)?.agendamento_id as string | undefined;
+    const criadoId = (novo as { agendamento_id?: string } | null)?.agendamento_id;
     // Aviso de remarcação: nunca bloqueia o novo horário.
     if (criadoId) {
       try {

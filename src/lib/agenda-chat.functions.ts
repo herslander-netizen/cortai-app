@@ -58,7 +58,12 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .eq("ativo", true)
         .order("ordem"),
-      db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
+      db
+        .from("profissionais")
+        .select("id, nome")
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true)
+        .order("nome"),
       db
         .from("horarios_de_funcionamento")
         .select("dia_semana, fechado, abre, fecha")
@@ -75,7 +80,9 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       fecha: String(h.fecha).slice(0, 5),
     }));
 
-    const servicoEscolhido = data.servicoId ? servicos.find((s) => s.id === data.servicoId) : servicos[0];
+    const servicoEscolhido = data.servicoId
+      ? servicos.find((s) => s.id === data.servicoId)
+      : servicos[0];
     const duracaoMin = servicoEscolhido?.duracao_min ?? 30;
 
     const grade = slotsDoDia(data.dia, horarios, 30);
@@ -93,7 +100,9 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
     const { data: ocupados } = await consulta;
 
     const agora = Date.now();
-    const equipe = data.profissionalId ? profissionais.filter((p) => p.id === data.profissionalId) : profissionais;
+    const equipe = data.profissionalId
+      ? profissionais.filter((p) => p.id === data.profissionalId)
+      : profissionais;
 
     const slots: SlotDaGrade[] = grade.slots.map((s) => {
       const inicio = new Date(s.iso).getTime();
@@ -108,7 +117,9 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
         iso: s.iso,
         label: s.label,
         livre: !cheio,
-        ocupadoPor: cheio ? (conflitos[0] as { clientes?: { nome?: string } })?.clientes?.nome ?? "Ocupado" : null,
+        ocupadoPor: cheio
+          ? ((conflitos[0] as { clientes?: { nome?: string } })?.clientes?.nome ?? "Ocupado")
+          : null,
         passou: inicio <= agora,
       };
     });
