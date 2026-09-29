@@ -224,6 +224,63 @@ function Fluxo({
     return (
       <Screen title="Agendado!" subtitle={dataHoraLonga(sucesso.inicio)}>
         <div className="surface p-5">
+          <p className="text-xs uppercase tracking-wider text-mute">Seu horário</p>
+          <p className="mt-2 text-base font-semibold text-paper">
+            {servico?.nome ?? "Serviço"}
+            {escolhido ? ` · com ${nomeProfissional(escolhido.profId)}` : ""}
+          </p>
+          <p className="mt-1 text-sm text-mute">{dataHoraLonga(sucesso.inicio)}</p>
+          <p className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm">
+            <span className="text-mute">{rotuloForma(sucesso.forma_pagamento)}</span>
+            <span className="font-semibold text-paper">
+              {sucesso.forma_pagamento === "credito" ? "1 crédito" : brl(sucesso.valor_centavos)}
+            </span>
+          </p>
+        </div>
+
+        {sucesso.forma_pagamento === "pix" && dados.pix ? (
+          <div className="surface mt-4 p-5">
+            <p className="text-sm font-semibold text-paper">Pague pelo Pix</p>
+            <p className="mt-1 text-sm text-mute">
+              Use a chave abaixo para pagar {brl(sucesso.valor_centavos)} e envie o comprovante para
+              a barbearia.
+            </p>
+            <p className="mt-4 text-xs uppercase tracking-wider text-mute">
+              Chave Pix{dados.pix.tipo ? ` · ${dados.pix.tipo}` : ""}
+            </p>
+            <p className="mt-1 break-all text-base font-semibold text-paper">{dados.pix.chave}</p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4 h-12 w-full"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(dados.pix!.chave);
+                  setCopiado(true);
+                } catch {
+                  setCopiado(false);
+                }
+              }}
+            >
+              {copiado ? "Chave copiada" : "Copiar chave Pix"}
+            </Button>
+            {dados.pix.whatsapp ? (
+              <Button asChild variant="text" className="mt-2 h-12 w-full text-sm">
+                <a
+                  href={`https://wa.me/${dados.pix.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    `Olá! Paguei ${brl(sucesso.valor_centavos)} no Pix do meu horário de ${dataHoraLonga(sucesso.inicio)}.`,
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Enviar comprovante pelo WhatsApp
+                </a>
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="surface mt-4 p-5">
           <p className="text-xs uppercase tracking-wider text-mute">Sua carteira</p>
           <p className="mt-2 text-2xl font-bold text-paper">
             {sucesso.saldo_creditos} {sucesso.saldo_creditos === 1 ? "crédito" : "créditos"}
@@ -233,7 +290,9 @@ function Fluxo({
               ? "1 crédito foi debitado agora."
               : sucesso.forma_pagamento === "fiado"
                 ? `${brl(sucesso.valor_centavos)} lançado no fiado.`
-                : "Nada foi debitado da carteira — pagamento no ato."}
+                : sucesso.forma_pagamento === "pix"
+                  ? "Nada foi debitado da carteira — o pagamento é pelo Pix."
+                  : "Nada foi debitado da carteira — pagamento no ato."}
           </p>
           {sucesso.saldo_centavos < 0 ? (
             <p className="mt-1 text-sm text-brick">
