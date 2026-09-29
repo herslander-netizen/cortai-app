@@ -151,12 +151,19 @@ function InicioCliente() {
                   </span>
                   <StatusAgendamento status={proximo.status} />
                 </span>
-                <span className="mt-1 block text-sm text-mute">{dataHoraLonga(proximo.inicio)}</span>
+                <span className="mt-1 block text-sm text-mute">
+                  {dataHoraLonga(proximo.inicio)}
+                </span>
                 <span className="mt-0.5 block text-xs text-mute2">
                   com {proximo.profissionais?.nome ?? "profissional"}
                 </span>
               </span>
-              <ChevronRight size={18} strokeWidth={1.75} className="shrink-0 text-mute" aria-hidden />
+              <ChevronRight
+                size={18}
+                strokeWidth={1.75}
+                className="shrink-0 text-mute"
+                aria-hidden
+              />
             </Link>
           ) : (
             <div className="mt-4 border-y border-line py-5">
