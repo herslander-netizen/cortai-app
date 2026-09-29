@@ -18,3 +18,7 @@
 - O ícone da CortAI vem de `IconeDaIA`: bigode na barbearia e pingo da marca nos demais segmentos.
 - A agenda em celular usa uma timeline operacional própria em tela cheia; reaproveita as mesmas funções de estado/comanda e nunca grava ações offline para evitar conflitos.
 - O “Desfazer” operacional é validado atomicamente no banco em até 5 segundos, com escopo de negócio e autoria, para impedir corrida entre aparelhos.
+- A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
+- A página pública canônica de cada negócio é `/b/$slug`; aliases antigos apenas redirecionam para preservar links.
+- O contexto atual do cliente é um slug público persistido no navegador e revalidado pelo servidor; múltiplas fichas nunca escolhem uma silenciosamente.
+- Agendamento público e autenticado compartilham o núcleo de seleção/disponibilidade, mantendo adaptadores distintos para identidade e pagamento.

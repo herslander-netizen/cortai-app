@@ -80,3 +80,14 @@
 - [x] P1: reduzir atualizações redundantes da agenda preservando Realtime, polling e interface otimista
 - [x] P1: usar funcionamento e fuso reais no próximo horário livre e revisar o cálculo mensal da fila
 - [x] P2: executar typecheck, lint e todos os testes disponíveis; revisar apenas erros e transições concretos
+
+## Consolidação arquitetural e UX (set/2026)
+- [ ] Publicar a Home institucional existente somente em /apresentacao, preservando / e /login
+- [ ] Consolidar contexto explícito do negócio no app do cliente e propagá-lo entre as quatro áreas
+- [ ] Canonicalizar a página pública em /b/$slug e preservar aliases por redirecionamento
+- [ ] Compartilhar o núcleo de seleção e disponibilidade entre booking público e autenticado
+- [ ] Unificar a ação de compartilhamento da página pública
+- [ ] Corrigir agendamento manual com funcionamento, fuso, duração e validação compartilhada antes de criar cliente
+- [ ] Reorganizar editor de marca em Identidade, Marca, Conteúdo e Ajustes avançados
+- [ ] Criar fixture idempotente Barbearia Cortaí Teste sem alterar Jjjuu ou Teste
+- [ ] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build
