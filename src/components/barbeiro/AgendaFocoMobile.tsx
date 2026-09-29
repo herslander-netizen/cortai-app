@@ -86,6 +86,7 @@ export function AgendaFocoMobile(props: Props) {
   const operacionais = props.itens.filter((item) => !["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status));
   const proximo = operacionais.find((item) => item.status !== "na_cadeira" && new Date(item.inicio).getTime() >= props.agora);
   const emMinutos = proximo ? minutosAte(proximo.inicio, props.agora) : null;
+  const visiveis = props.itens.filter((i) => verFeitos || i.status !== "finalizado");
 
   // Abre perto da hora atual: rola até quem está na cadeira ou o próximo, uma vez por dia.
   useEffect(() => {
