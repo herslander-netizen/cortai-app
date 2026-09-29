@@ -170,40 +170,75 @@ export function AgendaFocoMobile(props: Props) {
 
       <div className="agenda-foco-lista">
         {props.itens.length === 0 ? <div className="agenda-foco-vazio"><Scissors aria-hidden /><strong>Agenda livre</strong><span>Nenhum atendimento neste dia.</span></div> : null}
-        {props.itens.filter((i) => verFeitos || i.status !== "finalizado").map((item) => {
+        {visiveis.map((item, indice) => {
           const ativo = item.status === "na_cadeira";
           const seguinte = proximo?.id === item.id;
           const telefone = item.telefone?.replace(/\D/g, "") ?? "";
           const texto = `Olá, ${item.cliente}! Seu horário na barbearia está chegando. Podemos confirmar sua chegada?`;
+          const folga = folgaEntre(visiveis[indice - 1], item);
+
+          // Linha do tempo do atendimento na cadeira: quanto já passou, quanto
+          // resta e quanto falta para o próximo cliente entrar.
+          const previsto = Math.max(1, item.duracaoMin);
+          const decorrido = ativo
+            ? Math.max(0, Math.floor((props.agora - new Date(item.startedAt ?? item.inicio).getTime()) / 60_000))
+            : 0;
+          const restante = previsto - decorrido;
+          const depois = ativo
+            ? operacionais.find((outro) => outro.id !== item.id && new Date(outro.inicio).getTime() >= props.agora)
+            : undefined;
+          const margem = depois ? minutosAte(depois.inicio, props.agora) : null;
+          const estourou = restante < 0;
+          const apertado = !estourou && (restante <= 5 || (margem !== null && margem <= 5));
+          const avanco = Math.min(100, Math.round((decorrido / previsto) * 100));
+
           return (
-            <article
-              key={item.id}
-              id={`agenda-item-${item.id}`}
-              className={`agenda-foco-item agenda-foco-item-${ativo ? "ativo" : seguinte ? "proximo" : "agendado"}`}
-              onPointerDown={(evento) => iniciarToque(evento, item)}
-              onPointerUp={cancelarToque}
-              onPointerCancel={cancelarToque}
-              onPointerLeave={cancelarToque}
-              onContextMenu={(evento) => { evento.preventDefault(); props.onMaisOpcoes(item); }}
-            >
-              <div className="agenda-foco-item-corpo">
-                <time dateTime={item.inicio}>{hora(item.inicio, props.fuso)}{ativo ? <span>AGORA</span> : null}</time>
-                <h2>{item.cliente}</h2>
-                <p>{item.servico}{item.profissional !== "—" ? ` · ${item.profissional}` : ""}</p>
-                <StatusBadge status={item.status} {...(ativo ? { label: "Em atendimento" } : seguinte ? { label: "Próximo" } : {})} />
-              </div>
-              {!(["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status)) ? (
-                <div className="agenda-foco-acoes" onPointerDown={(evento) => evento.stopPropagation()}>
-                  {item.status === "agendado" && telefone ? (props.online ? (
-                    <Button asChild variant="outline"><a href={`https://wa.me/${telefone.startsWith("55") ? telefone : `55${telefone}`}?text=${encodeURIComponent(texto)}`} target="_blank" rel="noreferrer"><MessageCircle />Chamar</a></Button>
-                  ) : <Button variant="outline" disabled><MessageCircle />Chamar</Button>) : null}
-                  {item.status === "agendado" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onChegou(item)}><UserRoundCheck />Chegou</Button> : null}
-                  {item.status === "chegou" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onComecar(item)}><Scissors />Começar</Button> : null}
-                  {item.status === "na_cadeira" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onTerminar(item)}><Check />Terminar</Button> : null}
+            <div key={item.id}>
+              {folga > 0 ? (
+                <div className="agenda-foco-intervalo" style={{ height: `${Math.min(72, 22 + folga)}px` }} aria-hidden={false}>
+                  <span>{folga} min livres</span>
                 </div>
               ) : null}
-              <p className="agenda-foco-dica">Segure para remarcar, cancelar ou ver notas</p>
-            </article>
+              <article
+                id={`agenda-item-${item.id}`}
+                className={`agenda-foco-item agenda-foco-item-${ativo ? "ativo" : seguinte ? "proximo" : "agendado"}`}
+                onPointerDown={(evento) => iniciarToque(evento, item)}
+                onPointerUp={cancelarToque}
+                onPointerCancel={cancelarToque}
+                onPointerLeave={cancelarToque}
+                onContextMenu={(evento) => { evento.preventDefault(); props.onMaisOpcoes(item); }}
+              >
+                <div className="agenda-foco-item-corpo">
+                  <time dateTime={item.inicio}>{hora(item.inicio, props.fuso)}{ativo ? <span>AGORA</span> : null}</time>
+                  <h2>{item.cliente}</h2>
+                  <p>{item.servico}{item.profissional !== "—" ? ` · ${item.profissional}` : ""}</p>
+                  <StatusBadge status={item.status} {...(ativo ? { label: "Em atendimento" } : seguinte ? { label: "Próximo" } : {})} />
+                </div>
+                {ativo ? (
+                  <div className={`agenda-foco-pista${estourou ? " agenda-foco-pista-estourada" : apertado ? " agenda-foco-pista-atencao" : ""}`}>
+                    <div className="agenda-foco-pista-trilho" role="img" aria-label={`${decorrido} de ${previsto} minutos usados`}>
+                      <span className="agenda-foco-pista-feito" style={{ width: `${avanco}%` }} />
+                      <span className="agenda-foco-pista-agora" style={{ left: `${avanco}%` }} />
+                    </div>
+                    <p>
+                      {estourou ? `${Math.abs(restante)} min além do previsto` : `Restam ${restante} min de ${previsto}`}
+                      {margem !== null ? ` · próximo em ${Math.max(0, margem)} min` : ""}
+                    </p>
+                  </div>
+                ) : null}
+                {!(["cancelado", "remarcado", "nao_compareceu", "finalizado"].includes(item.status)) ? (
+                  <div className="agenda-foco-acoes" onPointerDown={(evento) => evento.stopPropagation()}>
+                    {item.status === "agendado" && telefone ? (props.online ? (
+                      <Button asChild variant="outline"><a href={`https://wa.me/${telefone.startsWith("55") ? telefone : `55${telefone}`}?text=${encodeURIComponent(texto)}`} target="_blank" rel="noreferrer"><MessageCircle />Chamar</a></Button>
+                    ) : <Button variant="outline" disabled><MessageCircle />Chamar</Button>) : null}
+                    {item.status === "agendado" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onChegou(item)}><UserRoundCheck />Chegou</Button> : null}
+                    {item.status === "chegou" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onComecar(item)}><Scissors />Começar</Button> : null}
+                    {item.status === "na_cadeira" ? <Button variant="primary" disabled={!props.online || props.ocupado} onClick={() => props.onTerminar(item)}><Check />Terminar</Button> : null}
+                  </div>
+                ) : null}
+                <p className="agenda-foco-dica">Segure para remarcar, cancelar ou ver notas</p>
+              </article>
+            </div>
           );
         })}
         {feitos.length ? (
