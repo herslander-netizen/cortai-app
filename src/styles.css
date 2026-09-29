@@ -301,7 +301,6 @@
   h1,
   h2,
   h3,
-  .screen-title,
   [data-display-title] {
     font-family: var(--font-display);
     font-weight: 700;
