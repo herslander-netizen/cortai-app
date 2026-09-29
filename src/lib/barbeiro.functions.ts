@@ -576,6 +576,8 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
     if (carteira) await db.from("carteiras").delete().eq("id", carteira.id);
     const { error } = await db.from("clientes").delete().eq("id", cliente.id).eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
+    const { gravarExclusao } = await import("@/lib/exclusoes.server");
+    await gravarExclusao(context as never, "cliente", cliente.id, tenant.id);
     return { ok: true };
   });
 

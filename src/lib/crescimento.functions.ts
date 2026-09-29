@@ -329,7 +329,8 @@ export const atualizarIndicacao = createServerFn({ method: "POST" })
         .eq("id", data.id)
         .eq("tenant_id", tenant.id);
       if (erroRemocao) throw new Error(erroRemocao.message);
-      await registrarExclusao(context, "indicacao", data.id, tenant.id);
+      const { gravarExclusao } = await import("@/lib/exclusoes.server");
+      await gravarExclusao(context as never, "indicacao", data.id, tenant.id);
       return { ok: true };
     }
     const patch =
