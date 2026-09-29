@@ -99,4 +99,4 @@
 - [x] Corrigir agendamento manual com funcionamento, fuso, duração e validação compartilhada antes de criar cliente
 - [x] Reorganizar editor de marca em Identidade, Marca, Conteúdo e Ajustes avançados
 - [x] Criar fixture idempotente Barbearia Cortaí Teste sem alterar Jjjuu ou Teste
-- [ ] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build
+- [x] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build
