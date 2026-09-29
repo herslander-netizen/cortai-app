@@ -15,8 +15,7 @@ export const Route = createFileRoute("/apresentacao")({
         { title: titulo }, { name: "description", content: descricao },
         { property: "og:title", content: titulo }, { property: "og:description", content: descricao },
         { property: "og:type", content: "website" }, { property: "og:url", content: "https://cortai.dev/apresentacao" },
-        { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
-        { name: "twitter:card", content: "summary_large_image" }, { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: "https://cortai.dev/apresentacao" }],
     };

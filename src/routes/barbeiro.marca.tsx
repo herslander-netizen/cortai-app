@@ -111,7 +111,7 @@ function Editor({ initial, versions, reload }: { initial: MarcaData; versions: N
     <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
       <div>
         <Tabs defaultValue="visual">
-          <TabsList className="grid h-auto w-full grid-cols-4"><TabsTrigger value="visual">Visual</TabsTrigger><TabsTrigger value="conteudo">Conteúdo</TabsTrigger><TabsTrigger value="secoes">Seções</TabsTrigger><TabsTrigger value="links">Links</TabsTrigger></TabsList>
+          <TabsList className="grid h-auto w-full grid-cols-4"><TabsTrigger value="visual">Identidade</TabsTrigger><TabsTrigger value="conteudo">Marca</TabsTrigger><TabsTrigger value="secoes">Conteúdo</TabsTrigger><TabsTrigger value="links">Avançado</TabsTrigger></TabsList>
           <TabsContent value="visual" className="space-y-7 pt-4">
             <EditorSection title="Imagens">
               <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
