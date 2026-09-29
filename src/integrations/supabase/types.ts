@@ -4255,6 +4255,15 @@ export type Database = {
         Args: { _tenant: string; _valor: boolean }
         Returns: undefined
       }
+      desfazer_inicio_rapido_seguro: {
+        Args: {
+          _agendamento_id: string
+          _ator_id: string
+          _fila_id?: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       eh_hoje_na_barbearia: {
         Args: { _em: string; _tenant: string }
         Returns: boolean

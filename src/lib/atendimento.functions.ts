@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { exigirRecurso } from "@/lib/planos";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 
 /**
@@ -27,14 +28,29 @@ type Db = Awaited<ReturnType<typeof base>>["db"];
 
 async function profissionaisComSituacao(db: Db, tenantId: string) {
   const [profRes, ativosRes] = await Promise.all([
-    db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
-    db.from("agendamentos").select("profissional_id").eq("tenant_id", tenantId).eq("status", "na_cadeira"),
+    db
+      .from("profissionais")
+      .select("id, nome")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true)
+      .order("nome"),
+    db
+      .from("agendamentos")
+      .select("profissional_id")
+      .eq("tenant_id", tenantId)
+      .eq("status", "na_cadeira"),
   ]);
   const ocupados = new Set((ativosRes.data ?? []).map((a) => a.profissional_id));
   return (profRes.data ?? []).map((p) => ({ id: p.id, nome: p.nome, livre: !ocupados.has(p.id) }));
 }
 
-export type ChegadaItem = { id: string; clienteId: string | null; cliente: string; servico: string | null; criadoEm: string };
+export type ChegadaItem = {
+  id: string;
+  clienteId: string | null;
+  cliente: string;
+  servico: string | null;
+  criadoEm: string;
+};
 export type OperacaoFila = {
   chegada: ChegadaItem[];
   profissionais: { id: string; nome: string; livre: boolean }[];
@@ -92,7 +108,12 @@ export const getDadosAtendimentoRapido = createServerFn({ method: "GET" })
       .limit(300);
     if (meuProfissionalId) historico = historico.eq("profissional_id", meuProfissionalId);
     const [servRes, profissionais, histRes] = await Promise.all([
-      db.from("servicos").select("id, nome, duracao_min").eq("tenant_id", tenantId).eq("ativo", true).order("ordem"),
+      db
+        .from("servicos")
+        .select("id, nome, duracao_min")
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true)
+        .order("ordem"),
       profissionaisComSituacao(db, tenantId),
       historico,
     ]);
@@ -103,12 +124,20 @@ export const getDadosAtendimentoRapido = createServerFn({ method: "GET" })
     for (const a of histRes.data ?? []) {
       if (a.servico_id) contagem.set(a.servico_id, (contagem.get(a.servico_id) ?? 0) + 1);
       const c = a.clientes;
-      if (c && !c.arquivado_em && !vistos.has(c.id) && c.telefone !== "avulso" && recentes.length < 6) {
+      if (
+        c &&
+        !c.arquivado_em &&
+        !vistos.has(c.id) &&
+        c.telefone !== "avulso" &&
+        recentes.length < 6
+      ) {
         vistos.add(c.id);
         recentes.push({ id: c.id, nome: c.nome, telefone: c.telefone });
       }
     }
-    const maisFeito = [...contagem.entries()].sort((a, b) => b[1] - a[1]).find(([id]) => servicos.some((s) => s.id === id))?.[0];
+    const maisFeito = [...contagem.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .find(([id]) => servicos.some((s) => s.id === id))?.[0];
     return {
       servicos,
       profissionais,
@@ -119,7 +148,12 @@ export const getDadosAtendimentoRapido = createServerFn({ method: "GET" })
   });
 
 async function clienteAvulso(db: Db, tenantId: string) {
-  const { data: existente } = await db.from("clientes").select("id").eq("tenant_id", tenantId).eq("telefone", "avulso").maybeSingle();
+  const { data: existente } = await db
+    .from("clientes")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("telefone", "avulso")
+    .maybeSingle();
   if (existente) return existente.id;
   const { data, error } = await db
     .from("clientes")
@@ -141,7 +175,12 @@ async function abrirNaCadeira(
   let duracao = 30;
   let preco = 0;
   if (servicoId) {
-    const { data: s } = await db.from("servicos").select("duracao_min, preco_centavos").eq("id", servicoId).eq("tenant_id", tenantId).maybeSingle();
+    const { data: s } = await db
+      .from("servicos")
+      .select("duracao_min, preco_centavos")
+      .eq("id", servicoId)
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
     if (!s) throw new Error("Serviço não encontrado nesta barbearia.");
     duracao = s.duracao_min;
     preco = s.preco_centavos;
@@ -171,7 +210,12 @@ async function abrirNaCadeira(
 }
 
 async function profissionalValido(db: Db, tenantId: string, id: string) {
-  const { data } = await db.from("profissionais").select("id").eq("id", id).eq("tenant_id", tenantId).maybeSingle();
+  const { data } = await db
+    .from("profissionais")
+    .select("id")
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
   if (!data) throw new Error("Profissional não encontrado nesta barbearia.");
   return data.id;
 }
@@ -179,7 +223,9 @@ async function profissionalValido(db: Db, tenantId: string, id: string) {
 /** Cliente sem horário: entra direto Na cadeira. */
 export const iniciarAtendimentoAgora = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId?: string | null; servicoId: string | null; profissionalId: string }) => data)
+  .inputValidator(
+    (data: { clienteId?: string | null; servicoId: string | null; profissionalId: string }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await base(context);
     await exigirPermissao(context, tenantId, "agendamento_manual");
@@ -187,13 +233,25 @@ export const iniciarAtendimentoAgora = createServerFn({ method: "POST" })
     let clienteId = data.clienteId ?? null;
     let nome = "Cliente avulso";
     if (clienteId) {
-      const { data: c } = await db.from("clientes").select("id, nome").eq("id", clienteId).eq("tenant_id", tenantId).maybeSingle();
+      const { data: c } = await db
+        .from("clientes")
+        .select("id, nome")
+        .eq("id", clienteId)
+        .eq("tenant_id", tenantId)
+        .maybeSingle();
       if (!c) throw new Error("Cliente não encontrado nesta barbearia.");
       nome = c.nome;
     } else {
       clienteId = await clienteAvulso(db, tenantId);
     }
-    const agendamentoId = await abrirNaCadeira(db, tenantId, context.userId, clienteId, profissionalId, data.servicoId);
+    const agendamentoId = await abrirNaCadeira(
+      db,
+      tenantId,
+      context.userId,
+      clienteId,
+      profissionalId,
+      data.servicoId,
+    );
     return { agendamentoId, cliente: nome };
   });
 
@@ -203,6 +261,8 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
   .inputValidator((data: { profissionalId?: string | null; filaId?: string | null }) => data ?? {})
   .handler(async ({ data, context }) => {
     const { db, tenantId, meuProfissionalId } = await base(context);
+    await exigirRecurso(db, tenantId, "fila_espera");
+    await exigirPermissao(context, tenantId, "agendamento_manual");
     let profissionalId = data.profissionalId ?? meuProfissionalId;
     if (profissionalId) profissionalId = await profissionalValido(db, tenantId, profissionalId);
     else {
@@ -235,11 +295,30 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
     try {
       let servicoId = item.servico_id;
       if (!servicoId) {
-        const { data: s } = await db.from("servicos").select("id").eq("tenant_id", tenantId).eq("ativo", true).order("ordem").limit(1).maybeSingle();
+        const { data: s } = await db
+          .from("servicos")
+          .select("id")
+          .eq("tenant_id", tenantId)
+          .eq("ativo", true)
+          .order("ordem")
+          .limit(1)
+          .maybeSingle();
         servicoId = s?.id ?? null;
       }
-      const agendamentoId = await abrirNaCadeira(db, tenantId, context.userId, item.cliente_id, profissionalId, servicoId);
-      return { agendamentoId, filaId: item.id, statusAnterior: item.status, cliente: item.clientes?.nome ?? "Cliente" };
+      const agendamentoId = await abrirNaCadeira(
+        db,
+        tenantId,
+        context.userId,
+        item.cliente_id,
+        profissionalId,
+        servicoId,
+      );
+      return {
+        agendamentoId,
+        filaId: item.id,
+        statusAnterior: item.status,
+        cliente: item.clientes?.nome ?? "Cliente",
+      };
     } catch (e) {
       await db.from("fila_de_espera").update({ status: item.status }).eq("id", item.id);
       throw e;
@@ -249,21 +328,17 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
 /** Desfazer (5 s) de um atendimento aberto agora ou chamado da fila. */
 export const desfazerInicioRapido = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; filaId?: string | null; statusAnterior?: string | null }) => data)
+  .inputValidator((data: { agendamentoId: string; filaId?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await base(context);
-    const limite = new Date(Date.now() - 5 * 60_000).toISOString();
-    const { error } = await db
-      .from("agendamentos")
-      .delete()
-      .eq("id", data.agendamentoId)
-      .eq("tenant_id", tenantId)
-      .eq("origem", "manual")
-      .gte("criado_em", limite);
+    await exigirPermissao(context, tenantId, "agendamento_manual");
+    const parametros = {
+      _tenant_id: tenantId,
+      _ator_id: context.userId,
+      _agendamento_id: data.agendamentoId,
+      ...(data.filaId ? { _fila_id: data.filaId } : {}),
+    };
+    const { error } = await db.rpc("desfazer_inicio_rapido_seguro", parametros);
     if (error) throw new Error(error.message);
-    if (data.filaId) {
-      const status = data.statusAnterior === "avisado" ? "avisado" : "aguardando";
-      await db.from("fila_de_espera").update({ status }).eq("id", data.filaId).eq("tenant_id", tenantId);
-    }
     return { ok: true };
   });
