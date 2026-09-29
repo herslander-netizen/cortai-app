@@ -909,6 +909,36 @@ export function AgendaOperacional() {
             />
           </Suspense>
         ) : null}
+        {manualAberto ? (
+          <div className="agenda-manual-auto">
+            <Suspense fallback={null}>
+              <AgendamentoManualLazy
+                key={`${manualAberto}-${dia}`}
+                dia={dia}
+                profissionalInicial={profFiltro ?? meuNome}
+                autoAbrir
+                rotulo="Novo agendamento"
+                onCriado={() => {
+                  setManualAberto(null);
+                  void sincronizar();
+                }}
+              />
+            </Suspense>
+          </div>
+        ) : null}
+        {rapidoAberto ? (
+          <Suspense fallback={null}>
+            <AtendimentoRapidoLazy
+              onFechar={() => setRapidoAberto(false)}
+              onIniciado={(r) => {
+                setRapidoAberto(false);
+                setDia(hojeNoFuso(fuso));
+                void sincronizar();
+                oferecerDesfazerInicio(r);
+              }}
+            />
+          </Suspense>
+        ) : null}
       </Screen>
     );
   }
