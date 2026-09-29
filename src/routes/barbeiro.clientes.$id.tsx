@@ -189,10 +189,15 @@ function FichaPage() {
             </>
           ) : null}
 
-          <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">{tp.barbearia ? "Ficha técnica do corte" : "Ficha técnica"}</h2>
-          <p className="surface px-4 py-4 text-sm text-mute">
-            {data.cliente.ficha_tecnica ?? "Nada anotado ainda sobre máquina, tesoura ou preferências."}
-          </p>
+          {data.cliente.ficha_tecnica ? (
+            <>
+              <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">
+                {tp.barbearia ? "Anotação antiga do corte" : "Anotação antiga"}
+              </h2>
+              <p className="surface px-4 py-4 text-sm text-mute">{data.cliente.ficha_tecnica}</p>
+            </>
+          ) : null}
+
 
           <PersonalizacaoCliente ficha={data} onSalvo={() => refetch()} />
 
