@@ -2028,6 +2028,42 @@ export type Database = {
           },
         ]
       }
+      exclusoes_permanentes: {
+        Row: {
+          alvo_id: string | null
+          alvo_nome: string | null
+          ator_email: string | null
+          ator_id: string
+          criado_em: string
+          detalhes: Json
+          id: string
+          tenant_id: string | null
+          tipo: string
+        }
+        Insert: {
+          alvo_id?: string | null
+          alvo_nome?: string | null
+          ator_email?: string | null
+          ator_id: string
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          tenant_id?: string | null
+          tipo: string
+        }
+        Update: {
+          alvo_id?: string | null
+          alvo_nome?: string | null
+          ator_email?: string | null
+          ator_id?: string
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          tenant_id?: string | null
+          tipo?: string
+        }
+        Relationships: []
+      }
       faturas: {
         Row: {
           asaas_payment_id: string
@@ -4264,6 +4300,10 @@ export type Database = {
       }
       estornar_pagamento_seguro: {
         Args: { _ator: string; _motivo: string; _pagamento_id: string }
+        Returns: Json
+      }
+      excluir_tenant_completo: {
+        Args: { _ator: string; _ator_email: string; _tenant_id: string }
         Returns: Json
       }
       fila_publica_status: { Args: { _token: string }; Returns: Json }
