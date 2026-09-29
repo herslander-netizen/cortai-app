@@ -162,7 +162,7 @@ function Conteudo({
         ) : <p className="text-sm text-mute">Primeira visita.</p>}
       </section>
 
-      {!p.cliente.avulso ? <Link to="/barbeiro/clientes/$id" params={{ id: p.cliente.id }} className="mt-5 inline-flex min-h-12 items-center text-sm font-semibold text-paper underline underline-offset-4">Fiado, carteira e personalizações</Link> : null}
+      {mostrarLinkFicha && !p.cliente.avulso ? <Link to="/barbeiro/clientes/$id" params={{ id: p.cliente.id }} className="mt-5 inline-flex min-h-12 items-center text-sm font-semibold text-paper underline underline-offset-4">Fiado, carteira e personalizações</Link> : null}
 
       {verFoto && ultima ? (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-overlay/90 p-4" onClick={() => setVerFoto(false)} role="dialog" aria-label={termos.fotoAtendimento}>
