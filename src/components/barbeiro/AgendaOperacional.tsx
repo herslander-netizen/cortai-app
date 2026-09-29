@@ -719,6 +719,8 @@ export function AgendaOperacional() {
           onMaisOpcoes={(item) => abrir(item.id)}
           fila={chegada.length}
           onChamarFila={() => void chamarFila()}
+          onNovoAgendamento={() => setManualAberto("agendamento")}
+          onNovoAtendimento={() => setRapidoAberto(true)}
         />
         <Sheet
           open={painelAberto && Boolean(itemSelecionado)}
