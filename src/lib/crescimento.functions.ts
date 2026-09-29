@@ -316,22 +316,21 @@ export const atualizarIndicacao = createServerFn({ method: "POST" })
       .object({
         id: z.string().uuid(),
         acao: z.enum(["converter", "recompensar", "remover"]),
-        senha: z.string().min(1).max(200).optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     if (data.acao === "remover") {
-      // Exclusão permanente: exige reautenticação da conta que está pedindo.
-      const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
-      await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha ?? "");
+      await exigirPermissao(context, tenant.id, "acoes_destrutivas");
       const { error: erroRemocao } = await db
         .from("indicacoes")
         .delete()
         .eq("id", data.id)
         .eq("tenant_id", tenant.id);
       if (erroRemocao) throw new Error(erroRemocao.message);
+      const { gravarExclusao } = await import("@/lib/exclusoes.server");
+      await gravarExclusao(context as never, "indicacao", data.id, tenant.id);
       return { ok: true };
     }
     const patch =

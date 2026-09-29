@@ -1,9 +1,8 @@
 import { useId, useState } from "react";
 
 /**
- * Padrão único de exclusão permanente do Cortaí:
- * confirmação explícita + senha da conta, validada no servidor.
- * A senha vive apenas neste estado local e é descartada ao fechar.
+ * Padrão único de exclusão permanente do Cortaí: mostra o que será apagado e
+ * só libera o botão depois da confirmação explícita. Permissões valem no servidor.
  */
 export function ExclusaoPermanente({
   rotulo = "Excluir permanentemente",
@@ -16,39 +15,33 @@ export function ExclusaoPermanente({
   rotulo?: string;
   titulo: string;
   descricao: string;
-  onExcluir: (senha: string) => Promise<void>;
-  onSucesso?: () => void;
+  onExcluir: () => Promise<string | null | void>;
+  onSucesso?: (aviso: string | null) => void;
   className?: string;
 }) {
   const campoId = useId();
   const [aberto, setAberto] = useState(false);
-  const [senha, setSenha] = useState("");
+  const [entendo, setEntendo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [processando, setProcessando] = useState(false);
 
   function fechar() {
     setAberto(false);
-    setSenha("");
+    setEntendo(false);
     setErro(null);
     setProcessando(false);
   }
 
   async function confirmar() {
-    if (!senha || processando) return;
+    if (!entendo || processando) return;
     setProcessando(true);
     setErro(null);
     try {
-      await onExcluir(senha);
-      setSenha("");
+      const aviso = await onExcluir();
       fechar();
-      onSucesso?.();
+      onSucesso?.(aviso ?? null);
     } catch (e) {
-      setSenha("");
-      setErro(
-        e instanceof Error && /senha|conta|identidade|provedor|histórico|arquive|não encontrad/i.test(e.message)
-          ? e.message
-          : "Não foi possível excluir agora. Tente novamente.",
-      );
+      setErro(e instanceof Error && e.message ? e.message : "Não foi possível excluir agora. Tente novamente.");
       setProcessando(false);
     }
   }
@@ -71,26 +64,18 @@ export function ExclusaoPermanente({
             <p className="mt-2 text-xs text-mute">{descricao}</p>
             <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>
 
-            <label className="mt-4 block text-xs text-mute2" htmlFor={campoId}>
-              Digite a senha da sua conta de administrador para confirmar
+            <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-3 text-xs text-paper" htmlFor={campoId}>
+              <input
+                id={campoId}
+                type="checkbox"
+                checked={entendo}
+                disabled={processando}
+                onChange={(e) => setEntendo(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-brick)]"
+              />
+              Entendo que isso apaga tudo e não tem volta
             </label>
-            <input
-              id={campoId}
-              type="password"
-              autoComplete="current-password"
-              value={senha}
-              disabled={processando}
-              onChange={(e) => setSenha(e.target.value)}
-              className="input-premium mt-2 w-full"
-            />
-            <a
-              href="/recuperar-senha"
-              className="mt-2 inline-block text-xs text-mute underline transition-colors hover:text-paper"
-            >
-              Esqueci minha senha
-            </a>
             {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
-
 
             <div className="mt-5 flex justify-end gap-4">
               <button type="button" className="btn-tertiary text-xs" onClick={fechar} disabled={processando}>
@@ -99,7 +84,7 @@ export function ExclusaoPermanente({
               <button
                 type="button"
                 onClick={() => void confirmar()}
-                disabled={!senha || processando}
+                disabled={!entendo || processando}
                 className="min-h-11 rounded-lg bg-brick px-4 py-2 text-xs font-semibold text-destructive-foreground disabled:opacity-40"
               >
                 {processando ? "Excluindo…" : "Excluir permanentemente"}

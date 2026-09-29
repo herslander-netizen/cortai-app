@@ -220,56 +220,50 @@ export const definirStatusDaBarbearia = createServerFn({ method: "POST" })
   });
 
 /**
- * Exclusão permanente de uma barbearia: só o dono da plataforma, com senha
- * revalidada no servidor. Apaga na ordem das dependências para não deixar
- * registros órfãos.
+ * Exclusão permanente de um negócio: só o dono da plataforma. Tudo é apagado
+ * numa única transação no banco e fica registrado em exclusoes_permanentes.
  */
 export const excluirBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z.object({ tenantId: z.string().uuid(), senha: z.string().min(1).max(200) }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true; aviso: string | null }> => {
     const db = await adminContext(context);
-    const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
-    await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha);
-
     const tenantId = data.tenantId;
-    const { data: tenant } = await db.from("tenants").select("id, nome").eq("id", tenantId).maybeSingle();
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    const { data: tenant } = await db.from("tenants").select("id").eq("id", tenantId).maybeSingle();
+    if (!tenant) throw new Error("Negócio não encontrado.");
 
-    const { data: carteiras } = await db.from("carteiras").select("id").eq("tenant_id", tenantId);
-    const carteiraIds = (carteiras ?? []).map((c: { id: string }) => c.id);
-    if (carteiraIds.length) await db.from("movimentos").delete().in("carteira_id", carteiraIds);
-
-    const { data: vendas } = await db.from("vendas").select("id").eq("tenant_id", tenantId);
-    const vendaIds = (vendas ?? []).map((v: { id: string }) => v.id);
-    if (vendaIds.length) await db.from("venda_itens").delete().in("venda_id", vendaIds);
-
-    for (const tabela of [
-      "vendas",
-      "avaliacoes",
-      "fila_de_espera",
-      "indicacoes",
-      "agendamentos",
-      "carteiras",
-      "clientes",
-      "produtos",
-      "servicos",
-      "profissionais",
-      "regras_de_plano",
-      "historico_de_plano",
-      "contatos_de_retencao",
-      "tenant_branding_versions",
-      "tenant_usuarios",
-    ] as const) {
-      const { error } = await db.from(tabela).delete().eq("tenant_id", tenantId);
-      if (error) throw new Error(error.message);
+    let aviso: string | null = null;
+    const { data: conexoes } = await db
+      .from("conexoes_whatsapp")
+      .select("sessao_id, status")
+      .eq("tenant_id", tenantId);
+    const ativas = (conexoes ?? []).filter((c: { sessao_id: string | null; status: string | null }) => c.sessao_id && c.status !== "desconectado");
+    if (ativas.length) {
+      const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado()) {
+        aviso = "O WhatsApp não pôde ser desconectado (serviço não configurado). Desconecte o número manualmente.";
+      } else {
+        for (const c of ativas) {
+          try {
+            await gatewayDeWhatsapp.desconectar(c.sessao_id as string);
+          } catch (erro) {
+            aviso = `O WhatsApp não pôde ser desconectado${erro instanceof Error ? ` (${erro.message})` : ""}. Desconecte o número manualmente.`;
+          }
+        }
+      }
     }
 
-    const { error } = await db.from("tenants").delete().eq("id", tenantId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    const email = typeof context.claims?.["email"] === "string" ? (context.claims["email"] as string) : null;
+    const { error } = await db.rpc("excluir_tenant_completo", {
+      _tenant_id: tenantId,
+      _ator: context.userId,
+      _ator_email: email ?? "",
+    });
+    if (error) {
+      console.error("[admin] excluirBarbearia falhou:", error.message);
+      throw new Error(`Não foi possível excluir: ${error.message}`);
+    }
+    return { ok: true, aviso };
   });
 
 /** Matriz de recursos por plano — leitura para o dono da plataforma. */

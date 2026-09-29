@@ -232,8 +232,8 @@ function FichaPage() {
               <ExclusaoPermanente
                 titulo={`Excluir ${data.cliente.nome} permanentemente`}
                 descricao="O cadastro e a carteira deste cliente serão apagados. Clientes com atendimentos ou valores lançados não podem ser excluídos."
-                onExcluir={async (senha) => {
-                  await excluir({ data: { clienteId: id, senha } });
+                onExcluir={async () => {
+                  await excluir({ data: { clienteId: id } });
                 }}
                 onSucesso={() => navigate({ to: "/barbeiro/clientes" })}
               />

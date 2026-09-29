@@ -50,7 +50,7 @@ export async function configDeCobranca(): Promise<ConfigDeCobranca> {
 
 export async function assinaturaDoTenant(tenantId: string) {
   const { data } = await (await db()).from("assinaturas").select("*").eq("tenant_id", tenantId).maybeSingle();
-  return data as Record<string, any> | null;
+  return data as any | null;
 }
 
 /** Fonte única para as guardas do servidor. */
@@ -229,7 +229,7 @@ export async function sincronizarPagamento(paymentId: string, assinaturaIdConhec
     }
     throw e;
   }
-  let assinatura: Record<string, any> | null = null;
+  let assinatura: any | null = null;
   if (assinaturaIdConhecida) {
     assinatura = (await client.from("assinaturas").select("*").eq("id", assinaturaIdConhecida).maybeSingle()).data;
   } else if (pagamento.subscription) {

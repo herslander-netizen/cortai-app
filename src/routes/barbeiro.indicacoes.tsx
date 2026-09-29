@@ -205,8 +205,8 @@ function IndicacoesPage() {
               <ExclusaoPermanente
                 titulo="Excluir indicação permanentemente"
                 descricao={`A indicação de ${i.indicado} será apagada e não poderá ser recuperada.`}
-                onExcluir={async (senha) => {
-                  await atualizar({ data: { id: i.id, acao: "remover", senha } });
+                onExcluir={async () => {
+                  await atualizar({ data: { id: i.id, acao: "remover" } });
                 }}
                 onSucesso={() => {
                   setAviso("Indicação excluída permanentemente.");

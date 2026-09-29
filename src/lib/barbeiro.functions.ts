@@ -536,9 +536,8 @@ export const arquivarCliente = createServerFn({ method: "POST" })
  */
 export const excluirClientePermanente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string; senha: string }) => ({
+  .inputValidator((data: { clienteId: string }) => ({
     clienteId: String(data.clienteId),
-    senha: String(data.senha ?? ""),
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
@@ -550,9 +549,6 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!cliente) throw new Error("Cliente não encontrado.");
-
-    const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
-    await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha);
 
     const { data: agendamentos } = await db
       .from("agendamentos")
@@ -580,6 +576,8 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
     if (carteira) await db.from("carteiras").delete().eq("id", carteira.id);
     const { error } = await db.from("clientes").delete().eq("id", cliente.id).eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
+    const { gravarExclusao } = await import("@/lib/exclusoes.server");
+    await gravarExclusao(context as never, "cliente", cliente.id, tenant.id);
     return { ok: true };
   });
 
