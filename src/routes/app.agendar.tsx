@@ -510,9 +510,31 @@ function Fluxo({
           </p>
         ) : null}
         {escolhido && servico ? (
-          <p className="mt-3 text-sm text-paper">
-            {servico.nome} · {dataHoraLonga(escolhido.iso)}
-          </p>
+          <dl className="mt-3 divide-y divide-line border-y border-line text-sm">
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Serviço</dt>
+              <dd className="text-right text-paper">
+                {servico.nome} · {servico.duracao_min} min
+              </dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Profissional</dt>
+              <dd className="text-right text-paper">{nomeProfissional(escolhido.profId)}</dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Quando</dt>
+              <dd className="text-right text-paper">{dataHoraLonga(escolhido.iso)}</dd>
+            </div>
+            <div className="flex items-start justify-between gap-4 py-2.5">
+              <dt className="text-mute">Pagamento</dt>
+              <dd className="text-right text-paper">
+                {rotuloForma(forma)} ·{" "}
+                <span className="font-semibold">
+                  {forma === "credito" ? "1 crédito" : brl(preco)}
+                </span>
+              </dd>
+            </div>
+          </dl>
         ) : null}
         {conflito ? (
           <div className="mt-3 rounded-xl border border-brick/40 px-4 py-3" role="alert">
