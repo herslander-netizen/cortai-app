@@ -339,6 +339,7 @@ function Fluxo({
               setDia(null);
               setInicio(null);
               setForma("balcao");
+              setCopiado(false);
               recarregar();
             }}
           >
