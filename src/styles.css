@@ -1051,11 +1051,11 @@ option {
 }
 
 @utility screen-title {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   color: var(--paper);
 }
 
@@ -1211,16 +1211,7 @@ option {
   color: var(--gold);
 }
 
-.management-shell .screen-title::before {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--rosa);
-  content: "OPERAÇÃO";
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
+/* O rótulo "OPERAÇÃO" acima de cada título foi removido: o título já basta. */
 
 /* Elemento legado mantido para páginas externas; não usado no shell operacional. */
 @utility barber-pole {
