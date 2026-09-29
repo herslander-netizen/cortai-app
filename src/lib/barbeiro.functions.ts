@@ -536,9 +536,8 @@ export const arquivarCliente = createServerFn({ method: "POST" })
  */
 export const excluirClientePermanente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string; senha: string }) => ({
+  .inputValidator((data: { clienteId: string }) => ({
     clienteId: String(data.clienteId),
-    senha: String(data.senha ?? ""),
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
@@ -550,9 +549,6 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!cliente) throw new Error("Cliente não encontrado.");
-
-    const { confirmarSenhaDoUsuario } = await import("@/lib/reauth.server");
-    await confirmarSenhaDoUsuario(context.claims as Record<string, unknown>, data.senha);
 
     const { data: agendamentos } = await db
       .from("agendamentos")
