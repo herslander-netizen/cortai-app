@@ -67,7 +67,7 @@ export async function asaas() {
     const r = await fetch(`${base}${path}`, {
       method,
       headers: { access_token: chave!, "Content-Type": "application/json", "User-Agent": "Cortai/1.0" },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? null : JSON.stringify(body),
     });
     const texto = await r.text();
     let json: any = null;
