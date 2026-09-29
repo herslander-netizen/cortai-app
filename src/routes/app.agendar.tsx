@@ -470,6 +470,18 @@ function Fluxo({
                 />
               </li>
             ) : null}
+            {dados.carteira.saldo_centavos >= preco && preco > 0 ? (
+              <li>
+                <LinhaPagamento
+                  titulo="Usar saldo da carteira"
+                  detalhe={`Sobram ${brl(dados.carteira.saldo_centavos - preco)} depois deste`}
+                  valor={brl(preco)}
+                  valorClasse="text-sage"
+                  selecionado={forma === "saldo"}
+                  onClick={() => setForma("saldo")}
+                />
+              </li>
+            ) : null}
             {regraMensal && dados.carteira.saldo_creditos > 0 ? (
               <li>
                 <LinhaPagamento
