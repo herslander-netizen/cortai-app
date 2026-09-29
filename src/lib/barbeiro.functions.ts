@@ -412,8 +412,8 @@ export const getFichaCliente = createServerFn({ method: "GET" })
         .maybeSingle(),
     ]);
 
-    let debitos: Debito[] = [];
-    let baixas: Debito[] = [];
+    const debitos: Debito[] = [];
+    const baixas: Debito[] = [];
     if (carteira) {
       const { data: movs } = await db
         .from("movimentos")
