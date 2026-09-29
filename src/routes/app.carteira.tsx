@@ -6,8 +6,11 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getCarteira, type Movimento } from "@/lib/carteira.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/carteira")({
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Minha carteira — Cortaí" },
@@ -103,9 +106,11 @@ function CartaoFidelidade({ progresso, alvo }: { progresso: number; alvo: number
 }
 
 function CarteiraPage() {
+  const { b } = Route.useSearch();
+  const slug = useContextoCliente(b);
   const { data, isLoading } = useQuery({
-    queryKey: ["carteira"],
-    queryFn: () => getCarteira({ data: {} }),
+    queryKey: ["carteira", slug],
+    queryFn: () => getCarteira({ data: slug ? { slug } : {} }),
   });
 
   const saldo = data?.carteira.saldo_centavos ?? 0;

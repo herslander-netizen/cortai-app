@@ -11,8 +11,11 @@ import { getSessao } from "@/lib/sessao.functions";
 import { PreferenciasDoCliente } from "@/components/notificacoes/PreferenciasDoCliente";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/perfil")({
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Perfil — Cortaí" },
@@ -28,6 +31,8 @@ export const Route = createFileRoute("/app/perfil")({
 });
 
 function PerfilPage() {
+  const { b } = Route.useSearch();
+  const slug = useContextoCliente(b);
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
 
   return (
@@ -45,6 +50,7 @@ function PerfilPage() {
         <li className="border-b border-line">
           <Link
             to="/app/carteira"
+            search={slug ? { b: slug } : {}}
             className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
           >
             <Wallet size={18} className="text-mute" />

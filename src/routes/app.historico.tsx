@@ -9,8 +9,11 @@ import { brl, dataHoraLonga } from "@/lib/format";
 import { cancelarAgendamento, listarAgendamentosCliente } from "@/lib/agendamento.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { Carregando } from "@/components/layout/Carregando";
+import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/historico")({
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Meus horários — Cortaí" },
@@ -26,12 +29,14 @@ export const Route = createFileRoute("/app/historico")({
 });
 
 function HistoricoPage() {
+  const { b } = Route.useSearch();
+  const slug = useContextoCliente(b);
   const cancelar = useServerFn(cancelarAgendamento);
   const [aviso, setAviso] = useState<string | null>(null);
 
   const lista = useQuery({
-    queryKey: ["historico"],
-    queryFn: () => listarAgendamentosCliente({ data: {} }),
+    queryKey: ["historico", slug],
+    queryFn: () => listarAgendamentosCliente({ data: slug ? { slug } : {} }),
   });
 
   const agora = Date.now();
@@ -83,7 +88,7 @@ function HistoricoPage() {
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
                   className="mt-4 flex gap-2 border-t border-line pt-3"
                 >
-                  <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar">Remarcar</Link></Button>
+                  <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper"><Link to="/app/agendar" search={slug ? { b: slug } : {}}>Remarcar</Link></Button>
                   <Button variant="ghost" size="sm" className="text-mute hover:text-brick" onClick={() => cancelarItem(p.id, p.inicio)}>Cancelar</Button>
                 </div>
               </div>

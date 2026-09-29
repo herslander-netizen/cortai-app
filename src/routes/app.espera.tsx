@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
+import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/espera")({
   validateSearch: (search: Record<string, unknown>): { b?: string; servico?: string; dia?: string } => ({
@@ -36,6 +37,7 @@ const JANELAS = [
 function EsperaPage() {
   const entrar = useServerFn(entrarNaFila);
   const { b, servico, dia } = Route.useSearch();
+  const slug = useContextoCliente(b);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [janela, setJanela] = useState(0);
@@ -98,7 +100,7 @@ function EsperaPage() {
                       telefone: telefone.trim(),
                       janelaInicio: escolhida.inicio,
                       janelaFim: escolhida.fim,
-                      ...(b ? { slug: b } : {}),
+                      ...(slug ? { slug } : {}),
                       ...(servico ? { servicoId: servico } : {}),
                       ...(dia ? { dia } : {}),
                     },

@@ -9,8 +9,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { vincularFichaDoConvidado } from "@/lib/agendamento-publico.functions";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
+import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-cliente";
 
-const tabs: TabItem[] = [
+const tabsBase: TabItem[] = [
   { to: "/app", label: "Início", icon: Scissors },
   { to: "/app/agendar", label: "Agendar", icon: CalendarDays },
   { to: "/app/historico", label: "Meus horários", icon: Clock },
@@ -26,6 +27,8 @@ export const Route = createFileRoute("/app")({
 function ClientLayout() {
   const vincular = useServerFn(vincularFichaDoConvidado);
   const qc = useQueryClient();
+  const slug = useContextoCliente();
+  const tabs = tabsBase.map((item) => ({ ...item, search: slug ? { b: slug } : undefined }));
   useEffect(() => {
     let prova: { agendamentoId: string; telefone: string } | null = null;
     try {
@@ -36,7 +39,8 @@ function ClientLayout() {
     }
     if (!prova?.agendamentoId || !prova.telefone) return;
     void vincular({ data: prova })
-      .then(() => {
+      .then((resultado) => {
+        if (resultado.slug) salvarContextoCliente(resultado.slug);
         localStorage.removeItem(CHAVE_VINCULO);
         void qc.invalidateQueries();
       })

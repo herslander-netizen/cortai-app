@@ -7,6 +7,8 @@ import { brl } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-cliente";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/app/")({
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
@@ -27,10 +29,12 @@ export const Route = createFileRoute("/app/")({
 
 function InicioCliente() {
   const { b } = Route.useSearch();
+  const contexto = useContextoCliente(b);
   const { data, isLoading } = useQuery({
-    queryKey: ["contexto-cliente", b ?? null],
-    queryFn: () => getContextoCliente({ data: b ? { slug: b } : {} }),
+    queryKey: ["contexto-cliente", contexto],
+    queryFn: () => getContextoCliente({ data: contexto ? { slug: contexto } : {} }),
   });
+  useEffect(() => { if (data?.slug) salvarContextoCliente(data.slug); }, [data?.slug]);
 
   if (isLoading) {
     return (

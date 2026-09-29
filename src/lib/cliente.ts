@@ -90,6 +90,9 @@ export async function clienteDoUsuarioOpcional(
     return { db, tenant, cliente: novo as ClienteAtual };
   }
 
+  // Sem uma escolha explícita, só é seguro continuar quando existe exatamente
+  // uma ficha. Com várias, a interface deve pedir que a pessoa escolha.
+  if (fichas.length !== 1) return null;
   const unica = fichas[0];
   if (!unica) return null;
   return { db, tenant: unica.tenant, cliente: unica.cliente };

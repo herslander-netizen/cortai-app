@@ -228,9 +228,11 @@ export type AgendamentoCliente = {
 export const listarAgendamentosCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { slug?: string | undefined }) => data ?? {})
-  .handler(async ({ context }): Promise<AgendamentoCliente[]> => {
+  .handler(async ({ data, context }): Promise<AgendamentoCliente[]> => {
     const { db, fichas } = await fichasDoUsuario(context);
-    const ids = fichas.map((f) => f.cliente.id);
+    const ids = data.slug
+      ? fichas.filter((f) => f.tenant.slug === data.slug).map((f) => f.cliente.id)
+      : fichas.map((f) => f.cliente.id);
     if (!ids.length) return [];
     const { data: rows } = await db
       .from("agendamentos")
