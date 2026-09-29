@@ -14,10 +14,10 @@ import {
   Plus,
   Scissors,
   Settings,
+  ShoppingBag,
   UserRound,
   UserRoundCheck,
   UserRoundPlus,
-  X,
 } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
@@ -538,7 +538,7 @@ export function AgendaFocoMobile(props: Props) {
             </Button>
             <Button asChild variant="ghost" role="menuitem" className="agenda-acao-lista">
               <Link to="/barbeiro/produtos" onClick={() => setAcoes(false)}>
-                <X className="rotate-45" aria-hidden />
+                <ShoppingBag />
                 <span>
                   <strong>Vender pacote ou produto</strong>
                   <small>Registrar venda no balcão</small>
