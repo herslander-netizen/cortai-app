@@ -64,7 +64,7 @@ export function AcoesRapidas() {
         onClick={() => setAberto((atual) => !atual)}
         className="quick-action-trigger h-10 w-10 rounded-md border border-line bg-primary text-primary-foreground"
       >
-        <Scissors className="h-5 w-5" strokeWidth={2} />
+        <Plus className="h-5 w-5" strokeWidth={1.75} />
       </Button>
       <SheetContent
         side="bottom"
