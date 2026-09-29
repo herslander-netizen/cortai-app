@@ -44,7 +44,48 @@ export function PerfilClienteSheet({ clienteId, onFechar, segmento = "barbearia"
   );
 }
 
-function Conteudo({ p, segmento }: { p: PerfilCliente; segmento: Segmento }) {
+/**
+ * Perfil real do cliente (ficha, fotos, resumo e histórico de atendimentos).
+ * Usado na folha do atendimento e também dentro da ficha completa do barbeiro.
+ */
+export function PerfilClienteConteudo({
+  clienteId,
+  segmento = "barbearia",
+}: {
+  clienteId: string;
+  segmento?: Segmento;
+}) {
+  const buscar = useServerFn(getPerfilCliente);
+  const q = useQuery({
+    queryKey: ["perfil-cliente", clienteId],
+    queryFn: () => buscar({ data: { clienteId } }),
+    staleTime: 30_000,
+  });
+  if (q.isLoading)
+    return (
+      <div className="space-y-3 py-2" aria-label="Carregando perfil">
+        <div className="h-40 rounded-lg bg-ink3" />
+        <div className="h-12 rounded-lg bg-ink3" />
+      </div>
+    );
+  if (q.error)
+    return (
+      <p className="py-6 text-sm text-paper" role="alert">
+        {(q.error as Error).message}
+      </p>
+    );
+  return q.data ? <Conteudo p={q.data} segmento={segmento} mostrarLinkFicha={false} /> : null;
+}
+
+function Conteudo({
+  p,
+  segmento,
+  mostrarLinkFicha = true,
+}: {
+  p: PerfilCliente;
+  segmento: Segmento;
+  mostrarLinkFicha?: boolean;
+}) {
   const termos = termosPara(segmento);
   const barbeiro = segmento === "barbearia";
   const qc = useQueryClient();
