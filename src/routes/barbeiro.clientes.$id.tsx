@@ -44,6 +44,7 @@ function diasDesde(iso: string) {
 
 function FichaPage() {
   const tp = useTermosDoPainel();
+  const segmento = useSegmentoDoPainel();
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
   const baixar = useServerFn(registrarBaixaFiado);
