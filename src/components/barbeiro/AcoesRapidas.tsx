@@ -51,7 +51,11 @@ const acoes = [
 export function AcoesRapidas() {
   const [aberto, setAberto] = useState(false);
   const navigate = useNavigate();
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300000,
+  });
   const acoesPermitidas = acoes.filter((acao) => sessao?.permissoes.includes(acao.permissao));
 
   return (

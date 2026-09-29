@@ -549,8 +549,6 @@ export function AgendaFocoMobile(props: Props) {
         </SheetContent>
       </Sheet>
 
-
-
       <Sheet open={menu} onOpenChange={setMenu}>
         <SheetContent
           side="bottom"
