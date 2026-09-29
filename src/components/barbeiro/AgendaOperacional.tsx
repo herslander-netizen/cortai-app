@@ -11,10 +11,12 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Plus,
   Scissors,
   UserRoundPlus,
   ListOrdered,
   Ban,
+  X,
 } from "lucide-react";
 import type React from "react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
@@ -717,6 +719,8 @@ export function AgendaOperacional() {
           onMaisOpcoes={(item) => abrir(item.id)}
           fila={chegada.length}
           onChamarFila={() => void chamarFila()}
+          onNovoAgendamento={() => setManualAberto("agendamento")}
+          onNovoAtendimento={() => setRapidoAberto(true)}
         />
         <Sheet
           open={painelAberto && Boolean(itemSelecionado)}
@@ -902,6 +906,36 @@ export function AgendaOperacional() {
               clienteId={perfil}
               onFechar={() => setPerfil(null)}
               segmento={agenda.data?.tenant.segmento ?? "barbearia"}
+            />
+          </Suspense>
+        ) : null}
+        {manualAberto ? (
+          <div className="agenda-manual-auto">
+            <Suspense fallback={null}>
+              <AgendamentoManualLazy
+                key={`${manualAberto}-${dia}`}
+                dia={dia}
+                profissionalInicial={profFiltro ?? meuNome}
+                autoAbrir
+                rotulo="Novo agendamento"
+                onCriado={() => {
+                  setManualAberto(null);
+                  void sincronizar();
+                }}
+              />
+            </Suspense>
+          </div>
+        ) : null}
+        {rapidoAberto ? (
+          <Suspense fallback={null}>
+            <AtendimentoRapidoLazy
+              onFechar={() => setRapidoAberto(false)}
+              onIniciado={(r) => {
+                setRapidoAberto(false);
+                setDia(hojeNoFuso(fuso));
+                void sincronizar();
+                oferecerDesfazerInicio(r);
+              }}
             />
           </Suspense>
         ) : null}
@@ -1630,7 +1664,7 @@ export function AgendaOperacional() {
           disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
           onClick={acaoPrincipal}
         >
-          <Scissors />
+          {itemSelecionado ? <Scissors /> : <Plus />}
           {itemSelecionado
             ? itemSelecionado.status === "na_cadeira"
               ? `Finalizar ${itemSelecionado.cliente}`
@@ -1813,7 +1847,7 @@ export function AgendaOperacional() {
               aria-expanded="true"
               className="agenda-acao-redonda agenda-acao-fechar"
             >
-              <Scissors />
+              <X />
             </Button>
           </SheetClose>
           <SheetHeader className="pr-10 text-left">

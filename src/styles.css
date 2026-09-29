@@ -2640,7 +2640,13 @@ body:has(.auth-screen--claro) {
   padding-inline: 15px;
 }
 .agenda-foco-lista {
-  padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+.agenda-foco-fab {
+  position: fixed;
+  z-index: 40;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
 }
 .agenda-foco-item {
   position: relative;

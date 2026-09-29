@@ -1,18 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import {
   Bell,
+  CalendarPlus,
   Check,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   LogOut,
   ListOrdered,
   Maximize2,
   Menu,
   MessageCircle,
+  Plus,
   Scissors,
   Settings,
+  ShoppingBag,
   UserRound,
   UserRoundCheck,
+  UserRoundPlus,
 } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
@@ -48,6 +53,8 @@ type Props = {
   onMaisOpcoes: (item: AgendaItem) => void;
   fila?: number;
   onChamarFila?: () => void;
+  onNovoAgendamento?: () => void;
+  onNovoAtendimento?: () => void;
 };
 
 function somarDias(dia: string, passo: number) {
@@ -88,6 +95,7 @@ function folgaEntre(anterior: AgendaItem | undefined, item: AgendaItem) {
 
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
+  const [acoes, setAcoes] = useState(false);
   const [verFeitos, setVerFeitos] = useState(false);
   const [foco, setFoco] = useState(false);
   const rolou = useRef<string | null>(null);
@@ -440,6 +448,106 @@ export function AgendaFocoMobile(props: Props) {
           </Button>
         ) : null}
       </div>
+
+      <div className="agenda-foco-fab">
+        <Button
+          type="button"
+          size="lg"
+          variant="primary"
+          aria-label="Ações da agenda"
+          aria-expanded={acoes}
+          className="agenda-acao-redonda"
+          onClick={() => setAcoes(true)}
+        >
+          <Plus />
+        </Button>
+      </div>
+
+      <Sheet open={acoes} onOpenChange={setAcoes}>
+        <SheetContent
+          side="bottom"
+          className="mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-5"
+        >
+          <SheetHeader className="pr-10 text-left">
+            <SheetTitle className="text-base text-paper">Ações da agenda</SheetTitle>
+            <SheetDescription className="text-xs text-mute">
+              Escolha o que precisa fazer agora.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-3 divide-y divide-line" role="menu" aria-label="Ações da agenda">
+            {props.onNovoAgendamento ? (
+              <Button
+                variant="ghost"
+                role="menuitem"
+                className="agenda-acao-lista"
+                onClick={() => {
+                  setAcoes(false);
+                  props.onNovoAgendamento?.();
+                }}
+              >
+                <CalendarPlus />
+                <span>
+                  <strong>Agendar horário</strong>
+                  <small>Marcar dia, horário e profissional</small>
+                </span>
+              </Button>
+            ) : null}
+            {props.onNovoAtendimento ? (
+              <Button
+                variant="ghost"
+                role="menuitem"
+                className="agenda-acao-lista"
+                onClick={() => {
+                  setAcoes(false);
+                  props.onNovoAtendimento?.();
+                }}
+              >
+                <Scissors />
+                <span>
+                  <strong>Reservar horário (encaixe)</strong>
+                  <small>Atender quem chegou sem marcar</small>
+                </span>
+              </Button>
+            ) : null}
+            {props.fila && props.onChamarFila ? (
+              <Button
+                variant="ghost"
+                role="menuitem"
+                className="agenda-acao-lista"
+                disabled={!props.online || props.ocupado}
+                onClick={() => {
+                  setAcoes(false);
+                  props.onChamarFila?.();
+                }}
+              >
+                <UserRoundPlus />
+                <span>
+                  <strong>Chamar próximo da fila</strong>
+                  <small>{props.fila} aguardando</small>
+                </span>
+              </Button>
+            ) : null}
+            <Button asChild variant="ghost" role="menuitem" className="agenda-acao-lista">
+              <Link to="/barbeiro/horarios" onClick={() => setAcoes(false)}>
+                <Clock3 />
+                <span>
+                  <strong>Bloquear horário</strong>
+                  <small>Reservar um período da agenda</small>
+                </span>
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" role="menuitem" className="agenda-acao-lista">
+              <Link to="/barbeiro/produtos" onClick={() => setAcoes(false)}>
+                <ShoppingBag />
+                <span>
+                  <strong>Vender pacote ou produto</strong>
+                  <small>Registrar venda no balcão</small>
+                </span>
+              </Link>
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Sheet open={menu} onOpenChange={setMenu}>
         <SheetContent
