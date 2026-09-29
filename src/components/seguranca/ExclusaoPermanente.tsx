@@ -1,4 +1,16 @@
 import { useId, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /**
  * Padrão único de exclusão permanente do Cortaí: mostra o que será apagado e
@@ -47,52 +59,37 @@ export function ExclusaoPermanente({
   }
 
   return (
-    <>
-      <button type="button" className={className} onClick={() => setAberto(true)}>
-        {rotulo}
-      </button>
-
-      {aberto ? (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-4 sm:items-center"
-          role="dialog"
-          aria-modal="true"
-          aria-label={titulo}
-        >
-          <div className="max-h-[92dvh] w-full max-w-sm overflow-y-auto rounded-xl border border-line bg-ink3 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5">
-            <p className="text-sm font-semibold text-paper">{titulo}</p>
-            <p className="mt-2 text-xs text-mute">{descricao}</p>
-            <p className="mt-2 text-xs text-brick">Esta ação é irreversível.</p>
-
-            <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-3 text-xs text-paper" htmlFor={campoId}>
-              <input
-                id={campoId}
-                type="checkbox"
-                checked={entendo}
-                disabled={processando}
-                onChange={(e) => setEntendo(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-brick)]"
-              />
-              Entendo que isso apaga tudo e não tem volta
-            </label>
-            {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
-
-            <div className="mt-5 flex justify-end gap-4">
-              <button type="button" className="btn-tertiary text-xs" onClick={fechar} disabled={processando}>
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => void confirmar()}
-                disabled={!entendo || processando}
-                className="min-h-11 rounded-lg bg-brick px-4 py-2 text-xs font-semibold text-destructive-foreground disabled:opacity-40"
-              >
-                {processando ? "Excluindo…" : "Excluir permanentemente"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </>
+    <AlertDialog open={aberto} onOpenChange={(open) => { if (open) setAberto(true); else if (!processando) fechar(); }}>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="text" className={className}>{rotulo}</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent
+        overlayClassName="z-[70]"
+        className="bottom-0 left-0 top-auto z-[70] max-h-[92dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-t-xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-w-sm sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:p-6 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0"
+      >
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-paper">{titulo}</AlertDialogTitle>
+          <AlertDialogDescription>{descricao}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <p className="text-xs text-brick">Esta ação é irreversível.</p>
+        <label className="flex min-h-12 cursor-pointer items-start gap-3 text-xs text-paper" htmlFor={campoId}>
+          <Checkbox
+            id={campoId}
+            checked={entendo}
+            disabled={processando}
+            onCheckedChange={(checked) => setEntendo(checked === true)}
+            className="mt-0.5 border-brick data-[state=checked]:bg-brick data-[state=checked]:text-destructive-foreground"
+          />
+          Entendo que isso apaga tudo e não tem volta
+        </label>
+        {erro ? <p className="text-xs text-brick" role="alert">{erro}</p> : null}
+        <AlertDialogFooter className="gap-2 sm:gap-0">
+          <AlertDialogCancel disabled={processando}>Cancelar</AlertDialogCancel>
+          <Button type="button" variant="destructive" onClick={() => void confirmar()} disabled={!entendo || processando}>
+            {processando ? "Excluindo…" : "Excluir permanentemente"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
