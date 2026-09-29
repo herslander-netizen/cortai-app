@@ -5,13 +5,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarPlus, CalendarX, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { horariosDisponiveis, profissionaisDoServico, proximosDiasNoFuso } from "@/lib/disponibilidade";
-import { horarioDoDia, normalizarFuso } from "@/lib/horarios";
+import { normalizarFuso } from "@/lib/horarios";
+import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 import {
@@ -70,12 +70,11 @@ function AgendamentoPublico() {
   });
 
   const fuso = normalizarFuso(data?.tenant.fuso);
-  const dias = useMemo(() => proximosDiasNoFuso(14, fuso), [fuso]);
-  const [servicoId, setServicoId] = useState<string | null>(null);
-  const [profId, setProfId] = useState<string>("qualquer");
-  const [dia, setDia] = useState<string>("");
-  const [diaManual, setDiaManual] = useState(false);
-  const [horario, setHorario] = useState<string | null>(null);
+  const selecao = useSelecaoAgendamento({
+    servicos: data?.servicos ?? [], profissionais: data?.profissionais ?? [], horarios: data?.horarios ?? [],
+    ocupados: data?.ocupados ?? [], fuso, regras: data?.regras ?? { antecedenciaMin: 0, intervaloEntreMin: 0 },
+  });
+  const { servicoId, setServicoId, servico, profissionalId: profId, setProfissionalId: setProfId, aptos, dias, dia, setDia, porDia, agenda, inicio: horario, setInicio: setHorario, escolhido } = selecao;
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [tocouTelefone, setTocouTelefone] = useState(false);
@@ -122,51 +121,6 @@ function AgendamentoPublico() {
       .catch(() => undefined);
   }, [chaveSalva]);
 
-  const servico = data?.servicos.find((s) => s.id === servicoId) ?? null;
-  const aptos = useMemo(() => (data ? profissionaisDoServico(servico, data.profissionais) : []), [data, servico]);
-
-  // Profissional escolhido que não faz o novo serviço volta para "Qualquer profissional".
-  useEffect(() => {
-    if (profId !== "qualquer" && !aptos.some((p) => p.id === profId)) setProfId("qualquer");
-  }, [aptos, profId]);
-
-  const porDia = useMemo(() => {
-    if (!data) return new Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>();
-    const mapa = new Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>();
-    for (const d of dias) {
-      if (!servico) {
-        mapa.set(d, { fechado: horarioDoDia(d, data.horarios).fechado, opcoes: [] });
-        continue;
-      }
-      mapa.set(
-        d,
-        horariosDisponiveis({
-          dia: d,
-          servico,
-          profissionais: data.profissionais,
-          escolhido: profId,
-          horarios: data.horarios,
-          fuso,
-          ocupados: data.ocupados,
-          regras: data.regras,
-        }),
-      );
-    }
-    return mapa;
-  }, [data, dias, servico, profId, fuso]);
-
-  // Abre no primeiro dia com vaga (ou no primeiro dia aberto, antes de escolher o serviço).
-  useEffect(() => {
-    if (diaManual && dia && porDia.has(dia)) return;
-    const primeiro = servico
-      ? dias.find((d) => (porDia.get(d)?.opcoes.length ?? 0) > 0)
-      : dias.find((d) => !porDia.get(d)?.fechado);
-    const alvo = primeiro ?? dias[0] ?? "";
-    if (alvo !== dia) setDia(alvo);
-  }, [porDia, dias, servico, diaManual, dia]);
-
-  const agenda = servico && dia ? (porDia.get(dia) ?? null) : null;
-  const escolhido = agenda?.opcoes.find((o) => o.iso === horario) ?? null;
   const digitosTel = telefone.replace(/\D/g, "");
   const erroTelefone = digitosTel.length < 10 ? "Informe seu WhatsApp com DDD" : null;
   const erroNome = nome.trim().length < 2 ? "Informe seu nome" : null;
@@ -475,7 +429,6 @@ function AgendamentoPublico() {
                   aria-label={fechado ? `${rotulo} ${numero}, fechado` : `${rotulo} ${numero}`}
                   onClick={() => {
                     setDia(d);
-                    setDiaManual(true);
                     setHorario(null);
                   }}
                   className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl border ${
