@@ -1,18 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import {
   Bell,
+  CalendarPlus,
   Check,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   LogOut,
   ListOrdered,
   Maximize2,
   Menu,
   MessageCircle,
+  Plus,
   Scissors,
   Settings,
   UserRound,
   UserRoundCheck,
+  UserRoundPlus,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
@@ -48,6 +53,8 @@ type Props = {
   onMaisOpcoes: (item: AgendaItem) => void;
   fila?: number;
   onChamarFila?: () => void;
+  onNovoAgendamento?: () => void;
+  onNovoAtendimento?: () => void;
 };
 
 function somarDias(dia: string, passo: number) {
