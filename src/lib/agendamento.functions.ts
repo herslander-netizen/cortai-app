@@ -148,7 +148,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
       profissionalId: string;
       servicoId: string;
       inicio: string;
-      formaPagamento: "credito" | "pix" | "balcao" | "fiado";
+      formaPagamento: "credito" | "pix" | "balcao" | "fiado" | "saldo";
       substituiId?: string;
     }) => data,
   )

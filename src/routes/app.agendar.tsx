@@ -42,7 +42,7 @@ export const Route = createFileRoute("/app/agendar")({
   component: AgendarPage,
 });
 
-type Forma = "credito" | "pix" | "balcao" | "fiado";
+type Forma = "credito" | "pix" | "balcao" | "fiado" | "saldo";
 
 function Chip({
   label,
@@ -294,9 +294,11 @@ function Fluxo({
               ? "1 crédito foi debitado agora."
               : sucesso.forma_pagamento === "fiado"
                 ? `${brl(sucesso.valor_centavos)} lançado no fiado.`
-                : sucesso.forma_pagamento === "pix"
-                  ? "Nada foi debitado da carteira — o pagamento é pelo Pix."
-                  : "Nada foi debitado da carteira — pagamento no ato."}
+                : sucesso.forma_pagamento === "saldo"
+                  ? `${brl(sucesso.valor_centavos)} foi debitado do saldo da sua carteira agora.`
+                  : sucesso.forma_pagamento === "pix"
+                    ? "Nada foi debitado da carteira — o pagamento é pelo Pix."
+                    : "Nada foi debitado da carteira — pagamento no ato."}
           </p>
           {sucesso.saldo_centavos < 0 ? (
             <p className="mt-1 text-sm text-brick">
@@ -467,6 +469,18 @@ function Fluxo({
                   valor={brl(preco)}
                   selecionado={forma === "pix"}
                   onClick={() => setForma("pix")}
+                />
+              </li>
+            ) : null}
+            {dados.carteira.saldo_centavos >= preco && preco > 0 ? (
+              <li>
+                <LinhaPagamento
+                  titulo="Usar saldo da carteira"
+                  detalhe={`Sobram ${brl(dados.carteira.saldo_centavos - preco)} depois deste`}
+                  valor={brl(preco)}
+                  valorClasse="text-sage"
+                  selecionado={forma === "saldo"}
+                  onClick={() => setForma("saldo")}
                 />
               </li>
             ) : null}
