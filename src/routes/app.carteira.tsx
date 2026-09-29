@@ -6,14 +6,23 @@ import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getCarteira, type Movimento } from "@/lib/carteira.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/carteira")({
+  validateSearch: (search: Record<string, unknown>): { b?: string } =>
+    typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
       { title: "Minha carteira — Cortaí" },
-      { name: "description", content: "Saldo, créditos, cartão de fidelidade e extrato da sua barbearia." },
+      {
+        name: "description",
+        content: "Saldo, créditos, cartão de fidelidade e extrato da sua barbearia.",
+      },
       { property: "og:title", content: "Minha carteira — Cortaí" },
-      { property: "og:description", content: "Seu saldo, seu cartão de fidelidade e cada lançamento." },
+      {
+        property: "og:description",
+        content: "Seu saldo, seu cartão de fidelidade e cada lançamento.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -103,9 +112,11 @@ function CartaoFidelidade({ progresso, alvo }: { progresso: number; alvo: number
 }
 
 function CarteiraPage() {
+  const { b } = Route.useSearch();
+  const slug = useContextoCliente(b);
   const { data, isLoading } = useQuery({
-    queryKey: ["carteira"],
-    queryFn: () => getCarteira({ data: {} }),
+    queryKey: ["carteira", slug],
+    queryFn: () => getCarteira({ data: slug ? { slug } : {} }),
   });
 
   const saldo = data?.carteira.saldo_centavos ?? 0;
@@ -119,9 +130,14 @@ function CarteiraPage() {
       {data ? (
         <>
           <div className="flex min-h-[118px] overflow-hidden rounded-md border border-line bg-ink2">
-            <div className={`w-1.5 shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`} aria-hidden="true" />
+            <div
+              className={`w-1.5 shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`}
+              aria-hidden="true"
+            />
             <div className="flex min-w-0 flex-1 flex-col justify-center px-5 py-4">
-              <p className="text-xs text-mute">{negativo ? "Em aberto (fiado)" : "Saldo disponível"}</p>
+              <p className="text-xs text-mute">
+                {negativo ? "Em aberto (fiado)" : "Saldo disponível"}
+              </p>
               <p
                 className={`mt-1.5 text-[32px] font-bold leading-none ${negativo ? "text-brick" : "text-paper"}`}
               >
@@ -143,7 +159,10 @@ function CarteiraPage() {
           </div>
 
           {data.fidelidade.alvo ? (
-            <CartaoFidelidade progresso={data.carteira.fidelidade_progresso} alvo={data.fidelidade.alvo} />
+            <CartaoFidelidade
+              progresso={data.carteira.fidelidade_progresso}
+              alvo={data.fidelidade.alvo}
+            />
           ) : null}
 
           <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Extrato</h2>
@@ -152,7 +171,10 @@ function CarteiraPage() {
           ) : (
             <ul>
               {data.movimentos.map((m) => (
-                <li key={m.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4">
+                <li
+                  key={m.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
+                >
                   <div className="min-w-0">
                     <p className="text-sm text-paper">{rotuloMovimento(m)}</p>
                     <p className="mt-0.5 text-xs text-mute2">{dataCurta(m.criado_em)}</p>

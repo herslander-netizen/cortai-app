@@ -1,6 +1,15 @@
 import type { ContextoAutenticado } from "@/lib/tenant";
+import type { Database } from "@/integrations/supabase/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type TenantCliente = { id: string; nome: string; rotulo_carteira: string | null; slug?: string };
+type BancoPrivilegiado = SupabaseClient<Database>;
+
+export type TenantCliente = {
+  id: string;
+  nome: string;
+  rotulo_carteira: string | null;
+  slug?: string;
+};
 export type ClienteAtual = { id: string; nome: string; limite_fiado_centavos: number };
 
 export type ContextoBarbearia = { slug?: string | null | undefined };
@@ -13,7 +22,7 @@ async function admin() {
 }
 
 /** Resolve a barbearia pelo slug, garantindo que ela existe e está ativa. */
-async function tenantPorSlug(db: any, slug: string): Promise<TenantCliente> {
+async function tenantPorSlug(db: BancoPrivilegiado, slug: string): Promise<TenantCliente> {
   const { data } = await db
     .from("tenants")
     .select("id, nome, slug, rotulo_carteira")
@@ -29,11 +38,13 @@ export async function fichasDoUsuario(context: ContextoAutenticado) {
   const db = await admin();
   const { data } = await db
     .from("clientes")
-    .select("id, nome, limite_fiado_centavos, criado_em, tenants!inner(id, nome, slug, rotulo_carteira, ativo)")
+    .select(
+      "id, nome, limite_fiado_centavos, criado_em, tenants!inner(id, nome, slug, rotulo_carteira, ativo)",
+    )
     .eq("user_id", context.userId)
     .eq("tenants.ativo", true)
     .order("criado_em", { ascending: false });
-  const linhas = (data ?? []) as any[];
+  const linhas = data ?? [];
   return {
     db,
     fichas: linhas.map((linha) => ({
@@ -60,7 +71,7 @@ export async function fichasDoUsuario(context: ContextoAutenticado) {
 export async function clienteDoUsuarioOpcional(
   context: ContextoAutenticado,
   ctx?: ContextoBarbearia,
-): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual } | null> {
+): Promise<{ db: BancoPrivilegiado; tenant: TenantCliente; cliente: ClienteAtual } | null> {
   const slug = ctx?.slug?.trim() || null;
   const { db, fichas } = await fichasDoUsuario(context);
 
@@ -90,6 +101,9 @@ export async function clienteDoUsuarioOpcional(
     return { db, tenant, cliente: novo as ClienteAtual };
   }
 
+  // Sem uma escolha explícita, só é seguro continuar quando existe exatamente
+  // uma ficha. Com várias, a interface deve pedir que a pessoa escolha.
+  if (fichas.length !== 1) return null;
   const unica = fichas[0];
   if (!unica) return null;
   return { db, tenant: unica.tenant, cliente: unica.cliente };
@@ -98,7 +112,7 @@ export async function clienteDoUsuarioOpcional(
 export async function clienteDoUsuario(
   context: ContextoAutenticado,
   ctx?: ContextoBarbearia,
-): Promise<{ db: any; tenant: TenantCliente; cliente: ClienteAtual }> {
+): Promise<{ db: BancoPrivilegiado; tenant: TenantCliente; cliente: ClienteAtual }> {
   const resolvido = await clienteDoUsuarioOpcional(context, ctx);
   if (!resolvido) throw new Error(SEM_BARBEARIA);
   return resolvido;

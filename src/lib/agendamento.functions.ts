@@ -9,13 +9,24 @@ export type Ocupado = { profissional_id: string | null; inicio: string; fim: str
 export type DadosAgendar = {
   tenant: { id: string; nome: string; rotulo_carteira: string | null; slug?: string | undefined };
   cliente: { id: string; nome: string; limite_fiado_centavos: number };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null }[];
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    profissional_ids: string[] | null;
+  }[];
   profissionais: { id: string; nome: string }[];
   fuso: string;
   regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number };
   pixAtivo: boolean;
   carteira: { saldo_creditos: number; saldo_centavos: number; fidelidade_progresso: number };
-  regras: { tipo: string; ativo: boolean; bloqueia_agendamento_no_limite: boolean; fidelidade_alvo: number | null }[];
+  regras: {
+    tipo: string;
+    ativo: boolean;
+    bloqueia_agendamento_no_limite: boolean;
+    fidelidade_alvo: number | null;
+  }[];
   ocupados: Ocupado[];
   horarios: HorarioDeFuncionamento[];
 };
@@ -27,26 +38,36 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
     const { STATUS_QUE_OCUPAM, regrasDaBarbearia } = await import("@/lib/agenda-regras.server");
 
-    const [regrasAgenda, { data: financeiro }, servicosRes, profRes, regrasRes, carteiraRes] = await Promise.all([
-      regrasDaBarbearia(db, tenant.id),
-      db.from("configuracoes_financeiras").select("pix_ativo, pix_chave").eq("tenant_id", tenant.id).maybeSingle(),
-      db
-        .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
-        .eq("tenant_id", tenant.id)
-        .eq("ativo", true)
-        .order("ordem"),
-      db.from("profissionais").select("id, nome").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
-      db
-        .from("regras_de_plano")
-        .select("tipo, ativo, bloqueia_agendamento_no_limite, fidelidade_alvo")
-        .eq("tenant_id", tenant.id),
-      db
-        .from("carteiras")
-        .select("saldo_creditos, saldo_centavos, fidelidade_progresso")
-        .eq("cliente_id", cliente.id)
-        .maybeSingle(),
-    ]);
+    const [regrasAgenda, { data: financeiro }, servicosRes, profRes, regrasRes, carteiraRes] =
+      await Promise.all([
+        regrasDaBarbearia(db, tenant.id),
+        db
+          .from("configuracoes_financeiras")
+          .select("pix_ativo, pix_chave")
+          .eq("tenant_id", tenant.id)
+          .maybeSingle(),
+        db
+          .from("servicos")
+          .select("id, nome, duracao_min, preco_centavos, profissional_ids")
+          .eq("tenant_id", tenant.id)
+          .eq("ativo", true)
+          .order("ordem"),
+        db
+          .from("profissionais")
+          .select("id, nome")
+          .eq("tenant_id", tenant.id)
+          .eq("ativo", true)
+          .order("nome"),
+        db
+          .from("regras_de_plano")
+          .select("tipo, ativo, bloqueia_agendamento_no_limite, fidelidade_alvo")
+          .eq("tenant_id", tenant.id),
+        db
+          .from("carteiras")
+          .select("saldo_creditos, saldo_centavos, fidelidade_progresso")
+          .eq("cliente_id", cliente.id)
+          .maybeSingle(),
+      ]);
 
     // Exceção individual: a escolha feita na ficha do cliente vale mais que o padrão.
     const { data: personalizacao } = await db
@@ -56,7 +77,8 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const regras = (regrasRes.data ?? []).map((r: DadosAgendar["regras"][number]) =>
-      r.tipo === "fidelidade" && personalizacao?.fidelidade_participa !== null &&
+      r.tipo === "fidelidade" &&
+      personalizacao?.fidelidade_participa !== null &&
       personalizacao?.fidelidade_participa !== undefined
         ? { ...r, ativo: personalizacao.fidelidade_participa }
         : r,
@@ -77,12 +99,19 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       cliente,
       servicos: servicosRes.data ?? [],
       profissionais: profRes.data ?? [],
-      carteira: carteiraRes.data ?? { saldo_creditos: 0, saldo_centavos: 0, fidelidade_progresso: 0 },
+      carteira: carteiraRes.data ?? {
+        saldo_creditos: 0,
+        saldo_centavos: 0,
+        fidelidade_progresso: 0,
+      },
       regras,
       ocupados: ocupados ?? [],
       horarios: regrasAgenda.horarios,
       fuso: regrasAgenda.fuso,
-      regrasAgenda: { antecedenciaMin: regrasAgenda.antecedenciaMin, intervaloEntreMin: regrasAgenda.intervaloEntreMin },
+      regrasAgenda: {
+        antecedenciaMin: regrasAgenda.antecedenciaMin,
+        intervaloEntreMin: regrasAgenda.intervaloEntreMin,
+      },
       pixAtivo: Boolean(financeiro?.pix_ativo && String(financeiro?.pix_chave ?? "").trim()),
     };
   });
@@ -203,7 +232,9 @@ export const cancelarAgendamento = createServerFn({ method: "POST" })
       .in("cliente_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
       .maybeSingle();
     if (!ag) throw new Error("Esse agendamento não é seu.");
-    const { data: res, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
+    const { data: res, error } = await db.rpc("cancelar_agendamento", {
+      _agendamento_id: data.agendamentoId,
+    });
     if (error) throw new Error(traduz(error.message));
     try {
       const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
@@ -228,13 +259,17 @@ export type AgendamentoCliente = {
 export const listarAgendamentosCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { slug?: string | undefined }) => data ?? {})
-  .handler(async ({ context }): Promise<AgendamentoCliente[]> => {
+  .handler(async ({ data, context }): Promise<AgendamentoCliente[]> => {
     const { db, fichas } = await fichasDoUsuario(context);
-    const ids = fichas.map((f) => f.cliente.id);
+    const ids = data.slug
+      ? fichas.filter((f) => f.tenant.slug === data.slug).map((f) => f.cliente.id)
+      : fichas.map((f) => f.cliente.id);
     if (!ids.length) return [];
     const { data: rows } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status, forma_pagamento, valor_centavos, servicos(nome), profissionais(nome)")
+      .select(
+        "id, inicio, fim, status, forma_pagamento, valor_centavos, servicos(nome), profissionais(nome)",
+      )
       .in("cliente_id", ids)
       .order("inicio", { ascending: false })
       .limit(30);
@@ -244,6 +279,7 @@ export const listarAgendamentosCliente = createServerFn({ method: "GET" })
 function traduz(msg: string): string {
   if (msg.includes("limite de fiado")) return "O limite de fiado foi atingido.";
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
-  if (msg.includes("horario ja ocupado")) return "Esse horário acabou de ser reservado, escolha outro";
+  if (msg.includes("horario ja ocupado"))
+    return "Esse horário acabou de ser reservado, escolha outro";
   return msg;
 }

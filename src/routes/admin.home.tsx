@@ -53,7 +53,10 @@ export const Route = createFileRoute("/admin/home")({
   head: () => ({
     meta: [
       { title: "Home pública — Administração Cortaí" },
-      { name: "description", content: "Edite o conteúdo, as seções e a aparência da página inicial pública do Cortaí." },
+      {
+        name: "description",
+        content: "Edite o conteúdo, as seções e a aparência da página inicial pública do Cortaí.",
+      },
       { property: "og:title", content: "Home pública — Administração Cortaí" },
       { property: "og:description", content: "Editor da página inicial pública do Cortaí." },
       { property: "og:type", content: "website" },
@@ -89,7 +92,10 @@ function EditorDaHome() {
   const assinarFn = useServerFn(assinarImagensHome);
   const listarFn = useServerFn(listarImagensHome);
 
-  const { data, isLoading, error } = useQuery({ queryKey: ["admin", "home"], queryFn: () => carregar({}) });
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin", "home"],
+    queryFn: () => carregar({}),
+  });
 
   const [aba, setAba] = useState<Aba>("visao");
   const [rascunho, setRascunho] = useState<ConfigHome | null>(null);
@@ -113,14 +119,19 @@ function EditorDaHome() {
   useEffect(() => {
     const faltando = caminhos.filter((c) => !urls[c]);
     if (!faltando.length) return;
-    assinarFn({ data: { caminhos: faltando } }).then((novo) => setUrls((atual) => ({ ...atual, ...novo })));
+    assinarFn({ data: { caminhos: faltando } }).then((novo) =>
+      setUrls((atual) => ({ ...atual, ...novo })),
+    );
   }, [caminhos, urls, assinarFn]);
 
   const configVisual: ConfigHome = useMemo(
     () => ({
       ...config,
       hero: { ...config.hero, imagem: urls[config.hero.imagem] ?? config.hero.imagem },
-      secoes: config.secoes.map((s) => ({ ...s, imagem: (s.imagem && urls[s.imagem]) || s.imagem })),
+      secoes: config.secoes.map((s) => ({
+        ...s,
+        imagem: (s.imagem && urls[s.imagem]) || s.imagem,
+      })),
     }),
     [config, urls],
   );
@@ -133,36 +144,54 @@ function EditorDaHome() {
 
   const salvar = useMutation({
     mutationFn: async () => salvarFn({ data: esquemaHome.parse(config) }),
-    onSuccess: () => { toast.success("Rascunho salvo."); invalidar(); },
+    onSuccess: () => {
+      toast.success("Rascunho salvo.");
+      invalidar();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   const publicar = useMutation({
     mutationFn: async () => publicarFn({ data: esquemaHome.parse(config) }),
-    onSuccess: () => { toast.success("Home publicada."); invalidar(); },
+    onSuccess: () => {
+      toast.success("Home publicada.");
+      invalidar();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   const descartar = useMutation({
     mutationFn: () => descartarFn({}),
-    onSuccess: async () => { toast.success("Rascunho descartado."); setRascunho(null); await invalidar(); },
+    onSuccess: async () => {
+      toast.success("Rascunho descartado.");
+      setRascunho(null);
+      await invalidar();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   const restaurar = useMutation({
     mutationFn: (id: string) => restaurarFn({ data: { id } }),
-    onSuccess: async () => { toast.success("Versão restaurada no rascunho."); setRascunho(null); await invalidar(); },
+    onSuccess: async () => {
+      toast.success("Versão restaurada no rascunho.");
+      setRascunho(null);
+      await invalidar();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
   if (isLoading) {
     return (
       <AdminScreen title="Home pública">
-        <div className="flex items-center gap-2 text-sm text-mute"><Loader2 className="animate-spin" size={16} /> Carregando o editor…</div>
+        <div className="flex items-center gap-2 text-sm text-mute">
+          <Loader2 className="animate-spin" size={16} /> Carregando o editor…
+        </div>
       </AdminScreen>
     );
   }
   if (error) {
     return (
       <AdminScreen title="Home pública">
-        <p className="text-sm text-mute">Não foi possível abrir o editor: {(error as Error).message}</p>
+        <p className="text-sm text-mute">
+          Não foi possível abrir o editor: {(error as Error).message}
+        </p>
       </AdminScreen>
     );
   }
@@ -170,7 +199,10 @@ function EditorDaHome() {
   const mudancas = data ? resumirMudancas(data.publicado, config) : [];
 
   return (
-    <AdminScreen title="Home pública" subtitle="Edite a página inicial que qualquer pessoa vê antes de entrar.">
+    <AdminScreen
+      title="Home pública"
+      subtitle="Edite a página inicial que qualquer pessoa vê antes de entrar."
+    >
       <div className="flex flex-wrap items-center gap-2 border-b border-line pb-3">
         {ABAS.map((item) => (
           <button
@@ -183,8 +215,14 @@ function EditorDaHome() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => salvar.mutate()} disabled={salvar.isPending}>
-            {salvar.isPending ? <Loader2 className="animate-spin" size={14} /> : null} Salvar rascunho
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => salvar.mutate()}
+            disabled={salvar.isPending}
+          >
+            {salvar.isPending ? <Loader2 className="animate-spin" size={14} /> : null} Salvar
+            rascunho
           </Button>
           <Button size="sm" onClick={() => publicar.mutate()} disabled={publicar.isPending}>
             {publicar.isPending ? <Loader2 className="animate-spin" size={14} /> : null} Publicar
@@ -196,11 +234,16 @@ function EditorDaHome() {
         <div className="min-w-0 space-y-6">
           {aba === "visao" ? (
             <section className="space-y-4">
-              <SectionHeading title="Situação da página" description="Acompanhe o que está no ar e o que ainda é rascunho." />
+              <SectionHeading
+                title="Situação da página"
+                description="Acompanhe o que está no ar e o que ainda é rascunho."
+              />
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="surface p-4">
                   <p className="text-xs text-mute">Estado</p>
-                  <p className="mt-1 text-sm font-semibold text-paper">{data?.temRascunho ? "Rascunho não publicado" : "Publicada"}</p>
+                  <p className="mt-1 text-sm font-semibold text-paper">
+                    {data?.temRascunho ? "Rascunho não publicado" : "Publicada"}
+                  </p>
                 </div>
                 <div className="surface p-4">
                   <p className="text-xs text-mute">Última publicação</p>
@@ -208,25 +251,47 @@ function EditorDaHome() {
                 </div>
                 <div className="surface p-4">
                   <p className="text-xs text-mute">Última edição</p>
-                  <p className="mt-1 text-sm font-semibold text-paper">{DATA(data?.atualizadoEm)}</p>
+                  <p className="mt-1 text-sm font-semibold text-paper">
+                    {DATA(data?.atualizadoEm)}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" asChild><a href="/" target="_blank" rel="noreferrer"><Eye size={14} /> Ver a página no ar</a></Button>
-                <Button size="sm" variant="outline" onClick={() => setAba("hero")}>Editar topo</Button>
-                <Button size="sm" variant="outline" onClick={() => setAba("secoes")}>Editar seções</Button>
-                <Button size="sm" variant="ghost" onClick={() => descartar.mutate()} disabled={!data?.temRascunho || descartar.isPending}>
+                <Button size="sm" variant="outline" asChild>
+                  <a href="/apresentacao" target="_blank" rel="noreferrer">
+                    <Eye size={14} /> Ver a página no ar
+                  </a>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAba("hero")}>
+                  Editar topo
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAba("secoes")}>
+                  Editar seções
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => descartar.mutate()}
+                  disabled={!data?.temRascunho || descartar.isPending}
+                >
                   <RotateCcw size={14} /> Descartar rascunho
                 </Button>
               </div>
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase text-mute2">Versões anteriores</p>
+                <p className="mb-2 text-xs font-semibold uppercase text-mute2">
+                  Versões anteriores
+                </p>
                 {data?.versoes.length ? (
                   <ul className="divide-y divide-line border-y border-line">
                     {data.versoes.map((v) => (
                       <li key={v.id} className="flex items-center justify-between gap-3 py-2.5">
                         <span className="text-sm text-paper">{DATA(v.criado_em)}</span>
-                        <Button size="sm" variant="ghost" onClick={() => restaurar.mutate(v.id)} disabled={restaurar.isPending}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => restaurar.mutate(v.id)}
+                          disabled={restaurar.isPending}
+                        >
                           <History size={14} /> Restaurar
                         </Button>
                       </li>
@@ -241,29 +306,79 @@ function EditorDaHome() {
 
           {aba === "hero" ? (
             <section className="space-y-4">
-              <SectionHeading title="Topo da página" description="A primeira coisa que a pessoa vê ao abrir o Cortaí." />
+              <SectionHeading
+                title="Topo da página"
+                description="A primeira coisa que a pessoa vê ao abrir o Cortaí."
+              />
               <label className="flex items-center justify-between surface p-4">
                 <span className="text-sm text-paper">Mostrar o topo</span>
-                <Switch checked={config.hero.ativo} onCheckedChange={(v) => atualizar({ hero: { ...config.hero, ativo: v } })} />
+                <Switch
+                  checked={config.hero.ativo}
+                  onCheckedChange={(v) => atualizar({ hero: { ...config.hero, ativo: v } })}
+                />
               </label>
               <Field label="Selo (texto pequeno acima do título)">
-                <Input value={config.hero.etiqueta} onChange={(e) => atualizar({ hero: { ...config.hero, etiqueta: e.target.value } })} />
+                <Input
+                  value={config.hero.etiqueta}
+                  onChange={(e) =>
+                    atualizar({ hero: { ...config.hero, etiqueta: e.target.value } })
+                  }
+                />
               </Field>
               <label className="flex items-center justify-between surface p-4">
                 <span className="text-sm text-paper">Exibir o selo dourado</span>
-                <Switch checked={config.hero.mostrarSelo} onCheckedChange={(v) => atualizar({ hero: { ...config.hero, mostrarSelo: v } })} />
+                <Switch
+                  checked={config.hero.mostrarSelo}
+                  onCheckedChange={(v) => atualizar({ hero: { ...config.hero, mostrarSelo: v } })}
+                />
               </label>
               <Field label="Título">
-                <Textarea rows={2} value={config.hero.titulo} onChange={(e) => atualizar({ hero: { ...config.hero, titulo: e.target.value } })} />
+                <Textarea
+                  rows={2}
+                  value={config.hero.titulo}
+                  onChange={(e) => atualizar({ hero: { ...config.hero, titulo: e.target.value } })}
+                />
               </Field>
               <Field label="Descrição">
-                <Textarea rows={3} value={config.hero.texto} onChange={(e) => atualizar({ hero: { ...config.hero, texto: e.target.value } })} />
+                <Textarea
+                  rows={3}
+                  value={config.hero.texto}
+                  onChange={(e) => atualizar({ hero: { ...config.hero, texto: e.target.value } })}
+                />
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Botão principal"><Input value={config.hero.ctaTexto} onChange={(e) => atualizar({ hero: { ...config.hero, ctaTexto: e.target.value } })} /></Field>
-                <Field label="Destino" hint="Use /pagina ou #secao"><Input value={config.hero.ctaDestino} onChange={(e) => atualizar({ hero: { ...config.hero, ctaDestino: e.target.value } })} /></Field>
-                <Field label="Botão secundário"><Input value={config.hero.cta2Texto} onChange={(e) => atualizar({ hero: { ...config.hero, cta2Texto: e.target.value } })} /></Field>
-                <Field label="Destino"><Input value={config.hero.cta2Destino} onChange={(e) => atualizar({ hero: { ...config.hero, cta2Destino: e.target.value } })} /></Field>
+                <Field label="Botão principal">
+                  <Input
+                    value={config.hero.ctaTexto}
+                    onChange={(e) =>
+                      atualizar({ hero: { ...config.hero, ctaTexto: e.target.value } })
+                    }
+                  />
+                </Field>
+                <Field label="Destino" hint="Use /pagina ou #secao">
+                  <Input
+                    value={config.hero.ctaDestino}
+                    onChange={(e) =>
+                      atualizar({ hero: { ...config.hero, ctaDestino: e.target.value } })
+                    }
+                  />
+                </Field>
+                <Field label="Botão secundário">
+                  <Input
+                    value={config.hero.cta2Texto}
+                    onChange={(e) =>
+                      atualizar({ hero: { ...config.hero, cta2Texto: e.target.value } })
+                    }
+                  />
+                </Field>
+                <Field label="Destino">
+                  <Input
+                    value={config.hero.cta2Destino}
+                    onChange={(e) =>
+                      atualizar({ hero: { ...config.hero, cta2Destino: e.target.value } })
+                    }
+                  />
+                </Field>
               </div>
               <EscolherImagem
                 valor={config.hero.imagem}
@@ -272,7 +387,17 @@ function EditorDaHome() {
               />
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Posição da imagem">
-                  <Select value={config.hero.imagemPosicao} onChange={(e) => atualizar({ hero: { ...config.hero, imagemPosicao: e.target.value as ConfigHome["hero"]["imagemPosicao"] } })}>
+                  <Select
+                    value={config.hero.imagemPosicao}
+                    onChange={(e) =>
+                      atualizar({
+                        hero: {
+                          ...config.hero,
+                          imagemPosicao: e.target.value as ConfigHome["hero"]["imagemPosicao"],
+                        },
+                      })
+                    }
+                  >
                     <option value="rosto">Focar na pessoa</option>
                     <option value="centro">Centro</option>
                     <option value="esquerda">Esquerda</option>
@@ -280,11 +405,29 @@ function EditorDaHome() {
                   </Select>
                 </Field>
                 <Field label={`Escurecer o fundo (${config.hero.overlay}%)`}>
-                  <input type="range" min={0} max={95} value={config.hero.overlay} className="w-full accent-gold"
-                    onChange={(e) => atualizar({ hero: { ...config.hero, overlay: Number(e.target.value) } })} />
+                  <input
+                    type="range"
+                    min={0}
+                    max={95}
+                    value={config.hero.overlay}
+                    className="w-full accent-gold"
+                    onChange={(e) =>
+                      atualizar({ hero: { ...config.hero, overlay: Number(e.target.value) } })
+                    }
+                  />
                 </Field>
                 <Field label="Alinhamento">
-                  <Select value={config.hero.alinhamento} onChange={(e) => atualizar({ hero: { ...config.hero, alinhamento: e.target.value as "esquerda" | "centro" } })}>
+                  <Select
+                    value={config.hero.alinhamento}
+                    onChange={(e) =>
+                      atualizar({
+                        hero: {
+                          ...config.hero,
+                          alinhamento: e.target.value as "esquerda" | "centro",
+                        },
+                      })
+                    }
+                  >
                     <option value="esquerda">À esquerda</option>
                     <option value="centro">Centralizado</option>
                   </Select>
@@ -295,41 +438,93 @@ function EditorDaHome() {
 
           {aba === "secoes" ? (
             <section className="space-y-4">
-              <SectionHeading title="Seções da página" description="Ligue, desligue, reordene e edite cada bloco." />
+              <SectionHeading
+                title="Seções da página"
+                description="Ligue, desligue, reordene e edite cada bloco."
+              />
               <ul className="space-y-2">
                 {config.secoes.map((secao, index) => (
                   <li key={secao.id} className="surface">
                     <div className="flex flex-wrap items-center gap-3 p-3">
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-paper">{secao.nome}</span>
-                        <span className="text-xs text-mute">{TIPOS_DE_SECAO.find((t) => t.valor === secao.tipo)?.rotulo}</span>
+                        <span className="block truncate text-sm font-semibold text-paper">
+                          {secao.nome}
+                        </span>
+                        <span className="text-xs text-mute">
+                          {TIPOS_DE_SECAO.find((t) => t.valor === secao.tipo)?.rotulo}
+                        </span>
                       </span>
                       {!secao.ativo ? <Badge variant="outline">Desligada</Badge> : null}
-                      <Switch checked={secao.ativo} onCheckedChange={(v) => atualizarSecao(secao.id, { ativo: v })} />
+                      <Switch
+                        checked={secao.ativo}
+                        onCheckedChange={(v) => atualizarSecao(secao.id, { ativo: v })}
+                      />
                       <div className="flex items-center gap-1">
-                        <Button size="icon" variant="ghost" aria-label="Subir" disabled={index === 0}
-                          onClick={() => { const s = [...config.secoes]; [s[index - 1]!, s[index]!] = [s[index]!, s[index - 1]!]; atualizar({ secoes: s }); }}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Subir"
+                          disabled={index === 0}
+                          onClick={() => {
+                            const s = [...config.secoes];
+                            [s[index - 1]!, s[index]!] = [s[index]!, s[index - 1]!];
+                            atualizar({ secoes: s });
+                          }}
+                        >
                           <ArrowUp size={15} />
                         </Button>
-                        <Button size="icon" variant="ghost" aria-label="Descer" disabled={index === config.secoes.length - 1}
-                          onClick={() => { const s = [...config.secoes]; [s[index + 1]!, s[index]!] = [s[index]!, s[index + 1]!]; atualizar({ secoes: s }); }}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Descer"
+                          disabled={index === config.secoes.length - 1}
+                          onClick={() => {
+                            const s = [...config.secoes];
+                            [s[index + 1]!, s[index]!] = [s[index]!, s[index + 1]!];
+                            atualizar({ secoes: s });
+                          }}
+                        >
                           <ArrowDown size={15} />
                         </Button>
-                        <Button size="icon" variant="ghost" aria-label="Duplicar"
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Duplicar"
                           onClick={() => {
-                            const copia = { ...secao, id: `${secao.tipo}-${Date.now()}`, nome: `${secao.nome} (cópia)` };
-                            const s = [...config.secoes]; s.splice(index + 1, 0, copia); atualizar({ secoes: s });
-                          }}>
+                            const copia = {
+                              ...secao,
+                              id: `${secao.tipo}-${Date.now()}`,
+                              nome: `${secao.nome} (cópia)`,
+                            };
+                            const s = [...config.secoes];
+                            s.splice(index + 1, 0, copia);
+                            atualizar({ secoes: s });
+                          }}
+                        >
                           <Copy size={15} />
                         </Button>
-                        <Button size="icon" variant="ghost" aria-label="Excluir" disabled={SECOES_FIXAS.includes(secao.tipo)}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Excluir"
+                          disabled={SECOES_FIXAS.includes(secao.tipo)}
                           onClick={() => {
-                            if (!window.confirm(`Excluir a seção "${secao.nome}"? Isso não pode ser desfeito depois de publicar.`)) return;
+                            if (
+                              !window.confirm(
+                                `Excluir a seção "${secao.nome}"? Isso não pode ser desfeito depois de publicar.`,
+                              )
+                            )
+                              return;
                             atualizar({ secoes: config.secoes.filter((s) => s.id !== secao.id) });
-                          }}>
+                          }}
+                        >
                           <Trash2 size={15} />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setSecaoAberta(secaoAberta === secao.id ? null : secao.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSecaoAberta(secaoAberta === secao.id ? null : secao.id)}
+                        >
                           {secaoAberta === secao.id ? "Fechar" : "Editar"}
                         </Button>
                       </div>
@@ -363,7 +558,11 @@ function EditorDaHome() {
                   }}
                 >
                   <option value="">Adicionar seção…</option>
-                  {TIPOS_DE_SECAO.map((t) => <option key={t.valor} value={t.valor}>{t.rotulo}</option>)}
+                  {TIPOS_DE_SECAO.map((t) => (
+                    <option key={t.valor} value={t.valor}>
+                      {t.rotulo}
+                    </option>
+                  ))}
                 </Select>
                 <Plus size={16} className="text-mute" />
               </div>
@@ -374,47 +573,132 @@ function EditorDaHome() {
 
           {aba === "aparencia" ? (
             <section className="space-y-4">
-              <SectionHeading title="Aparência" description="Ajustes visuais aplicados à página inteira." />
+              <SectionHeading
+                title="Aparência"
+                description="Ajustes visuais aplicados à página inteira."
+              />
               <div className="grid gap-2 sm:grid-cols-4">
                 {(Object.keys(PRESETS) as (keyof typeof PRESETS)[]).map((chave) => (
-                  <button key={chave} type="button"
-                    onClick={() => atualizar({ aparencia: { ...config.aparencia, preset: chave, ...PRESETS[chave] } })}
-                    className={`rounded-lg border p-3 text-left text-sm font-semibold transition-colors ${config.aparencia.preset === chave ? "border-gold text-gold" : "border-line text-paper hover:border-line2"}`}>
+                  <button
+                    key={chave}
+                    type="button"
+                    onClick={() =>
+                      atualizar({
+                        aparencia: { ...config.aparencia, preset: chave, ...PRESETS[chave] },
+                      })
+                    }
+                    className={`rounded-lg border p-3 text-left text-sm font-semibold transition-colors ${config.aparencia.preset === chave ? "border-gold text-gold" : "border-line text-paper hover:border-line2"}`}
+                  >
                     {ROTULO_PRESET[chave]}
                   </button>
                 ))}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Cor de destaque">
-                  <input type="color" value={config.aparencia.corDestaque} className="h-11 w-full rounded-md border border-line bg-ink2"
-                    onChange={(e) => atualizar({ aparencia: { ...config.aparencia, corDestaque: e.target.value } })} />
+                  <input
+                    type="color"
+                    value={config.aparencia.corDestaque}
+                    className="h-11 w-full rounded-md border border-line bg-ink2"
+                    onChange={(e) =>
+                      atualizar({ aparencia: { ...config.aparencia, corDestaque: e.target.value } })
+                    }
+                  />
                 </Field>
                 <Field label="Tipografia">
-                  <Select value={config.aparencia.tipografia} onChange={(e) => atualizar({ aparencia: { ...config.aparencia, tipografia: e.target.value as ConfigHome["aparencia"]["tipografia"] } })}>
-                    <option>Manrope</option><option>Montserrat</option><option>Work Sans</option><option>Sora</option>
+                  <Select
+                    value={config.aparencia.tipografia}
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: {
+                          ...config.aparencia,
+                          tipografia: e.target.value as ConfigHome["aparencia"]["tipografia"],
+                        },
+                      })
+                    }
+                  >
+                    <option>Manrope</option>
+                    <option>Montserrat</option>
+                    <option>Work Sans</option>
+                    <option>Sora</option>
                   </Select>
                 </Field>
                 <Field label="Estilo dos botões">
-                  <Select value={config.aparencia.estiloBotao} onChange={(e) => atualizar({ aparencia: { ...config.aparencia, estiloBotao: e.target.value as "solido" | "contorno" } })}>
-                    <option value="solido">Sólido</option><option value="contorno">Contorno</option>
+                  <Select
+                    value={config.aparencia.estiloBotao}
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: {
+                          ...config.aparencia,
+                          estiloBotao: e.target.value as "solido" | "contorno",
+                        },
+                      })
+                    }
+                  >
+                    <option value="solido">Sólido</option>
+                    <option value="contorno">Contorno</option>
                   </Select>
                 </Field>
                 <Field label="Bordas e sombras">
-                  <Select value={config.aparencia.bordas} onChange={(e) => atualizar({ aparencia: { ...config.aparencia, bordas: e.target.value as ConfigHome["aparencia"]["bordas"] } })}>
-                    <option value="sutil">Sutis</option><option value="media">Médias</option><option value="forte">Fortes</option>
+                  <Select
+                    value={config.aparencia.bordas}
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: {
+                          ...config.aparencia,
+                          bordas: e.target.value as ConfigHome["aparencia"]["bordas"],
+                        },
+                      })
+                    }
+                  >
+                    <option value="sutil">Sutis</option>
+                    <option value="media">Médias</option>
+                    <option value="forte">Fortes</option>
                   </Select>
                 </Field>
                 <Field label={`Arredondamento (${config.aparencia.raioPx}px)`}>
-                  <input type="range" min={0} max={24} value={config.aparencia.raioPx} className="w-full accent-gold"
-                    onChange={(e) => atualizar({ aparencia: { ...config.aparencia, raioPx: Number(e.target.value) } })} />
+                  <input
+                    type="range"
+                    min={0}
+                    max={24}
+                    value={config.aparencia.raioPx}
+                    className="w-full accent-gold"
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: { ...config.aparencia, raioPx: Number(e.target.value) },
+                      })
+                    }
+                  />
                 </Field>
                 <Field label={`Largura do conteúdo (${config.aparencia.larguraPx}px)`}>
-                  <input type="range" min={1040} max={1600} step={20} value={config.aparencia.larguraPx} className="w-full accent-gold"
-                    onChange={(e) => atualizar({ aparencia: { ...config.aparencia, larguraPx: Number(e.target.value) } })} />
+                  <input
+                    type="range"
+                    min={1040}
+                    max={1600}
+                    step={20}
+                    value={config.aparencia.larguraPx}
+                    className="w-full accent-gold"
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: { ...config.aparencia, larguraPx: Number(e.target.value) },
+                      })
+                    }
+                  />
                 </Field>
                 <Field label="Espaço entre seções">
-                  <Select value={config.aparencia.espacamento} onChange={(e) => atualizar({ aparencia: { ...config.aparencia, espacamento: e.target.value as ConfigHome["aparencia"]["espacamento"] } })}>
-                    <option value="compacto">Compacto</option><option value="padrao">Padrão</option><option value="amplo">Amplo</option>
+                  <Select
+                    value={config.aparencia.espacamento}
+                    onChange={(e) =>
+                      atualizar({
+                        aparencia: {
+                          ...config.aparencia,
+                          espacamento: e.target.value as ConfigHome["aparencia"]["espacamento"],
+                        },
+                      })
+                    }
+                  >
+                    <option value="compacto">Compacto</option>
+                    <option value="padrao">Padrão</option>
+                    <option value="amplo">Amplo</option>
                   </Select>
                 </Field>
               </div>
@@ -423,36 +707,77 @@ function EditorDaHome() {
 
           {aba === "seo" ? (
             <section className="space-y-4">
-              <SectionHeading title="SEO e compartilhamento" description="Como o Cortaí aparece no Google e ao compartilhar o link." />
+              <SectionHeading
+                title="SEO e compartilhamento"
+                description="Como o Cortaí aparece no Google e ao compartilhar o link."
+              />
               <Field label="Título" hint="Até 60 caracteres funciona melhor">
-                <Input value={config.seo.titulo} onChange={(e) => atualizar({ seo: { ...config.seo, titulo: e.target.value } })} />
+                <Input
+                  value={config.seo.titulo}
+                  onChange={(e) => atualizar({ seo: { ...config.seo, titulo: e.target.value } })}
+                />
               </Field>
               <Field label="Descrição">
-                <Textarea rows={3} value={config.seo.descricao} onChange={(e) => atualizar({ seo: { ...config.seo, descricao: e.target.value } })} />
+                <Textarea
+                  rows={3}
+                  value={config.seo.descricao}
+                  onChange={(e) => atualizar({ seo: { ...config.seo, descricao: e.target.value } })}
+                />
               </Field>
-              <Field label="Endereço da imagem de compartilhamento" hint="Cole um endereço que comece com https://">
-                <Input value={config.seo.imagem} onChange={(e) => atualizar({ seo: { ...config.seo, imagem: e.target.value } })} />
+              <Field
+                label="Endereço da imagem de compartilhamento"
+                hint="Cole um endereço que comece com https://"
+              >
+                <Input
+                  value={config.seo.imagem}
+                  onChange={(e) => atualizar({ seo: { ...config.seo, imagem: e.target.value } })}
+                />
               </Field>
               <Field label="Endereço canônico" hint="Deixe vazio para usar o endereço padrão">
-                <Input value={config.seo.canonica} onChange={(e) => atualizar({ seo: { ...config.seo, canonica: e.target.value } })} />
+                <Input
+                  value={config.seo.canonica}
+                  onChange={(e) => atualizar({ seo: { ...config.seo, canonica: e.target.value } })}
+                />
               </Field>
             </section>
           ) : null}
 
           {aba === "publicar" ? (
             <section className="space-y-4">
-              <SectionHeading title="Publicação" description="Revise o que mudou antes de colocar no ar." />
+              <SectionHeading
+                title="Publicação"
+                description="Revise o que mudou antes de colocar no ar."
+              />
               {mudancas.length ? (
                 <ul className="space-y-1 surface p-4 text-sm text-paper">
-                  {mudancas.map((m) => <li key={m}>• {m}</li>)}
+                  {mudancas.map((m) => (
+                    <li key={m}>• {m}</li>
+                  ))}
                 </ul>
               ) : (
                 <p className="text-sm text-mute">Nada mudou em relação ao que já está publicado.</p>
               )}
               <div className="flex flex-wrap gap-2">
-                <Button onClick={() => publicar.mutate()} disabled={publicar.isPending || !mudancas.length}>Publicar agora</Button>
-                <Button variant="outline" onClick={() => salvar.mutate()} disabled={salvar.isPending}>Salvar rascunho</Button>
-                <Button variant="ghost" onClick={() => descartar.mutate()} disabled={!data?.temRascunho}>Descartar rascunho</Button>
+                <Button
+                  onClick={() => publicar.mutate()}
+                  disabled={publicar.isPending || !mudancas.length}
+                >
+                  Publicar agora
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => salvar.mutate()}
+                  disabled={salvar.isPending}
+                >
+                  Salvar rascunho
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => descartar.mutate()}
+                  disabled={!data?.temRascunho}
+                >
+                  Descartar rascunho
+                </Button>
               </div>
             </section>
           ) : null}
@@ -484,12 +809,22 @@ function Previa({ config }: { config: ConfigHome }) {
   return (
     <div className="landing-page pointer-events-none bg-ink text-paper" style={estilo}>
       <SecaoHero hero={config.hero} />
-      {config.secoes.map((secao) => <SecaoDaHome key={secao.id} secao={secao} aparencia={config.aparencia} />)}
+      {config.secoes.map((secao) => (
+        <SecaoDaHome key={secao.id} secao={secao} aparencia={config.aparencia} />
+      ))}
     </div>
   );
 }
 
-function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string | undefined; onChange: (p: Partial<SecaoHome>) => void }) {
+function EditorSecao({
+  secao,
+  url,
+  onChange,
+}: {
+  secao: SecaoHome;
+  url?: string | undefined;
+  onChange: (p: Partial<SecaoHome>) => void;
+}) {
   const usaImagem = ["voltai", "texto_imagem", "loja", "rotina", "cta"].includes(secao.tipo);
   const usaItens = ["beneficios", "recursos", "voltai", "rotina", "produto"].includes(secao.tipo);
   const usaTexto = !["parceiros", "rodape"].includes(secao.tipo);
@@ -503,39 +838,104 @@ function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string 
       {usaTexto ? (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Texto pequeno"><Input value={secao.etiqueta ?? ""} onChange={(e) => onChange({ etiqueta: e.target.value })} /></Field>
+            <Field label="Texto pequeno">
+              <Input
+                value={secao.etiqueta ?? ""}
+                onChange={(e) => onChange({ etiqueta: e.target.value })}
+              />
+            </Field>
             <Field label="Tema">
-              <Select value={secao.tema ?? "escuro"} onChange={(e) => onChange({ tema: e.target.value as "escuro" | "claro" })}>
-                <option value="escuro">Escuro</option><option value="claro">Claro</option>
+              <Select
+                value={secao.tema ?? "escuro"}
+                onChange={(e) => onChange({ tema: e.target.value as "escuro" | "claro" })}
+              >
+                <option value="escuro">Escuro</option>
+                <option value="claro">Claro</option>
               </Select>
             </Field>
           </div>
-          <Field label="Título"><Input value={secao.titulo ?? ""} onChange={(e) => onChange({ titulo: e.target.value })} /></Field>
-          <Field label="Descrição"><Textarea rows={3} value={secao.texto ?? ""} onChange={(e) => onChange({ texto: e.target.value })} /></Field>
+          <Field label="Título">
+            <Input
+              value={secao.titulo ?? ""}
+              onChange={(e) => onChange({ titulo: e.target.value })}
+            />
+          </Field>
+          <Field label="Descrição">
+            <Textarea
+              rows={3}
+              value={secao.texto ?? ""}
+              onChange={(e) => onChange({ texto: e.target.value })}
+            />
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Botão"><Input value={secao.ctaTexto ?? ""} onChange={(e) => onChange({ ctaTexto: e.target.value })} /></Field>
-            <Field label="Destino"><Input value={secao.ctaDestino ?? ""} onChange={(e) => onChange({ ctaDestino: e.target.value })} /></Field>
+            <Field label="Botão">
+              <Input
+                value={secao.ctaTexto ?? ""}
+                onChange={(e) => onChange({ ctaTexto: e.target.value })}
+              />
+            </Field>
+            <Field label="Destino">
+              <Input
+                value={secao.ctaDestino ?? ""}
+                onChange={(e) => onChange({ ctaDestino: e.target.value })}
+              />
+            </Field>
           </div>
         </>
       ) : (
         <p className="text-sm text-mute">Esta seção usa o conteúdo já cadastrado no painel.</p>
       )}
-      {usaImagem ? <EscolherImagem valor={secao.imagem ?? ""} url={url} onChange={(caminho) => onChange({ imagem: caminho })} /> : null}
+      {usaImagem ? (
+        <EscolherImagem
+          valor={secao.imagem ?? ""}
+          url={url}
+          onChange={(caminho) => onChange({ imagem: caminho })}
+        />
+      ) : null}
       {usaItens ? (
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase text-mute2">Itens</p>
           {itens.map((item, index) => (
-            <div key={index} className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[1fr_1fr_auto]">
-              <Input placeholder="Título" value={item.titulo}
-                onChange={(e) => onChange({ itens: itens.map((i, x) => (x === index ? { ...i, titulo: e.target.value } : i)) })} />
-              <Input placeholder="Texto" value={item.texto}
-                onChange={(e) => onChange({ itens: itens.map((i, x) => (x === index ? { ...i, texto: e.target.value } : i)) })} />
-              <Button size="icon" variant="ghost" aria-label="Remover item"
-                onClick={() => onChange({ itens: itens.filter((_, x) => x !== index) })}><Trash2 size={15} /></Button>
+            <div
+              key={index}
+              className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[1fr_1fr_auto]"
+            >
+              <Input
+                placeholder="Título"
+                value={item.titulo}
+                onChange={(e) =>
+                  onChange({
+                    itens: itens.map((i, x) =>
+                      x === index ? { ...i, titulo: e.target.value } : i,
+                    ),
+                  })
+                }
+              />
+              <Input
+                placeholder="Texto"
+                value={item.texto}
+                onChange={(e) =>
+                  onChange({
+                    itens: itens.map((i, x) => (x === index ? { ...i, texto: e.target.value } : i)),
+                  })
+                }
+              />
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label="Remover item"
+                onClick={() => onChange({ itens: itens.filter((_, x) => x !== index) })}
+              >
+                <Trash2 size={15} />
+              </Button>
             </div>
           ))}
           {itens.length < 12 ? (
-            <Button size="sm" variant="outline" onClick={() => onChange({ itens: [...itens, { titulo: "Novo item", texto: "" }] })}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onChange({ itens: [...itens, { titulo: "Novo item", texto: "" }] })}
+            >
               <Plus size={14} /> Adicionar item
             </Button>
           ) : null}
@@ -546,7 +946,15 @@ function EditorSecao({ secao, url, onChange }: { secao: SecaoHome; url?: string 
 }
 
 /** Envio e escolha de imagem, com opção de voltar à imagem original. */
-function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string | undefined; onChange: (caminho: string) => void }) {
+function EscolherImagem({
+  valor,
+  url,
+  onChange,
+}: {
+  valor: string;
+  url?: string | undefined;
+  onChange: (caminho: string) => void;
+}) {
   const input = useRef<HTMLInputElement>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -555,7 +963,10 @@ function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string 
     const nome = `${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase()}`;
     const { error } = await supabase.storage.from(BUCKET).upload(nome, arquivo, { upsert: false });
     setEnviando(false);
-    if (error) { toast.error("Não foi possível enviar a imagem."); return; }
+    if (error) {
+      toast.error("Não foi possível enviar a imagem.");
+      return;
+    }
     onChange(nome);
     toast.success("Imagem enviada.");
   };
@@ -571,23 +982,57 @@ function EscolherImagem({ valor, url, onChange }: { valor: string; url?: string 
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" onClick={() => input.current?.click()} disabled={enviando}>
-            {enviando ? <Loader2 className="animate-spin" size={14} /> : <Upload size={14} />} Enviar imagem
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => input.current?.click()}
+            disabled={enviando}
+          >
+            {enviando ? <Loader2 className="animate-spin" size={14} /> : <Upload size={14} />}{" "}
+            Enviar imagem
           </Button>
-          {valor ? <Button size="sm" variant="ghost" onClick={() => onChange("")}>Usar a imagem original</Button> : null}
+          {valor ? (
+            <Button size="sm" variant="ghost" onClick={() => onChange("")}>
+              Usar a imagem original
+            </Button>
+          ) : null}
         </div>
       </div>
-      <input ref={input} type="file" accept="image/*" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) void enviar(f); e.target.value = ""; }} />
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void enviar(f);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }
 
-function Biblioteca({ listar }: { listar: (o: Record<string, never>) => Promise<{ caminho: string; url: string }[]> }) {
-  const { data, isLoading, refetch } = useQuery({ queryKey: ["admin", "home", "imagens"], queryFn: () => listar({}) });
+function Biblioteca({
+  listar,
+}: {
+  listar: (o: Record<string, never>) => Promise<{ caminho: string; url: string }[]>;
+}) {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["admin", "home", "imagens"],
+    queryFn: () => listar({}),
+  });
   return (
     <section className="space-y-4">
-      <SectionHeading title="Imagens" description="Tudo que já foi enviado para a página inicial." action={<Button size="sm" variant="outline" onClick={() => refetch()}>Atualizar</Button>} />
+      <SectionHeading
+        title="Imagens"
+        description="Tudo que já foi enviado para a página inicial."
+        action={
+          <Button size="sm" variant="outline" onClick={() => refetch()}>
+            Atualizar
+          </Button>
+        }
+      />
       {isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
       {data?.length ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -599,7 +1044,9 @@ function Biblioteca({ listar }: { listar: (o: Record<string, never>) => Promise<
           ))}
         </div>
       ) : !isLoading ? (
-        <p className="text-sm text-mute">Nenhuma imagem enviada ainda. Envie pelo campo de imagem do topo ou das seções.</p>
+        <p className="text-sm text-mute">
+          Nenhuma imagem enviada ainda. Envie pelo campo de imagem do topo ou das seções.
+        </p>
       ) : null}
     </section>
   );

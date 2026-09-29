@@ -6,6 +6,7 @@ export type TabItem = {
   to: NonNullable<LinkProps["to"]>;
   label: string;
   icon: LucideIcon;
+  search?: LinkProps["search"];
 };
 
 /**
@@ -30,13 +31,19 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
             <li key={item.to} className={centralAction && index === 2 ? "col-start-4" : undefined}>
               <Link
                 to={item.to}
+                {...(item.search === undefined ? {} : { search: item.search })}
                 preload="intent"
                 activeOptions={{ exact: item.to.split("/").length === 2 }}
                 className="group relative mx-auto flex h-14 w-full max-w-[76px] flex-col items-center justify-center gap-1 rounded-xl text-mute transition-colors duration-150 hover:text-paper active:scale-[0.97] active:bg-ink3"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}
               >
                 <span className="flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150 group-aria-[current=page]:bg-gold-soft">
-                  <Icon size={19} strokeWidth={1.7} aria-hidden className="group-aria-[current=page]:stroke-[2.2]" />
+                  <Icon
+                    size={19}
+                    strokeWidth={1.7}
+                    aria-hidden
+                    className="group-aria-[current=page]:stroke-[2.2]"
+                  />
                 </span>
                 <span className="w-full truncate text-center text-xs font-medium leading-none tracking-tight group-aria-[current=page]:font-semibold">
                   {item.label}

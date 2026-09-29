@@ -7,6 +7,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -15,16 +16,6 @@ import {
 } from "@/lib/barbeiro.functions";
 
 type Forma = "balcao" | "pix" | "fiado" | "credito";
-
-function isoLocal(dia: string, horaMin: string) {
-  return new Date(`${dia}T${horaMin}:00`).toISOString();
-}
-
-function horasDoDia() {
-  const out: string[] = [];
-  for (let h = 9; h < 19; h++) for (const m of ["00", "30"]) out.push(`${String(h).padStart(2, "0")}:${m}`);
-  return out;
-}
 
 /**
  * Agendamento de balcão em poucos toques: cliente (existente ou novo),
@@ -53,14 +44,11 @@ export function AgendamentoManual({
 
   return (
     <>
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setAberto(true)}
-        className={
-          gatilho === "primario"
-            ? "btn-primary w-full text-sm"
-            : "btn-tertiary text-xs"
-        }
+        className={gatilho === "primario" ? "btn-primary w-full text-sm" : "btn-tertiary text-xs"}
       >
         {rotulo ?? (gatilho === "primario" ? "+ Agendamento manual" : "Marcar cliente aqui")}
       </Button>
@@ -104,12 +92,6 @@ function Formulario({
     queryFn: () => getDadosAgendamentoManual(),
   });
 
-  const proximo = useQuery({
-    queryKey: ["proximo-livre"],
-    queryFn: () => getProximoHorarioLivre({ data: {} }),
-    staleTime: 30_000,
-  });
-
   const [termo, setTermo] = useState("");
   const [termoDebounce, setTermoDebounce] = useState("");
   const [clienteId, setClienteId] = useState<string | null>(null);
@@ -123,11 +105,26 @@ function Formulario({
   const [horaMin, setHoraMin] = useState(horaInicial);
   const [forma, setForma] = useState<Forma>("balcao");
   const [erro, setErro] = useState<string | null>(null);
-  const [conflito, setConflito] = useState<{ mensagem: string; sugestoes: { iso: string; label: string }[]; podeEncaixar?: boolean } | null>(
-    null,
-  );
+  const [conflito, setConflito] = useState<{
+    mensagem: string;
+    sugestoes: { iso: string; label: string }[];
+    podeEncaixar?: boolean;
+  } | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+
+  const proximo = useQuery({
+    queryKey: ["proximo-livre", profissionalId, servicoId],
+    queryFn: () =>
+      getProximoHorarioLivre({
+        data: {
+          ...(profissionalId ? { profissionalId } : {}),
+          ...(servicoId ? { servicoId } : {}),
+        },
+      }),
+    enabled: Boolean(profissionalId && servicoId),
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     const t = setTimeout(() => setTermoDebounce(termo), 250);
@@ -143,12 +140,16 @@ function Formulario({
   useEffect(() => {
     if (base && !servicoId && base.servicos[0]) setServicoId(base.servicos[0].id);
     if (base && !profissionalId && base.profissionais[0]) {
-      const escolhido = profissionalInicial ? base.profissionais.find((p) => p.nome === profissionalInicial) : undefined;
+      const escolhido = profissionalInicial
+        ? base.profissionais.find((p) => p.nome === profissionalInicial)
+        : undefined;
       setProfissionalId((escolhido ?? base.profissionais[0]).id);
     }
   }, [base, servicoId, profissionalId, profissionalInicial]);
 
-  const clienteOk = clienteId ? true : novo && novoNome.trim().length >= 2 && novoTelefone.replace(/\D/g, "").length >= 10;
+  const clienteOk = clienteId
+    ? true
+    : novo && novoNome.trim().length >= 2 && novoTelefone.replace(/\D/g, "").length >= 10;
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
 
   async function salvar(isoForcado?: string, encaixe = false) {
@@ -162,7 +163,8 @@ function Formulario({
           ...(clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
-          inicio: isoForcado ?? isoLocal(data, horaMin),
+          inicio:
+            isoForcado ?? isoNoFusoDaBarbearia(data, horaMin, base?.fuso ?? "America/Sao_Paulo"),
           formaPagamento: forma,
           ...(encaixe ? { encaixe: true } : {}),
         },
@@ -209,7 +211,13 @@ function Formulario({
             <p className="text-base font-bold text-paper">Agendamento manual</p>
             <p className="mt-1 text-xs text-mute">Cliente que chegou agora, em poucos toques.</p>
           </div>
-          <Button variant="ghost" type="button" aria-label="Fechar" onClick={onFechar} className="p-1 text-mute">
+          <Button
+            variant="ghost"
+            type="button"
+            aria-label="Fechar"
+            onClick={onFechar}
+            className="p-1 text-mute"
+          >
             <X size={18} />
           </Button>
         </div>
@@ -219,7 +227,8 @@ function Formulario({
         {clienteId ? (
           <div className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-line2 px-3 py-3">
             <span className="truncate text-sm text-paper">{clienteNome}</span>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="btn-tertiary text-xs"
               onClick={() => {
@@ -245,14 +254,22 @@ function Formulario({
               value={novoTelefone}
               onChange={(e) => setNovoTelefone(e.target.value)}
             />
-            <Button variant="ghost" type="button" className="btn-tertiary text-xs" onClick={() => setNovo(false)}>
+            <Button
+              variant="ghost"
+              type="button"
+              className="btn-tertiary text-xs"
+              onClick={() => setNovo(false)}
+            >
               Buscar cliente já cadastrado
             </Button>
           </div>
         ) : (
           <div className="mt-2">
             <div className="relative">
-              <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute2" />
+              <Search
+                size={15}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute2"
+              />
               <input
                 className="input-premium pl-9"
                 placeholder="Buscar por nome ou telefone"
@@ -264,7 +281,8 @@ function Formulario({
               {buscando ? <li className="py-3 text-xs text-mute">Buscando…</li> : null}
               {(clientes ?? []).map((c) => (
                 <li key={c.id} className="border-b border-line">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     className="flex w-full items-center justify-between gap-3 py-3 text-left"
                     onClick={() => {
@@ -278,10 +296,13 @@ function Formulario({
                 </li>
               ))}
               {!buscando && (clientes ?? []).length === 0 ? (
-                <li className="py-3 text-xs text-mute">Nenhum cliente encontrado nesta barbearia.</li>
+                <li className="py-3 text-xs text-mute">
+                  Nenhum cliente encontrado nesta barbearia.
+                </li>
               ) : null}
             </ul>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="btn-secondary mt-2 w-full text-sm"
               onClick={() => {
@@ -326,14 +347,17 @@ function Formulario({
         {/* 3. Horário */}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-mute2">3. Horário</p>
         {proximo.data ? (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => {
               setData(new Date().toISOString().slice(0, 10));
               setHoraMin(proximo.data!.label);
             }}
             className={`mt-2 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm ${
-              horaMin === proximo.data.label ? "border-gold bg-gold-soft text-gold" : "border-gold/60 text-gold"
+              horaMin === proximo.data.label
+                ? "border-gold bg-gold-soft text-gold"
+                : "border-gold/60 text-gold"
             }`}
           >
             <span className="font-semibold">Atender agora</span>
@@ -355,7 +379,10 @@ function Formulario({
             onChange={(e) => setHoraMin(e.target.value)}
             aria-label="Hora"
           >
-            {horasDoDia().map((h) => (
+            {(base
+              ? slotsDoDia(data, base.horarios, 30, base.fuso).slots.map((slot) => slot.label)
+              : []
+            ).map((h) => (
               <option key={h} value={h}>
                 {h}
               </option>
@@ -372,7 +399,8 @@ function Formulario({
               ["credito", "Crédito"],
             ] as const
           ).map(([v, rotulo]) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={v}
               type="button"
               onClick={() => setForma(v)}
@@ -402,7 +430,8 @@ function Formulario({
             {conflito.sugestoes.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {conflito.sugestoes.map((s) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={s.iso}
                     type="button"
                     className="rounded-lg border border-line2 px-3 py-2 text-xs text-paper"
@@ -427,7 +456,8 @@ function Formulario({
           </Aviso>
         ) : null}
 
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           disabled={!pronto || salvando}
           onClick={() => void salvar()}
