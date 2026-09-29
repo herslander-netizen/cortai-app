@@ -1,4 +1,5 @@
-import { useTermosDoPainel } from "@/lib/segmento-contexto";
+import { useSegmentoDoPainel, useTermosDoPainel } from "@/lib/segmento-contexto";
+import { PerfilClienteConteudo } from "@/components/cliente-perfil/PerfilClienteSheet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -87,6 +88,11 @@ function FichaPage() {
 
       {data ? (
         <>
+          <section className="mb-8">
+            <h2 className="mb-3 text-sm font-semibold text-paper">Perfil, cortes e preferências</h2>
+            <PerfilClienteConteudo clienteId={id} segmento={segmento} />
+          </section>
+
           <div className="surface px-5 py-5">
             <p className="text-xs text-mute">Fiado em aberto</p>
             <p className={`mt-1 text-[28px] font-bold leading-none ${cor}`}>{brl(aberto)}</p>
