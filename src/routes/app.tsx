@@ -4,6 +4,7 @@ import { CalendarDays, Clock, Scissors, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { ClientBrand } from "@/components/layout/ClientBrand";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
+import { AtivarAvisosNoAparelho } from "@/components/notificacoes/AtivarAvisosNoAparelho";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -51,6 +52,7 @@ function ClientLayout() {
       <Outlet />
       <TabBar items={tabs} />
       <ConviteDeInstalacao />
+      <AtivarAvisosNoAparelho texto="Avise-me sobre meus horários e quando chegar a minha vez." />
     </ClientBrand>
   );
 }

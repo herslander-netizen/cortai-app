@@ -60,7 +60,9 @@ export function useAvisosDoAparelho() {
     if (!suportado()) return false;
     try {
       const resposta = await Notification.requestPermission();
-      setEstado(resposta === "granted" ? "ativo" : resposta === "denied" ? "bloqueado" : "perguntar");
+      setEstado(
+        resposta === "granted" ? "ativo" : resposta === "denied" ? "bloqueado" : "perguntar",
+      );
       return resposta === "granted";
     } catch {
       return false;

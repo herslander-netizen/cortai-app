@@ -7,7 +7,14 @@ import { Bell, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
-import { agrupar, listarNotificacoes, marcarComoLida, marcarTodasComoLidas, type Notificacao } from "@/lib/notificacoes";
+import {
+  agrupar,
+  listarNotificacoes,
+  marcarComoLida,
+  marcarTodasComoLidas,
+  type Notificacao,
+} from "@/lib/notificacoes";
+import { mostrarAviso } from "@/lib/avisos-do-navegador";
 import { molaFolha, transicaoBase } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 
@@ -24,7 +31,11 @@ export function SinoDeAvisos() {
   const navigate = useNavigate();
   const montado = useRef(false);
 
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300000,
+  });
   const tenantId = sessao?.tenantId ?? null;
 
   const { data: avisos } = useQuery({
@@ -47,9 +58,16 @@ export function SinoDeAvisos() {
       .channel(`avisos-${tenantId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notificacoes", filter: `tenant_id=eq.${tenantId}` },
-        () => {
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notificacoes",
+          filter: `tenant_id=eq.${tenantId}`,
+        },
+        (payload) => {
           void queryClient.invalidateQueries({ queryKey: ["notificacoes", tenantId] });
+          const novo = payload.new as Partial<Notificacao> | undefined;
+          if (novo?.titulo) mostrarAviso(novo.titulo, novo.corpo ?? null, novo.link ?? null);
           setPulsar(true);
           setTimeout(() => montado.current && setPulsar(false), 1200);
         },
@@ -110,7 +128,12 @@ export function SinoDeAvisos() {
               Marcar todas como lidas
             </button>
           ) : null}
-          <button type="button" aria-label="Fechar avisos" onClick={() => setAberto(false)} className="text-mute">
+          <button
+            type="button"
+            aria-label="Fechar avisos"
+            onClick={() => setAberto(false)}
+            className="text-mute"
+          >
             <X size={17} />
           </button>
         </div>
@@ -122,7 +145,9 @@ export function SinoDeAvisos() {
         ) : (
           agrupar(lista).map((grupo) => (
             <section key={grupo.rotulo}>
-              <p className="px-5 pb-1 pt-4 text-xs uppercase tracking-wide text-mute2">{grupo.rotulo}</p>
+              <p className="px-5 pb-1 pt-4 text-xs uppercase tracking-wide text-mute2">
+                {grupo.rotulo}
+              </p>
               <ul>
                 {grupo.itens.map((aviso) => (
                   <li key={aviso.id} className="border-b border-line">
@@ -135,10 +160,14 @@ export function SinoDeAvisos() {
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${aviso.lida_em ? "bg-transparent" : "bg-gold"}`}
                       />
                       <span className="min-w-0">
-                        <span className={`block text-sm ${aviso.lida_em ? "text-mute" : "font-semibold text-paper"}`}>
+                        <span
+                          className={`block text-sm ${aviso.lida_em ? "text-mute" : "font-semibold text-paper"}`}
+                        >
                           {aviso.titulo}
                         </span>
-                        {aviso.corpo ? <span className="block truncate text-xs text-mute2">{aviso.corpo}</span> : null}
+                        {aviso.corpo ? (
+                          <span className="block truncate text-xs text-mute2">{aviso.corpo}</span>
+                        ) : null}
                       </span>
                       <span className="text-xs text-mute2">{quando(aviso.criado_em)}</span>
                     </button>

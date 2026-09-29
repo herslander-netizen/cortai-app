@@ -56,7 +56,11 @@ export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
           >
             Ativar avisos
           </button>
-          <button type="button" onClick={dispensar} className="h-12 rounded-lg px-4 text-xs font-semibold text-mute">
+          <button
+            type="button"
+            onClick={dispensar}
+            className="h-12 rounded-lg px-4 text-xs font-semibold text-mute"
+          >
             Agora não
           </button>
         </div>
