@@ -179,6 +179,9 @@ function Fluxo({
   const [conflito, setConflito] = useState<{ agendamentoId: string; hora: string } | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState<ResultadoAgendamento | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const nomeProfissional = (id: string) =>
+    dados.profissionais.find((p) => p.id === id)?.nome ?? "profissional";
 
   const regra = (tipo: string) => dados.regras.find((r) => r.tipo === tipo && r.ativo);
   const regraFiado = regra("fiado");
