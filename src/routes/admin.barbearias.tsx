@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAcao } from "@/hooks/useAcao";
 import { MessageCircle, Phone, Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -75,8 +76,8 @@ function TenantDialog({ tenant, onClose, onChanged }: { tenant: AdminTenant | nu
           <ExclusaoPermanente
             titulo={`Excluir ${tenant.nome} permanentemente`}
             descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos desta barbearia. Não há como recuperar."
-            onExcluir={async (senha) => { await remover({ data: { tenantId: tenant.id, senha } }); }}
-            onSucesso={onChanged}
+            onExcluir={async () => (await remover({ data: { tenantId: tenant.id } })).aviso}
+            onSucesso={(aviso) => { if (aviso) toast.warning(`Negócio excluído. ${aviso}`, { duration: 10000 }); else toast.success("Negócio excluído."); onChanged(); }}
           />
         </div>
       </div>
