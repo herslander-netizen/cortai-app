@@ -95,13 +95,6 @@ function Formulario({
     queryFn: () => getDadosAgendamentoManual(),
   });
 
-  const proximo = useQuery({
-    queryKey: ["proximo-livre", profissionalId, servicoId],
-    queryFn: () => getProximoHorarioLivre({ data: { ...(profissionalId ? { profissionalId } : {}), ...(servicoId ? { servicoId } : {}) } }),
-    enabled: Boolean(profissionalId && servicoId),
-    staleTime: 30_000,
-  });
-
   const [termo, setTermo] = useState("");
   const [termoDebounce, setTermoDebounce] = useState("");
   const [clienteId, setClienteId] = useState<string | null>(null);
@@ -120,6 +113,13 @@ function Formulario({
   );
   const [salvando, setSalvando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+
+  const proximo = useQuery({
+    queryKey: ["proximo-livre", profissionalId, servicoId],
+    queryFn: () => getProximoHorarioLivre({ data: { ...(profissionalId ? { profissionalId } : {}), ...(servicoId ? { servicoId } : {}) } }),
+    enabled: Boolean(profissionalId && servicoId),
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     const t = setTimeout(() => setTermoDebounce(termo), 250);

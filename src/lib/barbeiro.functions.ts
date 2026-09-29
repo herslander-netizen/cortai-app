@@ -695,6 +695,8 @@ export type DadosManual = {
   tenant: { id: string; nome: string };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: { id: string; nome: string }[];
+  horarios: ReturnType<typeof mapearHorarios>;
+  fuso: string;
 };
 
 export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
@@ -834,6 +836,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     // 1. Resolver a referência do cliente sem criar uma ficha ainda.
     let clienteId = data.clienteId ?? null;
     let clienteNome = "";
+    let clienteCriado = false;
     if (clienteId) {
       const { data: c } = await db
         .from("clientes")
@@ -894,6 +897,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       clienteId = novo.id;
       clienteNome = novo.nome;
+      clienteCriado = true;
     }
 
     // 4. A trava atômica do banco continua sendo a última defesa contra corridas.
@@ -944,7 +948,10 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       },
     });
 
-    if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) return conflitoDoPainel();
+    if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) {
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      return conflitoDoPainel();
+    }
 
     // 5. Criar pelas mesmas regras do app e marcar a origem como manual.
     const { data: res, error } = await db.rpc("criar_agendamento", {
@@ -956,8 +963,11 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       _forma_pagamento: data.formaPagamento,
       _encaixe: Boolean(data.encaixe),
     });
-    if (error?.message.includes("horario ja ocupado")) return conflitoDoPainel();
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      if (error.message.includes("horario ja ocupado")) return conflitoDoPainel();
+      throw new Error(error.message);
+    }
     const criado = res as unknown as { agendamento_id: string; inicio: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
 
