@@ -2723,6 +2723,84 @@ body:has(.auth-screen--claro) {
 .agenda-foco-acoes > :only-child {
   grid-column: 1 / -1;
 }
+/* Faixa texturizada entre dois atendimentos: mostra o respiro real da agenda. */
+.agenda-foco-intervalo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--line);
+  border-left: 4px solid transparent;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--line) 0,
+    var(--line) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+.agenda-foco-intervalo span {
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  padding: 3px 10px;
+  color: var(--mute2);
+  font-size: 12px;
+  font-weight: 700;
+}
+/* Linha do tempo do atendimento em curso. */
+.agenda-foco-pista {
+  grid-column: 1 / -1;
+  margin-top: 14px;
+}
+.agenda-foco-pista-trilho {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--line) 0,
+    var(--line) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  background-color: var(--ink);
+}
+.agenda-foco-pista-feito {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--status-active);
+  transition: width 400ms ease-out;
+}
+.agenda-foco-pista-agora {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 16px;
+  transform: translateX(-1px);
+  background: var(--rosa);
+  transition: left 400ms ease-out;
+}
+.agenda-foco-pista p {
+  margin: 7px 0 0;
+  color: var(--mute);
+  font-size: 13px;
+  font-weight: 600;
+}
+.agenda-foco-pista-atencao .agenda-foco-pista-feito {
+  background: var(--operation-gold, var(--status-arrived));
+}
+.agenda-foco-pista-atencao p {
+  color: var(--paper);
+}
+.agenda-foco-pista-estourada .agenda-foco-pista-feito {
+  background: var(--brick);
+}
+.agenda-foco-pista-estourada p {
+  color: var(--brick);
+}
 .agenda-foco-dica {
   margin-top: 10px;
   color: var(--mute2);
