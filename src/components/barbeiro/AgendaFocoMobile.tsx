@@ -68,6 +68,12 @@ function minutosAte(iso: string, agora: number) {
   return Math.ceil((new Date(iso).getTime() - agora) / 60_000);
 }
 
+/** Minutos livres entre o fim de um atendimento e o começo do seguinte. */
+function folgaEntre(anterior: AgendaItem | undefined, item: AgendaItem) {
+  if (!anterior) return 0;
+  return Math.round((new Date(item.inicio).getTime() - new Date(anterior.fim).getTime()) / 60_000);
+}
+
 export function AgendaFocoMobile(props: Props) {
   const [menu, setMenu] = useState(false);
   const [verFeitos, setVerFeitos] = useState(false);
