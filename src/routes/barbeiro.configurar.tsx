@@ -25,9 +25,11 @@ import {
   salvarHorarios,
   salvarRegrasDeAgendamento,
   salvarServicos,
+  salvarModoAgendamento,
   type RegrasDeAgendamento,
 } from "@/lib/onboarding.functions";
 import { SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
+import { ChatPreview } from "@/components/agendamento/ChatPreview";
 
 export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
@@ -53,6 +55,7 @@ const ROTULOS: Record<Etapa, string> = {
   servicos: "Serviços",
   horarios: "Horários",
   regras: "Regras",
+  canais: "Agendamento",
   link: "Link",
   pronto: "Pronto",
 };
@@ -61,7 +64,7 @@ const ROTULOS: Record<Etapa, string> = {
 function etapaSalva(valor: string): Etapa {
   if ((ETAPAS_DO_ONBOARDING as readonly string[]).includes(valor)) return valor as Etapa;
   if (valor === "agenda") return "horarios";
-  if (valor === "canais" || valor === "recursos") return "regras";
+  if (valor === "recursos") return "regras";
   return "dados";
 }
 
@@ -117,6 +120,7 @@ function ConfigurarPage() {
   const convidar = useServerFn(convidarMembro);
   const marcar = useServerFn(marcarItemDoChecklist);
   const concluir = useServerFn(concluirConfiguracao);
+  const gravarModo = useServerFn(salvarModoAgendamento);
 
   const { data, isLoading } = useQuery({ queryKey: ["implantacao"], queryFn: () => getImplantacao(), staleTime: 60_000 });
   const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
@@ -139,6 +143,7 @@ function ConfigurarPage() {
   const [novaFuncao, setNovaFuncao] = useState<Funcao>("barbeiro");
   const [adicionando, setAdicionando] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [modo, setModo] = useState<"tradicional" | "conversa" | null>(null);
   const arquivoRef = useRef<HTMLInputElement>(null);
 
   const valorNome = nome ?? data?.tenant.nome ?? "";
@@ -149,6 +154,7 @@ function ConfigurarPage() {
   const valorEndereco = endereco ?? data?.tenant.endereco ?? "";
   const valorHorarios = horarios ?? data?.horarios ?? horariosPadrao();
   const valorRegras = regras ?? data?.regras ?? REGRAS_RECOMENDADAS;
+  const valorModo = modo ?? data?.modoAgendamento ?? "tradicional";
   const ativos = useMemo(() => (data?.servicos ?? []).filter((s) => s.ativo), [data]);
   const valorServicos: ServicoEditavel[] =
     servicos ??
@@ -581,6 +587,19 @@ function ConfigurarPage() {
                 <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
               </a>
               {rodape(() => proxima(), "Concluir")}
+            </div>
+          ) : null}
+
+          {etapa === "canais" ? (
+            <div>
+              <h2 className="text-lg font-semibold text-paper">Como seu cliente agenda?</h2>
+              <p className="mt-1 text-sm text-mute">Escolha agora ou mantenha o formato atual. Você pode mudar depois.</p>
+              <div className="mt-5 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Modo de agendamento">
+                <Button type="button" variant={valorModo === "conversa" ? "default" : "outline"} className="h-14" onClick={() => setModo("conversa")}>Conversa</Button>
+                <Button type="button" variant={valorModo === "tradicional" ? "default" : "outline"} className="h-14" onClick={() => setModo("tradicional")}>Tradicional</Button>
+              </div>
+              <div className="mt-5"><ChatPreview ativo={valorModo === "conversa"} /></div>
+              {rodape(() => proxima(() => gravarModo({ data: { modo: valorModo } })), "Continuar", false, () => proxima())}
             </div>
           ) : null}
 
