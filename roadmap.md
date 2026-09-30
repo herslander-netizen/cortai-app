@@ -161,11 +161,12 @@
 
 ## Cortaí Chat — experiência conversacional determinística
 
-- [ ] Preservar o modo Tradicional como padrão para negócios existentes e usar o mesmo `/agendar/$slug`
-- [ ] Criar configuração opt-in de modo e conteúdo do Chat, com prévia sem agendamento real
-- [ ] Construir conversa determinística sobre `useSelecaoAgendamento`, `disponibilidade.ts` e `agendarComoConvidado`
-- [ ] Reutilizar uploads existentes para recepção, profissionais e novas fotos opcionais de serviço
-- [ ] Integrar escolha ao onboarding e às configurações sem tornar personalização obrigatória
-- [ ] Corrigir resíduos visíveis de barbearia no escopo e preservar `/demonstracao` como fixture específica
-- [ ] Validar fluxo completo em 390 px e 1280 px, acessibilidade, testes, typecheck, build e lint possível
-- [ ] Não publicar
+- [x] Preservar o modo Tradicional como padrão para negócios existentes e usar o mesmo `/agendar/$slug`
+- [x] Criar configuração opt-in de modo e conteúdo do Chat, com prévia sem agendamento real
+- [x] Construir conversa determinística sobre `useSelecaoAgendamento`, `disponibilidade.ts` e `agendarComoConvidado`
+- [x] Reutilizar uploads existentes para profissionais e criar slots opcionais para recepção e serviços
+- [x] Integrar escolha ao onboarding e às configurações sem tornar personalização obrigatória
+- [x] Corrigir resíduos visíveis de barbearia no escopo e preservar `/demonstracao` como fixture específica
+- [x] Validar modo Tradicional e segmentação em 390 px e 1280 px; testes, typecheck, build e lint dos arquivos novos aprovados
+- [ ] Validar visualmente o modo Chat completo após anexar fotos reais e ativá-lo em um tenant de teste
+- [x] Não publicar

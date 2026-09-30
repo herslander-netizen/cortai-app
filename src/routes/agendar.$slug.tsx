@@ -406,7 +406,7 @@ function AgendamentoPublico() {
         )}
 
         <div className="mt-10 rounded-2xl border border-line p-5">
-          <p className="text-sm font-semibold text-paper">Ganhe pontos a cada corte</p>
+          <p className="text-sm font-semibold text-paper">Ganhe pontos a cada atendimento</p>
           <p className="mt-1 text-xs leading-relaxed text-mute">
             Com uma conta gratuita você acumula fidelidade, recebe descontos da casa e vê seus
             horários. É opcional — seu horário já está marcado.

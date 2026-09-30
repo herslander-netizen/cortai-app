@@ -84,8 +84,8 @@ export function AgendamentoChat({
   erro: string | null;
 }) {
   const [identificado, setIdentificado] = useState(false);
-  const [editando, setEditando] = useState<string | null>(null);
   const [profissionalEscolhido, setProfissionalEscolhido] = useState(false);
+  const [diaEscolhido, setDiaEscolhido] = useState(false);
   const [digitando, setDigitando] = useState(true);
   const nomeRef = useRef<HTMLInputElement>(null);
   const chat = data.pagina.chat;
@@ -111,7 +111,7 @@ export function AgendamentoChat({
       ? "servico"
       : !profissionalEscolhido
         ? "profissional"
-        : !dia
+        : !diaEscolhido || !dia
           ? "dia"
           : !escolhido
             ? "horario"
@@ -255,6 +255,8 @@ export function AgendamentoChat({
                   onClick={() => {
                     setProfissionalId("qualquer");
                     setProfissionalEscolhido(true);
+                      setDia(null);
+                      setDiaEscolhido(false);
                   }}
                 >
                   <UserRound />
@@ -268,6 +270,8 @@ export function AgendamentoChat({
                     onClick={() => {
                       setProfissionalId(p.id);
                       setProfissionalEscolhido(true);
+                      setDia(null);
+                      setDiaEscolhido(false);
                     }}
                   >
                     {p.avatar_url ? (
@@ -296,7 +300,10 @@ export function AgendamentoChat({
                       variant="outline"
                       className="h-16 min-w-20 shrink-0 snap-start flex-col"
                       disabled={!livre}
-                      onClick={() => setDia(d)}
+                      onClick={() => {
+                        setDia(d);
+                        setDiaEscolhido(true);
+                      }}
                     >
                       <CalendarDays size={15} />
                       {local(`${d}T12:00:00Z`)}
@@ -339,7 +346,10 @@ export function AgendamentoChat({
                           key={d}
                           variant="outline"
                           className="h-12"
-                          onClick={() => setDia(d)}
+                          onClick={() => {
+                            setDia(d);
+                            setDiaEscolhido(true);
+                          }}
                         >
                           {local(`${d}T12:00:00Z`)}
                         </Button>
@@ -372,26 +382,45 @@ export function AgendamentoChat({
                   </div>
                 ))}
               </dl>
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="mt-3 grid grid-cols-3 gap-2">
                 <Button
                   variant="outline"
                   className="h-12"
                   onClick={() => {
                     setInicio(null);
-                    setEditando("horário");
                   }}
                 >
                   <Pencil />
-                  Editar
+                  Horário
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-12"
+                  onClick={() => {
+                    setInicio(null);
+                    setDia(null);
+                    setDiaEscolhido(false);
+                  }}
+                >
+                  Dia
                 </Button>
                 <Button className="h-12" disabled={enviando} onClick={confirmar}>
                   <Check />
                   {enviando ? "Confirmando…" : "Confirmar"}
                 </Button>
               </div>
-              {editando ? (
-                <p className="mt-2 text-xs text-mute">Escolha outro {editando} acima.</p>
-              ) : null}
+              <Button
+                variant="ghost"
+                className="mt-2 h-12 w-full"
+                onClick={() => {
+                  setInicio(null);
+                  setDia(null);
+                  setDiaEscolhido(false);
+                  setProfissionalEscolhido(false);
+                }}
+              >
+                Trocar profissional
+              </Button>
             </Fala>
           ) : null}
           {erro ? (
