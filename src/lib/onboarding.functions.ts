@@ -604,20 +604,29 @@ export const salvarModoAgendamento = createServerFn({ method: "POST" })
       .select("draft_config, published_config")
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    const baseContainer = (existente?.draft_config ?? existente?.published_config) as {
+    const draftContainer = (existente?.draft_config ?? existente?.published_config) as {
       pagina?: unknown;
       marca?: unknown;
     } | null;
-    const pagina = normalizarPagina(baseContainer?.pagina);
-    const container = {
-      ...(baseContainer ?? {}),
-      pagina: { ...pagina, chat: { ...pagina.chat, modo: data.modo } },
+    const publishedContainer = (existente?.published_config ?? existente?.draft_config) as {
+      pagina?: unknown;
+      marca?: unknown;
+    } | null;
+    const draftPagina = normalizarPagina(draftContainer?.pagina);
+    const publishedPagina = normalizarPagina(publishedContainer?.pagina);
+    const draftConfig = {
+      ...(draftContainer ?? {}),
+      pagina: { ...draftPagina, chat: { ...draftPagina.chat, modo: data.modo } },
+    } as unknown as Json;
+    const publishedConfig = {
+      ...(publishedContainer ?? {}),
+      pagina: { ...publishedPagina, chat: { ...publishedPagina.chat, modo: data.modo } },
     } as unknown as Json;
     const { error } = await context.supabase.from("tenant_page_configs").upsert(
       {
         tenant_id: tenantId,
-        draft_config: container,
-        published_config: container,
+        draft_config: draftConfig,
+        published_config: publishedConfig,
         draft_by: context.userId,
         published_by: context.userId,
         published_at: new Date().toISOString(),
