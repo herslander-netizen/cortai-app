@@ -24,15 +24,23 @@ export const Route = createFileRoute("/api/public/asaas/webhook")({
         const evento = String(corpo?.event ?? "");
         if (!eventId || !evento) return new Response("ok");
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: existente } = await (supabaseAdmin as any).from("eventos_asaas").select("status").eq("event_id", eventId).maybeSingle();
+        const { data: existente } = await (supabaseAdmin as any)
+          .from("eventos_asaas")
+          .select("status")
+          .eq("event_id", eventId)
+          .maybeSingle();
         if (existente?.status === "processado") return new Response("ok");
         if (!existente) {
           await (supabaseAdmin as any).from("eventos_asaas").insert({
-            event_id: eventId, evento, payment_id: corpo?.payment?.id ?? null, corpo,
+            event_id: eventId,
+            evento,
+            payment_id: corpo?.payment?.id ?? null,
+            corpo,
           });
         }
         const { processarEvento } = await import("@/lib/cobranca.server");
-        await processarEvento(eventId);
+        const processado = await processarEvento(eventId);
+        if (!processado) return new Response("Falha temporária", { status: 500 });
         return new Response("ok");
       },
     },

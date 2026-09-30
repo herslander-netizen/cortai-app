@@ -2,6 +2,7 @@
 - [x] Validar acesso, isolamento, fluxo público, painel e responsividade
 - [x] Rodar testes, typecheck e build; não publicar
 - [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Cortaí Chat
-- [ ] Cards contextuais novos (serviço 4:5, ingresso, horários Manhã/Tarde/Noite), escolha de fundo e folha CortAI
+- [ ] Concluir escolha de fundo e visual do CortAI; bloqueado por escopo separado desta estabilização
 - [x] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
-- [ ] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
+- [x] Corrigir P0/P1 seguros encontrados na auditoria final de pré-lançamento
+- [x] Validar TypeScript, lint dirigido, testes, build e fluxos críticos após as correções

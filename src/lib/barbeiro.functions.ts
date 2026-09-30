@@ -1159,10 +1159,6 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
     if (!atual.profissional_id || !atual.servico_id) {
       throw new Error("Esse atendimento não pode ser remarcado por aqui.");
     }
-    const { error: erroCancelar } = await db.rpc("cancelar_agendamento", {
-      _agendamento_id: atual.id,
-    });
-    if (erroCancelar) throw new Error(erroCancelar.message);
     const { data: novo, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
       _cliente_id: atual.cliente_id,
@@ -1170,17 +1166,19 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       _servico_id: atual.servico_id,
       _inicio: data.novoInicio,
       _forma_pagamento: atual.forma_pagamento ?? "balcao",
+      _validar_regras: true,
     });
     if (error) throw new Error(error.message);
     const criadoId = (novo as { agendamento_id?: string } | null)?.agendamento_id;
+    if (!criadoId) throw new Error("Não foi possível confirmar o novo horário.");
+    const { concluirSubstituicao } = await import("@/lib/substituicao.server");
+    await concluirSubstituicao(db, { novoId: criadoId, antigoId: atual.id });
     // Aviso de remarcação: nunca bloqueia o novo horário.
-    if (criadoId) {
-      try {
-        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
-        await notificarAgendamento(criadoId, "remarcacao");
-      } catch {
-        /* o horário já está salvo; a falha fica registrada no envio */
-      }
+    try {
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      await notificarAgendamento(criadoId, "remarcacao");
+    } catch {
+      /* o horário já está salvo; a falha fica registrada no envio */
     }
     return novo as unknown as { agendamento_id?: string };
   });

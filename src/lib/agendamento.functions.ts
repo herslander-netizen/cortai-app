@@ -18,7 +18,12 @@ export type DadosAgendar = {
   }[];
   profissionais: { id: string; nome: string }[];
   fuso: string;
-  regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
+  regrasAgenda: {
+    antecedenciaMin: number;
+    intervaloEntreMin: number;
+    janelaDias: number;
+    passoMin: number;
+  };
   pixAtivo: boolean;
   /** Dados reais de Pix da barbearia, exibidos ao cliente depois de agendar. */
   pix: { chave: string; tipo: string | null; whatsapp: string | null } | null;
@@ -176,11 +181,13 @@ export const criarAgendamento = createServerFn({ method: "POST" })
     if (!servico) throw new Error("Esse serviço não está disponível.");
     let substituiId: string | null = null;
     if (data.substituiId) {
+      const { STATUS_ATIVOS_DO_CLIENTE } = await import("@/lib/agenda-regras.server");
       const { data: antigo } = await db
         .from("agendamentos")
         .select("id")
         .eq("id", data.substituiId)
         .eq("cliente_id", cliente.id)
+        .in("status", [...STATUS_ATIVOS_DO_CLIENTE])
         .maybeSingle();
       substituiId = (antigo?.id as string) ?? null;
     }
@@ -207,7 +214,13 @@ export const criarAgendamento = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(traduz(error.message));
     const resultado = res as unknown as ResultadoAgendamento;
-    if (substituiId) await db.rpc("cancelar_agendamento", { _agendamento_id: substituiId });
+    if (substituiId) {
+      const { concluirSubstituicao } = await import("@/lib/substituicao.server");
+      await concluirSubstituicao(db, {
+        novoId: resultado.agendamento_id,
+        antigoId: substituiId,
+      });
+    }
 
     const [{ data: personalizacao }, { data: regraFidelidade }] = await Promise.all([
       db.from("clientes").select("fidelidade_participa").eq("id", cliente.id).maybeSingle(),
@@ -294,7 +307,8 @@ function traduz(msg: string): string {
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
   if (msg.includes("horario ja ocupado"))
     return "Esse horário acabou de ser reservado, escolha outro";
-  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento do negócio.";
+  if (msg.includes("fora do horario de funcionamento"))
+    return "Esse horário está fora do funcionamento do negócio.";
   if (msg.includes("fora do periodo de agendamento")) return "Escolha uma data mais próxima.";
   return msg;
 }
