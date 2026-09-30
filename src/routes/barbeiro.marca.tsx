@@ -347,14 +347,15 @@ function Editor({
                       <span className="mb-3 flex gap-1">
                         {Object.values(theme.cores)
                           .slice(0, 4)
-                          .map((color) => (
+                          .map((color, indice) => (
                             <i
-                              key={color}
+                              key={`${id}-${indice}`}
                               className="h-5 flex-1 rounded-sm"
                               style={{ backgroundColor: color }}
                             />
                           ))}
                       </span>
+
                       <span className="flex items-center justify-between text-xs font-semibold text-paper">
                         {theme.nome}
                         {config.tema === id ? <Check size={14} className="text-gold" /> : null}

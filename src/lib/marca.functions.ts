@@ -39,7 +39,7 @@ const marcaSchema = z.object({
   instagram: nullableText,
   whatsapp: nullableText,
   facebook: nullableText,
-  tema: z.enum(["cortai", "classica", "dourada", "vibrante", "escura", "quente", "clara", "personalizada"]),
+  tema: z.enum(TEMAS_MARCA),
   cor_primaria: hex,
   cor_secundaria: hex,
   cor_accent: hex,
