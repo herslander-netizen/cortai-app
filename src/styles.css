@@ -4883,3 +4883,7 @@ button.agenda-nome:hover { text-decoration: underline; }
   outline: 2px solid var(--brand-accent);
   outline-offset: 3px;
 }
+.brand-info-link {
+  min-height: 44px;
+  align-items: center;
+}
