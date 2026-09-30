@@ -1,4 +1,5 @@
 import { CalendarDays, Check, Clock3, Image as ImageIcon, Pencil, UserRound } from "lucide-react";
+import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -160,6 +161,8 @@ export function AgendamentoChat({
     identificado || (nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10);
 
   return (
+    <>
+    <FontesDaMarca config={data.pagina} />
     <ChatShell
       capaUrl={data.tenant.capaUrl}
       style={agendamentoStyle(data.pagina)}
@@ -501,5 +504,6 @@ export function AgendamentoChat({
         <ConversationScrollButton aria-label="Ir para a mensagem mais recente" />
       </Conversation>
     </ChatShell>
+    </>
   );
 }
