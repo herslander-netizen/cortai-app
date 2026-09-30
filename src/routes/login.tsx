@@ -96,7 +96,7 @@ function LoginPage() {
       const resultado = await lovable.auth.signInWithOAuth(provedor, { redirect_uri: retorno.toString() });
       if (resultado.error) {
         setEnviando(false);
-        setErro(provedor === "google" ? "Não foi possível continuar com o Google." : "Não foi possível continuar com a Apple.");
+        falha(provedor);
         return;
       }
       if (resultado.redirected) return;
@@ -104,184 +104,149 @@ function LoginPage() {
       setEnviando(false);
     } catch {
       setEnviando(false);
-      setErro(provedor === "google" ? "Não foi possível continuar com o Google." : "Não foi possível continuar com a Apple.");
+      falha(provedor);
     }
   }
 
+  const falha = (provedor: "google" | "apple") =>
+    setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
+
+  const campo = "mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4";
+  const botaoSocial = "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
+
   return (
-    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-10">
-      <div className="flex flex-1 flex-col items-center justify-center py-10">
-        <MarcaCortai variante="escura" className="h-auto w-56" prioridade />
+    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="mb-8 flex flex-col items-center gap-2 text-center">
+        <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
+        <h1 className="mt-4 text-xl font-bold text-paper">{modo === "entrar" ? "Entrar" : "Criar conta"}</h1>
       </div>
 
-      <div className="space-y-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="h-14 w-full justify-center gap-3 rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-          disabled={enviando}
-          onClick={() => void entrarCom("google")}
-        >
-          <MarcaGoogle />
-          Continuar com o Google
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="h-14 w-full justify-center gap-3 rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-          disabled={enviando}
-          onClick={() => void entrarCom("apple")}
-        >
-          <MarcaApple />
-          Continuar com a Apple
-        </Button>
-
-        {!outrasFormas ? (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-14 w-full justify-center rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-              onClick={() => setOutrasFormas(true)}
-            >
-              Entrar de outra forma
-            </Button>
-            {erro ? (
-              <p className="pt-1 text-center text-sm text-brick" role="alert">
-                {erro}
-              </p>
+      <form
+        className="space-y-3"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          setEnviando(true);
+          setErro(null);
+          setAviso(null);
+          if (modo === "entrar") {
+            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+            if (error) {
+              setEnviando(false);
+              setErro("E-mail ou senha incorretos.");
+              return;
+            }
+            await seguirParaMinhaArea();
+            setEnviando(false);
+            return;
+          }
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: senha,
+            options: { emailRedirectTo: window.location.origin },
+          });
+          setEnviando(false);
+          if (error) {
+            setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
+            return;
+          }
+          if (!data.session) {
+            setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
+            return;
+          }
+          await seguirParaMinhaArea();
+        }}
+      >
+        <label className="block text-xs font-medium text-mute">
+          E-mail
+          <span className={campo}>
+            <Mail size={17} aria-hidden />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="voce@exemplo.com"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        <label className="block text-xs font-medium text-mute">
+          <span className="flex items-center justify-between">
+            Senha
+            {modo === "entrar" ? (
+              <Link to="/recuperar-senha" className="text-xs text-mute hover:text-paper">
+                Esqueceu?
+              </Link>
             ) : null}
-          </>
+          </span>
+          <span className={campo}>
+            <LockKeyhole size={17} aria-hidden />
+            <input
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              type="password"
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              placeholder="Sua senha"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        {erro ? (
+          <p className="text-sm text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
+        {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
+        <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
+          {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
+        </Button>
+      </form>
+
+      <div className="mt-5 text-center">
+        <button
+          type="button"
+          aria-expanded={outrasFormas}
+          onClick={() => setOutrasFormas((v) => !v)}
+          className="min-h-11 text-sm font-medium text-mute hover:text-paper"
+        >
+          Entrar de outra forma
+        </button>
+        {outrasFormas ? (
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className={botaoSocial} disabled={enviando} onClick={() => void entrarCom("google")}>
+              <MarcaGoogle /> Google
+            </Button>
+            <Button type="button" variant="outline" className={botaoSocial} disabled={enviando} onClick={() => void entrarCom("apple")}>
+              <MarcaApple /> Apple
+            </Button>
+          </div>
         ) : null}
       </div>
 
-      {outrasFormas ? (
-        <div className="mt-6">
-          <div className="mb-5 flex items-center gap-4" aria-hidden>
-            <span className="h-px flex-1 bg-line" />
-            <span className="text-xs text-mute2">ou entre com e-mail</span>
-            <span className="h-px flex-1 bg-line" />
-          </div>
-
-          <form
-            className="space-y-4"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              setEnviando(true);
-              setErro(null);
-              setAviso(null);
-              if (modo === "entrar") {
-                const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-                if (error) {
-                  setEnviando(false);
-                  setErro("Não foi possível entrar. Confira o e-mail e a senha.");
-                  return;
-                }
-                await seguirParaMinhaArea();
-                setEnviando(false);
-                return;
-              }
-              const { data, error } = await supabase.auth.signUp({
-                email,
-                password: senha,
-                options: { emailRedirectTo: window.location.origin },
-              });
-              setEnviando(false);
-              if (error) {
-                setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
-                return;
-              }
-              if (!data.session) {
-                setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
-                return;
-              }
-              await seguirParaMinhaArea();
-            }}
-          >
-            <label className="block text-xs font-medium text-mute">
-              E-mail
-              <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
-                <Mail size={17} aria-hidden />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="voce@exemplo.com"
-                  className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-                />
-              </span>
-            </label>
-            <label className="block text-xs font-medium text-mute">
-              Senha
-              <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
-                <LockKeyhole size={17} aria-hidden />
-                <input
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  type="password"
-                  autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                  required
-                  minLength={8}
-                  placeholder="Sua senha"
-                  className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-                />
-              </span>
-            </label>
-            {erro ? (
-              <p className="text-sm text-brick" role="alert">
-                {erro}
-              </p>
-            ) : null}
-            {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-            <Button className="h-14 w-full rounded-full font-bold" disabled={enviando}>
-              {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
-            </Button>
-            {modo === "entrar" ? (
-              <Link
-                to="/recuperar-senha"
-                className="block pt-1 text-center text-sm text-mute transition-colors hover:text-paper"
-              >
-                Esqueceu sua senha?
-              </Link>
-            ) : null}
-          </form>
-
-          <Button
-            type="button"
-            variant="text"
-            className="mt-4 h-12 w-full text-center text-sm text-mute"
-            onClick={() => {
-              setModo(modo === "entrar" ? "criar" : "entrar");
-              setErro(null);
-              setAviso(null);
-            }}
-          >
-            {modo === "entrar" ? (
-              <>
-                Ainda não tem conta? <span className="font-semibold text-paper">Criar conta</span>
-              </>
-            ) : (
-              <>
-                Já tem conta? <span className="font-semibold text-paper">Entrar</span>
-              </>
-            )}
-          </Button>
-        </div>
-      ) : null}
+      <p className="mt-4 text-center text-sm text-mute">
+        {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
+        <button
+          type="button"
+          className="min-h-11 font-semibold text-paper"
+          onClick={() => {
+            setModo(modo === "entrar" ? "criar" : "entrar");
+            setErro(null);
+            setAviso(null);
+          }}
+        >
+          {modo === "entrar" ? "Criar conta" : "Entrar"}
+        </button>
+      </p>
 
       <Link
-        to="/visitante"
-        className="mt-4 flex min-h-12 items-center justify-center text-center text-sm text-mute2 transition-colors hover:text-paper"
+        to="/barbearias"
+        className="mt-6 flex min-h-11 items-center justify-center border-t border-line pt-4 text-center text-sm text-mute2 hover:text-paper"
       >
-        Sou cliente e quero só agendar um corte
+        Sou cliente e quero só agendar
       </Link>
-
-      <footer className="pt-4 text-center">
-        <p className="text-xs text-mute2">Cortaí · by Alvo Digital</p>
-      </footer>
     </main>
   );
 }
