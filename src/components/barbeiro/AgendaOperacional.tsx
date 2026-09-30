@@ -712,7 +712,13 @@ export function AgendaOperacional() {
           online={online}
           ocupado={ocupado}
           carregando={agenda.isLoading && !agenda.data}
-          erro={agenda.isError && !agenda.data ? (agenda.error instanceof Error ? agenda.error.message : "Tente novamente.") : null}
+          erro={
+            agenda.isError && !agenda.data
+              ? agenda.error instanceof Error
+                ? agenda.error.message
+                : "Tente novamente."
+              : null
+          }
           onDia={setDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
@@ -1379,7 +1385,9 @@ export function AgendaOperacional() {
           <div className="border-y border-line py-8 text-center">
             <Scissors className="mx-auto size-6 text-mute" aria-hidden />
             <p className="mt-3 text-base font-bold text-paper">Agenda livre</p>
-            <p className="mt-1 text-sm text-mute">{dataEditorial(dia)} · nenhum atendimento marcado</p>
+            <p className="mt-1 text-sm text-mute">
+              {dataEditorial(dia)} · nenhum atendimento marcado
+            </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Button onClick={() => setRapidoAberto(true)}>
                 <Plus /> Adicionar atendimento
