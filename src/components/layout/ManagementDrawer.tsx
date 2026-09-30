@@ -24,7 +24,12 @@ import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeShortcut } from "@/components/layout/ThemeToggle";
 import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
-import { GRUPOS_DE_NAVEGACAO, itensDaBarra, modulosDeNavegacao, secaoDoCaminho } from "@/lib/navegacao-barbeiro";
+import {
+  GRUPOS_DE_NAVEGACAO,
+  itensDaBarra,
+  modulosDeNavegacao,
+  secaoDoCaminho,
+} from "@/lib/navegacao-barbeiro";
 
 type ItemDoMenu = {
   label: string;

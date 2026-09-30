@@ -7,9 +7,14 @@ import { secaoDoCaminho } from "@/lib/navegacao-barbeiro";
 /** Abas de uma área consolidada (Financeiro, Equipe, Secretária…). Some com uma aba só. */
 export function AbasDaSecao() {
   const caminho = useRouterState({ select: (s) => s.location.pathname });
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300_000,
+  });
   const secao = secaoDoCaminho(caminho);
-  const abas = secao?.abas.filter((a) => !a.permissao || sessao?.permissoes.includes(a.permissao)) ?? [];
+  const abas =
+    secao?.abas.filter((a) => !a.permissao || sessao?.permissoes.includes(a.permissao)) ?? [];
   if (abas.length < 2) return null;
   return (
     <nav aria-label={secao?.titulo} className="mx-auto w-full max-w-[1180px] px-4 pt-3 md:px-8">

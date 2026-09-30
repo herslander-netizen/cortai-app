@@ -22,19 +22,115 @@ import { termos, type Segmento } from "@/lib/segmentos";
  * ficam reunidas em SECOES e aparecem como abas dentro da área.
  */
 export const MODULOS_DE_NAVEGACAO = [
-  { grupo: "Dia a dia", to: "/barbeiro/hoje", label: "Hoje", detail: "Resumo do dia e atendimentos ao vivo", icon: Gauge, permissao: "relatorios" },
-  { grupo: "Dia a dia", to: "/barbeiro", label: "Agenda", detail: "Dia, horários e atendimentos", icon: CalendarDays, permissao: "criar_agendamento", rotaDaCapacidade: "/barbeiro/agenda" },
-  { grupo: "Dia a dia", to: "/barbeiro/fila", label: "Lista de espera", detail: "Clientes aguardando uma vaga futura", icon: ListOrdered, permissao: "criar_agendamento", rotaDaCapacidade: "/barbeiro/fila" },
-  { grupo: "Dia a dia", to: "/barbeiro/clientes", label: "Clientes", detail: "Cadastro, histórico e retorno", icon: ContactRound, permissao: "visualizar_clientes", rotaDaCapacidade: "/barbeiro/clientes" },
-  { grupo: "Dia a dia", to: "/barbeiro/caixa", label: "Financeiro", detail: "Caixa, comissões e relatórios", icon: Banknote, permissao: "visualizar_financeiro" },
-  { grupo: "Negócio", to: "/barbeiro/servicos", label: "Serviços", detail: "Preços, duração e retorno", icon: Scissors, permissao: "alterar_preco", rotaDaCapacidade: "/barbeiro/servicos" },
-  { grupo: "Negócio", to: "/barbeiro/profissionais", label: "Equipe", detail: "Profissionais e acessos", icon: UsersRound, permissao: "gerenciar_profissionais" },
-  { grupo: "Negócio", to: "/barbeiro/horarios", label: "Horários", detail: "Dias e horas de atendimento", icon: Clock3, permissao: "alterar_dados_barbearia" },
-  { grupo: "Negócio", to: "/barbeiro/produtos", label: "Loja e estoque", detail: "Produtos, vendas e alertas", icon: Store, permissao: "visualizar_estoque" },
-  { grupo: "Negócio", to: "/barbeiro/configurar", label: "Dados e localização", detail: "Informações essenciais do negócio", icon: MapPin, permissao: "alterar_dados_barbearia" },
-  { grupo: "Clientes e marca", to: "/barbeiro/cortai", label: "Secretária", detail: "Conexão, notificações e experiência", icon: MessageCircle, permissao: "ver_cortai", rotaDaCapacidade: "/barbeiro/cortai" },
-  { grupo: "Clientes e marca", to: "/barbeiro/avaliacoes", label: "Relacionamento", detail: "Avaliações, Voltaí e indicações", icon: HeartHandshake, permissao: "alterar_dados_barbearia" },
-  { grupo: "Clientes e marca", to: "/barbeiro/marca", label: "Aparência", detail: "Página, marca e temas", icon: Palette, permissao: "alterar_dados_barbearia" },
+  {
+    grupo: "Dia a dia",
+    to: "/barbeiro/hoje",
+    label: "Hoje",
+    detail: "Resumo do dia e atendimentos ao vivo",
+    icon: Gauge,
+    permissao: "relatorios",
+  },
+  {
+    grupo: "Dia a dia",
+    to: "/barbeiro",
+    label: "Agenda",
+    detail: "Dia, horários e atendimentos",
+    icon: CalendarDays,
+    permissao: "criar_agendamento",
+    rotaDaCapacidade: "/barbeiro/agenda",
+  },
+  {
+    grupo: "Dia a dia",
+    to: "/barbeiro/fila",
+    label: "Lista de espera",
+    detail: "Clientes aguardando uma vaga futura",
+    icon: ListOrdered,
+    permissao: "criar_agendamento",
+    rotaDaCapacidade: "/barbeiro/fila",
+  },
+  {
+    grupo: "Dia a dia",
+    to: "/barbeiro/clientes",
+    label: "Clientes",
+    detail: "Cadastro, histórico e retorno",
+    icon: ContactRound,
+    permissao: "visualizar_clientes",
+    rotaDaCapacidade: "/barbeiro/clientes",
+  },
+  {
+    grupo: "Dia a dia",
+    to: "/barbeiro/caixa",
+    label: "Financeiro",
+    detail: "Caixa, comissões e relatórios",
+    icon: Banknote,
+    permissao: "visualizar_financeiro",
+  },
+  {
+    grupo: "Negócio",
+    to: "/barbeiro/servicos",
+    label: "Serviços",
+    detail: "Preços, duração e retorno",
+    icon: Scissors,
+    permissao: "alterar_preco",
+    rotaDaCapacidade: "/barbeiro/servicos",
+  },
+  {
+    grupo: "Negócio",
+    to: "/barbeiro/profissionais",
+    label: "Equipe",
+    detail: "Profissionais e acessos",
+    icon: UsersRound,
+    permissao: "gerenciar_profissionais",
+  },
+  {
+    grupo: "Negócio",
+    to: "/barbeiro/horarios",
+    label: "Horários",
+    detail: "Dias e horas de atendimento",
+    icon: Clock3,
+    permissao: "alterar_dados_barbearia",
+  },
+  {
+    grupo: "Negócio",
+    to: "/barbeiro/produtos",
+    label: "Loja e estoque",
+    detail: "Produtos, vendas e alertas",
+    icon: Store,
+    permissao: "visualizar_estoque",
+  },
+  {
+    grupo: "Negócio",
+    to: "/barbeiro/configurar",
+    label: "Dados e localização",
+    detail: "Informações essenciais do negócio",
+    icon: MapPin,
+    permissao: "alterar_dados_barbearia",
+  },
+  {
+    grupo: "Clientes e marca",
+    to: "/barbeiro/cortai",
+    label: "Secretária",
+    detail: "Conexão, notificações e experiência",
+    icon: MessageCircle,
+    permissao: "ver_cortai",
+    rotaDaCapacidade: "/barbeiro/cortai",
+  },
+  {
+    grupo: "Clientes e marca",
+    to: "/barbeiro/avaliacoes",
+    label: "Relacionamento",
+    detail: "Avaliações, Voltaí e indicações",
+    icon: HeartHandshake,
+    permissao: "alterar_dados_barbearia",
+  },
+  {
+    grupo: "Clientes e marca",
+    to: "/barbeiro/marca",
+    label: "Aparência",
+    detail: "Página, marca e temas",
+    icon: Palette,
+    permissao: "alterar_dados_barbearia",
+  },
 ] as const satisfies ReadonlyArray<{
   grupo: string;
   to: string;
@@ -51,33 +147,55 @@ type Aba = { to: string; label: string; permissao?: ChaveDePermissao };
 
 /** Áreas consolidadas: cada rota antiga continua existindo e vira uma aba. */
 export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }> = [
-  { titulo: "Hoje", abas: [
-    { to: "/barbeiro/hoje", label: "Resumo", permissao: "relatorios" },
-    { to: "/barbeiro/casa", label: "Ao vivo", permissao: "confirmar_pagamento" },
-  ] },
-  { titulo: "Financeiro", abas: [
-    { to: "/barbeiro/caixa", label: "Caixa", permissao: "visualizar_financeiro" },
-    { to: "/barbeiro/comissoes", label: "Comissões", permissao: "visualizar_financeiro" },
-    { to: "/barbeiro/financeiro", label: "Relatórios", permissao: "visualizar_financeiro" },
-  ] },
-  { titulo: "Equipe", abas: [
-    { to: "/barbeiro/profissionais", label: "Profissionais", permissao: "gerenciar_profissionais" },
-    { to: "/barbeiro/equipe", label: "Acessos", permissao: "gerenciar_permissoes" },
-  ] },
-  { titulo: "Secretária", abas: [
-    { to: "/barbeiro/cortai", label: "Secretária", permissao: "ver_cortai" },
-    { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },
-  ] },
-  { titulo: "Relacionamento", abas: [
-    { to: "/barbeiro/avaliacoes", label: "Avaliações", permissao: "alterar_dados_barbearia" },
-    { to: "/barbeiro/fidelidade", label: "Voltaí", permissao: "gerenciar_voltai" },
-    { to: "/barbeiro/indicacoes", label: "Indicações", permissao: "relatorios" },
-    { to: "/barbeiro/crescimento", label: "Crescimento", permissao: "relatorios" },
-  ] },
-  { titulo: "Aparência", abas: [
-    { to: "/barbeiro/marca", label: "Página e marca", permissao: "alterar_dados_barbearia" },
-    { to: "/barbeiro/temas", label: "Temas", permissao: "alterar_dados_barbearia" },
-  ] },
+  {
+    titulo: "Hoje",
+    abas: [
+      { to: "/barbeiro/hoje", label: "Resumo", permissao: "relatorios" },
+      { to: "/barbeiro/casa", label: "Ao vivo", permissao: "confirmar_pagamento" },
+    ],
+  },
+  {
+    titulo: "Financeiro",
+    abas: [
+      { to: "/barbeiro/caixa", label: "Caixa", permissao: "visualizar_financeiro" },
+      { to: "/barbeiro/comissoes", label: "Comissões", permissao: "visualizar_financeiro" },
+      { to: "/barbeiro/financeiro", label: "Relatórios", permissao: "visualizar_financeiro" },
+    ],
+  },
+  {
+    titulo: "Equipe",
+    abas: [
+      {
+        to: "/barbeiro/profissionais",
+        label: "Profissionais",
+        permissao: "gerenciar_profissionais",
+      },
+      { to: "/barbeiro/equipe", label: "Acessos", permissao: "gerenciar_permissoes" },
+    ],
+  },
+  {
+    titulo: "Secretária",
+    abas: [
+      { to: "/barbeiro/cortai", label: "Secretária", permissao: "ver_cortai" },
+      { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },
+    ],
+  },
+  {
+    titulo: "Relacionamento",
+    abas: [
+      { to: "/barbeiro/avaliacoes", label: "Avaliações", permissao: "alterar_dados_barbearia" },
+      { to: "/barbeiro/fidelidade", label: "Voltaí", permissao: "gerenciar_voltai" },
+      { to: "/barbeiro/indicacoes", label: "Indicações", permissao: "relatorios" },
+      { to: "/barbeiro/crescimento", label: "Crescimento", permissao: "relatorios" },
+    ],
+  },
+  {
+    titulo: "Aparência",
+    abas: [
+      { to: "/barbeiro/marca", label: "Página e marca", permissao: "alterar_dados_barbearia" },
+      { to: "/barbeiro/temas", label: "Temas", permissao: "alterar_dados_barbearia" },
+    ],
+  },
 ];
 
 export function secaoDoCaminho(caminho: string) {
@@ -91,7 +209,9 @@ export function itensDaBarra(permissoes: ReadonlyArray<string> | undefined) {
   return [
     { to: "/barbeiro", label: "Agenda" },
     { to: "/barbeiro/clientes", label: "Clientes" },
-    financeiro ? { to: "/barbeiro/caixa", label: "Financeiro" } : { to: "/barbeiro/fila", label: "Espera" },
+    financeiro
+      ? { to: "/barbeiro/caixa", label: "Financeiro" }
+      : { to: "/barbeiro/fila", label: "Espera" },
   ] as const;
 }
 
@@ -100,6 +220,7 @@ export function modulosDeNavegacao(segmento: Segmento) {
   const t = termos(segmento);
   return MODULOS_DE_NAVEGACAO.map((item) => ({
     ...item,
-    detail: item.to === "/barbeiro/hoje" ? `Resumo do dia ${t.de} e atendimentos ao vivo` : item.detail,
+    detail:
+      item.to === "/barbeiro/hoje" ? `Resumo do dia ${t.de} e atendimentos ao vivo` : item.detail,
   }));
 }
