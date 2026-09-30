@@ -260,7 +260,7 @@ function LoginPage() {
         {modo === "entrar" ? (
           <Link
             to="/recuperar-senha"
-            className="-my-1 inline-flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
+            className="flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
           >
             Esqueceu a senha?
           </Link>
