@@ -31,7 +31,7 @@ export function BannerDeCookies() {
         <p className="mt-1 text-xs leading-relaxed text-mute">
           Usamos cookies para o Cortaí funcionar e, se você permitir, para melhorar sua experiência.
           Veja a{" "}
-          <Link to="/privacidade" className="text-gold underline">
+          <Link to="/privacidade" className="inline-flex min-h-11 items-center text-gold underline">
             Política de Privacidade
           </Link>
           .
