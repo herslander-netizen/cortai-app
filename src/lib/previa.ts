@@ -1,10 +1,18 @@
 /** Metatags da prévia do link de uma barbearia (WhatsApp, Instagram, buscadores). */
-export type PreviaDaBarbearia = { nome: string; descricao: string | null; imagem: string | null } | null | undefined;
+export type PreviaDaBarbearia =
+  { nome: string; descricao: string | null; imagem: string | null } | null | undefined;
 
-export function headDaBarbearia(slug: string, previa: PreviaDaBarbearia, caminho: string, acao = "Agendamento online") {
+export function headDaBarbearia(
+  slug: string,
+  previa: PreviaDaBarbearia,
+  caminho: string,
+  acao = "Agendamento online",
+) {
   const nome = previa?.nome ?? slug;
   const titulo = `${nome} | Cortaí`;
-  const descricao = previa?.descricao?.slice(0, 160) || `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
+  const descricao =
+    previa?.descricao?.slice(0, 160) ||
+    `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
   const url = `https://cortai.dev${caminho}`;
   const imagem = previa?.imagem?.startsWith("https://") ? previa.imagem : null;
   return {
@@ -16,7 +24,12 @@ export function headDaBarbearia(slug: string, previa: PreviaDaBarbearia, caminho
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
       { name: "twitter:card", content: imagem ? "summary_large_image" : "summary" },
-      ...(imagem ? [{ property: "og:image", content: imagem }, { name: "twitter:image", content: imagem }] : []),
+      ...(imagem
+        ? [
+            { property: "og:image", content: imagem },
+            { name: "twitter:image", content: imagem },
+          ]
+        : []),
     ],
     links: [{ rel: "canonical", href: url }],
   };
@@ -24,7 +37,10 @@ export function headDaBarbearia(slug: string, previa: PreviaDaBarbearia, caminho
 
 /** Telefone com máscara (00) 00000-0000 ou (00) 0000-0000. */
 export function mascaraTelefone(valor: string) {
-  const d = valor.replace(/\D/g, "").slice(0, 11);
+  let d = valor.replace(/\D/g, "");
+  // Número salvo com DDI 55 (12–13 dígitos) volta para o formato nacional.
+  if (d.length >= 12 && d.startsWith("55")) d = d.slice(2);
+  d = d.slice(0, 11);
   if (d.length <= 2) return d ? `(${d}` : "";
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
@@ -36,11 +52,21 @@ function ics(texto: string) {
 }
 
 function carimbo(iso: string) {
-  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 }
 
 /** Arquivo .ics válido (UTC, UID, DTSTAMP, LOCATION, CRLF). */
-export function gerarIcs(p: { id: string; inicio: string; fim: string; titulo: string; local: string | null; descricao?: string }) {
+export function gerarIcs(p: {
+  id: string;
+  inicio: string;
+  fim: string;
+  titulo: string;
+  local: string | null;
+  descricao?: string;
+}) {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",

@@ -4872,3 +4872,18 @@ button.agenda-nome:hover { text-decoration: underline; }
   background: color-mix(in oklab, var(--paper) 5%, transparent);
 }
 .agenda-painel-acoes > * { min-height: 48px; }
+
+/* Feedback de toque consistente nas ações da página pública. */
+.brand-cta:active,
+.brand-secondary-action:active {
+  transform: scale(0.98);
+}
+.brand-cta:focus-visible,
+.brand-secondary-action:focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 3px;
+}
+.brand-info-link {
+  min-height: 44px;
+  align-items: center;
+}

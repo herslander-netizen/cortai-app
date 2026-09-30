@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { mascaraTelefone } from "@/lib/previa";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -15,7 +16,10 @@ export const Route = createFileRoute("/f/$slug")({
   head: ({ params }) => ({
     meta: [
       { title: `Entrar na fila — ${params.slug} | Cortaí` },
-      { name: "description", content: "Entre na fila do negócio pelo celular e acompanhe sua posição." },
+      {
+        name: "description",
+        content: "Entre na fila do negócio pelo celular e acompanhe sua posição.",
+      },
       { property: "og:title", content: `Entrar na fila — ${params.slug}` },
       { property: "og:description", content: "Escolha o serviço e acompanhe sua vez." },
       { property: "og:type", content: "website" },
@@ -39,7 +43,10 @@ function FilaPublicaPage() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({ queryKey: ["fila-publica", slug], queryFn: () => getFilaPublica({ data: { slug } }) });
+  const { data, isLoading } = useQuery({
+    queryKey: ["fila-publica", slug],
+    queryFn: () => getFilaPublica({ data: { slug } }),
+  });
 
   useEffect(() => {
     setToken(localStorage.getItem(CHAVE + slug));
@@ -101,7 +108,9 @@ function FilaPublicaPage() {
                   <Clock3 size={13} aria-hidden /> ~{status!.esperaMin} min
                 </span>
               </p>
-              {status!.servico ? <p className="mt-3 text-xs text-mute2">{status!.servico}</p> : null}
+              {status!.servico ? (
+                <p className="mt-3 text-xs text-mute2">{status!.servico}</p>
+              ) : null}
               {status!.avisado ? (
                 <p className="mt-4 rounded-lg border border-gold/40 px-4 py-3 text-sm text-gold">
                   É quase a sua vez — fique por perto.
@@ -125,7 +134,9 @@ function FilaPublicaPage() {
               localStorage.setItem(CHAVE + slug, r.token);
               setToken(r.token);
             } catch (err) {
-              setErro(err instanceof Error ? err.message : "Não consegui te colocar na fila agora.");
+              setErro(
+                err instanceof Error ? err.message : "Não consegui te colocar na fila agora.",
+              );
             } finally {
               setEnviando(false);
             }
@@ -168,9 +179,10 @@ function FilaPublicaPage() {
             WhatsApp
             <input
               value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
+              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
               required
               inputMode="tel"
+              autoComplete="tel"
               placeholder="(11) 90000-0000"
               className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
             />

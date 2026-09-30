@@ -341,3 +341,18 @@ export function agendamentoStyle(config: PaginaConfig): CSSProperties {
     "--chat-body": fontes[config.fonteTexto],
   } as CSSProperties;
 }
+
+const familiasGoogle: Record<FonteId, string> = {
+  inter: "Inter:wght@400;500;600;700;800",
+  poppins: "Poppins:wght@400;500;600;700;800",
+  montserrat: "Montserrat:wght@400;500;600;700;800",
+  oswald: "Oswald:wght@400;500;600;700",
+  roboto: "Roboto:wght@400;500;700;900",
+  serif: "Libre+Baskerville:wght@400;700",
+};
+
+/** URL única do Google Fonts com as fontes escolhidas pela marca (antes nunca eram carregadas). */
+export function urlDasFontes(config: Pick<PaginaConfig, "fonteTitulo" | "fonteTexto">) {
+  const ids = [...new Set([config.fonteTitulo, config.fonteTexto])];
+  return `https://fonts.googleapis.com/css2?${ids.map((id) => `family=${familiasGoogle[id]}`).join("&")}&display=swap`;
+}
