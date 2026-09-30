@@ -1,3 +1,3 @@
-- [ ] Auditar e completar a barbearia demo existente sem recriar tenant
+- [x] Auditar e completar a barbearia demo existente sem recriar tenant
 - [ ] Validar acesso, isolamento, fluxo público, painel e responsividade
 - [ ] Rodar testes, typecheck e build; não publicar

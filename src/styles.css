@@ -2327,6 +2327,19 @@ body:has(.auth-screen--claro) {
   :root:has(.selo-demo) .equipe-lateral {
     top: calc(3.5rem + 41px);
   }
+  .selo-demo {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 21;
+    min-height: 41px;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink2);
+    color: var(--paper);
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
   :root[data-lateral="recolhida"] .equipe-lateral-rotulo {
     display: none;
   }
