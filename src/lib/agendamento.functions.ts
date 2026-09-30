@@ -162,6 +162,8 @@ export const criarAgendamento = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<ResultadoAgendamento | ConflitoAgendamento> => {
     // A barbearia e o cliente vêm sempre da sessão, nunca do que a tela enviou.
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
+    const { exigirAgendamentoPeloCliente } = await import("@/lib/planos");
+    await exigirAgendamentoPeloCliente(tenant.id);
     // O profissional precisa ser desta barbearia: nunca confiar no id vindo da tela.
     const { data: profissional } = await db
       .from("profissionais")

@@ -284,7 +284,7 @@ export const getMatrizDeRecursos = createServerFn({ method: "GET" })
 export const definirRecursoDePlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ chave: z.string().min(2).max(60), plano: z.enum(["essencial", "pro", "studio"]), liberado: z.boolean() }).parse(input),
+    z.object({ chave: z.string().min(2).max(60), plano: z.enum(["essencial", "pro", "conecta", "studio"]), liberado: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);

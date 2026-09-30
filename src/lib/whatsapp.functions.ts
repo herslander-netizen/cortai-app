@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { exigirRecurso } from "@/lib/planos";
 import {
   AUTOMACOES,
   type InformacaoDaBarbearia,
@@ -320,6 +321,7 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
       await import("@/lib/whatsapp/gateway.server");
     if (!gatewayConfigurado()) {
@@ -364,6 +366,7 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
     async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
       const { gatewayConfigurado, gatewayDeWhatsapp } =
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
@@ -400,6 +403,7 @@ export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
     if (!gatewayConfigurado())
       return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
@@ -426,6 +430,7 @@ export const desconectarWhatsapp = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<{ ok: true; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const sessao = await sessaoDoTenant(tenantId);
     let aviso: string | null = null;
@@ -467,6 +472,7 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
     async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
       const { gatewayConfigurado, gatewayDeWhatsapp } =
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
@@ -865,6 +871,7 @@ export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "configurar_automacoes");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { error } = await db.from("config_atendimento_ia").upsert(
       {
@@ -911,6 +918,7 @@ export const salvarAutomacao = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "configurar_automacoes");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { error } = await db
       .from("automacoes_de_ia")
@@ -956,6 +964,7 @@ export const salvarInformacao = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "configurar_automacoes");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     if (data.id) {
       const { error } = await db
@@ -987,6 +996,7 @@ export const removerInformacao = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "configurar_automacoes");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { error } = await db
       .from("informacoes_da_barbearia")

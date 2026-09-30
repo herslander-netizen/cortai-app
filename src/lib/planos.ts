@@ -10,19 +10,25 @@ export const RECURSOS = {
   fila_espera: "Fila de espera",
   indicacoes: "Indicações",
   crescimento: "Crescimento e análises",
-  agendamento_manual: "Agendamento manual",
+  agendamento_manual: "Encaixes",
   personalizacao_cliente: "Personalização avançada do cliente",
   branding_avancado: "Página e branding avançado",
+  modo_foco: "Modo Foco",
+  comanda_caixa: "Comanda e caixa",
+  historico_completo: "Histórico completo",
+  secretaria_whatsapp: "Secretária Cortaí, WhatsApp e agendamento pelo cliente",
+  equipe_avancada: "Gestão avançada de equipe e permissões",
 } as const;
 
 export type ChaveDeRecurso = keyof typeof RECURSOS;
-export const PLANOS = ["essencial", "pro", "studio"] as const;
+export const PLANOS = ["essencial", "pro", "conecta", "studio"] as const;
 export type Plano = (typeof PLANOS)[number];
 
 export const ROTULO_DO_PLANO: Record<string, string> = {
   essencial: "Essencial",
-  pro: "Pro",
-  studio: "Studio",
+  pro: "Profissional",
+  conecta: "Conecta",
+  studio: "Equipe",
 };
 
 /**
@@ -35,7 +41,11 @@ export async function recursoLiberado(
   tenantId: string,
   chave: ChaveDeRecurso,
 ): Promise<{ liberado: boolean; plano: string }> {
-  const { data: tenant } = await db.from("tenants").select("plano").eq("id", tenantId).maybeSingle();
+  const { data: tenant } = await db
+    .from("tenants")
+    .select("plano")
+    .eq("id", tenantId)
+    .maybeSingle();
   const plano = (tenant?.plano as string) ?? "essencial";
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: regra } = await supabaseAdmin
@@ -63,4 +73,22 @@ export async function exigirRecurso(db: any, tenantId: string, chave: ChaveDeRec
   const { liberado, plano } = await recursoLiberado(db, tenantId, chave);
   if (!liberado) throw new RecursoBloqueadoError(chave, plano);
   return plano;
+}
+
+/**
+ * Agendamento feito pelo próprio cliente (página pública, app do cliente) só
+ * existe a partir do Conecta. Usa a mesma checagem do banco que a Secretária
+ * e o WhatsApp (plano + interruptor do negócio).
+ */
+export async function exigirAgendamentoPeloCliente(tenantId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("recurso_do_tenant_ativo", {
+    _tenant_id: tenantId,
+    _chave: "secretaria_whatsapp",
+  });
+  if (!error && data === false) {
+    throw new Error(
+      "Este negócio ainda não recebe agendamentos online. Fale direto com o negócio para marcar.",
+    );
+  }
 }

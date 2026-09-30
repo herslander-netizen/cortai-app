@@ -92,7 +92,7 @@ const camposSchema = z.object({
   tema: z.string().trim().max(30).optional(),
   modo: z.string().trim().max(30).optional(),
   loja_ativa: z.boolean().optional(),
-  plano: z.enum(["essencial", "pro", "studio"]).optional(),
+  plano: z.enum(["essencial", "pro", "conecta", "studio"]).optional(),
 });
 
 /**

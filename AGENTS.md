@@ -30,3 +30,5 @@
 - Limites de dia/mês usam `inicioDoDiaNoFuso`/`inicioDoMesNoFuso` com `fusoDoTenant`, nunca `setHours(0)`.
 - Comandas calculam preços pelo catálogo no banco; valores enviados pela tela não são fonte de verdade.
 - Plano, assinatura, desconto, teste e ativação do tenant só mudam por fluxos privilegiados do servidor.
+
+- Planos comerciais: essencial/pro(Profissional)/conecta/studio(Equipe); liberação real em `recursos_de_plano` via `recurso_do_tenant_ativo` (plano + interruptor); vitrine em `src/lib/planos-comerciais.ts`. Por quê: uma fonte só para acesso e outra só para apresentação.

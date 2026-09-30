@@ -1,3 +1,4 @@
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
@@ -28,6 +29,7 @@ import {
 } from "@/lib/permissoes";
 
 export const Route = createFileRoute("/barbeiro/equipe")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "equipe_avancada"),
   head: () => ({
     meta: [
       { title: "Equipe e permissões — Cortaí Gestão" },

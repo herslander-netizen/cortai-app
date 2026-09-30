@@ -288,6 +288,8 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
+    const { exigirAgendamentoPeloCliente } = await import("@/lib/planos");
+    await exigirAgendamentoPeloCliente(tenant.id);
 
     const inicio = new Date(data.inicio);
     if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");

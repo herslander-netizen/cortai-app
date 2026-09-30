@@ -1,3 +1,4 @@
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/financeiro.functions";
 
 export const Route = createFileRoute("/barbeiro/caixa")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "comanda_caixa"),
   ssr: false,
   head: () => ({
     meta: [
