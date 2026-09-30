@@ -399,7 +399,7 @@ export function AgendamentoChat({
                   </div>
                   {data.tenant.usaListaDeEspera && chat.listaEspera ? (
                     <Button asChild variant="ghost" className="mt-2 h-12 w-full">
-                      <a href={`/f/${data.tenant.slug}`}>Entrar na lista de espera</a>
+                      <a href={`/app/espera?b=${encodeURIComponent(data.tenant.slug)}${servicoId ? `&servico=${servicoId}` : ""}${dia ? `&dia=${dia}` : ""}`}>Agenda cheia? Entrar na lista de espera</a>
                     </Button>
                   ) : null}
                 </div>

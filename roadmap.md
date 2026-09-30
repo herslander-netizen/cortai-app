@@ -33,3 +33,4 @@
 - [x] Aplicar direção clean corporativa à Home `/apresentacao`, usando a logo oficial e mockups reais
 
 - [x] Aplicar a imagem quadrada enviada somente como ícone do aplicativo, preservando as logos existentes
+- [x] Lista de espera operacional: ofertas automáticas, expiração, painel, aceite atômico
