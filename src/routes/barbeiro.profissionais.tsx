@@ -64,7 +64,7 @@ function ProfissionaisPage() {
                   value={atual.descricao}
                   onChange={(e) => setForm((s) => ({ ...s, [p.id]: { ...atual, descricao: e.target.value } }))}
                   className="input-premium mt-1 w-full resize-none"
-                  placeholder="Especialista em degradê e barba."
+                  placeholder="Especialista nos serviços que oferece."
                 />
               </label>
               <label className="mt-4 block">

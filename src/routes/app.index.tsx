@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
-import coverAsset from "@/assets/cortai-barbershop-cover.jpg.asset.json";
+import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
+import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
 import { brl, dataHoraLonga } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
@@ -20,10 +21,10 @@ export const Route = createFileRoute("/app/")({
       { title: "Início — Cortaí" },
       {
         name: "description",
-        content: "Escolha sua barbearia e agende seu próximo corte no Cortaí.",
+        content: "Escolha um negócio e agende seu próximo serviço no Cortaí.",
       },
       { property: "og:title", content: "Início — Cortaí" },
-      { property: "og:description", content: "Seu próximo corte em um toque." },
+      { property: "og:description", content: "Seu próximo horário em um toque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -49,6 +50,7 @@ function InicioCliente() {
     enabled: Boolean(data?.slug),
   });
   const agora = Date.now();
+  const ehBarbearia = data?.segmento === "barbearia";
   const proximo = (agendamentos.data ?? [])
     .filter(
       (a) =>
@@ -96,7 +98,7 @@ function InicioCliente() {
               </p>
               <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-mute">
                 <MapPin size={13} className="shrink-0" aria-hidden />
-                <span className="truncate">{data.endereco ?? "Atendimento na barbearia"}</span>
+                <span className="truncate">{data.endereco ?? "Atendimento no local"}</span>
               </p>
             </div>
           </div>
@@ -109,8 +111,8 @@ function InicioCliente() {
       <main className="flex-1 px-5">
         <section className="relative min-h-[340px] overflow-hidden rounded-2xl">
           <img
-            src={data.capa_signed_url ?? coverAsset.url}
-            alt="Cadeira de barbearia em ambiente sofisticado"
+            src={data.capa_signed_url ?? (ehBarbearia ? coverBarbearia.url : coverNeutra.url)}
+            alt={`Capa de ${data.nome}`}
             width={1200}
             height={1500}
             className="absolute inset-0 h-full w-full object-cover"
@@ -124,7 +126,7 @@ function InicioCliente() {
               Seu estilo, no seu horário.
             </p>
             <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-paper/75">
-              {data.texto_boas_vindas ?? "Sua barbearia, no seu tempo."}
+              {data.texto_boas_vindas ?? "Seu cuidado, no seu tempo."}
             </p>
             <Link
               to="/app/agendar"
@@ -137,7 +139,7 @@ function InicioCliente() {
         </section>
 
         <section className="py-7">
-          <h2 className="text-xs font-semibold uppercase text-mute">Seu próximo corte</h2>
+          <h2 className="text-xs font-semibold uppercase text-mute">Seu próximo atendimento</h2>
           {proximo ? (
             <Link
               to="/app/historico"
@@ -170,7 +172,7 @@ function InicioCliente() {
               <p className="text-base font-semibold text-paper">
                 {agendamentos.isLoading ? "Carregando…" : "Nenhum horário marcado"}
               </p>
-              <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo corte.</p>
+              <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo atendimento.</p>
             </div>
           )}
           <Link
@@ -189,14 +191,14 @@ function InicioCliente() {
             <span className="shrink-0 text-xs text-gold">Entrar</span>
           </Link>
           <Link to="/barbearias" className="mt-5 block text-xs text-mute underline">
-            Trocar de barbearia
+            Trocar de negócio
           </Link>
         </section>
 
         {data.loja.ativa ? (
           <section className="pb-7">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="text-xs font-semibold uppercase text-mute">Na loja da barbearia</h2>
+              <h2 className="text-xs font-semibold uppercase text-mute">Na loja</h2>
               <Link to="/loja/$slug" params={{ slug: data.slug }} className="text-xs text-gold">
                 Ver tudo
               </Link>

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { clienteDoUsuarioOpcional } from "@/lib/cliente";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export type ContextoClienteAtual = {
   nome: string;
@@ -11,6 +12,7 @@ export type ContextoClienteAtual = {
   texto_boas_vindas: string | null;
   logo_signed_url: string | null;
   capa_signed_url: string | null;
+  segmento: Segmento;
   loja: { ativa: boolean; destaques: { id: string; nome: string; preco_centavos: number; foto_url: string | null }[] };
 };
 
@@ -36,7 +38,7 @@ export const getContextoCliente = createServerFn({ method: "GET" })
     const { db, tenant } = resolvido;
     const { data: linha } = await db
       .from("tenants")
-      .select("nome, slug, plano, loja_ativa, endereco, texto_boas_vindas, logo_url, capa_url")
+      .select("nome, slug, segmento, plano, loja_ativa, endereco, texto_boas_vindas, logo_url, capa_url")
       .eq("id", tenant.id)
       .maybeSingle();
     if (!linha) return null;
@@ -71,6 +73,7 @@ export const getContextoCliente = createServerFn({ method: "GET" })
       texto_boas_vindas: linha.texto_boas_vindas,
       logo_signed_url: await assinada(db, linha.logo_url),
       capa_signed_url: await assinada(db, linha.capa_url),
+      segmento: segmentoParaApresentacao(linha.segmento),
       loja: { ativa: lojaAtiva && (destaques ?? []).length > 0, destaques: destaques ?? [] },
     };
   });

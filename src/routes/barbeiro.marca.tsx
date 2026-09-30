@@ -61,11 +61,11 @@ export const Route = createFileRoute("/barbeiro/marca")({
   head: () => ({
     meta: [
       { title: "Personalizar página — Cortaí" },
-      { name: "description", content: "Personalize e publique a página pública da sua barbearia." },
+      { name: "description", content: "Personalize e publique a página pública do seu negócio." },
       { property: "og:title", content: "Personalizar página — Cortaí" },
       {
         property: "og:description",
-        content: "Visual, conteúdo, seções e links da página da barbearia.",
+        content: "Visual, conteúdo, seções e links da página do negócio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -127,7 +127,7 @@ function MarcaPage() {
     return (
       <Screen title="Personalizar página">
         <p className="text-sm text-brick">
-          Entre como dono da barbearia para personalizar a página.
+          Entre como responsável pelo negócio para personalizar a página.
         </p>
       </Screen>
     );
@@ -577,7 +577,7 @@ function Editor({
                 label="Instagram"
                 value={form.instagram}
                 onChange={(value) => setMarca("instagram", value || null)}
-                placeholder="@sua_barbearia"
+                placeholder="@seu_negocio"
               />
               <Campo
                 label="Facebook"

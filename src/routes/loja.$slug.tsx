@@ -13,9 +13,9 @@ import { getLojaPublica, type ProdutoPublico } from "@/lib/loja.functions";
 export const Route = createFileRoute("/loja/$slug")({
   head: ({ params }) => ({ meta: [
     { title: `Loja da ${params.slug} — Cortaí` },
-    { name: "description", content: "Produtos selecionados pela barbearia para levar para casa." },
+    { name: "description", content: "Produtos selecionados pelo negócio para levar para casa." },
     { property: "og:title", content: `Loja — ${params.slug}` },
-    { property: "og:description", content: "Produtos da barbearia, com retirada no balcão." },
+    { property: "og:description", content: "Produtos do negócio, com retirada no local." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
     { property: "og:url", content: `https://cortai.dev/loja/${params.slug}` },
@@ -52,7 +52,7 @@ function LojaPage() {
             )}
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold text-paper">Loja da {tenant.nome}</h1>
-              <p className="mt-0.5 text-xs text-mute">Reserve aqui e retire na barbearia.</p>
+               <p className="mt-0.5 text-xs text-mute">Reserve aqui e retire no local.</p>
             </div>
           </div>
         </header>
@@ -90,7 +90,7 @@ function LojaPage() {
             {aberto.foto_url ? <img src={aberto.foto_url} alt={aberto.nome} className="mt-4 aspect-square w-full rounded-xl object-cover" /> : null}
             <p className="mt-4 text-xs uppercase text-mute2">{aberto.categoria}</p>
             <p className="mt-1 text-xl font-bold text-gold">{brl(aberto.preco_centavos)}</p>
-            <p className="mt-3 text-xs leading-relaxed text-mute">Pagamento e retirada na barbearia. Avise a equipe para separar o seu.</p>
+            <p className="mt-3 text-xs leading-relaxed text-mute">Pagamento e retirada no local. Avise a equipe para separar o seu.</p>
             <div className="mt-5 grid gap-2">
               {contato ? (
                 <Button asChild className="h-11 font-bold">
@@ -99,7 +99,7 @@ function LojaPage() {
                   </a>
                 </Button>
               ) : (
-                <p className="rounded-lg border border-dashed border-line px-4 py-3 text-xs text-mute2">Fale com a equipe na barbearia para comprar este produto.</p>
+                <p className="rounded-lg border border-dashed border-line px-4 py-3 text-xs text-mute2">Fale com a equipe para comprar este produto.</p>
               )}
               <Button variant="outline" className="h-11" onClick={() => setAberto(null)}>Continuar vendo</Button>
             </div>

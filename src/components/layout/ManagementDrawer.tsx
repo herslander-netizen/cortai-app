@@ -163,7 +163,7 @@ const GRUPOS: ReadonlyArray<{ titulo: string; itens: readonly ItemDoMenu[] }> = 
     ],
   },
   {
-    titulo: "Barbearia",
+    titulo: "Negócio",
     itens: [
       {
         label: "Página pública",
@@ -282,7 +282,7 @@ export function ManagementHeader() {
           >
             <div className="border-b border-line px-5 pb-4 pt-5 pr-12">
               <SheetTitle className="truncate text-base text-paper">
-                {sessao?.tenantNome ?? "Minha barbearia"}
+                 {sessao?.tenantNome ?? "Meu negócio"}
               </SheetTitle>
               <SheetDescription className="mt-1 truncate text-xs text-mute">
                 {sessao?.nome ?? "Conta conectada"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
@@ -299,7 +299,7 @@ export function ManagementHeader() {
               </div>
             </div>
 
-            <nav aria-label="Módulos da barbearia" className="px-3 py-3">
+            <nav aria-label="Módulos do negócio" className="px-3 py-3">
               {grupos.map((grupo) =>
                 grupo.itens.length ? (
                   <section key={grupo.titulo} className="mb-4">

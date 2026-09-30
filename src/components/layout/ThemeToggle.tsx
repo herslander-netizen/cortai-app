@@ -74,7 +74,7 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
         <Palette size={18} strokeWidth={1.75} className="shrink-0 text-mute" />
         <span className="min-w-0">
           <span id="aparencia-titulo" className="block text-sm font-semibold text-paper">Aparência</span>
-          <span className="mt-0.5 block text-xs text-mute">{podeAlterarIdentidade ? "Identidade da barbearia e modo deste aparelho" : "Modo deste aparelho"}</span>
+          <span className="mt-0.5 block text-xs text-mute">{podeAlterarIdentidade ? "Identidade do negócio e modo deste aparelho" : "Modo deste aparelho"}</span>
         </span>
       </div>
 
