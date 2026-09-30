@@ -29,6 +29,11 @@ export function ChatHeader({
   detalhe?: string;
   processando?: boolean;
 }) {
+  const nomeExibido = nome
+    .trim()
+    .replace(/^recep(?:ç|c)[aã]o\s+/i, "")
+    .replace(/^recep(?:ç|c)[aã]o$/i, detalhe?.trim().split(/\s+/)[0] ?? "Cortaí");
+
   return (
     <header className="chat-header">
       {avatarUrl ? (
@@ -38,10 +43,10 @@ export function ChatHeader({
           className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/15"
         />
       ) : (
-        <span className="chat-avatar-letra size-11">{nome.slice(0, 1).toUpperCase()}</span>
+        <span className="chat-avatar-letra size-11">{nomeExibido.slice(0, 1).toUpperCase()}</span>
       )}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-base font-extrabold">{nome}</h1>
+        <h1 className="truncate text-base font-extrabold">{nomeExibido}</h1>
         {status || detalhe ? (
           <p
             className="flex items-center gap-1.5 truncate text-xs font-semibold"
@@ -49,8 +54,14 @@ export function ChatHeader({
             aria-live="polite"
             aria-atomic="true"
           >
+            {detalhe ? <span className="chat-estabelecimento truncate">{detalhe}</span> : null}
             {status ? (
               <>
+                {detalhe ? (
+                  <span className="chat-mute" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
                 {processando ? (
                   <span className="chat-status-typing" aria-hidden>
                     <i />
@@ -62,12 +73,6 @@ export function ChatHeader({
                 )}
                 <span className="chat-status-text">{status}</span>
               </>
-            ) : null}
-            {detalhe ? (
-              <span className="chat-mute">
-                {status ? "· " : ""}
-                {detalhe}
-              </span>
             ) : null}
           </p>
         ) : null}
@@ -99,7 +104,7 @@ export function ChatShell({
   );
 }
 
-export function TypingIndicator({ rotulo = "Recepção digitando" }: { rotulo?: string }) {
+export function TypingIndicator({ rotulo = "Digitando" }: { rotulo?: string }) {
   return (
     <span
       className="chat-bolha-ia inline-flex h-10 items-center gap-1 px-4"

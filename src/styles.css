@@ -398,6 +398,10 @@
   --gold-soft: color-mix(in oklab, var(--chat-primary, var(--primary)) 12%, transparent);
   --primary: var(--chat-primary, var(--primary));
   --primary-foreground: var(--chat-primary-foreground, var(--primary-foreground));
+  --foreground: var(--chat-content);
+  --background: var(--chat-surface);
+  --muted-foreground: var(--chat-muted);
+  --input: var(--chat-borda);
   position: relative;
   height: 100dvh;
   overflow: hidden;
@@ -472,6 +476,10 @@
   color: var(--chat-muted);
   font-weight: 500;
 }
+.chat-estabelecimento {
+  color: var(--chat-content);
+  font-weight: 650;
+}
 .chat-avatar-letra {
   display: grid;
   place-items: center;
@@ -538,6 +546,26 @@
   outline: 2px solid var(--chat-primary, var(--ring));
   outline-offset: 2px;
 }
+.chat-sistema .chat-date-option,
+.chat-sistema .chat-slot {
+  border-color: color-mix(in oklab, var(--chat-content) 28%, transparent);
+  background: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
+  color: var(--chat-content);
+}
+.chat-sistema .chat-date-option:hover:not(:disabled),
+.chat-sistema .chat-slot:hover:not(:disabled) {
+  border-color: var(--chat-primary, var(--primary));
+  background: color-mix(in oklab, var(--chat-primary, var(--primary)) 10%, var(--chat-surface));
+  color: var(--chat-content);
+}
+.chat-sistema .chat-date-option:disabled {
+  border-color: color-mix(in oklab, var(--chat-content) 14%, transparent);
+  color: color-mix(in oklab, var(--chat-content) 58%, var(--chat-surface));
+  opacity: 1;
+}
+.chat-sistema .chat-date-option:disabled small {
+  color: color-mix(in oklab, var(--chat-content) 54%, var(--chat-surface));
+}
 .chat-sistema input {
   border-radius: 999px !important;
 }
@@ -568,6 +596,10 @@
   --paper: var(--chat-page-text, var(--foreground));
   --primary: var(--chat-primary, var(--primary));
   --primary-foreground: var(--chat-primary-foreground, var(--primary-foreground));
+  --foreground: var(--chat-content);
+  --background: var(--chat-surface);
+  --muted-foreground: var(--chat-muted);
+  --input: var(--chat-borda);
   --gold: var(--chat-primary, var(--primary));
   --gold-soft: color-mix(in oklab, var(--chat-primary, var(--primary)) 18%, transparent);
   font-family: var(--chat-body, "Manrope", sans-serif);

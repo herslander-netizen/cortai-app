@@ -13,6 +13,7 @@ import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 import { agendamentoStyle } from "@/lib/pagina-config";
+import { prefereMenosMovimento } from "@/lib/motion";
 
 type ServicoSelecionavel = {
   id: string;
@@ -46,6 +47,20 @@ type Selecao = {
 
 function Typing() {
   return <TypingIndicator />;
+}
+
+const RESPOSTA_POR_ETAPA = {
+  identidade: "Antes de começar, como posso chamar você?",
+  servico: "Vamos escolher seu atendimento. Qual serviço você quer agendar?",
+  profissional: "Ótima escolha. Você prefere alguém específico?",
+  dia: "Qual dia fica melhor?",
+  horario: "Encontrei estes horários:",
+  confirmacao: "Posso confirmar?",
+} as const;
+
+function pausaDaResposta(etapa: keyof typeof RESPOSTA_POR_ETAPA) {
+  if (prefereMenosMovimento()) return 80;
+  return Math.min(720, 320 + RESPOSTA_POR_ETAPA[etapa].length * 5);
 }
 
 function Fala({ children, cliente = false }: { children: React.ReactNode; cliente?: boolean }) {
@@ -92,7 +107,7 @@ export function AgendamentoChat({
   const [identificado, setIdentificado] = useState(false);
   const [profissionalEscolhido, setProfissionalEscolhido] = useState(false);
   const [diaEscolhido, setDiaEscolhido] = useState(false);
-  const [digitando, setDigitando] = useState(true);
+  const [etapaPronta, setEtapaPronta] = useState<string | null>(null);
   const nomeRef = useRef<HTMLInputElement>(null);
   const chat = data.pagina.chat;
   const {
@@ -122,10 +137,10 @@ export function AgendamentoChat({
           : !escolhido
             ? "horario"
             : "confirmacao";
+  const digitando = etapaPronta !== etapa;
 
   useEffect(() => {
-    setDigitando(true);
-    const id = window.setTimeout(() => setDigitando(false), 500);
+    const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa));
     return () => window.clearTimeout(id);
   }, [etapa]);
   useEffect(() => {
@@ -151,7 +166,7 @@ export function AgendamentoChat({
       header={
         <ChatHeader
           nome={chat.nomeRecepcao}
-          avatarUrl={chat.avatarUrl || data.tenant.logoUrl}
+          avatarUrl={chat.avatarUrl}
           status={digitando || enviando ? "Digitando..." : "Online"}
           detalhe={data.tenant.nome}
           processando={digitando || enviando}
@@ -160,13 +175,9 @@ export function AgendamentoChat({
     >
       <Conversation className="min-h-0">
         <ConversationContent className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6">
-          <Fala>{chat.mensagemInicial}</Fala>
+          {!digitando ? <Fala>{chat.mensagemInicial}</Fala> : null}
           {identificado ? <Fala cliente>Sou {nome.trim()}.</Fala> : null}
-          {identificado ? (
-            <Fala>Prazer, {nome.trim().split(" ")[0]}. Vamos escolher seu atendimento.</Fala>
-          ) : null}
           {servico ? <Fala cliente>{servico.nome}</Fala> : null}
-          {servico ? <Fala>Ótima escolha. Você prefere alguém específico?</Fala> : null}
           {servico && profissionalEscolhido ? (
             <Fala cliente>
               {profissionalId === "qualquer"
@@ -215,7 +226,9 @@ export function AgendamentoChat({
 
           {!digitando && etapa === "servico" ? (
             <Fala>
-              <p className="mb-3">Qual serviço você quer agendar?</p>
+              <p className="mb-3">
+                Vamos escolher seu atendimento. Qual serviço você quer agendar?
+              </p>
               <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {data.servicos.map((s) => (
                   <button
@@ -256,6 +269,7 @@ export function AgendamentoChat({
 
           {!digitando && etapa === "profissional" ? (
             <Fala>
+              <p className="mb-3">Ótima escolha. Você prefere alguém específico?</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 <Button
                   variant="outline"
@@ -306,7 +320,7 @@ export function AgendamentoChat({
                     <Button
                       key={d}
                       variant="outline"
-                      className="h-16 min-w-20 shrink-0 snap-start flex-col"
+                      className="chat-date-option h-16 min-w-20 shrink-0 snap-start flex-col"
                       disabled={!livre}
                       onClick={() => {
                         setDia(d);
