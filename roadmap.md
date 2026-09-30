@@ -43,3 +43,5 @@
 - [x] Validar a nova edição administrativa em 390/1280 sem alterar dados
 
 - [x] Corrigir e validar o fluxo completo de recuperação e definição de nova senha
+
+- [x] Consolidar a Home pública oficial em /apresentacao, editável em /admin/home

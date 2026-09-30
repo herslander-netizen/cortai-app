@@ -27,3 +27,5 @@
 - Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
 - Navegação barbeiro: um item por área (`navegacao-barbeiro.ts`); telas irmãs viram abas (`SECOES`); barra não se repete no menu.
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
+
+- Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/admin/apresentacao` redireciona e `SecoesHome` fica sem uso público — evita duas Homes concorrentes.
