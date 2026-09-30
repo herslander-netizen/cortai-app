@@ -51,7 +51,7 @@ function MarketingPage() {
   }
   return (
     <AdminScreen title="Marketing" subtitle="Compartilhe a apresentação comercial do Cortaí.">
-      <section className="max-w-2xl rounded-2xl border border-line bg-ink2 p-5 md:p-7">
+      <section className="max-w-2xl rounded-lg border border-line bg-ink2 p-5 md:p-7">
         <p className="text-xs font-semibold uppercase text-gold">Apresentação pública</p>
         <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Cortaí</h2>
         <p className="mt-2 text-sm leading-relaxed text-mute">
@@ -85,7 +85,7 @@ function MarketingPage() {
           </Button>
         </div>
         {mostrarQr ? (
-          <div className="mt-6 rounded-2xl border border-line bg-white p-4">
+          <div className="mt-6 rounded-lg border border-line bg-qr-light p-4">
             <QrCodeReal valor={endereco} alt="QR Code da apresentação pública do Cortaí" />
           </div>
         ) : null}

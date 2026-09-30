@@ -3912,6 +3912,8 @@ body:has(.auth-screen--claro) {
   --show-accent: var(--identity-secondary-light);
   --show-accent-soft: color-mix(in oklab, var(--show-accent) 10%, var(--show-surface));
   --show-shadow: 0 16px 44px color-mix(in oklab, var(--show-ink) 8%, transparent);
+  --primary: var(--show-accent);
+  --ring: var(--show-accent);
   min-height: 100dvh;
   overflow-x: clip;
   scroll-behavior: smooth;
