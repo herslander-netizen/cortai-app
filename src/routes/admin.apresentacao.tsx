@@ -283,10 +283,13 @@ function ApresentacaoInterna() {
   const navigate = useNavigate({ from: "/admin/apresentacao" });
   const inicioToque = useRef<number | null>(null);
   const atual = cenas[cena - 1] ?? cenas[0];
-  const ir = useCallback((proxima: number) => {
-    if (proxima >= 1 && proxima <= cenas.length)
-      void navigate({ search: { cena: proxima }, replace: true });
-  }, [navigate]);
+  const ir = useCallback(
+    (proxima: number) => {
+      if (proxima >= 1 && proxima <= cenas.length)
+        void navigate({ search: { cena: proxima }, replace: true });
+    },
+    [navigate],
+  );
   const sair = useCallback(() => {
     if (window.history.length > 1) window.history.back();
     else void navigate({ to: "/admin", search: {} });
