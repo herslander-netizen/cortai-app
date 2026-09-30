@@ -142,7 +142,7 @@ function ConfigurarPage() {
   const arquivoRef = useRef<HTMLInputElement>(null);
 
   const valorNome = nome ?? data?.tenant.nome ?? "";
-  const segmento = data?.tenant.segmento ?? "barbearia";
+  const segmento = data?.tenant.segmento ?? "outro";
   const definicao = SEGMENTOS_CONFIG[segmento];
   const vocabulario = termos(segmento);
   const valorWhatsapp = whatsapp ?? data?.tenant.whatsapp ?? "";
@@ -161,6 +161,7 @@ function ConfigurarPage() {
           precoCentavos: s.precoCentavos,
           profissionalIds: s.profissionalIds,
           retornoDias: s.retornoDias,
+           fotoUrl: s.fotoUrl,
         }))
       : definicao.servicosSugeridos.map((s) => ({ ...s })));
   const profissionais = (data?.profissionais ?? []).filter((p) => p.ativo);
@@ -253,6 +254,7 @@ function ConfigurarPage() {
           categoria: s.categoria?.trim() || "Serviço",
           ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
           ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
+           ...(s.fotoUrl !== undefined ? { fotoUrl: s.fotoUrl } : {}),
         })),
       },
     }).then(() => setServicos(null));
@@ -465,6 +467,7 @@ function ConfigurarPage() {
                 profissionais={profissionais.map((p) => ({ id: p.id, nome: p.nome }))}
                 semIA
                 segmento={segmento}
+                tenantId={data.tenant.id}
               />
               {rodape(
                 () => proxima(salvarServicosAgora),

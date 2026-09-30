@@ -74,10 +74,10 @@ export function motivoForaDoHorario(
   if (!hoje) return "O negócio não abre neste dia.";
   const fim = minuto + duracaoMin;
   if (minuto < hoje.abre || fim > hoje.fecha) {
-    return `Esse horário não cabe no funcionamento da barbearia (${hoje.info.abre} às ${hoje.info.fecha}).`;
+    return `Esse horário não cabe no funcionamento do negócio (${hoje.info.abre} às ${hoje.info.fecha}).`;
   }
   if (hoje.pausa && minuto < hoje.pausa[1] && fim > hoje.pausa[0]) {
-    return `Esse horário invade o intervalo da barbearia (${hoje.info.intervaloInicio} às ${hoje.info.intervaloFim}).`;
+    return `Esse horário invade o intervalo do negócio (${hoje.info.intervaloInicio} às ${hoje.info.intervaloFim}).`;
   }
   return null;
 }
@@ -86,7 +86,7 @@ export function motivoAntecedencia(inicio: number, antecedenciaMin: number, agor
   if (inicio < agora - 60_000) return "Esse horário já passou.";
   if (antecedenciaMin > 0 && inicio < agora + antecedenciaMin * 60_000) {
     const texto = antecedenciaMin >= 60 ? `${Math.round(antecedenciaMin / 60)} h` : `${antecedenciaMin} min`;
-    return `Esta barbearia agenda com pelo menos ${texto} de antecedência.`;
+    return `Este negócio agenda com pelo menos ${texto} de antecedência.`;
   }
   return null;
 }
