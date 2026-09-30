@@ -3,8 +3,8 @@
  *
  * Fica ANTES do motor determinístico e não altera a lógica dele: quando a
  * mensagem é a resposta a um lembrete (botão da API oficial, número da lista
- * ou palavra exata), a ação é feita aqui. "Remarcar" e "Agendar" são
- * repassados ao motor como frase comum, que já sabe conduzir esses fluxos.
+ * ou palavra exata), a ação é feita aqui. Remarcação e novo agendamento
+ * seguem pelo link oficial do Cortaí; nunca abrem conversa livre.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 
@@ -41,8 +41,6 @@ function dia(iso: string, fuso: string) {
 export type RespostaDeLembrete = {
   /** Texto a enviar ao cliente (vazio = a própria ação já enviou o aviso). */
   texto: string;
-  /** Frase repassada ao motor determinístico (remarcar, agendar). */
-  repassar?: string;
 };
 
 const SAIR = new Set(["sair", "parar", "cortai_sair", "descadastrar", "nao quero mais receber"]);
@@ -69,12 +67,12 @@ export async function tratarRespostaDeLembrete(input: {
       .eq("tenant_id", input.tenantId)
       .eq("telefone", input.telefone);
     return {
-      texto: "Pronto, você não vai mais receber lembretes de retorno. Se quiser voltar a receber, é só avisar a barbearia.",
+      texto: "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
     };
   }
 
-  type Envio = { id: string; agendamento_id: string | null; tipo: string; conteudo: string | null; acoes: string[] | null };
-  const campos = "id, agendamento_id, tipo, conteudo, acoes";
+  type Envio = { id: string; agendamento_id: string | null; tipo: string; telefone: string; conteudo: string | null; acoes: string[] | null };
+  const campos = "id, agendamento_id, tipo, telefone, conteudo, acoes";
   const bruto2 = bruto.toUpperCase();
   const agoraIso = new Date().toISOString();
   let envio: Envio | null = null;
@@ -85,14 +83,14 @@ export async function tratarRespostaDeLembrete(input: {
   if (porPayload) {
     const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", porPayload[2]!.toLowerCase())
       .eq("tenant_id", input.tenantId).maybeSingle();
-    if (data) { envio = data as Envio; acao = porPayload[1]!; }
+    if (data && (await telefoneCorresponde(data.telefone, input.telefone))) { envio = data as Envio; acao = porPayload[1]!; }
   }
 
   // 2) Resposta citando a notificação: usa o ID da mensagem citada.
   if (!envio && input.citadaId) {
     const { data } = await db.from("envios_de_whatsapp").select(campos).eq("mensagem_externa_id", input.citadaId)
       .eq("tenant_id", input.tenantId).maybeSingle();
-    if (data) envio = data as Envio;
+    if (data && (await telefoneCorresponde(data.telefone, input.telefone))) envio = data as Envio;
   }
 
   // Escolha pendente ("a qual horário você se refere?").
@@ -168,10 +166,16 @@ export async function tratarRespostaDeLembrete(input: {
     CORTAI_AGENDAR: "agendar",
     CORTAI_AGORA_NAO: "agora_nao",
   };
-  await db
+  const { data: respondido } = await db
     .from("envios_de_whatsapp")
     .update({ respondido_em: agoraIso, resposta: RESPOSTA[acao] ?? acao.toLowerCase() } as never)
-    .eq("id", envio.id);
+    .eq("id", envio.id)
+    .eq("tenant_id", input.tenantId)
+    .is("respondido_em", null)
+    .gt("valido_ate", agoraIso)
+    .select("id")
+    .maybeSingle();
+  if (!respondido) return { texto: "Essa ação não está mais disponível. Abra o Cortaí para ver seu horário atualizado." };
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
   await db.from("conversas_whatsapp").update({ contexto: resto as never }).eq("id", input.conversaId);
 
@@ -207,7 +211,7 @@ export async function tratarRespostaDeLembrete(input: {
       }
       return r.ok
         ? { texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.` }
-        : { texto: "Esse horário não está mais ativo. Quer marcar outro? É só me dizer o dia." };
+        : { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
     }
     case "CORTAI_CHEGUEI": {
       const { data } = await db.rpc("checkin_whatsapp" as never, { _agendamento_id: ag.id } as never);
@@ -221,33 +225,48 @@ export async function tratarRespostaDeLembrete(input: {
       if (r.motivo === "tarde") {
         return { texto: "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor." };
       }
-      return { texto: "Esse horário não está mais ativo. Quer marcar outro? É só me dizer o dia." };
+      return { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
     }
     case "CORTAI_CANCELAR": {
       const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: ag.id });
       await registrar("lembrete_cancelar", !error, error?.message);
       if (error) {
         return error.message.includes("encerrado")
-          ? { texto: "Esse horário já estava cancelado." }
-          : { texto: "Não consegui cancelar por aqui. Vou pedir para alguém da equipe te ajudar." };
+            ? { texto: "Esse horário já estava cancelado." }
+          : { texto: "Não foi possível cancelar por aqui. Abra o Cortaí para gerenciar seu horário." };
       }
       // Libera o horário (já livre no banco), avisa a lista de espera e envia a confirmação.
       const { notificarAgendamento } = await import("./notificacoes.server");
       const aviso = await notificarAgendamento(ag.id, "cancelamento");
-      return { texto: aviso.enviado ? "" : "Cancelado ✅ Se quiser remarcar, é só me dizer o dia." };
+      return { texto: aviso.enviado ? "" : "Cancelado ✅ Quando quiser voltar, abra o Cortaí para agendar." };
     }
-    case "CORTAI_REMARCAR":
+    case "CORTAI_REMARCAR": {
       await registrar("lembrete_remarcar", true);
-      return { texto: "", repassar: "quero remarcar" };
-    case "CORTAI_AGENDAR":
+      const link = await linkDoCortai(input.tenantId);
+      return { texto: `Para escolher um novo horário com segurança, use o Cortaí: ${link}` };
+    }
+    case "CORTAI_AGENDAR": {
       await registrar("retorno_agendar", true);
-      return { texto: "", repassar: "quero agendar" };
+      const link = await linkDoCortai(input.tenantId);
+      return { texto: `Escolha seu próximo horário no Cortaí: ${link}` };
+    }
     case "CORTAI_AGORA_NAO":
       await registrar("retorno_agora_nao", true);
-      return { texto: "Tudo bem! Quando quiser, é só mandar uma mensagem por aqui." };
+      return { texto: "Tudo bem. Os avisos essenciais dos seus horários continuam ativos." };
     default:
       return null;
   }
+}
+
+async function telefoneCorresponde(a: string, b: string) {
+  const { mesmoTelefone } = await import("@/lib/telefone");
+  return mesmoTelefone(a, b);
+}
+
+async function linkDoCortai(tenantId: string) {
+  const db = await admin();
+  const { data } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
+  return data?.slug ? `https://cortai.dev/agendar/${data.slug}` : "https://cortai.dev";
 }
 
 /**
@@ -321,10 +340,10 @@ export async function avisarListaDeEspera(agendamentoId: string) {
     sessaoId: conexao.sessao_id,
     telefone,
     texto: [
-      `${nome}, abriu um horário! ✂️`,
+      `Boa notícia, ${nome}. Abriu uma vaga!`,
       `${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}${profissional ? ` com ${profissional}` : ""}.`,
       "",
-      "Quer esse horário? Responda *quero agendar* que eu reservo para você.",
+      `Ela pode ser sua: ${await linkDoCortai(ag.tenant_id)}`,
     ].join("\n"),
     porIa: false,
     iniciadaPelaBarbearia: true,
