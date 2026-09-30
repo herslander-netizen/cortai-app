@@ -38,3 +38,5 @@
 - [x] Limpeza de produto: login enxuto, menu sem duplicação, áreas consolidadas com abas, "Chegadas" x "Lista de espera", apresentação interna única
 - [ ] Validar navegação do barbeiro com barbeiro.teste em 390/1280; aguardando autorização para abrir a sessão dessa conta
 - Candidatas à descontinuação (sem remoção): /barbeiro/painel-ia (sem acesso por menu, repete Agenda/Secretária); /barbeiro/integracoes e /barbeiro/atendentes (já só redirecionam)
+
+- [ ] Reorganizar a edição administrativa de barbearia em Visão geral, Contato e Suporte; validar 390/1280 sem alterar dados
