@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { horarioDoDia, motivoForaDoHorarioWrapper } from "./robustez-helpers";
 import { acharValidador, ENTRADAS, exigirFormaDoAtendente } from "./ia/entradas-da-api";
 import { rotearConexaoMeta, type ConexaoMeta } from "./whatsapp/roteamento-meta";
 import { concluirSubstituicao } from "./substituicao.server";
-import { horariosDisponiveis } from "./disponibilidade";
-import { FUSOS_DA_BARBEARIA, normalizarFuso } from "./horarios";
+import { horariosDisponiveis, motivoForaDoHorario } from "./disponibilidade";
+import { FUSOS_DA_BARBEARIA, horarioDoDia, normalizarFuso, type HorarioDeFuncionamento } from "./horarios";
+
+const motivoForaDoHorarioWrapper = (iso: string, dur: number, h: HorarioDeFuncionamento[]) =>
+  motivoForaDoHorario(Date.parse(iso), dur, h, "America/Sao_Paulo");
 
 describe("sem horário cadastrado", () => {
   it("dia sem linha é FECHADO", () => {
