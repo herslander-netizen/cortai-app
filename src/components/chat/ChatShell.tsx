@@ -58,7 +58,11 @@ export function ChatHeader({
           </p>
         ) : null}
       </div>
-      <img src={logoCortai.url} alt="Cortaí" className="h-7 w-auto shrink-0" />
+      <img
+        src={logoCortai.url}
+        alt="Tecnologia Cortaí"
+        className="h-4 w-auto shrink-0 opacity-60"
+      />
     </header>
   );
 }
