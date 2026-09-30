@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
