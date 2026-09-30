@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Plus,
   Scissors,
   UserRoundPlus,
   ListOrdered,
@@ -710,6 +711,14 @@ export function AgendaOperacional() {
           profissionais={profissionaisDoDia}
           online={online}
           ocupado={ocupado}
+          carregando={agenda.isLoading && !agenda.data}
+          erro={
+            agenda.isError && !agenda.data
+              ? agenda.error instanceof Error
+                ? agenda.error.message
+                : "Tente novamente."
+              : null
+          }
           onDia={setDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
@@ -720,6 +729,7 @@ export function AgendaOperacional() {
           onChamarFila={() => void chamarFila()}
           onNovoAgendamento={() => setManualAberto("agendamento")}
           onNovoAtendimento={() => setRapidoAberto(true)}
+          onTentarNovamente={() => void agenda.refetch()}
         />
         <Sheet
           open={painelAberto && Boolean(itemSelecionado)}
@@ -968,22 +978,27 @@ export function AgendaOperacional() {
       >
         <header className="agenda-cabecalho-compacto">
           <h1 className="sr-only">Agenda</h1>
-          <div className="mb-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-            <div className="flex min-w-0 items-center gap-1">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)_44px] items-center">
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Semana anterior"
-                onClick={() => setDia(somarDias(dia, -7))}
+                aria-label="Dia anterior"
+                onClick={() => setDia(somarDias(dia, -1))}
               >
                 <ChevronLeft />
               </Button>
-              <p className="truncate text-sm font-extrabold text-paper">{dataEditorial(dia)}</p>
+              <div className="min-w-0 text-center">
+                <p className="truncate text-sm font-extrabold text-paper">
+                  {ehHoje ? "Hoje" : dataEditorial(dia)}
+                </p>
+                {ehHoje ? <p className="truncate text-xs text-mute">{dataEditorial(dia)}</p> : null}
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Próxima semana"
-                onClick={() => setDia(somarDias(dia, 7))}
+                aria-label="Próximo dia"
+                onClick={() => setDia(somarDias(dia, 1))}
               >
                 <ChevronRight />
               </Button>
@@ -995,39 +1010,13 @@ export function AgendaOperacional() {
                   Fila ({chegada.length})
                 </Button>
               ) : null}
-              <Button
-                size="sm"
-                variant={ehHoje ? "ghost" : "secondary"}
-                disabled={ehHoje}
-                onClick={() => setDia(hojeNoFuso(fuso))}
-              >
-                Hoje
-              </Button>
+              {!ehHoje ? (
+                <Button size="sm" variant="secondary" onClick={() => setDia(hojeNoFuso(fuso))}>
+                  Hoje
+                </Button>
+              ) : null}
               <BotaoAjuda />
             </div>
-          </div>
-          <div className="agenda-semana" role="group" aria-label="Dias da semana">
-            {semana.map((d) => {
-              const data = new Date(`${d}T12:00:00Z`);
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  className="agenda-semana-dia"
-                  aria-pressed={d === dia}
-                  data-hoje={d === hojeNoFuso(fuso)}
-                  onClick={() => setDia(d)}
-                >
-                  <span>
-                    {data
-                      .toLocaleDateString("pt-BR", { weekday: "short", timeZone: "UTC" })
-                      .replace(".", "")
-                      .slice(0, 3)}
-                  </span>
-                  <strong>{data.getUTCDate()}</strong>
-                </button>
-              );
-            })}
           </div>
           <p className="mt-2 text-xs font-semibold text-mute" aria-live="polite">
             {resumo}
@@ -1393,14 +1382,22 @@ export function AgendaOperacional() {
             }}
           />
         ) : diaSemAgenda ? (
-          <div className="border-y border-line py-10 text-center">
-            <p className="text-base font-bold text-paper">Dia livre — compartilhe seu link</p>
-            <Link
-              to="/barbeiro/marca"
-              className="mt-3 inline-block text-sm font-semibold text-gold underline underline-offset-4"
-            >
-              Abrir página da barbearia
-            </Link>
+          <div className="border-y border-line py-8 text-center">
+            <Scissors className="mx-auto size-6 text-mute" aria-hidden />
+            <p className="mt-3 text-base font-bold text-paper">Agenda livre</p>
+            <p className="mt-1 text-sm text-mute">
+              {dataEditorial(dia)} · nenhum atendimento marcado
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Button onClick={() => setRapidoAberto(true)}>
+                <Plus /> Adicionar atendimento
+              </Button>
+              {ehHoje ? (
+                <Button asChild variant="ghost">
+                  <Link to="/barbeiro/marca">Compartilhar link</Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
         ) : visualizacao !== "lista" && !celular && !profFiltro && profissionaisDoDia.length > 1 ? (
           <div

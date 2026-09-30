@@ -45,6 +45,8 @@ type Props = {
   profissionais: string[];
   online: boolean;
   ocupado: boolean;
+  carregando: boolean;
+  erro: string | null;
   onDia: (dia: string) => void;
   onProfissional: (nome: string | null) => void;
   onChegou: (item: AgendaItem) => void;
@@ -55,6 +57,7 @@ type Props = {
   onChamarFila?: () => void;
   onNovoAgendamento?: () => void;
   onNovoAtendimento?: () => void;
+  onTentarNovamente: () => void;
 };
 
 function somarDias(dia: string, passo: number) {
@@ -80,7 +83,7 @@ function dataCurta(dia: string) {
       month: "short",
       timeZone: "UTC",
     })
-    .replaceAll(".", "");
+    .replace(/^./, (letra) => letra.toLocaleUpperCase("pt-BR"));
 }
 
 function minutosAte(iso: string, agora: number) {
@@ -164,13 +167,35 @@ export function AgendaFocoMobile(props: Props) {
         >
           <IconeCortai className="h-10 w-10 rounded-full" />
         </Button>
-        <div className="min-w-0 text-center">
-          <strong className="block truncate text-base font-extrabold capitalize text-paper">
-            {dataCurta(props.dia)}
-          </strong>
-          <span className="text-xs font-semibold text-mute">
-            {props.online ? "Ao vivo" : "Sem internet · somente leitura"}
-          </span>
+        <div className="agenda-foco-contexto">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Dia anterior"
+            onClick={() => props.onDia(somarDias(props.dia, -1))}
+          >
+            <ChevronLeft />
+          </Button>
+          <div className="min-w-0 text-center">
+            <strong className="block truncate text-sm font-extrabold text-paper">
+              {props.hoje ? "Hoje" : dataCurta(props.dia)}
+            </strong>
+            <span className="agenda-foco-contexto-detalhe">
+              {props.hoje ? dataCurta(props.dia) : null}
+              {props.hoje ? <span aria-hidden> · </span> : null}
+              <span className={props.online ? "agenda-foco-online" : ""}>
+                {props.online ? "Ao vivo" : "Somente leitura"}
+              </span>
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Próximo dia"
+            onClick={() => props.onDia(somarDias(props.dia, 1))}
+          >
+            <ChevronRight />
+          </Button>
         </div>
         {props.fila ? (
           <Button
@@ -211,26 +236,6 @@ export function AgendaFocoMobile(props: Props) {
           </Button>
         </div>
       ) : null}
-
-      <div className="agenda-foco-dia">
-        <Button
-          variant="icon"
-          size="icon"
-          aria-label="Dia anterior"
-          onClick={() => props.onDia(somarDias(props.dia, -1))}
-        >
-          <ChevronLeft />
-        </Button>
-        <span>{props.hoje ? "Hoje" : dataCurta(props.dia)}</span>
-        <Button
-          variant="icon"
-          size="icon"
-          aria-label="Próximo dia"
-          onClick={() => props.onDia(somarDias(props.dia, 1))}
-        >
-          <ChevronRight />
-        </Button>
-      </div>
 
       {props.profissionais.length > 1 ? (
         <div className="agenda-foco-profissionais sem-barra" aria-label="Profissional">
@@ -280,11 +285,36 @@ export function AgendaFocoMobile(props: Props) {
       ) : null}
 
       <div className="agenda-foco-lista">
-        {props.itens.length === 0 ? (
+        {props.carregando ? (
+          <div className="agenda-foco-vazio" aria-label="Carregando agenda">
+            <span>Carregando agenda…</span>
+          </div>
+        ) : props.erro ? (
+          <div className="agenda-foco-vazio" role="alert">
+            <strong>Não foi possível carregar a agenda</strong>
+            <span>{props.erro}</span>
+            <Button variant="outline" onClick={props.onTentarNovamente}>
+              Tentar novamente
+            </Button>
+          </div>
+        ) : props.itens.length === 0 ? (
           <div className="agenda-foco-vazio">
             <Scissors aria-hidden />
             <strong>Agenda livre</strong>
-            <span>Nenhum atendimento neste dia.</span>
+            <span>{dataCurta(props.dia)} · nenhum atendimento marcado</span>
+            <div className="agenda-foco-vazio-acoes">
+              {props.onNovoAtendimento ? (
+                <Button variant="primary" onClick={props.onNovoAtendimento}>
+                  <Plus />
+                  Adicionar atendimento
+                </Button>
+              ) : null}
+              {props.hoje ? (
+                <Button asChild variant="ghost">
+                  <Link to="/barbeiro/marca">Compartilhar link</Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
         ) : null}
         {visiveis.map((item, indice) => {
