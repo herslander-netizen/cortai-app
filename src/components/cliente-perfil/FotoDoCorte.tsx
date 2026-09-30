@@ -18,7 +18,7 @@ async function comprimir(arquivo: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.72);
 }
 
-export function FotoDoCorte({ clienteId, agendamentoId, onEnviada, segmento = "barbearia" }: { clienteId: string; agendamentoId?: string | null; onEnviada?: () => void; segmento?: Segmento }) {
+export function FotoDoCorte({ clienteId, agendamentoId, onEnviada, segmento = "outro" }: { clienteId: string; agendamentoId?: string | null; onEnviada?: () => void; segmento?: Segmento }) {
   const termos = termosPara(segmento);
   const barbeiro = segmento === "barbearia";
   const enviar = useServerFn(enviarFotoCorte);

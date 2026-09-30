@@ -134,7 +134,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
 
   const blocos: (string | null)[] = [];
-  const barbearia = !d.segmento || segmentoValido(d.segmento) === "barbearia";
+  const barbearia = d.segmento === "barbearia";
   const em = barbearia ? `na ${d.barbearia}` : `em ${d.barbearia}`;
 
   if (tipo === "confirmacao_agendamento") {

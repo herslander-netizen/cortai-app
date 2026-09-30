@@ -59,8 +59,8 @@ function ComecarPage() {
           Seu acesso foi desativado.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
-          Quem gerencia a equipe da barbearia desativou seu acesso ao painel. Se você acha que isso
-          é um engano, fale com a barbearia para reativar. Você pode continuar usando o Cortaí para
+          Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso
+          é um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o Cortaí para
           agendar como cliente.
         </p>
         <button
@@ -153,7 +153,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
               <span className="mt-1 block text-xs text-mute">
-                Marcar horários no meu salão, barbearia ou studio.
+                 Marcar horários em negócios de Beleza.
               </span>
             </span>
           </button>
@@ -166,7 +166,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
               <span className="mt-1 block text-xs text-mute">
-                Barbearia, salão, esmalteria, estética…
+                 Escolha seu segmento de Beleza.
               </span>
             </span>
           </button>
