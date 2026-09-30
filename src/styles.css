@@ -2849,7 +2849,6 @@ body:has(.auth-screen--claro) {
   }
 
   body:has(.agenda-foco-mobile) .management-header,
-  body:has(.agenda-foco-mobile) .equipe-barra,
   body:has(.agenda-foco-mobile) .cortai-fab-area,
   body:has(.agenda-foco-mobile) .screen-shell > footer,
   body:has(.agenda-foco-mobile) .banner-cookies {
@@ -2865,6 +2864,10 @@ body:has(.auth-screen--claro) {
   body:has(.agenda-foco-mobile) .screen-content {
     padding: 0;
   }
+
+  body:has(.agenda-foco-mobile.agenda-foco-ativo) .equipe-barra {
+    display: none;
+  }
 }
 
 /* Agenda móvel — operação com uma mão, sem navegação concorrente. */
@@ -2878,14 +2881,39 @@ body:has(.auth-screen--claro) {
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   gap: 8px;
-  min-height: 64px;
+  min-height: 68px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in oklab, var(--ink) 96%, transparent);
   padding: 6px 12px;
   backdrop-filter: blur(12px);
+}
+.agenda-foco-contexto {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+}
+.agenda-foco-contexto-detalhe {
+  display: block;
+  overflow: hidden;
+  color: var(--mute);
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-foco-online::before {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 999px;
+  background: var(--status-active);
+  content: "";
+  vertical-align: 1px;
 }
 .agenda-foco-aviso {
   position: sticky;
@@ -2907,20 +2935,6 @@ body:has(.auth-screen--claro) {
   width: 19px;
   color: var(--rosa);
 }
-.agenda-foco-dia {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 48px;
-  align-items: center;
-  border-bottom: 1px solid var(--line);
-  padding: 5px 12px;
-  text-align: center;
-}
-.agenda-foco-dia span {
-  font-family: var(--font-display);
-  font-size: 21px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
 .agenda-foco-profissionais {
   display: flex;
   gap: 6px;
@@ -2941,8 +2955,16 @@ body:has(.auth-screen--claro) {
 .agenda-foco-fab {
   position: fixed;
   z-index: 40;
-  right: 18px;
-  bottom: calc(18px + env(safe-area-inset-bottom));
+  right: 16px;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+}
+.agenda-foco-ativo .agenda-foco-fab {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.agenda-foco-fab .agenda-acao-redonda {
+  width: 52px;
+  height: 52px;
+  box-shadow: var(--shadow-md);
 }
 .agenda-foco-item {
   position: relative;
@@ -3101,13 +3123,18 @@ body:has(.auth-screen--claro) {
 }
 .agenda-foco-vazio {
   display: flex;
-  min-height: 54dvh;
+  min-height: 34dvh;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   color: var(--mute);
   text-align: center;
+}
+.agenda-foco-vazio-acoes {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
 }
 .agenda-foco-vazio svg {
   width: 28px;
