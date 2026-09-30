@@ -530,7 +530,11 @@
 /* O modo tradicional usa a mesma identidade publicada, sem alterar o motor de agenda. */
 .agendamento-marca {
   --ink: var(--chat-page, var(--background));
-  --ink2: color-mix(in oklab, var(--chat-page, var(--background)) 88%, var(--chat-secondary, transparent));
+  --ink2: color-mix(
+    in oklab,
+    var(--chat-page, var(--background)) 88%,
+    var(--chat-secondary, transparent)
+  );
   --paper: var(--chat-page-text, var(--foreground));
   --gold: var(--chat-primary, var(--primary));
   --gold-soft: color-mix(in oklab, var(--chat-primary, var(--primary)) 16%, transparent);

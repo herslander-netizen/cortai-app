@@ -28,10 +28,18 @@ export function ChatPreview({
       )}
       style={estilo}
     >
-      {capaUrl ? <img src={capaUrl} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
+      {capaUrl ? (
+        <img src={capaUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : null}
       <div className="chat-preview-veil absolute inset-0" />
       <div className="relative flex items-center gap-3 border-b border-line px-4 py-3">
-        {logoUrl ? <img src={logoUrl} alt="" className="size-9 rounded-full object-contain" /> : <span className="grid size-9 place-items-center rounded-full bg-gold-soft text-gold"><MessageCircleMore size={17} /></span>}
+        {logoUrl ? (
+          <img src={logoUrl} alt="" className="size-9 rounded-full object-contain" />
+        ) : (
+          <span className="grid size-9 place-items-center rounded-full bg-gold-soft text-gold">
+            <MessageCircleMore size={17} />
+          </span>
+        )}
         <div>
           <p className="text-sm font-semibold text-paper">{nome}</p>
           <p className="text-xs text-sage">{config?.chat.nomeRecepcao ?? "Recepção"}</p>
@@ -39,7 +47,8 @@ export function ChatPreview({
       </div>
       <div className="relative space-y-4 p-4 text-sm">
         <p className="max-w-[88%] text-paper">
-          {config?.chat.mensagemInicial ?? "Olá! Que bom receber você. Como posso organizar seu horário?"}
+          {config?.chat.mensagemInicial ??
+            "Olá! Que bom receber você. Como posso organizar seu horário?"}
         </p>
         <p className="ml-auto w-fit rounded-lg bg-primary px-3 py-2 text-primary-foreground">
           Quero agendar
