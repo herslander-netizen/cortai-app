@@ -16,7 +16,7 @@
 - [x] Corrigir a hierarquia visual da Agenda mobile sem alterar regras operacionais
 - [x] Validar Agenda por código, TypeScript, testes e build; validação autenticada em 390/1280 bloqueada pela sessão permitida
 - [x] Consolidar o Modo Foco como cockpit operacional usando agenda, cliente e comanda existentes
-- [ ] Validar visualmente com barbeiro.teste em 390px/1280px; bloqueado porque a sessão disponível pertence ao admin
+- [x] Validar visualmente com barbeiro.teste em 390px/1280px
 - [x] Simplificar e reagrupar as configurações operacionais sem remover rotas ou funções
 - [x] Criar apresentação interna protegida, escondida da navegação e com retorno exato
 - [x] Validar apresentação e menus em 390px/1280px, TypeScript, testes e build

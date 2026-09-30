@@ -13,11 +13,11 @@ export function mensagemDeAcessoNegado(error: unknown) {
 export function RouteError({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   const semAcesso = mensagemDeAcessoNegado(error);
-  const erroNormalizado = error instanceof Error ? error : new Error(String(error));
 
   useEffect(() => {
+    const erroNormalizado = error instanceof Error ? error : new Error(String(error));
     reportLovableError(erroNormalizado, { boundary: "tanstack_route_error_component" });
-  }, [erroNormalizado]);
+  }, [error]);
 
   return (
     <main className="flex min-h-[100dvh] items-center justify-center bg-background px-5">
