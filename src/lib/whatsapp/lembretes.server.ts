@@ -124,9 +124,12 @@ export async function tratarRespostaDeLembrete(input: {
     .eq("id", input.conversaId)
     .maybeSingle();
   const ctx = (conv?.contexto ?? {}) as Record<string, unknown>;
-  const escolha = ctx["escolherNotificacao"] as { ids: string[]; acao: string | null } | undefined;
-  if (!envio && escolha && /^\d$/.test(t)) {
-    const id = escolha.ids[Number(t) - 1];
+  const escolha = ctx["escolherNotificacao"] as
+    { ids: string[]; acao: string | null; validoAte?: string } | undefined;
+  const escolhaValida =
+    escolha && (!escolha.validoAte || escolha.validoAte > agoraIso) ? escolha : undefined;
+  if (!envio && escolhaValida && /^\d$/.test(t)) {
+    const id = escolhaValida.ids[Number(t) - 1];
     if (id) {
       const { data } = await db
         .from("envios_de_whatsapp")
@@ -140,11 +143,11 @@ export async function tratarRespostaDeLembrete(input: {
       if (
         data &&
         telefoneCorresponde(data.telefone, input.telefone) &&
-        escolha.acao &&
-        data.acoes?.includes(escolha.acao)
+        escolhaValida.acao &&
+        data.acoes?.includes(escolhaValida.acao)
       ) {
         envio = data as Envio;
-        acao = escolha.acao;
+        acao = escolhaValida.acao;
       }
     }
   }
@@ -164,7 +167,7 @@ export async function tratarRespostaDeLembrete(input: {
       .order("enviado_em", { ascending: false });
     abertas = (data ?? []) as Envio[];
     if (!abertas.length) return null; // prazo vencido: volta ao fluxo normal
-    if (abertas.length === 1) envio = abertas[0]!;
+    if (abertas.length === 1) envio = abertas[0] ?? null;
   }
 
   // Ação pelo texto: botão sem ID, número da lista ou palavra exata.
@@ -200,7 +203,14 @@ export async function tratarRespostaDeLembrete(input: {
     await db
       .from("conversas_whatsapp")
       .update({
-        contexto: { ...ctx, escolherNotificacao: { ids: abertas.map((e) => e.id), acao } } as never,
+        contexto: {
+          ...ctx,
+          escolherNotificacao: {
+            ids: abertas.map((e) => e.id),
+            acao,
+            validoAte: new Date(Date.now() + 15 * 60_000).toISOString(),
+          },
+        } as never,
       })
       .eq("id", input.conversaId);
     return {
@@ -224,6 +234,7 @@ export async function tratarRespostaDeLembrete(input: {
     CORTAI_CANCELAR: "cancelado",
     CORTAI_REMARCAR: "remarcar",
     CORTAI_AGENDAR: "agendar",
+    CORTAI_ABRIR: "abrir_cortai",
     CORTAI_AGORA_NAO: "agora_nao",
   };
   const { data: respondido } = await db
@@ -336,6 +347,11 @@ export async function tratarRespostaDeLembrete(input: {
       const link = await linkDoCortai(input.tenantId);
       return { texto: `Escolha seu próximo horário no Cortaí: ${link}` };
     }
+    case "CORTAI_ABRIR": {
+      await registrar("abrir_cortai", true);
+      const link = await linkDoCortai(input.tenantId);
+      return { texto: `Abra o Cortaí para continuar: ${link}` };
+    }
     case "CORTAI_AGORA_NAO":
       await registrar("retorno_agora_nao", true);
       return { texto: "Tudo bem. Os avisos essenciais dos seus horários continuam ativos." };
@@ -406,15 +422,20 @@ export async function avisarListaDeEspera(agendamentoId: string) {
 
   const fuso = await fusoDoTenant(ag.tenant_id);
   const profissional = (ag as { profissionais?: { nome?: string } | null }).profissionais?.nome;
+  const clienteDaFila = (
+    alvo as unknown as {
+      clientes?: { nome?: string; telefone?: string | null } | null;
+    }
+  ).clientes;
   await db.rpc("criar_notificacao", {
     _tenant: ag.tenant_id,
     _tipo: "fila",
     _titulo: "Horário liberado",
-    _corpo: `${(alvo as any).clientes?.nome ?? "Cliente"} da lista de espera foi avisado (${hora(ag.inicio, fuso)}).`,
+    _corpo: `${clienteDaFila?.nome ?? "Cliente"} da lista de espera foi avisado (${hora(ag.inicio, fuso)}).`,
     _link: "/barbeiro/fila",
   });
 
-  const cliente = (alvo as any).clientes as { nome: string; telefone: string | null } | null;
+  const cliente = clienteDaFila ?? null;
   const telefone = String(cliente?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
   const { data: conexao } = await db

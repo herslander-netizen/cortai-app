@@ -1,39 +1,40 @@
 # Consolidar a Secretária Cortaí
 
 ## Objetivo
-Transformar o WhatsApp existente em canal exclusivamente transacional, mantendo webhooks, conexões, registros, deduplicação, isolamento por negócio e mutações oficiais. Cortaí Chat assume agendamento e gerenciamento; CortAI deixa de responder mensagens livres no WhatsApp.
+Transformar o caminho ativo do WhatsApp em um canal exclusivamente proativo e transacional, mantendo o Cortaí Chat como experiência de agendamento e o CortAI separado como inteligência do produto.
 
 ## Implementação
-1. **Fechar o runtime de conversa livre**
-   - Depois de registrar a mensagem recebida, aceitar somente ações válidas de uma notificação pendente.
-   - Desligar o caminho ativo de saudação, menu, intenção geral, motor determinístico/IA, transferência humana e atendimento fora de horário.
-   - Para mensagem sem contexto, enviar uma única resposta neutra com o link real do Cortaí; deduplicar e impedir loop.
-   - Preservar Meta/Evolution, assinatura, inbox de webhook, roteamento por conexão, mensagens, status e auditoria.
+1. **Fechar o runtime transacional**
+   - Manter webhooks, assinatura, roteamento por conexão, deduplicação e auditoria existentes.
+   - Aceitar somente ações válidas de uma notificação pendente, verificando tenant, telefone, identificador externo/payload, validade, ação permitida e resposta única.
+   - Remover do caminho ativo menu, conversa livre, IA, FAQ, serviços, preços e transferência humana; mensagens sem contexto recebem fallback curto deduplicado.
 
-2. **Consolidar notificações**
-   - Manter `notificacoes.server.ts` como único motor e ampliar os tipos transacionais compatíveis.
-   - Centralizar textos segment-aware para confirmação, lembretes, alteração, cancelamento, vaga, pagamento, pós-atendimento, avaliação, recuperação e retorno.
-   - Separar avisos essenciais de relacionamento; aplicar consentimento e silêncio apenas onde cabível.
-   - Manter idempotência e tentativas limitadas; falhas nunca bloqueiam a operação principal.
+2. **Completar o motor único de notificações**
+   - Evoluir `notificacoes.server.ts`, sem criar motor paralelo, para os tipos oficiais e templates segmentados.
+   - Separar avisos essenciais de relacionamento, respeitar consentimento, frequência, silêncio, fuso e janela do provedor.
+   - Reagendar relacionamento bloqueado por silêncio para a primeira janela válida, com retries limitados e idempotência por evento.
+   - Garantir que falhas do WhatsApp nunca interrompam agenda, atendimento, comanda ou financeiro.
 
-3. **Avaliação da experiência**
-   - Reutilizar `avaliacoes`; inspecionar políticas e acrescentar somente os campos necessários.
-   - Criar link público opaco, expirável e idempotente, vinculado ao atendimento finalizado e ao negócio correto.
-   - Oferecer nota geral, dimensões opcionais e comentário; nota baixa gera atenção interna, nota positiva só oferece avaliação pública quando há link real.
+3. **Tornar a avaliação segura e atômica**
+   - Reutilizar `avaliacoes`, mantendo uma avaliação por agendamento e dimensões opcionais em JSONB.
+   - Finalizar convite público por token opaco, expiração e consumo atômico, sem expor IDs e sem permitir corrida ou repetição.
+   - Gerar sinal interno para nota baixa e oferecer avaliação pública somente quando houver link real.
 
 4. **Reposicionar o painel**
-   - Renomear para “Secretária Cortaí” e reorganizar em Conexão, Notificações, Experiência do cliente e Histórico de envios.
-   - Retirar inbox/conversa humana, chatbot, FAQ, saudação e instruções de IA da superfície ativa.
-   - Exibir conexão, notificações, entregas, avaliações e experiências que precisam de atenção.
+   - Organizar em Conexão, Notificações, Experiência do cliente e Histórico de envios.
+   - Exibir conexão, automações ativas, próximo envio, entrega, avaliações e experiências que precisam de atenção.
+   - Remover da interface ativa inbox, atendimento automático, saudação, FAQ, horário/instruções de IA e controles de atendimento humano.
+   - Preservar aliases antigos apenas para redirecionar ao histórico, sem reativar conversa.
 
-5. **Validação**
-   - Cobrir ações contextuais, expiração, isolamento, dedupe, silêncio, fallback sem loop, avaliação segura, ausência de conexão e segmentação.
-   - Rodar typecheck, testes, build e lint disponível.
-   - Validar 390px e 1280px, claro/escuro e estados loading/empty/error quando houver acesso de teste.
-   - Não publicar.
+5. **Cobertura e validação**
+   - Adicionar testes para dedupe/concorrência, janelas e silêncio, isolamento multi-tenant, ações contextuais, expiração, fallback, avaliação e segmentação.
+   - Validar typecheck, suíte completa, build e lint disponível.
+   - Exercitar as telas em 390px e 1280px, claro/escuro, incluindo loading, vazio, erro, avaliação válida e convite expirado.
 
-## Limites
-- Sem app, motor ou tabela paralelos.
-- Sem remover histórico necessário ou mudar contratos internos só por nomenclatura.
-- Sem marketing, campanhas, aniversário ou conversa livre no módulo da Secretária.
-- Mudança de banco somente se a avaliação segura exigir, de forma aditiva e compatível.
+## Banco e compatibilidade
+- Sem `DROP`, sem apagar dados e sem alterar contratos oficiais de agenda.
+- Reutilizar tabelas e índices atuais; qualquer extensão mínima será aplicada por migration, com GRANT, RLS e política na ordem exigida.
+- Código histórico de conversa pode permanecer no repositório quando removê-lo representar risco, mas ficará inalcançável pelo runtime e pela navegação ativa.
+
+## Entrega
+Relatório final com caminhos desativados, infraestrutura preservada, arquivos e migrations, pipeline, tipos/templates, avaliação, fallback, testes, pendências reais e confirmação explícita de que nada foi publicado.

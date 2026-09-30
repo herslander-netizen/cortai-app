@@ -824,10 +824,7 @@ export function AgendaOperacional() {
                   ) : null}
                   {itemSelecionado.clienteId ? (
                     <Button asChild variant="outline">
-                      <Link
-                        to="/barbeiro/cortai"
-                        search={{ aba: "conversas", cliente: itemSelecionado.clienteId }}
-                      >
+                      <Link to="/barbeiro/cortai" search={{ aba: "envios" }}>
                         <MessageCircle />
                         WhatsApp
                       </Link>
@@ -1115,7 +1112,7 @@ export function AgendaOperacional() {
                             >
                               <Link
                                 to="/barbeiro/cortai"
-                                search={{ aba: "conversas", cliente: item.clienteId }}
+                                search={{ aba: "envios" }}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <MessageCircle />
@@ -1217,10 +1214,7 @@ export function AgendaOperacional() {
                         size="icon"
                         aria-label={`Abrir conversa de ${item.cliente} no WhatsApp`}
                       >
-                        <Link
-                          to="/barbeiro/cortai"
-                          search={{ aba: "conversas", cliente: item.clienteId }}
-                        >
+                        <Link to="/barbeiro/cortai" search={{ aba: "envios" }}>
                           <MessageCircle />
                         </Link>
                       </Button>
@@ -1523,7 +1517,7 @@ export function AgendaOperacional() {
                         >
                           <Link
                             to="/barbeiro/cortai"
-                            search={{ aba: "conversas", cliente: item.clienteId }}
+                            search={{ aba: "envios" }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <MessageCircle />
@@ -1773,10 +1767,7 @@ export function AgendaOperacional() {
                 ) : null}
                 {itemSelecionado.clienteId ? (
                   <Button asChild variant="outline">
-                    <Link
-                      to="/barbeiro/cortai"
-                      search={{ aba: "conversas", cliente: itemSelecionado.clienteId }}
-                    >
+                    <Link to="/barbeiro/cortai" search={{ aba: "envios" }}>
                       <MessageCircle />
                       WhatsApp
                     </Link>

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bot, Circle, MessageCircle, UserCheck, UsersRound } from "lucide-react";
@@ -7,17 +7,30 @@ import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { definirAtendimentoDaConversa, listarAtendentes, listarConversas } from "@/lib/whatsapp.functions";
+import {
+  definirAtendimentoDaConversa,
+  listarAtendentes,
+  listarConversas,
+} from "@/lib/whatsapp.functions";
 import type { ConversaDeWhatsapp } from "@/lib/whatsapp/contrato";
 
 export const Route = createFileRoute("/barbeiro/atendentes")({
   ssr: false,
+  beforeLoad: () => {
+    throw redirect({ to: "/barbeiro/cortai", search: { aba: "envios" } });
+  },
   head: () => ({
     meta: [
       { title: "Painel de atendentes — Cortaí Gestão" },
-      { name: "description", content: "Veja quem está online no negócio e assuma o atendimento de uma conversa." },
+      {
+        name: "description",
+        content: "Veja quem está online no negócio e assuma o atendimento de uma conversa.",
+      },
       { property: "og:title", content: "Painel de atendentes — Cortaí Gestão" },
-      { property: "og:description", content: "Equipe online e conversas do WhatsApp em um só lugar." },
+      {
+        property: "og:description",
+        content: "Equipe online e conversas do WhatsApp em um só lugar.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -63,14 +76,17 @@ function AtendentesPage() {
   // Presença ao vivo: quem está com o painel aberto agora.
   useEffect(() => {
     if (!tenantId || !euSouId) return;
-    const canal = supabase.channel(`atendentes-${tenantId}`, { config: { presence: { key: euSouId } } });
+    const canal = supabase.channel(`atendentes-${tenantId}`, {
+      config: { presence: { key: euSouId } },
+    });
     const atualizar = () => setOnline(Object.keys(canal.presenceState()));
     canal
       .on("presence", { event: "sync" }, atualizar)
       .on("presence", { event: "join" }, atualizar)
       .on("presence", { event: "leave" }, atualizar)
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") void canal.track({ nome: meuNome, em: new Date().toISOString() });
+        if (status === "SUBSCRIBED")
+          void canal.track({ nome: meuNome, em: new Date().toISOString() });
       });
     return () => {
       void supabase.removeChannel(canal);
@@ -84,7 +100,10 @@ function AtendentesPage() {
       setErro(null);
       await queryClient.invalidateQueries({ queryKey: ["atendentes-conversas"] });
       if (v.modo === "humano") {
-        void navigate({ to: "/barbeiro/cortai", search: { aba: "conversas", conversa: v.conversaId } });
+        void navigate({
+          to: "/barbeiro/cortai",
+          search: { aba: "envios" },
+        });
       }
     },
     onError: (e: unknown) => setErro(e instanceof Error ? e.message : "Não foi possível concluir."),
@@ -93,7 +112,9 @@ function AtendentesPage() {
   const lista: ConversaDeWhatsapp[] = conversas.data ?? [];
   const emEspera = lista.filter((c) => c.status !== "encerrada" && !c.modoHumano && c.naoLidas > 0);
   const comHumano = lista.filter((c) => c.modoHumano || c.status === "humano");
-  const comCortai = lista.filter((c) => c.status === "ativa" && c.iaAtiva && !c.modoHumano && c.naoLidas === 0);
+  const comCortai = lista.filter(
+    (c) => c.status === "ativa" && c.iaAtiva && !c.modoHumano && c.naoLidas === 0,
+  );
 
   return (
     <Screen
@@ -126,7 +147,9 @@ function AtendentesPage() {
                     </p>
                     <p className="text-xs text-mute">{NOME_DO_PAPEL[a.papel] ?? a.papel}</p>
                   </div>
-                  <span className={`flex items-center gap-1.5 text-xs ${ativo ? "text-success" : "text-mute"}`}>
+                  <span
+                    className={`flex items-center gap-1.5 text-xs ${ativo ? "text-success" : "text-mute"}`}
+                  >
                     <Circle size={9} strokeWidth={1.75} className={ativo ? "fill-current" : ""} />
                     {ativo ? "Online" : "Offline"}
                   </span>
@@ -172,7 +195,10 @@ function AtendentesPage() {
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  void navigate({ to: "/barbeiro/cortai", search: { aba: "conversas", conversa: c.id } })
+                  void navigate({
+                    to: "/barbeiro/cortai",
+                    search: { aba: "envios" },
+                  })
                 }
               >
                 Abrir

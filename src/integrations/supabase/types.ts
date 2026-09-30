@@ -4472,6 +4472,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      registrar_avaliacao_publica_atomica: {
+        Args: {
+          _comentario: string
+          _dimensoes: Json
+          _nota: number
+          _token_hash: string
+        }
+        Returns: Json
+      }
       registrar_venda_produto: {
         Args: {
           _forma_pagamento?: string

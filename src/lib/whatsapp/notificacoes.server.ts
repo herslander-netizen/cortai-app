@@ -9,7 +9,7 @@
  * - nunca bloqueia o agendamento: qualquer falha vira registro em
  *   `envios_de_whatsapp` com status `erro`;
  * - idempotência por (agendamento_id, tipo), garantida por índice único;
- * - isolamento por barbearia: a conexão usada é sempre a do tenant do
+ * - isolamento por negócio: a conexão usada é sempre a do tenant do
  *   agendamento, nunca outra.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
@@ -19,25 +19,62 @@ import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from ".
 
 export type TipoDeNotificacao =
   | "confirmacao_agendamento"
+  | "alteracao_agendamento"
   | "lembrete_24h"
   | "lembrete_2h"
+  | "aviso_proximo"
+  | "mudanca_operacional"
+  | "vaga_lista_espera"
+  | "pagamento_confirmado"
   | "cancelamento"
+  | "cancelamento_agendamento"
   | "remarcacao"
   | "pos_atendimento"
   | "convite_avaliacao"
+  | "recuperacao_experiencia"
+  | "fallback_informativo_whatsapp"
   | "retorno";
 
 /** Automação (liga/desliga por barbearia) correspondente a cada tipo. */
 const AUTOMACAO_DO_TIPO = {
   confirmacao_agendamento: "confirmacao_agendamento",
+  alteracao_agendamento: "alteracao_agendamento",
   lembrete_24h: "lembrete_24h",
   lembrete_2h: "lembrete_2h",
-  cancelamento: "cancelamento",
-  remarcacao: "remarcacao",
+  aviso_proximo: "lembrete_2h",
+  mudanca_operacional: "mudanca_operacional",
+  vaga_lista_espera: "vaga_lista_espera",
+  pagamento_confirmado: "pagamento_confirmado",
+  cancelamento: "cancelamento_agendamento",
+  cancelamento_agendamento: "cancelamento_agendamento",
+  remarcacao: "alteracao_agendamento",
   pos_atendimento: "pos_atendimento",
   convite_avaliacao: "convite_avaliacao",
+  recuperacao_experiencia: "recuperacao_experiencia",
+  fallback_informativo_whatsapp: "confirmacao_agendamento",
   retorno: "retorno",
 } as const;
+
+export const TIPOS_ESSENCIAIS = new Set<TipoDeNotificacao>([
+  "confirmacao_agendamento",
+  "alteracao_agendamento",
+  "remarcacao",
+  "cancelamento",
+  "cancelamento_agendamento",
+  "mudanca_operacional",
+  "vaga_lista_espera",
+  "pagamento_confirmado",
+]);
+
+export const TIPOS_DE_RELACIONAMENTO = new Set<TipoDeNotificacao>([
+  "lembrete_24h",
+  "lembrete_2h",
+  "aviso_proximo",
+  "pos_atendimento",
+  "convite_avaliacao",
+  "recuperacao_experiencia",
+  "retorno",
+]);
 
 /** Opções de cada lembrete: número (qualquer canal) e botão (API oficial). */
 export const OPCOES_DO_LEMBRETE: Partial<
@@ -53,6 +90,14 @@ export const OPCOES_DO_LEMBRETE: Partial<
     { rotulo: "Cheguei", acao: "CORTAI_CHEGUEI" },
     { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
     { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  aviso_proximo: [
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+    { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  vaga_lista_espera: [
+    { rotulo: "Aproveitar vaga", acao: "CORTAI_AGENDAR" },
+    { rotulo: "Abrir Cortaí", acao: "CORTAI_ABRIR" },
   ],
   retorno: [
     { rotulo: "Agendar", acao: "CORTAI_AGENDAR" },
@@ -112,6 +157,7 @@ function primeiroNome(nome: string) {
 
 export type DadosDaMensagem = {
   cliente: string;
+  /** Nome do negócio; campo legado preservado para compatibilidade. */
   barbearia: string;
   servico: string | null;
   profissional: string | null;
@@ -167,7 +213,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Você pode confirmar, remarcar ou cancelar.",
     );
-  } else if (tipo === "lembrete_2h") {
+  } else if (tipo === "lembrete_2h" || tipo === "aviso_proximo") {
     blocos.push(
       `${nome}, seu horário está chegando.`,
       "",
@@ -175,6 +221,36 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       linha(d.profissional, "Profissional: "),
       `Hoje às ${horaBr(d.inicio, d.fuso)}.`,
       linha(d.endereco, "📍 "),
+    );
+  } else if (tipo === "alteracao_agendamento" || tipo === "remarcacao") {
+    blocos.push(
+      `Olá, ${nome}. Seu horário foi alterado.`,
+      "",
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `Data: ${dataBr(d.inicio, d.fuso)}`,
+      `Horário: ${horaBr(d.inicio, d.fuso)}`,
+      "",
+      "Confira os dados atualizados no Cortaí.",
+    );
+  } else if (tipo === "mudanca_operacional") {
+    blocos.push(
+      `Olá, ${nome}. Houve uma mudança importante no seu horário ${em}.`,
+      `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
+      linha(d.linkAgendamento, "Confira no Cortaí: "),
+    );
+  } else if (tipo === "vaga_lista_espera") {
+    blocos.push(
+      `Boa notícia, ${nome}. Abriu uma vaga ${em}.`,
+      `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
+      linha(d.linkAgendamento, "Aproveite pelo Cortaí: "),
+    );
+  } else if (tipo === "pagamento_confirmado") {
+    blocos.push(
+      `Olá, ${nome}. Seu pagamento foi confirmado.`,
+      linha(d.servico, "Serviço: "),
+      d.valorCentavos > 0 ? `Valor: ${reais(d.valorCentavos)}` : null,
+      `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
     );
   } else if (tipo === "pos_atendimento") {
     blocos.push(
@@ -186,6 +262,16 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       `Olá, ${nome}. Como foi sua experiência?`,
       d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null,
     );
+  } else if (tipo === "recuperacao_experiencia") {
+    blocos.push(
+      `Obrigado por nos contar, ${nome}.`,
+      "Seu feedback foi registrado e será considerado pela equipe.",
+    );
+  } else if (tipo === "fallback_informativo_whatsapp") {
+    blocos.push(
+      "Este número é usado pelo Cortaí para avisos do seu atendimento.",
+      linha(d.linkAgendamento, "Para agendar ou gerenciar seu horário, use o Cortaí: "),
+    );
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
@@ -195,7 +281,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Quer que eu veja um horário para você?",
     );
-  } else if (tipo === "cancelamento") {
+  } else if (tipo === "cancelamento" || tipo === "cancelamento_agendamento") {
     blocos.push(
       `Olá, ${nome}.`,
       `Seu agendamento ${em} foi cancelado.`,
@@ -207,18 +293,6 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     if (d.linkAgendamento) {
       blocos.push("", "Se quiser realizar um novo agendamento:", d.linkAgendamento);
     }
-  } else {
-    blocos.push(
-      `Olá, ${nome}!`,
-      "Seu horário foi remarcado.",
-      "",
-      linha(d.servico, "Serviço: "),
-      linha(d.profissional, "Profissional: "),
-      `📅 ${dataBr(d.inicio, d.fuso)}`,
-      `⏰ ${horaBr(d.inicio, d.fuso)}`,
-      "",
-      "Até lá!",
-    );
   }
 
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
@@ -237,7 +311,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
 
 type Resultado = { enviado: boolean; motivo?: string };
 
-/** Liga/desliga por barbearia, reaproveitando `automacoes_de_ia`. */
+/** Liga/desliga por negócio, reaproveitando `automacoes_de_ia`. */
 async function automacaoAtiva(tenantId: string, tipo: TipoDeNotificacao, padrao: boolean) {
   const db = await admin();
   const { data } = await db
@@ -288,7 +362,8 @@ export function motivoDeBloqueio(
   agora: Date,
   fuso: string,
 ): string | null {
-  if (!p.whatsapp_ativo) return "Cliente desligou avisos por WhatsApp.";
+  if (TIPOS_ESSENCIAIS.has(tipo as TipoDeNotificacao)) return null;
+  if (!p.whatsapp_ativo) return "Cliente desligou avisos de relacionamento por WhatsApp.";
   if (p.frequencia === "minima" && tipo === "lembrete_24h")
     return "Cliente prefere só o aviso mais próximo.";
   if (p.silencio_inicio && p.silencio_fim) {
@@ -304,6 +379,35 @@ export function motivoDeBloqueio(
     if (dentro) return "Horário de silêncio do cliente.";
   }
   return null;
+}
+
+/** Primeira hora fora do silêncio, preservando o fuso do negócio. */
+export function primeiraJanelaAposSilencio(
+  agora: Date,
+  fuso: string,
+  inicio: string | null,
+  fim: string | null,
+): Date | null {
+  if (!inicio || !fim) return null;
+  const partes = new Intl.DateTimeFormat("en-GB", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(agora);
+  const hora = Number(partes.find((p) => p.type === "hour")?.value ?? 0);
+  const minuto = Number(partes.find((p) => p.type === "minute")?.value ?? 0);
+  const atual = hora * 60 + minuto;
+  const [hi = 0, mi = 0] = inicio.slice(0, 5).split(":").map(Number);
+  const [hf = 0, mf = 0] = fim.slice(0, 5).split(":").map(Number);
+  const comeco = hi * 60 + mi;
+  const final = hf * 60 + mf;
+  const dentro =
+    comeco <= final ? atual >= comeco && atual < final : atual >= comeco || atual < final;
+  if (!dentro) return null;
+  let minutos = final - atual;
+  if (minutos <= 0) minutos += 24 * 60;
+  return new Date(agora.getTime() + minutos * 60_000);
 }
 
 /**
@@ -375,7 +479,16 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo: "Agendamento não está ativo." };
   }
 
-  const cliente = (ag as any).clientes as {
+  const relacoes = ag as unknown as {
+    clientes: {
+      nome: string;
+      telefone: string | null;
+      opt_in_whatsapp: boolean | null;
+    } | null;
+    servicos: { nome?: string } | null;
+    profissionais: { nome?: string } | null;
+  };
+  const cliente = relacoes.clientes as {
     nome: string;
     telefone: string | null;
     opt_in_whatsapp: boolean | null;
@@ -443,28 +556,30 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     if (error) return { enviado: false, motivo: "Mensagem já processada." };
     registroId = criado.id;
   } else {
+    if (!existente) return { enviado: false, motivo: "Mensagem já processada." };
     // Reserva atômica da nova tentativa: só uma execução consegue trocar o
     // status de volta para "enviando"; a outra desiste sem enviar.
     const { data: reservado } = await db
       .from("envios_de_whatsapp")
       .update({ status: "enviando", tentativas: (existente?.tentativas ?? 0) + 1, erro: null })
       .eq("id", registroId)
-      .eq("status", existente!.status)
-      .eq("tentativas", existente!.tentativas)
+      .eq("status", existente.status)
+      .eq("tentativas", existente.tentativas)
       .select("id");
     if (!reservado || reservado.length === 0)
       return { enviado: false, motivo: "Mensagem já processada." };
   }
 
   const marcarErro = async (motivo: string) => {
+    if (!registroId) return { enviado: false, motivo };
     await db
       .from("envios_de_whatsapp")
       .update({ status: "erro", erro: motivo.slice(0, 500) })
-      .eq("id", registroId!);
+      .eq("id", registroId);
     return { enviado: false, motivo };
   };
 
-  // A conexão é SEMPRE a da barbearia dona do agendamento.
+  // A conexão é SEMPRE a do negócio dono do agendamento.
   const { data: conexao } = await db
     .from("conexoes_whatsapp")
     .select("id, sessao_id, status")
@@ -493,8 +608,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       ? preencher(base, {
           nome: primeiroNome(cliente?.nome ?? "cliente"),
           dias,
-          ultimo_servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
-          profissional: ((ag as any).profissionais?.nome as string | undefined) ?? "a equipe",
+          ultimo_servico: relacoes.servicos?.nome ?? null,
+          profissional: relacoes.profissionais?.nome ?? "a equipe",
           barbearia: tenant.nome,
         })
       : null;
@@ -511,8 +626,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
     barbearia: tenant?.nome ?? "Negócio",
-    servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
-    profissional: ((ag as any).profissionais?.nome as string | undefined) ?? null,
+    servico: relacoes.servicos?.nome ?? null,
+    profissional: relacoes.profissionais?.nome ?? null,
     inicio: ag.inicio,
     valorCentavos: ag.valor_centavos ?? 0,
     endereco: tenant?.endereco ?? null,

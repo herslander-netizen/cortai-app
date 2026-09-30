@@ -97,49 +97,28 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const db = await admin();
     const tokenHash = await hashToken(data.token);
-    const agora = new Date().toISOString();
-    const { data: convite } = await db
-      .from("convites_de_avaliacao")
-      .select(
-        "id, tenant_id, agendamento_id, expira_em, usado_em, agendamentos(status, cliente_id, profissional_id), tenants(link_avaliacao_publica)",
-      )
-      .eq("token_hash", tokenHash)
-      .maybeSingle();
-    if (!convite || convite.usado_em || new Date(convite.expira_em).getTime() <= Date.now()) {
-      throw new Error("Este convite expirou ou já foi usado.");
-    }
-    const ag = convite.agendamentos as unknown as {
-      status: string;
-      cliente_id: string | null;
-      profissional_id: string | null;
-    } | null;
-    if (!ag || ag.status !== "finalizado")
-      throw new Error("Atendimento não elegível para avaliação.");
 
-    const { error } = await db.from("avaliacoes").insert({
-      tenant_id: convite.tenant_id,
-      agendamento_id: convite.agendamento_id,
-      cliente_id: ag.cliente_id,
-      profissional_id: ag.profissional_id,
-      nota: data.nota,
-      comentario: data.comentario || null,
-      dimensoes: data.dimensoes ?? {},
+    const { data: resultado, error } = await db.rpc("registrar_avaliacao_publica_atomica", {
+      _token_hash: tokenHash,
+      _nota: data.nota,
+      _comentario: data.comentario ?? "",
+      _dimensoes: data.dimensoes ?? {},
     });
-    if (error && error.code !== "23505") throw new Error(error.message);
-    if (error?.code === "23505") throw new Error("Este atendimento já foi avaliado.");
 
-    await db
-      .from("convites_de_avaliacao")
-      .update({ usado_em: agora })
-      .eq("id", convite.id)
-      .is("usado_em", null);
+    if (error) throw new Error(error.message);
+    const res = resultado as {
+      ok: boolean;
+      tenant_id: string;
+      positiva: boolean;
+      precisa_atencao: boolean;
+      link_publico: string | null;
+    };
 
-    if (
-      data.nota <= 2 ||
-      Object.values(data.dimensoes ?? {}).some((nota) => typeof nota === "number" && nota <= 2)
-    ) {
+    if (!res?.ok || !res.tenant_id) throw new Error("Não foi possível registrar a avaliação.");
+
+    if (res.precisa_atencao) {
       await db.rpc("criar_notificacao", {
-        _tenant: convite.tenant_id,
+        _tenant: res.tenant_id,
         _tipo: "avaliacao",
         _titulo: "Experiência precisa de atenção",
         _corpo:
@@ -148,10 +127,9 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
       });
     }
 
-    const tenant = convite.tenants as unknown as { link_avaliacao_publica: string | null } | null;
     return {
-      ok: true,
-      positiva: data.nota >= 4,
-      linkPublico: data.nota >= 4 ? (tenant?.link_avaliacao_publica ?? null) : null,
+      ok: res.ok,
+      positiva: res.positiva,
+      linkPublico: res.link_publico,
     };
   });
