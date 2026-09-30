@@ -125,20 +125,28 @@ export const Route = createFileRoute("/api/public/ai/$")({
         const p = partes(params._splat);
         const url = new URL(request.url);
 
-        if (p[0] === "barbershop" && p.length === 1) return executar("consultar_barbearia", ctx, {});
+        if (p[0] === "barbershop" && p.length === 1)
+          return executar("consultar_barbearia", ctx, {});
         if (p[0] === "services" && p.length === 1) return executar("listar_servicos", ctx, {});
         if (p[0] === "services" && p.length === 2) {
           const id = uuid.safeParse(p[1]);
           if (!id.success) return invalido(id);
           return executar("consultar_servico", ctx, { servicoId: id.data });
         }
-        if (p[0] === "professionals" && p.length === 1) return executar("listar_profissionais", ctx, {});
+        if (p[0] === "professionals" && p.length === 1)
+          return executar("listar_profissionais", ctx, {});
         if (p[0] === "hours" && p.length === 1) return executar("consultar_horarios", ctx, {});
         if (p[0] === "faq" && p.length === 1) return executar("consultar_informacoes", ctx, {});
 
         if (p[0] === "clients" && p.length === 1) {
-          const telefone = z.string().trim().min(8).max(20).safeParse(url.searchParams.get("phone") ?? "");
-          if (!telefone.success) return json({ erro: "Informe ?phone= com o telefone do cliente." }, 400);
+          const telefone = z
+            .string()
+            .trim()
+            .min(8)
+            .max(20)
+            .safeParse(url.searchParams.get("phone") ?? "");
+          if (!telefone.success)
+            return json({ erro: "Informe ?phone= com o telefone do cliente." }, 400);
           return executar("consultar_cliente", ctx, { telefone: telefone.data });
         }
         if (p[0] === "clients" && p.length === 3 && p[2] === "appointments") {
@@ -170,7 +178,8 @@ export const Route = createFileRoute("/api/public/ai/$")({
 
         if (p[0] === "appointments" && p.length === 1) {
           const id = uuid.safeParse(url.searchParams.get("clientId") ?? "");
-          if (!id.success) return json({ erro: "Informe ?clientId= para listar agendamentos." }, 400);
+          if (!id.success)
+            return json({ erro: "Informe ?clientId= para listar agendamentos." }, 400);
           return executar("listar_agendamentos_do_cliente", ctx, { clienteId: id.data });
         }
 
