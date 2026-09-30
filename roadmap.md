@@ -8,5 +8,5 @@
 - [x] Corrigir P0/P1 seguros encontrados na auditoria final de pré-lançamento
 - [x] Validar TypeScript, lint dirigido, testes, build e fluxos críticos após as correções
 
-- [ ] Evoluir o link público editável com validação, aliases seguros e integração completa da identidade da Secretária
-- [ ] Validar TypeScript, testes e build da evolução do link e personalização
+- [x] Evoluir o link público editável com validação, aliases seguros e integração completa da identidade da Secretária
+- [x] Validar TypeScript, testes e build da evolução do link e personalização
