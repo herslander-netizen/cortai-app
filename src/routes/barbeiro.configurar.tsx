@@ -44,7 +44,7 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configurar a barbearia — Cortaí" },
+      { title: "Configurar seu negócio — Cortaí" },
       {
         name: "description",
         content: "Em poucos minutos, o link de agendamento do seu negócio fica pronto.",
@@ -65,7 +65,7 @@ export const Route = createFileRoute("/barbeiro/configurar")({
 type Etapa = (typeof ETAPAS_DO_ONBOARDING)[number];
 
 const ROTULOS: Record<Etapa, string> = {
-  dados: "Barbearia",
+  dados: "Negócio",
   equipe: "Equipe",
   servicos: "Serviços",
   horarios: "Horários",
@@ -118,7 +118,7 @@ const INTERVALOS = [
 
 type Funcao = "barbeiro" | "recepcao" | "gerente";
 const FUNCOES: { valor: Funcao; rotulo: string; detalhe: string }[] = [
-  { valor: "barbeiro", rotulo: "Barbeiro", detalhe: "Atende e vê só os próprios números." },
+  { valor: "barbeiro", rotulo: "Profissional", detalhe: "Atende e vê só os próprios números." },
   { valor: "recepcao", rotulo: "Recepção", detalhe: "Agenda, fila e caixa do dia." },
   { valor: "gerente", rotulo: "Gerente", detalhe: "Gestão completa, menos plano e fiado." },
 ];
