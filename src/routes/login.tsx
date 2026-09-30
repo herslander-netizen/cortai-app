@@ -145,9 +145,9 @@ function LoginPage() {
 
   return (
     <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
-      <div className="mb-8 flex flex-col items-center gap-2 text-center">
+      <div className="mb-6 flex flex-col items-center text-center">
         <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
-        <h1 className="mt-4 text-xl font-bold text-paper">
+        <h1 className="mt-4 text-base font-semibold text-mute">
           {modo === "entrar" ? "Entrar" : "Criar conta"}
         </h1>
       </div>
@@ -204,13 +204,13 @@ function LoginPage() {
         </label>
         <label className="block text-xs font-medium text-mute">
           <span className="flex items-center justify-between">
-            Senha
+            <span>Senha</span>
             {modo === "entrar" ? (
               <Link
                 to="/recuperar-senha"
-                className="inline-flex min-h-11 items-center px-1 text-xs font-medium text-mute hover:text-paper"
+                className="-my-3 inline-flex min-h-11 items-center px-1 text-xs font-medium text-mute hover:text-paper"
               >
-                Esqueceu?
+                Esqueceu a senha?
               </Link>
             ) : null}
           </span>
