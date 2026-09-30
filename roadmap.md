@@ -144,3 +144,12 @@
 - [ ] Erros de lint antigos (formatação e `any`) em vários arquivos
 - [x] Painel do atendente (IA): remarcar e "hoje" no fuso da barbearia; estados com nome legível
 - [x] Funções internas do banco chamáveis por logados: 20 de 21 revisadas; checam sessão/permissão (exceto `recurso_do_tenant_ativo`, que só revela se um recurso está ligado); `meu_convite` não lido
+
+## Identidade e segmentação oficial
+
+- [ ] Registrar o Cortaí como produto principal para negócios e profissionais, atualmente com segmentos ativos somente em Beleza
+- [ ] Consolidar `segmentos.ts` como fonte única de textos, exemplos e elementos condicionais por segmento
+- [ ] Remover resquícios de barbearia em contextos globais ou de outros segmentos, preservando usos contextuais e a fixture `/demonstracao`
+- [ ] Auditar onboarding, páginas públicas, booking, painel, CortAI, WhatsApp, notificações, SEO, assets, mocks e defaults
+- [ ] Validar um tenant barbearia e um tenant de outro segmento de Beleza em 390px e 1280px
+- [ ] Classificar os termos de barbearia restantes e executar typecheck, lint, testes e build sem publicar
