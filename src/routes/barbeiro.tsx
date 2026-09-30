@@ -8,6 +8,7 @@ import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AtivarAvisosNoAparelho } from "@/components/notificacoes/AtivarAvisosNoAparelho";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
+import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
@@ -34,6 +35,7 @@ function BarberLayout() {
         ) : null}
         <NavegacaoEquipe />
         <div className="equipe-conteudo">
+          <AbasDaSecao />
           <Outlet />
         </div>
         <ConviteDeInstalacao />
