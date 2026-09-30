@@ -1529,16 +1529,16 @@ body:has(.auth-screen) {
 .auth-screen--claro {
   --ink: #ffffff;
   --ink2: #ffffff;
-  --ink3: #f5f4f0;
-  --paper: #17181b;
-  --mute: #62625e;
-  --mute2: #6a6a65;
-  --line: #e4e2dc;
-  --line2: #d5d3cc;
-  --gold: #1653a1;
-  --primary: #1653a1;
+  --ink3: #eaf2fb;
+  --paper: #021a46;
+  --mute: #5d6f89;
+  --mute2: #6d7f99;
+  --line: #d9e3f0;
+  --line2: #bfd0e4;
+  --gold: #087cf0;
+  --primary: #087cf0;
   --primary-foreground: #ffffff;
-  --ring: #1653a1;
+  --ring: #00b7f4;
 }
 
 .auth-screen--claro .brand-logo-on-dark {
@@ -1550,24 +1550,24 @@ body:has(.auth-screen) {
 
 body:has(.auth-screen--claro) {
   --background: #ffffff;
-  --foreground: #17181b;
+  --foreground: #021a46;
   --card: #ffffff;
-  --card-foreground: #17181b;
+  --card-foreground: #021a46;
   --popover: #ffffff;
-  --popover-foreground: #17181b;
-  --primary: #1653a1;
+  --popover-foreground: #021a46;
+  --primary: #087cf0;
   --primary-foreground: #ffffff;
-  --secondary: #f5f4f0;
-  --secondary-foreground: #17181b;
-  --muted: #f5f4f0;
-  --muted-foreground: #62625e;
-  --accent: #f5f4f0;
-  --accent-foreground: #17181b;
-  --border: #e4e2dc;
-  --input: #d5d3cc;
-  --ring: #1653a1;
+  --secondary: #eaf2fb;
+  --secondary-foreground: #021a46;
+  --muted: #eaf2fb;
+  --muted-foreground: #5d6f89;
+  --accent: #eaf2fb;
+  --accent-foreground: #021a46;
+  --border: #d9e3f0;
+  --input: #bfd0e4;
+  --ring: #00b7f4;
   background: #ffffff;
-  color: #17181b;
+  color: #021a46;
 }
 
 .auth-login-shell {
