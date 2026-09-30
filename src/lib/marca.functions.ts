@@ -11,6 +11,27 @@ import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
 
+const TEMAS_MARCA = [
+  "cortai",
+  "classica",
+  "dourada",
+  "vibrante",
+  "escura",
+  "quente",
+  "clara",
+  "personalizada",
+] as const;
+
+function corValida(valor: unknown): valor is string {
+  return typeof valor === "string" && /^#[0-9A-Fa-f]{6}$/.test(valor);
+}
+
+function temaConhecido(valor: unknown): valor is (typeof TEMAS_MARCA)[number] {
+  return typeof valor === "string" && (TEMAS_MARCA as readonly string[]).includes(valor);
+}
+
+
+
 const marcaSchema = z.object({
   nome: z.string().trim().min(2).max(100),
   endereco: nullableText,
@@ -134,12 +155,33 @@ export const getMarca = createServerFn({ method: "GET" })
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
         segmento: segmentoValido(tenant.segmento),
       },
-      versoes: (versoes ?? []).map((item) => {
-        const composto = z.object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() }).safeParse(item.snapshot);
-        return composto.success
-          ? { ...item, snapshot: composto.data.marca, pagina: composto.data.pagina ?? null }
-          : { ...item, snapshot: marcaSchema.parse(item.snapshot), pagina: null };
-      }),
+      versoes: (versoes ?? [])
+        .map((item) => {
+          // Versões antigas podem ter cores nulas ou temas que não existem mais:
+          // o histórico nunca pode derrubar a tela de personalização.
+          const composto = z
+            .object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() })
+            .safeParse(item.snapshot);
+          if (composto.success) {
+            return { ...item, snapshot: composto.data.marca, pagina: composto.data.pagina ?? null };
+          }
+          const cru = (item.snapshot ?? {}) as Record<string, unknown>;
+          const bruto = (cru["marca"] ?? cru) as Record<string, unknown>;
+          const legado = marcaSchema.safeParse({
+            ...atual,
+            ...bruto,
+            tema: temaConhecido(bruto["tema"]) ? bruto["tema"] : atual.tema,
+            cor_primaria: corValida(bruto["cor_primaria"]) ? bruto["cor_primaria"] : atual.cor_primaria,
+            cor_secundaria: corValida(bruto["cor_secundaria"])
+              ? bruto["cor_secundaria"]
+              : atual.cor_secundaria,
+            cor_accent: corValida(bruto["cor_accent"]) ? bruto["cor_accent"] : atual.cor_accent,
+          });
+          if (!legado.success) return null;
+          return { ...item, snapshot: legado.data, pagina: null };
+        })
+        .filter((item): item is MarcaVersion => item !== null),
+
     };
   });
 
