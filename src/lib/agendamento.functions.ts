@@ -18,7 +18,12 @@ export type DadosAgendar = {
   }[];
   profissionais: { id: string; nome: string }[];
   fuso: string;
-  regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
+  regrasAgenda: {
+    antecedenciaMin: number;
+    intervaloEntreMin: number;
+    janelaDias: number;
+    passoMin: number;
+  };
   pixAtivo: boolean;
   /** Dados reais de Pix da barbearia, exibidos ao cliente depois de agendar. */
   pix: { chave: string; tipo: string | null; whatsapp: string | null } | null;
@@ -302,7 +307,8 @@ function traduz(msg: string): string {
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
   if (msg.includes("horario ja ocupado"))
     return "Esse horário acabou de ser reservado, escolha outro";
-  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento do negócio.";
+  if (msg.includes("fora do horario de funcionamento"))
+    return "Esse horário está fora do funcionamento do negócio.";
   if (msg.includes("fora do periodo de agendamento")) return "Escolha uma data mais próxima.";
   return msg;
 }
