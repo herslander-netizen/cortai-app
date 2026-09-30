@@ -294,5 +294,7 @@ function traduz(msg: string): string {
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
   if (msg.includes("horario ja ocupado"))
     return "Esse horário acabou de ser reservado, escolha outro";
+  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento da barbearia.";
+  if (msg.includes("fora do periodo de agendamento")) return "Escolha uma data mais próxima.";
   return msg;
 }
