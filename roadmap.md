@@ -158,3 +158,14 @@
 
 - [x] Aplicar o símbolo enviado ao favicon e aos ícones instaláveis do aplicativo
 - [x] Aplicar a capa enviada ao compartilhamento em redes sociais no formato 1200×630
+
+## Cortaí Chat — experiência conversacional determinística
+
+- [ ] Preservar o modo Tradicional como padrão para negócios existentes e usar o mesmo `/agendar/$slug`
+- [ ] Criar configuração opt-in de modo e conteúdo do Chat, com prévia sem agendamento real
+- [ ] Construir conversa determinística sobre `useSelecaoAgendamento`, `disponibilidade.ts` e `agendarComoConvidado`
+- [ ] Reutilizar uploads existentes para recepção, profissionais e novas fotos opcionais de serviço
+- [ ] Integrar escolha ao onboarding e às configurações sem tornar personalização obrigatória
+- [ ] Corrigir resíduos visíveis de barbearia no escopo e preservar `/demonstracao` como fixture específica
+- [ ] Validar fluxo completo em 390 px e 1280 px, acessibilidade, testes, typecheck, build e lint possível
+- [ ] Não publicar
