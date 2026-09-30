@@ -26,3 +26,7 @@
 - [x] Manter acesso e compartilhamento em Admin > Marketing
 - [x] Validar 390/1280px, navegação, TypeScript, testes e build
 - [x] Entregar a URL pública compartilhável; publicar somente se solicitado explicitamente
+- [ ] Consolidar `/apresentacao` como apresentação comercial pública contínua e compartilhável
+- [ ] Refinar visualmente as telas prioritárias sem alterar regras operacionais
+- [ ] Verificar e preservar todas as travas de acesso por plano
+- [ ] Validar links, 390/1280px, TypeScript, lint, testes e build; não publicar
