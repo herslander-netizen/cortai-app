@@ -328,7 +328,7 @@ export function EditorDeServicos({
 
       <button
         type="button"
-        className="btn-tertiary mt-3 text-sm"
+        className="btn-tertiary mt-3 min-h-11 text-sm"
         onClick={() =>
           onChange([
             ...servicos,
