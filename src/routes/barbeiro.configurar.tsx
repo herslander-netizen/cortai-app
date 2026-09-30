@@ -2,7 +2,16 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
-import { Camera, Check, Copy, ExternalLink, MessageCircle, Plus, Scissors, UserRound } from "lucide-react";
+import {
+  Camera,
+  Check,
+  Copy,
+  ExternalLink,
+  MessageCircle,
+  Plus,
+  Scissors,
+  UserRound,
+} from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
@@ -36,9 +45,15 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   head: () => ({
     meta: [
       { title: "Configurar a barbearia — Cortaí" },
-      { name: "description", content: "Em poucos minutos, o link de agendamento do seu negócio fica pronto." },
+      {
+        name: "description",
+        content: "Em poucos minutos, o link de agendamento do seu negócio fica pronto.",
+      },
       { property: "og:title", content: "Configurar seu negócio — Cortaí" },
-      { property: "og:description", content: "Negócio, equipe, serviços, horários, regras e link — em poucos minutos." },
+      {
+        property: "og:description",
+        content: "Negócio, equipe, serviços, horários, regras e link — em poucos minutos.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -122,11 +137,20 @@ function ConfigurarPage() {
   const concluir = useServerFn(concluirConfiguracao);
   const gravarModo = useServerFn(salvarModoAgendamento);
 
-  const { data, isLoading } = useQuery({ queryKey: ["implantacao"], queryFn: () => getImplantacao(), staleTime: 60_000 });
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
+  const { data, isLoading } = useQuery({
+    queryKey: ["implantacao"],
+    queryFn: () => getImplantacao(),
+    staleTime: 60_000,
+  });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300_000,
+  });
 
   const [etapaEscolhida, setEtapaEscolhida] = useState<Etapa | null>(null);
-  const etapa: Etapa = etapaEscolhida ?? (data ? (data.concluidoEm ? "pronto" : etapaSalva(data.etapa)) : "dados");
+  const etapa: Etapa =
+    etapaEscolhida ?? (data ? (data.concluidoEm ? "pronto" : etapaSalva(data.etapa)) : "dados");
   const indice = ETAPAS_DO_ONBOARDING.indexOf(etapa);
 
   // Rascunhos: nascem com o que já está salvo.
@@ -167,7 +191,7 @@ function ConfigurarPage() {
           precoCentavos: s.precoCentavos,
           profissionalIds: s.profissionalIds,
           retornoDias: s.retornoDias,
-           fotoUrl: s.fotoUrl,
+          fotoUrl: s.fotoUrl,
         }))
       : definicao.servicosSugeridos.map((s) => ({ ...s })));
   const profissionais = (data?.profissionais ?? []).filter((p) => p.ativo);
@@ -189,11 +213,17 @@ function ConfigurarPage() {
     void antes
       .then(() => gravarEtapa({ data: { etapa: destino } }))
       .then(() => recarregar())
-      .catch((e) => aviso.erro(e instanceof Error ? e.message : "Não consegui salvar agora. Tente de novo."));
+      .catch((e) =>
+        aviso.erro(e instanceof Error ? e.message : "Não consegui salvar agora. Tente de novo."),
+      );
   }
   const proxima = (gravar?: () => Promise<unknown>) =>
-    irPara(ETAPAS_DO_ONBOARDING[Math.min(ETAPAS_DO_ONBOARDING.length - 1, indice + 1)] ?? "pronto", gravar);
-  const anterior = () => setEtapaEscolhida(ETAPAS_DO_ONBOARDING[Math.max(0, indice - 1)] ?? "dados");
+    irPara(
+      ETAPAS_DO_ONBOARDING[Math.min(ETAPAS_DO_ONBOARDING.length - 1, indice + 1)] ?? "pronto",
+      gravar,
+    );
+  const anterior = () =>
+    setEtapaEscolhida(ETAPAS_DO_ONBOARDING[Math.max(0, indice - 1)] ?? "dados");
 
   /** Garante que quem configura aparece na agenda quando ninguém foi cadastrado. */
   async function garantirDonoNaAgenda() {
@@ -213,7 +243,9 @@ function ConfigurarPage() {
     setEnviandoLogo(true);
     const extensao = arquivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
     const caminho = `${data.tenant.id}/logo-${Date.now()}.${extensao}`;
-    const { error } = await supabase.storage.from("tenant-logos").upload(caminho, arquivo, { contentType: arquivo.type });
+    const { error } = await supabase.storage
+      .from("tenant-logos")
+      .upload(caminho, arquivo, { contentType: arquivo.type });
     setEnviandoLogo(false);
     if (error) {
       aviso.erro("Não consegui enviar a imagem. Tente outra.");
@@ -260,43 +292,74 @@ function ConfigurarPage() {
           categoria: s.categoria?.trim() || "Serviço",
           ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
           ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
-           ...(s.fotoUrl !== undefined ? { fotoUrl: s.fotoUrl } : {}),
+          ...(s.fotoUrl !== undefined ? { fotoUrl: s.fotoUrl } : {}),
         })),
       },
     }).then(() => setServicos(null));
   };
 
   function marcarLinkCompartilhado() {
-    void marcar({ data: { chave: "compartilhar_link", feito: true } }).then(recarregar).catch(() => undefined);
+    void marcar({ data: { chave: "compartilhar_link", feito: true } })
+      .then(recarregar)
+      .catch(() => undefined);
   }
 
-  const campo = "mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none";
+  const campo =
+    "mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none";
 
-  const rodape = (aoContinuar: () => void, rotulo = "Continuar", desabilitado = false, pular?: () => void) => (
+  const rodape = (
+    aoContinuar: () => void,
+    rotulo = "Continuar",
+    desabilitado = false,
+    pular?: () => void,
+  ) => (
     <div className="sticky bottom-0 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
       <div className="flex items-center gap-3">
         {indice > 0 ? (
-          <Button variant="ghost" type="button" className="btn-tertiary min-h-12 px-3 text-sm" onClick={anterior}>
+          <Button
+            variant="ghost"
+            type="button"
+            className="btn-tertiary min-h-12 px-3 text-sm"
+            onClick={anterior}
+          >
             Voltar
           </Button>
         ) : null}
-        <Button variant="ghost" type="button" className="btn-primary min-h-14 flex-1 text-sm" disabled={desabilitado} onClick={aoContinuar}>
+        <Button
+          variant="ghost"
+          type="button"
+          className="btn-primary min-h-14 flex-1 text-sm"
+          disabled={desabilitado}
+          onClick={aoContinuar}
+        >
           {rotulo}
         </Button>
       </div>
       {pular ? (
-        <Button variant="ghost" type="button" className="mt-2 min-h-10 w-full text-center text-xs text-mute" onClick={pular}>
+        <Button
+          variant="ghost"
+          type="button"
+          className="mt-2 min-h-10 w-full text-center text-xs text-mute"
+          onClick={pular}
+        >
           Pular por agora
         </Button>
       ) : null}
     </div>
   );
 
-
   return (
     <Screen
-      title={etapa === "pronto" ? "Tudo pronto" : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`}
-      subtitle={etapa === "pronto" ? "Seu link já recebe agendamentos." : "O progresso fica salvo. Dá para parar e voltar depois."}
+      title={
+        etapa === "pronto"
+          ? "Tudo pronto"
+          : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`
+      }
+      subtitle={
+        etapa === "pronto"
+          ? "Seu link já recebe agendamentos."
+          : "O progresso fica salvo. Dá para parar e voltar depois."
+      }
     >
       {isLoading && !data ? <Esqueleto /> : null}
 
@@ -306,7 +369,10 @@ function ConfigurarPage() {
             <div className="mb-6">
               <div className="flex gap-1.5" aria-hidden>
                 {ETAPAS_DO_ONBOARDING.slice(0, -1).map((e, i) => (
-                  <span key={e} className={`h-1.5 flex-1 rounded-full ${i <= indice ? "bg-gold" : "bg-ink3"}`} />
+                  <span
+                    key={e}
+                    className={`h-1.5 flex-1 rounded-full ${i <= indice ? "bg-gold" : "bg-ink3"}`}
+                  />
                 ))}
               </div>
               <p className="mt-2 text-xs text-mute">
@@ -318,14 +384,19 @@ function ConfigurarPage() {
           {etapa === "dados" ? (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => arquivoRef.current?.click()}
                   className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line2 bg-ink2"
                   aria-label="Enviar logo ou foto"
                 >
                   {logo?.previa || data.tenant.logoAssinada ? (
-                    <img src={logo?.previa ?? data.tenant.logoAssinada ?? ""} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={logo?.previa ?? data.tenant.logoAssinada ?? ""}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <Camera size={22} className="text-mute" aria-hidden />
                   )}
@@ -336,11 +407,21 @@ function ConfigurarPage() {
                     {enviandoLogo ? "Enviando…" : "Aparece no seu link. Opcional."}
                   </p>
                 </div>
-                <input ref={arquivoRef} type="file" accept="image/*" className="hidden" onChange={enviarLogo} />
+                <input
+                  ref={arquivoRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={enviarLogo}
+                />
               </div>
               <label className="block text-xs font-medium text-mute">
                 Nome {vocabulario.de}
-                <input value={valorNome} onChange={(e) => setNome(e.target.value)} className={campo} />
+                <input
+                  value={valorNome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className={campo}
+                />
               </label>
               <label className="block text-xs font-medium text-mute">
                 WhatsApp {vocabulario.de}
@@ -381,7 +462,8 @@ function ConfigurarPage() {
 
           {etapa === "equipe" ? (
             <div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() =>
                   proxima(async () => {
@@ -394,7 +476,9 @@ function ConfigurarPage() {
                 <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-paper">Trabalho sozinho</span>
-                  <span className="block text-xs text-mute">Você aparece como o profissional. Pula este passo.</span>
+                  <span className="block text-xs text-mute">
+                    Você aparece como o profissional. Pula este passo.
+                  </span>
                 </span>
               </Button>
 
@@ -414,14 +498,17 @@ function ConfigurarPage() {
               <div className="mt-4 space-y-3 surface p-4">
                 <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
                   {FUNCOES.map((f) => (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={f.valor}
                       type="button"
                       role="radio"
                       aria-checked={novaFuncao === f.valor}
                       onClick={() => setNovaFuncao(f.valor)}
                       className={`min-h-12 rounded-lg border text-xs font-semibold ${
-                        novaFuncao === f.valor ? "border-paper bg-paper text-ink" : "border-line2 bg-ink text-paper"
+                        novaFuncao === f.valor
+                          ? "border-paper bg-paper text-ink"
+                          : "border-line2 bg-ink text-paper"
                       }`}
                     >
                       {f.rotulo}
@@ -429,7 +516,8 @@ function ConfigurarPage() {
                   ))}
                 </div>
                 <p className="text-xs text-mute">
-                  {FUNCOES.find((f) => f.valor === novaFuncao)?.detalhe} As permissões da função entram sozinhas.
+                  {FUNCOES.find((f) => f.valor === novaFuncao)?.detalhe} As permissões da função
+                  entram sozinhas.
                 </p>
                 {novaFuncao !== "recepcao" ? (
                   <input
@@ -444,10 +532,15 @@ function ConfigurarPage() {
                   onChange={(e) => setNovoEmail(e.target.value)}
                   type="email"
                   inputMode="email"
-                  placeholder={novaFuncao === "recepcao" ? "E-mail (para enviar o convite)" : "E-mail para dar acesso (opcional)"}
+                  placeholder={
+                    novaFuncao === "recepcao"
+                      ? "E-mail (para enviar o convite)"
+                      : "E-mail para dar acesso (opcional)"
+                  }
                   className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
                 />
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   disabled={adicionando}
                   onClick={() => void adicionarPessoa()}
@@ -485,15 +578,23 @@ function ConfigurarPage() {
 
           {etapa === "horarios" ? (
             <div>
-              <p className="mb-3 text-xs text-mute">Já vem preenchido. Mude só o que for diferente.</p>
-              <EditorDeHorarios horarios={valorHorarios} onChange={setHorarios} semIA segmento={segmento} />
+              <p className="mb-3 text-xs text-mute">
+                Já vem preenchido. Mude só o que for diferente.
+              </p>
+              <EditorDeHorarios
+                horarios={valorHorarios}
+                onChange={setHorarios}
+                semIA
+                segmento={segmento}
+              />
               {rodape(() => proxima(() => gravarHorarios({ data: { horarios: valorHorarios } })))}
             </div>
           ) : null}
 
           {etapa === "regras" ? (
             <div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => {
                   setRegras(REGRAS_RECOMENDADAS);
@@ -503,8 +604,12 @@ function ConfigurarPage() {
               >
                 <Check size={18} className="shrink-0 text-paper" aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-paper">Usar padrão recomendado</span>
-                  <span className="block text-xs text-mute">1 h de antecedência, cancelar até 2 h antes, aceita encaixe.</span>
+                  <span className="block text-sm font-semibold text-paper">
+                    Usar padrão recomendado
+                  </span>
+                  <span className="block text-xs text-mute">
+                    1 h de antecedência, cancelar até 2 h antes, aceita encaixe.
+                  </span>
                 </span>
               </Button>
 
@@ -541,7 +646,9 @@ function ConfigurarPage() {
               <label className="mt-6 flex min-h-12 items-center justify-between gap-4">
                 <span>
                   <span className="block text-sm font-semibold text-paper">Aceitar encaixes</span>
-                  <span className="block text-xs text-mute">Cliente sem horário pode entrar na fila.</span>
+                  <span className="block text-xs text-mute">
+                    Cliente sem horário pode entrar na fila.
+                  </span>
                 </span>
                 <input
                   type="checkbox"
@@ -550,18 +657,23 @@ function ConfigurarPage() {
                   className="h-6 w-6 shrink-0 accent-[var(--gold)]"
                 />
               </label>
-              {rodape(() => proxima(() => gravarRegras({ data: valorRegras }).then(() => concluir())))}
+              {rodape(() =>
+                proxima(() => gravarRegras({ data: valorRegras }).then(() => concluir())),
+              )}
             </div>
           ) : null}
 
           {etapa === "link" ? (
             <div>
-              <p className="text-sm text-paper">Este é o link {vocabulario.de}. Mande para seus clientes agendarem.</p>
+              <p className="text-sm text-paper">
+                Este é o link {vocabulario.de}. Mande para seus clientes agendarem.
+              </p>
               <p className="mt-4 break-all rounded-lg border border-line2 bg-ink2 px-4 py-4 text-base font-semibold text-paper">
                 {linkCurto}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   className="btn-secondary min-h-12 text-sm"
                   onClick={async () => {
@@ -583,7 +695,12 @@ function ConfigurarPage() {
                   <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
                 </a>
               </div>
-              <a href={link} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-xs text-paper underline">
+              <a
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-xs text-paper underline"
+              >
                 <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
               </a>
               {rodape(() => proxima(), "Concluir")}
@@ -593,13 +710,40 @@ function ConfigurarPage() {
           {etapa === "canais" ? (
             <div>
               <h2 className="text-lg font-semibold text-paper">Como seu cliente agenda?</h2>
-              <p className="mt-1 text-sm text-mute">Escolha agora ou mantenha o formato atual. Você pode mudar depois.</p>
-              <div className="mt-5 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Modo de agendamento">
-                <Button type="button" variant={valorModo === "conversa" ? "default" : "outline"} className="h-14" onClick={() => setModo("conversa")}>Conversa</Button>
-                <Button type="button" variant={valorModo === "tradicional" ? "default" : "outline"} className="h-14" onClick={() => setModo("tradicional")}>Tradicional</Button>
+              <p className="mt-1 text-sm text-mute">
+                Escolha agora ou mantenha o formato atual. Você pode mudar depois.
+              </p>
+              <div
+                className="mt-5 grid grid-cols-2 gap-3"
+                role="radiogroup"
+                aria-label="Modo de agendamento"
+              >
+                <Button
+                  type="button"
+                  variant={valorModo === "conversa" ? "default" : "outline"}
+                  className="h-14"
+                  onClick={() => setModo("conversa")}
+                >
+                  Conversa
+                </Button>
+                <Button
+                  type="button"
+                  variant={valorModo === "tradicional" ? "default" : "outline"}
+                  className="h-14"
+                  onClick={() => setModo("tradicional")}
+                >
+                  Tradicional
+                </Button>
               </div>
-              <div className="mt-5"><ChatPreview ativo={valorModo === "conversa"} /></div>
-              {rodape(() => proxima(() => gravarModo({ data: { modo: valorModo } })), "Continuar", false, () => proxima())}
+              <div className="mt-5">
+                <ChatPreview ativo={valorModo === "conversa"} />
+              </div>
+              {rodape(
+                () => proxima(() => gravarModo({ data: { modo: valorModo } })),
+                "Continuar",
+                false,
+                () => proxima(),
+              )}
             </div>
           ) : null}
 
@@ -608,16 +752,21 @@ function ConfigurarPage() {
               <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
                 <Check size={28} className="text-ink" aria-hidden />
               </span>
-              <h2 className="mt-5 text-xl font-semibold text-paper">{vocabulario.possessivo.charAt(0).toUpperCase()}{vocabulario.possessivo.slice(1)} já pode receber agendamentos.</h2>
+              <h2 className="mt-5 text-xl font-semibold text-paper">
+                {vocabulario.possessivo.charAt(0).toUpperCase()}
+                {vocabulario.possessivo.slice(1)} já pode receber agendamentos.
+              </h2>
               <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 className="btn-primary mt-8 min-h-14 w-full text-sm"
                 onClick={() => void navigate({ to: "/barbeiro" })}
               >
                 Ir para a agenda
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 className="mt-3 min-h-12 w-full text-center text-xs text-mute"
                 onClick={() => setEtapaEscolhida("dados")}
@@ -648,13 +797,16 @@ function Escolha({
       <legend className="text-sm font-semibold text-paper">{titulo}</legend>
       <div className="mt-2 flex flex-wrap gap-2">
         {opcoes.map((o) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={o.valor}
             type="button"
             aria-pressed={valor === o.valor}
             onClick={() => onChange(o.valor)}
             className={`min-h-12 rounded-lg border px-4 text-xs font-semibold ${
-              valor === o.valor ? "border-paper bg-paper text-ink" : "border-line2 bg-ink2 text-paper"
+              valor === o.valor
+                ? "border-paper bg-paper text-ink"
+                : "border-line2 bg-ink2 text-paper"
             }`}
           >
             {o.rotulo}

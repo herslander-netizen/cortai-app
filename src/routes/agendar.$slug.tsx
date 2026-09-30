@@ -310,7 +310,9 @@ function AgendamentoPublico() {
           {ativo ? <Check size={28} aria-hidden /> : <CalendarX size={28} aria-hidden />}
         </span>
         <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
-        {ativo && data.pagina.chat.modo === "conversa" ? <p className="mt-2 text-sm text-mute">{data.pagina.chat.textoFinal}</p> : null}
+        {ativo && data.pagina.chat.modo === "conversa" ? (
+          <p className="mt-2 text-sm text-mute">{data.pagina.chat.textoFinal}</p>
+        ) : null}
         {situacao === "cancelado_pela_barbearia" || situacao === "remarcado" ? (
           <p className="mt-2 text-sm text-mute">
             Fale com o negócio ou escolha outro horário abaixo.
@@ -436,22 +438,24 @@ function AgendamentoPublico() {
   }
 
   if (data.pagina.chat.modo === "conversa") {
-    return <AgendamentoChat
-      data={data}
-      selecao={selecao}
-      nome={nome}
-      telefone={telefone}
-      setNome={setNome}
-      setTelefone={setTelefone}
-      confirmar={() => {
-        if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
-        setErro(null);
-        setConflito(null);
-        criar.mutate(undefined);
-      }}
-      enviando={criar.isPending}
-      erro={erro}
-    />;
+    return (
+      <AgendamentoChat
+        data={data}
+        selecao={selecao}
+        nome={nome}
+        telefone={telefone}
+        setNome={setNome}
+        setTelefone={setTelefone}
+        confirmar={() => {
+          if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
+          setErro(null);
+          setConflito(null);
+          criar.mutate(undefined);
+        }}
+        enviando={criar.isPending}
+        erro={erro}
+      />
+    );
   }
 
   return (
@@ -535,7 +539,11 @@ function AgendamentoPublico() {
                   type="button"
                   disabled={fechado}
                   aria-label={
-                    fechado ? `${rotulo} ${numero}, fechado` : lotado ? `${rotulo} ${numero}, lotado` : `${rotulo} ${numero}`
+                    fechado
+                      ? `${rotulo} ${numero}, fechado`
+                      : lotado
+                        ? `${rotulo} ${numero}, lotado`
+                        : `${rotulo} ${numero}`
                   }
                   onClick={() => {
                     setDia(d);
@@ -591,7 +599,10 @@ function AgendamentoPublico() {
               <p>Dia lotado. Veja os próximos dias com vaga:</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {dias
-                  .filter((d) => d !== dia && (porDia.get(d)?.opcoes.length ?? 0) > 0 && (!dia || d > dia))
+                  .filter(
+                    (d) =>
+                      d !== dia && (porDia.get(d)?.opcoes.length ?? 0) > 0 && (!dia || d > dia),
+                  )
                   .slice(0, 3)
                   .map((d) => {
                     const { rotulo, numero } = rotuloDoDia(d);
@@ -626,7 +637,9 @@ function AgendamentoPublico() {
                   try {
                     // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
                     const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
-                    const local = bruto ? (JSON.parse(bruto) as { telefone: string; nome: string }) : null;
+                    const local = bruto
+                      ? (JSON.parse(bruto) as { telefone: string; nome: string })
+                      : null;
                     if (local && local.telefone === digitosTel && local.nome) {
                       const primeiro = local.nome.split(" ")[0] ?? local.nome;
                       setSaudacao(primeiro);

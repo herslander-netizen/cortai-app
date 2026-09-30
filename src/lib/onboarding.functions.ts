@@ -8,7 +8,12 @@ import { FUSOS_DA_BARBEARIA, normalizarFuso } from "@/lib/horarios";
 import { capacidadesDoTenant } from "@/lib/capacidades.functions";
 import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
-import { SEGMENTOS_CONFIG, chipsSaoPadraoBarbearia, segmentoValido, type Segmento } from "@/lib/segmentos";
+import {
+  SEGMENTOS_CONFIG,
+  chipsSaoPadraoBarbearia,
+  segmentoValido,
+  type Segmento,
+} from "@/lib/segmentos";
 import { normalizarPagina } from "@/lib/pagina-config";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -83,9 +88,21 @@ function paraHorario(h: Record<string, any>): HorarioSugerido {
 /** Detecta os primeiros passos pelo que aconteceu de fato. */
 async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<string, boolean>) {
   const [atend, conexao, equipe] = await Promise.all([
-    db.from("agendamentos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).in("status", ["na_cadeira", "finalizado"]),
-    db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).eq("status", "conectado").limit(1),
-    db.from("tenant_usuarios").select("user_id", { count: "exact", head: true }).eq("tenant_id", tenantId),
+    db
+      .from("agendamentos")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .in("status", ["na_cadeira", "finalizado"]),
+    db
+      .from("conexoes_whatsapp")
+      .select("status")
+      .eq("tenant_id", tenantId)
+      .eq("status", "conectado")
+      .limit(1),
+    db
+      .from("tenant_usuarios")
+      .select("user_id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId),
   ]);
   return {
     compartilhar_link: Boolean(itens["compartilhar_link"]),
@@ -96,7 +113,15 @@ async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<
 }
 
 export type ConfiguracaoInicial = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; logoUrl: string | null; fuso: string; segmento: Segmento };
+  tenant: {
+    id: string;
+    nome: string;
+    slug: string;
+    whatsapp: string | null;
+    logoUrl: string | null;
+    fuso: string;
+    segmento: Segmento;
+  };
   horarios: HorarioSugerido[];
   servicos: ServicoDaBarbearia[];
   etapa: string;
@@ -110,8 +135,16 @@ const horarioSchema = z.object({
   fechado: z.boolean(),
   abre: z.string().regex(/^\d{2}:\d{2}$/),
   fecha: z.string().regex(/^\d{2}:\d{2}$/),
-  intervaloInicio: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
-  intervaloFim: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+  intervaloInicio: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .nullable()
+    .optional(),
+  intervaloFim: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .nullable()
+    .optional(),
 });
 
 const servicoSchema = z.object({
@@ -131,8 +164,16 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = context.supabase;
     const [tenantRes, horariosRes, servicosRes, onbRes] = await Promise.all([
-      db.from("tenants").select("id, nome, slug, whatsapp, logo_url, fuso, segmento").eq("id", tenantId).maybeSingle(),
-      db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
+      db
+        .from("tenants")
+        .select("id, nome, slug, whatsapp, logo_url, fuso, segmento")
+        .eq("id", tenantId)
+        .maybeSingle(),
+      db
+        .from("horarios_de_funcionamento")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("dia_semana"),
       db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
     ]);
@@ -202,11 +243,14 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
     const campos = {
       nome: data.nome,
       whatsapp: whatsapp || null,
-      ...(data.telefone !== undefined ? { telefone: data.telefone.replace(/\D/g, "") || null } : {}),
+      ...(data.telefone !== undefined
+        ? { telefone: data.telefone.replace(/\D/g, "") || null }
+        : {}),
       ...(data.endereco !== undefined ? { endereco: data.endereco || null } : {}),
       ...(data.fuso ? { fuso: data.fuso } : {}),
       // Só aceita arquivo dentro da pasta da própria barbearia.
-      ...(data.logoUrl !== undefined && (data.logoUrl === null || data.logoUrl.startsWith(`${tenantId}/`))
+      ...(data.logoUrl !== undefined &&
+      (data.logoUrl === null || data.logoUrl.startsWith(`${tenantId}/`))
         ? { logo_url: data.logoUrl }
         : {}),
     };
@@ -219,7 +263,6 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
-
 
 export const salvarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -240,8 +283,10 @@ export const salvarHorarios = createServerFn({ method: "POST" })
       fechado: h.fechado,
       abre: `${h.abre}:00`,
       fecha: `${h.fecha}:00`,
-      intervalo_inicio: !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloInicio}:00` : null,
-      intervalo_fim: !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloFim}:00` : null,
+      intervalo_inicio:
+        !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloInicio}:00` : null,
+      intervalo_fim:
+        !h.fechado && h.intervaloInicio && h.intervaloFim ? `${h.intervaloFim}:00` : null,
     }));
     const { error } = await context.supabase
       .from("horarios_de_funcionamento")
@@ -261,7 +306,9 @@ export const salvarHorarios = createServerFn({ method: "POST" })
 
 export const salvarServicos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ servicos: z.array(servicoSchema).min(1).max(40) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ servicos: z.array(servicoSchema).min(1).max(40) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
@@ -324,7 +371,10 @@ export const removerServico = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function lerItens(context: { supabase: any }, tenantId: string): Promise<Record<string, boolean>> {
+async function lerItens(
+  context: { supabase: any },
+  tenantId: string,
+): Promise<Record<string, boolean>> {
   const { data } = await context.supabase
     .from("onboarding_do_tenant")
     .select("itens")
@@ -350,11 +400,14 @@ export const concluirConfiguracao = createServerFn({ method: "POST" })
 export const marcarItemDoChecklist = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ chave: z.string().trim().min(2).max(30), feito: z.boolean().default(true) }).parse(input),
+    z
+      .object({ chave: z.string().trim().min(2).max(30), feito: z.boolean().default(true) })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    const permitido = data.chave === "sozinho" || ITENS_DO_CHECKLIST.some((i) => i.chave === data.chave);
+    const permitido =
+      data.chave === "sozinho" || ITENS_DO_CHECKLIST.some((i) => i.chave === data.chave);
     if (!permitido) throw new Error("Item desconhecido.");
     const itens = await lerItens(context, tenantId);
     await gravarOnboarding(context, tenantId, { itens: { ...itens, [data.chave]: data.feito } });
@@ -372,7 +425,16 @@ export const marcarTourVisto = createServerFn({ method: "POST" })
 /* ---------------------- IMPLANTAÇÃO GUIADA (onboarding) ------------------ */
 
 /** Ordem do onboarding. As etapas antigas continuam aceitas para quem parou no meio. */
-export const ETAPAS_DO_ONBOARDING = ["dados", "equipe", "servicos", "horarios", "regras", "canais", "link", "pronto"] as const;
+export const ETAPAS_DO_ONBOARDING = [
+  "dados",
+  "equipe",
+  "servicos",
+  "horarios",
+  "regras",
+  "canais",
+  "link",
+  "pronto",
+] as const;
 export const ETAPAS_DA_IMPLANTACAO = [
   ...ETAPAS_DO_ONBOARDING,
   "boas_vindas",
@@ -386,7 +448,11 @@ export type EtapaDaImplantacao = (typeof ETAPAS_DA_IMPLANTACAO)[number];
 export type ProfissionalDaImplantacao = { id: string; nome: string; ativo: boolean };
 
 export type Implantacao = ConfiguracaoInicial & {
-  tenant: ConfiguracaoInicial["tenant"] & { telefone: string | null; endereco: string | null; logoAssinada: string | null };
+  tenant: ConfiguracaoInicial["tenant"] & {
+    telefone: string | null;
+    endereco: string | null;
+    logoAssinada: string | null;
+  };
   regras: RegrasDeAgendamento;
   trabalhaSozinho: boolean;
   profissionais: ProfissionalDaImplantacao[];
@@ -403,22 +469,41 @@ export const getImplantacao = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = context.supabase;
 
-    const [tenantRes, horariosRes, servicosRes, onbRes, profRes, conexaoRes, acessoRes, paginaRes, capacidades] =
-      await Promise.all([
-        db
-          .from("tenants")
-          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe, janela_agendamento_dias, passo_horarios_min")
-          .eq("id", tenantId)
-          .maybeSingle(),
-        db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
-        db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
-        db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
-        db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
-        db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).maybeSingle(),
-        db.rpc("meu_acesso_no_tenant", { _tenant_id: tenantId }),
-        db.from("tenant_page_configs").select("draft_config, published_config").eq("tenant_id", tenantId).maybeSingle(),
-        capacidadesDoTenant(db, tenantId),
-      ]);
+    const [
+      tenantRes,
+      horariosRes,
+      servicosRes,
+      onbRes,
+      profRes,
+      conexaoRes,
+      acessoRes,
+      paginaRes,
+      capacidades,
+    ] = await Promise.all([
+      db
+        .from("tenants")
+        .select(
+          "id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe, janela_agendamento_dias, passo_horarios_min",
+        )
+        .eq("id", tenantId)
+        .maybeSingle(),
+      db
+        .from("horarios_de_funcionamento")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("dia_semana"),
+      db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
+      db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
+      db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
+      db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).maybeSingle(),
+      db.rpc("meu_acesso_no_tenant", { _tenant_id: tenantId }),
+      db
+        .from("tenant_page_configs")
+        .select("draft_config, published_config")
+        .eq("tenant_id", tenantId)
+        .maybeSingle(),
+      capacidadesDoTenant(db, tenantId),
+    ]);
 
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Negócio não encontrado.");
@@ -435,15 +520,21 @@ export const getImplantacao = createServerFn({ method: "GET" })
       const caminho = String(t["logo_url"]);
       if (/^https?:/.test(caminho)) logoAssinada = caminho;
       else {
-        const { data: assinada } = await db.storage.from("tenant-logos").createSignedUrl(caminho, 60 * 60);
+        const { data: assinada } = await db.storage
+          .from("tenant-logos")
+          .createSignedUrl(caminho, 60 * 60);
         logoAssinada = assinada?.signedUrl ?? null;
       }
     }
 
     const onb = onbRes.data as Record<string, any> | null;
     const itens = (onb?.["itens"] ?? {}) as Record<string, boolean>;
-    const acesso = Array.isArray(acessoRes.data) ? (acessoRes.data[0] as Record<string, any> | undefined) : null;
-    const paginaContainer = (paginaRes.data?.draft_config ?? paginaRes.data?.published_config) as { pagina?: unknown } | null;
+    const acesso = Array.isArray(acessoRes.data)
+      ? (acessoRes.data[0] as Record<string, any> | undefined)
+      : null;
+    const paginaContainer = (paginaRes.data?.draft_config ?? paginaRes.data?.published_config) as {
+      pagina?: unknown;
+    } | null;
 
     return {
       tenant: {
@@ -459,9 +550,15 @@ export const getImplantacao = createServerFn({ method: "GET" })
         segmento,
       },
       regras: {
-        antecedenciaMinMinutos: Number(t["antecedencia_min_minutos"] ?? REGRAS_RECOMENDADAS.antecedenciaMinMinutos),
-        cancelamentoMinHoras: Number(t["cancelamento_min_horas"] ?? REGRAS_RECOMENDADAS.cancelamentoMinHoras),
-        intervaloEntreMin: Number(t["intervalo_entre_min"] ?? REGRAS_RECOMENDADAS.intervaloEntreMin),
+        antecedenciaMinMinutos: Number(
+          t["antecedencia_min_minutos"] ?? REGRAS_RECOMENDADAS.antecedenciaMinMinutos,
+        ),
+        cancelamentoMinHoras: Number(
+          t["cancelamento_min_horas"] ?? REGRAS_RECOMENDADAS.cancelamentoMinHoras,
+        ),
+        intervaloEntreMin: Number(
+          t["intervalo_entre_min"] ?? REGRAS_RECOMENDADAS.intervaloEntreMin,
+        ),
         aceitaEncaixe: t["aceita_encaixe"] == null ? true : Boolean(t["aceita_encaixe"]),
         janelaDias: Number(t["janela_agendamento_dias"] ?? 30),
         passoMin: Number(t["passo_horarios_min"] ?? 30),
@@ -496,34 +593,87 @@ export const getImplantacao = createServerFn({ method: "GET" })
 
 export const salvarModoAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ modo: z.enum(["tradicional", "conversa"]) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ modo: z.enum(["tradicional", "conversa"]) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
-    const { data: existente } = await context.supabase.from("tenant_page_configs").select("draft_config, published_config").eq("tenant_id", tenantId).maybeSingle();
-    const baseContainer = (existente?.draft_config ?? existente?.published_config) as { pagina?: unknown; marca?: unknown } | null;
+    const { data: existente } = await context.supabase
+      .from("tenant_page_configs")
+      .select("draft_config, published_config")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    const baseContainer = (existente?.draft_config ?? existente?.published_config) as {
+      pagina?: unknown;
+      marca?: unknown;
+    } | null;
     const pagina = normalizarPagina(baseContainer?.pagina);
-    const container = { ...(baseContainer ?? {}), pagina: { ...pagina, chat: { ...pagina.chat, modo: data.modo } } } as unknown as Json;
-    const { error } = await context.supabase.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: container, published_config: container, draft_by: context.userId, published_by: context.userId, published_at: new Date().toISOString() }, { onConflict: "tenant_id" });
+    const container = {
+      ...(baseContainer ?? {}),
+      pagina: { ...pagina, chat: { ...pagina.chat, modo: data.modo } },
+    } as unknown as Json;
+    const { error } = await context.supabase
+      .from("tenant_page_configs")
+      .upsert(
+        {
+          tenant_id: tenantId,
+          draft_config: container,
+          published_config: container,
+          draft_by: context.userId,
+          published_by: context.userId,
+          published_at: new Date().toISOString(),
+        },
+        { onConflict: "tenant_id" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 export const alterarSegmento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ segmento: z.enum(["barbearia", "salao", "cabeleireiro", "esmalteria", "sobrancelha_cilios", "estetica", "outro"]), aplicarCores: z.boolean().default(false) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        segmento: z.enum([
+          "barbearia",
+          "salao",
+          "cabeleireiro",
+          "esmalteria",
+          "sobrancelha_cilios",
+          "estetica",
+          "outro",
+        ]),
+        aplicarCores: z.boolean().default(false),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const definicao = SEGMENTOS_CONFIG[data.segmento];
     const campos = data.aplicarCores
-      ? { segmento: data.segmento, identidade_app: definicao.identidade, modo: definicao.modoPadrao }
+      ? {
+          segmento: data.segmento,
+          identidade_app: definicao.identidade,
+          modo: definicao.modoPadrao,
+        }
       : { segmento: data.segmento };
     const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
     if (error) throw new Error("Não foi possível alterar o tipo de negócio.");
-    const { data: t } = await context.supabase.from("tenants").select("chips_ficha").eq("id", tenantId).maybeSingle();
-    const ofereceTrocarAtalhos = data.segmento !== "barbearia" && chipsSaoPadraoBarbearia(t?.chips_ficha);
-    return { ok: true, identidade: definicao.identidade, modo: definicao.modoPadrao, ofereceTrocarAtalhos };
+    const { data: t } = await context.supabase
+      .from("tenants")
+      .select("chips_ficha")
+      .eq("id", tenantId)
+      .maybeSingle();
+    const ofereceTrocarAtalhos =
+      data.segmento !== "barbearia" && chipsSaoPadraoBarbearia(t?.chips_ficha);
+    return {
+      ok: true,
+      identidade: definicao.identidade,
+      modo: definicao.modoPadrao,
+      ofereceTrocarAtalhos,
+    };
   });
 
 /** Troca os atalhos da ficha pelos do segmento — só se ainda forem os padrão da barbearia. */
@@ -532,10 +682,17 @@ export const trocarAtalhosDaFicha = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
-    const { data: t } = await context.supabase.from("tenants").select("chips_ficha, segmento").eq("id", tenantId).maybeSingle();
+    const { data: t } = await context.supabase
+      .from("tenants")
+      .select("chips_ficha, segmento")
+      .eq("id", tenantId)
+      .maybeSingle();
     if (!t || !chipsSaoPadraoBarbearia(t.chips_ficha)) return { ok: false };
     const chips = SEGMENTOS_CONFIG[segmentoValido(t.segmento)].chipsFicha;
-    const { error } = await context.supabase.from("tenants").update({ chips_ficha: chips }).eq("id", tenantId);
+    const { error } = await context.supabase
+      .from("tenants")
+      .update({ chips_ficha: chips })
+      .eq("id", tenantId);
     if (error) throw new Error("Não foi possível trocar os atalhos da ficha.");
     return { ok: true };
   });
@@ -555,7 +712,9 @@ export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
 /** Cadastra o primeiro profissional (e os próximos) respeitando o limite do plano. */
 export const adicionarProfissional = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ nome: z.string().trim().min(2).max(60) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ nome: z.string().trim().min(2).max(60) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_profissionais");
@@ -572,7 +731,6 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-
 
 /** Regras de agendamento da barbearia (antecedência, cancelamento, intervalo e encaixe). */
 export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
@@ -606,7 +764,6 @@ export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-
 
 /** Aviso do painel: barbearia sem nenhum dia aberto não aparece para agendamento online. */
 export const getAvisoDeHorarios = createServerFn({ method: "GET" })

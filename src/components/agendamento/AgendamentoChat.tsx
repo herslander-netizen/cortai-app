@@ -10,8 +10,8 @@ import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 
 type Selecao = {
   servicoId: string | null; setServicoId: (id: string | null) => void;
-  servico: AgendaPublica["servicos"][number] | null; profissionalId: string;
-  setProfissionalId: (id: string) => void; aptos: AgendaPublica["profissionais"];
+  servico: (Omit<AgendaPublica["servicos"][number], "foto_url"> & { foto_url?: string | null }) | null; profissionalId: string;
+  setProfissionalId: (id: string) => void; aptos: { id: string; nome: string; avatar_url?: string | null }[];
   dias: string[]; dia: string | null; setDia: (dia: string | null) => void;
   porDia: Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>;
   agenda?: { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] };

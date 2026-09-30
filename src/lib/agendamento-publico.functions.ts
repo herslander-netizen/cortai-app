@@ -145,13 +145,14 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       const { data } = await db.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
       return data?.signedUrl ?? null;
     };
-    const servicos = await Promise.all((servicosRes.data ?? []).map(async (servico: Record<string, any>) => ({
-      ...servico,
-      foto_url: await assinar((servico["foto_url"] as string | null) ?? null),
+    const servicos: AgendaPublica["servicos"] = await Promise.all((servicosRes.data ?? []).map(async (servico) => ({
+      id: servico.id, nome: servico.nome, duracao_min: servico.duracao_min,
+      preco_centavos: servico.preco_centavos, profissional_ids: servico.profissional_ids,
+      foto_url: await assinar(servico.foto_url),
     })));
-    const profissionais = await Promise.all((profRes.data ?? []).map(async (profissional: Record<string, any>) => ({
-      ...profissional,
-      avatar_url: await assinar((profissional["avatar_url"] as string | null) ?? null),
+    const profissionais: AgendaPublica["profissionais"] = await Promise.all((profRes.data ?? []).map(async (profissional) => ({
+      id: profissional.id, nome: profissional.nome,
+      avatar_url: await assinar(profissional.avatar_url),
     })));
     const container = paginaRes.data?.published_config as { pagina?: unknown } | null;
 
