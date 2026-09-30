@@ -11,8 +11,6 @@ import { SobreOCortai } from "@/components/sistema/SobreOCortai";
 import { sair } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
-import { getCapacidades } from "@/lib/capacidades.functions";
-import { CAPACIDADES } from "@/lib/capacidades";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/mais")({
@@ -36,17 +34,6 @@ function MaisPage() {
     queryFn: () => getSessao(),
     staleTime: 300000,
   });
-  const { data: capacidades } = useQuery({
-    queryKey: ["capacidades"],
-    queryFn: () => getCapacidades(),
-    staleTime: 300000,
-  });
-  // Um módulo some do menu quando o plano do negócio não inclui a capacidade dele.
-  const rotaBloqueada = (rota: string) => {
-    const cap = CAPACIDADES.find((c) => c.rota === rota);
-    if (!cap || !cap.recurso || !capacidades) return false;
-    return capacidades.liberados[cap.recurso] === false;
-  };
   const tSeg = termos(sessao?.segmento ?? "outro");
   const barbeiroSeg = sessao?.segmento === "barbearia";
   const sistema = [
