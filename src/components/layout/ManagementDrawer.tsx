@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  CreditCard,
-  LifeBuoy,
-  Settings,
-} from "lucide-react";
+import { CreditCard, LifeBuoy, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -72,30 +68,29 @@ export function ManagementHeader() {
     definirFusoDasTelas(sessao?.tenantFuso);
   }, [sessao?.tenantFuso]);
 
-  const grupos = useMemo(
-    () => {
-      const modulos = modulosDeNavegacao(sessao?.segmento ?? "outro");
-      const operacionais = GRUPOS_DE_NAVEGACAO.map((titulo) => ({
-        titulo,
-        itens: modulos.filter((item) => item.grupo === titulo).filter((item) => {
+  const grupos = useMemo(() => {
+    const modulos = modulosDeNavegacao(sessao?.segmento ?? "outro");
+    const operacionais = GRUPOS_DE_NAVEGACAO.map((titulo) => ({
+      titulo,
+      itens: modulos
+        .filter((item) => item.grupo === titulo)
+        .filter((item) => {
           if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
           if (!item.rotaDaCapacidade || !capacidades) return true;
           const capacidade = CAPACIDADES.find((entrada) => entrada.rota === item.rotaDaCapacidade);
           return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
         }),
-      }));
-      const sistema: { titulo: string; itens: ItemDoMenu[] } = {
-        titulo: "Sistema",
-        itens: [
-          { label: "Conta e negócio", to: "/barbeiro/conta", icon: Settings },
-          { label: "Plano", to: "/barbeiro/plano", icon: CreditCard },
-          { label: "Ajuda e preferências", to: "/barbeiro/mais", icon: LifeBuoy },
-        ],
-      };
-      return [...operacionais, sistema];
-    },
-    [capacidades, sessao?.permissoes, sessao?.segmento],
-  );
+    }));
+    const sistema: { titulo: string; itens: ItemDoMenu[] } = {
+      titulo: "Sistema",
+      itens: [
+        { label: "Conta e negócio", to: "/barbeiro/conta", icon: Settings },
+        { label: "Plano", to: "/barbeiro/plano", icon: CreditCard },
+        { label: "Ajuda e preferências", to: "/barbeiro/mais", icon: LifeBuoy },
+      ],
+    };
+    return [...operacionais, sistema];
+  }, [capacidades, sessao?.permissoes, sessao?.segmento]);
 
   return (
     <header className="management-header">
