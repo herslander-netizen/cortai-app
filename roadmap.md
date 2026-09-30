@@ -143,4 +143,4 @@
 - [ ] 21 funções internas do banco chamáveis por logados: revisadas por amostragem, todas com checagem própria; revisão completa pendente
 - [ ] Erros de lint antigos (formatação e `any`) em vários arquivos
 - [x] Painel do atendente (IA): remarcar e "hoje" no fuso da barbearia; estados com nome legível
-- [x] Funções internas do banco chamáveis por logados: todas as 21 revisadas, todas checam sessão/permissão/barbearia
+- [x] Funções internas do banco chamáveis por logados: 20 de 21 revisadas; checam sessão/permissão (exceto `recurso_do_tenant_ativo`, que só revela se um recurso está ligado); `meu_convite` não lido
