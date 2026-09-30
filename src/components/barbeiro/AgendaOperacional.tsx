@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Plus,
   Scissors,
   UserRoundPlus,
   ListOrdered,
