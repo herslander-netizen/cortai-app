@@ -51,7 +51,7 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
     });
     if (prepararErro) throw new Error(prepararErro.message === "sem permissao" ? "Você não pode fechar a comanda deste atendimento." : prepararErro.message);
     const desde = new Date(Date.now() - 90 * 86_400_000).toISOString();
-    const [{ data: comanda }, { data: itens }, { data: servicos }, { data: produtos }, { data: config }, { data: vendidos }, podeReceber] = await Promise.all([
+    const [{ data: comanda }, { data: itens }, { data: servicos }, { data: produtos }, { data: config }, { data: vendidos }, podeReceber, { data: tenant }] = await Promise.all([
       db.from("comandas").select("id, numero, status, subtotal_centavos, desconto_centavos, total_centavos, comissao_total_centavos, cliente_id, profissional_id, agendamento_id, clientes(nome, telefone, limite_fiado_centavos), profissionais(nome), agendamentos(inicio, forma_pagamento)").eq("id", comandaId).eq("tenant_id", tenantId).single(),
       db.from("comanda_itens").select("id, tipo, servico_id, produto_id, descricao, quantidade, valor_unitario_centavos, valor_total_centavos, comissao_percentual, comissao_centavos").eq("comanda_id", comandaId).order("criado_em"),
       db.from("servicos").select("id, nome, preco_centavos, comissao_percentual").eq("tenant_id", tenantId).eq("ativo", true).order("ordem"),
@@ -59,6 +59,7 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
       db.from("configuracoes_financeiras").select("pix_ativo, pix_chave, pix_tipo, pix_whatsapp, comissao_servico_percentual, comissao_produto_percentual").eq("tenant_id", tenantId).maybeSingle(),
       db.from("comanda_itens").select("produto_id, quantidade, comandas!inner(tenant_id, status, criado_em)").eq("tipo", "produto").eq("comandas.tenant_id", tenantId).in("comandas.status", ["paga", "fiado"]).gte("comandas.criado_em", desde).limit(1000),
       podeReceberAqui(context, db, tenantId),
+      db.from("tenants").select("segmento").eq("id", tenantId).maybeSingle(),
     ]);
     if (!comanda) throw new Error("Não foi possível preparar a comanda.");
     const contagem = new Map<string, number>();
@@ -80,7 +81,8 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
       creditos = cart?.saldo_creditos ?? 0;
     }
     const planoReservado = (comanda as any).agendamentos?.forma_pagamento === "credito";
-    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
+    const { segmentoValido } = await import("@/lib/segmentos");
+    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, segmento: segmentoValido(tenant?.segmento), plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
 
   });
 

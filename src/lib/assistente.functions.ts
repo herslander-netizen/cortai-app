@@ -9,7 +9,7 @@ import type { RespostaDoAssistente } from "@/lib/ia/assistente";
 async function contextoDaBarbearia(context: { supabase: any }, tenantId: string) {
   const db = context.supabase;
   const [tenantRes, servicosRes, horariosRes, filaRes] = await Promise.all([
-    db.from("tenants").select("nome, slug, whatsapp").eq("id", tenantId).maybeSingle(),
+    db.from("tenants").select("nome, slug, whatsapp, segmento").eq("id", tenantId).maybeSingle(),
     db.from("servicos").select("nome, duracao_min, preco_centavos").eq("tenant_id", tenantId).eq("ativo", true),
     db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
     db
@@ -19,7 +19,8 @@ async function contextoDaBarbearia(context: { supabase: any }, tenantId: string)
       .in("status", ["aguardando", "avisado"]),
   ]);
   return {
-    nome: (tenantRes.data?.nome as string) ?? "Barbearia",
+    nome: (tenantRes.data?.nome as string) ?? "Negócio",
+    segmento: (tenantRes.data?.segmento as string) ?? "não definido",
     slug: (tenantRes.data?.slug as string) ?? "",
     whatsapp: (tenantRes.data?.whatsapp as string) ?? null,
     servicos: (servicosRes.data ?? []).map((s: Record<string, any>) => ({
@@ -161,7 +162,7 @@ export const interpretarServicos = createServerFn({ method: "POST" })
       mensagem: data.texto,
       contexto: await contextoDaBarbearia(context, tenantId),
       instrucaoExtra:
-        "A pessoa está no cadastro de serviços. Extraia a lista de serviços do texto, com nome, categoria, duração em minutos e preço em centavos. Use intencao = cadastrar_servicos, precisa_confirmar = true e não invente serviços que não foram citados. Se faltar preço ou duração, estime um valor comum de barbearia e diga no texto que é uma sugestão editável.",
+        "A pessoa está no cadastro de serviços. Extraia a lista de serviços do texto, com nome, categoria, duração em minutos e preço em centavos. Use intencao = cadastrar_servicos, precisa_confirmar = true e não invente serviços que não foram citados. Se faltar preço ou duração, estime um valor comum ao segmento informado e diga no texto que é uma sugestão editável.",
     });
   });
 
