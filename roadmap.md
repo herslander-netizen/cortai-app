@@ -113,8 +113,8 @@
 ## Painel de personalização (/barbeiro/marca)
 - [x] Corrigir tela quebrando com "Entre como dono" por dados antigos sem cor (fallbacks no schema)
 - [x] Corrigir chaves React duplicadas nas amostras de cor
-- [ ] Validar no navegador: abre sem "Entre como dono", amostras e prévia de cor íntegras
-- [ ] Publicar versão atual
+- [x] Validar no navegador: abre sem "Entre como dono", amostras e prévia de cor íntegras
+- [x] Publicar versão atual (solicitado em 30/09/2026)
 - [ ] Paleta de cores clicável + seletor livre
 - [ ] Upload de logo e capa direto da galeria (compressão p/ limite de 2 MB)
 - [ ] Acabamento dos cabeçalhos do painel
