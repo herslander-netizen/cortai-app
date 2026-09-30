@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { CalendarDays, Clock3, Instagram, MapPin, MessageCircle, Phone, Share2, Star } from "lucide-react";
 import { type ReactNode } from "react";
 
@@ -28,6 +29,7 @@ export function PaginaPublicaConteudo({ data, config, preview = false }: { data:
   const vocabulario = termos(tenant.segmento);
 
   return <div className={`client-brand public-brand theme-${config.tema} layout-${layout} buttons-${config.botoes} ${preview ? "is-preview" : ""}`} style={paginaStyle(config)} data-hide-signature={tenant.assinatura_visivel === false} data-segmento={tenant.segmento}>
+    <FontesDaMarca config={config} />
     <header className="brand-hero">
       <img src={tenant.capa_signed_url ?? (tenant.segmento === "barbearia" ? coverBarbearia.url : coverNeutra.url)} alt={`Ambiente de ${tenant.nome}`} width={1200} height={1500} fetchPriority="high" className="brand-cover" />
       <div className="brand-overlay" />

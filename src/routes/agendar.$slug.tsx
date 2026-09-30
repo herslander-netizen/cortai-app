@@ -3,6 +3,7 @@
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   CalendarPlus,
@@ -308,6 +309,7 @@ function AgendamentoPublico() {
         className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12"
         style={agendamentoStyle(data.pagina)}
       >
+        <FontesDaMarca config={data.pagina} />
         <span
           className={`flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
         >
@@ -474,6 +476,7 @@ function AgendamentoPublico() {
       className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-5 pb-36 pt-10"
       style={agendamentoStyle(data.pagina)}
     >
+      <FontesDaMarca config={data.pagina} />
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
       {substituiId ? (
