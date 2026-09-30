@@ -3,7 +3,6 @@ import {
   Banknote,
   Gauge,
   BarChart3,
-  Bot,
   Megaphone,
   MessageCircle,
   Clock3,
