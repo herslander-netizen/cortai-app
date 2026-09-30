@@ -43,6 +43,24 @@ async function autenticar(request: Request): Promise<Ctx | null> {
   return contextoDoToken(tokenDaRequisicao(request));
 }
 
+async function proteger(request: Request): Promise<Ctx | Response> {
+  const guard = await import("@/lib/webhook-guard.server");
+  const abuso = await guard.barrarAbusivo(request, "ai");
+  if (abuso) return abuso;
+  const ctx = await autenticar(request);
+  if (!ctx) {
+    await guard.rejeitar(request, "ai", "token invalido");
+    return json({ erro: "Token inválido ou negócio sem integração ativa." }, 401);
+  }
+  const limite = await guard.limiteAutenticado(request, "ai");
+  if (limite) return limite;
+  const { limiteDaApiExcedido } = await import("@/lib/ia/limite.server");
+  if (await limiteDaApiExcedido(ctx.tenantId)) {
+    return json({ erro: "Muitas chamadas em pouco tempo. Tente novamente em instantes." }, 429);
+  }
+  return ctx;
+}
+
 async function executar(nome: string, ctx: Ctx, dados: unknown) {
   const { ACOES_DO_AGENTE } = await import("@/lib/ia/acoes.server");
   const acoes = ACOES_DO_AGENTE as unknown as Record<
@@ -85,8 +103,9 @@ export const Route = createFileRoute("/api/public/ai/$")({
   server: {
     handlers: {
       GET: async ({ request, params }) => {
-        const ctx = await autenticar(request);
-        if (!ctx) return json({ erro: "Token inválido ou barbearia sem integração ativa." }, 401);
+        const protegido = await proteger(request);
+        if (protegido instanceof Response) return protegido;
+        const ctx = protegido;
         const p = partes(params._splat);
         const url = new URL(request.url);
 
@@ -143,8 +162,9 @@ export const Route = createFileRoute("/api/public/ai/$")({
       },
 
       POST: async ({ request, params }) => {
-        const ctx = await autenticar(request);
-        if (!ctx) return json({ erro: "Token inválido ou barbearia sem integração ativa." }, 401);
+        const protegido = await proteger(request);
+        if (protegido instanceof Response) return protegido;
+        const ctx = protegido;
         const p = partes(params._splat);
         const corpo = await corpoJson(request);
         if (corpo === null) return json({ erro: "Corpo inválido: envie JSON." }, 400);
@@ -185,8 +205,9 @@ export const Route = createFileRoute("/api/public/ai/$")({
       },
 
       PATCH: async ({ request, params }) => {
-        const ctx = await autenticar(request);
-        if (!ctx) return json({ erro: "Token inválido ou barbearia sem integração ativa." }, 401);
+        const protegido = await proteger(request);
+        if (protegido instanceof Response) return protegido;
+        const ctx = protegido;
         const p = partes(params._splat);
         const corpo = await corpoJson(request);
         if (corpo === null) return json({ erro: "Corpo inválido: envie JSON." }, 400);
@@ -205,8 +226,9 @@ export const Route = createFileRoute("/api/public/ai/$")({
       },
 
       DELETE: async ({ request, params }) => {
-        const ctx = await autenticar(request);
-        if (!ctx) return json({ erro: "Token inválido ou barbearia sem integração ativa." }, 401);
+        const protegido = await proteger(request);
+        if (protegido instanceof Response) return protegido;
+        const ctx = protegido;
         const p = partes(params._splat);
 
         if (p[0] === "appointments" && p.length === 2) {
