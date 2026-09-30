@@ -21,4 +21,4 @@
 - [x] Criar apresentação interna protegida, escondida da navegação e com retorno exato
 - [x] Validar apresentação e menus em 390px/1280px, TypeScript, testes e build
 - [x] Refinar cabeçalho, ritmo das respostas e contraste do chat público em todos os estados
-- [ ] Validar chat público em 390px/1280px, TypeScript, testes e build; não publicar
+- [x] Validar chat público em 390px/1280px, TypeScript, testes e build; não publicar
