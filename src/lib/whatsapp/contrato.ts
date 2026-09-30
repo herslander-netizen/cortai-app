@@ -28,19 +28,18 @@ export const TONS = {
 export type TomDoAtendimento = keyof typeof TONS;
 
 export const AUTOMACOES = {
-  boas_vindas: "Mensagem de boas-vindas",
-  fora_do_horario: "Aviso fora do horário",
   confirmacao_agendamento: "Confirmação de agendamento",
-  lembrete_agendamento: "Lembrete de agendamento",
   lembrete_24h: "Lembrete 24 horas antes",
   lembrete_2h: "Lembrete 2 horas antes",
-  cancelamento: "Aviso de cancelamento",
-  remarcacao: "Aviso de remarcação",
+  alteracao_agendamento: "Alteração de agendamento",
+  cancelamento_agendamento: "Cancelamento de agendamento",
+  mudanca_operacional: "Mudança que afeta o horário",
+  vaga_lista_espera: "Vaga da lista de espera",
+  pagamento_confirmado: "Pagamento confirmado",
   pos_atendimento: "Pós-atendimento",
   convite_avaliacao: "Convite de avaliação",
+  recuperacao_experiencia: "Recuperação da experiência",
   retorno: "Lembrete de retorno",
-  encaminhamento_humano: "Encaminhamento para atendente",
-  cliente_de_retorno: "Cliente que voltou",
 } as const;
 
 export type ChaveDeAutomacao = keyof typeof AUTOMACOES;
@@ -125,36 +124,30 @@ export const DIAS_DA_SEMANA = [
   "Sábado",
 ] as const;
 
-/**
- * Saudação padrão do CortAI: usada quando o negócio ativou a saudação
- * automática mas ainda não escreveu a própria mensagem. Garante que uma
- * negócio novo já responde ao primeiro "oi" sem custo de IA.
- */
-export const SAUDACAO_PADRAO =
-  "Olá! 👋 Sou o CortAI, assistente da sua barbearia. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.";
+/** Texto legado mantido apenas para ler configurações antigas; não é enviado no runtime. */
+export const SAUDACAO_PADRAO = "";
 
-/** Saudação padrão por segmento; barbearia mantém o texto de sempre. */
+/** Configurações antigas continuam legíveis sem reativar atendimento livre. */
 export function saudacaoPadrao(segmento: string | null | undefined): string {
-  if (segmento === "barbearia") return SAUDACAO_PADRAO;
-  const de = termosDoSegmento(segmento).de;
-  return `Olá! 👋 Sou o CortAI, assistente ${de}. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.`;
+  void termosDoSegmento(segmento);
+  return SAUDACAO_PADRAO;
 }
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
   segmento: "outro",
-  atendimentoAutomatico: true,
-  saudacaoAtiva: true,
+  atendimentoAutomatico: false,
+  saudacaoAtiva: false,
   mensagemBoasVindas: SAUDACAO_PADRAO,
   mensagemForaDoHorario: "",
-  permiteConfirmar: true,
-  permiteCancelar: true,
-  permiteRemarcar: true,
-  encaminhamentoHumano: true,
+  permiteConfirmar: false,
+  permiteCancelar: false,
+  permiteRemarcar: false,
+  encaminhamentoHumano: false,
   lembretes: false,
   tom: "profissional",
   recuperacaoAtiva: false,
   recuperacaoDias: 30,
-  responderWhatsapp: true,
+  responderWhatsapp: false,
   instrucoesExtras: "",
   horarioProprio: false,
   horarioDias: [1, 2, 3, 4, 5, 6],
