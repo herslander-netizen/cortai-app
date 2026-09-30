@@ -35,7 +35,8 @@ type Selecao = {
     string,
     { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }
   >;
-  agenda: { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] } | undefined;
+  agenda:
+    { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] } | undefined;
   inicio: string | null;
   setInicio: (inicio: string | null) => void;
   escolhido: { iso: string; label: string; profId: string } | null;

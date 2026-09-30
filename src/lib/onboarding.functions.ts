@@ -613,19 +613,17 @@ export const salvarModoAgendamento = createServerFn({ method: "POST" })
       ...(baseContainer ?? {}),
       pagina: { ...pagina, chat: { ...pagina.chat, modo: data.modo } },
     } as unknown as Json;
-    const { error } = await context.supabase
-      .from("tenant_page_configs")
-      .upsert(
-        {
-          tenant_id: tenantId,
-          draft_config: container,
-          published_config: container,
-          draft_by: context.userId,
-          published_by: context.userId,
-          published_at: new Date().toISOString(),
-        },
-        { onConflict: "tenant_id" },
-      );
+    const { error } = await context.supabase.from("tenant_page_configs").upsert(
+      {
+        tenant_id: tenantId,
+        draft_config: container,
+        published_config: container,
+        draft_by: context.userId,
+        published_by: context.userId,
+        published_at: new Date().toISOString(),
+      },
+      { onConflict: "tenant_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
