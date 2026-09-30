@@ -27,12 +27,12 @@ export const Route = createFileRoute("/app/agendar")({
       { title: "Agendar horário — Cortaí" },
       {
         name: "description",
-        content: "Escolha serviço, barbeiro, dia, horário e forma de pagamento em uma tela só.",
+        content: "Escolha serviço, profissional, dia, horário e forma de pagamento em uma tela só.",
       },
       { property: "og:title", content: "Agendar horário — Cortaí" },
       {
         property: "og:description",
-        content: "Serviço, barbeiro, horário e pagamento em poucos toques.",
+        content: "Serviço, profissional, horário e pagamento em poucos toques.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -118,7 +118,7 @@ function AgendarPage() {
 
   if (dados.isError) {
     return (
-      <Screen title="Agendar" subtitle="Escolha a barbearia para continuar.">
+      <Screen title="Agendar" subtitle="Escolha o negócio para continuar.">
         <DescobrirBarbearias titulo="Onde você quer agendar?" />
       </Screen>
     );
@@ -126,7 +126,7 @@ function AgendarPage() {
 
   if (dados.isLoading || !dados.data) {
     return (
-      <Screen title="Agendar" subtitle="Escolha serviço, barbeiro e horário.">
+      <Screen title="Agendar" subtitle="Escolha serviço, profissional e horário.">
         <Carregando />
       </Screen>
     );
@@ -249,7 +249,7 @@ function Fluxo({
             <p className="text-sm font-semibold text-paper">Pague pelo Pix</p>
             <p className="mt-1 text-sm text-mute">
               Use a chave abaixo para pagar {brl(sucesso.valor_centavos)} e envie o comprovante para
-              a barbearia.
+              o negócio.
             </p>
             <p className="mt-4 text-xs uppercase tracking-wider text-mute">
               Chave Pix{dados.pix.tipo ? ` · ${dados.pix.tipo}` : ""}

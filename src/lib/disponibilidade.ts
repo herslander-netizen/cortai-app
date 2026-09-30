@@ -2,15 +2,32 @@
  * Motor único de disponibilidade — usado pela página pública, pelo app do
  * cliente e pela validação no servidor. Regra única, resultado único.
  */
-import { fimEmMinutos, hojeNoFuso, horarioDoDia, isoNoFusoDaBarbearia, somarDias, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  fimEmMinutos,
+  hojeNoFuso,
+  horarioDoDia,
+  isoNoFusoDaBarbearia,
+  somarDias,
+  type HorarioDeFuncionamento,
+} from "@/lib/horarios";
 
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 export type RegrasDaAgenda = { antecedenciaMin: number; intervaloEntreMin: number };
-export type ServicoDoMotor = { id: string; duracao_min: number; profissional_ids?: string[] | null };
+export type ServicoDoMotor = {
+  id: string;
+  duracao_min: number;
+  profissional_ids?: string[] | null;
+};
 export type Opcao = { iso: string; label: string; profId: string };
 
 /** Um profissional está livre se nenhum horário ocupado dele cruza [inicio - folga, fim + folga). */
-export function profissionalLivre(profId: string, inicio: number, fim: number, ocupados: Ocupado[], folgaMin = 0) {
+export function profissionalLivre(
+  profId: string,
+  inicio: number,
+  fim: number,
+  ocupados: Ocupado[],
+  folgaMin = 0,
+) {
   const folga = folgaMin * 60_000;
   return !ocupados.some(
     (o) =>
@@ -21,7 +38,10 @@ export function profissionalLivre(profId: string, inicio: number, fim: number, o
 }
 
 /** Profissionais que fazem o serviço (lista vazia no serviço = todos fazem). */
-export function profissionaisDoServico<P extends { id: string }>(servico: ServicoDoMotor | null, profissionais: P[]): P[] {
+export function profissionaisDoServico<P extends { id: string }>(
+  servico: ServicoDoMotor | null,
+  profissionais: P[],
+): P[] {
   const ids = servico?.profissional_ids ?? [];
   if (!ids.length) return profissionais;
   return profissionais.filter((p) => ids.includes(p.id));
@@ -35,7 +55,12 @@ function min(hhmm: string) {
 /** Dia (AAAA-MM-DD) e minuto do dia de um instante, no fuso da barbearia. */
 export function diaEMinutoNoFuso(instante: number, fuso: string): { dia: string; minuto: number } {
   const dia = hojeNoFuso(fuso, new Date(instante));
-  const hm = new Intl.DateTimeFormat("en-GB", { timeZone: fuso, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(instante));
+  const hm = new Intl.DateTimeFormat("en-GB", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(instante));
   return { dia, minuto: min(hm) % (24 * 60) };
 }
 
@@ -66,7 +91,11 @@ export function motivoForaDoHorario(
   const ontem = faixaDoDia(somarDias(dia, -1), horarios);
   if (ontem && ontem.fecha > 1440) {
     const m = minuto + 1440;
-    if (m >= ontem.abre && m + duracaoMin <= ontem.fecha && !(ontem.pausa && m < ontem.pausa[1] && m + duracaoMin > ontem.pausa[0])) {
+    if (
+      m >= ontem.abre &&
+      m + duracaoMin <= ontem.fecha &&
+      !(ontem.pausa && m < ontem.pausa[1] && m + duracaoMin > ontem.pausa[0])
+    ) {
       return null;
     }
   }
@@ -74,29 +103,41 @@ export function motivoForaDoHorario(
   if (!hoje) return "O negócio não abre neste dia.";
   const fim = minuto + duracaoMin;
   if (minuto < hoje.abre || fim > hoje.fecha) {
-    return `Esse horário não cabe no funcionamento da barbearia (${hoje.info.abre} às ${hoje.info.fecha}).`;
+    return `Esse horário não cabe no funcionamento do negócio (${hoje.info.abre} às ${hoje.info.fecha}).`;
   }
   if (hoje.pausa && minuto < hoje.pausa[1] && fim > hoje.pausa[0]) {
-    return `Esse horário invade o intervalo da barbearia (${hoje.info.intervaloInicio} às ${hoje.info.intervaloFim}).`;
+    return `Esse horário invade o intervalo do negócio (${hoje.info.intervaloInicio} às ${hoje.info.intervaloFim}).`;
   }
   return null;
 }
 
-export function motivoAntecedencia(inicio: number, antecedenciaMin: number, agora = Date.now()): string | null {
+export function motivoAntecedencia(
+  inicio: number,
+  antecedenciaMin: number,
+  agora = Date.now(),
+): string | null {
   if (inicio < agora - 60_000) return "Esse horário já passou.";
   if (antecedenciaMin > 0 && inicio < agora + antecedenciaMin * 60_000) {
-    const texto = antecedenciaMin >= 60 ? `${Math.round(antecedenciaMin / 60)} h` : `${antecedenciaMin} min`;
-    return `Esta barbearia agenda com pelo menos ${texto} de antecedência.`;
+    const texto =
+      antecedenciaMin >= 60 ? `${Math.round(antecedenciaMin / 60)} h` : `${antecedenciaMin} min`;
+    return `Este negócio agenda com pelo menos ${texto} de antecedência.`;
   }
   return null;
 }
 
 function contagemNoDia(profId: string, dia: string, ocupados: Ocupado[], fuso: string) {
-  return ocupados.filter((o) => o.profissional_id === profId && hojeNoFuso(fuso, new Date(o.inicio)) === dia).length;
+  return ocupados.filter(
+    (o) => o.profissional_id === profId && hojeNoFuso(fuso, new Date(o.inicio)) === dia,
+  ).length;
 }
 
 /** Entre os livres, o que tem menos atendimentos no dia (empate: ordem recebida). */
-export function escolherProfissional(livres: string[], dia: string, ocupados: Ocupado[], fuso: string): string | null {
+export function escolherProfissional(
+  livres: string[],
+  dia: string,
+  ocupados: Ocupado[],
+  fuso: string,
+): string | null {
   let melhor: string | null = null;
   let menor = Infinity;
   for (const id of livres) {
@@ -129,7 +170,11 @@ export function horariosDisponiveis(p: {
   const aptos = profissionaisDoServico(p.servico, p.profissionais).map((x) => x.id);
   const candidatos = p.escolhido === "qualquer" ? aptos : aptos.filter((id) => id === p.escolhido);
   const opcoes: Opcao[] = [];
-  for (let t = min(info.abre); t + p.servico.duracao_min <= fimEmMinutos(info.abre, info.fecha); t += passo) {
+  for (
+    let t = min(info.abre);
+    t + p.servico.duracao_min <= fimEmMinutos(info.abre, info.fecha);
+    t += passo
+  ) {
     const tt = t % 1440;
     const label = `${String(Math.floor(tt / 60)).padStart(2, "0")}:${String(tt % 60).padStart(2, "0")}`;
     const iso = isoNoFusoDaBarbearia(t >= 1440 ? somarDias(p.dia, 1) : p.dia, label, p.fuso);
@@ -137,7 +182,9 @@ export function horariosDisponiveis(p: {
     const fim = inicio + p.servico.duracao_min * 60_000;
     if (motivoForaDoHorario(inicio, p.servico.duracao_min, p.horarios, p.fuso)) continue;
     if (motivoAntecedencia(inicio, p.regras.antecedenciaMin, agora)) continue;
-    const livres = candidatos.filter((id) => profissionalLivre(id, inicio, fim, p.ocupados, p.regras.intervaloEntreMin));
+    const livres = candidatos.filter((id) =>
+      profissionalLivre(id, inicio, fim, p.ocupados, p.regras.intervaloEntreMin),
+    );
     const prof = escolherProfissional(livres, p.dia, p.ocupados, p.fuso);
     if (prof) opcoes.push({ iso, label, profId: prof });
   }
@@ -160,5 +207,12 @@ export function conflitoDoCliente<T extends { inicio: string; fim: string; id?: 
   fim: number,
   ignorarId?: string | null,
 ): T | null {
-  return doCliente.find((a) => a.id !== ignorarId && new Date(a.inicio).getTime() < fim && new Date(a.fim).getTime() > inicio) ?? null;
+  return (
+    doCliente.find(
+      (a) =>
+        a.id !== ignorarId &&
+        new Date(a.inicio).getTime() < fim &&
+        new Date(a.fim).getTime() > inicio,
+    ) ?? null
+  );
 }

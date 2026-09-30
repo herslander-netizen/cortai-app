@@ -42,6 +42,7 @@ import { getPaginaPublica } from "@/lib/publico.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { termos } from "@/lib/segmentos";
 import { comprimirImagem } from "@/lib/imagem";
+import { ChatPreview } from "@/components/agendamento/ChatPreview";
 
 /** Atalhos de cor (valores escolhidos pelo dono, não tokens de interface). */
 const PALETA_RAPIDA = [
@@ -512,6 +513,100 @@ function Editor({
             </TabsContent>
 
             <TabsContent value="conteudo" className="space-y-5 pt-4">
+              <EditorSection title="Como seu cliente agenda?">
+                <div
+                  className="grid grid-cols-2 gap-2"
+                  role="radiogroup"
+                  aria-label="Modo de agendamento"
+                >
+                  {(
+                    [
+                      ["tradicional", "Tradicional"],
+                      ["conversa", "Conversa"],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <Button
+                      key={id}
+                      type="button"
+                      variant={config.chat.modo === id ? "default" : "outline"}
+                      className="h-12"
+                      aria-pressed={config.chat.modo === id}
+                      onClick={() => setPagina("chat", { ...config.chat, modo: id })}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-mute">
+                  Negócios existentes continuam no modo Tradicional até você publicar esta escolha.
+                </p>
+                <div className="mt-4">
+                  <ChatPreview ativo={config.chat.modo === "conversa"} />
+                </div>
+              </EditorSection>
+              {config.chat.modo === "conversa" ? (
+                <EditorSection title="Recepção digital">
+                  <div className="space-y-4">
+                    <Campo
+                      label="Nome da recepção"
+                      value={config.chat.nomeRecepcao}
+                      onChange={(value) =>
+                        setPagina("chat", { ...config.chat, nomeRecepcao: value })
+                      }
+                    />
+                    <label className="block text-xs font-medium text-mute">
+                      Mensagem inicial
+                      <textarea
+                        className={`${fieldClass} min-h-24 resize-y`}
+                        value={config.chat.mensagemInicial}
+                        onChange={(e) =>
+                          setPagina("chat", { ...config.chat, mensagemInicial: e.target.value })
+                        }
+                      />
+                    </label>
+                    <label className="block text-xs font-medium text-mute">
+                      Texto final
+                      <textarea
+                        className={`${fieldClass} min-h-20 resize-y`}
+                        value={config.chat.textoFinal}
+                        onChange={(e) =>
+                          setPagina("chat", { ...config.chat, textoFinal: e.target.value })
+                        }
+                      />
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["azul", "ciano", "rosa"] as const).map((cor) => (
+                        <Button
+                          key={cor}
+                          type="button"
+                          variant={config.chat.corDestaque === cor ? "default" : "outline"}
+                          className="h-12 capitalize"
+                          onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
+                        >
+                          {cor}
+                        </Button>
+                      ))}
+                    </div>
+                    {(
+                      [
+                        { key: "comemoracao", label: "Comemoração discreta" },
+                        { key: "salvarCalendario", label: "Salvar no calendário" },
+                        { key: "listaEspera", label: "Lista de espera" },
+                      ] as const
+                    ).map(({ key, label }) => (
+                      <label key={key} className="flex min-h-12 items-center justify-between gap-4">
+                        <span className="text-sm text-paper">{label}</span>
+                        <Switch
+                          checked={config.chat[key]}
+                          onCheckedChange={(checked) =>
+                            setPagina("chat", { ...config.chat, [key]: checked })
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </EditorSection>
+              ) : null}
               <Campo
                 label={`Nome ${vocabulario.de}`}
                 value={form.nome}

@@ -15,6 +15,8 @@ import type { HorarioDeFuncionamento } from "@/lib/horarios";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   const { data } = await db
@@ -56,12 +58,13 @@ async function limitarPublico(acao: keyof typeof LIMITES, telefone?: string) {
 }
 
 export type AgendaPublica = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null; usaListaDeEspera: boolean };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null }[];
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null; usaListaDeEspera: boolean; segmento: Segmento; logoUrl: string | null };
+  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null; foto_url: string | null }[];
   regras: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
   horarios: HorarioDeFuncionamento[];
   ocupados: { profissional_id: string | null; inicio: string; fim: string }[];
+  pagina: PaginaConfig;
 };
 
 async function admin() {
@@ -72,7 +75,7 @@ async function admin() {
 async function barbeariaPorSlug(db: any, slug: string) {
   const { data } = await db
     .from("tenants")
-    .select("id, nome, slug, whatsapp, fuso, endereco, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min")
+    .select("id, nome, slug, whatsapp, fuso, endereco, segmento, logo_url, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min")
     .eq("slug", slug.trim().toLowerCase())
     .eq("ativo", true)
     .maybeSingle();
@@ -107,10 +110,10 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const ate = new Date(desde.getTime() + (janelaDias + 2) * 24 * 60 * 60 * 1000);
 
-    const [servicosRes, profRes, horariosRes, ocupadosRes, filaRes] = await Promise.all([
+    const [servicosRes, profRes, horariosRes, ocupadosRes, filaRes, paginaRes] = await Promise.all([
       db
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
+        .select("id, nome, duracao_min, preco_centavos, profissional_ids, foto_url")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
@@ -133,7 +136,25 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .lte("inicio", ate.toISOString())
         .in("status", [...STATUS_QUE_OCUPAM]),
       db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenant.id, _chave: "fila_espera" }),
+      db.from("tenant_page_configs").select("published_config").eq("tenant_id", tenant.id).maybeSingle(),
     ]);
+
+    const assinar = async (path: string | null | undefined) => {
+      if (!path) return null;
+      if (/^https?:/.test(path)) return path;
+      const { data } = await db.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
+      return data?.signedUrl ?? null;
+    };
+    const servicos: AgendaPublica["servicos"] = await Promise.all((servicosRes.data ?? []).map(async (servico) => ({
+      id: servico.id, nome: servico.nome, duracao_min: servico.duracao_min,
+      preco_centavos: servico.preco_centavos, profissional_ids: servico.profissional_ids,
+      foto_url: await assinar(servico.foto_url),
+    })));
+    const profissionais: AgendaPublica["profissionais"] = await Promise.all((profRes.data ?? []).map(async (profissional) => ({
+      id: profissional.id, nome: profissional.nome,
+      avatar_url: await assinar(profissional.avatar_url),
+    })));
+    const container = paginaRes.data?.published_config as { pagina?: unknown } | null;
 
     return {
       tenant: {
@@ -144,17 +165,20 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         fuso: tenant.fuso,
         endereco: tenant.endereco,
         usaListaDeEspera: filaRes.data === true,
+        segmento: segmentoParaApresentacao((tenant as Record<string, unknown>)["segmento"]),
+        logoUrl: await assinar((tenant as Record<string, unknown>)["logo_url"] as string | null),
       },
-      servicos: servicosRes.data ?? [],
+      servicos,
       regras: {
         antecedenciaMin: Number(tenant.antecedencia_min_minutos ?? 0),
         intervaloEntreMin: Number(tenant.intervalo_entre_min ?? 0),
         janelaDias,
         passoMin: passoValido(tenant.passo_horarios_min),
       },
-      profissionais: profRes.data ?? [],
+      profissionais,
       horarios: mapearHorarios(horariosRes.data ?? []),
       ocupados: ocupadosRes.data ?? [],
+      pagina: normalizarPagina(container?.pagina),
     };
   });
 

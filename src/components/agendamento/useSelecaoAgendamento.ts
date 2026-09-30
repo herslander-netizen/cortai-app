@@ -15,8 +15,9 @@ type Servico = {
   preco_centavos: number;
   duracao_min: number;
   profissional_ids?: string[] | null;
+  foto_url?: string | null;
 };
-type Profissional = { id: string; nome: string };
+type Profissional = { id: string; nome: string; avatar_url?: string | null };
 
 export function useSelecaoAgendamento({
   servicos,
