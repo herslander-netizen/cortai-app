@@ -4506,3 +4506,5 @@ body:has(.auth-screen--claro) {
 .showroom-planos .planos-selo { background: #e8f0ff; color: #175ce5; }
 .showroom-planos .planos-item ul svg { color: #175ce5; }
 .showroom-planos .planos-preco span, .showroom-planos .planos-herda { color: #4a5a72; }
+.planos-preco { white-space: nowrap; }
+@media (min-width: 1100px) { .planos-topo { flex-direction: column; align-items: flex-start; } }
