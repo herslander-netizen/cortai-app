@@ -9,8 +9,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { getRequest } from "@tanstack/react-start/server";
+
 import type { HorarioDeFuncionamento } from "@/lib/horarios";
-import { variantesDoTelefone } from "@/lib/telefone";
+import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -26,10 +28,37 @@ async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   return data as { id: string; nome: string; telefone: string } | null;
 }
 
+/** Agendamentos futuros ativos permitidos por WhatsApp em cada barbearia. */
+const MAX_FUTUROS_POR_TELEFONE = 3;
+
+/** Limites por minuto dos endpoints públicos (por IP e por WhatsApp). */
+const LIMITES = {
+  agendar: { ip: 8, telefone: 4 },
+  reconhecer: { ip: 20, telefone: 10 },
+  situacao: { ip: 30, telefone: 15 },
+  cancelar: { ip: 8, telefone: 5 },
+} as const;
+
+/** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
+async function limitarPublico(acao: keyof typeof LIMITES, telefone?: string) {
+  const { ipDaChamada, consumirLimite, BALDE_SEM_IP } = await import("@/lib/webhook-guard.server");
+  let ip: string | null = null;
+  try {
+    ip = ipDaChamada(getRequest());
+  } catch {
+    ip = null;
+  }
+  const limite = LIMITES[acao];
+  // Sem IP identificável: balde próprio e 10× mais folgado, para não travar ninguém.
+  const okIp = await consumirLimite(`pub:${acao}|ip:${ip ?? BALDE_SEM_IP}`, ip ? limite.ip : limite.ip * 10);
+  const okTel = telefone ? await consumirLimite(`pub:${acao}|tel:${normalizarTelefone(telefone)}`, limite.telefone) : true;
+  if (!okIp || !okTel) throw new Error("Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.");
+}
+
 export type AgendaPublica = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null };
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null; usaListaDeEspera: boolean };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null }[];
-  regras: { antecedenciaMin: number; intervaloEntreMin: number };
+  regras: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
   horarios: HorarioDeFuncionamento[];
   ocupados: { profissional_id: string | null; inicio: string; fim: string }[];
@@ -43,19 +72,24 @@ async function admin() {
 async function barbeariaPorSlug(db: any, slug: string) {
   const { data } = await db
     .from("tenants")
-    .select("id, nome, slug, whatsapp, fuso, endereco, antecedencia_min_minutos, intervalo_entre_min")
-    .eq("slug", slug)
+    .select("id, nome, slug, whatsapp, fuso, endereco, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min")
+    .eq("slug", slug.trim().toLowerCase())
     .eq("ativo", true)
     .maybeSingle();
   if (!data) throw new Error("Negócio não encontrado.");
-  return data as AgendaPublica["tenant"] & { antecedencia_min_minutos: number | null; intervalo_entre_min: number | null };
+  return data as Omit<AgendaPublica["tenant"], "usaListaDeEspera"> & {
+    antecedencia_min_minutos: number | null;
+    intervalo_entre_min: number | null;
+    janela_agendamento_dias: number | null;
+    passo_horarios_min: number | null;
+  };
 }
 
 function digitos(valor: string) {
   return valor.replace(/\D/g, "");
 }
 
-const slugSchema = z.string().trim().min(1).max(100);
+const slugSchema = z.string().trim().min(1).max(100).transform((v) => v.toLowerCase());
 const telefoneSchema = z
   .string()
   .trim()
@@ -65,14 +99,15 @@ const telefoneSchema = z
 export const getAgendaPublica = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
-    const { STATUS_QUE_OCUPAM, mapearHorarios } = await import("@/lib/agenda-regras.server");
+    const { STATUS_QUE_OCUPAM, mapearHorarios, janelaValida, passoValido } = await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
+    const janelaDias = janelaValida(tenant.janela_agendamento_dias);
 
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const ate = new Date(desde.getTime() + 60 * 24 * 60 * 60 * 1000);
+    const ate = new Date(desde.getTime() + (janelaDias + 2) * 24 * 60 * 60 * 1000);
 
-    const [servicosRes, profRes, horariosRes, ocupadosRes] = await Promise.all([
+    const [servicosRes, profRes, horariosRes, ocupadosRes, filaRes] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos, profissional_ids")
@@ -97,26 +132,42 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .gte("inicio", desde.toISOString())
         .lte("inicio", ate.toISOString())
         .in("status", [...STATUS_QUE_OCUPAM]),
+      db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenant.id, _chave: "fila_espera" }),
     ]);
 
     return {
-      tenant: { id: tenant.id, nome: tenant.nome, slug: tenant.slug, whatsapp: tenant.whatsapp, fuso: tenant.fuso, endereco: tenant.endereco },
+      tenant: {
+        id: tenant.id,
+        nome: tenant.nome,
+        slug: tenant.slug,
+        whatsapp: tenant.whatsapp,
+        fuso: tenant.fuso,
+        endereco: tenant.endereco,
+        usaListaDeEspera: filaRes.data === true,
+      },
       servicos: servicosRes.data ?? [],
-      regras: { antecedenciaMin: Number(tenant.antecedencia_min_minutos ?? 0), intervaloEntreMin: Number(tenant.intervalo_entre_min ?? 0) },
+      regras: {
+        antecedenciaMin: Number(tenant.antecedencia_min_minutos ?? 0),
+        intervaloEntreMin: Number(tenant.intervalo_entre_min ?? 0),
+        janelaDias,
+        passoMin: passoValido(tenant.passo_horarios_min),
+      },
       profissionais: profRes.data ?? [],
       horarios: mapearHorarios(horariosRes.data ?? []),
       ocupados: ocupadosRes.data ?? [],
     };
   });
 
-/** Só devolve o primeiro nome, para cumprimentar quem já é cliente da casa. */
+/**
+ * Não revela nome de nenhum telefone: qualquer pessoa poderia digitar o número de
+ * outra. A saudação "Olá, nome" vem só do aparelho de quem acabou de agendar.
+ * Mantido para compatibilidade com telas antigas; sempre devolve nome null.
+ */
 export const reconhecerCliente = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ slug: slugSchema, telefone: telefoneSchema }).parse(input))
   .handler(async ({ data }): Promise<{ nome: string | null }> => {
-    const db = await admin();
-    const tenant = await barbeariaPorSlug(db, data.slug);
-    const achado = await clientePorTelefone(db, tenant.id, data.telefone);
-    return { nome: achado ? String(achado.nome).split(" ")[0] ?? null : null };
+    await limitarPublico("reconhecer", data.telefone);
+    return { nome: null };
   });
 
 export type ConfirmacaoPublica = {
@@ -151,13 +202,17 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<ResultadoConvidado> => {
-    const { validarAgendamento } = await import("@/lib/agenda-regras.server");
+    await limitarPublico("agendar", data.telefone);
+    const { validarAgendamento, janelaValida, STATUS_ATIVOS_DO_CLIENTE } = await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
 
     const inicio = new Date(data.inicio);
     if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");
-    if (inicio.getTime() > Date.now() + 90 * 24 * 60 * 60 * 1000) throw new Error("Escolha uma data mais próxima.");
+    const janelaDias = janelaValida(tenant.janela_agendamento_dias);
+    if (inicio.getTime() > Date.now() + janelaDias * 24 * 60 * 60 * 1000) {
+      throw new Error(`Esta barbearia agenda com até ${janelaDias} dias de antecedência. Escolha uma data mais próxima.`);
+    }
 
     const [{ data: servico }, { data: profissional }] = await Promise.all([
       db
@@ -181,17 +236,39 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     // Ficha do cliente: reaproveita pelo WhatsApp para não duplicar cadastro.
     const existente = await clientePorTelefone(db, tenant.id, data.telefone);
 
-    // Só pode substituir um horário do próprio WhatsApp.
+    // Só pode substituir um horário ativo do próprio WhatsApp; senão, erro (nunca cria um segundo em silêncio).
     let substituiId: string | null = null;
-    if (data.substituiId && existente) {
-      const { data: antigo } = await db
+    if (data.substituiId) {
+      const { data: antigo } = existente
+        ? await db
+            .from("agendamentos")
+            .select("id")
+            .eq("id", data.substituiId)
+            .eq("tenant_id", tenant.id)
+            .eq("cliente_id", existente.id)
+            .in("status", [...STATUS_ATIVOS_DO_CLIENTE])
+            .maybeSingle()
+        : { data: null };
+      if (!antigo) throw new Error("Não encontramos o horário que você quer alterar. Confira o WhatsApp informado.");
+      substituiId = antigo.id as string;
+    }
+
+    // Anti-abuso: poucos horários futuros ativos por WhatsApp em cada barbearia.
+    if (existente) {
+      let consulta = db
         .from("agendamentos")
-        .select("id")
-        .eq("id", data.substituiId)
+        .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenant.id)
         .eq("cliente_id", existente.id)
-        .maybeSingle();
-      if (antigo) substituiId = antigo.id as string;
+        .in("status", [...STATUS_ATIVOS_DO_CLIENTE])
+        .gte("inicio", new Date().toISOString());
+      if (substituiId) consulta = consulta.neq("id", substituiId);
+      const { count } = await consulta;
+      if ((count ?? 0) >= MAX_FUTUROS_POR_TELEFONE) {
+        throw new Error(
+          `Você já tem ${MAX_FUTUROS_POR_TELEFONE} horários marcados aqui. Cancele ou altere um deles para marcar outro.`,
+        );
+      }
     }
 
     const conflito = await validarAgendamento(db, {
@@ -206,6 +283,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
 
     let clienteId: string;
     let clienteNome: string;
+    let fichaCriadaAgora = false;
     if (existente) {
       clienteId = existente.id;
       clienteNome = existente.nome;
@@ -215,14 +293,22 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         .insert({
           tenant_id: tenant.id,
           nome: data.nome,
-          telefone: data.telefone,
+          telefone: normalizarTelefone(data.telefone),
           origem: "link_publico",
         })
         .select("id, nome")
         .single();
-      if (error) throw new Error("Não foi possível concluir o agendamento agora.");
-      clienteId = novo.id;
-      clienteNome = novo.nome;
+      if (error) {
+        // Corrida: outra requisição criou a mesma ficha (único por barbearia + telefone). Reaproveita.
+        const outra = error.code === "23505" ? await clientePorTelefone(db, tenant.id, data.telefone) : null;
+        if (!outra) throw new Error("Não foi possível concluir o agendamento agora.");
+        clienteId = outra.id;
+        clienteNome = outra.nome;
+      } else {
+        clienteId = novo.id;
+        clienteNome = novo.nome;
+        fichaCriadaAgora = true;
+      }
     }
 
     const { data: res, error } = await db.rpc("criar_agendamento", {
@@ -232,16 +318,35 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       _servico_id: servico.id,
       _inicio: inicio.toISOString(),
       _forma_pagamento: "balcao",
+      _validar_regras: true,
     });
     if (error) {
+      // Nada de ficha órfã: a ficha criada nesta chamada sai junto com a falha.
+      if (fichaCriadaAgora) {
+        await db.from("carteiras").delete().eq("cliente_id", clienteId).eq("tenant_id", tenant.id);
+        const { error: erroLimpeza } = await db.from("clientes").delete().eq("id", clienteId).eq("tenant_id", tenant.id);
+        if (erroLimpeza) console.error("[agendamento-publico] ficha órfã não removida", clienteId, erroLimpeza.message);
+      }
       if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser reservado, escolha outro");
+      if (error.message.includes("fora do horario")) throw new Error("Esse horário está fora do funcionamento da barbearia.");
+      if (error.message.includes("fora do periodo")) throw new Error("Escolha uma data mais próxima.");
       throw new Error("Não foi possível concluir o agendamento agora.");
     }
     const criado = res as any;
     await db.from("agendamentos").update({ origem: "link_publico" }).eq("id", criado.agendamento_id);
 
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
-    if (substituiId) await db.rpc("cancelar_agendamento", { _agendamento_id: substituiId });
+    // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
+    if (substituiId) {
+      const { concluirSubstituicao } = await import("@/lib/substituicao.server");
+      await concluirSubstituicao(db, { novoId: criado.agendamento_id, antigoId: substituiId });
+      try {
+        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+        await notificarAgendamento(substituiId, "cancelamento");
+      } catch {
+        /* o cancelamento já está salvo */
+      }
+    }
 
     // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
     try {
@@ -274,6 +379,7 @@ export const situacaoComoConvidado = createServerFn({ method: "POST" })
     z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data }): Promise<{ status: string; inicio: string; fim: string } | null> => {
+    await limitarPublico("situacao", data.telefone);
     const db = await admin();
     const { data: ag } = await db
       .from("agendamentos")
@@ -295,7 +401,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
       const { data: t } = await db
         .from("tenants")
         .select("nome, descricao, texto_boas_vindas, capa_url, logo_url")
-        .eq("slug", data.slug)
+        .eq("slug", data.slug.trim().toLowerCase())
         .eq("ativo", true)
         .maybeSingle();
       if (!t) return null;
@@ -307,7 +413,8 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         imagem = url?.signedUrl ?? null;
       }
       return { nome: t.nome as string, descricao: (t.descricao || t.texto_boas_vindas || null) as string | null, imagem };
-    } catch {
+    } catch (erro) {
+      console.error("[getPreviaDaBarbearia] falha ao montar a prévia", data.slug, erro);
       return null;
     }
   });
@@ -318,6 +425,7 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
     z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data }): Promise<{ cancelado: boolean }> => {
+    await limitarPublico("cancelar", data.telefone);
     const db = await admin();
     const { data: ag } = await db
       .from("agendamentos")
