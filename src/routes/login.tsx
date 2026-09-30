@@ -85,7 +85,6 @@ function MarcaApple() {
 function LoginPage() {
   const navigate = useNavigate();
   const { proximo } = Route.useSearch();
-  const [outrasFormas, setOutrasFormas] = useState(false);
   const [modo, setModo] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
