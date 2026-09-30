@@ -70,7 +70,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   component: CortaiPage,
 });
 
-type Aba = "whatsapp" | "envios" | "ajustes";
+type Aba = "whatsapp" | "envios" | "ajustes" | "conversas";
 
 function Ponto({ ligado }: { ligado: boolean }) {
   return (
@@ -83,7 +83,7 @@ function Ponto({ ligado }: { ligado: boolean }) {
 
 function CortaiPage() {
   const busca = Route.useSearch();
-  const [aba, setAba] = useState<Aba>(busca.aba ?? "whatsapp");
+  const [aba, setAba] = useState<Aba>(busca.aba === "conversas" ? "envios" : busca.aba ?? "whatsapp");
   const painel = useQuery({ queryKey: ["cortai-painel"], queryFn: () => getPainelDoCortai() as Promise<PainelDoCortai> });
 
   return (
@@ -135,7 +135,7 @@ function CortaiPage() {
             </div>
           </section>
 
-          <nav className="mt-5 flex gap-2" aria-label="Seções do CortAI">
+          <nav className="mt-5 flex gap-2" aria-label="Seções da Secretária Cortaí">
             {(
               [
                 ["whatsapp", "WhatsApp"],
@@ -407,8 +407,8 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
   const descricao =
     status === "conectado"
-      ? "Seu WhatsApp está conectado e pronto para o CortAI atender seus clientes."
-      : "Conecte o WhatsApp do seu negócio para que o CortAI possa atender seus clientes automaticamente.";
+    ? "Seu WhatsApp está conectado e pronto para enviar avisos aos clientes."
+    : "Conecte o WhatsApp do seu negócio para enviar notificações dos atendimentos.";
 
   const rotuloPrincipal = acao.isPending
     ? "Preparando conexão…"
@@ -539,7 +539,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
         <ShieldCheck size={14} className="mt-0.5 shrink-0" />
-        O CortAI responde apenas com informações cadastradas no seu negócio e nunca acessa dados de outro.
+        A Secretária usa somente eventos e dados reais do seu negócio e nunca acessa dados de outro.
       </p>
 
       {qrAberto && conexao?.qrCode && !qrExpirado ? (
@@ -710,7 +710,7 @@ function ModalQr({
         </div>
 
         <div className="mt-4">
-          <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp da barbearia" />
+          <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp do negócio" />
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-paper">

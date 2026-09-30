@@ -39,9 +39,6 @@ export const MODULOS_DE_NAVEGACAO = [
   { grupo: "Configurações", to: "/barbeiro/marca", label: "Página e marca", detail: "Identidade e página pública", icon: Palette, permissao: "alterar_dados_barbearia" },
   { grupo: "Configurações", to: "/barbeiro/temas", label: "Temas e layouts", detail: "Troque o visual com prévia ao vivo", icon: Palette, permissao: "alterar_dados_barbearia" },
   { grupo: "Operação", to: "/barbeiro/cortai", label: "Secretária Cortaí", detail: "Conexão, notificações e experiência", icon: MessageCircle, permissao: "ver_cortai" },
-  { grupo: "Gestão", to: "/barbeiro/cortai-atividade", label: "Atividade do CortAI", detail: "Assuntos, consultas e falhas", icon: Bot, permissao: "ver_cortai" },
-  { grupo: "Gestão", to: "/barbeiro/painel-ia", label: "Painel do atendente", detail: "Resumo, agenda, clientes e serviços", icon: BarChart3, permissao: "ver_cortai" },
-  { grupo: "Operação", to: "/barbeiro/atendentes", label: "Painel de atendentes", detail: "Quem está online e assumir conversas", icon: UsersRound, permissao: "ver_cortai" },
 ] as const satisfies ReadonlyArray<{ grupo: string; to: string; label: string; detail: string; icon: typeof Banknote; permissao: ChaveDePermissao }>;
 
 export const GRUPOS_DE_NAVEGACAO = ["Operação", "Gestão", "Configurações"] as const;
