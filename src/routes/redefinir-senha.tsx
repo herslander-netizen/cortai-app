@@ -171,7 +171,11 @@ function RedefinirSenhaPage() {
                 variant="ghost"
                 size="icon"
                 className="shrink-0"
-                aria-label={mostrarConfirmacao ? "Ocultar confirmação da senha" : "Mostrar confirmação da senha"}
+                aria-label={
+                  mostrarConfirmacao
+                    ? "Ocultar confirmação da senha"
+                    : "Mostrar confirmação da senha"
+                }
                 aria-pressed={mostrarConfirmacao}
                 onClick={() => setMostrarConfirmacao((valor) => !valor)}
               >
