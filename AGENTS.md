@@ -26,3 +26,4 @@
 - Comandas usam preços do catálogo no banco.
 - Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
 - Navegação barbeiro: um item por área (`navegacao-barbeiro.ts`); telas irmãs viram abas (`SECOES`); barra não se repete no menu.
+- Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
