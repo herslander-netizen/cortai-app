@@ -71,29 +71,29 @@
   --radius: 14px;
   --tabbar-height: 72px;
 
-  /* Grafite + azul + rosa. --gold permanece como alias azul de compatibilidade. */
-  --identity-accent: #6a9eff;
-  --identity-accent-light: #0068fe;
-  --identity-secondary: #f05f96;
-  --identity-secondary-light: #d11a63;
-  --identity-primary: #3772d6;
-  --identity-secondary-strong: #d71c65;
-  --identity-deep: #17181b;
-  --identity-graphite: #17181b;
-  --identity-muted: #62625e;
-  --identity-off-white: #f5f4f0;
+  /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
+  --identity-accent: #00b7f4;
+  --identity-accent-light: #087cf0;
+  --identity-secondary: #ff1670;
+  --identity-secondary-light: #d90b58;
+  --identity-primary: #087cf0;
+  --identity-secondary-strong: #ff1670;
+  --identity-deep: #021a46;
+  --identity-graphite: #021a46;
+  --identity-muted: #5d6f89;
+  --identity-off-white: #f7faff;
   --identity-white: #ffffff;
-  --identity-border: #dedcd5;
-  --grafite-ink: #17181b;
-  --grafite-surface: #1f2024;
-  --grafite-raised: #282a2e;
-  --grafite-paper: #eeece7;
-  --grafite-muted: #a3a3a9;
-  --grafite-muted-2: #909097;
-  --grafite-line: #303237;
-  --grafite-line-2: #41434a;
-  --grafite-primary: #426aa2;
-  --grafite-accent: #88ade0;
+  --identity-border: #d9e3f0;
+  --grafite-ink: #021a46;
+  --grafite-surface: #08275a;
+  --grafite-raised: #0d3168;
+  --grafite-paper: #f7faff;
+  --grafite-muted: #a9bad3;
+  --grafite-muted-2: #879dbd;
+  --grafite-line: #123966;
+  --grafite-line-2: #174478;
+  --grafite-primary: #087cf0;
+  --grafite-accent: #00b7f4;
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -115,11 +115,11 @@
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
-  --landing-light-surface: #f5f4f0;
-  --landing-light-ink: #1b1c1f;
-  --landing-light-muted: #62625e;
-  --landing-light-line: #dedcd5;
-  --landing-light-gold: #1653a1;
+  --landing-light-surface: #f7faff;
+  --landing-light-ink: #021a46;
+  --landing-light-muted: #5d6f89;
+  --landing-light-line: #d9e3f0;
+  --landing-light-gold: #087cf0;
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
@@ -183,12 +183,12 @@
 :root[data-identidade="moderno"].light {
   --ink: var(--identity-off-white);
   --ink2: var(--identity-white);
-  --ink3: #eceae4;
-  --paper: #1b1c1f;
+  --ink3: #eaf2fb;
+  --paper: #021a46;
   --mute: var(--identity-muted);
-  --mute2: #6a6a65;
+  --mute2: #6d7f99;
   --line: var(--identity-border);
-  --line2: #cac8c0;
+  --line2: #bfd0e4;
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -618,12 +618,12 @@
   background: var(--choice-accent);
 }
 [data-identity-choice="moderno"] .identity-swatch {
-  background: #1653a1;
+  background: #00b7f4;
 }
 [data-identity-choice="moderno"] .identity-swatch::after {
   position: absolute;
   inset: 0 0 0 50%;
-  background: #c41f61;
+  background: #ff1670;
   content: "";
 }
 [data-identity-choice="rose"] .identity-swatch {
@@ -651,7 +651,7 @@
   position: relative;
   display: inline-block;
   flex-shrink: 0;
-  aspect-ratio: 1296 / 383;
+  aspect-ratio: 3 / 1;
 }
 .brand-logo-auto > img {
   position: absolute;
@@ -1529,16 +1529,16 @@ body:has(.auth-screen) {
 .auth-screen--claro {
   --ink: #ffffff;
   --ink2: #ffffff;
-  --ink3: #f5f4f0;
-  --paper: #17181b;
-  --mute: #62625e;
-  --mute2: #6a6a65;
-  --line: #e4e2dc;
-  --line2: #d5d3cc;
-  --gold: #1653a1;
-  --primary: #1653a1;
+  --ink3: #eaf2fb;
+  --paper: #021a46;
+  --mute: #5d6f89;
+  --mute2: #6d7f99;
+  --line: #d9e3f0;
+  --line2: #bfd0e4;
+  --gold: #087cf0;
+  --primary: #087cf0;
   --primary-foreground: #ffffff;
-  --ring: #1653a1;
+  --ring: #00b7f4;
 }
 
 .auth-screen--claro .brand-logo-on-dark {
@@ -1550,24 +1550,24 @@ body:has(.auth-screen) {
 
 body:has(.auth-screen--claro) {
   --background: #ffffff;
-  --foreground: #17181b;
+  --foreground: #021a46;
   --card: #ffffff;
-  --card-foreground: #17181b;
+  --card-foreground: #021a46;
   --popover: #ffffff;
-  --popover-foreground: #17181b;
-  --primary: #1653a1;
+  --popover-foreground: #021a46;
+  --primary: #087cf0;
   --primary-foreground: #ffffff;
-  --secondary: #f5f4f0;
-  --secondary-foreground: #17181b;
-  --muted: #f5f4f0;
-  --muted-foreground: #62625e;
-  --accent: #f5f4f0;
-  --accent-foreground: #17181b;
-  --border: #e4e2dc;
-  --input: #d5d3cc;
-  --ring: #1653a1;
+  --secondary: #eaf2fb;
+  --secondary-foreground: #021a46;
+  --muted: #eaf2fb;
+  --muted-foreground: #5d6f89;
+  --accent: #eaf2fb;
+  --accent-foreground: #021a46;
+  --border: #d9e3f0;
+  --input: #bfd0e4;
+  --ring: #00b7f4;
   background: #ffffff;
-  color: #17181b;
+  color: #021a46;
 }
 
 .auth-login-shell {
@@ -3127,7 +3127,9 @@ body:has(.auth-screen--claro) {
   border-radius: 20px;
   border: 1px solid var(--chat-borda, rgb(255 255 255 / 0.1));
   background: var(--chat-glass, rgb(10 30 80 / 0.55));
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 .chat-card-servico:hover,
 .chat-card-servico:focus-visible {
@@ -3156,8 +3158,14 @@ body:has(.auth-screen--claro) {
   border-radius: 999px;
   background: var(--chat-navy, #06245a);
 }
-.chat-ingresso-corte::before { left: -25px; }
-.chat-ingresso-corte::after { right: -25px; }
+.chat-ingresso-corte::before {
+  left: -25px;
+}
+.chat-ingresso-corte::after {
+  right: -25px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .chat-card-servico { transition: none; }
+  .chat-card-servico {
+    transition: none;
+  }
 }

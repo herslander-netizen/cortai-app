@@ -21,8 +21,6 @@ import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
 import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 import { NovidadesDaVersao } from "@/components/sistema/NovidadesDaVersao";
 
-
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -33,7 +31,9 @@ function NotFoundComponent() {
           Este endereço não existe ou foi movido.
         </p>
         <div className="mt-6">
-          <Button asChild><Link to="/">Voltar ao início</Link></Button>
+          <Button asChild>
+            <Link to="/">Voltar ao início</Link>
+          </Button>
         </div>
       </div>
     </div>
@@ -48,7 +48,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
       {
         name: "description",
-        content: "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
+        content:
+          "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
       },
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
@@ -83,7 +84,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#F5F4F0":"#17181B";document.head.appendChild(t)}catch{}` }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#F7FAFF":"#021A46";document.head.appendChild(t)}catch{}`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -118,8 +123,6 @@ function RootComponent() {
           <BannerDeCookies />
           <AvisoDeVersao />
           <NovidadesDaVersao />
-
-
         </GuiaProvider>
       </GlobalDesign>
     </QueryClientProvider>

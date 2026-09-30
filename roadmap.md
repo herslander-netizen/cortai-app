@@ -3,3 +3,5 @@
 - [x] Rodar testes, typecheck e build; não publicar
 - [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Cortaí Chat
 - [ ] Cards contextuais novos (serviço 4:5, ingresso, horários Manhã/Tarde/Noite), escolha de fundo e folha CortAI
+- [x] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
+- [ ] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
