@@ -24,7 +24,12 @@ import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeShortcut } from "@/components/layout/ThemeToggle";
 import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
-import { GRUPOS_DE_NAVEGACAO, modulosDeNavegacao } from "@/lib/navegacao-barbeiro";
+import {
+  GRUPOS_DE_NAVEGACAO,
+  itensDaBarra,
+  modulosDeNavegacao,
+  secaoDoCaminho,
+} from "@/lib/navegacao-barbeiro";
 
 type ItemDoMenu = {
   label: string;
@@ -65,15 +70,21 @@ export function ManagementHeader() {
       aplicarModo(sessao.tenantModo, true);
   }, [sessao?.identidadeApp, sessao?.tenantModo]);
   useEffect(() => {
+    const abrir = () => setAberto(true);
+    window.addEventListener("cortai:abrir-menu", abrir);
+    return () => window.removeEventListener("cortai:abrir-menu", abrir);
+  }, []);
+  useEffect(() => {
     definirFusoDasTelas(sessao?.tenantFuso);
   }, [sessao?.tenantFuso]);
 
   const grupos = useMemo(() => {
     const modulos = modulosDeNavegacao(sessao?.segmento ?? "outro");
+    const naBarra = itensDaBarra(sessao?.permissoes).map((b) => b.to as string);
     const operacionais = GRUPOS_DE_NAVEGACAO.map((titulo) => ({
       titulo,
       itens: modulos
-        .filter((item) => item.grupo === titulo)
+        .filter((item) => item.grupo === titulo && !naBarra.includes(item.to))
         .filter((item) => {
           if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
           const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
@@ -87,7 +98,7 @@ export function ManagementHeader() {
       itens: [
         { label: "Conta e negócio", to: "/barbeiro/conta", icon: Settings },
         { label: "Plano", to: "/barbeiro/plano", icon: CreditCard },
-        { label: "Ajuda e preferências", to: "/barbeiro/mais", icon: LifeBuoy },
+        { label: "Ajustes e ajuda", to: "/barbeiro/mais", icon: LifeBuoy },
       ],
     };
     return [...operacionais, sistema];
@@ -142,7 +153,8 @@ export function ManagementHeader() {
                         const ativo =
                           item.to === "/barbeiro"
                             ? caminho === "/barbeiro" || caminho === "/barbeiro/agenda"
-                            : caminho.startsWith(item.to);
+                            : caminho.startsWith(item.to) ||
+                              Boolean(secaoDoCaminho(caminho)?.abas.some((a) => a.to === item.to));
                         return (
                           <li key={`${grupo.titulo}-${item.label}`}>
                             <Link

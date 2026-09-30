@@ -14,11 +14,16 @@ import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 export const Route = createFileRoute("/login")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
-    typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
+    typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrar — Cortaí" },
-      { name: "description", content: "Acesse seus horários ou a gestão do seu negócio no Cortaí." },
+      {
+        name: "description",
+        content: "Acesse seus horários ou a gestão do seu negócio no Cortaí.",
+      },
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },
@@ -42,17 +47,36 @@ export const Route = createFileRoute("/login")({
 function MarcaGoogle() {
   return (
     <svg viewBox="0 0 48 48" width={20} height={20} aria-hidden focusable="false">
-      <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2.5 24 .5 14.6.5 6.5 5.9 2.6 13.8l7.8 6.1C12.3 13.9 17.7 9.5 24 9.5z" />
-      <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.2 7.1-17.6z" />
-      <path fill="#FBBC05" d="M10.4 28.1c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.8-6.1C.9 16.1 0 19.9 0 23.5s.9 7.4 2.6 10.7l7.8-6.1z" />
-      <path fill="#34A853" d="M24 47.5c6.2 0 11.5-2 15.4-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.3 0-11.7-4.4-13.6-10.3l-7.8 6.1C6.5 42.1 14.6 47.5 24 47.5z" />
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2.5 24 .5 14.6.5 6.5 5.9 2.6 13.8l7.8 6.1C12.3 13.9 17.7 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.2 7.1-17.6z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.4 28.1c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.8-6.1C.9 16.1 0 19.9 0 23.5s.9 7.4 2.6 10.7l7.8-6.1z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 47.5c6.2 0 11.5-2 15.4-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.3 0-11.7-4.4-13.6-10.3l-7.8 6.1C6.5 42.1 14.6 47.5 24 47.5z"
+      />
     </svg>
   );
 }
 
 function MarcaApple() {
   return (
-    <svg viewBox="0 0 24 24" width={20} height={20} aria-hidden focusable="false" fill="currentColor">
+    <svg
+      viewBox="0 0 24 24"
+      width={20}
+      height={20}
+      aria-hidden
+      focusable="false"
+      fill="currentColor"
+    >
       <path d="M16.36 12.7c-.02-2.3 1.88-3.4 1.96-3.45-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3-.79-1.55.02-2.98.9-3.78 2.28-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.68 2.36 2.88 2.31 1.16-.05 1.6-.75 3-.75s1.79.75 3.01.72c1.24-.02 2.03-1.13 2.79-2.25.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.42-.93-2.44-3.71zM14.1 5.6c.64-.78 1.07-1.85.95-2.93-.92.04-2.03.61-2.69 1.38-.59.69-1.11 1.79-.97 2.84 1.02.08 2.07-.52 2.71-1.29z" />
     </svg>
   );
@@ -92,11 +116,14 @@ function LoginPage() {
     setEnviando(true);
     try {
       const retorno = new URL("/entrar/retorno", window.location.origin);
-      if (proximo && proximo.startsWith("/") && !proximo.startsWith("//")) retorno.searchParams.set("proximo", proximo);
-      const resultado = await lovable.auth.signInWithOAuth(provedor, { redirect_uri: retorno.toString() });
+      if (proximo && proximo.startsWith("/") && !proximo.startsWith("//"))
+        retorno.searchParams.set("proximo", proximo);
+      const resultado = await lovable.auth.signInWithOAuth(provedor, {
+        redirect_uri: retorno.toString(),
+      });
       if (resultado.error) {
         setEnviando(false);
-        setErro(provedor === "google" ? "Não foi possível continuar com o Google." : "Não foi possível continuar com a Apple.");
+        falha(provedor);
         return;
       }
       if (resultado.redirected) return;
@@ -104,184 +131,165 @@ function LoginPage() {
       setEnviando(false);
     } catch {
       setEnviando(false);
-      setErro(provedor === "google" ? "Não foi possível continuar com o Google." : "Não foi possível continuar com a Apple.");
+      falha(provedor);
     }
   }
 
+  const falha = (provedor: "google" | "apple") =>
+    setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
+
+  const campo =
+    "mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4";
+  const botaoSocial =
+    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
+
   return (
-    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-10">
-      <div className="flex flex-1 flex-col items-center justify-center py-10">
-        <MarcaCortai variante="escura" className="h-auto w-56" prioridade />
+    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="mb-8 flex flex-col items-center gap-2 text-center">
+        <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
+        <h1 className="mt-4 text-xl font-bold text-paper">
+          {modo === "entrar" ? "Entrar" : "Criar conta"}
+        </h1>
       </div>
 
-      <div className="space-y-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="h-14 w-full justify-center gap-3 rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-          disabled={enviando}
-          onClick={() => void entrarCom("google")}
-        >
-          <MarcaGoogle />
-          Continuar com o Google
+      <form
+        className="space-y-3"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          setEnviando(true);
+          setErro(null);
+          setAviso(null);
+          if (modo === "entrar") {
+            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+            if (error) {
+              setEnviando(false);
+              setErro("E-mail ou senha incorretos.");
+              return;
+            }
+            await seguirParaMinhaArea();
+            setEnviando(false);
+            return;
+          }
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: senha,
+            options: { emailRedirectTo: window.location.origin },
+          });
+          setEnviando(false);
+          if (error) {
+            setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
+            return;
+          }
+          if (!data.session) {
+            setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
+            return;
+          }
+          await seguirParaMinhaArea();
+        }}
+      >
+        <label className="block text-xs font-medium text-mute">
+          E-mail
+          <span className={campo}>
+            <Mail size={17} aria-hidden />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="voce@exemplo.com"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        <label className="block text-xs font-medium text-mute">
+          <span className="flex items-center justify-between">
+            Senha
+            {modo === "entrar" ? (
+              <Link to="/recuperar-senha" className="text-xs text-mute hover:text-paper">
+                Esqueceu?
+              </Link>
+            ) : null}
+          </span>
+          <span className={campo}>
+            <LockKeyhole size={17} aria-hidden />
+            <input
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              type="password"
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              placeholder="Sua senha"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        {erro ? (
+          <p className="text-sm text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
+        {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
+        <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
+          {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
+      </form>
 
-        <Button
+      <div className="mt-5 text-center">
+        <button
           type="button"
-          variant="outline"
-          className="h-14 w-full justify-center gap-3 rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-          disabled={enviando}
-          onClick={() => void entrarCom("apple")}
+          aria-expanded={outrasFormas}
+          onClick={() => setOutrasFormas((v) => !v)}
+          className="min-h-11 text-sm font-medium text-mute hover:text-paper"
         >
-          <MarcaApple />
-          Continuar com a Apple
-        </Button>
-
-        {!outrasFormas ? (
-          <>
+          Entrar de outra forma
+        </button>
+        {outrasFormas ? (
+          <div className="mt-2 grid grid-cols-2 gap-2">
             <Button
               type="button"
               variant="outline"
-              className="h-14 w-full justify-center rounded-full border-line2 bg-ink2 text-base font-semibold text-paper"
-              onClick={() => setOutrasFormas(true)}
+              className={botaoSocial}
+              disabled={enviando}
+              onClick={() => void entrarCom("google")}
             >
-              Entrar de outra forma
+              <MarcaGoogle /> Google
             </Button>
-            {erro ? (
-              <p className="pt-1 text-center text-sm text-brick" role="alert">
-                {erro}
-              </p>
-            ) : null}
-          </>
+            <Button
+              type="button"
+              variant="outline"
+              className={botaoSocial}
+              disabled={enviando}
+              onClick={() => void entrarCom("apple")}
+            >
+              <MarcaApple /> Apple
+            </Button>
+          </div>
         ) : null}
       </div>
 
-      {outrasFormas ? (
-        <div className="mt-6">
-          <div className="mb-5 flex items-center gap-4" aria-hidden>
-            <span className="h-px flex-1 bg-line" />
-            <span className="text-xs text-mute2">ou entre com e-mail</span>
-            <span className="h-px flex-1 bg-line" />
-          </div>
-
-          <form
-            className="space-y-4"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              setEnviando(true);
-              setErro(null);
-              setAviso(null);
-              if (modo === "entrar") {
-                const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-                if (error) {
-                  setEnviando(false);
-                  setErro("Não foi possível entrar. Confira o e-mail e a senha.");
-                  return;
-                }
-                await seguirParaMinhaArea();
-                setEnviando(false);
-                return;
-              }
-              const { data, error } = await supabase.auth.signUp({
-                email,
-                password: senha,
-                options: { emailRedirectTo: window.location.origin },
-              });
-              setEnviando(false);
-              if (error) {
-                setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
-                return;
-              }
-              if (!data.session) {
-                setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
-                return;
-              }
-              await seguirParaMinhaArea();
-            }}
-          >
-            <label className="block text-xs font-medium text-mute">
-              E-mail
-              <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
-                <Mail size={17} aria-hidden />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="voce@exemplo.com"
-                  className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-                />
-              </span>
-            </label>
-            <label className="block text-xs font-medium text-mute">
-              Senha
-              <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
-                <LockKeyhole size={17} aria-hidden />
-                <input
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  type="password"
-                  autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                  required
-                  minLength={8}
-                  placeholder="Sua senha"
-                  className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-                />
-              </span>
-            </label>
-            {erro ? (
-              <p className="text-sm text-brick" role="alert">
-                {erro}
-              </p>
-            ) : null}
-            {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-            <Button className="h-14 w-full rounded-full font-bold" disabled={enviando}>
-              {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
-            </Button>
-            {modo === "entrar" ? (
-              <Link
-                to="/recuperar-senha"
-                className="block pt-1 text-center text-sm text-mute transition-colors hover:text-paper"
-              >
-                Esqueceu sua senha?
-              </Link>
-            ) : null}
-          </form>
-
-          <Button
-            type="button"
-            variant="text"
-            className="mt-4 h-12 w-full text-center text-sm text-mute"
-            onClick={() => {
-              setModo(modo === "entrar" ? "criar" : "entrar");
-              setErro(null);
-              setAviso(null);
-            }}
-          >
-            {modo === "entrar" ? (
-              <>
-                Ainda não tem conta? <span className="font-semibold text-paper">Criar conta</span>
-              </>
-            ) : (
-              <>
-                Já tem conta? <span className="font-semibold text-paper">Entrar</span>
-              </>
-            )}
-          </Button>
-        </div>
-      ) : null}
+      <p className="mt-4 text-center text-sm text-mute">
+        {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
+        <button
+          type="button"
+          className="min-h-11 font-semibold text-paper"
+          onClick={() => {
+            setModo(modo === "entrar" ? "criar" : "entrar");
+            setErro(null);
+            setAviso(null);
+          }}
+        >
+          {modo === "entrar" ? "Criar conta" : "Entrar"}
+        </button>
+      </p>
 
       <Link
-        to="/visitante"
-        className="mt-4 flex min-h-12 items-center justify-center text-center text-sm text-mute2 transition-colors hover:text-paper"
+        to="/barbearias"
+        className="mt-6 flex min-h-11 items-center justify-center border-t border-line pt-4 text-center text-sm text-mute2 hover:text-paper"
       >
-        Sou cliente e quero só agendar um corte
+        Sou cliente e quero só agendar
       </Link>
-
-      <footer className="pt-4 text-center">
-        <p className="text-xs text-mute2">Cortaí · by Alvo Digital</p>
-      </footer>
     </main>
   );
 }

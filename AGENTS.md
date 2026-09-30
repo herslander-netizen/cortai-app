@@ -11,24 +11,18 @@
 
 <!-- LOVABLE:END -->
 
-- Sobreposição é travada no banco por `agendamentos_sem_sobreposicao`; só membros podem criar encaixes.
-- Webhooks públicos usam `webhook-guard.server.ts` e contadores persistidos, pois instâncias não compartilham memória.
-- Cortaí é a marca principal de gestão e tecnologia para Beleza; barbearia é um segmento. Sem segmento explícito, a apresentação é neutra.
-- Segmentação vive em `src/lib/segmentos.ts`; todo fluxo usa essa fonte.
-- Marca oficial: wordmark azul-marinho/royal/rosa e “í” proprietário. Assinatura: “Simplifica. Conecta. Cresce.”
-- O ícone da CortAI vem de `IconeDaIA`: bigode na barbearia e pingo da marca nos demais segmentos.
-- Agenda/Modo Foco reutilizam regras, cliente e comanda; sem estado paralelo ou gravação offline.
-- “Desfazer” é atômico no banco, limitado a 5 segundos, negócio e autoria.
-- A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
-- Página pública: `/b/$slug`, com aliases; showcase interno: `/admin/apresentacao`, protegido e oculto dos menus.
-- O contexto do cliente é um slug persistido e revalidado; múltiplas fichas nunca escolhem silenciosamente.
-- Chats públicos compartilham motor, `PaginaConfig`, `ChatShell` e `ChatHeader`; base neutra.
-- Visual: `styles.css` + `segmentos.ts`, Manrope, marinho/royal/rosa; nunca verde/dourado/Barlow.
-- Toda disponibilidade usa `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`; telas não recalculam regras.
-- “Hoje” usa `hojeNoFuso(fuso do tenant)`, nunca o relógio do aparelho.
-- Imagens são comprimidas por `imagem.ts` antes do bucket de 2 MB; logos usam WebP.
-- Limites de dia/mês usam `inicioDoDiaNoFuso`/`inicioDoMesNoFuso` com `fusoDoTenant`, nunca `setHours(0)`.
-- Comandas calculam preços pelo catálogo no banco; valores enviados pela tela não são fonte de verdade.
-- Plano, assinatura, desconto, teste e ativação do tenant só mudam por fluxos privilegiados do servidor.
-
-- Planos comerciais: essencial/pro(Profissional)/conecta/studio(Equipe); liberação real em `recursos_de_plano` via `recurso_do_tenant_ativo` (plano + interruptor); vitrine em `src/lib/planos-comerciais.ts`. Por quê: uma fonte só para acesso e outra só para apresentação.
+- Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
+- Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
+- Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
+- Visual: `styles.css`, Manrope, marinho/royal/rosa; nunca verde/dourado/Barlow. Ícone CortAI via `IconeDaIA`.
+- Agenda/Modo Foco reutilizam regras, cliente e comanda; sem estado paralelo/offline.
+- Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
+- Home pública só em `/apresentacao`; `/` despacha auth. Página pública `/b/$slug` com aliases.
+- Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.
+- Chats públicos: mesmo motor, `PaginaConfig`, `ChatShell`, `ChatHeader`.
+- Disponibilidade só via `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`.
+- Datas: `hojeNoFuso`/`inicioDoDiaNoFuso`/`inicioDoMesNoFuso` com fuso do tenant; nunca relógio local/`setHours(0)`.
+- Imagens via `imagem.ts` (bucket 2 MB, logos WebP).
+- Comandas usam preços do catálogo no banco.
+- Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
+- Navegação barbeiro: um item por área (`navegacao-barbeiro.ts`); telas irmãs viram abas (`SECOES`); barra não se repete no menu.
