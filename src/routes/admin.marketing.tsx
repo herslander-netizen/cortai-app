@@ -50,10 +50,7 @@ function MarketingPage() {
     await copiar();
   }
   return (
-    <AdminScreen
-      title="Marketing"
-      subtitle="Compartilhe a apresentação comercial do Cortaí."
-    >
+    <AdminScreen title="Marketing" subtitle="Compartilhe a apresentação comercial do Cortaí.">
       <section className="max-w-2xl rounded-2xl border border-line bg-ink2 p-5 md:p-7">
         <p className="text-xs font-semibold uppercase text-gold">Apresentação pública</p>
         <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Cortaí</h2>

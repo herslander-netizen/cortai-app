@@ -20,7 +20,10 @@ export const Route = createFileRoute("/apresentacao")({
           "Agenda, clientes, caixa e Secretária em um só lugar para organizar negócios e profissionais de Beleza.",
       },
       { property: "og:title", content: "Cortaí — Mais organização para o seu negócio" },
-      { property: "og:description", content: "Conheça o Cortaí por dentro: Agenda, Clientes, Modo Foco, Caixa e Secretária." },
+      {
+        property: "og:description",
+        content: "Conheça o Cortaí por dentro: Agenda, Clientes, Modo Foco, Caixa e Secretária.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cortai.dev/apresentacao" },
       { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
