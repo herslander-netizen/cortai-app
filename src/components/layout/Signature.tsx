@@ -30,21 +30,16 @@ export function Signature() {
     <footer className="mt-10 flex flex-col items-center gap-3 px-5 pb-6 pt-8 text-center">
       <MarcaCortai variante="automatica" className="h-auto w-24 opacity-70" />
 
-      {link ? (
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-xs leading-none text-mute transition-colors hover:text-gold"
-        >
-          <MessageCircle size={13} aria-hidden />
-          Fale com a Alvo Digital
-        </a>
-      ) : null}
-
-      <p className="text-xs font-semibold uppercase leading-none tracking-[0.12em] text-mute">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-mute">
         {link ? (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gold">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Fale com a Alvo Digital pelo WhatsApp"
+            className="inline-flex min-h-11 items-center gap-2 px-2 transition-colors hover:text-gold"
+          >
+            <MessageCircle size={13} aria-hidden />
             by Alvo Digital
           </a>
         ) : (
@@ -52,9 +47,9 @@ export function Signature() {
         )}
       </p>
 
-      <p className="text-xs leading-relaxed text-mute2">Simplifica. Conecta. Cresce.</p>
+      <p className="text-xs leading-relaxed text-mute">Simplifica. Conecta. Cresce.</p>
 
-      <Link to="/privacidade" className="text-xs leading-none text-mute2 transition-colors hover:text-gold">
+      <Link to="/privacidade" className="inline-flex min-h-11 items-center px-2 text-xs text-mute transition-colors hover:text-gold">
         Política de Privacidade
       </Link>
 
