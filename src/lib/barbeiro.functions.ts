@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
@@ -910,8 +911,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
 
     // 4. A trava atômica do banco continua sendo a última defesa contra corridas.
     const fim = new Date(inicio.getTime() + servico.duracao_min * 60000);
-    const dia = new Date(inicio);
-    dia.setHours(0, 0, 0, 0);
+    const dia = inicioDoDiaNoFuso(await fusoDoTenant(tenant.id), inicio);
     const fimDia = new Date(dia.getTime() + 24 * 60 * 60 * 1000);
 
     const { data: doDia } = await db

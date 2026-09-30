@@ -28,3 +28,4 @@
 - Toda disponibilidade (público, app do cliente, chat CortAI, WhatsApp) usa `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`; nenhuma tela recalcula regra própria — uma única verdade de agenda.
 - "Hoje" da barbearia sempre via `hojeNoFuso(fuso do tenant)`, nunca pelo relógio do aparelho — o painel e a agenda não podem divergir de dia.
 - Imagens de marca são comprimidas no navegador (`src/lib/imagem.ts`) antes de ir ao bucket de 2 MB; logo em WebP para manter transparência.
+- Limites de "hoje"/"mês" no servidor sempre via `inicioDoDiaNoFuso`/`inicioDoMesNoFuso` (`horarios.ts`) com `fusoDoTenant`; `setHours(0)` roda em UTC no servidor e vira o dia às 21h no Brasil.

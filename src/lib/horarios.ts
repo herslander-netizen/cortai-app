@@ -158,3 +158,15 @@ export function slotsDoDia(
 export function hojeNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: normalizarFuso(fuso), year: "numeric", month: "2-digit", day: "2-digit" }).format(instante);
 }
+
+/** Meia-noite (início do dia) da barbearia para o instante dado, como Date UTC. */
+export function inicioDoDiaNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): Date {
+  const f = normalizarFuso(fuso);
+  return new Date(isoNoFusoDaBarbearia(hojeNoFuso(f, instante), "00:00", f));
+}
+
+/** Dia 1 do mês corrente da barbearia, 00:00 no fuso dela. */
+export function inicioDoMesNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): Date {
+  const f = normalizarFuso(fuso);
+  return new Date(isoNoFusoDaBarbearia(`${hojeNoFuso(f, instante).slice(0, 8)}01`, "00:00", f));
+}

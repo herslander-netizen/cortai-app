@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -248,8 +250,7 @@ export const getSincronizacaoDoCortai = createServerFn({ method: "GET" })
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
     const agora = new Date();
-    const inicioDoDia = new Date(agora);
-    inicioDoDia.setHours(0, 0, 0, 0);
+    const inicioDoDia = inicioDoDiaNoFuso(await fusoDoTenant(tenantId), agora);
     const fimDoDia = new Date(inicioDoDia.getTime() + 24 * 60 * 60 * 1000);
     const contar = (tabela: string) =>
       db.from(tabela as never).select("id", { count: "exact", head: true }).eq("tenant_id", tenantId);
@@ -383,8 +384,7 @@ export const getPainelOperacional = createServerFn({ method: "GET" })
     const db = await admin();
 
     const agora = new Date();
-    const inicioDoDia = new Date(agora);
-    inicioDoDia.setHours(0, 0, 0, 0);
+    const inicioDoDia = inicioDoDiaNoFuso(await fusoDoTenant(tenantId), agora);
     const fimDoDia = new Date(inicioDoDia.getTime() + 24 * 60 * 60 * 1000);
     const selecao =
       "id, inicio, fim, status, valor_centavos, forma_pagamento, clientes(id, nome, telefone), servicos(nome, duracao_min, preco_centavos), profissionais(nome)";

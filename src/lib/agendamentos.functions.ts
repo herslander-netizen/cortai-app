@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -17,7 +19,8 @@ export type AgendamentoConfirmado = {
   origem: string | null;
 };
 
-const ATIVOS = ["novo", "agendado", "chegou", "na_cadeira", "confirmado", "em_atendimento", "aguardando_pagamento", "aguardando_confirmacao"];
+// Estados oficiais (CHECK do banco): agendado, chegou, na_cadeira, finalizado + excepcionais.
+const ATIVOS = ["agendado", "chegou", "na_cadeira"];
 
 /**
  * Lista os agendamentos confirmados (ativos) da barbearia do usuário — com nome,
@@ -37,8 +40,7 @@ export const listarAgendamentosConfirmados = createServerFn({ method: "GET" })
     const db = ctx.supabase;
 
     const agora = new Date();
-    const inicioDeHoje = new Date(agora);
-    inicioDeHoje.setHours(0, 0, 0, 0);
+    const inicioDeHoje = inicioDoDiaNoFuso(await fusoDoTenant(tenantId), agora);
     const fimDeHoje = new Date(inicioDeHoje.getTime() + 24 * 60 * 60 * 1000);
 
     let consulta = db
@@ -47,7 +49,7 @@ export const listarAgendamentosConfirmados = createServerFn({ method: "GET" })
         "id, inicio, fim, status, valor_centavos, origem, clientes(nome, telefone), servicos(nome), profissionais(nome)",
       )
       .eq("tenant_id", tenantId)
-      .in("status", data.periodo === "passados" ? [...ATIVOS, "pago", "fiado"] : ATIVOS);
+      .in("status", data.periodo === "passados" ? [...ATIVOS, "finalizado"] : ATIVOS);
 
     if (data.periodo === "hoje") {
       consulta = consulta
