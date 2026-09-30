@@ -34,9 +34,9 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   head: () => ({
     meta: [
       { title: "Configurar a barbearia — Cortaí" },
-      { name: "description", content: "Em poucos minutos, seu link de agendamento fica pronto." },
-      { property: "og:title", content: "Configurar a barbearia — Cortaí" },
-      { property: "og:description", content: "Barbearia, equipe, serviços, horários, regras e link — em até 5 minutos." },
+      { name: "description", content: "Em poucos minutos, o link de agendamento do seu negócio fica pronto." },
+      { property: "og:title", content: "Configurar seu negócio — Cortaí" },
+      { property: "og:description", content: "Negócio, equipe, serviços, horários, regras e link — em poucos minutos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

@@ -69,7 +69,8 @@ export function configPadrao(overrides?: Partial<PaginaConfig>): PaginaConfig {
 }
 
 export function normalizarPagina(value: unknown, fallback?: Partial<PaginaConfig>) {
-  const parsed = paginaConfigSchema.safeParse(value);
+  const bruto = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const parsed = paginaConfigSchema.safeParse({ ...bruto, chat: bruto["chat"] ?? {} });
   return parsed.success ? parsed.data : configPadrao(fallback);
 }
 

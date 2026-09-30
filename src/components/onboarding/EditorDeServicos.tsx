@@ -19,6 +19,7 @@ export function EditorDeServicos({
   semIA = false,
   segmento = "barbearia",
   tenantId,
+  fotosAssinadas = {},
 }: {
   servicos: ServicoEditavel[];
   onChange: (s: ServicoEditavel[]) => void;
@@ -27,6 +28,7 @@ export function EditorDeServicos({
   semIA?: boolean;
   segmento?: Segmento;
   tenantId?: string;
+  fotosAssinadas?: Record<string, string>;
 }) {
   const interpretar = useServerFn(interpretarServicos);
   const [texto, setTexto] = useState("");
@@ -90,7 +92,7 @@ export function EditorDeServicos({
           <li key={s.id ?? `novo-${i}`} className="surface px-4 py-3">
             {tenantId ? <div className="mb-3 flex items-center gap-3">
               <Button variant="ghost" type="button" className="h-20 w-24 overflow-hidden rounded-lg border border-dashed border-line2 p-0" onClick={() => arquivos.current[i]?.click()}>
-                {s.fotoUrl ? <img src={s.fotoUrl.startsWith("blob:") || s.fotoUrl.startsWith("http") ? s.fotoUrl : ""} alt={`Foto de ${s.nome || "serviço"}`} className="h-full w-full object-cover" /> : <span className="text-xs text-mute">Adicionar foto</span>}
+                {s.fotoUrl && (s.fotoUrl.startsWith("blob:") || s.fotoUrl.startsWith("http") || fotosAssinadas[s.fotoUrl]) ? <img src={fotosAssinadas[s.fotoUrl] ?? s.fotoUrl} alt={`Foto de ${s.nome || "serviço"}`} className="h-full w-full object-cover" /> : <span className="text-xs text-mute">Adicionar foto</span>}
               </Button>
               <div><p className="text-xs font-semibold text-paper">Foto do serviço</p><p className="mt-1 text-xs text-mute">{enviandoFoto === i ? "Enviando…" : "Horizontal 4:3. Opcional."}</p></div>
               <input ref={(node) => { arquivos.current[i] = node; }} type="file" accept="image/*" className="hidden" onChange={async (event) => {
@@ -101,7 +103,9 @@ export function EditorDeServicos({
                   const path = `${tenantId}/servico-${s.id ?? `novo-${i}`}-${Date.now()}.jpg`;
                   const { error } = await supabase.storage.from("tenant-logos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
                   if (error) throw error;
+                  const preview = URL.createObjectURL(blob);
                   atualizar(i, { fotoUrl: path });
+                  fotosAssinadas[path] = preview;
                 } catch { setErro("Não foi possível enviar a foto do serviço."); }
                 finally { setEnviandoFoto(null); }
               }} />
