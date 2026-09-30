@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAcao } from "@/hooks/useAcao";
-import { MessageCircle, Phone, Search } from "lucide-react";
+import { AlertTriangle, CalendarDays, MessageCircle, Phone, Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { SuporteBarbearia } from "@/components/admin/SuporteBarbearia";
 import {
@@ -170,6 +171,7 @@ function BarbeariasPage() {
             <p className="mt-8 text-sm text-mute">Nenhuma barbearia neste filtro.</p>
           ) : null}
           <TenantDialog
+            key={selected?.id ?? "closed"}
             tenant={selected}
             onClose={() => setSelected(null)}
             onChanged={() => {
@@ -207,6 +209,7 @@ function TenantDialog({
   const [result, setResult] = useState("conversou");
   const [note, setNote] = useState("");
   const [channel, setChannel] = useState<"whatsapp" | "telefone">("whatsapp");
+  const [showContactForm, setShowContactForm] = useState(false);
   if (!tenant) return null;
   const number = (tenant.whatsapp ?? tenant.telefone ?? "").replace(/\D/g, "");
   const message = encodeURIComponent(
@@ -219,192 +222,97 @@ function TenantDialog({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto bg-ink2 sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{tenant.nome}</DialogTitle>
-          <DialogDescription>
-            {tenant.plano} · {tenant.agendamentos} agendamentos
+      <DialogContent className="bottom-0 left-0 right-0 top-auto h-[calc(100dvh-0.5rem)] w-full translate-y-0 gap-0 overflow-hidden rounded-b-none rounded-t-xl border-b-0 bg-ink2 p-0 sm:left-1/2 sm:right-auto sm:top-1/2 sm:h-[min(820px,calc(100dvh-3rem))] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border-b">
+        <DialogHeader className="shrink-0 border-b border-line px-5 pb-4 pt-5 pr-14 text-left sm:px-6 sm:pt-6 sm:pr-14">
+          <div className="flex min-w-0 items-center gap-2">
+            <DialogTitle className="truncate">{tenant.nome}</DialogTitle>
+            <span className="shrink-0 text-sm text-mute">| Barbearia</span>
+          </div>
+          <DialogDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="capitalize">{tenant.plano}</span>
+            <span aria-hidden>·</span>
+            <span>{tenant.agendamentos} agendamentos</span>
           </DialogDescription>
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <span className={tenant.ativo ? "text-sage" : "text-mute"}>{tenant.ativo ? "Ativa" : "Desativada"}</span>
+            <span aria-hidden className="text-mute2">·</span>
+            <span className={tenant.risco ? "text-brick" : "text-sage"}>{tenant.risco ? "Atenção necessária" : "Operação saudável"}</span>
+          </div>
         </DialogHeader>
-        {tenant.risco ? (
-          <section className="border-l-2 border-brick pl-4">
-            <p className="text-xs font-semibold text-brick">Por que está em risco</p>
-            {tenant.motivosRisco.map((reason) => (
-              <p key={reason} className="mt-2 text-sm text-paper">
-                {reason}
-              </p>
-            ))}
-          </section>
-        ) : (
-          <p className="text-sm text-sage">Operação saudável.</p>
-        )}
-        <section className="mt-3">
-          <h3 className="text-sm font-semibold text-paper">Contatos anteriores</h3>
-          {contacts.data?.length ? (
-            <ul className="mt-2">
-              {contacts.data.map((contact) => (
-                <li key={contact.id} className="border-b border-line py-3">
-                  <div className="flex justify-between gap-3">
-                    <span className="text-sm text-paper">
-                      {contact.canal === "whatsapp" ? "WhatsApp" : "Telefone"}
-                    </span>
-                    <span className="text-xs text-mute">{statusLabel[contact.resultado]}</span>
+
+        <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
+          <TabsList className="grid h-auto shrink-0 grid-cols-3 rounded-none border-b border-line bg-ink2 p-0 px-3 sm:px-5">
+            <TabsTrigger value="overview" className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">Visão geral</TabsTrigger>
+            <TabsTrigger value="contact" className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">Contato</TabsTrigger>
+            <TabsTrigger value="support" className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">Suporte</TabsTrigger>
+          </TabsList>
+
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-6">
+            <TabsContent value="overview" className="mt-0 space-y-6">
+              <section>
+                <div className="grid grid-cols-2 gap-3 border-b border-line pb-5">
+                  <div><p className="text-xs text-mute">Status</p><p className="mt-1 text-sm font-semibold text-paper">{tenant.ativo ? "Ativa" : "Desativada"}</p></div>
+                  <div><p className="text-xs text-mute">Agenda</p><p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-paper"><CalendarDays size={15} className="text-gold" />{tenant.agendamentos} agendamentos</p></div>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-sm font-semibold text-paper">Situação atual</h3>
+                {tenant.risco ? (
+                  <ul className="mt-3 space-y-2">
+                    {tenant.motivosRisco.map((reason) => <li key={reason} className="flex items-start gap-2 text-sm text-paper"><AlertTriangle size={15} className="mt-0.5 shrink-0 text-brick" /><span>{reason.replace(/\.$/, "")}</span></li>)}
+                  </ul>
+                ) : <p className="mt-2 text-sm text-sage">Nenhum sinal de risco identificado.</p>}
+              </section>
+
+              <section className="border-t border-line pt-5">
+                <h3 className="text-sm font-semibold text-paper">Ações administrativas</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mute">{tenant.ativo ? "Desativar impede a equipe de operar, sem apagar dados." : "Reativar devolve o acesso normal à equipe."}</p>
+                <Button className="mt-3" variant={tenant.ativo ? "outline" : "default"} disabled={statusOcupado} onClick={async () => {
+                  setStatusOcupado(true); setErroStatus(null);
+                  try { await setStatus({ data: { tenantId: tenant.id, ativo: !tenant.ativo } }); onChanged(); }
+                  catch { setErroStatus("Não foi possível mudar a situação agora."); }
+                  finally { setStatusOcupado(false); }
+                }}>{statusOcupado ? "Salvando…" : tenant.ativo ? "Desativar barbearia" : "Reativar barbearia"}</Button>
+                {erroStatus ? <p className="mt-2 text-xs text-brick">{erroStatus}</p> : null}
+                <div className="mt-5 border-t border-line pt-4">
+                  <p className="text-xs text-mute2">Prefira desativar. A exclusão apaga tudo desta barbearia para sempre.</p>
+                  <div className="mt-2"><ExclusaoPermanente titulo={`Excluir ${tenant.nome} permanentemente`} descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos desta barbearia. Não há como recuperar." onExcluir={async () => (await remover({ data: { tenantId: tenant.id } })).aviso} onSucesso={(aviso) => { if (aviso) toast.warning(`Negócio excluído. ${aviso}`, { duration: 10000 }); else toast.success("Negócio excluído."); onChanged(); }} /></div>
+                </div>
+              </section>
+            </TabsContent>
+
+            <TabsContent value="contact" className="mt-0 space-y-5">
+              <section className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div className="min-w-0"><h3 className="text-sm font-semibold text-paper">Contato da barbearia</h3><p className="mt-1 truncate text-xs text-mute">{tenant.whatsapp ?? tenant.telefone ?? "Nenhum número informado"}</p></div>
+                <div className="flex shrink-0 gap-2">
+                  {tenant.whatsapp ? <Button asChild size="sm" variant="outline" onClick={() => setChannel("whatsapp")}><a href={`https://wa.me/${number}?text=${message}`} target="_blank" rel="noreferrer"><MessageCircle />WhatsApp</a></Button> : null}
+                  {tenant.telefone ? <Button asChild size="icon" variant="outline" aria-label="Ligar" onClick={() => setChannel("telefone")}><a href={`tel:${tenant.telefone}`}><Phone /></a></Button> : null}
+                </div>
+              </section>
+
+              <section>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h3 className="text-sm font-semibold text-paper">Histórico de contatos</h3><Button size="sm" variant={showContactForm ? "ghost" : "outline"} onClick={() => setShowContactForm((open) => !open)}>{showContactForm ? "Cancelar" : <><Plus />Registrar contato</>}</Button></div>
+                {showContactForm ? (
+                  <div className="mt-4 border-t border-line pt-4">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="text-xs text-mute">Canal<select value={channel} onChange={(e) => setChannel(e.target.value as typeof channel)} className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper">{tenant.whatsapp ? <option value="whatsapp">WhatsApp</option> : null}{tenant.telefone ? <option value="telefone">Telefone</option> : null}</select></label>
+                      <label className="text-xs text-mute">Resultado<select value={result} onChange={(e) => setResult(e.target.value)} className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper">{Object.entries(statusLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+                    </div>
+                    <label className="mt-3 block text-xs text-mute">Observação <span className="text-mute2">(opcional)</span><textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Resumo do contato" rows={2} className="mt-1 w-full resize-y rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper" /></label>
+                    <Button className="mt-3" disabled={acao.ocupado} onClick={() => acao.executar("contato", () => add({ data: { tenantId: tenant.id, canal: channel, resultado: result as "sem_resposta" | "conversou" | "recuperou" | "cancelou", observacao: note || null } }), { sucesso: "Contato registrado.", aoConcluir: async () => { setNote(""); setShowContactForm(false); await contacts.refetch(); } })}>{acao.estaEm("contato") ? "Salvando…" : "Salvar contato"}</Button>
                   </div>
-                  {contact.observacao ? (
-                    <p className="mt-1 text-xs text-mute">{contact.observacao}</p>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-xs text-mute">Nenhum contato registrado.</p>
-          )}
-        </section>
-        {tenant.whatsapp || tenant.telefone ? (
-          <section className="mt-3">
-            <div className="flex gap-2">
-              {tenant.whatsapp ? (
-                <Button asChild onClick={() => setChannel("whatsapp")}>
-                  <a
-                    href={`https://wa.me/${number}?text=${message}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <MessageCircle />
-                    WhatsApp
-                  </a>
-                </Button>
-              ) : null}
-              {tenant.telefone ? (
-                <Button asChild variant="outline" onClick={() => setChannel("telefone")}>
-                  <a href={`tel:${tenant.telefone}`}>
-                    <Phone />
-                    Ligar
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-            <div className="mt-5 border-t border-line pt-5">
-              <p className="text-sm font-semibold text-paper">Registrar resultado</p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <select
-                  aria-label="Canal"
-                  value={channel}
-                  onChange={(e) => setChannel(e.target.value as typeof channel)}
-                  className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
-                >
-                  {tenant.whatsapp ? <option value="whatsapp">WhatsApp</option> : null}
-                  {tenant.telefone ? <option value="telefone">Telefone</option> : null}
-                </select>
-                <select
-                  aria-label="Resultado"
-                  value={result}
-                  onChange={(e) => setResult(e.target.value)}
-                  className="rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
-                >
-                  {Object.entries(statusLabel).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <textarea
-                aria-label="Observação"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Observação do contato"
-                className="mt-3 min-h-20 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
-              />
-              <Button
-                className="mt-3"
-                disabled={acao.ocupado}
-                onClick={() =>
-                  acao.executar(
-                    "contato",
-                    () =>
-                      add({
-                        data: {
-                          tenantId: tenant.id,
-                          canal: channel,
-                          resultado: result as
-                            "sem_resposta" | "conversou" | "recuperou" | "cancelou",
-                          observacao: note || null,
-                        },
-                      }),
-                    {
-                      sucesso: "Resultado registrado.",
-                      aoConcluir: async () => {
-                        setNote("");
-                        await contacts.refetch();
-                      },
-                    },
-                  )
-                }
-              >
-                {acao.estaEm("contato") ? "Salvando…" : "Salvar resultado"}
-              </Button>
-            </div>
-          </section>
-        ) : null}
-        <section className="mt-6 border-t border-line pt-5">
-          <h3 className="text-sm font-semibold text-paper">Editar como suporte</h3>
-          <p className="mt-1 text-xs text-mute">
-            Você edita os dados da barbearia sem entrar na conta dela.
-          </p>
-          <div className="mt-4">
-            <SuporteBarbearia tenantId={tenant.id} />
+                ) : null}
+                {contacts.data?.length ? <ul className="mt-4 divide-y divide-line">{contacts.data.map((contact) => <li key={contact.id} className="py-3"><div className="flex justify-between gap-3"><span className="text-sm text-paper">{contact.canal === "whatsapp" ? "WhatsApp" : "Telefone"}</span><span className="text-xs text-mute">{statusLabel[contact.resultado]}</span></div>{contact.observacao ? <p className="mt-1 text-xs text-mute">{contact.observacao}</p> : null}</li>)}</ul> : <p className="mt-4 text-sm text-mute">Nenhum contato registrado</p>}
+              </section>
+            </TabsContent>
+
+            <TabsContent value="support" className="mt-0">
+              <div className="mb-5"><h3 className="text-sm font-semibold text-paper">Editar como suporte</h3><p className="mt-1 text-xs leading-relaxed text-mute">Altere dados em nome da barbearia. As mudanças ficam registradas com o responsável e o motivo.</p></div>
+              <SuporteBarbearia tenantId={tenant.id} />
+            </TabsContent>
           </div>
-        </section>
-        <section className="mt-6 border-t border-line pt-5">
-          <p className="text-sm font-semibold text-paper">Situação da barbearia</p>
-          <p className="mt-1 text-xs text-mute">
-            {tenant.ativo
-              ? "Ativa: a equipe consegue usar o Cortaí normalmente."
-              : "Desativada: a equipe não consegue operar, mas nenhum dado foi apagado."}
-          </p>
-          <Button
-            className="mt-3"
-            variant={tenant.ativo ? "outline" : "default"}
-            disabled={statusOcupado}
-            onClick={async () => {
-              setStatusOcupado(true);
-              setErroStatus(null);
-              try {
-                await setStatus({ data: { tenantId: tenant.id, ativo: !tenant.ativo } });
-                onChanged();
-              } catch {
-                setErroStatus("Não foi possível mudar a situação agora.");
-              } finally {
-                setStatusOcupado(false);
-              }
-            }}
-          >
-            {statusOcupado
-              ? "Salvando…"
-              : tenant.ativo
-                ? "Desativar barbearia"
-                : "Reativar barbearia"}
-          </Button>
-          {erroStatus ? <p className="mt-2 text-xs text-brick">{erroStatus}</p> : null}
-          <div className="mt-5 border-t border-line pt-4">
-            <p className="text-xs text-mute2">
-              Prefira desativar. A exclusão apaga tudo desta barbearia para sempre.
-            </p>
-            <div className="mt-2">
-              <ExclusaoPermanente
-                titulo={`Excluir ${tenant.nome} permanentemente`}
-                descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos desta barbearia. Não há como recuperar."
-                onExcluir={async () => (await remover({ data: { tenantId: tenant.id } })).aviso}
-                onSucesso={(aviso) => {
-                  if (aviso) toast.warning(`Negócio excluído. ${aviso}`, { duration: 10000 });
-                  else toast.success("Negócio excluído.");
-                  onChanged();
-                }}
-              />
-            </div>
-          </div>
-        </section>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

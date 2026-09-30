@@ -5,6 +5,16 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { BarbeariaSuporte } from "@/lib/suporte.functions";
 import {
   alternarItemComoSuporte,
@@ -41,6 +51,8 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   const [motivo, setMotivo] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [confirmarSalvamento, setConfirmarSalvamento] = useState(false);
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     if (!query.data) return;
@@ -54,46 +66,58 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   if (!query.data) return <p className="text-sm text-mute">Carregando dados da barbearia…</p>;
 
   const dados = query.data as BarbeariaSuporte;
+  const camposIniciais = dados.campos;
+  const temMudancaOperacional =
+    plano !== String(camposIniciais["plano"] ?? "essencial") ||
+    loja !== Boolean(camposIniciais["loja_ativa"]);
+
+  async function salvarAlteracoes() {
+    setErro(null);
+    setStatus(null);
+    setSalvando(true);
+    try {
+      const r = await salvar({ data: { tenantId, motivo, campos: { ...form, loja_ativa: loja, plano: plano as "essencial" | "pro" | "conecta" | "studio" } } });
+      await query.refetch();
+      setStatus(r.alteracoes ? `${r.alteracoes} campo(s) atualizado(s).` : "Nada mudou.");
+    } catch (e) {
+      setErro((e as Error).message);
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      <p className="flex items-start gap-2 rounded-lg border border-line bg-ink px-3 py-2 text-xs leading-relaxed text-mute">
+    <div className="space-y-5">
+      <p className="flex items-start gap-2 border-l-2 border-gold pl-3 text-xs leading-relaxed text-mute">
         <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
-        Edição como suporte: você altera os dados públicos da barbearia sem entrar na conta dela e sem interromper o trabalho. Toda mudança fica registrada com seu e-mail.
+        Você está alterando dados em nome do suporte, sem entrar na conta da barbearia. Toda mudança fica registrada com seu e-mail.
       </p>
 
       <form
         className="space-y-3"
         onSubmit={async (event) => {
           event.preventDefault();
-          setErro(null);
-          setStatus(null);
-          try {
-            const r = await salvar({ data: { tenantId, motivo, campos: { ...form, loja_ativa: loja, plano: plano as "essencial" | "pro" | "conecta" | "studio" } } });
-            await query.refetch();
-            setStatus(r.alteracoes ? `${r.alteracoes} campo(s) atualizado(s).` : "Nada mudou.");
-          } catch (e) {
-            setErro((e as Error).message);
-          }
+          if (temMudancaOperacional) setConfirmarSalvamento(true);
+          else await salvarAlteracoes();
         }}
       >
         {TEXTO.map((item) =>
           item.area ? (
             <label key={item.campo} className="block text-xs text-mute">
               {item.rotulo}
-              <textarea value={form[item.campo] ?? ""} onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })} className="mt-1 min-h-20 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper" />
+              <textarea value={form[item.campo] ?? ""} onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })} rows={2} className="mt-1 w-full resize-y rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper" />
             </label>
           ) : (
             <label key={item.campo} className="block text-xs text-mute">
               {item.rotulo}
-              <input value={form[item.campo] ?? ""} onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })} className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper" />
+               <input value={form[item.campo] ?? ""} onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })} className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper" />
             </label>
           ),
         )}
 
         <label className="block text-xs text-mute">
           Plano
-          <select value={plano} onChange={(e) => setPlano(e.target.value)} className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">
+          <select value={plano} onChange={(e) => setPlano(e.target.value)} className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper">
             <option value="essencial">Essencial</option>
             <option value="pro">Profissional</option>
             <option value="conecta">Conecta</option>
@@ -101,17 +125,17 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           </select>
         </label>
 
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-line bg-ink px-3 py-3">
+        <div className="flex items-center justify-between gap-4 border-y border-line py-3">
           <span className="text-sm text-paper">Loja online <span className={`ml-2 text-xs ${loja ? "text-sage" : "text-mute"}`}>{loja ? "Ativada" : "Desativada"}</span></span>
           <Switch checked={loja} onCheckedChange={setLoja} aria-label="Loja online da barbearia" />
         </div>
 
         <label className="block text-xs text-mute">
           Motivo do atendimento (fica na auditoria)
-          <input required value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex.: cliente pediu troca do endereço por WhatsApp" className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper" />
+          <input required value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex.: cliente pediu troca do endereço" className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper" />
         </label>
 
-        <Button className="w-full">Salvar como suporte</Button>
+        <Button className="w-full sm:w-auto" disabled={salvando}>{salvando ? "Salvando…" : "Salvar alterações"}</Button>
         {status ? <p className="text-xs text-sage" role="status">{status}</p> : null}
         {erro ? <p className="text-xs text-brick" role="alert">{erro}</p> : null}
       </form>
@@ -147,6 +171,19 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           ))}
         </ul>
       </section>
+
+      <AlertDialog open={confirmarSalvamento} onOpenChange={setConfirmarSalvamento}>
+        <AlertDialogContent className="w-[calc(100%-2rem)] rounded-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar mudança operacional?</AlertDialogTitle>
+            <AlertDialogDescription>Você alterou o plano ou a disponibilidade da loja. Isso pode mudar recursos visíveis para a barbearia. A ação ficará registrada na auditoria.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Revisar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void salvarAlteracoes()}>Confirmar e salvar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <section>
         <h4 className="flex items-center gap-2 text-sm font-semibold text-paper"><History size={14} className="text-gold" />Histórico de alterações do suporte</h4>
