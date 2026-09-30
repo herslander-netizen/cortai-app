@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
 import logoCortai from "@/assets/cortai-logo-clara-oficial.png.asset.json";
@@ -8,10 +8,10 @@ import logoCortai from "@/assets/cortai-logo-clara-oficial.png.asset.json";
  * Camadas: fundo → efeitos → cabeçalho → conversa → bandeja inferior.
  * Só apresentação: nenhum estado de agenda ou regra de negócio mora aqui.
  */
-export function ChatBackground() {
+export function ChatBackground({ capaUrl }: { capaUrl?: string | null | undefined }) {
   return (
     <div aria-hidden className="chat-fundo">
-      <img src={fundo.url} alt="" className="chat-fundo-img" decoding="async" />
+      <img src={capaUrl || fundo.url} alt="" className="chat-fundo-img" decoding="async" />
       <div className="chat-fundo-veu" />
     </div>
   );
@@ -58,15 +58,29 @@ export function ChatHeader({
           </p>
         ) : null}
       </div>
-      <img src={logoCortai.url} alt="Cortaí" className="h-7 w-auto shrink-0" />
+      <img
+        src={logoCortai.url}
+        alt="Tecnologia Cortaí"
+        className="h-4 w-auto shrink-0 opacity-60"
+      />
     </header>
   );
 }
 
-export function ChatShell({ header, children }: { header: ReactNode; children: ReactNode }) {
+export function ChatShell({
+  header,
+  children,
+  capaUrl,
+  style,
+}: {
+  header: ReactNode;
+  children: ReactNode;
+  capaUrl?: string | null;
+  style?: CSSProperties;
+}) {
   return (
-    <main className="chat-sistema">
-      <ChatBackground />
+    <main className="chat-sistema" style={style} data-personalizado={capaUrl ? "true" : "false"}>
+      <ChatBackground capaUrl={capaUrl} />
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}

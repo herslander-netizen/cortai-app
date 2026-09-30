@@ -23,7 +23,7 @@
 - A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
 - A página pública canônica de cada negócio é `/b/$slug`; aliases antigos apenas redirecionam para preservar links.
 - O contexto do cliente é um slug persistido e revalidado; múltiplas fichas nunca escolhem silenciosamente.
-- Agendamento público e autenticado compartilham o núcleo de seleção/disponibilidade, mantendo adaptadores distintos para identidade e pagamento.
+- Agendamentos compartilham seleção/disponibilidade; o público usa a `PaginaConfig` publicada para capa, logo, cores e fontes.
 - Visual oficial: `src/styles.css` + `segmentos.ts`, Manrope e azul-marinho/royal/rosa; nunca verde/dourado/Barlow.
 - Toda disponibilidade usa `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`; telas não recalculam regras.
 - “Hoje” usa `hojeNoFuso(fuso do tenant)`, nunca o relógio do aparelho.

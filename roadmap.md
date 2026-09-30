@@ -3,6 +3,7 @@
 - [x] Rodar testes, typecheck e build; não publicar
 - [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Cortaí Chat
 - [ ] Concluir escolha de fundo e visual do CortAI; bloqueado por escopo separado desta estabilização
+- [x] Aplicar capa, logo e cores publicadas ao agendamento e melhorar a prévia de personalização
 - [x] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
 - [x] Corrigir P0/P1 seguros encontrados na auditoria final de pré-lançamento
 - [x] Validar TypeScript, lint dirigido, testes, build e fluxos críticos após as correções
