@@ -208,25 +208,52 @@ function CortaiPage() {
 }
 
 function BlocoExperiencia() {
-  const avaliacoes = useQuery({ queryKey: ["secretaria-experiencia"], queryFn: () => getAvaliacoes() });
+  const avaliacoes = useQuery({
+    queryKey: ["secretaria-experiencia"],
+    queryFn: () => getAvaliacoes(),
+  });
   if (avaliacoes.isLoading) return <Carregando />;
   if (avaliacoes.isError)
-    return <p className="py-8 text-center text-sm text-brick">Não foi possível carregar a experiência dos clientes.</p>;
+    return (
+      <p className="py-8 text-center text-sm text-brick">
+        Não foi possível carregar a experiência dos clientes.
+      </p>
+    );
   const dados = avaliacoes.data;
   return (
     <section className="space-y-4" aria-label="Experiência do cliente">
       <div className="grid grid-cols-2 gap-3">
-        <div className="surface p-4"><p className="text-xs text-mute2">Média</p><p className="mt-1 text-2xl font-semibold text-paper">{dados?.media ?? "—"}</p></div>
-        <div className="surface p-4"><p className="text-xs text-mute2">Aguardando avaliação</p><p className="mt-1 text-2xl font-semibold text-paper">{dados?.pendentes.length ?? 0}</p></div>
+        <div className="surface p-4">
+          <p className="text-xs text-mute2">Média</p>
+          <p className="mt-1 text-2xl font-semibold text-paper">{dados?.media ?? "—"}</p>
+        </div>
+        <div className="surface p-4">
+          <p className="text-xs text-mute2">Aguardando avaliação</p>
+          <p className="mt-1 text-2xl font-semibold text-paper">{dados?.pendentes.length ?? 0}</p>
+        </div>
       </div>
       <div className="surface p-5">
         <h2 className="text-sm font-semibold text-paper">Avaliações recentes</h2>
-        {!dados?.registradas.length ? <p className="mt-3 text-sm text-mute">Nenhuma avaliação registrada ainda.</p> : (
-          <ul className="mt-3 divide-y divide-line">{dados.registradas.slice(0, 5).map((avaliacao) => (
-            <li key={avaliacao.id} className="py-3"><div className="flex items-center justify-between gap-3"><p className="text-sm text-paper">{avaliacao.cliente}</p><span className="text-sm font-semibold text-cyan-400">{avaliacao.nota}/5</span></div>{avaliacao.comentario ? <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p> : null}</li>
-          ))}</ul>
+        {!dados?.registradas.length ? (
+          <p className="mt-3 text-sm text-mute">Nenhuma avaliação registrada ainda.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-line">
+            {dados.registradas.slice(0, 5).map((avaliacao) => (
+              <li key={avaliacao.id} className="py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-paper">{avaliacao.cliente}</p>
+                  <span className="text-sm font-semibold text-cyan-400">{avaliacao.nota}/5</span>
+                </div>
+                {avaliacao.comentario ? (
+                  <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         )}
-        <Button asChild variant="secondary" className="mt-4 w-full"><Link to="/barbeiro/avaliacoes">Ver experiência completa</Link></Button>
+        <Button asChild variant="secondary" className="mt-4 w-full">
+          <Link to="/barbeiro/avaliacoes">Ver experiência completa</Link>
+        </Button>
       </div>
     </section>
   );

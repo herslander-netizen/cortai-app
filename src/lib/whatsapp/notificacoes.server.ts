@@ -402,7 +402,8 @@ export function primeiraJanelaAposSilencio(
   const [hf = 0, mf = 0] = fim.slice(0, 5).split(":").map(Number);
   const comeco = hi * 60 + mi;
   const final = hf * 60 + mf;
-  const dentro = comeco <= final ? atual >= comeco && atual < final : atual >= comeco || atual < final;
+  const dentro =
+    comeco <= final ? atual >= comeco && atual < final : atual >= comeco || atual < final;
   if (!dentro) return null;
   let minutos = final - atual;
   if (minutos <= 0) minutos += 24 * 60;

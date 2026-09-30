@@ -125,9 +125,9 @@ export async function tratarRespostaDeLembrete(input: {
     .maybeSingle();
   const ctx = (conv?.contexto ?? {}) as Record<string, unknown>;
   const escolha = ctx["escolherNotificacao"] as
-    | { ids: string[]; acao: string | null; validoAte?: string }
-    | undefined;
-  const escolhaValida = escolha && (!escolha.validoAte || escolha.validoAte > agoraIso) ? escolha : undefined;
+    { ids: string[]; acao: string | null; validoAte?: string } | undefined;
+  const escolhaValida =
+    escolha && (!escolha.validoAte || escolha.validoAte > agoraIso) ? escolha : undefined;
   if (!envio && escolhaValida && /^\d$/.test(t)) {
     const id = escolhaValida.ids[Number(t) - 1];
     if (id) {
