@@ -108,4 +108,4 @@
 - [x] Cliente de teste criado e fluxo validado na barbearia de demonstração
 
 ## Visual
-- [ ] Tela "Qual é o seu negócio?" (/comecar segmento): logo menor no topo, layout mais corporativo e bonito
+- [x] Tela "Qual é o seu negócio?" (/comecar segmento): logo menor no topo, layout mais corporativo e bonito
