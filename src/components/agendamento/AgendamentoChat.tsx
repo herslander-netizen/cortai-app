@@ -8,7 +8,16 @@ import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 
-type Selecao = ReturnType<typeof import("@/components/agendamento/useSelecaoAgendamento")["useSelecaoAgendamento"]>;
+type Selecao = {
+  servicoId: string | null; setServicoId: (id: string | null) => void;
+  servico: AgendaPublica["servicos"][number] | null; profissionalId: string;
+  setProfissionalId: (id: string) => void; aptos: AgendaPublica["profissionais"];
+  dias: string[]; dia: string | null; setDia: (dia: string | null) => void;
+  porDia: Map<string, { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }>;
+  agenda?: { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] };
+  inicio: string | null; setInicio: (inicio: string | null) => void;
+  escolhido: { iso: string; label: string; profId: string } | null;
+};
 
 function Typing() {
   return <span className="inline-flex h-8 items-center gap-1" aria-label="Recepção digitando"><i className="chat-dot" /><i className="chat-dot" /><i className="chat-dot" /></span>;
@@ -31,11 +40,12 @@ export function AgendamentoChat({ data, selecao, nome, telefone, setNome, setTel
 }) {
   const [identificado, setIdentificado] = useState(false);
   const [editando, setEditando] = useState<string | null>(null);
+  const [profissionalEscolhido, setProfissionalEscolhido] = useState(false);
   const [digitando, setDigitando] = useState(true);
   const nomeRef = useRef<HTMLInputElement>(null);
   const chat = data.pagina.chat;
   const { servicoId, setServicoId, servico, profissionalId, setProfissionalId, aptos, dias, dia, setDia, porDia, agenda, inicio, setInicio, escolhido } = selecao;
-  const etapa = !identificado ? "identidade" : !servico ? "servico" : !profissionalId ? "profissional" : !dia ? "dia" : !escolhido ? "horario" : "confirmacao";
+  const etapa = !identificado ? "identidade" : !servico ? "servico" : !profissionalEscolhido ? "profissional" : !dia ? "dia" : !escolhido ? "horario" : "confirmacao";
 
   useEffect(() => { setDigitando(true); const id = window.setTimeout(() => setDigitando(false), 360); return () => window.clearTimeout(id); }, [etapa]);
   useEffect(() => { if (!identificado) nomeRef.current?.focus(); }, [identificado]);
@@ -57,7 +67,7 @@ export function AgendamentoChat({ data, selecao, nome, telefone, setNome, setTel
           {identificado ? <Fala>Prazer, {nome.trim().split(" ")[0]}. Vamos escolher seu atendimento.</Fala> : null}
           {servico ? <Fala cliente>{servico.nome}</Fala> : null}
           {servico ? <Fala>Ótima escolha. Você prefere alguém específico?</Fala> : null}
-          {servico && profissionalId ? <Fala cliente>{profissionalId === "qualquer" ? "Não tenho preferência" : aptos.find((p) => p.id === profissionalId)?.nome}</Fala> : null}
+          {servico && profissionalEscolhido ? <Fala cliente>{profissionalId === "qualquer" ? "Não tenho preferência" : aptos.find((p) => p.id === profissionalId)?.nome}</Fala> : null}
           {dia ? <Fala cliente>Dia {local(`${dia}T12:00:00Z`)}</Fala> : null}
           {escolhido ? <Fala cliente>{escolhido.label}</Fala> : null}
           {digitando ? <Fala><Typing /></Fala> : null}
@@ -73,7 +83,7 @@ export function AgendamentoChat({ data, selecao, nome, telefone, setNome, setTel
             <span className="min-w-0 p-3"><strong className="block truncate text-paper">{s.nome}</strong><small className="mt-1 flex items-center gap-1 text-mute"><Clock3 size={12} />{s.duracao_min} min</small><span className="mt-2 block font-semibold text-paper">{brl(s.preco_centavos)}</span></span>
           </Button>)}</div></Fala> : null}
 
-          {!digitando && etapa === "profissional" ? <Fala><div className="grid gap-2 sm:grid-cols-2"><Button variant="outline" className="h-14 justify-start" onClick={() => setProfissionalId("qualquer")}><UserRound />Não tenho preferência</Button>{aptos.map((p) => <Button key={p.id} variant="outline" className="h-14 justify-start" onClick={() => setProfissionalId(p.id)}>{p.avatar_url ? <img src={p.avatar_url} alt="" className="size-8 rounded-full object-cover" /> : <span className="grid size-8 place-items-center rounded-full bg-ink3">{p.nome[0]}</span>}{p.nome}</Button>)}</div></Fala> : null}
+          {!digitando && etapa === "profissional" ? <Fala><div className="grid gap-2 sm:grid-cols-2"><Button variant="outline" className="h-14 justify-start" onClick={() => { setProfissionalId("qualquer"); setProfissionalEscolhido(true); }}><UserRound />Não tenho preferência</Button>{aptos.map((p) => <Button key={p.id} variant="outline" className="h-14 justify-start" onClick={() => { setProfissionalId(p.id); setProfissionalEscolhido(true); }}>{p.avatar_url ? <img src={p.avatar_url} alt="" className="size-8 rounded-full object-cover" /> : <span className="grid size-8 place-items-center rounded-full bg-ink3">{p.nome[0]}</span>}{p.nome}</Button>)}</div></Fala> : null}
 
           {!digitando && etapa === "dia" ? <Fala><p className="mb-3">Qual dia fica melhor?</p><div className="flex max-w-full snap-x gap-2 overflow-x-auto pb-2">{dias.map((d) => { const livre = (porDia.get(d)?.opcoes.length ?? 0) > 0; return <Button key={d} variant="outline" className="h-16 min-w-20 shrink-0 snap-start flex-col" disabled={!livre} onClick={() => setDia(d)}><CalendarDays size={15} />{local(`${d}T12:00:00Z`)}{!livre ? <small>Lotado</small> : null}</Button>; })}</div></Fala> : null}
 

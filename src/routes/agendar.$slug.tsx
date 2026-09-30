@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
@@ -309,6 +310,7 @@ function AgendamentoPublico() {
           {ativo ? <Check size={28} aria-hidden /> : <CalendarX size={28} aria-hidden />}
         </span>
         <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
+        {ativo && data.pagina.chat.modo === "conversa" ? <p className="mt-2 text-sm text-mute">{data.pagina.chat.textoFinal}</p> : null}
         {situacao === "cancelado_pela_barbearia" || situacao === "remarcado" ? (
           <p className="mt-2 text-sm text-mute">
             Fale com o negócio ou escolha outro horário abaixo.
@@ -431,6 +433,25 @@ function AgendamentoPublico() {
         </div>
       </main>
     );
+  }
+
+  if (data.pagina.chat.modo === "conversa") {
+    return <AgendamentoChat
+      data={data}
+      selecao={selecao}
+      nome={nome}
+      telefone={telefone}
+      setNome={setNome}
+      setTelefone={setTelefone}
+      confirmar={() => {
+        if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
+        setErro(null);
+        setConflito(null);
+        criar.mutate(undefined);
+      }}
+      enviando={criar.isPending}
+      erro={erro}
+    />;
   }
 
   return (
