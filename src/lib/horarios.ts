@@ -14,8 +14,10 @@ export const FUSOS_DA_BARBEARIA = [
   { valor: "America/Bahia", rotulo: "Bahia e Nordeste (UTC-3)" },
   { valor: "America/Fortaleza", rotulo: "Ceará, Piauí, Rio Grande do Norte (UTC-3)" },
   { valor: "America/Belem", rotulo: "Pará e Amapá (UTC-3)" },
-  { valor: "America/Manaus", rotulo: "Amazonas, Mato Grosso, Roraima (UTC-4)" },
-  { valor: "America/Cuiaba", rotulo: "Mato Grosso e Mato Grosso do Sul (UTC-4)" },
+  { valor: "America/Maceio", rotulo: "Alagoas e Sergipe (UTC-3)" },
+  { valor: "America/Manaus", rotulo: "Amazonas e Roraima (UTC-4)" },
+  { valor: "America/Cuiaba", rotulo: "Mato Grosso (UTC-4)" },
+  { valor: "America/Campo_Grande", rotulo: "Mato Grosso do Sul (UTC-4)" },
   { valor: "America/Porto_Velho", rotulo: "Rondônia (UTC-4)" },
   { valor: "America/Rio_Branco", rotulo: "Acre (UTC-5)" },
   { valor: "America/Noronha", rotulo: "Fernando de Noronha (UTC-2)" },
@@ -89,13 +91,33 @@ function normalizar(valor: string | null | undefined, padrao: string): string {
   return typeof valor === "string" && /^\d{2}:\d{2}/.test(valor) ? valor.slice(0, 5) : padrao;
 }
 
+/** Fechamento em minutos; fecha ≤ abre (ex.: 00:00, 02:00) significa depois da meia-noite. */
+export function fimEmMinutos(abre: string, fecha: string): number {
+  const a = minutos(abre);
+  const f = minutos(fecha);
+  return f <= a ? f + 1440 : f;
+}
+
+/** Soma dias a "AAAA-MM-DD". */
+export function somarDias(dia: string, n: number): string {
+  const [ano, mes, d] = dia.split("-").map(Number);
+  const x = new Date(Date.UTC(ano ?? 1970, (mes ?? 1) - 1, (d ?? 1) + n));
+  return `${x.getUTCFullYear()}-${String(x.getUTCMonth() + 1).padStart(2, "0")}-${String(x.getUTCDate()).padStart(2, "0")}`;
+}
+
+/** true quando nenhum dia da semana está aberto (inclui barbearia sem horário cadastrado). */
+export function semNenhumDiaAberto(horarios: HorarioDeFuncionamento[] | undefined | null): boolean {
+  return !(horarios ?? []).some((h) => !h.fechado);
+}
+
 export function horarioDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
 ): { fechado: boolean; abre: string; fecha: string; intervaloInicio: string | null; intervaloFim: string | null } {
   const semana = diaDaSemanaDoDia(dia);
   const achado = (horarios ?? []).find((h) => h.diaSemana === semana);
-  if (!achado) return { fechado: false, abre: ABERTURA_PADRAO, fecha: FECHAMENTO_PADRAO, intervaloInicio: null, intervaloFim: null };
+  // Dia sem horário cadastrado = FECHADO. Nunca abrimos a agenda por suposição.
+  if (!achado) return { fechado: true, abre: ABERTURA_PADRAO, fecha: FECHAMENTO_PADRAO, intervaloInicio: null, intervaloFim: null };
   const temIntervalo = Boolean(achado.intervaloInicio && achado.intervaloFim);
   return {
     fechado: Boolean(achado.fechado),
@@ -116,16 +138,18 @@ export function slotsDoDia(
   const info = horarioDoDia(dia, horarios);
   if (info.fechado) return { ...info, slots: [] };
   const inicio = minutos(info.abre);
-  const fim = minutos(info.fecha);
+  const fim = fimEmMinutos(info.abre, info.fecha);
   const slots: SlotDaAgenda[] = [];
   const pausaIni = info.intervaloInicio ? minutos(info.intervaloInicio) : null;
   const pausaFim = info.intervaloFim ? minutos(info.intervaloFim) : null;
   for (let t = inicio; t + passoMin <= fim; t += passoMin) {
     if (pausaIni != null && pausaFim != null && t < pausaFim && t + passoMin > pausaIni) continue;
-    const h = Math.floor(t / 60);
-    const m = t % 60;
+    const tt = t % 1440;
+    const h = Math.floor(tt / 60);
+    const m = tt % 60;
     const label = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    slots.push({ iso: isoNoFusoDaBarbearia(dia, label, fuso), label, minutos: t, hora: h });
+    const diaAlvo = t >= 1440 ? somarDias(dia, 1) : dia;
+    slots.push({ iso: isoNoFusoDaBarbearia(diaAlvo, label, fuso), label, minutos: t, hora: h });
   }
   return { ...info, slots };
 }
