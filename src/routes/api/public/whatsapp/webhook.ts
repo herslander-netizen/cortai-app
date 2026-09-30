@@ -18,6 +18,7 @@ import { verifyWebhookRequest, WebhookError } from "@lovable.dev/webhooks-js";
 type MudancaMeta = {
   field?: string;
   value?: {
+    metadata?: { phone_number_id?: string; display_phone_number?: string };
     contacts?: { profile?: { name?: string }; wa_id?: string }[];
     messages?: {
       id?: string;
@@ -52,17 +53,24 @@ async function admin() {
   return supabaseAdmin;
 }
 
-/** A conta oficial atende uma barbearia por vez: a dona da conexão "meta". */
-async function conexaoMeta() {
+/**
+ * Barbearia dona do aviso: pelo phone_number_id que a Meta envia em value.metadata.
+ * Sem correspondência, o aviso fica registrado com erro e não é processado.
+ */
+async function conexaoMeta(phoneNumberId: string | null) {
   const db = await admin();
+  const { rotearConexaoMeta } = await import("@/lib/whatsapp/roteamento-meta");
   const { data } = await db
     .from("conexoes_whatsapp")
-    .select("id, tenant_id, sessao_id, status")
+    .select("id, tenant_id, sessao_id, meta_phone_number_id")
     .eq("provedor", "meta")
-    .order("criado_em", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  return data ?? null;
+    .order("criado_em", { ascending: true });
+  const rota = rotearConexaoMeta((data ?? []) as never, phoneNumberId);
+  if (rota.tipo === "erro") throw new Error(rota.motivo);
+  if (rota.aprender && phoneNumberId) {
+    await db.from("conexoes_whatsapp").update({ meta_phone_number_id: phoneNumberId }).eq("id", rota.conexao.id);
+  }
+  return rota.conexao;
 }
 
 async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
@@ -70,8 +78,7 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
   const mensagens = valor?.messages ?? [];
   if (!valor || mensagens.length === 0) return;
 
-  const conexao = await conexaoMeta();
-  if (!conexao) throw new Error("Nenhuma barbearia com a conta oficial de WhatsApp ativada.");
+  const conexao = await conexaoMeta(valor.metadata?.phone_number_id ?? null);
 
   const fluxo = await import("@/lib/whatsapp/fluxo.server");
   for (const mensagem of mensagens) {
@@ -167,7 +174,7 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
     .is("processed_at", null)
     .lt("received_at", limite)
     .order("received_at", { ascending: true })
-    .limit(5);
+    .limit(1);
   for (const pendente of pendentes ?? []) {
     if (pendente.id === excluirId) continue;
     try {
@@ -295,7 +302,6 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         }
 
         try {
-          await reprocessarPendentes(eventoId);
           const corpo = verificado.payload as { entry?: { changes?: MudancaMeta[] }[] };
           for (const entrada of corpo.entry ?? []) {
             for (const mudanca of entrada.changes ?? []) {
@@ -306,6 +312,11 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
             .from("whatsapp_webhook_events")
             .update({ processed_at: new Date().toISOString(), processing_error: null })
             .eq("id", eventoId);
+          // Retomada limitada: no máximo 1 pendente antigo, com teto de 3 s, sem atrasar a resposta além disso.
+          await Promise.race([
+            reprocessarPendentes(eventoId).catch(() => undefined),
+            new Promise((r) => setTimeout(r, 3000)),
+          ]);
           return Response.json({ ok: true });
         } catch (erro) {
           const mensagem = erro instanceof Error ? erro.message : "Falha ao processar.";

@@ -11,6 +11,8 @@
  * - devolve só o necessário para conversar com o cliente (LGPD).
  */
 
+import { exigirFormaDoAtendente } from "./entradas-da-api";
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -515,8 +517,6 @@ export async function confirmarAgendamento(ctx: ContextoDoAgente, input: { agend
   await registrarAuditoria(ctx, "agendamento_confirmado", atual.id, {});
   return { agendamentoId: atual.id, status: "agendado" };
 }
-
-import { exigirFormaDoAtendente } from "./entradas-da-api";
 
 /** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
 export const ACOES_DO_AGENTE = {
