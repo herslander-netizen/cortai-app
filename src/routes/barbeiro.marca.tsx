@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Check,
   Copy,
+  ExternalLink,
   Eye,
   ImagePlus,
   Monitor,
@@ -24,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getMarca,
+  alterarLinkPublico,
   publicarPagina,
   restaurarMarca,
   salvarRascunhoPagina,
@@ -154,16 +156,20 @@ function Editor({
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const publish = useServerFn(publicarPagina);
   const restore = useServerFn(restaurarMarca);
+  const changePublicLink = useServerFn(alterarLinkPublico);
   const publicQuery = useQuery({
     queryKey: ["pagina-publica", initial.slug],
     queryFn: () => getPaginaPublica({ data: { slug: initial.slug } }),
   });
   const fileRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<MarcaForm>(initial);
   const [config, setConfig] = useState<PaginaConfig>(initial.pagina);
   const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
   const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
+  const [avatarPreview, setAvatarPreview] = useState(initial.pagina.chat.avatarUrl);
+  const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(
@@ -176,6 +182,8 @@ function Editor({
     setConfig(initial.pagina);
     setLogoPreview(initial.logo_signed_url);
     setCoverPreview(initial.capa_signed_url);
+    setAvatarPreview(initial.pagina.chat.avatarUrl);
+    setSlug(initial.slug);
   }, [initial]);
   const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) =>
     setForm((old) => ({ ...old, [key]: value }));
@@ -186,7 +194,7 @@ function Editor({
   const previasLocais = useRef<string[]>([]);
   useEffect(() => () => previasLocais.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
-  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa") => {
+  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar") => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
@@ -199,10 +207,10 @@ function Editor({
       return;
     }
     setBusy(true);
-    setStatus(kind === "logo" ? "Enviando logo…" : "Enviando capa…");
+    setStatus(kind === "capa" ? "Enviando capa…" : "Enviando imagem…");
     try {
       const blob = await comprimirImagem(file, {
-        maxLado: kind === "logo" ? 800 : 1920,
+        maxLado: kind === "capa" ? 1920 : 800,
         transparente: kind === "logo",
       });
       if (blob.size > 2 * 1024 * 1024) {
@@ -225,13 +233,31 @@ function Editor({
       if (kind === "logo") {
         setMarca("logo_url", path);
         setLogoPreview(preview);
-      } else {
+      } else if (kind === "capa") {
         setMarca("capa_url", path);
         setCoverPreview(preview);
+      } else {
+        setPagina("chat", { ...config.chat, avatarUrl: path });
+        setAvatarPreview(preview);
       }
       setStatus("Imagem pronta. Salve o rascunho para continuar depois.");
     } catch {
       setStatus("Não foi possível enviar a imagem. Tente de novo.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const salvarSlug = async () => {
+    setBusy(true);
+    setStatus(null);
+    try {
+      const resultado = await changePublicLink({ data: { slug } });
+      setSlug(resultado.slug);
+      await reload();
+      setStatus("Link atualizado. O endereço anterior continua funcionando.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Não foi possível atualizar o link.");
     } finally {
       setBusy(false);
     }
@@ -278,7 +304,7 @@ function Editor({
     >
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" asChild>
-          <a href={`/b/${initial.slug}`} target="_blank" rel="noreferrer">
+          <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
             <Eye />
             Ver publicada
           </a>
@@ -289,7 +315,7 @@ function Editor({
           onClick={() =>
             navigator.share?.({
               title: form.nome,
-              url: `${window.location.origin}/b/${initial.slug}`,
+              url: `${window.location.origin}/agendar/${slug}`,
             })
           }
         >
@@ -300,7 +326,7 @@ function Editor({
           variant="outline"
           size="sm"
           onClick={async () => {
-            await navigator.clipboard.writeText(`${window.location.origin}/b/${initial.slug}`);
+            await navigator.clipboard.writeText(`${window.location.origin}/agendar/${slug}`);
             setStatus("Link copiado.");
           }}
         >
@@ -545,7 +571,7 @@ function Editor({
                     ativo={config.chat.modo === "conversa"}
                     config={config}
                     nome={form.nome}
-                    logoUrl={logoPreview}
+                    logoUrl={avatarPreview || logoPreview}
                     capaUrl={coverPreview}
                   />
                 </div>
@@ -553,6 +579,17 @@ function Editor({
               {config.chat.modo === "conversa" ? (
                 <EditorSection title="Recepção digital">
                   <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-medium text-mute">Foto da recepção</p>
+                      <div className="mt-2 flex items-center gap-3">
+                        <Button type="button" variant="outline" className="size-16 overflow-hidden p-0" onClick={() => avatarRef.current?.click()}>
+                          {avatarPreview ? <img src={avatarPreview} alt="Foto atual da recepção" className="h-full w-full object-cover" /> : <ImagePlus />}
+                        </Button>
+                        <Button type="button" variant="outline" onClick={() => avatarRef.current?.click()}>Escolher foto</Button>
+                        {config.chat.avatarUrl ? <Button type="button" variant="ghost" onClick={() => { setPagina("chat", { ...config.chat, avatarUrl: null }); setAvatarPreview(null); }}>Remover</Button> : null}
+                      </div>
+                      <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(event) => upload(event, "avatar")} />
+                    </div>
                     <Campo
                       label="Nome da recepção"
                       value={config.chat.nomeRecepcao}
@@ -664,6 +701,25 @@ function Editor({
             </TabsContent>
 
             <TabsContent value="links" className="space-y-5 pt-4">
+              <EditorSection title="Link de agendamento">
+                <label className="block text-xs font-medium text-mute">
+                  Endereço personalizado
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <span className="hidden items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute sm:flex">cortai.dev/agendar/</span>
+                    <input
+                      className={`${fieldClass} mt-0 min-w-0 flex-1`}
+                      value={slug}
+                      maxLength={60}
+                      onChange={(event) => setSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"))}
+                    />
+                    <Button type="button" disabled={busy || slug === initial.slug || slug.length < 3} onClick={salvarSlug}>Salvar</Button>
+                  </div>
+                </label>
+                <p className="mt-2 text-xs text-mute">O endereço antigo permanece ativo para não quebrar links já enviados.</p>
+                <Button type="button" variant="outline" className="mt-3" asChild>
+                  <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer"><ExternalLink />Abrir agendamento</a>
+                </Button>
+              </EditorSection>
               <Campo
                 label="WhatsApp"
                 value={form.whatsapp}

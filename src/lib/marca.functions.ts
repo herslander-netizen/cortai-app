@@ -249,6 +249,7 @@ export const alterarLinkPublico = createServerFn({ method: "POST" })
     const { data: slug, error } = await supabaseAdmin.rpc("alterar_slug_do_tenant", {
       _tenant_id: tenantId,
       _novo_slug: data.slug,
+      _ator: context.userId,
     });
     if (error) throw new Error(error.message);
     return { slug };

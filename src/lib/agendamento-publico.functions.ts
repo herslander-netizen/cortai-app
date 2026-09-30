@@ -207,6 +207,8 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       })),
     );
     const container = paginaRes.data?.published_config as { pagina?: unknown } | null;
+    const pagina = normalizarPagina(container?.pagina);
+    const avatarUrl = await assinar(pagina.chat.avatarUrl);
 
     return {
       tenant: {
@@ -231,7 +233,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       profissionais,
       horarios: mapearHorarios(horariosRes.data ?? []),
       ocupados: ocupadosRes.data ?? [],
-      pagina: normalizarPagina(container?.pagina),
+      pagina: { ...pagina, chat: { ...pagina.chat, avatarUrl } },
     };
   });
 

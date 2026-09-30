@@ -1,12 +1,9 @@
-type ClienteDeSlug = {
-  rpc: (nome: "resolver_tenant_por_slug", args: { _slug: string }) => Promise<{
-    data: { tenant_id: string; slug_atual: string }[] | null;
-    error: { message: string } | null;
-  }>;
-};
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/integrations/supabase/types";
 
 /** Resolve o endereço atual ou um endereço histórico para o mesmo negócio. */
-export async function resolverTenantPorSlug(db: ClienteDeSlug, slug: string) {
+export async function resolverTenantPorSlug(db: SupabaseClient<Database>, slug: string) {
   const { data, error } = await db.rpc("resolver_tenant_por_slug", {
     _slug: slug.trim().toLowerCase(),
   });
