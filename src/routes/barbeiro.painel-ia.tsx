@@ -7,21 +7,37 @@ import { AgendamentoManual } from "@/components/barbeiro/AgendamentoManual";
 import { Screen } from "@/components/layout/Screen";
 import { Aviso } from "@/components/ui/aviso";
 import { EmptyState, SectionHeading } from "@/components/ui/section";
-import { brl, dataHoraLonga, hora } from "@/lib/format";
+import { brl, dataHoraLonga, fusoAtualDasTelas, hora } from "@/lib/format";
+import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { cancelarAgendamentoPainel, remarcarAgendamentoPainel } from "@/lib/barbeiro.functions";
 import { getPainelOperacional, type PainelOperacional } from "@/lib/ia.functions";
 import { Button } from "@/components/ui/button";
 
+// Dia e horário sempre no fuso da barbearia, nunca no relógio do aparelho.
 function diaDeHoje() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return hojeNoFuso(fusoAtualDasTelas());
 }
 
 function paraCampoLocal(iso: string) {
-  const d = new Date(iso);
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  const fuso = fusoAtualDasTelas();
+  const dia = hojeNoFuso(fuso, new Date(iso));
+  return `${dia}T${hora(iso, fuso)}`;
 }
+
+function doCampoLocal(valor: string) {
+  const [dia, hhmm] = valor.split("T");
+  return isoNoFusoDaBarbearia(dia ?? "", (hhmm ?? "00:00").slice(0, 5), fusoAtualDasTelas());
+}
+
+const ROTULO_DO_STATUS: Record<string, string> = {
+  agendado: "Agendado",
+  chegou: "Chegou",
+  na_cadeira: "Na cadeira",
+  finalizado: "Finalizado",
+  cancelado: "Cancelado",
+  remarcado: "Remarcado",
+  nao_compareceu: "Não compareceu",
+};
 
 export const Route = createFileRoute("/barbeiro/painel-ia")({
   ssr: false,
@@ -91,7 +107,7 @@ function LinhaAgendamento({
           <span className="block text-xs font-semibold text-paper">
             {brl(a.valorCentavos || (a.servico?.precoCentavos ?? 0))}
           </span>
-          <span className="block text-xs text-mute2">{a.status}</span>
+          <span className="block text-xs text-mute2">{ROTULO_DO_STATUS[a.status] ?? a.status}</span>
         </span>
       </div>
 
@@ -146,7 +162,7 @@ function LinhaAgendamento({
               setErro(null);
               try {
                 await remarcar({
-                  data: { agendamentoId: a.id, novoInicio: new Date(quando).toISOString() },
+                  data: { agendamentoId: a.id, novoInicio: doCampoLocal(quando) },
                 });
                 setEditando(false);
                 onMudou?.();
