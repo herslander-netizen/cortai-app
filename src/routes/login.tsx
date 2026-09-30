@@ -206,7 +206,10 @@ function LoginPage() {
           <span className="flex items-center justify-between">
             Senha
             {modo === "entrar" ? (
-              <Link to="/recuperar-senha" className="text-xs text-mute hover:text-paper">
+              <Link
+                to="/recuperar-senha"
+                className="inline-flex min-h-11 items-center px-1 text-xs font-medium text-mute hover:text-paper"
+              >
                 Esqueceu?
               </Link>
             ) : null}

@@ -41,3 +41,5 @@
 
 - [x] Reorganizar a edição administrativa de barbearia em Visão geral, Contato e Suporte
 - [x] Validar a nova edição administrativa em 390/1280 sem alterar dados
+
+- [x] Corrigir e validar o fluxo completo de recuperação e definição de nova senha

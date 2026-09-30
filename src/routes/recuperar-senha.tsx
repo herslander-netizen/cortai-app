@@ -1,18 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
+import { Button } from "@/components/ui/button";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { supabase } from "@/integrations/supabase/client";
+import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/recuperar-senha")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Recuperar acesso — Cortaí" },
+      { title: "Recuperar senha — Cortaí" },
       { name: "description", content: "Receba as instruções para voltar a entrar no Cortaí." },
-      { property: "og:title", content: "Recuperar acesso — Cortaí" },
+      { property: "og:title", content: "Recuperar senha — Cortaí" },
       { property: "og:description", content: "Recupere o acesso à sua conta Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -28,60 +30,67 @@ function RecuperarSenhaPage() {
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
+  useEffect(() => {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.content = "#ffffff";
+    return sincronizarCorDoNavegador;
+  }, []);
+
+  async function enviarInstrucoes() {
+    const emailNormalizado = email.trim().toLowerCase();
+    setErro(null);
+    if (!/^\S+@\S+\.\S+$/.test(emailNormalizado)) {
+      setErro("Digite um e-mail válido.");
+      return;
+    }
+
+    setEnviando(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(emailNormalizado, {
+      redirectTo: new URL("/redefinir-senha", window.location.origin).toString(),
+    });
+    setEnviando(false);
+
+    if (error) {
+      const texto = error.message.toLowerCase();
+      if (error.status === 429) {
+        setErro("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.");
+        return;
+      }
+      if (texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider")) {
+        setErro("O envio de e-mails está indisponível no momento. Tente novamente mais tarde.");
+        return;
+      }
+    }
+
+    setEnviado(true);
+  }
+
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
-      <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Esqueceu sua senha?</h1>
-      <p className="mt-3 text-sm leading-relaxed text-mute">
-        Informe o e-mail da sua conta. Se ele estiver cadastrado, enviamos o passo a passo para criar uma
-        senha nova.
-      </p>
+    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <MarcaCortai variante="escura" className="h-auto w-32" prioridade />
+        <h1 className="mt-6 text-xl font-bold text-paper">Recuperar senha</h1>
+        <p className="mt-2 text-sm leading-relaxed text-mute">
+          Digite seu e-mail e enviaremos as instruções para criar uma nova senha.
+        </p>
+      </div>
 
       {enviado ? (
-        <div className="mt-8 space-y-5">
-          <Aviso tom="sucesso" titulo="Se esse e-mail estiver cadastrado, as instruções já foram enviadas.">
-            Confira sua caixa de entrada e o spam. O link vale por um tempo curto, por segurança.
+        <div className="space-y-5">
+          <Aviso tom="sucesso" titulo="Confira seu e-mail">
+            Se houver uma conta com este e-mail, enviaremos as instruções para redefinir sua senha.
           </Aviso>
-          <Link to="/login" className="btn-primary block w-full py-3.5 text-center">
-            Voltar para o login
-          </Link>
+          <Button asChild variant="outline" className="h-12 w-full rounded-full">
+            <Link to="/login">Voltar para entrar</Link>
+          </Button>
         </div>
       ) : (
         <form
-          className="mt-8 space-y-4"
+          className="space-y-4"
+          noValidate
           onSubmit={async (event) => {
             event.preventDefault();
-            setEnviando(true);
-            setErro(null);
-            // Nunca revelamos se o e-mail existe: quando a chamada funciona,
-            // a resposta é sempre a mesma. Falhas reais aparecem de verdade.
-            // O endereço abaixo precisa estar liberado como Redirect URL da conta.
-            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-              redirectTo: `${window.location.origin}/redefinir-senha`,
-            });
-            setEnviando(false);
-            if (error) {
-              const texto = error.message.toLowerCase();
-              // Falhas de infraestrutura (envio indisponível) podem aparecer.
-              // Qualquer outra falha vira a mesma resposta neutra: nunca dizemos
-              // se o e-mail existe ou não na base.
-              const envioIndisponivel =
-                texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider");
-              if (error.status === 429) {
-                setErro("Muitas tentativas em pouco tempo. Espere alguns minutos e tente de novo.");
-                return;
-              }
-              if (envioIndisponivel) {
-                setErro(
-                  "O envio de e-mails ainda não está configurado nesta conta, então o e-mail de recuperação não pode sair. Fale com o suporte do Cortaí pelo falecomaalvo@gmail.com para recuperar seu acesso.",
-                );
-                return;
-              }
-              // Inclui usuário não encontrado e variações: resposta idêntica ao sucesso.
-              setEnviado(true);
-              return;
-            }
-            setEnviado(true);
+            await enviarInstrucoes();
           }}
         >
           <label className="block text-xs font-medium text-mute">
@@ -94,6 +103,9 @@ function RecuperarSenhaPage() {
                 type="email"
                 autoComplete="email"
                 required
+                inputMode="email"
+                placeholder="voce@exemplo.com"
+                aria-invalid={Boolean(erro)}
                 className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
               />
             </span>
@@ -103,11 +115,14 @@ function RecuperarSenhaPage() {
               {erro}
             </p>
           ) : null}
-          <button className="btn-primary w-full py-3.5" disabled={enviando}>
+          <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
             {enviando ? "Enviando…" : "Enviar instruções"}
-          </button>
-          <Link to="/login" className="block pt-2 text-center text-xs text-mute hover:text-paper">
-            Lembrei minha senha, voltar ao login
+          </Button>
+          <Link
+            to="/login"
+            className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
+          >
+            Voltar para entrar
           </Link>
         </form>
       )}
