@@ -321,7 +321,8 @@ function contrastePara(hex: string) {
   const linear = canais.map((canal) =>
     canal <= 0.04045 ? canal / 12.92 : ((canal + 0.055) / 1.055) ** 2.4,
   );
-  const luminancia = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  const [vermelho = 0, verde = 0, azul = 0] = linear;
+  const luminancia = 0.2126 * vermelho + 0.7152 * verde + 0.0722 * azul;
   return luminancia > 0.48 ? "#07152F" : "#FFFFFF";
 }
 

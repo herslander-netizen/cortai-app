@@ -8,7 +8,7 @@ import logoCortai from "@/assets/cortai-logo-clara-oficial.png.asset.json";
  * Camadas: fundo → efeitos → cabeçalho → conversa → bandeja inferior.
  * Só apresentação: nenhum estado de agenda ou regra de negócio mora aqui.
  */
-export function ChatBackground({ capaUrl }: { capaUrl?: string | null }) {
+export function ChatBackground({ capaUrl }: { capaUrl?: string | null | undefined }) {
   return (
     <div aria-hidden className="chat-fundo">
       <img src={capaUrl || fundo.url} alt="" className="chat-fundo-img" decoding="async" />
