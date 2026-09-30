@@ -8,13 +8,10 @@
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 
-
-
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
-
 
 function normalizar(t: string) {
   return t
@@ -27,15 +24,19 @@ function normalizar(t: string) {
 }
 
 function hora(iso: string, fuso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" }).format(
-    new Date(iso),
-  );
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
 }
 
 function dia(iso: string, fuso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit" }).format(
-    new Date(iso),
-  );
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(iso));
 }
 
 export type RespostaDeLembrete = {
@@ -67,11 +68,19 @@ export async function tratarRespostaDeLembrete(input: {
       .eq("tenant_id", input.tenantId)
       .eq("telefone", input.telefone);
     return {
-      texto: "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
+      texto:
+        "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
     };
   }
 
-  type Envio = { id: string; agendamento_id: string | null; tipo: string; telefone: string; conteudo: string | null; acoes: string[] | null };
+  type Envio = {
+    id: string;
+    agendamento_id: string | null;
+    tipo: string;
+    telefone: string;
+    conteudo: string | null;
+    acoes: string[] | null;
+  };
   const campos = "id, agendamento_id, tipo, telefone, conteudo, acoes";
   const bruto2 = bruto.toUpperCase();
   const agoraIso = new Date().toISOString();
@@ -81,8 +90,12 @@ export async function tratarRespostaDeLembrete(input: {
   // 1) Botão do canal oficial: "ACAO:<id da notificação>".
   const porPayload = bruto2.match(/^(CORTAI_[A-Z_]+):([0-9A-F-]{36})$/);
   if (porPayload) {
-    const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", porPayload[2]!.toLowerCase())
-      .eq("tenant_id", input.tenantId).maybeSingle();
+    const { data } = await db
+      .from("envios_de_whatsapp")
+      .select(campos)
+      .eq("id", porPayload[2]!.toLowerCase())
+      .eq("tenant_id", input.tenantId)
+      .maybeSingle();
     if (
       data &&
       telefoneCorresponde(data.telefone, input.telefone) &&
@@ -95,14 +108,22 @@ export async function tratarRespostaDeLembrete(input: {
 
   // 2) Resposta citando a notificação: usa o ID da mensagem citada.
   if (!envio && input.citadaId) {
-    const { data } = await db.from("envios_de_whatsapp").select(campos).eq("mensagem_externa_id", input.citadaId)
-      .eq("tenant_id", input.tenantId).maybeSingle();
+    const { data } = await db
+      .from("envios_de_whatsapp")
+      .select(campos)
+      .eq("mensagem_externa_id", input.citadaId)
+      .eq("tenant_id", input.tenantId)
+      .maybeSingle();
     if (data && telefoneCorresponde(data.telefone, input.telefone)) envio = data as Envio;
   }
 
   // Escolha pendente ("a qual horário você se refere?").
-  const { data: conv } = await db.from("conversas_whatsapp").select("contexto").eq("id", input.conversaId).maybeSingle();
-  const ctx = ((conv?.contexto ?? {}) as Record<string, unknown>);
+  const { data: conv } = await db
+    .from("conversas_whatsapp")
+    .select("contexto")
+    .eq("id", input.conversaId)
+    .maybeSingle();
+  const ctx = (conv?.contexto ?? {}) as Record<string, unknown>;
   const escolha = ctx["escolherNotificacao"] as { ids: string[]; acao: string | null } | undefined;
   if (!envio && escolha && /^\d$/.test(t)) {
     const id = escolha.ids[Number(t) - 1];
@@ -132,9 +153,14 @@ export async function tratarRespostaDeLembrete(input: {
   let abertas: Envio[] = [];
   if (!envio) {
     const { variantesDoTelefone } = await import("@/lib/telefone");
-    const { data } = await db.from("envios_de_whatsapp").select(campos)
-      .eq("tenant_id", input.tenantId).in("telefone", variantesDoTelefone(input.telefone))
-      .eq("aguarda_resposta", true).is("respondido_em", null).gt("valido_ate", agoraIso)
+    const { data } = await db
+      .from("envios_de_whatsapp")
+      .select(campos)
+      .eq("tenant_id", input.tenantId)
+      .in("telefone", variantesDoTelefone(input.telefone))
+      .eq("aguarda_resposta", true)
+      .is("respondido_em", null)
+      .gt("valido_ate", agoraIso)
       .order("enviado_em", { ascending: false });
     abertas = (data ?? []) as Envio[];
     if (!abertas.length) return null; // prazo vencido: volta ao fluxo normal
@@ -145,13 +171,21 @@ export async function tratarRespostaDeLembrete(input: {
   const acoesPossiveis = new Set((envio ? [envio] : abertas).flatMap((e) => e.acoes ?? []));
   if (!acao && acoesPossiveis.has(bruto2)) acao = bruto2;
   if (!acao && envio && /^\d$/.test(t)) {
-    const { data: ultima } = await db.from("mensagens_whatsapp").select("conteudo").eq("conversa_id", input.conversaId)
-      .eq("direcao", "saida").order("criado_em", { ascending: false }).limit(1).maybeSingle();
-    if (ultima?.conteudo && ultima.conteudo === envio.conteudo) acao = envio.acoes?.[Number(t) - 1] ?? null;
+    const { data: ultima } = await db
+      .from("mensagens_whatsapp")
+      .select("conteudo")
+      .eq("conversa_id", input.conversaId)
+      .eq("direcao", "saida")
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (ultima?.conteudo && ultima.conteudo === envio.conteudo)
+      acao = envio.acoes?.[Number(t) - 1] ?? null;
   }
   if (!acao) {
     if (["confirmar", "confirmo", "confirmado", "confirma"].includes(t)) acao = "CORTAI_CONFIRMAR";
-    else if (/^(cheguei|to aqui|estou aqui|ja cheguei|cheguei aqui)$/.test(t)) acao = "CORTAI_CHEGUEI";
+    else if (/^(cheguei|to aqui|estou aqui|ja cheguei|cheguei aqui)$/.test(t))
+      acao = "CORTAI_CHEGUEI";
     else if (/^(cancelar|cancela|quero cancelar)$/.test(t)) acao = "CORTAI_CANCELAR";
     if (acao && !acoesPossiveis.has(acao)) acao = null;
   }
@@ -163,9 +197,12 @@ export async function tratarRespostaDeLembrete(input: {
     const ids = abertas.map((e) => e.agendamento_id).filter(Boolean) as string[];
     const { data: ags } = await db.from("agendamentos").select("id, inicio").in("id", ids);
     const inicioDe = new Map((ags ?? []).map((a) => [a.id, a.inicio as string]));
-    await db.from("conversas_whatsapp").update({
-      contexto: { ...ctx, escolherNotificacao: { ids: abertas.map((e) => e.id), acao } } as never,
-    }).eq("id", input.conversaId);
+    await db
+      .from("conversas_whatsapp")
+      .update({
+        contexto: { ...ctx, escolherNotificacao: { ids: abertas.map((e) => e.id), acao } } as never,
+      })
+      .eq("id", input.conversaId);
     return {
       texto: [
         "Você tem mais de um horário. A qual deles se refere?",
@@ -198,9 +235,15 @@ export async function tratarRespostaDeLembrete(input: {
     .gt("valido_ate", agoraIso)
     .select("id")
     .maybeSingle();
-  if (!respondido) return { texto: "Essa ação não está mais disponível. Abra o Cortaí para ver seu horário atualizado." };
+  if (!respondido)
+    return {
+      texto: "Essa ação não está mais disponível. Abra o Cortaí para ver seu horário atualizado.",
+    };
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
-  await db.from("conversas_whatsapp").update({ contexto: resto as never }).eq("id", input.conversaId);
+  await db
+    .from("conversas_whatsapp")
+    .update({ contexto: resto as never })
+    .eq("id", input.conversaId);
 
   const agendamentoId = envio.agendamento_id;
   const { data: ag } = await db
@@ -224,7 +267,10 @@ export async function tratarRespostaDeLembrete(input: {
 
   switch (acao) {
     case "CORTAI_CONFIRMAR": {
-      const { data } = await db.rpc("confirmar_presenca_whatsapp" as never, { _agendamento_id: ag.id } as never);
+      const { data } = await db.rpc(
+        "confirmar_presenca_whatsapp" as never,
+        { _agendamento_id: ag.id } as never,
+      );
       const r = (data ?? {}) as { ok?: boolean };
       await registrar("lembrete_confirmar", Boolean(r.ok));
       if (r.ok) {
@@ -233,20 +279,30 @@ export async function tratarRespostaDeLembrete(input: {
         await avisarEquipeDaConfirmacao(ag.id);
       }
       return r.ok
-        ? { texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.` }
+        ? {
+            texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.`,
+          }
         : { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
     }
     case "CORTAI_CHEGUEI": {
-      const { data } = await db.rpc("checkin_whatsapp" as never, { _agendamento_id: ag.id } as never);
+      const { data } = await db.rpc(
+        "checkin_whatsapp" as never,
+        { _agendamento_id: ag.id } as never,
+      );
       const r = (data ?? {}) as { ok?: boolean; motivo?: string };
       await registrar("lembrete_cheguei", Boolean(r.ok), r.ok ? undefined : r.motivo);
       if (r.ok) return { texto: "Check-in feito ✅ Já avisamos que você chegou." };
       if (r.motivo === "cedo") {
         const abre = new Date(new Date(ag.inicio).getTime() - 30 * 60_000).toISOString();
-        return { texto: `Ainda está cedo para o check-in. Ele abre às ${hora(abre, fuso)}, 30 minutos antes do seu horário.` };
+        return {
+          texto: `Ainda está cedo para o check-in. Ele abre às ${hora(abre, fuso)}, 30 minutos antes do seu horário.`,
+        };
       }
       if (r.motivo === "tarde") {
-        return { texto: "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor." };
+        return {
+          texto:
+            "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor.",
+        };
       }
       return { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
     }
@@ -255,13 +311,20 @@ export async function tratarRespostaDeLembrete(input: {
       await registrar("lembrete_cancelar", !error, error?.message);
       if (error) {
         return error.message.includes("encerrado")
-            ? { texto: "Esse horário já estava cancelado." }
-          : { texto: "Não foi possível cancelar por aqui. Abra o Cortaí para gerenciar seu horário." };
+          ? { texto: "Esse horário já estava cancelado." }
+          : {
+              texto:
+                "Não foi possível cancelar por aqui. Abra o Cortaí para gerenciar seu horário.",
+            };
       }
       // Libera o horário (já livre no banco), avisa a lista de espera e envia a confirmação.
       const { notificarAgendamento } = await import("./notificacoes.server");
       const aviso = await notificarAgendamento(ag.id, "cancelamento");
-      return { texto: aviso.enviado ? "" : "Cancelado ✅ Quando quiser voltar, abra o Cortaí para agendar." };
+      return {
+        texto: aviso.enviado
+          ? ""
+          : "Cancelado ✅ Quando quiser voltar, abra o Cortaí para agendar.",
+      };
     }
     case "CORTAI_REMARCAR": {
       await registrar("lembrete_remarcar", true);
@@ -326,7 +389,9 @@ export async function avisarListaDeEspera(agendamentoId: string) {
     .order("posicao", { ascending: true })
     .order("criado_em", { ascending: true })
     .limit(20);
-  const alvo = (fila ?? []).find((f) => !f.profissional_id || f.profissional_id === ag.profissional_id);
+  const alvo = (fila ?? []).find(
+    (f) => !f.profissional_id || f.profissional_id === ag.profissional_id,
+  );
   if (!alvo) return;
 
   // Marca antes de enviar: dois cancelamentos simultâneos não avisam a mesma pessoa.
@@ -389,7 +454,12 @@ export async function avisarListaDeEspera(agendamentoId: string) {
  * último atendimento finalizado + intervalo médio (30 dias com pouco histórico),
  * sem nenhum horário depois dele, com consentimento de WhatsApp.
  */
-export type AtendimentoParaRetorno = { id: string; inicio: number; status: string; retornoDias: number | null };
+export type AtendimentoParaRetorno = {
+  id: string;
+  inicio: number;
+  status: string;
+  retornoDias: number | null;
+};
 
 const DIA_MS = 24 * 3600_000;
 
@@ -409,16 +479,22 @@ export function prazoDeRetornoMs(finalizados: AtendimentoParaRetorno[]): number 
 }
 
 /** Regra pura: último atendimento finalizado, sem horário depois, dentro da janela do prazo. */
-export function selecionarCandidatosAoRetorno(porCliente: Iterable<AtendimentoParaRetorno[]>, agora: number, jaAvisados: Set<string> = new Set()): string[] {
+export function selecionarCandidatosAoRetorno(
+  porCliente: Iterable<AtendimentoParaRetorno[]>,
+  agora: number,
+  jaAvisados: Set<string> = new Set(),
+): string[] {
   const candidatos: string[] = [];
   for (const lista of porCliente) {
     const ordenada = [...lista].sort((a, b) => a.inicio - b.inicio);
     const ultimo = ordenada[ordenada.length - 1];
     if (!ultimo || ultimo.status !== "finalizado") continue; // já tem horário marcado depois
     if (jaAvisados.has(ultimo.id)) continue; // um aviso por atendimento
-    const sugerido = ultimo.inicio + prazoDeRetornoMs(ordenada.filter((a) => a.status === "finalizado"));
+    const sugerido =
+      ultimo.inicio + prazoDeRetornoMs(ordenada.filter((a) => a.status === "finalizado"));
     // Janela: 2 dias antes até 5 dias depois da data sugerida.
-    if (agora >= sugerido - 2 * DIA_MS && agora <= sugerido + 5 * DIA_MS) candidatos.push(ultimo.id);
+    if (agora >= sugerido - 2 * DIA_MS && agora <= sugerido + 5 * DIA_MS)
+      candidatos.push(ultimo.id);
   }
   return candidatos;
 }
@@ -428,7 +504,9 @@ export async function candidatosAoRetorno(agora = new Date()): Promise<string[]>
   const desde = new Date(agora.getTime() - 400 * DIA_MS).toISOString();
   const { data } = await db
     .from("agendamentos")
-    .select("id, cliente_id, inicio, status, servicos(retorno_dias), clientes!inner(opt_in_whatsapp, arquivado_em)")
+    .select(
+      "id, cliente_id, inicio, status, servicos(retorno_dias), clientes!inner(opt_in_whatsapp, arquivado_em)",
+    )
     .gte("inicio", desde)
     .not("status", "in", "(cancelado,nao_compareceu,remarcado,falta)")
     .eq("clientes.opt_in_whatsapp", true)
@@ -440,8 +518,14 @@ export async function candidatosAoRetorno(agora = new Date()): Promise<string[]>
   for (const a of data ?? []) {
     if (!a.cliente_id) continue;
     const lista = porCliente.get(a.cliente_id) ?? [];
-    const retornoDias = ((a as { servicos?: { retorno_dias: number | null } | null }).servicos?.retorno_dias) ?? null;
-    lista.push({ id: a.id, inicio: new Date(a.inicio).getTime(), status: String(a.status), retornoDias });
+    const retornoDias =
+      (a as { servicos?: { retorno_dias: number | null } | null }).servicos?.retorno_dias ?? null;
+    lista.push({
+      id: a.id,
+      inicio: new Date(a.inicio).getTime(),
+      status: String(a.status),
+      retornoDias,
+    });
     porCliente.set(a.cliente_id, lista);
   }
 

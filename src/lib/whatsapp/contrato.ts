@@ -115,7 +115,15 @@ export type ConfiguracaoDoAtendimento = {
   situacoesDesligadas: string[];
 };
 
-export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
+export const DIAS_DA_SEMANA = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+] as const;
 
 /**
  * Saudação padrão do CortAI: usada quando o negócio ativou a saudação

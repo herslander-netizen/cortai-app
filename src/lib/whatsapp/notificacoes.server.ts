@@ -177,9 +177,15 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       linha(d.endereco, "📍 "),
     );
   } else if (tipo === "pos_atendimento") {
-    blocos.push(`Obrigado por escolher ${d.barbearia}, ${nome}.`, "Esperamos que tenha gostado da experiência.");
+    blocos.push(
+      `Obrigado por escolher ${d.barbearia}, ${nome}.`,
+      "Esperamos que tenha gostado da experiência.",
+    );
   } else if (tipo === "convite_avaliacao") {
-    blocos.push(`Olá, ${nome}. Como foi sua experiência?`, d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null);
+    blocos.push(
+      `Olá, ${nome}. Como foi sua experiência?`,
+      d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null,
+    );
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
@@ -377,7 +383,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
-  if (["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) && cliente?.opt_in_whatsapp !== true) {
+  if (
+    ["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) &&
+    cliente?.opt_in_whatsapp !== true
+  ) {
     return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
   }
 

@@ -30,7 +30,11 @@ export async function criarConviteDeAvaliacao(agendamentoId: string) {
     .maybeSingle();
   if (existente?.usado_em) return null;
   if (existente) {
-    const { error } = await db.from("convites_de_avaliacao").delete().eq("id", existente.id).is("usado_em", null);
+    const { error } = await db
+      .from("convites_de_avaliacao")
+      .delete()
+      .eq("id", existente.id)
+      .is("usado_em", null);
     if (error) throw new Error(error.message);
   }
 
@@ -63,10 +67,13 @@ export const getConviteDeAvaliacao = createServerFn({ method: "GET" })
     const tokenHash = await hashToken(data.token);
     const { data: convite } = await db
       .from("convites_de_avaliacao")
-      .select("agendamento_id, expira_em, usado_em, agendamentos(status, servicos(nome), tenants(nome, link_avaliacao_publica))")
+      .select(
+        "agendamento_id, expira_em, usado_em, agendamentos(status, servicos(nome), tenants(nome, link_avaliacao_publica))",
+      )
       .eq("token_hash", tokenHash)
       .maybeSingle();
-    if (!convite || convite.usado_em || new Date(convite.expira_em).getTime() <= Date.now()) return null;
+    if (!convite || convite.usado_em || new Date(convite.expira_em).getTime() <= Date.now())
+      return null;
     const ag = convite.agendamentos as unknown as {
       status: string;
       servicos: { nome: string } | null;
@@ -93,7 +100,9 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
     const agora = new Date().toISOString();
     const { data: convite } = await db
       .from("convites_de_avaliacao")
-      .select("id, tenant_id, agendamento_id, expira_em, usado_em, agendamentos(status, cliente_id, profissional_id), tenants(link_avaliacao_publica)")
+      .select(
+        "id, tenant_id, agendamento_id, expira_em, usado_em, agendamentos(status, cliente_id, profissional_id), tenants(link_avaliacao_publica)",
+      )
       .eq("token_hash", tokenHash)
       .maybeSingle();
     if (!convite || convite.usado_em || new Date(convite.expira_em).getTime() <= Date.now()) {
@@ -104,7 +113,8 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
       cliente_id: string | null;
       profissional_id: string | null;
     } | null;
-    if (!ag || ag.status !== "finalizado") throw new Error("Atendimento não elegível para avaliação.");
+    if (!ag || ag.status !== "finalizado")
+      throw new Error("Atendimento não elegível para avaliação.");
 
     const { error } = await db.from("avaliacoes").insert({
       tenant_id: convite.tenant_id,
@@ -124,12 +134,16 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
       .eq("id", convite.id)
       .is("usado_em", null);
 
-    if (data.nota <= 2 || Object.values(data.dimensoes ?? {}).some((nota) => typeof nota === "number" && nota <= 2)) {
+    if (
+      data.nota <= 2 ||
+      Object.values(data.dimensoes ?? {}).some((nota) => typeof nota === "number" && nota <= 2)
+    ) {
       await db.rpc("criar_notificacao", {
         _tenant: convite.tenant_id,
         _tipo: "avaliacao",
         _titulo: "Experiência precisa de atenção",
-        _corpo: "Uma avaliação recente recebeu nota baixa. Consulte o relato antes do próximo contato.",
+        _corpo:
+          "Uma avaliação recente recebeu nota baixa. Consulte o relato antes do próximo contato.",
         _link: "/barbeiro/avaliacoes",
       });
     }
@@ -138,6 +152,6 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
     return {
       ok: true,
       positiva: data.nota >= 4,
-      linkPublico: data.nota >= 4 ? tenant?.link_avaliacao_publica ?? null : null,
+      linkPublico: data.nota >= 4 ? (tenant?.link_avaliacao_publica ?? null) : null,
     };
   });

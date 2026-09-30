@@ -6,7 +6,10 @@ import { Star } from "lucide-react";
 
 import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
-import { getConviteDeAvaliacao, registrarAvaliacaoPublica } from "@/lib/avaliacoes-publicas.functions";
+import {
+  getConviteDeAvaliacao,
+  registrarAvaliacaoPublica,
+} from "@/lib/avaliacoes-publicas.functions";
 
 export const Route = createFileRoute("/avaliar/$token")({
   ssr: false,
@@ -27,7 +30,15 @@ const DIMENSOES = [
   ["experiencia", "Experiência com o negócio"],
 ] as const;
 
-function Estrelas({ valor, aoMudar, rotulo }: { valor: number; aoMudar: (nota: number) => void; rotulo: string }) {
+function Estrelas({
+  valor,
+  aoMudar,
+  rotulo,
+}: {
+  valor: number;
+  aoMudar: (nota: number) => void;
+  rotulo: string;
+}) {
   return (
     <div className="flex gap-1" role="radiogroup" aria-label={rotulo}>
       {[1, 2, 3, 4, 5].map((nota) => (
@@ -40,7 +51,10 @@ function Estrelas({ valor, aoMudar, rotulo }: { valor: number; aoMudar: (nota: n
           onClick={() => aoMudar(nota)}
           className="flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-cyan-400"
         >
-          <Star size={26} className={nota <= valor ? "fill-cyan-400 text-cyan-400" : "text-mute2"} />
+          <Star
+            size={26}
+            className={nota <= valor ? "fill-cyan-400 text-cyan-400" : "text-mute2"}
+          />
         </button>
       ))}
     </div>
@@ -50,7 +64,10 @@ function Estrelas({ valor, aoMudar, rotulo }: { valor: number; aoMudar: (nota: n
 function AvaliacaoPage() {
   const { token } = Route.useParams();
   const registrar = useServerFn(registrarAvaliacaoPublica);
-  const convite = useQuery({ queryKey: ["convite-avaliacao", token], queryFn: () => getConviteDeAvaliacao({ data: { token } }) });
+  const convite = useQuery({
+    queryKey: ["convite-avaliacao", token],
+    queryFn: () => getConviteDeAvaliacao({ data: { token } }),
+  });
   const [nota, setNota] = useState(0);
   const [comentario, setComentario] = useState("");
   const [dimensoes, setDimensoes] = useState<Record<string, number>>({});
@@ -70,7 +87,12 @@ function AvaliacaoPage() {
             : "Seu feedback foi registrado e será considerado pela equipe."}
         </p>
         {envio.data.linkPublico ? (
-          <a className="btn-primary mt-7 py-3" href={envio.data.linkPublico} target="_blank" rel="noreferrer">
+          <a
+            className="btn-primary mt-7 py-3"
+            href={envio.data.linkPublico}
+            target="_blank"
+            rel="noreferrer"
+          >
             Compartilhar experiência publicamente
           </a>
         ) : null}
@@ -81,7 +103,9 @@ function AvaliacaoPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-6 pb-10 pt-12">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-400">{convite.data.negocio}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-400">
+        {convite.data.negocio}
+      </p>
       <h1 className="mt-3 text-3xl font-bold text-paper">Como foi sua experiência?</h1>
       <p className="mt-2 text-sm text-mute">{convite.data.servico} · leva menos de um minuto.</p>
 
@@ -94,13 +118,21 @@ function AvaliacaoPage() {
       >
         <section className="surface p-5">
           <h2 className="text-sm font-semibold text-paper">Nota geral</h2>
-          <div className="mt-3"><Estrelas valor={nota} aoMudar={setNota} rotulo="Nota geral" /></div>
+          <div className="mt-3">
+            <Estrelas valor={nota} aoMudar={setNota} rotulo="Nota geral" />
+          </div>
         </section>
         <section className="surface divide-y divide-line px-5">
           {DIMENSOES.map(([chave, rotulo]) => (
             <div key={chave} className="py-4">
-              <p className="text-sm text-paper">{rotulo} <span className="text-mute2">(opcional)</span></p>
-              <Estrelas valor={dimensoes[chave] ?? 0} aoMudar={(valor) => setDimensoes((atual) => ({ ...atual, [chave]: valor }))} rotulo={rotulo} />
+              <p className="text-sm text-paper">
+                {rotulo} <span className="text-mute2">(opcional)</span>
+              </p>
+              <Estrelas
+                valor={dimensoes[chave] ?? 0}
+                aoMudar={(valor) => setDimensoes((atual) => ({ ...atual, [chave]: valor }))}
+                rotulo={rotulo}
+              />
             </div>
           ))}
         </section>
@@ -117,7 +149,11 @@ function AvaliacaoPage() {
         <button className="btn-primary min-h-12 w-full" disabled={!nota || envio.isPending}>
           {envio.isPending ? "Enviando…" : "Enviar avaliação"}
         </button>
-        {envio.isError ? <p className="text-sm text-brick" role="alert">{envio.error.message}</p> : null}
+        {envio.isError ? (
+          <p className="text-sm text-brick" role="alert">
+            {envio.error.message}
+          </p>
+        ) : null}
       </form>
       <Signature />
     </main>

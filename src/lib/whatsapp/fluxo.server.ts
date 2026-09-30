@@ -7,7 +7,11 @@ import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
  *
  * Idempotência: a mesma entrega (mesmo id externo) nunca é processada duas vezes.
  */
-import { CONFIGURACAO_PADRAO, type ConfiguracaoDoAtendimento, type TomDoAtendimento } from "./contrato";
+import {
+  CONFIGURACAO_PADRAO,
+  type ConfiguracaoDoAtendimento,
+  type TomDoAtendimento,
+} from "./contrato";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -21,7 +25,10 @@ function somenteDigitos(telefone: string) {
 /** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
 async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
   const db = await admin();
-  const { data, error } = await db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenantId, _chave: "cortai_whatsapp" });
+  const { data, error } = await db.rpc("recurso_do_tenant_ativo", {
+    _tenant_id: tenantId,
+    _chave: "cortai_whatsapp",
+  });
   if (error) return true;
   return data !== false;
 }
@@ -39,12 +46,17 @@ async function barbeariaDoNumeroCompartilhado(
   const { decidirBarbearia } = await import("./multi-barbearia");
 
   // Opções: barbearias ativas que compartilham o número oficial.
-  const { data: conexoes } = await db.from("conexoes_whatsapp").select("tenant_id").eq("compartilhada", true);
+  const { data: conexoes } = await db
+    .from("conexoes_whatsapp")
+    .select("tenant_id")
+    .eq("compartilhada", true);
   const idsCompartilhados = [...new Set((conexoes ?? []).map((c) => c.tenant_id))];
   const { data: tenants } = idsCompartilhados.length
     ? await db.from("tenants").select("id, nome, ativo").in("id", idsCompartilhados).order("nome")
     : { data: [] as { id: string; nome: string; ativo: boolean | null }[] };
-  const opcoes = (tenants ?? []).filter((t) => t.ativo !== false).map((t) => ({ id: t.id, nome: t.nome }));
+  const opcoes = (tenants ?? [])
+    .filter((t) => t.ativo !== false)
+    .map((t) => ({ id: t.id, nome: t.nome }));
 
   const { data: ctx } = await db
     .from("whatsapp_contexto_numero")
@@ -55,7 +67,9 @@ async function barbeariaDoNumeroCompartilhado(
   let porNotificacao: string | null = null;
   const idNoBotao = texto.trim().match(/^CORTAI_[A-Z_]+:([0-9a-fA-F-]{36})$/)?.[1];
   if (idNoBotao || citadaId) {
-    const q = db.from("envios_de_whatsapp").select("tenant_id, telefone, aguarda_resposta, respondido_em, valido_ate");
+    const q = db
+      .from("envios_de_whatsapp")
+      .select("tenant_id, telefone, aguarda_resposta, respondido_em, valido_ate");
     const { data } = idNoBotao
       ? await q.eq("id", idNoBotao.toLowerCase()).maybeSingle()
       : await q.eq("mensagem_externa_id", citadaId!).maybeSingle();
@@ -89,7 +103,10 @@ async function barbeariaDoNumeroCompartilhado(
       .from("whatsapp_contexto_numero")
       .upsert({ telefone, tenant_id: d.tenantId, aguardando_escolha: false, atualizado_em: agora });
     if (error) throw new Error(error.message);
-    console.info("[whatsapp/multi] barbearia selecionada", { telefone: telefone.slice(-4), tenant: d.tenantId });
+    console.info("[whatsapp/multi] barbearia selecionada", {
+      telefone: telefone.slice(-4),
+      tenant: d.tenantId,
+    });
   }
   return { tenantId: d.tenantId };
 }
@@ -110,7 +127,15 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     db.from("config_atendimento_ia").select("*").eq("tenant_id", tenantId).maybeSingle(),
     db.from("tenants").select("segmento").eq("id", tenantId).maybeSingle(),
   ]);
-  const segmento = tenant?.segmento === "barbearia" || tenant?.segmento === "salao" || tenant?.segmento === "cabeleireiro" || tenant?.segmento === "esmalteria" || tenant?.segmento === "sobrancelha_cilios" || tenant?.segmento === "estetica" ? tenant.segmento : "outro";
+  const segmento =
+    tenant?.segmento === "barbearia" ||
+    tenant?.segmento === "salao" ||
+    tenant?.segmento === "cabeleireiro" ||
+    tenant?.segmento === "esmalteria" ||
+    tenant?.segmento === "sobrancelha_cilios" ||
+    tenant?.segmento === "estetica"
+      ? tenant.segmento
+      : "outro";
   if (!data) return { ...CONFIGURACAO_PADRAO, segmento };
   return {
     segmento,
@@ -136,7 +161,9 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     pagamentoAntecipado: data.pagamento_antecipado ?? false,
     linkPagamento: data.link_pagamento ?? "",
     textosConversa:
-      data.textos_conversa && typeof data.textos_conversa === "object" && !Array.isArray(data.textos_conversa)
+      data.textos_conversa &&
+      typeof data.textos_conversa === "object" &&
+      !Array.isArray(data.textos_conversa)
         ? (data.textos_conversa as Record<string, string>)
         : {},
     situacoesDesligadas: (data.situacoes_desligadas as string[] | null) ?? [],
@@ -227,7 +254,11 @@ export async function enviarPelaBarbearia(input: {
   const { gatewayDeWhatsapp } = await import("./gateway.server");
 
   // Fora da janela de 24h, o canal oficial só aceita template aprovado.
-  if (input.iniciadaPelaBarbearia && gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela && !input.modelo) {
+  if (
+    input.iniciadaPelaBarbearia &&
+    gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela &&
+    !input.modelo
+  ) {
     const { data: ultima } = await db
       .from("mensagens_whatsapp")
       .select("criado_em")
@@ -248,11 +279,16 @@ export async function enviarPelaBarbearia(input: {
     // Modelo ainda em análise ou recusado: tenta o texto livre (a Meta só aceita dentro da janela de 24h).
     const viaModelo = input.modelo
       ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo).catch((e) => {
-          console.warn("[whatsapp] modelo recusado, tentando texto livre:", e instanceof Error ? e.message : e);
+          console.warn(
+            "[whatsapp] modelo recusado, tentando texto livre:",
+            e instanceof Error ? e.message : e,
+          );
           return null;
         })
       : null;
-    const r = viaModelo ?? (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
+    const r =
+      viaModelo ??
+      (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";
@@ -283,10 +319,13 @@ export async function enviarPelaBarbearia(input: {
   return { externoId };
 }
 
-
-
 /** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
-async function vincularCliente(tenantId: string, conversaId: string, telefone: string, atual: string | null) {
+async function vincularCliente(
+  tenantId: string,
+  conversaId: string,
+  telefone: string,
+  atual: string | null,
+) {
   if (atual) return atual;
   const db = await admin();
   const { data } = await db
@@ -332,7 +371,11 @@ export async function processarMensagemRecebida(input: {
   const telefone = somenteDigitos(input.telefone);
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
-    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "", input.citadaId ?? null);
+    const r = await barbeariaDoNumeroCompartilhado(
+      telefone,
+      input.tipo === "text" ? input.conteudo : "",
+      input.citadaId ?? null,
+    );
     if ("semContexto" in r) {
       const { gatewayDeWhatsapp } = await import("./gateway.server");
       const conversa = await conversaDoTelefone({
@@ -353,11 +396,13 @@ export async function processarMensagemRecebida(input: {
         midia_url: input.midiaUrl ?? null,
         status: "recebida",
       });
-      await gatewayDeWhatsapp.enviarMensagem(
-        input.sessaoId,
-        telefone,
-        "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
-      ).catch(() => undefined);
+      await gatewayDeWhatsapp
+        .enviarMensagem(
+          input.sessaoId,
+          telefone,
+          "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
+        )
+        .catch(() => undefined);
       return { tratada: true, motivo: "sem_contexto_transacional" };
     }
     tenantId = r.tenantId;
@@ -450,7 +495,10 @@ export async function processarMensagemRecebida(input: {
       porIa: false,
     }).catch(() => undefined);
   }
-  return { tratada: true, motivo: jaOrientado ? "fallback_ja_enviado" : "fallback_informativo_whatsapp" };
+  return {
+    tratada: true,
+    motivo: jaOrientado ? "fallback_ja_enviado" : "fallback_informativo_whatsapp",
+  };
 }
 
 /** Atualiza o estado da conexão a partir de um aviso do gateway. */
@@ -474,8 +522,8 @@ export async function atualizarEstadoDaConexao(
     .from("conexoes_whatsapp")
     .update({
       status,
-      qr_code: status === "qr_pronto" ? estado.qrCode ?? null : null,
-      qr_expira_em: status === "qr_pronto" ? estado.qrExpiraEm ?? null : null,
+      qr_code: status === "qr_pronto" ? (estado.qrCode ?? null) : null,
+      qr_expira_em: status === "qr_pronto" ? (estado.qrExpiraEm ?? null) : null,
       ...(estado.numero ? { numero: estado.numero } : {}),
       ...(estado.nomeExibicao ? { nome_exibicao: estado.nomeExibicao } : {}),
       ultimo_erro: estado.erro ?? null,

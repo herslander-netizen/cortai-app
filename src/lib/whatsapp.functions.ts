@@ -71,7 +71,9 @@ export const listarEnviosDaSecretaria = createServerFn({ method: "GET" })
     const db = await admin();
     const { data, error } = await db
       .from("envios_de_whatsapp")
-      .select("id, tipo, status, telefone, conteudo, tentativas, criado_em, enviado_em, respondido_em, erro")
+      .select(
+        "id, tipo, status, telefone, conteudo, tentativas, criado_em, enviado_em, respondido_em, erro",
+      )
       .eq("tenant_id", tenantId)
       .order("criado_em", { ascending: false })
       .limit(100);
@@ -109,13 +111,19 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
-    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } = await import(
-      "@/lib/whatsapp/gateway.server"
-    );
+    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } =
+      await import("@/lib/whatsapp/gateway.server");
     const { iaConfigurada } = await import("@/lib/whatsapp/atendimento.server");
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
-    const [{ data: conexao }, configuracao, { data: automacoes }, ativas, humanas, { data: podeGerenciarWhatsapp }] = await Promise.all([
+    const [
+      { data: conexao },
+      configuracao,
+      { data: automacoes },
+      ativas,
+      humanas,
+      { data: podeGerenciarWhatsapp },
+    ] = await Promise.all([
       db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId).maybeSingle(),
       configuracaoDoTenant(tenantId),
       db.from("automacoes_de_ia").select("chave, ativa, mensagem").eq("tenant_id", tenantId),
@@ -180,9 +188,8 @@ export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
     const db = await admin();
-    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } = await import(
-      "@/lib/whatsapp/gateway.server"
-    );
+    const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } =
+      await import("@/lib/whatsapp/gateway.server");
     const provedor = provedorDoGateway();
 
     const { data: linha } = await db
@@ -313,9 +320,8 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
-    const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } = await import(
-      "@/lib/whatsapp/gateway.server"
-    );
+    const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
+      await import("@/lib/whatsapp/gateway.server");
     if (!gatewayConfigurado()) {
       return {
         status: "desconectado",
@@ -343,7 +349,10 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
       return { status: estado.status === "desconectado" ? "pendente" : estado.status, aviso: null };
     } catch (erro) {
       const mensagem = erro instanceof Error ? erro.message : "Falha ao conectar.";
-      await db.from("conexoes_whatsapp").update({ status: "erro", ultimo_erro: mensagem }).eq("id", sessao.id);
+      await db
+        .from("conexoes_whatsapp")
+        .update({ status: "erro", ultimo_erro: mensagem })
+        .eq("id", sessao.id);
       return { status: "erro", aviso: mensagem };
     }
   });
@@ -351,33 +360,40 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
 /** Busca o QR atual direto no serviço (usado pelo botão "Gerar novo QR Code"). */
 export const atualizarQrCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
-    const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
-    if (!gatewayConfigurado()) return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
-    const sessao = await sessaoDoTenant(tenantId);
-    const db = await admin();
-    try {
-      const estado = await gatewayDeWhatsapp.obterQrCode(sessao.sessao_id);
-      const { data } = await db
-        .from("conexoes_whatsapp")
-        .update({
-          status: estado.status,
-          qr_code: estado.qrCode ?? null,
-          qr_expira_em: estado.qrExpiraEm ?? null,
-          numero: estado.numero ?? null,
-          nome_exibicao: estado.nomeExibicao ?? null,
-          ultimo_erro: null,
-        })
-        .eq("id", sessao.id)
-        .select("*")
-        .single();
-      return { conexao: conexaoDaLinha(data), aviso: null };
-    } catch (erro) {
-      return { conexao: null, aviso: erro instanceof Error ? erro.message : "Não foi possível obter o QR Code." };
-    }
-  });
+  .handler(
+    async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+      const { gatewayConfigurado, gatewayDeWhatsapp } =
+        await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado())
+        return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
+      const sessao = await sessaoDoTenant(tenantId);
+      const db = await admin();
+      try {
+        const estado = await gatewayDeWhatsapp.obterQrCode(sessao.sessao_id);
+        const { data } = await db
+          .from("conexoes_whatsapp")
+          .update({
+            status: estado.status,
+            qr_code: estado.qrCode ?? null,
+            qr_expira_em: estado.qrExpiraEm ?? null,
+            numero: estado.numero ?? null,
+            nome_exibicao: estado.nomeExibicao ?? null,
+            ultimo_erro: null,
+          })
+          .eq("id", sessao.id)
+          .select("*")
+          .single();
+        return { conexao: conexaoDaLinha(data), aviso: null };
+      } catch (erro) {
+        return {
+          conexao: null,
+          aviso: erro instanceof Error ? erro.message : "Não foi possível obter o QR Code.",
+        };
+      }
+    },
+  );
 
 export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -385,7 +401,8 @@ export const reconectarWhatsapp = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
     const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
-    if (!gatewayConfigurado()) return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
+    if (!gatewayConfigurado())
+      return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
     const sessao = await sessaoDoTenant(tenantId);
     const db = await admin();
     try {
@@ -396,7 +413,10 @@ export const reconectarWhatsapp = createServerFn({ method: "POST" })
         .eq("id", sessao.id);
       return { status: estado.status, aviso: null };
     } catch (erro) {
-      return { status: "erro", aviso: erro instanceof Error ? erro.message : "Não foi possível reconectar." };
+      return {
+        status: "erro",
+        aviso: erro instanceof Error ? erro.message : "Não foi possível reconectar.",
+      };
     }
   });
 
@@ -443,44 +463,51 @@ export const desconectarWhatsapp = createServerFn({ method: "POST" })
  */
 export const sincronizarConexao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
-    const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
-    if (!gatewayConfigurado()) return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
-    const db = await admin();
-    const { data: atual } = await db
-      .from("conexoes_whatsapp")
-      .select("*")
-      .eq("tenant_id", tenantId)
-      .maybeSingle();
-    // Sem sessão criada ainda não há nada para consultar — evita chamada inútil.
-    if (!atual) return { conexao: null, aviso: null };
-    try {
-      const estado = await gatewayDeWhatsapp.consultarStatus(atual.sessao_id);
-      const conectou = estado.status === "conectado";
-      const { data } = await db
+  .handler(
+    async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+      const { gatewayConfigurado, gatewayDeWhatsapp } =
+        await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado())
+        return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
+      const db = await admin();
+      const { data: atual } = await db
         .from("conexoes_whatsapp")
-        .update({
-          status: estado.status,
-          qr_code: conectou ? null : (estado.qrCode ?? atual.qr_code),
-          qr_expira_em: conectou ? null : (estado.qrExpiraEm ?? atual.qr_expira_em),
-          numero: estado.numero ?? atual.numero,
-          nome_exibicao: estado.nomeExibicao ?? atual.nome_exibicao,
-          conectado_em: conectou ? (atual.conectado_em ?? new Date().toISOString()) : atual.conectado_em,
-          ultimo_erro: estado.erro ?? null,
-        })
-        .eq("id", atual.id)
         .select("*")
-        .single();
-      return { conexao: conexaoDaLinha(data), aviso: null };
-    } catch (erro) {
-      return {
-        conexao: conexaoDaLinha(atual),
-        aviso: erro instanceof Error ? erro.message : "Não foi possível consultar o serviço agora.",
-      };
-    }
-  });
+        .eq("tenant_id", tenantId)
+        .maybeSingle();
+      // Sem sessão criada ainda não há nada para consultar — evita chamada inútil.
+      if (!atual) return { conexao: null, aviso: null };
+      try {
+        const estado = await gatewayDeWhatsapp.consultarStatus(atual.sessao_id);
+        const conectou = estado.status === "conectado";
+        const { data } = await db
+          .from("conexoes_whatsapp")
+          .update({
+            status: estado.status,
+            qr_code: conectou ? null : (estado.qrCode ?? atual.qr_code),
+            qr_expira_em: conectou ? null : (estado.qrExpiraEm ?? atual.qr_expira_em),
+            numero: estado.numero ?? atual.numero,
+            nome_exibicao: estado.nomeExibicao ?? atual.nome_exibicao,
+            conectado_em: conectou
+              ? (atual.conectado_em ?? new Date().toISOString())
+              : atual.conectado_em,
+            ultimo_erro: estado.erro ?? null,
+          })
+          .eq("id", atual.id)
+          .select("*")
+          .single();
+        return { conexao: conexaoDaLinha(data), aviso: null };
+      } catch (erro) {
+        return {
+          conexao: conexaoDaLinha(atual),
+          aviso:
+            erro instanceof Error ? erro.message : "Não foi possível consultar o serviço agora.",
+        };
+      }
+    },
+  );
 
 /* ------------------------------ Conversas -------------------------------- */
 
@@ -490,7 +517,15 @@ export const listarConversas = createServerFn({ method: "GET" })
     z
       .object({
         filtro: z
-          .enum(["todas", "cortai", "humano", "nao_lidas", "recebidas", "falhas", "aguardando_resposta"])
+          .enum([
+            "todas",
+            "cortai",
+            "humano",
+            "nao_lidas",
+            "recebidas",
+            "falhas",
+            "aguardando_resposta",
+          ])
           .default("todas"),
       })
       .parse(input ?? {}),
@@ -501,19 +536,27 @@ export const listarConversas = createServerFn({ method: "GET" })
     const db = await admin();
     let consulta = db
       .from("conversas_whatsapp")
-      .select("id, telefone, nome_contato, cliente_id, status, ia_ativa, modo_humano, nao_lidas, ultima_mensagem_em")
+      .select(
+        "id, telefone, nome_contato, cliente_id, status, ia_ativa, modo_humano, nao_lidas, ultima_mensagem_em",
+      )
       .eq("tenant_id", tenantId);
     if (data.filtro === "cortai") consulta = consulta.eq("status", "ativa").eq("ia_ativa", true);
     if (data.filtro === "humano") consulta = consulta.eq("status", "humano");
     if (data.filtro === "nao_lidas") consulta = consulta.gt("nao_lidas", 0);
-    const { data: linhas, error } = await consulta.order("ultima_mensagem_em", { ascending: false }).limit(100);
+    const { data: linhas, error } = await consulta
+      .order("ultima_mensagem_em", { ascending: false })
+      .limit(100);
     if (error) {
       console.error("[whatsapp] listarConversas falhou:", error.message);
       throw new Error("Não foi possível carregar as conversas agora. Tente novamente.");
     }
 
     let filtradas = linhas ?? [];
-    if (data.filtro === "recebidas" || data.filtro === "falhas" || data.filtro === "aguardando_resposta") {
+    if (
+      data.filtro === "recebidas" ||
+      data.filtro === "falhas" ||
+      data.filtro === "aguardando_resposta"
+    ) {
       const ids = filtradas.map((l) => l.id);
       const { data: mensagens } = ids.length
         ? await db
@@ -591,34 +634,38 @@ export type AtendenteDaBarbearia = {
 /** Equipe que pode atender conversas, para o painel de atendentes. */
 export const listarAtendentes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ euSouId: string; tenantId: string; atendentes: AtendenteDaBarbearia[] }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "ver_cortai");
-    const db = await admin();
-    const { data: membros, error } = await db
-      .from("tenant_usuarios")
-      .select("user_id, papel")
-      .eq("tenant_id", tenantId)
-      .eq("ativo", true);
-    if (error) {
-      console.error("[whatsapp] listarAtendentes falhou:", error.message);
-      throw new Error("Não foi possível carregar a equipe agora. Tente novamente.");
-    }
-    const ids = (membros ?? []).map((m) => m.user_id);
-    const { data: perfis } = ids.length
-      ? await db.from("perfis").select("user_id, nome").in("user_id", ids)
-      : { data: [] as { user_id: string; nome: string | null }[] };
-    const nomes = new Map((perfis ?? []).map((p) => [p.user_id, p.nome]));
-    return {
-      euSouId: context.userId,
-      tenantId,
-      atendentes: (membros ?? []).map((m) => ({
-        userId: m.user_id,
-        nome: nomes.get(m.user_id) ?? "Sem nome",
-        papel: m.papel,
-      })),
-    };
-  });
+  .handler(
+    async ({
+      context,
+    }): Promise<{ euSouId: string; tenantId: string; atendentes: AtendenteDaBarbearia[] }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "ver_cortai");
+      const db = await admin();
+      const { data: membros, error } = await db
+        .from("tenant_usuarios")
+        .select("user_id, papel")
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true);
+      if (error) {
+        console.error("[whatsapp] listarAtendentes falhou:", error.message);
+        throw new Error("Não foi possível carregar a equipe agora. Tente novamente.");
+      }
+      const ids = (membros ?? []).map((m) => m.user_id);
+      const { data: perfis } = ids.length
+        ? await db.from("perfis").select("user_id, nome").in("user_id", ids)
+        : { data: [] as { user_id: string; nome: string | null }[] };
+      const nomes = new Map((perfis ?? []).map((p) => [p.user_id, p.nome]));
+      return {
+        euSouId: context.userId,
+        tenantId,
+        atendentes: (membros ?? []).map((m) => ({
+          userId: m.user_id,
+          nome: nomes.get(m.user_id) ?? "Sem nome",
+          papel: m.papel,
+        })),
+      };
+    },
+  );
 
 export const lerConversa = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -629,7 +676,9 @@ export const lerConversa = createServerFn({ method: "GET" })
     const db = await admin();
     const { data: conversa } = await db
       .from("conversas_whatsapp")
-      .select("id, telefone, nome_contato, cliente_id, status, ia_ativa, modo_humano, nao_lidas, ultima_mensagem_em")
+      .select(
+        "id, telefone, nome_contato, cliente_id, status, ia_ativa, modo_humano, nao_lidas, ultima_mensagem_em",
+      )
       .eq("tenant_id", tenantId)
       .eq("id", data.conversaId)
       .maybeSingle();
@@ -643,7 +692,12 @@ export const lerConversa = createServerFn({ method: "GET" })
         .order("criado_em")
         .limit(200),
       conversa.cliente_id
-        ? db.from("clientes").select("id, nome, telefone").eq("id", conversa.cliente_id).maybeSingle().then((r) => r.data)
+        ? db
+            .from("clientes")
+            .select("id, nome, telefone")
+            .eq("id", conversa.cliente_id)
+            .maybeSingle()
+            .then((r) => r.data)
         : Promise.resolve(null),
       conversa.cliente_id
         ? db
@@ -690,11 +744,17 @@ export const lerConversa = createServerFn({ method: "GET" })
 export const definirAtendimentoDaConversa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ conversaId: z.string().uuid(), modo: z.enum(["humano", "cortai", "encerrar"]) }).parse(input),
+    z
+      .object({ conversaId: z.string().uuid(), modo: z.enum(["humano", "cortai", "encerrar"]) })
+      .parse(input),
   )
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, data.modo === "humano" ? "assumir_conversa" : "gerenciar_conversas");
+    await exigirPermissao(
+      context,
+      tenantId,
+      data.modo === "humano" ? "assumir_conversa" : "gerenciar_conversas",
+    );
     const db = await admin();
     const alvo =
       data.modo === "humano"
@@ -722,7 +782,9 @@ export const definirAtendimentoDaConversa = createServerFn({ method: "POST" })
 export const responderComoHumano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ conversaId: z.string().uuid(), texto: z.string().trim().min(1).max(2000) }).parse(input),
+    z
+      .object({ conversaId: z.string().uuid(), texto: z.string().trim().min(1).max(2000) })
+      .parse(input),
   )
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
@@ -776,8 +838,14 @@ const configSchema = z.object({
   instrucoesExtras: z.string().trim().max(2000).default(""),
   horarioProprio: z.boolean().default(false),
   horarioDias: z.array(z.number().int().min(0).max(6)).max(7).default([1, 2, 3, 4, 5, 6]),
-  horarioInicio: z.string().regex(/^\d{2}:\d{2}$/).default("09:00"),
-  horarioFim: z.string().regex(/^\d{2}:\d{2}$/).default("19:00"),
+  horarioInicio: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .default("09:00"),
+  horarioFim: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .default("19:00"),
   confirmacaoAutomatica: z.boolean().default(true),
   pagamentoAntecipado: z.boolean().default(false),
   linkPagamento: z
@@ -785,7 +853,10 @@ const configSchema = z.object({
     .trim()
     .max(500)
     .default("")
-    .refine((v) => v === "" || /^https:\/\/\S+$/.test(v), "Informe um link que comece com https://"),
+    .refine(
+      (v) => v === "" || /^https:\/\/\S+$/.test(v),
+      "Informe um link que comece com https://",
+    ),
 });
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
@@ -971,7 +1042,8 @@ export const getMetricasDoCortai = createServerFn({ method: "GET" })
     const linhas = logs ?? [];
     const contarAcao = (acao: string) => linhas.filter((l) => l.acao === acao && l.sucesso).length;
     const assuntos = new Map<string, number>();
-    for (const l of linhas) if (l.intencao) assuntos.set(l.intencao, (assuntos.get(l.intencao) ?? 0) + 1);
+    for (const l of linhas)
+      if (l.intencao) assuntos.set(l.intencao, (assuntos.get(l.intencao) ?? 0) + 1);
     return {
       conversas: conversas.count ?? 0,
       conversasComHumano: humanas.count ?? 0,
