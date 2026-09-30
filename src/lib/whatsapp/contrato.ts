@@ -130,7 +130,7 @@ export function saudacaoPadrao(segmento: string | null | undefined): string {
 }
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
-  segmento: "barbearia",
+  segmento: "outro",
   atendimentoAutomatico: true,
   saudacaoAtiva: true,
   mensagemBoasVindas: SAUDACAO_PADRAO,
@@ -174,7 +174,7 @@ export function ehGatewayNaoConfigurado(erro: unknown): boolean {
  */
 export const INTENCOES = {
   saudacao: "Saudação",
-  informacoes: "Informações da barbearia",
+  informacoes: "Informações do negócio",
   servicos: "Serviços",
   precos: "Preços",
   profissionais: "Profissionais",

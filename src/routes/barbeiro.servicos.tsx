@@ -58,7 +58,7 @@ function ServicosPage() {
     <Screen voltarPara="/barbeiro/mais" title="Serviços" subtitle="O que você oferece e por quanto.">
       {isLoading ? <Carregando /> : null}
       <div data-guia="servicos-editor">
-        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "barbearia"} />
+        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "outro"} />
       </div>
 
       <Button variant="ghost"

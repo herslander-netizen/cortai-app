@@ -40,7 +40,7 @@ function ContaPage() {
   const queryClient = useQueryClient();
   const salvarSegmento = useServerFn(alterarSegmento);
   const trocarAtalhos = useServerFn(trocarAtalhosDaFicha);
-  const [segmento, setSegmento] = useState(data?.segmento ?? "barbearia");
+  const [segmento, setSegmento] = useState(data?.segmento ?? "outro");
   const [salvandoSegmento, setSalvandoSegmento] = useState(false);
 
   useEffect(() => {

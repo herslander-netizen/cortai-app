@@ -45,7 +45,7 @@ function ComecarPage() {
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
     sessao.papel === "barbeiro" ? "segmento" : "escolha",
   );
-  const [segmento, setSegmento] = useState<Segmento>("barbearia");
+  const [segmento, setSegmento] = useState<Segmento>("outro");
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
