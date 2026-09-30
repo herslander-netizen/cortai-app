@@ -129,8 +129,8 @@ export function AgendamentoChat({
     return () => window.clearTimeout(id);
   }, [etapa]);
   useEffect(() => {
-    if (!identificado) nomeRef.current?.focus();
-  }, [identificado]);
+    if (!identificado && !digitando) nomeRef.current?.focus();
+  }, [digitando, identificado]);
 
   const local = (iso: string) =>
     new Date(iso).toLocaleDateString("pt-BR", {
