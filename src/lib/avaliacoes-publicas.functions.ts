@@ -38,7 +38,7 @@ export async function criarConviteDeAvaliacao(agendamentoId: string) {
     if (error) throw new Error(error.message);
   }
 
-  const token = \`${crypto.randomUUID()}\${crypto.randomUUID().replaceAll("-", "")}\`;
+  const token = `${crypto.randomUUID()}${crypto.randomUUID().replaceAll("-", "")}`;
   const tokenHash = await hashToken(token);
   const { data: ag } = await db
     .from("agendamentos")
@@ -101,18 +101,20 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
     const { data: resultado, error } = await db.rpc("registrar_avaliacao_publica_atomica", {
       _token_hash: tokenHash,
       _nota: data.nota,
-      _comentario: data.comentario || null,
-      _dimensoes: (data.dimensoes ?? {}) as any,
+      _comentario: data.comentario ?? "",
+      _dimensoes: data.dimensoes ?? {},
     });
 
     if (error) throw new Error(error.message);
-    const res = resultado as unknown as {
+    const res = resultado as {
       ok: boolean;
       tenant_id: string;
       positiva: boolean;
       precisa_atencao: boolean;
       link_publico: string | null;
     };
+
+    if (!res?.ok || !res.tenant_id) throw new Error("Não foi possível registrar a avaliação.");
 
     if (res.precisa_atencao) {
       await db.rpc("criar_notificacao", {

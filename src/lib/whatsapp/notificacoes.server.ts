@@ -545,24 +545,26 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     if (error) return { enviado: false, motivo: "Mensagem já processada." };
     registroId = criado.id;
   } else {
+    if (!existente) return { enviado: false, motivo: "Mensagem já processada." };
     // Reserva atômica da nova tentativa: só uma execução consegue trocar o
     // status de volta para "enviando"; a outra desiste sem enviar.
     const { data: reservado } = await db
       .from("envios_de_whatsapp")
       .update({ status: "enviando", tentativas: (existente?.tentativas ?? 0) + 1, erro: null })
       .eq("id", registroId)
-      .eq("status", existente!.status)
-      .eq("tentativas", existente!.tentativas)
+      .eq("status", existente.status)
+      .eq("tentativas", existente.tentativas)
       .select("id");
     if (!reservado || reservado.length === 0)
       return { enviado: false, motivo: "Mensagem já processada." };
   }
 
   const marcarErro = async (motivo: string) => {
+    if (!registroId) return { enviado: false, motivo };
     await db
       .from("envios_de_whatsapp")
       .update({ status: "erro", erro: motivo.slice(0, 500) })
-      .eq("id", registroId!);
+      .eq("id", registroId);
     return { enviado: false, motivo };
   };
 
