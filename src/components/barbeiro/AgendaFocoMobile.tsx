@@ -14,6 +14,7 @@ import { useMemo } from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
@@ -142,7 +143,7 @@ export function AgendaFocoMobile(props: Props) {
     : "Nenhum atendimento em andamento";
 
   return (
-    <section className="modo-foco" aria-label="Modo Foco da agenda">
+    <section className="modo-foco mov-foco-entrada" aria-label="Modo Foco da agenda">
       <header className="modo-foco-topo">
         <Button variant="ghost" className="modo-foco-sair" onClick={props.onSair}>
           <ArrowLeft />
@@ -208,7 +209,9 @@ export function AgendaFocoMobile(props: Props) {
         </p>
 
         {props.carregando ? (
-          <div className="modo-foco-vazio">Carregando agenda…</div>
+          <div className="modo-foco-vazio" aria-label="Carregando agenda">
+            <div className="w-full max-w-xl"><EsqueletoAgenda linhas={3} /></div>
+          </div>
         ) : props.erro ? (
           <div className="modo-foco-vazio" role="alert">
             <strong>Não foi possível carregar a agenda</strong>
@@ -219,7 +222,7 @@ export function AgendaFocoMobile(props: Props) {
           </div>
         ) : (
           <main className="modo-foco-cockpit">
-            <div className="modo-foco-estado" aria-live="polite">
+            <div key={`${principal?.id ?? "livre"}-${estado}`} className="modo-foco-estado mov-conteudo-entrada" aria-live="polite">
               <p className={`modo-foco-rotulo modo-foco-rotulo-${estado}`}>
                 {ROTULO_ESTADO[estado]}
               </p>
@@ -255,11 +258,7 @@ export function AgendaFocoMobile(props: Props) {
                       role="timer"
                       aria-label={`${decorrido} minutos em atendimento`}
                     >
-                      <span
-                        style={{
-                          width: `${Math.min(100, (decorrido / Math.max(1, principal.duracaoMin)) * 100)}%`,
-                        }}
-                      />
+                      <span style={{ transform: `scaleX(${Math.min(1, decorrido / Math.max(1, principal.duracaoMin))})` }} />
                     </div>
                   ) : null}
 

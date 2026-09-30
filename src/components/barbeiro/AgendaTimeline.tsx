@@ -1,4 +1,4 @@
-import { Clock3 } from "lucide-react";
+import { Check, Clock3 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
@@ -474,6 +474,7 @@ export function AgendaTimeline({
                     · {item.cliente}
                   </strong>
                   <span className="flex shrink-0 gap-1">
+                    {item.status === "finalizado" ? <Check className="agenda-check-finalizado" aria-label="Finalizado" /> : null}
                     {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
                     {ehHoje && estaAtrasado(item, agora) ? (
                       <StatusBadge status="nao_compareceu" label="Atrasado" />
@@ -499,7 +500,7 @@ export function AgendaTimeline({
             <div
               ref={linhaAgoraRef}
               className="agenda-linha-agora"
-              style={{ top: `${posicaoAgora}px` }}
+              style={{ transform: `translateY(${posicaoAgora}px)` }}
               aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}
             >
               <span>Agora · {horaMinuto(escala.minutoAtual)}</span>

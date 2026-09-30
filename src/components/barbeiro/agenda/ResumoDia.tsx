@@ -1,4 +1,5 @@
 import { useAgora } from "@/hooks/useAgora";
+import { ValorAnimado } from "@/components/painel/ValorAnimado";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
 import { contarLivres, resumoOperacional } from "./tempo";
@@ -38,11 +39,11 @@ export function ResumoDia({
     ehHoje,
   });
   const partes = [
-    `${r.aFazer} a fazer`,
-    r.emAtendimento ? `${r.emAtendimento} ${rotuloAtendimento.toLocaleLowerCase("pt-BR")}` : null,
-    r.finalizados ? `${r.finalizados} ${r.finalizados === 1 ? "feito" : "feitos"}` : null,
-    `${livres} ${livres === 1 ? "horário livre" : "horários livres"}`,
-    fila ? `${fila} na fila` : null,
-  ].filter(Boolean);
-  return <>{partes.join(" · ")}</>;
+    <span key="fazer"><ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga /> a fazer</span>,
+    r.emAtendimento ? <span key="atendimento"><ValorAnimado valor={r.emAtendimento} formatar={String} primeiraCarga /> {rotuloAtendimento.toLocaleLowerCase("pt-BR")}</span> : null,
+    r.finalizados ? <span key="feitos"><ValorAnimado valor={r.finalizados} formatar={String} primeiraCarga /> {r.finalizados === 1 ? "feito" : "feitos"}</span> : null,
+    <span key="livres"><ValorAnimado valor={livres} formatar={String} primeiraCarga /> {livres === 1 ? "horário livre" : "horários livres"}</span>,
+    fila ? <span key="fila"><ValorAnimado valor={fila} formatar={String} primeiraCarga /> na fila</span> : null,
+  ].filter((parte): parte is React.ReactElement => Boolean(parte));
+  return <>{partes.map((parte, indice) => <span key={parte.key}>{indice ? " · " : ""}{parte}</span>)}</>;
 }

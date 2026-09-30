@@ -15,12 +15,13 @@ export function useMenosMovimento() {
 }
 
 /** Contagem animada curta (400ms) até o valor final. */
-export function useContagem(valor: number, duracaoMs = 400) {
-  const [atual, setAtual] = useState(valor);
-  const anterior = useRef(valor);
+export function useContagem(valor: number, duracaoMs = 400, somentePrimeira = false) {
+  const [atual, setAtual] = useState(somentePrimeira ? 0 : valor);
+  const anterior = useRef(somentePrimeira ? 0 : valor);
+  const animou = useRef(false);
 
   useEffect(() => {
-    if (prefereMenosMovimento()) {
+    if (prefereMenosMovimento() || (somentePrimeira && animou.current)) {
       anterior.current = valor;
       setAtual(valor);
       return;
@@ -35,11 +36,14 @@ export function useContagem(valor: number, duracaoMs = 400) {
       const suave = 1 - Math.pow(1 - t, 3);
       setAtual(de + delta * suave);
       if (t < 1) quadro = requestAnimationFrame(passo);
-      else anterior.current = valor;
+      else {
+        anterior.current = valor;
+        animou.current = true;
+      }
     };
     quadro = requestAnimationFrame(passo);
     return () => cancelAnimationFrame(quadro);
-  }, [valor, duracaoMs]);
+  }, [valor, duracaoMs, somentePrimeira]);
 
   return atual;
 }

@@ -74,7 +74,7 @@ export function MenuAcoesAgenda({
     <Sheet open={aberto} onOpenChange={onAberto}>
       <SheetContent
         side="bottom"
-        className="agenda-acoes-folha mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5"
+        className="agenda-acoes-folha mov-agenda-folha mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pt-5"
       >
         {comBotaoFechar ? (
           <SheetClose asChild>

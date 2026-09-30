@@ -3,7 +3,7 @@
 export function Barra({ w = "60%", h = 12, className = "" }: { w?: string; h?: number; className?: string }) {
   return (
     <span
-      className={`block animate-pulse rounded-md bg-ink3 ${className}`}
+      className={`esqueleto-barra block overflow-hidden rounded-md bg-ink3 ${className}`}
       style={{ width: w, height: `${h}px` }}
       aria-hidden="true"
     />
