@@ -427,6 +427,6 @@ export function AgendamentoChat({
         </ConversationContent>
         <ConversationScrollButton aria-label="Ir para a mensagem mais recente" />
       </Conversation>
-    </main>
+    </ChatShell>
   );
 }
