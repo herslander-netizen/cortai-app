@@ -33,7 +33,7 @@ export const Route = createFileRoute("/barbeiro/equipe")({
       { title: "Equipe e permissões — Cortaí Gestão" },
       { name: "description", content: "Cada pessoa com o próprio login e só o acesso que precisa." },
       { property: "og:title", content: "Equipe e permissões — Cortaí Gestão" },
-      { property: "og:description", content: "Gerencie quem tem acesso à sua barbearia." },
+      { property: "og:description", content: "Gerencie quem tem acesso ao seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -90,7 +90,7 @@ function EquipePage() {
   const remover = useMutation({
     mutationFn: (userId: string) => removerMembro({ data: { userId } }),
     onSuccess: async () => {
-      setMensagem({ tom: "sucesso", texto: "Acesso removido da barbearia." });
+      setMensagem({ tom: "sucesso", texto: "Acesso removido do negócio." });
       await recarregar();
     },
     onError: falhar,
@@ -178,7 +178,7 @@ function EquipePage() {
             {equipe.isLoading ? (
               <EmptyState text="Carregando a equipe…" />
             ) : (equipe.data?.length ?? 0) === 0 ? (
-              <EmptyState text="Só você tem acesso a esta barbearia." />
+              <EmptyState text="Só você tem acesso a este negócio." />
             ) : (
               <ul className="space-y-3">
                 {(equipe.data ?? []).map((membro) => (
@@ -211,7 +211,7 @@ function EquipePage() {
 
           <Aviso tom="info" titulo="Segurança">
             As permissões valem também fora da tela: quem não tem acesso a um módulo não consegue usá-lo
-            nem por atalho. Toda alteração fica registrada na auditoria da barbearia.
+            nem por atalho. Toda alteração fica registrada na auditoria do negócio.
           </Aviso>
         </div>
       )}
@@ -351,7 +351,7 @@ function CartaoMembro({
               onChange={(e) => setAtivo(e.target.checked)}
               className="h-4 w-4 rounded border-line2 bg-ink accent-[var(--gold)]"
             />
-            Acesso liberado para entrar na barbearia
+            Acesso liberado para entrar no negócio
           </label>
 
           <div className="flex flex-wrap gap-2">

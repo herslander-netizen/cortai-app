@@ -24,6 +24,7 @@ export function assistenteConfigurado(): boolean {
 
 export type ContextoDaBarbearia = {
   nome: string;
+  segmento: string;
   slug: string;
   whatsapp: string | null;
   servicos: { nome: string; duracaoMin: number; precoCentavos: number }[];
@@ -31,15 +32,16 @@ export type ContextoDaBarbearia = {
   naFila: number;
 };
 
-const REGRAS = `Você é o assistente do CortAI, um sistema de gestão para barbearias brasileiras.
+const REGRAS = `Você é o assistente do CortAI, uma plataforma de gestão para negócios brasileiros de Beleza.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
 O que você faz:
-- Ajuda o barbeiro a cadastrar serviços, definir horários de funcionamento e entender a fila.
+- Ajuda a pessoa responsável a cadastrar serviços, definir horários de funcionamento e entender a fila.
 - Explica onde cada coisa fica no CortAI e oferece o atalho certo.
 
 Regras obrigatórias:
-- NUNCA invente dados da barbearia. Use apenas o contexto recebido. Se não souber, pergunte.
+- Respeite o segmento informado e nunca use vocabulário de barbearia em outro segmento.
+- NUNCA invente dados do negócio. Use apenas o contexto recebido. Se não souber, pergunte.
 - Qualquer alteração de dados (serviços, horários) vem com precisa_confirmar = true e uma pergunta curta de confirmação. Você nunca afirma que já salvou.
 - Preço sempre em centavos (35 reais = 3500). Duração em minutos.
 - Dias da semana: 0 = domingo … 6 = sábado. Horas no formato HH:MM.
@@ -112,7 +114,7 @@ function contextoEmTexto(ctx: ContextoDaBarbearia): string {
         .map((h) => `- dia ${h.diaSemana}: ${h.fechado ? "fechado" : `${h.abre} às ${h.fecha}`}`)
         .join("\n")
     : "- horários ainda não definidos";
-  return `Barbearia: ${ctx.nome} (link público /f/${ctx.slug})
+  return `Negócio: ${ctx.nome} (segmento: ${ctx.segmento}; link público /f/${ctx.slug})
 WhatsApp cadastrado: ${ctx.whatsapp ? "sim" : "não"}
 Pessoas na fila agora: ${ctx.naFila}
 Serviços cadastrados:
@@ -220,7 +222,7 @@ export async function pensar(input: {
 
   const entrada = [
     { role: "system", content: REGRAS },
-    { role: "system", content: `Contexto atual da barbearia:\n${contextoEmTexto(input.contexto)}` },
+    { role: "system", content: `Contexto atual do negócio:\n${contextoEmTexto(input.contexto)}` },
     ...(input.instrucaoExtra ? [{ role: "system", content: input.instrucaoExtra }] : []),
     ...(input.historico ?? []).slice(-10).map((t) => ({
       role: t.autor === "barbeiro" ? "user" : "assistant",

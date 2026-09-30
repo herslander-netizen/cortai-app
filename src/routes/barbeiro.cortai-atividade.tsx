@@ -23,7 +23,7 @@ export const Route = createFileRoute("/barbeiro/cortai-atividade")({
       { title: "Atividade do CortAI — Cortaí Gestão" },
       {
         name: "description",
-        content: "Acompanhe o que o CortAI entendeu, o que consultou na sua barbearia e o que não deu certo.",
+        content: "Acompanhe o que o CortAI entendeu, o que consultou no seu negócio e o que não deu certo.",
       },
       { property: "og:title", content: "Atividade do CortAI — Cortaí Gestão" },
       { property: "og:description", content: "Conversas, assuntos, consultas e falhas do atendimento inteligente." },
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/barbeiro/cortai-atividade")({
 
 /** Nomes técnicos das ferramentas traduzidos para a linguagem da barbearia. */
 const NOME_DA_ACAO: Record<string, string> = {
-  consultar_barbearia: "Dados da barbearia",
+  consultar_barbearia: "Dados do negócio",
   listar_servicos: "Lista de serviços",
   listar_profissionais: "Lista de profissionais",
   consultar_disponibilidade: "Horários livres",
@@ -113,7 +113,7 @@ function AtividadePage() {
     <Screen
       voltarPara="/barbeiro/cortai"
       title="Atividade do CortAI"
-      subtitle="O que ele entendeu, o que consultou na sua barbearia e o que não deu certo — nos últimos 30 dias."
+      subtitle="O que ele entendeu, o que consultou no seu negócio e o que não deu certo — nos últimos 30 dias."
     >
       {metricas.isLoading || atividade.isLoading ? <Carregando /> : null}
       {metricas.isError || atividade.isError ? (

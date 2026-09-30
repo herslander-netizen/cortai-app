@@ -14,7 +14,7 @@ export const Route = createFileRoute("/barbeiro/servicos")({
   head: () => ({
     meta: [
       { title: "Serviços — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Defina cortes, duração e preços da sua barbearia." },
+      { name: "description", content: "Defina serviços, duração e preços do seu negócio." },
       { property: "og:title", content: "Serviços — Cortaí" },
       { property: "og:description", content: "Cortes, duração e preços." },
       { property: "og:type", content: "website" },
@@ -58,7 +58,7 @@ function ServicosPage() {
     <Screen voltarPara="/barbeiro/mais" title="Serviços" subtitle="O que você oferece e por quanto.">
       {isLoading ? <Carregando /> : null}
       <div data-guia="servicos-editor">
-        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "barbearia"} />
+        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "outro"} />
       </div>
 
       <Button variant="ghost"

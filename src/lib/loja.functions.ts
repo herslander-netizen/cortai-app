@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export type ProdutoPublico = {
   id: string;
@@ -20,6 +21,7 @@ export type LojaPublica = {
     telefone: string | null;
     cor_primaria: string | null;
     logo_url: string | null;
+    segmento: Segmento;
   };
   produtos: ProdutoPublico[];
   destaques: ProdutoPublico[];
@@ -36,7 +38,7 @@ export const getLojaPublica = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url")
+      .select("id, nome, slug, segmento, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url")
       .eq("slug", data.slug)
       .eq("ativo", true)
       .maybeSingle();
@@ -75,6 +77,7 @@ export const getLojaPublica = createServerFn({ method: "GET" })
         telefone: tenant.telefone,
         cor_primaria: tenant.cor_primaria,
         logo_url: logo,
+        segmento: segmentoParaApresentacao(tenant.segmento),
       },
       produtos: produtos ?? [],
       destaques: (produtos ?? []).filter((p) => p.destaque),

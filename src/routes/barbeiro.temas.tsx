@@ -17,7 +17,7 @@ export const Route = createFileRoute("/barbeiro/temas")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "personalizacao_cliente"),
   head: () => ({ meta: [
     { title: "Temas e layouts — Cortaí" },
-    { name: "description", content: "Troque o tema e o layout da página da barbearia e veja o resultado na hora." },
+    { name: "description", content: "Troque o tema e o layout da página do negócio e veja o resultado na hora." },
     { property: "og:title", content: "Temas e layouts — Cortaí" },
     { property: "og:description", content: "Escolha cores, layout e fontes com prévia ao vivo." },
     { property: "og:type", content: "website" },
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/barbeiro/temas")({
 function TemasPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   if (query.isLoading) return <Screen voltarPara="/barbeiro/mais" title="Temas e layouts"><Carregando /></Screen>;
-  if (!query.data) return <Screen title="Temas e layouts"><p className="text-sm text-brick">Entre como dono da barbearia para trocar o visual da página.</p></Screen>;
+  if (!query.data) return <Screen title="Temas e layouts"><p className="text-sm text-brick">Entre como responsável pelo negócio para trocar o visual da página.</p></Screen>;
   return <EditorDeTemas marca={query.data.marca} recarregar={() => query.refetch()} />;
 }
 

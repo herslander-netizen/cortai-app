@@ -14,7 +14,7 @@ export type Roteamento =
   | { tipo: "erro"; motivo: string };
 
 export function rotearConexaoMeta(conexoes: ConexaoMeta[], phoneNumberId: string | null | undefined): Roteamento {
-  if (conexoes.length === 0) return { tipo: "erro", motivo: "Nenhuma barbearia com a conta oficial de WhatsApp ativada." };
+  if (conexoes.length === 0) return { tipo: "erro", motivo: "Nenhum negócio com a conta oficial de WhatsApp ativada." };
   if (phoneNumberId) {
     const achada = conexoes.find((c) => c.meta_phone_number_id === phoneNumberId);
     if (achada) return { tipo: "ok", conexao: achada };
@@ -25,5 +25,5 @@ export function rotearConexaoMeta(conexoes: ConexaoMeta[], phoneNumberId: string
     return { tipo: "erro", motivo: `Número oficial ${phoneNumberId} não corresponde a nenhuma barbearia conectada.` };
   }
   if (conexoes.length === 1 && conexoes[0]) return { tipo: "ok", conexao: conexoes[0] };
-  return { tipo: "erro", motivo: "Aviso sem phone_number_id e há mais de uma barbearia na conta oficial." };
+  return { tipo: "erro", motivo: "Aviso sem phone_number_id e há mais de um negócio na conta oficial." };
 }

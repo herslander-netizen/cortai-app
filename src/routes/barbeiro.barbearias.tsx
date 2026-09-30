@@ -15,10 +15,10 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Minhas barbearias — Cortaí Gestão" },
-      { name: "description", content: "Todas as barbearias ligadas à sua conta, com plano e configuração pendente." },
-      { property: "og:title", content: "Minhas barbearias — Cortaí" },
-      { property: "og:description", content: "Troque de barbearia e retome a configuração de onde parou." },
+      { title: "Meus negócios — Cortaí Gestão" },
+      { name: "description", content: "Todos os negócios ligados à sua conta, com plano e configuração pendente." },
+      { property: "og:title", content: "Meus negócios — Cortaí" },
+      { property: "og:description", content: "Troque de negócio e retome a configuração de onde parou." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
 
 const ROTULO_DA_ETAPA: Record<string, string> = {
   boas_vindas: "Boas-vindas",
-  dados: "Dados da barbearia",
+  dados: "Dados do negócio",
   equipe: "Equipe",
   servicos: "Serviços",
   agenda: "Agenda e horários",
@@ -60,13 +60,13 @@ function MinhasBarbeariasPage() {
       }
       await navigate({ to: "/barbeiro/configurar" });
     } catch (e) {
-      aviso.erro(e instanceof Error ? e.message : "Não consegui abrir esta barbearia agora.");
+      aviso.erro(e instanceof Error ? e.message : "Não consegui abrir este negócio agora.");
       setIndo(null);
     }
   }
 
   return (
-    <Screen title="Minhas barbearias" subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar.">
+    <Screen title="Meus negócios" subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar.">
       {isLoading || !data ? (
         <EsqueletoLista linhas={2} />
       ) : !data.length ? (
@@ -102,7 +102,7 @@ function MinhasBarbeariasPage() {
                     )}
                   </p>
                   {!b.acessoAtivo ? (
-                    <p className="mt-1 text-xs text-brick">Seu acesso a esta barbearia está desativado.</p>
+                    <p className="mt-1 text-xs text-brick">Seu acesso a este negócio está desativado.</p>
                   ) : null}
                 </div>
               </div>

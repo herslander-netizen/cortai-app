@@ -17,10 +17,10 @@ export const Route = createFileRoute("/comecar")({
       { title: "Começar — Cortaí" },
       {
         name: "description",
-        content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia.",
+        content: "Escolha como usar o Cortaí: agendar ou gerenciar seu negócio de Beleza.",
       },
       { property: "og:title", content: "Começar — Cortaí" },
-      { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
+      { property: "og:description", content: "Agendar ou gerenciar seu negócio de Beleza." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -45,7 +45,7 @@ function ComecarPage() {
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
     sessao.papel === "barbeiro" ? "segmento" : "escolha",
   );
-  const [segmento, setSegmento] = useState<Segmento>("barbearia");
+  const [segmento, setSegmento] = useState<Segmento>("outro");
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -59,8 +59,8 @@ function ComecarPage() {
           Seu acesso foi desativado.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
-          Quem gerencia a equipe da barbearia desativou seu acesso ao painel. Se você acha que isso
-          é um engano, fale com a barbearia para reativar. Você pode continuar usando o Cortaí para
+          Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso
+          é um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o Cortaí para
           agendar como cliente.
         </p>
         <button
@@ -112,7 +112,7 @@ function ComecarPage() {
 
       {sessao.papel === "barbeiro" && !sessao.tenantId && !concluido ? (
         <p className="mx-auto mt-3 max-w-[38ch] text-center text-sm leading-relaxed text-mute">
-          Se você fazia parte de uma equipe e perdeu o acesso, peça um novo convite à barbearia — ou
+          Se você fazia parte de uma equipe e perdeu o acesso, peça um novo convite ao negócio — ou
           crie a sua própria abaixo.
         </p>
       ) : null}
@@ -153,7 +153,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
               <span className="mt-1 block text-xs text-mute">
-                Marcar horários no meu salão, barbearia ou studio.
+                 Marcar horários em negócios de Beleza.
               </span>
             </span>
           </button>
@@ -166,7 +166,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
               <span className="mt-1 block text-xs text-mute">
-                Barbearia, salão, esmalteria, estética…
+                 Escolha seu segmento de Beleza.
               </span>
             </span>
           </button>

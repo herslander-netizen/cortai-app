@@ -827,7 +827,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       .eq("id", data.servicoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
-    if (!servico) throw new Error("Serviço não encontrado nesta barbearia.");
+    if (!servico) throw new Error("Serviço não encontrado neste negócio.");
 
     const { data: prof } = await db
       .from("profissionais")
@@ -835,7 +835,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       .eq("id", data.profissionalId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
-    if (!prof) throw new Error("Profissional não encontrado nesta barbearia.");
+    if (!prof) throw new Error("Profissional não encontrado neste negócio.");
 
     // 1. Resolver a referência do cliente sem criar uma ficha ainda.
     let clienteId = data.clienteId ?? null;
@@ -848,7 +848,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
         .eq("id", clienteId)
         .eq("tenant_id", tenant.id)
         .maybeSingle();
-      if (!c) throw new Error("Cliente não encontrado nesta barbearia.");
+      if (!c) throw new Error("Cliente não encontrado neste negócio.");
       clienteNome = c.nome;
     } else {
       const nome = (data.novoNome ?? "").trim().slice(0, 80);
@@ -1144,7 +1144,7 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
-    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     if (!atual.profissional_id || !atual.servico_id) {
       throw new Error("Esse atendimento não pode ser remarcado por aqui.");
     }
@@ -1186,7 +1186,7 @@ export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
-    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
     if (error) throw new Error(error.message);
     try {
@@ -1214,7 +1214,7 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
-    if (!atual) throw new Error("Agendamento não encontrado nesta barbearia.");
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para remarcar quem ainda não começou.");
     const duracao = new Date(atual.fim).getTime() - new Date(atual.inicio).getTime();

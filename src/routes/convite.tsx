@@ -11,10 +11,10 @@ export const Route = createFileRoute("/convite")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Confirmar acesso à barbearia — Cortaí" },
-      { name: "description", content: "Veja o que você pode fazer na barbearia e confirme o seu acesso." },
-      { property: "og:title", content: "Confirmar acesso à barbearia — Cortaí" },
-      { property: "og:description", content: "Confirme o acesso que a barbearia liberou para você." },
+      { title: "Confirmar acesso ao negócio — Cortaí" },
+      { name: "description", content: "Veja o que você pode fazer no negócio e confirme o seu acesso." },
+      { property: "og:title", content: "Confirmar acesso ao negócio — Cortaí" },
+      { property: "og:description", content: "Confirme o acesso que o negócio liberou para você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -43,7 +43,7 @@ function ConvitePage() {
       ) : !dados ? (
         <div className="mt-8 space-y-5">
           <Aviso tom="atencao" titulo="Nenhum acesso de equipe por aqui.">
-            Sua conta ainda não foi ligada a uma barbearia. Peça ao responsável para convidar você.
+            Sua conta ainda não foi ligada a um negócio. Peça ao responsável para convidar você.
           </Aviso>
           <button type="button" className="btn-primary w-full py-3.5" onClick={() => void navigate({ to: "/app" })}>
             Ir para meus agendamentos
@@ -66,7 +66,7 @@ function ConvitePage() {
 
           {!dados.ativo ? (
             <Aviso tom="atencao" titulo="Seu acesso está desativado.">
-              Fale com o responsável pela barbearia para liberar a entrada.
+              Fale com o responsável pelo negócio para liberar a entrada.
             </Aviso>
           ) : null}
 

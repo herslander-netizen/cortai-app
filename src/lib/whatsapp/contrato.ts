@@ -92,7 +92,7 @@ export type ConfiguracaoDoAtendimento = {
   recuperacaoDias: number;
   /** A IA pode responder pelo WhatsApp quando a conexão estiver ativa. */
   responderWhatsapp: boolean;
-  /** Regras escritas pela barbearia, usadas nas respostas. */
+  /** Regras escritas pelo negócio, usadas nas respostas. */
   instrucoesExtras: string;
   /** A IA atende só dentro de um horário próprio. */
   horarioProprio: boolean;
@@ -104,33 +104,33 @@ export type ConfiguracaoDoAtendimento = {
   confirmacaoAutomatica: boolean;
   /** Mostrar link externo de pagamento antecipado na confirmação. */
   pagamentoAntecipado: boolean;
-  /** Link externo de pagamento informado pela barbearia. */
+  /** Link externo de pagamento informado pelo negócio. */
   linkPagamento: string;
-  /** Textos da Conversa Padrão sobrescritos pela barbearia (chave → texto). */
+  /** Textos da Conversa Padrão sobrescritos pelo negócio (chave → texto). */
   textosConversa: Record<string, string>;
-  /** Situações da Conversa Padrão desligadas pela barbearia. */
+  /** Situações da Conversa Padrão desligadas pelo negócio. */
   situacoesDesligadas: string[];
 };
 
 export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
 
 /**
- * Saudação padrão do CortAI: usada quando a barbearia ativou a saudação
+ * Saudação padrão do CortAI: usada quando o negócio ativou a saudação
  * automática mas ainda não escreveu a própria mensagem. Garante que uma
- * barbearia nova já responde ao primeiro "oi" sem custo de IA.
+ * negócio novo já responde ao primeiro "oi" sem custo de IA.
  */
 export const SAUDACAO_PADRAO =
   "Olá! 👋 Sou o CortAI, assistente da sua barbearia. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.";
 
 /** Saudação padrão por segmento; barbearia mantém o texto de sempre. */
 export function saudacaoPadrao(segmento: string | null | undefined): string {
-  if (!segmento || segmento === "barbearia") return SAUDACAO_PADRAO;
+  if (segmento === "barbearia") return SAUDACAO_PADRAO;
   const de = termosDoSegmento(segmento).de;
   return `Olá! 👋 Sou o CortAI, assistente ${de}. Como posso ajudar? Posso consultar serviços, preços e horários ou fazer seu agendamento.`;
 }
 
 export const CONFIGURACAO_PADRAO: ConfiguracaoDoAtendimento = {
-  segmento: "barbearia",
+  segmento: "outro",
   atendimentoAutomatico: true,
   saudacaoAtiva: true,
   mensagemBoasVindas: SAUDACAO_PADRAO,
@@ -174,7 +174,7 @@ export function ehGatewayNaoConfigurado(erro: unknown): boolean {
  */
 export const INTENCOES = {
   saudacao: "Saudação",
-  informacoes: "Informações da barbearia",
+  informacoes: "Informações do negócio",
   servicos: "Serviços",
   precos: "Preços",
   profissionais: "Profissionais",

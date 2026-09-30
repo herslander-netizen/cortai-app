@@ -54,10 +54,10 @@ export const Route = createFileRoute("/barbeiro/cortai")({
       { title: "CortAI no WhatsApp — Cortaí Gestão" },
       {
         name: "description",
-        content: "Conecte o WhatsApp da barbearia, acompanhe as conversas e configure o atendimento do CortAI.",
+        content: "Conecte o WhatsApp do negócio, acompanhe as conversas e configure o atendimento do CortAI.",
       },
       { property: "og:title", content: "CortAI no WhatsApp — Cortaí Gestão" },
-      { property: "og:description", content: "Atendimento pelo WhatsApp com os dados reais da sua barbearia." },
+      { property: "og:description", content: "Atendimento pelo WhatsApp com os dados reais do seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -87,7 +87,7 @@ function CortaiPage() {
     <Screen
       voltarPara="/barbeiro/mais"
       title="CortAI no WhatsApp"
-      subtitle="O atendimento da sua barbearia pelo WhatsApp, com os seus dados reais."
+      subtitle="O atendimento do seu negócio pelo WhatsApp, com os seus dados reais."
     >
       {painel.isLoading ? <Carregando /> : null}
       {painel.isError ? (
@@ -339,7 +339,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const descricao =
     status === "conectado"
       ? "Seu WhatsApp está conectado e pronto para o CortAI atender seus clientes."
-      : "Conecte o WhatsApp da sua barbearia para que o CortAI possa atender seus clientes automaticamente.";
+      : "Conecte o WhatsApp do seu negócio para que o CortAI possa atender seus clientes automaticamente.";
 
   const rotuloPrincipal = acao.isPending
     ? "Preparando conexão…"
@@ -432,7 +432,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               onClick={() => {
                 if (
                   window.confirm(
-                    "Desconectar o WhatsApp da barbearia? Clientes, histórico e agendamentos continuam salvos.",
+                    "Desconectar o WhatsApp do negócio? Clientes, histórico e agendamentos continuam salvos.",
                   )
                 ) {
                   acao.mutate("desconectar");
@@ -470,7 +470,7 @@ function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
         <ShieldCheck size={14} className="mt-0.5 shrink-0" />
-        O CortAI responde apenas com informações cadastradas na sua barbearia e nunca acessa dados de outra.
+        O CortAI responde apenas com informações cadastradas no seu negócio e nunca acessa dados de outro.
       </p>
 
       {qrAberto && conexao?.qrCode && !qrExpirado ? (
@@ -1124,12 +1124,12 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         </div>
         <p className="mt-2 text-xs leading-relaxed text-mute">
           {painel.iaDisponivel
-            ? "A IA responde apenas com os dados cadastrados na sua barbearia."
+            ? "A IA responde apenas com os dados cadastrados no seu negócio."
             : "A IA está indisponível neste momento. Assim que voltar, as configurações abaixo passam a valer."}
         </p>
       </div>
 
-      <Bloco titulo="Atendimento" descricao="O que a IA pode fazer no dia a dia da barbearia.">
+      <Bloco titulo="Atendimento" descricao="O que a IA pode fazer no dia a dia do negócio.">
         <ul className="space-y-4">
           <Chave
             rotulo="Atendimento automático"
@@ -1220,7 +1220,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
             value={config.mensagemBoasVindas}
             onChange={(e) => mudar({ mensagemBoasVindas: e.target.value })}
             rows={2}
-            placeholder="Olá! Aqui é a barbearia. Como posso ajudar?"
+            placeholder="Olá! Aqui é a equipe. Como posso ajudar?"
             className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
           />
         </label>
@@ -1309,7 +1309,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
         ) : null}
       </Bloco>
 
-      <Bloco titulo="Objetivos da IA" descricao="Ligue só o que a sua barbearia quer entregar pela IA.">
+      <Bloco titulo="Objetivos da IA" descricao="Ligue só o que o seu negócio quer entregar pela IA.">
         <ul className="space-y-4">
           <Chave
             rotulo="Confirmar agendamento"
@@ -1431,7 +1431,7 @@ function BlocoAjustes({ painel }: { painel: PainelDoCortai }) {
           <>
             <Bloco
               titulo="WhatsApp — Automações"
-              descricao="Mensagens enviadas pela barbearia, sem IA. Desligada, a mensagem não é enviada."
+              descricao="Mensagens enviadas pelo negócio, sem IA. Desligada, a mensagem não é enviada."
             >
               <ul className="space-y-3">{operacionais.map(item)}</ul>
               <p className="mt-3 text-xs text-mute">
@@ -1479,7 +1479,7 @@ function BlocoInformacoes() {
 
   return (
     <div className="surface p-5">
-      <h2 className="text-sm font-semibold text-paper">Informações da barbearia</h2>
+      <h2 className="text-sm font-semibold text-paper">Informações do negócio</h2>
       <p className="mt-1 text-xs text-mute">
         Endereço, estacionamento, formas de pagamento, políticas. O CortAI só responde essas dúvidas com o que estiver
         escrito aqui.
@@ -1516,7 +1516,7 @@ function BlocoInformacoes() {
           value={resposta}
           onChange={(e) => setResposta(e.target.value)}
           rows={2}
-          placeholder="Resposta oficial da barbearia"
+          placeholder="Resposta oficial do negócio"
           className="w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
         />
         <Button variant="ghost"

@@ -18,7 +18,7 @@ export const PERMISSOES = {
   visualizar_financeiro: "Ver caixa e financeiro",
   relatorios: "Ver relatórios",
   gerenciar_profissionais: "Gerenciar profissionais",
-  alterar_dados_barbearia: "Alterar dados e marca da barbearia",
+  alterar_dados_barbearia: "Alterar dados e marca do negócio",
   gerenciar_permissoes: "Gerenciar equipe e permissões",
   acoes_destrutivas: "Ações críticas e exclusões",
   gerenciar_voltai: "Configurar o Voltaí (fidelidade)",
@@ -37,7 +37,7 @@ export const PERMISSOES = {
   caixa_do_dia: "Ver o caixa de hoje",
   gerenciar_plano: "Plano e cobrança do Cortaí",
   liberar_fiado: "Liberar fiado para clientes",
-  excluir_barbearia: "Excluir a barbearia",
+  excluir_barbearia: "Excluir o negócio",
 } as const;
 
 
@@ -80,7 +80,7 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
   {
     id: "caixa",
     titulo: "Caixa",
-    descricao: "Dinheiro que entra e sai da barbearia.",
+    descricao: "Dinheiro que entra e sai do negócio.",
     itens: [
       { acao: "visualizar", chave: "caixa_do_dia", rotulo: "Ver o caixa de hoje" },
       { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro completos" },
@@ -115,12 +115,12 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
   {
     id: "equipe",
     titulo: "Equipe",
-    descricao: "Quem trabalha na barbearia e o que cada um pode fazer.",
+    descricao: "Quem trabalha no negócio e o que cada um pode fazer.",
     itens: [
       { acao: "editar", chave: "gerenciar_profissionais", rotulo: "Gerenciar profissionais" },
       { acao: "excluir", chave: "acoes_destrutivas", rotulo: "Excluir dados e acessos" },
       { acao: "administrar", chave: "gerenciar_permissoes", rotulo: "Convidar pessoas e definir permissões" },
-      { acao: "administrar", chave: "alterar_dados_barbearia", rotulo: "Alterar dados e marca da barbearia" },
+      { acao: "administrar", chave: "alterar_dados_barbearia", rotulo: "Alterar dados e marca do negócio" },
     ],
   },
   {
@@ -160,7 +160,7 @@ export type PapelDeEquipe = keyof typeof PAPEIS;
 
 export const DESCRICAO_DO_PAPEL: Record<PapelDeEquipe, string> = {
   dono: "Acesso total, inclusive equipe e permissões.",
-  gerente: "Gestão da barbearia conforme as permissões concedidas.",
+  gerente: "Gestão do negócio conforme as permissões concedidas.",
   barbeiro: "Atende, agenda e registra o que sua função permite.",
   recepcao: "Agenda, clientes e operação do balcão.",
 };

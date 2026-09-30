@@ -15,9 +15,9 @@ export const Route = createFileRoute("/barbeiro/crescimento")({
   head: () => ({
     meta: [
       { title: "Crescimento — Cortaí Gestão" },
-      { name: "description", content: "Novos clientes, recorrência, indicações e ocupação da sua barbearia." },
+      { name: "description", content: "Novos clientes, recorrência, indicações e ocupação do seu negócio." },
       { property: "og:title", content: "Crescimento — Cortaí Gestão" },
-      { property: "og:description", content: "O que faz sua barbearia crescer, em números reais." },
+      { property: "og:description", content: "O que faz seu negócio crescer, em números reais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -51,7 +51,7 @@ function CrescimentoPage() {
   }, [link]);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz sua barbearia crescer."}>
+    <Screen voltarPara="/barbeiro/mais" title="Crescimento" subtitle={data?.tenant.nome ?? "O que faz seu negócio crescer."}>
       {isLoading ? <Carregando /> : null}
 
       {data ? (
@@ -103,7 +103,7 @@ function CrescimentoPage() {
             </li>
           </ul>
 
-          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Compartilhar minha barbearia</h2>
+          <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Compartilhar meu negócio</h2>
           <div data-guia="crescimento-compartilhar" className="surface-card p-5 md:max-w-2xl">
             <p className="break-all text-xs text-mute">{link}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">

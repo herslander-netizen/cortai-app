@@ -28,8 +28,8 @@ export function FaixaPendencias() {
   const proximo = pendentes[0]!;
   const texto =
     pendentes.length === 1
-      ? "Falta 1 coisa para deixar sua barbearia pronta"
-      : `Faltam ${pendentes.length} coisas para deixar sua barbearia pronta`;
+      ? "Falta 1 coisa para deixar seu negócio pronto"
+      : `Faltam ${pendentes.length} coisas para deixar seu negócio pronto`;
 
   return (
     <motion.div layout transition={transicaoBase} className="mb-4">

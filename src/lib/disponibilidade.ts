@@ -71,7 +71,7 @@ export function motivoForaDoHorario(
     }
   }
   const hoje = faixaDoDia(dia, horarios);
-  if (!hoje) return "A barbearia não abre neste dia.";
+  if (!hoje) return "O negócio não abre neste dia.";
   const fim = minuto + duracaoMin;
   if (minuto < hoje.abre || fim > hoje.fecha) {
     return `Esse horário não cabe no funcionamento da barbearia (${hoje.info.abre} às ${hoje.info.fecha}).`;

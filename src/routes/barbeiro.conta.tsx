@@ -22,10 +22,10 @@ import { aviso } from "@/lib/avisos";
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
     meta: [
-      { title: "Conta e barbearia — Cortaí Gestão" },
-      { name: "description", content: "Dados da sua conta, da barbearia e saída segura do Cortaí." },
-      { property: "og:title", content: "Conta e barbearia — Cortaí Gestão" },
-      { property: "og:description", content: "Sua conta e sua barbearia no Cortaí." },
+      { title: "Conta e negócio — Cortaí Gestão" },
+      { name: "description", content: "Dados da sua conta, do negócio e saída segura do Cortaí." },
+      { property: "og:title", content: "Conta e negócio — Cortaí Gestão" },
+      { property: "og:description", content: "Sua conta e seu negócio no Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -40,7 +40,7 @@ function ContaPage() {
   const queryClient = useQueryClient();
   const salvarSegmento = useServerFn(alterarSegmento);
   const trocarAtalhos = useServerFn(trocarAtalhosDaFicha);
-  const [segmento, setSegmento] = useState(data?.segmento ?? "barbearia");
+  const [segmento, setSegmento] = useState(data?.segmento ?? "outro");
   const [salvandoSegmento, setSalvandoSegmento] = useState(false);
 
   useEffect(() => {

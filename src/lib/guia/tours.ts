@@ -48,7 +48,7 @@ export const GUIAS: Guia[] = [
     passos: [
       {
         alvo: "historico-proximo",
-        titulo: "Seu próximo corte",
+        titulo: "Seu próximo atendimento",
         texto: "O atendimento mais próximo fica sempre no topo, com dia, hora e profissional.",
       },
       {
@@ -81,7 +81,7 @@ export const GUIAS: Guia[] = [
       {
         alvo: "dash-primeiros-passos",
         titulo: "Primeiros passos",
-        texto: "Este cartão mostra o que falta para sua barbearia ficar redonda. Ele guarda o progresso.",
+        texto: "Este cartão mostra o que falta para seu negócio ficar pronto. Ele guarda o progresso.",
       },
       {
         alvo: "dash-assistente",

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/barbeiro/atendentes")({
   head: () => ({
     meta: [
       { title: "Painel de atendentes — Cortaí Gestão" },
-      { name: "description", content: "Veja quem está online na barbearia e assuma o atendimento de uma conversa." },
+      { name: "description", content: "Veja quem está online no negócio e assuma o atendimento de uma conversa." },
       { property: "og:title", content: "Painel de atendentes — Cortaí Gestão" },
       { property: "og:description", content: "Equipe online e conversas do WhatsApp em um só lugar." },
       { property: "og:type", content: "website" },

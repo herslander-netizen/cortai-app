@@ -61,7 +61,7 @@ function RedefinirSenhaPage() {
         <div className="mt-8 space-y-5">
           <Aviso tom="sucesso" titulo="Sua senha foi criada.">
             {convite
-              ? "Agora é só conferir o que você pode fazer na barbearia e confirmar o acesso."
+              ? "Agora é só conferir o que você pode fazer no negócio e confirmar o acesso."
               : "Você já pode entrar no Cortaí com a senha nova."}
           </Aviso>
           <button

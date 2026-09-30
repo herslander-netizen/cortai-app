@@ -134,7 +134,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
 
   const blocos: (string | null)[] = [];
-  const barbearia = !d.segmento || segmentoValido(d.segmento) === "barbearia";
+  const barbearia = d.segmento === "barbearia";
   const em = barbearia ? `na ${d.barbearia}` : `em ${d.barbearia}`;
 
   if (tipo === "confirmacao_agendamento") {
@@ -392,7 +392,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         ? config.lembretes
         : true;
   if (!(await automacaoAtiva(ag.tenant_id, tipo, padrao))) {
-    return { enviado: false, motivo: "Automação desligada para esta barbearia." };
+    return { enviado: false, motivo: "Automação desligada para este negócio." };
   }
 
   // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.
@@ -456,7 +456,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     .eq("tenant_id", ag.tenant_id)
     .maybeSingle();
   if (!conexao || conexao.status !== "conectado") {
-    return marcarErro("WhatsApp da barbearia não está conectado.");
+    return marcarErro("WhatsApp do negócio não está conectado.");
   }
 
   const { data: tenant } = await db
@@ -487,7 +487,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
-    barbearia: tenant?.nome ?? "Barbearia",
+    barbearia: tenant?.nome ?? "Negócio",
     servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
     profissional: ((ag as any).profissionais?.nome as string | undefined) ?? null,
     inicio: ag.inicio,
@@ -517,10 +517,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
           idioma: "pt_BR",
           parametros:
             tipo === "retorno"
-              ? [primeiroNome(cliente?.nome ?? "cliente"), tenant?.nome ?? "Barbearia"]
+              ? [primeiroNome(cliente?.nome ?? "cliente"), tenant?.nome ?? "Negócio"]
               : [
                   primeiroNome(cliente?.nome ?? "cliente"),
-                  tenant?.nome ?? "Barbearia",
+                  tenant?.nome ?? "Negócio",
                   dataBr(ag.inicio, fusoModelo),
                   horaBr(ag.inicio, fusoModelo),
                 ],

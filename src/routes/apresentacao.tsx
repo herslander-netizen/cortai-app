@@ -8,7 +8,7 @@ import { getHomePublicada } from "@/lib/home.functions";
 export const Route = createFileRoute("/apresentacao")({
   loader: () => getHomePublicada(),
   head: ({ loaderData }) => {
-    const titulo = loaderData?.seo.titulo || "Cortaí — Gestão para barbearias";
+    const titulo = loaderData?.seo.titulo || "Cortaí — Gestão e tecnologia para negócios de Beleza";
     const descricao =
       loaderData?.seo.descricao ||
       "Agenda, clientes, equipe, caixa e presença digital em um só aplicativo.";

@@ -14,7 +14,7 @@ export type ClienteAtual = { id: string; nome: string; limite_fiado_centavos: nu
 
 export type ContextoBarbearia = { slug?: string | null | undefined };
 
-export const SEM_BARBEARIA = "Escolha uma barbearia para continuar.";
+export const SEM_BARBEARIA = "Escolha um negócio para continuar.";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

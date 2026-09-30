@@ -1,12 +1,12 @@
 import { createContext, useContext, type ReactNode } from "react";
 
-import { segmentoValido, termos, type Segmento } from "@/lib/segmentos";
+import { segmentoParaApresentacao, termos, type Segmento } from "@/lib/segmentos";
 
-/** Segmento do negócio atual no painel; fora do painel vale "barbearia". */
-const SegmentoContexto = createContext<Segmento>("barbearia");
+/** Segmento do negócio atual no painel; sem contexto, usa apresentação neutra. */
+const SegmentoContexto = createContext<Segmento>("outro");
 
 export function SegmentoProvider({ segmento, children }: { segmento: unknown; children: ReactNode }) {
-  return <SegmentoContexto.Provider value={segmentoValido(segmento)}>{children}</SegmentoContexto.Provider>;
+  return <SegmentoContexto.Provider value={segmentoParaApresentacao(segmento)}>{children}</SegmentoContexto.Provider>;
 }
 
 export function useSegmentoDoPainel(): Segmento {

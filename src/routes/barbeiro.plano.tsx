@@ -15,10 +15,10 @@ export const Route = createFileRoute("/barbeiro/plano")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Plano da barbearia — Cortaí Gestão" },
-      { name: "description", content: "Escolha o plano e veja exatamente o que está liberado para a sua barbearia." },
-      { property: "og:title", content: "Plano da barbearia — Cortaí" },
-      { property: "og:description", content: "O plano decide o que aparece no painel da sua barbearia." },
+      { title: "Plano do negócio — Cortaí Gestão" },
+      { name: "description", content: "Escolha o plano e veja exatamente o que está liberado para o seu negócio." },
+      { property: "og:title", content: "Plano do negócio — Cortaí" },
+      { property: "og:description", content: "O plano decide o que aparece no painel do seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -62,7 +62,7 @@ function PlanoPage() {
   }
 
   return (
-    <Screen title="Plano da barbearia" subtitle="O plano decide o que aparece no painel, no menu e na configuração.">
+    <Screen title="Plano do negócio" subtitle="O plano decide o que aparece no painel, no menu e na configuração.">
       {isLoading || !data ? (
         <EsqueletoLista linhas={3} />
       ) : (
@@ -140,7 +140,7 @@ function PlanoPage() {
           })}
           {!data.podeTrocar ? (
             <p className="text-xs text-mute2">
-              Só quem pode alterar os dados da barbearia troca o plano. Fale com o responsável.
+              Só quem pode alterar os dados do negócio troca o plano. Fale com o responsável.
             </p>
           ) : null}
           <p className="text-xs text-mute2">

@@ -23,7 +23,7 @@ async function tenantPadrao(context: ContextoAutenticado) {
     .select("id, nome, slug, segmento, indicacao_ativa, indicacao_codigo, indicacao_recompensa, link_avaliacao_publica")
     .eq("id", tenantId)
     .maybeSingle();
-  if (!tenant) throw new Error("Barbearia não encontrada");
+  if (!tenant) throw new Error("Negócio não encontrado");
   return { db, tenant };
 }
 

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/barbeiro/horarios")({
   head: () => ({
     meta: [
       { title: "Horários — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Defina os dias e horários em que sua barbearia atende." },
+      { name: "description", content: "Defina os dias e horários em que seu negócio atende." },
       { property: "og:title", content: "Horários — Cortaí" },
       { property: "og:description", content: "Dias e horários de funcionamento." },
       { property: "og:type", content: "website" },
@@ -50,11 +50,11 @@ function HorariosPage() {
     <Screen
       voltarPara="/barbeiro/mais"
       title="Horários"
-      subtitle="Quando a barbearia atende. Vale para a agenda e para a fila."
+      subtitle="Quando o negócio atende. Vale para a agenda e para a fila."
     >
       {isLoading ? <Carregando /> : null}
       <label className="mt-2 block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-mute">Fuso horário da barbearia</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-mute">Fuso horário do negócio</span>
         <select
           className="mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none focus:border-gold"
           value={fuso}
@@ -72,7 +72,7 @@ function HorariosPage() {
       </label>
 
       <div className="mt-6" data-guia="horarios-editor">
-        <EditorDeHorarios horarios={horarios} onChange={setHorarios} segmento={data?.tenant.segmento ?? "barbearia"} />
+        <EditorDeHorarios horarios={horarios} onChange={setHorarios} segmento={data?.tenant.segmento ?? "outro"} />
       </div>
 
       <Button variant="ghost"

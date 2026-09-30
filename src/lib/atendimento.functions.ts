@@ -183,7 +183,7 @@ async function abrirNaCadeira(
       .eq("id", servicoId)
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (!s) throw new Error("Serviço não encontrado nesta barbearia.");
+    if (!s) throw new Error("Serviço não encontrado neste negócio.");
     duracao = s.duracao_min;
     preco = s.preco_centavos;
   }
@@ -218,7 +218,7 @@ async function profissionalValido(db: Db, tenantId: string, id: string) {
     .eq("id", id)
     .eq("tenant_id", tenantId)
     .maybeSingle();
-  if (!data) throw new Error("Profissional não encontrado nesta barbearia.");
+  if (!data) throw new Error("Profissional não encontrado neste negócio.");
   return data.id;
 }
 
@@ -241,7 +241,7 @@ export const iniciarAtendimentoAgora = createServerFn({ method: "POST" })
         .eq("id", clienteId)
         .eq("tenant_id", tenantId)
         .maybeSingle();
-      if (!c) throw new Error("Cliente não encontrado nesta barbearia.");
+      if (!c) throw new Error("Cliente não encontrado neste negócio.");
       nome = c.nome;
     } else {
       clienteId = await clienteAvulso(db, tenantId);

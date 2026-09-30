@@ -80,7 +80,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
         </DropdownMenu>
       </div>
       {mostrarQr ? (
-        <div className="brand-qr" role="dialog" aria-label="Código QR da barbearia">
+        <div className="brand-qr" role="dialog" aria-label="Código QR do negócio">
           {qr ? (
             <img src={qr} alt={`Código para abrir a página de ${data.tenant.nome}`} />
           ) : (

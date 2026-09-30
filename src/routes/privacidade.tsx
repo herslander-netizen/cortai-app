@@ -16,7 +16,7 @@ export const Route = createFileRoute("/privacidade")({
       {
         name: "description",
         content:
-          "Como o Cortaí coleta, usa, guarda e protege dados pessoais de barbearias e clientes, conforme a LGPD.",
+          "Como o Cortaí coleta, usa, guarda e protege dados pessoais de negócios e clientes, conforme a LGPD.",
       },
       { property: "og:title", content: "Política de Privacidade — Cortaí" },
       {
@@ -50,7 +50,7 @@ function PaginaDePrivacidade() {
         Versão {VERSAO_DA_POLITICA} · última atualização em 14 de setembro de 2026
       </p>
       <p className="mt-4 text-sm leading-relaxed text-mute">
-        Esta política explica como o Cortaí trata dados pessoais de donos de barbearia, equipes e
+        Esta política explica como o Cortaí trata dados pessoais de responsáveis por negócios, equipes e
         clientes, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
       </p>
 
@@ -64,8 +64,8 @@ function PaginaDePrivacidade() {
           .
         </p>
         <p>
-          Cada barbearia é responsável pelos dados dos próprios clientes; o Cortaí atua como
-          operador dessas informações, sempre isoladas por barbearia.
+          Cada negócio é responsável pelos dados dos próprios clientes; o Cortaí atua como
+          operador dessas informações, sempre isoladas por negócio.
         </p>
       </Bloco>
 
@@ -75,12 +75,12 @@ function PaginaDePrivacidade() {
           usados para criar o acesso, autenticar e recuperar a senha.
         </p>
         <p>
-          <strong className="text-paper">Barbearia:</strong> nome, endereço, contato público,
-          serviços, preços, equipe e horários, exibidos na página pública da barbearia.
+          <strong className="text-paper">Negócio:</strong> nome, endereço, contato público,
+          serviços, preços, equipe e horários, exibidos na página pública do negócio.
         </p>
         <p>
-          <strong className="text-paper">Clientes da barbearia:</strong> nome, telefone, histórico de
-          agendamentos, fidelidade e pagamentos registrados pela própria barbearia.
+          <strong className="text-paper">Clientes do negócio:</strong> nome, telefone, histórico de
+          agendamentos, fidelidade e pagamentos registrados pelo próprio negócio.
         </p>
         <p>
           <strong className="text-paper">Uso do sistema:</strong> registros técnicos de acesso e
@@ -116,7 +116,7 @@ function PaginaDePrivacidade() {
       <Bloco titulo="Com quem compartilhamos">
         <p>
           Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem,
-          banco de dados e autenticação, envio de mensagens e, quando a barbearia ativa, o
+          banco de dados e autenticação, envio de mensagens e, quando o negócio ativa, o
           atendimento inteligente CortAI. Todos tratam os dados sob instrução do Cortaí.
         </p>
       </Bloco>
@@ -142,7 +142,7 @@ function PaginaDePrivacidade() {
 
       <Bloco titulo="Segurança">
         <p>
-          Os acessos são autenticados, os dados de cada barbearia ficam isolados por regras no banco
+          Os acessos são autenticados, os dados de cada negócio ficam isolados por regras no banco
           de dados, as ações sensíveis ficam registradas em auditoria e as chaves de integração
           nunca são exibidas no aplicativo depois de criadas.
         </p>

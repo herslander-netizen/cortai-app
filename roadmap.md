@@ -129,7 +129,7 @@
 - [x] Cabeçalho decide "Aberta/Fechada hoje" pelo fuso da barbearia
 - [x] Botão principal da agenda sem seleção usa tesoura
 - [x] Personalização: paleta rápida + código HEX; compressão de logo/capa
-- [ ] Painel (agendamento manual) ainda oferece horários em passo fixo de 30 min — decidir se segue o passo da barbearia
+- [x] Painel (agendamento manual) usa o passo de horários configurado pelo tenant
 - [ ] Compactação dos cabeçalhos por tela — aguarda apontamento das telas específicas
 
 ## Revisão pré-produção 30/09
@@ -147,9 +147,9 @@
 
 ## Identidade e segmentação oficial
 
-- [ ] Registrar o Cortaí como produto principal para negócios e profissionais, atualmente com segmentos ativos somente em Beleza
-- [ ] Consolidar `segmentos.ts` como fonte única de textos, exemplos e elementos condicionais por segmento
-- [ ] Remover resquícios de barbearia em contextos globais ou de outros segmentos, preservando usos contextuais e a fixture `/demonstracao`
-- [ ] Auditar onboarding, páginas públicas, booking, painel, CortAI, WhatsApp, notificações, SEO, assets, mocks e defaults
+- [x] Registrar o Cortaí como produto principal para negócios e profissionais, atualmente com segmentos ativos somente em Beleza
+- [x] Consolidar `segmentos.ts` como fonte única de textos, exemplos e elementos condicionais por segmento
+- [x] Remover resquícios de barbearia em contextos globais ou de outros segmentos, preservando usos contextuais e a fixture `/demonstracao`
+- [x] Auditar onboarding, páginas públicas, booking, painel, CortAI, WhatsApp, notificações, SEO, assets, mocks e defaults
 - [ ] Validar um tenant barbearia e um tenant de outro segmento de Beleza em 390px e 1280px
-- [ ] Classificar os termos de barbearia restantes e executar typecheck, lint, testes e build sem publicar
+- [x] Classificar os termos de barbearia restantes e executar typecheck, testes e build sem publicar; lint geral segue bloqueado por passivo preexistente

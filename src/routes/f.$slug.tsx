@@ -15,7 +15,7 @@ export const Route = createFileRoute("/f/$slug")({
   head: ({ params }) => ({
     meta: [
       { title: `Entrar na fila — ${params.slug} | Cortaí` },
-      { name: "description", content: "Entre na fila da barbearia pelo celular e acompanhe sua posição." },
+      { name: "description", content: "Entre na fila do negócio pelo celular e acompanhe sua posição." },
       { property: "og:title", content: `Entrar na fila — ${params.slug}` },
       { property: "og:description", content: "Escolha o serviço e acompanhe sua vez." },
       { property: "og:type", content: "website" },
