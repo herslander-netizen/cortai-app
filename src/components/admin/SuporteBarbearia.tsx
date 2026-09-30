@@ -56,6 +56,12 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   const [status, setStatus] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [confirmarSalvamento, setConfirmarSalvamento] = useState(false);
+  const [itemParaAlternar, setItemParaAlternar] = useState<{
+    tabela: "servicos" | "profissionais" | "produtos";
+    id: string;
+    nome: string;
+    valor: boolean;
+  } | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
@@ -97,6 +103,28 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
       setErro((e as Error).message);
     } finally {
       setSalvando(false);
+    }
+  }
+
+  async function confirmarAlternancia() {
+    if (!itemParaAlternar) return;
+    setErro(null);
+    try {
+      await alternar({
+        data: {
+          tenantId,
+          tabela: itemParaAlternar.tabela,
+          id: itemParaAlternar.id,
+          campo: "ativo",
+          valor: itemParaAlternar.valor,
+          motivo,
+        },
+      });
+      await query.refetch();
+      setStatus(`${itemParaAlternar.nome} ${itemParaAlternar.valor ? "ativado" : "desativado"}.`);
+      setItemParaAlternar(null);
+    } catch (e) {
+      setErro((e as Error).message);
     }
   }
 
@@ -235,22 +263,12 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
                     setErro("Descreva o motivo antes de alterar itens.");
                     return;
                   }
-                  try {
-                    await alternar({
-                      data: {
-                        tenantId,
-                        tabela: item.tabela,
-                        id: item.id,
-                        campo: "ativo",
-                        valor,
-                        motivo,
-                      },
-                    });
-                    await query.refetch();
-                    setStatus(`${item.nome} ${valor ? "ativado" : "desativado"}.`);
-                  } catch (e) {
-                    setErro((e as Error).message);
-                  }
+                  setItemParaAlternar({
+                    tabela: item.tabela,
+                    id: item.id,
+                    nome: item.nome,
+                    valor,
+                  });
                 }}
               />
             </li>
@@ -271,6 +289,29 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
             <AlertDialogCancel>Revisar</AlertDialogCancel>
             <AlertDialogAction onClick={() => void salvarAlteracoes()}>
               Confirmar e salvar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(itemParaAlternar)}
+        onOpenChange={(open) => {
+          if (!open) setItemParaAlternar(null);
+        }}
+      >
+        <AlertDialogContent className="w-[calc(100%-2rem)] rounded-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar alteração deste item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {itemParaAlternar?.nome} será {itemParaAlternar?.valor ? "ativado" : "desativado"} em nome da
+              barbearia. A ação ficará registrada na auditoria.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void confirmarAlternancia()}>
+              Confirmar alteração
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
