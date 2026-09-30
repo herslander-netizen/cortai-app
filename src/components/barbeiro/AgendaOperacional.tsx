@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Maximize2,
   Plus,
   Scissors,
   UserRoundPlus,
@@ -209,6 +210,7 @@ export function AgendaOperacional() {
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
   const filtroInicial = useRef(false);
   const [painelAberto, setPainelAberto] = useState(false);
+  const [modoFoco, setModoFoco] = useState(false);
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
   const [remarcarHora, setRemarcarHora] = useState("");
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
@@ -217,6 +219,23 @@ export function AgendaOperacional() {
   const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
   const ehDesktop = useEhDesktop();
+
+  useEffect(() => {
+    const voltar = () => setModoFoco(false);
+    window.addEventListener("popstate", voltar);
+    return () => window.removeEventListener("popstate", voltar);
+  }, []);
+
+  function entrarNoModoFoco() {
+    if (modoFoco) return;
+    window.history.pushState({ ...window.history.state, modoFoco: true }, "");
+    setModoFoco(true);
+  }
+
+  function sairDoModoFoco() {
+    if (window.history.state?.modoFoco) window.history.back();
+    else setModoFoco(false);
+  }
 
   const rapido = useQuery({
     queryKey: ["agenda-agora-proximo"],
@@ -698,7 +717,7 @@ export function AgendaOperacional() {
   const proximoLivre = futuros[0];
   const diaSemAgenda = !agenda.isLoading && itens.length === 0;
 
-  if (celular) {
+  if (modoFoco) {
     return (
       <Screen title="Agenda" hideHeader wide>
         <AgendaFocoMobile
@@ -719,6 +738,7 @@ export function AgendaOperacional() {
                 : "Tente novamente."
               : null
           }
+          onSair={sairDoModoFoco}
           onDia={setDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
@@ -1004,6 +1024,10 @@ export function AgendaOperacional() {
               </Button>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <Button size="sm" variant="outline" onClick={entrarNoModoFoco}>
+                <Maximize2 />
+                Modo Foco
+              </Button>
               {chegada.length > 0 ? (
                 <Button size="sm" variant="outline" onClick={() => setFilaAberta(true)}>
                   <ListOrdered />
