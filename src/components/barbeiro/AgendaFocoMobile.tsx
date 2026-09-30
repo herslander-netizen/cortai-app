@@ -9,7 +9,6 @@ import {
   LogOut,
   ListOrdered,
   Maximize2,
-  Menu,
   MessageCircle,
   Plus,
   Scissors,
@@ -23,6 +22,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { IconeCortai } from "@/components/marca/MarcaCortai";
 import {
   Sheet,
   SheetContent,
@@ -155,8 +155,14 @@ export function AgendaFocoMobile(props: Props) {
       aria-label="Agenda operacional"
     >
       <div className="agenda-foco-topo">
-        <Button variant="icon" size="icon" aria-label="Abrir menu" onClick={() => setMenu(true)}>
-          <Menu />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full p-0"
+          aria-label="Abrir menu"
+          onClick={() => setMenu(true)}
+        >
+          <IconeCortai className="h-10 w-10 rounded-full" />
         </Button>
         <div className="min-w-0 text-center">
           <strong className="block truncate text-base font-extrabold capitalize text-paper">

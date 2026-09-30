@@ -1,4 +1,4 @@
-import iconAsset from "@/assets/cortai-simbolo-oficial.png.asset.json";
+import iconAsset from "@/assets/cortai-logo-menu.png.asset.json";
 import colorOnLightAsset from "@/assets/cortai-logo-escura-oficial.png.asset.json";
 import colorOnDarkAsset from "@/assets/cortai-logo-clara-oficial.png.asset.json";
 

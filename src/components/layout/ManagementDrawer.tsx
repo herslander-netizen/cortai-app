@@ -14,7 +14,6 @@ import {
   LifeBuoy,
   ListOrdered,
   MapPin,
-  Menu,
   MessageSquareText,
   Package,
   Palette,
@@ -264,16 +263,10 @@ export function ManagementHeader() {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="h-11 min-w-0 justify-start gap-2.5 rounded-lg px-2 text-left hover:bg-ink3"
+              className="h-11 w-11 rounded-full p-0 hover:bg-ink3"
               aria-label="Abrir navegação"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-paper">
-                <Menu size={18} strokeWidth={1.75} aria-hidden />
-              </span>
-              <IconeCortai className="h-7 w-7 shrink-0 rounded-md" />
-              <span className="min-w-0 truncate text-[15px] font-semibold leading-tight text-paper">
-                {sessao?.tenantNome ?? "Cortaí"}
-              </span>
+              <IconeCortai className="h-10 w-10 rounded-full" />
             </Button>
           </SheetTrigger>
           <SheetContent
