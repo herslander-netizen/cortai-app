@@ -479,7 +479,16 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo: "Agendamento não está ativo." };
   }
 
-  const cliente = (ag as any).clientes as {
+  const relacoes = ag as unknown as {
+    clientes: {
+      nome: string;
+      telefone: string | null;
+      opt_in_whatsapp: boolean | null;
+    } | null;
+    servicos: { nome?: string } | null;
+    profissionais: { nome?: string } | null;
+  };
+  const cliente = relacoes.clientes as {
     nome: string;
     telefone: string | null;
     opt_in_whatsapp: boolean | null;
@@ -599,8 +608,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       ? preencher(base, {
           nome: primeiroNome(cliente?.nome ?? "cliente"),
           dias,
-          ultimo_servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
-          profissional: ((ag as any).profissionais?.nome as string | undefined) ?? "a equipe",
+          ultimo_servico: relacoes.servicos?.nome ?? null,
+          profissional: relacoes.profissionais?.nome ?? "a equipe",
           barbearia: tenant.nome,
         })
       : null;
@@ -617,8 +626,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
     barbearia: tenant?.nome ?? "Negócio",
-    servico: ((ag as any).servicos?.nome as string | undefined) ?? null,
-    profissional: ((ag as any).profissionais?.nome as string | undefined) ?? null,
+    servico: relacoes.servicos?.nome ?? null,
+    profissional: relacoes.profissionais?.nome ?? null,
     inicio: ag.inicio,
     valorCentavos: ag.valor_centavos ?? 0,
     endereco: tenant?.endereco ?? null,

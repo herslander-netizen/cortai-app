@@ -422,15 +422,18 @@ export async function avisarListaDeEspera(agendamentoId: string) {
 
   const fuso = await fusoDoTenant(ag.tenant_id);
   const profissional = (ag as { profissionais?: { nome?: string } | null }).profissionais?.nome;
+  const clienteDaFila = (alvo as unknown as {
+    clientes?: { nome?: string; telefone?: string | null } | null;
+  }).clientes;
   await db.rpc("criar_notificacao", {
     _tenant: ag.tenant_id,
     _tipo: "fila",
     _titulo: "Horário liberado",
-    _corpo: `${(alvo as any).clientes?.nome ?? "Cliente"} da lista de espera foi avisado (${hora(ag.inicio, fuso)}).`,
+    _corpo: `${clienteDaFila?.nome ?? "Cliente"} da lista de espera foi avisado (${hora(ag.inicio, fuso)}).`,
     _link: "/barbeiro/fila",
   });
 
-  const cliente = (alvo as any).clientes as { nome: string; telefone: string | null } | null;
+  const cliente = clienteDaFila ?? null;
   const telefone = String(cliente?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
   const { data: conexao } = await db
