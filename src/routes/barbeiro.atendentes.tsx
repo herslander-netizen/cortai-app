@@ -102,7 +102,7 @@ function AtendentesPage() {
       if (v.modo === "humano") {
         void navigate({
           to: "/barbeiro/cortai",
-          search: { aba: "conversas", conversa: v.conversaId },
+          search: { aba: "envios" },
         });
       }
     },
@@ -197,7 +197,7 @@ function AtendentesPage() {
                 onClick={() =>
                   void navigate({
                     to: "/barbeiro/cortai",
-                    search: { aba: "conversas", conversa: c.id },
+                    search: { aba: "envios" },
                   })
                 }
               >
