@@ -26,6 +26,7 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
+import { Route as AdminApresentacaoRouteImport } from './routes/admin.apresentacao'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminHomeRouteImport } from './routes/admin.home'
 import { Route as AdminMaisRouteImport } from './routes/admin.mais'
@@ -174,6 +175,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAjustesRoute = AdminAjustesRouteImport.update({
   id: '/ajustes',
   path: '/ajustes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApresentacaoRoute = AdminApresentacaoRouteImport.update({
+  id: '/apresentacao',
+  path: '/apresentacao',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
@@ -513,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -592,6 +599,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -674,6 +682,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
   '/admin/ajustes': typeof AdminAjustesRoute
+  '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -758,6 +767,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/visitante'
     | '/admin/ajustes'
+    | '/admin/apresentacao'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -837,6 +847,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/visitante'
     | '/admin/ajustes'
+    | '/admin/apresentacao'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -918,6 +929,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/visitante'
     | '/admin/ajustes'
+    | '/admin/apresentacao'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -1137,6 +1149,13 @@ declare module '@tanstack/react-router' {
       path: '/ajustes'
       fullPath: '/admin/ajustes'
       preLoaderRoute: typeof AdminAjustesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/apresentacao': {
+      id: '/admin/apresentacao'
+      path: '/apresentacao'
+      fullPath: '/admin/apresentacao'
+      preLoaderRoute: typeof AdminApresentacaoRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/barbearias': {
@@ -1585,6 +1604,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
+  AdminApresentacaoRoute: typeof AdminApresentacaoRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
   AdminHomeRoute: typeof AdminHomeRoute
   AdminMaisRoute: typeof AdminMaisRoute
@@ -1598,6 +1618,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
+  AdminApresentacaoRoute: AdminApresentacaoRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
   AdminHomeRoute: AdminHomeRoute,
   AdminMaisRoute: AdminMaisRoute,
