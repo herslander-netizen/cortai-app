@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, ClipboardList, LayoutTemplate, Palette, SlidersHorizontal, UserRound, UsersRound } from "lucide-react";
+import { ChevronRight, ClipboardList, LayoutTemplate, Megaphone, Palette, SlidersHorizontal, UserRound, UsersRound } from "lucide-react";
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
 
@@ -28,6 +28,7 @@ const grupos = [
   {
     titulo: "Conteúdo público",
     itens: [
+      { to: "/admin/marketing", label: "Marketing", detail: "Abrir e compartilhar a apresentação do Cortaí", icon: Megaphone },
       { to: "/admin/home", label: "Home", detail: "Topo, seções, imagens e aparência da página inicial", icon: LayoutTemplate },
       { to: "/admin/parceiros", label: "Parceiros", detail: "Faixa pública e parcerias ativas", icon: UsersRound },
     ],
