@@ -12,11 +12,19 @@ import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 
+type ServicoSelecionavel = {
+  id: string;
+  nome: string;
+  duracao_min: number;
+  preco_centavos: number;
+  profissional_ids?: string[] | null;
+  foto_url?: string | null;
+};
+
 type Selecao = {
   servicoId: string | null;
   setServicoId: (id: string | null) => void;
-  servico:
-    (Omit<AgendaPublica["servicos"][number], "foto_url"> & { foto_url?: string | null }) | null;
+  servico: ServicoSelecionavel | null;
   profissionalId: string;
   setProfissionalId: (id: string) => void;
   aptos: { id: string; nome: string; avatar_url?: string | null }[];
