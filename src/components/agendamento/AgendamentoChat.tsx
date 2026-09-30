@@ -410,7 +410,7 @@ export function AgendamentoChat({
                   ))}
                 </dl>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-[1fr_0.8fr_1.4fr] gap-2">
                 <Button
                   variant="outline"
                   className="h-12"
