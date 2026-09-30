@@ -44,7 +44,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { aba?: Aba | undefined; conversa?: string | undefined; cliente?: string | undefined } => ({
     aba:
-      search["aba"] === "conversas" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
+      search["aba"] === "envios" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
         ? search["aba"]
         : undefined,
     conversa: typeof search["conversa"] === "string" ? search["conversa"] : undefined,

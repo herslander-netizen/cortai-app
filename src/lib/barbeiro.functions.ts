@@ -64,6 +64,9 @@ export const finalizarAtendimento = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
+    const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+    void notificarAgendamento(data.agendamentoId, "pos_atendimento");
+    void notificarAgendamento(data.agendamentoId, "convite_avaliacao");
     return { ok: true };
   });
 

@@ -23,6 +23,8 @@ export type TipoDeNotificacao =
   | "lembrete_2h"
   | "cancelamento"
   | "remarcacao"
+  | "pos_atendimento"
+  | "convite_avaliacao"
   | "retorno";
 
 /** Automação (liga/desliga por barbearia) correspondente a cada tipo. */
@@ -32,6 +34,8 @@ const AUTOMACAO_DO_TIPO = {
   lembrete_2h: "lembrete_2h",
   cancelamento: "cancelamento",
   remarcacao: "remarcacao",
+  pos_atendimento: "pos_atendimento",
+  convite_avaliacao: "convite_avaliacao",
   retorno: "retorno",
 } as const;
 
@@ -122,6 +126,7 @@ export type DadosDaMensagem = {
   segmento?: string | null;
   /** Texto de retorno já preenchido (personalização > padrão do segmento). */
   textoRetorno?: string | null;
+  linkAvaliacao?: string | null;
 };
 
 /**
@@ -174,6 +179,10 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       "Até daqui a pouco! ✂️",
     );
+  } else if (tipo === "pos_atendimento") {
+    blocos.push(`Obrigado por escolher ${d.barbearia}, ${nome}.`, "Esperamos que tenha gostado da experiência.");
+  } else if (tipo === "convite_avaliacao") {
+    blocos.push(`Olá, ${nome}. Como foi sua experiência?`, d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null);
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
@@ -353,7 +362,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   if (!ag) return { enviado: false, motivo: "Agendamento não encontrado." };
 
   const status = String(ag.status);
-  if (tipo === "retorno") {
+  if (tipo === "retorno" || tipo === "pos_atendimento" || tipo === "convite_avaliacao") {
     if (status !== "finalizado") return { enviado: false, motivo: "Atendimento não finalizado." };
   } else if (tipo === "cancelamento") {
     if (!["cancelado", "estornado"].includes(status)) {
@@ -371,11 +380,11 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
-  if (tipo === "retorno" && cliente?.opt_in_whatsapp !== true) {
+  if (["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) && cliente?.opt_in_whatsapp !== true) {
     return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
   }
 
-  if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
+  if (["lembrete_24h", "lembrete_2h", "pos_atendimento", "convite_avaliacao"].includes(tipo)) {
     const bloqueio = await preferenciaBloqueia(
       ag.cliente_id,
       tipo,
@@ -485,6 +494,14 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       : null;
   }
 
+  let linkAvaliacao: string | null = null;
+  if (tipo === "convite_avaliacao") {
+    const { criarConviteDeAvaliacao } = await import("@/lib/avaliacoes-publicas.functions");
+    const token = await criarConviteDeAvaliacao(ag.id);
+    if (!token) return marcarErro("Convite de avaliação já criado ou atendimento não elegível.");
+    linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
+  }
+
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
     barbearia: tenant?.nome ?? "Negócio",
@@ -496,6 +513,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     fuso: await fusoDoTenant(ag.tenant_id),
     segmento: tenant?.segmento ?? null,
     textoRetorno,
+    linkAvaliacao,
     linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
     linkPagamento:
       tipo === "confirmacao_agendamento" &&

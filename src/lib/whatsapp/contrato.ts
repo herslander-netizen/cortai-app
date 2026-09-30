@@ -36,6 +36,9 @@ export const AUTOMACOES = {
   lembrete_2h: "Lembrete 2 horas antes",
   cancelamento: "Aviso de cancelamento",
   remarcacao: "Aviso de remarcação",
+  pos_atendimento: "Pós-atendimento",
+  convite_avaliacao: "Convite de avaliação",
+  retorno: "Lembrete de retorno",
   encaminhamento_humano: "Encaminhamento para atendente",
   cliente_de_retorno: "Cliente que voltou",
 } as const;

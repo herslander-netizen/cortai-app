@@ -118,6 +118,9 @@ export const enviarParaRecepcao = createServerFn({ method: "POST" })
     if (c?.agendamento_id) {
       await db.from("agendamentos").update({ status: "finalizado", status_alterado_por: context.userId })
         .eq("id", c.agendamento_id).eq("tenant_id", tenantId).in("status", ["agendado", "chegou", "na_cadeira"]);
+      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+      void notificarAgendamento(c.agendamento_id, "pos_atendimento");
+      void notificarAgendamento(c.agendamento_id, "convite_avaliacao");
     }
     return { ok: true };
   });
