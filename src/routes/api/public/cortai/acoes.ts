@@ -14,52 +14,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const uuid = z.string().uuid();
-const dia = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use o formato AAAA-MM-DD");
-const instante = z.string().datetime({ offset: true });
-
-const ENTRADAS = {
-  consultar_barbearia: z.object({}).default({}),
-  listar_servicos: z.object({}).default({}),
-  listar_profissionais: z.object({}).default({}),
-  consultar_disponibilidade: z.object({
-    dia,
-    profissionalId: uuid.nullish(),
-    servicoId: uuid.nullish(),
-  }),
-  consultar_servico: z.object({ servicoId: uuid }),
-  consultar_horarios: z.object({}).default({}),
-  consultar_informacoes: z.object({}).default({}),
-  historico_do_cliente: z.object({ clienteId: uuid }),
-  salvar_preferencia_do_cliente: z.object({
-    clienteId: uuid,
-    chave: z.string().trim().min(2).max(60),
-    valor: z.string().trim().min(1).max(300),
-  }),
-  confirmar_agendamento: z.object({ agendamentoId: uuid }),
-  consultar_cliente: z.object({ telefone: z.string().trim().min(8).max(20) }),
-  registrar_cliente: z.object({
-    nome: z.string().trim().min(2).max(80),
-    telefone: z.string().trim().min(8).max(20),
-    optInWhatsapp: z.boolean(),
-  }),
-  listar_agendamentos_do_cliente: z.object({ clienteId: uuid }),
-  criar_agendamento: z.object({
-    clienteId: uuid,
-    profissionalId: uuid,
-    servicoId: uuid,
-    inicio: instante,
-    formaPagamento: z.enum(["credito", "pix", "balcao", "fiado"]),
-  }),
-  remarcar_agendamento: z.object({
-    agendamentoId: uuid,
-    novoInicio: instante,
-    profissionalId: uuid.nullish(),
-  }),
-  cancelar_agendamento: z.object({ agendamentoId: uuid }),
-} as const;
-
-type NomeDeAcao = keyof typeof ENTRADAS;
+import { acharValidador, type NomeDeAcao, ENTRADAS } from "@/lib/ia/entradas-da-api";
 
 function json(corpo: unknown, status = 200) {
   return new Response(JSON.stringify(corpo), {
@@ -72,9 +27,15 @@ export const Route = createFileRoute("/api/public/cortai/acoes")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const guard = await import("@/lib/webhook-guard.server");
+        const abuso = await guard.barrarAbusivo(request, "cortai/acoes");
+        if (abuso) return abuso;
         const { contextoDoToken, tokenDaRequisicao } = await import("@/lib/ia/ponte.server");
         const ctx = await contextoDoToken(tokenDaRequisicao(request));
-        if (!ctx) return json({ erro: "Token inválido ou barbearia sem conexão ativa." }, 401);
+        if (!ctx) {
+          await guard.rejeitar(request, "cortai/acoes", "token invalido");
+          return json({ erro: "Token inválido ou barbearia sem conexão ativa." }, 401);
+        }
 
         let corpo: unknown;
         try {
@@ -89,7 +50,7 @@ export const Route = createFileRoute("/api/public/cortai/acoes")({
         if (!envelope.success) return json({ erro: "Informe { acao, dados }." }, 400);
 
         const nome = envelope.data.acao as NomeDeAcao;
-        const validador = ENTRADAS[nome];
+        const validador = acharValidador(envelope.data.acao);
         if (!validador) {
           return json({ erro: `Ação desconhecida: ${envelope.data.acao}`, acoes: Object.keys(ENTRADAS) }, 400);
         }

@@ -277,6 +277,7 @@ export async function criarAgendamento(
     _servico_id: input.servicoId,
     _inicio: input.inicio,
     _forma_pagamento: input.formaPagamento,
+    _validar_regras: true,
   });
   if (error) throw new Error(error.message.includes("horario ja ocupado") ? "Esse horário acabou de ser reservado, escolha outro" : error.message);
   const resultado = data as { agendamento_id?: string };
@@ -515,6 +516,8 @@ export async function confirmarAgendamento(ctx: ContextoDoAgente, input: { agend
   return { agendamentoId: atual.id, status: "agendado" };
 }
 
+import { exigirFormaDoAtendente } from "./entradas-da-api";
+
 /** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
 export const ACOES_DO_AGENTE = {
   consultar_barbearia: consultarBarbearia,
@@ -530,7 +533,9 @@ export const ACOES_DO_AGENTE = {
   historico_do_cliente: historicoDoCliente,
   salvar_preferencia_do_cliente: salvarPreferenciaDoCliente,
   confirmar_agendamento: confirmarAgendamento,
-  criar_agendamento: criarAgendamento,
+  // O atendente nunca marca fiado nem crédito: confere aqui também, não só no schema da rota.
+  criar_agendamento: (ctx: ContextoDoAgente, input: Parameters<typeof criarAgendamento>[1]) =>
+    criarAgendamento(ctx, { ...input, formaPagamento: exigirFormaDoAtendente(input.formaPagamento), avisarCliente: true }),
   remarcar_agendamento: remarcarAgendamento,
   cancelar_agendamento: cancelarAgendamento,
 } as const;
