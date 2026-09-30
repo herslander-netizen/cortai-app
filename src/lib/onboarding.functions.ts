@@ -9,6 +9,8 @@ import { capacidadesDoTenant } from "@/lib/capacidades.functions";
 import { PERMISSOES } from "@/lib/permissoes";
 import type { CapacidadesDoTenant } from "@/lib/capacidades";
 import { SEGMENTOS_CONFIG, chipsSaoPadraoBarbearia, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { normalizarPagina } from "@/lib/pagina-config";
+import type { Json } from "@/integrations/supabase/types";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
@@ -370,7 +372,7 @@ export const marcarTourVisto = createServerFn({ method: "POST" })
 /* ---------------------- IMPLANTAÇÃO GUIADA (onboarding) ------------------ */
 
 /** Ordem do onboarding. As etapas antigas continuam aceitas para quem parou no meio. */
-export const ETAPAS_DO_ONBOARDING = ["dados", "equipe", "servicos", "horarios", "regras", "link", "pronto"] as const;
+export const ETAPAS_DO_ONBOARDING = ["dados", "equipe", "servicos", "horarios", "regras", "canais", "link", "pronto"] as const;
 export const ETAPAS_DA_IMPLANTACAO = [
   ...ETAPAS_DO_ONBOARDING,
   "boas_vindas",
@@ -391,6 +393,7 @@ export type Implantacao = ConfiguracaoInicial & {
   capacidades: CapacidadesDoTenant;
   permissoes: string[];
   whatsappConectado: boolean;
+  modoAgendamento: "tradicional" | "conversa";
 };
 
 /** Leitura única com tudo que a implantação precisa. Evita telas em cascata. */
@@ -400,7 +403,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = context.supabase;
 
-    const [tenantRes, horariosRes, servicosRes, onbRes, profRes, conexaoRes, acessoRes, capacidades] =
+    const [tenantRes, horariosRes, servicosRes, onbRes, profRes, conexaoRes, acessoRes, paginaRes, capacidades] =
       await Promise.all([
         db
           .from("tenants")
@@ -413,6 +416,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
         db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
         db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).maybeSingle(),
         db.rpc("meu_acesso_no_tenant", { _tenant_id: tenantId }),
+        db.from("tenant_page_configs").select("draft_config, published_config").eq("tenant_id", tenantId).maybeSingle(),
         capacidadesDoTenant(db, tenantId),
       ]);
 
@@ -439,6 +443,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
     const onb = onbRes.data as Record<string, any> | null;
     const itens = (onb?.["itens"] ?? {}) as Record<string, boolean>;
     const acesso = Array.isArray(acessoRes.data) ? (acessoRes.data[0] as Record<string, any> | undefined) : null;
+    const paginaContainer = (paginaRes.data?.draft_config ?? paginaRes.data?.published_config) as { pagina?: unknown } | null;
 
     return {
       tenant: {
@@ -485,7 +490,23 @@ export const getImplantacao = createServerFn({ method: "GET" })
           : (((acesso?.["permissoes"] as string[] | undefined) ?? []) as string[]),
 
       whatsappConectado: (conexaoRes.data?.status as string | undefined) === "conectado",
+      modoAgendamento: normalizarPagina(paginaContainer?.pagina).chat.modo,
     };
+  });
+
+export const salvarModoAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ modo: z.enum(["tradicional", "conversa"]) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { data: existente } = await context.supabase.from("tenant_page_configs").select("draft_config, published_config").eq("tenant_id", tenantId).maybeSingle();
+    const baseContainer = (existente?.draft_config ?? existente?.published_config) as { pagina?: unknown; marca?: unknown } | null;
+    const pagina = normalizarPagina(baseContainer?.pagina);
+    const container = { ...(baseContainer ?? {}), pagina: { ...pagina, chat: { ...pagina.chat, modo: data.modo } } } as unknown as Json;
+    const { error } = await context.supabase.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: container, published_config: container, draft_by: context.userId, published_by: context.userId, published_at: new Date().toISOString() }, { onConflict: "tenant_id" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const alterarSegmento = createServerFn({ method: "POST" })
