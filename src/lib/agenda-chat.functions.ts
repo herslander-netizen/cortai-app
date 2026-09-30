@@ -3,7 +3,15 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
-import { slotsDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { hojeNoFuso, slotsDoDia, somarDias } from "@/lib/horarios";
+import {
+  horariosDisponiveis,
+  motivoAntecedencia,
+  profissionaisDoServico,
+  proximosDiasNoFuso,
+  type Ocupado,
+} from "@/lib/disponibilidade";
+import { regrasDaBarbearia, STATUS_QUE_OCUPAM } from "@/lib/agenda-regras.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -14,6 +22,8 @@ export type SlotDaGrade = {
   iso: string;
   label: string;
   livre: boolean;
+  /** Profissional escolhido pelo motor oficial quando o slot está livre. */
+  profId: string | null;
   /** Nome do cliente já marcado neste horário (só para a equipe ver). */
   ocupadoPor: string | null;
   passou: boolean;
@@ -21,26 +31,30 @@ export type SlotDaGrade = {
 
 export type GradeDoDia = {
   dia: string;
+  hoje: string;
+  dias: string[];
   fechado: boolean;
   abre: string;
   fecha: string;
   duracaoMin: number;
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  passoMin: number;
+  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null }[];
   profissionais: { id: string; nome: string }[];
   slots: SlotDaGrade[];
 };
 
 /**
- * Grade de horários livres e ocupados de um dia, montada com o horário real de
- * funcionamento da barbearia e os agendamentos ativos. Serve à agenda dentro do
- * chat do CortAI — nenhuma disponibilidade é inventada aqui.
+ * Grade do dia para o chat do CortAI. Não tem regra própria: usa o motor
+ * oficial (`disponibilidade.ts`) com as regras reais da barbearia (fuso, passo,
+ * antecedência, janela, intervalo, pausa, madrugada e serviço × profissional).
+ * A proteção final continua no RPC/banco ao criar o agendamento.
  */
 export const getGradeDoDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
-        dia: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        dia: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null),
         servicoId: z.string().uuid().nullable().default(null),
         profissionalId: z.string().uuid().nullable().default(null),
       })
@@ -51,87 +65,86 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
     await exigirPermissao(context as ContextoAutenticado, tenantId, "visualizar_clientes");
     const db = await admin();
 
-    const [servicosRes, profRes, horariosRes] = await Promise.all([
+    const [regras, servicosRes, profRes] = await Promise.all([
+      regrasDaBarbearia(db, tenantId),
       db
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
         .eq("tenant_id", tenantId)
         .eq("ativo", true)
         .order("ordem"),
-      db
-        .from("profissionais")
-        .select("id, nome")
-        .eq("tenant_id", tenantId)
-        .eq("ativo", true)
-        .order("nome"),
-      db
-        .from("horarios_de_funcionamento")
-        .select("dia_semana, fechado, abre, fecha")
-        .eq("tenant_id", tenantId)
-        .order("dia_semana"),
+      db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
     ]);
 
-    const servicos = servicosRes.data ?? [];
-    const profissionais = profRes.data ?? [];
-    const horarios: HorarioDeFuncionamento[] = (horariosRes.data ?? []).map((h) => ({
-      diaSemana: h.dia_semana as number,
-      fechado: Boolean(h.fechado),
-      abre: String(h.abre).slice(0, 5),
-      fecha: String(h.fecha).slice(0, 5),
-    }));
+    const hoje = hojeNoFuso(regras.fuso);
+    const dias = proximosDiasNoFuso(Math.min(7, regras.janelaDias + 1), regras.fuso);
+    const dia = data.dia && dias.includes(data.dia) ? data.dia : hoje;
 
-    const servicoEscolhido = data.servicoId
-      ? servicos.find((s) => s.id === data.servicoId)
-      : servicos[0];
-    const duracaoMin = servicoEscolhido?.duracao_min ?? 30;
+    const servicos = (servicosRes.data ?? []) as GradeDoDia["servicos"];
+    const todos = profRes.data ?? [];
+    const servico = (data.servicoId ? servicos.find((s) => s.id === data.servicoId) : servicos[0]) ?? null;
+    const profissionais = profissionaisDoServico(servico, todos);
+    const duracaoMin = servico?.duracao_min ?? 30;
+    const base = { dia, hoje, dias, duracaoMin, passoMin: regras.passoMin, servicos, profissionais };
 
-    const grade = slotsDoDia(data.dia, horarios, 30);
-    const inicioDoDia = grade.slots[0]?.iso ?? new Date(`${data.dia}T00:00:00Z`).toISOString();
-    const fimDoDia = new Date(new Date(inicioDoDia).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso);
+    if (!servico || grade.fechado) {
+      return { ...base, fechado: grade.fechado, abre: grade.abre, fecha: grade.fecha, slots: [] };
+    }
 
-    let consulta = db
+    const inicioJanela = new Date(`${somarDias(dia, -1)}T00:00:00Z`).toISOString();
+    const fimJanela = new Date(`${somarDias(dia, 2)}T12:00:00Z`).toISOString();
+    const { data: ocupadosRaw } = await db
       .from("agendamentos")
-      .select("inicio, fim, profissional_id, clientes(nome)")
+      .select("profissional_id, inicio, fim, clientes(nome)")
       .eq("tenant_id", tenantId)
-      .not("status", "in", "(cancelado,falta)")
-      .gte("inicio", new Date(new Date(inicioDoDia).getTime() - 12 * 60 * 60 * 1000).toISOString())
-      .lt("inicio", fimDoDia);
-    if (data.profissionalId) consulta = consulta.eq("profissional_id", data.profissionalId);
-    const { data: ocupados } = await consulta;
+      .in("status", [...STATUS_QUE_OCUPAM])
+      .lt("inicio", fimJanela)
+      .gt("fim", inicioJanela);
+    const ocupados = (ocupadosRaw ?? []) as (Ocupado & { clientes?: { nome?: string } | null })[];
 
+    const escolhido = data.profissionalId && profissionais.some((p) => p.id === data.profissionalId)
+      ? data.profissionalId
+      : "qualquer";
     const agora = Date.now();
-    const equipe = data.profissionalId
-      ? profissionais.filter((p) => p.id === data.profissionalId)
-      : profissionais;
+    const { opcoes } = horariosDisponiveis({
+      dia,
+      servico,
+      profissionais: todos,
+      escolhido,
+      horarios: regras.horarios,
+      fuso: regras.fuso,
+      ocupados,
+      regras: { antecedenciaMin: regras.antecedenciaMin, intervaloEntreMin: regras.intervaloEntreMin },
+      agora,
+      passoMin: regras.passoMin,
+    });
+    const livres = new Map(opcoes.map((o) => [o.iso, o.profId]));
+    const limite = agora + regras.janelaDias * 86_400_000;
+    const candidatos = escolhido === "qualquer" ? profissionais.map((p) => p.id) : [escolhido];
 
     const slots: SlotDaGrade[] = grade.slots.map((s) => {
-      const inicio = new Date(s.iso).getTime();
-      const fim = inicio + duracaoMin * 60_000;
-      const conflitos = (ocupados ?? []).filter(
-        (a) => new Date(a.inicio).getTime() < fim && new Date(a.fim).getTime() > inicio,
-      );
-      // Com vários profissionais, o horário só fica ocupado quando todos estão.
-      const totalEquipe = Math.max(1, equipe.length);
-      const cheio = conflitos.length >= totalEquipe;
+      const ini = new Date(s.iso).getTime();
+      const fim = ini + duracaoMin * 60_000;
+      const profId = ini <= limite ? (livres.get(s.iso) ?? null) : null;
+      const conflito = profId
+        ? null
+        : ocupados.find(
+            (o) =>
+              o.profissional_id != null &&
+              candidatos.includes(o.profissional_id) &&
+              new Date(o.inicio).getTime() < fim &&
+              new Date(o.fim).getTime() > ini,
+          );
       return {
         iso: s.iso,
         label: s.label,
-        livre: !cheio,
-        ocupadoPor: cheio
-          ? ((conflitos[0] as { clientes?: { nome?: string } })?.clientes?.nome ?? "Ocupado")
-          : null,
-        passou: inicio <= agora,
+        livre: Boolean(profId),
+        profId,
+        ocupadoPor: conflito ? (conflito.clientes?.nome ?? "Ocupado") : null,
+        passou: Boolean(motivoAntecedencia(ini, regras.antecedenciaMin, agora)),
       };
     });
 
-    return {
-      dia: data.dia,
-      fechado: grade.fechado,
-      abre: grade.abre,
-      fecha: grade.fecha,
-      duracaoMin,
-      servicos,
-      profissionais,
-      slots,
-    };
+    return { ...base, fechado: false, abre: grade.abre, fecha: grade.fecha, slots };
   });

@@ -7,7 +7,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { brl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -351,7 +351,7 @@ function Formulario({
             variant="ghost"
             type="button"
             onClick={() => {
-              setData(new Date().toISOString().slice(0, 10));
+              setData(hojeNoFuso(base?.fuso ?? "America/Sao_Paulo"));
               setHoraMin(proximo.data!.label);
             }}
             className={`mt-2 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm ${
