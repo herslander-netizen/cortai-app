@@ -1,4 +1,4 @@
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,14 @@ export function mensagemDeAcessoNegado(error: unknown) {
   return /sem permiss[aã]o|não tem permiss[aã]o|unauthorized|forbidden|status.?403/i.test(mensagem);
 }
 
-export function RouteError({ error, reset }: { error: Error; reset: () => void }) {
+export function RouteError({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   const semAcesso = mensagemDeAcessoNegado(error);
+  const erroNormalizado = error instanceof Error ? error : new Error(String(error));
 
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_route_error_component" });
-  }, [error]);
+    reportLovableError(erroNormalizado, { boundary: "tanstack_route_error_component" });
+  }, [erroNormalizado]);
 
   return (
     <main className="flex min-h-[100dvh] items-center justify-center bg-background px-5">

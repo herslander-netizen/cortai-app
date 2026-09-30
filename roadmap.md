@@ -36,7 +36,7 @@
 - [x] Lista de espera operacional: ofertas automáticas, expiração, painel, aceite atômico
 
 - [x] Limpeza de produto: login enxuto, menu sem duplicação, áreas consolidadas com abas, "Chegadas" x "Lista de espera", apresentação interna única
-- [ ] Validar navegação do barbeiro com barbeiro.teste em 390/1280; aguardando autorização para abrir a sessão dessa conta
+- [x] Validar navegação do barbeiro com barbeiro.teste em 390/1280
 - Candidatas à descontinuação (sem remoção): /barbeiro/painel-ia (sem acesso por menu, repete Agenda/Secretária); /barbeiro/integracoes e /barbeiro/atendentes (já só redirecionam)
 
 - [x] Reorganizar a edição administrativa de barbearia em Visão geral, Contato e Suporte
@@ -47,6 +47,6 @@
 - [x] Consolidar a Home pública oficial em /apresentacao, editável em /admin/home
 - [x] Agenda: refino (botão + fixo, cache seguro, painel único, remarcar dia/profissional, cabeçalho, timeline limpa, a11y, divisão em módulos)
 - [ ] Agenda: bloqueio pontual por data e escala por profissional (precisa de nova tabela — aguardando aprovação)
-- [ ] Agenda: conferência visual 390/1280 com barbeiro.teste (aguardando aprovação de login)
-- [ ] Agenda: consolidar movimento leve, polimento de UX e agendamento público, com validação 390/1280 e CPU 4×
-- [ ] Orientar como acessar a administração da barbearia após concluir esta etapa
+- [x] Agenda: conferência visual 390/1280 com barbeiro.teste
+- [x] Agenda: consolidar movimento leve, polimento de UX e agendamento público, com validação 390/1280 e CPU 4×
+- [x] Orientar como acessar a administração da barbearia após concluir esta etapa

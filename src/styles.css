@@ -1020,7 +1020,6 @@ html.light .brand-logo-on-light,
 .agenda-progress::-webkit-progress-value {
   border-radius: 999px;
   background: var(--operation-gold);
-  transition: width 250ms ease;
 }
 .agenda-progress::-moz-progress-bar {
   border-radius: 999px;
@@ -3274,7 +3273,6 @@ body:has(.auth-screen--claro) {
   height: 100%;
   border-radius: 999px;
   background: var(--status-active);
-  transition: width 400ms ease-out;
 }
 .agenda-foco-pista-agora {
   position: absolute;
@@ -3283,7 +3281,6 @@ body:has(.auth-screen--claro) {
   height: 16px;
   transform: translateX(-1px);
   background: var(--rosa);
-  transition: left 400ms ease-out;
 }
 .agenda-foco-pista p {
   margin: 7px 0 0;
@@ -5169,6 +5166,20 @@ button.agenda-nome:hover {
 .brand-info-link {
   min-height: 44px;
   align-items: center;
+}
+
+/* Elementos não operacionais permanecem estáticos; somente carregamento e "na cadeira" pulsam. */
+.chat-dot,
+.chat-hero::after,
+.chat-status-online::before,
+.cortai-lamina,
+.cortai-progresso,
+.cortai-pulso,
+.cortai-ponto {
+  animation: none;
+}
+.landing-reveal {
+  animation-duration: var(--mov-lento);
 }
 
 /* Movimento leve e unificado: avisos, painéis e estados transitórios. */
