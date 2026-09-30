@@ -4246,7 +4246,7 @@ export type Database = {
         Returns: undefined
       }
       alterar_slug_do_tenant: {
-        Args: { _novo_slug: string; _tenant_id: string }
+        Args: { _ator: string; _novo_slug: string; _tenant_id: string }
         Returns: string
       }
       cancelar_agendamento: { Args: { _agendamento_id: string }; Returns: Json }
