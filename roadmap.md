@@ -13,5 +13,5 @@
 - [x] Padronizar todos os chats públicos no padrão da Secretária de Agendamento
 - [x] Validar chat público e onboarding em 390/1280px, TypeScript, testes, lint e build
 - [x] Corrigir o ícone do aplicativo e usar somente a logo oficial como acionador do menu
-- [ ] Corrigir a hierarquia visual da Agenda mobile sem alterar regras operacionais
-- [ ] Validar Agenda vazia/com atendimentos em 390px e 1280px, TypeScript, testes e build
+- [x] Corrigir a hierarquia visual da Agenda mobile sem alterar regras operacionais
+- [x] Validar Agenda por código, TypeScript, testes e build; validação autenticada em 390/1280 bloqueada pela sessão permitida
