@@ -25,15 +25,27 @@ export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFunciona
   }));
 }
 
+export const PASSOS_PERMITIDOS = [15, 20, 30, 40] as const;
+export function janelaValida(v: unknown): number {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 7 && n <= 90 ? Math.round(n) : 30;
+}
+export function passoValido(v: unknown): number {
+  const n = Number(v);
+  return (PASSOS_PERMITIDOS as readonly number[]).includes(n) ? n : 30;
+}
+
 export async function regrasDaBarbearia(db: any, tenantId: string) {
   const [{ data: t }, { data: h }] = await Promise.all([
-    db.from("tenants").select("fuso, antecedencia_min_minutos, intervalo_entre_min").eq("id", tenantId).maybeSingle(),
+    db.from("tenants").select("fuso, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min").eq("id", tenantId).maybeSingle(),
     db.from("horarios_de_funcionamento").select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim").eq("tenant_id", tenantId),
   ]);
   return {
     fuso: normalizarFuso(t?.fuso),
     antecedenciaMin: Number(t?.antecedencia_min_minutos ?? 0),
     intervaloEntreMin: Number(t?.intervalo_entre_min ?? 0),
+    janelaDias: janelaValida(t?.janela_agendamento_dias),
+    passoMin: passoValido(t?.passo_horarios_min),
     horarios: mapearHorarios(h ?? []),
   };
 }
@@ -61,6 +73,9 @@ export async function validarAgendamento(
   const fim = ini + p.servico.duracao_min * 60_000;
   const antecedencia = motivoAntecedencia(ini, regras.antecedenciaMin);
   if (antecedencia) throw new Error(antecedencia);
+  if (ini > Date.now() + regras.janelaDias * 86_400_000) {
+    throw new Error(`Esta barbearia agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`);
+  }
   const fora = motivoForaDoHorario(ini, p.servico.duracao_min, regras.horarios, regras.fuso);
   if (fora) throw new Error(fora);
   const ids = p.servico.profissional_ids ?? [];
