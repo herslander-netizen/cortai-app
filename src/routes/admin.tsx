@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -25,10 +25,6 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
-  const emApresentacao = useRouterState({
-    select: (state) => state.location.pathname === "/admin/apresentacao",
-  });
-  if (emApresentacao) return <Outlet />;
   return (
     <div className="admin-shell min-h-screen bg-ink md:grid md:grid-cols-[220px_1fr]">
       <aside className="hidden border-r border-line px-5 py-8 md:block">

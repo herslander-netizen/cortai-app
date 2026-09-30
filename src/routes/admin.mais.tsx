@@ -56,8 +56,8 @@ const grupos = [
       },
       {
         to: "/admin/home",
-        label: "Home",
-        detail: "Topo, seções, imagens e aparência da página inicial",
+        label: "Home pública",
+        detail: "Textos, perguntas e SEO da Home oficial (/apresentacao)",
         icon: LayoutTemplate,
       },
       {

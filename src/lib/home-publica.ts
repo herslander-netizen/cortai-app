@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { esquemaApresentacao } from "@/lib/apresentacao-conteudo";
+
 /**
  * Modelo de conteúdo da Home pública do Cortaí.
  *
@@ -27,7 +29,6 @@ export const TIPOS_DE_SECAO = [
   { valor: "rodape", rotulo: "Rodapé" },
 ] as const;
 
-
 export type TipoSecao = (typeof TIPOS_DE_SECAO)[number]["valor"];
 
 /** Seções que não podem ser excluídas (estruturais da Home). */
@@ -37,7 +38,10 @@ const destino = z
   .string()
   .trim()
   .max(200)
-  .refine((v) => v === "" || v.startsWith("/") || v.startsWith("#"), "Use um endereço interno, começando com / ou #");
+  .refine(
+    (v) => v === "" || v.startsWith("/") || v.startsWith("#"),
+    "Use um endereço interno, começando com / ou #",
+  );
 
 const item = z.object({
   titulo: z.string().trim().max(120).default(""),
@@ -103,6 +107,8 @@ export const esquemaHome = z.object({
   secoes: z.array(esquemaSecao).min(1).max(24),
   aparencia: esquemaAparencia,
   seo: esquemaSeo,
+  /** Conteúdo da Home pública oficial (/apresentacao). */
+  apresentacao: esquemaApresentacao.optional(),
 });
 
 export type SecaoHome = z.infer<typeof esquemaSecao>;
@@ -111,12 +117,42 @@ export type AparenciaHome = z.infer<typeof esquemaAparencia>;
 export type ConfigHome = z.infer<typeof esquemaHome>;
 
 /** Presets visuais: mudam só a apresentação, nunca o conteúdo. */
-export const PRESETS: Record<AparenciaHome["preset"], Omit<AparenciaHome, "preset" | "corDestaque">> = {
-  premium: { estiloBotao: "solido", raioPx: 14, bordas: "sutil", larguraPx: 1280, espacamento: "padrao", tipografia: "Manrope" },
-  cinematico: { estiloBotao: "solido", raioPx: 12, bordas: "sutil", larguraPx: 1440, espacamento: "amplo", tipografia: "Manrope" },
-  clean: { estiloBotao: "contorno", raioPx: 16, bordas: "media", larguraPx: 1120, espacamento: "compacto", tipografia: "Work Sans" },
-  editorial: { estiloBotao: "contorno", raioPx: 12, bordas: "forte", larguraPx: 1280, espacamento: "amplo", tipografia: "Manrope" },
-
+export const PRESETS: Record<
+  AparenciaHome["preset"],
+  Omit<AparenciaHome, "preset" | "corDestaque">
+> = {
+  premium: {
+    estiloBotao: "solido",
+    raioPx: 14,
+    bordas: "sutil",
+    larguraPx: 1280,
+    espacamento: "padrao",
+    tipografia: "Manrope",
+  },
+  cinematico: {
+    estiloBotao: "solido",
+    raioPx: 12,
+    bordas: "sutil",
+    larguraPx: 1440,
+    espacamento: "amplo",
+    tipografia: "Manrope",
+  },
+  clean: {
+    estiloBotao: "contorno",
+    raioPx: 16,
+    bordas: "media",
+    larguraPx: 1120,
+    espacamento: "compacto",
+    tipografia: "Work Sans",
+  },
+  editorial: {
+    estiloBotao: "contorno",
+    raioPx: 12,
+    bordas: "forte",
+    larguraPx: 1280,
+    espacamento: "amplo",
+    tipografia: "Manrope",
+  },
 };
 
 export const ROTULO_PRESET: Record<AparenciaHome["preset"], string> = {
@@ -126,7 +162,11 @@ export const ROTULO_PRESET: Record<AparenciaHome["preset"], string> = {
   editorial: "Editorial",
 };
 
-export const ESPACAMENTO_PX: Record<AparenciaHome["espacamento"], number> = { compacto: 64, padrao: 80, amplo: 104 };
+export const ESPACAMENTO_PX: Record<AparenciaHome["espacamento"], number> = {
+  compacto: 64,
+  padrao: 80,
+  amplo: 104,
+};
 
 export const HOME_PADRAO: ConfigHome = {
   versao: 1,
@@ -153,12 +193,30 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       etiqueta: "O Cortaí não é só uma agenda",
       titulo: "É o lugar onde seu negócio acontece.",
-      texto: "Quatro frentes que sustentam o dia a dia do seu negócio — todas dentro da mesma plataforma.",
+      texto:
+        "Quatro frentes que sustentam o dia a dia do seu negócio — todas dentro da mesma plataforma.",
       itens: [
-        { titulo: "Operar", texto: "Sua operação organizada: agenda, equipe, caixa, vendas, estoque e atendimento.", icone: "agenda" },
-        { titulo: "Aparecer", texto: "Sua marca presente: página pública, serviços, profissionais e agendamento online.", icone: "marca" },
-        { titulo: "Fazer voltar", texto: "Clientes que voltam: histórico, Voltaí, carteira, frequência e relacionamento.", icone: "fidelidade" },
-        { titulo: "Crescer", texto: "Mais controle para crescer: ocupação, oportunidades, indicadores e retorno.", icone: "relatorios" },
+        {
+          titulo: "Operar",
+          texto: "Sua operação organizada: agenda, equipe, caixa, vendas, estoque e atendimento.",
+          icone: "agenda",
+        },
+        {
+          titulo: "Aparecer",
+          texto:
+            "Sua marca presente: página pública, serviços, profissionais e agendamento online.",
+          icone: "marca",
+        },
+        {
+          titulo: "Fazer voltar",
+          texto: "Clientes que voltam: histórico, Voltaí, carteira, frequência e relacionamento.",
+          icone: "fidelidade",
+        },
+        {
+          titulo: "Crescer",
+          texto: "Mais controle para crescer: ocupação, oportunidades, indicadores e retorno.",
+          icone: "relatorios",
+        },
       ],
     },
     {
@@ -169,7 +227,8 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Um lugar. Toda a operação.",
       titulo: "Tudo o que acontece na cadeira, organizado no seu celular.",
-      texto: "Do primeiro horário do dia ao fechamento do caixa, o Cortaí acompanha a rotina sem tirar o foco do atendimento.",
+      texto:
+        "Do primeiro horário do dia ao fechamento do caixa, o Cortaí acompanha a rotina sem tirar o foco do atendimento.",
       ctaTexto: "Começar agora",
       ctaDestino: "/comecar",
       itens: [
@@ -185,7 +244,8 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       etiqueta: "Operar",
       titulo: "Uma agenda que entende sua operação.",
-      texto: "Cada profissional com seus horários, encaixes e bloqueios. A fila de espera e o agendamento online fazem parte da mesma agenda.",
+      texto:
+        "Cada profissional com seus horários, encaixes e bloqueios. A fila de espera e o agendamento online fazem parte da mesma agenda.",
       imagem: "agenda",
       itens: [
         { titulo: "Agenda por profissional", texto: "" },
@@ -204,7 +264,8 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Fazer voltar",
       titulo: "Conheça melhor cada cliente.",
-      texto: "Cliente não é cadastro. É histórico, frequência, preferência e relacionamento — tudo à mão antes do próximo atendimento.",
+      texto:
+        "Cliente não é cadastro. É histórico, frequência, preferência e relacionamento — tudo à mão antes do próximo atendimento.",
       imagem: "clientes",
       imagemPosicao: "esquerda",
       itens: [
@@ -222,7 +283,8 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       etiqueta: "Operar",
       titulo: "Do atendimento ao dinheiro.",
-      texto: "A comanda fecha, o caixa registra e você enxerga o que entrou, o que ficou pendente e quanto cada profissional tem a receber.",
+      texto:
+        "A comanda fecha, o caixa registra e você enxerga o que entrou, o que ficou pendente e quanto cada profissional tem a receber.",
       imagem: "caixa",
       itens: [
         { titulo: "Caixa e comandas", texto: "" },
@@ -241,7 +303,8 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Operar",
       titulo: "Cada profissional no seu ritmo. Tudo no mesmo lugar.",
-      texto: "Profissionais com agenda, serviços e disponibilidade próprios. Cada pessoa da equipe enxerga só o que faz parte do trabalho dela.",
+      texto:
+        "Profissionais com agenda, serviços e disponibilidade próprios. Cada pessoa da equipe enxerga só o que faz parte do trabalho dela.",
       imagem: "voltai",
       imagemPosicao: "esquerda",
       itens: [
@@ -258,7 +321,8 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       etiqueta: "Aparecer",
       titulo: "Sua marca também faz parte do negócio.",
-      texto: "Cada negócio tem sua página pública, com nome, logo, serviços, profissionais e identidade própria.",
+      texto:
+        "Cada negócio tem sua página pública, com nome, logo, serviços, profissionais e identidade própria.",
       imagem: "",
       itens: [
         { titulo: "Urbano", texto: "Direto, forte e de bairro." },
@@ -277,7 +341,8 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Voltaí",
       titulo: "Seu cliente vem. Ganha. Volta.",
-      texto: "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o Cortaí mostra o progresso e o cliente tem mais um motivo para voltar.",
+      texto:
+        "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o Cortaí mostra o progresso e o cliente tem mais um motivo para voltar.",
       imagem: "",
       itens: [
         { titulo: "Vem", texto: "" },
@@ -292,7 +357,8 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       etiqueta: "Página pública",
       titulo: "Do primeiro toque à confirmação.",
-      texto: "Seu cliente entra na página do seu negócio, escolhe serviço, profissional, dia e horário — e recebe a confirmação.",
+      texto:
+        "Seu cliente entra na página do seu negócio, escolhe serviço, profissional, dia e horário — e recebe a confirmação.",
       itens: [
         { titulo: "Seu negócio", texto: "A página é da sua marca." },
         { titulo: "Serviço", texto: "Preço e duração reais." },
@@ -310,7 +376,8 @@ export const HOME_PADRAO: ConfigHome = {
       tema: "claro",
       etiqueta: "Crescer",
       titulo: "Não basta administrar. É preciso enxergar a próxima oportunidade.",
-      texto: "O Início do Cortaí mostra como o dia está indo e o próximo movimento, com base no que já acontece no seu negócio.",
+      texto:
+        "O Início do Cortaí mostra como o dia está indo e o próximo movimento, com base no que já acontece no seu negócio.",
       itens: [
         { titulo: "Horário vazio hoje", texto: "Ofereça para quem está na fila." },
         { titulo: "Cliente na hora de voltar", texto: "Frequência indica o retorno." },
@@ -349,43 +416,58 @@ export const HOME_PADRAO: ConfigHome = {
   },
   seo: {
     titulo: "Cortaí — Gestão e tecnologia para negócios de Beleza",
-    descricao: "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
+    descricao:
+      "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
     imagem: "",
     canonica: "https://cortai.dev",
   },
 };
 
-
 /** Normaliza o que veio do banco: campos ausentes caem no padrão. */
 export function normalizarHome(bruto: unknown): ConfigHome {
-  if (!bruto || typeof bruto !== "object" || Object.keys(bruto as object).length === 0) return HOME_PADRAO;
+  if (!bruto || typeof bruto !== "object" || Object.keys(bruto as object).length === 0)
+    return HOME_PADRAO;
   const parsed = esquemaHome.safeParse(bruto);
   if (parsed.success) return parsed.data;
   const dados = bruto as Partial<ConfigHome>;
   return {
     versao: 1,
     hero: { ...HOME_PADRAO.hero, ...(dados.hero ?? {}) },
-    secoes: Array.isArray(dados.secoes) && dados.secoes.length ? (dados.secoes as SecaoHome[]) : HOME_PADRAO.secoes,
+    secoes:
+      Array.isArray(dados.secoes) && dados.secoes.length
+        ? (dados.secoes as SecaoHome[])
+        : HOME_PADRAO.secoes,
     aparencia: { ...HOME_PADRAO.aparencia, ...(dados.aparencia ?? {}) },
     seo: { ...HOME_PADRAO.seo, ...(dados.seo ?? {}) },
+    apresentacao: esquemaApresentacao.safeParse(dados.apresentacao).success
+      ? dados.apresentacao
+      : undefined,
   };
 }
 
 /** Resumo legível das diferenças entre rascunho e publicado. */
 export function resumirMudancas(publicado: ConfigHome, rascunho: ConfigHome): string[] {
   const mudancas: string[] = [];
-  if (JSON.stringify(publicado.hero) !== JSON.stringify(rascunho.hero)) mudancas.push("Topo da página (Hero)");
-  if (JSON.stringify(publicado.aparencia) !== JSON.stringify(rascunho.aparencia)) mudancas.push("Aparência");
-  if (JSON.stringify(publicado.seo) !== JSON.stringify(rascunho.seo)) mudancas.push("SEO e compartilhamento");
+  if (JSON.stringify(publicado.hero) !== JSON.stringify(rascunho.hero))
+    mudancas.push("Topo da página (Hero)");
+  if (JSON.stringify(publicado.aparencia) !== JSON.stringify(rascunho.aparencia))
+    mudancas.push("Aparência");
+  if (JSON.stringify(publicado.seo) !== JSON.stringify(rascunho.seo))
+    mudancas.push("SEO e compartilhamento");
   const antes = new Map(publicado.secoes.map((s) => [s.id, s]));
   const depois = new Map(rascunho.secoes.map((s) => [s.id, s]));
   for (const [id, secao] of depois) {
     const anterior = antes.get(id);
     if (!anterior) mudancas.push(`Nova seção: ${secao.nome}`);
-    else if (JSON.stringify(anterior) !== JSON.stringify(secao)) mudancas.push(`Seção alterada: ${secao.nome}`);
+    else if (JSON.stringify(anterior) !== JSON.stringify(secao))
+      mudancas.push(`Seção alterada: ${secao.nome}`);
   }
-  for (const [id, secao] of antes) if (!depois.has(id)) mudancas.push(`Seção removida: ${secao.nome}`);
-  if (publicado.secoes.map((s) => s.id).join() !== rascunho.secoes.map((s) => s.id).join() && !mudancas.some((m) => m.startsWith("Nova") || m.startsWith("Seção removida"))) {
+  for (const [id, secao] of antes)
+    if (!depois.has(id)) mudancas.push(`Seção removida: ${secao.nome}`);
+  if (
+    publicado.secoes.map((s) => s.id).join() !== rascunho.secoes.map((s) => s.id).join() &&
+    !mudancas.some((m) => m.startsWith("Nova") || m.startsWith("Seção removida"))
+  ) {
     mudancas.push("Ordem das seções");
   }
   return mudancas;
