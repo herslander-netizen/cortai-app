@@ -260,26 +260,28 @@ function FilaPage() {
                   acao.executar(
                     `form-${f.id}`,
                     async () => {
-                      if (aberto.modo === "editar")
-                        await
-                        ? editar({
-                            data: {
-                              filaId: f.id,
-                              servicoId: v.servicoId,
-                              profissionalId: v.profissionalId,
-                              dia: v.dia,
-                              janelaInicio: v.janelaInicio,
-                              janelaFim: v.janelaFim,
-                            },
-                          })
-                        : converter({
-                            data: {
-                              filaId: f.id,
-                              servicoId: v.servicoId!,
-                              profissionalId: v.profissionalId!,
-                              inicioIso: isoNoFusoDaBarbearia(v.dia!, v.hora!, opcoes.data!.fuso),
-                            },
-                          }),
+                      if (aberto.modo === "editar") {
+                        await editar({
+                          data: {
+                            filaId: f.id,
+                            servicoId: v.servicoId,
+                            profissionalId: v.profissionalId,
+                            dia: v.dia,
+                            janelaInicio: v.janelaInicio,
+                            janelaFim: v.janelaFim,
+                          },
+                        });
+                        return;
+                      }
+                      await converter({
+                        data: {
+                          filaId: f.id,
+                          servicoId: v.servicoId!,
+                          profissionalId: v.profissionalId!,
+                          inicioIso: isoNoFusoDaBarbearia(v.dia!, v.hora!, opcoes.data!.fuso),
+                        },
+                      });
+                    },
                     {
                       sucesso:
                         aberto.modo === "editar"
