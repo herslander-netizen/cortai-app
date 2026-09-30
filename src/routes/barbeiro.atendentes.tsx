@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bot, Circle, MessageCircle, UserCheck, UsersRound } from "lucide-react";
@@ -12,6 +12,9 @@ import type { ConversaDeWhatsapp } from "@/lib/whatsapp/contrato";
 
 export const Route = createFileRoute("/barbeiro/atendentes")({
   ssr: false,
+  beforeLoad: () => {
+    throw redirect({ to: "/barbeiro/cortai", search: { aba: "envios" } });
+  },
   head: () => ({
     meta: [
       { title: "Painel de atendentes — Cortaí Gestão" },
