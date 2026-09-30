@@ -339,7 +339,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
     if (substituiId) {
       const { concluirSubstituicao } = await import("@/lib/substituicao.server");
-      await concluirSubstituicao(db, { novoId: criado.agendamento_id, antigoId: substituiId });
+      await concluirSubstituicao(db as never, { novoId: criado.agendamento_id, antigoId: substituiId });
       try {
         const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
         await notificarAgendamento(substituiId, "cancelamento");

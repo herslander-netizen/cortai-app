@@ -9,10 +9,16 @@ const AgendaPage = lazy(() => import("@/components/barbeiro/AgendaPage"));
 export function AgendaLazy() {
   return (
     <>
-    <AvisoSemHorarios />
-    <Suspense fallback={<div className="px-4 pt-4"><EsqueletoAgenda linhas={5} /></div>}>
-      <AgendaPage />
-    </Suspense>
+      <AvisoSemHorarios />
+      <Suspense
+        fallback={
+          <div className="px-4 pt-4">
+            <EsqueletoAgenda linhas={5} />
+          </div>
+        }
+      >
+        <AgendaPage />
+      </Suspense>
     </>
   );
 }
