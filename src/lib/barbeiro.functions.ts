@@ -8,7 +8,7 @@ import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
-import { mapearHorarios, validarAgendamento } from "@/lib/agenda-regras.server";
+import { mapearHorarios, passoValido, validarAgendamento } from "@/lib/agenda-regras.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -698,6 +698,7 @@ export type DadosManual = {
   profissionais: { id: string; nome: string }[];
   horarios: ReturnType<typeof mapearHorarios>;
   fuso: string;
+  passoMin: number;
 };
 
 export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
@@ -724,12 +725,14 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
         .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id),
     ]);
+    const { data: passoRow } = await db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle();
     return {
       tenant,
       servicos: servicosRes.data ?? [],
       profissionais: profRes.data ?? [],
       horarios: mapearHorarios(horariosRes.data ?? []),
       fuso: await fusoDoTenant(tenant.id),
+      passoMin: passoValido(passoRow?.passo_horarios_min),
     };
   });
 
@@ -1051,7 +1054,8 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
-    const grade = slotsDoDia(dia, horarios, 30, fuso);
+    const { data: passoRow } = await db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle();
+    const grade = slotsDoDia(dia, horarios, passoValido(passoRow?.passo_horarios_min), fuso);
     for (const slot of grade.slots) {
       const inicio = new Date(slot.iso).getTime();
       if (inicio < agora || motivoForaDoHorario(inicio, duracao, horarios, fuso)) continue;
