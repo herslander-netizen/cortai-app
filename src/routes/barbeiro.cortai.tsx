@@ -27,6 +27,7 @@ import {
   desconectarWhatsapp,
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
+  listarEnviosDaSecretaria,
   type DiagnosticoDoWhatsapp,
   buscarConversaDoCliente,
   lerConversa,
@@ -51,13 +52,13 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   }),
   head: () => ({
     meta: [
-      { title: "CortAI no WhatsApp — Cortaí Gestão" },
+      { title: "Secretária Cortaí — Cortaí Gestão" },
       {
         name: "description",
-        content: "Conecte o WhatsApp do negócio, acompanhe as conversas e configure o atendimento do CortAI.",
+        content: "Conecte o WhatsApp do negócio e acompanhe notificações transacionais.",
       },
-      { property: "og:title", content: "CortAI no WhatsApp — Cortaí Gestão" },
-      { property: "og:description", content: "Atendimento pelo WhatsApp com os dados reais do seu negócio." },
+      { property: "og:title", content: "Secretária Cortaí — Cortaí Gestão" },
+      { property: "og:description", content: "Avisos e acompanhamento dos atendimentos pelo WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   component: CortaiPage,
 });
 
-type Aba = "whatsapp" | "conversas" | "ajustes";
+type Aba = "whatsapp" | "envios" | "ajustes";
 
 function Ponto({ ligado }: { ligado: boolean }) {
   return (
@@ -86,15 +87,15 @@ function CortaiPage() {
   return (
     <Screen
       voltarPara="/barbeiro/mais"
-      title="CortAI no WhatsApp"
-      subtitle="O atendimento do seu negócio pelo WhatsApp, com os seus dados reais."
+      title="Secretária Cortaí"
+      subtitle="Seu WhatsApp informa seus clientes e acompanha cada atendimento."
     >
       {painel.isLoading ? <Carregando /> : null}
       {painel.isError ? (
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
-            : "Não conseguimos carregar o CortAI agora. Tente de novo em instantes."}
+            : "Não conseguimos carregar a Secretária agora. Tente de novo em instantes."}
         </p>
       ) : null}
 
@@ -117,17 +118,17 @@ function CortaiPage() {
               </p>
             </div>
             <div className="surface px-3 py-3">
-              <p className="text-xs text-mute2">CortAI</p>
+              <p className="text-xs text-mute2">Notificações</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.iaDisponivel} />
-                {painel.data.iaDisponivel ? "Pronto" : "Indisponível"}
+                <Ponto ligado={painel.data.configuracao.confirmacaoAutomatica || painel.data.configuracao.lembretes} />
+                {painel.data.configuracao.confirmacaoAutomatica || painel.data.configuracao.lembretes ? "Ativas" : "Pausadas"}
               </p>
             </div>
             <div className="surface px-3 py-3">
-              <p className="text-xs text-mute2">Automático</p>
+              <p className="text-xs text-mute2">Canal</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.configuracao.atendimentoAutomatico} />
-                {painel.data.configuracao.atendimentoAutomatico ? "Ligado" : "Desligado"}
+                <Ponto ligado={painel.data.conexao?.status === "conectado"} />
+                {painel.data.conexao?.status === "conectado" ? "Operacional" : "Sem conexão"}
               </p>
             </div>
           </section>
@@ -136,8 +137,8 @@ function CortaiPage() {
             {(
               [
                 ["whatsapp", "WhatsApp"],
-                ["conversas", "Conversas"],
-                ["ajustes", "IA do Cortaí"],
+                ["envios", "Histórico"],
+                ["ajustes", "Notificações"],
               ] as [Aba, string][]
             ).map(([id, rotulo]) => (
               <Button variant="ghost"
@@ -160,12 +161,78 @@ function CortaiPage() {
                 {painel.data.podeGerenciarWhatsapp ? <BlocoDiagnostico /> : null}
               </>
             ) : null}
-            {aba === "conversas" ? <BlocoConversas conversaInicial={busca.conversa} clienteInicial={busca.cliente} /> : null}
-            {aba === "ajustes" ? <BlocoAjustes painel={painel.data} /> : null}
+            {aba === "envios" ? <BlocoEnvios /> : null}
+            {aba === "ajustes" ? <BlocoSecretaria painel={painel.data} /> : null}
           </div>
         </>
       ) : null}
     </Screen>
+  );
+}
+
+function BlocoEnvios() {
+  const envios = useQuery({
+    queryKey: ["secretaria-envios"],
+    queryFn: () => listarEnviosDaSecretaria(),
+    refetchInterval: 30000,
+  });
+  if (envios.isLoading) return <Carregando />;
+  if (envios.isError) return <p className="py-8 text-center text-sm text-brick">Não foi possível carregar os envios.</p>;
+  if (!envios.data?.length) return <EmptyState text="Nenhuma notificação enviada ainda." />;
+  return (
+    <section className="surface overflow-hidden" aria-label="Histórico de envios">
+      <ul className="divide-y divide-line">
+        {envios.data.map((envio) => (
+          <li key={envio.id} className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-paper">{envio.tipo.replaceAll("_", " ")}</p>
+              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-mute">{envio.conteudo ?? envio.erro ?? "Envio aguardando processamento."}</p>
+              <p className="mt-2 text-xs text-mute2">Final {envio.telefone.slice(-4)} · {new Date(envio.criadoEm).toLocaleString("pt-BR")}</p>
+            </div>
+            <span className={`w-fit rounded-full border px-2.5 py-1 text-xs ${envio.status === "enviado" ? "border-sage/50 text-sage" : envio.status === "erro" ? "border-brick/50 text-brick" : "border-line2 text-mute"}`}>
+              {envio.respondidoEm ? "respondido" : envio.status}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
+  const cliente = useQueryClient();
+  const salvar = useServerFn(salvarConfiguracaoDoCortai);
+  const [config, setConfig] = useState(painel.configuracao);
+  const [retorno, setRetorno] = useState(String(painel.configuracao.recuperacaoDias));
+  const mutation = useMutation({
+    mutationFn: () => salvar({ data: { ...config, recuperacaoDias: Number(retorno) || 30 } }),
+    onSuccess: () => void cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
+  });
+  const chave = (rotulo: string, detalhe: string, valor: boolean, mudar: (v: boolean) => void) => (
+    <Chave rotulo={rotulo} detalhe={detalhe} valor={valor} aoMudar={mudar} />
+  );
+  return (
+    <section className="space-y-5">
+      <Bloco titulo="Notificações" descricao="Mensagens transacionais ligadas a eventos reais do atendimento.">
+        <ul className="space-y-4">
+          {chave("Confirmação automática", "Envia os dados reais assim que o horário é confirmado.", config.confirmacaoAutomatica, (v) => setConfig({ ...config, confirmacaoAutomatica: v }))}
+          {chave("Lembretes", "Envia lembretes antecipado e próximo, respeitando preferências e silêncio.", config.lembretes, (v) => setConfig({ ...config, lembretes: v }))}
+          {chave("Retorno", "Lembra o cliente quando chega a hora real de voltar.", config.recuperacaoAtiva, (v) => setConfig({ ...config, recuperacaoAtiva: v }))}
+        </ul>
+        {config.recuperacaoAtiva ? <label className="mt-4 block text-xs text-mute">Intervalo mínimo de retorno<input type="number" min={7} max={180} value={retorno} onChange={(e) => setRetorno(e.target.value)} className="mt-1 h-11 w-full rounded-md border border-line2 bg-ink px-3 text-paper" /></label> : null}
+      </Bloco>
+      <Bloco titulo="Tom" descricao="Aplicado aos avisos, sem interpretação de conversa livre.">
+        <select value={config.tom} onChange={(e) => setConfig({ ...config, tom: e.target.value as ConfiguracaoDoAtendimento["tom"] })} className="h-11 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper">
+          {Object.entries(TONS).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}
+        </select>
+      </Bloco>
+      <div className="surface p-5">
+        <Button className="w-full" disabled={mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? "Salvando…" : "Salvar configurações"}</Button>
+        {mutation.isSuccess ? <p className="mt-2 text-center text-xs text-sage">Configurações salvas.</p> : null}
+        {mutation.isError ? <p className="mt-2 text-center text-xs text-brick">Não foi possível salvar.</p> : null}
+      </div>
+      <p className="text-xs leading-relaxed text-mute">Mensagens livres recebem somente uma orientação para o Cortaí. A Secretária não abre atendimento, FAQ ou transferência humana.</p>
+    </section>
   );
 }
 
