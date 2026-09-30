@@ -35,7 +35,12 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
             <ArrowLeft aria-hidden /> Voltar
           </Button>
           {!semAcesso ? (
-            <Button onClick={() => { router.invalidate(); reset(); }}>
+            <Button
+              onClick={() => {
+                router.invalidate();
+                reset();
+              }}
+            >
               <RotateCcw aria-hidden /> Tentar novamente
             </Button>
           ) : null}
