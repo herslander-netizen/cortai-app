@@ -165,7 +165,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .eq("ativo", true)
       .maybeSingle();
-    if (!profissional) throw new Error("Profissional não encontrado nesta barbearia.");
+    if (!profissional) throw new Error("Profissional não encontrado neste negócio.");
     const { data: servico } = await db
       .from("servicos")
       .select("id, duracao_min, profissional_ids")
@@ -294,7 +294,7 @@ function traduz(msg: string): string {
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
   if (msg.includes("horario ja ocupado"))
     return "Esse horário acabou de ser reservado, escolha outro";
-  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento da barbearia.";
+  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento do negócio.";
   if (msg.includes("fora do periodo de agendamento")) return "Escolha uma data mais próxima.";
   return msg;
 }

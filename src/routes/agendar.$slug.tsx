@@ -262,7 +262,7 @@ function AgendamentoPublico() {
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
         <h1 className="text-xl font-bold text-paper">{data.tenant.nome}</h1>
         <p className="mt-2 text-sm text-mute">
-          A agenda online ainda não está aberta. Fale direto com a barbearia para marcar.
+          A agenda online ainda não está aberta. Fale direto com o negócio para marcar.
         </p>
         {zap ? (
           <Button asChild className="mt-6 h-12 font-bold">
@@ -289,8 +289,8 @@ function AgendamentoPublico() {
     const titulo = {
       confirmado: "Agendamento confirmado",
       cancelado: "Agendamento cancelado",
-      cancelado_pela_barbearia: "A barbearia cancelou este horário",
-      remarcado: "A barbearia remarcou este horário",
+      cancelado_pela_barbearia: "O negócio cancelou este horário",
+      remarcado: "O negócio remarcou este horário",
       nao_compareceu: "Este horário foi marcado como falta",
     }[situacao];
     const ics = gerarIcs({
@@ -311,7 +311,7 @@ function AgendamentoPublico() {
         <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
         {situacao === "cancelado_pela_barbearia" || situacao === "remarcado" ? (
           <p className="mt-2 text-sm text-mute">
-            Fale com a barbearia ou escolha outro horário abaixo.
+            Fale com o negócio ou escolha outro horário abaixo.
           </p>
         ) : null}
         {ativo ? (
@@ -322,7 +322,7 @@ function AgendamentoPublico() {
               ["Profissional", confirmado.profissional],
               ["Data", dataLocal(confirmado.inicio, fuso)],
               ["Horário", horaLocal(confirmado.inicio, fuso)],
-              ["Barbearia", confirmado.barbearia],
+              ["Negócio", confirmado.barbearia],
             ].map(([rotulo, valor]) => (
               <div key={rotulo} className="flex items-center justify-between gap-4 px-4 py-3">
                 <dt className="text-xs uppercase tracking-wide text-mute2">{rotulo}</dt>
@@ -336,7 +336,7 @@ function AgendamentoPublico() {
 
         {ativo ? (
           <p className="mt-4 text-sm leading-relaxed text-mute">
-            Guarde esta página: por ela você altera ou cancela quando quiser. Se a barbearia usa
+            Guarde esta página: por ela você altera ou cancela quando quiser. Se o negócio usa
             WhatsApp, você recebe a confirmação e o lembrete por lá — é só responder para confirmar
             a chegada.
           </p>
@@ -543,7 +543,7 @@ function AgendamentoPublico() {
         <Bloco titulo="Horário">
           {agenda.fechado ? (
             <p className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
-              A barbearia está fechada neste dia. Escolha outra data.
+              O negócio está fechado neste dia. Escolha outra data.
             </p>
           ) : agenda.opcoes.length ? (
             <div className="grid grid-cols-4 gap-2">

@@ -56,7 +56,7 @@ export const CAPACIDADES: readonly Capacidade[] = [
   },
   {
     chave: "pagina_publica",
-    rotulo: "Página da barbearia",
+    rotulo: "Página do negócio",
     detalhe: "Link público para o cliente agendar",
     grupo: "essencial",
     recurso: "branding_avancado",
