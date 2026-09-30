@@ -32,3 +32,4 @@
 - Plano, assinatura, desconto, teste e ativação do tenant só mudam por fluxos privilegiados do servidor.
 
 - Planos comerciais: essencial/pro(Profissional)/conecta/studio(Equipe); liberação real em `recursos_de_plano` via `recurso_do_tenant_ativo` (plano + interruptor); vitrine em `src/lib/planos-comerciais.ts`. Por quê: uma fonte só para acesso e outra só para apresentação.
+- Navegação do barbeiro: um item por área em `navegacao-barbeiro.ts`; telas irmãs viram abas via `SECOES`/`AbasDaSecao` e a barra inferior (`itensDaBarra`) não se repete no menu. Por quê: evita destinos duplicados sem apagar rotas.
