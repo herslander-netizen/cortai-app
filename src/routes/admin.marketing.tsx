@@ -11,6 +11,17 @@ export const Route = createFileRoute("/admin/marketing")({
   head: () => ({
     meta: [
       { title: "Marketing — Administração Cortaí" },
+      {
+        name: "description",
+        content: "Abra e compartilhe a apresentação interativa do Cortaí.",
+      },
+      { property: "og:title", content: "Marketing — Administração Cortaí" },
+      {
+        property: "og:description",
+        content: "Acesso administrativo aos materiais de apresentação do Cortaí.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
