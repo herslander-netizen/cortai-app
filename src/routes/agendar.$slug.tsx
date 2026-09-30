@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { normalizarFuso } from "@/lib/horarios";
+import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
@@ -95,6 +95,8 @@ function AgendamentoPublico() {
     ocupados: data?.ocupados ?? [],
     fuso,
     regras: data?.regras ?? { antecedenciaMin: 0, intervaloEntreMin: 0 },
+    quantidadeDias: data?.regras.janelaDias ?? 30,
+    passoMin: data?.regras.passoMin ?? 30,
   });
   const {
     servicoId,
@@ -197,6 +199,10 @@ function AgendamentoPublico() {
           chaveSalva,
           JSON.stringify({ confirmacao: res.confirmacao, telefone: digitosTel, nome: nome.trim() }),
         );
+        localStorage.setItem(
+          `cortai-cliente-publico:${slug}`,
+          JSON.stringify({ telefone: digitosTel, nome: nome.trim() }),
+        );
       } catch {
         /* cache opcional */
       }
@@ -251,7 +257,7 @@ function AgendamentoPublico() {
     );
   }
 
-  if (!data.profissionais.length || !data.servicos.length) {
+  if (!data.profissionais.length || !data.servicos.length || semNenhumDiaAberto(data.horarios)) {
     const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
     return (
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
@@ -501,13 +507,16 @@ function AgendamentoPublico() {
             {dias.map((d) => {
               const info = porDia.get(d);
               const fechado = Boolean(info?.fechado);
+              const lotado = !fechado && (info?.opcoes.length ?? 0) === 0;
               const { rotulo, numero } = rotuloDoDia(d);
               return (
                 <button
                   key={d}
                   type="button"
                   disabled={fechado}
-                  aria-label={fechado ? `${rotulo} ${numero}, fechado` : `${rotulo} ${numero}`}
+                  aria-label={
+                    fechado ? `${rotulo} ${numero}, fechado` : lotado ? `${rotulo} ${numero}, lotado` : `${rotulo} ${numero}`
+                  }
                   onClick={() => {
                     setDia(d);
                     setHorario(null);
@@ -523,6 +532,7 @@ function AgendamentoPublico() {
                   <span className="text-xs uppercase">{rotulo}</span>
                   <span className="text-lg font-semibold">{numero}</span>
                   {fechado ? <span className="text-[10px] leading-none">Fechado</span> : null}
+                  {lotado ? <span className="text-[10px] leading-none">Lotado</span> : null}
                 </button>
               );
             })}
@@ -557,9 +567,27 @@ function AgendamentoPublico() {
               ))}
             </div>
           ) : (
-            <p className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
-              Não há horários livres neste dia. Escolha outra data.
-            </p>
+            <div className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
+              <p>Dia lotado. Veja os próximos dias com vaga:</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {dias
+                  .filter((d) => d !== dia && (porDia.get(d)?.opcoes.length ?? 0) > 0 && (!dia || d > dia))
+                  .slice(0, 3)
+                  .map((d) => {
+                    const { rotulo, numero } = rotuloDoDia(d);
+                    return (
+                      <Button key={d} variant="outline" className="h-12" onClick={() => setDia(d)}>
+                        {rotulo} {numero}
+                      </Button>
+                    );
+                  })}
+              </div>
+              {data.tenant.usaListaDeEspera ? (
+                <Button asChild variant="ghost" className="mt-3 h-12 w-full">
+                  <a href={`/f/${data.tenant.slug}`}>Entrar na lista de espera</a>
+                </Button>
+              ) : null}
+            </div>
           )}
         </Bloco>
       ) : null}
@@ -576,10 +604,13 @@ function AgendamentoPublico() {
                   setTocouTelefone(true);
                   if (digitosTel.length < 10) return;
                   try {
-                    const res = await reconhecerCliente({ data: { slug, telefone: digitosTel } });
-                    if (res.nome) {
-                      setSaudacao(res.nome);
-                      if (!nome.trim()) setNome(res.nome);
+                    // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
+                    const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
+                    const local = bruto ? (JSON.parse(bruto) as { telefone: string; nome: string }) : null;
+                    if (local && local.telefone === digitosTel && local.nome) {
+                      const primeiro = local.nome.split(" ")[0] ?? local.nome;
+                      setSaudacao(primeiro);
+                      if (!nome.trim()) setNome(local.nome);
                     }
                   } catch {
                     /* identificação é um extra: nunca bloqueia o agendamento */
