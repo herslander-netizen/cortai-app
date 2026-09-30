@@ -131,10 +131,10 @@ function ComecarPage() {
           </button>
         </div>
       ) : modo === "escolha" ? (
-        <div className="mt-10 space-y-3">
+        <div className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
           <button
             type="button"
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-xl border border-line2 bg-ink2 px-5 py-5 text-left"
+            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-5 text-left transition-colors hover:bg-ink3"
             disabled={enviando}
             onClick={async () => {
               setEnviando(true);
@@ -159,7 +159,7 @@ function ComecarPage() {
           </button>
           <button
             type="button"
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-xl border border-line2 bg-ink2 px-5 py-5 text-left"
+            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-5 text-left transition-colors hover:bg-ink3"
             onClick={() => setModo("segmento")}
           >
             <Scissors size={20} className="text-gold" aria-hidden />
