@@ -23,10 +23,10 @@ function mensagem(bruta: string): string {
   if (m.includes("conta nao encontrada")) {
     return "Ainda não existe uma conta Cortaí com esse e-mail. Peça para a pessoa criar a conta e tente de novo.";
   }
-  if (m.includes("ja esta ligada")) return "Essa conta já está ligada a uma barbearia.";
+  if (m.includes("ja esta ligada")) return "Essa conta já está ligada a um negócio.";
   if (m.includes("somente o dono")) return "Só o proprietário pode alterar esse acesso.";
   if (m.includes("nao e possivel conceder")) return "Você não pode conceder uma permissão que não tem.";
-  if (m.includes("pelo menos um dono")) return "A barbearia precisa de pelo menos um proprietário ativo.";
+  if (m.includes("pelo menos um dono")) return "O negócio precisa de pelo menos um proprietário ativo.";
   if (m.includes("proprio acesso")) return "Você não pode alterar o seu próprio acesso por aqui.";
   if (m.includes("membro nao encontrado")) return "Esse acesso não existe mais.";
   return "Não foi possível concluir agora. Tente de novo.";
@@ -104,7 +104,7 @@ export const meuConvite = createServerFn({ method: "GET" })
     const linha = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
     if (!linha) return null;
     return {
-      barbearia: (linha["barbearia"] as string | null) ?? "sua barbearia",
+      barbearia: (linha["barbearia"] as string | null) ?? "seu negócio",
       papel: linha["papel"] as string,
       permissoes: (linha["permissoes"] as string[] | null) ?? [],
       ativo: Boolean(linha["ativo"]),

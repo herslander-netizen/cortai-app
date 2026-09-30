@@ -66,7 +66,7 @@ export const getMinhasBarbearias = createServerFn({ method: "GET" })
         const plano = t?.plano ?? "essencial";
         return {
           id: v.tenant_id,
-          nome: t?.nome ?? "Barbearia",
+          nome: t?.nome ?? "Negócio",
           slug: t?.slug ?? null,
           logoUrl: t?.logo_url ?? null,
           plano,
@@ -94,7 +94,7 @@ export const definirBarbeariaAtiva = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .eq("tenant_id", data.tenantId)
       .maybeSingle();
-    if (!vinculo || vinculo.ativo === false) throw new Error("Sem acesso a esta barbearia.");
+    if (!vinculo || vinculo.ativo === false) throw new Error("Sem acesso a este negócio.");
 
     const { error } = await db
       .from("perfis")
