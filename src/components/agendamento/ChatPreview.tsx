@@ -36,7 +36,7 @@ export function ChatPreview({
       <div className="relative">
         <ChatHeader
           nome={config?.chat.nomeRecepcao ?? "Recepção"}
-          avatarUrl={logoUrl}
+          avatarUrl={logoUrl ?? null}
           status="Online"
           detalhe={nome}
         />

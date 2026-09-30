@@ -557,6 +557,12 @@
   color: var(--chat-content);
 }
 .chat-preview-personalizado {
+  --chat-surface: var(--chat-page, var(--background));
+  --chat-content: var(--chat-page-text, var(--foreground));
+  --chat-muted: color-mix(in oklab, var(--chat-content) 62%, transparent);
+  --chat-subtle: color-mix(in oklab, var(--chat-content) 7%, var(--chat-surface));
+  --chat-glass: color-mix(in oklab, var(--chat-surface) 92%, transparent);
+  --chat-borda: color-mix(in oklab, var(--chat-content) 14%, transparent);
   --ink: var(--chat-page, var(--background));
   --ink2: color-mix(in oklab, var(--chat-page, var(--background)) 80%, transparent);
   --paper: var(--chat-page-text, var(--foreground));
