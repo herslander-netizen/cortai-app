@@ -242,14 +242,6 @@ function LoginPage() {
         <label className="block text-xs font-medium text-mute">
           <span className="flex items-center justify-between">
             <span>Senha</span>
-            {modo === "entrar" ? (
-              <Link
-                to="/recuperar-senha"
-                className="-my-3 inline-flex min-h-11 items-center px-1 text-xs font-medium text-mute hover:text-paper"
-              >
-                Esqueceu a senha?
-              </Link>
-            ) : null}
           </span>
           <span className={campo}>
             <LockKeyhole size={17} aria-hidden />
