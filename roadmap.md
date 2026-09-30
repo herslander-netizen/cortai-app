@@ -40,4 +40,4 @@
 - Candidatas à descontinuação (sem remoção): /barbeiro/painel-ia (sem acesso por menu, repete Agenda/Secretária); /barbeiro/integracoes e /barbeiro/atendentes (já só redirecionam)
 
 - [x] Reorganizar a edição administrativa de barbearia em Visão geral, Contato e Suporte
-- [ ] Validar a nova edição administrativa em 390/1280 sem alterar dados
+- [x] Validar a nova edição administrativa em 390/1280 sem alterar dados
