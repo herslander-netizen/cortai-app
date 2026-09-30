@@ -28,7 +28,7 @@ function BarbeariasPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-10 pt-8">
       <header className="flex items-center justify-between gap-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-paper">
+        <Link to="/apresentacao" className="inline-flex items-center gap-2 text-sm text-mute transition-colors hover:text-paper">
           <ArrowLeft size={16} aria-hidden />
           Cortaí
         </Link>

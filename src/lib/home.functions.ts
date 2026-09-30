@@ -169,3 +169,20 @@ export const listarImagensHome = createServerFn({ method: "GET" })
     const { data: urls } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(nomes, 60 * 60);
     return nomes.map((nome, i) => ({ caminho: nome, url: urls?.[i]?.signedUrl ?? "" })).filter((i) => i.url);
   });
+
+/** Conteúdo público da Home oficial (/apresentacao): textos e SEO publicados. */
+export const getApresentacaoPublicada = createServerFn({ method: "GET" }).handler(async () => {
+  const { normalizarApresentacao, SEO_APRESENTACAO_PADRAO } = await import("@/lib/apresentacao-conteudo");
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.rpc("home_publicada");
+    const bruto = (data ?? {}) as { apresentacao?: unknown; seoApresentacao?: unknown };
+    const home = normalizarHome(data);
+    return {
+      conteudo: normalizarApresentacao(bruto.apresentacao),
+      seo: home.apresentacao ? { titulo: home.seo.titulo, descricao: home.seo.descricao } : SEO_APRESENTACAO_PADRAO,
+    };
+  } catch {
+    return { conteudo: normalizarApresentacao(null), seo: SEO_APRESENTACAO_PADRAO };
+  }
+});

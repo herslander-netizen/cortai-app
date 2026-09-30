@@ -156,7 +156,7 @@ function PaginaDePrivacidade() {
       </Bloco>
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-line pt-6 text-xs">
-        <Link to="/" className="rounded-lg border border-line px-4 py-2 font-semibold text-paper">
+        <Link to="/apresentacao" className="rounded-lg border border-line px-4 py-2 font-semibold text-paper">
           Voltar ao início
         </Link>
         <a
