@@ -338,7 +338,7 @@ function Editor({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
           <Tabs defaultValue="visual">
-            <TabsList className="grid h-auto w-full grid-cols-4">
+            <TabsList className="grid h-auto w-full grid-cols-4 [&>button]:min-h-10">
               <TabsTrigger value="visual">Identidade</TabsTrigger>
               <TabsTrigger value="conteudo">Marca</TabsTrigger>
               <TabsTrigger value="secoes">Conteúdo</TabsTrigger>
