@@ -3845,6 +3845,11 @@ body:has(.auth-screen--claro) {
   }
   .presentation-hero-media {
     max-width: 410px;
+    max-height: 36svh;
+    overflow: hidden;
+  }
+  .presentation-hero-media img {
+    max-height: 36svh;
   }
   .presentation-final-media {
     max-height: 42svh;

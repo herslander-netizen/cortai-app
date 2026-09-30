@@ -282,6 +282,7 @@ function ApresentacaoInterna() {
   const { cena } = Route.useSearch();
   const navigate = useNavigate({ from: "/admin/apresentacao" });
   const inicioToque = useRef<number | null>(null);
+  const retornoSeguro = useRef<string | null>(null);
   const atual = cenas[cena - 1] ?? cenas[0];
   const ir = useCallback(
     (proxima: number) => {
@@ -291,9 +292,16 @@ function ApresentacaoInterna() {
     [navigate],
   );
   const sair = useCallback(() => {
-    if (window.history.length > 1) window.history.back();
+    if (retornoSeguro.current) window.history.back();
     else void navigate({ to: "/admin", search: {} });
   }, [navigate]);
+  useEffect(() => {
+    if (!document.referrer) return;
+    const origem = new URL(document.referrer);
+    if (origem.origin === window.location.origin && origem.pathname.startsWith("/admin") && origem.pathname !== "/admin/apresentacao") {
+      retornoSeguro.current = `${origem.pathname}${origem.search}`;
+    }
+  }, []);
   useEffect(() => {
     const teclado = (evento: KeyboardEvent) => {
       if (evento.key === "ArrowRight" || evento.key === " ") ir(cena + 1);
