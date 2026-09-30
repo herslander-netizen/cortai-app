@@ -30,6 +30,7 @@ export type ServicoDaBarbearia = {
   profissionalIds: string[];
   /** Prazo para lembrar o cliente de voltar; null = prazo geral. */
   retornoDias: number | null;
+  fotoUrl: string | null;
 };
 
 export type RegrasDeAgendamento = {
@@ -62,6 +63,7 @@ function paraServico(s: Record<string, any>): ServicoDaBarbearia {
     categoria: (s["categoria"] as string | null) ?? "Serviço",
     profissionalIds: (s["profissional_ids"] as string[] | null) ?? [],
     retornoDias: (s["retorno_dias"] as number | null) ?? null,
+    fotoUrl: (s["foto_url"] as string | null) ?? null,
   };
 }
 
@@ -118,6 +120,7 @@ const servicoSchema = z.object({
   categoria: z.string().trim().max(40).optional(),
   profissionalIds: z.array(z.string().uuid()).max(50).optional(),
   retornoDias: z.number().int().min(3).max(365).nullable().optional(),
+  fotoUrl: z.string().max(500).nullable().optional(),
 });
 
 export const getConfiguracaoInicial = createServerFn({ method: "GET" })
@@ -275,6 +278,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
           categoria: s.categoria ?? null,
           profissional_ids: s.profissionalIds ?? [],
           retorno_dias: s.retornoDias ?? null,
+          foto_url: s.fotoUrl ?? null,
           ordem: i,
         })),
       );
@@ -291,6 +295,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
           ...(s.categoria !== undefined ? { categoria: s.categoria } : {}),
           ...(s.profissionalIds !== undefined ? { profissional_ids: s.profissionalIds } : {}),
           ...(s.retornoDias !== undefined ? { retorno_dias: s.retornoDias } : {}),
+          ...(s.fotoUrl !== undefined ? { foto_url: s.fotoUrl } : {}),
         })
         .eq("id", s.id)
         .eq("tenant_id", tenantId);

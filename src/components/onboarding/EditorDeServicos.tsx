@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 
@@ -7,8 +7,10 @@ import type { ServicoSugerido } from "@/lib/ia/assistente";
 import { interpretarServicos } from "@/lib/assistente.functions";
 import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { comprimirImagem } from "@/lib/imagem";
 
-export type ServicoEditavel = Omit<ServicoSugerido, "retornoDias"> & { id?: string; profissionalIds?: string[]; retornoDias?: number | null };
+export type ServicoEditavel = Omit<ServicoSugerido, "retornoDias"> & { id?: string; profissionalIds?: string[]; retornoDias?: number | null; fotoUrl?: string | null };
 
 export function EditorDeServicos({
   servicos,
@@ -16,6 +18,7 @@ export function EditorDeServicos({
   profissionais,
   semIA = false,
   segmento = "barbearia",
+  tenantId,
 }: {
   servicos: ServicoEditavel[];
   onChange: (s: ServicoEditavel[]) => void;
@@ -23,6 +26,7 @@ export function EditorDeServicos({
   profissionais?: { id: string; nome: string }[];
   semIA?: boolean;
   segmento?: Segmento;
+  tenantId?: string;
 }) {
   const interpretar = useServerFn(interpretarServicos);
   const [texto, setTexto] = useState("");
@@ -33,6 +37,8 @@ export function EditorDeServicos({
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [mostrarTodas, setMostrarTodas] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState<number | null>(null);
+  const arquivos = useRef<Record<number, HTMLInputElement | null>>({});
   const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
 
   function atualizar(indice: number, campos: Partial<ServicoEditavel>) {
@@ -82,6 +88,24 @@ export function EditorDeServicos({
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
           <li key={s.id ?? `novo-${i}`} className="surface px-4 py-3">
+            {tenantId ? <div className="mb-3 flex items-center gap-3">
+              <Button variant="ghost" type="button" className="h-20 w-24 overflow-hidden rounded-lg border border-dashed border-line2 p-0" onClick={() => arquivos.current[i]?.click()}>
+                {s.fotoUrl ? <img src={s.fotoUrl.startsWith("blob:") || s.fotoUrl.startsWith("http") ? s.fotoUrl : ""} alt={`Foto de ${s.nome || "serviço"}`} className="h-full w-full object-cover" /> : <span className="text-xs text-mute">Adicionar foto</span>}
+              </Button>
+              <div><p className="text-xs font-semibold text-paper">Foto do serviço</p><p className="mt-1 text-xs text-mute">{enviandoFoto === i ? "Enviando…" : "Horizontal 4:3. Opcional."}</p></div>
+              <input ref={(node) => { arquivos.current[i] = node; }} type="file" accept="image/*" className="hidden" onChange={async (event) => {
+                const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
+                setEnviandoFoto(i);
+                try {
+                  const blob = await comprimirImagem(file, { maxLado: 1600, transparente: false });
+                  const path = `${tenantId}/servico-${s.id ?? `novo-${i}`}-${Date.now()}.jpg`;
+                  const { error } = await supabase.storage.from("tenant-logos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
+                  if (error) throw error;
+                  atualizar(i, { fotoUrl: path });
+                } catch { setErro("Não foi possível enviar a foto do serviço."); }
+                finally { setEnviandoFoto(null); }
+              }} />
+            </div> : null}
             <div className="flex items-center gap-3">
               <input
                 value={s.nome}

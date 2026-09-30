@@ -6,6 +6,18 @@ export const layoutIds = ["cinematografico", "logo-central", "minimalista", "fot
 export const fonteIds = ["inter", "poppins", "montserrat", "oswald", "roboto", "serif"] as const;
 export const componenteIds = ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"] as const;
 
+export const chatConfigSchema = z.object({
+  modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
+  nomeRecepcao: z.string().trim().max(40).default("Recepção"),
+  avatarUrl: z.string().max(500).nullable().default(null),
+  mensagemInicial: z.string().trim().max(240).default("Olá! Vou ajudar você a encontrar o melhor horário."),
+  textoFinal: z.string().trim().max(240).default("Tudo certo. Seu horário está reservado!"),
+  corDestaque: z.enum(["azul", "ciano", "rosa"]).default("azul"),
+  comemoracao: z.boolean().default(true),
+  salvarCalendario: z.boolean().default(true),
+  listaEspera: z.boolean().default(true),
+});
+
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 export const paginaConfigSchema = z.object({
   tema: z.enum(temaIds),
@@ -20,6 +32,7 @@ export const paginaConfigSchema = z.object({
   sobre: z.string().trim().max(1200),
   cta: z.string().trim().min(2).max(24),
   componentes: z.record(z.enum(componenteIds), z.boolean()),
+  chat: chatConfigSchema.default({}),
 });
 
 export type PaginaConfig = z.infer<typeof paginaConfigSchema>;
@@ -51,7 +64,7 @@ export function configPadrao(overrides?: Partial<PaginaConfig>): PaginaConfig {
     tema: "cortai", layout: "cinematografico", cores: TEMAS.cortai.cores,
     fonteTitulo: "montserrat", fonteTexto: "inter", bordas: "moderno", densidade: "equilibrada", botoes: "solido",
     frase: "Cuidado, estilo e horário reservado para você.", sobre: "", cta: "Agendar horário",
-    componentes: Object.fromEntries(componenteIds.map((id) => [id, true])), ...overrides,
+    componentes: Object.fromEntries(componenteIds.map((id) => [id, true])), chat: {}, ...overrides,
   });
 }
 
