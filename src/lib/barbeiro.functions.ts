@@ -91,6 +91,8 @@ export type AgendaItem = {
   finishedAt: string | null;
   encaixe?: boolean;
   daListaDeEspera?: boolean;
+  profissionalId?: string | null;
+  confirmadoEm?: string | null;
 };
 
 export type FilaJanela = {
@@ -105,8 +107,19 @@ export type AgendaDia = {
   dia: string;
   itens: AgendaItem[];
   fila: FilaJanela[];
-  horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
+  horarios: {
+    diaSemana: number;
+    fechado: boolean;
+    abre: string;
+    fecha: string;
+    intervaloInicio?: string | null;
+    intervaloFim?: string | null;
+  }[];
   fuso: string;
+  /** Passo de horários configurado pelo negócio (minutos). */
+  passoMin?: number;
+  /** Profissionais ativos do negócio, mesmo sem atendimento no dia. */
+  profissionais?: { id: string; nome: string }[];
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
@@ -119,11 +132,11 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const de = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
-    const [agRes, filaRes, horariosRes] = await Promise.all([
+    const [agRes, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -136,9 +149,16 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .order("posicao"),
       db
         .from("horarios_de_funcionamento")
-        .select("dia_semana, fechado, abre, fecha")
+        .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id)
         .order("dia_semana"),
+      db
+        .from("profissionais")
+        .select("id, nome")
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .order("nome"),
+      db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle(),
     ]);
 
     const itens = (agRes.data ?? []).map((a) => ({
@@ -160,6 +180,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
           Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000),
         ),
       profissional: a.profissionais?.nome ?? "—",
+      profissionalId: (a as { profissional_id?: string | null }).profissional_id ?? null,
       arrivedAt: a.arrived_at ?? null,
       startedAt: a.started_at ?? null,
       finishedAt: a.finished_at ?? null,
@@ -184,8 +205,13 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       fechado: Boolean(h.fechado),
       abre: String(h.abre).slice(0, 5),
       fecha: String(h.fecha).slice(0, 5),
+      intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
+      intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
-    return { tenant, dia: iso, itens, fila, horarios, fuso };
+    const passo = Number(tenantRes.data?.passo_horarios_min);
+    const passoMin = [15, 20, 30, 40].includes(passo) ? passo : 30;
+    const profissionais = (profsRes.data ?? []).map((p) => ({ id: p.id, nome: p.nome }));
+    return { tenant, dia: iso, itens, fila, horarios, fuso, passoMin, profissionais };
   });
 
 export const ESTADOS_ATENDIMENTO = [
@@ -1463,16 +1489,23 @@ export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
 /** Mover horário (arrastar na agenda): atualiza o mesmo agendamento; a trava do banco rejeita sobreposição. */
 export const moverAgendamentoPainel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; novoInicio: string }) => {
-    if (Number.isNaN(new Date(data.novoInicio).getTime())) throw new Error("Horário inválido.");
-    return data;
-  })
+  .inputValidator(
+    (data: {
+      agendamentoId: string;
+      novoInicio: string;
+      profissionalId?: string | null;
+      apenasVerificar?: boolean;
+    }) => {
+      if (Number.isNaN(new Date(data.novoInicio).getTime())) throw new Error("Horário inválido.");
+      return data;
+    },
+  )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { data: atual } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status")
+      .select("id, inicio, fim, status, profissional_id, servicos(profissional_ids)")
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
@@ -1481,11 +1514,49 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       throw new Error("Só dá para remarcar quem ainda não começou.");
     const duracao = new Date(atual.fim).getTime() - new Date(atual.inicio).getTime();
     const inicio = new Date(data.novoInicio);
+    const fim = new Date(inicio.getTime() + duracao);
+    const profissionalId = data.profissionalId ?? atual.profissional_id ?? null;
+    if (profissionalId && profissionalId !== atual.profissional_id) {
+      const { data: prof } = await db
+        .from("profissionais")
+        .select("id")
+        .eq("id", profissionalId)
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .maybeSingle();
+      if (!prof) throw new Error("Profissional não encontrado neste negócio.");
+      const ids = ((atual as { servicos?: { profissional_ids?: string[] | null } | null }).servicos
+        ?.profissional_ids ?? []) as string[];
+      if (ids.length && !ids.includes(profissionalId))
+        throw new Error("Esse profissional não faz este serviço.");
+    }
+    // Checagem prévia com as mesmas regras de ocupação; a trava do banco continua valendo.
+    if (profissionalId) {
+      const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+      const { data: choques } = await db
+        .from("agendamentos")
+        .select("id")
+        .eq("tenant_id", tenant.id)
+        .eq("profissional_id", profissionalId)
+        .in("status", [...STATUS_QUE_OCUPAM])
+        .neq("id", atual.id)
+        .lt("inicio", fim.toISOString())
+        .gt("fim", inicio.toISOString())
+        .limit(1);
+      if (choques?.length) {
+        if (data.apenasVerificar)
+          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
+        throw new Error("Esse horário já está ocupado para este profissional.");
+      }
+    }
+    if (data.apenasVerificar)
+      return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
     const { error } = await db
       .from("agendamentos")
       .update({
         inicio: inicio.toISOString(),
-        fim: new Date(inicio.getTime() + duracao).toISOString(),
+        fim: fim.toISOString(),
+        ...(profissionalId ? { profissional_id: profissionalId } : {}),
       })
       .eq("id", atual.id)
       .eq("tenant_id", tenant.id);
@@ -1500,5 +1571,10 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     } catch {
       /* o horário já está salvo */
     }
-    return { ok: true, inicioAnterior: atual.inicio as string };
+    return {
+      ok: true,
+      livre: true,
+      inicioAnterior: atual.inicio as string,
+      profissionalAnterior: (atual.profissional_id as string | null) ?? null,
+    };
   });

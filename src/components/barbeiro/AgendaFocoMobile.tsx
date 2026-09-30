@@ -1,7 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  CalendarPlus,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -10,20 +8,13 @@ import {
   MoreHorizontal,
   Plus,
   Scissors,
-  ShoppingBag,
   UserRoundCheck,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { resumoDoDia } from "@/lib/resumo-dia";
@@ -32,24 +23,24 @@ type Props = {
   dia: string;
   hoje: boolean;
   fuso: string | undefined;
-  agora: number;
   itens: AgendaItem[];
+  /** ID do profissional filtrado. */
   profissional: string | null;
-  profissionais: string[];
+  profissionais: { id: string; nome: string }[];
   online: boolean;
   ocupado: boolean;
   carregando: boolean;
   erro: string | null;
   onSair: () => void;
   onDia: (dia: string) => void;
-  onProfissional: (nome: string | null) => void;
+  onProfissional: (id: string | null) => void;
   onChegou: (item: AgendaItem) => void;
   onComecar: (item: AgendaItem) => void;
   onTerminar: (item: AgendaItem) => void;
   onMaisOpcoes: (item: AgendaItem) => void;
   fila?: number;
   onChamarFila?: () => void;
-  onNovoAgendamento?: () => void;
+  onAcoes: () => void;
   onNovoAtendimento?: () => void;
   onTentarNovamente: () => void;
 };
@@ -116,8 +107,8 @@ const ROTULO_ESTADO: Record<EstadoCockpit, string> = {
 };
 
 export function AgendaFocoMobile(props: Props) {
-  const [acoes, setAcoes] = useState(false);
-  const resumo = resumoDoDia(props.itens, props.agora);
+  const agora = useAgora();
+  const resumo = resumoDoDia(props.itens, agora);
   const operacionais = useMemo(
     () => props.itens.filter((item) => !TERMINAIS.has(item.status)),
     [props.itens],
@@ -125,19 +116,19 @@ export function AgendaFocoMobile(props: Props) {
   const ativo = operacionais.find((item) => item.status === "na_cadeira");
   const chegou = operacionais.find((item) => item.status === "chegou");
   const atrasado = operacionais.find(
-    (item) => item.status === "agendado" && new Date(item.inicio).getTime() < props.agora,
+    (item) => item.status === "agendado" && new Date(item.inicio).getTime() < agora,
   );
-  const futuro = operacionais.find((item) => new Date(item.fim).getTime() >= props.agora);
+  const futuro = operacionais.find((item) => new Date(item.fim).getTime() >= agora);
   const principal = ativo ?? chegou ?? atrasado ?? futuro;
-  const estado = estadoDoCockpit(principal, props.agora);
+  const estado = estadoDoCockpit(principal, agora);
   const proximos = operacionais.filter((item) => item.id !== principal?.id).slice(0, 3);
   const decorrido = ativo
     ? Math.max(
         0,
-        Math.floor((props.agora - new Date(ativo.startedAt ?? ativo.inicio).getTime()) / 60_000),
+        Math.floor((agora - new Date(ativo.startedAt ?? ativo.inicio).getTime()) / 60_000),
       )
     : 0;
-  const ate = principal ? minutosAte(principal.inicio, props.agora) : null;
+  const ate = principal ? minutosAte(principal.inicio, agora) : null;
   const desabilitado = !props.online || props.ocupado;
 
   const contexto = principal
@@ -196,15 +187,15 @@ export function AgendaFocoMobile(props: Props) {
             >
               Todos
             </Button>
-            {props.profissionais.map((nome) => (
+            {props.profissionais.map((p) => (
               <Button
-                key={nome}
+                key={p.id}
                 variant="ghost"
                 size="sm"
-                className={props.profissional === nome ? "agenda-chip-ativo" : ""}
-                onClick={() => props.onProfissional(nome)}
+                className={props.profissional === p.id ? "agenda-chip-ativo" : ""}
+                onClick={() => props.onProfissional(p.id)}
               >
-                {nome}
+                {p.nome}
               </Button>
             ))}
           </div>
@@ -333,7 +324,7 @@ export function AgendaFocoMobile(props: Props) {
                   <p>Próximos</p>
                   <span>Sequência do dia</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setAcoes(true)}>
+                <Button variant="ghost" size="sm" onClick={props.onAcoes}>
                   <Plus /> Ações
                 </Button>
               </div>
@@ -364,80 +355,6 @@ export function AgendaFocoMobile(props: Props) {
           </main>
         )}
       </div>
-
-      <Sheet open={acoes} onOpenChange={setAcoes}>
-        <SheetContent
-          side="bottom"
-          className="mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-5"
-        >
-          <SheetHeader className="pr-10 text-left">
-            <SheetTitle className="text-paper">Ações da agenda</SheetTitle>
-            <SheetDescription className="text-mute">
-              Somente o que ajuda no expediente.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-4 divide-y divide-line">
-            {props.onNovoAgendamento ? (
-              <Button
-                variant="ghost"
-                className="agenda-acao-lista"
-                onClick={() => {
-                  setAcoes(false);
-                  props.onNovoAgendamento?.();
-                }}
-              >
-                <CalendarPlus />
-                <span>
-                  <strong>Novo agendamento</strong>
-                  <small>Marcar horário e profissional</small>
-                </span>
-              </Button>
-            ) : null}
-            {props.onNovoAtendimento ? (
-              <Button
-                variant="ghost"
-                className="agenda-acao-lista"
-                onClick={() => {
-                  setAcoes(false);
-                  props.onNovoAtendimento?.();
-                }}
-              >
-                <Scissors />
-                <span>
-                  <strong>Encaixe</strong>
-                  <small>Atender quem chegou sem marcar</small>
-                </span>
-              </Button>
-            ) : null}
-            {props.fila && props.onChamarFila ? (
-              <Button
-                variant="ghost"
-                className="agenda-acao-lista"
-                disabled={desabilitado}
-                onClick={() => {
-                  setAcoes(false);
-                  props.onChamarFila?.();
-                }}
-              >
-                <ListOrdered />
-                <span>
-                  <strong>Chamar lista de espera</strong>
-                  <small>{props.fila} aguardando</small>
-                </span>
-              </Button>
-            ) : null}
-            <Button asChild variant="ghost" className="agenda-acao-lista">
-              <Link to="/barbeiro/produtos">
-                <ShoppingBag />
-                <span>
-                  <strong>Venda rápida</strong>
-                  <small>Produto ou pacote</small>
-                </span>
-              </Link>
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
     </section>
   );
 }

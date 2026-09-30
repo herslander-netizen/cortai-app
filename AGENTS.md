@@ -15,9 +15,7 @@
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
 - Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
 - Visual: `styles.css`, Manrope, marinho/royal/rosa; nunca verde/dourado/Barlow. Ícone CortAI via `IconeDaIA`.
-- Agenda/Modo Foco reutilizam regras, cliente e comanda; sem estado paralelo/offline.
 - Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
-- Home pública só em `/apresentacao`; `/` despacha auth. Página pública `/b/$slug` com aliases.
 - Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.
 - Chats públicos: mesmo motor, `PaginaConfig`, `ChatShell`, `ChatHeader`.
 - Disponibilidade só via `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`.
@@ -27,5 +25,5 @@
 - Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
 - Navegação barbeiro: um item por área (`navegacao-barbeiro.ts`); telas irmãs viram abas (`SECOES`); barra não se repete no menu.
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
-
-- Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/admin/apresentacao` redireciona e `SecoesHome` fica sem uso público — evita duas Homes concorrentes.
+- Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
+- Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
