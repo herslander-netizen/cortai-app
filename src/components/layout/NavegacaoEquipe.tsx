@@ -4,23 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Banknote, CalendarDays, ContactRound, ListOrdered, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
+import { itensDaBarra, secaoDoCaminho } from "@/lib/navegacao-barbeiro";
 
 const CHAVE = "cortai-lateral-recolhida";
 
 function useItens() {
   const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
-  const financeiro = sessao?.permissoes.includes("visualizar_financeiro");
-  return [
-    { to: "/barbeiro", label: "Agenda", icon: CalendarDays },
-    { to: "/barbeiro/clientes", label: "Clientes", icon: ContactRound },
-    financeiro ? { to: "/barbeiro/caixa", label: "Caixa", icon: Banknote } : { to: "/barbeiro/fila", label: "Fila", icon: ListOrdered },
-    { to: "/barbeiro/mais", label: "Mais", icon: Menu },
-  ] as const;
+  const icones = { "/barbeiro": CalendarDays, "/barbeiro/clientes": ContactRound, "/barbeiro/caixa": Banknote, "/barbeiro/fila": ListOrdered } as const;
+  return itensDaBarra(sessao?.permissoes).map((item) => ({ ...item, icon: icones[item.to] }));
 }
 
 function ativo(caminho: string, to: string) {
   if (to === "/barbeiro") return caminho === "/barbeiro" || caminho === "/barbeiro/" || caminho === "/barbeiro/agenda";
-  return caminho.startsWith(to);
+  // Abas da mesma área (ex.: Comissões dentro de Financeiro) mantêm o item ativo.
+  return caminho.startsWith(to) || Boolean(secaoDoCaminho(caminho)?.abas.some((a) => a.to === to));
 }
 
 /** Barra inferior curta (celular) e lateral recolhível (desktop), com a Agenda primeiro. */
@@ -59,6 +56,12 @@ export function NavegacaoEquipe() {
               </li>
             );
           })}
+          <li>
+            <button type="button" className="equipe-barra-link w-full" onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}>
+              <Menu size={20} strokeWidth={1.75} aria-hidden />
+              <span>Menu</span>
+            </button>
+          </li>
         </ul>
       </nav>
 
@@ -76,6 +79,12 @@ export function NavegacaoEquipe() {
               </li>
             );
           })}
+          <li>
+            <button type="button" title="Menu" className="equipe-lateral-link w-full" onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}>
+              <Menu size={19} strokeWidth={1.75} aria-hidden />
+              <span className="equipe-lateral-rotulo">Menu</span>
+            </button>
+          </li>
         </ul>
         <button type="button" onClick={alternar} className="equipe-lateral-link equipe-lateral-alternar" aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}>
           {recolhida ? <PanelLeftOpen size={19} strokeWidth={1.75} aria-hidden /> : <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />}
