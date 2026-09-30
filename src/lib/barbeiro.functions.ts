@@ -64,6 +64,9 @@ export const finalizarAtendimento = createServerFn({ method: "POST" })
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
+    const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+    void notificarAgendamento(data.agendamentoId, "pos_atendimento").catch(() => undefined);
+    void notificarAgendamento(data.agendamentoId, "convite_avaliacao").catch(() => undefined);
     return { ok: true };
   });
 
@@ -725,7 +728,11 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
         .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id),
     ]);
-    const { data: passoRow } = await db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle();
+    const { data: passoRow } = await db
+      .from("tenants")
+      .select("passo_horarios_min")
+      .eq("id", tenant.id)
+      .maybeSingle();
     return {
       tenant,
       servicos: servicosRes.data ?? [],
@@ -1054,7 +1061,11 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
-    const { data: passoRow } = await db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle();
+    const { data: passoRow } = await db
+      .from("tenants")
+      .select("passo_horarios_min")
+      .eq("id", tenant.id)
+      .maybeSingle();
     const grade = slotsDoDia(dia, horarios, passoValido(passoRow?.passo_horarios_min), fuso);
     for (const slot of grade.slots) {
       const inicio = new Date(slot.iso).getTime();

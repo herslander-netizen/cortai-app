@@ -36,6 +36,9 @@ export const AUTOMACOES = {
   lembrete_2h: "Lembrete 2 horas antes",
   cancelamento: "Aviso de cancelamento",
   remarcacao: "Aviso de remarcação",
+  pos_atendimento: "Pós-atendimento",
+  convite_avaliacao: "Convite de avaliação",
+  retorno: "Lembrete de retorno",
   encaminhamento_humano: "Encaminhamento para atendente",
   cliente_de_retorno: "Cliente que voltou",
 } as const;
@@ -112,7 +115,15 @@ export type ConfiguracaoDoAtendimento = {
   situacoesDesligadas: string[];
 };
 
-export const DIAS_DA_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
+export const DIAS_DA_SEMANA = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+] as const;
 
 /**
  * Saudação padrão do CortAI: usada quando o negócio ativou a saudação

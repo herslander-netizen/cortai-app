@@ -1,20 +1,15 @@
-import { fusoDoTenant } from "@/lib/fuso.server";
-import { segmentoValido } from "@/lib/segmentos";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *
- * mensagem recebida → barbearia (pela sessão, nunca pelo corpo) → conversa →
- * registro → CortAI → ação controlada → resposta → envio → registro.
+ * mensagem recebida → negócio (pela sessão, nunca pelo corpo) → registro →
+ * ação pendente oficial OU orientação curta para o Cortaí.
  *
  * Idempotência: a mesma entrega (mesmo id externo) nunca é processada duas vezes.
  */
 import {
   CONFIGURACAO_PADRAO,
-  SAUDACAO_PADRAO,
-  saudacaoPadrao,
   type ConfiguracaoDoAtendimento,
-  type ContextoDaConversa,
   type TomDoAtendimento,
 } from "./contrato";
 
@@ -30,7 +25,10 @@ function somenteDigitos(telefone: string) {
 /** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
 async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
   const db = await admin();
-  const { data, error } = await db.rpc("recurso_do_tenant_ativo", { _tenant_id: tenantId, _chave: "cortai_whatsapp" });
+  const { data, error } = await db.rpc("recurso_do_tenant_ativo", {
+    _tenant_id: tenantId,
+    _chave: "cortai_whatsapp",
+  });
   if (error) return true;
   return data !== false;
 }
@@ -43,17 +41,22 @@ async function barbeariaDoNumeroCompartilhado(
   telefone: string,
   texto: string,
   citadaId: string | null = null,
-): Promise<{ tenantId: string; escolheuAgora: boolean } | { perguntar: string }> {
+): Promise<{ tenantId: string } | { semContexto: true }> {
   const db = await admin();
   const { decidirBarbearia } = await import("./multi-barbearia");
 
   // Opções: barbearias ativas que compartilham o número oficial.
-  const { data: conexoes } = await db.from("conexoes_whatsapp").select("tenant_id").eq("compartilhada", true);
+  const { data: conexoes } = await db
+    .from("conexoes_whatsapp")
+    .select("tenant_id")
+    .eq("compartilhada", true);
   const idsCompartilhados = [...new Set((conexoes ?? []).map((c) => c.tenant_id))];
   const { data: tenants } = idsCompartilhados.length
     ? await db.from("tenants").select("id, nome, ativo").in("id", idsCompartilhados).order("nome")
     : { data: [] as { id: string; nome: string; ativo: boolean | null }[] };
-  const opcoes = (tenants ?? []).filter((t) => t.ativo !== false).map((t) => ({ id: t.id, nome: t.nome }));
+  const opcoes = (tenants ?? [])
+    .filter((t) => t.ativo !== false)
+    .map((t) => ({ id: t.id, nome: t.nome }));
 
   const { data: ctx } = await db
     .from("whatsapp_contexto_numero")
@@ -64,11 +67,20 @@ async function barbeariaDoNumeroCompartilhado(
   let porNotificacao: string | null = null;
   const idNoBotao = texto.trim().match(/^CORTAI_[A-Z_]+:([0-9a-fA-F-]{36})$/)?.[1];
   if (idNoBotao || citadaId) {
-    const q = db.from("envios_de_whatsapp").select("tenant_id");
+    const q = db
+      .from("envios_de_whatsapp")
+      .select("tenant_id, telefone, aguarda_resposta, respondido_em, valido_ate");
     const { data } = idNoBotao
       ? await q.eq("id", idNoBotao.toLowerCase()).maybeSingle()
       : await q.eq("mensagem_externa_id", citadaId!).maybeSingle();
-    porNotificacao = data?.tenant_id ?? null;
+    const pendente =
+      data &&
+      data.aguarda_resposta &&
+      !data.respondido_em &&
+      data.valido_ate &&
+      new Date(data.valido_ate).getTime() > Date.now() &&
+      variantesDoTelefone(data.telefone).some((v) => variantesDoTelefone(telefone).includes(v));
+    porNotificacao = pendente ? data.tenant_id : null;
   }
   let porSlug: string | null = null;
   const tokens = (texto.toLowerCase().match(/[a-z0-9][a-z0-9-]{2,}/g) ?? []).slice(0, 40);
@@ -85,23 +97,18 @@ async function barbeariaDoNumeroCompartilhado(
     porSlug,
   });
   const agora = new Date().toISOString();
-  if (d.tipo === "menu") {
-    await db
-      .from("whatsapp_contexto_numero")
-      .upsert({ telefone, tenant_id: null, aguardando_escolha: true, atualizado_em: agora });
-    if (d.evento === "troca") {
-      console.info("[whatsapp/multi] troca de barbearia", { telefone: telefone.slice(-4), anterior: ctx?.tenant_id ?? null });
-    }
-    return { perguntar: d.texto };
-  }
+  if (d.tipo === "menu") return { semContexto: true };
   if (d.salvar) {
     const { error } = await db
       .from("whatsapp_contexto_numero")
       .upsert({ telefone, tenant_id: d.tenantId, aguardando_escolha: false, atualizado_em: agora });
     if (error) throw new Error(error.message);
-    console.info("[whatsapp/multi] barbearia selecionada", { telefone: telefone.slice(-4), tenant: d.tenantId });
+    console.info("[whatsapp/multi] barbearia selecionada", {
+      telefone: telefone.slice(-4),
+      tenant: d.tenantId,
+    });
   }
-  return { tenantId: d.tenantId, escolheuAgora: d.salvar && !porNotificacao && Boolean(ctx?.aguardando_escolha || /^\d{1,2}$/.test(texto.trim())) };
+  return { tenantId: d.tenantId };
 }
 
 export async function conexaoPorSessao(sessaoId: string) {
@@ -120,13 +127,21 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     db.from("config_atendimento_ia").select("*").eq("tenant_id", tenantId).maybeSingle(),
     db.from("tenants").select("segmento").eq("id", tenantId).maybeSingle(),
   ]);
-  const segmento = segmentoValido(tenant?.segmento);
-  if (!data) return { ...CONFIGURACAO_PADRAO, segmento, mensagemBoasVindas: saudacaoPadrao(segmento) };
+  const segmento =
+    tenant?.segmento === "barbearia" ||
+    tenant?.segmento === "salao" ||
+    tenant?.segmento === "cabeleireiro" ||
+    tenant?.segmento === "esmalteria" ||
+    tenant?.segmento === "sobrancelha_cilios" ||
+    tenant?.segmento === "estetica"
+      ? tenant.segmento
+      : "outro";
+  if (!data) return { ...CONFIGURACAO_PADRAO, segmento };
   return {
     segmento,
     atendimentoAutomatico: data.atendimento_automatico,
     saudacaoAtiva: data.saudacao_ativa,
-    mensagemBoasVindas: !data.mensagem_boas_vindas || data.mensagem_boas_vindas === SAUDACAO_PADRAO ? saudacaoPadrao(segmento) : data.mensagem_boas_vindas,
+    mensagemBoasVindas: data.mensagem_boas_vindas ?? "",
     mensagemForaDoHorario: data.mensagem_fora_do_horario,
     permiteConfirmar: data.permite_confirmar,
     permiteCancelar: data.permite_cancelar,
@@ -146,7 +161,9 @@ export async function configuracaoDoTenant(tenantId: string): Promise<Configurac
     pagamentoAntecipado: data.pagamento_antecipado ?? false,
     linkPagamento: data.link_pagamento ?? "",
     textosConversa:
-      data.textos_conversa && typeof data.textos_conversa === "object" && !Array.isArray(data.textos_conversa)
+      data.textos_conversa &&
+      typeof data.textos_conversa === "object" &&
+      !Array.isArray(data.textos_conversa)
         ? (data.textos_conversa as Record<string, string>)
         : {},
     situacoesDesligadas: (data.situacoes_desligadas as string[] | null) ?? [],
@@ -237,7 +254,11 @@ export async function enviarPelaBarbearia(input: {
   const { gatewayDeWhatsapp } = await import("./gateway.server");
 
   // Fora da janela de 24h, o canal oficial só aceita template aprovado.
-  if (input.iniciadaPelaBarbearia && gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela && !input.modelo) {
+  if (
+    input.iniciadaPelaBarbearia &&
+    gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela &&
+    !input.modelo
+  ) {
     const { data: ultima } = await db
       .from("mensagens_whatsapp")
       .select("criado_em")
@@ -258,11 +279,16 @@ export async function enviarPelaBarbearia(input: {
     // Modelo ainda em análise ou recusado: tenta o texto livre (a Meta só aceita dentro da janela de 24h).
     const viaModelo = input.modelo
       ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo).catch((e) => {
-          console.warn("[whatsapp] modelo recusado, tentando texto livre:", e instanceof Error ? e.message : e);
+          console.warn(
+            "[whatsapp] modelo recusado, tentando texto livre:",
+            e instanceof Error ? e.message : e,
+          );
           return null;
         })
       : null;
-    const r = viaModelo ?? (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
+    const r =
+      viaModelo ??
+      (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";
@@ -293,10 +319,13 @@ export async function enviarPelaBarbearia(input: {
   return { externoId };
 }
 
-
-
 /** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
-async function vincularCliente(tenantId: string, conversaId: string, telefone: string, atual: string | null) {
+async function vincularCliente(
+  tenantId: string,
+  conversaId: string,
+  telefone: string,
+  atual: string | null,
+) {
   if (atual) return atual;
   const db = await admin();
   const { data } = await db
@@ -342,15 +371,41 @@ export async function processarMensagemRecebida(input: {
   const telefone = somenteDigitos(input.telefone);
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
-    const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "", input.citadaId ?? null);
-    if ("perguntar" in r) {
+    const r = await barbeariaDoNumeroCompartilhado(
+      telefone,
+      input.tipo === "text" ? input.conteudo : "",
+      input.citadaId ?? null,
+    );
+    if ("semContexto" in r) {
       const { gatewayDeWhatsapp } = await import("./gateway.server");
-      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, r.perguntar).catch(() => undefined);
-      return { tratada: true, motivo: "identificando_barbearia" };
+      const conversa = await conversaDoTelefone({
+        tenantId: conexao.tenant_id,
+        conexaoId: conexao.id,
+        telefone,
+        nomeContato: input.nomeContato ?? null,
+      });
+      await db.from("mensagens_whatsapp").insert({
+        tenant_id: conexao.tenant_id,
+        conversa_id: conversa.id,
+        conexao_id: conexao.id,
+        mensagem_externa_id: input.mensagemExternaId,
+        direcao: "entrada",
+        telefone_remetente: telefone,
+        tipo: input.tipo,
+        conteudo: input.conteudo,
+        midia_url: input.midiaUrl ?? null,
+        status: "recebida",
+      });
+      await gatewayDeWhatsapp
+        .enviarMensagem(
+          input.sessaoId,
+          telefone,
+          "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
+        )
+        .catch(() => undefined);
+      return { tratada: true, motivo: "sem_contexto_transacional" };
     }
     tenantId = r.tenantId;
-    // A escolha "1"/"2" não segue ao motor como texto: vira uma saudação na barbearia escolhida.
-    if (r.escolheuAgora) input = { ...input, conteudo: "oi" };
   }
   const conversa = await conversaDoTelefone({
     tenantId,
@@ -392,7 +447,6 @@ export async function processarMensagemRecebida(input: {
     .eq("id", conversa.id);
 
   // Resposta a lembrete (botão, número ou palavra exata): regra + banco, sem motor.
-  let conteudo = input.conteudo;
   if (input.tipo === "text") {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
     const lembrete = await tratarRespostaDeLembrete({
@@ -414,111 +468,37 @@ export async function processarMensagemRecebida(input: {
           porIa: false,
         }).catch(() => undefined);
       }
-      if (!lembrete.repassar) return { tratada: true, motivo: "lembrete" };
-      conteudo = lembrete.repassar;
+      return { tratada: true, motivo: "acao_contextual" };
     }
   }
-
-  const config = await configuracaoDoTenant(tenantId);
-  if (conversa.modo_humano || conversa.status === "humano") return { tratada: true, motivo: "humano" };
-  if (!config.atendimentoAutomatico || !conversa.ia_ativa) return { tratada: true, motivo: "automatico_desligado" };
-  if (!config.responderWhatsapp) return { tratada: true, motivo: "whatsapp_desligado" };
-  if (!(await whatsappLiberadoNoPlano(tenantId))) return { tratada: true, motivo: "plano_sem_whatsapp" };
-  if (!dentroDoHorarioDaIa(config, await fusoDoTenant(tenantId))) return { tratada: true, motivo: "fora_do_horario_da_ia" };
-
-  // Proteção contra rajada na mesma conversa (abuso e custo de IA).
-  const { limiteDaConversaExcedido } = await import("@/lib/ia/limite.server");
-  if (await limiteDaConversaExcedido(conversa.id)) return { tratada: true, motivo: "limite_da_conversa" };
-
-  const { data: tenant } = await db.from("tenants").select("nome, segmento").eq("id", tenantId).maybeSingle();
-
-
-  // Mídia (áudio, imagem, figurinha): resposta padrão, sem transcrição e sem
-  // qualquer custo de IA. O motor só conversa por texto.
-  if (input.tipo !== "text") {
-    const aviso =
-      "Recebi sua mensagem, mas por aqui eu só consigo ler texto. Pode me escrever o que precisa? Se preferir, chamo alguém da equipe.";
+  const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
+  const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
+  const fallback = `Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: ${link}`;
+  const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const { data: jaOrientado } = await db
+    .from("mensagens_whatsapp")
+    .select("id")
+    .eq("conversa_id", conversa.id)
+    .eq("direcao", "saida")
+    .eq("conteudo", fallback)
+    .gte("criado_em", desde)
+    .limit(1)
+    .maybeSingle();
+  if (!jaOrientado && (await whatsappLiberadoNoPlano(tenantId))) {
     await enviarPelaBarbearia({
       tenantId,
       conversaId: conversa.id,
       conexaoId: conexao.id,
       sessaoId: input.sessaoId,
       telefone,
-      texto: aviso,
-      porIa: true,
+      texto: fallback,
+      porIa: false,
     }).catch(() => undefined);
-    return { tratada: true, motivo: "midia_nao_suportada" };
   }
-
-  const clienteId = await vincularCliente(tenantId, conversa.id, telefone, conversa.cliente_id ?? null);
-  const contexto = ((conversa as { contexto?: unknown }).contexto ?? {}) as ContextoDaConversa;
-
-  // Rajada de mensagens curtas vira uma única frase para o motor.
-  const { textoAgrupado } = await import("./motor/agrupador.server");
-  const textoDoCliente = await textoAgrupado({ conversaId: conversa.id, textoAtual: conteudo });
-
-  // Motor determinístico: nenhum provedor de IA é chamado — custo zero.
-  const { responderComMotor } = await import("./motor/motor.server");
-  let resposta: Awaited<ReturnType<typeof responderComMotor>> | null = null;
-  try {
-    resposta = await responderComMotor({
-      tenantId,
-      conversaId: conversa.id,
-      telefone,
-      nomeContato: input.nomeContato ?? null,
-      clienteId,
-      nomeDaBarbearia: tenant?.nome ?? "a barbearia",
-      config,
-      contexto: { ...contexto, ...(clienteId ? { clienteId } : {}) },
-      texto: textoDoCliente,
-    });
-  } catch (erro) {
-    await db.from("acoes_de_ia_log").insert({
-      tenant_id: tenantId,
-      conversa_id: conversa.id,
-      acao: "motor_conversa",
-      sucesso: false,
-      erro: erro instanceof Error ? erro.message : "Falha no motor de atendimento.",
-    });
-    return { tratada: true, motivo: "falha_no_motor" };
-  }
-
-  if (!resposta) return { tratada: true, motivo: "sem_resposta" };
-
-  await enviarPelaBarbearia({
-    tenantId,
-    conversaId: conversa.id,
-    conexaoId: conexao.id,
-    sessaoId: input.sessaoId,
-    telefone,
-    texto: resposta.texto,
-    porIa: true,
-  }).catch(() => undefined);
-
-  // Memória curta da conversa e intenção identificada ficam guardadas.
-  await db
-    .from("conversas_whatsapp")
-    .update({
-      contexto: { ...resposta.contexto, ...(clienteId ? { clienteId } : {}) } as never,
-      ...(resposta.intencao ? { intencao: resposta.intencao } : {}),
-    })
-    .eq("id", conversa.id);
-
-  if (resposta.pedirHumano && config.encaminhamentoHumano) {
-    await db
-      .from("conversas_whatsapp")
-      .update({ status: "humano", modo_humano: true, ia_ativa: false })
-      .eq("id", conversa.id);
-    await db.from("acoes_de_ia_log").insert({
-      tenant_id: tenantId,
-      conversa_id: conversa.id,
-      acao: "encaminhar_para_humano",
-      intencao: "atendimento_humano",
-      sucesso: true,
-    });
-  }
-
-  return { tratada: true };
+  return {
+    tratada: true,
+    motivo: jaOrientado ? "fallback_ja_enviado" : "fallback_informativo_whatsapp",
+  };
 }
 
 /** Atualiza o estado da conexão a partir de um aviso do gateway. */
@@ -542,8 +522,8 @@ export async function atualizarEstadoDaConexao(
     .from("conexoes_whatsapp")
     .update({
       status,
-      qr_code: status === "qr_pronto" ? estado.qrCode ?? null : null,
-      qr_expira_em: status === "qr_pronto" ? estado.qrExpiraEm ?? null : null,
+      qr_code: status === "qr_pronto" ? (estado.qrCode ?? null) : null,
+      qr_expira_em: status === "qr_pronto" ? (estado.qrExpiraEm ?? null) : null,
       ...(estado.numero ? { numero: estado.numero } : {}),
       ...(estado.nomeExibicao ? { nome_exibicao: estado.nomeExibicao } : {}),
       ultimo_erro: estado.erro ?? null,

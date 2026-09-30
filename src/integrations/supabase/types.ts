@@ -464,9 +464,11 @@ export type Database = {
           comentario: string | null
           convite_publico_enviado: boolean
           criado_em: string
+          dimensoes: Json | null
           id: string
           nota: number
           profissional_id: string | null
+          sinal_atencao: boolean
           tenant_id: string
         }
         Insert: {
@@ -475,9 +477,11 @@ export type Database = {
           comentario?: string | null
           convite_publico_enviado?: boolean
           criado_em?: string
+          dimensoes?: Json | null
           id?: string
           nota: number
           profissional_id?: string | null
+          sinal_atencao?: boolean
           tenant_id: string
         }
         Update: {
@@ -486,9 +490,11 @@ export type Database = {
           comentario?: string | null
           convite_publico_enviado?: boolean
           criado_em?: string
+          dimensoes?: Json | null
           id?: string
           nota?: number
           profissional_id?: string | null
+          sinal_atencao?: boolean
           tenant_id?: string
         }
         Relationships: [
@@ -1645,6 +1651,51 @@ export type Database = {
           },
           {
             foreignKeyName: "conversas_whatsapp_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      convites_de_avaliacao: {
+        Row: {
+          agendamento_id: string
+          criado_em: string
+          expira_em: string
+          id: string
+          tenant_id: string
+          token_hash: string
+          usado_em: string | null
+        }
+        Insert: {
+          agendamento_id: string
+          criado_em?: string
+          expira_em: string
+          id?: string
+          tenant_id: string
+          token_hash: string
+          usado_em?: string | null
+        }
+        Update: {
+          agendamento_id?: string
+          criado_em?: string
+          expira_em?: string
+          id?: string
+          tenant_id?: string
+          token_hash?: string
+          usado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "convites_de_avaliacao_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: true
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "convites_de_avaliacao_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

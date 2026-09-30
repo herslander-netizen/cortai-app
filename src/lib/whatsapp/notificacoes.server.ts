@@ -23,6 +23,8 @@ export type TipoDeNotificacao =
   | "lembrete_2h"
   | "cancelamento"
   | "remarcacao"
+  | "pos_atendimento"
+  | "convite_avaliacao"
   | "retorno";
 
 /** Automação (liga/desliga por barbearia) correspondente a cada tipo. */
@@ -32,6 +34,8 @@ const AUTOMACAO_DO_TIPO = {
   lembrete_2h: "lembrete_2h",
   cancelamento: "cancelamento",
   remarcacao: "remarcacao",
+  pos_atendimento: "pos_atendimento",
+  convite_avaliacao: "convite_avaliacao",
   retorno: "retorno",
 } as const;
 
@@ -122,6 +126,7 @@ export type DadosDaMensagem = {
   segmento?: string | null;
   /** Texto de retorno já preenchido (personalização > padrão do segmento). */
   textoRetorno?: string | null;
+  linkAvaliacao?: string | null;
 };
 
 /**
@@ -139,46 +144,53 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
 
   if (tipo === "confirmacao_agendamento") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       `Seu horário ${em} está confirmado.`,
       "",
-      linha(d.servico, "✂️ Serviço: "),
-      linha(d.profissional, "💈 Profissional: "),
-      `📅 Data: ${dataBr(d.inicio, d.fuso)}`,
-      `⏰ Horário: ${horaBr(d.inicio, d.fuso)}`,
-      d.valorCentavos > 0 ? `💰 Valor: ${reais(d.valorCentavos)}` : null,
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `Data: ${dataBr(d.inicio, d.fuso)}`,
+      `Horário: ${horaBr(d.inicio, d.fuso)}`,
+      d.valorCentavos > 0 ? `Valor: ${reais(d.valorCentavos)}` : null,
       linha(d.endereco, "📍 "),
     );
     if (d.linkPagamento) blocos.push("", "💳 Pagar agora", d.linkPagamento);
-    blocos.push("", "Até lá! ✂️");
+    blocos.push("", "Até lá!");
   } else if (tipo === "lembrete_24h") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
-      `Lembrete do seu horário ${em}.`,
+      `Olá, ${nome}!`,
+      `Passando para lembrar do seu horário ${em}.`,
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
-      `📅 ${dataBr(d.inicio, d.fuso)}`,
-      `⏰ ${horaBr(d.inicio, d.fuso)}`,
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
       "",
-      "Nos vemos lá! ✂️",
+      "Você pode confirmar, remarcar ou cancelar.",
     );
   } else if (tipo === "lembrete_2h") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
-      "Seu horário está chegando.",
+      `${nome}, seu horário está chegando.`,
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
-      `⏰ ${horaBr(d.inicio, d.fuso)}`,
-      "",
-      "Até daqui a pouco! ✂️",
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `Hoje às ${horaBr(d.inicio, d.fuso)}.`,
+      linha(d.endereco, "📍 "),
+    );
+  } else if (tipo === "pos_atendimento") {
+    blocos.push(
+      `Obrigado por escolher ${d.barbearia}, ${nome}.`,
+      "Esperamos que tenha gostado da experiência.",
+    );
+  } else if (tipo === "convite_avaliacao") {
+    blocos.push(
+      `Olá, ${nome}. Como foi sua experiência?`,
+      d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null,
     );
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       `Já está chegando a hora do seu próximo ${barbearia ? "corte" : "atendimento"} ${em}.`,
       "",
       "Quer que eu veja um horário para você?",
@@ -190,22 +202,22 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       `📅 ${dataBr(d.inicio, d.fuso)}`,
       `⏰ ${horaBr(d.inicio, d.fuso)}`,
-      linha(d.servico, "✂️ "),
+      linha(d.servico, "Serviço: "),
     );
     if (d.linkAgendamento) {
       blocos.push("", "Se quiser realizar um novo agendamento:", d.linkAgendamento);
     }
   } else {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       "Seu horário foi remarcado.",
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
       `📅 ${dataBr(d.inicio, d.fuso)}`,
       `⏰ ${horaBr(d.inicio, d.fuso)}`,
       "",
-      "Até lá! ✂️",
+      "Até lá!",
     );
   }
 
@@ -353,7 +365,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   if (!ag) return { enviado: false, motivo: "Agendamento não encontrado." };
 
   const status = String(ag.status);
-  if (tipo === "retorno") {
+  if (tipo === "retorno" || tipo === "pos_atendimento" || tipo === "convite_avaliacao") {
     if (status !== "finalizado") return { enviado: false, motivo: "Atendimento não finalizado." };
   } else if (tipo === "cancelamento") {
     if (!["cancelado", "estornado"].includes(status)) {
@@ -371,11 +383,14 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
-  if (tipo === "retorno" && cliente?.opt_in_whatsapp !== true) {
+  if (
+    ["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) &&
+    cliente?.opt_in_whatsapp !== true
+  ) {
     return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
   }
 
-  if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
+  if (["lembrete_24h", "lembrete_2h", "pos_atendimento", "convite_avaliacao"].includes(tipo)) {
     const bloqueio = await preferenciaBloqueia(
       ag.cliente_id,
       tipo,
@@ -485,6 +500,14 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       : null;
   }
 
+  let linkAvaliacao: string | null = null;
+  if (tipo === "convite_avaliacao") {
+    const { criarConviteDeAvaliacao } = await import("@/lib/avaliacoes-publicas.functions");
+    const token = await criarConviteDeAvaliacao(ag.id);
+    if (!token) return marcarErro("Convite de avaliação já criado ou atendimento não elegível.");
+    linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
+  }
+
   const texto = montarMensagem(tipo, {
     cliente: cliente?.nome ?? "cliente",
     barbearia: tenant?.nome ?? "Negócio",
@@ -496,6 +519,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     fuso: await fusoDoTenant(ag.tenant_id),
     segmento: tenant?.segmento ?? null,
     textoRetorno,
+    linkAvaliacao,
     linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
     linkPagamento:
       tipo === "confirmacao_agendamento" &&
