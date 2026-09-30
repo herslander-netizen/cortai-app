@@ -190,7 +190,7 @@ export function EditorDeServicos({
               <button
                 type="button"
                 aria-label={`Remover ${s.nome}`}
-                className="shrink-0 text-mute2"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-mute transition-colors hover:bg-ink3 hover:text-destructive"
                 onClick={() => onChange(servicos.filter((_, j) => j !== i))}
               >
                 <Trash2 size={16} />
