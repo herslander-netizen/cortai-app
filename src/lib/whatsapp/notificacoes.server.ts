@@ -9,7 +9,7 @@
  * - nunca bloqueia o agendamento: qualquer falha vira registro em
  *   `envios_de_whatsapp` com status `erro`;
  * - idempotência por (agendamento_id, tipo), garantida por índice único;
- * - isolamento por barbearia: a conexão usada é sempre a do tenant do
+ * - isolamento por negócio: a conexão usada é sempre a do tenant do
  *   agendamento, nunca outra.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
@@ -157,6 +157,7 @@ function primeiroNome(nome: string) {
 
 export type DadosDaMensagem = {
   cliente: string;
+  /** Nome do negócio; campo legado preservado para compatibilidade. */
   barbearia: string;
   servico: string | null;
   profissional: string | null;
@@ -310,7 +311,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
 
 type Resultado = { enviado: boolean; motivo?: string };
 
-/** Liga/desliga por barbearia, reaproveitando `automacoes_de_ia`. */
+/** Liga/desliga por negócio, reaproveitando `automacoes_de_ia`. */
 async function automacaoAtiva(tenantId: string, tipo: TipoDeNotificacao, padrao: boolean) {
   const db = await admin();
   const { data } = await db
@@ -568,7 +569,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo };
   };
 
-  // A conexão é SEMPRE a da barbearia dona do agendamento.
+  // A conexão é SEMPRE a do negócio dono do agendamento.
   const { data: conexao } = await db
     .from("conexoes_whatsapp")
     .select("id, sessao_id, status")

@@ -1,6 +1,6 @@
 import { termos as termosDoSegmento } from "@/lib/segmentos";
 /**
- * Contrato do atendimento do CortAI no WhatsApp.
+ * Contrato da Secretária Cortaí no WhatsApp.
  *
  * Este arquivo é seguro para o navegador: só tipos e rótulos, nunca segredos,
  * nunca chamadas ao gateway. Toda implementação vive em `*.server.ts`.

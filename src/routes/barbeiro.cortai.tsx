@@ -27,6 +27,7 @@ import {
 } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
+import { getAvaliacoes } from "@/lib/crescimento.functions";
 import {
   atualizarQrCode,
   listarInformacoes,
@@ -58,7 +59,10 @@ export const Route = createFileRoute("/barbeiro/cortai")({
     aba:
       search["aba"] === "conversas"
         ? "envios"
-        : search["aba"] === "envios" || search["aba"] === "ajustes" || search["aba"] === "whatsapp"
+        : search["aba"] === "envios" ||
+            search["aba"] === "ajustes" ||
+            search["aba"] === "experiencia" ||
+            search["aba"] === "whatsapp"
           ? search["aba"]
           : undefined,
     conversa: typeof search["conversa"] === "string" ? search["conversa"] : undefined,
@@ -85,7 +89,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   component: CortaiPage,
 });
 
-type Aba = "whatsapp" | "envios" | "ajustes" | "conversas";
+type Aba = "whatsapp" | "ajustes" | "experiencia" | "envios" | "conversas";
 
 function Ponto({ ligado }: { ligado: boolean }) {
   return (
@@ -166,9 +170,10 @@ function CortaiPage() {
           <nav className="mt-5 flex gap-2" aria-label="Seções da Secretária Cortaí">
             {(
               [
-                ["whatsapp", "WhatsApp"],
-                ["envios", "Histórico"],
+                ["whatsapp", "Conexão"],
                 ["ajustes", "Notificações"],
+                ["experiencia", "Experiência"],
+                ["envios", "Histórico"],
               ] as [Aba, string][]
             ).map(([id, rotulo]) => (
               <Button
@@ -177,7 +182,7 @@ function CortaiPage() {
                 type="button"
                 onClick={() => setAba(id)}
                 className={`rounded-full border px-4 py-1.5 text-xs ${
-                  aba === id ? "border-gold text-gold" : "border-line2 text-mute"
+                  aba === id ? "border-cyan-400 text-cyan-400" : "border-line2 text-mute"
                 }`}
               >
                 {rotulo}
@@ -194,10 +199,36 @@ function CortaiPage() {
             ) : null}
             {aba === "envios" ? <BlocoEnvios /> : null}
             {aba === "ajustes" ? <BlocoSecretaria painel={painel.data} /> : null}
+            {aba === "experiencia" ? <BlocoExperiencia /> : null}
           </div>
         </>
       ) : null}
     </Screen>
+  );
+}
+
+function BlocoExperiencia() {
+  const avaliacoes = useQuery({ queryKey: ["secretaria-experiencia"], queryFn: () => getAvaliacoes() });
+  if (avaliacoes.isLoading) return <Carregando />;
+  if (avaliacoes.isError)
+    return <p className="py-8 text-center text-sm text-brick">Não foi possível carregar a experiência dos clientes.</p>;
+  const dados = avaliacoes.data;
+  return (
+    <section className="space-y-4" aria-label="Experiência do cliente">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="surface p-4"><p className="text-xs text-mute2">Média</p><p className="mt-1 text-2xl font-semibold text-paper">{dados?.media ?? "—"}</p></div>
+        <div className="surface p-4"><p className="text-xs text-mute2">Aguardando avaliação</p><p className="mt-1 text-2xl font-semibold text-paper">{dados?.pendentes.length ?? 0}</p></div>
+      </div>
+      <div className="surface p-5">
+        <h2 className="text-sm font-semibold text-paper">Avaliações recentes</h2>
+        {!dados?.registradas.length ? <p className="mt-3 text-sm text-mute">Nenhuma avaliação registrada ainda.</p> : (
+          <ul className="mt-3 divide-y divide-line">{dados.registradas.slice(0, 5).map((avaliacao) => (
+            <li key={avaliacao.id} className="py-3"><div className="flex items-center justify-between gap-3"><p className="text-sm text-paper">{avaliacao.cliente}</p><span className="text-sm font-semibold text-cyan-400">{avaliacao.nota}/5</span></div>{avaliacao.comentario ? <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p> : null}</li>
+          ))}</ul>
+        )}
+        <Button asChild variant="secondary" className="mt-4 w-full"><Link to="/barbeiro/avaliacoes">Ver experiência completa</Link></Button>
+      </div>
+    </section>
   );
 }
 
