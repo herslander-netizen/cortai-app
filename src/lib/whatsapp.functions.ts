@@ -50,6 +50,46 @@ export type PainelDoCortai = {
   podeGerenciarWhatsapp: boolean;
 };
 
+export type EnvioDaSecretaria = {
+  id: string;
+  tipo: string;
+  status: string;
+  telefone: string;
+  conteudo: string | null;
+  tentativas: number;
+  criadoEm: string;
+  enviadoEm: string | null;
+  respondidoEm: string | null;
+  erro: string | null;
+};
+
+export const listarEnviosDaSecretaria = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<EnvioDaSecretaria[]> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const db = await admin();
+    const { data, error } = await db
+      .from("envios_de_whatsapp")
+      .select("id, tipo, status, telefone, conteudo, tentativas, criado_em, enviado_em, respondido_em, erro")
+      .eq("tenant_id", tenantId)
+      .order("criado_em", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((envio) => ({
+      id: envio.id,
+      tipo: envio.tipo,
+      status: envio.status,
+      telefone: envio.telefone,
+      conteudo: envio.conteudo,
+      tentativas: envio.tentativas,
+      criadoEm: envio.criado_em,
+      enviadoEm: envio.enviado_em,
+      respondidoEm: envio.respondido_em,
+      erro: envio.erro,
+    }));
+  });
+
 function conexaoDaLinha(linha: any | null): ConexaoDeWhatsapp | null {
   if (!linha) return null;
   return {

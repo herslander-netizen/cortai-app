@@ -120,7 +120,7 @@ export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
       .eq("id", convite.id)
       .is("usado_em", null);
 
-    if (data.nota <= 2 || Object.values(data.dimensoes ?? {}).some((nota) => nota <= 2)) {
+    if (data.nota <= 2 || Object.values(data.dimensoes ?? {}).some((nota) => typeof nota === "number" && nota <= 2)) {
       await db.rpc("criar_notificacao", {
         _tenant: convite.tenant_id,
         _tipo: "avaliacao",
