@@ -1,66 +1,40 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 
-import { SecaoDaHome, SecaoHero } from "@/components/home/SecoesHome";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
-import { Button } from "@/components/ui/button";
-import { getHomePublicada } from "@/lib/home.functions";
+import { ShowroomCortai, type EtapaShowroom } from "@/components/apresentacao/ShowroomCortai";
+import { segmentoParaApresentacao } from "@/lib/segmentos";
+
+const busca = z.object({
+  etapa: z.coerce.number().int().min(0).max(7).catch(0),
+  segmento: z.string().optional(),
+});
 
 export const Route = createFileRoute("/apresentacao")({
-  loader: () => getHomePublicada(),
-  head: ({ loaderData }) => {
-    const titulo = loaderData?.seo.titulo || "Cortaí — Gestão e tecnologia para negócios de Beleza";
-    const descricao =
-      loaderData?.seo.descricao ||
-      "Agenda, clientes, equipe, caixa e presença digital em um só aplicativo.";
-    return {
-      meta: [
-        { title: titulo },
-        { name: "description", content: descricao },
-        { property: "og:title", content: titulo },
-        { property: "og:description", content: descricao },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: "https://cortai.dev/apresentacao" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [{ rel: "canonical", href: "https://cortai.dev/apresentacao" }],
-    };
-  },
+  validateSearch: busca,
+  head: () => ({
+    meta: [
+      { title: "Conheça o Cortaí conversando com o Cortaí" },
+      {
+        name: "description",
+        content:
+          "Conheça Agenda, Modo Foco, Clientes, Secretária e Caixa em uma demonstração interativa do Cortaí.",
+      },
+      { property: "og:title", content: "Conheça o Cortaí conversando com o Cortaí" },
+      { property: "og:description", content: "Uma demonstração interativa do Cortaí por dentro." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cortai.dev/apresentacao" },
+      { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+    ],
+    links: [{ rel: "canonical", href: "https://cortai.dev/apresentacao" }],
+  }),
   component: ApresentacaoPage,
 });
 
 function ApresentacaoPage() {
-  const config = Route.useLoaderData();
-  const espaco =
-    config.aparencia.espacamento === "compacto"
-      ? 64
-      : config.aparencia.espacamento === "amplo"
-        ? 104
-        : 80;
+  const { etapa, segmento } = Route.useSearch();
   return (
-    <main
-      className={`home-publica home-preset-${config.aparencia.preset}`}
-      style={
-        {
-          "--home-largura": `${config.aparencia.larguraPx}px`,
-          "--home-espaco": `${espaco}px`,
-        } as React.CSSProperties
-      }
-    >
-      <header className="absolute inset-x-0 top-0 z-30 mx-auto flex max-w-[var(--home-largura)] items-center justify-between px-5 py-5 md:px-10">
-        <MarcaCortai variante="clara" className="h-auto w-32" prioridade />
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="border-paper/30 bg-ink/35 text-paper"
-        >
-          <Link to="/login">Entrar</Link>
-        </Button>
-      </header>
-      <SecaoHero hero={config.hero} />
-      {config.secoes.map((secao) => (
-        <SecaoDaHome key={secao.id} secao={secao} aparencia={config.aparencia} />
-      ))}
-    </main>
+    <ShowroomCortai etapa={etapa as EtapaShowroom} segmento={segmentoParaApresentacao(segmento)} />
   );
 }
