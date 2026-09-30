@@ -112,7 +112,7 @@ export const enviarParaRecepcao = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
     await salvarItens(db, context.userId, tenantId, data);
-    const { data: c } = await db.from("comandas").select("agendamento_id").eq("id", data.comandaId).single();
+    const { data: c } = await db.from("comandas").select("agendamento_id").eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle();
     if (c?.agendamento_id) {
       await db.from("agendamentos").update({ status: "finalizado", status_alterado_por: context.userId })
         .eq("id", c.agendamento_id).eq("tenant_id", tenantId).in("status", ["agendado", "chegou", "na_cadeira"]);
