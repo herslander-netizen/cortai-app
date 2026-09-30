@@ -13,11 +13,16 @@ import { getSessao } from "@/lib/sessao.functions";
 export const Route = createFileRoute("/visitante")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
-    typeof search["b"] === "string" && /^[a-z0-9-]{1,100}$/.test(search["b"]) ? { b: search["b"] } : {},
+    typeof search["b"] === "string" && /^[a-z0-9-]{1,100}$/.test(search["b"])
+      ? { b: search["b"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrar como cliente — Cortaí" },
-      { name: "description", content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí." },
+      {
+        name: "description",
+        content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí.",
+      },
       { property: "og:title", content: "Entrar como cliente — Cortaí" },
       { property: "og:description", content: "Conta de cliente para agendar seus serviços." },
       { property: "og:type", content: "website" },
@@ -89,11 +94,22 @@ function VisitantePage() {
           });
           setEnviando(false);
           if (error) {
-            setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
+            const codigo = (error as { code?: string }).code ?? "";
+            setErro(
+              codigo === "weak_password"
+                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
+                : error.status === 429 || codigo.includes("rate_limit")
+                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
+                  : codigo === "email_address_invalid"
+                    ? "Confira o e-mail digitado."
+                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
+            );
             return;
           }
           if (!data.session) {
-            setAviso("Conta criada. Confirme o e-mail que enviamos e volte para entrar.");
+            setAviso(
+              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+            );
             return;
           }
           await seguir();

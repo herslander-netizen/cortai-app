@@ -177,11 +177,22 @@ function LoginPage() {
           });
           setEnviando(false);
           if (error) {
-            setErro("Não foi possível criar a conta. Tente outro e-mail ou uma senha mais forte.");
+            const codigo = (error as { code?: string }).code ?? "";
+            setErro(
+              codigo === "weak_password"
+                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
+                : error.status === 429 || codigo.includes("rate_limit")
+                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
+                  : codigo === "email_address_invalid"
+                    ? "Confira o e-mail digitado."
+                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
+            );
             return;
           }
           if (!data.session) {
-            setAviso("Conta criada. Confirme o e-mail que enviamos para entrar.");
+            setAviso(
+              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+            );
             return;
           }
           await seguirParaMinhaArea();
