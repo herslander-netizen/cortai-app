@@ -1,3 +1,4 @@
+import { getCapacidades } from "@/lib/capacidades.functions";
 import { Link, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -226,8 +227,20 @@ export function AgendaOperacional() {
     return () => window.removeEventListener("popstate", voltar);
   }, []);
 
+  const capacidadesQ = useQuery({
+    queryKey: ["capacidades"],
+    queryFn: () => getCapacidades(),
+    staleTime: 300_000,
+  });
+  const focoNoPlano = capacidadesQ.data?.liberados["modo_foco"] !== false;
+
   function entrarNoModoFoco() {
     if (modoFoco) return;
+    if (!focoNoPlano) {
+      aviso.info("O Modo Foco faz parte do plano Profissional.");
+      void navigate({ to: "/barbeiro/plano" });
+      return;
+    }
     window.history.pushState({ ...window.history.state, modoFoco: true }, "");
     setModoFoco(true);
   }
