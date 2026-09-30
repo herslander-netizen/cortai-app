@@ -6,6 +6,7 @@ import { Conversation, ConversationContent } from "@/components/ai-elements/conv
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { ChatHeader } from "@/components/chat/ChatShell";
+import { useWhatsappAlvo } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,14 +59,16 @@ function Agenda({ segmento }: { segmento: Segmento }) {
 }
 
 function Foco({ segmento }: { segmento: Segmento }) {
-  const agenda = itens(segmento); const atual = agenda[0];
+  const agenda = itens(segmento);
+  const atual = agenda[0]!;
+  const proximo = agenda[1]!;
   return <div className="showroom-produto showroom-foco-demo" aria-label="Demonstração do Modo Foco">
     <div className="showroom-produto-topo"><span><small>Modo Foco · Hoje</small><strong>2 restantes · 1 concluído</strong></span><em>Ao vivo</em></div>
     <div className="showroom-foco-estado"><span>EM ATENDIMENTO</span><small><Clock3 /> 18 min</small></div>
     <div className="showroom-foco-cliente"><time>13:00</time><UserRound /><span><strong>{atual.cliente}</strong><small>{atual.servico} · {atual.duracaoMin} min</small></span></div>
     <p className="showroom-foco-nota">{atual.ficha}</p>
     <Button size="lg">Finalizar atendimento <Check /></Button>
-    <div className="showroom-proximo"><small>Próximo · 14:00</small><strong>{agenda[1].cliente}</strong><span>{agenda[1].servico}</span></div>
+    <div className="showroom-proximo"><small>Próximo · 14:00</small><strong>{proximo.cliente}</strong><span>{proximo.servico}</span></div>
   </div>;
 }
 
@@ -103,7 +106,9 @@ function Caixa({ segmento }: { segmento: Segmento }) {
 }
 
 export function ShowroomCortai({ etapa, segmento }: { etapa: EtapaShowroom; segmento: Segmento }) {
-  const navigate = useNavigate({ from: "/apresentacao" }); const [chat, setChat] = useState(false);
+  const navigate = useNavigate({ from: "/apresentacao" });
+  const contato = useWhatsappAlvo();
+  const [chat, setChat] = useState(false);
   const ir = (e: EtapaShowroom, s = segmento) => void navigate({ search: { etapa: e, segmento: s } });
   const voltar = () => etapa && ir((etapa - 1) as EtapaShowroom); const avancar = () => ir(Math.min(7, etapa + 1) as EtapaShowroom);
   const config = SEGMENTOS_CONFIG[segmento];
@@ -117,7 +122,7 @@ export function ShowroomCortai({ etapa, segmento }: { etapa: EtapaShowroom; segm
       {etapa === 5 && <><em>Enquanto você atende, sua Secretária pode cuidar dos agendamentos.</em><h1>Você conhece o Cortaí conversando com o Cortaí.</h1><Button variant="outline" onClick={() => setChat(!chat)}><MessageCircle /> {chat ? "Ocultar conversa" : "Abrir conversa"}</Button></>}
       {etapa === 6 && <><em>Terminou o atendimento?</em><h1>Atendimento, comanda e pagamento seguem o mesmo fluxo.</h1><p>Sem perder o contexto do cliente.</p></>}
     </div><div className="showroom-cena-produto">{etapa === 2 && <Agenda segmento={segmento} />}{etapa === 3 && <Foco segmento={segmento} />}{etapa === 4 && <Cliente segmento={segmento} />}{etapa === 5 && (chat ? <Secretaria segmento={segmento} /> : <button className="showroom-chat-fechado" onClick={() => setChat(true)}><span><MessageCircle /></span><strong>Secretária Cortaí</strong><small>Toque para conversar</small></button>)}{etapa === 6 && <Caixa segmento={segmento} />}</div><div className="showroom-avancar"><Button size="lg" onClick={avancar}>Continuar <ArrowRight /></Button></div></section>}
-    {etapa === 7 && <section className="showroom-final"><div className="showroom-avatar"><Check /></div><p>Você acabou de conhecer o Cortaí por dentro.</p><h1>Quer colocar isso para funcionar no seu negócio?</h1><div><Button asChild size="lg"><Link to="/login" search={{ proximo: "/comecar" }}>Quero experimentar <ArrowRight /></Link></Button><Button asChild variant="outline" size="lg"><Link to="/privacidade">Quero falar com alguém</Link></Button><Button asChild variant="ghost" size="lg"><Link to="/privacidade">Tenho uma dúvida</Link></Button></div><Button variant="text" onClick={() => ir(0)}>Ver de novo</Button></section>}
+    {etapa === 7 && <section className="showroom-final"><div className="showroom-avatar"><Check /></div><p>Você acabou de conhecer o Cortaí por dentro.</p><h1>Quer colocar isso para funcionar no seu negócio?</h1><div><Button asChild size="lg"><Link to="/login" search={{ proximo: "/comecar" }}>Quero experimentar <ArrowRight /></Link></Button>{contato ? <Button asChild variant="outline" size="lg"><a href={contato} target="_blank" rel="noopener noreferrer">Quero falar com alguém</a></Button> : <Button asChild variant="outline" size="lg"><Link to="/privacidade">Quero falar com alguém</Link></Button>}{contato ? <Button asChild variant="ghost" size="lg"><a href={contato} target="_blank" rel="noopener noreferrer">Tenho uma dúvida</a></Button> : <Button asChild variant="ghost" size="lg"><Link to="/privacidade">Tenho uma dúvida</Link></Button>}</div><Button variant="text" onClick={() => ir(0)}>Ver de novo</Button></section>}
     <footer className="showroom-footer">By Alvo Digital <i /> Cortaí</footer>
   </main>;
 }
