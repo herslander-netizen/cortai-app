@@ -175,3 +175,8 @@
 - [x] Validar modo Tradicional e segmentação em 390 px e 1280 px; testes, typecheck, build e lint dos arquivos novos aprovados
 - [ ] Validar visualmente o modo Chat completo após anexar fotos reais e ativá-lo em um tenant de teste
 - [x] Não publicar
+- [ ] Consolidar WhatsApp como Secretária Cortaí, removendo conversa livre do runtime e UI
+- [ ] Preservar ações contextuais, webhooks, dedupe, isolamento e notificações existentes
+- [ ] Evoluir avaliação da experiência sem tabela paralela
+- [ ] Validar testes obrigatórios, 390px/1280px, claro/escuro, build e lint possível
+- [ ] Não publicar
