@@ -65,7 +65,7 @@ function IndicacoesPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-paper">Programa de indicação</p>
-            <p className="mt-0.5 text-xs text-mute2">A recompensa é registrada aqui e entregue na barbearia.</p>
+            <p className="mt-0.5 text-xs text-mute2">A recompensa é registrada aqui e entregue no negócio.</p>
           </div>
           <Button variant="ghost"
             type="button"
@@ -85,7 +85,7 @@ function IndicacoesPage() {
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase())}
             className="input-premium mt-1 w-full"
-            placeholder="minha-barbearia"
+            placeholder="meu-negocio"
           />
         </label>
         <label className="mt-4 block">
@@ -162,7 +162,7 @@ function IndicacoesPage() {
               <div className="min-w-0">
                 <p className="truncate text-sm text-paper">{i.indicado}</p>
                 <p className="mt-0.5 text-xs text-mute">
-                  {i.indicador ? `Indicado por ${i.indicador}` : "Indicação registrada na barbearia"}
+                  {i.indicador ? `Indicado por ${i.indicador}` : "Indicação registrada no negócio"}
                 </p>
                 <p className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}>
                   {i.status === "convertido" ? "Virou cliente" : "Aguardando primeira visita"}

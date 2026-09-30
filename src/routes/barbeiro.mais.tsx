@@ -19,9 +19,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({ meta: [
     { title: "Mais — Cortaí Gestão" },
-    { name: "description", content: "Produtos, serviços, marca e recursos da sua barbearia." },
+    { name: "description", content: "Produtos, serviços, marca e recursos do seu negócio." },
     { property: "og:title", content: "Mais — Cortaí Gestão" },
-    { property: "og:description", content: "Configurações e recursos da barbearia." },
+    { property: "og:description", content: "Configurações e recursos do negócio." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

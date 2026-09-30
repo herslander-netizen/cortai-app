@@ -24,10 +24,10 @@ export const Route = createFileRoute("/barbeiro/integracoes")({
       { title: "Integrações — Cortaí Gestão" },
       {
         name: "description",
-        content: "Conecte a sua barbearia ao atendimento inteligente da ALVO e escolha o nome do atendente.",
+        content: "Conecte seu negócio ao atendimento inteligente da ALVO e escolha o nome do atendente.",
       },
       { property: "og:title", content: "Integrações — Cortaí Gestão" },
-      { property: "og:description", content: "Atendimento inteligente ligado à sua barbearia." },
+      { property: "og:description", content: "Atendimento inteligente ligado ao seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -111,7 +111,7 @@ function IntegracoesPage() {
     <Screen
       voltarPara="/barbeiro/mais"
       title="Integrações"
-      subtitle="Serviços que trabalham junto com a sua barbearia."
+      subtitle="Serviços que trabalham junto com o seu negócio."
     >
       {isLoading ? <Carregando /> : null}
       {isError ? (
@@ -132,7 +132,7 @@ function IntegracoesPage() {
               <h2 className="text-sm font-semibold text-paper">ALVO IA</h2>
               <p className="mt-1 text-xs text-mute">
                 A camada de atendimento inteligente da ALVO. Ela conversa com o cliente usando o nome que você
-                escolher e agenda pelas regras da sua barbearia.
+                escolher e agenda pelas regras do seu negócio.
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ function IntegracoesPage() {
                   setOk(false);
                 }}
                 rows={3}
-                placeholder="Fala! Aqui é o Beto, da barbearia. Quer marcar um horário?"
+                placeholder="Olá! Aqui é a equipe. Quer marcar um horário?"
                 className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2.5 text-sm text-paper"
               />
             </label>

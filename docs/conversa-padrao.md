@@ -1,6 +1,8 @@
 CONVERSA PADRÃO DE EXCELÊNCIA — CORTAÍ
 
-Salve este conteúdo em docs/conversa-padrao.md. É a conversa pré-configurada que toda barbearia recebe pronta ao entrar no Cortaí, e cada uma pode editar depois.
+Este documento registra exemplos históricos da conversa para barbearia. Em outros segmentos, a implementação deve usar o vocabulário de `src/lib/segmentos.ts`; sem segmento, deve falar em “negócio”, “equipe”, “serviço” e “atendimento”.
+
+É a conversa pré-configurada que cada negócio recebe pronta ao entrar no Cortaí e pode editar depois.
 
 Antes de implementar, me mostre onde cada parte vai entrar no que já existe (instruções e exemplos do bot, regras, templates, FAQ, configurações) e espere minha aprovação. Reaproveite o que existe e não crie estruturas paralelas.
 
