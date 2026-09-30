@@ -92,7 +92,7 @@ function CasaPage() {
             {d.linhas.length ? <ul className="divide-y divide-line border-b border-line">{d.linhas.map((l) => <Linha key={l.profissionalId} l={l} agora={agora} fuso={d.fuso} />)}</ul>
               : <p className="py-3 text-sm text-mute">Nenhum profissional ativo.</p>}
 
-            <h2 className="mt-7 text-xs font-semibold uppercase tracking-wide text-mute">Fila · {d.fila.length}</h2>
+            <h2 className="mt-7 text-xs font-semibold uppercase tracking-wide text-mute">Chegadas · {d.fila.length}</h2>
             {d.fila.length ? (
               <ul className="divide-y divide-line border-b border-line">
                 {d.fila.map((f) => (

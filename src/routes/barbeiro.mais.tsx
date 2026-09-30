@@ -10,7 +10,6 @@ import { SobreOCortai } from "@/components/sistema/SobreOCortai";
 
 import { sair } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
-import { GRUPOS_DE_NAVEGACAO, modulosDeNavegacao } from "@/lib/navegacao-barbeiro";
 import { rotuloDoPapel } from "@/lib/navigation";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { CAPACIDADES } from "@/lib/capacidades";
@@ -48,9 +47,6 @@ function MaisPage() {
     if (!cap || !cap.recurso || !capacidades) return false;
     return capacidades.liberados[cap.recurso] === false;
   };
-  const visiveis = modulosDeNavegacao(sessao?.segmento ?? "outro").filter(
-    (item) => sessao?.permissoes.includes(item.permissao) && !rotaBloqueada(item.to),
-  );
   const tSeg = termos(sessao?.segmento ?? "outro");
   const barbeiroSeg = sessao?.segmento === "barbearia";
   const sistema = [
@@ -74,38 +70,8 @@ function MaisPage() {
     },
   ] as const;
   return (
-    <Screen title="Mais" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
+    <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
       <div data-guia="mais-lista" className="space-y-8">
-        {GRUPOS_DE_NAVEGACAO.map((titulo) => {
-          const itens = visiveis.filter((item) => item.grupo === titulo);
-          if (!itens.length) return null;
-          return (
-            <section key={titulo}>
-              <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">{titulo}</h2>
-              <ul className="divide-y divide-line border-y border-line">
-                {itens.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.to}>
-                      <Link to={item.to} className="nav-list-item">
-                        <span className="nav-list-icon">
-                          <Icon size={18} />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold text-paper">
-                            {item.label}
-                          </span>
-                          <span className="mt-1 block text-xs text-mute">{item.detail}</span>
-                        </span>
-                        <ChevronRight size={17} className="text-mute2" />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
-        })}
         <section>
           <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sistema</h2>
           <ul className="divide-y divide-line border-y border-line">
