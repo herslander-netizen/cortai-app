@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { SEGMENTOS_CONFIG, type Segmento } from "@/lib/segmentos";
+import { APRESENTACAO_PADRAO, type ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 
 export type EtapaShowroom = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -308,12 +309,26 @@ const RECURSOS = [
   },
 ];
 
+function Cabecalho({ b, centro, id }: { b: { etiqueta: string; titulo: string; texto: string }; centro?: boolean; id?: string }) {
+  return (
+    <div className={centro ? "showroom-secao-cabecalho showroom-centralizado" : "showroom-secao-cabecalho"}>
+      {b.etiqueta ? <p className="showroom-eyebrow">{b.etiqueta}</p> : null}
+      <h2 id={id}>{b.titulo}</h2>
+      {b.texto ? <p>{b.texto}</p> : null}
+    </div>
+  );
+}
+
 export function ShowroomCortai({
   segmento: inicial,
+  conteudo = APRESENTACAO_PADRAO,
 }: {
-  etapa: EtapaShowroom;
+  etapa?: EtapaShowroom;
   segmento: Segmento;
+  conteudo?: ConteudoApresentacao;
 }) {
+  const c = conteudo;
+  const linhasTitulo = c.hero.titulo.split("\n");
   const [segmento, setSegmento] = useState(inicial);
   const contato = useWhatsappAlvo();
   return (
@@ -344,20 +359,20 @@ export function ShowroomCortai({
 
       <section id="inicio" className="showroom-hero">
         <div className="showroom-hero-copy">
-          <p className="showroom-eyebrow">PARA BARBEARIAS, SALÕES E PROFISSIONAIS</p>
+          {c.hero.etiqueta ? <p className="showroom-eyebrow">{c.hero.etiqueta}</p> : null}
           <h1>
-            Mais organização para o seu negócio.
-            <br />
-            Mais tempo para atender bem.
+            {linhasTitulo.map((linha, i) => (
+              <span key={i}>
+                {i > 0 ? <br /> : null}
+                {linha}
+              </span>
+            ))}
           </h1>
-          <p className="showroom-lead">
-            Agenda, clientes, caixa e uma Secretária que ajuda a cuidar dos seus agendamentos. Tudo
-            em um só lugar.
-          </p>
+          <p className="showroom-lead">{c.hero.texto}</p>
           <div className="showroom-hero-actions">
             <Button asChild size="lg">
               <Link to="/login" search={{ proximo: "/comecar" }}>
-                Começar agora <ArrowRight />
+                {c.hero.cta} <ArrowRight />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
@@ -378,11 +393,7 @@ export function ShowroomCortai({
       </section>
 
       <section id="como-funciona" className="showroom-secao showroom-prova">
-        <div className="showroom-secao-cabecalho">
-          <p className="showroom-eyebrow">O DIA COMEÇA AQUI</p>
-          <h2>Tudo começa pela agenda.</h2>
-          <p>O Cortaí reúne o que acontece antes, durante e depois de cada atendimento.</p>
-        </div>
+        <Cabecalho b={c.agenda} />
         <div className="showroom-prova-layout">
           <Agenda segmento={segmento} />
           <div className="showroom-prova-pontos">
@@ -401,11 +412,7 @@ export function ShowroomCortai({
 
       <section className="showroom-faixa showroom-foco-secao">
         <div className="showroom-dividida">
-          <div className="showroom-secao-cabecalho">
-            <p className="showroom-eyebrow">MODO FOCO</p>
-            <h2>O que importa agora, sem tirar o foco do atendimento.</h2>
-            <p>Veja quem está na cadeira, o próximo cliente e a ação que precisa acontecer.</p>
-          </div>
+          <Cabecalho b={c.foco} />
           <Foco segmento={segmento} />
         </div>
       </section>
@@ -413,11 +420,7 @@ export function ShowroomCortai({
       <section className="showroom-secao showroom-clientes-secao">
         <div className="showroom-dividida showroom-dividida-inversa">
           <Cliente segmento={segmento} />
-          <div className="showroom-secao-cabecalho">
-            <p className="showroom-eyebrow">CLIENTES</p>
-            <h2>Cada atendimento constrói um relacionamento.</h2>
-            <p>Histórico, preferências e frequência ficam organizados para o próximo encontro.</p>
-          </div>
+          <Cabecalho b={c.clientes} />
         </div>
       </section>
 
@@ -427,12 +430,9 @@ export function ShowroomCortai({
             <Secretaria segmento={segmento} />
           </div>
           <div className="showroom-secao-cabecalho">
-            <p className="showroom-eyebrow">SECRETÁRIA CORTAÍ</p>
-            <h2>Enquanto você atende, sua Secretária cuida dos agendamentos.</h2>
-            <p>
-              Uma experiência clara para o cliente escolher atendimento, profissional, dia e
-              horário.
-            </p>
+            {c.secretaria.etiqueta ? <p className="showroom-eyebrow">{c.secretaria.etiqueta}</p> : null}
+            <h2>{c.secretaria.titulo}</h2>
+            {c.secretaria.texto ? <p>{c.secretaria.texto}</p> : null}
             <div className="showroom-plano-nota">
               <Sparkles />
               <span>
@@ -447,10 +447,7 @@ export function ShowroomCortai({
       </section>
 
       <section id="recursos" className="showroom-secao">
-        <div className="showroom-secao-cabecalho showroom-centralizado">
-          <p className="showroom-eyebrow">RECURSOS</p>
-          <h2>Tudo o que você precisa para cuidar do seu negócio.</h2>
-        </div>
+        <Cabecalho b={c.recursos} centro />
         <div className="showroom-recursos">
           {RECURSOS.map(({ icone: Icon, titulo, texto }) => (
             <article key={titulo}>
@@ -461,23 +458,13 @@ export function ShowroomCortai({
           ))}
         </div>
         <div className="showroom-caixa-destaque">
-          <div className="showroom-secao-cabecalho">
-            <p className="showroom-eyebrow">COMANDA E CAIXA</p>
-            <h2>Do atendimento ao pagamento, sem perder o contexto.</h2>
-          </div>
+          <Cabecalho b={c.caixa} />
           <Caixa segmento={segmento} />
         </div>
       </section>
 
       <section className="showroom-faixa showroom-segmentos">
-        <div className="showroom-secao-cabecalho showroom-centralizado">
-          <p className="showroom-eyebrow">FEITO PARA BELEZA</p>
-          <h2>O mesmo Cortaí, adaptado ao seu tipo de negócio.</h2>
-          <p>
-            Escolha um segmento para ver os exemplos da página com a linguagem mais próxima da sua
-            rotina.
-          </p>
-        </div>
+        <Cabecalho b={c.segmentos} centro />
         <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
           {OPCOES.map((opcao) => (
             <Button
@@ -496,11 +483,7 @@ export function ShowroomCortai({
         className="showroom-secao showroom-planos"
         aria-labelledby="showroom-planos-titulo"
       >
-        <div className="showroom-secao-cabecalho showroom-centralizado">
-          <p className="showroom-eyebrow">PLANOS</p>
-          <h2 id="showroom-planos-titulo">Escolha como começar.</h2>
-          <p>Planos mensais por profissional. Secretária e WhatsApp entram a partir do Conecta.</p>
-        </div>
+        <Cabecalho b={c.planos} centro id="showroom-planos-titulo" />
         <TabelaDePlanos
           acao={() => (
             <Button asChild className="w-full" variant="outline">
@@ -513,43 +496,21 @@ export function ShowroomCortai({
       </section>
 
       <section id="duvidas" className="showroom-faixa showroom-faq">
-        <div className="showroom-secao-cabecalho">
-          <p className="showroom-eyebrow">DÚVIDAS</p>
-          <h2>Antes de começar.</h2>
-        </div>
+        <Cabecalho b={c.duvidas} />
         <div className="showroom-faq-lista">
-          <details>
-            <summary>O Cortaí funciona no celular?</summary>
-            <p>
-              Sim. A experiência é pensada para acompanhar a rotina do negócio no celular e também
-              funciona no computador.
-            </p>
-          </details>
-          <details>
-            <summary>Meus clientes podem agendar sozinhos?</summary>
-            <p>Sim, a partir do plano Conecta, usando a página e a Secretária Cortaí.</p>
-          </details>
-          <details>
-            <summary>O WhatsApp está em todos os planos?</summary>
-            <p>
-              Não. WhatsApp, Secretária e confirmações automáticas estão disponíveis no Conecta e no
-              Equipe.
-            </p>
-          </details>
-          <details>
-            <summary>Serve apenas para barbearias?</summary>
-            <p>
-              Não. O Cortaí atende barbearias, salões, nail designers, estética e outros
-              profissionais de Beleza.
-            </p>
-          </details>
+          {c.perguntas.map((q) => (
+            <details key={q.pergunta}>
+              <summary>{q.pergunta}</summary>
+              <p>{q.resposta}</p>
+            </details>
+          ))}
         </div>
       </section>
 
       <section className="showroom-cta-final">
         <MarcaCortai variante="escura" className="h-auto w-32" />
-        <h2>Seu negócio pode ser mais simples.</h2>
-        <p>Organize a rotina e tenha mais tempo para atender bem.</p>
+        <h2>{c.final.titulo}</h2>
+        {c.final.texto ? <p>{c.final.texto}</p> : null}
         <div>
           <Button asChild size="lg">
             <Link to="/login" search={{ proximo: "/comecar" }}>

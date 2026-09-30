@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { esquemaApresentacao } from "@/lib/apresentacao-conteudo";
+
 /**
  * Modelo de conteúdo da Home pública do Cortaí.
  *
@@ -103,6 +105,8 @@ export const esquemaHome = z.object({
   secoes: z.array(esquemaSecao).min(1).max(24),
   aparencia: esquemaAparencia,
   seo: esquemaSeo,
+  /** Conteúdo da Home pública oficial (/apresentacao). */
+  apresentacao: esquemaApresentacao.optional(),
 });
 
 export type SecaoHome = z.infer<typeof esquemaSecao>;
@@ -368,6 +372,7 @@ export function normalizarHome(bruto: unknown): ConfigHome {
     secoes: Array.isArray(dados.secoes) && dados.secoes.length ? (dados.secoes as SecaoHome[]) : HOME_PADRAO.secoes,
     aparencia: { ...HOME_PADRAO.aparencia, ...(dados.aparencia ?? {}) },
     seo: { ...HOME_PADRAO.seo, ...(dados.seo ?? {}) },
+    apresentacao: esquemaApresentacao.safeParse(dados.apresentacao).success ? dados.apresentacao : undefined,
   };
 }
 
