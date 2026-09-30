@@ -144,40 +144,37 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
 
   if (tipo === "confirmacao_agendamento") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       `Seu horário ${em} está confirmado.`,
       "",
-      linha(d.servico, "✂️ Serviço: "),
-      linha(d.profissional, "💈 Profissional: "),
-      `📅 Data: ${dataBr(d.inicio, d.fuso)}`,
-      `⏰ Horário: ${horaBr(d.inicio, d.fuso)}`,
-      d.valorCentavos > 0 ? `💰 Valor: ${reais(d.valorCentavos)}` : null,
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `Data: ${dataBr(d.inicio, d.fuso)}`,
+      `Horário: ${horaBr(d.inicio, d.fuso)}`,
+      d.valorCentavos > 0 ? `Valor: ${reais(d.valorCentavos)}` : null,
       linha(d.endereco, "📍 "),
     );
     if (d.linkPagamento) blocos.push("", "💳 Pagar agora", d.linkPagamento);
-    blocos.push("", "Até lá! ✂️");
+    blocos.push("", "Até lá!");
   } else if (tipo === "lembrete_24h") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
-      `Lembrete do seu horário ${em}.`,
+      `Olá, ${nome}!`,
+      `Passando para lembrar do seu horário ${em}.`,
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
-      `📅 ${dataBr(d.inicio, d.fuso)}`,
-      `⏰ ${horaBr(d.inicio, d.fuso)}`,
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
       "",
-      "Nos vemos lá! ✂️",
+      "Você pode confirmar, remarcar ou cancelar.",
     );
   } else if (tipo === "lembrete_2h") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
-      "Seu horário está chegando.",
+      `${nome}, seu horário está chegando.`,
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
-      `⏰ ${horaBr(d.inicio, d.fuso)}`,
-      "",
-      "Até daqui a pouco! ✂️",
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
+      `Hoje às ${horaBr(d.inicio, d.fuso)}.`,
+      linha(d.endereco, "📍 "),
     );
   } else if (tipo === "pos_atendimento") {
     blocos.push(`Obrigado por escolher ${d.barbearia}, ${nome}.`, "Esperamos que tenha gostado da experiência.");
@@ -187,7 +184,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     blocos.push(d.textoRetorno);
   } else if (tipo === "retorno") {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       `Já está chegando a hora do seu próximo ${barbearia ? "corte" : "atendimento"} ${em}.`,
       "",
       "Quer que eu veja um horário para você?",
@@ -199,22 +196,22 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
       "",
       `📅 ${dataBr(d.inicio, d.fuso)}`,
       `⏰ ${horaBr(d.inicio, d.fuso)}`,
-      linha(d.servico, "✂️ "),
+      linha(d.servico, "Serviço: "),
     );
     if (d.linkAgendamento) {
       blocos.push("", "Se quiser realizar um novo agendamento:", d.linkAgendamento);
     }
   } else {
     blocos.push(
-      `Olá, ${nome}! 👋`,
+      `Olá, ${nome}!`,
       "Seu horário foi remarcado.",
       "",
-      linha(d.servico, "✂️ "),
-      linha(d.profissional, "💈 "),
+      linha(d.servico, "Serviço: "),
+      linha(d.profissional, "Profissional: "),
       `📅 ${dataBr(d.inicio, d.fuso)}`,
       `⏰ ${horaBr(d.inicio, d.fuso)}`,
       "",
-      "Até lá! ✂️",
+      "Até lá!",
     );
   }
 

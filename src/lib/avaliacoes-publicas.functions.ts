@@ -25,10 +25,14 @@ export async function criarConviteDeAvaliacao(agendamentoId: string) {
   const db = await admin();
   const { data: existente } = await db
     .from("convites_de_avaliacao")
-    .select("id")
+    .select("id, usado_em")
     .eq("agendamento_id", agendamentoId)
     .maybeSingle();
-  if (existente) return null;
+  if (existente?.usado_em) return null;
+  if (existente) {
+    const { error } = await db.from("convites_de_avaliacao").delete().eq("id", existente.id).is("usado_em", null);
+    if (error) throw new Error(error.message);
+  }
 
   const token = `${crypto.randomUUID()}${crypto.randomUUID().replaceAll("-", "")}`;
   const tokenHash = await hashToken(token);
