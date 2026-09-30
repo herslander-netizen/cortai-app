@@ -135,8 +135,8 @@ function Agenda({ segmento }: { segmento: Segmento }) {
 
 function Foco({ segmento }: { segmento: Segmento }) {
   const agenda = itens(segmento);
-  const atual = agenda[0]!;
-  const proximo = agenda[1]!;
+  const [atual, proximo] = agenda;
+  if (!atual || !proximo) return null;
   return (
     <div className="showroom-produto showroom-foco-demo" aria-label="Demonstração do Modo Foco">
       <div className="showroom-produto-topo">

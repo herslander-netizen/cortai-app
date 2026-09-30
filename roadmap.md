@@ -22,7 +22,7 @@
 - [x] Validar apresentação e menus em 390px/1280px, TypeScript, testes e build
 - [x] Refinar cabeçalho, ritmo das respostas e contraste do chat público em todos os estados
 - [x] Validar chat público em 390px/1280px, TypeScript, testes e build; não publicar
-- [ ] Substituir `/apresentacao` pelo showroom conversacional aprovado
+- [x] Substituir `/apresentacao` pelo showroom conversacional aprovado
 - [x] Manter acesso e compartilhamento em Admin > Marketing
 - [x] Validar 390/1280px, navegação, TypeScript, testes e build
-- [ ] Entregar a URL pública compartilhável; publicar somente se solicitado explicitamente
+- [x] Entregar a URL pública compartilhável; publicar somente se solicitado explicitamente
