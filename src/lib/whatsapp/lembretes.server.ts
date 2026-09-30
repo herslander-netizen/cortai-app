@@ -83,14 +83,21 @@ export async function tratarRespostaDeLembrete(input: {
   if (porPayload) {
     const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", porPayload[2]!.toLowerCase())
       .eq("tenant_id", input.tenantId).maybeSingle();
-    if (data && (await telefoneCorresponde(data.telefone, input.telefone))) { envio = data as Envio; acao = porPayload[1]!; }
+    if (
+      data &&
+      telefoneCorresponde(data.telefone, input.telefone) &&
+      data.acoes?.includes(porPayload[1]!)
+    ) {
+      envio = data as Envio;
+      acao = porPayload[1]!;
+    }
   }
 
   // 2) Resposta citando a notificação: usa o ID da mensagem citada.
   if (!envio && input.citadaId) {
     const { data } = await db.from("envios_de_whatsapp").select(campos).eq("mensagem_externa_id", input.citadaId)
       .eq("tenant_id", input.tenantId).maybeSingle();
-    if (data && (await telefoneCorresponde(data.telefone, input.telefone))) envio = data as Envio;
+    if (data && telefoneCorresponde(data.telefone, input.telefone)) envio = data as Envio;
   }
 
   // Escolha pendente ("a qual horário você se refere?").
@@ -100,8 +107,24 @@ export async function tratarRespostaDeLembrete(input: {
   if (!envio && escolha && /^\d$/.test(t)) {
     const id = escolha.ids[Number(t) - 1];
     if (id) {
-      const { data } = await db.from("envios_de_whatsapp").select(campos).eq("id", id).maybeSingle();
-      if (data) { envio = data as Envio; acao = escolha.acao; }
+      const { data } = await db
+        .from("envios_de_whatsapp")
+        .select(campos)
+        .eq("id", id)
+        .eq("tenant_id", input.tenantId)
+        .eq("aguarda_resposta", true)
+        .is("respondido_em", null)
+        .gt("valido_ate", agoraIso)
+        .maybeSingle();
+      if (
+        data &&
+        telefoneCorresponde(data.telefone, input.telefone) &&
+        escolha.acao &&
+        data.acoes?.includes(escolha.acao)
+      ) {
+        envio = data as Envio;
+        acao = escolha.acao;
+      }
     }
   }
 
@@ -258,9 +281,20 @@ export async function tratarRespostaDeLembrete(input: {
   }
 }
 
-async function telefoneCorresponde(a: string, b: string) {
-  const { mesmoTelefone } = await import("@/lib/telefone");
-  return mesmoTelefone(a, b);
+function telefoneCorresponde(a: string, b: string) {
+  const normalizar = (valor: string) => valor.replace(/\D/g, "");
+  const variantes = (valor: string) => {
+    const n = normalizar(valor);
+    const comDdi = n.length === 10 || n.length === 11 ? `55${n}` : n;
+    const itens = new Set([comDdi, comDdi.startsWith("55") ? comDdi.slice(2) : comDdi]);
+    const ddd = comDdi.startsWith("55") ? comDdi.slice(2, 4) : comDdi.slice(0, 2);
+    const numero = comDdi.startsWith("55") ? comDdi.slice(4) : comDdi.slice(2);
+    if (numero.length === 9 && numero.startsWith("9")) itens.add(`55${ddd}${numero.slice(1)}`);
+    if (numero.length === 8 && /^[6-9]/.test(numero)) itens.add(`55${ddd}9${numero}`);
+    return itens;
+  };
+  const vb = variantes(b);
+  return [...variantes(a)].some((v) => vb.has(v) || vb.has(v.startsWith("55") ? v.slice(2) : v));
 }
 
 async function linkDoCortai(tenantId: string) {

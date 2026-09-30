@@ -55,11 +55,18 @@ async function barbeariaDoNumeroCompartilhado(
   let porNotificacao: string | null = null;
   const idNoBotao = texto.trim().match(/^CORTAI_[A-Z_]+:([0-9a-fA-F-]{36})$/)?.[1];
   if (idNoBotao || citadaId) {
-    const q = db.from("envios_de_whatsapp").select("tenant_id");
+    const q = db.from("envios_de_whatsapp").select("tenant_id, telefone, aguarda_resposta, respondido_em, valido_ate");
     const { data } = idNoBotao
       ? await q.eq("id", idNoBotao.toLowerCase()).maybeSingle()
       : await q.eq("mensagem_externa_id", citadaId!).maybeSingle();
-    porNotificacao = data?.tenant_id ?? null;
+    const pendente =
+      data &&
+      data.aguarda_resposta &&
+      !data.respondido_em &&
+      data.valido_ate &&
+      new Date(data.valido_ate).getTime() > Date.now() &&
+      variantesDoTelefone(data.telefone).some((v) => variantesDoTelefone(telefone).includes(v));
+    porNotificacao = pendente ? data.tenant_id : null;
   }
   let porSlug: string | null = null;
   const tokens = (texto.toLowerCase().match(/[a-z0-9][a-z0-9-]{2,}/g) ?? []).slice(0, 40);
@@ -328,6 +335,24 @@ export async function processarMensagemRecebida(input: {
     const r = await barbeariaDoNumeroCompartilhado(telefone, input.tipo === "text" ? input.conteudo : "", input.citadaId ?? null);
     if ("semContexto" in r) {
       const { gatewayDeWhatsapp } = await import("./gateway.server");
+      const conversa = await conversaDoTelefone({
+        tenantId: conexao.tenant_id,
+        conexaoId: conexao.id,
+        telefone,
+        nomeContato: input.nomeContato ?? null,
+      });
+      await db.from("mensagens_whatsapp").insert({
+        tenant_id: conexao.tenant_id,
+        conversa_id: conversa.id,
+        conexao_id: conexao.id,
+        mensagem_externa_id: input.mensagemExternaId,
+        direcao: "entrada",
+        telefone_remetente: telefone,
+        tipo: input.tipo,
+        conteudo: input.conteudo,
+        midia_url: input.midiaUrl ?? null,
+        status: "recebida",
+      });
       await gatewayDeWhatsapp.enviarMensagem(
         input.sessaoId,
         telefone,
