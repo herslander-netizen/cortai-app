@@ -8,6 +8,7 @@ import {
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
+import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatShell";
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
@@ -43,19 +44,19 @@ type Selecao = {
 };
 
 function Typing() {
-  return (
-    <span className="inline-flex h-8 items-center gap-1" aria-label="Recepção digitando">
-      <i className="chat-dot" />
-      <i className="chat-dot" />
-      <i className="chat-dot" />
-    </span>
-  );
+  return <TypingIndicator />;
 }
 
 function Fala({ children, cliente = false }: { children: React.ReactNode; cliente?: boolean }) {
   return (
     <Message from={cliente ? "user" : "assistant"} className="chat-enter">
-      <MessageContent className={cliente ? "bg-primary text-primary-foreground" : undefined}>
+      <MessageContent
+        className={
+          cliente
+            ? "!rounded-[24px_24px_8px_24px] !bg-primary px-4 py-3 font-semibold !text-primary-foreground"
+            : "chat-bolha-ia px-4 py-3 text-[15px] leading-relaxed"
+        }
+      >
         {children}
       </MessageContent>
     </Message>
@@ -139,24 +140,15 @@ export function AgendamentoChat({
     identificado || (nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10);
 
   return (
-    <main className="mx-auto flex h-[100dvh] w-full max-w-[760px] flex-col overflow-hidden bg-ink">
-      <header className="flex min-h-16 items-center gap-3 border-b border-line px-4 sm:px-6">
-        {chat.avatarUrl || data.tenant.logoUrl ? (
-          <img
-            src={chat.avatarUrl || data.tenant.logoUrl || ""}
-            alt=""
-            className="size-10 rounded-full object-cover"
-          />
-        ) : (
-          <span className="grid size-10 place-items-center rounded-full bg-gold-soft font-bold text-gold">
-            {chat.nomeRecepcao.slice(0, 1).toUpperCase()}
-          </span>
-        )}
-        <div className="min-w-0">
-          <h1 className="truncate text-sm font-bold text-paper">{data.tenant.nome}</h1>
-          <p className="text-xs text-mute">{chat.nomeRecepcao} · recepção digital</p>
-        </div>
-      </header>
+    <ChatShell
+      header={
+        <ChatHeader
+          nome={data.tenant.nome}
+          avatarUrl={chat.avatarUrl || data.tenant.logoUrl}
+          detalhe={`${chat.nomeRecepcao} · recepção digital`}
+        />
+      }
+    >
       <Conversation className="min-h-0">
         <ConversationContent className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6">
           <Fala>{chat.mensagemInicial}</Fala>
@@ -436,6 +428,6 @@ export function AgendamentoChat({
         </ConversationContent>
         <ConversationScrollButton aria-label="Ir para a mensagem mais recente" />
       </Conversation>
-    </main>
+    </ChatShell>
   );
 }
