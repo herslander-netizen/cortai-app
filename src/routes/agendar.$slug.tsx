@@ -22,6 +22,7 @@ import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
+import { agendamentoStyle } from "@/lib/pagina-config";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 import {
   agendarComoConvidado,
@@ -303,7 +304,10 @@ function AgendamentoPublico() {
       descricao: `Com ${confirmado.profissional}. Agendado pelo Cortaí.`,
     });
     return (
-      <main className="mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12">
+      <main
+        className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12"
+        style={agendamentoStyle(data.pagina)}
+      >
         <span
           className={`flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
         >
@@ -459,7 +463,10 @@ function AgendamentoPublico() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 pb-36 pt-10">
+    <main
+      className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-5 pb-36 pt-10"
+      style={agendamentoStyle(data.pagina)}
+    >
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
       {substituiId ? (
@@ -706,7 +713,7 @@ function AgendamentoPublico() {
         </p>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink px-5 py-4">
+      <div className="agendamento-marca-barra fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink px-5 py-4">
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">
