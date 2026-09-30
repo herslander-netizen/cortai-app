@@ -10,3 +10,5 @@
 
 - [x] Evoluir o link público editável com validação, aliases seguros e integração completa da identidade da Secretária
 - [x] Validar TypeScript, testes e build da evolução do link e personalização
+- [x] Padronizar todos os chats públicos no padrão da Secretária de Agendamento
+- [x] Validar chat público e onboarding em 390/1280px, TypeScript, testes, lint e build
