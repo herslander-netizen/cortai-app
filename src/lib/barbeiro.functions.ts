@@ -1054,7 +1054,8 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
-    const grade = slotsDoDia(dia, horarios, 30, fuso);
+    const { data: passoRow } = await db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle();
+    const grade = slotsDoDia(dia, horarios, passoValido(passoRow?.passo_horarios_min), fuso);
     for (const slot of grade.slots) {
       const inicio = new Date(slot.iso).getTime();
       if (inicio < agora || motivoForaDoHorario(inicio, duracao, horarios, fuso)) continue;
