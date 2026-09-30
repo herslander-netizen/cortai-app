@@ -118,3 +118,8 @@
 - [ ] Paleta de cores clicável + seletor livre
 - [ ] Upload de logo e capa direto da galeria (compressão p/ limite de 2 MB)
 - [ ] Acabamento dos cabeçalhos do painel
+
+## Robustez e segurança (set/2026)
+
+- [x] Itens 1–17 da rodada de robustez (WhatsApp por número, atendente, anti-abuso, horários, alteração, janela, passo, madrugada)
+- [ ] Barbearia "Bbbh" sem horários: fica fechada até o dono configurar (decisão do usuário)

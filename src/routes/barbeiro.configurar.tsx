@@ -78,6 +78,19 @@ const CANCELAMENTOS = [
   { valor: 2, rotulo: "2 h antes" },
   { valor: 24, rotulo: "1 dia antes" },
 ];
+const JANELAS = [
+  { valor: 7, rotulo: "7 dias" },
+  { valor: 15, rotulo: "15 dias" },
+  { valor: 30, rotulo: "30 dias" },
+  { valor: 60, rotulo: "60 dias" },
+  { valor: 90, rotulo: "90 dias" },
+];
+const PASSOS = [
+  { valor: 15, rotulo: "15 min" },
+  { valor: 20, rotulo: "20 min" },
+  { valor: 30, rotulo: "30 min" },
+  { valor: 40, rotulo: "40 min" },
+];
 const INTERVALOS = [
   { valor: 0, rotulo: "Nenhum" },
   { valor: 5, rotulo: "5 min" },
@@ -503,6 +516,18 @@ function ConfigurarPage() {
                 opcoes={INTERVALOS}
                 valor={valorRegras.intervaloEntreMin}
                 onChange={(v) => setRegras({ ...valorRegras, intervaloEntreMin: v })}
+              />
+              <Escolha
+                titulo="Período máximo para agendar"
+                opcoes={JANELAS}
+                valor={valorRegras.janelaDias}
+                onChange={(v) => setRegras({ ...valorRegras, janelaDias: v })}
+              />
+              <Escolha
+                titulo="Horários oferecidos a cada"
+                opcoes={PASSOS}
+                valor={valorRegras.passoMin}
+                onChange={(v) => setRegras({ ...valorRegras, passoMin: v })}
               />
               <label className="mt-6 flex min-h-12 items-center justify-between gap-4">
                 <span>

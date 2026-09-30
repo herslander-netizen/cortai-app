@@ -37,6 +37,10 @@ export type RegrasDeAgendamento = {
   cancelamentoMinHoras: number;
   intervaloEntreMin: number;
   aceitaEncaixe: boolean;
+  /** Período máximo para agendar (7 a 90 dias). */
+  janelaDias: number;
+  /** Passo dos horários oferecidos (15, 20, 30 ou 40 min). */
+  passoMin: number;
 };
 
 export const REGRAS_RECOMENDADAS: RegrasDeAgendamento = {
@@ -44,6 +48,8 @@ export const REGRAS_RECOMENDADAS: RegrasDeAgendamento = {
   cancelamentoMinHoras: 2,
   intervaloEntreMin: 0,
   aceitaEncaixe: true,
+  janelaDias: 30,
+  passoMin: 30,
 };
 
 function paraServico(s: Record<string, any>): ServicoDaBarbearia {
@@ -393,7 +399,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
       await Promise.all([
         db
           .from("tenants")
-          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe")
+          .select("id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe, janela_agendamento_dias, passo_horarios_min")
           .eq("id", tenantId)
           .maybeSingle(),
         db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
@@ -447,6 +453,8 @@ export const getImplantacao = createServerFn({ method: "GET" })
         cancelamentoMinHoras: Number(t["cancelamento_min_horas"] ?? REGRAS_RECOMENDADAS.cancelamentoMinHoras),
         intervaloEntreMin: Number(t["intervalo_entre_min"] ?? REGRAS_RECOMENDADAS.intervaloEntreMin),
         aceitaEncaixe: t["aceita_encaixe"] == null ? true : Boolean(t["aceita_encaixe"]),
+        janelaDias: Number(t["janela_agendamento_dias"] ?? 30),
+        passoMin: Number(t["passo_horarios_min"] ?? 30),
       },
       trabalhaSozinho: Boolean(itens["sozinho"]),
       horarios,
@@ -550,6 +558,8 @@ export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
         cancelamentoMinHoras: z.number().int().min(0).max(168),
         intervaloEntreMin: z.number().int().min(0).max(120),
         aceitaEncaixe: z.boolean(),
+        janelaDias: z.number().int().min(7).max(90).default(30),
+        passoMin: z.union([z.literal(15), z.literal(20), z.literal(30), z.literal(40)]).default(30),
       })
       .parse(input),
   )
@@ -563,8 +573,25 @@ export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
         cancelamento_min_horas: data.cancelamentoMinHoras,
         intervalo_entre_min: data.intervaloEntreMin,
         aceita_encaixe: data.aceitaEncaixe,
+        janela_agendamento_dias: data.janelaDias,
+        passo_horarios_min: data.passoMin,
       })
       .eq("id", tenantId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+
+/** Aviso do painel: barbearia sem nenhum dia aberto não aparece para agendamento online. */
+export const getAvisoDeHorarios = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ semHorarioAberto: boolean }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { data } = await context.supabase
+      .from("horarios_de_funcionamento")
+      .select("dia_semana")
+      .eq("tenant_id", tenantId)
+      .eq("fechado", false)
+      .limit(1);
+    return { semHorarioAberto: (data ?? []).length === 0 };
   });

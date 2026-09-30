@@ -11,6 +11,8 @@
  * - devolve só o necessário para conversar com o cliente (LGPD).
  */
 
+import { exigirFormaDoAtendente } from "./entradas-da-api";
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -277,6 +279,7 @@ export async function criarAgendamento(
     _servico_id: input.servicoId,
     _inicio: input.inicio,
     _forma_pagamento: input.formaPagamento,
+    _validar_regras: true,
   });
   if (error) throw new Error(error.message.includes("horario ja ocupado") ? "Esse horário acabou de ser reservado, escolha outro" : error.message);
   const resultado = data as { agendamento_id?: string };
@@ -530,7 +533,9 @@ export const ACOES_DO_AGENTE = {
   historico_do_cliente: historicoDoCliente,
   salvar_preferencia_do_cliente: salvarPreferenciaDoCliente,
   confirmar_agendamento: confirmarAgendamento,
-  criar_agendamento: criarAgendamento,
+  // O atendente nunca marca fiado nem crédito: confere aqui também, não só no schema da rota.
+  criar_agendamento: (ctx: ContextoDoAgente, input: Parameters<typeof criarAgendamento>[1]) =>
+    criarAgendamento(ctx, { ...input, formaPagamento: exigirFormaDoAtendente(input.formaPagamento), avisarCliente: true }),
   remarcar_agendamento: remarcarAgendamento,
   cancelar_agendamento: cancelarAgendamento,
 } as const;

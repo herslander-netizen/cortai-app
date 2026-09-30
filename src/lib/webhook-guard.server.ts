@@ -10,26 +10,51 @@
  */
 const LIMITE_SEM_AUTENTICACAO = 10;
 const LIMITE_AUTENTICADO = 1200;
+/** Chamadas sem IP identificável: balde separado e mais alto, para ninguém travar o tráfego legítimo. */
+const LIMITE_SEM_IP_REJEICOES = 200;
+const LIMITE_SEM_IP_AUTENTICADO = 6000;
+export const BALDE_SEM_IP = "sem-ip";
 
 async function db() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-export function ipDaChamada(request: Request): string {
-  return (
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "desconhecido"
-  );
+/**
+ * IP de quem chamou. A borda (Cloudflare) grava `cf-connecting-ip` e o cliente não
+ * consegue forjá-lo. Sem ele, usamos o ÚLTIMO valor de `x-forwarded-for` — o que o
+ * proxy mais próximo acrescentou —, nunca o primeiro, que o cliente escreve à vontade.
+ * Sem nenhum dos dois, devolve null (balde separado, ver BALDE_SEM_IP).
+ */
+export function ipDaChamada(request: Request): string | null {
+  const cf = request.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  const real = request.headers.get("x-real-ip")?.trim();
+  if (real) return real;
+  const cadeia = (request.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return cadeia.at(-1) ?? null;
+}
+
+/** Consome uma unidade de um contador por minuto no banco. true = dentro do limite. */
+export async function consumirLimite(chave: string, limite: number): Promise<boolean> {
+  try {
+    const { data } = await (await db()).rpc("webhook_consumir", { _chave: chave, _limite: limite });
+    return data !== false;
+  } catch {
+    return true; // falha do contador nunca derruba tráfego legítimo
+  }
 }
 
 /** Antes de autenticar: barra IP que já errou demais no último minuto. */
 export async function barrarAbusivo(request: Request, endpoint: string): Promise<Response | null> {
-  const ip = ipDaChamada(request);
+  const ip = ipDaChamada(request) ?? BALDE_SEM_IP;
+  const teto = ip === BALDE_SEM_IP ? LIMITE_SEM_IP_REJEICOES : LIMITE_SEM_AUTENTICACAO;
   try {
     const { data } = await (await db()).rpc("webhook_rejeicoes_recentes", { _ip: ip });
-    if ((data ?? 0) >= LIMITE_SEM_AUTENTICACAO) {
+    if ((data ?? 0) >= teto) {
       console.warn(`[webhook] 429 ${endpoint} ip=${ip} (excesso de chamadas inválidas)`);
       return new Response("Too many requests", { status: 429, headers: { "Retry-After": "60" } });
     }
@@ -46,7 +71,7 @@ export async function rejeitar(
   motivo: string,
   status = 401,
 ): Promise<Response> {
-  const ip = ipDaChamada(request);
+  const ip = ipDaChamada(request) ?? BALDE_SEM_IP;
   console.warn(`[webhook] rejeitada ${endpoint} ip=${ip} motivo=${motivo}`);
   try {
     await (await db()).from("webhook_rejeicoes").insert({ endpoint, ip, motivo });
@@ -58,11 +83,11 @@ export async function rejeitar(
 
 /** Depois de autenticar: limite folgado. */
 export async function limiteAutenticado(request: Request, endpoint: string): Promise<Response | null> {
-  const ip = ipDaChamada(request);
+  const ip = ipDaChamada(request) ?? BALDE_SEM_IP;
   try {
     const { data } = await (await db()).rpc("webhook_consumir", {
       _chave: `${endpoint}|${ip}`,
-      _limite: LIMITE_AUTENTICADO,
+      _limite: ip === BALDE_SEM_IP ? LIMITE_SEM_IP_AUTENTICADO : LIMITE_AUTENTICADO,
     });
     if (data === false) {
       console.warn(`[webhook] 429 ${endpoint} ip=${ip} (limite autenticado)`);

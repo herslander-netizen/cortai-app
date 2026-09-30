@@ -2,7 +2,7 @@
  * Motor único de disponibilidade — usado pela página pública, pelo app do
  * cliente e pela validação no servidor. Regra única, resultado único.
  */
-import { hojeNoFuso, horarioDoDia, isoNoFusoDaBarbearia, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { fimEmMinutos, hojeNoFuso, horarioDoDia, isoNoFusoDaBarbearia, somarDias, type HorarioDeFuncionamento } from "@/lib/horarios";
 
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 export type RegrasDaAgenda = { antecedenciaMin: number; intervaloEntreMin: number };
@@ -39,6 +39,21 @@ export function diaEMinutoNoFuso(instante: number, fuso: string): { dia: string;
   return { dia, minuto: min(hm) % (24 * 60) };
 }
 
+/** Faixa aberta de um dia em minutos desde 00:00 desse dia (fim pode passar de 1440). */
+function faixaDoDia(dia: string, horarios: HorarioDeFuncionamento[]) {
+  const info = horarioDoDia(dia, horarios);
+  if (info.fechado) return null;
+  const abre = min(info.abre);
+  const fecha = fimEmMinutos(info.abre, info.fecha);
+  let pausa: [number, number] | null = null;
+  if (info.intervaloInicio && info.intervaloFim) {
+    const pi = min(info.intervaloInicio) + (min(info.intervaloInicio) < abre ? 1440 : 0);
+    const pf = min(info.intervaloFim) + (min(info.intervaloFim) < abre ? 1440 : 0);
+    pausa = [pi, pf];
+  }
+  return { info, abre, fecha, pausa };
+}
+
 /** Motivo pelo qual um início não serve para o serviço (ou null se serve). */
 export function motivoForaDoHorario(
   inicio: number,
@@ -47,14 +62,22 @@ export function motivoForaDoHorario(
   fuso: string,
 ): string | null {
   const { dia, minuto } = diaEMinutoNoFuso(inicio, fuso);
-  const info = horarioDoDia(dia, horarios);
-  if (info.fechado) return "A barbearia não abre neste dia.";
-  const fim = minuto + duracaoMin;
-  if (minuto < min(info.abre) || fim > min(info.fecha)) {
-    return `Esse horário não cabe no funcionamento da barbearia (${info.abre} às ${info.fecha}).`;
+  // Madrugada: pode pertencer ao expediente de ontem que fecha depois da meia-noite.
+  const ontem = faixaDoDia(somarDias(dia, -1), horarios);
+  if (ontem && ontem.fecha > 1440) {
+    const m = minuto + 1440;
+    if (m >= ontem.abre && m + duracaoMin <= ontem.fecha && !(ontem.pausa && m < ontem.pausa[1] && m + duracaoMin > ontem.pausa[0])) {
+      return null;
+    }
   }
-  if (info.intervaloInicio && info.intervaloFim && minuto < min(info.intervaloFim) && fim > min(info.intervaloInicio)) {
-    return `Esse horário invade o intervalo da barbearia (${info.intervaloInicio} às ${info.intervaloFim}).`;
+  const hoje = faixaDoDia(dia, horarios);
+  if (!hoje) return "A barbearia não abre neste dia.";
+  const fim = minuto + duracaoMin;
+  if (minuto < hoje.abre || fim > hoje.fecha) {
+    return `Esse horário não cabe no funcionamento da barbearia (${hoje.info.abre} às ${hoje.info.fecha}).`;
+  }
+  if (hoje.pausa && minuto < hoje.pausa[1] && fim > hoje.pausa[0]) {
+    return `Esse horário invade o intervalo da barbearia (${hoje.info.intervaloInicio} às ${hoje.info.intervaloFim}).`;
   }
   return null;
 }
@@ -106,9 +129,10 @@ export function horariosDisponiveis(p: {
   const aptos = profissionaisDoServico(p.servico, p.profissionais).map((x) => x.id);
   const candidatos = p.escolhido === "qualquer" ? aptos : aptos.filter((id) => id === p.escolhido);
   const opcoes: Opcao[] = [];
-  for (let t = min(info.abre); t + p.servico.duracao_min <= min(info.fecha); t += passo) {
-    const label = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
-    const iso = isoNoFusoDaBarbearia(p.dia, label, p.fuso);
+  for (let t = min(info.abre); t + p.servico.duracao_min <= fimEmMinutos(info.abre, info.fecha); t += passo) {
+    const tt = t % 1440;
+    const label = `${String(Math.floor(tt / 60)).padStart(2, "0")}:${String(tt % 60).padStart(2, "0")}`;
+    const iso = isoNoFusoDaBarbearia(t >= 1440 ? somarDias(p.dia, 1) : p.dia, label, p.fuso);
     const inicio = new Date(iso).getTime();
     const fim = inicio + p.servico.duracao_min * 60_000;
     if (motivoForaDoHorario(inicio, p.servico.duracao_min, p.horarios, p.fuso)) continue;

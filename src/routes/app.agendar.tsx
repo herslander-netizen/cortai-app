@@ -158,6 +158,8 @@ function Fluxo({
     ocupados: dados.ocupados,
     fuso: dados.fuso,
     regras: dados.regrasAgenda,
+    quantidadeDias: dados.regrasAgenda.janelaDias,
+    passoMin: dados.regrasAgenda.passoMin,
   });
   const {
     servicoId,

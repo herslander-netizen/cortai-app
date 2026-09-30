@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   horariosDisponiveis,
@@ -25,7 +25,8 @@ export function useSelecaoAgendamento({
   ocupados,
   fuso,
   regras,
-  quantidadeDias = 14,
+  quantidadeDias = 30,
+  passoMin = 30,
 }: {
   servicos: Servico[];
   profissionais: Profissional[];
@@ -34,6 +35,7 @@ export function useSelecaoAgendamento({
   fuso: string;
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
   quantidadeDias?: number;
+  passoMin?: number;
 }) {
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profissionalId, setProfissionalId] = useState("qualquer");
@@ -44,7 +46,15 @@ export function useSelecaoAgendamento({
     () => profissionaisDoServico(servico, profissionais),
     [servico, profissionais],
   );
-  const dias = useMemo(() => proximosDiasNoFuso(quantidadeDias, fuso), [quantidadeDias, fuso]);
+  // "Agora" avança a cada minuto: página aberta por horas não oferece horário que já passou.
+  const [agora, setAgora] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setAgora(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const hojeChave = new Date(agora).toISOString().slice(0, 13);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dias = useMemo(() => proximosDiasNoFuso(quantidadeDias, fuso, agora), [quantidadeDias, fuso, hojeChave]);
 
   useEffect(() => {
     if (profissionalId !== "qualquer" && !aptos.some((item) => item.id === profissionalId)) {
@@ -68,19 +78,34 @@ export function useSelecaoAgendamento({
               fuso,
               ocupados,
               regras,
+              agora,
+              passoMin,
             })
           : { fechado: horarioDoDia(data, horarios).fechado, opcoes: [] },
       );
     }
     return mapa;
-  }, [dias, servico, profissionais, profissionalId, horarios, fuso, ocupados, regras]);
+  }, [dias, servico, profissionais, profissionalId, horarios, fuso, ocupados, regras, agora, passoMin]);
 
+  // Escolhe um dia sozinho só na primeira vez em que um serviço é selecionado;
+  // depois disso, o toque do cliente é respeitado mesmo em dia lotado.
+  const autoEscolhidoPara = useRef<string | null>(null);
   useEffect(() => {
-    if (!servico) return;
+    if (!servico) {
+      autoEscolhidoPara.current = null;
+      return;
+    }
+    if (autoEscolhidoPara.current !== null) return;
+    autoEscolhidoPara.current = servico.id;
     if (dia && (porDia.get(dia)?.opcoes.length ?? 0) > 0) return;
     setDia(dias.find((data) => (porDia.get(data)?.opcoes.length ?? 0) > 0) ?? null);
     setInicio(null);
   }, [dia, dias, porDia, servico]);
+
+  // Horário escolhido que passou enquanto a página estava aberta sai da seleção.
+  useEffect(() => {
+    if (inicio && dia && !(porDia.get(dia)?.opcoes ?? []).some((o) => o.iso === inicio)) setInicio(null);
+  }, [inicio, dia, porDia]);
 
   const agenda = dia ? porDia.get(dia) : undefined;
   const escolhido = agenda?.opcoes.find((opcao) => opcao.iso === inicio) ?? null;

@@ -18,7 +18,7 @@ export type DadosAgendar = {
   }[];
   profissionais: { id: string; nome: string }[];
   fuso: string;
-  regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number };
+  regrasAgenda: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
   pixAtivo: boolean;
   /** Dados reais de Pix da barbearia, exibidos ao cliente depois de agendar. */
   pix: { chave: string; tipo: string | null; whatsapp: string | null } | null;
@@ -87,7 +87,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
     );
 
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const ate = new Date(desde.getTime() + 21 * 24 * 60 * 60 * 1000);
+    const ate = new Date(desde.getTime() + (regrasAgenda.janelaDias + 1) * 24 * 60 * 60 * 1000);
     const { data: ocupados } = await db
       .from("agendamentos")
       .select("profissional_id, inicio, fim")
@@ -113,6 +113,8 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       regrasAgenda: {
         antecedenciaMin: regrasAgenda.antecedenciaMin,
         intervaloEntreMin: regrasAgenda.intervaloEntreMin,
+        janelaDias: regrasAgenda.janelaDias,
+        passoMin: regrasAgenda.passoMin,
       },
       pixAtivo: Boolean(financeiro?.pix_ativo && String(financeiro?.pix_chave ?? "").trim()),
       pix:
@@ -201,6 +203,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
       _servico_id: data.servicoId,
       _inicio: data.inicio,
       _forma_pagamento: data.formaPagamento,
+      _validar_regras: true,
     });
     if (error) throw new Error(traduz(error.message));
     const resultado = res as unknown as ResultadoAgendamento;
@@ -291,5 +294,7 @@ function traduz(msg: string): string {
   if (msg.includes("sem creditos")) return "Você não tem créditos disponíveis.";
   if (msg.includes("horario ja ocupado"))
     return "Esse horário acabou de ser reservado, escolha outro";
+  if (msg.includes("fora do horario de funcionamento")) return "Esse horário está fora do funcionamento da barbearia.";
+  if (msg.includes("fora do periodo de agendamento")) return "Escolha uma data mais próxima.";
   return msg;
 }

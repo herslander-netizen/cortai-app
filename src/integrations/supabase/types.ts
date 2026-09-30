@@ -1232,6 +1232,7 @@ export type Database = {
           criado_em: string
           desconectado_em: string | null
           id: string
+          meta_phone_number_id: string | null
           nome_exibicao: string | null
           numero: string | null
           provedor: string
@@ -1250,6 +1251,7 @@ export type Database = {
           criado_em?: string
           desconectado_em?: string | null
           id?: string
+          meta_phone_number_id?: string | null
           nome_exibicao?: string | null
           numero?: string | null
           provedor?: string
@@ -1268,6 +1270,7 @@ export type Database = {
           criado_em?: string
           desconectado_em?: string | null
           id?: string
+          meta_phone_number_id?: string | null
           nome_exibicao?: string | null
           numero?: string | null
           provedor?: string
@@ -3780,12 +3783,14 @@ export type Database = {
           indicacao_recompensa: string | null
           instagram: string | null
           intervalo_entre_min: number
+          janela_agendamento_dias: number
           link_avaliacao_publica: string | null
           listada: boolean
           logo_url: string | null
           loja_ativa: boolean
           modo: string
           nome: string
+          passo_horarios_min: number
           plano: string
           rotulo_carteira: string | null
           segmento: string
@@ -3825,12 +3830,14 @@ export type Database = {
           indicacao_recompensa?: string | null
           instagram?: string | null
           intervalo_entre_min?: number
+          janela_agendamento_dias?: number
           link_avaliacao_publica?: string | null
           listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
           modo?: string
           nome: string
+          passo_horarios_min?: number
           plano?: string
           rotulo_carteira?: string | null
           segmento?: string
@@ -3870,12 +3877,14 @@ export type Database = {
           indicacao_recompensa?: string | null
           instagram?: string | null
           intervalo_entre_min?: number
+          janela_agendamento_dias?: number
           link_avaliacao_publica?: string | null
           listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
           modo?: string
           nome?: string
+          passo_horarios_min?: number
           plano?: string
           rotulo_carteira?: string | null
           segmento?: string
@@ -4227,6 +4236,7 @@ export type Database = {
           _profissional_id: string
           _servico_id: string
           _tenant_id: string
+          _validar_regras?: boolean
         }
         Returns: Json
       }

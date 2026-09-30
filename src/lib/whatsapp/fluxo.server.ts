@@ -327,6 +327,17 @@ export async function processarMensagemRecebida(input: {
   const db = await admin();
   const conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao) return { tratada: false, motivo: "sessao_desconhecida" };
+  // Deduplicação antes de qualquer resposta: mensagem reprocessada nunca responde duas vezes.
+  if (input.mensagemExternaId) {
+    const { data: jaRecebida } = await db
+      .from("mensagens_whatsapp")
+      .select("id")
+      .eq("mensagem_externa_id", input.mensagemExternaId)
+      .eq("direcao", "entrada")
+      .limit(1)
+      .maybeSingle();
+    if (jaRecebida) return { tratada: true, motivo: "duplicada" };
+  }
 
   const telefone = somenteDigitos(input.telefone);
   let tenantId = conexao.tenant_id;
