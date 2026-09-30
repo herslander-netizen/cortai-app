@@ -46,9 +46,7 @@ export function ChatPreview({
           {config?.chat.mensagemInicial ??
             "Olá! Que bom receber você. Como posso organizar seu horário?"}
         </p>
-        <p className="chat-bolha-cliente ml-auto w-fit px-3 py-2">
-          Quero agendar
-        </p>
+        <p className="chat-bolha-cliente ml-auto w-fit px-3 py-2">Quero agendar</p>
         <div className="grid grid-cols-2 gap-2">
           <span className="chat-opcao-previa rounded-lg px-3 py-3">
             <Clock3 className="mb-2" size={15} />
