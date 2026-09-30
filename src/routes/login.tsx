@@ -257,6 +257,14 @@ function LoginPage() {
             />
           </span>
         </label>
+        {modo === "entrar" ? (
+          <Link
+            to="/recuperar-senha"
+            className="-my-1 inline-flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
+          >
+            Esqueceu a senha?
+          </Link>
+        ) : null}
         {erro ? (
           <p className="text-sm text-brick" role="alert">
             {erro}
