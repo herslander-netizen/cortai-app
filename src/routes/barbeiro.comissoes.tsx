@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { hojeNoFuso, somarDias } from "@/lib/horarios";
-import { fusoAtualDasTelas } from "@/lib/format";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,7 +7,7 @@ import { useState } from "react";
 import { Carregando } from "@/components/layout/Carregando";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
-import { brl } from "@/lib/format";
+import { brl, fusoAtualDasTelas } from "@/lib/format";
 import {
   getComissoes,
   getConfiguracaoFinanceira,
