@@ -273,14 +273,14 @@ export async function criarAgendamento(
       .maybeSingle(),
     db
       .from("profissionais")
-      .select("id, duracao_min, profissional_ids")
+      .select("id")
       .eq("id", input.profissionalId)
       .eq("tenant_id", ctx.tenantId)
       .eq("ativo", true)
       .maybeSingle(),
     db
       .from("servicos")
-      .select("id")
+      .select("id, duracao_min, profissional_ids")
       .eq("id", input.servicoId)
       .eq("tenant_id", ctx.tenantId)
       .eq("ativo", true)
