@@ -14,7 +14,11 @@ export const Route = createFileRoute("/apresentacao")({
   head: () => ({
     meta: [
       { title: "Conheça o Cortaí conversando com o Cortaí" },
-      { name: "description", content: "Conheça Agenda, Modo Foco, Clientes, Secretária e Caixa em uma demonstração interativa do Cortaí." },
+      {
+        name: "description",
+        content:
+          "Conheça Agenda, Modo Foco, Clientes, Secretária e Caixa em uma demonstração interativa do Cortaí.",
+      },
       { property: "og:title", content: "Conheça o Cortaí conversando com o Cortaí" },
       { property: "og:description", content: "Uma demonstração interativa do Cortaí por dentro." },
       { property: "og:type", content: "website" },
@@ -30,5 +34,7 @@ export const Route = createFileRoute("/apresentacao")({
 
 function ApresentacaoPage() {
   const { etapa, segmento } = Route.useSearch();
-  return <ShowroomCortai etapa={etapa as EtapaShowroom} segmento={segmentoParaApresentacao(segmento)} />;
+  return (
+    <ShowroomCortai etapa={etapa as EtapaShowroom} segmento={segmentoParaApresentacao(segmento)} />
+  );
 }
