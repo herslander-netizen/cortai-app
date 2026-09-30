@@ -541,7 +541,13 @@ function Editor({
                   Negócios existentes continuam no modo Tradicional até você publicar esta escolha.
                 </p>
                 <div className="mt-4">
-                  <ChatPreview ativo={config.chat.modo === "conversa"} />
+                  <ChatPreview
+                    ativo={config.chat.modo === "conversa"}
+                    config={config}
+                    nome={form.nome}
+                    logoUrl={logoPreview}
+                    capaUrl={coverPreview}
+                  />
                 </div>
               </EditorSection>
               {config.chat.modo === "conversa" ? (

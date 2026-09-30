@@ -58,7 +58,7 @@ async function limitarPublico(acao: keyof typeof LIMITES, telefone?: string) {
 }
 
 export type AgendaPublica = {
-  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null; usaListaDeEspera: boolean; segmento: Segmento; logoUrl: string | null };
+  tenant: { id: string; nome: string; slug: string; whatsapp: string | null; fuso: string; endereco: string | null; usaListaDeEspera: boolean; segmento: Segmento; logoUrl: string | null; capaUrl: string | null };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null; foto_url: string | null }[];
   regras: { antecedenciaMin: number; intervaloEntreMin: number; janelaDias: number; passoMin: number };
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
@@ -75,7 +75,7 @@ async function admin() {
 async function barbeariaPorSlug(db: any, slug: string) {
   const { data } = await db
     .from("tenants")
-    .select("id, nome, slug, whatsapp, fuso, endereco, segmento, logo_url, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min")
+    .select("id, nome, slug, whatsapp, fuso, endereco, segmento, logo_url, capa_url, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min")
     .eq("slug", slug.trim().toLowerCase())
     .eq("ativo", true)
     .maybeSingle();
@@ -167,6 +167,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         usaListaDeEspera: filaRes.data === true,
         segmento: segmentoParaApresentacao((tenant as Record<string, unknown>)["segmento"]),
         logoUrl: await assinar((tenant as Record<string, unknown>)["logo_url"] as string | null),
+        capaUrl: await assinar((tenant as Record<string, unknown>)["capa_url"] as string | null),
       },
       servicos,
       regras: {

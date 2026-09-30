@@ -12,6 +12,7 @@ import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatSh
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
+import { agendamentoStyle } from "@/lib/pagina-config";
 
 type ServicoSelecionavel = {
   id: string;
@@ -141,6 +142,8 @@ export function AgendamentoChat({
 
   return (
     <ChatShell
+      capaUrl={data.tenant.capaUrl}
+      style={agendamentoStyle(data.pagina)}
       header={
         <ChatHeader
           nome={data.tenant.nome}

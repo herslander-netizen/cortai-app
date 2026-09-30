@@ -311,3 +311,30 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
     "--brand-body": fontes[config.fonteTexto],
   } as CSSProperties;
 }
+
+function contrastePara(hex: string) {
+  const canais = hex
+    .slice(1)
+    .match(/.{2}/g)
+    ?.map((canal) => Number.parseInt(canal, 16) / 255);
+  if (!canais || canais.some(Number.isNaN)) return "#FFFFFF";
+  const linear = canais.map((canal) =>
+    canal <= 0.04045 ? canal / 12.92 : ((canal + 0.055) / 1.055) ** 2.4,
+  );
+  const luminancia = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  return luminancia > 0.48 ? "#07152F" : "#FFFFFF";
+}
+
+/** Tokens da identidade publicada usados pelo agendamento, sem duplicar a configuração da marca. */
+export function agendamentoStyle(config: PaginaConfig): CSSProperties {
+  return {
+    "--chat-primary": config.cores.botao,
+    "--chat-primary-foreground": contrastePara(config.cores.botao),
+    "--chat-secondary": config.cores.secundaria,
+    "--chat-accent": config.cores.destaque,
+    "--chat-page": config.cores.fundo,
+    "--chat-page-text": config.cores.texto,
+    "--chat-heading": fontes[config.fonteTitulo],
+    "--chat-body": fontes[config.fonteTexto],
+  } as CSSProperties;
+}
