@@ -388,23 +388,12 @@ export function AgendamentoChat({
             <Fala>
               <p className="text-base font-extrabold">Posso confirmar?</p>
               <div className="chat-ingresso mt-3">
-                <div className="flex items-center gap-3 px-4 pb-3 pt-4">
-                  <span className="grid aspect-[4/5] w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-ink3">
-                    {servico.foto_url ? (
-                      <img src={servico.foto_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <ImageIcon size={18} className="text-mute2" />
-                    )}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-bold uppercase tracking-[.14em] text-primary">
-                      {data.tenant.nome}
-                    </p>
-                    <p className="mt-1 truncate text-lg font-extrabold">{servico.nome}</p>
-                    <p className="truncate text-sm text-mute">
-                      {proNome ?? "Profissional disponível"}
-                    </p>
-                  </div>
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                    {data.tenant.nome}
+                  </p>
+                  <p className="mt-1 text-lg font-extrabold">{servico.nome}</p>
+                  <p className="text-sm text-mute">{proNome ?? "Profissional disponível"}</p>
                 </div>
                 <div className="chat-ingresso-corte" aria-hidden />
                 <dl className="grid grid-cols-2 gap-3 px-4 pb-4 pt-3">
