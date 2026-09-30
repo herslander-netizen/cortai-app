@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from "react";
+
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
 export const TOLERANCIA_MIN = 15;
@@ -162,4 +164,14 @@ export function linkWhatsApp(telefone: string | null | undefined, texto?: string
   if (!d) return null;
   if (d.length === 10 || d.length === 11) d = `55${d}`;
   return `https://wa.me/${d}${texto ? `?text=${encodeURIComponent(texto)}` : ""}`;
+}
+
+export function teclaDeAtivar(f: () => void) {
+  return (e: KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      f();
+    }
+  };
 }

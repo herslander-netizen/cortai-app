@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
-import { teclaDeAtivar } from "./AgoraProximos";
-import { estaAtrasado, hora, nomeEhGenerico } from "./tempo";
+import { estaAtrasado, hora, nomeEhGenerico, teclaDeAtivar } from "./tempo";
 
 export function ListaAgenda({
   itens,

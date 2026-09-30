@@ -1,5 +1,4 @@
 import { MessageCircle } from "lucide-react";
-import type { KeyboardEvent } from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,17 +13,8 @@ import {
   minutosDecorridos,
   nomeEhGenerico,
   tempoExcedido,
+  teclaDeAtivar,
 } from "./tempo";
-
-export function teclaDeAtivar(f: () => void) {
-  return (e: KeyboardEvent) => {
-    if (e.target !== e.currentTarget) return;
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      f();
-    }
-  };
-}
 
 /** Faixa Agora/Próximos: compacta no celular, detalhada no computador. Todos os planos. */
 export function AgoraProximos({
