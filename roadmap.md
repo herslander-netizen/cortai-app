@@ -123,3 +123,11 @@
 
 - [x] Itens 1–17 da rodada de robustez (WhatsApp por número, atendente, anti-abuso, horários, alteração, janela, passo, madrugada)
 - [ ] Barbearia "Bbbh" sem horários: fica fechada até o dono configurar (decisão do usuário)
+
+## Consolidação 30/09
+- [x] Chat CortAI usa o motor oficial de disponibilidade (fuso, passo, regras, profissional do serviço)
+- [x] Cabeçalho decide "Aberta/Fechada hoje" pelo fuso da barbearia
+- [x] Botão principal da agenda sem seleção usa tesoura
+- [x] Personalização: paleta rápida + código HEX; compressão de logo/capa
+- [ ] Painel (agendamento manual) ainda oferece horários em passo fixo de 30 min — decidir se segue o passo da barbearia
+- [ ] Compactação dos cabeçalhos por tela — aguarda apontamento das telas específicas
