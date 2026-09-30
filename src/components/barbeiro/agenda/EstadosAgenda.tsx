@@ -55,7 +55,7 @@ export function AgendaCarregando() {
   );
 }
 
-export function AgendaErro({ mensagem, onTentar }: { mensagem?: string; onTentar: () => void }) {
+export function AgendaErro({ mensagem, onTentar }: { mensagem?: string | undefined; onTentar: () => void }) {
   return (
     <div className="agenda-estado" role="alert">
       <TriangleAlert aria-hidden />
