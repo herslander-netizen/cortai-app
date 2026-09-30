@@ -1,47 +1,37 @@
-# Auditoria técnica de pré-lançamento do Cortaí
+# Personalização visual do agendamento
 
 ## Objetivo
-Produzir um diagnóstico completo, somente leitura, dos riscos para produção, sem alterar arquivos, banco, configurações ou publicação.
+Retirar a aparência fixa do Cortaí do agendamento público e fazer a experiência refletir a identidade de cada negócio, reaproveitando a personalização que já existe no painel.
 
-## Escopo da auditoria
-1. **Qualidade de entrega**
-   - Verificar TypeScript, lint, testes existentes, status do build, erros de execução, console e rede.
-   - Separar falhas que bloqueiam o lançamento de avisos de manutenção e formatação.
+## O que será alterado
+- Fazer o Cortaí Chat usar a capa, o logo e as cores publicadas pelo negócio, em vez do fundo e da paleta azul fixos.
+- Manter a marca Cortaí apenas como assinatura discreta da plataforma, sem competir com o nome e o logo do estabelecimento.
+- Reorganizar a área **Personalizar página** para deixar mais claro o resultado de cada escolha:
+  - capa do agendamento;
+  - logo/avatar do negócio;
+  - paleta pronta ou cores personalizadas;
+  - prévia do modo Conversa e do modo Tradicional.
+- Aplicar automaticamente contraste e camada de proteção sobre a capa, garantindo leitura em fotos claras ou escuras.
+- Usar a mesma identidade publicada na página pública e no link de agendamento, sem criar uma segunda configuração.
+- Preservar o comportamento atual quando o negócio ainda não tiver capa, logo ou cores próprias.
 
-2. **Autenticação, autorização e banco**
-   - Revisar login, retorno social, troca de sessão, saída e proteção das áreas administrativa, equipe e cliente.
-   - Conferir RLS, permissões públicas, funções `SECURITY DEFINER`, RBAC e isolamento entre negócios.
-   - Confirmar cada alerta do analisador do banco antes de classificá-lo como vulnerabilidade.
+## Experiência esperada
+- O cabeçalho destaca primeiro o negócio: logo, nome e recepção configurada.
+- A capa ocupa o fundo da conversa com tratamento leve; não será usada uma imagem genérica quando o negócio tiver enviado a própria.
+- Balões, botões, seleção, foco e confirmação usam as cores do negócio com contraste acessível.
+- A prévia no painel muda imediatamente, antes da publicação.
+- O fluxo, disponibilidade, confirmação, cancelamento e demais regras de agenda permanecem intactos.
 
-3. **Agenda e jornada do cliente**
-   - Auditar disponibilidade, fuso, antecedência, intervalo, duração, profissional compatível e trava contra sobreposição.
-   - Percorrer agendamento tradicional e Cortaí Chat, confirmação, conflito, cancelamento, remarcação, lista de espera e persistência no aparelho.
-   - Comparar as validações da tela, servidor e banco para identificar divergências e condições de corrida.
+## Detalhes técnicos
+- Ampliar a configuração visual do chat existente, mantendo compatibilidade com configurações já publicadas.
+- Incluir capa e cores publicadas na leitura da agenda pública; URLs privadas continuam assinadas no servidor.
+- Expor as escolhas ao chat por variáveis semânticas, sem cores soltas nos componentes.
+- Reutilizar upload, compressão, rascunho, publicação e histórico já existentes.
+- Não criar tabela nova, motor paralelo ou migração destrutiva.
 
-4. **Operação e experiência**
-   - Validar onboarding, página pública, painel, clientes, atendimento, estados de carregamento/vazio/erro e navegação.
-   - Examinar as telas em 390 px e 1280 px, claro e escuro, incluindo teclado, foco, áreas seguras e sobreposições.
-
-5. **Financeiro e integrações**
-   - Revisar caixa, comandas, pagamentos, comissões, estornos, fidelidade e consistência transacional.
-   - Auditar Asaas: segredo, assinatura do webhook, idempotência, concorrência, retries, reconciliação e suspensão de plano.
-   - Auditar notificações e Secretária Cortaí sem reabrir atendimento livre no WhatsApp.
-
-6. **PWA e performance**
-   - Conferir manifesto, ícones, instalação, atualização obrigatória, cache e comportamento offline declarado.
-   - Revisar consultas mais frequentes/lentas, carregamento de imagens, tamanho dos pacotes e chamadas duplicadas.
-
-## Validação prática
-- Usar somente a conta e o tenant de demonstração para fluxos autenticados.
-- Evitar confirmações, pagamentos ou qualquer ação que crie/edite dados; quando uma gravação for indispensável para provar um risco, registrar como não testada em vez de executá-la.
-- Não publicar e não executar migrações.
-
-## Entrega
-Relatório objetivo contendo, para cada achado:
-- prioridade P0, P1 ou P2;
-- evidência concreta e local afetado;
-- impacto e forma de reprodução;
-- correção recomendada;
-- indicação de correção segura imediata ou mudança que exige decisão/migração.
-
-O relatório também distinguirá itens confirmados, riscos condicionais e verificações que não puderam ser concluídas sem alterar dados ou usar serviços externos.
+## Validação
+- Conferir painel e agendamento em 390 px e 1280 px, com e sem capa/logo.
+- Validar contraste, texto longo, carregamento, erro e redução de movimento.
+- Percorrer o chat até a confirmação sem concluir uma reserva real.
+- Rodar TypeScript, testes existentes, build e lint dirigido aos arquivos alterados.
+- Não publicar.
