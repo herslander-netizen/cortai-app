@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
-import logoCortai from "@/assets/cortai-logo-clara-oficial.png.asset.json";
+import logoCortai from "@/assets/cortai-logo-escura-oficial.png.asset.json";
 
 /**
  * Sistema visual compartilhado dos chats do Cortaí.

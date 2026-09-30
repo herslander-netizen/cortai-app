@@ -383,17 +383,17 @@
   --chat-blue: #0a3f80;
   --chat-cyan: #00b4ff;
   --chat-pink: #ff2d78;
-  --chat-glass: color-mix(in oklab, var(--chat-page, #041a45) 76%, transparent);
-  --chat-borda: rgb(255 255 255 / 0.1);
+  --chat-glass: color-mix(in oklab, var(--chat-page, #f7f9fc) 92%, transparent);
+  --chat-borda: rgb(7 21 47 / 0.12);
   /* Tokens do app reinterpretados dentro do chat */
   --ink: var(--chat-page, #041a45);
   --ink2: color-mix(in oklab, var(--chat-page, #041a45) 72%, transparent);
-  --ink3: rgb(255 255 255 / 0.08);
+  --ink3: rgb(7 21 47 / 0.06);
   --paper: var(--chat-page-text, #ffffff);
-  --mute: rgb(255 255 255 / 0.72);
-  --mute2: rgb(255 255 255 / 0.55);
-  --line: rgb(255 255 255 / 0.1);
-  --line2: rgb(255 255 255 / 0.16);
+  --mute: rgb(7 21 47 / 0.7);
+  --mute2: rgb(7 21 47 / 0.54);
+  --line: rgb(7 21 47 / 0.1);
+  --line2: rgb(7 21 47 / 0.16);
   --gold: var(--chat-primary, var(--chat-cyan));
   --gold-soft: color-mix(in oklab, var(--chat-primary, var(--chat-cyan)) 18%, transparent);
   --primary: var(--chat-primary, var(--chat-cyan));
@@ -421,6 +421,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+  opacity: 0.3;
   animation: chat-parallax 18s ease-in-out infinite alternate;
 }
 .chat-fundo-veu {
@@ -428,8 +429,8 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in oklab, var(--chat-page, #041a45) 74%, transparent),
-    color-mix(in oklab, var(--chat-page, #041a45) 88%, transparent)
+    color-mix(in oklab, var(--chat-page, #f7f9fc) 82%, transparent),
+    color-mix(in oklab, var(--chat-page, #f7f9fc) 96%, transparent)
   );
 }
 .chat-sistema[data-personalizado="true"] .chat-fundo-img {
@@ -450,13 +451,13 @@
   min-height: 4.5rem;
   padding: 0.75rem 1rem;
   padding-top: max(0.75rem, env(safe-area-inset-top));
-  background: color-mix(in oklab, var(--chat-page, #041a45) 78%, transparent);
+  background: color-mix(in oklab, var(--chat-page, #f7f9fc) 90%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--chat-borda);
 }
 .chat-mute {
-  color: rgb(255 255 255 / 0.65);
+  color: rgb(7 21 47 / 0.62);
   font-weight: 500;
 }
 .chat-avatar-letra {
@@ -499,7 +500,7 @@
   color: var(--chat-page-text, #fff);
 }
 .chat-sistema .chat-dot {
-  background: rgb(255 255 255 / 0.8);
+  background: rgb(7 21 47 / 0.66);
 }
 .chat-sistema button:focus-visible,
 .chat-sistema input:focus-visible {
@@ -524,7 +525,7 @@
   font-family: var(--chat-body, "Manrope", sans-serif);
 }
 .chat-preview-veil {
-  background: color-mix(in oklab, var(--chat-page, var(--background)) 82%, transparent);
+  background: color-mix(in oklab, var(--chat-page, var(--background)) 92%, transparent);
 }
 
 /* O modo tradicional usa a mesma identidade publicada, sem alterar o motor de agenda. */

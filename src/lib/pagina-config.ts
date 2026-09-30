@@ -333,8 +333,8 @@ export function agendamentoStyle(config: PaginaConfig): CSSProperties {
     "--chat-primary-foreground": contrastePara(config.cores.botao),
     "--chat-secondary": config.cores.secundaria,
     "--chat-accent": config.cores.destaque,
-    "--chat-page": config.cores.fundo,
-    "--chat-page-text": config.cores.texto,
+    "--chat-page": "#F7F9FC",
+    "--chat-page-text": "#07152F",
     "--chat-heading": fontes[config.fonteTitulo],
     "--chat-body": fontes[config.fonteTexto],
   } as CSSProperties;
