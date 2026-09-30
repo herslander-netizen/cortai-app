@@ -619,14 +619,8 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
       .select("id")
       .gte("inicio", de.toISOString())
       .lte("inicio", ate.toISOString())
-      .in("status", [
-        "novo",
-        "agendado",
-        "aguardando_pagamento",
-        "aguardando_confirmacao",
-        "pago",
-        "fiado",
-      ])
+      // Só o estado oficial "agendado" recebe lembrete (os demais nomes eram legados).
+      .eq("status", "agendado")
       .limit(500);
     const ids = (data ?? []).map((a) => a.id);
     if (ids.length === 0) return [];
