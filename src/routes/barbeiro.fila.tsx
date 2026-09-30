@@ -259,8 +259,9 @@ function FilaPage() {
                 onSalvar={(v) =>
                   acao.executar(
                     `form-${f.id}`,
-                    () =>
-                      aberto.modo === "editar"
+                    async () => {
+                      if (aberto.modo === "editar")
+                        await
                         ? editar({
                             data: {
                               filaId: f.id,
