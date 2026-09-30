@@ -81,8 +81,8 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
       creditos = cart?.saldo_creditos ?? 0;
     }
     const planoReservado = (comanda as any).agendamentos?.forma_pagamento === "credito";
-    const { segmentoValido } = await import("@/lib/segmentos");
-    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, segmento: segmentoValido(tenant?.segmento), plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
+    const { segmentoParaApresentacao } = await import("@/lib/segmentos");
+    return { comanda, itens: itens ?? [], servicos: servicos ?? [], produtos: produtos ?? [], config, maisVendidos, podeReceber, segmento: segmentoParaApresentacao(tenant?.segmento), plano: { creditos, reservado: planoReservado }, fiadoDisponivel };
 
   });
 

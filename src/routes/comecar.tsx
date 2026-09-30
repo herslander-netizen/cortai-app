@@ -112,7 +112,7 @@ function ComecarPage() {
 
       {sessao.papel === "barbeiro" && !sessao.tenantId && !concluido ? (
         <p className="mx-auto mt-3 max-w-[38ch] text-center text-sm leading-relaxed text-mute">
-          Se você fazia parte de uma equipe e perdeu o acesso, peça um novo convite à barbearia — ou
+          Se você fazia parte de uma equipe e perdeu o acesso, peça um novo convite ao negócio — ou
           crie a sua própria abaixo.
         </p>
       ) : null}

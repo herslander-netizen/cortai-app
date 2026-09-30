@@ -11,7 +11,7 @@ let host: HTMLDivElement | null = null;
 afterEach(() => { host?.remove(); host = null; });
 
 const estados: Array<[StatusKey, string]> = [
-  ["agendado", "Agendado"], ["chegou", "Chegou"], ["na_cadeira", "Na cadeira"],
+  ["agendado", "Agendado"], ["chegou", "Chegou"], ["na_cadeira", "Em atendimento"],
   ["finalizado", "Finalizado"], ["remarcado", "Remarcado"], ["cancelado", "Cancelado"],
   ["nao_compareceu", "Não compareceu"], ["aguardando_pagamento", "Aguardando pagamento"],
   ["pago", "Pago"], ["pendente", "Pendente"], ["livre", "Livre"],
