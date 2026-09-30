@@ -51,12 +51,14 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
   .handler(async ({ data }): Promise<PaginaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
     const colunas = "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos, segmento";
-    const chave = UUID_RE.test(data.slug) ? "id" : "slug";
+    const resolvido = UUID_RE.test(data.slug) ? { tenant_id: data.slug } : await resolverTenantPorSlug(supabaseAdmin, data.slug);
+    if (!resolvido) return null;
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
       .select(colunas)
-      .eq(chave, data.slug)
+      .eq("id", resolvido.tenant_id)
       .eq("ativo", true)
       .maybeSingle();
     if (!tenant) return null;

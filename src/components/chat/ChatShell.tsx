@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
-import logoCortai from "@/assets/cortai-logo-escura-oficial.png.asset.json";
 
 /**
  * Sistema visual compartilhado dos chats do Cortaí.
@@ -58,11 +57,6 @@ export function ChatHeader({
           </p>
         ) : null}
       </div>
-      <img
-        src={logoCortai.url}
-        alt="Tecnologia Cortaí"
-        className="h-4 w-auto shrink-0 opacity-60"
-      />
     </header>
   );
 }
@@ -84,6 +78,7 @@ export function ChatShell({
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}
+        <footer className="chat-assinatura">By Alvo Digital · Cortaí</footer>
       </div>
     </main>
   );

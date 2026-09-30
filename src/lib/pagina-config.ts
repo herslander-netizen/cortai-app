@@ -328,9 +328,11 @@ function contrastePara(hex: string) {
 
 /** Tokens da identidade publicada usados pelo agendamento, sem duplicar a configuração da marca. */
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
+  const destaques = { azul: "#2F5BEA", ciano: "#00A8E8", rosa: "#E85A8A" } as const;
+  const corPrincipal = destaques[config.chat.corDestaque] ?? config.cores.botao;
   return {
-    "--chat-primary": config.cores.botao,
-    "--chat-primary-foreground": contrastePara(config.cores.botao),
+    "--chat-primary": corPrincipal,
+    "--chat-primary-foreground": contrastePara(corPrincipal),
     "--chat-secondary": config.cores.secundaria,
     "--chat-accent": config.cores.destaque,
     "--chat-page": "#F7F9FC",

@@ -102,12 +102,15 @@ async function admin() {
 }
 
 async function barbeariaPorSlug(db: any, slug: string) {
+  const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+  const resolvido = await resolverTenantPorSlug(db, slug);
+  if (!resolvido) throw new Error("Negócio não encontrado.");
   const { data } = await db
     .from("tenants")
     .select(
       "id, nome, slug, whatsapp, fuso, endereco, segmento, logo_url, capa_url, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min",
     )
-    .eq("slug", slug.trim().toLowerCase())
+    .eq("id", resolvido.tenant_id)
     .eq("ativo", true)
     .maybeSingle();
   if (!data) throw new Error("Negócio não encontrado.");
@@ -507,10 +510,13 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
     }): Promise<{ nome: string; descricao: string | null; imagem: string | null } | null> => {
       try {
         const db = await admin();
+        const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+        const resolvido = await resolverTenantPorSlug(db, data.slug);
+        if (!resolvido) return null;
         const { data: t } = await db
           .from("tenants")
           .select("nome, descricao, texto_boas_vindas, capa_url, logo_url")
-          .eq("slug", data.slug.trim().toLowerCase())
+          .eq("id", resolvido.tenant_id)
           .eq("ativo", true)
           .maybeSingle();
         if (!t) return null;

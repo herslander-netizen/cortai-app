@@ -23,10 +23,13 @@ export const getFilaPublica = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(80) }).parse(input))
   .handler(async ({ data }): Promise<BarbeariaDaFila | null> => {
     const db = await admin();
+    const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+    const resolvido = await resolverTenantPorSlug(db, data.slug);
+    if (!resolvido) return null;
     const { data: tenant } = await db
       .from("tenants")
       .select("id, nome, slug, logo_url, cor_primaria")
-      .eq("slug", data.slug)
+      .eq("id", resolvido.tenant_id)
       .eq("ativo", true)
       .maybeSingle();
     if (!tenant) return null;
@@ -73,8 +76,11 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<{ token: string; posicao: number }> => {
     const db = await admin();
+    const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+    const resolvido = await resolverTenantPorSlug(db, data.slug);
+    if (!resolvido) throw new Error("Negócio não encontrado.");
     const { data: resultado, error } = await db.rpc("entrar_na_fila_publica", {
-      _slug: data.slug,
+      _slug: resolvido.slug_atual,
       _nome: data.nome,
       _telefone: data.telefone,
       ...(data.servicoId ? { _servico_id: data.servicoId } : {}),

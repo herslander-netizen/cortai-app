@@ -235,6 +235,25 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const alterarLinkPublico = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      slug: z.string().trim().min(3, "Use pelo menos 3 caracteres.").max(60, "Use no máximo 60 caracteres.")
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use letras minúsculas, números e hífens."),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: slug, error } = await supabaseAdmin.rpc("alterar_slug_do_tenant", {
+      _tenant_id: tenantId,
+      _novo_slug: data.slug,
+    });
+    if (error) throw new Error(error.message);
+    return { slug };
+  });
+
 export const publicarPagina = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => editorSchema.parse(input))
