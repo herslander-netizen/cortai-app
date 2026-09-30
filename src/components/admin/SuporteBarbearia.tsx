@@ -304,8 +304,8 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar alteração deste item?</AlertDialogTitle>
             <AlertDialogDescription>
-              {itemParaAlternar?.nome} será {itemParaAlternar?.valor ? "ativado" : "desativado"} em nome da
-              barbearia. A ação ficará registrada na auditoria.
+              {itemParaAlternar?.nome} será {itemParaAlternar?.valor ? "ativado" : "desativado"} em
+              nome da barbearia. A ação ficará registrada na auditoria.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
