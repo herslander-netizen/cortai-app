@@ -3543,6 +3543,7 @@ export type Database = {
           comissao_percentual: number | null
           criado_em: string
           duracao_min: number
+          foto_url: string | null
           id: string
           nome: string
           ordem: number
@@ -3557,6 +3558,7 @@ export type Database = {
           comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
+          foto_url?: string | null
           id?: string
           nome: string
           ordem?: number
@@ -3571,6 +3573,7 @@ export type Database = {
           comissao_percentual?: number | null
           criado_em?: string
           duracao_min?: number
+          foto_url?: string | null
           id?: string
           nome?: string
           ordem?: number
