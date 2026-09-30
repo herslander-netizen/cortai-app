@@ -20,5 +20,5 @@
 - [x] Simplificar e reagrupar as configurações operacionais sem remover rotas ou funções
 - [x] Criar apresentação interna protegida, escondida da navegação e com retorno exato
 - [x] Validar apresentação e menus em 390px/1280px, TypeScript, testes e build
-- [ ] Refinar cabeçalho, ritmo das respostas e contraste do chat público em todos os estados
+- [x] Refinar cabeçalho, ritmo das respostas e contraste do chat público em todos os estados
 - [ ] Validar chat público em 390px/1280px, TypeScript, testes e build; não publicar
