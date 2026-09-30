@@ -1,3 +1,4 @@
+import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -52,6 +53,7 @@ import {
 } from "@/lib/whatsapp.functions";
 
 export const Route = createFileRoute("/barbeiro/cortai")({
+  beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "secretaria_whatsapp"),
   ssr: false,
   validateSearch: (
     search: Record<string, unknown>,

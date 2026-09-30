@@ -69,7 +69,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           setErro(null);
           setStatus(null);
           try {
-            const r = await salvar({ data: { tenantId, motivo, campos: { ...form, loja_ativa: loja, plano: plano as "essencial" | "pro" | "studio" } } });
+            const r = await salvar({ data: { tenantId, motivo, campos: { ...form, loja_ativa: loja, plano: plano as "essencial" | "pro" | "conecta" | "studio" } } });
             await query.refetch();
             setStatus(r.alteracoes ? `${r.alteracoes} campo(s) atualizado(s).` : "Nada mudou.");
           } catch (e) {
@@ -95,8 +95,9 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           Plano
           <select value={plano} onChange={(e) => setPlano(e.target.value)} className="mt-1 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper">
             <option value="essencial">Essencial</option>
-            <option value="pro">Pro</option>
-            <option value="studio">Studio</option>
+            <option value="pro">Profissional</option>
+            <option value="conecta">Conecta</option>
+            <option value="studio">Equipe</option>
           </select>
         </label>
 
