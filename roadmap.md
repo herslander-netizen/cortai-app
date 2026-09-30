@@ -1,3 +1,4 @@
 - [x] Auditar e completar a barbearia demo existente sem recriar tenant
 - [x] Validar acesso, isolamento, fluxo público, painel e responsividade
 - [x] Rodar testes, typecheck e build; não publicar
+- [ ] Refinar sistema visual de todos os chats (novo fundo, ChatShell, cards contextuais, personalização)
