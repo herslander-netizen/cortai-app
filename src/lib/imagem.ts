@@ -16,7 +16,10 @@ export async function comprimirImagem(
       i.onerror = () => falha(new Error("imagem inválida"));
       i.src = url;
     });
-    const escala = Math.min(1, opcoes.maxLado / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+    const escala = Math.min(
+      1,
+      opcoes.maxLado / Math.max(img.naturalWidth || 1, img.naturalHeight || 1),
+    );
     const w = Math.max(1, Math.round(img.naturalWidth * escala));
     const h = Math.max(1, Math.round(img.naturalHeight * escala));
     const canvas = document.createElement("canvas");
@@ -26,7 +29,9 @@ export async function comprimirImagem(
     if (!ctx) return file;
     ctx.drawImage(img, 0, 0, w, h);
     const tipo = opcoes.transparente ? "image/webp" : "image/jpeg";
-    const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, tipo, opcoes.qualidade ?? 0.85));
+    const blob = await new Promise<Blob | null>((ok) =>
+      canvas.toBlob(ok, tipo, opcoes.qualidade ?? 0.85),
+    );
     if (!blob) return file;
     return blob.size < file.size || escala < 1 ? blob : file;
   } catch {

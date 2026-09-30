@@ -231,7 +231,8 @@ export function ManagementHeader() {
     staleTime: 60_000,
     enabled: aberto,
   });
-  const operacaoAberta = agenda ? !horarioDoDia(hoje, agenda.horarios).fechado : null;
+  const horarioDeHoje = agenda ? horarioDoDia(hoje, agenda.horarios) : null;
+  const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));

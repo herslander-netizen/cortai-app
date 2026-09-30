@@ -44,7 +44,17 @@ import { termos } from "@/lib/segmentos";
 import { comprimirImagem } from "@/lib/imagem";
 
 /** Atalhos de cor (valores escolhidos pelo dono, não tokens de interface). */
-const PALETA_RAPIDA = ["#1B2A4A", "#2F5BEA", "#E85A8A", "#111110", "#F4F5F2", "#FFFFFF", "#C9A96A", "#19C37D", "#B4533C"];
+const PALETA_RAPIDA = [
+  "#1B2A4A",
+  "#2F5BEA",
+  "#E85A8A",
+  "#111110",
+  "#F4F5F2",
+  "#FFFFFF",
+  "#C9A96A",
+  "#19C37D",
+  "#B4533C",
+];
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -199,7 +209,8 @@ function Editor({
         return;
       }
       const tipo = blob.type || file.type;
-      const extension = tipo.split("/")[1]?.replace("jpeg", "jpg").replace("svg+xml", "svg") ?? "jpg";
+      const extension =
+        tipo.split("/")[1]?.replace("jpeg", "jpg").replace("svg+xml", "svg") ?? "jpg";
       const path = `${initial.id}/${kind}-${Date.now()}.${extension}`;
       const { error } = await supabase.storage
         .from("tenant-logos")

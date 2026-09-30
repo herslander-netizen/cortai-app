@@ -38,7 +38,13 @@ export type GradeDoDia = {
   fecha: string;
   duracaoMin: number;
   passoMin: number;
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; profissional_ids: string[] | null }[];
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    profissional_ids: string[] | null;
+  }[];
   profissionais: { id: string; nome: string }[];
   slots: SlotDaGrade[];
 };
@@ -54,7 +60,11 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        dia: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null),
+        dia: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable()
+          .default(null),
         servicoId: z.string().uuid().nullable().default(null),
         profissionalId: z.string().uuid().nullable().default(null),
       })
@@ -73,7 +83,12 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .eq("ativo", true)
         .order("ordem"),
-      db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
+      db
+        .from("profissionais")
+        .select("id, nome")
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true)
+        .order("nome"),
     ]);
 
     const hoje = hojeNoFuso(regras.fuso);
@@ -82,10 +97,19 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
 
     const servicos = (servicosRes.data ?? []) as GradeDoDia["servicos"];
     const todos = profRes.data ?? [];
-    const servico = (data.servicoId ? servicos.find((s) => s.id === data.servicoId) : servicos[0]) ?? null;
+    const servico =
+      (data.servicoId ? servicos.find((s) => s.id === data.servicoId) : servicos[0]) ?? null;
     const profissionais = profissionaisDoServico(servico, todos);
     const duracaoMin = servico?.duracao_min ?? 30;
-    const base = { dia, hoje, dias, duracaoMin, passoMin: regras.passoMin, servicos, profissionais };
+    const base = {
+      dia,
+      hoje,
+      dias,
+      duracaoMin,
+      passoMin: regras.passoMin,
+      servicos,
+      profissionais,
+    };
 
     const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso);
     if (!servico || grade.fechado) {
@@ -103,9 +127,10 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       .gt("fim", inicioJanela);
     const ocupados = (ocupadosRaw ?? []) as (Ocupado & { clientes?: { nome?: string } | null })[];
 
-    const escolhido = data.profissionalId && profissionais.some((p) => p.id === data.profissionalId)
-      ? data.profissionalId
-      : "qualquer";
+    const escolhido =
+      data.profissionalId && profissionais.some((p) => p.id === data.profissionalId)
+        ? data.profissionalId
+        : "qualquer";
     const agora = Date.now();
     const { opcoes } = horariosDisponiveis({
       dia,
@@ -115,7 +140,10 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       horarios: regras.horarios,
       fuso: regras.fuso,
       ocupados,
-      regras: { antecedenciaMin: regras.antecedenciaMin, intervaloEntreMin: regras.intervaloEntreMin },
+      regras: {
+        antecedenciaMin: regras.antecedenciaMin,
+        intervaloEntreMin: regras.intervaloEntreMin,
+      },
       agora,
       passoMin: regras.passoMin,
     });

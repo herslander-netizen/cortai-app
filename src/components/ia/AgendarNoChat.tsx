@@ -29,7 +29,11 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
   const [dia, setDia] = useState<string | null>(null);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profissionalId, setProfissionalId] = useState<string | null>(null);
-  const [escolhido, setEscolhido] = useState<{ iso: string; label: string; profId: string | null } | null>(null);
+  const [escolhido, setEscolhido] = useState<{
+    iso: string;
+    label: string;
+    profId: string | null;
+  } | null>(null);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -45,7 +49,11 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
   });
 
   const dias = useMemo(
-    () => (grade.data?.dias ?? []).map((iso, i) => ({ iso, rotulo: rotuloDoDia(iso, grade.data!.hoje, i) })),
+    () =>
+      (grade.data?.dias ?? []).map((iso, i) => ({
+        iso,
+        rotulo: rotuloDoDia(iso, grade.data!.hoje, i),
+      })),
     [grade.data],
   );
   const diaAtivo = dia ?? grade.data?.dia ?? null;
@@ -54,7 +62,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
   const profissionais = grade.data?.profissionais ?? [];
   // Sem escolha explícita = "qualquer": o motor oficial define o profissional do horário.
   const profissionalAtivo =
-    (profissionalId && profissionais.some((p) => p.id === profissionalId) ? profissionalId : null) ??
+    (profissionalId && profissionais.some((p) => p.id === profissionalId)
+      ? profissionalId
+      : null) ??
     escolhido?.profId ??
     null;
 
@@ -134,7 +144,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setEscolhido(null);
             }}
             className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs ${
-              servicoAtivo === s.id ? "border-gold bg-gold-soft text-paper" : "border-line2 text-mute"
+              servicoAtivo === s.id
+                ? "border-gold bg-gold-soft text-paper"
+                : "border-line2 text-mute"
             }`}
           >
             <span className="block font-semibold text-paper">{s.nome}</span>
@@ -192,7 +204,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setEscolhido(null);
             }}
             className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs ${
-              diaAtivo === d.iso ? "border-gold bg-gold text-ink font-semibold" : "border-line2 text-mute"
+              diaAtivo === d.iso
+                ? "border-gold bg-gold text-ink font-semibold"
+                : "border-line2 text-mute"
             }`}
           >
             {d.rotulo}
