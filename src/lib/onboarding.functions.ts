@@ -133,7 +133,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     ]);
 
     const tenant = tenantRes.data;
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
 
     const segmento = segmentoValido(tenant.segmento);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
@@ -412,7 +412,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
       ]);
 
     const tenant = tenantRes.data;
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
 
     const segmento = segmentoValido((tenant as Record<string, unknown>)["segmento"]);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length

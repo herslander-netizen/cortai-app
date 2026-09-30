@@ -211,7 +211,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");
     const janelaDias = janelaValida(tenant.janela_agendamento_dias);
     if (inicio.getTime() > Date.now() + janelaDias * 24 * 60 * 60 * 1000) {
-      throw new Error(`Esta barbearia agenda com até ${janelaDias} dias de antecedência. Escolha uma data mais próxima.`);
+      throw new Error(`Este negócio agenda com até ${janelaDias} dias de antecedência. Escolha uma data mais próxima.`);
     }
 
     const [{ data: servico }, { data: profissional }] = await Promise.all([
@@ -328,7 +328,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         if (erroLimpeza) console.error("[agendamento-publico] ficha órfã não removida", clienteId, erroLimpeza.message);
       }
       if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser reservado, escolha outro");
-      if (error.message.includes("fora do horario")) throw new Error("Esse horário está fora do funcionamento da barbearia.");
+      if (error.message.includes("fora do horario")) throw new Error("Esse horário está fora do funcionamento do negócio.");
       if (error.message.includes("fora do periodo")) throw new Error("Escolha uma data mais próxima.");
       throw new Error("Não foi possível concluir o agendamento agora.");
     }

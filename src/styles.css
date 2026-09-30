@@ -15,7 +15,7 @@
   --radius-xl: 14px;
 
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Barlow Condensed", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
   /* Brand tokens */
   --color-ink: var(--ink);

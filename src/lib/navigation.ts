@@ -11,5 +11,5 @@ export function rotuloDoPapel(papel: string | null | undefined) {
   if (papel === "gerente") return "Admin/Gerente";
   if (papel === "barbeiro") return "Profissional/Barbeiro";
   if (papel === "recepcao") return "Recepção/Atendimento";
-  return "Equipe da barbearia";
+  return "Equipe do negócio";
 }

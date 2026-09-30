@@ -1,6 +1,6 @@
 /** Nomes das formas de pagamento mostradas ao cliente — fonte única. */
 const ROTULO_FORMA: Record<string, string> = {
-  balcao: "Pagar na barbearia",
+  balcao: "Pagar no local",
   saldo: "Saldo da carteira",
   pix: "Pix",
   credito: "Crédito da carteira",
@@ -10,5 +10,5 @@ const ROTULO_FORMA: Record<string, string> = {
 };
 
 export function rotuloForma(forma: string | null | undefined) {
-  return ROTULO_FORMA[forma ?? ""] ?? "Pagamento na barbearia";
+  return ROTULO_FORMA[forma ?? ""] ?? "Pagamento no local";
 }

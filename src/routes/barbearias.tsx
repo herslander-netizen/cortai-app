@@ -8,13 +8,13 @@ import { Signature } from "@/components/layout/Signature";
 export const Route = createFileRoute("/barbearias")({
   head: () => ({
     meta: [
-      { title: "Encontrar uma barbearia — Cortaí" },
+      { title: "Encontrar um negócio de Beleza — Cortaí" },
       {
         name: "description",
-        content: "Busque sua barbearia pelo nome ou endereço e agende seu horário em poucos toques no Cortaí.",
+        content: "Busque um negócio pelo nome ou endereço e agende seu horário em poucos toques no Cortaí.",
       },
-      { property: "og:title", content: "Encontrar uma barbearia — Cortaí" },
-      { property: "og:description", content: "Busque sua barbearia e agende seu horário em poucos toques." },
+      { property: "og:title", content: "Encontrar um negócio de Beleza — Cortaí" },
+      { property: "og:description", content: "Busque um negócio e agende seu horário em poucos toques." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { property: "og:url", content: "https://cortai.dev/barbearias" },
