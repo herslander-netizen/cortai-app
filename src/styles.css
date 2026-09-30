@@ -71,29 +71,29 @@
   --radius: 14px;
   --tabbar-height: 72px;
 
-  /* Grafite + azul + rosa. --gold permanece como alias azul de compatibilidade. */
-  --identity-accent: #6a9eff;
-  --identity-accent-light: #0068fe;
-  --identity-secondary: #f05f96;
-  --identity-secondary-light: #d11a63;
-  --identity-primary: #3772d6;
-  --identity-secondary-strong: #d71c65;
-  --identity-deep: #17181b;
-  --identity-graphite: #17181b;
-  --identity-muted: #62625e;
-  --identity-off-white: #f5f4f0;
+  /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
+  --identity-accent: #00b7f4;
+  --identity-accent-light: #087cf0;
+  --identity-secondary: #ff1670;
+  --identity-secondary-light: #d90b58;
+  --identity-primary: #087cf0;
+  --identity-secondary-strong: #ff1670;
+  --identity-deep: #021a46;
+  --identity-graphite: #021a46;
+  --identity-muted: #5d6f89;
+  --identity-off-white: #f7faff;
   --identity-white: #ffffff;
-  --identity-border: #dedcd5;
-  --grafite-ink: #17181b;
-  --grafite-surface: #1f2024;
-  --grafite-raised: #282a2e;
-  --grafite-paper: #eeece7;
-  --grafite-muted: #a3a3a9;
-  --grafite-muted-2: #909097;
-  --grafite-line: #303237;
-  --grafite-line-2: #41434a;
-  --grafite-primary: #426aa2;
-  --grafite-accent: #88ade0;
+  --identity-border: #d9e3f0;
+  --grafite-ink: #021a46;
+  --grafite-surface: #08275a;
+  --grafite-raised: #0d3168;
+  --grafite-paper: #f7faff;
+  --grafite-muted: #a9bad3;
+  --grafite-muted-2: #879dbd;
+  --grafite-line: #123966;
+  --grafite-line-2: #174478;
+  --grafite-primary: #087cf0;
+  --grafite-accent: #00b7f4;
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -115,11 +115,11 @@
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
-  --landing-light-surface: #f5f4f0;
-  --landing-light-ink: #1b1c1f;
-  --landing-light-muted: #62625e;
-  --landing-light-line: #dedcd5;
-  --landing-light-gold: #1653a1;
+  --landing-light-surface: #f7faff;
+  --landing-light-ink: #021a46;
+  --landing-light-muted: #5d6f89;
+  --landing-light-line: #d9e3f0;
+  --landing-light-gold: #087cf0;
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
@@ -183,12 +183,12 @@
 :root[data-identidade="moderno"].light {
   --ink: var(--identity-off-white);
   --ink2: var(--identity-white);
-  --ink3: #eceae4;
-  --paper: #1b1c1f;
+  --ink3: #eaf2fb;
+  --paper: #021a46;
   --mute: var(--identity-muted);
-  --mute2: #6a6a65;
+  --mute2: #6d7f99;
   --line: var(--identity-border);
-  --line2: #cac8c0;
+  --line2: #bfd0e4;
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -618,12 +618,12 @@
   background: var(--choice-accent);
 }
 [data-identity-choice="moderno"] .identity-swatch {
-  background: #1653a1;
+  background: #00b7f4;
 }
 [data-identity-choice="moderno"] .identity-swatch::after {
   position: absolute;
   inset: 0 0 0 50%;
-  background: #c41f61;
+  background: #ff1670;
   content: "";
 }
 [data-identity-choice="rose"] .identity-swatch {
@@ -651,7 +651,7 @@
   position: relative;
   display: inline-block;
   flex-shrink: 0;
-  aspect-ratio: 1296 / 383;
+  aspect-ratio: 3 / 1;
 }
 .brand-logo-auto > img {
   position: absolute;
