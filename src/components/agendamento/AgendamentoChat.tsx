@@ -255,8 +255,8 @@ export function AgendamentoChat({
                   onClick={() => {
                     setProfissionalId("qualquer");
                     setProfissionalEscolhido(true);
-                      setDia(null);
-                      setDiaEscolhido(false);
+                    setDia(null);
+                    setDiaEscolhido(false);
                   }}
                 >
                   <UserRound />

@@ -102,15 +102,18 @@
 - [x] Validar raiz/login, rotas públicas, contexto, booking, conflito, manual, permissões, mobile/desktop, TypeScript, testes e build
 
 ## Etapa 1 — Fluxo do cliente
+
 - [x] Início mostra o próximo corte real
 - [x] Estados com ícone+texto+cor (Início e Meus horários)
 - [x] Confirmação com saídas: Meus horários / Agendar outro / Início
 - [x] Cliente de teste criado e fluxo validado na barbearia de demonstração
 
 ## Visual
+
 - [x] Tela "Qual é o seu negócio?" (/comecar segmento): logo menor no topo, layout mais corporativo e bonito
 
 ## Painel de personalização (/barbeiro/marca)
+
 - [x] Corrigir tela quebrando com "Entre como dono" por dados antigos sem cor (fallbacks no schema)
 - [x] Corrigir chaves React duplicadas nas amostras de cor
 - [x] Validar no navegador: abre sem "Entre como dono", amostras e prévia de cor íntegras
@@ -125,6 +128,7 @@
 - [ ] Barbearia "Bbbh" sem horários: fica fechada até o dono configurar (decisão do usuário)
 
 ## Consolidação 30/09
+
 - [x] Chat CortAI usa o motor oficial de disponibilidade (fuso, passo, regras, profissional do serviço)
 - [x] Cabeçalho decide "Aberta/Fechada hoje" pelo fuso da barbearia
 - [x] Botão principal da agenda sem seleção usa tesoura
@@ -133,6 +137,7 @@
 - [ ] Compactação dos cabeçalhos por tela — aguarda apontamento das telas específicas
 
 ## Revisão pré-produção 30/09
+
 - [x] "Hoje"/"mês" no servidor (painel, caixa, financeiro, crescimento, CortAI, lista de atendimentos, conflito do dia) no fuso da barbearia
 - [x] Comissões: períodos no fuso da barbearia
 - [x] Lista "Passados" volta a mostrar atendimentos finalizados (estados legados removidos)
