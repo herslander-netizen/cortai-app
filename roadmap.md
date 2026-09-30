@@ -153,3 +153,8 @@
 - [x] Auditar onboarding, páginas públicas, booking, painel, CortAI, WhatsApp, notificações, SEO, assets, mocks e defaults
 - [ ] Validar um tenant barbearia e um tenant de outro segmento de Beleza em 390px e 1280px
 - [x] Classificar os termos de barbearia restantes e executar typecheck, testes e build sem publicar; lint geral segue bloqueado por passivo preexistente
+
+## Arquivos oficiais de marca
+
+- [x] Aplicar o símbolo enviado ao favicon e aos ícones instaláveis do aplicativo
+- [x] Aplicar a capa enviada ao compartilhamento em redes sociais no formato 1200×630
