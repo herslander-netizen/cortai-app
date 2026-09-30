@@ -434,7 +434,7 @@ function ConfigurarPage() {
                   value={valorWhatsapp}
                   onChange={(e) => setWhatsapp(mascaraTelefone(e.target.value))}
                   inputMode="tel"
-              autoComplete="tel"
+                  autoComplete="tel"
                   placeholder="(11) 90000-0000"
                   className={campo}
                 />

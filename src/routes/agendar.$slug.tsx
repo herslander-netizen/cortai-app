@@ -632,7 +632,11 @@ function AgendamentoPublico() {
               </div>
               {data.tenant.usaListaDeEspera ? (
                 <Button asChild variant="ghost" className="mt-3 h-12 w-full">
-                  <a href={`/app/espera?b=${encodeURIComponent(data.tenant.slug)}${servicoId ? `&servico=${servicoId}` : ""}${dia ? `&dia=${dia}` : ""}`}>Agenda cheia? Entrar na lista de espera</a>
+                  <a
+                    href={`/app/espera?b=${encodeURIComponent(data.tenant.slug)}${servicoId ? `&servico=${servicoId}` : ""}${dia ? `&dia=${dia}` : ""}`}
+                  >
+                    Agenda cheia? Entrar na lista de espera
+                  </a>
                 </Button>
               ) : null}
             </div>
