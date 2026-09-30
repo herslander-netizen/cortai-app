@@ -41,7 +41,11 @@ export async function recursoLiberado(
   tenantId: string,
   chave: ChaveDeRecurso,
 ): Promise<{ liberado: boolean; plano: string }> {
-  const { data: tenant } = await db.from("tenants").select("plano").eq("id", tenantId).maybeSingle();
+  const { data: tenant } = await db
+    .from("tenants")
+    .select("plano")
+    .eq("id", tenantId)
+    .maybeSingle();
   const plano = (tenant?.plano as string) ?? "essencial";
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: regra } = await supabaseAdmin
@@ -83,6 +87,8 @@ export async function exigirAgendamentoPeloCliente(tenantId: string) {
     _chave: "secretaria_whatsapp",
   });
   if (!error && data === false) {
-    throw new Error("Este negócio ainda não recebe agendamentos online. Fale direto com o negócio para marcar.");
+    throw new Error(
+      "Este negócio ainda não recebe agendamentos online. Fale direto com o negócio para marcar.",
+    );
   }
 }

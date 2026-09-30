@@ -15,9 +15,15 @@ export const Route = createFileRoute("/barbeiro/plano")({
   head: () => ({
     meta: [
       { title: "Plano do negócio — Cortaí Gestão" },
-      { name: "description", content: "Escolha o plano e veja exatamente o que está liberado para o seu negócio." },
+      {
+        name: "description",
+        content: "Escolha o plano e veja exatamente o que está liberado para o seu negócio.",
+      },
       { property: "og:title", content: "Plano do negócio — Cortaí" },
-      { property: "og:description", content: "O plano decide o que aparece no painel do seu negócio." },
+      {
+        property: "og:description",
+        content: "O plano decide o que aparece no painel do seu negócio.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -57,7 +63,10 @@ function PlanoPage() {
   }
 
   return (
-    <Screen title="Plano do negócio" subtitle="WhatsApp, Secretária e agendamento pelo cliente fazem parte do Conecta e do Equipe.">
+    <Screen
+      title="Plano do negócio"
+      subtitle="WhatsApp, Secretária e agendamento pelo cliente fazem parte do Conecta e do Equipe."
+    >
       {isLoading || !data ? (
         <EsqueletoLista linhas={3} />
       ) : (
@@ -67,11 +76,22 @@ function PlanoPage() {
             precos={Object.fromEntries(data.planos.map((p) => [p.chave, p.precoMensalCentavos]))}
             acao={(plano) =>
               plano.chave === data.atual ? (
-                <Button variant="ghost" type="button" className="btn-secondary w-full py-3" onClick={() => void navigate({ to: "/barbeiro/configurar" })}>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="btn-secondary w-full py-3"
+                  onClick={() => void navigate({ to: "/barbeiro/configurar" })}
+                >
                   Continuar a configuração
                 </Button>
               ) : data.planos.some((p) => p.chave === plano.chave) ? (
-                <Button variant="ghost" type="button" className="btn-primary w-full py-3" disabled={!data.podeTrocar || salvando !== null} onClick={() => void selecionar(plano.chave)}>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="btn-primary w-full py-3"
+                  disabled={!data.podeTrocar || salvando !== null}
+                  onClick={() => void selecionar(plano.chave)}
+                >
                   {salvando === plano.chave ? "Aplicando…" : `Escolher ${plano.nome}`}
                 </Button>
               ) : null

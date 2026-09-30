@@ -32,7 +32,12 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     nome: "Conecta",
     precoCentavos: 3990,
     herda: "Tudo do Profissional",
-    itens: ["Secretária Cortaí", "Agendamento pelo cliente", "WhatsApp", "Confirmações automáticas"],
+    itens: [
+      "Secretária Cortaí",
+      "Agendamento pelo cliente",
+      "WhatsApp",
+      "Confirmações automáticas",
+    ],
     destaque: "Inclui WhatsApp e automações",
   },
   {
@@ -40,7 +45,12 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     nome: "Equipe",
     precoCentavos: 4990,
     herda: "Tudo do Conecta",
-    itens: ["Gestão avançada de equipe", "Permissões", "Visão gerencial", "Recursos administrativos"],
+    itens: [
+      "Gestão avançada de equipe",
+      "Permissões",
+      "Visão gerencial",
+      "Recursos administrativos",
+    ],
   },
 ] as const;
 

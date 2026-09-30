@@ -30,7 +30,11 @@ export function TabelaDePlanos({
           >
             <div className="planos-topo">
               <h3>{plano.nome}</h3>
-              {ehAtual ? <span className="planos-selo">Seu plano</span> : plano.destaque ? <span className="planos-selo">{plano.destaque}</span> : null}
+              {ehAtual ? (
+                <span className="planos-selo">Seu plano</span>
+              ) : plano.destaque ? (
+                <span className="planos-selo">{plano.destaque}</span>
+              ) : null}
             </div>
             <p className="planos-preco">
               <small>R$</small> {precoComercial(preco)} <span>/mês</span>
