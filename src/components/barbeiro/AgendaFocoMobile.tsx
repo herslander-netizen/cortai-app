@@ -86,7 +86,14 @@ function minutosAte(iso: string, agora: number) {
 
 const TERMINAIS = new Set(["cancelado", "remarcado", "nao_compareceu", "finalizado"]);
 
-type EstadoCockpit = "sem_atendimento" | "chegou" | "atendimento" | "finalizando" | "finalizado" | "atrasado" | "encaixe";
+type EstadoCockpit =
+  | "sem_atendimento"
+  | "chegou"
+  | "atendimento"
+  | "finalizando"
+  | "finalizado"
+  | "atrasado"
+  | "encaixe";
 
 function estadoDoCockpit(item: AgendaItem | undefined, agora: number): EstadoCockpit {
   if (!item) return "sem_atendimento";
@@ -125,7 +132,10 @@ export function AgendaFocoMobile(props: Props) {
   const estado = estadoDoCockpit(principal, props.agora);
   const proximos = operacionais.filter((item) => item.id !== principal?.id).slice(0, 3);
   const decorrido = ativo
-    ? Math.max(0, Math.floor((props.agora - new Date(ativo.startedAt ?? ativo.inicio).getTime()) / 60_000))
+    ? Math.max(
+        0,
+        Math.floor((props.agora - new Date(ativo.startedAt ?? ativo.inicio).getTime()) / 60_000),
+      )
     : 0;
   const ate = principal ? minutosAte(principal.inicio, props.agora) : null;
   const desabilitado = !props.online || props.ocupado;
@@ -154,29 +164,55 @@ export function AgendaFocoMobile(props: Props) {
 
       <div className="modo-foco-corpo">
         <div className="modo-foco-data">
-          <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => props.onDia(somarDias(props.dia, -1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Dia anterior"
+            onClick={() => props.onDia(somarDias(props.dia, -1))}
+          >
             <ChevronLeft />
           </Button>
           <div className="min-w-0 text-center">
             <strong>{props.hoje ? "Hoje" : dataCurta(props.dia)}</strong>
             {props.hoje ? <span>{dataCurta(props.dia)}</span> : null}
           </div>
-          <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => props.onDia(somarDias(props.dia, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Próximo dia"
+            onClick={() => props.onDia(somarDias(props.dia, 1))}
+          >
             <ChevronRight />
           </Button>
         </div>
 
         {props.profissionais.length > 1 ? (
           <div className="modo-foco-profissionais sem-barra" aria-label="Profissional">
-            <Button variant="ghost" size="sm" className={props.profissional === null ? "agenda-chip-ativo" : ""} onClick={() => props.onProfissional(null)}>Todos</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={props.profissional === null ? "agenda-chip-ativo" : ""}
+              onClick={() => props.onProfissional(null)}
+            >
+              Todos
+            </Button>
             {props.profissionais.map((nome) => (
-              <Button key={nome} variant="ghost" size="sm" className={props.profissional === nome ? "agenda-chip-ativo" : ""} onClick={() => props.onProfissional(nome)}>{nome}</Button>
+              <Button
+                key={nome}
+                variant="ghost"
+                size="sm"
+                className={props.profissional === nome ? "agenda-chip-ativo" : ""}
+                onClick={() => props.onProfissional(nome)}
+              >
+                {nome}
+              </Button>
             ))}
           </div>
         ) : null}
 
         <p className="modo-foco-resumo">
-          {resumo.restantes} {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
+          {resumo.restantes}{" "}
+          {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
           {resumo.faturado ? ` · ${brl(resumo.faturado)}` : ""}
         </p>
 
@@ -186,12 +222,16 @@ export function AgendaFocoMobile(props: Props) {
           <div className="modo-foco-vazio" role="alert">
             <strong>Não foi possível carregar a agenda</strong>
             <span>{props.erro}</span>
-            <Button variant="outline" onClick={props.onTentarNovamente}>Tentar novamente</Button>
+            <Button variant="outline" onClick={props.onTentarNovamente}>
+              Tentar novamente
+            </Button>
           </div>
         ) : (
           <main className="modo-foco-cockpit">
             <div className="modo-foco-estado" aria-live="polite">
-              <p className={`modo-foco-rotulo modo-foco-rotulo-${estado}`}>{ROTULO_ESTADO[estado]}</p>
+              <p className={`modo-foco-rotulo modo-foco-rotulo-${estado}`}>
+                {ROTULO_ESTADO[estado]}
+              </p>
               <p className="modo-foco-contexto">{contexto}</p>
 
               {principal ? (
@@ -200,37 +240,63 @@ export function AgendaFocoMobile(props: Props) {
                     <time dateTime={principal.inicio}>{hora(principal.inicio, props.fuso)}</time>
                     <div className="min-w-0">
                       <h1>{principal.cliente}</h1>
-                      <p>{principal.servico} · {principal.duracaoMin} min</p>
+                      <p>
+                        {principal.servico} · {principal.duracaoMin} min
+                      </p>
                       {principal.encaixe ? <span>Encaixe</span> : null}
                     </div>
                   </div>
 
                   {principal.ficha ? (
-                    <button type="button" className="modo-foco-observacao" onClick={() => props.onMaisOpcoes(principal)}>
+                    <button
+                      type="button"
+                      className="modo-foco-observacao"
+                      onClick={() => props.onMaisOpcoes(principal)}
+                    >
                       <strong>Observação</strong>
                       <span>{principal.ficha}</span>
                     </button>
                   ) : null}
 
                   {estado === "atendimento" ? (
-                    <div className="modo-foco-cronometro" role="timer" aria-label={`${decorrido} minutos em atendimento`}>
-                      <span style={{ width: `${Math.min(100, (decorrido / Math.max(1, principal.duracaoMin)) * 100)}%` }} />
+                    <div
+                      className="modo-foco-cronometro"
+                      role="timer"
+                      aria-label={`${decorrido} minutos em atendimento`}
+                    >
+                      <span
+                        style={{
+                          width: `${Math.min(100, (decorrido / Math.max(1, principal.duracaoMin)) * 100)}%`,
+                        }}
+                      />
                     </div>
                   ) : null}
 
                   <div className="modo-foco-principal">
                     {principal.status === "agendado" ? (
-                      <Button size="lg" disabled={desabilitado} onClick={() => props.onChegou(principal)}>
+                      <Button
+                        size="lg"
+                        disabled={desabilitado}
+                        onClick={() => props.onChegou(principal)}
+                      >
                         <UserRoundCheck /> Cliente chegou
                       </Button>
                     ) : null}
                     {principal.status === "chegou" ? (
-                      <Button size="lg" disabled={desabilitado} onClick={() => props.onComecar(principal)}>
+                      <Button
+                        size="lg"
+                        disabled={desabilitado}
+                        onClick={() => props.onComecar(principal)}
+                      >
                         <Scissors /> Iniciar atendimento
                       </Button>
                     ) : null}
                     {principal.status === "na_cadeira" ? (
-                      <Button size="lg" disabled={desabilitado} onClick={() => props.onTerminar(principal)}>
+                      <Button
+                        size="lg"
+                        disabled={desabilitado}
+                        onClick={() => props.onTerminar(principal)}
+                      >
                         <Check /> Finalizar atendimento
                       </Button>
                     ) : null}
@@ -241,7 +307,9 @@ export function AgendaFocoMobile(props: Props) {
                       <MoreHorizontal /> Cliente e outras ações
                     </Button>
                     {principal.status === "na_cadeira" ? (
-                      <Button variant="ghost" onClick={() => props.onTerminar(principal)}>Abrir comanda</Button>
+                      <Button variant="ghost" onClick={() => props.onTerminar(principal)}>
+                        Abrir comanda
+                      </Button>
                     ) : null}
                   </div>
                 </>
@@ -251,7 +319,9 @@ export function AgendaFocoMobile(props: Props) {
                   <strong>Agenda livre</strong>
                   <span>{dataCurta(props.dia)}</span>
                   {props.onNovoAtendimento ? (
-                    <Button size="lg" onClick={props.onNovoAtendimento}><Plus /> Adicionar atendimento</Button>
+                    <Button size="lg" onClick={props.onNovoAtendimento}>
+                      <Plus /> Adicionar atendimento
+                    </Button>
                   ) : null}
                 </div>
               )}
@@ -263,7 +333,9 @@ export function AgendaFocoMobile(props: Props) {
                   <p>Próximos</p>
                   <span>Sequência do dia</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setAcoes(true)}><Plus /> Ações</Button>
+                <Button variant="ghost" size="sm" onClick={() => setAcoes(true)}>
+                  <Plus /> Ações
+                </Button>
               </div>
               {proximos.length ? (
                 <ol>
@@ -271,7 +343,10 @@ export function AgendaFocoMobile(props: Props) {
                     <li key={item.id}>
                       <button type="button" onClick={() => props.onMaisOpcoes(item)}>
                         <time>{hora(item.inicio, props.fuso)}</time>
-                        <span><strong>{item.cliente}</strong><small>{item.servico}</small></span>
+                        <span>
+                          <strong>{item.cliente}</strong>
+                          <small>{item.servico}</small>
+                        </span>
                         <StatusBadge status={item.status} />
                       </button>
                     </li>
@@ -291,16 +366,75 @@ export function AgendaFocoMobile(props: Props) {
       </div>
 
       <Sheet open={acoes} onOpenChange={setAcoes}>
-        <SheetContent side="bottom" className="mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-5">
+        <SheetContent
+          side="bottom"
+          className="mx-auto w-full max-w-[520px] rounded-t-xl border-line bg-ink2 px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-5"
+        >
           <SheetHeader className="pr-10 text-left">
             <SheetTitle className="text-paper">Ações da agenda</SheetTitle>
-            <SheetDescription className="text-mute">Somente o que ajuda no expediente.</SheetDescription>
+            <SheetDescription className="text-mute">
+              Somente o que ajuda no expediente.
+            </SheetDescription>
           </SheetHeader>
           <div className="mt-4 divide-y divide-line">
-            {props.onNovoAgendamento ? <Button variant="ghost" className="agenda-acao-lista" onClick={() => { setAcoes(false); props.onNovoAgendamento?.(); }}><CalendarPlus /><span><strong>Novo agendamento</strong><small>Marcar horário e profissional</small></span></Button> : null}
-            {props.onNovoAtendimento ? <Button variant="ghost" className="agenda-acao-lista" onClick={() => { setAcoes(false); props.onNovoAtendimento?.(); }}><Scissors /><span><strong>Encaixe</strong><small>Atender quem chegou sem marcar</small></span></Button> : null}
-            {props.fila && props.onChamarFila ? <Button variant="ghost" className="agenda-acao-lista" disabled={desabilitado} onClick={() => { setAcoes(false); props.onChamarFila?.(); }}><ListOrdered /><span><strong>Chamar lista de espera</strong><small>{props.fila} aguardando</small></span></Button> : null}
-            <Button asChild variant="ghost" className="agenda-acao-lista"><Link to="/barbeiro/produtos"><ShoppingBag /><span><strong>Venda rápida</strong><small>Produto ou pacote</small></span></Link></Button>
+            {props.onNovoAgendamento ? (
+              <Button
+                variant="ghost"
+                className="agenda-acao-lista"
+                onClick={() => {
+                  setAcoes(false);
+                  props.onNovoAgendamento?.();
+                }}
+              >
+                <CalendarPlus />
+                <span>
+                  <strong>Novo agendamento</strong>
+                  <small>Marcar horário e profissional</small>
+                </span>
+              </Button>
+            ) : null}
+            {props.onNovoAtendimento ? (
+              <Button
+                variant="ghost"
+                className="agenda-acao-lista"
+                onClick={() => {
+                  setAcoes(false);
+                  props.onNovoAtendimento?.();
+                }}
+              >
+                <Scissors />
+                <span>
+                  <strong>Encaixe</strong>
+                  <small>Atender quem chegou sem marcar</small>
+                </span>
+              </Button>
+            ) : null}
+            {props.fila && props.onChamarFila ? (
+              <Button
+                variant="ghost"
+                className="agenda-acao-lista"
+                disabled={desabilitado}
+                onClick={() => {
+                  setAcoes(false);
+                  props.onChamarFila?.();
+                }}
+              >
+                <ListOrdered />
+                <span>
+                  <strong>Chamar lista de espera</strong>
+                  <small>{props.fila} aguardando</small>
+                </span>
+              </Button>
+            ) : null}
+            <Button asChild variant="ghost" className="agenda-acao-lista">
+              <Link to="/barbeiro/produtos">
+                <ShoppingBag />
+                <span>
+                  <strong>Venda rápida</strong>
+                  <small>Produto ou pacote</small>
+                </span>
+              </Link>
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
