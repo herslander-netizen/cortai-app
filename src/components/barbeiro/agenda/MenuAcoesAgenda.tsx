@@ -3,7 +3,14 @@ import { CalendarPlus, Clock3, Scissors, ShoppingBag, UserRoundPlus, X } from "l
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 /** Menu único de ações da agenda (tela normal e Modo Foco). */
 export function MenuAcoesAgenda({
@@ -84,7 +91,9 @@ export function MenuAcoesAgenda({
         ) : null}
         <SheetHeader className="pr-10 text-left">
           <SheetTitle className="text-base text-paper">Ações da agenda</SheetTitle>
-          <SheetDescription className="text-xs text-mute">O que você precisa fazer agora?</SheetDescription>
+          <SheetDescription className="text-xs text-mute">
+            O que você precisa fazer agora?
+          </SheetDescription>
         </SheetHeader>
         <div
           ref={lista}
@@ -93,14 +102,25 @@ export function MenuAcoesAgenda({
           aria-label="Ações da agenda"
           onKeyDown={teclas}
         >
-          <Button variant="ghost" role="menuitem" className="agenda-acao-lista" onClick={escolher(onNovoAgendamento)}>
+          <Button
+            variant="ghost"
+            role="menuitem"
+            className="agenda-acao-lista"
+            onClick={escolher(onNovoAgendamento)}
+          >
             <CalendarPlus />
             <span>
               <strong>Novo agendamento</strong>
               <small>Marcar dia, horário e profissional</small>
             </span>
           </Button>
-          <Button variant="ghost" role="menuitem" className="agenda-acao-lista" disabled={!online} onClick={escolher(onEncaixe)}>
+          <Button
+            variant="ghost"
+            role="menuitem"
+            className="agenda-acao-lista"
+            disabled={!online}
+            onClick={escolher(onEncaixe)}
+          >
             <Scissors />
             <span>
               <strong>Encaixe</strong>
@@ -117,10 +137,19 @@ export function MenuAcoesAgenda({
             <UserRoundPlus />
             <span>
               <strong>Chamar próximo da fila</strong>
-              <small>{fila ? `${proximoDaFila ?? "Cliente"} está aguardando` : "Ninguém aguardando agora"}</small>
+              <small>
+                {fila
+                  ? `${proximoDaFila ?? "Cliente"} está aguardando`
+                  : "Ninguém aguardando agora"}
+              </small>
             </span>
           </Button>
-          <Button variant="ghost" role="menuitem" className="agenda-acao-lista" onClick={escolher(onBloquear)}>
+          <Button
+            variant="ghost"
+            role="menuitem"
+            className="agenda-acao-lista"
+            onClick={escolher(onBloquear)}
+          >
             <Clock3 />
             <span>
               <strong>Bloquear horário</strong>

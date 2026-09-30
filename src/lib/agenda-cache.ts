@@ -76,12 +76,13 @@ export function classificarErro(erro: unknown): TipoDeErro {
     erro instanceof Response
       ? erro.status
       : typeof (erro as { status?: unknown })?.status === "number"
-        ? ((erro as { status: number }).status)
+        ? (erro as { status: number }).status
         : null;
   if (status === 401 || status === 403) return "acesso";
   if (status !== null && status >= 500) return "servidor";
   const msg = erro instanceof Error ? erro.message : String(erro ?? "");
-  if (/unauthori|forbidden|\b40[13]\b|jwt|não autenticad|sessão expirada/i.test(msg)) return "acesso";
+  if (/unauthori|forbidden|\b40[13]\b|jwt|não autenticad|sessão expirada/i.test(msg))
+    return "acesso";
   if (/failed to fetch|networkerror|network request|load failed|fetch failed|timeout/i.test(msg))
     return "rede";
   if (/\b5\d\d\b|internal server|bad gateway|service unavailable/i.test(msg)) return "servidor";

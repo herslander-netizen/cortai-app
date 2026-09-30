@@ -355,7 +355,6 @@ export function AgendaFocoMobile(props: Props) {
           </main>
         )}
       </div>
-
     </section>
   );
 }

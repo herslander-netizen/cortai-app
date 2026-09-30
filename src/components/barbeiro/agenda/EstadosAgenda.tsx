@@ -21,7 +21,11 @@ export function FaixaConexao({
   fuso?: string;
 }) {
   const horaSalva = salvoEm
-    ? new Date(salvoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso })
+    ? new Date(salvoEm).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: fuso,
+      })
     : null;
   if (origem === "cache")
     return (
@@ -55,7 +59,13 @@ export function AgendaCarregando() {
   );
 }
 
-export function AgendaErro({ mensagem, onTentar }: { mensagem?: string | undefined; onTentar: () => void }) {
+export function AgendaErro({
+  mensagem,
+  onTentar,
+}: {
+  mensagem?: string | undefined;
+  onTentar: () => void;
+}) {
   return (
     <div className="agenda-estado" role="alert">
       <TriangleAlert aria-hidden />
@@ -68,7 +78,15 @@ export function AgendaErro({ mensagem, onTentar }: { mensagem?: string | undefin
   );
 }
 
-export function AgendaVazia({ titulo, texto, children }: { titulo: string; texto: string; children?: ReactNode }) {
+export function AgendaVazia({
+  titulo,
+  texto,
+  children,
+}: {
+  titulo: string;
+  texto: string;
+  children?: ReactNode;
+}) {
   return (
     <div className="agenda-estado">
       <Scissors aria-hidden />

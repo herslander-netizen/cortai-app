@@ -70,8 +70,12 @@ export function ListaAgenda({
                 {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
                 {atrasado ? <StatusBadge status="nao_compareceu" label="Atrasado" /> : null}
                 {item.encaixe ? <StatusBadge status="encaixe" /> : null}
-                {item.confirmadoEm && item.status === "agendado" ? <StatusBadge status="confirmado" label="Confirmou" /> : null}
-                {item.status !== "agendado" && item.status !== "na_cadeira" ? <StatusBadge status={item.status} /> : null}
+                {item.confirmadoEm && item.status === "agendado" ? (
+                  <StatusBadge status="confirmado" label="Confirmou" />
+                ) : null}
+                {item.status !== "agendado" && item.status !== "na_cadeira" ? (
+                  <StatusBadge status={item.status} />
+                ) : null}
               </div>
             </div>
             {atrasado ? (

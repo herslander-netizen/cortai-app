@@ -1,4 +1,12 @@
-import { ChevronLeft, ChevronRight, HelpCircle, ListOrdered, Lock, Maximize2, MoreHorizontal } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  HelpCircle,
+  ListOrdered,
+  Lock,
+  Maximize2,
+  MoreHorizontal,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { useGuia } from "@/components/guia/GuiaProvider";
@@ -51,7 +59,12 @@ export function CabecalhoAgenda({
     <header className="agenda-cabecalho-compacto agenda-cabecalho-unico">
       <h1 className="sr-only">Agenda</h1>
       <div className="agenda-cabecalho-linha">
-        <Button variant="ghost" size="icon" aria-label="Dia anterior" onClick={() => onDia(somarDias(dia, -1))}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Dia anterior"
+          onClick={() => onDia(somarDias(dia, -1))}
+        >
           <ChevronLeft />
         </Button>
         <Popover open={calendario} onOpenChange={setCalendario}>
@@ -77,7 +90,12 @@ export function CabecalhoAgenda({
             />
           </PopoverContent>
         </Popover>
-        <Button variant="ghost" size="icon" aria-label="Próximo dia" onClick={() => onDia(somarDias(dia, 1))}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Próximo dia"
+          onClick={() => onDia(somarDias(dia, 1))}
+        >
           <ChevronRight />
         </Button>
         <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -88,7 +106,12 @@ export function CabecalhoAgenda({
           ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Mais opções da agenda" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Mais opções da agenda"
+                className="relative"
+              >
                 <MoreHorizontal />
                 {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
               </Button>

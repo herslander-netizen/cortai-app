@@ -368,11 +368,7 @@ export function AgendaTimeline({
         aria-label="Timeline de atendimentos"
         onScroll={acompanharAgora}
       >
-        <div
-          className="agenda-timeline"
-          style={{ height: `${altura}px` }}
-          onClick={cliqueNoVazio}
-        >
+        <div className="agenda-timeline" style={{ height: `${altura}px` }} onClick={cliqueNoVazio}>
           {intervalo ? (
             <div
               className="agenda-timeline-intervalo"
@@ -388,7 +384,9 @@ export function AgendaTimeline({
           {toqueVazio !== null ? (
             <div
               className="agenda-timeline-toque"
-              style={{ top: `${(toqueVazio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(toqueVazio)}px` }}
+              style={{
+                top: `${(toqueVazio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(toqueVazio)}px`,
+              }}
               aria-hidden
             >
               + {horaMinuto(toqueVazio)}

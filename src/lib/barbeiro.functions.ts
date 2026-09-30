@@ -1544,11 +1544,13 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
         .gt("fim", inicio.toISOString())
         .limit(1);
       if (choques?.length) {
-        if (data.apenasVerificar) return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
+        if (data.apenasVerificar)
+          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
         throw new Error("Esse horário já está ocupado para este profissional.");
       }
     }
-    if (data.apenasVerificar) return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
+    if (data.apenasVerificar)
+      return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
     const { error } = await db
       .from("agendamentos")
       .update({

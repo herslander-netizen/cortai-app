@@ -100,7 +100,12 @@ export function useAgendaDia(dia: string) {
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "fila_de_espera", filter: `tenant_id=eq.${tenantId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "fila_de_espera",
+          filter: `tenant_id=eq.${tenantId}`,
+        },
         () => reagendar(false),
       )
       .subscribe((status) => setAoVivo(status === "SUBSCRIBED"));

@@ -27,7 +27,16 @@ export function ResumoDia({
 }) {
   const agora = useAgora();
   const r = resumoOperacional(itens);
-  const livres = contarLivres({ horarios, dia, fuso, itens, profissionalIds, passoMin, agora, ehHoje });
+  const livres = contarLivres({
+    horarios,
+    dia,
+    fuso,
+    itens,
+    profissionalIds,
+    passoMin,
+    agora,
+    ehHoje,
+  });
   const partes = [
     `${r.aFazer} a fazer`,
     r.emAtendimento ? `${r.emAtendimento} ${rotuloAtendimento.toLocaleLowerCase("pt-BR")}` : null,

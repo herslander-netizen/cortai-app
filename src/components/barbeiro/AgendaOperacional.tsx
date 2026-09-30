@@ -49,7 +49,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { getCapacidades } from "@/lib/capacidades.functions";
@@ -63,7 +69,11 @@ import {
 import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
 import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
 import { brl } from "@/lib/format";
-import { chamarProximoDaFila, desfazerInicioRapido, getOperacaoFila } from "@/lib/atendimento.functions";
+import {
+  chamarProximoDaFila,
+  desfazerInicioRapido,
+  getOperacaoFila,
+} from "@/lib/atendimento.functions";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 
 const AgendamentoManualLazy = lazy(() =>
@@ -73,10 +83,14 @@ const AtendimentoRapidoLazy = lazy(() =>
   import("@/components/barbeiro/AtendimentoRapido").then((m) => ({ default: m.AtendimentoRapido })),
 );
 const FechamentoComandaLazy = lazy(() =>
-  import("@/components/financeiro/FechamentoComanda").then((m) => ({ default: m.FechamentoComanda })),
+  import("@/components/financeiro/FechamentoComanda").then((m) => ({
+    default: m.FechamentoComanda,
+  })),
 );
 const PerfilClienteLazy = lazy(() =>
-  import("@/components/cliente-perfil/PerfilClienteSheet").then((m) => ({ default: m.PerfilClienteSheet })),
+  import("@/components/cliente-perfil/PerfilClienteSheet").then((m) => ({
+    default: m.PerfilClienteSheet,
+  })),
 );
 
 const DICA_TIMELINE = "cortai-agenda-dica-timeline";
@@ -98,7 +112,13 @@ function useEhDesktop() {
 function FolhaFila(props: {
   aberta: boolean;
   onAberta: (v: boolean) => void;
-  chegada: { id: string; cliente: string; clienteId: string | null; servico: string | null; criadoEm: string }[];
+  chegada: {
+    id: string;
+    cliente: string;
+    clienteId: string | null;
+    servico: string | null;
+    criadoEm: string;
+  }[];
   profissionais: { id: string; nome: string; livre: boolean }[] | null;
   profEscolhido: string | null;
   onProf: (id: string) => void;
@@ -110,10 +130,17 @@ function FolhaFila(props: {
   const agora = useAgora();
   return (
     <Sheet open={props.aberta} onOpenChange={props.onAberta}>
-      <SheetContent side="bottom" className="mx-auto max-h-[80dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink2 px-5 pt-5">
+      <SheetContent
+        side="bottom"
+        className="mx-auto max-h-[80dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink2 px-5 pt-5"
+      >
         <SheetHeader className="pr-10 text-left">
-          <SheetTitle className="text-base text-paper">Fila de chegada · {props.chegada.length}</SheetTitle>
-          <SheetDescription className="text-xs text-mute">Quem chegou sem horário, por ordem de chegada.</SheetDescription>
+          <SheetTitle className="text-base text-paper">
+            Fila de chegada · {props.chegada.length}
+          </SheetTitle>
+          <SheetDescription className="text-xs text-mute">
+            Quem chegou sem horário, por ordem de chegada.
+          </SheetDescription>
         </SheetHeader>
         <section aria-label="Fila de chegada" className="mt-3 pb-4">
           {props.chegada.length === 0 ? (
@@ -121,12 +148,21 @@ function FolhaFila(props: {
           ) : (
             <>
               <div className="mb-2 flex justify-end">
-                <Button size="sm" variant="outline" className="min-h-11" disabled={props.ocupado || !props.online} onClick={props.onChamar}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="min-h-11"
+                  disabled={props.ocupado || !props.online}
+                  onClick={props.onChamar}
+                >
                   <UserRoundPlus /> Chamar próximo
                 </Button>
               </div>
               {props.profissionais ? (
-                <div className="mb-2 flex flex-wrap gap-2" aria-label="Profissional que vai atender">
+                <div
+                  className="mb-2 flex flex-wrap gap-2"
+                  aria-label="Profissional que vai atender"
+                >
                   {props.profissionais.map((p) => (
                     <Button
                       variant="ghost"
@@ -143,7 +179,10 @@ function FolhaFila(props: {
               ) : null}
               <ol className="divide-y divide-line border-y border-line">
                 {props.chegada.map((f, i) => (
-                  <li key={f.id} className="grid min-h-14 grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-2">
+                  <li
+                    key={f.id}
+                    className="grid min-h-14 grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 py-2"
+                  >
                     <span className="text-sm font-extrabold text-mute">{i + 1}</span>
                     <div className="min-w-0">
                       {f.clienteId ? (
@@ -157,7 +196,9 @@ function FolhaFila(props: {
                       ) : (
                         <p className="agenda-nome text-sm text-paper">{f.cliente}</p>
                       )}
-                      <p className="truncate text-xs text-mute">{f.servico ?? "Serviço a definir"}</p>
+                      <p className="truncate text-xs text-mute">
+                        {f.servico ?? "Serviço a definir"}
+                      </p>
                     </div>
                     <span className="inline-flex items-center gap-1 text-xs font-semibold text-mute">
                       <Clock3 aria-hidden size={13} />
@@ -177,7 +218,9 @@ function FolhaFila(props: {
 export function AgendaOperacional() {
   const busca = useSearch({ strict: false });
   const acaoInicial =
-    busca["acao"] === "agendamento" || busca["acao"] === "atendimento" || busca["acao"] === "cliente"
+    busca["acao"] === "agendamento" ||
+    busca["acao"] === "atendimento" ||
+    busca["acao"] === "cliente"
       ? busca["acao"]
       : undefined;
   const mudarEstado = useServerFn(mudarEstadoAtendimento);
@@ -193,7 +236,9 @@ export function AgendaOperacional() {
   const [menuAberto, setMenuAberto] = useState(false);
   const [bloquearAberto, setBloquearAberto] = useState(false);
   const [focoTrancado, setFocoTrancado] = useState(false);
-  const [manualAberto, setManualAberto] = useState(acaoInicial === "agendamento" || acaoInicial === "cliente");
+  const [manualAberto, setManualAberto] = useState(
+    acaoInicial === "agendamento" || acaoInicial === "cliente",
+  );
   const [rapidoAberto, setRapidoAberto] = useState(acaoInicial === "atendimento");
   const [sugestaoFila, setSugestaoFila] = useState(false);
   const [perfil, setPerfil] = useState<string | null>(null);
@@ -241,7 +286,11 @@ export function AgendaOperacional() {
     return () => window.removeEventListener("popstate", voltar);
   }, []);
 
-  const capacidadesQ = useQuery({ queryKey: ["capacidades"], queryFn: () => getCapacidades(), staleTime: 300_000 });
+  const capacidadesQ = useQuery({
+    queryKey: ["capacidades"],
+    queryFn: () => getCapacidades(),
+    staleTime: 300_000,
+  });
   const focoNoPlano = capacidadesQ.data?.liberados["modo_foco"] !== false;
 
   function entrarNoModoFoco() {
@@ -262,14 +311,30 @@ export function AgendaOperacional() {
   const rotuloAtendimento = segmentoAgenda === "barbearia" ? "Na cadeira" : "Em atendimento";
   const passoMin = agenda.data?.passoMin ?? 30;
 
-  const filaQ = useQuery({ queryKey: ["agenda-fila"], queryFn: () => getOperacaoFila(), staleTime: 30_000, refetchOnWindowFocus: true });
-  const aReceberQ = useQuery({ queryKey: ["agenda-a-receber"], queryFn: () => getAguardandoPagamento(), staleTime: 30_000, refetchOnWindowFocus: true });
+  const filaQ = useQuery({
+    queryKey: ["agenda-fila"],
+    queryFn: () => getOperacaoFila(),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+  const aReceberQ = useQuery({
+    queryKey: ["agenda-a-receber"],
+    queryFn: () => getAguardandoPagamento(),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
   const [meuDiaAberto, setMeuDiaAberto] = useState(false);
-  const meuDiaQ = useQuery({ queryKey: ["agenda-meu-dia"], queryFn: () => getMeuDia(), staleTime: 60_000, enabled: ehHoje });
+  const meuDiaQ = useQuery({
+    queryKey: ["agenda-meu-dia"],
+    queryFn: () => getMeuDia(),
+    staleTime: 60_000,
+    enabled: ehHoje,
+  });
   const aReceber = aReceberQ.data ?? [];
   const chegada = filaQ.data?.chegada ?? [];
   const souRecepcao = Boolean(filaQ.data && !filaQ.data.meuProfissionalId);
-  const profPadrao = filaQ.data?.profissionais.find((p) => p.livre)?.id ?? filaQ.data?.profissionais[0]?.id ?? null;
+  const profPadrao =
+    filaQ.data?.profissionais.find((p) => p.livre)?.id ?? filaQ.data?.profissionais[0]?.id ?? null;
   const profEscolhido = profChamada ?? profPadrao;
 
   useEffect(() => {
@@ -285,7 +350,8 @@ export function AgendaOperacional() {
   }, [agenda.data?.fuso, dia, fuso]);
 
   // Link direto de aviso: /barbeiro/agenda?agendamento=<id> vai ao dia e abre o painel.
-  const alvoLink = typeof busca["agendamento"] === "string" ? (busca["agendamento"] as string) : null;
+  const alvoLink =
+    typeof busca["agendamento"] === "string" ? (busca["agendamento"] as string) : null;
   const linkTratado = useRef<string | null>(null);
   useEffect(() => {
     if (!alvoLink || linkTratado.current === alvoLink || !agenda.data) return;
@@ -305,7 +371,9 @@ export function AgendaOperacional() {
           linkTratado.current = alvoLink;
           return;
         }
-        const diaAlvo = new Intl.DateTimeFormat("en-CA", { timeZone: agenda.data?.fuso || "America/Sao_Paulo" }).format(new Date(data.inicio));
+        const diaAlvo = new Intl.DateTimeFormat("en-CA", {
+          timeZone: agenda.data?.fuso || "America/Sao_Paulo",
+        }).format(new Date(data.inicio));
         if (diaAlvo !== dia) setDia(diaAlvo);
         else linkTratado.current = alvoLink;
       });
@@ -322,9 +390,12 @@ export function AgendaOperacional() {
     (agenda.data?.itens ?? []).forEach((i) => {
       if (i.profissionalId) mapa.set(i.profissionalId, i.profissional);
     });
-    return [...mapa].map(([id, nome]) => ({ id, nome })).sort((a, b) => a.nome.localeCompare(b.nome));
+    return [...mapa]
+      .map(([id, nome]) => ({ id, nome }))
+      .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [agenda.data?.profissionais, agenda.data?.itens]);
-  const nomeDoProf = (id: string | null) => (id ? (profissionais.find((p) => p.id === id)?.nome ?? null) : null);
+  const nomeDoProf = (id: string | null) =>
+    id ? (profissionais.find((p) => p.id === id)?.nome ?? null) : null;
   const meuId = filaQ.data?.meuProfissionalId ?? null;
 
   // Barbeiro vê a própria agenda por padrão; dono/recepção vê todos.
@@ -383,10 +454,17 @@ export function AgendaOperacional() {
     ]);
   }
 
-  function oferecerDesfazerInicio(r: { agendamentoId: string; cliente: string; filaId?: string; statusAnterior?: string }) {
+  function oferecerDesfazerInicio(r: {
+    agendamentoId: string;
+    cliente: string;
+    filaId?: string;
+    statusAnterior?: string;
+  }) {
     comDesfazer(`${r.cliente}: ${rotuloAtendimento}.`, async () => {
       try {
-        await desfazerInicioRapido({ data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null } });
+        await desfazerInicioRapido({
+          data: { agendamentoId: r.agendamentoId, filaId: r.filaId ?? null },
+        });
       } catch (e) {
         aviso.erro(e instanceof Error ? e.message : "Não foi possível desfazer.");
       }
@@ -398,7 +476,9 @@ export function AgendaOperacional() {
     setSugestaoFila(false);
     setOcupado(true);
     try {
-      const r = await chamarProximoDaFila({ data: { profissionalId: souRecepcao ? profEscolhido : null, filaId: null } });
+      const r = await chamarProximoDaFila({
+        data: { profissionalId: souRecepcao ? profEscolhido : null, filaId: null },
+      });
       setDia(hojeNoFuso(fuso));
       await sincronizar();
       oferecerDesfazerInicio(r);
@@ -422,21 +502,33 @@ export function AgendaOperacional() {
         return proximo;
       });
     if (oferecerUndo) {
-      comDesfazer(`${item.cliente}: ${novo === "na_cadeira" ? rotuloAtendimento : (ROTULO_ESTADO[novo] ?? novo)}.`, async () => {
-        setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
-        try {
-          if (pedido) await pedido.catch(() => undefined);
-          await mudarEstado({ data: { agendamentoId: item.id, estado: anterior, estadoAnterior: novo, desfazer: true } });
-          await sincronizar();
-        } catch (e) {
-          aviso.erro(e instanceof Error ? e.message : "Não foi possível desfazer.");
-        } finally {
-          limpar();
-        }
-      });
+      comDesfazer(
+        `${item.cliente}: ${novo === "na_cadeira" ? rotuloAtendimento : (ROTULO_ESTADO[novo] ?? novo)}.`,
+        async () => {
+          setEstadosLocais((mapa) => ({ ...mapa, [item.id]: anterior }));
+          try {
+            if (pedido) await pedido.catch(() => undefined);
+            await mudarEstado({
+              data: {
+                agendamentoId: item.id,
+                estado: anterior,
+                estadoAnterior: novo,
+                desfazer: true,
+              },
+            });
+            await sincronizar();
+          } catch (e) {
+            aviso.erro(e instanceof Error ? e.message : "Não foi possível desfazer.");
+          } finally {
+            limpar();
+          }
+        },
+      );
     }
     try {
-      pedido = mudarEstado({ data: { agendamentoId: item.id, estado: novo, estadoAnterior: anterior } });
+      pedido = mudarEstado({
+        data: { agendamentoId: item.id, estado: novo, estadoAnterior: anterior },
+      });
       await pedido;
       await sincronizar();
       setEstadosLocais((mapa) => {
@@ -445,7 +537,8 @@ export function AgendaOperacional() {
         delete proximo[item.id];
         return proximo;
       });
-      if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0) setSugestaoFila(true);
+      if ((novo === "cancelado" || novo === "nao_compareceu") && chegada.length > 0)
+        setSugestaoFila(true);
     } catch {
       limpar();
       toast.dismiss();
@@ -457,7 +550,10 @@ export function AgendaOperacional() {
 
   function iniciar(item: AgendaItem) {
     const outro = todosItens.find(
-      (atual) => atual.status === "na_cadeira" && atual.id !== item.id && atual.profissionalId === item.profissionalId,
+      (atual) =>
+        atual.status === "na_cadeira" &&
+        atual.id !== item.id &&
+        atual.profissionalId === item.profissionalId,
     );
     if (outro) setConflito({ atual: outro, novo: item });
     else void transicionar(item, "na_cadeira");
@@ -473,7 +569,12 @@ export function AgendaOperacional() {
   }
 
   /** Remarca para um instante/profissional; desfazer volta ao horário e profissional anteriores. */
-  async function remarcarPara(item: AgendaItem, novoInicio: string, profissionalId: string | null, desfazivel = true) {
+  async function remarcarPara(
+    item: AgendaItem,
+    novoInicio: string,
+    profissionalId: string | null,
+    desfazivel = true,
+  ) {
     const duracao = new Date(item.fim).getTime() - new Date(item.inicio).getTime();
     const novoFim = new Date(new Date(novoInicio).getTime() + duracao).toISOString();
     queryClient.setQueryData<AgendaDia>(["agenda-dia", dia], (atual) =>
@@ -497,11 +598,17 @@ export function AgendaOperacional() {
     try {
       await moverAgendamento({ data: { agendamentoId: item.id, novoInicio, profissionalId } });
       if (desfazivel) {
-        const outroDia = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)) !== dia;
+        const outroDia =
+          new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)) !== dia;
         comDesfazer(
           `Remarcado · ${item.cliente} ${outroDia ? `em ${dataEditorial(new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)))} ` : ""}às ${hora(novoInicio, fuso)}`,
           async () => {
-            await remarcarPara({ ...item, inicio: novoInicio, fim: novoFim }, item.inicio, item.profissionalId ?? null, false);
+            await remarcarPara(
+              { ...item, inicio: novoInicio, fim: novoFim },
+              item.inicio,
+              item.profissionalId ?? null,
+              false,
+            );
           },
         );
       }
@@ -513,7 +620,11 @@ export function AgendaOperacional() {
   }
 
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
-    void remarcarPara(item, new Date(new Date(item.inicio).getTime() + deltaMin * 60_000).toISOString(), item.profissionalId ?? null);
+    void remarcarPara(
+      item,
+      new Date(new Date(item.inicio).getTime() + deltaMin * 60_000).toISOString(),
+      item.profissionalId ?? null,
+    );
   }
 
   async function verificarRemarcar(item: AgendaItem, pedido: PedidoRemarcar) {
@@ -578,10 +689,17 @@ export function AgendaOperacional() {
         onCancelar={(i) => void transicionar(i, "cancelado")}
         onPerfil={setPerfil}
         onVerificar={verificarRemarcar}
-        onRemarcar={(i, p) => remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId)}
+        onRemarcar={(i, p) =>
+          remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId)
+        }
       />
       {menuAcoes}
-      <BloquearHorarioSheet aberto={bloquearAberto} onAberto={setBloquearAberto} dia={dia} horarios={agenda.data?.horarios ?? []} />
+      <BloquearHorarioSheet
+        aberto={bloquearAberto}
+        onAberto={setBloquearAberto}
+        dia={dia}
+        horarios={agenda.data?.horarios ?? []}
+      />
       <FolhaFila
         aberta={filaAberta}
         onAberta={setFilaAberta}
@@ -620,9 +738,16 @@ export function AgendaOperacional() {
       <AlertDialog open={Boolean(conflito)} onOpenChange={(aberto) => !aberto && setConflito(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{conflito ? `Finalizar ${conflito.atual.cliente} ou manter os dois?` : "Atendimento aberto"}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {conflito
+                ? `Finalizar ${conflito.atual.cliente} ou manter os dois?`
+                : "Atendimento aberto"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {segmentoAgenda === "barbearia" ? "Você já tem um cliente na cadeira." : "Você já tem um atendimento em andamento."} Escolha como continuar.
+              {segmentoAgenda === "barbearia"
+                ? "Você já tem um cliente na cadeira."
+                : "Você já tem um atendimento em andamento."}{" "}
+              Escolha como continuar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -657,12 +782,15 @@ export function AgendaOperacional() {
               <Lock className="size-4" aria-hidden /> Modo Foco
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Tela cheia com o atendimento atual, cronômetro e próximo cliente. Faz parte do plano Profissional. A agenda continua completa no seu plano atual.
+              Tela cheia com o atendimento atual, cronômetro e próximo cliente. Faz parte do plano
+              Profissional. A agenda continua completa no seu plano atual.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Agora não</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void navigate({ to: "/barbeiro/plano" })}>Ver planos</AlertDialogAction>
+            <AlertDialogAction onClick={() => void navigate({ to: "/barbeiro/plano" })}>
+              Ver planos
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -705,7 +833,13 @@ export function AgendaOperacional() {
             }}
           />
         ) : null}
-        {perfil ? <PerfilClienteLazy clienteId={perfil} onFechar={() => setPerfil(null)} segmento={segmentoAgenda} /> : null}
+        {perfil ? (
+          <PerfilClienteLazy
+            clienteId={perfil}
+            onFechar={() => setPerfil(null)}
+            segmento={segmentoAgenda}
+          />
+        ) : null}
       </Suspense>
     </>
   );
@@ -774,7 +908,11 @@ export function AgendaOperacional() {
     const atual = abasVisiveis.findIndex((a) => a.id === visualizacao);
     const n = abasVisiveis.length;
     const proximo =
-      e.key === "Home" ? 0 : e.key === "End" ? n - 1 : (atual + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
+      e.key === "Home"
+        ? 0
+        : e.key === "End"
+          ? n - 1
+          : (atual + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
     const alvo = abasVisiveis[proximo];
     if (!alvo) return;
     setVisualizacao(alvo.id);
@@ -786,7 +924,12 @@ export function AgendaOperacional() {
 
   return (
     <Screen title="Agenda" hideHeader wide>
-      <div key={dia} className="agenda-operacional agenda-troca-dia pb-32" onTouchStart={inicioToque} onTouchEnd={fimToque}>
+      <div
+        key={dia}
+        className="agenda-operacional agenda-troca-dia pb-32"
+        onTouchStart={inicioToque}
+        onTouchEnd={fimToque}
+      >
         <CabecalhoAgenda
           dia={dia}
           ehHoje={ehHoje}
@@ -816,11 +959,19 @@ export function AgendaOperacional() {
         >
           {profissionais.length > 1 ? (
             <div className="agenda-chips mt-2" role="group" aria-label="Profissional">
-              <Button variant="ghost" size="sm" aria-pressed={profFiltro === null} className={`agenda-chip ${profFiltro === null ? "agenda-chip-ativo" : ""}`} onClick={() => setProfFiltro(null)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-pressed={profFiltro === null}
+                className={`agenda-chip ${profFiltro === null ? "agenda-chip-ativo" : ""}`}
+                onClick={() => setProfFiltro(null)}
+              >
                 Todos
               </Button>
               {profissionais.map((p) => {
-                const qtd = todosItens.filter((i) => i.profissionalId === p.id && i.status !== "cancelado").length;
+                const qtd = todosItens.filter(
+                  (i) => i.profissionalId === p.id && i.status !== "cancelado",
+                ).length;
                 return (
                   <Button
                     key={p.id}
@@ -842,17 +993,35 @@ export function AgendaOperacional() {
         {faixa}
 
         {ehHoje && agenda.data ? (
-          <AgoraProximos itens={itens} fuso={fuso} selecionado={selecionado} onAbrir={abrir} onPerfil={setPerfil} />
+          <AgoraProximos
+            itens={itens}
+            fuso={fuso}
+            selecionado={selecionado}
+            onAbrir={abrir}
+            onPerfil={setPerfil}
+          />
         ) : null}
 
         {sugestaoFila && chegada.length > 0 ? (
           <div className="agenda-sugestao-fila mb-4" role="status">
-            <p className="text-sm font-semibold text-paper">Horário liberado. Chamar {chegada[0]?.cliente} da fila?</p>
+            <p className="text-sm font-semibold text-paper">
+              Horário liberado. Chamar {chegada[0]?.cliente} da fila?
+            </p>
             <div className="mt-2 flex gap-2">
-              <Button size="sm" className="min-h-11" disabled={ocupado || !online} onClick={() => void chamarFila()}>
+              <Button
+                size="sm"
+                className="min-h-11"
+                disabled={ocupado || !online}
+                onClick={() => void chamarFila()}
+              >
                 Chamar da fila
               </Button>
-              <Button size="sm" variant="ghost" className="min-h-11" onClick={() => setSugestaoFila(false)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="min-h-11"
+                onClick={() => setSugestaoFila(false)}
+              >
                 Agora não
               </Button>
             </div>
@@ -888,13 +1057,22 @@ export function AgendaOperacional() {
             <p>
               Toque num horário livre para agendar. Segure e arraste um atendimento para remarcar.
             </p>
-            <Button variant="ghost" size="icon" aria-label="Entendi, esconder dica" onClick={esconderDica}>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Entendi, esconder dica"
+              onClick={esconderDica}
+            >
               <X />
             </Button>
           </div>
         ) : null}
 
-        <div id="agenda-painel-visualizacao" role="tabpanel" aria-labelledby={`agenda-aba-${visualizacao}`}>
+        <div
+          id="agenda-painel-visualizacao"
+          role="tabpanel"
+          aria-labelledby={`agenda-aba-${visualizacao}`}
+        >
           {carregandoInicial ? (
             <AgendaCarregando />
           ) : erroInicial ? (
@@ -911,7 +1089,10 @@ export function AgendaOperacional() {
               }}
             />
           ) : diaSemAgenda ? (
-            <AgendaVazia titulo="Agenda livre" texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}>
+            <AgendaVazia
+              titulo="Agenda livre"
+              texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
+            >
               <Button className="min-h-11" onClick={() => setManualAberto(true)}>
                 <Plus /> Novo agendamento
               </Button>
@@ -922,10 +1103,17 @@ export function AgendaOperacional() {
               ) : null}
             </AgendaVazia>
           ) : colunas ? (
-            <div className="agenda-colunas" style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(220px, 1fr))` }}>
+            <div
+              className="agenda-colunas"
+              style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(220px, 1fr))` }}
+            >
               {profissionais.map((p) => (
                 <section key={p.id} className="min-w-0" aria-label={p.nome}>
-                  <button type="button" className="agenda-coluna-titulo" onClick={() => setProfFiltro(p.id)}>
+                  <button
+                    type="button"
+                    className="agenda-coluna-titulo"
+                    onClick={() => setProfFiltro(p.id)}
+                  >
                     {p.nome}
                   </button>
                   <AgendaTimeline
@@ -994,7 +1182,9 @@ export function AgendaOperacional() {
                     onClick={() => setFechando(c.agendamentoId)}
                   >
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-bold text-paper">{c.cliente}</span>
+                      <span className="block truncate text-sm font-bold text-paper">
+                        {c.cliente}
+                      </span>
                       <span className="block truncate text-xs text-mute">
                         {c.profissional} · #{c.numero}
                         {c.pix ? " · Pix a confirmar" : ""}

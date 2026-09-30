@@ -1,4 +1,14 @@
-import { Ban, CalendarPlus, Check, Clock3, HandCoins, MessageCircle, NotebookPen, Scissors, UserRoundPlus } from "lucide-react";
+import {
+  Ban,
+  CalendarPlus,
+  Check,
+  Clock3,
+  HandCoins,
+  MessageCircle,
+  NotebookPen,
+  Scissors,
+  UserRoundPlus,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -13,7 +23,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
 import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
@@ -104,7 +120,9 @@ export function PainelAtendimento(props: Props) {
                 </div>
               </SheetHeader>
               {!props.online ? (
-                <p className="mt-3 text-xs font-semibold text-mute">Sem conexão: as ações voltam quando a internet voltar.</p>
+                <p className="mt-3 text-xs font-semibold text-mute">
+                  Sem conexão: as ações voltam quando a internet voltar.
+                </p>
               ) : null}
               <div className="agenda-painel-acoes mt-4">
                 {item.status === "agendado" ? (
@@ -113,12 +131,20 @@ export function PainelAtendimento(props: Props) {
                   </Button>
                 ) : null}
                 {pendente ? (
-                  <Button variant="outline" disabled={bloqueado} onClick={executar(props.onIniciar)}>
+                  <Button
+                    variant="outline"
+                    disabled={bloqueado}
+                    onClick={executar(props.onIniciar)}
+                  >
                     <Scissors /> Iniciar
                   </Button>
                 ) : null}
                 {item.status === "na_cadeira" ? (
-                  <Button variant="outline" disabled={bloqueado} onClick={executar(props.onComanda)}>
+                  <Button
+                    variant="outline"
+                    disabled={bloqueado}
+                    onClick={executar(props.onComanda)}
+                  >
                     <Check /> Concluir
                   </Button>
                 ) : null}
@@ -156,7 +182,12 @@ export function PainelAtendimento(props: Props) {
                 ) : null}
                 {whatsapp ? (
                   <Button asChild variant="outline">
-                    <a href={whatsapp} target="_blank" rel="noreferrer" aria-label={`Abrir conversa com ${item.cliente} no WhatsApp`}>
+                    <a
+                      href={whatsapp}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Abrir conversa com ${item.cliente} no WhatsApp`}
+                    >
                       <MessageCircle /> WhatsApp
                     </a>
                   </Button>
@@ -174,7 +205,11 @@ export function PainelAtendimento(props: Props) {
                   </Button>
                 ) : null}
                 {pendente || item.status === "finalizado" ? (
-                  <Button variant="outline" disabled={!props.online} onClick={executar(props.onComanda)}>
+                  <Button
+                    variant="outline"
+                    disabled={!props.online}
+                    onClick={executar(props.onComanda)}
+                  >
                     <HandCoins /> Comanda
                   </Button>
                 ) : null}
@@ -215,7 +250,9 @@ export function PainelAtendimento(props: Props) {
                       Profissional
                       <select
                         value={remarcar.profissionalId ?? ""}
-                        onChange={(e) => setRemarcar({ ...remarcar, profissionalId: e.target.value || null })}
+                        onChange={(e) =>
+                          setRemarcar({ ...remarcar, profissionalId: e.target.value || null })
+                        }
                         className="agenda-campo"
                       >
                         {props.profissionais.map((p) => (
@@ -232,10 +269,20 @@ export function PainelAtendimento(props: Props) {
                     </p>
                   ) : null}
                   <div className="flex gap-2">
-                    <Button type="button" variant="ghost" className="flex-1" onClick={() => setRemarcar(null)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="flex-1"
+                      onClick={() => setRemarcar(null)}
+                    >
                       Voltar
                     </Button>
-                    <Button type="submit" size="lg" className="flex-1" disabled={bloqueado || verificando}>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="flex-1"
+                      disabled={bloqueado || verificando}
+                    >
                       {verificando ? "Conferindo…" : "Remarcar"}
                     </Button>
                   </div>
@@ -251,7 +298,8 @@ export function PainelAtendimento(props: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancelar o horário de {item?.cliente}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5 segundos.
+              Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5
+              segundos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

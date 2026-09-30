@@ -43,11 +43,14 @@ export function AgoraProximos({
   const agora = useAgora();
   const ativos = itens.filter((i) => i.status === "na_cadeira");
   const futuros = itens.filter(
-    (i) => !TERMINAIS.has(i.status) && i.status !== "na_cadeira" && new Date(i.fim).getTime() >= agora,
+    (i) =>
+      !TERMINAIS.has(i.status) && i.status !== "na_cadeira" && new Date(i.fim).getTime() >= agora,
   );
   const destaques = futuros.slice(0, 2);
   const fimPrevisto = ativos.length
-    ? Math.max(...ativos.map((a) => new Date(a.startedAt ?? a.inicio).getTime() + a.duracaoMin * 60_000))
+    ? Math.max(
+        ...ativos.map((a) => new Date(a.startedAt ?? a.inicio).getTime() + a.duracaoMin * 60_000),
+      )
     : 0;
 
   return (
@@ -90,7 +93,11 @@ export function AgoraProximos({
                   {item.servico} · {item.profissional}
                 </p>
               </div>
-              {alergia ? <p className="mt-2 border-l-2 border-brick pl-2 text-xs font-semibold text-paper">{alergia}</p> : null}
+              {alergia ? (
+                <p className="mt-2 border-l-2 border-brick pl-2 text-xs font-semibold text-paper">
+                  {alergia}
+                </p>
+              ) : null}
               <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                 <progress
                   className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`}
@@ -98,8 +105,12 @@ export function AgoraProximos({
                   value={decorrido}
                   aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
                 />
-                <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>
-                  {estourou ? tempoExcedido(decorrido, item.duracaoMin) : `${decorrido}/${item.duracaoMin} min`}
+                <span
+                  className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
+                >
+                  {estourou
+                    ? tempoExcedido(decorrido, item.duracaoMin)
+                    : `${decorrido}/${item.duracaoMin} min`}
                 </span>
               </div>
             </article>
@@ -115,7 +126,10 @@ export function AgoraProximos({
       {destaques.length ? (
         <ul className="agenda-proximos-lista">
           {destaques.map((item, indice) => {
-            const espera = Math.max(0, Math.ceil((fimPrevisto - new Date(item.inicio).getTime()) / 60_000));
+            const espera = Math.max(
+              0,
+              Math.ceil((fimPrevisto - new Date(item.inicio).getTime()) / 60_000),
+            );
             const aviso =
               espera > 0
                 ? linkWhatsApp(
@@ -136,15 +150,25 @@ export function AgoraProximos({
                 <span className="agenda-rotulo">{indice === 0 ? "Próximo" : "Depois"}</span>
                 <strong className="text-sm text-paper">{hora(item.inicio, fuso)}</strong>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-paper">{item.cliente}</span>
+                  <span className="block truncate text-sm font-semibold text-paper">
+                    {item.cliente}
+                  </span>
                   <span className="block truncate text-xs text-mute">
                     {item.servico}
-                    {espera > 0 ? <span className="font-semibold text-brick"> · ~{espera} min de espera</span> : null}
+                    {espera > 0 ? (
+                      <span className="font-semibold text-brick"> · ~{espera} min de espera</span>
+                    ) : null}
                   </span>
                 </span>
                 {aviso ? (
                   <Button asChild variant="secondary" size="sm" className="min-h-11">
-                    <a href={aviso} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`Avisar ${item.cliente} pelo WhatsApp`}>
+                    <a
+                      href={aviso}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Avisar ${item.cliente} pelo WhatsApp`}
+                    >
                       <MessageCircle /> Avisar
                     </a>
                   </Button>
