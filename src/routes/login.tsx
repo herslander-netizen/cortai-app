@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { ChevronDown, LockKeyhole, Mail } from "lucide-react";
+import { LockKeyhole, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,6 @@ function MarcaApple() {
 function LoginPage() {
   const navigate = useNavigate();
   const { proximo } = Route.useSearch();
-  const [outrasFormas, setOutrasFormas] = useState(false);
   const [modo, setModo] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -152,6 +151,36 @@ function LoginPage() {
         </h1>
       </div>
 
+      <div className="space-y-2">
+        <Button
+          type="button"
+          variant="outline"
+          className={botaoSocial}
+          disabled={enviando}
+          onClick={() => void entrarCom("google")}
+        >
+          <MarcaGoogle /> Continuar com o Google
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className={botaoSocial}
+          disabled={enviando}
+          onClick={() => void entrarCom("apple")}
+        >
+          <MarcaApple /> Continuar com a Apple
+        </Button>
+      </div>
+
+      <div
+        className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
+        aria-hidden
+      >
+        <span className="h-px flex-1 bg-line" />
+        ou
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
       <form
         className="space-y-3"
         onSubmit={async (event) => {
@@ -216,14 +245,6 @@ function LoginPage() {
         <label className="block text-xs font-medium text-mute">
           <span className="flex items-center justify-between">
             <span>Senha</span>
-            {modo === "entrar" ? (
-              <Link
-                to="/recuperar-senha"
-                className="-my-3 inline-flex min-h-11 items-center px-1 text-xs font-medium text-mute hover:text-paper"
-              >
-                Esqueceu a senha?
-              </Link>
-            ) : null}
           </span>
           <span className={campo}>
             <LockKeyhole size={17} aria-hidden />
@@ -239,6 +260,14 @@ function LoginPage() {
             />
           </span>
         </label>
+        {modo === "entrar" ? (
+          <Link
+            to="/recuperar-senha"
+            className="flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
+          >
+            Esqueceu a senha?
+          </Link>
+        ) : null}
         {erro ? (
           <p className="text-sm text-brick" role="alert">
             {erro}
@@ -250,45 +279,7 @@ function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-4 text-center">
-        <button
-          type="button"
-          aria-expanded={outrasFormas}
-          onClick={() => setOutrasFormas((v) => !v)}
-          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-mute hover:text-paper"
-        >
-          Entrar de outra forma
-          <ChevronDown
-            size={14}
-            aria-hidden
-            className={`transition-transform ${outrasFormas ? "rotate-180" : ""}`}
-          />
-        </button>
-        {outrasFormas ? (
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className={botaoSocial}
-              disabled={enviando}
-              onClick={() => void entrarCom("google")}
-            >
-              <MarcaGoogle /> Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className={botaoSocial}
-              disabled={enviando}
-              onClick={() => void entrarCom("apple")}
-            >
-              <MarcaApple /> Apple
-            </Button>
-          </div>
-        ) : null}
-      </div>
-
-      <p className="mt-1 text-center text-sm text-mute">
+      <p className="mt-4 text-center text-sm text-mute">
         {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
         <button
           type="button"
