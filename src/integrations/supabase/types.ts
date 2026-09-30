@@ -464,9 +464,11 @@ export type Database = {
           comentario: string | null
           convite_publico_enviado: boolean
           criado_em: string
+          dimensoes: Json | null
           id: string
           nota: number
           profissional_id: string | null
+          sinal_atencao: boolean
           tenant_id: string
         }
         Insert: {
@@ -475,9 +477,11 @@ export type Database = {
           comentario?: string | null
           convite_publico_enviado?: boolean
           criado_em?: string
+          dimensoes?: Json | null
           id?: string
           nota: number
           profissional_id?: string | null
+          sinal_atencao?: boolean
           tenant_id: string
         }
         Update: {
@@ -486,9 +490,11 @@ export type Database = {
           comentario?: string | null
           convite_publico_enviado?: boolean
           criado_em?: string
+          dimensoes?: Json | null
           id?: string
           nota?: number
           profissional_id?: string | null
+          sinal_atencao?: boolean
           tenant_id?: string
         }
         Relationships: [
