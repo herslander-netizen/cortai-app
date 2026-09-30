@@ -31,3 +31,5 @@
 - [x] Verificar e preservar todas as travas de acesso por plano
 - [x] Validar links, 390/1280px, TypeScript, lint, testes e build; não publicar
 - [x] Aplicar direção clean corporativa à Home `/apresentacao`, usando a logo oficial e mockups reais
+
+- [x] Aplicar a imagem quadrada enviada somente como ícone do aplicativo, preservando as logos existentes
