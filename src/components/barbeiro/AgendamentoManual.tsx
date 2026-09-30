@@ -380,7 +380,7 @@ function Formulario({
             aria-label="Hora"
           >
             {(base
-              ? slotsDoDia(data, base.horarios, 30, base.fuso).slots.map((slot) => slot.label)
+              ? slotsDoDia(data, base.horarios, base.passoMin ?? 30, base.fuso).slots.map((slot) => slot.label)
               : []
             ).map((h) => (
               <option key={h} value={h}>
