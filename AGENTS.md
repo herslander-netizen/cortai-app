@@ -24,3 +24,7 @@
 - A página pública canônica de cada negócio é `/b/$slug`; aliases antigos apenas redirecionam para preservar links.
 - O contexto atual do cliente é um slug público persistido no navegador e revalidado pelo servidor; múltiplas fichas nunca escolhem uma silenciosamente.
 - Agendamento público e autenticado compartilham o núcleo de seleção/disponibilidade, mantendo adaptadores distintos para identidade e pagamento.
+- Fonte da verdade visual é o código atual (`src/styles.css` + identidades em `segmentos.ts`): Manrope no texto, marca azul-marinho/royal/rosa; não reintroduzir verde/dourado/Barlow de documentos antigos sem decisão explícita — evita reverter o visual por engano.
+- Toda disponibilidade (público, app do cliente, chat CortAI, WhatsApp) usa `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`; nenhuma tela recalcula regra própria — uma única verdade de agenda.
+- "Hoje" da barbearia sempre via `hojeNoFuso(fuso do tenant)`, nunca pelo relógio do aparelho — o painel e a agenda não podem divergir de dia.
+- Imagens de marca são comprimidas no navegador (`src/lib/imagem.ts`) antes de ir ao bucket de 2 MB; logo em WebP para manter transparência.

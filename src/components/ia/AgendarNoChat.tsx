@@ -9,18 +9,13 @@ import { criarAgendamentoManual } from "@/lib/barbeiro.functions";
 
 const DIAS_CURTOS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
 
-/** Próximos 7 dias, em hora local de quem está usando o painel. */
-function proximosDias() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(hoje.getTime() + i * 86_400_000);
-    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    return {
-      iso,
-      rotulo: i === 0 ? "Hoje" : i === 1 ? "Amanhã" : `${DIAS_CURTOS[d.getDay()]} ${d.getDate()}`,
-    };
-  });
+/** Rótulo de um dia "AAAA-MM-DD" (dias vêm do servidor, no fuso da barbearia). */
+function rotuloDoDia(iso: string, hoje: string, i: number) {
+  if (iso === hoje) return "Hoje";
+  if (i === 1) return "Amanhã";
+  const [a, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(a ?? 1970, (m ?? 1) - 1, d ?? 1));
+  return `${DIAS_CURTOS[dt.getUTCDay()]} ${dt.getUTCDate()}`;
 }
 
 /**
@@ -29,13 +24,16 @@ function proximosDias() {
  * confirmação sai pelo WhatsApp da barbearia automaticamente.
  */
 export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
-  const dias = useMemo(proximosDias, []);
   const criar = useServerFn(criarAgendamentoManual);
 
-  const [dia, setDia] = useState(dias[0]!.iso);
+  const [dia, setDia] = useState<string | null>(null);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profissionalId, setProfissionalId] = useState<string | null>(null);
-  const [escolhido, setEscolhido] = useState<{ iso: string; label: string } | null>(null);
+  const [escolhido, setEscolhido] = useState<{
+    iso: string;
+    label: string;
+    profId: string | null;
+  } | null>(null);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -50,10 +48,25 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
     refetchInterval: 45_000,
   });
 
+  const dias = useMemo(
+    () =>
+      (grade.data?.dias ?? []).map((iso, i) => ({
+        iso,
+        rotulo: rotuloDoDia(iso, grade.data!.hoje, i),
+      })),
+    [grade.data],
+  );
+  const diaAtivo = dia ?? grade.data?.dia ?? null;
   const servicos = grade.data?.servicos ?? [];
   const servicoAtivo = servicoId ?? servicos[0]?.id ?? null;
   const profissionais = grade.data?.profissionais ?? [];
-  const profissionalAtivo = profissionalId ?? profissionais[0]?.id ?? null;
+  // Sem escolha explícita = "qualquer": o motor oficial define o profissional do horário.
+  const profissionalAtivo =
+    (profissionalId && profissionais.some((p) => p.id === profissionalId)
+      ? profissionalId
+      : null) ??
+    escolhido?.profId ??
+    null;
 
   const pronto =
     Boolean(escolhido && servicoAtivo && profissionalAtivo) &&
@@ -131,7 +144,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setEscolhido(null);
             }}
             className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs ${
-              servicoAtivo === s.id ? "border-gold bg-gold-soft text-paper" : "border-line2 text-mute"
+              servicoAtivo === s.id
+                ? "border-gold bg-gold-soft text-paper"
+                : "border-line2 text-mute"
             }`}
           >
             <span className="block font-semibold text-paper">{s.nome}</span>
@@ -148,6 +163,18 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
       {/* Profissional */}
       {profissionais.length > 1 ? (
         <div className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setProfissionalId(null);
+              setEscolhido(null);
+            }}
+            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
+              !profissionalId ? "border-gold text-gold" : "border-line2 text-mute"
+            }`}
+          >
+            Qualquer
+          </button>
           {profissionais.map((p) => (
             <button
               key={p.id}
@@ -157,7 +184,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
                 setEscolhido(null);
               }}
               className={`shrink-0 rounded-full border px-3 py-1.5 text-xs ${
-                profissionalAtivo === p.id ? "border-gold text-gold" : "border-line2 text-mute"
+                profissionalId === p.id ? "border-gold text-gold" : "border-line2 text-mute"
               }`}
             >
               {p.nome}
@@ -177,7 +204,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
               setEscolhido(null);
             }}
             className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs ${
-              dia === d.iso ? "border-gold bg-gold text-ink font-semibold" : "border-line2 text-mute"
+              diaAtivo === d.iso
+                ? "border-gold bg-gold text-ink font-semibold"
+                : "border-line2 text-mute"
             }`}
           >
             {d.rotulo}
@@ -205,7 +234,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
                     type="button"
                     disabled={indisponivel}
                     title={s.ocupadoPor ? `Ocupado · ${s.ocupadoPor}` : undefined}
-                    onClick={() => setEscolhido({ iso: s.iso, label: s.label })}
+                    onClick={() => setEscolhido({ iso: s.iso, label: s.label, profId: s.profId })}
                     className={`rounded-lg border py-2 text-xs transition-colors ${
                       ativo
                         ? "border-gold bg-gold font-semibold text-ink"

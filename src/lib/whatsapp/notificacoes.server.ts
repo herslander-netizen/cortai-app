@@ -36,7 +36,9 @@ const AUTOMACAO_DO_TIPO = {
 } as const;
 
 /** Opções de cada lembrete: número (qualquer canal) e botão (API oficial). */
-export const OPCOES_DO_LEMBRETE: Partial<Record<TipoDeNotificacao, { rotulo: string; acao: string }[]>> = {
+export const OPCOES_DO_LEMBRETE: Partial<
+  Record<TipoDeNotificacao, { rotulo: string; acao: string }[]>
+> = {
   lembrete_24h: [
     { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
     { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
@@ -210,7 +212,8 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
   if (opcoes) {
     blocos.push("", "Responda com o número:", ...opcoes.map((o, i) => `${i + 1} - ${o.rotulo}`));
-    if (tipo === "retorno") blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
+    if (tipo === "retorno")
+      blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
   }
 
   return blocos
@@ -246,7 +249,11 @@ async function modelosPagosLigados(tenantId: string) {
 }
 
 /** Preferências do cliente: canal desligado, frequência e horário de silêncio. */
-async function preferenciaBloqueia(clienteId: string | null, tipo: TipoDeNotificacao, fuso: string) {
+async function preferenciaBloqueia(
+  clienteId: string | null,
+  tipo: TipoDeNotificacao,
+  fuso: string,
+) {
   if (!clienteId) return null;
   const db = await admin();
   const { data: p } = await db
@@ -259,16 +266,26 @@ async function preferenciaBloqueia(clienteId: string | null, tipo: TipoDeNotific
 }
 
 export function motivoDeBloqueio(
-  p: { whatsapp_ativo: boolean; frequencia: string; silencio_inicio: string | null; silencio_fim: string | null },
+  p: {
+    whatsapp_ativo: boolean;
+    frequencia: string;
+    silencio_inicio: string | null;
+    silencio_fim: string | null;
+  },
   tipo: string,
   agora: Date,
   fuso: string,
 ): string | null {
   if (!p.whatsapp_ativo) return "Cliente desligou avisos por WhatsApp.";
-  if (p.frequencia === "minima" && tipo === "lembrete_24h") return "Cliente prefere só o aviso mais próximo.";
+  if (p.frequencia === "minima" && tipo === "lembrete_24h")
+    return "Cliente prefere só o aviso mais próximo.";
   if (p.silencio_inicio && p.silencio_fim) {
-    const hm = new Intl.DateTimeFormat("en-GB", { timeZone: fuso, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
-      .format(agora);
+    const hm = new Intl.DateTimeFormat("en-GB", {
+      timeZone: fuso,
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).format(agora);
     const ini = p.silencio_inicio.slice(0, 5);
     const fim = p.silencio_fim.slice(0, 5);
     const dentro = ini <= fim ? hm >= ini && hm < fim : hm >= ini || hm < fim;
@@ -276,7 +293,6 @@ export function motivoDeBloqueio(
   }
   return null;
 }
-
 
 /**
  * Único ponto de envio transacional. Nunca lança: o agendamento já existe e
@@ -294,13 +310,18 @@ export async function notificarAgendamento(
   try {
     // WhatsApp automático só a partir do Pro; a operação nunca é bloqueada.
     const db = await admin();
-    const { data: ag } = await db.from("agendamentos").select("tenant_id").eq("id", agendamentoId).maybeSingle();
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("tenant_id")
+      .eq("id", agendamentoId)
+      .maybeSingle();
     if (ag?.tenant_id) {
       const { data: liberado, error } = await db.rpc("recurso_do_tenant_ativo", {
         _tenant_id: ag.tenant_id,
         _chave: "cortai_whatsapp",
       });
-      if (!error && liberado === false) return { enviado: false, motivo: "plano_sem_whatsapp" } as Resultado;
+      if (!error && liberado === false)
+        return { enviado: false, motivo: "plano_sem_whatsapp" } as Resultado;
     }
     return await executar(agendamentoId, tipo);
   } catch (e) {
@@ -338,7 +359,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     if (!["cancelado", "estornado"].includes(status)) {
       return { enviado: false, motivo: "Agendamento não está cancelado." };
     }
-  } else if (["cancelado", "falta", "nao_compareceu", "estornado"].includes(status)) {
+  } else if (["cancelado", "nao_compareceu", "estornado"].includes(status)) {
     return { enviado: false, motivo: "Agendamento não está ativo." };
   }
 
@@ -355,7 +376,11 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   }
 
   if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
-    const bloqueio = await preferenciaBloqueia(ag.cliente_id, tipo, await fusoDoTenant(ag.tenant_id));
+    const bloqueio = await preferenciaBloqueia(
+      ag.cliente_id,
+      tipo,
+      await fusoDoTenant(ag.tenant_id),
+    );
     if (bloqueio) return { enviado: false, motivo: bloqueio };
   }
 
@@ -412,7 +437,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       .eq("status", existente!.status)
       .eq("tentativas", existente!.tentativas)
       .select("id");
-    if (!reservado || reservado.length === 0) return { enviado: false, motivo: "Mensagem já processada." };
+    if (!reservado || reservado.length === 0)
+      return { enviado: false, motivo: "Mensagem já processada." };
   }
 
   const marcarErro = async (motivo: string) => {
@@ -442,7 +468,11 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   let textoRetorno: string | null = null;
   if (tipo === "retorno" && tenant?.segmento && tenant.segmento !== "barbearia") {
     const { textoDaSituacao, preencher } = await import("./conversa-padrao");
-    const base = textoDaSituacao("retorno", { textos: config.textosConversa, desligadas: config.situacoesDesligadas }, segmentoValido(tenant.segmento));
+    const base = textoDaSituacao(
+      "retorno",
+      { textos: config.textosConversa, desligadas: config.situacoesDesligadas },
+      segmentoValido(tenant.segmento),
+    );
     const dias = Math.max(1, Math.round((Date.now() - new Date(ag.inicio).getTime()) / 86_400_000));
     textoRetorno = base
       ? preencher(base, {
@@ -468,7 +498,9 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     textoRetorno,
     linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
     linkPagamento:
-      tipo === "confirmacao_agendamento" && config.pagamentoAntecipado && config.linkPagamento?.startsWith("http")
+      tipo === "confirmacao_agendamento" &&
+      config.pagamentoAntecipado &&
+      config.linkPagamento?.startsWith("http")
         ? config.linkPagamento
         : null,
   });
@@ -553,7 +585,12 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         contexto: {
           ...ctx,
           estado: "AGUARDANDO_RESPOSTA_LEMBRETE",
-          notificacao: { id: registroId, agendamentoId: ag.id, acoes: (opcoes ?? []).map((o) => o.acao), validoAte },
+          notificacao: {
+            id: registroId,
+            agendamentoId: ag.id,
+            acoes: (opcoes ?? []).map((o) => o.acao),
+            validoAte,
+          },
         } as never,
       })
       .eq("id", conversa.id);
@@ -582,7 +619,14 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
       .select("id")
       .gte("inicio", de.toISOString())
       .lte("inicio", ate.toISOString())
-      .in("status", ["novo", "agendado", "aguardando_pagamento", "aguardando_confirmacao", "pago", "fiado"])
+      .in("status", [
+        "novo",
+        "agendado",
+        "aguardando_pagamento",
+        "aguardando_confirmacao",
+        "pago",
+        "fiado",
+      ])
       .limit(500);
     const ids = (data ?? []).map((a) => a.id);
     if (ids.length === 0) return [];

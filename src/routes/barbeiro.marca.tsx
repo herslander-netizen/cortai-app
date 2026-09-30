@@ -41,6 +41,20 @@ import {
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { termos } from "@/lib/segmentos";
+import { comprimirImagem } from "@/lib/imagem";
+
+/** Atalhos de cor (valores escolhidos pelo dono, não tokens de interface). */
+const PALETA_RAPIDA = [
+  "#1B2A4A",
+  "#2F5BEA",
+  "#E85A8A",
+  "#111110",
+  "#F4F5F2",
+  "#FFFFFF",
+  "#C9A96A",
+  "#19C37D",
+  "#B4533C",
+];
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -167,23 +181,46 @@ function Editor({
   const setPagina = <K extends keyof PaginaConfig>(key: K, value: PaginaConfig[K]) =>
     setConfig((old) => ({ ...old, [key]: value }));
 
+  // Libera URLs locais de prévia para não vazar memória.
+  const previasLocais = useRef<string[]>([]);
+  useEffect(() => () => previasLocais.current.forEach((u) => URL.revokeObjectURL(u)), []);
+
   const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa") => {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (!file) return;
-    const max = kind === "logo" ? 2 : 6;
-    if (!file.type.startsWith("image/") || file.size > max * 1024 * 1024) {
-      setStatus(`Use uma imagem de até ${max} MB.`);
+    if (!file.type.startsWith("image/")) {
+      setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setStatus("Essa imagem é grande demais. Use uma de até 20 MB.");
       return;
     }
     setBusy(true);
-    const extension = file.name.split(".").pop() ?? "jpg";
-    const path = `${initial.id}/${kind}-${Date.now()}.${extension}`;
-    const { error } = await supabase.storage
-      .from("tenant-logos")
-      .upload(path, file, { contentType: file.type });
-    if (error) setStatus("Não foi possível enviar a imagem.");
-    else {
-      const preview = URL.createObjectURL(file);
+    setStatus(kind === "logo" ? "Enviando logo…" : "Enviando capa…");
+    try {
+      const blob = await comprimirImagem(file, {
+        maxLado: kind === "logo" ? 800 : 1920,
+        transparente: kind === "logo",
+      });
+      if (blob.size > 2 * 1024 * 1024) {
+        setStatus("Mesmo reduzida, a imagem passou de 2 MB. Tente outra foto.");
+        return;
+      }
+      const tipo = blob.type || file.type;
+      const extension =
+        tipo.split("/")[1]?.replace("jpeg", "jpg").replace("svg+xml", "svg") ?? "jpg";
+      const path = `${initial.id}/${kind}-${Date.now()}.${extension}`;
+      const { error } = await supabase.storage
+        .from("tenant-logos")
+        .upload(path, blob, { contentType: tipo });
+      if (error) {
+        setStatus("Não foi possível enviar a imagem. Tente de novo.");
+        return;
+      }
+      const preview = URL.createObjectURL(blob);
+      previasLocais.current.push(preview);
       if (kind === "logo") {
         setMarca("logo_url", path);
         setLogoPreview(preview);
@@ -192,8 +229,11 @@ function Editor({
         setCoverPreview(preview);
       }
       setStatus("Imagem pronta. Salve o rascunho para continuar depois.");
+    } catch {
+      setStatus("Não foi possível enviar a imagem. Tente de novo.");
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   };
 
   const executar = async (mode: "draft" | "publish") => {
@@ -423,23 +463,50 @@ function Editor({
                 </div>
               </EditorSection>
               <EditorSection title="Cores">
-                <div className="grid grid-cols-3 gap-3">
-                  {Object.entries(config.cores).map(([key, value]) => (
-                    <label key={key} className="text-xs capitalize text-mute">
-                      {key}
-                      <input
-                        type="color"
-                        className="mt-2 h-11 w-full rounded-md border border-line bg-ink2 p-1"
-                        value={value}
-                        onChange={(event) =>
-                          setPagina("cores", {
-                            ...config.cores,
-                            [key]: event.target.value.toUpperCase(),
-                          })
-                        }
-                      />
-                    </label>
-                  ))}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {Object.entries(config.cores).map(([key, value]) => {
+                    const trocar = (cor: string) =>
+                      setPagina("cores", { ...config.cores, [key]: cor.toUpperCase() });
+                    return (
+                      <div key={key} className="text-xs capitalize text-mute">
+                        {key}
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            type="color"
+                            aria-label={`Escolher cor ${key}`}
+                            className="h-12 w-12 shrink-0 rounded-md border border-line bg-ink2 p-1"
+                            value={value}
+                            onChange={(event) => trocar(event.target.value)}
+                          />
+                          <input
+                            aria-label={`Código da cor ${key}`}
+                            className={`${fieldClass} h-12 uppercase`}
+                            defaultValue={value}
+                            key={value}
+                            maxLength={7}
+                            onBlur={(event) => {
+                              const v = event.target.value.trim();
+                              const hex = v.startsWith("#") ? v : `#${v}`;
+                              if (/^#[0-9a-fA-F]{6}$/.test(hex)) trocar(hex);
+                              else event.target.value = value;
+                            }}
+                          />
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {PALETA_RAPIDA.map((cor, indice) => (
+                            <button
+                              key={`${key}-${cor}-${indice}`}
+                              type="button"
+                              aria-label={`Usar ${cor}`}
+                              onClick={() => trocar(cor)}
+                              className={`h-7 w-7 rounded-full border ${value.toUpperCase() === cor ? "border-paper ring-2 ring-gold" : "border-line"}`}
+                              style={{ backgroundColor: cor }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </EditorSection>
             </TabsContent>
