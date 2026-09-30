@@ -276,45 +276,7 @@ function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-4 text-center">
-        <button
-          type="button"
-          aria-expanded={outrasFormas}
-          onClick={() => setOutrasFormas((v) => !v)}
-          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-mute hover:text-paper"
-        >
-          Entrar de outra forma
-          <ChevronDown
-            size={14}
-            aria-hidden
-            className={`transition-transform ${outrasFormas ? "rotate-180" : ""}`}
-          />
-        </button>
-        {outrasFormas ? (
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className={botaoSocial}
-              disabled={enviando}
-              onClick={() => void entrarCom("google")}
-            >
-              <MarcaGoogle /> Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className={botaoSocial}
-              disabled={enviando}
-              onClick={() => void entrarCom("apple")}
-            >
-              <MarcaApple /> Apple
-            </Button>
-          </div>
-        ) : null}
-      </div>
-
-      <p className="mt-1 text-center text-sm text-mute">
+      <p className="mt-4 text-center text-sm text-mute">
         {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
         <button
           type="button"
