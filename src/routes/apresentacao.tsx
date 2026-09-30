@@ -17,18 +17,18 @@ export const Route = createFileRoute("/apresentacao")({
   head: ({ loaderData }) => {
     const seo = loaderData?.seo ?? SEO_APRESENTACAO_PADRAO;
     return {
-    meta: [
-      { title: seo.titulo },
-      { name: "description", content: seo.descricao },
-      { property: "og:title", content: seo.titulo },
-      { property: "og:description", content: seo.descricao },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://cortai.dev/apresentacao" },
-      { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
-    ],
-    links: [{ rel: "canonical", href: "https://cortai.dev/apresentacao" }],
+      meta: [
+        { title: seo.titulo },
+        { name: "description", content: seo.descricao },
+        { property: "og:title", content: seo.titulo },
+        { property: "og:description", content: seo.descricao },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://cortai.dev/apresentacao" },
+        { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+      ],
+      links: [{ rel: "canonical", href: "https://cortai.dev/apresentacao" }],
     };
   },
   component: ApresentacaoPage,

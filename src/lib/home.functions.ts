@@ -8,7 +8,10 @@ const BUCKET = "home-publica";
 
 /** Só o dono da plataforma edita a Home. */
 async function exigirAdmin(context: { supabase: any; userId: string }) {
-  const { data: permitido } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+  const { data: permitido } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
   if (!permitido) throw new Error("Acesso exclusivo do dono da plataforma.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -31,7 +34,9 @@ async function resolverImagens(config: ConfigHome): Promise<ConfigHome> {
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const lista = [...caminhos];
-  const { data } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(lista, 60 * 60 * 24 * 7);
+  const { data } = await supabaseAdmin.storage
+    .from(BUCKET)
+    .createSignedUrls(lista, 60 * 60 * 24 * 7);
   const mapa = new Map<string, string>();
   (data ?? []).forEach((item, i) => {
     if (item.signedUrl) mapa.set(lista[i]!, item.signedUrl);
@@ -46,15 +51,17 @@ async function resolverImagens(config: ConfigHome): Promise<ConfigHome> {
 }
 
 /** Conteúdo publicado da Home. Lido no servidor (a função não é aberta ao público). */
-export const getHomePublicada = createServerFn({ method: "GET" }).handler(async (): Promise<ConfigHome> => {
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin.rpc("home_publicada");
-    return await resolverImagens(normalizarHome(data));
-  } catch {
-    return normalizarHome(null);
-  }
-});
+export const getHomePublicada = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ConfigHome> => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin.rpc("home_publicada");
+      return await resolverImagens(normalizarHome(data));
+    } catch {
+      return normalizarHome(null);
+    }
+  },
+);
 
 /** Rascunho + publicado + histórico, para o editor do admin. */
 export const getHomeAdmin = createServerFn({ method: "GET" })
@@ -62,8 +69,16 @@ export const getHomeAdmin = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const db = await exigirAdmin(context);
     const [linha, versoes] = await Promise.all([
-      db.from("home_publica").select("rascunho, publicado, publicado_em, atualizado_em").eq("id", true).maybeSingle(),
-      db.from("home_publica_versoes").select("id, rotulo, criado_em").order("criado_em", { ascending: false }).limit(10),
+      db
+        .from("home_publica")
+        .select("rascunho, publicado, publicado_em, atualizado_em")
+        .eq("id", true)
+        .maybeSingle(),
+      db
+        .from("home_publica_versoes")
+        .select("id, rotulo, criado_em")
+        .order("criado_em", { ascending: false })
+        .limit(10),
     ]);
     const publicado = normalizarHome(linha.data?.publicado);
     const rascunhoBruto = linha.data?.rascunho;
@@ -73,7 +88,8 @@ export const getHomeAdmin = createServerFn({ method: "GET" })
       publicado,
       publicadoEm: linha.data?.publicado_em ?? null,
       atualizadoEm: linha.data?.atualizado_em ?? null,
-      temRascunho: temRascunho && JSON.stringify(normalizarHome(rascunhoBruto)) !== JSON.stringify(publicado),
+      temRascunho:
+        temRascunho && JSON.stringify(normalizarHome(rascunhoBruto)) !== JSON.stringify(publicado),
       versoes: versoes.data ?? [],
     };
   });
@@ -96,7 +112,11 @@ export const publicarHome = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => esquemaHome.parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
-    const { data: atual } = await db.from("home_publica").select("publicado").eq("id", true).maybeSingle();
+    const { data: atual } = await db
+      .from("home_publica")
+      .select("publicado")
+      .eq("id", true)
+      .maybeSingle();
     if (atual?.publicado && Object.keys(atual.publicado as object).length) {
       await db.from("home_publica_versoes").insert({
         snapshot: atual.publicado as never,
@@ -106,7 +126,12 @@ export const publicarHome = createServerFn({ method: "POST" })
     }
     const { error } = await db
       .from("home_publica")
-      .update({ publicado: data as never, rascunho: data as never, publicado_em: new Date().toISOString(), atualizado_por: context.userId })
+      .update({
+        publicado: data as never,
+        rascunho: data as never,
+        publicado_em: new Date().toISOString(),
+        atualizado_por: context.userId,
+      })
       .eq("id", true);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -116,7 +141,11 @@ export const descartarRascunhoHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await exigirAdmin(context);
-    const { data: atual } = await db.from("home_publica").select("publicado").eq("id", true).maybeSingle();
+    const { data: atual } = await db
+      .from("home_publica")
+      .select("publicado")
+      .eq("id", true)
+      .maybeSingle();
     const { error } = await db
       .from("home_publica")
       .update({ rascunho: (atual?.publicado ?? {}) as never, atualizado_por: context.userId })
@@ -130,7 +159,11 @@ export const restaurarVersaoHome = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
-    const { data: versao } = await db.from("home_publica_versoes").select("snapshot").eq("id", data.id).maybeSingle();
+    const { data: versao } = await db
+      .from("home_publica_versoes")
+      .select("snapshot")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!versao) throw new Error("Versão não encontrada.");
     const { error } = await db
       .from("home_publica")
@@ -143,13 +176,17 @@ export const restaurarVersaoHome = createServerFn({ method: "POST" })
 /** Endereços temporários das imagens do editor, para a prévia do admin. */
 export const assinarImagensHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ caminhos: z.array(z.string().max(500)).max(60) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ caminhos: z.array(z.string().max(500)).max(60) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     await exigirAdmin(context);
     const lista = data.caminhos.filter((c) => c && !c.startsWith("http") && !c.startsWith("/"));
     if (!lista.length) return {} as Record<string, string>;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: urls } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(lista, 60 * 60);
+    const { data: urls } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .createSignedUrls(lista, 60 * 60);
     const mapa: Record<string, string> = {};
     (urls ?? []).forEach((item, i) => {
       if (item.signedUrl) mapa[lista[i]!] = item.signedUrl;
@@ -163,16 +200,23 @@ export const listarImagensHome = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await exigirAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin.storage.from(BUCKET).list("", { limit: 60, sortBy: { column: "created_at", order: "desc" } });
+    const { data } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .list("", { limit: 60, sortBy: { column: "created_at", order: "desc" } });
     const nomes = (data ?? []).filter((a) => a.name && a.id).map((a) => a.name);
     if (!nomes.length) return [] as { caminho: string; url: string }[];
-    const { data: urls } = await supabaseAdmin.storage.from(BUCKET).createSignedUrls(nomes, 60 * 60);
-    return nomes.map((nome, i) => ({ caminho: nome, url: urls?.[i]?.signedUrl ?? "" })).filter((i) => i.url);
+    const { data: urls } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .createSignedUrls(nomes, 60 * 60);
+    return nomes
+      .map((nome, i) => ({ caminho: nome, url: urls?.[i]?.signedUrl ?? "" }))
+      .filter((i) => i.url);
   });
 
 /** Conteúdo público da Home oficial (/apresentacao): textos e SEO publicados. */
 export const getApresentacaoPublicada = createServerFn({ method: "GET" }).handler(async () => {
-  const { normalizarApresentacao, SEO_APRESENTACAO_PADRAO } = await import("@/lib/apresentacao-conteudo");
+  const { normalizarApresentacao, SEO_APRESENTACAO_PADRAO } =
+    await import("@/lib/apresentacao-conteudo");
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin.rpc("home_publicada");
@@ -180,7 +224,9 @@ export const getApresentacaoPublicada = createServerFn({ method: "GET" }).handle
     const home = normalizarHome(data);
     return {
       conteudo: normalizarApresentacao(bruto.apresentacao),
-      seo: home.apresentacao ? { titulo: home.seo.titulo, descricao: home.seo.descricao } : SEO_APRESENTACAO_PADRAO,
+      seo: home.apresentacao
+        ? { titulo: home.seo.titulo, descricao: home.seo.descricao }
+        : SEO_APRESENTACAO_PADRAO,
     };
   } catch {
     return { conteudo: normalizarApresentacao(null), seo: SEO_APRESENTACAO_PADRAO };

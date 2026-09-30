@@ -66,7 +66,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   secretaria: {
     etiqueta: "SECRETÁRIA CORTAÍ",
     titulo: "Enquanto você atende, sua Secretária cuida dos agendamentos.",
-    texto: "Uma experiência clara para o cliente escolher atendimento, profissional, dia e horário.",
+    texto:
+      "Uma experiência clara para o cliente escolher atendimento, profissional, dia e horário.",
   },
   recursos: {
     etiqueta: "RECURSOS",

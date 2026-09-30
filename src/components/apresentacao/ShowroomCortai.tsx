@@ -309,9 +309,21 @@ const RECURSOS = [
   },
 ];
 
-function Cabecalho({ b, centro, id }: { b: { etiqueta: string; titulo: string; texto: string }; centro?: boolean; id?: string }) {
+function Cabecalho({
+  b,
+  centro,
+  id,
+}: {
+  b: { etiqueta: string; titulo: string; texto: string };
+  centro?: boolean;
+  id?: string;
+}) {
   return (
-    <div className={centro ? "showroom-secao-cabecalho showroom-centralizado" : "showroom-secao-cabecalho"}>
+    <div
+      className={
+        centro ? "showroom-secao-cabecalho showroom-centralizado" : "showroom-secao-cabecalho"
+      }
+    >
       {b.etiqueta ? <p className="showroom-eyebrow">{b.etiqueta}</p> : null}
       <h2 id={id}>{b.titulo}</h2>
       {b.texto ? <p>{b.texto}</p> : null}
@@ -430,7 +442,9 @@ export function ShowroomCortai({
             <Secretaria segmento={segmento} />
           </div>
           <div className="showroom-secao-cabecalho">
-            {c.secretaria.etiqueta ? <p className="showroom-eyebrow">{c.secretaria.etiqueta}</p> : null}
+            {c.secretaria.etiqueta ? (
+              <p className="showroom-eyebrow">{c.secretaria.etiqueta}</p>
+            ) : null}
             <h2>{c.secretaria.titulo}</h2>
             {c.secretaria.texto ? <p>{c.secretaria.texto}</p> : null}
             <div className="showroom-plano-nota">
