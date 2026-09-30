@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -227,6 +227,11 @@ function SecretariaVisual() {
   );
 }
 function IaVisual() {
+  const recursos = [
+    { Icon: Sparkles, label: "Resumo do dia" },
+    { Icon: Target, label: "Próximas ações" },
+    { Icon: MessageCircle, label: "Comunicações consistentes" },
+  ];
   return (
     <div className="presentation-product p-6">
       <div className="flex items-center gap-3">
@@ -239,14 +244,10 @@ function IaVisual() {
         </span>
       </div>
       <div className="mt-7 space-y-4">
-        {[
-          [Sparkles, "Resumo do dia"],
-          [Target, "Próximas ações"],
-          [MessageCircle, "Comunicações consistentes"],
-        ].map(([Icon, label]) => (
-          <div key={String(label)} className="flex items-center gap-3 border-b border-line pb-4">
+        {recursos.map(({ Icon, label }) => (
+          <div key={label} className="flex items-center gap-3 border-b border-line pb-4">
             <Icon className="size-5 text-gold" />
-            <span className="text-sm font-semibold text-paper">{String(label)}</span>
+            <span className="text-sm font-semibold text-paper">{label}</span>
             <Check className="ml-auto size-4 text-sage" />
           </div>
         ))}
@@ -282,14 +283,14 @@ function ApresentacaoInterna() {
   const navigate = useNavigate({ from: "/admin/apresentacao" });
   const inicioToque = useRef<number | null>(null);
   const atual = cenas[cena - 1] ?? cenas[0];
-  const ir = (proxima: number) => {
+  const ir = useCallback((proxima: number) => {
     if (proxima >= 1 && proxima <= cenas.length)
       void navigate({ search: { cena: proxima }, replace: true });
-  };
-  const sair = () => {
+  }, [navigate]);
+  const sair = useCallback(() => {
     if (window.history.length > 1) window.history.back();
     else void navigate({ to: "/admin", search: {} });
-  };
+  }, [navigate]);
   useEffect(() => {
     const teclado = (evento: KeyboardEvent) => {
       if (evento.key === "ArrowRight" || evento.key === " ") ir(cena + 1);
@@ -298,7 +299,7 @@ function ApresentacaoInterna() {
     };
     window.addEventListener("keydown", teclado);
     return () => window.removeEventListener("keydown", teclado);
-  }, [cena]);
+  }, [cena, ir, sair]);
   return (
     <main
       className="presentation-stage"

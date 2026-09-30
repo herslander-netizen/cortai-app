@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CreditCard, LifeBuoy, Settings } from "lucide-react";
+import { CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,7 @@ import { GRUPOS_DE_NAVEGACAO, modulosDeNavegacao } from "@/lib/navegacao-barbeir
 type ItemDoMenu = {
   label: string;
   to: string;
-  icon: typeof CalendarDays;
+  icon: LucideIcon;
   permissao?: ChaveDePermissao;
   rotaDaCapacidade?: string;
 };
@@ -76,8 +76,9 @@ export function ManagementHeader() {
         .filter((item) => item.grupo === titulo)
         .filter((item) => {
           if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
-          if (!item.rotaDaCapacidade || !capacidades) return true;
-          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === item.rotaDaCapacidade);
+          const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
+          if (!rotaDaCapacidade || !capacidades) return true;
+          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
           return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
         }),
     }));
