@@ -456,6 +456,13 @@ function AgendamentoPublico() {
           setConflito(null);
           criar.mutate(undefined);
         }}
+        conflito={conflito}
+        alterarConflito={() => {
+          if (!conflito) return;
+          setSubstituiId(conflito.agendamentoId);
+          setConflito(null);
+          criar.mutate(conflito.agendamentoId);
+        }}
         enviando={criar.isPending}
         erro={erro}
       />

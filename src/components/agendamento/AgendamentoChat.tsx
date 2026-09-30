@@ -72,6 +72,8 @@ export function AgendamentoChat({
   setNome,
   setTelefone,
   confirmar,
+  conflito,
+  alterarConflito,
   enviando,
   erro,
 }: {
@@ -82,6 +84,8 @@ export function AgendamentoChat({
   setNome: (value: string) => void;
   setTelefone: (value: string) => void;
   confirmar: () => void;
+  conflito: { agendamentoId: string; hora: string } | null;
+  alterarConflito: () => void;
   enviando: boolean;
   erro: string | null;
 }) {
@@ -461,6 +465,19 @@ export function AgendamentoChat({
               </p>
               <Button variant="outline" className="mt-3 h-12" onClick={confirmar}>
                 Tentar novamente
+              </Button>
+            </Fala>
+          ) : null}
+          {conflito ? (
+            <Fala>
+              <p role="alert">Você já tem um horário às {conflito.hora} nesse dia.</p>
+              <Button
+                variant="outline"
+                className="mt-3 h-12 w-full"
+                disabled={enviando}
+                onClick={alterarConflito}
+              >
+                Alterar esse horário
               </Button>
             </Fala>
           ) : null}
