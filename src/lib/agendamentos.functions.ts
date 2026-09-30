@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -37,8 +39,7 @@ export const listarAgendamentosConfirmados = createServerFn({ method: "GET" })
     const db = ctx.supabase;
 
     const agora = new Date();
-    const inicioDeHoje = new Date(agora);
-    inicioDeHoje.setHours(0, 0, 0, 0);
+    const inicioDeHoje = inicioDoDiaNoFuso(await fusoDoTenant(tenantId), agora);
     const fimDeHoje = new Date(inicioDeHoje.getTime() + 24 * 60 * 60 * 1000);
 
     let consulta = db

@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -256,7 +258,7 @@ export const getCaixa = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const db = await admin();
-    const inicio = new Date(); inicio.setHours(0, 0, 0, 0);
+    const inicio = inicioDoDiaNoFuso(await fusoDoTenant(tenantId));
     const [{ data: movimentos }, { data: fiados }, { data: sessao }] = await Promise.all([
       db.from("caixa_movimentos").select("id, tipo, categoria, descricao, valor_centavos, forma_pagamento, criado_em, pagamento_id, pagamentos(status), comandas(numero, clientes(nome), profissionais(nome)), clientes(nome), profissionais(nome)").eq("tenant_id", tenantId).gte("criado_em", inicio.toISOString()).order("criado_em", { ascending: false }),
       db.from("fiados").select("id, saldo_centavos").eq("tenant_id", tenantId).in("status", ["pendente", "parcial"]),

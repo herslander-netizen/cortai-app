@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { hojeNoFuso, inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
@@ -112,15 +114,11 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     ]);
 
     const agora = Date.now();
-    const inicioDoDia = new Date();
-    inicioDoDia.setHours(0, 0, 0, 0);
+    const fusoDoNegocio = await fusoDoTenant(tenantId);
+    const inicioDoDia = inicioDoDiaNoFuso(fusoDoNegocio);
     const fimDoDia = new Date(inicioDoDia.getTime() + DIA);
-    const inicioMes = new Date();
-    inicioMes.setDate(1);
-    inicioMes.setHours(0, 0, 0, 0);
-    const diaIso = new Date(inicioDoDia.getTime() - inicioDoDia.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 10);
+    const inicioMes = inicioDoMesNoFuso(fusoDoNegocio);
+    const diaIso = hojeNoFuso(fusoDoNegocio);
 
     const [
       tenantRes,

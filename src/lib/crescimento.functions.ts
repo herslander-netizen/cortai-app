@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado, exigirPermissao } from "@/lib/tenant";
@@ -156,11 +158,9 @@ export const getCrescimento = createServerFn({ method: "GET" })
   const { db, tenant } = await tenantPadrao(context);
   await exigirRecurso(db, tenant.id, "crescimento");
   const agora = Date.now();
-  const inicioMes = new Date();
-  inicioMes.setDate(1);
-  inicioMes.setHours(0, 0, 0, 0);
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
+  const fusoDoNegocio = await fusoDoTenant(tenant.id);
+  const inicioMes = inicioDoMesNoFuso(fusoDoNegocio);
+  const hoje = inicioDoDiaNoFuso(fusoDoNegocio);
   const amanha = new Date(hoje.getTime() + DIA);
 
   const [novosRes, origemRes, agHojeRes, agRes, profRes, filaRes, indicacoesRes] =
