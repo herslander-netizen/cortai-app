@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { Link, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -212,6 +213,7 @@ export function AgendaOperacional() {
   const filtroInicial = useRef(false);
   const [painelAberto, setPainelAberto] = useState(false);
   const [modoFoco, setModoFoco] = useState(false);
+  const navigate = useNavigate();
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
   const [remarcarHora, setRemarcarHora] = useState("");
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
