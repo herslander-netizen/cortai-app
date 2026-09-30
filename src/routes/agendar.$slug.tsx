@@ -27,7 +27,6 @@ import {
   cancelarComoConvidado,
   getAgendaPublica,
   getPreviaDaBarbearia,
-  reconhecerCliente,
   situacaoComoConvidado,
   type ConfirmacaoPublica,
 } from "@/lib/agendamento-publico.functions";
