@@ -5,3 +5,5 @@
 - [ ] Cards contextuais novos (serviço 4:5, ingresso, horários Manhã/Tarde/Noite), escolha de fundo e folha CortAI
 - [x] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
 - [ ] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
+- [ ] Corrigir P0/P1 seguros encontrados na auditoria final de pré-lançamento
+- [ ] Validar TypeScript, lint, testes, build e fluxos críticos após as correções
