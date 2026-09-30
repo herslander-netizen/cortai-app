@@ -8,6 +8,7 @@ import {
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
+import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatShell";
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
