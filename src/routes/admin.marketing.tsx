@@ -42,7 +42,7 @@ function MarketingPage() {
     if (navigator.share) {
       await navigator.share({
         title: "Conheça o Cortaí",
-        text: "Conheça o Cortaí conversando com o Cortaí.",
+        text: "Mais organização para o seu negócio. Mais tempo para atender bem.",
         url: endereco,
       });
       return;
@@ -50,15 +50,12 @@ function MarketingPage() {
     await copiar();
   }
   return (
-    <AdminScreen
-      title="Marketing"
-      subtitle="Apresente o Cortaí sem interferir na operação do produto."
-    >
-      <section className="max-w-2xl rounded-2xl border border-line bg-ink2 p-5 md:p-7">
+    <AdminScreen title="Marketing" subtitle="Compartilhe a apresentação comercial do Cortaí.">
+      <section className="max-w-2xl rounded-lg border border-line bg-ink2 p-5 md:p-7">
         <p className="text-xs font-semibold uppercase text-gold">Apresentação pública</p>
         <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Cortaí</h2>
         <p className="mt-2 text-sm leading-relaxed text-mute">
-          Uma experiência guiada por Agenda, Modo Foco, Clientes, Secretária e Caixa.
+          Uma página pronta para apresentar Agenda, Clientes, Modo Foco, Secretária, Caixa e planos.
         </p>
         <div
           className="mt-5 rounded-xl border border-line2 bg-ink px-4 py-3 text-sm text-mute"
@@ -72,6 +69,11 @@ function MarketingPage() {
               Abrir <ExternalLink />
             </a>
           </Button>
+          <Button asChild variant="outline">
+            <a href="/apresentacao#planos" target="_blank" rel="noopener noreferrer">
+              Ver planos <ExternalLink />
+            </a>
+          </Button>
           <Button variant="outline" onClick={copiar}>
             <Copy /> Copiar link
           </Button>
@@ -83,7 +85,7 @@ function MarketingPage() {
           </Button>
         </div>
         {mostrarQr ? (
-          <div className="mt-6 rounded-2xl border border-line bg-white p-4">
+          <div className="mt-6 rounded-lg border border-line bg-qr-light p-4">
             <QrCodeReal valor={endereco} alt="QR Code da apresentação pública do Cortaí" />
           </div>
         ) : null}

@@ -1,16 +1,17 @@
-import { TabelaDePlanos } from "@/components/planos/TabelaDePlanos";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
   Check,
   Clock3,
   CreditCard,
+  Focus,
   MessageCircle,
   Plus,
   ReceiptText,
+  Sparkles,
   UserRound,
+  UsersRound,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 
@@ -20,6 +21,7 @@ import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { ChatHeader } from "@/components/chat/ChatShell";
 import { useWhatsappAlvo } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { TabelaDePlanos } from "@/components/planos/TabelaDePlanos";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
@@ -27,18 +29,20 @@ import { brl } from "@/lib/format";
 import { SEGMENTOS_CONFIG, type Segmento } from "@/lib/segmentos";
 
 export type EtapaShowroom = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
 const OPCOES: Array<{ id: Segmento; rotulo: string }> = [
-  { id: "barbearia", rotulo: "Barbearia" },
-  { id: "salao", rotulo: "Salão" },
-  { id: "esmalteria", rotulo: "Nail designer" },
+  { id: "barbearia", rotulo: "Barbearias" },
+  { id: "salao", rotulo: "Salões" },
+  { id: "esmalteria", rotulo: "Nail designers" },
   { id: "estetica", rotulo: "Estética" },
-  { id: "outro", rotulo: "Outro" },
+  { id: "outro", rotulo: "Outros profissionais" },
 ];
+
 const DIA = "2026-09-30";
 const AGORA = new Date("2026-09-30T13:18:00.000Z").getTime();
 
 function itens(segmento: Segmento): AgendaItem[] {
-  const s = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
   const base = (
     id: string,
     inicio: string,
@@ -53,9 +57,9 @@ function itens(segmento: Segmento): AgendaItem[] {
     clienteId: null,
     telefone: null,
     profissional: "Alex",
-    servico: s[indice]?.nome ?? "Atendimento",
+    servico: servicos[indice]?.nome ?? "Atendimento",
     duracaoMin: 45,
-    valor_centavos: s[indice]?.precoCentavos ?? 4500,
+    valor_centavos: servicos[indice]?.precoCentavos ?? 4500,
     forma_pagamento: null,
     ficha: null,
     arrivedAt: null,
@@ -63,6 +67,7 @@ function itens(segmento: Segmento): AgendaItem[] {
     finishedAt: null,
     status: "agendado",
   });
+
   return [
     {
       ...base("agora", "2026-09-30T13:00:00.000Z", "2026-09-30T13:45:00.000Z", "Marina Costa", 0),
@@ -77,35 +82,6 @@ function itens(segmento: Segmento): AgendaItem[] {
     },
     base("depois", "2026-09-30T15:15:00.000Z", "2026-09-30T16:00:00.000Z", "Ana Souza", 2),
   ];
-}
-
-function Topo({ etapa, voltar }: { etapa: EtapaShowroom; voltar: () => void }) {
-  const n = Math.min(6, Math.max(1, etapa - 1));
-  return (
-    <header className="showroom-header">
-      <div className="showroom-header-inner">
-        {etapa ? (
-          <Button variant="ghost" size="sm" onClick={voltar}>
-            <ArrowLeft /> Voltar
-          </Button>
-        ) : (
-          <MarcaCortai variante="escura" className="h-auto w-24" prioridade />
-        )}
-        <span className="showroom-header-title">
-          Cortaí <i /> Conheça conversando
-        </span>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/login">Sair</Link>
-        </Button>
-      </div>
-      {etapa >= 2 && (
-        <div className="showroom-progress" aria-label={`Etapa ${n} de 6`}>
-          <span style={{ width: `${(n / 6) * 100}%` }} />
-          <small>{String(n).padStart(2, "0")} / 06</small>
-        </div>
-      )}
-    </header>
-  );
 }
 
 function Agenda({ segmento }: { segmento: Segmento }) {
@@ -135,8 +111,7 @@ function Agenda({ segmento }: { segmento: Segmento }) {
 }
 
 function Foco({ segmento }: { segmento: Segmento }) {
-  const agenda = itens(segmento);
-  const [atual, proximo] = agenda;
+  const [atual, proximo] = itens(segmento);
   if (!atual || !proximo) return null;
   return (
     <div className="showroom-produto showroom-foco-demo" aria-label="Demonstração do Modo Foco">
@@ -177,7 +152,7 @@ function Foco({ segmento }: { segmento: Segmento }) {
 }
 
 function Cliente({ segmento }: { segmento: Segmento }) {
-  const s = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
+  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
   return (
     <div
       className="showroom-produto showroom-cliente"
@@ -202,7 +177,7 @@ function Cliente({ segmento }: { segmento: Segmento }) {
         </div>
         <div>
           <dt>Serviço</dt>
-          <dd>{s?.nome ?? "Atendimento"}</dd>
+          <dd>{servico?.nome ?? "Atendimento"}</dd>
         </div>
       </dl>
       <div className="showroom-anotacao">
@@ -213,10 +188,10 @@ function Cliente({ segmento }: { segmento: Segmento }) {
         <div className="showroom-historico" key={data}>
           <time>{data}</time>
           <span>
-            <strong>{s?.nome ?? "Atendimento"}</strong>
+            <strong>{servico?.nome ?? "Atendimento"}</strong>
             <small>Concluído · Alex</small>
           </span>
-          <b>{brl(s?.precoCentavos ?? 4500)}</b>
+          <b>{brl(servico?.precoCentavos ?? 4500)}</b>
         </div>
       ))}
     </div>
@@ -232,6 +207,7 @@ function Balao({ cliente, children }: { cliente?: boolean; children: ReactNode }
     </Message>
   );
 }
+
 function Secretaria({ segmento }: { segmento: Segmento }) {
   const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0]?.nome ?? "Atendimento";
   return (
@@ -257,8 +233,8 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
 }
 
 function Caixa({ segmento }: { segmento: Segmento }) {
-  const s = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
-  const valor = s?.precoCentavos ?? 4500;
+  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
+  const valor = servico?.precoCentavos ?? 4500;
   return (
     <div className="showroom-produto showroom-caixa" aria-label="Demonstração da comanda">
       <div className="showroom-produto-topo">
@@ -283,7 +259,7 @@ function Caixa({ segmento }: { segmento: Segmento }) {
       </div>
       <div className="showroom-caixa-item">
         <span>
-          <strong>{s?.nome ?? "Atendimento"}</strong>
+          <strong>{servico?.nome ?? "Atendimento"}</strong>
           <small>1 serviço</small>
         </span>
         <b>{brl(valor)}</b>
@@ -304,174 +280,301 @@ function Caixa({ segmento }: { segmento: Segmento }) {
   );
 }
 
-export function ShowroomCortai({ etapa, segmento }: { etapa: EtapaShowroom; segmento: Segmento }) {
-  const navigate = useNavigate({ from: "/apresentacao" });
+const RECURSOS = [
+  {
+    icone: CalendarDays,
+    titulo: "Agenda",
+    texto: "Horários, equipe e andamento do dia em uma leitura rápida.",
+  },
+  {
+    icone: UsersRound,
+    titulo: "Clientes",
+    texto: "Histórico, preferências e retornos no contexto certo.",
+  },
+  {
+    icone: Focus,
+    titulo: "Modo Foco",
+    texto: "O atendimento atual e a próxima ação sem distrações.",
+  },
+  {
+    icone: ReceiptText,
+    titulo: "Comanda e Caixa",
+    texto: "Do serviço ao pagamento em um fluxo só.",
+  },
+  {
+    icone: MessageCircle,
+    titulo: "Secretária",
+    texto: "Agendamento e confirmações nos planos compatíveis.",
+  },
+];
+
+export function ShowroomCortai({
+  segmento: inicial,
+}: {
+  etapa: EtapaShowroom;
+  segmento: Segmento;
+}) {
+  const [segmento, setSegmento] = useState(inicial);
   const contato = useWhatsappAlvo();
-  const [chat, setChat] = useState(false);
-  const ir = (e: EtapaShowroom, s = segmento) =>
-    void navigate({ search: { etapa: e, segmento: s } });
-  const voltar = () => etapa && ir((etapa - 1) as EtapaShowroom);
-  const avancar = () => ir(Math.min(7, etapa + 1) as EtapaShowroom);
-  const config = SEGMENTOS_CONFIG[segmento];
   return (
     <main className="showroom-page light">
-      <Topo etapa={etapa} voltar={voltar} />
-      {etapa === 0 && (
-        <section className="showroom-entrada">
-          <MarcaCortai variante="escura" className="h-auto w-40" prioridade />
-          <div>
-            <p>Conheça o Cortaí</p>
-            <h1>Quer descobrir como deixar seu negócio mais organizado?</h1>
-            <strong>Eu posso te mostrar.</strong>
-          </div>
-          <Button size="lg" onClick={() => ir(1)}>
-            Começar <ArrowRight />
-          </Button>
-          <p className="showroom-pistas">
-            Agenda <i /> Clientes <i /> Secretária <i /> Caixa
-          </p>
-        </section>
-      )}
-      {etapa === 1 && (
-        <section className="showroom-escolha">
-          <div className="showroom-avatar">
-            <MessageCircle />
-          </div>
-          <small>Cortaí</small>
-          <h1>Qual é o seu negócio?</h1>
-          <p>Vou adaptar os exemplos desta conversa. Nada será salvo.</p>
-          <div>
-            {OPCOES.map((o) => (
-              <Button key={o.id} variant="outline" onClick={() => ir(2, o.id)}>
-                {o.rotulo}
-                <ArrowRight />
-              </Button>
-            ))}
-          </div>
-        </section>
-      )}
-      {etapa >= 2 && etapa <= 6 && (
-        <section className="showroom-cena">
-          <div className="showroom-cena-copy">
-            <small>{config.rotulo} · Demonstração</small>
-            {etapa === 2 && (
-              <>
-                <h1>Sua agenda fica organizada em um só lugar.</h1>
-                <p>Horários, clientes e andamento do dia aparecem em uma leitura rápida.</p>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    document
-                      .querySelector(".showroom-agenda")
-                      ?.scrollIntoView({ behavior: "smooth", block: "center" })
-                  }
-                >
-                  <CalendarDays /> Ver agenda
-                </Button>
-              </>
-            )}
-            {etapa === 3 && (
-              <>
-                <em>Agora imagine que você está atendendo.</em>
-                <h1>Você olha e sabe exatamente o que precisa fazer agora.</h1>
-                <p>O atendimento atual domina a tela. O próximo passo continua claro.</p>
-              </>
-            )}
-            {etapa === 4 && (
-              <>
-                <h1>Cada atendimento também constrói o histórico do seu cliente.</h1>
-                <p>Preferências, serviços e retornos ficam no contexto certo.</p>
-              </>
-            )}
-            {etapa === 5 && (
-              <>
-                <em>Enquanto você atende, sua Secretária pode cuidar dos agendamentos.</em>
-                <h1>Você conhece o Cortaí conversando com o Cortaí.</h1>
-                <Button variant="outline" onClick={() => setChat(!chat)}>
-                  <MessageCircle /> {chat ? "Ocultar conversa" : "Abrir conversa"}
-                </Button>
-              </>
-            )}
-            {etapa === 6 && (
-              <>
-                <em>Terminou o atendimento?</em>
-                <h1>Atendimento, comanda e pagamento seguem o mesmo fluxo.</h1>
-                <p>Sem perder o contexto do cliente.</p>
-              </>
-            )}
-          </div>
-          <div className="showroom-cena-produto">
-            {etapa === 2 && <Agenda segmento={segmento} />}
-            {etapa === 3 && <Foco segmento={segmento} />}
-            {etapa === 4 && <Cliente segmento={segmento} />}
-            {etapa === 5 &&
-              (chat ? (
-                <Secretaria segmento={segmento} />
-              ) : (
-                <button className="showroom-chat-fechado" onClick={() => setChat(true)}>
-                  <span>
-                    <MessageCircle />
-                  </span>
-                  <strong>Secretária Cortaí</strong>
-                  <small>Toque para conversar</small>
-                </button>
-              ))}
-            {etapa === 6 && <Caixa segmento={segmento} />}
-          </div>
-          <div className="showroom-avancar">
-            <Button size="lg" onClick={avancar}>
-              Continuar <ArrowRight />
+      <header className="showroom-header">
+        <div className="showroom-header-inner">
+          <a href="#inicio" aria-label="Cortaí — início">
+            <MarcaCortai variante="escura" className="h-auto w-24" prioridade />
+          </a>
+          <nav aria-label="Navegação da apresentação">
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#recursos">Recursos</a>
+            <a href="#planos">Planos</a>
+            <a href="#duvidas">Dúvidas</a>
+          </nav>
+          <div className="showroom-header-actions">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/login">Entrar</Link>
             </Button>
-          </div>
-        </section>
-      )}
-      {etapa === 7 && (
-        <section className="showroom-final">
-          <div className="showroom-avatar">
-            <Check />
-          </div>
-          <p>Você acabou de conhecer o Cortaí por dentro.</p>
-          <h1>Quer colocar isso para funcionar no seu negócio?</h1>
-          <div>
-            <Button asChild size="lg">
+            <Button asChild size="sm">
               <Link to="/login" search={{ proximo: "/comecar" }}>
-                Quero experimentar <ArrowRight />
+                Começar agora
               </Link>
             </Button>
-            {contato ? (
-              <Button asChild variant="outline" size="lg">
-                <a href={contato} target="_blank" rel="noopener noreferrer">
-                  Quero falar com alguém
-                </a>
-              </Button>
-            ) : (
-              <Button asChild variant="outline" size="lg">
-                <Link to="/privacidade">Quero falar com alguém</Link>
-              </Button>
-            )}
-            {contato ? (
-              <Button asChild variant="ghost" size="lg">
-                <a href={contato} target="_blank" rel="noopener noreferrer">
-                  Tenho uma dúvida
-                </a>
-              </Button>
-            ) : (
-              <Button asChild variant="ghost" size="lg">
-                <Link to="/privacidade">Tenho uma dúvida</Link>
-              </Button>
-            )}
           </div>
-          <section className="showroom-planos" aria-labelledby="showroom-planos-titulo">
-            <h2 id="showroom-planos-titulo">Escolha como começar</h2>
-            <TabelaDePlanos />
-          </section>
-          <Button variant="text" onClick={() => ir(0)}>
-            Ver de novo
+        </div>
+      </header>
+
+      <section id="inicio" className="showroom-hero">
+        <div className="showroom-hero-copy">
+          <p className="showroom-eyebrow">PARA BARBEARIAS, SALÕES E PROFISSIONAIS</p>
+          <h1>
+            Mais organização para o seu negócio.
+            <br />
+            Mais tempo para atender bem.
+          </h1>
+          <p className="showroom-lead">
+            Agenda, clientes, caixa e uma Secretária que ajuda a cuidar dos seus agendamentos. Tudo
+            em um só lugar.
+          </p>
+          <div className="showroom-hero-actions">
+            <Button asChild size="lg">
+              <Link to="/login" search={{ proximo: "/comecar" }}>
+                Começar agora <ArrowRight />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <a href="#como-funciona">Ver como funciona</a>
+            </Button>
+          </div>
+          <p className="showroom-assinatura">Simplifica. Conecta. Cresce.</p>
+        </div>
+        <div
+          className="showroom-hero-produto"
+          aria-label="Visão da Agenda e dos Clientes do Cortaí"
+        >
+          <Agenda segmento={segmento} />
+          <div className="showroom-hero-cliente">
+            <Cliente segmento={segmento} />
+          </div>
+        </div>
+      </section>
+
+      <section id="como-funciona" className="showroom-secao showroom-prova">
+        <div className="showroom-secao-cabecalho">
+          <p className="showroom-eyebrow">O DIA COMEÇA AQUI</p>
+          <h2>Tudo começa pela agenda.</h2>
+          <p>O Cortaí reúne o que acontece antes, durante e depois de cada atendimento.</p>
+        </div>
+        <div className="showroom-prova-layout">
+          <Agenda segmento={segmento} />
+          <div className="showroom-prova-pontos">
+            {RECURSOS.slice(0, 4).map(({ icone: Icon, titulo, texto }) => (
+              <div key={titulo}>
+                <Icon />
+                <span>
+                  <strong>{titulo}</strong>
+                  <small>{texto}</small>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="showroom-faixa showroom-foco-secao">
+        <div className="showroom-dividida">
+          <div className="showroom-secao-cabecalho">
+            <p className="showroom-eyebrow">MODO FOCO</p>
+            <h2>O que importa agora, sem tirar o foco do atendimento.</h2>
+            <p>Veja quem está na cadeira, o próximo cliente e a ação que precisa acontecer.</p>
+          </div>
+          <Foco segmento={segmento} />
+        </div>
+      </section>
+
+      <section className="showroom-secao showroom-clientes-secao">
+        <div className="showroom-dividida showroom-dividida-inversa">
+          <Cliente segmento={segmento} />
+          <div className="showroom-secao-cabecalho">
+            <p className="showroom-eyebrow">CLIENTES</p>
+            <h2>Cada atendimento constrói um relacionamento.</h2>
+            <p>Histórico, preferências e frequência ficam organizados para o próximo encontro.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="showroom-faixa showroom-secretaria-secao">
+        <div className="showroom-dividida">
+          <div className="showroom-chat-wrap">
+            <Secretaria segmento={segmento} />
+          </div>
+          <div className="showroom-secao-cabecalho">
+            <p className="showroom-eyebrow">SECRETÁRIA CORTAÍ</p>
+            <h2>Enquanto você atende, sua Secretária cuida dos agendamentos.</h2>
+            <p>
+              Uma experiência clara para o cliente escolher atendimento, profissional, dia e
+              horário.
+            </p>
+            <div className="showroom-plano-nota">
+              <Sparkles />
+              <span>
+                <strong>Disponível no Conecta e no Equipe.</strong>
+                <small>
+                  Inclui Secretária, agendamento pelo cliente, WhatsApp e confirmações automáticas.
+                </small>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="recursos" className="showroom-secao">
+        <div className="showroom-secao-cabecalho showroom-centralizado">
+          <p className="showroom-eyebrow">RECURSOS</p>
+          <h2>Tudo o que você precisa para cuidar do seu negócio.</h2>
+        </div>
+        <div className="showroom-recursos">
+          {RECURSOS.map(({ icone: Icon, titulo, texto }) => (
+            <article key={titulo}>
+              <Icon />
+              <h3>{titulo}</h3>
+              <p>{texto}</p>
+            </article>
+          ))}
+        </div>
+        <div className="showroom-caixa-destaque">
+          <div className="showroom-secao-cabecalho">
+            <p className="showroom-eyebrow">COMANDA E CAIXA</p>
+            <h2>Do atendimento ao pagamento, sem perder o contexto.</h2>
+          </div>
+          <Caixa segmento={segmento} />
+        </div>
+      </section>
+
+      <section className="showroom-faixa showroom-segmentos">
+        <div className="showroom-secao-cabecalho showroom-centralizado">
+          <p className="showroom-eyebrow">FEITO PARA BELEZA</p>
+          <h2>O mesmo Cortaí, adaptado ao seu tipo de negócio.</h2>
+          <p>
+            Escolha um segmento para ver os exemplos da página com a linguagem mais próxima da sua
+            rotina.
+          </p>
+        </div>
+        <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
+          {OPCOES.map((opcao) => (
+            <Button
+              key={opcao.id}
+              variant={segmento === opcao.id ? "default" : "outline"}
+              onClick={() => setSegmento(opcao.id)}
+            >
+              {opcao.rotulo}
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      <section
+        id="planos"
+        className="showroom-secao showroom-planos"
+        aria-labelledby="showroom-planos-titulo"
+      >
+        <div className="showroom-secao-cabecalho showroom-centralizado">
+          <p className="showroom-eyebrow">PLANOS</p>
+          <h2 id="showroom-planos-titulo">Escolha como começar.</h2>
+          <p>Planos mensais por profissional. Secretária e WhatsApp entram a partir do Conecta.</p>
+        </div>
+        <TabelaDePlanos
+          acao={() => (
+            <Button asChild className="w-full" variant="outline">
+              <Link to="/login" search={{ proximo: "/comecar" }}>
+                Começar agora
+              </Link>
+            </Button>
+          )}
+        />
+      </section>
+
+      <section id="duvidas" className="showroom-faixa showroom-faq">
+        <div className="showroom-secao-cabecalho">
+          <p className="showroom-eyebrow">DÚVIDAS</p>
+          <h2>Antes de começar.</h2>
+        </div>
+        <div className="showroom-faq-lista">
+          <details>
+            <summary>O Cortaí funciona no celular?</summary>
+            <p>
+              Sim. A experiência é pensada para acompanhar a rotina do negócio no celular e também
+              funciona no computador.
+            </p>
+          </details>
+          <details>
+            <summary>Meus clientes podem agendar sozinhos?</summary>
+            <p>Sim, a partir do plano Conecta, usando a página e a Secretária Cortaí.</p>
+          </details>
+          <details>
+            <summary>O WhatsApp está em todos os planos?</summary>
+            <p>
+              Não. WhatsApp, Secretária e confirmações automáticas estão disponíveis no Conecta e no
+              Equipe.
+            </p>
+          </details>
+          <details>
+            <summary>Serve apenas para barbearias?</summary>
+            <p>
+              Não. O Cortaí atende barbearias, salões, nail designers, estética e outros
+              profissionais de Beleza.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section className="showroom-cta-final">
+        <MarcaCortai variante="escura" className="h-auto w-32" />
+        <h2>Seu negócio pode ser mais simples.</h2>
+        <p>Organize a rotina e tenha mais tempo para atender bem.</p>
+        <div>
+          <Button asChild size="lg">
+            <Link to="/login" search={{ proximo: "/comecar" }}>
+              Começar agora <ArrowRight />
+            </Link>
           </Button>
-        </section>
-      )}
+          {contato ? (
+            <Button asChild size="lg" variant="outline">
+              <a href={contato} target="_blank" rel="noopener noreferrer">
+                Quero falar com alguém
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      </section>
+
       <footer className="showroom-footer">
-        By Alvo Digital <i /> Cortaí
+        <MarcaCortai variante="escura" className="h-auto w-24" />
+        <span>By Alvo Digital</span>
+        <nav aria-label="Links do rodapé">
+          <a href="#recursos">Recursos</a>
+          <a href="#planos">Planos</a>
+          <Link to="/privacidade">Privacidade</Link>
+          <Link to="/login">Entrar</Link>
+        </nav>
       </footer>
     </main>
   );

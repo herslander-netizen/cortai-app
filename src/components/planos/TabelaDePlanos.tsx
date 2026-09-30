@@ -37,7 +37,7 @@ export function TabelaDePlanos({
               ) : null}
             </div>
             <p className="planos-preco">
-              <small>R$</small> {precoComercial(preco)} <span>/mês</span>
+              <small>R$</small> {precoComercial(preco)} <span>por profissional/mês</span>
             </p>
             {plano.herda ? <p className="planos-herda">{plano.herda}, mais:</p> : null}
             <ul>
