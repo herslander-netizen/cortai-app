@@ -80,6 +80,7 @@ import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
@@ -448,6 +449,11 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VagaTokenRoute = VagaTokenRouteImport.update({
+  id: '/vaga/$token',
+  path: '/vaga/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
   id: '/api/public/alvo-ia',
   path: '/api/public/alvo-ia',
@@ -577,6 +583,7 @@ export interface FileRoutesByFullPath {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
@@ -657,6 +664,7 @@ export interface FileRoutesByTo {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/vaga/$token': typeof VagaTokenRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
@@ -742,6 +750,7 @@ export interface FileRoutesById {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
@@ -828,6 +837,7 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
@@ -908,6 +918,7 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/vaga/$token'
     | '/admin'
     | '/app'
     | '/barbeiro'
@@ -992,6 +1003,7 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
@@ -1031,6 +1043,7 @@ export interface RootRouteChildren {
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
+  VagaTokenRoute: typeof VagaTokenRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
@@ -1541,6 +1554,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vaga/$token': {
+      id: '/vaga/$token'
+      path: '/vaga/$token'
+      fullPath: '/vaga/$token'
+      preLoaderRoute: typeof VagaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/alvo-ia': {
       id: '/api/public/alvo-ia'
       path: '/api/public/alvo-ia'
@@ -1781,6 +1801,7 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
+  VagaTokenRoute: VagaTokenRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,

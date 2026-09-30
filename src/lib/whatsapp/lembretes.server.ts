@@ -383,91 +383,12 @@ async function linkDoCortai(tenantId: string) {
 }
 
 /**
- * Horário cancelado: avisa o primeiro da lista de espera (encaixe) daquele
- * profissional ou de qualquer um. Um aviso por cancelamento.
+ * Horário cancelado: oferece a vaga ao primeiro cliente compatível da lista
+ * de espera (serviço, duração, profissional, dia e período). Ver fila-ofertas.
  */
 export async function avisarListaDeEspera(agendamentoId: string) {
-  const db = await admin();
-  const { data: ag } = await db
-    .from("agendamentos")
-    .select("id, tenant_id, inicio, status, profissional_id, profissionais(nome)")
-    .eq("id", agendamentoId)
-    .maybeSingle();
-  if (!ag || ag.status !== "cancelado" || new Date(ag.inicio).getTime() < Date.now()) return;
-
-  const { data: fila } = await db
-    .from("fila_de_espera")
-    .select("id, cliente_id, profissional_id, clientes(nome, telefone)")
-    .eq("tenant_id", ag.tenant_id)
-    .not("janela_preferida", "is", null)
-    .eq("status", "aguardando")
-    .is("avisado_em", null)
-    .order("posicao", { ascending: true })
-    .order("criado_em", { ascending: true })
-    .limit(20);
-  const alvo = (fila ?? []).find(
-    (f) => !f.profissional_id || f.profissional_id === ag.profissional_id,
-  );
-  if (!alvo) return;
-
-  // Marca antes de enviar: dois cancelamentos simultâneos não avisam a mesma pessoa.
-  const { data: marcado } = await db
-    .from("fila_de_espera")
-    .update({ avisado_em: new Date().toISOString(), status: "avisado" })
-    .eq("id", alvo.id)
-    .is("avisado_em", null)
-    .select("id")
-    .maybeSingle();
-  if (!marcado) return;
-
-  const fuso = await fusoDoTenant(ag.tenant_id);
-  const profissional = (ag as { profissionais?: { nome?: string } | null }).profissionais?.nome;
-  const clienteDaFila = (
-    alvo as unknown as {
-      clientes?: { nome?: string; telefone?: string | null } | null;
-    }
-  ).clientes;
-  await db.rpc("criar_notificacao", {
-    _tenant: ag.tenant_id,
-    _tipo: "fila",
-    _titulo: "Horário liberado",
-    _corpo: `${clienteDaFila?.nome ?? "Cliente"} da lista de espera foi avisado (${hora(ag.inicio, fuso)}).`,
-    _link: "/barbeiro/fila",
-  });
-
-  const cliente = clienteDaFila ?? null;
-  const telefone = String(cliente?.telefone ?? "").replace(/\D/g, "");
-  if (telefone.length < 10) return;
-  const { data: conexao } = await db
-    .from("conexoes_whatsapp")
-    .select("id, sessao_id, status")
-    .eq("tenant_id", ag.tenant_id)
-    .maybeSingle();
-  if (!conexao || conexao.status !== "conectado") return;
-
-  const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
-  const conversa = await conversaDoTelefone({
-    tenantId: ag.tenant_id,
-    conexaoId: conexao.id,
-    telefone,
-    nomeContato: cliente?.nome ?? null,
-  });
-  const nome = (cliente?.nome ?? "").split(/\s+/)[0] || "Olá";
-  await enviarPelaBarbearia({
-    tenantId: ag.tenant_id,
-    conversaId: conversa.id,
-    conexaoId: conexao.id,
-    sessaoId: conexao.sessao_id,
-    telefone,
-    texto: [
-      `Boa notícia, ${nome}. Abriu uma vaga!`,
-      `${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}${profissional ? ` com ${profissional}` : ""}.`,
-      "",
-      `Ela pode ser sua: ${await linkDoCortai(ag.tenant_id)}`,
-    ].join("\n"),
-    porIa: false,
-    iniciadaPelaBarbearia: true,
-  }).catch(() => undefined);
+  const { ofertarVaga } = await import("./fila-ofertas.server");
+  await ofertarVaga(agendamentoId);
 }
 
 /**

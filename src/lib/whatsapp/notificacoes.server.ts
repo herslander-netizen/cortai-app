@@ -744,7 +744,13 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
  */
 export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   const db = await admin();
-  const resumo = { lembrete24h: 0, lembrete2h: 0, retorno: 0, retentativas: 0 };
+  const resumo = { lembrete24h: 0, lembrete2h: 0, retorno: 0, retentativas: 0, listaDeEspera: 0 };
+  try {
+    const { processarListaDeEspera } = await import("./fila-ofertas.server");
+    resumo.listaDeEspera = (await processarListaDeEspera(agora)).ofertas;
+  } catch {
+    /* a lista de espera nunca bloqueia lembretes */
+  }
 
   /**
    * Só os agendamentos elegíveis da janela, já sem os que têm envio deste tipo

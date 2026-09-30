@@ -90,6 +90,7 @@ export type AgendaItem = {
   startedAt: string | null;
   finishedAt: string | null;
   encaixe?: boolean;
+  daListaDeEspera?: boolean;
 };
 
 export type FilaJanela = {
@@ -122,7 +123,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -164,6 +165,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       finishedAt: a.finished_at ?? null,
       confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
       encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
+      daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
     }));
 
     const fila = (filaRes.data ?? []).map((f) => {
@@ -246,6 +248,14 @@ export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
           ? "O prazo de 5 segundos para desfazer terminou ou o atendimento já mudou."
           : "O atendimento mudou em outro aparelho. Atualize a agenda e tente novamente.",
       );
+    }
+    // Lista de espera: vaga liberada vira oferta; cancelamento desfeito anula a oferta.
+    try {
+      const ofertas = await import("@/lib/whatsapp/fila-ofertas.server");
+      if (data.estado === "cancelado" && !data.desfazer) await ofertas.ofertarVaga(data.agendamentoId);
+      if (data.desfazer && data.estadoAnterior === "cancelado") await ofertas.cancelarOfertasDaVaga(data.agendamentoId);
+    } catch {
+      /* a mudança já está salva; a varredura tenta de novo */
     }
     return linha;
   });
@@ -506,20 +516,38 @@ export const registrarBaixaFiado = createServerFn({ method: "POST" })
 
 /* ------------------------------ FILA DE ESPERA ---------------------------- */
 
+export type OfertaResumo = {
+  id: string;
+  status: string;
+  inicio: string;
+  expiraEm: string;
+  enviadaWhatsapp: boolean;
+  criadoEm: string;
+  cliente: string;
+  servico: string;
+};
+
 export type FilaItem = {
   id: string;
   posicao: number;
   cliente: string;
   telefone: string;
+  profissionalId: string | null;
   profissional: string | null;
+  servicoId: string | null;
+  servico: string | null;
+  dia: string | null;
   janelaInicio: number | null;
   janelaFim: number | null;
+  status: string;
   avisado_em: string | null;
   criado_em: string;
+  ofertaAtiva: { inicio: string; expiraEm: string } | null;
 };
 
 export type DadosFila = {
   itens: FilaItem[];
+  historico: OfertaResumo[];
   recuperadosMes: number;
   recuperadoCentavos: number;
 };
@@ -533,70 +561,78 @@ export const getFila = createServerFn({ method: "GET" })
     const fuso = await fusoDoTenant(tenant.id);
     const inicioMes = isoNoFusoDaBarbearia(`${hojeNoFuso(fuso).slice(0, 7)}-01`, "00:00", fuso);
 
-    const [filaRes, avisadosRes] = await Promise.all([
+    const [filaRes, ofertasRes, recuperadosRes] = await Promise.all([
       db
         .from("fila_de_espera")
         .select(
-          "id, posicao, avisado_em, criado_em, janela_preferida, clientes(nome, telefone), profissionais(nome)",
+          "id, posicao, status, avisado_em, criado_em, janela_preferida, profissional_id, servico_id, clientes(nome, telefone), profissionais(nome), servicos(nome)",
         )
         .eq("tenant_id", tenant.id)
-        .order("posicao"),
+        .in("status", ["aguardando", "avisado"])
+        .not("janela_preferida", "is", null)
+        .order("posicao")
+        .order("criado_em"),
       db
-        .from("fila_de_espera")
-        .select("cliente_id, avisado_em")
+        .from("ofertas_da_fila")
+        .select("id, fila_id, status, inicio, expira_em, enviada_whatsapp, criado_em, servicos(nome), fila_de_espera(clientes(nome))")
         .eq("tenant_id", tenant.id)
-        .not("avisado_em", "is", null)
-        .gte("avisado_em", inicioMes)
-        .order("avisado_em", { ascending: true }),
+        .order("criado_em", { ascending: false })
+        .limit(30),
+      db
+        .from("agendamentos")
+        .select("valor_centavos")
+        .eq("tenant_id", tenant.id)
+        .not("origem_fila_id", "is", null)
+        .gte("criado_em", inicioMes)
+        .not("status", "in", "(cancelado,remarcado)"),
     ]);
 
-    const avisados = avisadosRes.data ?? [];
-    let recuperadosMes = 0;
-    let recuperadoCentavos = 0;
-    if (avisados.length) {
-      const { data: ags } = await db
-        .from("agendamentos")
-        .select("cliente_id, criado_em, valor_centavos, status")
-        .eq("tenant_id", tenant.id)
-        .gte("criado_em", inicioMes)
-        .neq("status", "cancelado");
-      const primeiroAvisoPorCliente = new Map<string, string>();
-      for (const aviso of avisados) {
-        if (
-          aviso.cliente_id &&
-          aviso.avisado_em &&
-          !primeiroAvisoPorCliente.has(aviso.cliente_id)
-        ) {
-          primeiroAvisoPorCliente.set(aviso.cliente_id, aviso.avisado_em);
-        }
-      }
-      for (const a of ags ?? []) {
-        const avisadoEm = a.cliente_id ? primeiroAvisoPorCliente.get(a.cliente_id) : undefined;
-        if (avisadoEm && new Date(a.criado_em) >= new Date(avisadoEm)) {
-          recuperadosMes += 1;
-          recuperadoCentavos += a.valor_centavos;
-        }
-      }
-    }
-
+    const ofertas = ofertasRes.data ?? [];
+    const agora = Date.now();
     const itens = (filaRes.data ?? []).map((f, i) => {
-      const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number } | null;
+      const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number; dia?: string } | null;
+      const ativa = ofertas.find(
+        (o) => o.fila_id === f.id && o.status === "enviada" && new Date(o.expira_em).getTime() > agora,
+      );
       return {
         id: f.id,
-        posicao: f.posicao || i + 1,
+        posicao: i + 1,
         cliente: f.clientes?.nome ?? "Cliente",
         telefone: f.clientes?.telefone ?? "",
+        profissionalId: f.profissional_id,
         profissional: f.profissionais?.nome ?? null,
+        servicoId: f.servico_id,
+        servico: f.servicos?.nome ?? null,
+        dia: typeof j?.dia === "string" ? j.dia : null,
         janelaInicio: typeof j?.inicio === "number" ? j.inicio : null,
         janelaFim: typeof j?.fim === "number" ? j.fim : null,
+        status: f.status,
         avisado_em: f.avisado_em,
         criado_em: f.criado_em,
+        ofertaAtiva: ativa ? { inicio: ativa.inicio, expiraEm: ativa.expira_em } : null,
       };
     });
-
-    return { itens, recuperadosMes, recuperadoCentavos };
+    const historico = ofertas.map((o) => ({
+      id: o.id,
+      status: o.status === "enviada" && new Date(o.expira_em).getTime() <= agora ? "expirada" : o.status,
+      inicio: o.inicio,
+      expiraEm: o.expira_em,
+      enviadaWhatsapp: o.enviada_whatsapp,
+      criadoEm: o.criado_em,
+      cliente:
+        (o.fila_de_espera as { clientes?: { nome?: string } | null } | null)?.clientes?.nome ?? "Cliente",
+      servico: (o.servicos as { nome?: string } | null)?.nome ?? "Serviço",
+    }));
+    const recuperados = recuperadosRes.data ?? [];
+    return {
+      itens,
+      historico,
+      recuperadosMes: recuperados.length,
+      recuperadoCentavos: recuperados.reduce((s, a) => s + (a.valor_centavos ?? 0), 0),
+    };
   });
 
+/** Remove da lista sem apagar histórico: status "saiu". */
 export const removerDaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { filaId: string }) => data)
@@ -606,11 +642,177 @@ export const removerDaFila = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { error } = await db
       .from("fila_de_espera")
-      .delete()
+      .update({ status: "saiu" })
+      .eq("id", data.filaId)
+      .eq("tenant_id", tenant.id);
+    if (error) throw new Error(error.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("ofertas_da_fila")
+      .update({ status: "cancelada", respondida_em: new Date().toISOString() })
+      .eq("fila_id", data.filaId)
+      .eq("tenant_id", tenant.id)
+      .eq("status", "enviada");
+    return { ok: true };
+  });
+
+/** Prioriza: troca a posição com o vizinho (para cima ou para baixo). */
+export const moverNaFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { filaId: string; direcao: "subir" | "descer" }) => ({
+    filaId: String(data.filaId),
+    direcao: data.direcao === "descer" ? ("descer" as const) : ("subir" as const),
+  }))
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: fila } = await db
+      .from("fila_de_espera")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .in("status", ["aguardando", "avisado"])
+      .not("janela_preferida", "is", null)
+      .order("posicao")
+      .order("criado_em");
+    const ids = (fila ?? []).map((f) => f.id);
+    const i = ids.indexOf(data.filaId);
+    const j = data.direcao === "subir" ? i - 1 : i + 1;
+    if (i < 0 || j < 0 || j >= ids.length) return { ok: true };
+    [ids[i], ids[j]] = [ids[j]!, ids[i]!];
+    // Renumera tudo: posições ficam contínuas e sem empate.
+    for (const [n, id] of ids.entries()) {
+      await db.from("fila_de_espera").update({ posicao: n + 1 }).eq("id", id).eq("tenant_id", tenant.id);
+    }
+    return { ok: true };
+  });
+
+export const editarFila = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      filaId: string;
+      servicoId: string | null;
+      profissionalId: string | null;
+      dia: string | null;
+      janelaInicio: number | null;
+      janelaFim: number | null;
+    }) => {
+      if (data.dia && !/^\d{4}-\d{2}-\d{2}$/.test(data.dia)) throw new Error("Data inválida.");
+      const ok = (h: number | null) => h === null || (Number.isInteger(h) && h >= 0 && h <= 24);
+      if (!ok(data.janelaInicio) || !ok(data.janelaFim)) throw new Error("Período inválido.");
+      return data;
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const confere = async (tabela: "servicos" | "profissionais", id: string | null) => {
+      if (!id) return null;
+      const { data: r } = await db.from(tabela).select("id").eq("id", id).eq("tenant_id", tenant.id).maybeSingle();
+      if (!r) throw new Error("Opção inválida para este negócio.");
+      return id;
+    };
+    const janela: Record<string, string | number | boolean> = { espera: true };
+    if (data.janelaInicio !== null && data.janelaFim !== null) {
+      janela["inicio"] = data.janelaInicio;
+      janela["fim"] = data.janelaFim;
+    }
+    if (data.dia) janela["dia"] = data.dia;
+    const { error } = await db
+      .from("fila_de_espera")
+      .update({
+        servico_id: await confere("servicos", data.servicoId),
+        profissional_id: await confere("profissionais", data.profissionalId),
+        janela_preferida: janela,
+      })
       .eq("id", data.filaId)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/**
+ * Converte a solicitação em agendamento pelo motor oficial
+ * (mesmas regras e trava de sobreposição do painel).
+ */
+export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: { filaId: string; servicoId: string; profissionalId: string; inicioIso: string }) => {
+      if (Number.isNaN(new Date(data.inicioIso).getTime())) throw new Error("Horário inválido.");
+      return data;
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirRecurso(db, tenant.id, "fila_espera");
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const [{ data: item }, { data: servico }] = await Promise.all([
+      db.from("fila_de_espera").select("id, cliente_id, status").eq("id", data.filaId).eq("tenant_id", tenant.id).maybeSingle(),
+      db.from("servicos").select("id, duracao_min, profissional_ids").eq("id", data.servicoId).eq("tenant_id", tenant.id).maybeSingle(),
+    ]);
+    if (!item || !["aguardando", "avisado"].includes(item.status)) throw new Error("Essa solicitação não está mais na lista.");
+    if (!servico) throw new Error("Serviço não encontrado.");
+    const inicio = new Date(data.inicioIso);
+    const conflito = await validarAgendamento(db, {
+      tenantId: tenant.id,
+      servico,
+      profissionalId: data.profissionalId,
+      inicio,
+      clienteId: item.cliente_id,
+    });
+    if (conflito) throw new Error(`Esse cliente já tem horário às ${conflito.hora}.`);
+    const { data: res, error } = await db.rpc("criar_agendamento", {
+      _tenant_id: tenant.id,
+      _cliente_id: item.cliente_id,
+      _profissional_id: data.profissionalId,
+      _servico_id: servico.id,
+      _inicio: inicio.toISOString(),
+      _forma_pagamento: "balcao",
+      _encaixe: false,
+    });
+    if (error) {
+      if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser reservado, escolha outro.");
+      throw new Error(error.message);
+    }
+    const criado = res as unknown as { agendamento_id: string };
+    await db
+      .from("agendamentos")
+      .update({ origem: "manual", origem_fila_id: item.id })
+      .eq("id", criado.agendamento_id)
+      .eq("tenant_id", tenant.id);
+    await db.from("fila_de_espera").update({ status: "atendido" }).eq("id", item.id).eq("tenant_id", tenant.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("ofertas_da_fila")
+      .update({ status: "cancelada", respondida_em: new Date().toISOString() })
+      .eq("fila_id", item.id)
+      .eq("status", "enviada");
+    try {
+      const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+      await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
+    } catch {
+      /* agendamento salvo */
+    }
+    return { agendamentoId: criado.agendamento_id };
+  });
+
+/** Opções do negócio para editar/converter (serviços com duração real). */
+export const getOpcoesDaFila = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    const [s, p] = await Promise.all([
+      db.from("servicos").select("id, nome, duracao_min, profissional_ids").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
+      db.from("profissionais").select("id, nome").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
+    ]);
+    return {
+      servicos: (s.data ?? []) as { id: string; nome: string; duracao_min: number; profissional_ids: string[] | null }[],
+      profissionais: (p.data ?? []) as { id: string; nome: string }[],
+      fuso: await fusoDoTenant(tenant.id),
+    };
   });
 
 /* -------------------------- CICLO DE VIDA DO CLIENTE ---------------------- */

@@ -162,6 +162,7 @@ export type Database = {
           id: string
           inicio: string
           origem: string
+          origem_fila_id: string | null
           pagamento_confirmado_em: string | null
           pagamento_confirmado_por: string | null
           profissional_id: string | null
@@ -190,6 +191,7 @@ export type Database = {
           id?: string
           inicio: string
           origem?: string
+          origem_fila_id?: string | null
           pagamento_confirmado_em?: string | null
           pagamento_confirmado_por?: string | null
           profissional_id?: string | null
@@ -218,6 +220,7 @@ export type Database = {
           id?: string
           inicio?: string
           origem?: string
+          origem_fila_id?: string | null
           pagamento_confirmado_em?: string | null
           pagamento_confirmado_por?: string | null
           profissional_id?: string | null
@@ -237,6 +240,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_origem_fila_id_fkey"
+            columns: ["origem_fila_id"]
+            isOneToOne: false
+            referencedRelation: "fila_de_espera"
             referencedColumns: ["id"]
           },
           {
@@ -2988,6 +2998,103 @@ export type Database = {
         }
         Relationships: []
       }
+      ofertas_da_fila: {
+        Row: {
+          agendamento_criado_id: string | null
+          agendamento_liberado_id: string | null
+          criado_em: string
+          enviada_whatsapp: boolean
+          expira_em: string
+          fila_id: string
+          fim: string
+          id: string
+          inicio: string
+          profissional_id: string
+          respondida_em: string | null
+          servico_id: string
+          status: string
+          tenant_id: string
+          token: string
+        }
+        Insert: {
+          agendamento_criado_id?: string | null
+          agendamento_liberado_id?: string | null
+          criado_em?: string
+          enviada_whatsapp?: boolean
+          expira_em: string
+          fila_id: string
+          fim: string
+          id?: string
+          inicio: string
+          profissional_id: string
+          respondida_em?: string | null
+          servico_id: string
+          status?: string
+          tenant_id: string
+          token?: string
+        }
+        Update: {
+          agendamento_criado_id?: string | null
+          agendamento_liberado_id?: string | null
+          criado_em?: string
+          enviada_whatsapp?: boolean
+          expira_em?: string
+          fila_id?: string
+          fim?: string
+          id?: string
+          inicio?: string
+          profissional_id?: string
+          respondida_em?: string | null
+          servico_id?: string
+          status?: string
+          tenant_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ofertas_da_fila_agendamento_criado_id_fkey"
+            columns: ["agendamento_criado_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_da_fila_agendamento_liberado_id_fkey"
+            columns: ["agendamento_liberado_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_da_fila_fila_id_fkey"
+            columns: ["fila_id"]
+            isOneToOne: false
+            referencedRelation: "fila_de_espera"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_da_fila_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_da_fila_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_da_fila_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_do_tenant: {
         Row: {
           atualizado_em: string
@@ -4241,6 +4348,7 @@ export type Database = {
       }
     }
     Functions: {
+      aceitar_oferta_da_fila: { Args: { _token: string }; Returns: Json }
       alterar_segmento_do_tenant: {
         Args: { _segmento: string; _tenant_id: string }
         Returns: undefined

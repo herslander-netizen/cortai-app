@@ -1,11 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { useAcao } from "@/hooks/useAcao";
-import { avisarFila, getFila, removerDaFila } from "@/lib/barbeiro.functions";
+import {
+  converterFilaEmAgendamento,
+  editarFila,
+  getFila,
+  getOpcoesDaFila,
+  moverNaFila,
+  removerDaFila,
+  type FilaItem,
+} from "@/lib/barbeiro.functions";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { ItemCascata } from "@/components/layout/ItemCascata";
@@ -13,16 +23,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-
+import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 
 export const Route = createFileRoute("/barbeiro/fila")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fila_espera"),
   head: () => ({
     meta: [
-      { title: "Fila de espera — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Quem espera vaga, quem já foi avisado e quanto a fila recuperou no mês." },
-      { property: "og:title", content: "Fila de espera — Cortaí" },
-      { property: "og:description", content: "Horários vagos viram atendimento com a fila." },
+      { title: "Lista de espera — Painel | Cortaí" },
+      {
+        name: "description",
+        content: "Quem espera vaga, ofertas enviadas e horários recuperados pela lista.",
+      },
+      { property: "og:title", content: "Lista de espera — Cortaí" },
+      {
+        property: "og:description",
+        content: "Vaga liberada vira atendimento com a lista de espera.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -31,23 +47,57 @@ export const Route = createFileRoute("/barbeiro/fila")({
   component: FilaPage,
 });
 
-function janelaTexto(inicio: number | null, fim: number | null) {
-  if (inicio === null || fim === null) return "Qualquer horário";
-  return `Entre ${String(inicio).padStart(2, "0")}h e ${String(fim).padStart(2, "0")}h`;
+const PERIODOS = [
+  { rotulo: "Qualquer horário", inicio: null, fim: null },
+  { rotulo: "Manhã", inicio: 9, fim: 12 },
+  { rotulo: "Tarde", inicio: 13, fim: 18 },
+  { rotulo: "Fim de tarde", inicio: 18, fim: 20 },
+] as const;
+
+const STATUS_OFERTA: Record<string, string> = {
+  enviada: "Aguardando resposta",
+  aceita: "Confirmou",
+  recusada: "Recusou",
+  expirada: "Expirou",
+  cancelada: "Vaga preenchida",
+};
+
+function periodoTexto(f: Pick<FilaItem, "janelaInicio" | "janelaFim" | "dia">) {
+  const dia = f.dia ? f.dia.split("-").reverse().slice(0, 2).join("/") : null;
+  const p = PERIODOS.find((x) => x.inicio === f.janelaInicio && x.fim === f.janelaFim);
+  const faixa =
+    f.janelaInicio === null || f.janelaFim === null
+      ? "qualquer horário"
+      : (p?.rotulo.toLowerCase() ?? `${f.janelaInicio}h–${f.janelaFim}h`);
+  return dia ? `${dia} · ${faixa}` : `Qualquer dia · ${faixa}`;
+}
+
+function horaCurta(iso: string) {
+  return new Date(iso).toLocaleString("pt-BR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function FilaPage() {
-  const avisar = useServerFn(avisarFila);
   const remover = useServerFn(removerDaFila);
+  const mover = useServerFn(moverNaFila);
+  const editar = useServerFn(editarFila);
+  const converter = useServerFn(converterFilaEmAgendamento);
   const acao = useAcao();
   const queryClient = useQueryClient();
+  const [aberto, setAberto] = useState<{ id: string; modo: "editar" | "agendar" } | null>(null);
 
   const { data, isLoading, refetch } = useQuery({ queryKey: ["fila"], queryFn: () => getFila() });
+  const opcoes = useQuery({
+    queryKey: ["fila-opcoes"],
+    queryFn: () => getOpcoesDaFila(),
+    enabled: aberto !== null,
+  });
 
-  /**
-   * Tira da tela na hora e oferece "Desfazer" por 5 segundos:
-   * só chama o servidor quando o tempo passa sem desistência.
-   */
   function removerComDesfazer(filaId: string, cliente: string) {
     const anterior = queryClient.getQueryData<typeof data>(["fila"]);
     if (anterior) {
@@ -56,7 +106,6 @@ function FilaPage() {
         itens: anterior.itens.filter((i) => i.id !== filaId),
       });
     }
-
     let cancelado = false;
     const prazo = setTimeout(async () => {
       if (cancelado) return;
@@ -65,85 +114,346 @@ function FilaPage() {
         await refetch();
       } catch {
         if (anterior) queryClient.setQueryData(["fila"], anterior);
-        aviso.erro(`Não consegui tirar ${cliente} da fila.`);
+        aviso.erro(`Não consegui tirar ${cliente} da lista.`);
       }
     }, 5000);
-
-    comDesfazer(`${cliente} saiu da fila.`, () => {
+    comDesfazer(`${cliente} saiu da lista.`, () => {
       cancelado = true;
       clearTimeout(prazo);
       if (anterior) queryClient.setQueryData(["fila"], anterior);
     });
   }
 
-  return (
-    <Screen voltarPara="/barbeiro/mais" title="Fila de espera" subtitle="Horário que vagou não fica vazio.">
-      {isLoading ? <EsqueletoLista linhas={4} /> : null}
+  const total = data?.itens.length ?? 0;
 
+  return (
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Lista de espera"
+      subtitle="Vaga liberada é oferecida automaticamente a quem combina."
+    >
+      {isLoading ? <EsqueletoLista linhas={4} /> : null}
 
       {data ? (
         <Card>
-          <p className="text-xs text-mute">Recuperado neste mês pela fila</p>
-          <p className="money-value mt-1 text-[28px] leading-none text-paper">{brl(data.recuperadoCentavos)}</p>
-          <p className="mt-2 text-xs text-mute2">
-            {data.recuperadosMes}{" "}
-            {data.recuperadosMes === 1 ? "horário que ficaria vazio" : "horários que ficariam vazios"} viraram
-            atendimento.
+          <p className="text-2xl font-bold text-paper">
+            {total === 0
+              ? "Ninguém aguardando"
+              : `${total} ${total === 1 ? "cliente aguardando" : "clientes aguardando"}`}
+          </p>
+          <p className="mt-2 text-xs text-mute">
+            Recuperado neste mês pela lista:{" "}
+            <span className="money-value text-paper">{brl(data.recuperadoCentavos)}</span> ·{" "}
+            {data.recuperadosMes} {data.recuperadosMes === 1 ? "atendimento" : "atendimentos"}
           </p>
         </Card>
       ) : null}
 
-      <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Na fila</h2>
-      {data && data.itens.length === 0 ? <EmptyState text="Ninguém esperando vaga agora." /> : null}
-      <ul>
+      {data && total === 0 ? (
+        <EmptyState text="Quando a agenda lotar, seus clientes podem entrar na lista pelo link de agendamento." />
+      ) : null}
+      <ul className="mt-4">
         {(data?.itens ?? []).map((f, i) => (
-          <ItemCascata key={f.id} indice={i} className="flex items-start gap-4 border-b border-line py-4">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-ink">
-              {f.posicao}
-            </span>
-            <div className="flex-1">
-              <p className="text-sm text-paper">{f.cliente}</p>
-              <p className="mt-0.5 text-xs text-mute">
-                {janelaTexto(f.janelaInicio, f.janelaFim)}
-                {f.profissional ? ` · ${f.profissional}` : ""}
-              </p>
-              <StatusBadge className="mt-1" status={f.avisado_em ? "chegou" : "pendente"} label={f.avisado_em ? "Avisado — aguardando resposta" : "Ainda não avisado"} />
-              <div className="mt-2 flex gap-4">
+          <ItemCascata key={f.id} indice={i} className="border-b border-line py-4">
+            <div className="flex items-start gap-3">
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
+                aria-label={`Posição ${f.posicao}`}
+              >
+                {f.posicao}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-paper">{f.cliente}</p>
+                <p className="mt-0.5 text-xs text-mute">
+                  {f.servico ?? "Serviço a combinar"}
+                  {f.profissional ? ` · ${f.profissional}` : ""}
+                </p>
+                <p className="text-xs text-mute">{periodoTexto(f)}</p>
+                <StatusBadge
+                  className="mt-1"
+                  status={f.ofertaAtiva ? "chegou" : "pendente"}
+                  label={
+                    f.ofertaAtiva
+                      ? `Vaga oferecida: ${horaCurta(f.ofertaAtiva.inicio)}`
+                      : "Aguardando vaga"
+                  }
+                />
+              </div>
+              <div className="flex flex-col">
                 <Button
                   type="button"
-                  variant="text"
-                  size="sm"
-                  className="text-xs"
-                  disabled={acao.ocupado}
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Subir na lista"
+                  disabled={acao.ocupado || i === 0}
                   onClick={() =>
-                    acao.executar(`avisar-${f.id}`, () => avisar({ data: { filaId: f.id } }), {
-                      sucesso: `${f.cliente} foi avisado. Quem responder primeiro fica com a vaga.`,
-                      aoConcluir: async () => { await refetch(); },
-                    })
+                    acao.executar(
+                      `sobe-${f.id}`,
+                      () => mover({ data: { filaId: f.id, direcao: "subir" } }),
+                      {
+                        aoConcluir: async () => {
+                          await refetch();
+                        },
+                      },
+                    )
                   }
                 >
-                  {acao.estaEm(`avisar-${f.id}`) ? "Avisando…" : "Avisar"}
+                  <ArrowUp size={16} />
                 </Button>
                 <Button
                   type="button"
-                  variant="text"
-                  size="sm"
-                  className="text-xs text-brick"
-                  disabled={acao.ocupado}
-                  onClick={() => removerComDesfazer(f.id, f.cliente)}
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Descer na lista"
+                  disabled={acao.ocupado || i === total - 1}
+                  onClick={() =>
+                    acao.executar(
+                      `desce-${f.id}`,
+                      () => mover({ data: { filaId: f.id, direcao: "descer" } }),
+                      {
+                        aoConcluir: async () => {
+                          await refetch();
+                        },
+                      },
+                    )
+                  }
                 >
-                  Tirar da fila
+                  <ArrowDown size={16} />
                 </Button>
-
               </div>
             </div>
+            <div className="mt-2 flex flex-wrap gap-2 pl-12">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setAberto({ id: f.id, modo: "agendar" })}
+              >
+                Agendar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setAberto({ id: f.id, modo: "editar" })}
+              >
+                Editar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="text"
+                className="text-brick"
+                disabled={acao.ocupado}
+                onClick={() => removerComDesfazer(f.id, f.cliente)}
+              >
+                Remover
+              </Button>
+            </div>
+            {aberto?.id === f.id ? (
+              <FormularioFila
+                item={f}
+                modo={aberto.modo}
+                opcoes={opcoes.data}
+                ocupado={acao.ocupado}
+                onCancelar={() => setAberto(null)}
+                onSalvar={(v) =>
+                  acao.executar(
+                    `form-${f.id}`,
+                    () =>
+                      aberto.modo === "editar"
+                        ? editar({
+                            data: {
+                              filaId: f.id,
+                              servicoId: v.servicoId,
+                              profissionalId: v.profissionalId,
+                              dia: v.dia,
+                              janelaInicio: v.janelaInicio,
+                              janelaFim: v.janelaFim,
+                            },
+                          })
+                        : converter({
+                            data: {
+                              filaId: f.id,
+                              servicoId: v.servicoId!,
+                              profissionalId: v.profissionalId!,
+                              inicioIso: isoNoFusoDaBarbearia(v.dia!, v.hora!, opcoes.data!.fuso),
+                            },
+                          }),
+                    {
+                      sucesso:
+                        aberto.modo === "editar"
+                          ? "Preferência atualizada."
+                          : `${f.cliente} agendado pela lista de espera.`,
+                      aoConcluir: async () => {
+                        setAberto(null);
+                        await refetch();
+                      },
+                    },
+                  )
+                }
+              />
+            ) : null}
           </ItemCascata>
         ))}
       </ul>
 
+      {data && data.historico.length > 0 ? (
+        <>
+          <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Histórico de ofertas</h2>
+          <ul>
+            {data.historico.map((o) => (
+              <li
+                key={o.id}
+                className="flex items-center justify-between gap-3 border-b border-line py-3 text-xs"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm text-paper">{o.cliente}</span>
+                  <span className="text-mute">
+                    {o.servico} · {horaCurta(o.inicio)} ·{" "}
+                    {o.enviadaWhatsapp ? "WhatsApp" : "aviso interno"}
+                  </span>
+                </span>
+                <StatusBadge
+                  status={
+                    o.status === "aceita"
+                      ? "chegou"
+                      : o.status === "enviada"
+                        ? "pendente"
+                        : "cancelado"
+                  }
+                  label={STATUS_OFERTA[o.status] ?? o.status}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+
       <p className="mt-6 text-xs text-mute2">
-        Quando um horário abre, o primeiro da fila é avisado. Quem responder primeiro fica com a vaga.
+        Quando um horário é cancelado, o primeiro cliente compatível recebe a vaga e tem 30 minutos
+        para confirmar. Sem resposta, ela segue para o próximo.
       </p>
     </Screen>
+  );
+}
+
+type Valores = {
+  servicoId: string | null;
+  profissionalId: string | null;
+  dia: string | null;
+  hora: string | null;
+  janelaInicio: number | null;
+  janelaFim: number | null;
+};
+
+function FormularioFila({
+  item,
+  modo,
+  opcoes,
+  ocupado,
+  onCancelar,
+  onSalvar,
+}: {
+  item: FilaItem;
+  modo: "editar" | "agendar";
+  opcoes: Awaited<ReturnType<typeof getOpcoesDaFila>> | undefined;
+  ocupado: boolean;
+  onCancelar: () => void;
+  onSalvar: (v: Valores) => void;
+}) {
+  const [v, setV] = useState<Valores>({
+    servicoId: item.servicoId,
+    profissionalId: item.profissionalId,
+    dia: item.dia,
+    hora: null,
+    janelaInicio: item.janelaInicio,
+    janelaFim: item.janelaFim,
+  });
+  const agendar = modo === "agendar";
+  const valido = !agendar || Boolean(v.servicoId && v.profissionalId && v.dia && v.hora);
+  if (!opcoes) return <p className="mt-3 pl-12 text-xs text-mute">Carregando opções…</p>;
+  return (
+    <div className="mt-3 space-y-3 rounded-lg border border-line p-3 sm:ml-12">
+      <label className="block text-xs text-mute2">
+        Serviço
+        <select
+          className="input-premium mt-1 w-full"
+          value={v.servicoId ?? ""}
+          onChange={(e) => setV({ ...v, servicoId: e.target.value || null })}
+        >
+          <option value="">{agendar ? "Escolha" : "A combinar"}</option>
+          {opcoes.servicos.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.nome} · {s.duracao_min} min
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block text-xs text-mute2">
+        Profissional
+        <select
+          className="input-premium mt-1 w-full"
+          value={v.profissionalId ?? ""}
+          onChange={(e) => setV({ ...v, profissionalId: e.target.value || null })}
+        >
+          <option value="">{agendar ? "Escolha" : "Qualquer"}</option>
+          {opcoes.profissionais.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-xs text-mute2">
+          Data
+          <input
+            type="date"
+            className="input-premium mt-1 w-full"
+            value={v.dia ?? ""}
+            onChange={(e) => setV({ ...v, dia: e.target.value || null })}
+          />
+        </label>
+        {agendar ? (
+          <label className="block text-xs text-mute2">
+            Horário
+            <input
+              type="time"
+              className="input-premium mt-1 w-full"
+              value={v.hora ?? ""}
+              onChange={(e) => setV({ ...v, hora: e.target.value || null })}
+            />
+          </label>
+        ) : (
+          <label className="block text-xs text-mute2">
+            Período
+            <select
+              className="input-premium mt-1 w-full"
+              value={PERIODOS.findIndex(
+                (p) => p.inicio === v.janelaInicio && p.fim === v.janelaFim,
+              )}
+              onChange={(e) => {
+                const p = PERIODOS[Number(e.target.value)] ?? PERIODOS[0];
+                setV({ ...v, janelaInicio: p.inicio, janelaFim: p.fim });
+              }}
+            >
+              {PERIODOS.map((p, i) => (
+                <option key={p.rotulo} value={i}>
+                  {p.rotulo}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Button type="button" size="sm" disabled={ocupado || !valido} onClick={() => onSalvar(v)}>
+          {agendar ? "Confirmar agendamento" : "Salvar"}
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={onCancelar}>
+          Cancelar
+        </Button>
+      </div>
+    </div>
   );
 }

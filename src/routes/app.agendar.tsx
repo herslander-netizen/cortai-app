@@ -436,14 +436,14 @@ function Fluxo({
         ) : (
           <div>
             <p className="text-sm text-mute">
-              Não há horários livres neste dia. Entre na fila de espera e avisamos se abrir vaga.
+              Agenda cheia? Entre na lista de espera e avisaremos quando surgir uma vaga.
             </p>
             <Link
               to="/app/espera"
               search={{ ...(slug ? { b: slug } : {}), servico: servico.id, dia }}
               className="btn-primary mt-3 inline-flex px-5 py-3"
             >
-              Entrar na fila
+              Entrar na lista de espera
             </Link>
           </div>
         )}

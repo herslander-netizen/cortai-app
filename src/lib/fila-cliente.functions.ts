@@ -6,9 +6,19 @@ import { clienteDoUsuario } from "@/lib/cliente";
 export const entrarNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { nome: string; telefone: string; janelaInicio: number | null; janelaFim: number | null; slug?: string; servicoId?: string; dia?: string }) => {
+    (data: {
+      nome: string;
+      telefone: string;
+      janelaInicio: number | null;
+      janelaFim: number | null;
+      slug?: string;
+      servicoId?: string;
+      profissionalId?: string;
+      dia?: string;
+    }) => {
       if (!data.nome.trim()) throw new Error("Informe seu nome.");
-      if (data.telefone.replace(/\D/g, "").length < 10) throw new Error("Informe um WhatsApp válido.");
+      if (data.telefone.replace(/\D/g, "").length < 10)
+        throw new Error("Informe um WhatsApp válido.");
       return data;
     },
   )
@@ -35,20 +45,39 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       .select("posicao")
       .eq("tenant_id", tenant.id)
       .eq("cliente_id", cliente.id)
+      .in("status", ["aguardando", "avisado"])
+      .not("janela_preferida", "is", null)
+      .limit(1)
       .maybeSingle();
     if (jaNaFila) return { posicao: jaNaFila.posicao };
 
     const posicao = (ultimo?.posicao ?? 0) + 1;
     const dia = data.dia && /^\d{4}-\d{2}-\d{2}$/.test(data.dia) ? data.dia : null;
-    const janela =
-      data.janelaInicio !== null && data.janelaFim !== null
-        ? { inicio: data.janelaInicio, fim: data.janelaFim, ...(dia ? { dia } : {}) }
-        : dia
-          ? { dia }
-          : null;
+    // Sempre um objeto: janela nula identifica a fila de chegada (atendimento sem horário).
+    const janela: Record<string, string | number | boolean> = { espera: true };
+    if (data.janelaInicio !== null && data.janelaFim !== null) {
+      janela["inicio"] = data.janelaInicio;
+      janela["fim"] = data.janelaFim;
+    }
+    if (dia) janela["dia"] = dia;
+    let profissionalId: string | null = null;
+    if (data.profissionalId) {
+      const { data: pr } = await db
+        .from("profissionais")
+        .select("id")
+        .eq("id", data.profissionalId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
+      profissionalId = (pr?.id as string) ?? null;
+    }
     let servicoId: string | null = null;
     if (data.servicoId) {
-      const { data: s } = await db.from("servicos").select("id").eq("id", data.servicoId).eq("tenant_id", tenant.id).maybeSingle();
+      const { data: s } = await db
+        .from("servicos")
+        .select("id")
+        .eq("id", data.servicoId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
       servicoId = (s?.id as string) ?? null;
     }
 
@@ -57,6 +86,8 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       cliente_id: cliente.id,
       janela_preferida: janela,
       servico_id: servicoId,
+      profissional_id: profissionalId,
+      origem: "app",
       posicao,
     });
     if (error) {

@@ -286,6 +286,7 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
                   {renderStatus(item.status)}
                 </span>
                 <span className="agenda-timeline-servico">{item.servico} · {item.profissional}</span>
+                {item.daListaDeEspera ? <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span> : null}
                 {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
               </Button>
             );
