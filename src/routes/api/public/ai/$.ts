@@ -63,16 +63,32 @@ async function proteger(request: Request): Promise<Ctx | Response> {
 
 async function executar(nome: string, ctx: Ctx, dados: unknown) {
   const { ACOES_DO_AGENTE } = await import("@/lib/ia/acoes.server");
+  const { registrarChamadaDaApi } = await import("@/lib/ia/limite.server");
   const acoes = ACOES_DO_AGENTE as unknown as Record<
     string,
     (c: Ctx, d: unknown) => Promise<unknown>
   >;
   const acao = acoes[nome];
   if (!acao) return json({ erro: `Ação desconhecida: ${nome}` }, 400);
+  const comecou = Date.now();
   try {
-    return json({ ok: true, resultado: await acao(ctx, dados) });
+    const resultado = await acao(ctx, dados);
+    await registrarChamadaDaApi({
+      tenantId: ctx.tenantId,
+      acao: nome,
+      sucesso: true,
+      duracaoMs: Date.now() - comecou,
+    });
+    return json({ ok: true, resultado });
   } catch (erro) {
     const mensagem = erro instanceof Error ? erro.message : "Falha ao executar a ação.";
+    await registrarChamadaDaApi({
+      tenantId: ctx.tenantId,
+      acao: nome,
+      sucesso: false,
+      duracaoMs: Date.now() - comecou,
+      erro: mensagem,
+    });
     return json({ ok: false, erro: mensagem }, 409);
   }
 }
