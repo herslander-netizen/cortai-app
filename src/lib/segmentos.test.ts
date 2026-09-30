@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { LISTA_DE_SEGMENTOS, segmentoValido, termos } from "@/lib/segmentos";
+import { LISTA_DE_SEGMENTOS, segmentoParaApresentacao, segmentoValido, termos } from "@/lib/segmentos";
 
 describe("segmentos", () => {
   it("mantém barbearia como fallback", () => {
     expect(segmentoValido("inexistente")).toBe("barbearia");
     expect(termos(null).nome).toBe("barbearia");
+  });
+
+  it("usa apresentação neutra quando o segmento ainda não foi definido", () => {
+    expect(segmentoParaApresentacao(null)).toBe("outro");
+    expect(segmentoParaApresentacao("inexistente")).toBe("outro");
+    expect(segmentoParaApresentacao("salao")).toBe("salao");
   });
 
   it("possui termos completos em todos os segmentos", () => {

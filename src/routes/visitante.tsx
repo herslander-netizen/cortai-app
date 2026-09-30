@@ -17,9 +17,9 @@ export const Route = createFileRoute("/visitante")({
   head: () => ({
     meta: [
       { title: "Entrar como cliente — Cortaí" },
-      { name: "description", content: "Crie sua conta de cliente para agendar cortes nas barbearias do Cortaí." },
+      { name: "description", content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí." },
       { property: "og:title", content: "Entrar como cliente — Cortaí" },
-      { property: "og:description", content: "Conta de cliente para agendar seus cortes." },
+      { property: "og:description", content: "Conta de cliente para agendar seus serviços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -56,10 +56,10 @@ function VisitantePage() {
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
       <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-2 max-w-xs text-[30px] font-bold leading-tight text-paper">
-        {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu corte."}
+        {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu horário."}
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
-        Esta conta é para quem quer agendar horários. Não precisa ter barbearia.
+        Esta conta é para quem quer agendar horários. Não precisa ter um negócio.
       </p>
 
       <form

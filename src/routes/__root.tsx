@@ -45,10 +45,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cortaí — Sua barbearia, do seu jeito. No controle." },
+      { title: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
       {
         name: "description",
-        content: "Agenda, clientes, equipe, vendas, caixa e presença digital para sua barbearia.",
+        content: "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
       },
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/icone-cortai-192.png" },

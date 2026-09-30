@@ -52,7 +52,7 @@ export function Signature() {
         )}
       </p>
 
-      <p className="text-xs leading-relaxed text-mute2">Tecnologia que conecta a cidade.</p>
+      <p className="text-xs leading-relaxed text-mute2">Simplifica. Conecta. Cresce.</p>
 
       <Link to="/privacidade" className="text-xs leading-none text-mute2 transition-colors hover:text-gold">
         Política de Privacidade

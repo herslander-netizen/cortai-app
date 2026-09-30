@@ -18,7 +18,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Entrar — Cortaí" },
-      { name: "description", content: "Acesse seus horários ou a gestão da sua barbearia no Cortaí." },
+      { name: "description", content: "Acesse seus horários ou a gestão do seu negócio no Cortaí." },
       { property: "og:title", content: "Entrar — Cortaí" },
       { property: "og:description", content: "Seu acesso ao Cortaí." },
       { property: "og:type", content: "website" },

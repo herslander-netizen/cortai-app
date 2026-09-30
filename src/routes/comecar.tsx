@@ -17,10 +17,10 @@ export const Route = createFileRoute("/comecar")({
       { title: "Começar — Cortaí" },
       {
         name: "description",
-        content: "Escolha como usar o Cortaí: agendar ou gerenciar sua barbearia.",
+        content: "Escolha como usar o Cortaí: agendar ou gerenciar seu negócio de Beleza.",
       },
       { property: "og:title", content: "Começar — Cortaí" },
-      { property: "og:description", content: "Agendar ou gerenciar sua barbearia." },
+      { property: "og:description", content: "Agendar ou gerenciar seu negócio de Beleza." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
