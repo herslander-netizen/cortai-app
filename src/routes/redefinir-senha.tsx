@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { LockKeyhole } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
+import { Button } from "@/components/ui/button";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { supabase } from "@/integrations/supabase/client";
+import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/redefinir-senha")({
   ssr: false,
@@ -34,61 +36,78 @@ function RedefinirSenhaPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [salvo, setSalvo] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
 
   useEffect(() => {
     let ativo = true;
-    // O link de recuperação abre a página já com uma sessão temporária.
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.content = "#ffffff";
+    const tipoNoHash = new URLSearchParams(window.location.hash.slice(1)).get("type");
+    if (tipoNoHash === "recovery") setPronto(true);
+
+    const limite = window.setTimeout(() => {
+      if (ativo) setLinkInvalido(true);
+    }, 2500);
     const { data: sub } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === "PASSWORD_RECOVERY" || evento === "SIGNED_IN") setPronto(true);
-    });
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!ativo) return;
-      if (data.session) setPronto(true);
-      else setLinkInvalido(true);
+      if (evento === "PASSWORD_RECOVERY") {
+        setPronto(true);
+        setLinkInvalido(false);
+      }
     });
     return () => {
       ativo = false;
+      window.clearTimeout(limite);
       sub.subscription.unsubscribe();
+      sincronizarCorDoNavegador();
     };
   }, []);
 
+  const senhaValida = senha.length >= 8 && /[A-Za-z]/.test(senha) && /\d/.test(senha);
+
+  async function voltarParaLogin() {
+    await supabase.auth.signOut();
+    await navigate({ to: "/login" });
+  }
+
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
-      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
-      <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">Crie sua nova senha</h1>
+    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <MarcaCortai variante="escura" className="h-auto w-32" prioridade />
+        <h1 className="mt-6 text-xl font-bold text-paper">Definir nova senha</h1>
+      </div>
 
       {salvo ? (
-        <div className="mt-8 space-y-5">
-          <Aviso tom="sucesso" titulo="Sua senha foi criada.">
+        <div className="space-y-5">
+          <Aviso tom="sucesso" titulo="Nova senha salva">
             {convite
               ? "Agora é só conferir o que você pode fazer no negócio e confirmar o acesso."
               : "Você já pode entrar no Cortaí com a senha nova."}
           </Aviso>
-          <button
-            type="button"
-            className="btn-primary w-full py-3.5"
-            onClick={() => void navigate({ to: convite ? "/convite" : "/login" })}
+          <Button
+            className="h-12 w-full rounded-full"
+            onClick={() => void (convite ? navigate({ to: "/convite" }) : voltarParaLogin())}
           >
             {convite ? "Ver meu acesso" : "Entrar no Cortaí"}
-          </button>
+          </Button>
         </div>
       ) : linkInvalido && !pronto ? (
-        <div className="mt-8 space-y-5">
+        <div className="space-y-5">
           <Aviso tom="atencao" titulo="Este link não vale mais.">
             Peça um novo link de recuperação para criar sua senha.
           </Aviso>
-          <Link to="/recuperar-senha" className="btn-primary block w-full py-3.5 text-center">
-            Pedir novo link
-          </Link>
+          <Button asChild className="h-12 w-full rounded-full">
+            <Link to="/recuperar-senha">Pedir novo link</Link>
+          </Button>
         </div>
       ) : (
         <form
-          className="mt-8 space-y-4"
+          className="space-y-4"
           onSubmit={async (event) => {
             event.preventDefault();
             setErro(null);
-            if (senha.length < 8) {
-              setErro("Use pelo menos 8 caracteres na nova senha.");
+            if (!senhaValida) {
+              setErro("Use pelo menos 8 caracteres, incluindo uma letra e um número.");
               return;
             }
             if (senha !== confirmacao) {
@@ -106,36 +125,58 @@ function RedefinirSenhaPage() {
           }}
         >
           <p className="text-sm leading-relaxed text-mute">
-            Escolha uma senha com pelo menos 8 caracteres. Ninguém no Cortaí vê a sua senha.
+            Use pelo menos 8 caracteres, incluindo uma letra e um número.
           </p>
           <label className="block text-xs font-medium text-mute">
             Nova senha
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-line2 bg-ink2 pl-4 pr-1">
               <LockKeyhole size={17} aria-hidden />
               <input
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                type="password"
+                type={mostrarSenha ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 minLength={8}
                 className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
               />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                aria-label={mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"}
+                aria-pressed={mostrarSenha}
+                onClick={() => setMostrarSenha((valor) => !valor)}
+              >
+                {mostrarSenha ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              </Button>
             </span>
           </label>
           <label className="block text-xs font-medium text-mute">
-            Repita a nova senha
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+            Confirmar nova senha
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-line2 bg-ink2 pl-4 pr-1">
               <LockKeyhole size={17} aria-hidden />
               <input
                 value={confirmacao}
                 onChange={(e) => setConfirmacao(e.target.value)}
-                type="password"
+                type={mostrarConfirmacao ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 minLength={8}
                 className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
               />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                aria-label={mostrarConfirmacao ? "Ocultar confirmação da senha" : "Mostrar confirmação da senha"}
+                aria-pressed={mostrarConfirmacao}
+                onClick={() => setMostrarConfirmacao((valor) => !valor)}
+              >
+                {mostrarConfirmacao ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              </Button>
             </span>
           </label>
           {erro ? (
@@ -143,9 +184,9 @@ function RedefinirSenhaPage() {
               {erro}
             </p>
           ) : null}
-          <button className="btn-primary w-full py-3.5" disabled={salvando || !pronto}>
+          <Button className="h-12 w-full rounded-full font-bold" disabled={salvando || !pronto}>
             {salvando ? "Salvando…" : "Salvar nova senha"}
-          </button>
+          </Button>
         </form>
       )}
     </main>
