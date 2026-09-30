@@ -1,4 +1,5 @@
 - [x] Auditar e completar a barbearia demo existente sem recriar tenant
 - [x] Validar acesso, isolamento, fluxo público, painel e responsividade
 - [x] Rodar testes, typecheck e build; não publicar
-- [ ] Refinar sistema visual de todos os chats (novo fundo, ChatShell, cards contextuais, personalização)
+- [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Cortaí Chat
+- [ ] Cards contextuais novos (serviço 4:5, ingresso, horários Manhã/Tarde/Noite), escolha de fundo e folha CortAI
