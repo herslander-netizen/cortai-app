@@ -83,7 +83,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#F5F4F0":"#17181B";document.head.appendChild(t)}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#F7FAFF":"#021A46";document.head.appendChild(t)}catch{}` }} />
       </head>
       <body>
         {children}

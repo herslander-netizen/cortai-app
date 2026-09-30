@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
-import logoCortai from "@/assets/cortai-logo-oficial-dark.png";
+import logoCortai from "@/assets/cortai-logo-clara-oficial.png.asset.json";
 
 /**
  * Sistema visual compartilhado dos chats do Cortaí.
@@ -49,7 +49,7 @@ export function ChatHeader({
           </p>
         ) : null}
       </div>
-      <img src={logoCortai} alt="Cortaí" className="h-6 w-auto shrink-0" />
+      <img src={logoCortai.url} alt="Cortaí" className="h-7 w-auto shrink-0" />
     </header>
   );
 }
