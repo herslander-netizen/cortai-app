@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -1062,11 +1062,6 @@ export function AgendaOperacional() {
         ) : null}
 
         {ehHoje ? <PrimeirosPassos /> : null}
-        {ehHoje ? null : (
-          <p className="sr-only">
-            <Link to="/barbeiro/agenda">Voltar para hoje</Link>
-          </p>
-        )}
       </div>
 
       <div className="agenda-acao-fixa">
