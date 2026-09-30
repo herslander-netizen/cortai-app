@@ -1,5 +1,6 @@
-import { CalendarDays, Check, Clock3, MessageCircleMore } from "lucide-react";
+import { CalendarDays, Check, Clock3 } from "lucide-react";
 
+import { ChatHeader } from "@/components/chat/ChatShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { agendamentoStyle, type PaginaConfig } from "@/lib/pagina-config";
@@ -32,34 +33,29 @@ export function ChatPreview({
         <img src={capaUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : null}
       <div className="chat-preview-veil absolute inset-0" />
-      <div className="relative flex items-center gap-3 border-b border-line px-4 py-3">
-        {logoUrl ? (
-          <img src={logoUrl} alt="" className="size-9 rounded-full object-contain" />
-        ) : (
-          <span className="grid size-9 place-items-center rounded-full bg-gold-soft text-gold">
-            <MessageCircleMore size={17} />
-          </span>
-        )}
-        <div>
-          <p className="text-sm font-semibold text-paper">{nome}</p>
-          <p className="text-xs text-sage">{config?.chat.nomeRecepcao ?? "Recepção"}</p>
-        </div>
+      <div className="relative">
+        <ChatHeader
+          nome={config?.chat.nomeRecepcao ?? "Recepção"}
+          avatarUrl={logoUrl}
+          status="Online"
+          detalhe={nome}
+        />
       </div>
       <div className="relative space-y-4 p-4 text-sm">
         <p className="max-w-[88%] text-paper">
           {config?.chat.mensagemInicial ??
             "Olá! Que bom receber você. Como posso organizar seu horário?"}
         </p>
-        <p className="ml-auto w-fit rounded-lg bg-primary px-3 py-2 text-primary-foreground">
+        <p className="chat-bolha-cliente ml-auto w-fit px-3 py-2">
           Quero agendar
         </p>
         <div className="grid grid-cols-2 gap-2">
-          <span className="rounded-lg border border-gold bg-ink px-3 py-3 text-paper">
-            <Clock3 className="mb-2 text-gold" size={15} />
+          <span className="chat-opcao-previa rounded-lg px-3 py-3">
+            <Clock3 className="mb-2" size={15} />
             Serviço
           </span>
-          <span className="rounded-lg border border-line bg-ink px-3 py-3 text-paper">
-            <CalendarDays className="mb-2 text-rosa" size={15} />
+          <span className="chat-opcao-previa rounded-lg px-3 py-3">
+            <CalendarDays className="mb-2" size={15} />
             Melhor dia
           </span>
         </div>
@@ -68,9 +64,6 @@ export function ChatPreview({
           Prévia: nenhum agendamento será criado.
         </p>
       </div>
-      <p className="relative border-t border-line px-4 py-2 text-center text-[10px] font-semibold text-mute2">
-        By Alvo Digital · Cortaí
-      </p>
       {onExperimentar ? (
         <Button
           type="button"

@@ -54,7 +54,7 @@ function Fala({ children, cliente = false }: { children: React.ReactNode; client
       <MessageContent
         className={
           cliente
-            ? "!rounded-[24px_24px_8px_24px] !bg-primary px-4 py-3 font-semibold !text-primary-foreground"
+            ? "chat-bolha-cliente px-4 py-3 font-semibold"
             : "chat-bolha-ia px-4 py-3 text-[15px] leading-relaxed"
         }
       >
@@ -150,9 +150,11 @@ export function AgendamentoChat({
       style={agendamentoStyle(data.pagina)}
       header={
         <ChatHeader
-          nome={data.tenant.nome}
+          nome={chat.nomeRecepcao}
           avatarUrl={chat.avatarUrl || data.tenant.logoUrl}
-          detalhe={`${chat.nomeRecepcao} · recepção digital`}
+          status={digitando || enviando ? "Digitando..." : "Online"}
+          detalhe={data.tenant.nome}
+          processando={digitando || enviando}
         />
       }
     >

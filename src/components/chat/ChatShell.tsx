@@ -21,11 +21,13 @@ export function ChatHeader({
   avatarUrl,
   status,
   detalhe,
+  processando = false,
 }: {
   nome: string;
   avatarUrl?: string | null;
   status?: string;
   detalhe?: string;
+  processando?: boolean;
 }) {
   return (
     <header className="chat-header">
@@ -41,11 +43,24 @@ export function ChatHeader({
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-extrabold">{nome}</h1>
         {status || detalhe ? (
-          <p className="flex items-center gap-1.5 truncate text-xs font-semibold">
+          <p
+            className="flex items-center gap-1.5 truncate text-xs font-semibold"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {status ? (
               <>
-                <span className="chat-status-dot" aria-hidden />
-                <span>{status}</span>
+                {processando ? (
+                  <span className="chat-status-typing" aria-hidden>
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                ) : (
+                  <span className="chat-status-dot" aria-hidden />
+                )}
+                <span className="chat-status-text">{status}</span>
               </>
             ) : null}
             {detalhe ? (
@@ -78,7 +93,7 @@ export function ChatShell({
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}
-        <footer className="chat-assinatura">By Alvo Digital · Cortaí</footer>
+        <footer className="chat-assinatura">By Alvo Digital • Cortaí</footer>
       </div>
     </main>
   );

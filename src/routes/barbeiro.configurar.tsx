@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { supabase } from "@/integrations/supabase/client";
@@ -365,6 +366,9 @@ function ConfigurarPage() {
 
       {data ? (
         <>
+          <div className="mb-5 flex justify-center" aria-label="Cortaí">
+            <MarcaCortai variante="automatica" className="h-7 w-auto" />
+          </div>
           {etapa !== "pronto" ? (
             <div className="mb-6">
               <div className="flex gap-1.5" aria-hidden>
