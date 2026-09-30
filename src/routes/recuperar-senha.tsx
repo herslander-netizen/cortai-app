@@ -87,6 +87,7 @@ function RecuperarSenhaPage() {
       ) : (
         <form
           className="space-y-4"
+          noValidate
           onSubmit={async (event) => {
             event.preventDefault();
             await enviarInstrucoes();

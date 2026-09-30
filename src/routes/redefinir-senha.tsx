@@ -103,6 +103,7 @@ function RedefinirSenhaPage() {
       ) : (
         <form
           className="space-y-4"
+          noValidate
           onSubmit={async (event) => {
             event.preventDefault();
             setErro(null);
