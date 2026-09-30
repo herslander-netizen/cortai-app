@@ -21,8 +21,8 @@ export function VistoAnimado({ tamanho = 56 }: { tamanho?: number }) {
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
-        initial={simples ? { opacity: 0 } : { pathLength: 0 }}
-        animate={simples ? { opacity: 1 } : { pathLength: 1 }}
+        initial={simples ? { opacity: 0 } : { opacity: 0, scale: 0.82 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: simples ? DURACAO.rapida : DURACAO.lenta, ease: SUAVE }}
       />
     </svg>

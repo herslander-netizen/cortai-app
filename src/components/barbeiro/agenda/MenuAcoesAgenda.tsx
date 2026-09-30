@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarPlus, Clock3, Scissors, ShoppingBag, UserRoundPlus, X } from "lucide-react";
+import { CalendarPlus, Clock3, Plus, Scissors, ShoppingBag, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,7 @@ export function MenuAcoesAgenda({
               aria-label="Fechar ações da agenda"
               className="agenda-acao-redonda agenda-acao-fechar"
             >
-              <X />
+              <Plus className="agenda-fab-icone agenda-fab-icone-aberto" />
             </Button>
           </SheetClose>
         ) : null}

@@ -671,7 +671,7 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
-      comBotaoFechar={false}
+      comBotaoFechar={!modoFoco}
     />
   );
 
@@ -1268,8 +1268,10 @@ export function AgendaOperacional() {
           aria-label="Ações da agenda"
           aria-haspopup="menu"
           aria-expanded={menuAberto}
-          className="agenda-acao-redonda agenda-fab-toggle"
+          className={`agenda-acao-redonda agenda-fab-toggle ${menuAberto ? "pointer-events-none invisible" : ""}`}
           data-aberto={menuAberto}
+          tabIndex={menuAberto ? -1 : undefined}
+          aria-hidden={menuAberto || undefined}
           onClick={() => {
             setPainelAberto(false);
             setSelecionado(null);
