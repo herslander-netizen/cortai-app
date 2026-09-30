@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Copy, ExternalLink, QrCode, Share2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -73,6 +73,9 @@ function MarketingPage() {
             <a href="/apresentacao#planos" target="_blank" rel="noopener noreferrer">
               Ver planos <ExternalLink />
             </a>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/admin/home">Editar conteúdo</Link>
           </Button>
           <Button variant="outline" onClick={copiar}>
             <Copy /> Copiar link
