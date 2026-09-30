@@ -27,6 +27,11 @@ function BarberLayout() {
     <SegmentoProvider segmento={sessao?.segmento}>
       <div className="management-shell equipe-shell">
         <ManagementHeader />
+        {sessao?.tenantSlug === "demonstracao" ? (
+          <div className="selo-demo" role="status">
+            Ambiente de demonstração · dados fictícios
+          </div>
+        ) : null}
         <NavegacaoEquipe />
         <div className="equipe-conteudo">
           <Outlet />
