@@ -767,13 +767,11 @@ export const abrirOuFecharCaixa = createServerFn({ method: "POST" })
       .maybeSingle();
     if (data.acao === "abrir") {
       if (aberta) throw new Error("Já existe um caixa aberto.");
-      const { error } = await db
-        .from("caixa_sessoes")
-        .insert({
-          tenant_id: tenantId,
-          saldo_inicial_centavos: data.valorCentavos,
-          aberto_por: context.userId,
-        });
+      const { error } = await db.from("caixa_sessoes").insert({
+        tenant_id: tenantId,
+        saldo_inicial_centavos: data.valorCentavos,
+        aberto_por: context.userId,
+      });
       if (error) throw new Error(error.message);
       return { ok: true, status: "aberto" as const };
     }
@@ -826,17 +824,15 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
       .eq("tenant_id", tenantId)
       .eq("status", "aberto")
       .maybeSingle();
-    const { error } = await db
-      .from("caixa_movimentos")
-      .insert({
-        tenant_id: tenantId,
-        caixa_sessao_id: sessao?.id ?? null,
-        tipo: data.tipo,
-        categoria: data.tipo,
-        descricao: data.descricao,
-        valor_centavos: data.valorCentavos,
-        criado_por: context.userId,
-      });
+    const { error } = await db.from("caixa_movimentos").insert({
+      tenant_id: tenantId,
+      caixa_sessao_id: sessao?.id ?? null,
+      tipo: data.tipo,
+      categoria: data.tipo,
+      descricao: data.descricao,
+      valor_centavos: data.valorCentavos,
+      criado_por: context.userId,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -859,16 +855,14 @@ export const pagarComissao = createServerFn({ method: "POST" })
     const total = lista.reduce((s: number, c: any) => s + c.valor_centavos, 0);
     const datas = lista.map((c: any) => c.criado_em).sort();
     const agora = new Date().toISOString();
-    const { error: pagamentoErro } = await db
-      .from("comissao_pagamentos")
-      .insert({
-        tenant_id: tenantId,
-        profissional_id: data.profissionalId,
-        valor_centavos: total,
-        periodo_inicio: (datas[0] as string).slice(0, 10),
-        periodo_fim: (datas[datas.length - 1] as string).slice(0, 10),
-        pago_por: context.userId,
-      });
+    const { error: pagamentoErro } = await db.from("comissao_pagamentos").insert({
+      tenant_id: tenantId,
+      profissional_id: data.profissionalId,
+      valor_centavos: total,
+      periodo_inicio: (datas[0] as string).slice(0, 10),
+      periodo_fim: (datas[datas.length - 1] as string).slice(0, 10),
+      pago_por: context.userId,
+    });
     if (pagamentoErro) throw new Error(pagamentoErro.message);
     const { error } = await db
       .from("comissoes")
@@ -945,22 +939,20 @@ export const quitarFiado = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (pagamentoErro) throw new Error(pagamentoErro.message);
-    const { error: movErro } = await db
-      .from("caixa_movimentos")
-      .insert({
-        tenant_id: tenantId,
-        caixa_sessao_id: sessao?.id ?? null,
-        comanda_id: fiado.comanda_id,
-        pagamento_id: pagamento.id,
-        cliente_id: fiado.cliente_id,
-        profissional_id: fiado.profissional_id,
-        tipo: "entrada",
-        categoria: "fiado",
-        descricao: "Quitação de fiado",
-        valor_centavos: valor,
-        forma_pagamento: data.forma,
-        criado_por: context.userId,
-      });
+    const { error: movErro } = await db.from("caixa_movimentos").insert({
+      tenant_id: tenantId,
+      caixa_sessao_id: sessao?.id ?? null,
+      comanda_id: fiado.comanda_id,
+      pagamento_id: pagamento.id,
+      cliente_id: fiado.cliente_id,
+      profissional_id: fiado.profissional_id,
+      tipo: "entrada",
+      categoria: "fiado",
+      descricao: "Quitação de fiado",
+      valor_centavos: valor,
+      forma_pagamento: data.forma,
+      criado_por: context.userId,
+    });
     if (movErro) throw new Error(movErro.message);
     const { error } = await db
       .from("fiados")
@@ -980,17 +972,15 @@ export const quitarFiado = createServerFn({ method: "POST" })
         .eq("cliente_id", fiado.cliente_id)
         .maybeSingle();
       if (carteira) {
-        await db
-          .from("movimentos")
-          .insert({
-            carteira_id: carteira.id,
-            tipo: "baixa",
-            centavos_delta: valor,
-            origem: "fiado",
-            comanda_id: fiado.comanda_id,
-            descricao: saldo === 0 ? "Fiado quitado" : "Baixa parcial de fiado",
-            criado_por: context.userId,
-          });
+        await db.from("movimentos").insert({
+          carteira_id: carteira.id,
+          tipo: "baixa",
+          centavos_delta: valor,
+          origem: "fiado",
+          comanda_id: fiado.comanda_id,
+          descricao: saldo === 0 ? "Fiado quitado" : "Baixa parcial de fiado",
+          criado_por: context.userId,
+        });
       }
     }
     return { ok: true, saldoCentavos: saldo };
