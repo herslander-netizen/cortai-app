@@ -30,6 +30,7 @@ import { Route as AdminApresentacaoRouteImport } from './routes/admin.apresentac
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminHomeRouteImport } from './routes/admin.home'
 import { Route as AdminMaisRouteImport } from './routes/admin.mais'
+import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
 import { Route as AdminMonetizacaoRouteImport } from './routes/admin.monetizacao'
 import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
@@ -195,6 +196,11 @@ const AdminHomeRoute = AdminHomeRouteImport.update({
 const AdminMaisRoute = AdminMaisRouteImport.update({
   id: '/mais',
   path: '/mais',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMarketingRoute = AdminMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMonetizacaoRoute = AdminMonetizacaoRouteImport.update({
@@ -523,6 +529,7 @@ export interface FileRoutesByFullPath {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
@@ -603,6 +610,7 @@ export interface FileRoutesByTo {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
@@ -686,6 +694,7 @@ export interface FileRoutesById {
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/monetizacao': typeof AdminMonetizacaoRoute
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/pedidos': typeof AdminPedidosRoute
@@ -771,6 +780,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
+    | '/admin/marketing'
     | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
@@ -851,6 +861,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
+    | '/admin/marketing'
     | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
@@ -933,6 +944,7 @@ export interface FileRouteTypes {
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
+    | '/admin/marketing'
     | '/admin/monetizacao'
     | '/admin/parceiros'
     | '/admin/pedidos'
@@ -1177,6 +1189,13 @@ declare module '@tanstack/react-router' {
       path: '/mais'
       fullPath: '/admin/mais'
       preLoaderRoute: typeof AdminMaisRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/marketing': {
+      id: '/admin/marketing'
+      path: '/marketing'
+      fullPath: '/admin/marketing'
+      preLoaderRoute: typeof AdminMarketingRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/monetizacao': {
@@ -1608,6 +1627,7 @@ interface AdminRouteChildren {
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
   AdminHomeRoute: typeof AdminHomeRoute
   AdminMaisRoute: typeof AdminMaisRoute
+  AdminMarketingRoute: typeof AdminMarketingRoute
   AdminMonetizacaoRoute: typeof AdminMonetizacaoRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
@@ -1622,6 +1642,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBarbeariasRoute: AdminBarbeariasRoute,
   AdminHomeRoute: AdminHomeRoute,
   AdminMaisRoute: AdminMaisRoute,
+  AdminMarketingRoute: AdminMarketingRoute,
   AdminMonetizacaoRoute: AdminMonetizacaoRoute,
   AdminParceirosRoute: AdminParceirosRoute,
   AdminPedidosRoute: AdminPedidosRoute,
