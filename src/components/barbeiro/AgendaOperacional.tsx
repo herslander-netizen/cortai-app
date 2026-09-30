@@ -1664,7 +1664,7 @@ export function AgendaOperacional() {
           disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
           onClick={acaoPrincipal}
         >
-          {itemSelecionado ? <Scissors /> : <Plus />}
+          <Scissors aria-hidden />
           {itemSelecionado
             ? itemSelecionado.status === "na_cadeira"
               ? `Finalizar ${itemSelecionado.cliente}`

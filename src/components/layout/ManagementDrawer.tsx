@@ -37,6 +37,7 @@ import {
 import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
 import { IconeCortai } from "@/components/marca/MarcaCortai";
 import { getSessao } from "@/lib/sessao.functions";
+import { hojeNoFuso, horarioDoDia, normalizarFuso } from "@/lib/horarios";
 import { definirFusoDasTelas } from "@/lib/format";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { CAPACIDADES } from "@/lib/capacidades";
@@ -222,17 +223,15 @@ export function ManagementHeader() {
     staleTime: 300_000,
     enabled: aberto,
   });
-  const hoje = new Date().toISOString().slice(0, 10);
+  // Dia real da barbearia (fuso do negócio), o mesmo usado pela agenda.
+  const hoje = hojeNoFuso(normalizarFuso(sessao?.tenantFuso));
   const { data: agenda } = useQuery({
     queryKey: ["agenda-dia", hoje],
     queryFn: () => getAgendaDia({ data: { dia: hoje } }),
     staleTime: 60_000,
     enabled: aberto,
   });
-  const horarioDeHoje = agenda?.horarios.find(
-    (horario) => horario.diaSemana === new Date().getDay(),
-  );
-  const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
+  const operacaoAberta = agenda ? !horarioDoDia(hoje, agenda.horarios).fechado : null;
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
