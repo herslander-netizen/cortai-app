@@ -30,3 +30,4 @@
 - [ ] Refinar visualmente as telas prioritárias sem alterar regras operacionais
 - [ ] Verificar e preservar todas as travas de acesso por plano
 - [ ] Validar links, 390/1280px, TypeScript, lint, testes e build; não publicar
+- [ ] Aplicar direção clean corporativa à Home `/apresentacao`, usando a logo oficial e mockups reais
