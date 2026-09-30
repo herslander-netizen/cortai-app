@@ -1,5 +1,6 @@
 import { useAgora } from "@/hooks/useAgora";
 import { ValorAnimado } from "@/components/painel/ValorAnimado";
+import type { ReactElement } from "react";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
 import { contarLivres, resumoOperacional } from "./tempo";
@@ -44,6 +45,6 @@ export function ResumoDia({
     r.finalizados ? <span key="feitos"><ValorAnimado valor={r.finalizados} formatar={String} primeiraCarga /> {r.finalizados === 1 ? "feito" : "feitos"}</span> : null,
     <span key="livres"><ValorAnimado valor={livres} formatar={String} primeiraCarga /> {livres === 1 ? "horário livre" : "horários livres"}</span>,
     fila ? <span key="fila"><ValorAnimado valor={fila} formatar={String} primeiraCarga /> na fila</span> : null,
-  ].filter((parte): parte is React.ReactElement => Boolean(parte));
+  ].filter((parte): parte is ReactElement => Boolean(parte));
   return <>{partes.map((parte, indice) => <span key={parte.key}>{indice ? " · " : ""}{parte}</span>)}</>;
 }

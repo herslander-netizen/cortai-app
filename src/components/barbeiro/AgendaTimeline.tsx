@@ -442,7 +442,9 @@ export function AgendaTimeline({
                         width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
                       }
                     : {}),
-                  ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}),
+                  ...(arrasto?.id === item.id
+                    ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
+                    : {}),
                 }}
                 aria-pressed={selecionado === item.id}
                 onPointerDown={(e) => inicioGesto(e, item)}

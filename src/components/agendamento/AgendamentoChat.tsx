@@ -60,8 +60,14 @@ const RESPOSTA_POR_ETAPA = {
 } as const;
 
 function pausaDaResposta(etapa: keyof typeof RESPOSTA_POR_ETAPA) {
-  if (prefereMenosMovimento()) return 80;
-  return Math.min(720, 320 + RESPOSTA_POR_ETAPA[etapa].length * 5);
+  if (prefereMenosMovimento()) return 0;
+  return Math.min(280, 120 + RESPOSTA_POR_ETAPA[etapa].length * 2);
+}
+
+function cascataLeve(indice: number) {
+  return indice < 6
+    ? { className: "chat-slot", style: { animationDelay: `${indice * 30}ms` } }
+    : { className: "" };
 }
 
 function Fala({ children, cliente = false }: { children: React.ReactNode; cliente?: boolean }) {
@@ -233,11 +239,13 @@ export function AgendamentoChat({
                   Vamos escolher seu atendimento. Qual serviço você quer agendar?
                 </p>
                 <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {data.servicos.map((s) => (
+                  {data.servicos.map((s, i) => (
                     <button
                       key={s.id}
                       type="button"
-                      className="chat-card-servico w-40 shrink-0 snap-start text-left"
+                      className={`chat-card-servico w-40 shrink-0 snap-start text-left ${cascataLeve(i).className}`}
+                      style={cascataLeve(i).style}
+                      aria-pressed={servicoId === s.id}
                       onClick={() => setServicoId(s.id)}
                     >
                       <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
@@ -287,11 +295,13 @@ export function AgendamentoChat({
                     <UserRound />
                     Não tenho preferência
                   </Button>
-                  {aptos.map((p) => (
+                  {aptos.map((p, i) => (
                     <Button
                       key={p.id}
                       variant="outline"
-                      className="h-14 justify-start"
+                      className={`h-14 justify-start ${cascataLeve(i + 1).className}`}
+                      style={cascataLeve(i + 1).style}
+                      aria-pressed={profissionalId === p.id}
                       onClick={() => {
                         setProfissionalId(p.id);
                         setProfissionalEscolhido(true);
@@ -321,13 +331,15 @@ export function AgendamentoChat({
               <Fala>
                 <p className="mb-3">Qual dia fica melhor?</p>
                 <div className="flex max-w-full snap-x gap-2 overflow-x-auto pb-2">
-                  {dias.map((d) => {
+                  {dias.map((d, i) => {
                     const livre = (porDia.get(d)?.opcoes.length ?? 0) > 0;
                     return (
                       <Button
                         key={d}
                         variant="outline"
-                        className="chat-date-option h-16 min-w-20 shrink-0 snap-start flex-col"
+                        className={`chat-date-option h-16 min-w-20 shrink-0 snap-start flex-col ${cascataLeve(i).className}`}
+                        style={cascataLeve(i).style}
+                        aria-pressed={dia === d}
                         disabled={!livre}
                         onClick={() => {
                           setDia(d);
@@ -371,8 +383,9 @@ export function AgendamentoChat({
                               <Button
                                 key={o.iso}
                                 variant="outline"
-                                className="chat-slot h-12 font-bold"
-                                style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}
+                                className={`h-12 font-bold ${cascataLeve(i).className}`}
+                                style={cascataLeve(i).style}
+                                aria-pressed={inicio === o.iso}
                                 onClick={() => setInicio(o.iso)}
                               >
                                 {o.label}

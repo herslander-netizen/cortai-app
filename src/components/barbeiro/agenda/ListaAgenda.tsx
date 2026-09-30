@@ -32,7 +32,7 @@ export function ListaAgenda({
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   return (
     <ul className="divide-y divide-line">
-      {itens.map((item) => {
+      {itens.map((item, indice) => {
         const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
         return (
           <li
@@ -40,7 +40,8 @@ export function ListaAgenda({
             role="button"
             tabIndex={0}
             aria-label={`${hora(item.inicio, fuso)}, ${item.cliente}, ${item.servico}`}
-            className={`agenda-lista-item agenda-barra-${item.status} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
+            className={`agenda-lista-item agenda-barra-${item.status} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
+            style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
             onClick={() => onAbrir(item.id)}
             onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
           >
