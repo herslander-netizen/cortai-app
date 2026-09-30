@@ -38,7 +38,7 @@ export async function criarConviteDeAvaliacao(agendamentoId: string) {
     if (error) throw new Error(error.message);
   }
 
-  const token = `${crypto.randomUUID()}${crypto.randomUUID().replaceAll("-", "")}`;
+  const token = \`${crypto.randomUUID()}\${crypto.randomUUID().replaceAll("-", "")}\`;
   const tokenHash = await hashToken(token);
   const { data: ag } = await db
     .from("agendamentos")
@@ -83,3 +83,51 @@ export const getConviteDeAvaliacao = createServerFn({ method: "GET" })
     return { negocio: ag.tenants?.nome ?? "Negócio", servico: ag.servicos?.nome ?? "Atendimento" };
   });
 
+export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        token: z.string().min(40).max(100),
+        nota: z.number().int().min(1).max(5),
+        comentario: z.string().trim().max(400).optional(),
+        dimensoes: dimensoesSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const db = await admin();
+    const tokenHash = await hashToken(data.token);
+
+    const { data: resultado, error } = await db.rpc("registrar_avaliacao_publica_atomica", {
+      _token_hash: tokenHash,
+      _nota: data.nota,
+      _comentario: data.comentario || null,
+      _dimensoes: (data.dimensoes ?? {}) as any,
+    });
+
+    if (error) throw new Error(error.message);
+    const res = resultado as unknown as {
+      ok: boolean;
+      tenant_id: string;
+      positiva: boolean;
+      precisa_atencao: boolean;
+      link_publico: string | null;
+    };
+
+    if (res.precisa_atencao) {
+      await db.rpc("criar_notificacao", {
+        _tenant: res.tenant_id,
+        _tipo: "avaliacao",
+        _titulo: "Experiência precisa de atenção",
+        _corpo:
+          "Uma avaliação recente recebeu nota baixa. Consulte o relato antes do próximo contato.",
+        _link: "/barbeiro/avaliacoes",
+      });
+    }
+
+    return {
+      ok: res.ok,
+      positiva: res.positiva,
+      linkPublico: res.link_publico,
+    };
+  });
