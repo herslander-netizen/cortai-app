@@ -93,7 +93,7 @@ function VisitantePage() {
             return;
           }
           if (!data.session) {
-            setAviso("Conta criada. Confirme o e-mail que enviamos e volte para entrar.");
+            setAviso("Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.");
             return;
           }
           await seguir();
