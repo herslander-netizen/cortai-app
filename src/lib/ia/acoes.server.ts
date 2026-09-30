@@ -299,7 +299,7 @@ export async function criarAgendamento(
     profissionalId: input.profissionalId,
     inicio,
     clienteId: input.clienteId,
-    ignorarId: input.ignorarId,
+    ...(input.ignorarId !== undefined ? { ignorarId: input.ignorarId } : {}),
   });
   if (conflito) {
     throw new Error(`O cliente já tem um horário às ${conflito.hora} nesse dia.`);
