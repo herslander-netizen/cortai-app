@@ -45,3 +45,6 @@
 - [x] Corrigir e validar o fluxo completo de recuperação e definição de nova senha
 
 - [x] Consolidar a Home pública oficial em /apresentacao, editável em /admin/home
+- [x] Agenda: refino (botão + fixo, cache seguro, painel único, remarcar dia/profissional, cabeçalho, timeline limpa, a11y, divisão em módulos)
+- [ ] Agenda: bloqueio pontual por data e escala por profissional (precisa de nova tabela — aguardando aprovação)
+- [ ] Agenda: conferência visual 390/1280 com barbeiro.teste (aguardando aprovação de login)

@@ -29,3 +29,6 @@
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/admin/apresentacao` redireciona e `SecoesHome` fica sem uso público — evita duas Homes concorrentes.
+- Agenda do barbeiro vive em `src/components/barbeiro/agenda/` (useAgendaDia, PainelAtendimento, CabecalhoAgenda, MenuAcoesAgenda); tela normal e Modo Foco compartilham o mesmo painel e menu — evita regras duplicadas.
+- Relógio da Agenda via `useAgora` (loja compartilhada de 1 min) lido só nos componentes que mostram tempo — evita redesenhar a tela inteira.
+- Cache offline da Agenda só em `agenda-cache.ts`: sem telefone/ficha, usado apenas em erro de rede/5xx, limpo no logout e em 401/403.
