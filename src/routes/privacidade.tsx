@@ -116,7 +116,7 @@ function PaginaDePrivacidade() {
       <Bloco titulo="Com quem compartilhamos">
         <p>
           Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem,
-          banco de dados e autenticação, envio de mensagens e, quando a barbearia ativa, o
+          banco de dados e autenticação, envio de mensagens e, quando o negócio ativa, o
           atendimento inteligente CortAI. Todos tratam os dados sob instrução do Cortaí.
         </p>
       </Bloco>
@@ -142,7 +142,7 @@ function PaginaDePrivacidade() {
 
       <Bloco titulo="Segurança">
         <p>
-          Os acessos são autenticados, os dados de cada barbearia ficam isolados por regras no banco
+          Os acessos são autenticados, os dados de cada negócio ficam isolados por regras no banco
           de dados, as ações sensíveis ficam registradas em auditoria e as chaves de integração
           nunca são exibidas no aplicativo depois de criadas.
         </p>

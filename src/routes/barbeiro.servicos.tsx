@@ -14,7 +14,7 @@ export const Route = createFileRoute("/barbeiro/servicos")({
   head: () => ({
     meta: [
       { title: "Serviços — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Defina cortes, duração e preços da sua barbearia." },
+      { name: "description", content: "Defina serviços, duração e preços do seu negócio." },
       { property: "og:title", content: "Serviços — Cortaí" },
       { property: "og:description", content: "Cortes, duração e preços." },
       { property: "og:type", content: "website" },

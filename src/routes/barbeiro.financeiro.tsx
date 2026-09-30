@@ -10,9 +10,9 @@ import { Carregando } from "@/components/layout/Carregando";
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({ meta: [
     { title: "Financeiro — Cortaí Gestão" },
-    { name: "description", content: "Receitas de serviços, produtos e outros lançamentos da barbearia." },
+    { name: "description", content: "Receitas de serviços, produtos e outros lançamentos do negócio." },
     { property: "og:title", content: "Financeiro — Cortaí Gestão" },
-    { property: "og:description", content: "Visão clara das receitas da barbearia." },
+    { property: "og:description", content: "Visão clara das receitas do negócio." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -24,7 +24,7 @@ function FinanceiroPage() {
   const { data, isLoading, isError } = useQuery({ queryKey: ["financeiro"], queryFn: () => getFinanceiro(), retry: false });
   return <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
     {isLoading ? <Carregando /> : null}
-    {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-brick">Entre com uma conta vinculada à barbearia para ver o financeiro.</p> : null}
+    {isError ? <p className="border-l-2 border-brick pl-4 text-sm text-brick">Entre com uma conta vinculada ao negócio para ver o financeiro.</p> : null}
     {data ? <>
        <section data-guia="financeiro-total" className="surface-card bg-ink3 p-5 md:max-w-xl">
         <p className="text-xs text-mute">Faturamento no mês</p>

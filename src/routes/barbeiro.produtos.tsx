@@ -17,7 +17,7 @@ export const Route = createFileRoute("/barbeiro/produtos")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "produtos_estoque"),
   head: () => ({ meta: [
     { title: "Produtos e loja — Cortaí Gestão" },
-    { name: "description", content: "Estoque interno, produtos à venda e loja online da barbearia." },
+      { name: "description", content: "Estoque interno, produtos à venda e loja online do negócio." },
     { property: "og:title", content: "Produtos e loja — Cortaí Gestão" },
     { property: "og:description", content: "Controle de produtos, estoque e loja." },
     { property: "og:type", content: "website" },
