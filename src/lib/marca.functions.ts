@@ -59,6 +59,7 @@ export type MarcaData = MarcaForm & {
   plano: string;
   logo_signed_url: string | null;
   capa_signed_url: string | null;
+  avatar_signed_url: string | null;
   slug: string;
   pagina: PaginaConfig;
   publicada: PaginaConfig;
@@ -142,6 +143,7 @@ export const getMarca = createServerFn({ method: "GET" })
     const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
     const publishedContainer = pagina?.published_config as { pagina?: unknown; marca?: unknown } | null;
     const marcaRascunho = marcaSchema.safeParse(draftContainer?.marca);
+    const paginaRascunho = normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" });
     return {
       marca: {
         id: tenant.id,
@@ -149,8 +151,9 @@ export const getMarca = createServerFn({ method: "GET" })
         ...(marcaRascunho.success ? marcaRascunho.data : atual),
         logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
         capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
+        avatar_signed_url: await signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
         slug: tenant.slug,
-        pagina: normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
+        pagina: paginaRascunho,
         publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
         segmento: segmentoValido(tenant.segmento),

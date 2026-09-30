@@ -21,9 +21,9 @@
 - A agenda móvel reutiliza as funções oficiais e nunca grava ações offline.
 - “Desfazer” é atômico no banco, limitado a 5 segundos, negócio e autoria.
 - A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
-- A página pública canônica de cada negócio é `/b/$slug`; aliases antigos apenas redirecionam para preservar links.
+- Página pública canônica: `/b/$slug`; slugs editáveis preservam aliases em `tenant_slug_aliases`.
 - O contexto do cliente é um slug persistido e revalidado; múltiplas fichas nunca escolhem silenciosamente.
-- Agendamentos compartilham seleção/disponibilidade; o público usa a `PaginaConfig` publicada para capa, logo, cores e fontes.
+- Agendamentos compartilham o motor; o público usa a `PaginaConfig` publicada.
 - Visual oficial: `src/styles.css` + `segmentos.ts`, Manrope e azul-marinho/royal/rosa; nunca verde/dourado/Barlow.
 - Toda disponibilidade usa `disponibilidade.ts` + `regrasDaBarbearia`/`STATUS_QUE_OCUPAM`; telas não recalculam regras.
 - “Hoje” usa `hojeNoFuso(fuso do tenant)`, nunca o relógio do aparelho.

@@ -168,7 +168,7 @@ function Editor({
   const [config, setConfig] = useState<PaginaConfig>(initial.pagina);
   const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
   const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
-  const [avatarPreview, setAvatarPreview] = useState(initial.pagina.chat.avatarUrl);
+  const [avatarPreview, setAvatarPreview] = useState(initial.avatar_signed_url);
   const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
@@ -182,7 +182,7 @@ function Editor({
     setConfig(initial.pagina);
     setLogoPreview(initial.logo_signed_url);
     setCoverPreview(initial.capa_signed_url);
-    setAvatarPreview(initial.pagina.chat.avatarUrl);
+    setAvatarPreview(initial.avatar_signed_url);
     setSlug(initial.slug);
   }, [initial]);
   const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) =>
