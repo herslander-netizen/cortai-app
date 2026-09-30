@@ -109,3 +109,12 @@
 
 ## Visual
 - [x] Tela "Qual é o seu negócio?" (/comecar segmento): logo menor no topo, layout mais corporativo e bonito
+
+## Painel de personalização (/barbeiro/marca)
+- [x] Corrigir tela quebrando com "Entre como dono" por dados antigos sem cor (fallbacks no schema)
+- [x] Corrigir chaves React duplicadas nas amostras de cor
+- [ ] Validar no navegador: abre sem "Entre como dono", amostras e prévia de cor íntegras
+- [ ] Publicar versão atual
+- [ ] Paleta de cores clicável + seletor livre
+- [ ] Upload de logo e capa direto da galeria (compressão p/ limite de 2 MB)
+- [ ] Acabamento dos cabeçalhos do painel
