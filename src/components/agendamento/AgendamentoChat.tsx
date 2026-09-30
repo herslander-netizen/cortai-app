@@ -140,10 +140,7 @@ export function AgendamentoChat({
   const digitando = etapaPronta !== etapa;
 
   useEffect(() => {
-    const id = window.setTimeout(
-      () => setEtapaPronta(etapa),
-      pausaDaResposta(etapa),
-    );
+    const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa));
     return () => window.clearTimeout(id);
   }, [etapa]);
   useEffect(() => {
@@ -229,7 +226,9 @@ export function AgendamentoChat({
 
           {!digitando && etapa === "servico" ? (
             <Fala>
-              <p className="mb-3">Vamos escolher seu atendimento. Qual serviço você quer agendar?</p>
+              <p className="mb-3">
+                Vamos escolher seu atendimento. Qual serviço você quer agendar?
+              </p>
               <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {data.servicos.map((s) => (
                   <button

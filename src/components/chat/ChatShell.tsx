@@ -57,7 +57,11 @@ export function ChatHeader({
             {detalhe ? <span className="chat-estabelecimento truncate">{detalhe}</span> : null}
             {status ? (
               <>
-                {detalhe ? <span className="chat-mute" aria-hidden>·</span> : null}
+                {detalhe ? (
+                  <span className="chat-mute" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
                 {processando ? (
                   <span className="chat-status-typing" aria-hidden>
                     <i />
