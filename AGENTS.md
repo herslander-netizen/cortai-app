@@ -20,7 +20,7 @@
 - Agenda/Modo Foco reutilizam regras, cliente e comanda; sem estado paralelo ou gravação offline.
 - “Desfazer” é atômico no banco, limitado a 5 segundos, negócio e autoria.
 - A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
-- Página pública canônica: `/b/$slug`; slugs editáveis preservam aliases em `tenant_slug_aliases`.
+- Página pública: `/b/$slug`, com aliases; showcase interno: `/admin/apresentacao`, protegido e oculto dos menus.
 - O contexto do cliente é um slug persistido e revalidado; múltiplas fichas nunca escolhem silenciosamente.
 - Chats públicos compartilham motor, `PaginaConfig`, `ChatShell` e `ChatHeader`; base neutra.
 - Visual: `styles.css` + `segmentos.ts`, Manrope, marinho/royal/rosa; nunca verde/dourado/Barlow.

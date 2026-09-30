@@ -1,29 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  BadgeDollarSign,
-  BarChart3,
-  Bot,
-  CalendarDays,
-  CheckCircle2,
-  Clock3,
-  ContactRound,
-  CreditCard,
-  HeartHandshake,
-  LifeBuoy,
-  ListOrdered,
-  MapPin,
-  MessageSquareText,
-  Package,
-  Palette,
-  Scissors,
-  Settings,
-  ShieldCheck,
-  Star,
-  Store,
-  UsersRound,
-} from "lucide-react";
+import { CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,167 +24,15 @@ import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeShortcut } from "@/components/layout/ThemeToggle";
 import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
+import { GRUPOS_DE_NAVEGACAO, modulosDeNavegacao } from "@/lib/navegacao-barbeiro";
 
 type ItemDoMenu = {
   label: string;
   to: string;
-  icon: typeof CalendarDays;
+  icon: LucideIcon;
   permissao?: ChaveDePermissao;
   rotaDaCapacidade?: string;
-  search?: { acao: "agendamento" };
 };
-
-const GRUPOS: ReadonlyArray<{ titulo: string; itens: readonly ItemDoMenu[] }> = [
-  {
-    titulo: "Operação",
-    itens: [
-      {
-        label: "Agenda",
-        to: "/barbeiro",
-        icon: CalendarDays,
-        permissao: "criar_agendamento",
-        rotaDaCapacidade: "/barbeiro/agenda",
-      },
-      {
-        label: "Novo agendamento",
-        to: "/barbeiro/agenda",
-        icon: CalendarDays,
-        permissao: "criar_agendamento",
-        rotaDaCapacidade: "/barbeiro/agenda",
-        search: { acao: "agendamento" },
-      },
-      {
-        label: "Atendimentos",
-        to: "/barbeiro/agendamentos",
-        icon: CheckCircle2,
-        permissao: "visualizar_clientes",
-      },
-      {
-        label: "Clientes",
-        to: "/barbeiro/clientes",
-        icon: ContactRound,
-        permissao: "visualizar_clientes",
-        rotaDaCapacidade: "/barbeiro/clientes",
-      },
-      {
-        label: "Fila",
-        to: "/barbeiro/fila",
-        icon: ListOrdered,
-        permissao: "criar_agendamento",
-        rotaDaCapacidade: "/barbeiro/fila",
-      },
-    ],
-  },
-  {
-    titulo: "Gestão",
-    itens: [
-      {
-        label: "Equipe",
-        to: "/barbeiro/equipe",
-        icon: UsersRound,
-        permissao: "gerenciar_permissoes",
-        rotaDaCapacidade: "/barbeiro/equipe",
-      },
-      {
-        label: "Serviços",
-        to: "/barbeiro/servicos",
-        icon: Scissors,
-        permissao: "alterar_preco",
-        rotaDaCapacidade: "/barbeiro/servicos",
-      },
-      {
-        label: "Vendas",
-        to: "/barbeiro/produtos",
-        icon: Package,
-        permissao: "visualizar_estoque",
-        rotaDaCapacidade: "/barbeiro/produtos",
-      },
-      {
-        label: "Financeiro",
-        to: "/barbeiro/financeiro",
-        icon: BarChart3,
-        permissao: "visualizar_financeiro",
-      },
-    ],
-  },
-  {
-    titulo: "Relacionamento",
-    itens: [
-      {
-        label: "Voltaí",
-        to: "/barbeiro/fidelidade",
-        icon: HeartHandshake,
-        permissao: "gerenciar_voltai",
-        rotaDaCapacidade: "/barbeiro/fidelidade",
-      },
-      {
-        label: "Avaliações",
-        to: "/barbeiro/avaliacoes",
-        icon: Star,
-        permissao: "alterar_dados_barbearia",
-      },
-      {
-        label: "Campanhas",
-        to: "/barbeiro/indicacoes",
-        icon: MessageSquareText,
-        permissao: "relatorios",
-        rotaDaCapacidade: "/barbeiro/indicacoes",
-      },
-      {
-        label: "CortAI · conversas",
-        to: "/barbeiro/cortai",
-        icon: Bot,
-        permissao: "ver_cortai",
-        rotaDaCapacidade: "/barbeiro/cortai",
-      },
-    ],
-  },
-  {
-    titulo: "Negócio",
-    itens: [
-      {
-        label: "Página pública",
-        to: "/barbeiro/marca",
-        icon: Store,
-        permissao: "alterar_dados_barbearia",
-        rotaDaCapacidade: "/barbeiro/marca",
-      },
-      {
-        label: "Horários",
-        to: "/barbeiro/horarios",
-        icon: Clock3,
-        permissao: "alterar_dados_barbearia",
-      },
-      {
-        label: "Localização",
-        to: "/barbeiro/configurar",
-        icon: MapPin,
-        permissao: "alterar_dados_barbearia",
-      },
-      {
-        label: "Marca",
-        to: "/barbeiro/temas",
-        icon: Palette,
-        permissao: "alterar_dados_barbearia",
-        rotaDaCapacidade: "/barbeiro/temas",
-      },
-    ],
-  },
-  {
-    titulo: "Conta",
-    itens: [
-      { label: "Configurações", to: "/barbeiro/conta", icon: Settings },
-      { label: "Plano", to: "/barbeiro/plano", icon: CreditCard },
-      {
-        label: "Permissões",
-        to: "/barbeiro/equipe",
-        icon: ShieldCheck,
-        permissao: "gerenciar_permissoes",
-      },
-      { label: "Suporte", to: "/barbeiro/mais", icon: LifeBuoy },
-    ],
-  },
-];
 
 export function ManagementHeader() {
   const [aberto, setAberto] = useState(false);
@@ -242,19 +68,30 @@ export function ManagementHeader() {
     definirFusoDasTelas(sessao?.tenantFuso);
   }, [sessao?.tenantFuso]);
 
-  const grupos = useMemo(
-    () =>
-      GRUPOS.map((grupo) => ({
-        ...grupo,
-        itens: grupo.itens.filter((item) => {
+  const grupos = useMemo(() => {
+    const modulos = modulosDeNavegacao(sessao?.segmento ?? "outro");
+    const operacionais = GRUPOS_DE_NAVEGACAO.map((titulo) => ({
+      titulo,
+      itens: modulos
+        .filter((item) => item.grupo === titulo)
+        .filter((item) => {
           if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
-          if (!item.rotaDaCapacidade || !capacidades) return true;
-          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === item.rotaDaCapacidade);
+          const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
+          if (!rotaDaCapacidade || !capacidades) return true;
+          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
           return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
         }),
-      })),
-    [capacidades, sessao?.permissoes],
-  );
+    }));
+    const sistema: { titulo: string; itens: ItemDoMenu[] } = {
+      titulo: "Sistema",
+      itens: [
+        { label: "Conta e negócio", to: "/barbeiro/conta", icon: Settings },
+        { label: "Plano", to: "/barbeiro/plano", icon: CreditCard },
+        { label: "Ajuda e preferências", to: "/barbeiro/mais", icon: LifeBuoy },
+      ],
+    };
+    return [...operacionais, sistema];
+  }, [capacidades, sessao?.permissoes, sessao?.segmento]);
 
   return (
     <header className="management-header">
@@ -310,7 +147,6 @@ export function ManagementHeader() {
                           <li key={`${grupo.titulo}-${item.label}`}>
                             <Link
                               to={item.to as never}
-                              search={item.search as never}
                               preload="intent"
                               onClick={() => setAberto(false)}
                               className={`drawer-link ${ativo ? "drawer-link-active" : ""}`}
