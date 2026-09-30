@@ -275,7 +275,7 @@ export function ManagementHeader() {
           >
             <div className="border-b border-line px-5 pb-4 pt-5 pr-12">
               <SheetTitle className="truncate text-base text-paper">
-                 {sessao?.tenantNome ?? "Meu negócio"}
+                {sessao?.tenantNome ?? "Meu negócio"}
               </SheetTitle>
               <SheetDescription className="mt-1 truncate text-xs text-mute">
                 {sessao?.nome ?? "Conta conectada"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
