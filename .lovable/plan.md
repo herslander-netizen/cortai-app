@@ -1,29 +1,40 @@
-# Refinamento comercial e visual do Cortaí
+# Lista de espera operacional com oferta automática de vaga
 
-## Objetivo
-Consolidar `/apresentacao` como a única apresentação comercial pública do Cortaí, preservando o showroom real já existente e tornando a página adequada para compartilhamento por Instagram, WhatsApp e QR Code.
+## O que já existe (reaproveitado)
+- Tabela `fila_de_espera` (cliente, serviço, profissional, janela/dia, posição, status, avisado_em).
+- Cliente entra pela tela `/app/espera` e pelo agendamento público quando o recurso `fila_espera` está ativo.
+- Tela do barbeiro `/barbeiro/fila` (avisar, tirar da fila, recuperado no mês).
+- `avisarListaDeEspera` já é chamado no cancelamento e envia pelo WhatsApp da barbearia (motor de notificações oficial, com consentimento e dedupe).
+- Motor de slots `disponibilidade.ts` + `regrasDaBarbearia` já usa `duracao_min` do serviço e o passo do tenant.
 
-## Implementação
-- Transformar o showroom atual em uma página comercial contínua, com navegação por âncoras suaves e seções de Agenda, Modo Foco, Clientes, Secretária, Comanda/Caixa, segmentos, planos, FAQ e chamada final.
-- Reutilizar as demonstrações atuais de Agenda, Modo Foco, cliente, chat e comanda como estados seguros e não persistentes; não executar ações reais.
-- Manter a escolha temporária de segmento para adaptar exemplos, sem criar uma segunda apresentação nem remover a identidade conversacional já aprovada.
-- Conectar “Conhecer o Cortaí” aos recursos, “Ver planos” à tabela oficial e “Comece a organizar seu negócio” ao fluxo existente `/login?proximo=/comecar`.
-- Usar o contato comercial já configurado para “Quero falar com alguém”; quando indisponível, não inventar número ou integração.
-- Manter os quatro planos e recursos exatamente como definidos em `planos-comerciais.ts`. Como a unidade atual do produto é mensal por plano, preservar `/mês` e não introduzir “por profissional” sem regra comercial existente.
-- Preservar Admin > Marketing com abrir, copiar link, QR Code e compartilhar, atualizando a descrição para a apresentação comercial consolidada.
+## Lacunas encontradas
+- Aviso atual só considera profissional; ignora serviço/duração, dia e período preferidos.
+- Não há oferta com prazo, recusa, próxima pessoa nem histórico.
+- Barbeiro não edita, reordena nem converte em agendamento.
+- Agenda não mostra que a vaga veio da lista.
+- Cliente em agenda cheia nem sempre vê o convite para entrar na lista.
 
-## Refinamento visual seguro
-- Auditar rapidamente login/cadastro, onboarding, Agenda, Modo Foco, Clientes, Secretária, Comanda/Caixa, planos e Admin > Marketing em 390 px e 1280 px.
-- Corrigir somente inconsistências confirmadas e locais: contraste, hierarquia, espaçamento, truncamento, overflow, botões, estados vazios e navegação redundante.
-- Preferir ajustes nos componentes e estilos compartilhados existentes; não redesenhar módulos estáveis nem criar componentes paralelos.
+## O que será feito
+1. **Banco (mínimo, sem apagar nada)**
+   - Nova tabela `ofertas_da_fila`: fila, agendamento liberado, profissional, serviço, início/fim, status (`enviada`, `aceita`, `recusada`, `expirada`, `falhou`), expira_em, canal, token seguro. Grants + RLS por membro do tenant.
+   - Coluna `agendamentos.origem_fila_id` (opcional) para marcar vagas preenchidas pela lista.
+   - RPC `aceitar_oferta_da_fila(token)` atômica: bloqueia a oferta, confere validade, cria o agendamento pelo `criar_agendamento` oficial (trava `agendamentos_sem_sobreposicao` protege dupla reserva) e marca a fila como atendida.
+2. **Detecção automática**: ao cancelar (barbeiro, cliente, WhatsApp), procurar candidatos compatíveis: mesmo tenant, serviço cuja duração cabe no buraco real (motor oficial), profissional compatível, dia e período preferidos. Cria oferta para o primeiro por posição.
+3. **Notificação**: mensagem pela Secretária Cortaí existente com serviço, profissional, data/hora no fuso do tenant e link "Quero este horário" (+ botão no WhatsApp). Sem WhatsApp conectado: oferta fica registrada e aparece para o barbeiro avisar manualmente.
+4. **Expiração/recusa**: prazo padrão de 15 min; varredura no cron de lembretes já existente passa ao próximo elegível; recusa pelo link ou WhatsApp faz o mesmo.
+5. **Painel do barbeiro** (`/barbeiro/fila`): "3 clientes aguardando", serviço, período, posição, status da oferta, subir/descer, editar preferência, remover (com desfazer já existente), "Agendar" que abre o agendamento manual oficial já preenchido, histórico de ofertas.
+6. **Cliente**: quando o dia/serviço não tem horário, mensagem "Agenda cheia? Entre na lista de espera e avisaremos quando surgir uma vaga." no Tradicional e no Cortaí Chat; página de aceitar oferta com status claro.
+7. **Agenda**: selo discreto "Da lista de espera" no cartão do atendimento.
+8. **Duração/slots**: auditar Tradicional, Chat, WhatsApp e agendamento manual para confirmar uso de `duracao_min` por serviço e passo do tenant; corrigir qualquer ponto que ainda assuma duração fixa.
 
-## Proteções preservadas
-- Verificar, sem enfraquecer, as travas atuais de WhatsApp, Secretária, agendamento pelo cliente, Modo Foco, comanda/caixa e gestão avançada de equipe.
-- Não alterar disponibilidade, conflitos de agenda, autenticação, isolamento por negócio, RLS, banco, preços operacionais ou regras financeiras.
-- Não criar migração nem dados persistentes para a apresentação.
+## Fora do escopo
+- Reserva automática sem confirmação.
+- Nova integração de mensagens.
 
 ## Validação
-- Testar âncoras, links, CTAs, contato comercial, navegação e compartilhamento da apresentação.
-- Validar visualmente `/apresentacao` e as telas públicas/operacionais acessíveis em 390 px e 1280 px.
-- Rodar TypeScript, lint dos arquivos alterados, testes disponíveis e build; conferir também os diagnósticos do preview.
-- Deixar tudo pronto para publicação, sem publicar ou fazer deploy nesta execução.
+- Testes do motor de compatibilidade (duração, período, profissional), expiração/próximo e corrida de aceite dupla.
+- Fluxo real com a conta barbeiro.teste: entrar na lista, cancelar, ver oferta, aceitar, agendamento aparece com selo; segunda aceitação falha.
+- 390px e 1280px, TypeScript, lint, testes, build. Sem publicar.
+
+## Pendência possível
+- Envio real depende de WhatsApp conectado no negócio; sem isso, a oferta é criada e o barbeiro recebe o aviso interno.
