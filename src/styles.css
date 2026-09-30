@@ -4887,3 +4887,16 @@ button.agenda-nome:hover { text-decoration: underline; }
   min-height: 44px;
   align-items: center;
 }
+
+/* Selo de demonstração no celular (antes sem estilo, colado à borda). */
+@media (max-width: 1023px) {
+  .selo-demo {
+    border-bottom: 1px solid var(--line);
+    background: var(--ink2);
+    color: var(--mute);
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
