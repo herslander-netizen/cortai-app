@@ -13,11 +13,16 @@ import { getSessao } from "@/lib/sessao.functions";
 export const Route = createFileRoute("/visitante")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { b?: string } =>
-    typeof search["b"] === "string" && /^[a-z0-9-]{1,100}$/.test(search["b"]) ? { b: search["b"] } : {},
+    typeof search["b"] === "string" && /^[a-z0-9-]{1,100}$/.test(search["b"])
+      ? { b: search["b"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrar como cliente — Cortaí" },
-      { name: "description", content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí." },
+      {
+        name: "description",
+        content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí.",
+      },
       { property: "og:title", content: "Entrar como cliente — Cortaí" },
       { property: "og:description", content: "Conta de cliente para agendar seus serviços." },
       { property: "og:type", content: "website" },
@@ -102,7 +107,9 @@ function VisitantePage() {
             return;
           }
           if (!data.session) {
-            setAviso("Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.");
+            setAviso(
+              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+            );
             return;
           }
           await seguir();

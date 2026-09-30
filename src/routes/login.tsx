@@ -190,7 +190,9 @@ function LoginPage() {
             return;
           }
           if (!data.session) {
-            setAviso("Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.");
+            setAviso(
+              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+            );
             return;
           }
           await seguirParaMinhaArea();
