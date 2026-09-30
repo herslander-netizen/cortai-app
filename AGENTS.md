@@ -16,9 +16,8 @@
 - Cortaí é a marca principal de gestão e tecnologia para Beleza; barbearia é um segmento. Sem segmento explícito, a apresentação é neutra.
 - Segmentação vive em `src/lib/segmentos.ts`; todo fluxo usa essa fonte.
 - Marca oficial: wordmark azul-marinho/royal/rosa e “í” proprietário. Assinatura: “Simplifica. Conecta. Cresce.”
-- Compartilhamento e instalação usam a capa 1200×630 e o “í” oficial sobre branco.
 - O ícone da CortAI vem de `IconeDaIA`: bigode na barbearia e pingo da marca nos demais segmentos.
-- A agenda móvel reutiliza as funções oficiais e nunca grava ações offline.
+- Agenda/Modo Foco reutilizam regras, cliente e comanda; sem estado paralelo ou gravação offline.
 - “Desfazer” é atômico no banco, limitado a 5 segundos, negócio e autoria.
 - A Home institucional pública vive somente em `/apresentacao`; `/` permanece o despachante de autenticação do aplicativo.
 - Página pública canônica: `/b/$slug`; slugs editáveis preservam aliases em `tenant_slug_aliases`.

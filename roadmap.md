@@ -15,5 +15,5 @@
 - [x] Corrigir o ícone do aplicativo e usar somente a logo oficial como acionador do menu
 - [x] Corrigir a hierarquia visual da Agenda mobile sem alterar regras operacionais
 - [x] Validar Agenda por código, TypeScript, testes e build; validação autenticada em 390/1280 bloqueada pela sessão permitida
-- [ ] Consolidar o Modo Foco como cockpit operacional usando agenda, cliente e comanda existentes
-- [ ] Validar entrada/saída, estados operacionais, comanda e responsividade em 390px/1280px
+- [x] Consolidar o Modo Foco como cockpit operacional usando agenda, cliente e comanda existentes
+- [ ] Validar visualmente com barbeiro.teste em 390px/1280px; bloqueado porque a sessão disponível pertence ao admin
