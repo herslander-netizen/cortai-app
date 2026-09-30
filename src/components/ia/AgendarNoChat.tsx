@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { mascaraTelefone } from "@/lib/previa";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2 } from "lucide-react";
@@ -276,8 +277,9 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
             className="input-premium"
             placeholder="WhatsApp com DDD"
             inputMode="tel"
+              autoComplete="tel"
             value={telefone}
-            onChange={(e) => setTelefone(e.target.value)}
+            onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
           />
           <button
             type="button"

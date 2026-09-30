@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { mascaraTelefone } from "@/lib/previa";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
@@ -431,8 +432,9 @@ function ConfigurarPage() {
                 WhatsApp {vocabulario.de}
                 <input
                   value={valorWhatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
+                  onChange={(e) => setWhatsapp(mascaraTelefone(e.target.value))}
                   inputMode="tel"
+              autoComplete="tel"
                   placeholder="(11) 90000-0000"
                   className={campo}
                 />

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
@@ -83,7 +84,8 @@ function EsperaPage() {
             <input
               value={telefone}
               inputMode="tel"
-              onChange={(e) => setTelefone(e.target.value)}
+              autoComplete="tel"
+              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
               className="input-premium mt-1 w-full"
               placeholder="(00) 00000-0000"
             />

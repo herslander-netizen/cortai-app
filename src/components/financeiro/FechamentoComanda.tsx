@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
 import { Banknote, CalendarPlus, Check, Copy, CreditCard, Minus, Plus, QrCode, Send, Ticket, Wallet, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -117,7 +118,8 @@ function IdentificarAvulso({ comandaId, numero, onSalvar }: { comandaId: string;
   async function salvar() { setSalvando(true); setErro(null); try { await onSalvar(nome.trim(), telefone.trim()); } catch (e) { setErro(e instanceof Error ? e.message : "Não foi possível salvar."); } finally { setSalvando(false); } }
   return <div className="mb-5 border-b border-line pb-5"><p className="text-xs font-semibold text-mute">Quem é o cliente? (opcional)</p>
     <label className="mt-2 block text-xs text-mute">Nome<input className="input-premium" value={nome} onChange={(e) => setNome(e.target.value)} onFocus={(e) => e.currentTarget.select()} autoComplete="off" /></label>
-    <label className="mt-3 block text-xs text-mute">Telefone / WhatsApp<input className="input-premium" type="tel" inputMode="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" /></label>
+    <label className="mt-3 block text-xs text-mute">Telefone / WhatsApp<input className="input-premium" type="tel" inputMode="tel"
+              autoComplete="tel" value={telefone} onChange={(e) => setTelefone(mascaraTelefone(e.target.value))} placeholder="(11) 99999-9999" /></label>
     <Button variant="secondary" className="mt-3 w-full" loading={salvando} disabled={salvando || nome.trim().length < 2} onClick={salvar}>{salvando ? "Salvando…" : "Salvar cliente"}</Button>
     {erro ? <p className="mt-2 text-sm text-paper" role="alert">{erro}</p> : null}</div>;
 }

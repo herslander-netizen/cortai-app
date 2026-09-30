@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { mascaraTelefone } from "@/lib/previa";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -168,9 +169,10 @@ function FilaPublicaPage() {
             WhatsApp
             <input
               value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
+              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
               required
               inputMode="tel"
+              autoComplete="tel"
               placeholder="(11) 90000-0000"
               className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
             />

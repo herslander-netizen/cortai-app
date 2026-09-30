@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { mascaraTelefone } from "@/lib/previa";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, X } from "lucide-react";
@@ -251,8 +252,9 @@ function Formulario({
               className="input-premium"
               placeholder="Telefone com DDD"
               inputMode="tel"
+              autoComplete="tel"
               value={novoTelefone}
-              onChange={(e) => setNovoTelefone(e.target.value)}
+              onChange={(e) => setNovoTelefone(mascaraTelefone(e.target.value))}
             />
             <Button
               variant="ghost"
