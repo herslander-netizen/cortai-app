@@ -131,3 +131,14 @@
 - [x] Personalização: paleta rápida + código HEX; compressão de logo/capa
 - [ ] Painel (agendamento manual) ainda oferece horários em passo fixo de 30 min — decidir se segue o passo da barbearia
 - [ ] Compactação dos cabeçalhos por tela — aguarda apontamento das telas específicas
+
+## Revisão pré-produção 30/09
+- [x] "Hoje"/"mês" no servidor (painel, caixa, financeiro, crescimento, CortAI, lista de atendimentos, conflito do dia) no fuso da barbearia
+- [x] Comissões: períodos no fuso da barbearia
+- [x] Lista "Passados" volta a mostrar atendimentos finalizados (estados legados removidos)
+- [x] Função interna "marcar falta" restrita ao servidor (estava aberta a qualquer logado)
+- [x] Envio para recepção confere a barbearia da comanda
+- [ ] Validar painel logado no navegador (sessão de teste precisa de aprovação para ser criada)
+- [ ] Aviso de hidratação ao redirecionar /barbeiro → /login sem sessão
+- [ ] 21 funções internas do banco chamáveis por logados: revisadas por amostragem, todas com checagem própria; revisão completa pendente
+- [ ] Erros de lint antigos (formatação e `any`) em vários arquivos
