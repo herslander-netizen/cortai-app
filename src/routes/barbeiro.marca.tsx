@@ -519,14 +519,14 @@ function Editor({
                             }}
                           />
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
+                        <div className="mt-2 flex flex-wrap gap-2">
                           {PALETA_RAPIDA.map((cor, indice) => (
                             <button
                               key={`${key}-${cor}-${indice}`}
                               type="button"
                               aria-label={`Usar ${cor}`}
                               onClick={() => trocar(cor)}
-                              className={`h-7 w-7 rounded-full border ${value.toUpperCase() === cor ? "border-paper ring-2 ring-gold" : "border-line"}`}
+                              className={`h-9 w-9 rounded-full border ${value.toUpperCase() === cor ? "border-paper ring-2 ring-gold" : "border-line"}`}
                               style={{ backgroundColor: cor }}
                             />
                           ))}
