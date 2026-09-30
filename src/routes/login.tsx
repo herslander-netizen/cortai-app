@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { LockKeyhole, Mail } from "lucide-react";
+import { ChevronDown, LockKeyhole, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -239,14 +239,19 @@ function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-5 text-center">
+      <div className="mt-4 text-center">
         <button
           type="button"
           aria-expanded={outrasFormas}
           onClick={() => setOutrasFormas((v) => !v)}
-          className="min-h-11 text-sm font-medium text-mute hover:text-paper"
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-mute hover:text-paper"
         >
           Entrar de outra forma
+          <ChevronDown
+            size={14}
+            aria-hidden
+            className={`transition-transform ${outrasFormas ? "rotate-180" : ""}`}
+          />
         </button>
         {outrasFormas ? (
           <div className="mt-2 grid grid-cols-2 gap-2">
@@ -272,11 +277,11 @@ function LoginPage() {
         ) : null}
       </div>
 
-      <p className="mt-4 text-center text-sm text-mute">
+      <p className="mt-1 text-center text-sm text-mute">
         {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
         <button
           type="button"
-          className="min-h-11 font-semibold text-paper"
+          className="-my-2 inline-flex min-h-11 items-center px-0.5 font-semibold text-paper hover:underline"
           onClick={() => {
             setModo(modo === "entrar" ? "criar" : "entrar");
             setErro(null);
@@ -289,7 +294,7 @@ function LoginPage() {
 
       <Link
         to="/barbearias"
-        className="mt-6 flex min-h-11 items-center justify-center border-t border-line pt-4 text-center text-sm text-mute2 hover:text-paper"
+        className="mt-6 flex min-h-11 items-center justify-center border-t border-line pt-2 text-center text-sm font-medium text-mute hover:text-paper"
       >
         Sou cliente e quero só agendar
       </Link>
