@@ -151,6 +151,33 @@ function LoginPage() {
         </h1>
       </div>
 
+      <div className="space-y-2">
+        <Button
+          type="button"
+          variant="outline"
+          className={botaoSocial}
+          disabled={enviando}
+          onClick={() => void entrarCom("google")}
+        >
+          <MarcaGoogle /> Continuar com o Google
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className={botaoSocial}
+          disabled={enviando}
+          onClick={() => void entrarCom("apple")}
+        >
+          <MarcaApple /> Continuar com a Apple
+        </Button>
+      </div>
+
+      <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute" aria-hidden>
+        <span className="h-px flex-1 bg-line" />
+        ou
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
       <form
         className="space-y-3"
         onSubmit={async (event) => {
