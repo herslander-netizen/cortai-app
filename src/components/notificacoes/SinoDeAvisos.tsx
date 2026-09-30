@@ -187,7 +187,7 @@ export function SinoDeAvisos() {
         type="button"
         onClick={() => setAberto(true)}
         aria-label={naoLidas ? `Avisos, ${naoLidas} não lidos` : "Avisos"}
-        className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-mute transition-colors hover:border-gold hover:text-gold ${
+        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line text-mute transition-colors hover:border-gold hover:text-gold ${
           pulsar && !menosMovimento ? "animate-pulse border-gold text-gold" : ""
         }`}
       >

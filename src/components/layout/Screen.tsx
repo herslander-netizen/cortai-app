@@ -26,7 +26,7 @@ export function Screen({
       {!hideHeader ? <header className="sticky top-14 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line bg-ink px-5 pb-5 pt-6 md:static md:border-b-0 md:px-8 md:pb-7 md:pt-8">
         <div className="min-w-0">
           {voltarPara ? (
-            <Link to={voltarPara} className="mb-2 inline-flex items-center gap-1 text-xs text-mute">
+            <Link to={voltarPara} className="-ml-2 mb-1 inline-flex min-h-11 items-center gap-1 px-2 text-xs text-mute transition-colors hover:text-paper">
               <ChevronLeft size={14} />
               {voltarRotulo}
             </Link>
