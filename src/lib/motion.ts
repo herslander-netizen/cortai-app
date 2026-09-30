@@ -24,9 +24,7 @@ export function cascata(indice: number) {
   return {
     initial: animar ? { opacity: 0, y: 6 } : false,
     animate: { opacity: 1, y: 0 },
-    transition: animar
-      ? { duration: DURACAO.base, ease: SUAVE, delay: i * 0.03 }
-      : { duration: 0 },
+    transition: animar ? { duration: DURACAO.base, ease: SUAVE, delay: i * 0.03 } : { duration: 0 },
   };
 }
 

@@ -476,7 +476,9 @@ export function AgendaTimeline({
                     · {item.cliente}
                   </strong>
                   <span className="flex shrink-0 gap-1">
-                    {item.status === "finalizado" ? <Check className="agenda-check-finalizado" aria-label="Finalizado" /> : null}
+                    {item.status === "finalizado" ? (
+                      <Check className="agenda-check-finalizado" aria-label="Finalizado" />
+                    ) : null}
                     {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
                     {ehHoje && estaAtrasado(item, agora) ? (
                       <StatusBadge status="nao_compareceu" label="Atrasado" />

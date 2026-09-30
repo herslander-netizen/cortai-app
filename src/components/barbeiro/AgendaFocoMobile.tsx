@@ -210,7 +210,9 @@ export function AgendaFocoMobile(props: Props) {
 
         {props.carregando ? (
           <div className="modo-foco-vazio" aria-label="Carregando agenda">
-            <div className="w-full max-w-xl"><EsqueletoAgenda linhas={3} /></div>
+            <div className="w-full max-w-xl">
+              <EsqueletoAgenda linhas={3} />
+            </div>
           </div>
         ) : props.erro ? (
           <div className="modo-foco-vazio" role="alert">
@@ -222,7 +224,11 @@ export function AgendaFocoMobile(props: Props) {
           </div>
         ) : (
           <main className="modo-foco-cockpit">
-            <div key={`${principal?.id ?? "livre"}-${estado}`} className="modo-foco-estado mov-conteudo-entrada" aria-live="polite">
+            <div
+              key={`${principal?.id ?? "livre"}-${estado}`}
+              className="modo-foco-estado mov-conteudo-entrada"
+              aria-live="polite"
+            >
               <p className={`modo-foco-rotulo modo-foco-rotulo-${estado}`}>
                 {ROTULO_ESTADO[estado]}
               </p>
@@ -258,7 +264,11 @@ export function AgendaFocoMobile(props: Props) {
                       role="timer"
                       aria-label={`${decorrido} minutos em atendimento`}
                     >
-                      <span style={{ transform: `scaleX(${Math.min(1, decorrido / Math.max(1, principal.duracaoMin))})` }} />
+                      <span
+                        style={{
+                          transform: `scaleX(${Math.min(1, decorrido / Math.max(1, principal.duracaoMin))})`,
+                        }}
+                      />
                     </div>
                   ) : null}
 

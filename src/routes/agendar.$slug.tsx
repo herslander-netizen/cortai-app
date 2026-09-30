@@ -311,7 +311,9 @@ function AgendamentoPublico() {
         style={agendamentoStyle(data.pagina)}
       >
         <FontesDaMarca config={data.pagina} />
-        <span className={`mov-confirmacao flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}>
+        <span
+          className={`mov-confirmacao flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
+        >
           {ativo ? <VistoAnimado tamanho={56} /> : <CalendarX size={28} aria-hidden />}
         </span>
         <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
