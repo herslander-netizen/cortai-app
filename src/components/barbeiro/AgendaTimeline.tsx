@@ -65,25 +65,59 @@ function diaDaSemana(dia: string) {
   return new Date(`${dia}T12:00:00Z`).getUTCDay();
 }
 
-export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado, onSelecionar, renderStatus, onMover, onHorarioVazio, destaques, itensEscala, alinhado }: AgendaTimelineProps) {
+export function AgendaTimeline({
+  dia,
+  fuso,
+  agora,
+  itens,
+  horarios,
+  selecionado,
+  onSelecionar,
+  renderStatus,
+  onMover,
+  onHorarioVazio,
+  destaques,
+  itensEscala,
+  alinhado,
+}: AgendaTimelineProps) {
   const rolagemRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
-  const gesto = useRef<{ id: string; y0: number; x0: number; ativo: boolean; timer?: number; arrastou: boolean } | null>(null);
+  const gesto = useRef<{
+    id: string;
+    y0: number;
+    x0: number;
+    ativo: boolean;
+    timer?: number;
+    arrastou: boolean;
+  } | null>(null);
   const ignorarClique = useRef(false);
-  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(agora));
+  const hoje = new Intl.DateTimeFormat("en-CA", {
+    timeZone: fuso,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(agora));
   const ehHoje = dia === hoje;
 
   const escala = useMemo(() => {
-    const funcionamento = horarios.find((item) => item.diaSemana === diaDaSemana(dia) && !item.fechado);
+    const funcionamento = horarios.find(
+      (item) => item.diaSemana === diaDaSemana(dia) && !item.fechado,
+    );
     const base = itensEscala ?? itens;
     const inicios = base.map((item) => minutosNoFuso(item.inicio, fuso));
     const finais = base.map((item) => minutosNoFuso(item.fim, fuso));
     const minutoAtual = minutosNoFuso(agora, fuso);
-    const referenciasInicio = [funcionamento ? minutosDoHorario(funcionamento.abre) : 8 * 60, ...inicios];
-    const referenciasFim = [funcionamento ? minutosDoHorario(funcionamento.fecha) : 20 * 60, ...finais];
+    const referenciasInicio = [
+      funcionamento ? minutosDoHorario(funcionamento.abre) : 8 * 60,
+      ...inicios,
+    ];
+    const referenciasFim = [
+      funcionamento ? minutosDoHorario(funcionamento.fecha) : 20 * 60,
+      ...finais,
+    ];
     if (ehHoje) {
       referenciasInicio.push(minutoAtual - MARGEM_AGORA_MIN);
       referenciasFim.push(minutoAtual + MARGEM_AGORA_MIN);
@@ -100,7 +134,17 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
   }, [escala.fim, escala.inicio]);
 
   const layout = useMemo(() => {
-    const resultado = new Map<string, { inicio: number; fim: number; topo: number; altura: number; coluna?: number; colunas?: number }>();
+    const resultado = new Map<
+      string,
+      {
+        inicio: number;
+        fim: number;
+        topo: number;
+        altura: number;
+        coluna?: number;
+        colunas?: number;
+      }
+    >();
     const acrescimos: Array<{ depoisDe: number; pixels: number }> = [];
     const ordenados = itens
       .map((item) => {
@@ -121,9 +165,18 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
       if (grupo.length > 1 && (alinhado || grupo.some((evento) => evento.item.encaixe))) {
         const colunas = Math.min(grupo.length, 3);
         grupo.forEach((evento, i) => {
-          const altura = alinhado ? Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4) : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          const altura = alinhado
+            ? Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4)
+            : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
           const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
-          resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura, coluna: i % colunas, colunas });
+          resultado.set(evento.item.id, {
+            inicio: evento.inicio,
+            fim: evento.fim,
+            topo,
+            altura,
+            coluna: i % colunas,
+            colunas,
+          });
           cursor = Math.max(cursor, topo + altura + ESPACO_ENTRE_BLOCOS);
         });
       } else {
@@ -135,8 +188,16 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
             cursor = topo + altura + ESPACO_ENTRE_BLOCOS;
             return;
           }
-          const altura = Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
-          resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo: cursor, altura });
+          const altura = Math.max(
+            ALTURA_MINIMA_BLOCO,
+            (evento.fim - evento.inicio) * PX_POR_MINUTO - 4,
+          );
+          resultado.set(evento.item.id, {
+            inicio: evento.inicio,
+            fim: evento.fim,
+            topo: cursor,
+            altura,
+          });
           cursor += altura + ESPACO_ENTRE_BLOCOS;
         });
       }
@@ -162,15 +223,23 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     return { posicoes: resultado, acrescimos, pixelsAcrescidos };
   }, [alinhado, escala.inicio, fuso, itens]);
 
-  const deslocamentoAte = (minuto: number) => layout.acrescimos.reduce((total, item) => total + (item.depoisDe <= minuto ? item.pixels : 0), 0);
+  const deslocamentoAte = (minuto: number) =>
+    layout.acrescimos.reduce(
+      (total, item) => total + (item.depoisDe <= minuto ? item.pixels : 0),
+      0,
+    );
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;
-  const posicaoAgora = (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
+  const posicaoAgora =
+    (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
-    area.scrollTo({ top: Math.max(0, linha.offsetTop - area.clientHeight * 0.42), behavior: comportamento });
+    area.scrollTo({
+      top: Math.max(0, linha.offsetTop - area.clientHeight * 0.42),
+      behavior: comportamento,
+    });
   }
 
   useEffect(() => {
@@ -193,15 +262,31 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
   }
 
-  const podeMover = (item: AgendaItem) => Boolean(onMover) && (item.status === "agendado" || item.status === "chegou");
+  const podeMover = (item: AgendaItem) =>
+    Boolean(onMover) && (item.status === "agendado" || item.status === "chegou");
 
   function inicioGesto(e: React.PointerEvent, item: AgendaItem) {
     if (!podeMover(item)) return;
-    const g = { id: item.id, y0: e.clientY, x0: e.clientX, ativo: e.pointerType === "mouse", arrastou: false } as NonNullable<typeof gesto.current>;
+    const g = {
+      id: item.id,
+      y0: e.clientY,
+      x0: e.clientX,
+      ativo: e.pointerType === "mouse",
+      arrastou: false,
+    } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
     if (e.pointerType !== "mouse") {
-      g.timer = window.setTimeout(() => { g.ativo = true; try { alvo.setPointerCapture(pid); } catch { /* */ } setArrasto({ id: item.id, dy: 0 }); navigator.vibrate?.(10); }, 300);
+      g.timer = window.setTimeout(() => {
+        g.ativo = true;
+        try {
+          alvo.setPointerCapture(pid);
+        } catch {
+          /* */
+        }
+        setArrasto({ id: item.id, dy: 0 });
+        navigator.vibrate?.(10);
+      }, 300);
     }
     gesto.current = g;
   }
@@ -210,11 +295,20 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
     if (!g) return;
     const dy = e.clientY - g.y0;
     if (!g.ativo) {
-      if (Math.abs(dy) > 8 || Math.abs(e.clientX - g.x0) > 8) { window.clearTimeout(g.timer); gesto.current = null; }
+      if (Math.abs(dy) > 8 || Math.abs(e.clientX - g.x0) > 8) {
+        window.clearTimeout(g.timer);
+        gesto.current = null;
+      }
       return;
     }
     if (!g.arrastou && Math.abs(dy) < 5) return;
-    if (!g.arrastou) { try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ } }
+    if (!g.arrastou) {
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {
+        /* */
+      }
+    }
     g.arrastou = true;
     e.preventDefault();
     setArrasto({ id: g.id, dy });
@@ -242,15 +336,37 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
   return (
     <div className="agenda-timeline-wrap">
       {ehHoje && !agoraVisivel ? (
-        <Button type="button" variant="secondary" size="sm" className="agenda-voltar-agora" onClick={() => voltarParaAgora()}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="agenda-voltar-agora"
+          onClick={() => voltarParaAgora()}
+        >
           <Clock3 aria-hidden />
           Voltar para agora
         </Button>
       ) : null}
-      <div ref={rolagemRef} className="agenda-timeline-scroll" aria-label="Timeline de atendimentos" onScroll={acompanharAgora}>
-        <div className="agenda-timeline" style={{ height: `${altura}px` }} onClick={cliqueNoVazio} title={onHorarioVazio ? "Toque num horário livre para agendar" : undefined}>
+      <div
+        ref={rolagemRef}
+        className="agenda-timeline-scroll"
+        aria-label="Timeline de atendimentos"
+        onScroll={acompanharAgora}
+      >
+        <div
+          className="agenda-timeline"
+          style={{ height: `${altura}px` }}
+          onClick={cliqueNoVazio}
+          title={onHorarioVazio ? "Toque num horário livre para agendar" : undefined}
+        >
           {marcas.map((minuto) => (
-            <div key={minuto} className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`} style={{ top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px` }}>
+            <div
+              key={minuto}
+              className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
+              style={{
+                top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
+              }}
+            >
               <span>{minuto % 60 === 0 ? horaMinuto(minuto) : ""}</span>
             </div>
           ))}
@@ -259,41 +375,90 @@ export function AgendaTimeline({ dia, fuso, agora, itens, horarios, selecionado,
             const posicao = layout.posicoes.get(item.id);
             const inicio = posicao?.inicio ?? minutosNoFuso(item.inicio, fuso);
             const fim = minutosNoFuso(item.fim, fuso);
-            const topo = posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
-            const blocoAltura = posicao?.altura ?? Math.max(ALTURA_MINIMA_BLOCO, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4);
+            const topo =
+              posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
+            const blocoAltura =
+              posicao?.altura ??
+              Math.max(
+                ALTURA_MINIMA_BLOCO,
+                (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4,
+              );
             const reais = [
               horaReal(item.arrivedAt, fuso) ? `Chegou ${horaReal(item.arrivedAt, fuso)}` : null,
               horaReal(item.startedAt, fuso) ? `Começou ${horaReal(item.startedAt, fuso)}` : null,
-              horaReal(item.finishedAt, fuso) ? `Terminou ${horaReal(item.finishedAt, fuso)}` : null,
-            ].filter(Boolean).join(" · ");
+              horaReal(item.finishedAt, fuso)
+                ? `Terminou ${horaReal(item.finishedAt, fuso)}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ");
             return (
               <Button
                 key={item.id}
                 type="button"
                 variant="ghost"
                 className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
-                style={{ top: `${topo}px`, minHeight: `${blocoAltura}px`, ...(posicao?.colunas ? { left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`, right: "auto", width: `calc((100% - 11px) / ${posicao.colunas} - 4px)` } : {}), ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}) }}
+                style={{
+                  top: `${topo}px`,
+                  minHeight: `${blocoAltura}px`,
+                  ...(posicao?.colunas
+                    ? {
+                        left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                        right: "auto",
+                        width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                      }
+                    : {}),
+                  ...(arrasto?.id === item.id ? { transform: `translateY(${arrasto.dy}px)` } : {}),
+                }}
                 aria-pressed={selecionado === item.id}
                 onPointerDown={(e) => inicioGesto(e, item)}
                 onPointerMove={moverGesto}
                 onPointerUp={() => fimGesto(item)}
-                onPointerCancel={() => { if (gesto.current) window.clearTimeout(gesto.current.timer); gesto.current = null; setArrasto(null); }}
-                onContextMenu={(e) => { if (podeMover(item)) e.preventDefault(); }}
-                onClick={() => { if (ignorarClique.current) { ignorarClique.current = false; return; } onSelecionar(item.id); }}
+                onPointerCancel={() => {
+                  if (gesto.current) window.clearTimeout(gesto.current.timer);
+                  gesto.current = null;
+                  setArrasto(null);
+                }}
+                onContextMenu={(e) => {
+                  if (podeMover(item)) e.preventDefault();
+                }}
+                onClick={() => {
+                  if (ignorarClique.current) {
+                    ignorarClique.current = false;
+                    return;
+                  }
+                  onSelecionar(item.id);
+                }}
               >
                 <span className="agenda-timeline-bloco-topo">
-                  <strong>{horaMinuto(arrasto?.id === item.id ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : inicio)} · {item.cliente}</strong>
+                  <strong>
+                    {horaMinuto(
+                      arrasto?.id === item.id
+                        ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
+                        : inicio,
+                    )}{" "}
+                    · {item.cliente}
+                  </strong>
                   {renderStatus(item.status)}
                 </span>
-                <span className="agenda-timeline-servico">{item.servico} · {item.profissional}</span>
-                {item.daListaDeEspera ? <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span> : null}
+                <span className="agenda-timeline-servico">
+                  {item.servico} · {item.profissional}
+                </span>
+                {item.daListaDeEspera ? (
+                  <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span>
+                ) : null}
                 {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
               </Button>
             );
           })}
 
           {ehHoje && posicaoAgora >= 0 && posicaoAgora <= altura ? (
-            <div ref={linhaAgoraRef} className="agenda-linha-agora" style={{ top: `${posicaoAgora}px` }} aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}>
+            <div
+              ref={linhaAgoraRef}
+              className="agenda-linha-agora"
+              style={{ top: `${posicaoAgora}px` }}
+              aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}
+            >
               <span>Agora · {horaMinuto(escala.minutoAtual)}</span>
             </div>
           ) : null}

@@ -252,8 +252,10 @@ export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
     // Lista de espera: vaga liberada vira oferta; cancelamento desfeito anula a oferta.
     try {
       const ofertas = await import("@/lib/whatsapp/fila-ofertas.server");
-      if (data.estado === "cancelado" && !data.desfazer) await ofertas.ofertarVaga(data.agendamentoId);
-      if (data.desfazer && data.estadoAnterior === "cancelado") await ofertas.cancelarOfertasDaVaga(data.agendamentoId);
+      if (data.estado === "cancelado" && !data.desfazer)
+        await ofertas.ofertarVaga(data.agendamentoId);
+      if (data.desfazer && data.estadoAnterior === "cancelado")
+        await ofertas.cancelarOfertasDaVaga(data.agendamentoId);
     } catch {
       /* a mudança já está salva; a varredura tenta de novo */
     }
@@ -574,7 +576,9 @@ export const getFila = createServerFn({ method: "GET" })
         .order("criado_em"),
       db
         .from("ofertas_da_fila")
-        .select("id, fila_id, status, inicio, expira_em, enviada_whatsapp, criado_em, servicos(nome), fila_de_espera(clientes(nome))")
+        .select(
+          "id, fila_id, status, inicio, expira_em, enviada_whatsapp, criado_em, servicos(nome), fila_de_espera(clientes(nome))",
+        )
         .eq("tenant_id", tenant.id)
         .order("criado_em", { ascending: false })
         .limit(30),
@@ -590,9 +594,14 @@ export const getFila = createServerFn({ method: "GET" })
     const ofertas = ofertasRes.data ?? [];
     const agora = Date.now();
     const itens = (filaRes.data ?? []).map((f, i) => {
-      const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number; dia?: string } | null;
+      const j = (f.janela_preferida ?? null) as {
+        inicio?: number;
+        fim?: number;
+        dia?: string;
+      } | null;
       const ativa = ofertas.find(
-        (o) => o.fila_id === f.id && o.status === "enviada" && new Date(o.expira_em).getTime() > agora,
+        (o) =>
+          o.fila_id === f.id && o.status === "enviada" && new Date(o.expira_em).getTime() > agora,
       );
       return {
         id: f.id,
@@ -614,13 +623,15 @@ export const getFila = createServerFn({ method: "GET" })
     });
     const historico = ofertas.map((o) => ({
       id: o.id,
-      status: o.status === "enviada" && new Date(o.expira_em).getTime() <= agora ? "expirada" : o.status,
+      status:
+        o.status === "enviada" && new Date(o.expira_em).getTime() <= agora ? "expirada" : o.status,
       inicio: o.inicio,
       expiraEm: o.expira_em,
       enviadaWhatsapp: o.enviada_whatsapp,
       criadoEm: o.criado_em,
       cliente:
-        (o.fila_de_espera as { clientes?: { nome?: string } | null } | null)?.clientes?.nome ?? "Cliente",
+        (o.fila_de_espera as { clientes?: { nome?: string } | null } | null)?.clientes?.nome ??
+        "Cliente",
       servico: (o.servicos as { nome?: string } | null)?.nome ?? "Serviço",
     }));
     const recuperados = recuperadosRes.data ?? [];
@@ -682,7 +693,11 @@ export const moverNaFila = createServerFn({ method: "POST" })
     [ids[i], ids[j]] = [ids[j]!, ids[i]!];
     // Renumera tudo: posições ficam contínuas e sem empate.
     for (const [n, id] of ids.entries()) {
-      await db.from("fila_de_espera").update({ posicao: n + 1 }).eq("id", id).eq("tenant_id", tenant.id);
+      await db
+        .from("fila_de_espera")
+        .update({ posicao: n + 1 })
+        .eq("id", id)
+        .eq("tenant_id", tenant.id);
     }
     return { ok: true };
   });
@@ -710,7 +725,12 @@ export const editarFila = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const confere = async (tabela: "servicos" | "profissionais", id: string | null) => {
       if (!id) return null;
-      const { data: r } = await db.from(tabela).select("id").eq("id", id).eq("tenant_id", tenant.id).maybeSingle();
+      const { data: r } = await db
+        .from(tabela)
+        .select("id")
+        .eq("id", id)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
       if (!r) throw new Error("Opção inválida para este negócio.");
       return id;
     };
@@ -750,10 +770,21 @@ export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
     await exigirRecurso(db, tenant.id, "fila_espera");
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const [{ data: item }, { data: servico }] = await Promise.all([
-      db.from("fila_de_espera").select("id, cliente_id, status").eq("id", data.filaId).eq("tenant_id", tenant.id).maybeSingle(),
-      db.from("servicos").select("id, duracao_min, profissional_ids").eq("id", data.servicoId).eq("tenant_id", tenant.id).maybeSingle(),
+      db
+        .from("fila_de_espera")
+        .select("id, cliente_id, status")
+        .eq("id", data.filaId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle(),
+      db
+        .from("servicos")
+        .select("id, duracao_min, profissional_ids")
+        .eq("id", data.servicoId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle(),
     ]);
-    if (!item || !["aguardando", "avisado"].includes(item.status)) throw new Error("Essa solicitação não está mais na lista.");
+    if (!item || !["aguardando", "avisado"].includes(item.status))
+      throw new Error("Essa solicitação não está mais na lista.");
     if (!servico) throw new Error("Serviço não encontrado.");
     const inicio = new Date(data.inicioIso);
     const conflito = await validarAgendamento(db, {
@@ -774,7 +805,8 @@ export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
       _encaixe: false,
     });
     if (error) {
-      if (error.message.includes("horario ja ocupado")) throw new Error("Esse horário acabou de ser reservado, escolha outro.");
+      if (error.message.includes("horario ja ocupado"))
+        throw new Error("Esse horário acabou de ser reservado, escolha outro.");
       throw new Error(error.message);
     }
     const criado = res as unknown as { agendamento_id: string };
@@ -783,7 +815,11 @@ export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
       .update({ origem: "manual", origem_fila_id: item.id })
       .eq("id", criado.agendamento_id)
       .eq("tenant_id", tenant.id);
-    await db.from("fila_de_espera").update({ status: "atendido" }).eq("id", item.id).eq("tenant_id", tenant.id);
+    await db
+      .from("fila_de_espera")
+      .update({ status: "atendido" })
+      .eq("id", item.id)
+      .eq("tenant_id", tenant.id);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin
       .from("ofertas_da_fila")
@@ -805,11 +841,26 @@ export const getOpcoesDaFila = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { db, tenant } = await tenantPadrao(context);
     const [s, p] = await Promise.all([
-      db.from("servicos").select("id, nome, duracao_min, profissional_ids").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
-      db.from("profissionais").select("id, nome").eq("tenant_id", tenant.id).eq("ativo", true).order("nome"),
+      db
+        .from("servicos")
+        .select("id, nome, duracao_min, profissional_ids")
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .order("nome"),
+      db
+        .from("profissionais")
+        .select("id, nome")
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .order("nome"),
     ]);
     return {
-      servicos: (s.data ?? []) as { id: string; nome: string; duracao_min: number; profissional_ids: string[] | null }[],
+      servicos: (s.data ?? []) as {
+        id: string;
+        nome: string;
+        duracao_min: number;
+        profissional_ids: string[] | null;
+      }[],
       profissionais: (p.data ?? []) as { id: string; nome: string }[],
       fuso: await fusoDoTenant(tenant.id),
     };

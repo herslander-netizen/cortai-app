@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { candidatosDaVaga, type PreferenciaDaFila, type ServicoDaVaga } from "./fila-compatibilidade";
+import {
+  candidatosDaVaga,
+  type PreferenciaDaFila,
+  type ServicoDaVaga,
+} from "./fila-compatibilidade";
 
 const H = 3600_000;
 const inicio = Date.UTC(2026, 9, 5, 17, 0); // 14h em São Paulo
@@ -28,7 +32,11 @@ const p = (x: Partial<PreferenciaDaFila> & { id: string }): PreferenciaDaFila =>
 
 describe("lista de espera — compatibilidade da vaga", () => {
   it("respeita a duração real do serviço (50 min cabe, 90 min não)", () => {
-    const r = candidatosDaVaga([p({ id: "a", servicoId: "combo" }), p({ id: "b", servicoId: "corte", posicao: 2 })], vaga, servicos);
+    const r = candidatosDaVaga(
+      [p({ id: "a", servicoId: "combo" }), p({ id: "b", servicoId: "corte", posicao: 2 })],
+      vaga,
+      servicos,
+    );
     expect(r.map((x) => x.id)).toEqual(["b"]);
   });
   it("respeita profissional, dia e período preferidos", () => {
@@ -48,10 +56,19 @@ describe("lista de espera — compatibilidade da vaga", () => {
     expect(candidatosDaVaga([p({ id: "a", servicoId: "barba" })], vaga, servicos)).toEqual([]);
   });
   it("segue a ordem da fila e pula quem já recebeu esta vaga", () => {
-    const fila = [p({ id: "b", posicao: 2 }), p({ id: "a", posicao: 1 }), p({ id: "c", posicao: 3 })];
-    expect(candidatosDaVaga(fila, vaga, servicos, new Set(["a"])).map((x) => x.id)).toEqual(["b", "c"]);
+    const fila = [
+      p({ id: "b", posicao: 2 }),
+      p({ id: "a", posicao: 1 }),
+      p({ id: "c", posicao: 3 }),
+    ];
+    expect(candidatosDaVaga(fila, vaga, servicos, new Set(["a"])).map((x) => x.id)).toEqual([
+      "b",
+      "c",
+    ]);
   });
   it("sem espaço suficiente até o próximo atendimento, ninguém é chamado", () => {
-    expect(candidatosDaVaga([p({ id: "a" })], { ...vaga, livreAteMs: inicio + 0.5 * H }, servicos)).toEqual([]);
+    expect(
+      candidatosDaVaga([p({ id: "a" })], { ...vaga, livreAteMs: inicio + 0.5 * H }, servicos),
+    ).toEqual([]);
   });
 });
