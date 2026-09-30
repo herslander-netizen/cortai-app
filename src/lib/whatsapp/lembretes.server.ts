@@ -422,9 +422,11 @@ export async function avisarListaDeEspera(agendamentoId: string) {
 
   const fuso = await fusoDoTenant(ag.tenant_id);
   const profissional = (ag as { profissionais?: { nome?: string } | null }).profissionais?.nome;
-  const clienteDaFila = (alvo as unknown as {
-    clientes?: { nome?: string; telefone?: string | null } | null;
-  }).clientes;
+  const clienteDaFila = (
+    alvo as unknown as {
+      clientes?: { nome?: string; telefone?: string | null } | null;
+    }
+  ).clientes;
   await db.rpc("criar_notificacao", {
     _tenant: ag.tenant_id,
     _tipo: "fila",
