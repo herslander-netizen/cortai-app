@@ -1,3 +1,4 @@
+import { TabelaDePlanos } from "@/components/planos/TabelaDePlanos";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -460,6 +461,10 @@ export function ShowroomCortai({ etapa, segmento }: { etapa: EtapaShowroom; segm
               </Button>
             )}
           </div>
+          <section className="showroom-planos" aria-labelledby="showroom-planos-titulo">
+            <h2 id="showroom-planos-titulo">Escolha como começar</h2>
+            <TabelaDePlanos />
+          </section>
           <Button variant="text" onClick={() => ir(0)}>
             Ver de novo
           </Button>

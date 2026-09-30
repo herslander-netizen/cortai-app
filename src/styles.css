@@ -4480,3 +4480,29 @@ body:has(.auth-screen--claro) {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ===== Tabela de planos (apresentação e painel) ===== */
+.planos-tabela { display: grid; gap: 0.75rem; list-style: none; margin: 0; padding: 0; text-align: left; }
+@media (min-width: 768px) { .planos-tabela { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .planos-tabela { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.planos-item { display: flex; flex-direction: column; gap: 0.5rem; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--foreground); padding: 1.1rem; }
+.planos-item[data-destaque="true"] { border: 2px solid var(--primary); }
+.planos-item[aria-current="true"] { box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 18%, transparent); }
+.planos-topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.planos-topo h3 { font-size: 1rem; font-weight: 800; margin: 0; }
+.planos-selo { border-radius: 999px; background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; }
+.planos-preco { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.planos-preco small { font-size: 0.85rem; font-weight: 700; }
+.planos-preco span { font-size: 0.8rem; font-weight: 600; color: var(--muted-foreground); }
+.planos-herda { font-size: 0.78rem; font-weight: 600; color: var(--muted-foreground); margin: 0; }
+.planos-item ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; font-size: 0.85rem; }
+.planos-item ul li { display: flex; align-items: center; gap: 0.45rem; }
+.planos-item ul svg { color: var(--primary); flex-shrink: 0; }
+.planos-acao { margin-top: auto; padding-top: 0.5rem; }
+.showroom-planos { width: 100%; max-width: 1100px; margin: 2.5rem auto 1rem; }
+.showroom-planos h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; text-align: center; }
+.showroom-planos .planos-item { background: #fff; color: #08182f; border-color: #dbe3ef; }
+.showroom-planos .planos-item[data-destaque="true"] { border-color: #175ce5; }
+.showroom-planos .planos-selo { background: #e8f0ff; color: #175ce5; }
+.showroom-planos .planos-item ul svg { color: #175ce5; }
+.showroom-planos .planos-preco span, .showroom-planos .planos-herda { color: #4a5a72; }
