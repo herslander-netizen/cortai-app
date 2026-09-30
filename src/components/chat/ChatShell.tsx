@@ -31,7 +31,11 @@ export function ChatHeader({
   return (
     <header className="chat-header">
       {avatarUrl ? (
-        <img src={avatarUrl} alt="" className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/15" />
+        <img
+          src={avatarUrl}
+          alt=""
+          className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/15"
+        />
       ) : (
         <span className="chat-avatar-letra size-11">{nome.slice(0, 1).toUpperCase()}</span>
       )}
@@ -45,7 +49,12 @@ export function ChatHeader({
                 <span>{status}</span>
               </>
             ) : null}
-            {detalhe ? <span className="chat-mute">{status ? "· " : ""}{detalhe}</span> : null}
+            {detalhe ? (
+              <span className="chat-mute">
+                {status ? "· " : ""}
+                {detalhe}
+              </span>
+            ) : null}
           </p>
         ) : null}
       </div>
@@ -68,7 +77,11 @@ export function ChatShell({ header, children }: { header: ReactNode; children: R
 
 export function TypingIndicator({ rotulo = "Recepção digitando" }: { rotulo?: string }) {
   return (
-    <span className="chat-bolha-ia inline-flex h-10 items-center gap-1 px-4" role="status" aria-label={rotulo}>
+    <span
+      className="chat-bolha-ia inline-flex h-10 items-center gap-1 px-4"
+      role="status"
+      aria-label={rotulo}
+    >
       <i className="chat-dot" />
       <i className="chat-dot" />
       <i className="chat-dot" />

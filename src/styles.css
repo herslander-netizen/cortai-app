@@ -3127,7 +3127,9 @@ body:has(.auth-screen--claro) {
   border-radius: 20px;
   border: 1px solid var(--chat-borda, rgb(255 255 255 / 0.1));
   background: var(--chat-glass, rgb(10 30 80 / 0.55));
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 .chat-card-servico:hover,
 .chat-card-servico:focus-visible {
@@ -3156,8 +3158,14 @@ body:has(.auth-screen--claro) {
   border-radius: 999px;
   background: var(--chat-navy, #06245a);
 }
-.chat-ingresso-corte::before { left: -25px; }
-.chat-ingresso-corte::after { right: -25px; }
+.chat-ingresso-corte::before {
+  left: -25px;
+}
+.chat-ingresso-corte::after {
+  right: -25px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .chat-card-servico { transition: none; }
+  .chat-card-servico {
+    transition: none;
+  }
 }

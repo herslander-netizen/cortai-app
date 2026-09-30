@@ -35,8 +35,24 @@ export function MarcaCortai({
   if (variante === "automatica") {
     return (
       <span className={`brand-logo-auto ${className}`} role="img" aria-label="Cortaí">
-        <img src={marcas.clara} alt="" width={1920} height={714} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-dark h-full w-full object-contain" />
-        <img src={marcas.escura} alt="" width={1920} height={640} loading={prioridade ? "eager" : "lazy"} fetchPriority={prioridade ? "high" : "auto"} className="brand-logo-on-light h-full w-full object-contain" />
+        <img
+          src={marcas.clara}
+          alt=""
+          width={1920}
+          height={714}
+          loading={prioridade ? "eager" : "lazy"}
+          fetchPriority={prioridade ? "high" : "auto"}
+          className="brand-logo-on-dark h-full w-full object-contain"
+        />
+        <img
+          src={marcas.escura}
+          alt=""
+          width={1920}
+          height={640}
+          loading={prioridade ? "eager" : "lazy"}
+          fetchPriority={prioridade ? "high" : "auto"}
+          className="brand-logo-on-light h-full w-full object-contain"
+        />
       </span>
     );
   }
