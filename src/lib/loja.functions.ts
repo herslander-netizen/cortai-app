@@ -33,13 +33,20 @@ export type LojaPublica = {
  * + produto ativo + marcado como disponível para venda + preço válido.
  */
 export const getLojaPublica = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ slug: z.string().trim().min(1).max(100) }).parse(input),
+  )
   .handler(async ({ data }): Promise<LojaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+    const resolvido = await resolverTenantPorSlug(supabaseAdmin, data.slug);
+    if (!resolvido) return null;
     const { data: tenant } = await supabaseAdmin
       .from("tenants")
-      .select("id, nome, slug, segmento, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url")
-      .eq("slug", data.slug)
+      .select(
+        "id, nome, slug, segmento, plano, loja_ativa, whatsapp, telefone, cor_primaria, logo_url",
+      )
+      .eq("id", resolvido.tenant_id)
       .eq("ativo", true)
       .maybeSingle();
     if (!tenant || !tenant.loja_ativa) return null;
@@ -64,7 +71,9 @@ export const getLojaPublica = createServerFn({ method: "GET" })
 
     let logo = tenant.logo_url;
     if (logo && !logo.startsWith("https://")) {
-      const { data: assinada } = await supabaseAdmin.storage.from("tenant-logos").createSignedUrl(logo, 60 * 60);
+      const { data: assinada } = await supabaseAdmin.storage
+        .from("tenant-logos")
+        .createSignedUrl(logo, 60 * 60);
       logo = assinada?.signedUrl ?? null;
     }
 

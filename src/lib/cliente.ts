@@ -23,10 +23,13 @@ async function admin() {
 
 /** Resolve a barbearia pelo slug, garantindo que ela existe e está ativa. */
 async function tenantPorSlug(db: BancoPrivilegiado, slug: string): Promise<TenantCliente> {
+  const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+  const resolvido = await resolverTenantPorSlug(db, slug);
+  if (!resolvido) throw new Error("Negócio não encontrado ou indisponível.");
   const { data } = await db
     .from("tenants")
     .select("id, nome, slug, rotulo_carteira")
-    .eq("slug", slug)
+    .eq("id", resolvido.tenant_id)
     .eq("ativo", true)
     .maybeSingle();
   if (!data) throw new Error("Negócio não encontrado ou indisponível.");

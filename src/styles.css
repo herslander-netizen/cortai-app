@@ -456,6 +456,18 @@
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--chat-borda);
 }
+.chat-assinatura {
+  position: absolute;
+  z-index: 25;
+  bottom: max(0.35rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(7 21 47 / 0.48);
+  font-size: 0.625rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
 .chat-mute {
   color: rgb(7 21 47 / 0.62);
   font-weight: 500;

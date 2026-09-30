@@ -68,6 +68,9 @@ export function ChatPreview({
           Prévia: nenhum agendamento será criado.
         </p>
       </div>
+      <p className="relative border-t border-line px-4 py-2 text-center text-[10px] font-semibold text-mute2">
+        By Alvo Digital · Cortaí
+      </p>
       {onExperimentar ? (
         <Button
           type="button"

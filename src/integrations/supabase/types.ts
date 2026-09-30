@@ -3765,6 +3765,32 @@ export type Database = {
           },
         ]
       }
+      tenant_slug_aliases: {
+        Row: {
+          created_at: string
+          slug: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          slug: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          slug?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_slug_aliases_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_usuarios: {
         Row: {
           aceito_em: string | null
@@ -4219,6 +4245,10 @@ export type Database = {
         Args: { _segmento: string; _tenant_id: string }
         Returns: undefined
       }
+      alterar_slug_do_tenant: {
+        Args: { _ator: string; _novo_slug: string; _tenant_id: string }
+        Returns: string
+      }
       cancelar_agendamento: { Args: { _agendamento_id: string }; Returns: Json }
       carteira_pertence_ao_membro: {
         Args: { _carteira_id: string }
@@ -4492,6 +4522,13 @@ export type Database = {
       remover_membro: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: Json
+      }
+      resolver_tenant_por_slug: {
+        Args: { _slug: string }
+        Returns: {
+          slug_atual: string
+          tenant_id: string
+        }[]
       }
       salvar_comanda: {
         Args: { _comanda_id: string; _desconto_centavos?: number; _itens: Json }
