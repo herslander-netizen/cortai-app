@@ -2,25 +2,31 @@ import { Clock3 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
+import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import { estaAtrasado, intervaloDoDia } from "@/components/barbeiro/agenda/tempo";
 
 type HorarioFuncionamento = {
   diaSemana: number;
   fechado: boolean;
   abre: string;
   fecha: string;
+  intervaloInicio?: string | null;
+  intervaloFim?: string | null;
 };
 
 type AgendaTimelineProps = {
   dia: string;
   fuso: string | undefined;
-  agora: number;
+  agora?: number;
   itens: AgendaItem[];
   horarios: HorarioFuncionamento[];
   selecionado: string | null;
   onSelecionar: (id: string) => void;
-  renderStatus: (status: string) => ReactNode;
+  /** Mantido por compatibilidade; a timeline mostra só estados especiais. */
+  renderStatus?: (status: string) => ReactNode;
   onMover?: (item: AgendaItem, deltaMin: number) => void;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
@@ -68,18 +74,20 @@ function diaDaSemana(dia: string) {
 export function AgendaTimeline({
   dia,
   fuso,
-  agora,
+  agora: agoraProp,
   itens,
   horarios,
   selecionado,
   onSelecionar,
-  renderStatus,
   onMover,
   onHorarioVazio,
   destaques,
   itensEscala,
   alinhado,
 }: AgendaTimelineProps) {
+  const relogio = useAgora();
+  const agora = agoraProp ?? relogio;
+  const [toqueVazio, setToqueVazio] = useState<number | null>(null);
   const rolagemRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
@@ -166,7 +174,7 @@ export function AgendaTimeline({
         const colunas = Math.min(grupo.length, 3);
         grupo.forEach((evento, i) => {
           const altura = alinhado
-            ? Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4)
+            ? Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4)
             : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
           const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
           resultado.set(evento.item.id, {
@@ -183,7 +191,7 @@ export function AgendaTimeline({
         grupo.forEach((evento) => {
           if (alinhado) {
             const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO;
-            const altura = Math.max(24, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+            const altura = Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
             resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura });
             cursor = topo + altura + ESPACO_ENTRE_BLOCOS;
             return;
@@ -330,8 +338,15 @@ export function AgendaTimeline({
     const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
     let minuto = escala.inicio + y / PX_POR_MINUTO;
     minuto -= deslocamentoAte(minuto) / PX_POR_MINUTO;
-    onHorarioVazio(horaMinuto(Math.floor(minuto / 15) * 15));
+    const arredondado = Math.floor(minuto / 15) * 15;
+    if (intervalo && arredondado >= intervalo[0] && arredondado < intervalo[1]) return;
+    setToqueVazio(arredondado);
+    window.setTimeout(() => {
+      setToqueVazio(null);
+      onHorarioVazio(horaMinuto(arredondado));
+    }, 160);
   }
+  const intervalo = intervaloDoDia(horarios, dia);
 
   return (
     <div className="agenda-timeline-wrap">
@@ -357,8 +372,28 @@ export function AgendaTimeline({
           className="agenda-timeline"
           style={{ height: `${altura}px` }}
           onClick={cliqueNoVazio}
-          title={onHorarioVazio ? "Toque num horário livre para agendar" : undefined}
         >
+          {intervalo ? (
+            <div
+              className="agenda-timeline-intervalo"
+              style={{
+                top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+              }}
+              aria-hidden
+            >
+              <span>Intervalo</span>
+            </div>
+          ) : null}
+          {toqueVazio !== null ? (
+            <div
+              className="agenda-timeline-toque"
+              style={{ top: `${(toqueVazio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(toqueVazio)}px` }}
+              aria-hidden
+            >
+              + {horaMinuto(toqueVazio)}
+            </div>
+          ) : null}
           {marcas.map((minuto) => (
             <div
               key={minuto}
@@ -397,7 +432,8 @@ export function AgendaTimeline({
                 key={item.id}
                 type="button"
                 variant="ghost"
-                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                aria-label={`${horaMinuto(inicio)}, ${item.cliente}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                 style={{
                   top: `${topo}px`,
                   minHeight: `${blocoAltura}px`,
@@ -439,7 +475,16 @@ export function AgendaTimeline({
                     )}{" "}
                     · {item.cliente}
                   </strong>
-                  {renderStatus(item.status)}
+                  <span className="flex shrink-0 gap-1">
+                    {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
+                    {ehHoje && estaAtrasado(item, agora) ? (
+                      <StatusBadge status="nao_compareceu" label="Atrasado" />
+                    ) : null}
+                    {item.encaixe ? <StatusBadge status="encaixe" /> : null}
+                    {item.confirmadoEm && item.status === "agendado" ? (
+                      <StatusBadge status="confirmado" label="Confirmou" />
+                    ) : null}
+                  </span>
                 </span>
                 <span className="agenda-timeline-servico">
                   {item.servico} · {item.profissional}
