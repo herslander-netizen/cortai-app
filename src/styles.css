@@ -931,6 +931,23 @@ html.light .brand-logo-on-light,
   background: var(--ink);
   padding: 7px 1.25rem 8px;
 }
+.agenda-contexto-data {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.agenda-resumo-dia {
+  margin-top: 4px;
+  text-align: center;
+}
+.agenda-vazio-util {
+  min-height: min(32dvh, 260px);
+}
+.aviso-horarios-compacto {
+  margin-top: 0;
+}
 .agenda-lista-item {
   min-width: 0;
   padding: 12px 4px;
@@ -1266,6 +1283,41 @@ html.light .brand-logo-on-light,
     margin-left: -2rem;
     padding-right: 2rem;
     padding-left: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .agenda-cabecalho-compacto {
+    top: 0;
+    margin-bottom: 8px;
+    padding-top: 5px;
+    padding-bottom: 6px;
+  }
+  .agenda-cabecalho-unico .agenda-chips {
+    margin-top: 6px;
+  }
+  .agenda-acao-fixa {
+    right: 14px;
+    bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+  .agenda-acao-fixa .agenda-acao-redonda {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+    box-shadow: var(--shadow-sm);
+  }
+  .agenda-operacional {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+  .agenda-timeline-scroll {
+    max-height: none;
+  }
+  .agenda-timeline-bloco {
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+  }
+  .agenda-vazio-util {
+    min-height: min(28dvh, 230px);
   }
 }
 

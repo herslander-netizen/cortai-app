@@ -996,9 +996,9 @@ export function AgendaOperacional() {
         onTouchStart={inicioToque}
         onTouchEnd={fimToque}
       >
-        <header className="agenda-cabecalho-compacto">
+        <header className="agenda-cabecalho-compacto agenda-cabecalho-unico">
           <h1 className="sr-only">Agenda</h1>
-          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="agenda-contexto-data">
             <div className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)_44px] items-center">
               <Button
                 variant="ghost"
@@ -1024,9 +1024,14 @@ export function AgendaOperacional() {
               </Button>
             </div>
             <div className="flex shrink-0 items-center gap-1">
-              <Button size="sm" variant="outline" onClick={entrarNoModoFoco}>
+              <Button
+                size="sm"
+                variant="outline"
+                aria-label="Abrir Modo Foco"
+                onClick={entrarNoModoFoco}
+              >
                 <Maximize2 />
-                Modo Foco
+                <span className="hidden sm:inline">Modo Foco</span>
               </Button>
               {chegada.length > 0 ? (
                 <Button size="sm" variant="outline" onClick={() => setFilaAberta(true)}>
@@ -1039,10 +1044,12 @@ export function AgendaOperacional() {
                   Hoje
                 </Button>
               ) : null}
-              <BotaoAjuda />
+              <span className="hidden md:inline-flex">
+                <BotaoAjuda />
+              </span>
             </div>
           </div>
-          <p className="mt-2 text-xs font-semibold text-mute" aria-live="polite">
+          <p className="agenda-resumo-dia text-xs font-semibold text-mute" aria-live="polite">
             {resumo}
           </p>
           {profissionaisDoDia.length > 1 ? (
@@ -1073,7 +1080,7 @@ export function AgendaOperacional() {
         {ehHoje && rapido.isLoading && !agenda.data ? <EsqueletoAgenda linhas={2} /> : null}
 
         {ativos.length > 0 ? (
-          <section aria-labelledby="agora-titulo" className="mb-6">
+          <section aria-labelledby="agora-titulo" className="mb-6 hidden md:block">
             <p id="agora-titulo" className="mb-2 text-xs font-bold uppercase text-mute">
               Agora
             </p>
@@ -1162,7 +1169,7 @@ export function AgendaOperacional() {
             </div>
           </section>
         ) : ehHoje ? (
-          <div className="mb-6 border-y border-line py-4">
+          <div className="mb-6 hidden border-y border-line py-4 md:block">
             <p className="text-sm font-semibold text-paper">
               Livre agora{proximoLivre ? ` · próximo às ${hora(proximoLivre.inicio, fuso)}` : ""}
             </p>
@@ -1171,7 +1178,7 @@ export function AgendaOperacional() {
 
         {destaques.length > 0 ? (
           <section
-            className="mb-6 divide-y divide-line border-y border-line"
+            className="mb-6 hidden divide-y divide-line border-y border-line md:block"
             aria-label="Próximos atendimentos"
           >
             {destaques.map((item, indice) => {
@@ -1406,7 +1413,7 @@ export function AgendaOperacional() {
             }}
           />
         ) : diaSemAgenda ? (
-          <div className="border-y border-line py-8 text-center">
+          <div className="agenda-vazio-util border-y border-line py-6 text-center">
             <Scissors className="mx-auto size-6 text-mute" aria-hidden />
             <p className="mt-3 text-base font-bold text-paper">Agenda livre</p>
             <p className="mt-1 text-sm text-mute">
@@ -1678,7 +1685,7 @@ export function AgendaOperacional() {
           disabled={ocupado || Boolean(itemSelecionado && TERMINAIS.has(itemSelecionado.status))}
           onClick={acaoPrincipal}
         >
-          <Scissors aria-hidden />
+          <Plus aria-hidden />
           {itemSelecionado
             ? itemSelecionado.status === "na_cadeira"
               ? `Finalizar ${itemSelecionado.cliente}`
