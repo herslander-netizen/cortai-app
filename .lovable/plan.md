@@ -1,20 +1,29 @@
-# Conheça o Cortaí conversando com o Cortaí
+# Refinamento comercial e visual do Cortaí
+
+## Objetivo
+Consolidar `/apresentacao` como a única apresentação comercial pública do Cortaí, preservando o showroom real já existente e tornando a página adequada para compartilhamento por Instagram, WhatsApp e QR Code.
 
 ## Implementação
-- Substituir integralmente `/apresentacao` por uma experiência pública guiada em oito momentos: entrada, segmento, Agenda, Modo Foco, Clientes, Secretária, Caixa e convite final.
-- Usar uma única narrativa interativa, com escolha temporária de segmento apenas na sessão e demonstrações visuais derivadas dos componentes e estados reais do produto, sem gravar dados nem executar ações operacionais.
-- Manter cabeçalho discreto, progresso, Voltar, Sair e avanço por URL para que o botão do navegador funcione naturalmente; preservar rolagem e gestos no celular.
-- Reutilizar a identidade, os controles, a assinatura e o padrão visual da Secretária Cortaí. A mini conversa será demonstrativa e usará os mesmos componentes visuais do chat, sem duplicar o motor de agendamento.
-- Conectar os três convites finais aos fluxos comerciais já existentes; se não houver destino adequado, reutilizar a captura pública de interesse existente, sem inventar contato.
-- Manter a página acessível em Admin > Marketing com Abrir, Copiar link, QR Code e compartilhar, aproveitando estruturas já existentes.
+- Transformar o showroom atual em uma página comercial contínua, com navegação por âncoras suaves e seções de Agenda, Modo Foco, Clientes, Secretária, Comanda/Caixa, segmentos, planos, FAQ e chamada final.
+- Reutilizar as demonstrações atuais de Agenda, Modo Foco, cliente, chat e comanda como estados seguros e não persistentes; não executar ações reais.
+- Manter a escolha temporária de segmento para adaptar exemplos, sem criar uma segunda apresentação nem remover a identidade conversacional já aprovada.
+- Conectar “Conhecer o Cortaí” aos recursos, “Ver planos” à tabela oficial e “Comece a organizar seu negócio” ao fluxo existente `/login?proximo=/comecar`.
+- Usar o contato comercial já configurado para “Quero falar com alguém”; quando indisponível, não inventar número ou integração.
+- Manter os quatro planos e recursos exatamente como definidos em `planos-comerciais.ts`. Como a unidade atual do produto é mensal por plano, preservar `/mês` e não introduzir “por profissional” sem regra comercial existente.
+- Preservar Admin > Marketing com abrir, copiar link, QR Code e compartilhar, atualizando a descrição para a apresentação comercial consolidada.
 
-## Limites
-- Nenhuma mudança em autenticação, isolamento por negócio, banco, disponibilidade, agendamento ou demais regras operacionais.
-- Nenhum dado fictício persistente, depoimento, métrica ou promessa inventada.
-- A apresentação interna protegida em `/admin/apresentacao` permanece separada.
-- Não publicar nesta etapa; a implementação ficará pronta para compartilhamento após publicação autorizada.
+## Refinamento visual seguro
+- Auditar rapidamente login/cadastro, onboarding, Agenda, Modo Foco, Clientes, Secretária, Comanda/Caixa, planos e Admin > Marketing em 390 px e 1280 px.
+- Corrigir somente inconsistências confirmadas e locais: contraste, hierarquia, espaçamento, truncamento, overflow, botões, estados vazios e navegação redundante.
+- Preferir ajustes nos componentes e estilos compartilhados existentes; não redesenhar módulos estáveis nem criar componentes paralelos.
+
+## Proteções preservadas
+- Verificar, sem enfraquecer, as travas atuais de WhatsApp, Secretária, agendamento pelo cliente, Modo Foco, comanda/caixa e gestão avançada de equipe.
+- Não alterar disponibilidade, conflitos de agenda, autenticação, isolamento por negócio, RLS, banco, preços operacionais ou regras financeiras.
+- Não criar migração nem dados persistentes para a apresentação.
 
 ## Validação
-- Conferir entrada, avanço, retorno, saída e botão do navegador em aproximadamente 390 px e 1280 px.
-- Conferir contraste e legibilidade de todos os textos sobre fundo claro.
-- Rodar TypeScript, testes disponíveis, lint dos arquivos alterados e build.
+- Testar âncoras, links, CTAs, contato comercial, navegação e compartilhamento da apresentação.
+- Validar visualmente `/apresentacao` e as telas públicas/operacionais acessíveis em 390 px e 1280 px.
+- Rodar TypeScript, lint dos arquivos alterados, testes disponíveis e build; conferir também os diagnósticos do preview.
+- Deixar tudo pronto para publicação, sem publicar ou fazer deploy nesta execução.
