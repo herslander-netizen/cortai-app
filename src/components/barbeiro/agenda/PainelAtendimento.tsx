@@ -103,7 +103,7 @@ export function PainelAtendimento(props: Props) {
       <Sheet open={props.aberto && Boolean(item)} onOpenChange={(v) => !v && props.onFechar()}>
         <SheetContent
           side={props.lateral ? "right" : "bottom"}
-          className={`agenda-painel border-line bg-ink2 px-5 pt-5 ${props.lateral ? "w-[380px]" : "mx-auto max-h-[88dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl"}`}
+          className={`agenda-painel mov-agenda-painel border-line bg-ink2 px-5 pt-5 ${props.lateral ? "w-[380px]" : "mx-auto max-h-[88dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl"}`}
         >
           {item ? (
             <>

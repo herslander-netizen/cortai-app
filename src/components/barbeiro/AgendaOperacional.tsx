@@ -228,6 +228,7 @@ export function AgendaOperacional() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [dia, setDia] = useState(() => hojeNoFuso());
+  const [direcaoDia, setDirecaoDia] = useState<"anterior" | "proximo">("proximo");
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
   const fusoAnterior = useRef(fuso);
   const [selecionado, setSelecionado] = useState<string | null>(null);
@@ -261,6 +262,11 @@ export function AgendaOperacional() {
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
+
+  function mudarDia(proximo: string) {
+    setDirecaoDia(proximo < dia ? "anterior" : "proximo");
+    setDia(proximo);
+  }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
 
@@ -434,7 +440,7 @@ export function AgendaOperacional() {
           chegaram.forEach((id) => n.delete(id));
           return n;
         }),
-      4000,
+      2000,
     );
     return () => window.clearTimeout(t);
   }, [agenda.data?.itens, agenda.isPlaceholderData, dia]);
@@ -860,7 +866,7 @@ export function AgendaOperacional() {
           carregando={carregandoInicial}
           erro={erroInicial ? (mensagemErro ?? "Tente novamente.") : null}
           onSair={sairDoModoFoco}
-          onDia={setDia}
+          onDia={mudarDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
           onComecar={iniciar}
@@ -893,7 +899,7 @@ export function AgendaOperacional() {
     if (!ini || !t) return;
     const dx = t.clientX - ini.x;
     const dy = t.clientY - ini.y;
-    if (Math.abs(dx) > 70 && Math.abs(dy) < 40) setDia(somarDias(dia, dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 40) mudarDia(somarDias(dia, dx < 0 ? 1 : -1));
   }
 
   const abas: { id: Visualizacao; rotulo: string; soDesktop?: boolean }[] = [
@@ -927,14 +933,15 @@ export function AgendaOperacional() {
       <div
         key={dia}
         className="agenda-operacional agenda-troca-dia pb-32"
+        data-direcao={direcaoDia}
         onTouchStart={inicioToque}
         onTouchEnd={fimToque}
       >
         <CabecalhoAgenda
           dia={dia}
           ehHoje={ehHoje}
-          onDia={setDia}
-          onHoje={() => setDia(hojeNoFuso(fuso))}
+          onDia={mudarDia}
+          onHoje={() => mudarDia(hojeNoFuso(fuso))}
           fila={chegada.length}
           onFila={() => setFilaAberta(true)}
           onModoFoco={entrarNoModoFoco}
@@ -1084,7 +1091,7 @@ export function AgendaOperacional() {
               hoje={hojeNoFuso(fuso)}
               profissional={nomeDoProf(profFiltro)}
               onAbrirDia={(d) => {
-                setDia(d);
+                mudarDia(d);
                 setVisualizacao("timeline");
               }}
             />
@@ -1261,16 +1268,17 @@ export function AgendaOperacional() {
           aria-label="Ações da agenda"
           aria-haspopup="menu"
           aria-expanded={menuAberto}
-          className={`agenda-acao-redonda ${menuAberto ? "pointer-events-none invisible" : ""}`}
+          className={`agenda-acao-redonda agenda-fab-toggle ${menuAberto ? "pointer-events-none invisible" : ""}`}
+          data-aberto={menuAberto}
           tabIndex={menuAberto ? -1 : undefined}
           aria-hidden={menuAberto || undefined}
           onClick={() => {
             setPainelAberto(false);
             setSelecionado(null);
-            setMenuAberto(true);
+            setMenuAberto((aberto) => !aberto);
           }}
         >
-          <Plus aria-hidden />
+          <Plus aria-hidden className="agenda-fab-icone" />
         </Button>
       </div>
 

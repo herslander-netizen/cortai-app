@@ -14,6 +14,7 @@ export const aviso = {
 export function comDesfazer(texto: string, desfazer: () => void | Promise<void>) {
   toast(texto, {
     duration: 5000,
+    className: "toast-desfazer",
     action: { label: "Desfazer", onClick: () => void desfazer() },
   });
 }

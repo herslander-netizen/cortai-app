@@ -49,3 +49,4 @@
 - [ ] Agenda: bloqueio pontual por data e escala por profissional (precisa de nova tabela — aguardando aprovação)
 - [ ] Agenda: conferência visual 390/1280 com barbeiro.teste (aguardando aprovação de login)
 - [ ] Agenda: consolidar movimento leve, polimento de UX e agendamento público, com validação 390/1280 e CPU 4×
+- [ ] Orientar como acessar a administração da barbearia após concluir esta etapa

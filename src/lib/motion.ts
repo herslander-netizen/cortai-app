@@ -17,13 +17,14 @@ export const pagina = {
 };
 
 /** Entrada em cascata para listas (no máximo 8 itens animados). */
-export const LIMITE_CASCATA = 8;
+export const LIMITE_CASCATA = 6;
 export function cascata(indice: number) {
-  const i = Math.min(indice, LIMITE_CASCATA);
+  const animar = indice < LIMITE_CASCATA;
+  const i = Math.min(indice, LIMITE_CASCATA - 1);
   return {
-    initial: { opacity: 0, y: 6 },
+    initial: animar ? { opacity: 0, y: 6 } : false,
     animate: { opacity: 1, y: 0 },
-    transition: { duration: DURACAO.base, ease: SUAVE, delay: i * 0.03 },
+    transition: animar ? { duration: DURACAO.base, ease: SUAVE, delay: i * 0.03 } : { duration: 0 },
   };
 }
 

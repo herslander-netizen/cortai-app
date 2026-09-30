@@ -4,10 +4,12 @@ import { useContagem } from "@/hooks/useMovimento";
 export function ValorAnimado({
   valor,
   formatar,
+  primeiraCarga = false,
 }: {
   valor: number;
   formatar: (n: number) => string;
+  primeiraCarga?: boolean;
 }) {
-  const atual = useContagem(valor);
+  const atual = useContagem(valor, 400, primeiraCarga);
   return <>{formatar(Math.round(atual))}</>;
 }
