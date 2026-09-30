@@ -30,8 +30,6 @@ function temaConhecido(valor: unknown): valor is (typeof TEMAS_MARCA)[number] {
   return typeof valor === "string" && (TEMAS_MARCA as readonly string[]).includes(valor);
 }
 
-
-
 const marcaSchema = z.object({
   nome: z.string().trim().min(2).max(100),
   endereco: nullableText,
@@ -78,10 +76,7 @@ export type MarcaVersion = {
 
 const editorSchema = z.object({ marca: marcaSchema, pagina: paginaConfigSchema });
 
-async function tenantDoDono(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-) {
+async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
   const { data: vinculo } = await supabase
     .from("tenant_usuarios")
     .select("tenant_id, papel")
@@ -110,7 +105,9 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
     texto_boas_vindas: row.texto_boas_vindas ?? null,
     descricao: row.descricao ?? null,
     capa_url: row.capa_url ?? null,
-    fotos: Array.isArray(row.fotos) ? row.fotos.filter((item): item is string => typeof item === "string") : [],
+    fotos: Array.isArray(row.fotos)
+      ? row.fotos.filter((item): item is string => typeof item === "string")
+      : [],
     assinatura_visivel: row.assinatura_visivel,
     logo_url: row.logo_url ?? null,
   });
@@ -136,14 +133,24 @@ export const getMarca = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .order("versao", { ascending: false })
         .limit(12),
-      context.supabase.from("tenant_page_configs").select("draft_config, published_config, updated_at, published_at").eq("tenant_id", tenantId).maybeSingle(),
+      context.supabase
+        .from("tenant_page_configs")
+        .select("draft_config, published_config, updated_at, published_at")
+        .eq("tenant_id", tenantId)
+        .maybeSingle(),
     ]);
     if (!tenant) throw new Error("Barbearia não encontrada.");
     const atual = snapshot(tenant);
     const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
-    const publishedContainer = pagina?.published_config as { pagina?: unknown; marca?: unknown } | null;
+    const publishedContainer = pagina?.published_config as {
+      pagina?: unknown;
+      marca?: unknown;
+    } | null;
     const marcaRascunho = marcaSchema.safeParse(draftContainer?.marca);
-    const paginaRascunho = normalizarPagina(draftContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" });
+    const paginaRascunho = normalizarPagina(draftContainer?.pagina, {
+      frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+      sobre: tenant.descricao ?? "",
+    });
     return {
       marca: {
         id: tenant.id,
@@ -154,7 +161,10 @@ export const getMarca = createServerFn({ method: "GET" })
         avatar_signed_url: await signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
         slug: tenant.slug,
         pagina: paginaRascunho,
-        publicada: normalizarPagina(publishedContainer?.pagina, { frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.", sobre: tenant.descricao ?? "" }),
+        publicada: normalizarPagina(publishedContainer?.pagina, {
+          frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+          sobre: tenant.descricao ?? "",
+        }),
         alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
         segmento: segmentoValido(tenant.segmento),
       },
@@ -174,7 +184,9 @@ export const getMarca = createServerFn({ method: "GET" })
             ...atual,
             ...bruto,
             tema: temaConhecido(bruto["tema"]) ? bruto["tema"] : atual.tema,
-            cor_primaria: corValida(bruto["cor_primaria"]) ? bruto["cor_primaria"] : atual.cor_primaria,
+            cor_primaria: corValida(bruto["cor_primaria"])
+              ? bruto["cor_primaria"]
+              : atual.cor_primaria,
             cor_secundaria: corValida(bruto["cor_secundaria"])
               ? bruto["cor_secundaria"]
               : atual.cor_secundaria,
@@ -184,7 +196,6 @@ export const getMarca = createServerFn({ method: "GET" })
           return { ...item, snapshot: legado.data, pagina: null };
         })
         .filter((item): item is MarcaVersion => item !== null),
-
     };
   });
 
@@ -195,7 +206,11 @@ export const salvarMarca = createServerFn({ method: "POST" })
     const tenantId = await tenantDoDono(context.supabase, context.userId);
     // Marca avançada é recurso de plano: a liberação é conferida no servidor.
     await exigirRecurso(context.supabase, tenantId, "branding_avancado");
-    const { data: atual } = await context.supabase.from("tenants").select("*").eq("id", tenantId).single();
+    const { data: atual } = await context.supabase
+      .from("tenants")
+      .select("*")
+      .eq("id", tenantId)
+      .single();
     if (!atual) throw new Error("Barbearia não encontrada.");
 
     const assinatura = atual.plano === "essencial" ? true : data.assinatura_visivel;
@@ -229,11 +244,14 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
     await exigirRecurso(context.supabase, tenantId, "branding_avancado");
-    const { error } = await context.supabase.from("tenant_page_configs").upsert({
-      tenant_id: tenantId,
-      draft_config: { pagina: data.pagina, marca: data.marca } as unknown as Json,
-      draft_by: context.userId,
-    }, { onConflict: "tenant_id" });
+    const { error } = await context.supabase.from("tenant_page_configs").upsert(
+      {
+        tenant_id: tenantId,
+        draft_config: { pagina: data.pagina, marca: data.marca } as unknown as Json,
+        draft_by: context.userId,
+      },
+      { onConflict: "tenant_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -241,10 +259,16 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
 export const alterarLinkPublico = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      slug: z.string().trim().min(3, "Use pelo menos 3 caracteres.").max(60, "Use no máximo 60 caracteres.")
-        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use letras minúsculas, números e hífens."),
-    }).parse(input),
+    z
+      .object({
+        slug: z
+          .string()
+          .trim()
+          .min(3, "Use pelo menos 3 caracteres.")
+          .max(60, "Use no máximo 60 caracteres.")
+          .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use letras minúsculas, números e hífens."),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
@@ -264,18 +288,37 @@ export const publicarPagina = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
     await exigirRecurso(context.supabase, tenantId, "branding_avancado");
-    const { data: tenant } = await context.supabase.from("tenants").select("plano").eq("id", tenantId).single();
+    const { data: tenant } = await context.supabase
+      .from("tenants")
+      .select("plano")
+      .eq("id", tenantId)
+      .single();
     if (!tenant) throw new Error("Barbearia não encontrada.");
-    const marca = { ...data.marca, assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel };
+    const marca = {
+      ...data.marca,
+      assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,
+    };
     const configuracao = { pagina: data.pagina, marca } as unknown as Json;
     const { error } = await context.supabase.rpc("publish_tenant_page", {
-      _tenant_id: tenantId, _config: configuracao, _nome: marca.nome, _endereco: marca.endereco ?? "",
-      _telefone: marca.telefone ?? "", _instagram: marca.instagram ?? "", _whatsapp: marca.whatsapp ?? "",
-      _facebook: marca.facebook ?? "", _tema: marca.tema, _cor_primaria: marca.cor_primaria,
-      _cor_secundaria: marca.cor_secundaria, _cor_accent: marca.cor_accent,
-      _rotulo_carteira: marca.rotulo_carteira ?? "", _texto_boas_vindas: marca.texto_boas_vindas ?? "",
-      _descricao: marca.descricao ?? "", _capa_url: marca.capa_url ?? "", _fotos: marca.fotos,
-      _assinatura_visivel: marca.assinatura_visivel, _logo_url: marca.logo_url ?? "",
+      _tenant_id: tenantId,
+      _config: configuracao,
+      _nome: marca.nome,
+      _endereco: marca.endereco ?? "",
+      _telefone: marca.telefone ?? "",
+      _instagram: marca.instagram ?? "",
+      _whatsapp: marca.whatsapp ?? "",
+      _facebook: marca.facebook ?? "",
+      _tema: marca.tema,
+      _cor_primaria: marca.cor_primaria,
+      _cor_secundaria: marca.cor_secundaria,
+      _cor_accent: marca.cor_accent,
+      _rotulo_carteira: marca.rotulo_carteira ?? "",
+      _texto_boas_vindas: marca.texto_boas_vindas ?? "",
+      _descricao: marca.descricao ?? "",
+      _capa_url: marca.capa_url ?? "",
+      _fotos: marca.fotos,
+      _assinatura_visivel: marca.assinatura_visivel,
+      _logo_url: marca.logo_url ?? "",
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -315,7 +358,9 @@ export const restaurarMarca = createServerFn({ method: "POST" })
     });
     if (historyError) throw new Error(historyError.message);
 
-    const composta = z.object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() }).safeParse(versao.snapshot);
+    const composta = z
+      .object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() })
+      .safeParse(versao.snapshot);
     const restaurada = composta.success ? composta.data.marca : marcaSchema.parse(versao.snapshot);
     const { error } = await context.supabase
       .from("tenants")
@@ -326,11 +371,14 @@ export const restaurarMarca = createServerFn({ method: "POST" })
       .eq("id", tenantId);
     if (error) throw new Error(error.message);
     if (composta.success && composta.data.pagina) {
-      const { error: pageError } = await context.supabase.from("tenant_page_configs").upsert({
-        tenant_id: tenantId,
-        draft_config: { pagina: composta.data.pagina, marca: restaurada } as unknown as Json,
-        draft_by: context.userId,
-      }, { onConflict: "tenant_id" });
+      const { error: pageError } = await context.supabase.from("tenant_page_configs").upsert(
+        {
+          tenant_id: tenantId,
+          draft_config: { pagina: composta.data.pagina, marca: restaurada } as unknown as Json,
+          draft_by: context.userId,
+        },
+        { onConflict: "tenant_id" },
+      );
       if (pageError) throw new Error(pageError.message);
     }
     return { ok: true };
@@ -340,7 +388,9 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("tenants")
-    .select("nome, slug, endereco, descricao, capa_url, fotos, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel")
+    .select(
+      "nome, slug, endereco, descricao, capa_url, fotos, logo_url, cor_primaria, cor_secundaria, cor_accent, texto_boas_vindas, rotulo_carteira, assinatura_visivel",
+    )
     .eq("ativo", true)
     .order("criado_em", { ascending: true })
     .limit(1)

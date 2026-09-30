@@ -582,13 +582,49 @@ function Editor({
                     <div>
                       <p className="text-xs font-medium text-mute">Foto da recepção</p>
                       <div className="mt-2 flex items-center gap-3">
-                        <Button type="button" variant="outline" className="size-16 overflow-hidden p-0" onClick={() => avatarRef.current?.click()}>
-                          {avatarPreview ? <img src={avatarPreview} alt="Foto atual da recepção" className="h-full w-full object-cover" /> : <ImagePlus />}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="size-16 overflow-hidden p-0"
+                          onClick={() => avatarRef.current?.click()}
+                        >
+                          {avatarPreview ? (
+                            <img
+                              src={avatarPreview}
+                              alt="Foto atual da recepção"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImagePlus />
+                          )}
                         </Button>
-                        <Button type="button" variant="outline" onClick={() => avatarRef.current?.click()}>Escolher foto</Button>
-                        {config.chat.avatarUrl ? <Button type="button" variant="ghost" onClick={() => { setPagina("chat", { ...config.chat, avatarUrl: null }); setAvatarPreview(null); }}>Remover</Button> : null}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => avatarRef.current?.click()}
+                        >
+                          Escolher foto
+                        </Button>
+                        {config.chat.avatarUrl ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              setPagina("chat", { ...config.chat, avatarUrl: null });
+                              setAvatarPreview(null);
+                            }}
+                          >
+                            Remover
+                          </Button>
+                        ) : null}
                       </div>
-                      <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(event) => upload(event, "avatar")} />
+                      <input
+                        ref={avatarRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(event) => upload(event, "avatar")}
+                      />
                     </div>
                     <Campo
                       label="Nome da recepção"
@@ -705,19 +741,39 @@ function Editor({
                 <label className="block text-xs font-medium text-mute">
                   Endereço personalizado
                   <div className="mt-2 flex items-stretch gap-2">
-                    <span className="hidden items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute sm:flex">cortai.dev/agendar/</span>
+                    <span className="hidden items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute sm:flex">
+                      cortai.dev/agendar/
+                    </span>
                     <input
                       className={`${fieldClass} mt-0 min-w-0 flex-1`}
                       value={slug}
                       maxLength={60}
-                      onChange={(event) => setSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"))}
+                      onChange={(event) =>
+                        setSlug(
+                          event.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9-]/g, "")
+                            .replace(/-+/g, "-"),
+                        )
+                      }
                     />
-                    <Button type="button" disabled={busy || slug === initial.slug || slug.length < 3} onClick={salvarSlug}>Salvar</Button>
+                    <Button
+                      type="button"
+                      disabled={busy || slug === initial.slug || slug.length < 3}
+                      onClick={salvarSlug}
+                    >
+                      Salvar
+                    </Button>
                   </div>
                 </label>
-                <p className="mt-2 text-xs text-mute">O endereço antigo permanece ativo para não quebrar links já enviados.</p>
+                <p className="mt-2 text-xs text-mute">
+                  O endereço antigo permanece ativo para não quebrar links já enviados.
+                </p>
                 <Button type="button" variant="outline" className="mt-3" asChild>
-                  <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer"><ExternalLink />Abrir agendamento</a>
+                  <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
+                    <ExternalLink />
+                    Abrir agendamento
+                  </a>
                 </Button>
               </EditorSection>
               <Campo
