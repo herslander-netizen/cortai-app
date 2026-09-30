@@ -32,7 +32,8 @@ export const Route = createFileRoute("/api/public/asaas/webhook")({
           });
         }
         const { processarEvento } = await import("@/lib/cobranca.server");
-        await processarEvento(eventId);
+        const processado = await processarEvento(eventId);
+        if (!processado) return new Response("Falha temporária", { status: 500 });
         return new Response("ok");
       },
     },

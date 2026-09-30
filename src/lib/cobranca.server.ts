@@ -326,7 +326,7 @@ export async function sincronizarPagamento(paymentId: string, assinaturaIdConhec
 export async function processarEvento(eventId: string) {
   const client = await db();
   const { data: ev } = await client.from("eventos_asaas").select("*").eq("event_id", eventId).maybeSingle();
-  if (!ev || !deveProcessarEvento(ev)) return;
+  if (!ev || !deveProcessarEvento(ev)) return true;
   try {
     if (ev.payment_id) {
       await sincronizarPagamento(ev.payment_id, undefined, ev.evento);
@@ -338,11 +338,13 @@ export async function processarEvento(eventId: string) {
       }
     }
     await client.from("eventos_asaas").update({ status: "processado", erro: null, tentativas: (ev.tentativas ?? 0) + 1 }).eq("id", ev.id);
+    return true;
   } catch (e) {
     await client
       .from("eventos_asaas")
       .update({ status: "erro", erro: e instanceof Error ? e.message.slice(0, 300) : "erro", tentativas: (ev.tentativas ?? 0) + 1 })
       .eq("id", ev.id);
+    return false;
   }
 }
 
