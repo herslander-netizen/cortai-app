@@ -20,6 +20,11 @@ export function diaCurto(iso: string): { dia: string; num: string; mes: string }
  */
 let fusoDasTelas = "America/Sao_Paulo";
 
+/** Fuso da barbearia em uso nas telas (definido pelo cabeçalho a partir da sessão). */
+export function fusoAtualDasTelas(): string {
+  return fusoDasTelas;
+}
+
 export function definirFusoDasTelas(fuso: string | null | undefined) {
   if (fuso) fusoDasTelas = fuso;
 }

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { hojeNoFuso, somarDias } from "@/lib/horarios";
+import { fusoAtualDasTelas } from "@/lib/format";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -31,14 +33,11 @@ export const Route = createFileRoute("/barbeiro/comissoes")({
 });
 
 function periodo(chave: "hoje" | "semana" | "mes") {
-  const hoje = new Date();
-  const fim = hoje.toISOString().slice(0, 10);
+  // Dias no fuso da barbearia, não no relógio do aparelho.
+  const fim = hojeNoFuso(fusoAtualDasTelas());
   if (chave === "hoje") return { de: fim, ate: fim };
-  if (chave === "semana") {
-    const inicio = new Date(hoje.getTime() - 6 * 24 * 60 * 60 * 1000);
-    return { de: inicio.toISOString().slice(0, 10), ate: fim };
-  }
-  return { de: new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0, 10), ate: fim };
+  if (chave === "semana") return { de: somarDias(fim, -6), ate: fim };
+  return { de: `${fim.slice(0, 8)}01`, ate: fim };
 }
 
 function ComissoesPage() {
