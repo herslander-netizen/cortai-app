@@ -3120,3 +3120,44 @@ body:has(.auth-screen--claro) {
 .agenda-foco-ativo .agenda-foco-profissionais {
   display: none;
 }
+
+/* Cortaí Chat — cards de serviço e ingresso */
+.chat-card-servico {
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--chat-borda, rgb(255 255 255 / 0.1));
+  background: var(--chat-glass, rgb(10 30 80 / 0.55));
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.chat-card-servico:hover,
+.chat-card-servico:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--chat-cyan, #00b4ff);
+  outline: none;
+}
+.chat-ingresso {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--chat-borda, rgb(255 255 255 / 0.1));
+  background: rgb(6 36 90 / 0.6);
+}
+.chat-ingresso-corte {
+  position: relative;
+  border-top: 2px dashed rgb(255 255 255 / 0.18);
+  margin: 0 14px;
+}
+.chat-ingresso-corte::before,
+.chat-ingresso-corte::after {
+  content: "";
+  position: absolute;
+  top: -11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--chat-navy, #06245a);
+}
+.chat-ingresso-corte::before { left: -25px; }
+.chat-ingresso-corte::after { right: -25px; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-card-servico { transition: none; }
+}

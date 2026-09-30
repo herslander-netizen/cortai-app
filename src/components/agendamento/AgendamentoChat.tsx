@@ -120,7 +120,7 @@ export function AgendamentoChat({
 
   useEffect(() => {
     setDigitando(true);
-    const id = window.setTimeout(() => setDigitando(false), 360);
+    const id = window.setTimeout(() => setDigitando(false), 500);
     return () => window.clearTimeout(id);
   }, [etapa]);
   useEffect(() => {
@@ -207,32 +207,39 @@ export function AgendamentoChat({
           {!digitando && etapa === "servico" ? (
             <Fala>
               <p className="mb-3">Qual serviço você quer agendar?</p>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {data.servicos.map((s) => (
-                  <Button
+                  <button
                     key={s.id}
-                    variant="ghost"
-                    className="h-auto min-h-28 justify-start overflow-hidden border border-line bg-ink2 p-0 text-left"
+                    type="button"
+                    className="chat-card-servico w-40 shrink-0 snap-start text-left"
                     onClick={() => setServicoId(s.id)}
                   >
-                    <span className="grid h-full w-24 shrink-0 place-items-center bg-ink3">
+                    <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
                       {s.foto_url ? (
-                        <img src={s.foto_url} alt="" className="h-full w-full object-cover" />
+                        <img
+                          src={s.foto_url}
+                          alt=""
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <ImageIcon className="text-mute2" />
                       )}
                     </span>
-                    <span className="min-w-0 p-3">
-                      <strong className="block truncate text-paper">{s.nome}</strong>
-                      <small className="mt-1 flex items-center gap-1 text-mute">
-                        <Clock3 size={12} />
-                        {s.duracao_min} min
-                      </small>
-                      <span className="mt-2 block font-semibold text-paper">
-                        {brl(s.preco_centavos)}
+                    <span className="block p-3">
+                      <strong className="block truncate text-sm font-extrabold text-paper">
+                        {s.nome}
+                      </strong>
+                      <span className="mt-1 flex items-center justify-between text-xs text-mute">
+                        <span className="flex items-center gap-1">
+                          <Clock3 size={12} />
+                          {s.duracao_min} min
+                        </span>
+                        <span className="font-extrabold text-paper">{brl(s.preco_centavos)}</span>
                       </span>
                     </span>
-                  </Button>
+                  </button>
                 ))}
               </div>
             </Fala>
@@ -312,19 +319,39 @@ export function AgendamentoChat({
               {agenda?.opcoes.length ? (
                 <>
                   <p className="mb-3">Encontrei estes horários:</p>
-                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                    {agenda.opcoes.map((o, i) => (
-                      <Button
-                        key={o.iso}
-                        variant="outline"
-                        className="chat-slot h-12"
-                        style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}
-                        onClick={() => setInicio(o.iso)}
-                      >
-                        {o.label}
-                      </Button>
-                    ))}
-                  </div>
+                  {(
+                    [
+                      ["Manhã", 0, 12],
+                      ["Tarde", 12, 18],
+                      ["Noite", 18, 24],
+                    ] as const
+                  ).map(([rotulo, de, ate]) => {
+                    const grupo = agenda.opcoes.filter((o) => {
+                      const h = Number(o.label.slice(0, 2));
+                      return h >= de && h < ate;
+                    });
+                    if (!grupo.length) return null;
+                    return (
+                      <div key={rotulo} className="mb-3 last:mb-0">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-[.12em] text-mute">
+                          {rotulo}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {grupo.map((o, i) => (
+                            <Button
+                              key={o.iso}
+                              variant="outline"
+                              className="chat-slot h-12 font-bold"
+                              style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}
+                              onClick={() => setInicio(o.iso)}
+                            >
+                              {o.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </>
               ) : (
                 <div>
@@ -359,22 +386,31 @@ export function AgendamentoChat({
 
           {!digitando && etapa === "confirmacao" && servico && escolhido ? (
             <Fala>
-              <p className="text-base font-semibold">Posso confirmar?</p>
-              <dl className="mt-3 divide-y divide-line rounded-lg border border-line px-3">
-                {[
-                  ["Serviço", servico.nome],
-                  ["Profissional", proNome ?? "Profissional disponível"],
-                  ["Data", local(escolhido.iso)],
-                  ["Horário", escolhido.label],
-                  ["Valor", brl(servico.preco_centavos)],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between gap-4 py-2.5">
-                    <dt className="text-mute">{k}</dt>
-                    <dd className="text-right font-semibold">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <p className="text-base font-extrabold">Posso confirmar?</p>
+              <div className="chat-ingresso mt-3">
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                    {data.tenant.nome}
+                  </p>
+                  <p className="mt-1 text-lg font-extrabold">{servico.nome}</p>
+                  <p className="text-sm text-mute">{proNome ?? "Profissional disponível"}</p>
+                </div>
+                <div className="chat-ingresso-corte" aria-hidden />
+                <dl className="grid grid-cols-2 gap-3 px-4 pb-4 pt-3">
+                  {[
+                    ["Data", local(escolhido.iso)],
+                    ["Horário", escolhido.label],
+                    ["Duração", `${servico.duracao_min} min`],
+                    ["Valor", brl(servico.preco_centavos)],
+                  ].map(([k, v]) => (
+                    <div key={k}>
+                      <dt className="text-xs text-mute">{k}</dt>
+                      <dd className="font-extrabold">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
                   className="h-12"
@@ -396,7 +432,7 @@ export function AgendamentoChat({
                 >
                   Dia
                 </Button>
-                <Button className="h-12" disabled={enviando} onClick={confirmar}>
+                <Button className="col-span-2 h-12" disabled={enviando} onClick={confirmar}>
                   <Check />
                   {enviando ? "Confirmando…" : "Confirmar"}
                 </Button>
