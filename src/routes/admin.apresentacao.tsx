@@ -298,7 +298,11 @@ function ApresentacaoInterna() {
   useEffect(() => {
     if (!document.referrer) return;
     const origem = new URL(document.referrer);
-    if (origem.origin === window.location.origin && origem.pathname.startsWith("/admin") && origem.pathname !== "/admin/apresentacao") {
+    if (
+      origem.origin === window.location.origin &&
+      origem.pathname.startsWith("/admin") &&
+      origem.pathname !== "/admin/apresentacao"
+    ) {
       retornoSeguro.current = `${origem.pathname}${origem.search}`;
     }
   }, []);
