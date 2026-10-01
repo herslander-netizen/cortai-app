@@ -49,8 +49,18 @@ async function negocioDoNumeroCompartilhado(
   const variantes = variantesDoTelefone(telefone);
   const desde = new Date(Date.now() - 60 * 24 * 3600_000).toISOString();
   const [{ data: comoCliente }, { data: envios }] = await Promise.all([
-    db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null).limit(50),
-    db.from("envios_de_whatsapp").select("tenant_id").in("telefone", variantes).gte("criado_em", desde).limit(50),
+    db
+      .from("clientes")
+      .select("tenant_id")
+      .in("telefone", variantes)
+      .is("arquivado_em", null)
+      .limit(50),
+    db
+      .from("envios_de_whatsapp")
+      .select("tenant_id")
+      .in("telefone", variantes)
+      .gte("criado_em", desde)
+      .limit(50),
   ]);
   const relacionados = [
     ...new Set([...(comoCliente ?? []), ...(envios ?? [])].map((r) => r.tenant_id)),
@@ -451,7 +461,12 @@ export async function processarMensagemRecebida(input: {
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
     const doNegocio = await conexaoDeEnvio(tenantId);
     if (doNegocio) {
-      conexao = { ...conexao, id: doNegocio.id, sessao_id: doNegocio.sessao_id, tenant_id: tenantId };
+      conexao = {
+        ...conexao,
+        id: doNegocio.id,
+        sessao_id: doNegocio.sessao_id,
+        tenant_id: tenantId,
+      };
     }
   }
   const conversa = await conversaDoTelefone({

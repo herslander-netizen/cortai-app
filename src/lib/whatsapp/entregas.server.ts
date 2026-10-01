@@ -48,7 +48,8 @@ export async function aplicarEntrega(estado: EstadoDeEntrega): Promise<void> {
   const primeiroErro = estado.errors?.[0];
   const erro =
     estado.status === "failed"
-      ? (estado.errors?.map((e) => e.message ?? e.title ?? String(e.code)).join("; ") || "Falha na entrega.")
+      ? estado.errors?.map((e) => e.message ?? e.title ?? String(e.code)).join("; ") ||
+        "Falha na entrega."
       : null;
 
   const { data: msg } = await db
@@ -77,7 +78,11 @@ export async function aplicarEntrega(estado: EstadoDeEntrega): Promise<void> {
     if ((ORDEM_ENVIO[envio.status] ?? 0) >= 9) return;
     const codigo = primeiroErro?.code ?? lerErroMeta(erro ?? "").codigo;
     const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
-    await aplicarFalhaDeEnvio({ envioId: envio.id, codigo: codigo ?? null, motivo: erro ?? "Falha na entrega." });
+    await aplicarFalhaDeEnvio({
+      envioId: envio.id,
+      codigo: codigo ?? null,
+      motivo: erro ?? "Falha na entrega.",
+    });
     return;
   }
   // Horários de cada estado são preservados mesmo quando o estado já avançou.
@@ -86,7 +91,9 @@ export async function aplicarEntrega(estado: EstadoDeEntrega): Promise<void> {
     ...(novo.envio === "lida" && !envio.lido_em ? { lido_em: quando } : {}),
     ...(novo.envio === "lida" && !envio.entregue_em ? { entregue_em: quando } : {}),
   };
-  const avanca = (ORDEM_ENVIO[envio.status] ?? 0) < (ORDEM_ENVIO[novo.envio] ?? 0) && (ORDEM_ENVIO[envio.status] ?? 0) < 9;
+  const avanca =
+    (ORDEM_ENVIO[envio.status] ?? 0) < (ORDEM_ENVIO[novo.envio] ?? 0) &&
+    (ORDEM_ENVIO[envio.status] ?? 0) < 9;
   if (!avanca && Object.keys(horarios).length === 0) return;
   await db
     .from("envios_de_whatsapp")

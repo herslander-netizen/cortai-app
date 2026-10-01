@@ -56,7 +56,9 @@ export async function aplicarFalhaDeEnvio(input: {
         erro_codigo: input.codigo,
         falhou_em: acao.status === "erro" ? null : agora.toISOString(),
         proxima_tentativa_em:
-          acao.status === "erro" ? new Date(agora.getTime() + (acao.esperarMs ?? 0)).toISOString() : null,
+          acao.status === "erro"
+            ? new Date(agora.getTime() + (acao.esperarMs ?? 0)).toISOString()
+            : null,
       })
       .eq("id", envio.id);
 
@@ -88,7 +90,10 @@ export async function aplicarFalhaDeEnvio(input: {
     }
     return acao;
   } catch (e) {
-    console.error("[whatsapp] falha ao registrar erro de envio:", e instanceof Error ? e.message : e);
+    console.error(
+      "[whatsapp] falha ao registrar erro de envio:",
+      e instanceof Error ? e.message : e,
+    );
     return null;
   }
 }
@@ -118,7 +123,9 @@ async function avisarNegocioDaFalha(envio: {
     : { data: null };
   const nome = cliente?.nome ?? "o cliente";
   const tipo = ROTULO_DO_TIPO[envio.tipo] ?? "aviso";
-  const texto = envio.conteudo?.trim() || `Olá, ${nome.split(/\s+/)[0]}! Passando para falar sobre o seu horário.`;
+  const texto =
+    envio.conteudo?.trim() ||
+    `Olá, ${nome.split(/\s+/)[0]}! Passando para falar sobre o seu horário.`;
   await db.from("notificacoes").insert({
     tenant_id: envio.tenant_id,
     tipo: "whatsapp_falhou",

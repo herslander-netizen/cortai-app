@@ -60,7 +60,12 @@ export async function avisarEquipeDaConfirmacao(agendamentoId: string): Promise<
     const cliente = rel.clientes?.nome ?? "Cliente";
     const servico = rel.servicos?.nome ?? null;
     const profissional = rel.profissionais?.nome ?? null;
-    const resumo = [cliente, servico, profissional ? `com ${profissional}` : null, dataHoraBr(ag.inicio, fuso)]
+    const resumo = [
+      cliente,
+      servico,
+      profissional ? `com ${profissional}` : null,
+      dataHoraBr(ag.inicio, fuso),
+    ]
       .filter(Boolean)
       .join(" · ");
 

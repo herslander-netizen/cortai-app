@@ -494,9 +494,13 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
   // A Meta já disse que este número não recebe WhatsApp: não repete.
-  if (cliente?.sem_whatsapp_em) return { enviado: false, motivo: "Telefone do cliente sem WhatsApp." };
+  if (cliente?.sem_whatsapp_em)
+    return { enviado: false, motivo: "Telefone do cliente sem WhatsApp." };
   if (tipo === "retorno" && cliente?.marketing_suprimido_em) {
-    return { enviado: false, motivo: "Cliente pediu para não receber mensagens de relacionamento." };
+    return {
+      enviado: false,
+      motivo: "Cliente pediu para não receber mensagens de relacionamento.",
+    };
   }
   if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
     const { lembretePerdeuOMomento } = await import("./erros-meta");
@@ -546,7 +550,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   if (
     existente &&
     (existente as { proxima_tentativa_em?: string | null }).proxima_tentativa_em &&
-    new Date((existente as { proxima_tentativa_em: string }).proxima_tentativa_em).getTime() > Date.now()
+    new Date((existente as { proxima_tentativa_em: string }).proxima_tentativa_em).getTime() >
+      Date.now()
   ) {
     return { enviado: false, motivo: "Aguardando o momento da nova tentativa." };
   }
@@ -717,7 +722,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     });
     externoId = r.externoId;
   } catch (e) {
-    return marcarFalhaDoEnvio(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.", texto);
+    return marcarFalhaDoEnvio(
+      e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.",
+      texto,
+    );
   }
 
   // Notificação que espera resposta: guarda ações e prazo, e a conversa passa

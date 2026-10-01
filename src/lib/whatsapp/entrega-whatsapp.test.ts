@@ -22,7 +22,10 @@ describe("roteamento do número oficial", () => {
   });
   it("várias compartilhadas com o mesmo id", () => {
     const r = rotearConexaoMeta(
-      [c("a", { meta_phone_number_id: ID, compartilhada: true }), c("b", { meta_phone_number_id: ID, compartilhada: true })],
+      [
+        c("a", { meta_phone_number_id: ID, compartilhada: true }),
+        c("b", { meta_phone_number_id: ID, compartilhada: true }),
+      ],
       ID,
     );
     expect(r).toMatchObject({ tipo: "ok", compartilhada: true });
@@ -32,13 +35,28 @@ describe("roteamento do número oficial", () => {
     expect(r).toMatchObject({ tipo: "ok", compartilhada: true, aprenderIds: ["a", "b"] });
   });
   it("payload real do webhook (caso das 18:53) chega a um negócio", () => {
-    const payload = { entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: ID, display_phone_number: "557998181983" } } }] }] };
+    const payload = {
+      entry: [
+        {
+          changes: [
+            {
+              field: "messages",
+              value: { metadata: { phone_number_id: ID, display_phone_number: "557998181983" } },
+            },
+          ],
+        },
+      ],
+    };
     const meta = payload.entry[0]!.changes[0]!.value.metadata;
     const r = rotearConexaoMeta([c("a"), c("b")], meta.phone_number_id, meta.display_phone_number);
     expect(r.tipo).toBe("ok");
   });
   it("número desconhecido", () => {
-    const r = rotearConexaoMeta([c("a", { meta_phone_number_id: "999", numero: "5511900000000" })], ID, "5521988887777");
+    const r = rotearConexaoMeta(
+      [c("a", { meta_phone_number_id: "999", numero: "5511900000000" })],
+      ID,
+      "5521988887777",
+    );
     expect(r.tipo).toBe("erro");
   });
 });
@@ -66,10 +84,15 @@ describe("mapa de erros da Meta", () => {
     expect(acaoDoErroMeta(null, 503)).toMatchObject({ status: "erro", maxTentativas: 3 });
   });
   it("lê o código do erro do envio", () => {
-    expect(lerErroMeta('WhatsApp send failed (400): {"error":{"code":131026}}')).toEqual({ codigo: 131026, httpStatus: 400 });
+    expect(lerErroMeta('WhatsApp send failed (400): {"error":{"code":131026}}')).toEqual({
+      codigo: 131026,
+      httpStatus: 400,
+    });
   });
   it("link do wa.me pronto", () => {
-    expect(linkWaMe("+55 79 99999-0000", "Olá, Ana")).toBe("https://wa.me/5579999990000?text=Ol%C3%A1%2C%20Ana");
+    expect(linkWaMe("+55 79 99999-0000", "Olá, Ana")).toBe(
+      "https://wa.me/5579999990000?text=Ol%C3%A1%2C%20Ana",
+    );
   });
   it("lembrete atrasado mais de 2h não sai", () => {
     const inicio = "2026-10-02T15:00:00Z";

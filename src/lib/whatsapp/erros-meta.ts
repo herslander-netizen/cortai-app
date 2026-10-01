@@ -18,7 +18,10 @@ export type AcaoDoErro = {
 
 const MIN = 60_000;
 
-export function acaoDoErroMeta(codigo: number | null | undefined, httpStatus?: number | null): AcaoDoErro {
+export function acaoDoErroMeta(
+  codigo: number | null | undefined,
+  httpStatus?: number | null,
+): AcaoDoErro {
   switch (codigo) {
     case 131047:
       return { status: "sem_modelo", avisarNegocio: true };
@@ -47,8 +50,12 @@ export function acaoDoErroMeta(codigo: number | null | undefined, httpStatus?: n
 }
 
 /** Lê código e status HTTP de uma mensagem de erro do envio ("... (400): {...}"). */
-export function lerErroMeta(mensagem: string): { codigo: number | null; httpStatus: number | null } {
-  const codigo = mensagem.match(/"code"\s*:\s*(\d{3,6})/)?.[1] ?? mensagem.match(/\b(13\d{4})\b/)?.[1];
+export function lerErroMeta(mensagem: string): {
+  codigo: number | null;
+  httpStatus: number | null;
+} {
+  const codigo =
+    mensagem.match(/"code"\s*:\s*(\d{3,6})/)?.[1] ?? mensagem.match(/\b(13\d{4})\b/)?.[1];
   const http = mensagem.match(/\((\d{3})\)/)?.[1];
   return { codigo: codigo ? Number(codigo) : null, httpStatus: http ? Number(http) : null };
 }
@@ -59,7 +66,11 @@ export function linkWaMe(telefone: string, texto: string): string {
 }
 
 /** Lembrete que perdeu o momento (mais de 2h além do previsto) não sai. */
-export function lembretePerdeuOMomento(inicioIso: string, horasAntes: number, agora = new Date()): boolean {
+export function lembretePerdeuOMomento(
+  inicioIso: string,
+  horasAntes: number,
+  agora = new Date(),
+): boolean {
   const previsto = new Date(inicioIso).getTime() - horasAntes * 3600_000;
   return agora.getTime() - previsto > 2 * 3600_000;
 }

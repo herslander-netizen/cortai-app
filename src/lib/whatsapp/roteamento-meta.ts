@@ -35,7 +35,9 @@ function resultado(grupo: ConexaoMeta[], phoneNumberId: string | null | undefine
     tipo: "ok",
     conexao,
     compartilhada: grupo.length > 1 || grupo.some((c) => c.compartilhada === true),
-    aprenderIds: phoneNumberId ? grupo.filter((c) => c.meta_phone_number_id !== phoneNumberId).map((c) => c.id) : [],
+    aprenderIds: phoneNumberId
+      ? grupo.filter((c) => c.meta_phone_number_id !== phoneNumberId).map((c) => c.id)
+      : [],
   };
 }
 
@@ -44,7 +46,8 @@ export function rotearConexaoMeta(
   phoneNumberId: string | null | undefined,
   numeroExibido?: string | null,
 ): Roteamento {
-  if (conexoes.length === 0) return { tipo: "erro", motivo: "Nenhum negócio com a conta oficial de WhatsApp ativada." };
+  if (conexoes.length === 0)
+    return { tipo: "erro", motivo: "Nenhum negócio com a conta oficial de WhatsApp ativada." };
 
   if (phoneNumberId) {
     const porId = conexoes.filter((c) => c.meta_phone_number_id === phoneNumberId);
@@ -60,7 +63,10 @@ export function rotearConexaoMeta(
     // Instalação nova: nenhuma conexão tem id gravado ainda.
     const semId = conexoes.filter((c) => !c.meta_phone_number_id);
     if (semId.length === conexoes.length) return resultado(semId, phoneNumberId);
-    return { tipo: "erro", motivo: `Número oficial ${phoneNumberId} não corresponde a nenhum negócio conectado.` };
+    return {
+      tipo: "erro",
+      motivo: `Número oficial ${phoneNumberId} não corresponde a nenhum negócio conectado.`,
+    };
   }
   return resultado(conexoes, null);
 }

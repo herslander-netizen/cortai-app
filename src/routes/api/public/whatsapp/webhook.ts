@@ -101,7 +101,11 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
       mensagem.interactive?.button_reply?.title ??
       null;
     const tipoBruto = toque ? "text" : (mensagem.type ?? "text");
-    const tipo = TIPOS_DE_MIDIA.has(tipoBruto) ? tipoBruto : tipoBruto === "text" ? "text" : "unknown";
+    const tipo = TIPOS_DE_MIDIA.has(tipoBruto)
+      ? tipoBruto
+      : tipoBruto === "text"
+        ? "text"
+        : "unknown";
     const contato = valor.contacts?.find((c) => c.wa_id === telefone) ?? valor.contacts?.[0];
     const conteudo =
       toque ??
@@ -210,11 +214,14 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
 
         if (assinaturaMeta) {
           // Chamada direta da Meta: X-Hub-Signature-256 = HMAC-SHA256(corpo cru, App Secret).
-          if (!appSecret) return guard.rejeitar(request, "whatsapp/meta", "META_APP_SECRET ausente");
+          if (!appSecret)
+            return guard.rejeitar(request, "whatsapp/meta", "META_APP_SECRET ausente");
           const corpo = await request.text();
-          if (corpo.length > 4 * 1024 * 1024) return guard.rejeitar(request, "whatsapp/meta", "corpo grande", 413);
+          if (corpo.length > 4 * 1024 * 1024)
+            return guard.rejeitar(request, "whatsapp/meta", "corpo grande", 413);
           const { createHmac, timingSafeEqual } = await import("node:crypto");
-          const esperado = "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
+          const esperado =
+            "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
           const a = Buffer.from(assinaturaMeta, "utf8");
           const b = Buffer.from(esperado, "utf8");
           if (a.length !== b.length || !timingSafeEqual(a, b)) {
@@ -272,7 +279,8 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
             .insert({
               delivery_id: entregaId,
               event: evento,
-              payload: verificado.payload as unknown as import("@/integrations/supabase/types").Json,
+              payload:
+                verificado.payload as unknown as import("@/integrations/supabase/types").Json,
             })
             .select("id")
             .single();

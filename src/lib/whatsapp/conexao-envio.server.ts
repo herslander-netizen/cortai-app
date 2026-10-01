@@ -22,7 +22,11 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
     .eq("tenant_id", tenantId)
     .maybeSingle();
   if (propria && propria.status === "conectado") {
-    return { id: propria.id, sessao_id: propria.sessao_id, compartilhada: propria.compartilhada === true };
+    return {
+      id: propria.id,
+      sessao_id: propria.sessao_id,
+      compartilhada: propria.compartilhada === true,
+    };
   }
 
   const { data: oficial } = await db
@@ -60,7 +64,8 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
       .select("id, sessao_id, status")
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (relida?.status === "conectado") return { id: relida.id, sessao_id: relida.sessao_id, compartilhada: true };
+    if (relida?.status === "conectado")
+      return { id: relida.id, sessao_id: relida.sessao_id, compartilhada: true };
     return { id: oficial.id, sessao_id: oficial.sessao_id, compartilhada: true };
   }
   return { id: criada.id, sessao_id: criada.sessao_id, compartilhada: true };
