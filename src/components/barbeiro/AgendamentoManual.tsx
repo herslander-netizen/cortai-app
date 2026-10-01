@@ -35,7 +35,7 @@ export function AgendamentoManual({
   dia: string;
   horaInicial?: string;
   profissionalInicial?: string | null;
-  onCriado?: () => void;
+  onCriado?: (agendamentoId: string) => void;
   gatilho?: "primario" | "discreto";
   rotulo?: string;
   autoAbrir?: boolean;
@@ -60,9 +60,9 @@ export function AgendamentoManual({
           profissionalInicial={profissionalInicial ?? null}
           iniciarNovoCliente={iniciarNovoCliente}
           onFechar={() => setAberto(false)}
-          onCriado={() => {
+          onCriado={(agendamentoId) => {
             setAberto(false);
-            onCriado?.();
+            onCriado?.(agendamentoId);
           }}
         />
       ) : null}
@@ -82,7 +82,7 @@ function Formulario({
   horaInicial?: string;
   profissionalInicial?: string | null;
   onFechar: () => void;
-  onCriado: () => void;
+  onCriado: (agendamentoId: string) => void;
   iniciarNovoCliente?: boolean;
 }) {
   const criar = useServerFn(criarAgendamentoManual);
@@ -177,7 +177,9 @@ function Formulario({
       }
       // Visto animado por um instante antes de fechar.
       setConfirmado(true);
-      setTimeout(() => onCriado(), 700);
+      const agendamentoId = r.agendamentoId;
+      if (!agendamentoId) throw new Error("O agendamento foi salvo sem identificação.");
+      setTimeout(() => onCriado(agendamentoId), 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível agendar agora.");
       setSalvando(false);

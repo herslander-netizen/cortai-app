@@ -1,6 +1,9 @@
 import {
   ArrowLeft,
+  CalendarClock,
+  CalendarPlus,
   Check,
+  HandCoins,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -9,6 +12,7 @@ import {
   Plus,
   Scissors,
   UserRoundCheck,
+  XCircle,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -43,6 +47,9 @@ type Props = {
   onChamarFila?: () => void;
   onAcoes: () => void;
   onNovoAtendimento?: () => void;
+  onNovoAgendamento: () => void;
+  onReceber: (item: AgendaItem) => void;
+  pagamentosPendentes: Set<string>;
   onTentarNovamente: () => void;
 };
 
@@ -76,7 +83,7 @@ function minutosAte(iso: string, agora: number) {
   return Math.ceil((new Date(iso).getTime() - agora) / 60_000);
 }
 
-const TERMINAIS = new Set(["cancelado", "remarcado", "nao_compareceu", "finalizado"]);
+const FORA_DA_OPERACAO = new Set(["cancelado", "remarcado", "nao_compareceu"]);
 
 type EstadoCockpit =
   | "sem_atendimento"
@@ -111,18 +118,22 @@ export function AgendaFocoMobile(props: Props) {
   const agora = useAgora();
   const resumo = resumoDoDia(props.itens, agora);
   const operacionais = useMemo(
-    () => props.itens.filter((item) => !TERMINAIS.has(item.status)),
+    () => props.itens.filter((item) => !FORA_DA_OPERACAO.has(item.status)),
     [props.itens],
   );
-  const ativo = operacionais.find((item) => item.status === "na_cadeira");
-  const chegou = operacionais.find((item) => item.status === "chegou");
-  const atrasado = operacionais.find(
+  const emAberto = operacionais.filter((item) => item.status !== "finalizado");
+  const ativo = emAberto.find((item) => item.status === "na_cadeira");
+  const chegou = emAberto.find((item) => item.status === "chegou");
+  const atrasado = emAberto.find(
     (item) => item.status === "agendado" && new Date(item.inicio).getTime() < agora,
   );
-  const futuro = operacionais.find((item) => new Date(item.fim).getTime() >= agora);
-  const principal = ativo ?? chegou ?? atrasado ?? futuro;
+  const futuro = emAberto.find((item) => new Date(item.fim).getTime() >= agora);
+  const ultimoFinalizado = [...operacionais]
+    .filter((item) => item.status === "finalizado")
+    .sort((a, b) => new Date(b.fim).getTime() - new Date(a.fim).getTime())[0];
+  const principal = ativo ?? chegou ?? atrasado ?? futuro ?? ultimoFinalizado;
   const estado = estadoDoCockpit(principal, agora);
-  const proximos = operacionais.filter((item) => item.id !== principal?.id).slice(0, 3);
+  const proximos = emAberto.filter((item) => item.id !== principal?.id).slice(0, 3);
   const decorrido = ativo
     ? Math.max(
         0,
@@ -131,6 +142,12 @@ export function AgendaFocoMobile(props: Props) {
     : 0;
   const ate = principal ? minutosAte(principal.inicio, agora) : null;
   const desabilitado = !props.online || props.ocupado;
+  const proximo = proximos[0];
+  const fimPrincipal = principal ? new Date(principal.fim).getTime() : agora;
+  const inicioProximo = proximo ? new Date(proximo.inicio).getTime() : null;
+  const livreMin = inicioProximo
+    ? Math.floor((inicioProximo - Math.max(agora, fimPrincipal)) / 60_000)
+    : 0;
 
   const contexto = principal
     ? estado === "atendimento"
@@ -147,7 +164,7 @@ export function AgendaFocoMobile(props: Props) {
       <header className="modo-foco-topo">
         <Button variant="ghost" className="modo-foco-sair" onClick={props.onSair}>
           <ArrowLeft />
-          Sair do Modo Foco
+          Ver agenda completa
         </Button>
         <span className={props.online ? "modo-foco-ao-vivo" : "text-mute"}>
           {props.online ? "Ao vivo" : "Somente leitura"}
@@ -207,6 +224,18 @@ export function AgendaFocoMobile(props: Props) {
           {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
           {resumo.faturado ? ` · ${brl(resumo.faturado)}` : ""}
         </p>
+        {props.fila ? (
+          <div className="modo-foco-alertas" role="status">
+            <span className="text-sm font-bold text-paper">
+              {props.fila} {props.fila === 1 ? "cliente aguardando" : "clientes aguardando"}
+            </span>
+            {props.onChamarFila ? (
+              <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
+                <ListOrdered /> Chamar fila
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
 
         {props.carregando ? (
           <div className="modo-foco-vazio" aria-label="Carregando agenda">
@@ -241,21 +270,21 @@ export function AgendaFocoMobile(props: Props) {
                     <div className="min-w-0">
                       <h1>{principal.cliente}</h1>
                       <p>
-                        {principal.servico} · {principal.duracaoMin} min
+                        {principal.servico} · {principal.profissional} · {principal.duracaoMin} min
                       </p>
                       {principal.encaixe ? <span>Encaixe</span> : null}
                     </div>
                   </div>
 
                   {principal.ficha ? (
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
                       className="modo-foco-observacao"
                       onClick={() => props.onMaisOpcoes(principal)}
                     >
                       <strong>Observação</strong>
                       <span>{principal.ficha}</span>
-                    </button>
+                    </Button>
                   ) : null}
 
                   {estado === "atendimento" ? (
@@ -279,7 +308,7 @@ export function AgendaFocoMobile(props: Props) {
                         disabled={desabilitado}
                         onClick={() => props.onChegou(principal)}
                       >
-                        <UserRoundCheck /> Cliente chegou
+                        <UserRoundCheck /> CLIENTE CHEGOU
                       </Button>
                     ) : null}
                     {principal.status === "chegou" ? (
@@ -288,7 +317,7 @@ export function AgendaFocoMobile(props: Props) {
                         disabled={desabilitado}
                         onClick={() => props.onComecar(principal)}
                       >
-                        <Scissors /> Iniciar atendimento
+                        <Scissors /> COMEÇAR ATENDIMENTO
                       </Button>
                     ) : null}
                     {principal.status === "na_cadeira" ? (
@@ -297,7 +326,23 @@ export function AgendaFocoMobile(props: Props) {
                         disabled={desabilitado}
                         onClick={() => props.onTerminar(principal)}
                       >
-                        <Check /> Finalizar atendimento
+                        <Check /> FINALIZAR
+                      </Button>
+                    ) : null}
+                    {principal.status === "finalizado" &&
+                    props.pagamentosPendentes.has(principal.id) ? (
+                      <Button
+                        size="lg"
+                        disabled={desabilitado}
+                        onClick={() => props.onReceber(principal)}
+                      >
+                        <HandCoins /> RECEBER
+                      </Button>
+                    ) : null}
+                    {principal.status === "finalizado" &&
+                    !props.pagamentosPendentes.has(principal.id) ? (
+                      <Button size="lg" onClick={props.onNovoAgendamento}>
+                        <CalendarPlus /> NOVO AGENDAMENTO
                       </Button>
                     ) : null}
                   </div>
@@ -311,6 +356,21 @@ export function AgendaFocoMobile(props: Props) {
                         Abrir comanda
                       </Button>
                     ) : null}
+                    {estado === "atrasado" ? (
+                      <>
+                        <Button variant="outline" onClick={() => props.onMaisOpcoes(principal)}>
+                          <CalendarClock /> Remarcar
+                        </Button>
+                        <Button variant="ghost" onClick={() => props.onMaisOpcoes(principal)}>
+                          <XCircle /> Cancelar
+                        </Button>
+                      </>
+                    ) : null}
+                    {principal.status === "finalizado" ? (
+                      <Button variant="outline" onClick={props.onSair}>
+                        Voltar para a agenda
+                      </Button>
+                    ) : null}
                   </div>
                 </>
               ) : (
@@ -320,7 +380,7 @@ export function AgendaFocoMobile(props: Props) {
                   <span>{dataCurta(props.dia)}</span>
                   {props.onNovoAtendimento ? (
                     <Button size="lg" onClick={props.onNovoAtendimento}>
-                      <Plus /> Adicionar atendimento
+                      <Plus /> ENCAIXAR CLIENTE
                     </Button>
                   ) : null}
                 </div>
@@ -341,20 +401,38 @@ export function AgendaFocoMobile(props: Props) {
                 <ol>
                   {proximos.map((item) => (
                     <li key={item.id}>
-                      <button type="button" onClick={() => props.onMaisOpcoes(item)}>
+                      <Button variant="ghost" onClick={() => props.onMaisOpcoes(item)}>
                         <time>{hora(item.inicio, props.fuso)}</time>
                         <span>
                           <strong>{item.cliente}</strong>
                           <small>{item.servico}</small>
                         </span>
                         <StatusBadge status={item.status} />
-                      </button>
+                      </Button>
                     </li>
                   ))}
                 </ol>
               ) : (
                 <p className="modo-foco-sequencia-vazia">Nenhum outro atendimento neste dia.</p>
               )}
+              {livreMin >= 15 && props.onNovoAtendimento ? (
+                <div className="modo-foco-tempo-livre">
+                  <span className="modo-foco-tempo-livre-textura" aria-hidden />
+                  <div>
+                    <strong>{livreMin} min livres</strong>
+                    <small>
+                      até {proximo ? hora(proximo.inicio, props.fuso) : "o próximo horário"}
+                    </small>
+                  </div>
+                  <Button
+                    variant="outline"
+                    disabled={desabilitado}
+                    onClick={props.onNovoAtendimento}
+                  >
+                    <Plus /> ENCAIXAR CLIENTE
+                  </Button>
+                </div>
+              ) : null}
               {props.fila && props.onChamarFila ? (
                 <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
                   <ListOrdered /> Chamar fila ({props.fila})
