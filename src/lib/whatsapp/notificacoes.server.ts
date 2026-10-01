@@ -752,6 +752,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       texto,
       porIa: false,
       modelo,
+      interativo,
       iniciadaPelaBarbearia: true,
     });
     externoId = r.externoId;
@@ -764,12 +765,9 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   // Notificação que espera resposta: guarda ações e prazo, e a conversa passa
   // a interpretar a resposta por esse estado até o prazo vencer.
-  const aguarda = Boolean(opcoes?.length);
-  const validoAte = aguarda
-    ? tipo === "retorno"
-      ? new Date(Date.now() + 7 * 24 * 3600_000).toISOString()
-      : new Date(new Date(ag.inicio).getTime() + 15 * 60_000).toISOString()
-    : null;
+  const aguarda = acoesDoEnvio.length > 0;
+  const { validadeDosBotoes } = await import("./modelos");
+  const validoAte = aguarda ? validadeDosBotoes(tipo, ag.inicio) : null;
   await db
     .from("envios_de_whatsapp")
     .update({
@@ -779,7 +777,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       enviado_em: new Date().toISOString(),
       canal: "whatsapp",
       aguarda_resposta: aguarda,
-      acoes: (opcoes ?? []).map((o) => o.acao),
+      acoes: acoesDoEnvio,
       valido_ate: validoAte,
       mensagem_externa_id: externoId,
     } as never)
@@ -796,7 +794,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
           notificacao: {
             id: registroId,
             agendamentoId: ag.id,
-            acoes: (opcoes ?? []).map((o) => o.acao),
+            acoes: acoesDoEnvio,
             validoAte,
           },
         } as never,
