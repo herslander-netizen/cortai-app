@@ -2,30 +2,14 @@ import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import {
-  ArrowLeft,
-  Bot,
-  CalendarPlus,
-  Loader2,
-  MessageCircle,
-  Send,
-  ShieldCheck,
-  Smartphone,
-  X,
-} from "lucide-react";
+import { CalendarPlus, Loader2, MessageCircle, ShieldCheck, Smartphone, X } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
-import {
-  AUTOMACOES,
-  DIAS_DA_SEMANA,
-  TONS,
-  type ChaveDeAutomacao,
-  type ConfiguracaoDoAtendimento,
-} from "@/lib/whatsapp/contrato";
+import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
 import { getAvaliacoes } from "@/lib/crescimento.functions";
