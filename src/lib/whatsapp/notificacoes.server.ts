@@ -662,50 +662,75 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
   }
 
-  const texto = montarMensagem(tipo, {
-    cliente: cliente?.nome ?? "cliente",
-    barbearia: tenant?.nome ?? "Negócio",
-    servico: relacoes.servicos?.nome ?? null,
-    profissional: relacoes.profissionais?.nome ?? null,
-    inicio: ag.inicio,
-    valorCentavos: ag.valor_centavos ?? 0,
-    endereco: tenant?.endereco ?? null,
-    fuso: await fusoDoTenant(ag.tenant_id),
-    segmento: tenant?.segmento ?? null,
-    textoRetorno,
-    linkAvaliacao,
-    linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
-    linkPagamento:
-      tipo === "confirmacao_agendamento" &&
-      config.pagamentoAntecipado &&
-      config.linkPagamento?.startsWith("http")
-        ? config.linkPagamento
-        : null,
-  });
-
-  // Modelos da Meta são cobrados: só com o interruptor da barbearia ligado (padrão desligado).
-  const modelosPagos = await modelosPagosLigados(ag.tenant_id);
-  const nomeModelo = modelosPagos ? modeloDoTipo(tipo) : null;
-  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  const { gatewayDeWhatsapp } = await import("./gateway.server");
+  const oficial = gatewayDeWhatsapp.capacidades().botoes;
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
-  const modelo =
-    nomeModelo && opcoes
-      ? {
-          nome: nomeModelo,
-          idioma: "pt_BR",
-          parametros:
-            tipo === "retorno"
-              ? [primeiroNome(cliente?.nome ?? "cliente"), tenant?.nome ?? "Negócio"]
-              : [
-                  primeiroNome(cliente?.nome ?? "cliente"),
-                  tenant?.nome ?? "Negócio",
-                  dataBr(ag.inicio, fusoModelo),
-                  horaBr(ag.inicio, fusoModelo),
-                ],
-          // O ID da notificação vai no payload do botão: a resposta nunca é adivinhada.
-          botoes: opcoes.map((o) => `${o.acao}:${registroId}`),
-        }
+  const texto = montarMensagem(
+    tipo,
+    {
+      cliente: cliente?.nome ?? "cliente",
+      barbearia: tenant?.nome ?? "Negócio",
+      servico: relacoes.servicos?.nome ?? null,
+      profissional: relacoes.profissionais?.nome ?? null,
+      inicio: ag.inicio,
+      valorCentavos: ag.valor_centavos ?? 0,
+      endereco: tenant?.endereco ?? null,
+      fuso: fusoModelo,
+      segmento: tenant?.segmento ?? null,
+      textoRetorno,
+      linkAvaliacao,
+      linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
+      linkPagamento:
+        tipo === "confirmacao_agendamento" &&
+        config.pagamentoAntecipado &&
+        config.linkPagamento?.startsWith("http")
+          ? config.linkPagamento
+          : null,
+    },
+    // Opções numeradas só quando o provedor não tem botões.
+    !oficial,
+  );
+
+  // Utilidade sai sempre pelo modelo aprovado do catálogo; marketing só com o interruptor do negócio.
+  const { TIPOS_DE_MARKETING, parametrosNaOrdem, payloadDoBotao, botoesInterativos } =
+    await import("./modelos");
+  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  const marketingLiberado =
+    !TIPOS_DE_MARKETING.has(tipo) || (await modelosPagosLigados(ag.tenant_id));
+  const { modeloAprovadoDoTipo } = await import("./modelos.server");
+  const doCatalogo = oficial && marketingLiberado ? await modeloAprovadoDoTipo(tipo) : null;
+  let modelo: import("./gateway.server").ModeloComBotoes | null = null;
+  if (doCatalogo && registroId) {
+    try {
+      modelo = {
+        nome: doCatalogo.nome,
+        idioma: doCatalogo.idioma,
+        parametros: parametrosNaOrdem(doCatalogo.variaveis, {
+          cliente: primeiroNome(cliente?.nome ?? "cliente"),
+          negocio: tenant?.nome ?? null,
+          data: dataBr(ag.inicio, fusoModelo),
+          hora: horaBr(ag.inicio, fusoModelo),
+          servico: relacoes.servicos?.nome ?? null,
+          profissional: relacoes.profissionais?.nome ?? null,
+          valor: ag.valor_centavos ? reais(ag.valor_centavos) : null,
+        }),
+        // O ID do envio vai no payload de cada botão: a resposta nunca é adivinhada.
+        botoes: doCatalogo.botoes.map((b) => payloadDoBotao(b.acao, registroId!)),
+      };
+    } catch {
+      modelo = null; // dado obrigatório ausente: sem modelo → sem_modelo
+    }
+  }
+  const interativo =
+    oficial && opcoes?.length && registroId
+      ? botoesInterativos(
+          opcoes.map((o) => ({ texto: o.rotulo, acao: o.acao })),
+          registroId,
+        )
       : null;
+  const acoesDoEnvio = [
+    ...new Set([...(opcoes ?? []).map((o) => o.acao), ...(doCatalogo?.botoes ?? []).map((b) => b.acao)]),
+  ];
 
   if (!conexao) return marcarFalhaDoEnvio(SEM_WHATSAPP_DISPONIVEL, texto);
 
