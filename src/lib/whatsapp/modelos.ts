@@ -134,3 +134,21 @@ export const TEXTO_BOTAO_VENCIDO = "Esse horário já passou. Quer marcar outro?
 export function reclassificouParaMarketing(anterior: string | null, nova: string | null) {
   return (anterior ?? "").toUpperCase() === "UTILITY" && (nova ?? "").toUpperCase() === "MARKETING";
 }
+
+/** "Pronto, está marcado: hoje às 15:10 com Lucas." */
+export function textoDaVagaMarcada(
+  inicioIso: string,
+  fuso: string,
+  profissional: string | null,
+  agora = new Date(),
+) {
+  const dia = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const inicio = new Date(inicioIso);
+  const hora = new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" }).format(inicio);
+  const quando =
+    dia(inicio) === dia(agora)
+      ? "hoje"
+      : new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit" }).format(inicio);
+  return `Pronto, está marcado: ${quando} às ${hora}${profissional ? ` com ${profissional}` : ""}.`;
+}

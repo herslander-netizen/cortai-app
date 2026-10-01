@@ -87,22 +87,32 @@ export async function tratarRespostaDeLembrete(input: {
   let envio: Envio | null = null;
   let acao: string | null = null;
 
-  // 1) Botão do canal oficial: "ACAO:<id da notificação>".
-  const porPayload = bruto2.match(/^(CORTAI_[A-Z_]+):([0-9A-F-]{36})$/);
-  if (porPayload) {
+  // 1) Botão do canal oficial (modelo ou interativo): "ACAO:<id do envio>".
+  const { lerToque, estadoDoToque, TEXTO_BOTAO_VENCIDO } = await import("./modelos");
+  const toque = lerToque(bruto);
+  if (toque) {
     const { data } = await db
       .from("envios_de_whatsapp")
-      .select(campos)
-      .eq("id", porPayload[2]!.toLowerCase())
+      .select(`${campos}, valido_ate, respondido_em, oferta_id`)
+      .eq("id", toque.envioId)
       .eq("tenant_id", input.tenantId)
       .maybeSingle();
-    if (
-      data &&
-      telefoneCorresponde(data.telefone, input.telefone) &&
-      data.acoes?.includes(porPayload[1]!)
-    ) {
-      envio = data as Envio;
-      acao = porPayload[1]!;
+    const comEstado = data as
+      | (Envio & { valido_ate: string | null; respondido_em: string | null; oferta_id: string | null })
+      | null;
+    if (comEstado && telefoneCorresponde(comEstado.telefone, input.telefone)) {
+      const estado = estadoDoToque(comEstado, toque.acao);
+      if (estado === "vencido") {
+        return { texto: `${TEXTO_BOTAO_VENCIDO} ${await linkDoCortai(input.tenantId)}` };
+      }
+      if (estado === "repetido") return { texto: "Já registramos sua resposta. Obrigado!" };
+      if (estado === "ok") {
+        if (toque.acao === "CORTAI_QUERO" || toque.acao === "CORTAI_NAO_POSSO") {
+          return responderOferta(comEstado.id, comEstado.oferta_id, toque.acao, input.tenantId);
+        }
+        envio = comEstado;
+        acao = toque.acao;
+      }
     }
   }
 
@@ -380,6 +390,57 @@ async function linkDoCortai(tenantId: string) {
   const db = await admin();
   const { data } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   return data?.slug ? `https://cortai.dev/agendar/${data.slug}` : "https://cortai.dev";
+}
+
+/** Quero / Não posso da vaga da lista de espera. Reserva atômica: toque duplo não repete. */
+async function responderOferta(
+  envioId: string,
+  ofertaId: string | null,
+  acao: string,
+  tenantId: string,
+): Promise<RespostaDeLembrete> {
+  const db = await admin();
+  const agoraIso = new Date().toISOString();
+  const { data: reservado } = await db
+    .from("envios_de_whatsapp")
+    .update({
+      respondido_em: agoraIso,
+      resposta: acao === "CORTAI_QUERO" ? "quero" : "nao_posso",
+    } as never)
+    .eq("id", envioId)
+    .is("respondido_em", null)
+    .select("id")
+    .maybeSingle();
+  if (!reservado) return { texto: "Já registramos sua resposta. Obrigado!" };
+  const { data: oferta } = ofertaId
+    ? await db
+        .from("ofertas_da_fila")
+        .select("token, inicio, profissionais(nome)")
+        .eq("id", ofertaId)
+        .eq("tenant_id", tenantId)
+        .maybeSingle()
+    : { data: null };
+  if (!oferta) return { texto: "Essa vaga não está mais disponível." };
+  const { aceitarOferta, recusarOferta } = await import("./fila-ofertas.server");
+  if (acao === "CORTAI_NAO_POSSO") {
+    await recusarOferta(oferta.token);
+    return { texto: "Tudo bem, você continua na lista." };
+  }
+  const r = await aceitarOferta(oferta.token);
+  if (!r.ok) {
+    return {
+      texto: `Essa vaga não está mais disponível. Quer marcar outro horário? ${await linkDoCortai(tenantId)}`,
+    };
+  }
+  const fuso = await fusoDoTenant(tenantId);
+  const { textoDaVagaMarcada } = await import("./modelos");
+  return {
+    texto: textoDaVagaMarcada(
+      oferta.inicio,
+      fuso,
+      (oferta.profissionais as { nome?: string } | null)?.nome ?? null,
+    ),
+  };
 }
 
 /**
