@@ -11,6 +11,7 @@ import { FUSOS_DA_BARBEARIA, FUSO_BARBEARIA } from "@/lib/horarios";
 import { getConfiguracaoInicial, salvarHorarios } from "@/lib/onboarding.functions";
 import { Button } from "@/components/ui/button";
 import { EscalaDaEquipe } from "@/components/barbeiro/EscalaDaEquipe";
+import { InterruptorFilaDeChegada } from "@/components/barbeiro/InterruptorFilaDeChegada";
 
 export const Route = createFileRoute("/barbeiro/horarios")({
   ssr: false,
@@ -71,6 +72,8 @@ function HorariosPage() {
           Usado na agenda, nos horários oferecidos ao cliente e nos lembretes enviados.
         </span>
       </label>
+
+      <InterruptorFilaDeChegada />
 
       <div className="mt-6" data-guia="horarios-editor">
         <EditorDeHorarios horarios={horarios} onChange={setHorarios} segmento={data?.tenant.segmento ?? "outro"} />
