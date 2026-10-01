@@ -278,20 +278,20 @@ export async function enviarPelaBarbearia(input: {
   texto: string;
   porIa: boolean;
   autorUserId?: string | null;
-  /** Modelo com botões (API oficial). Se o canal não suportar, vai o texto. */
+  /** Modelo aprovado do catálogo: único formato aceito fora da janela de 24h. */
   modelo?: import("./gateway.server").ModeloComBotoes | null;
+  /** Botões de resposta (até 3) para a mensagem interativa dentro da janela. */
+  interativo?: { id: string; titulo: string }[] | null;
   /** Lembrete, pós-atendimento, reativação: sujeito à janela de 24h no canal oficial. */
   iniciadaPelaBarbearia?: boolean;
 }) {
   const db = await admin();
   const { gatewayDeWhatsapp } = await import("./gateway.server");
+  const { decidirFormato } = await import("./modelos");
+  const oficial = gatewayDeWhatsapp.capacidades().botoes;
 
-  // Fora da janela de 24h, o canal oficial só aceita template aprovado.
-  if (
-    input.iniciadaPelaBarbearia &&
-    gatewayDeWhatsapp.capacidades().exigeTemplateForaDaJanela &&
-    !input.modelo
-  ) {
+  let janelaAberta = true;
+  if (oficial && input.iniciadaPelaBarbearia) {
     const { data: ultima } = await db
       .from("mensagens_whatsapp")
       .select("criado_em")
@@ -301,27 +301,41 @@ export async function enviarPelaBarbearia(input: {
       .limit(1)
       .maybeSingle();
     const em = (ultima as { criado_em?: string } | null)?.criado_em;
-    if (!em || Date.now() - new Date(em).getTime() > 24 * 3600_000) {
-      throw new Error("Fora da janela de 24h: só sai por template aprovado.");
-    }
+    janelaAberta = Boolean(em && Date.now() - new Date(em).getTime() <= 24 * 3600_000);
+  }
+  const { formato } = decidirFormato({
+    oficial,
+    iniciadaPeloNegocio: Boolean(input.iniciadaPelaBarbearia),
+    janelaAberta,
+    temBotoes: Boolean(input.interativo?.length),
+    modeloAprovado: Boolean(input.modelo),
+  });
+  // Sem modelo aprovado fora da janela: nunca tenta texto livre.
+  if (formato === "sem_modelo") {
+    throw new Error("Fora da janela de 24h: sem modelo aprovado para este aviso.");
   }
 
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
-    // Modelo ainda em análise ou recusado: tenta o texto livre (a Meta só aceita dentro da janela de 24h).
-    const viaModelo = input.modelo
-      ? await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo).catch((e) => {
-          console.warn(
-            "[whatsapp] modelo recusado, tentando texto livre:",
-            e instanceof Error ? e.message : e,
-          );
-          return null;
-        })
-      : null;
-    const r =
-      viaModelo ??
-      (await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto));
+    let r: { id: string | null } | null = null;
+    if (formato === "modelo" && input.modelo) {
+      r = await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo);
+    } else if (formato === "interativo" && input.interativo?.length) {
+      try {
+        r = await gatewayDeWhatsapp.enviarInterativo(input.telefone, {
+          texto: input.texto,
+          botoes: input.interativo,
+        });
+      } catch (e) {
+        // 131047: a janela fechou entre a leitura e o envio → uma vez como modelo aprovado.
+        const msg = e instanceof Error ? e.message : "";
+        if (/131047/.test(msg) && input.modelo) {
+          r = await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo);
+        } else throw e;
+      }
+    }
+    r ??= await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";
