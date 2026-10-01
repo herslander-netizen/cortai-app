@@ -25,6 +25,7 @@ export function AgoraProximos({
   onAbrir,
   onPerfil,
   onComanda,
+  onChegou,
   onFalta,
   onLista,
 }: {
@@ -34,6 +35,7 @@ export function AgoraProximos({
   onAbrir: (id: string) => void;
   onPerfil: (clienteId: string) => void;
   onComanda: (item: AgendaItem) => void;
+  onChegou: (item: AgendaItem) => void;
   onFalta: (item: AgendaItem) => void;
   onLista: () => void;
 }) {
@@ -128,7 +130,7 @@ export function AgoraProximos({
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {agora < new Date(pendente.fim).getTime() ? (
-              <Button className="min-h-12" onClick={() => onAbrir(pendente.id)}>
+              <Button className="min-h-12" onClick={() => onChegou(pendente)}>
                 <Check /> Cliente chegou
               </Button>
             ) : (

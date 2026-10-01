@@ -85,7 +85,7 @@ describe("ListaAgenda", () => {
     ["chegou", "Chegou", "Começar"],
     ["na_cadeira", null, "Finalizar e cobrar"],
   ])("cartão %s tem badge e ação principal", (status, badge, primaria) => {
-    montar([item({ status })]);
+    montar([item({ status })], vi.fn(), vi.fn(), vi.fn(), true);
     expect(host!.querySelector(`.agenda-item-${status}`)).not.toBeNull();
     if (badge) expect(host!.querySelector(".agenda-item-badge")?.textContent).toBe(badge);
     else expect(host!.querySelector(".agenda-item-badge-na_cadeira")).toBeNull();
@@ -99,7 +99,7 @@ describe("ListaAgenda", () => {
   ] as Array<[string, AcaoCard]>)(
     "ação principal do cartão %s dispara %s sem abrir o cartão",
     (status, acao) => {
-      const { onAcao, onAbrir } = montar([item({ status })]);
+      const { onAcao, onAbrir } = montar([item({ status })], vi.fn(), vi.fn(), vi.fn(), true);
       const primaria = botao(
         { agendado: "Cliente chegou", chegou: "Começar", na_cadeira: "Finalizar e cobrar" }[
           status

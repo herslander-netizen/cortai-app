@@ -37,7 +37,7 @@ function acaoDoItem(item: AgendaItem, agora: number, ehHoje: boolean): AcaoPrinc
     return { acao: "terminar", rotulo: "Finalizar e cobrar", Icone: Check };
   if (item.status === "chegou") return { acao: "iniciar", rotulo: "Começar", Icone: Scissors };
   if (item.status !== "agendado") return null;
-  if (!ehHoje || new Date(item.inicio).getTime() - agora <= 30 * 60_000)
+  if (ehHoje && new Date(item.inicio).getTime() - agora <= 30 * 60_000)
     return {
       acao:
         estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? "terminar" : "chegou",
