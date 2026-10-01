@@ -10,7 +10,7 @@ import {
   UsersRound,
   CalendarDays,
   ContactRound,
-  ListOrdered,
+  Hourglass,
   MapPin,
 } from "lucide-react";
 
@@ -44,7 +44,7 @@ export const MODULOS_DE_NAVEGACAO = [
     to: "/barbeiro/fila",
     label: "Lista de espera",
     detail: "Clientes aguardando uma vaga futura",
-    icon: ListOrdered,
+    icon: Hourglass,
     permissao: "criar_agendamento",
     rotaDaCapacidade: "/barbeiro/fila",
   },

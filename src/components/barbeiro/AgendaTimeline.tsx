@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { estaAtrasado, intervaloDoDia } from "@/components/barbeiro/agenda/tempo";
+import { nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
 
 type HorarioFuncionamento = {
   diaSemana: number;
@@ -33,6 +34,7 @@ type AgendaTimelineProps = {
   itensEscala?: AgendaItem[];
   alinhado?: boolean;
   mostrarProfissional?: boolean;
+  discreto?: boolean;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -86,6 +88,7 @@ export function AgendaTimeline({
   itensEscala,
   alinhado,
   mostrarProfissional = false,
+  discreto = false,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -464,6 +467,7 @@ export function AgendaTimeline({
           ))}
 
           {itens.map((item) => {
+            const nome = nomeDaAgenda(item.cliente, discreto);
             const posicao = layout.posicoes.get(item.id);
             const inicio = posicao?.inicio ?? minutosNoFuso(item.inicio, fuso);
             const fim = minutosNoFuso(item.fim, fuso);
@@ -489,7 +493,7 @@ export function AgendaTimeline({
                 key={item.id}
                 type="button"
                 variant="ghost"
-                aria-label={`${horaMinuto(inicio)}, ${item.cliente}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
                 className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                 style={{
                   top: `${topo}px`,
@@ -532,7 +536,7 @@ export function AgendaTimeline({
                         ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
                         : inicio,
                     )}{" "}
-                    · {item.cliente}
+                    · {nome}
                   </strong>
                 </span>
                 <span className="flex min-w-0 items-center gap-1">

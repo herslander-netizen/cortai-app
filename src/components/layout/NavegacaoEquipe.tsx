@@ -5,7 +5,7 @@ import {
   Banknote,
   CalendarDays,
   ContactRound,
-  ListOrdered,
+  Hourglass,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -26,7 +26,7 @@ function useItens() {
     "/barbeiro": CalendarDays,
     "/barbeiro/clientes": ContactRound,
     "/barbeiro/caixa": Banknote,
-    "/barbeiro/fila": ListOrdered,
+    "/barbeiro/fila": Hourglass,
   } as const;
   return itensDaBarra(sessao?.permissoes).map((item) => ({
     ...item,

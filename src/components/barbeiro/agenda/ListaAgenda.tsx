@@ -20,6 +20,8 @@ import {
   fichaRelevante,
   hora,
   minutosDecorridos,
+  nomeDaAgenda,
+  nomeEhGenerico,
   ROTULO_ESTADO,
   tempoExcedido,
   teclaDeAtivar,
@@ -59,6 +61,7 @@ export function ListaAgenda({
   novos,
   online,
   mostrarProfissional,
+  discreto = false,
   onAbrir,
   onFalta,
   onAcao,
@@ -70,6 +73,7 @@ export function ListaAgenda({
   novos: Set<string>;
   online: boolean;
   mostrarProfissional: boolean;
+  discreto?: boolean;
   onAbrir: (id: string) => void;
   onFalta: (item: AgendaItem) => void;
   onAcao?: (item: AgendaItem, acao: AcaoCard) => void;
@@ -93,6 +97,7 @@ export function ListaAgenda({
     <div>
       <ul className="divide-y divide-line">
         {visiveis.map((item, indice) => {
+          const nome = nomeDaAgenda(item.cliente, discreto);
           const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
           const depoisDoHorario = atrasado && agora >= new Date(item.fim).getTime();
           const principal = onAcao ? acaoDoItem(item, agora, ehHoje) : null;
@@ -111,7 +116,7 @@ export function ListaAgenda({
               key={item.id}
               role="button"
               tabIndex={0}
-              aria-label={`${hora(item.inicio, fuso)}, ${item.cliente}, ${item.servico}, ${estado}`}
+              aria-label={`${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
               className={`agenda-item agenda-item-${item.status} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
               style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
               onClick={() => onAbrir(item.id)}
@@ -127,7 +132,11 @@ export function ListaAgenda({
                   ) : null}
                 </div>
                 <div className="min-w-0">
-                  <p className="agenda-nome text-sm text-paper">{item.cliente}</p>
+                  <p
+                    className={`agenda-nome text-sm ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
+                  >
+                    {nome}
+                  </p>
                   <p className="mt-0.5 truncate text-xs text-mute">
                     {item.servico}
                     {mostrarProfissional ? ` · ${item.profissional}` : ""}

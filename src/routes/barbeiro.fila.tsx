@@ -138,8 +138,8 @@ function FilaPage() {
         <Card>
           <p className="text-2xl font-bold text-paper">
             {total === 0
-              ? "Ninguém aguardando"
-              : `${total} ${total === 1 ? "cliente aguardando" : "clientes aguardando"}`}
+              ? "Ninguém na lista de espera"
+              : `${total} ${total === 1 ? "cliente na lista de espera" : "clientes na lista de espera"}`}
           </p>
           <p className="mt-2 text-xs text-mute">
             Recuperado neste mês pela lista:{" "}
@@ -150,7 +150,7 @@ function FilaPage() {
       ) : null}
 
       {data && total === 0 ? (
-        <EmptyState text="Quando a agenda lotar, seus clientes podem entrar na lista pelo link de agendamento." />
+        <EmptyState text="Quando a agenda lotar, seus clientes podem entrar na lista de espera pelo link de agendamento." />
       ) : null}
       <ul className="mt-4">
         {(data?.itens ?? []).map((f, i) => (
