@@ -1067,7 +1067,7 @@ export function AgendaOperacional() {
             fuso={fuso}
             selecionado={selecionado}
             onAbrir={abrir}
-            onPerfil={setPerfil}
+            mostrarProfissional={!profFiltro && profissionais.length > 1}
             onComanda={(i) => setFechando(i.id)}
             onChegou={(i) => void transicionar(i, "chegou")}
             onFalta={(i) => void transicionar(i, "nao_compareceu")}
