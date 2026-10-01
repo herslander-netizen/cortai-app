@@ -57,7 +57,8 @@
 - [x] Evoluir a Agenda para operação mobile-first sem duplicar o motor oficial
 - [x] Consolidar Minha assinatura sobre a integração Asaas existente
 - [x] Validar Agenda e assinatura por código, tipos, lint dirigido, testes e build; não publicar (checagem visual autenticada indisponível nesta sessão)
-- [ ] Corrigir gestos e rolagem da Timeline sem alterar o motor da Agenda
-- [ ] Reorganizar o painel de atendimento com ação principal, contatos e confirmações seguras
-- [ ] Integrar cancelamento do cliente à oferta segura já existente da lista de espera
-- [ ] Validar as melhorias em 390px/1280px, tipos, lint dirigido, testes e build; não publicar
+- [x] Corrigir gestos e rolagem da Timeline sem alterar o motor da Agenda
+- [x] Reorganizar o painel de atendimento com ação principal, contatos e confirmações seguras
+- [x] Confirmar cancelamento do cliente integrado à oferta segura já existente da lista de espera
+- [ ] Validar visualmente as melhorias em 390px/1280px; bloqueado pela sessão da conta autorizada
+- [x] Validar tipos, lint dirigido, testes e build; não publicar

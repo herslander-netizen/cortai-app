@@ -73,7 +73,7 @@ export function PainelAtendimento(props: Props) {
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;
   const whatsapp = item ? linkWhatsApp(item.telefone) : null;
-  const telefone = item?.telefone?.replace(/[^\d+]/g, "") ?? "";
+  const telefone = item?.telefone?.replace(/\D/g, "") ?? "";
   const executar = (f: (i: AgendaItem) => void) => () => {
     if (!item) return;
     props.onFechar();
