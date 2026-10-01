@@ -114,7 +114,9 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       regras,
       ocupados: [
         ...(ocupados ?? []),
-        ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+        ...(await (
+          await import("@/lib/ocupacoes-extras.server")
+        ).ocupacoesExtras(db, {
           tenantId: tenant.id,
           fuso: regrasAgenda.fuso,
           desde,

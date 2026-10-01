@@ -282,7 +282,18 @@ export function AgendaTimeline({
 
   useEffect(() => {
     if (!ehHoje) return;
-    const acompanhar = () => acompanharAgora();
+    const acompanhar = () => {
+      const area = rolagemRef.current;
+      const linha = linhaAgoraRef.current;
+      if (!area || !linha) return;
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        const caixa = linha.getBoundingClientRect();
+        setAgoraVisivel(caixa.top >= 0 && caixa.bottom <= window.innerHeight);
+        return;
+      }
+      const topo = linha.offsetTop;
+      setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
+    };
     window.addEventListener("scroll", acompanhar, { passive: true });
     window.addEventListener("resize", acompanhar);
     acompanhar();

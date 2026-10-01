@@ -128,7 +128,13 @@ export function PainelAtendimento(props: Props) {
               ) : null}
               <div className="mt-5 grid gap-3">
                 {item.status === "agendado" ? (
-                  <Button size="lg" variant="primary" className="min-h-14 w-full" disabled={bloqueado} onClick={executar(props.onChegou)}>
+                  <Button
+                    size="lg"
+                    variant="primary"
+                    className="min-h-14 w-full"
+                    disabled={bloqueado}
+                    onClick={executar(props.onChegou)}
+                  >
                     <UserRoundPlus /> Cliente chegou
                   </Button>
                 ) : null}
@@ -208,42 +214,51 @@ export function PainelAtendimento(props: Props) {
                   ) : null}
                 </div>
 
-                {pendente ? <p className="border-t border-line pt-3 text-xs font-bold uppercase text-mute">Ajustar horário</p> : null}
+                {pendente ? (
+                  <p className="border-t border-line pt-3 text-xs font-bold uppercase text-mute">
+                    Ajustar horário
+                  </p>
+                ) : null}
                 <div className="grid grid-cols-2 gap-2">
-                {pendente ? (
-                  <Button
-                    variant="ghost"
-                    className="min-h-12"
-                    disabled={bloqueado}
-                    onClick={() =>
-                      setRemarcar({
-                        dia: diaNoFuso(item.inicio, props.fuso),
-                        hora: hora(item.inicio, props.fuso),
-                        profissionalId: item.profissionalId ?? null,
-                      })
-                    }
-                  >
-                    <CalendarPlus /> Remarcar
-                  </Button>
-                ) : null}
-                {pendente ? (
-                  <Button variant="ghost" className="min-h-12" disabled={bloqueado} onClick={() => setConfirmacao("falta")}>
-                    <Clock3 /> Falta
-                  </Button>
-                ) : null}
-                {pendente ? (
-                  <Button
-                    variant="destructive"
-                    className="min-h-12"
-                    disabled={bloqueado}
-                    onClick={() => {
-                      if (item.confirmadoEm) setConfirmacao("cancelar");
-                      else executar(props.onCancelar)();
-                    }}
-                  >
-                    <Ban /> Cancelar
-                  </Button>
-                ) : null}
+                  {pendente ? (
+                    <Button
+                      variant="ghost"
+                      className="min-h-12"
+                      disabled={bloqueado}
+                      onClick={() =>
+                        setRemarcar({
+                          dia: diaNoFuso(item.inicio, props.fuso),
+                          hora: hora(item.inicio, props.fuso),
+                          profissionalId: item.profissionalId ?? null,
+                        })
+                      }
+                    >
+                      <CalendarPlus /> Remarcar
+                    </Button>
+                  ) : null}
+                  {pendente ? (
+                    <Button
+                      variant="ghost"
+                      className="min-h-12"
+                      disabled={bloqueado}
+                      onClick={() => setConfirmacao("falta")}
+                    >
+                      <Clock3 /> Falta
+                    </Button>
+                  ) : null}
+                  {pendente ? (
+                    <Button
+                      variant="destructive"
+                      className="min-h-12"
+                      disabled={bloqueado}
+                      onClick={() => {
+                        if (item.confirmadoEm) setConfirmacao("cancelar");
+                        else executar(props.onCancelar)();
+                      }}
+                    >
+                      <Ban /> Cancelar
+                    </Button>
+                  ) : null}
                 </div>
               </div>
               {remarcar ? (
@@ -325,7 +340,10 @@ export function PainelAtendimento(props: Props) {
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={Boolean(confirmacao)} onOpenChange={(aberto) => !aberto && setConfirmacao(null)}>
+      <AlertDialog
+        open={Boolean(confirmacao)}
+        onOpenChange={(aberto) => !aberto && setConfirmacao(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
