@@ -1,11 +1,11 @@
-import { useAgora } from "@/hooks/useAgora";
-import { ValorAnimado } from "@/components/painel/ValorAnimado";
 import type { ReactElement } from "react";
+
+import { ValorAnimado } from "@/components/painel/ValorAnimado";
+import { useAgora } from "@/hooks/useAgora";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
-import { contarLivres, resumoOperacional } from "./tempo";
+import { contarLivres, disponibilidadeHoje, resumoOperacional } from "./tempo";
 
-/** Resumo em uma linha: a fazer · em atendimento · feitos · livres · fila. */
 export function ResumoDia({
   itens,
   horarios,
@@ -29,19 +29,15 @@ export function ResumoDia({
 }) {
   const agora = useAgora();
   const r = resumoOperacional(itens);
-  const livres = contarLivres({
-    horarios,
-    dia,
-    fuso,
-    itens,
-    profissionalIds,
-    passoMin,
-    agora,
-    ehHoje,
-  });
+  const livresHoje = ehHoje
+    ? disponibilidadeHoje({ itens, horarios, dia, fuso, profissionalIds, agora })
+    : null;
+  const livres = ehHoje
+    ? 0
+    : contarLivres({ horarios, dia, fuso, itens, profissionalIds, passoMin, agora, ehHoje });
   const partes = [
     <span key="fazer">
-      <ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga /> a fazer
+      <ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga /> restantes
     </span>,
     r.emAtendimento ? (
       <span key="atendimento">
@@ -55,10 +51,13 @@ export function ResumoDia({
         {r.finalizados === 1 ? "feito" : "feitos"}
       </span>
     ) : null,
-    <span key="livres">
-      <ValorAnimado valor={livres} formatar={String} primeiraCarga />{" "}
-      {livres === 1 ? "horário livre" : "horários livres"}
-    </span>,
+    livresHoje ? <span key="livres-hoje">{livresHoje}</span> : null,
+    !ehHoje ? (
+      <span key="livres">
+        <ValorAnimado valor={livres} formatar={String} primeiraCarga />{" "}
+        {livres === 1 ? "horário livre" : "horários livres"}
+      </span>
+    ) : null,
     fila ? (
       <span key="fila">
         <ValorAnimado valor={fila} formatar={String} primeiraCarga /> na fila

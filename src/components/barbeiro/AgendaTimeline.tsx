@@ -32,6 +32,7 @@ type AgendaTimelineProps = {
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
   alinhado?: boolean;
+  mostrarProfissional?: boolean;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -84,6 +85,7 @@ export function AgendaTimeline({
   destaques,
   itensEscala,
   alinhado,
+  mostrarProfissional = false,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -524,7 +526,7 @@ export function AgendaTimeline({
                 }}
               >
                 <span className="agenda-timeline-bloco-topo">
-                  <strong>
+                  <strong className="col-span-2">
                     {horaMinuto(
                       arrasto?.id === item.id
                         ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
@@ -532,6 +534,12 @@ export function AgendaTimeline({
                     )}{" "}
                     · {item.cliente}
                   </strong>
+                </span>
+                <span className="flex min-w-0 items-center gap-1">
+                  <span className="agenda-timeline-servico min-w-0 flex-1">
+                    {item.servico}
+                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
+                  </span>
                   <span className="flex shrink-0 gap-1">
                     {item.status === "finalizado" ? (
                       <Check className="agenda-check-finalizado" aria-label="Finalizado" />
@@ -543,9 +551,6 @@ export function AgendaTimeline({
                       <StatusBadge status="confirmado" label="Confirmou" />
                     ) : null}
                   </span>
-                </span>
-                <span className="agenda-timeline-servico">
-                  {item.servico} · {item.profissional}
                 </span>
                 {item.daListaDeEspera ? (
                   <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span>
@@ -562,7 +567,7 @@ export function AgendaTimeline({
               style={{ transform: `translateY(${posicaoAgora}px)` }}
               aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}
             >
-              <span>Agora · {horaMinuto(escala.minutoAtual)}</span>
+              <span>{horaMinuto(escala.minutoAtual)}</span>
             </div>
           ) : null}
         </div>

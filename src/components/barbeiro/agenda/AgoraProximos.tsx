@@ -25,6 +25,7 @@ export function AgoraProximos({
   onAbrir,
   onPerfil,
   onComanda,
+  onChegou,
   onFalta,
   onLista,
 }: {
@@ -34,6 +35,7 @@ export function AgoraProximos({
   onAbrir: (id: string) => void;
   onPerfil: (clienteId: string) => void;
   onComanda: (item: AgendaItem) => void;
+  onChegou: (item: AgendaItem) => void;
   onFalta: (item: AgendaItem) => void;
   onLista: () => void;
 }) {
@@ -50,7 +52,7 @@ export function AgoraProximos({
       !estaAtrasado(i, agora) &&
       new Date(i.fim).getTime() >= agora,
   );
-  const destaques = futuros.slice(0, 2);
+  const proximo = futuros[0];
   const fimPrevisto = ativos.length
     ? Math.max(
         ...ativos.map((a) => new Date(a.startedAt ?? a.inicio).getTime() + a.duracaoMin * 60_000),
@@ -123,20 +125,27 @@ export function AgoraProximos({
       ) : pendente ? (
         <div className="agenda-livre-agora" role="status">
           <p>
-            <span className="agenda-rotulo">Agora</span> Pendente: {pendente.cliente},{" "}
+            <span className="agenda-rotulo">Pendente</span> {pendente.cliente},{" "}
             {hora(pendente.inicio, fuso)} · atrasado
-            {pendentes.length > 1 ? ` · +${pendentes.length - 1} pendentes` : ""}
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Button className="min-h-12" onClick={() => onComanda(pendente)}>
-              <Check /> Atendi
-            </Button>
+            {agora < new Date(pendente.fim).getTime() ? (
+              <Button className="min-h-12" onClick={() => onChegou(pendente)}>
+                <Check /> Cliente chegou
+              </Button>
+            ) : (
+              <Button className="min-h-12" onClick={() => onComanda(pendente)}>
+                <Check /> Atendi
+              </Button>
+            )}
             <Button variant="outline" className="min-h-12" onClick={() => onFalta(pendente)}>
               <UserX /> Faltou
             </Button>
-            <Button variant="ghost" className="min-h-12" onClick={() => onAbrir(pendente.id)}>
-              <CalendarClock /> Remarcar
-            </Button>
+            {agora >= new Date(pendente.fim).getTime() ? (
+              <Button variant="ghost" className="min-h-12" onClick={() => onAbrir(pendente.id)}>
+                <CalendarClock /> Remarcar
+              </Button>
+            ) : null}
             {pendentes.length > 1 ? (
               <Button variant="ghost" className="min-h-12" onClick={onLista}>
                 +{pendentes.length - 1} pendentes
@@ -145,15 +154,21 @@ export function AgoraProximos({
           </div>
         </div>
       ) : (
-        <p className="agenda-livre-agora">
-          <span className="agenda-rotulo">Agora</span> Livre
-          {futuros[0] ? ` · próximo às ${hora(futuros[0].inicio, fuso)}` : ""}
-        </p>
+        <div
+          className="agenda-livre-agora min-h-12 cursor-pointer py-3"
+          role={proximo ? "button" : "status"}
+          tabIndex={proximo ? 0 : undefined}
+          onClick={() => proximo && onAbrir(proximo.id)}
+          onKeyDown={proximo ? teclaDeAtivar(() => onAbrir(proximo.id)) : undefined}
+        >
+          <span className="agenda-rotulo">Agora</span> · Livre
+          {proximo ? ` · próximo: ${proximo.cliente} às ${hora(proximo.inicio, fuso)}` : ""}
+        </div>
       )}
 
-      {destaques.length ? (
+      {ativos.length && proximo ? (
         <ul className="agenda-proximos-lista">
-          {destaques.map((item, indice) => {
+          {[proximo].map((item) => {
             const espera = Math.max(
               0,
               Math.ceil((fimPrevisto - new Date(item.inicio).getTime()) / 60_000),
@@ -170,12 +185,12 @@ export function AgoraProximos({
                 key={item.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${indice === 0 ? "Próximo" : "Depois"}: ${item.cliente} às ${hora(item.inicio, fuso)}`}
+                aria-label={`Próximo: ${item.cliente} às ${hora(item.inicio, fuso)}`}
                 className="agenda-proximo-linha"
                 onClick={() => onAbrir(item.id)}
                 onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
               >
-                <span className="agenda-rotulo">{indice === 0 ? "Próximo" : "Depois"}</span>
+                <span className="agenda-rotulo">Próximo</span>
                 <strong className="text-sm text-paper">{hora(item.inicio, fuso)}</strong>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-paper">

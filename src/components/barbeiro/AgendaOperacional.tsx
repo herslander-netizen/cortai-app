@@ -186,13 +186,15 @@ function FolhaFila(props: {
                     <span className="text-sm font-extrabold text-mute">{i + 1}</span>
                     <div className="min-w-0">
                       {f.clienteId ? (
-                        <button
-                          type="button"
-                          onClick={() => f.clienteId && props.onPerfil(f.clienteId)}
-                          className={`agenda-nome text-sm ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            if (f.clienteId) props.onPerfil(f.clienteId);
+                          }}
+                          className={`agenda-nome min-h-12 justify-start px-0 text-sm ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
                         >
                           {f.cliente}
-                        </button>
+                        </Button>
                       ) : (
                         <p className="agenda-nome text-sm text-paper">{f.cliente}</p>
                       )}
@@ -946,6 +948,10 @@ export function AgendaOperacional() {
           onFila={() => setFilaAberta(true)}
           onModoFoco={entrarNoModoFoco}
           focoNoPlano={focoNoPlano}
+          visualizacao={visualizacao}
+          onVisualizacao={setVisualizacao}
+          mostrarSemana={!celular}
+          onTeclasVisualizacao={teclasAbas}
           resumo={
             agenda.data ? (
               <ResumoDia
@@ -977,7 +983,9 @@ export function AgendaOperacional() {
               </Button>
               {profissionais.map((p) => {
                 const qtd = todosItens.filter(
-                  (i) => i.profissionalId === p.id && i.status !== "cancelado",
+                  (i) =>
+                    i.profissionalId === p.id &&
+                    ["agendado", "chegou", "na_cadeira"].includes(i.status),
                 ).length;
                 return (
                   <Button
@@ -985,6 +993,7 @@ export function AgendaOperacional() {
                     variant="ghost"
                     size="sm"
                     aria-pressed={profFiltro === p.id}
+                    aria-label={`${p.nome}, ${qtd} restantes`}
                     className={`agenda-chip ${profFiltro === p.id ? "agenda-chip-ativo" : ""}`}
                     onClick={() => setProfFiltro(p.id)}
                   >
@@ -999,7 +1008,7 @@ export function AgendaOperacional() {
 
         {faixa}
 
-        {ehHoje && agenda.data ? (
+        {ehHoje && agenda.data && visualizacao === "timeline" ? (
           <AgoraProximos
             itens={itens}
             fuso={fuso}
@@ -1007,6 +1016,7 @@ export function AgendaOperacional() {
             onAbrir={abrir}
             onPerfil={setPerfil}
             onComanda={(i) => setFechando(i.id)}
+            onChegou={(i) => void transicionar(i, "chegou")}
             onFalta={(i) => void transicionar(i, "nao_compareceu")}
             onLista={() => setVisualizacao("lista")}
           />
@@ -1038,35 +1048,7 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
-        <div
-          className={`agenda-abas mb-3 grid rounded-lg bg-ink3 p-1 ${celular ? "grid-cols-2" : "grid-cols-3"}`}
-          role="tablist"
-          aria-label="Visualização da agenda"
-          onKeyDown={teclasAbas}
-        >
-          {abasVisiveis.map((a) => (
-            <Button
-              key={a.id}
-              id={`agenda-aba-${a.id}`}
-              role="tab"
-              aria-selected={visualizacao === a.id}
-              aria-controls="agenda-painel-visualizacao"
-              tabIndex={visualizacao === a.id ? 0 : -1}
-              variant={visualizacao === a.id ? "secondary" : "ghost"}
-              size="sm"
-              className={`min-h-11 ${visualizacao === a.id ? "bg-ink2 shadow-sm" : "text-mute"}`}
-              onClick={() => setVisualizacao(a.id)}
-            >
-              {a.rotulo}
-            </Button>
-          ))}
-        </div>
-
-        <div
-          id="agenda-painel-visualizacao"
-          role="tabpanel"
-          aria-labelledby={`agenda-aba-${visualizacao}`}
-        >
+        <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
             <AgendaCarregando />
           ) : erroInicial ? (
@@ -1126,6 +1108,7 @@ export function AgendaOperacional() {
                       setManualAberto(true);
                     }}
                     destaques={novos}
+                    mostrarProfissional={false}
                   />
                 </section>
               ))}
@@ -1145,6 +1128,7 @@ export function AgendaOperacional() {
                 setManualAberto(true);
               }}
               destaques={novos}
+              mostrarProfissional={!profFiltro && profissionais.length > 1}
             />
           ) : (
             <ListaAgenda
@@ -1154,8 +1138,8 @@ export function AgendaOperacional() {
               selecionado={selecionado}
               novos={novos}
               online={online}
+              mostrarProfissional={!profFiltro && profissionais.length > 1}
               onAbrir={abrir}
-              onPerfil={setPerfil}
               onFalta={(i) => void transicionar(i, "nao_compareceu")}
               onAcao={(i, acao) => {
                 const efeito = efeitoDaAcaoCard(acao);

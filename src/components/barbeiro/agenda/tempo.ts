@@ -159,6 +159,44 @@ export function resumoOperacional(itens: AgendaItem[]) {
   };
 }
 
+const OCUPANDO_AGORA = new Set(["agendado", "chegou", "na_cadeira"]);
+
+export function disponibilidadeHoje(p: {
+  itens: AgendaItem[];
+  horarios: AgendaDia["horarios"];
+  dia: string;
+  fuso: string;
+  profissionalIds: string[];
+  agora: number;
+}) {
+  const minuto = minutosNoFuso(p.agora, p.fuso);
+  if (!turnosDoDia(p.horarios, p.dia).some(([inicio, fim]) => minuto >= inicio && minuto < fim))
+    return null;
+  const ocupado = (id: string) =>
+    p.itens.some(
+      (item) =>
+        item.profissionalId === id &&
+        OCUPANDO_AGORA.has(item.status) &&
+        new Date(item.inicio).getTime() <= p.agora &&
+        p.agora < new Date(item.fim).getTime(),
+    );
+  if (p.profissionalIds.length > 1) {
+    const livres = p.profissionalIds.filter((id) => !ocupado(id)).length;
+    return livres ? `${livres} livres agora` : null;
+  }
+  const id = p.profissionalIds[0];
+  if (id && ocupado(id)) return null;
+  const proximo = p.itens
+    .filter(
+      (item) =>
+        (!id || item.profissionalId === id) &&
+        OCUPANDO_AGORA.has(item.status) &&
+        new Date(item.inicio).getTime() > p.agora,
+    )
+    .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())[0];
+  return proximo ? `livre até ${hora(proximo.inicio, p.fuso)}` : "livre agora";
+}
+
 export function linkWhatsApp(telefone: string | null | undefined, texto?: string) {
   let d = String(telefone ?? "").replace(/\D/g, "");
   if (!d) return null;
