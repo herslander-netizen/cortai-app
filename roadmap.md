@@ -50,3 +50,5 @@
 - [x] Agenda: conferência visual 390/1280 com barbeiro.teste
 - [x] Agenda: consolidar movimento leve, polimento de UX e agendamento público, com validação 390/1280 e CPU 4×
 - [x] Orientar como acessar a administração da barbearia após concluir esta etapa
+
+- [ ] Bloqueio de horário por data e escala por profissional ligados à agenda (botão da folha grava bloqueio real)
