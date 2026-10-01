@@ -169,18 +169,15 @@ export function ManagementHeader() {
                           </li>
                         );
                       })}
+                      {grupo.titulo === "Sistema" ? (
+                        <li>
+                          <ModeMenuItem />
+                        </li>
+                      ) : null}
                     </ul>
                   </section>
                 ) : null,
               )}
-              <section className="mb-4">
-                <h2 className="px-2 pb-1.5 text-xs font-bold uppercase text-mute2">Sistema</h2>
-                <ul>
-                  <li>
-                    <ModeMenuItem />
-                  </li>
-                </ul>
-              </section>
             </nav>
           </SheetContent>
         </Sheet>

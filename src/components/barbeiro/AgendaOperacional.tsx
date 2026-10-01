@@ -692,7 +692,9 @@ export function AgendaOperacional() {
       aberto={menuAberto}
       onAberto={setMenuAberto}
       fila={chegada.length}
-      proximoDaFila={chegada[0]?.cliente}
+      proximoDaFila={
+        chegada[0] ? nomeDaAgenda(chegada[0].cliente, modoDiscreto) : undefined
+      }
       online={online}
       ocupado={ocupado}
       onNovoAgendamento={() => setManualAberto(true)}
@@ -1070,7 +1072,8 @@ export function AgendaOperacional() {
         {sugestaoFila && chegada.length > 0 ? (
           <div className="agenda-sugestao-fila mb-4" role="status">
             <p className="text-sm font-semibold text-paper">
-              Horário liberado. Chamar {chegada[0]?.cliente} da fila?
+              Horário liberado. Chamar{" "}
+              {chegada[0] ? nomeDaAgenda(chegada[0].cliente, modoDiscreto) : "cliente"} da fila?
             </p>
             <div className="mt-2 flex gap-2">
               <Button
