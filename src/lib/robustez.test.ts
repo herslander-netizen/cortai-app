@@ -4,7 +4,12 @@ import { acharValidador, ENTRADAS, exigirFormaDoAtendente } from "./ia/entradas-
 import { rotearConexaoMeta, type ConexaoMeta } from "./whatsapp/roteamento-meta";
 import { concluirSubstituicao } from "./substituicao.server";
 import { horariosDisponiveis, motivoForaDoHorario } from "./disponibilidade";
-import { FUSOS_DA_BARBEARIA, horarioDoDia, normalizarFuso, type HorarioDeFuncionamento } from "./horarios";
+import {
+  FUSOS_DA_BARBEARIA,
+  horarioDoDia,
+  normalizarFuso,
+  type HorarioDeFuncionamento,
+} from "./horarios";
 
 const motivoForaDoHorarioWrapper = (iso: string, dur: number, h: HorarioDeFuncionamento[]) =>
   motivoForaDoHorario(Date.parse(iso), dur, h, "America/Sao_Paulo");
@@ -67,13 +72,14 @@ describe("roteamento do webhook da Meta", () => {
   it("número desconhecido vira erro", () => {
     expect(rotearConexaoMeta([a, b], "999").tipo).toBe("erro");
   });
-  it("sem identificador só funciona com uma conexão", () => {
+  it("sem identificador: várias conexões viram número compartilhado, nunca descarte", () => {
     expect(rotearConexaoMeta([a], null).tipo).toBe("ok");
-    expect(rotearConexaoMeta([a, b], null).tipo).toBe("erro");
+    const r = rotearConexaoMeta([a, b], null);
+    expect(r.tipo === "ok" && r.compartilhada).toBe(true);
   });
   it("aprende o número na conexão única ainda sem número", () => {
     const r = rotearConexaoMeta([{ ...a, meta_phone_number_id: null }], "111");
-    expect(r.tipo === "ok" && r.aprender).toBe(true);
+    expect(r.tipo === "ok" && r.aprenderIds).toEqual(["1"]);
   });
 });
 
@@ -85,9 +91,15 @@ describe("API do atendente", () => {
     inicio: "2026-10-01T12:00:00-03:00",
   };
   it("fiado e crédito são recusados", () => {
-    expect(ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "fiado" }).success).toBe(false);
-    expect(ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "credito" }).success).toBe(false);
-    expect(ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "pix" }).success).toBe(true);
+    expect(ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "fiado" }).success).toBe(
+      false,
+    );
+    expect(
+      ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "credito" }).success,
+    ).toBe(false);
+    expect(ENTRADAS.criar_agendamento.safeParse({ ...base, formaPagamento: "pix" }).success).toBe(
+      true,
+    );
     expect(() => exigirFormaDoAtendente("fiado")).toThrow();
     expect(exigirFormaDoAtendente("balcao")).toBe("balcao");
   });
@@ -113,9 +125,9 @@ describe("rollback da substituição", () => {
       .fn()
       .mockResolvedValueOnce({ error: { message: "agendamento ja encerrado" } })
       .mockResolvedValueOnce({ error: null });
-    await expect(concluirSubstituicao({ rpc }, { novoId: "novo", antigoId: "antigo" })).rejects.toThrow(
-      /anterior continua marcado/,
-    );
+    await expect(
+      concluirSubstituicao({ rpc }, { novoId: "novo", antigoId: "antigo" }),
+    ).rejects.toThrow(/anterior continua marcado/);
     expect(rpc).toHaveBeenLastCalledWith("cancelar_agendamento", { _agendamento_id: "novo" });
   });
 });

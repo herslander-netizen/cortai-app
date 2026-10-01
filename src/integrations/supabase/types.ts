@@ -272,6 +272,47 @@ export type Database = {
           },
         ]
       }
+      alertas_da_plataforma: {
+        Row: {
+          criado_em: string
+          detalhes: Json
+          id: string
+          nivel: string
+          origem: string
+          resolvido_em: string | null
+          tenant_id: string | null
+          titulo: string
+        }
+        Insert: {
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          nivel?: string
+          origem: string
+          resolvido_em?: string | null
+          tenant_id?: string | null
+          titulo: string
+        }
+        Update: {
+          criado_em?: string
+          detalhes?: Json
+          id?: string
+          nivel?: string
+          origem?: string
+          resolvido_em?: string | null
+          tenant_id?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_da_plataforma_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assinaturas: {
         Row: {
           asaas_subscription_id: string | null
@@ -880,11 +921,13 @@ export type Database = {
           fidelidade_participa: boolean | null
           id: string
           limite_fiado_centavos: number
+          marketing_suprimido_em: string | null
           nome: string
           observacoes_internas: string | null
           opt_in_em: string | null
           opt_in_whatsapp: boolean
           origem: string
+          sem_whatsapp_em: string | null
           telefone: string
           tenant_id: string
           user_id: string | null
@@ -900,11 +943,13 @@ export type Database = {
           fidelidade_participa?: boolean | null
           id?: string
           limite_fiado_centavos?: number
+          marketing_suprimido_em?: string | null
           nome: string
           observacoes_internas?: string | null
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
+          sem_whatsapp_em?: string | null
           telefone: string
           tenant_id: string
           user_id?: string | null
@@ -920,11 +965,13 @@ export type Database = {
           fidelidade_participa?: boolean | null
           id?: string
           limite_fiado_centavos?: number
+          marketing_suprimido_em?: string | null
           nome?: string
           observacoes_internas?: string | null
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
+          sem_whatsapp_em?: string | null
           telefone?: string
           tenant_id?: string
           user_id?: string | null
@@ -1926,10 +1973,15 @@ export type Database = {
           cliente_id: string | null
           conteudo: string | null
           criado_em: string
+          entregue_em: string | null
           enviado_em: string | null
           erro: string | null
+          erro_codigo: number | null
+          falhou_em: string | null
           id: string
+          lido_em: string | null
           mensagem_externa_id: string | null
+          proxima_tentativa_em: string | null
           respondido_em: string | null
           resposta: string | null
           status: string
@@ -1948,10 +2000,15 @@ export type Database = {
           cliente_id?: string | null
           conteudo?: string | null
           criado_em?: string
+          entregue_em?: string | null
           enviado_em?: string | null
           erro?: string | null
+          erro_codigo?: number | null
+          falhou_em?: string | null
           id?: string
+          lido_em?: string | null
           mensagem_externa_id?: string | null
+          proxima_tentativa_em?: string | null
           respondido_em?: string | null
           resposta?: string | null
           status?: string
@@ -1970,10 +2027,15 @@ export type Database = {
           cliente_id?: string | null
           conteudo?: string | null
           criado_em?: string
+          entregue_em?: string | null
           enviado_em?: string | null
           erro?: string | null
+          erro_codigo?: number | null
+          falhou_em?: string | null
           id?: string
+          lido_em?: string | null
           mensagem_externa_id?: string | null
+          proxima_tentativa_em?: string | null
           respondido_em?: string | null
           resposta?: string | null
           status?: string
@@ -4631,6 +4693,7 @@ export type Database = {
       }
       home_publicada: { Args: never; Returns: Json }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      link_de_tela: { Args: { _chave: string }; Returns: string }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }
       meu_acesso_no_tenant: {
         Args: { _tenant_id: string }
