@@ -311,6 +311,27 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
     case "NEGAR":
       return responder("Sem problema! Se precisar de qualquer coisa é só me chamar. 👋", limparFluxo(contexto));
 
+    case "ATRASO": {
+      // Atraso avisado vira registro no sininho da equipe; nunca altera o horário sozinho.
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { LINKS_DE_TELA } = await import("@/lib/links-de-tela");
+        await supabaseAdmin.rpc("criar_notificacao", {
+          _tenant: entrada.tenantId,
+          _tipo: "agendamento",
+          _titulo: "Cliente avisou que vai atrasar",
+          _corpo: `${entrada.telefone}: "${entrada.texto.slice(0, 120)}"`,
+          _link: LINKS_DE_TELA.agenda,
+        });
+      } catch {
+        /* aviso perdido não bloqueia a resposta */
+      }
+      return responder(
+        "Obrigado por avisar! A equipe já sabe do seu atraso.",
+        limparFluxo(contexto),
+      );
+    }
+
     case "TROCAR_BARBEARIA":
       return responder(
         "Este WhatsApp atende só a " +

@@ -25,6 +25,7 @@ export type IntencaoDoMotor =
   | "PROFISSIONAIS"
   | "MEUS_AGENDAMENTOS"
   | "REMARCAR"
+  | "ATRASO"
   | "CANCELAR"
   | "LOCALIZACAO"
   | "BARBEARIA"
@@ -100,6 +101,7 @@ export function classificar(
 
   if (contem(t, VOCABULARIO.cancelar)) return resultado("CANCELAR", 0.9);
   if (contem(t, VOCABULARIO.remarcar)) return resultado("REMARCAR", 0.9);
+  if (contem(t, VOCABULARIO.atraso)) return resultado("ATRASO", 0.85);
   if (contem(t, VOCABULARIO.meusAgendamentos)) return resultado("MEUS_AGENDAMENTOS", 0.85);
   if (contem(t, VOCABULARIO.saldo)) return resultado("SALDO", 0.85);
   if (contem(t, VOCABULARIO.fidelidade)) return resultado("FIDELIDADE", 0.85);

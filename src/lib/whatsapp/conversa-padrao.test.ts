@@ -48,7 +48,7 @@ describe("Conversas de teste — intenção reconhecida", () => {
   }
 });
 
-// Lacuna conhecida: o motor ainda não reconhece atraso (situação nova a criar).
-it.fails("4. Atraso (ainda não reconhecido)", () => {
-  expect(classificar("vou atrasar 20 min", { fuso: "America/Sao_Paulo" }).intencao).not.toBe("DESCONHECIDA");
+it("4. Atraso", () => {
+  expect(classificar("vou atrasar 20 min", { fuso: "America/Sao_Paulo" }).intencao).toBe("ATRASO");
+  expect(classificar("estou atrasada", { fuso: "America/Sao_Paulo" }).intencao).toBe("ATRASO");
 });

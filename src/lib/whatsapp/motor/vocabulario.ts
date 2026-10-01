@@ -113,6 +113,7 @@ const PALAVRAS = {
     "que horas eu marquei",
     "tenho horario",
   ],
+  atraso: ["atrasar", "atrasado", "atrasada", "atraso", "atrasando", "vou chegar tarde", "chego um pouco depois"],
   remarcar: ["remarcar", "remarca", "mudar o horario", "trocar o horario", "adiar", "outro dia", "outro horario"],
   cancelar: ["cancelar", "cancela", "desmarcar", "desmarca", "nao vou poder", "nao vou conseguir ir"],
   localizacao: ["endereco", "onde fica", "localizacao", "como chego", "fica onde", "maps", "rua"],
