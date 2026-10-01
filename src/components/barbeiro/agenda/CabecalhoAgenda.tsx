@@ -44,6 +44,7 @@ export function CabecalhoAgenda({
   onHoje,
   fila,
   onFila,
+  mostrarFila = true,
   onModoFoco,
   focoNoPlano,
   resumo,
@@ -61,6 +62,7 @@ export function CabecalhoAgenda({
   onHoje: () => void;
   fila: number;
   onFila: () => void;
+  mostrarFila?: boolean;
   onModoFoco: () => void;
   focoNoPlano: boolean;
   resumo: ReactNode;
@@ -149,9 +151,11 @@ export function CabecalhoAgenda({
             <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
               {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
             </DropdownMenuItem>
-            <DropdownMenuItem className="min-h-12" onSelect={onFila}>
-              <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
-            </DropdownMenuItem>
+            {mostrarFila ? (
+              <DropdownMenuItem className="min-h-12" onSelect={onFila}>
+                <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
               {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
             </DropdownMenuItem>
