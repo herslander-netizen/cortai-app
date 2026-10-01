@@ -26,9 +26,9 @@ import { ModeMenuItem } from "@/components/layout/ThemeToggle";
 import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
 import {
   GRUPOS_DE_NAVEGACAO,
+  itemDeNavegacaoAtivo,
   itensDaBarra,
   modulosDeNavegacao,
-  secaoDoCaminho,
 } from "@/lib/navegacao-barbeiro";
 
 type ItemDoMenu = {
@@ -150,16 +150,13 @@ export function ManagementHeader() {
                     <ul>
                       {grupo.itens.map((item) => {
                         const Icon = item.icon;
-                        const ativo =
-                          item.to === "/barbeiro"
-                            ? caminho === "/barbeiro" || caminho === "/barbeiro/agenda"
-                            : caminho.startsWith(item.to) ||
-                              Boolean(secaoDoCaminho(caminho)?.abas.some((a) => a.to === item.to));
+                        const ativo = itemDeNavegacaoAtivo(caminho, item.to);
                         return (
                           <li key={`${grupo.titulo}-${item.label}`}>
                             <Link
                               to={item.to as never}
                               preload="intent"
+                              activeOptions={{ exact: true }}
                               onClick={() => setAberto(false)}
                               className={`drawer-link ${ativo ? "drawer-link-active" : ""}`}
                             >

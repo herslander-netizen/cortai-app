@@ -203,6 +203,17 @@ export function secaoDoCaminho(caminho: string) {
   return SECOES.find((s) => s.abas.some((a) => limpo === a.to || limpo.startsWith(`${a.to}/`)));
 }
 
+/** Mantém um único item principal ativo, incluindo as telas irmãs reunidas por área. */
+export function itemDeNavegacaoAtivo(caminho: string, to: string) {
+  const limpo = caminho.replace(/\/$/, "");
+  if (to === "/barbeiro") return limpo === "/barbeiro" || limpo === "/barbeiro/agenda";
+  return (
+    limpo === to ||
+    limpo.startsWith(`${to}/`) ||
+    Boolean(secaoDoCaminho(limpo)?.abas.some((a) => a.to === to))
+  );
+}
+
 /** Itens fixos da barra inferior; o menu não os repete. */
 export function itensDaBarra(permissoes: ReadonlyArray<string> | undefined) {
   const financeiro = permissoes?.includes("visualizar_financeiro");
