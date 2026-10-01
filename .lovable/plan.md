@@ -1,33 +1,51 @@
-# Agenda operacional e Minha assinatura
+# Agenda fluida, painel organizado e fila segura
 
-## Resultado
-A Agenda passa a ser a tela de operação principal no celular, com uma ação evidente por estado, sequência contínua e acesso rápido a encaixe, bloqueio, cliente e fila. No computador, Timeline continua principal e Lista permanece disponível. A área Minha assinatura passa a mostrar e operar os dados reais da cobrança Cortaí já integrados ao Asaas, sem misturar com pagamentos de atendimentos.
+## Objetivo
+Corrigir apenas os atritos confirmados da timeline e reorganizar o painel de atendimento, preservando o motor oficial, o desfazer, as permissões e o comportamento já existente da lista de espera.
 
-## Agenda
-- Tornar o Modo Foco a experiência padrão em telas móveis, preservando a saída para a visão completa e as visualizações Timeline/Lista no tablet e computador.
-- Reorganizar o cockpit em Agora, Próximo, alertas/fila, tempo livre acionável e restante do dia.
-- Reutilizar as transições oficiais para chegada, início, finalização/comanda, falta, cancelamento e remarcação; nenhuma nova regra de disponibilidade será criada.
-- Exibir CTAs grandes e explícitos conforme o estado real. Ações ainda não suportadas pelo motor atual, como pausar ou adicionar serviço durante atendimento, só serão mostradas se já houver operação segura correspondente.
-- Manter contador/progresso, linha Agora, auto-scroll, arrasto, troca de dia, desfazer, atualização em tempo real e cache seguro.
-- Ampliar o menu principal para Novo agendamento, Encaixar cliente, Bloquear horário e Novo cliente, retornando sempre ao contexto da Agenda.
-- Integrar visualmente fila, previsão do dia, alertas reais e horários livres sem excesso de cartões.
+## Estado confirmado
+- A timeline usa pressão prolongada de 300 ms para iniciar o arrasto e o toque em área vazia não registra o deslocamento anterior ao clique.
+- No celular, a timeline deixa de ter rolagem interna; por isso, “Voltar para agora” precisa posicionar a rolagem da página.
+- A dica de toque/arrasto é ocultada permanentemente por uma preferência local.
+- O painel reúne ações operacionais, contato e ajustes com o mesmo peso; há WhatsApp, mas não há ligação direta.
+- Cancelamento confirmado já possui confirmação específica; “Falta” ainda é executado diretamente.
+- A lista de espera já possui `posicao`, oferta compatível, expiração, aceite atômico, marcação da origem e notificações. Ela foi projetada para nunca reservar sem confirmação do cliente.
+- Hoje, cancelamentos e remarcações futuras podem gerar oferta. “Não compareceu” não gera oferta, pois normalmente o horário já começou ou passou.
 
-## Minha assinatura
-- Evoluir a tela de plano para Minha assinatura, mantendo a tabela comercial e separando-a do caixa e das comandas.
-- Criar funções autenticadas para ler assinatura, cobrança em aberto, histórico e dados de cobrança mascarados, sempre limitados ao negócio do usuário.
-- Reutilizar o cliente Asaas somente no servidor para criar cliente, assinatura e primeira cobrança; valores continuarão recalculados no servidor.
-- Exibir plano, valor, ciclo, status, próxima cobrança, método e histórico, com ações contextuais para escolher plano, regularizar, gerenciar ou reativar.
-- Preservar webhook idempotente, deduplicação, varredura, isolamento por negócio e estados reais do backend.
-- Quando a cobrança real não estiver configurada, mostrar um estado claro e seguro, sem simular conexão nem pedir chave no navegador.
+## Fase 1 — Timeline
+1. Registrar a origem e o deslocamento do toque na própria área vazia; só abrir novo agendamento quando o gesto permanecer dentro da tolerância de 6 px.
+2. Aumentar a pressão prolongada de 300 ms para 400 ms e cancelar sua ativação assim que o gesto indicar rolagem vertical.
+3. Preservar o arrasto por mouse e o encaixe em intervalos de 15 minutos, sem alterar a validação oficial da remarcação.
+4. Fazer “Voltar para agora” usar a rolagem interna no desktop e posicionar a página no celular.
+5. Trocar a dica descartável por uma orientação curta e discreta junto à timeline, sempre disponível sem cobrir horários.
+6. Manter feedback tátil somente quando suportado e acrescentar confirmação visual curta após um arrasto válido, sem criar animação pesada.
+
+## Fase 2 — Painel de atendimento
+1. Destacar uma única ação principal por estado:
+   - agendado: “Cliente chegou”;
+   - chegou: “Iniciar atendimento”;
+   - em atendimento: “Concluir atendimento”.
+2. Exibir telefone somente como ação contextual, sem duplicar dados sensíveis: “Ligar” (`tel:`) e “WhatsApp” lado a lado quando houver número válido.
+3. Agrupar “Comanda” e “Notas do cliente” como ações de registro.
+4. Colocar “Remarcar”, “Falta” e “Cancelar” em uma seção secundária claramente separada.
+5. Manter a confirmação existente ao cancelar quem confirmou pelo WhatsApp e adicionar confirmação para “Marcar falta”.
+6. Preservar o formulário e a verificação oficial de conflito ao remarcar.
+
+## Fase 3 — Lista de espera, sem duplicar o motor
+1. Não criar `useFila`, novo trigger ou `processarCancelamento`: a estrutura equivalente já existe e criar outra produziria concorrência e regras paralelas.
+2. Manter o fluxo seguro atual: vaga liberada → primeiro cliente compatível → WhatsApp com prazo → aceite → criação atômica do agendamento.
+3. Garantir que cancelamentos feitos pelo cliente também acionem a oferta existente, pois esse caminho atualmente apenas cancela e notifica.
+4. Não oferecer vaga após “falta” quando o horário já começou; aplicar a regra existente de antecedência e disponibilidade real.
+5. Manter a identificação “Vaga preenchida pela lista de espera” para transparência operacional e suporte, sem expor isso ao cliente de forma desnecessária.
+6. Reaproveitar as notificações internas e a Secretária Cortaí existentes; falha de WhatsApp continuará sem interromper cancelamento ou agenda.
 
 ## Validação
-- Exercitar Agenda em 390 px e 1280 px, incluindo abertura/fechamento das folhas e retorno ao contexto.
-- Exercitar Minha assinatura autenticada sem criar cobrança real ou alterar dados da conta de demonstração.
-- Conferir ausência de sobreposição, scroll preso, botões cortados, erros de console e rotas quebradas.
-- Rodar tipos, lint dos arquivos alterados, testes e build. Nada será publicado.
+- Testar em 390 px: rolar verticalmente sem abrir formulário, toque intencional em horário livre, pressão e arrasto, “Voltar para agora”, abrir/fechar painel, ligar/WhatsApp e confirmações.
+- Testar em 1280 px: rolagem interna, centralização de “Agora”, arrasto por mouse, colunas por profissional e painel lateral.
+- Cobrir com testes os limiares de gesto e o acionamento da oferta no cancelamento do cliente.
+- Executar verificação de tipos, lint dirigido, testes e build; conferir erros de console e não publicar.
 
-## Limites seguros
-- Sem alterações destrutivas, migrações ou mudanças em RLS/RPCs.
-- Sem chave do Asaas no navegador e sem inventar credenciais.
-- A operação da Agenda não será bloqueada por avisos de plano.
-- Pausar atendimento e adicionar serviço não serão improvisados se o backend atual não tiver suporte transacional seguro.
+## Limites
+- Sem mudança de plano, cobrança, autenticação, dados existentes ou regras de disponibilidade.
+- Sem reserva automática e silenciosa: isso contrariaria o consentimento do cliente e o fluxo já consolidado da lista de espera.
+- Sem novas colunas: `posicao`, carimbo de aviso e origem da fila já existem; o aceite já registra quando a oferta foi respondida e qual agendamento foi criado.
