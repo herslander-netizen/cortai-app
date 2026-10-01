@@ -1,5 +1,5 @@
 import { Check, Clock3 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
@@ -104,7 +104,24 @@ export function AgendaTimeline({
     ativo: boolean;
     timer?: number;
     arrastou: boolean;
+    rolagem0: number;
+    dy: number;
   } | null>(null);
+  const bloqueioToque = useRef<((ev: TouchEvent) => void) | null>(null);
+  function travarRolagemDoToque() {
+    if (bloqueioToque.current) return;
+    const bloquear = (ev: TouchEvent) => {
+      if (ev.cancelable) ev.preventDefault();
+    };
+    bloqueioToque.current = bloquear;
+    document.addEventListener("touchmove", bloquear, { passive: false });
+  }
+  function soltarRolagemDoToque() {
+    if (!bloqueioToque.current) return;
+    document.removeEventListener("touchmove", bloqueioToque.current);
+    bloqueioToque.current = null;
+  }
+  useEffect(() => soltarRolagemDoToque, []);
   const ignorarClique = useRef(false);
   const gestoVazio = useRef<{ x: number; y: number; moveu: boolean } | null>(null);
   const hoje = new Intl.DateTimeFormat("en-CA", {
@@ -318,12 +335,15 @@ export function AgendaTimeline({
       x0: e.clientX,
       ativo: e.pointerType === "mouse",
       arrastou: false,
+      rolagem0: rolagemRef.current?.scrollTop ?? 0,
+      dy: 0,
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
     if (e.pointerType !== "mouse") {
       g.timer = window.setTimeout(() => {
         g.ativo = true;
+        travarRolagemDoToque();
         try {
           alvo.setPointerCapture(pid);
         } catch {
@@ -331,16 +351,24 @@ export function AgendaTimeline({
         }
         setArrasto({ id: item.id, dy: 0 });
         navigator.vibrate?.(10);
-      }, 400);
+      }, 280);
     }
     gesto.current = g;
   }
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
-    const dy = e.clientY - g.y0;
+    const area = rolagemRef.current;
+    if (g.ativo && area) {
+      const r = area.getBoundingClientRect();
+      const borda = 48;
+      if (e.clientY < r.top + borda) area.scrollTop -= Math.ceil((r.top + borda - e.clientY) / 4);
+      else if (e.clientY > r.bottom - borda)
+        area.scrollTop += Math.ceil((e.clientY - (r.bottom - borda)) / 4);
+    }
+    const dy = e.clientY - g.y0 + ((area?.scrollTop ?? 0) - g.rolagem0);
     if (!g.ativo) {
-      if (Math.abs(dy) > 8 || Math.abs(e.clientX - g.x0) > 8) {
+      if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
         window.clearTimeout(g.timer);
         gesto.current = null;
       }
@@ -356,6 +384,7 @@ export function AgendaTimeline({
     }
     g.arrastou = true;
     e.preventDefault();
+    g.dy = dy;
     setArrasto({ id: g.id, dy });
   }
   function fimGesto(item: AgendaItem) {
@@ -363,7 +392,8 @@ export function AgendaTimeline({
     gesto.current = null;
     if (!g) return;
     window.clearTimeout(g.timer);
-    const dy = arrasto?.id === item.id ? arrasto.dy : 0;
+    soltarRolagemDoToque();
+    const dy = g.id === item.id ? g.dy : 0;
     setArrasto(null);
     if (!g.arrastou) return;
     ignorarClique.current = true;
@@ -487,79 +517,99 @@ export function AgendaTimeline({
             ]
               .filter(Boolean)
               .join(" · ");
+            const passoArrasto =
+              arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : 0;
             return (
-              <Button
-                key={item.id}
-                type="button"
-                variant="ghost"
-                aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
-                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
-                style={{
-                  top: `${topo}px`,
-                  minHeight: `${blocoAltura}px`,
-                  ...(posicao?.colunas
-                    ? {
-                        left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
-                        right: "auto",
-                        width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
-                      }
-                    : {}),
-                  ...(arrasto?.id === item.id
-                    ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
-                    : {}),
-                }}
-                aria-pressed={selecionado === item.id}
-                onPointerDown={(e) => inicioGesto(e, item)}
-                onPointerMove={moverGesto}
-                onPointerUp={() => fimGesto(item)}
-                onPointerCancel={() => {
-                  if (gesto.current) window.clearTimeout(gesto.current.timer);
-                  gesto.current = null;
-                  setArrasto(null);
-                }}
-                onContextMenu={(e) => {
-                  if (podeMover(item)) e.preventDefault();
-                }}
-                onClick={() => {
-                  if (ignorarClique.current) {
-                    ignorarClique.current = false;
-                    return;
-                  }
-                  onSelecionar(item.id);
-                }}
-              >
-                <span className="agenda-timeline-bloco-topo">
-                  <strong className="col-span-2">
-                    {horaMinuto(
-                      arrasto?.id === item.id
-                        ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
-                        : inicio,
-                    )}{" "}
-                    · {nome}
-                  </strong>
-                </span>
-                <span className="flex min-w-0 items-center gap-1">
-                  <span className="agenda-timeline-servico min-w-0 flex-1">
-                    {item.servico}
-                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
-                  </span>
-                  <span className="flex shrink-0 gap-1">
-                    {item.status === "finalizado" ? (
-                      <Check className="agenda-check-finalizado" aria-label="Finalizado" />
-                    ) : null}
-                    {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
-                    {ehHoje && estaAtrasado(item, agora) ? <StatusBadge status="atrasado" /> : null}
-                    {item.encaixe ? <StatusBadge status="encaixe" /> : null}
-                    {item.confirmadoEm && item.status === "agendado" ? (
-                      <StatusBadge status="confirmado" label="Confirmou" />
-                    ) : null}
-                  </span>
-                </span>
-                {item.daListaDeEspera ? (
-                  <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span>
+              <Fragment key={item.id}>
+                {arrasto?.id === item.id ? (
+                  <div
+                    className="agenda-timeline-alvo"
+                    style={{
+                      top: `${topo + passoArrasto * PX_POR_MINUTO}px`,
+                      height: `${blocoAltura}px`,
+                    }}
+                    aria-hidden
+                  >
+                    <span>{horaMinuto(inicio + passoArrasto)}</span>
+                  </div>
                 ) : null}
-                {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                  className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                  style={{
+                    top: `${topo}px`,
+                    minHeight: `${blocoAltura}px`,
+                    ...(posicao?.colunas
+                      ? {
+                          left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                          right: "auto",
+                          width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                        }
+                      : {}),
+                    ...(arrasto?.id === item.id
+                      ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
+                      : {}),
+                  }}
+                  aria-pressed={selecionado === item.id}
+                  onPointerDown={(e) => inicioGesto(e, item)}
+                  onPointerMove={moverGesto}
+                  onPointerUp={() => fimGesto(item)}
+                  onPointerCancel={() => {
+                    if (gesto.current) window.clearTimeout(gesto.current.timer);
+                    gesto.current = null;
+                    soltarRolagemDoToque();
+                    setArrasto(null);
+                  }}
+                  onContextMenu={(e) => {
+                    if (podeMover(item)) e.preventDefault();
+                  }}
+                  onClick={() => {
+                    if (ignorarClique.current) {
+                      ignorarClique.current = false;
+                      return;
+                    }
+                    onSelecionar(item.id);
+                  }}
+                >
+                  <span className="agenda-timeline-bloco-topo">
+                    <strong className="col-span-2">
+                      {horaMinuto(
+                        arrasto?.id === item.id
+                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
+                          : inicio,
+                      )}{" "}
+                      · {nome}
+                    </strong>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1">
+                    <span className="agenda-timeline-servico min-w-0 flex-1">
+                      {item.servico}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
+                    </span>
+                    <span className="flex shrink-0 gap-1">
+                      {item.status === "finalizado" ? (
+                        <Check className="agenda-check-finalizado" aria-label="Finalizado" />
+                      ) : null}
+                      {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
+                      {ehHoje && estaAtrasado(item, agora) ? (
+                        <StatusBadge status="atrasado" />
+                      ) : null}
+                      {item.encaixe ? <StatusBadge status="encaixe" /> : null}
+                      {item.confirmadoEm && item.status === "agendado" ? (
+                        <StatusBadge status="confirmado" label="Confirmou" />
+                      ) : null}
+                    </span>
+                  </span>
+                  {item.daListaDeEspera ? (
+                    <span className="agenda-timeline-fila">
+                      Vaga preenchida pela lista de espera
+                    </span>
+                  ) : null}
+                  {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
+                </Button>
+              </Fragment>
             );
           })}
 
