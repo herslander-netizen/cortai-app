@@ -11,7 +11,13 @@ import {
   type HorarioDeFuncionamento,
 } from "@/lib/horarios";
 
-export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
+export type Ocupado = {
+  profissional_id: string | null;
+  inicio: string;
+  fim: string;
+  /** Bloqueio por data ou fora da escala: ocupa, mas não conta como atendimento. */
+  bloqueio?: boolean;
+};
 export type RegrasDaAgenda = { antecedenciaMin: number; intervaloEntreMin: number };
 export type ServicoDoMotor = {
   id: string;

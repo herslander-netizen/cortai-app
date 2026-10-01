@@ -55,8 +55,8 @@ export async function ocupacoesExtras(
         }
         const abre = isoNoFusoDaBarbearia(dia, e.abre.slice(0, 5), p.fuso);
         const fecha = isoNoFusoDaBarbearia(dia, e.fecha.slice(0, 5), p.fuso);
-        if (abre > ini) extras.push({ profissional_id: pid, inicio: ini, fim: abre, bloqueio: true });
-        if (fecha < fim) extras.push({ profissional_id: pid, inicio: fecha, fim, bloqueio: true });
+        if (Date.parse(abre) > Date.parse(ini)) extras.push({ profissional_id: pid, inicio: ini, fim: abre, bloqueio: true });
+        if (Date.parse(fecha) < Date.parse(fim)) extras.push({ profissional_id: pid, inicio: fecha, fim, bloqueio: true });
       }
     }
   }
