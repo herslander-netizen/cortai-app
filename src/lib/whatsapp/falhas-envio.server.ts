@@ -3,9 +3,6 @@
  * Usado no erro imediato do envio e no retorno de entrega (webhook).
  * Nunca lança: falha de canal jamais quebra o fluxo principal.
  */
-import { fusoDoTenant } from "@/lib/fuso.server";
-import { LINKS_DE_TELA } from "@/lib/links-de-tela";
-
 import { acaoDoErroMeta, linkWaMe, type AcaoDoErro } from "./erros-meta";
 
 const ROTULO_DO_TIPO: Record<string, string> = {
@@ -121,7 +118,6 @@ async function avisarNegocioDaFalha(envio: {
     : { data: null };
   const nome = cliente?.nome ?? "o cliente";
   const tipo = ROTULO_DO_TIPO[envio.tipo] ?? "aviso";
-  void fusoDoTenant;
   const texto = envio.conteudo?.trim() || `Olá, ${nome.split(/\s+/)[0]}! Passando para falar sobre o seu horário.`;
   await db.from("notificacoes").insert({
     tenant_id: envio.tenant_id,
@@ -130,5 +126,4 @@ async function avisarNegocioDaFalha(envio: {
     corpo: "Toque para enviar pelo seu WhatsApp, sem custo.",
     link: `${linkWaMe(envio.telefone, texto)}#${marca}`,
   });
-  void LINKS_DE_TELA;
 }
