@@ -34,10 +34,11 @@ async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
 }
 
 /**
- * Número compartilhado: a barbearia escolhida fica salva por telefone
+ * Número compartilhado: o negócio escolhido fica salvo por telefone
  * (whatsapp_contexto_numero) até o cliente pedir troca. Regras, sem IA.
+ * As opções são só os negócios com os quais o telefone tem relação.
  */
-async function barbeariaDoNumeroCompartilhado(
+async function negocioDoNumeroCompartilhado(
   telefone: string,
   texto: string,
   citadaId: string | null = null,
@@ -45,14 +46,17 @@ async function barbeariaDoNumeroCompartilhado(
   const db = await admin();
   const { decidirBarbearia } = await import("./multi-barbearia");
 
-  // Opções: barbearias ativas que compartilham o número oficial.
-  const { data: conexoes } = await db
-    .from("conexoes_whatsapp")
-    .select("tenant_id")
-    .eq("compartilhada", true);
-  const idsCompartilhados = [...new Set((conexoes ?? []).map((c) => c.tenant_id))];
-  const { data: tenants } = idsCompartilhados.length
-    ? await db.from("tenants").select("id, nome, ativo").in("id", idsCompartilhados).order("nome")
+  const variantes = variantesDoTelefone(telefone);
+  const desde = new Date(Date.now() - 60 * 24 * 3600_000).toISOString();
+  const [{ data: comoCliente }, { data: envios }] = await Promise.all([
+    db.from("clientes").select("tenant_id").in("telefone", variantes).is("arquivado_em", null).limit(50),
+    db.from("envios_de_whatsapp").select("tenant_id").in("telefone", variantes).gte("criado_em", desde).limit(50),
+  ]);
+  const relacionados = [
+    ...new Set([...(comoCliente ?? []), ...(envios ?? [])].map((r) => r.tenant_id)),
+  ];
+  const { data: tenants } = relacionados.length
+    ? await db.from("tenants").select("id, nome, ativo").in("id", relacionados).order("nome")
     : { data: [] as { id: string; nome: string; ativo: boolean | null }[] };
   const opcoes = (tenants ?? [])
     .filter((t) => t.ativo !== false)
@@ -103,7 +107,7 @@ async function barbeariaDoNumeroCompartilhado(
       .from("whatsapp_contexto_numero")
       .upsert({ telefone, tenant_id: d.tenantId, aguardando_escolha: false, atualizado_em: agora });
     if (error) throw new Error(error.message);
-    console.info("[whatsapp/multi] barbearia selecionada", {
+    console.info("[whatsapp/multi] negócio selecionado", {
       telefone: telefone.slice(-4),
       tenant: d.tenantId,
     });
@@ -315,6 +319,23 @@ export async function enviarPelaBarbearia(input: {
     .update({ ultima_mensagem_em: new Date().toISOString() })
     .eq("id", input.conversaId);
 
+  if (!erro) {
+    // Número compartilhado: a resposta do cliente volta para este negócio.
+    const { data: cx } = await db
+      .from("conexoes_whatsapp")
+      .select("compartilhada")
+      .eq("id", input.conexaoId)
+      .maybeSingle();
+    if (cx?.compartilhada) {
+      await db.from("whatsapp_contexto_numero").upsert({
+        telefone: somenteDigitos(input.telefone),
+        tenant_id: input.tenantId,
+        aguardando_escolha: false,
+        atualizado_em: new Date().toISOString(),
+      });
+    }
+  }
+
   if (erro) throw new Error(erro);
   return { externoId };
 }
@@ -354,7 +375,7 @@ export async function processarMensagemRecebida(input: {
   citadaId?: string | null;
 }): Promise<{ tratada: boolean; motivo?: string }> {
   const db = await admin();
-  const conexao = await conexaoPorSessao(input.sessaoId);
+  let conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao) return { tratada: false, motivo: "sessao_desconhecida" };
   // Deduplicação antes de qualquer resposta: mensagem reprocessada nunca responde duas vezes.
   if (input.mensagemExternaId) {
@@ -371,7 +392,7 @@ export async function processarMensagemRecebida(input: {
   const telefone = somenteDigitos(input.telefone);
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
-    const r = await barbeariaDoNumeroCompartilhado(
+    const r = await negocioDoNumeroCompartilhado(
       telefone,
       input.tipo === "text" ? input.conteudo : "",
       input.citadaId ?? null,
@@ -406,6 +427,12 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "sem_contexto_transacional" };
     }
     tenantId = r.tenantId;
+    // Uma conversa, um remetente: responde pela conexão do negócio escolhido.
+    const { conexaoDeEnvio } = await import("./conexao-envio.server");
+    const doNegocio = await conexaoDeEnvio(tenantId);
+    if (doNegocio) {
+      conexao = { ...conexao, id: doNegocio.id, sessao_id: doNegocio.sessao_id, tenant_id: tenantId };
+    }
   }
   const conversa = await conversaDoTelefone({
     tenantId,
