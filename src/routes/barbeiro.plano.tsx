@@ -2,7 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { CalendarClock, CheckCircle2, CreditCard, ExternalLink, ReceiptText, ShieldCheck } from "lucide-react";
+import {
+  CalendarClock,
+  CheckCircle2,
+  CreditCard,
+  ExternalLink,
+  ReceiptText,
+  ShieldCheck,
+} from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
@@ -13,7 +20,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { brl } from "@/lib/format";
 import { ROTULO_STATUS, type Ciclo, type Forma } from "@/lib/cobranca";
-import { contratarPlano, getMinhaCobranca, salvarMeusDadosDeCobranca } from "@/lib/cobranca.functions";
+import {
+  contratarPlano,
+  getMinhaCobranca,
+  salvarMeusDadosDeCobranca,
+} from "@/lib/cobranca.functions";
 
 export const Route = createFileRoute("/barbeiro/plano")({
   ssr: false,
@@ -91,7 +102,11 @@ function PlanoPage() {
       ]);
       setPlanoEscolhido(null);
       if (r.link) window.open(r.link, "_blank", "noopener,noreferrer");
-      aviso.ok(r.status === "teste" ? "Seu período de teste começou." : "Cobrança criada. Conclua o pagamento.");
+      aviso.ok(
+        r.status === "teste"
+          ? "Seu período de teste começou."
+          : "Cobrança criada. Conclua o pagamento.",
+      );
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não foi possível iniciar a assinatura.");
     } finally {
@@ -115,8 +130,11 @@ function PlanoPage() {
 
   const assinatura = cobranca.data?.assinatura;
   const faturaAberta = cobranca.data?.faturaAberta;
-  const planoAtual = data?.planos.find((plano) => plano.chave === (assinatura?.plano ?? data.atual));
-  const precisaRegularizar = assinatura && ["aguardando_pagamento", "pendente", "suspensa"].includes(assinatura.status);
+  const planoAtual = data?.planos.find(
+    (plano) => plano.chave === (assinatura?.plano ?? data.atual),
+  );
+  const precisaRegularizar =
+    assinatura && ["aguardando_pagamento", "pendente", "suspensa"].includes(assinatura.status);
 
   return (
     <Screen
@@ -136,7 +154,17 @@ function PlanoPage() {
                 </h2>
               </div>
               {assinatura ? (
-                <Badge variant={assinatura.status === "ativa" || assinatura.status === "teste" || assinatura.status === "cortesia" ? "success" : assinatura.status === "cancelada" || assinatura.status === "suspensa" ? "destructive" : "outline"}>
+                <Badge
+                  variant={
+                    assinatura.status === "ativa" ||
+                    assinatura.status === "teste" ||
+                    assinatura.status === "cortesia"
+                      ? "success"
+                      : assinatura.status === "cancelada" || assinatura.status === "suspensa"
+                        ? "destructive"
+                        : "outline"
+                  }
+                >
                   <ShieldCheck aria-hidden className="size-4" /> {ROTULO_STATUS[assinatura.status]}
                 </Badge>
               ) : null}
@@ -144,122 +172,279 @@ function PlanoPage() {
             <dl className="grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="text-xs text-mute">Valor</dt>
-                <dd className="money-value mt-1 font-bold text-paper">{brl(assinatura?.valorCentavos ?? planoAtual?.precoMensalCentavos ?? 0)}</dd>
+                <dd className="money-value mt-1 font-bold text-paper">
+                  {brl(assinatura?.valorCentavos ?? planoAtual?.precoMensalCentavos ?? 0)}
+                </dd>
               </div>
               <div>
                 <dt className="text-xs text-mute">Ciclo</dt>
-                <dd className="mt-1 font-bold capitalize text-paper">{assinatura?.ciclo ?? "mensal"}</dd>
+                <dd className="mt-1 font-bold capitalize text-paper">
+                  {assinatura?.ciclo ?? "mensal"}
+                </dd>
               </div>
               <div>
                 <dt className="text-xs text-mute">Próxima cobrança</dt>
-                <dd className="mt-1 font-bold text-paper">{assinatura?.proximoVencimento ? new Date(`${assinatura.proximoVencimento}T12:00:00Z`).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "Não informada"}</dd>
+                <dd className="mt-1 font-bold text-paper">
+                  {assinatura?.proximoVencimento
+                    ? new Date(`${assinatura.proximoVencimento}T12:00:00Z`).toLocaleDateString(
+                        "pt-BR",
+                        { timeZone: "UTC" },
+                      )
+                    : "Não informada"}
+                </dd>
               </div>
             </dl>
             {precisaRegularizar && faturaAberta?.link ? (
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <a href={faturaAberta.link} target="_blank" rel="noreferrer"><ExternalLink /> REGULARIZAR PAGAMENTO</a>
+                <a href={faturaAberta.link} target="_blank" rel="noreferrer">
+                  <ExternalLink /> REGULARIZAR PAGAMENTO
+                </a>
               </Button>
             ) : assinatura?.status === "ativa" ? (
-              <Button variant="outline" onClick={() => setPlanoEscolhido(assinatura.plano)}><CreditCard /> Gerenciar assinatura</Button>
+              <Button variant="outline" onClick={() => setPlanoEscolhido(assinatura.plano)}>
+                <CreditCard /> Gerenciar assinatura
+              </Button>
             ) : assinatura?.status === "cancelada" ? (
-              <Button onClick={() => setPlanoEscolhido(data.atual)}><CheckCircle2 /> Reativar assinatura</Button>
+              <Button onClick={() => setPlanoEscolhido(data.atual)}>
+                <CheckCircle2 /> Reativar assinatura
+              </Button>
             ) : null}
             {!cobranca.data.configurada ? (
-              <p className="text-sm text-mute">A cobrança online ainda não está configurada. Os planos continuam visíveis, mas nenhuma cobrança será simulada.</p>
+              <p className="text-sm text-mute">
+                A cobrança online ainda não está configurada. Os planos continuam visíveis, mas
+                nenhuma cobrança será simulada.
+              </p>
             ) : null}
           </section>
 
           <section aria-labelledby="dados-cobranca">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 id="dados-cobranca" className="font-bold text-paper">Dados de cobrança</h2>
+                <h2 id="dados-cobranca" className="font-bold text-paper">
+                  Dados de cobrança
+                </h2>
                 <p className="mt-1 text-sm text-mute">Usados somente na assinatura do Cortaí.</p>
               </div>
-              <Button variant="outline" onClick={() => setEditandoCadastro((valor) => !valor)}>{cobranca.data.cadastro ? "Atualizar" : "Cadastrar"}</Button>
+              <Button variant="outline" onClick={() => setEditandoCadastro((valor) => !valor)}>
+                {cobranca.data.cadastro ? "Atualizar" : "Cadastrar"}
+              </Button>
             </div>
             {cobranca.data.cadastro && !editandoCadastro ? (
               <div className="mt-3 border-y border-line py-3 text-sm text-mute">
-                <strong className="text-paper">{cobranca.data.cadastro.nome}</strong> · {cobranca.data.cadastro.documento} · {cobranca.data.cadastro.email}
+                <strong className="text-paper">{cobranca.data.cadastro.nome}</strong> ·{" "}
+                {cobranca.data.cadastro.documento} · {cobranca.data.cadastro.email}
               </div>
             ) : null}
             {editandoCadastro || !cobranca.data.cadastro ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="field-label">Nome ou razão social<input className="field-control mt-1" value={cadastro.nome} autoComplete="name" onChange={(e) => setCadastro((v) => ({ ...v, nome: e.target.value }))} /></label>
-                <label className="field-label">CPF ou CNPJ<input className="field-control mt-1" value={cadastro.cpfCnpj} inputMode="numeric" onChange={(e) => setCadastro((v) => ({ ...v, cpfCnpj: e.target.value }))} /></label>
-                <label className="field-label">E-mail<input className="field-control mt-1" type="email" value={cadastro.email} autoComplete="email" onChange={(e) => setCadastro((v) => ({ ...v, email: e.target.value }))} /></label>
-                <label className="field-label">Telefone<input className="field-control mt-1" inputMode="tel" autoComplete="tel" value={cadastro.telefone} onChange={(e) => setCadastro((v) => ({ ...v, telefone: e.target.value }))} /></label>
-                <Button className="sm:col-span-2" size="lg" disabled={salvando === "cadastro"} onClick={() => void salvarDados()}>{salvando === "cadastro" ? "Salvando…" : "Salvar dados de cobrança"}</Button>
+                <label className="field-label">
+                  Nome ou razão social
+                  <input
+                    className="field-control mt-1"
+                    value={cadastro.nome}
+                    autoComplete="name"
+                    onChange={(e) => setCadastro((v) => ({ ...v, nome: e.target.value }))}
+                  />
+                </label>
+                <label className="field-label">
+                  CPF ou CNPJ
+                  <input
+                    className="field-control mt-1"
+                    value={cadastro.cpfCnpj}
+                    inputMode="numeric"
+                    onChange={(e) => setCadastro((v) => ({ ...v, cpfCnpj: e.target.value }))}
+                  />
+                </label>
+                <label className="field-label">
+                  E-mail
+                  <input
+                    className="field-control mt-1"
+                    type="email"
+                    value={cadastro.email}
+                    autoComplete="email"
+                    onChange={(e) => setCadastro((v) => ({ ...v, email: e.target.value }))}
+                  />
+                </label>
+                <label className="field-label">
+                  Telefone
+                  <input
+                    className="field-control mt-1"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={cadastro.telefone}
+                    onChange={(e) => setCadastro((v) => ({ ...v, telefone: e.target.value }))}
+                  />
+                </label>
+                <Button
+                  className="sm:col-span-2"
+                  size="lg"
+                  disabled={salvando === "cadastro"}
+                  onClick={() => void salvarDados()}
+                >
+                  {salvando === "cadastro" ? "Salvando…" : "Salvar dados de cobrança"}
+                </Button>
               </div>
             ) : null}
           </section>
 
           <section aria-labelledby="escolher-plano">
-            <h2 id="escolher-plano" className="font-bold text-paper">Planos disponíveis</h2>
-            <p className="mb-3 mt-1 text-sm text-mute">WhatsApp, Secretária e agendamento pelo cliente começam no Conecta.</p>
-          <TabelaDePlanos
-            atual={data.atual}
-            precos={Object.fromEntries(data.planos.map((p) => [p.chave, p.precoMensalCentavos]))}
-            acao={(plano) =>
-              plano.chave === data.atual && !assinatura ? (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="w-full"
-                  onClick={() => void navigate({ to: "/barbeiro/configurar" })}
-                >
-                  Continuar a configuração
-                </Button>
-              ) : data.planos.some((p) => p.chave === plano.chave) ? (
-                <Button
-                  variant={plano.chave === (assinatura?.plano ?? data.atual) ? "outline" : "primary"}
-                  type="button"
-                  className="w-full"
-                  disabled={!data.podeTrocar || salvando !== null}
-                  onClick={() => cobranca.data.configurada ? setPlanoEscolhido(plano.chave) : void selecionar(plano.chave)}
-                >
-                  {salvando === plano.chave ? "Aplicando…" : plano.chave === assinatura?.plano ? "Gerenciar assinatura" : `Escolher ${plano.nome}`}
-                </Button>
-              ) : null
-            }
-          />
+            <h2 id="escolher-plano" className="font-bold text-paper">
+              Planos disponíveis
+            </h2>
+            <p className="mb-3 mt-1 text-sm text-mute">
+              WhatsApp, Secretária e agendamento pelo cliente começam no Conecta.
+            </p>
+            <TabelaDePlanos
+              atual={data.atual}
+              precos={Object.fromEntries(data.planos.map((p) => [p.chave, p.precoMensalCentavos]))}
+              acao={(plano) =>
+                plano.chave === data.atual && !assinatura ? (
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    className="w-full"
+                    onClick={() => void navigate({ to: "/barbeiro/configurar" })}
+                  >
+                    Continuar a configuração
+                  </Button>
+                ) : data.planos.some((p) => p.chave === plano.chave) ? (
+                  <Button
+                    variant={
+                      plano.chave === (assinatura?.plano ?? data.atual) ? "outline" : "primary"
+                    }
+                    type="button"
+                    className="w-full"
+                    disabled={!data.podeTrocar || salvando !== null}
+                    onClick={() =>
+                      cobranca.data.configurada
+                        ? setPlanoEscolhido(plano.chave)
+                        : void selecionar(plano.chave)
+                    }
+                  >
+                    {salvando === plano.chave
+                      ? "Aplicando…"
+                      : plano.chave === assinatura?.plano
+                        ? "Gerenciar assinatura"
+                        : `Escolher ${plano.nome}`}
+                  </Button>
+                ) : null
+              }
+            />
           </section>
 
           {planoEscolhido && cobranca.data.configurada ? (
             <section className="surface p-5" aria-labelledby="confirmar-plano">
-              <h2 id="confirmar-plano" className="font-bold text-paper">Confirmar assinatura</h2>
-              <div className="mt-4 grid grid-cols-2 gap-2" role="group" aria-label="Ciclo da assinatura">
-                {(["mensal", "anual"] as Ciclo[]).map((item) => <Button key={item} variant={ciclo === item ? "primary" : "outline"} aria-pressed={ciclo === item} onClick={() => setCiclo(item)}>{item === "mensal" ? "Mensal" : "Anual"}</Button>)}
+              <h2 id="confirmar-plano" className="font-bold text-paper">
+                Confirmar assinatura
+              </h2>
+              <div
+                className="mt-4 grid grid-cols-2 gap-2"
+                role="group"
+                aria-label="Ciclo da assinatura"
+              >
+                {(["mensal", "anual"] as Ciclo[]).map((item) => (
+                  <Button
+                    key={item}
+                    variant={ciclo === item ? "primary" : "outline"}
+                    aria-pressed={ciclo === item}
+                    onClick={() => setCiclo(item)}
+                  >
+                    {item === "mensal" ? "Mensal" : "Anual"}
+                  </Button>
+                ))}
               </div>
-              <div className="mt-2 grid grid-cols-3 gap-2" role="group" aria-label="Forma de pagamento">
-                {(["pix", "boleto", "cartao"] as Forma[]).map((item) => <Button key={item} variant={forma === item ? "primary" : "outline"} aria-pressed={forma === item} onClick={() => setForma(item)}>{item === "cartao" ? "Cartão" : item === "boleto" ? "Boleto" : "Pix"}</Button>)}
+              <div
+                className="mt-2 grid grid-cols-3 gap-2"
+                role="group"
+                aria-label="Forma de pagamento"
+              >
+                {(["pix", "boleto", "cartao"] as Forma[]).map((item) => (
+                  <Button
+                    key={item}
+                    variant={forma === item ? "primary" : "outline"}
+                    aria-pressed={forma === item}
+                    onClick={() => setForma(item)}
+                  >
+                    {item === "cartao" ? "Cartão" : item === "boleto" ? "Boleto" : "Pix"}
+                  </Button>
+                ))}
               </div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Button size="lg" className="flex-1" disabled={!cobranca.data.cadastro || salvando !== null} onClick={() => void confirmarContratacao()}><CreditCard /> {salvando === planoEscolhido ? "Preparando…" : "Continuar para pagamento"}</Button>
-                <Button variant="ghost" onClick={() => setPlanoEscolhido(null)}>Voltar</Button>
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  disabled={!cobranca.data.cadastro || salvando !== null}
+                  onClick={() => void confirmarContratacao()}
+                >
+                  <CreditCard />{" "}
+                  {salvando === planoEscolhido ? "Preparando…" : "Continuar para pagamento"}
+                </Button>
+                <Button variant="ghost" onClick={() => setPlanoEscolhido(null)}>
+                  Voltar
+                </Button>
               </div>
-              {!cobranca.data.cadastro ? <p className="mt-2 text-sm text-brick">Cadastre os dados de cobrança antes de continuar.</p> : null}
+              {!cobranca.data.cadastro ? (
+                <p className="mt-2 text-sm text-brick">
+                  Cadastre os dados de cobrança antes de continuar.
+                </p>
+              ) : null}
             </section>
           ) : null}
 
           <section aria-labelledby="historico-cobrancas">
-            <h2 id="historico-cobrancas" className="flex items-center gap-2 font-bold text-paper"><ReceiptText className="size-4" /> Histórico de cobranças</h2>
+            <h2 id="historico-cobrancas" className="flex items-center gap-2 font-bold text-paper">
+              <ReceiptText className="size-4" /> Histórico de cobranças
+            </h2>
             {cobranca.data.historico.length ? (
               <ul className="mt-3 divide-y divide-line border-y border-line">
                 {cobranca.data.historico.map((fatura) => (
-                  <li key={fatura.id} className="flex min-h-16 items-center justify-between gap-3 py-3">
-                    <span><strong className="block text-sm text-paper">{brl(fatura.valorCentavos)}</strong><small className="text-mute"><CalendarClock className="mr-1 inline size-3" />{fatura.vencimento ? new Date(`${fatura.vencimento}T12:00:00Z`).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "Sem vencimento"} · {fatura.forma ?? "Forma não informada"}</small></span>
-                    <span className="flex items-center gap-2"><Badge variant={fatura.pagoEm ? "success" : "outline"}>{fatura.pagoEm ? "Pago" : fatura.status}</Badge>{fatura.link && !fatura.pagoEm ? <Button asChild variant="icon" size="icon" aria-label="Abrir cobrança"><a href={fatura.link} target="_blank" rel="noreferrer"><ExternalLink /></a></Button> : null}</span>
+                  <li
+                    key={fatura.id}
+                    className="flex min-h-16 items-center justify-between gap-3 py-3"
+                  >
+                    <span>
+                      <strong className="block text-sm text-paper">
+                        {brl(fatura.valorCentavos)}
+                      </strong>
+                      <small className="text-mute">
+                        <CalendarClock className="mr-1 inline size-3" />
+                        {fatura.vencimento
+                          ? new Date(`${fatura.vencimento}T12:00:00Z`).toLocaleDateString("pt-BR", {
+                              timeZone: "UTC",
+                            })
+                          : "Sem vencimento"}{" "}
+                        · {fatura.forma ?? "Forma não informada"}
+                      </small>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <Badge variant={fatura.pagoEm ? "success" : "outline"}>
+                        {fatura.pagoEm ? "Pago" : fatura.status}
+                      </Badge>
+                      {fatura.link && !fatura.pagoEm ? (
+                        <Button asChild variant="icon" size="icon" aria-label="Abrir cobrança">
+                          <a href={fatura.link} target="_blank" rel="noreferrer">
+                            <ExternalLink />
+                          </a>
+                        </Button>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
-            ) : <p className="mt-3 border-y border-line py-6 text-center text-sm text-mute">Nenhuma cobrança registrada ainda.</p>}
+            ) : (
+              <p className="mt-3 border-y border-line py-6 text-center text-sm text-mute">
+                Nenhuma cobrança registrada ainda.
+              </p>
+            )}
           </section>
           {!data.podeTrocar ? (
             <p className="text-xs text-mute2">
               Só quem pode alterar os dados do negócio troca o plano. Fale com o responsável.
             </p>
           ) : null}
-          <p className="text-xs text-mute2">Trocar de plano não apaga clientes, agendamentos ou serviços.</p>
+          <p className="text-xs text-mute2">
+            Trocar de plano não apaga clientes, agendamentos ou serviços.
+          </p>
         </div>
       )}
     </Screen>

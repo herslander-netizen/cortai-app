@@ -145,7 +145,9 @@ export function AgendaFocoMobile(props: Props) {
   const proximo = proximos[0];
   const fimPrincipal = principal ? new Date(principal.fim).getTime() : agora;
   const inicioProximo = proximo ? new Date(proximo.inicio).getTime() : null;
-  const livreMin = inicioProximo ? Math.floor((inicioProximo - Math.max(agora, fimPrincipal)) / 60_000) : 0;
+  const livreMin = inicioProximo
+    ? Math.floor((inicioProximo - Math.max(agora, fimPrincipal)) / 60_000)
+    : 0;
 
   const contexto = principal
     ? estado === "atendimento"
@@ -224,7 +226,9 @@ export function AgendaFocoMobile(props: Props) {
         </p>
         {props.fila ? (
           <div className="modo-foco-alertas" role="status">
-            <span className="text-sm font-bold text-paper">{props.fila} {props.fila === 1 ? "cliente aguardando" : "clientes aguardando"}</span>
+            <span className="text-sm font-bold text-paper">
+              {props.fila} {props.fila === 1 ? "cliente aguardando" : "clientes aguardando"}
+            </span>
             {props.onChamarFila ? (
               <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
                 <ListOrdered /> Chamar fila
@@ -325,12 +329,18 @@ export function AgendaFocoMobile(props: Props) {
                         <Check /> FINALIZAR
                       </Button>
                     ) : null}
-                    {principal.status === "finalizado" && props.pagamentosPendentes.has(principal.id) ? (
-                      <Button size="lg" disabled={desabilitado} onClick={() => props.onReceber(principal)}>
+                    {principal.status === "finalizado" &&
+                    props.pagamentosPendentes.has(principal.id) ? (
+                      <Button
+                        size="lg"
+                        disabled={desabilitado}
+                        onClick={() => props.onReceber(principal)}
+                      >
                         <HandCoins /> RECEBER
                       </Button>
                     ) : null}
-                    {principal.status === "finalizado" && !props.pagamentosPendentes.has(principal.id) ? (
+                    {principal.status === "finalizado" &&
+                    !props.pagamentosPendentes.has(principal.id) ? (
                       <Button size="lg" onClick={props.onNovoAgendamento}>
                         <CalendarPlus /> NOVO AGENDAMENTO
                       </Button>
@@ -410,9 +420,15 @@ export function AgendaFocoMobile(props: Props) {
                   <span className="modo-foco-tempo-livre-textura" aria-hidden />
                   <div>
                     <strong>{livreMin} min livres</strong>
-                    <small>até {proximo ? hora(proximo.inicio, props.fuso) : "o próximo horário"}</small>
+                    <small>
+                      até {proximo ? hora(proximo.inicio, props.fuso) : "o próximo horário"}
+                    </small>
                   </div>
-                  <Button variant="outline" disabled={desabilitado} onClick={props.onNovoAtendimento}>
+                  <Button
+                    variant="outline"
+                    disabled={desabilitado}
+                    onClick={props.onNovoAtendimento}
+                  >
                     <Plus /> ENCAIXAR CLIENTE
                   </Button>
                 </div>

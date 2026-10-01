@@ -43,14 +43,33 @@ export const getMinhaCobranca = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: assinatura }, { data: cadastro }, { data: faturas }, { configDeCobranca }] =
       await Promise.all([
-        supabaseAdmin.from("assinaturas").select("plano_chave, ciclo, forma, valor_centavos, status, proximo_vencimento, pago_ate, cancelar_no_fim").eq("tenant_id", tenantId).maybeSingle(),
-        supabaseAdmin.from("dados_de_cobranca").select("nome, cpf_cnpj, email, telefone").eq("tenant_id", tenantId).maybeSingle(),
-        supabaseAdmin.from("faturas").select("id, vencimento, valor_centavos, status, forma, pago_em, link_pagamento").eq("tenant_id", tenantId).order("criado_em", { ascending: false }).limit(12),
+        supabaseAdmin
+          .from("assinaturas")
+          .select(
+            "plano_chave, ciclo, forma, valor_centavos, status, proximo_vencimento, pago_ate, cancelar_no_fim",
+          )
+          .eq("tenant_id", tenantId)
+          .maybeSingle(),
+        supabaseAdmin
+          .from("dados_de_cobranca")
+          .select("nome, cpf_cnpj, email, telefone")
+          .eq("tenant_id", tenantId)
+          .maybeSingle(),
+        supabaseAdmin
+          .from("faturas")
+          .select("id, vencimento, valor_centavos, status, forma, pago_em, link_pagamento")
+          .eq("tenant_id", tenantId)
+          .order("criado_em", { ascending: false })
+          .limit(12),
         import("@/lib/cobranca.server"),
       ]);
     const config = await configDeCobranca();
     const lista = faturas ?? [];
-    const aberta = lista.find((f) => !f.pago_em && !["DELETED", "RECEIVED", "CONFIRMED"].includes(String(f.status).toUpperCase()));
+    const aberta = lista.find(
+      (f) =>
+        !f.pago_em &&
+        !["DELETED", "RECEIVED", "CONFIRMED"].includes(String(f.status).toUpperCase()),
+    );
     return {
       configurada: config.ligada,
       assinatura: assinatura
@@ -74,7 +93,11 @@ export const getMinhaCobranca = createServerFn({ method: "GET" })
           }
         : null,
       faturaAberta: aberta
-        ? { vencimento: aberta.vencimento, valorCentavos: aberta.valor_centavos, link: aberta.link_pagamento }
+        ? {
+            vencimento: aberta.vencimento,
+            valorCentavos: aberta.valor_centavos,
+            link: aberta.link_pagamento,
+          }
         : null,
       historico: lista.map((f) => ({
         id: f.id,
@@ -120,14 +143,28 @@ export const salvarMeusDadosDeCobranca = createServerFn({ method: "POST" })
 export const contratarPlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ plano: z.string().regex(/^[a-z0-9_]{2,30}$/), ciclo: z.enum(["mensal", "anual"]), forma: z.enum(["pix", "boleto", "cartao"]) }).parse(input),
+    z
+      .object({
+        plano: z.string().regex(/^[a-z0-9_]{2,30}$/),
+        ciclo: z.enum(["mensal", "anual"]),
+        forma: z.enum(["pix", "boleto", "cartao"]),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_plano");
     const { configDeCobranca, criarAssinatura } = await import("@/lib/cobranca.server");
     if (!(await configDeCobranca()).ligada) {
-      throw new Error("A cobrança online ainda não está configurada. Fale com o suporte do Cortaí.");
+      throw new Error(
+        "A cobrança online ainda não está configurada. Fale com o suporte do Cortaí.",
+      );
     }
-    return criarAssinatura({ tenantId, planoChave: data.plano, ciclo: data.ciclo, forma: data.forma, permitirTeste: true });
+    return criarAssinatura({
+      tenantId,
+      planoChave: data.plano,
+      ciclo: data.ciclo,
+      forma: data.forma,
+      permitirTeste: true,
+    });
   });
