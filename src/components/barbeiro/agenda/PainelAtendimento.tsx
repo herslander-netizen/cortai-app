@@ -2,13 +2,13 @@ import {
   Ban,
   CalendarPlus,
   Check,
-  Clock3,
   HandCoins,
   MessageCircle,
   NotebookPen,
   Phone,
   Scissors,
   UserRoundPlus,
+  UserX,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -243,7 +243,7 @@ export function PainelAtendimento(props: Props) {
                       disabled={bloqueado}
                       onClick={() => setConfirmacao("falta")}
                     >
-                      <Clock3 /> Falta
+                      <UserX /> Faltou
                     </Button>
                   ) : null}
                   {pendente ? (
