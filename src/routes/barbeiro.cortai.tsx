@@ -104,9 +104,7 @@ function Ponto({ ligado }: { ligado: boolean }) {
 
 function CortaiPage() {
   const busca = Route.useSearch();
-  const [aba, setAba] = useState<Aba>(
-    busca.aba ?? "whatsapp",
-  );
+  const [aba, setAba] = useState<Aba>(busca.aba ?? "whatsapp");
   const painel = useQuery({
     queryKey: ["cortai-painel"],
     queryFn: () => getPainelDoCortai() as Promise<PainelDoCortai>,
@@ -949,7 +947,6 @@ function ModalQr({
     document.body,
   );
 }
-
 
 function Bloco({
   titulo,
