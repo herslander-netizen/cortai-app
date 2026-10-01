@@ -278,6 +278,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
             placeholder="WhatsApp com DDD"
             inputMode="tel"
             autoComplete="tel"
+            enterKeyHint="done"
             value={telefone}
             onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
           />

@@ -183,6 +183,7 @@ function FilaPublicaPage() {
               required
               inputMode="tel"
               autoComplete="tel"
+              enterKeyHint="done"
               placeholder="(11) 90000-0000"
               className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
             />

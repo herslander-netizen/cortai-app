@@ -673,6 +673,7 @@ function AgendamentoPublico() {
                 }}
                 inputMode="tel"
                 autoComplete="tel"
+                enterKeyHint="next"
                 placeholder="(00) 00000-0000"
                 aria-invalid={tocouTelefone && Boolean(erroTelefone)}
                 className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
@@ -690,6 +691,7 @@ function AgendamentoPublico() {
                 onChange={(e) => setNome(e.target.value)}
                 onBlur={() => setTocouNome(true)}
                 autoComplete="name"
+                enterKeyHint="done"
                 placeholder="Como quer ser chamado"
                 aria-invalid={tocouNome && Boolean(erroNome)}
                 className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${

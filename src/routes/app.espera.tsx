@@ -75,6 +75,8 @@ function EsperaPage() {
             <span className="text-xs text-mute2">Seu nome</span>
             <input
               value={nome}
+              autoComplete="name"
+              enterKeyHint="next"
               onChange={(e) => setNome(e.target.value)}
               className="input-premium mt-1 w-full"
             />
@@ -85,6 +87,7 @@ function EsperaPage() {
               value={telefone}
               inputMode="tel"
               autoComplete="tel"
+              enterKeyHint="done"
               onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
               className="input-premium mt-1 w-full"
               placeholder="(00) 00000-0000"
