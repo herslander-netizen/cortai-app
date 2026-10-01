@@ -91,6 +91,17 @@ export async function validarAgendamento(
     .gt("fim", new Date(ini - margem).toISOString());
   if (p.ignorarId) consultaProf = consultaProf.neq("id", p.ignorarId);
   const { data: doProf } = await consultaProf;
+  const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+  const extras = await ocupacoesExtras(db, {
+    tenantId: p.tenantId,
+    fuso: regras.fuso,
+    desde: new Date(ini),
+    ate: new Date(fim),
+    profissionalIds: [p.profissionalId],
+  });
+  if (!profissionalLivre(p.profissionalId, ini, fim, extras, 0)) {
+    throw new Error("Esse horário está bloqueado na agenda. Escolha outro.");
+  }
   if (!profissionalLivre(p.profissionalId, ini, fim, (doProf ?? []) as Ocupado[], regras.intervaloEntreMin)) {
     throw new Error("Esse horário acabou de ser reservado, escolha outro");
   }

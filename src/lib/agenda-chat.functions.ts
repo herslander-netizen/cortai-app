@@ -125,7 +125,15 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       .in("status", [...STATUS_QUE_OCUPAM])
       .lt("inicio", fimJanela)
       .gt("fim", inicioJanela);
-    const ocupados = (ocupadosRaw ?? []) as (Ocupado & { clientes?: { nome?: string } | null })[];
+    const ocupados = [
+      ...((ocupadosRaw ?? []) as (Ocupado & { clientes?: { nome?: string } | null })[]),
+      ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+        tenantId,
+        fuso: regras.fuso,
+        desde: new Date(inicioJanela),
+        ate: new Date(fimJanela),
+      })),
+    ] as (Ocupado & { clientes?: { nome?: string } | null })[];
 
     const escolhido =
       data.profissionalId && profissionais.some((p) => p.id === data.profissionalId)

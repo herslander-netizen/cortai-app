@@ -112,7 +112,15 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         fidelidade_progresso: 0,
       },
       regras,
-      ocupados: ocupados ?? [],
+      ocupados: [
+        ...(ocupados ?? []),
+        ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+          tenantId: tenant.id,
+          fuso: regrasAgenda.fuso,
+          desde,
+          ate,
+        })),
+      ],
       horarios: regrasAgenda.horarios,
       fuso: regrasAgenda.fuso,
       regrasAgenda: {

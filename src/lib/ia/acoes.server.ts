@@ -150,7 +150,15 @@ export async function consultarDisponibilidade(
     escolhido: input.profissionalId ?? "qualquer",
     horarios: expediente,
     fuso: regras.fuso,
-    ocupados: ocupados ?? [],
+    ocupados: [
+      ...(ocupados ?? []),
+      ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+        tenantId: ctx.tenantId,
+        fuso: regras.fuso,
+        desde: inicioJanela,
+        ate: fimJanela,
+      })),
+    ],
     regras: {
       antecedenciaMin: regras.antecedenciaMin,
       intervaloEntreMin: regras.intervaloEntreMin,
