@@ -19,6 +19,8 @@ export function destinoDoPapel(sessao: Sessao): Destino {
 export function destinoSolicitadoPermitido(proximo: string | undefined, destino: Destino): string | null {
   if (!proximo || !proximo.startsWith("/") || proximo.startsWith("//")) return null;
   const caminho = proximo.split("?")[0] ?? "";
+  // Autorização de assistentes externos (MCP): volta à tela de consentimento.
+  if (caminho === "/.lovable/oauth/consent") return proximo;
   if (caminho === destino || caminho.startsWith(`${destino}/`)) return proximo;
   return null;
 }

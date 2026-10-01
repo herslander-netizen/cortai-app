@@ -20,10 +20,12 @@ import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as VisitanteRouteImport } from './routes/visitante'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminApresentacaoRouteImport } from './routes/admin.apresentacao'
@@ -78,6 +80,7 @@ import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
@@ -146,6 +149,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
@@ -166,6 +174,12 @@ const VisitanteRoute = VisitanteRouteImport.update({
   path: '/visitante',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -436,6 +450,11 @@ const VagaTokenRoute = VagaTokenRouteImport.update({
   path: '/vaga/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
   id: '/api/public/alvo-ia',
   path: '/api/public/alvo-ia',
@@ -508,10 +527,12 @@ export interface FileRoutesByFullPath {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
@@ -566,6 +587,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
@@ -587,10 +609,12 @@ export interface FileRoutesByTo {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
@@ -644,6 +668,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
@@ -669,10 +694,12 @@ export interface FileRoutesById {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/visitante': typeof VisitanteRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
@@ -727,6 +754,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
@@ -753,10 +781,12 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
     | '/admin/barbearias'
@@ -811,6 +841,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
@@ -832,10 +863,12 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
     | '/admin/barbearias'
@@ -889,6 +922,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/barbeiro'
+    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
@@ -913,10 +947,12 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/visitante'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
     | '/admin/barbearias'
@@ -971,6 +1007,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
@@ -996,10 +1033,12 @@ export interface RootRouteChildren {
   ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
   LoginRoute: typeof LoginRoute
+  McpRoute: typeof McpRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   VisitanteRoute: typeof VisitanteRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   AvaliarTokenRoute: typeof AvaliarTokenRoute
   BSlugRoute: typeof BSlugRoute
@@ -1008,6 +1047,7 @@ export interface RootRouteChildren {
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
   VagaTokenRoute: typeof VagaTokenRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
@@ -1098,6 +1138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidade': {
       id: '/privacidade'
       path: '/privacidade'
@@ -1124,6 +1171,13 @@ declare module '@tanstack/react-router' {
       path: '/visitante'
       fullPath: '/visitante'
       preLoaderRoute: typeof VisitanteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -1504,6 +1558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VagaTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/alvo-ia': {
       id: '/api/public/alvo-ia'
       path: '/api/public/alvo-ia'
@@ -1727,10 +1788,13 @@ const rootRouteChildren: RootRouteChildren = {
   ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
   LoginRoute: LoginRoute,
+  McpRoute: McpRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   VisitanteRoute: VisitanteRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   AvaliarTokenRoute: AvaliarTokenRoute,
   BSlugRoute: BSlugRoute,
@@ -1739,6 +1803,7 @@ const rootRouteChildren: RootRouteChildren = {
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
   VagaTokenRoute: VagaTokenRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,

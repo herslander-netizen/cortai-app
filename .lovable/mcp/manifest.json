@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.4",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://nigpokzwjqepfulpnmjc.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "cort",
+      "version": "0.1.0",
+      "title": "Cortaí"
+    },
+    "tools": [
+      {
+        "name": "listar_servicos",
+        "title": "Listar serviços",
+        "description": "Lista os serviços ativos do negócio do usuário, com duração e preço.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "listar_agendamentos",
+        "title": "Listar agendamentos",
+        "description": "Lista os agendamentos do negócio do usuário entre duas datas/horas ISO (máximo 31 dias).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inicio": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Início do período, ISO 8601 com fuso."
+            },
+            "fim": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Fim do período, ISO 8601 com fuso."
+            }
+          },
+          "required": [
+            "inicio",
+            "fim"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
