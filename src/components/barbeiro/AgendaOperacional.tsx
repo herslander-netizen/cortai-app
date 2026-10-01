@@ -240,6 +240,7 @@ export function AgendaOperacional() {
   const [manualAberto, setManualAberto] = useState(
     acaoInicial === "agendamento" || acaoInicial === "cliente",
   );
+  const [novoCliente, setNovoCliente] = useState(acaoInicial === "cliente");
   const [rapidoAberto, setRapidoAberto] = useState(acaoInicial === "atendimento");
   const [sugestaoFila, setSugestaoFila] = useState(false);
   const [perfil, setPerfil] = useState<string | null>(null);
@@ -257,6 +258,7 @@ export function AgendaOperacional() {
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
   const filtroInicial = useRef(false);
   const [modoFoco, setModoFoco] = useState(false);
+  const [focoMobileFechado, setFocoMobileFechado] = useState(false);
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
   const [dicaVisivel, setDicaVisivel] = useState(false);
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
@@ -671,6 +673,10 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
+      onNovoCliente={() => {
+        setNovoCliente(true);
+        setManualAberto(true);
+      }}
       comBotaoFechar={!modoFoco}
     />
   );
@@ -731,13 +737,15 @@ export function AgendaOperacional() {
               dia={dia}
               {...(horaVazia ? { horaInicial: horaVazia } : {})}
               profissionalInicial={nomeDoProf(profVazio ?? profFiltro ?? meuId)}
+              iniciarNovoCliente={novoCliente}
               autoAbrir
               rotulo="Novo agendamento"
-              onCriado={() => {
+              onCriado={(agendamentoId) => {
                 setManualAberto(false);
+                setNovoCliente(false);
                 setHoraVazia(undefined);
                 setProfVazio(null);
-                void sincronizar();
+                void sincronizar().then(() => abrir(agendamentoId));
               }}
             />
           </Suspense>
@@ -852,7 +860,8 @@ export function AgendaOperacional() {
     </>
   );
 
-  if (modoFoco) {
+  const focoAtivo = modoFoco || (celular && !focoMobileFechado);
+  if (focoAtivo) {
     return (
       <Screen title="Agenda" hideHeader wide>
         {faixa}
@@ -867,7 +876,10 @@ export function AgendaOperacional() {
           ocupado={ocupado}
           carregando={carregandoInicial}
           erro={erroInicial ? (mensagemErro ?? "Tente novamente.") : null}
-          onSair={sairDoModoFoco}
+          onSair={() => {
+            if (modoFoco) sairDoModoFoco();
+            else setFocoMobileFechado(true);
+          }}
           onDia={mudarDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
@@ -878,6 +890,9 @@ export function AgendaOperacional() {
           onChamarFila={() => void chamarFila()}
           onAcoes={() => setMenuAberto(true)}
           onNovoAtendimento={() => setRapidoAberto(true)}
+          onNovoAgendamento={() => setManualAberto(true)}
+          onReceber={(item) => setFechando(item.id)}
+          pagamentosPendentes={new Set(aReceber.map((item) => item.agendamentoId))}
           onTentarNovamente={() => void agenda.refetch()}
         />
         {compartilhados}

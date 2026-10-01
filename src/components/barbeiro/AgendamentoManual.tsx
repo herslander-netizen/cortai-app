@@ -35,7 +35,7 @@ export function AgendamentoManual({
   dia: string;
   horaInicial?: string;
   profissionalInicial?: string | null;
-  onCriado?: () => void;
+  onCriado?: (agendamentoId: string) => void;
   gatilho?: "primario" | "discreto";
   rotulo?: string;
   autoAbrir?: boolean;
@@ -82,7 +82,7 @@ function Formulario({
   horaInicial?: string;
   profissionalInicial?: string | null;
   onFechar: () => void;
-  onCriado: () => void;
+  onCriado: (agendamentoId: string) => void;
   iniciarNovoCliente?: boolean;
 }) {
   const criar = useServerFn(criarAgendamentoManual);
@@ -177,7 +177,7 @@ function Formulario({
       }
       // Visto animado por um instante antes de fechar.
       setConfirmado(true);
-      setTimeout(() => onCriado(), 700);
+      setTimeout(() => onCriado(r.agendamentoId), 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível agendar agora.");
       setSalvando(false);

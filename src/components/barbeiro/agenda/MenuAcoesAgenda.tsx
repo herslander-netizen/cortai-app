@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { CalendarPlus, Clock3, Plus, Scissors, UserPlus, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
