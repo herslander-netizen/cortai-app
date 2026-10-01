@@ -28,9 +28,9 @@ export function Signature() {
 
   return (
     <footer className="mt-8 border-t border-line px-5 py-4 text-xs text-mute md:px-8">
-      <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4 sm:gap-y-1">
-        <div className="flex min-h-12 items-center gap-3">
-          <MarcaCortai variante="automatica" className="h-auto w-16 opacity-70" />
+      <div className="mx-auto flex max-w-[1180px] flex-col items-center">
+        <div className="flex min-h-12 w-full flex-wrap items-center justify-center gap-x-3">
+          <MarcaCortai variante="automatica" className="h-auto w-14 opacity-70" />
           <span className="h-4 w-px bg-line" aria-hidden />
           {link ? (
             <a
@@ -46,11 +46,9 @@ export function Signature() {
           ) : (
             <span className="font-semibold">Alvo Digital</span>
           )}
+          <span className="text-mute2" aria-hidden>•</span>
+          <p className="leading-relaxed">Simplifica. Conecta. Cresce.</p>
         </div>
-
-        <span className="hidden text-mute2 sm:inline" aria-hidden>•</span>
-        <p className="leading-relaxed">Simplifica. Conecta. Cresce.</p>
-        <span className="hidden text-mute2 sm:inline" aria-hidden>•</span>
         <div className="flex min-h-12 flex-wrap items-center justify-center gap-x-3">
           <Link to="/privacidade" className="inline-flex min-h-12 items-center transition-colors hover:text-gold">
             Privacidade
