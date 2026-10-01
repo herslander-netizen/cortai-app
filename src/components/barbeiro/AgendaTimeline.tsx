@@ -537,9 +537,7 @@ export function AgendaTimeline({
                       <Check className="agenda-check-finalizado" aria-label="Finalizado" />
                     ) : null}
                     {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
-                    {ehHoje && estaAtrasado(item, agora) ? (
-                      <StatusBadge status="nao_compareceu" label="Atrasado" />
-                    ) : null}
+                    {ehHoje && estaAtrasado(item, agora) ? <StatusBadge status="atrasado" /> : null}
                     {item.encaixe ? <StatusBadge status="encaixe" /> : null}
                     {item.confirmadoEm && item.status === "agendado" ? (
                       <StatusBadge status="confirmado" label="Confirmou" />
