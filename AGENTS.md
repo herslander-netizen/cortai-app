@@ -14,7 +14,7 @@
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
 - Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
-- Visual: `styles.css`, Manrope, marinho/royal/rosa; nunca verde/dourado/Barlow. Ícone CortAI via `IconeDaIA`.
+- Contrato de design (obrigatório em toda tela): `docs/contrato-de-design.md`. Ícone CortAI via `IconeDaIA`.
 - Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
 - Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.
 - Chats públicos: mesmo motor, `PaginaConfig`, `ChatShell`, `ChatHeader`.
