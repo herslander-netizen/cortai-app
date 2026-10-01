@@ -31,4 +31,3 @@
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
 - Movimento: escala única de 120/200/280 ms; só transform/opacity, cascata até 6 itens e redução de movimento global — evita peso e inconsistência.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
-- Botões que funcionam como cartões usam `Button size="bloco"` — preserva altura livre, empilhamento e quebra de texto no celular.
