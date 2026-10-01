@@ -692,9 +692,7 @@ export function AgendaOperacional() {
       aberto={menuAberto}
       onAberto={setMenuAberto}
       fila={chegada.length}
-      proximoDaFila={
-        chegada[0] ? nomeDaAgenda(chegada[0].cliente, modoDiscreto) : undefined
-      }
+      proximoDaFila={chegada[0] ? nomeDaAgenda(chegada[0].cliente, modoDiscreto) : undefined}
       online={online}
       ocupado={ocupado}
       onNovoAgendamento={() => setManualAberto(true)}

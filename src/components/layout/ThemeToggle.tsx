@@ -5,7 +5,15 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { aviso } from "@/lib/avisos";
-import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, modoSalvo, type Identidade, type Modo } from "@/lib/aparencia";
+import {
+  APPEARANCE_EVENT,
+  aplicarIdentidade,
+  aplicarModo,
+  identidadeValida,
+  modoSalvo,
+  type Identidade,
+  type Modo,
+} from "@/lib/aparencia";
 import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 
 const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string; descricao: string }> = [
@@ -22,11 +30,21 @@ const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
   { id: "sistema", nome: "Sistema", icon: Monitor },
 ];
 
-export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdentidade = false }: { identidadeDaBarbearia?: string | undefined; tenantId?: string | undefined; podeAlterarIdentidade?: boolean | undefined }) {
+export function ThemeToggle({
+  identidadeDaBarbearia,
+  tenantId,
+  podeAlterarIdentidade = false,
+}: {
+  identidadeDaBarbearia?: string | undefined;
+  tenantId?: string | undefined;
+  podeAlterarIdentidade?: boolean | undefined;
+}) {
   const queryClient = useQueryClient();
   const salvarIdentidade = useServerFn(salvarIdentidadeApp);
   const [modo, setModo] = useState<Modo>("escuro");
-  const [identidade, setIdentidade] = useState<Identidade>(() => identidadeValida(identidadeDaBarbearia));
+  const [identidade, setIdentidade] = useState<Identidade>(() =>
+    identidadeValida(identidadeDaBarbearia),
+  );
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
@@ -62,7 +80,9 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
     } catch (error) {
       setIdentidade(anterior);
       aplicarIdentidade(anterior);
-      aviso.erro(error instanceof Error ? error.message : "Não foi possível salvar a identidade agora.");
+      aviso.erro(
+        error instanceof Error ? error.message : "Não foi possível salvar a identidade agora.",
+      );
     } finally {
       setSalvando(false);
     }
@@ -73,23 +93,49 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
       <div className="flex min-h-12 items-center gap-3">
         <Palette size={18} strokeWidth={1.75} className="shrink-0 text-mute" />
         <span className="min-w-0">
-          <span id="aparencia-titulo" className="block text-sm font-semibold text-paper">Aparência</span>
-          <span className="mt-0.5 block text-xs text-mute">{podeAlterarIdentidade ? "Identidade do negócio e modo deste aparelho" : "Modo deste aparelho"}</span>
+          <span id="aparencia-titulo" className="block text-sm font-semibold text-paper">
+            Aparência
+          </span>
+          <span className="mt-0.5 block text-xs text-mute">
+            {podeAlterarIdentidade
+              ? "Identidade do negócio e modo deste aparelho"
+              : "Modo deste aparelho"}
+          </span>
         </span>
       </div>
 
-      {podeAlterarIdentidade && tenantId ? <div className="mt-4">
-        <p className="mb-2 text-xs font-semibold text-mute">Identidade</p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5" role="group" aria-label="Identidade visual">
-          {OPCOES_DE_IDENTIDADE.map((item) => (
-            <Button key={item.id} type="button" variant="outline" disabled={salvando} onClick={() => void alterarIdentidade(item.id)} aria-pressed={identidade === item.id} className="identity-choice h-12 justify-start px-3" data-identity-choice={item.id}>
-              <span className="identity-swatch" aria-hidden />
-              <span className="min-w-0 text-left"><span className="block truncate">{item.nome}</span><span className="block truncate text-[10px] font-normal text-mute">{item.descricao}</span></span>
-              {identidade === item.id ? <Check className="ml-auto" strokeWidth={1.75} /> : null}
-            </Button>
-          ))}
+      {podeAlterarIdentidade && tenantId ? (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-semibold text-mute">Identidade</p>
+          <div
+            className="grid grid-cols-2 gap-2 sm:grid-cols-5"
+            role="group"
+            aria-label="Identidade visual"
+          >
+            {OPCOES_DE_IDENTIDADE.map((item) => (
+              <Button
+                key={item.id}
+                type="button"
+                variant="outline"
+                disabled={salvando}
+                onClick={() => void alterarIdentidade(item.id)}
+                aria-pressed={identidade === item.id}
+                className="identity-choice h-12 justify-start px-3"
+                data-identity-choice={item.id}
+              >
+                <span className="identity-swatch" aria-hidden />
+                <span className="min-w-0 text-left">
+                  <span className="block truncate">{item.nome}</span>
+                  <span className="block truncate text-[10px] font-normal text-mute">
+                    {item.descricao}
+                  </span>
+                </span>
+                {identidade === item.id ? <Check className="ml-auto" strokeWidth={1.75} /> : null}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div> : null}
+      ) : null}
 
       <div className="mt-4">
         <p className="mb-2 text-xs font-semibold text-mute">Modo</p>
@@ -97,7 +143,14 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
           {MODOS.map((item) => {
             const Icon = item.icon;
             return (
-              <Button key={item.id} type="button" variant={modo === item.id ? "default" : "outline"} onClick={() => alterarModo(item.id)} aria-pressed={modo === item.id} className="h-12 min-w-0 px-2">
+              <Button
+                key={item.id}
+                type="button"
+                variant={modo === item.id ? "default" : "outline"}
+                onClick={() => alterarModo(item.id)}
+                aria-pressed={modo === item.id}
+                className="h-12 min-w-0 px-2"
+              >
                 <Icon strokeWidth={1.75} />
                 <span className="truncate">{item.nome}</span>
               </Button>
@@ -122,7 +175,8 @@ export function ModeMenuItem() {
     return () => window.removeEventListener(APPEARANCE_EVENT, atualizar);
   }, []);
 
-  const escuro = typeof window !== "undefined" && document.documentElement.classList.contains("dark");
+  const escuro =
+    typeof window !== "undefined" && document.documentElement.classList.contains("dark");
   const Icon = escuro ? Sun : Moon;
   const proximo: Modo = escuro ? "claro" : "escuro";
   return (

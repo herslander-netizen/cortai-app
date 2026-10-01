@@ -1,4 +1,5 @@
 - Preferências locais da Agenda (visualização e modo discreto) ficam em `agenda/preferencias.ts`; componentes recebem uma única flag — evita estado visual divergente.
+
 <!-- LOVABLE:BEGIN -->
 
 > [!IMPORTANT]

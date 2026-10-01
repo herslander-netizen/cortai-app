@@ -45,10 +45,7 @@ export function ultimaVisaoCompleta(armazenamento?: Armazenamento): VisaoComplet
   return ler(CHAVE_VISAO_COMPLETA, armazenamento) === "timeline" ? "timeline" : "lista";
 }
 
-export function salvarPreferenciaAgenda(
-  valor: PreferenciaAgenda,
-  armazenamento?: Armazenamento,
-) {
+export function salvarPreferenciaAgenda(valor: PreferenciaAgenda, armazenamento?: Armazenamento) {
   salvar(CHAVE_VISAO, valor, armazenamento);
   if (valor === "lista" || valor === "timeline") salvar(CHAVE_VISAO_COMPLETA, valor, armazenamento);
 }

@@ -229,9 +229,7 @@ export function AgendaFocoMobile(props: Props) {
         </p>
         {props.fila ? (
           <div className="modo-foco-alertas" role="status">
-            <span className="text-sm font-bold text-paper">
-              {props.fila} na fila de chegada
-            </span>
+            <span className="text-sm font-bold text-paper">{props.fila} na fila de chegada</span>
             {props.onChamarFila ? (
               <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
                 <ListOrdered /> Chamar fila

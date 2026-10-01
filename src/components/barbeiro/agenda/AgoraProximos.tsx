@@ -130,8 +130,7 @@ export function AgoraProximos({
         <div className="agenda-livre-agora" role="status">
           <p>
             <span className="agenda-rotulo">Pendente</span>{" "}
-            {nomeDaAgenda(pendente.cliente, discreto)},{" "}
-            {hora(pendente.inicio, fuso)} · atrasado
+            {nomeDaAgenda(pendente.cliente, discreto)}, {hora(pendente.inicio, fuso)} · atrasado
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {agora < new Date(pendente.fim).getTime() ? (
@@ -201,9 +200,7 @@ export function AgoraProximos({
                 <span className="agenda-rotulo">Próximo</span>
                 <strong className="text-sm text-paper">{hora(item.inicio, fuso)}</strong>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-paper">
-                    {nome}
-                  </span>
+                  <span className="block truncate text-sm font-semibold text-paper">{nome}</span>
                   <span className="block truncate text-xs text-mute">
                     {item.servico}
                     {espera > 0 ? (
