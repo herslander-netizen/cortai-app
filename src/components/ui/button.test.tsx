@@ -48,4 +48,16 @@ describe("Button", () => {
     const { button } = render(<Button variant="icon" aria-label="Fechar">×</Button>);
     expect(button.getAttribute("aria-label")).toBe("Fechar");
   });
+
+  it("permite conteúdo em bloco sem altura ou quebra forçadas", () => {
+    const { button } = render(
+      <Button size="bloco">
+        <span>Nome</span>
+        <small>Descrição em mais de uma linha</small>
+      </Button>,
+    );
+    expect(button.className).toContain("h-auto");
+    expect(button.className).toContain("flex-col");
+    expect(button.className).toContain("whitespace-normal");
+  });
 });
