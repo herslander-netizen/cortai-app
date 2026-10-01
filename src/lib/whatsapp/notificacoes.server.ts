@@ -462,7 +462,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const { data: ag } = await db
     .from("agendamentos")
     .select(
-      "id, tenant_id, cliente_id, inicio, status, valor_centavos, clientes(nome, telefone, opt_in_whatsapp), servicos(nome), profissionais(nome)",
+      "id, tenant_id, cliente_id, inicio, status, valor_centavos, clientes(nome, telefone, opt_in_whatsapp, sem_whatsapp_em, marketing_suprimido_em), servicos(nome), profissionais(nome)",
     )
     .eq("id", agendamentoId)
     .maybeSingle();
@@ -484,17 +484,26 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       nome: string;
       telefone: string | null;
       opt_in_whatsapp: boolean | null;
+      sem_whatsapp_em: string | null;
+      marketing_suprimido_em: string | null;
     } | null;
     servicos: { nome?: string } | null;
     profissionais: { nome?: string } | null;
   };
-  const cliente = relacoes.clientes as {
-    nome: string;
-    telefone: string | null;
-    opt_in_whatsapp: boolean | null;
-  } | null;
+  const cliente = relacoes.clientes;
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
+  // A Meta já disse que este número não recebe WhatsApp: não repete.
+  if (cliente?.sem_whatsapp_em) return { enviado: false, motivo: "Telefone do cliente sem WhatsApp." };
+  if (tipo === "retorno" && cliente?.marketing_suprimido_em) {
+    return { enviado: false, motivo: "Cliente pediu para não receber mensagens de relacionamento." };
+  }
+  if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
+    const { lembretePerdeuOMomento } = await import("./erros-meta");
+    if (lembretePerdeuOMomento(ag.inicio, tipo === "lembrete_24h" ? 24 : 2)) {
+      return { enviado: false, motivo: "Lembrete perdeu o momento." };
+    }
+  }
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
   if (
     ["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) &&
@@ -526,12 +535,20 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.
   const { data: existente } = await db
     .from("envios_de_whatsapp")
-    .select("id, status, tentativas")
+    .select("id, status, tentativas, proxima_tentativa_em")
     .eq("agendamento_id", agendamentoId)
     .eq("tipo", tipo)
     .maybeSingle();
-  if (existente && (existente.status === "enviado" || existente.status === "enviando")) {
+  // Só "erro" (temporário) e "pendente" podem tentar de novo.
+  if (existente && existente.status !== "erro" && existente.status !== "pendente") {
     return { enviado: false, motivo: "Mensagem já processada." };
+  }
+  if (
+    existente &&
+    (existente as { proxima_tentativa_em?: string | null }).proxima_tentativa_em &&
+    new Date((existente as { proxima_tentativa_em: string }).proxima_tentativa_em).getTime() > Date.now()
+  ) {
+    return { enviado: false, motivo: "Aguardando o momento da nova tentativa." };
   }
   if (existente && existente.tentativas >= MAX_TENTATIVAS) {
     return { enviado: false, motivo: "Limite de tentativas atingido." };
@@ -570,24 +587,29 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       return { enviado: false, motivo: "Mensagem já processada." };
   }
 
+  /** Erro sem envio à Meta (regra interna): não repete. */
   const marcarErro = async (motivo: string) => {
     if (!registroId) return { enviado: false, motivo };
     await db
       .from("envios_de_whatsapp")
-      .update({ status: "erro", erro: motivo.slice(0, 500) })
+      .update({ status: "falhou", erro: motivo.slice(0, 500), falhou_em: new Date().toISOString() })
       .eq("id", registroId);
     return { enviado: false, motivo };
   };
+  /** Erro do envio: aplica o mapa de erros da Meta (repetir, suprimir, avisar). */
+  const marcarFalhaDoEnvio = async (motivo: string, conteudo: string) => {
+    if (!registroId) return { enviado: false, motivo };
+    await db.from("envios_de_whatsapp").update({ conteudo }).eq("id", registroId);
+    const { lerErroMeta } = await import("./erros-meta");
+    const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
+    const { codigo, httpStatus } = lerErroMeta(motivo);
+    await aplicarFalhaDeEnvio({ envioId: registroId, codigo, httpStatus, motivo });
+    return { enviado: false, motivo };
+  };
 
-  // A conexão é SEMPRE a do negócio dono do agendamento.
-  const { data: conexao } = await db
-    .from("conexoes_whatsapp")
-    .select("id, sessao_id, status")
-    .eq("tenant_id", ag.tenant_id)
-    .maybeSingle();
-  if (!conexao || conexao.status !== "conectado") {
-    return marcarErro("WhatsApp do negócio não está conectado.");
-  }
+  // Remetente: conexão própria do negócio ou, na falta, o número oficial do Cortaí.
+  const { conexaoDeEnvio, SEM_WHATSAPP_DISPONIVEL } = await import("./conexao-envio.server");
+  const conexao = await conexaoDeEnvio(ag.tenant_id);
 
   const { data: tenant } = await db
     .from("tenants")
