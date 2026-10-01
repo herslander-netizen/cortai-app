@@ -37,6 +37,7 @@ type MudancaMeta = {
       id?: string;
       status?: string;
       recipient_id?: string;
+      timestamp?: string;
       errors?: { code?: number; title?: string; message?: string }[];
     }[];
     errors?: { code?: number; title?: string; message?: string }[];
