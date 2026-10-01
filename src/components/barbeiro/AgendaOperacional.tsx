@@ -1153,6 +1153,11 @@ export function AgendaOperacional() {
               onAbrir={abrir}
               onPerfil={setPerfil}
               onFalta={(i) => void transicionar(i, "nao_compareceu")}
+              onAcao={(i, acao) => {
+                if (acao === "chegou") void transicionar(i, "chegou");
+                else if (acao === "iniciar") iniciar(i);
+                else void transicionar(i, "finalizado");
+              }}
             />
           )}
         </div>
