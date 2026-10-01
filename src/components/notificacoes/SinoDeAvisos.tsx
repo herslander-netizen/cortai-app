@@ -106,7 +106,9 @@ export function SinoDeAvisos() {
         /* silencioso: navegar é mais importante que marcar */
       }
     }
-    if (aviso.link) void navigate({ to: aviso.link as never });
+    if (aviso.link?.startsWith("https://wa.me/")) {
+      window.open(aviso.link, "_blank", "noopener,noreferrer");
+    } else if (aviso.link) void navigate({ to: aviso.link as never });
   }
 
   const conteudo = (
