@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import type { AgendaDia } from "@/lib/barbeiro.functions";
 import { criarBloqueio, listarBloqueiosDoDia, removerBloqueio } from "@/lib/bloqueios.functions";
-import { avisar } from "@/lib/avisos";
+import { aviso } from "@/lib/avisos";
 
 import { dataEditorial } from "./tempo";
 
@@ -58,21 +58,21 @@ export function BloquearHorarioSheet({
     onSuccess: (r) => {
       atualizar();
       setMotivo("");
-      avisar.sucesso(
+      aviso.ok(
         r.atendimentosNoPeriodo
           ? `Horário bloqueado. Há ${r.atendimentosNoPeriodo} atendimento(s) nesse período; eles continuam marcados.`
           : "Horário bloqueado. Clientes não conseguem marcar nesse período.",
       );
     },
-    onError: (e) => avisar.erro(e instanceof Error ? e.message : "Não foi possível bloquear."),
+    onError: (e) => aviso.erro(e instanceof Error ? e.message : "Não foi possível bloquear."),
   });
   const liberar = useMutation({
     mutationFn: (id: string) => remover({ data: { id } }),
     onSuccess: () => {
       atualizar();
-      avisar.sucesso("Horário liberado.");
+      aviso.ok("Horário liberado.");
     },
-    onError: () => avisar.erro("Não foi possível liberar. Tente de novo."),
+    onError: () => aviso.erro("Não foi possível liberar. Tente de novo."),
   });
   const hora = (iso: string) =>
     new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });

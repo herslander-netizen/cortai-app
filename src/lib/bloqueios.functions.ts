@@ -184,3 +184,16 @@ export const salvarEscalaDoProfissional = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export const listarEquipeDaEscala = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { data } = await context.supabase
+      .from("profissionais")
+      .select("id, nome")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true)
+      .order("nome");
+    return (data ?? []) as { id: string; nome: string }[];
+  });
