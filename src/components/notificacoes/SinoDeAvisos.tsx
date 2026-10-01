@@ -17,6 +17,7 @@ import {
 import { mostrarAviso } from "@/lib/avisos-do-navegador";
 import { molaFolha, transicaoBase } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
+import { Button } from "@/components/ui/button";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -183,12 +184,14 @@ export function SinoDeAvisos() {
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={() => setAberto(true)}
         aria-label={naoLidas ? `Avisos, ${naoLidas} não lidos` : "Avisos"}
-        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line text-mute transition-colors hover:border-gold hover:text-gold ${
-          pulsar && !menosMovimento ? "animate-pulse border-gold text-gold" : ""
+        className={`relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold ${
+          pulsar && !menosMovimento ? "animate-pulse text-gold" : ""
         }`}
       >
         <Bell size={17} strokeWidth={1.7} aria-hidden />
@@ -197,7 +200,7 @@ export function SinoDeAvisos() {
             {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}
-      </button>
+      </Button>
 
       {typeof document !== "undefined"
         ? createPortal(

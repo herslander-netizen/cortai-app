@@ -4,6 +4,8 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
+  Eye,
+  EyeOff,
   List,
   ListOrdered,
   Lock,
@@ -49,6 +51,8 @@ export function CabecalhoAgenda({
   onVisualizacao,
   mostrarSemana,
   onTeclasVisualizacao,
+  discreto,
+  onDiscreto,
   children,
 }: {
   dia: string;
@@ -64,6 +68,8 @@ export function CabecalhoAgenda({
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
   mostrarSemana: boolean;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
+  discreto: boolean;
+  onDiscreto: () => void;
   children?: ReactNode;
 }) {
   const [calendario, setCalendario] = useState(false);
@@ -116,27 +122,41 @@ export function CabecalhoAgenda({
         >
           <ChevronRight />
         </Button>
+        {discreto ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto"
+            aria-label="Desativar modo discreto"
+            onClick={onDiscreto}
+          >
+            <EyeOff />
+          </Button>
+        ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
               aria-label="Mais opções da agenda"
-              className="relative ml-auto"
+              className={`relative ${discreto ? "" : "ml-auto"}`}
             >
               <MoreHorizontal />
               {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
-            <DropdownMenuItem className="min-h-11" onSelect={onModoFoco}>
+            <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
               {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
             </DropdownMenuItem>
-            <DropdownMenuItem className="min-h-11" onSelect={onFila}>
+            <DropdownMenuItem className="min-h-12" onSelect={onFila}>
               <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
             </DropdownMenuItem>
+            <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
+              {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
+            </DropdownMenuItem>
             {guiaDisponivel ? (
-              <DropdownMenuItem className="min-h-11" onSelect={abrirGuia}>
+              <DropdownMenuItem className="min-h-12" onSelect={abrirGuia}>
                 <HelpCircle /> Ajuda desta tela
               </DropdownMenuItem>
             ) : null}

@@ -152,8 +152,8 @@ export function MenuAcoesAgenda({
               <strong>Chamar próximo da fila</strong>
               <small>
                 {fila
-                  ? `${proximoDaFila ?? "Cliente"} está aguardando`
-                  : "Ninguém aguardando agora"}
+                  ? `${proximoDaFila ?? "Cliente"} é o próximo da fila`
+                  : "Ninguém na fila agora"}
               </small>
             </span>
           </Button>

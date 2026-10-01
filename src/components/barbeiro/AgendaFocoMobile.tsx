@@ -11,7 +11,7 @@ import {
   MoreHorizontal,
   Plus,
   Scissors,
-  UserRoundCheck,
+  UserRoundPlus,
   XCircle,
 } from "lucide-react";
 import { useMemo } from "react";
@@ -25,7 +25,7 @@ import { brl } from "@/lib/format";
 import { resumoDoDia } from "@/lib/resumo-dia";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
-import { estaAtrasado } from "@/components/barbeiro/agenda/tempo";
+import { estaAtrasado, nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
 
 type Props = {
   dia: string;
@@ -54,6 +54,7 @@ type Props = {
   onReceber: (item: AgendaItem) => void;
   pagamentosPendentes: Set<string>;
   onTentarNovamente: () => void;
+  discreto?: boolean;
 };
 
 function somarDias(dia: string, passo: number) {
@@ -224,13 +225,11 @@ export function AgendaFocoMobile(props: Props) {
         <p className="modo-foco-resumo">
           {resumo.restantes}{" "}
           {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
-          {resumo.faturado ? ` · ${brl(resumo.faturado)}` : ""}
+          {resumo.faturado ? ` · ${props.discreto ? "R$ •••" : brl(resumo.faturado)}` : ""}
         </p>
         {props.fila ? (
           <div className="modo-foco-alertas" role="status">
-            <span className="text-sm font-bold text-paper">
-              {props.fila} {props.fila === 1 ? "cliente aguardando" : "clientes aguardando"}
-            </span>
+            <span className="text-sm font-bold text-paper">{props.fila} na fila de chegada</span>
             {props.onChamarFila ? (
               <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
                 <ListOrdered /> Chamar fila
@@ -272,7 +271,7 @@ export function AgendaFocoMobile(props: Props) {
                   <div className="modo-foco-cliente">
                     <time dateTime={principal.inicio}>{hora(principal.inicio, props.fuso)}</time>
                     <div className="min-w-0">
-                      <h1>{principal.cliente}</h1>
+                      <h1>{nomeDaAgenda(principal.cliente, Boolean(props.discreto))}</h1>
                       <p>
                         {principal.servico} · {principal.profissional} · {principal.duracaoMin} min
                       </p>
@@ -312,7 +311,7 @@ export function AgendaFocoMobile(props: Props) {
                         disabled={desabilitado}
                         onClick={() => props.onChegou(principal)}
                       >
-                        <UserRoundCheck /> Cliente chegou
+                        <UserRoundPlus /> Cliente chegou
                       </Button>
                     ) : null}
                     {principal.status === "chegou" ? (
@@ -403,7 +402,7 @@ export function AgendaFocoMobile(props: Props) {
                       <Button variant="ghost" onClick={() => props.onMaisOpcoes(item)}>
                         <time>{hora(item.inicio, props.fuso)}</time>
                         <span>
-                          <strong>{item.cliente}</strong>
+                          <strong>{nomeDaAgenda(item.cliente, Boolean(props.discreto))}</strong>
                           <small>{item.servico}</small>
                         </span>
                         <StatusBadge status={item.status} />

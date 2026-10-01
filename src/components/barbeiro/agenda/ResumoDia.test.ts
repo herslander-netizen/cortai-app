@@ -54,6 +54,6 @@ describe("disponibilidadeHoje", () => {
         profissionalIds: ["p1", "p2"],
         agora,
       }),
-    ).toBe("1 livres agora");
+    ).toBe("1 livre agora");
   });
 });

@@ -48,6 +48,7 @@ function montar(
   onAbrir = vi.fn(),
   ehHoje = false,
   mostrarProfissional = false,
+  discreto = false,
 ) {
   host = document.createElement("div");
   document.body.appendChild(host);
@@ -62,6 +63,7 @@ function montar(
         novos={new Set()}
         online
         mostrarProfissional={mostrarProfissional}
+        discreto={discreto}
         onAbrir={onAbrir}
         onFalta={onFalta}
         onAcao={onAcao}
@@ -192,5 +194,25 @@ describe("ListaAgenda", () => {
   it("oculta profissional quando filtrado", () => {
     montar([item()], vi.fn(), vi.fn(), vi.fn(), false, false);
     expect(host!.textContent).not.toContain("Bia");
+  });
+
+  it("abrevia o nome no modo discreto e mantém Cliente avulso", () => {
+    montar(
+      [
+        item({ id: "a1", cliente: "Herslander Jorge dos Santos" }),
+        item({ id: "a2", cliente: "Cliente avulso" }),
+        item({ id: "a3", cliente: "Madonna" }),
+      ],
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      false,
+      false,
+      true,
+    );
+    expect(host!.textContent).toContain("Herslander J.");
+    expect(host!.textContent).not.toContain("Herslander Jorge dos Santos");
+    expect(host!.textContent).toContain("Cliente avulso");
+    expect(host!.textContent).toContain("Madonna");
   });
 });

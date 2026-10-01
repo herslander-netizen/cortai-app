@@ -1,4 +1,4 @@
-import { Check, CalendarClock, MessageCircle, UserX } from "lucide-react";
+import { Check, CalendarClock, MessageCircle, UserRoundPlus, UserX } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   linkWhatsApp,
   minutosDecorridos,
   nomeEhGenerico,
+  nomeDaAgenda,
   tempoExcedido,
   teclaDeAtivar,
 } from "./tempo";
@@ -28,6 +29,7 @@ export function AgoraProximos({
   onChegou,
   onFalta,
   onLista,
+  discreto = false,
 }: {
   itens: AgendaItem[];
   fuso: string;
@@ -38,6 +40,7 @@ export function AgoraProximos({
   onChegou: (item: AgendaItem) => void;
   onFalta: (item: AgendaItem) => void;
   onLista: () => void;
+  discreto?: boolean;
 }) {
   const agora = useAgora();
   const ativos = itens.filter((i) => i.status === "na_cadeira");
@@ -63,6 +66,7 @@ export function AgoraProximos({
     <section className="agenda-agora-proximos" aria-label="Agora e próximos">
       {ativos.length ? (
         ativos.map((item) => {
+          const nome = nomeDaAgenda(item.cliente, discreto);
           const decorrido = minutosDecorridos(item.startedAt ?? item.inicio, agora);
           const estourou = decorrido > item.duracaoMin;
           const alergia = fichaRelevante(item.ficha);
@@ -71,7 +75,7 @@ export function AgoraProximos({
               key={item.id}
               role="button"
               tabIndex={0}
-              aria-label={`Agora: ${item.cliente}, ${item.servico}`}
+              aria-label={`Agora: ${nome}, ${item.servico}`}
               className={`agenda-agora-compacto ${selecionado === item.id ? "agenda-item-selecionado" : ""}`}
               onClick={() => onAbrir(item.id)}
               onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
@@ -90,10 +94,10 @@ export function AgoraProximos({
                       if (item.clienteId) onPerfil(item.clienteId);
                     }}
                   >
-                    {item.cliente}
+                    {nome}
                   </button>
                 ) : (
-                  <p className="agenda-nome text-paper">{item.cliente}</p>
+                  <p className="agenda-nome text-paper">{nome}</p>
                 )}
                 <p className="truncate text-xs text-mute">
                   {item.servico} · {item.profissional}
@@ -125,13 +129,13 @@ export function AgoraProximos({
       ) : pendente ? (
         <div className="agenda-livre-agora" role="status">
           <p>
-            <span className="agenda-rotulo">Pendente</span> {pendente.cliente},{" "}
-            {hora(pendente.inicio, fuso)} · atrasado
+            <span className="agenda-rotulo">Pendente</span>{" "}
+            {nomeDaAgenda(pendente.cliente, discreto)}, {hora(pendente.inicio, fuso)} · atrasado
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {agora < new Date(pendente.fim).getTime() ? (
               <Button className="min-h-12" onClick={() => onChegou(pendente)}>
-                <Check /> Cliente chegou
+                <UserRoundPlus /> Cliente chegou
               </Button>
             ) : (
               <Button className="min-h-12" onClick={() => onComanda(pendente)}>
@@ -162,13 +166,16 @@ export function AgoraProximos({
           onKeyDown={proximo ? teclaDeAtivar(() => onAbrir(proximo.id)) : undefined}
         >
           <span className="agenda-rotulo">Agora</span> · Livre
-          {proximo ? ` · próximo: ${proximo.cliente} às ${hora(proximo.inicio, fuso)}` : ""}
+          {proximo
+            ? ` · próximo: ${nomeDaAgenda(proximo.cliente, discreto)} às ${hora(proximo.inicio, fuso)}`
+            : ""}
         </div>
       )}
 
       {ativos.length && proximo ? (
         <ul className="agenda-proximos-lista">
           {[proximo].map((item) => {
+            const nome = nomeDaAgenda(item.cliente, discreto);
             const espera = Math.max(
               0,
               Math.ceil((fimPrevisto - new Date(item.inicio).getTime()) / 60_000),
@@ -185,7 +192,7 @@ export function AgoraProximos({
                 key={item.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`Próximo: ${item.cliente} às ${hora(item.inicio, fuso)}`}
+                aria-label={`Próximo: ${nome} às ${hora(item.inicio, fuso)}`}
                 className="agenda-proximo-linha"
                 onClick={() => onAbrir(item.id)}
                 onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
@@ -193,9 +200,7 @@ export function AgoraProximos({
                 <span className="agenda-rotulo">Próximo</span>
                 <strong className="text-sm text-paper">{hora(item.inicio, fuso)}</strong>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-paper">
-                    {item.cliente}
-                  </span>
+                  <span className="block truncate text-sm font-semibold text-paper">{nome}</span>
                   <span className="block truncate text-xs text-mute">
                     {item.servico}
                     {espera > 0 ? (
@@ -210,7 +215,7 @@ export function AgoraProximos({
                       target="_blank"
                       rel="noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      aria-label={`Avisar ${item.cliente} pelo WhatsApp`}
+                      aria-label={`Avisar ${nome} pelo WhatsApp`}
                     >
                       <MessageCircle /> Avisar
                     </a>

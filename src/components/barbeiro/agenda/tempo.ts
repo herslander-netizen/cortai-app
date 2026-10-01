@@ -70,6 +70,15 @@ export function nomeEhGenerico(nome: string) {
   return nome.trim().toLocaleLowerCase("pt-BR").startsWith("cliente avulso");
 }
 
+export function nomeDaAgenda(nome: string, discreto: boolean) {
+  const limpo = nome.trim();
+  if (!discreto || nomeEhGenerico(limpo)) return limpo;
+  const partes = limpo.split(/\s+/).filter(Boolean);
+  const primeiro = partes[0] ?? limpo;
+  const sobrenome = partes[1];
+  return sobrenome ? `${primeiro} ${sobrenome.charAt(0).toLocaleUpperCase("pt-BR")}.` : primeiro;
+}
+
 export function minutosDoHorario(valor: string) {
   const [h = 0, m = 0] = valor.split(":").map(Number);
   return h * 60 + m;
@@ -182,7 +191,7 @@ export function disponibilidadeHoje(p: {
     );
   if (p.profissionalIds.length > 1) {
     const livres = p.profissionalIds.filter((id) => !ocupado(id)).length;
-    return livres ? `${livres} livres agora` : null;
+    return livres ? `${livres} ${livres === 1 ? "livre" : "livres"} agora` : null;
   }
   const id = p.profissionalIds[0];
   if (id && ocupado(id)) return null;
