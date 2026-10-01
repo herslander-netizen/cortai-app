@@ -22,7 +22,7 @@ export function InterruptorFilaDeChegada() {
     try {
       const r = await salvar({ data: { ativa: valor } });
       queryClient.setQueryData(["fila-de-chegada-config"], { ativa: valor, naFila: r.naFila });
-      void queryClient.invalidateQueries({ queryKey: ["operacao-fila"] });
+      void queryClient.invalidateQueries({ queryKey: ["agenda-fila"] });
       aviso.ok(valor ? "Fila de chegada ligada." : "Fila de chegada desligada.");
       if (!valor && r.naFila > 0) {
         setAviso(
