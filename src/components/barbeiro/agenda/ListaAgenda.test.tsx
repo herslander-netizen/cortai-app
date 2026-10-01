@@ -19,10 +19,9 @@ afterEach(() => {
 });
 
 function item(extra: Partial<AgendaItem> = {}): AgendaItem {
-  const emTrintaMin = new Date(Date.now() + 30 * 60_000).toISOString();
   return {
     id: "a1",
-    inicio: emTrintaMin,
+    inicio: new Date(Date.now() + 30 * 60_000).toISOString(),
     fim: new Date(Date.now() + 60 * 60_000).toISOString(),
     status: "agendado",
     forma_pagamento: null,
@@ -41,7 +40,13 @@ function item(extra: Partial<AgendaItem> = {}): AgendaItem {
   };
 }
 
-function montar(itens: AgendaItem[], onAcao = vi.fn(), onFalta = vi.fn(), onAbrir = vi.fn()) {
+function montar(
+  itens: AgendaItem[],
+  onAcao = vi.fn(),
+  onFalta = vi.fn(),
+  onAbrir = vi.fn(),
+  ehHoje = false,
+) {
   host = document.createElement("div");
   document.body.appendChild(host);
   root = createRoot(host);
@@ -50,7 +55,7 @@ function montar(itens: AgendaItem[], onAcao = vi.fn(), onFalta = vi.fn(), onAbri
       <ListaAgenda
         itens={itens}
         fuso="America/Sao_Paulo"
-        ehHoje={false}
+        ehHoje={ehHoje}
         selecionado={null}
         novos={new Set()}
         online
@@ -65,9 +70,9 @@ function montar(itens: AgendaItem[], onAcao = vi.fn(), onFalta = vi.fn(), onAbri
 }
 
 function botao(texto: string) {
-  const achado = host
-    ?.querySelectorAll<HTMLButtonElement>("button")
-    .find((b) => b.textContent?.includes(texto));
+  const achado = Array.from(host?.querySelectorAll<HTMLButtonElement>("button") ?? []).find((b) =>
+    b.textContent?.includes(texto),
+  );
   expect(achado, `botão "${texto}" deveria existir`).toBeTruthy();
   return achado!;
 }
@@ -88,13 +93,20 @@ describe("ListaAgenda", () => {
     ["agendado", "chegou"],
     ["chegou", "iniciar"],
     ["na_cadeira", "terminar"],
-  ] as Array<[string, AcaoCard]>)("ação principal do cartão %s dispara %s sem abrir o cartão", (status, acao) => {
-    const { onAcao, onAbrir } = montar([item({ status })]);
-    const primaria = botao({ agendado: "Cliente chegou", chegou: "Começar atendimento", na_cadeira: "Terminar" }[status]!);
-    act(() => primaria.click());
-    expect(onAcao).toHaveBeenCalledWith(expect.objectContaining({ id: "a1" }), acao);
-    expect(onAbrir).not.toHaveBeenCalled();
-  });
+  ] as Array<[string, AcaoCard]>)(
+    "ação principal do cartão %s dispara %s sem abrir o cartão",
+    (status, acao) => {
+      const { onAcao, onAbrir } = montar([item({ status })]);
+      const primaria = botao(
+        { agendado: "Cliente chegou", chegou: "Começar atendimento", na_cadeira: "Terminar" }[
+          status
+        ]!,
+      );
+      act(() => primaria.click());
+      expect(onAcao).toHaveBeenCalledWith(expect.objectContaining({ id: "a1" }), acao);
+      expect(onAbrir).not.toHaveBeenCalled();
+    },
+  );
 
   it("estado finalizado não tem ação principal e abre o cartão ao clicar", () => {
     const { onAcao, onAbrir } = montar([item({ status: "finalizado" })]);
@@ -121,7 +133,6 @@ describe("ListaAgenda", () => {
     montar([item({ status: "na_cadeira", encaixe: true })]);
     expect(host!.textContent).toContain("AGORA");
     expect(host!.querySelector(".agenda-item-badge-encaixe")).not.toBeNull();
-ecpect: placeholder
   });
 
   it("mostra badge de confirmação para agendado confirmado", () => {
