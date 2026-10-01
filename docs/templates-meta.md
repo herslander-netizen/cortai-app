@@ -11,7 +11,9 @@ Cada botão leva no payload `ACAO:{id do envio}` (preenchido pelo Cortaí no env
 | cortai_lembrete_vespera | lembrete da véspera | Olá, {{1}}! Passando para lembrar do seu horário na {{2}} no dia {{3}}, às {{4}}. Você pode confirmar, remarcar ou cancelar tocando em um dos botões abaixo. | cliente, negocio, data, hora | Confirmar · Remarcar · Cancelar |
 | cortai_lembrete_dia | lembrete do dia | Olá, {{1}}! Seu horário na {{2}} está chegando: hoje, {{3}}, às {{4}}. Toque em um dos botões abaixo para confirmar, avisar que chegou, remarcar ou cancelar. | cliente, negocio, data, hora | Confirmar · Cheguei · Remarcar · Cancelar |
 
-## Para colar no WhatsApp Manager
+## Enviados à Meta em 01/10/2026 (em análise)
+
+Todos já submetidos; o status muda sozinho no catálogo quando a Meta responder.
 
 Em todos: Categoria **Utilidade** · Idioma **Português (BR)** · Rodapé **Enviado pelo Cortaí** · Botões do tipo **Resposta rápida**.
 
