@@ -27,33 +27,38 @@ export function Signature() {
   const link = useWhatsappAlvo();
 
   return (
-    <footer className="mt-10 flex flex-col items-center gap-3 px-5 pb-6 pt-8 text-center">
-      <MarcaCortai variante="automatica" className="h-auto w-24 opacity-70" />
+    <footer className="mt-8 border-t border-line px-5 py-4 text-xs text-mute md:px-8">
+      <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4 sm:gap-y-1">
+        <div className="flex min-h-12 items-center gap-3">
+          <MarcaCortai variante="automatica" className="h-auto w-16 opacity-70" />
+          <span className="h-4 w-px bg-line" aria-hidden />
+          {link ? (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Fale com a Alvo Digital pelo WhatsApp"
+              className="inline-flex min-h-12 items-center gap-1.5 font-semibold transition-colors hover:text-gold"
+            >
+              <MessageCircle size={14} aria-hidden />
+              Alvo Digital
+            </a>
+          ) : (
+            <span className="font-semibold">Alvo Digital</span>
+          )}
+        </div>
 
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-mute">
-        {link ? (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Fale com a Alvo Digital pelo WhatsApp"
-            className="inline-flex min-h-11 items-center gap-2 px-2 transition-colors hover:text-gold"
-          >
-            <MessageCircle size={13} aria-hidden />
-            by Alvo Digital
-          </a>
-        ) : (
-          "by Alvo Digital"
-        )}
-      </p>
-
-      <p className="text-xs leading-relaxed text-mute">Simplifica. Conecta. Cresce.</p>
-
-      <Link to="/privacidade" className="inline-flex min-h-11 items-center px-2 text-xs text-mute transition-colors hover:text-gold">
-        Política de Privacidade
-      </Link>
-
-      <p className="text-xs leading-none text-mute2">© 2026 Herslander</p>
+        <span className="hidden text-mute2 sm:inline" aria-hidden>•</span>
+        <p className="leading-relaxed">Simplifica. Conecta. Cresce.</p>
+        <span className="hidden text-mute2 sm:inline" aria-hidden>•</span>
+        <div className="flex min-h-12 flex-wrap items-center justify-center gap-x-3">
+          <Link to="/privacidade" className="inline-flex min-h-12 items-center transition-colors hover:text-gold">
+            Privacidade
+          </Link>
+          <span className="text-mute2" aria-hidden>•</span>
+          <span className="text-mute2">© 2026 Herslander</span>
+        </div>
+      </div>
     </footer>
   );
 }
