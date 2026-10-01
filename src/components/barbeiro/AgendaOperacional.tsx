@@ -1045,10 +1045,7 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
-        <div
-          id="agenda-painel-visualizacao"
-          aria-label={`Visualização ${visualizacao}`}
-        >
+        <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
             <AgendaCarregando />
           ) : erroInicial ? (

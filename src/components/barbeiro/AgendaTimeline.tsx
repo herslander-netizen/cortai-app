@@ -537,7 +537,8 @@ export function AgendaTimeline({
                 </span>
                 <span className="flex min-w-0 items-center gap-1">
                   <span className="agenda-timeline-servico min-w-0 flex-1">
-                    {item.servico}{mostrarProfissional ? ` · ${item.profissional}` : ""}
+                    {item.servico}
+                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
                   </span>
                   <span className="flex shrink-0 gap-1">
                     {item.status === "finalizado" ? (

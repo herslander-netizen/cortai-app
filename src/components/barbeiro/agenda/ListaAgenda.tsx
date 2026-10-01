@@ -1,6 +1,13 @@
 import { useState } from "react";
 
-import { CalendarClock, Check, Scissors, UserRoundPlus, UserX, type LucideIcon } from "lucide-react";
+import {
+  CalendarClock,
+  Check,
+  Scissors,
+  UserRoundPlus,
+  UserX,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
@@ -32,9 +39,14 @@ function acaoDoItem(item: AgendaItem, agora: number, ehHoje: boolean): AcaoPrinc
   if (item.status !== "agendado") return null;
   if (!ehHoje || new Date(item.inicio).getTime() - agora <= 30 * 60_000)
     return {
-      acao: estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? "terminar" : "chegou",
-      rotulo: estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? "Atendi" : "Cliente chegou",
-      Icone: estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? Check : UserRoundPlus,
+      acao:
+        estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? "terminar" : "chegou",
+      rotulo:
+        estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime()
+          ? "Atendi"
+          : "Cliente chegou",
+      Icone:
+        estaAtrasado(item, agora) && agora >= new Date(item.fim).getTime() ? Check : UserRoundPlus,
     };
   return null;
 }
@@ -109,13 +121,16 @@ export function ListaAgenda({
                 <div className="pt-0.5">
                   <p className="text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
                   {item.status === "na_cadeira" ? (
-                    <p className="agenda-item-hora-agora" aria-hidden>AGORA</p>
+                    <p className="agenda-item-hora-agora" aria-hidden>
+                      AGORA
+                    </p>
                   ) : null}
                 </div>
                 <div className="min-w-0">
                   <p className="agenda-nome text-sm text-paper">{item.cliente}</p>
                   <p className="mt-0.5 truncate text-xs text-mute">
-                    {item.servico}{mostrarProfissional ? ` · ${item.profissional}` : ""}
+                    {item.servico}
+                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
                   </p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {item.status !== "na_cadeira" ? (
@@ -123,16 +138,24 @@ export function ListaAgenda({
                         {estado}
                       </span>
                     ) : null}
-                    {item.encaixe ? <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span> : null}
-                    {item.confirmadoEm && item.status === "agendado" ? (
-                      <span className="agenda-item-badge agenda-item-badge-confirmado">Confirmou</span>
+                    {item.encaixe ? (
+                      <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span>
                     ) : null}
-                    {atrasado ? <span className="agenda-item-badge agenda-item-badge-atrasado">Atrasado</span> : null}
+                    {item.confirmadoEm && item.status === "agendado" ? (
+                      <span className="agenda-item-badge agenda-item-badge-confirmado">
+                        Confirmou
+                      </span>
+                    ) : null}
+                    {atrasado ? (
+                      <span className="agenda-item-badge agenda-item-badge-atrasado">Atrasado</span>
+                    ) : null}
                   </div>
                 </div>
               </div>
               {alergia ? (
-                <p className="mt-2 border-l-2 border-brick pl-2 text-xs font-semibold text-paper">{alergia}</p>
+                <p className="mt-2 border-l-2 border-brick pl-2 text-xs font-semibold text-paper">
+                  {alergia}
+                </p>
               ) : null}
               {item.status === "na_cadeira" ? (
                 <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
@@ -142,8 +165,12 @@ export function ListaAgenda({
                     value={decorrido}
                     aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
                   />
-                  <span className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}>
-                    {estourou ? tempoExcedido(decorrido, item.duracaoMin) : `${decorrido}/${item.duracaoMin} min`}
+                  <span
+                    className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
+                  >
+                    {estourou
+                      ? tempoExcedido(decorrido, item.duracaoMin)
+                      : `${decorrido}/${item.duracaoMin} min`}
                   </span>
                 </div>
               ) : null}
@@ -165,15 +192,40 @@ export function ListaAgenda({
                   ) : null}
                   {atrasado ? (
                     <>
-                      <Button variant="outline" size="sm" className="min-h-12" disabled={!online} onClick={(e) => { e.stopPropagation(); onFalta(item); }}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="min-h-12"
+                        disabled={!online}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFalta(item);
+                        }}
+                      >
                         <UserX /> Faltou
                       </Button>
                       {depoisDoHorario ? (
-                        <Button variant="outline" size="sm" className="min-h-12" onClick={(e) => { e.stopPropagation(); onAbrir(item.id); }}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="min-h-12"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAbrir(item.id);
+                          }}
+                        >
                           <CalendarClock /> Remarcar
                         </Button>
                       ) : (
-                        <Button variant="outline" size="sm" className="min-h-12" onClick={(e) => { e.stopPropagation(); setAguardando((a) => new Set(a).add(item.id)); }}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="min-h-12"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAguardando((a) => new Set(a).add(item.id));
+                          }}
+                        >
                           Aguardar
                         </Button>
                       )}
@@ -192,7 +244,9 @@ export function ListaAgenda({
           aria-expanded={encerradosAbertos}
           onClick={() => setEncerradosAbertos((aberto) => !aberto)}
         >
-          {encerradosAbertos ? "Ocultar finalizados e cancelados" : `Ver finalizados e cancelados (${encerrados.length})`}
+          {encerradosAbertos
+            ? "Ocultar finalizados e cancelados"
+            : `Ver finalizados e cancelados (${encerrados.length})`}
         </Button>
       ) : null}
       <p className="mt-2 border-t border-line pt-2 text-center text-xs text-mute" role="note">
