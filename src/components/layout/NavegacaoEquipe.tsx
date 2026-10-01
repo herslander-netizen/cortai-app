@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
-import { itensDaBarra, secaoDoCaminho } from "@/lib/navegacao-barbeiro";
+import { itemDeNavegacaoAtivo, itensDaBarra } from "@/lib/navegacao-barbeiro";
 
 const CHAVE = "cortai-lateral-recolhida";
 
@@ -32,13 +32,6 @@ function useItens() {
     ...item,
     icon: icones[item.to as keyof typeof icones],
   }));
-}
-
-function ativo(caminho: string, to: string) {
-  if (to === "/barbeiro")
-    return caminho === "/barbeiro" || caminho === "/barbeiro/" || caminho === "/barbeiro/agenda";
-  // Abas da mesma área (ex.: Comissões dentro de Financeiro) mantêm o item ativo.
-  return caminho.startsWith(to) || Boolean(secaoDoCaminho(caminho)?.abas.some((a) => a.to === to));
 }
 
 /** Barra inferior curta (celular) e lateral recolhível (desktop), com a Agenda primeiro. */
@@ -67,12 +60,13 @@ export function NavegacaoEquipe() {
         <ul>
           {itens.map((item) => {
             const Icon = item.icon;
-            const on = ativo(caminho, item.to);
+            const on = itemDeNavegacaoAtivo(caminho, item.to);
             return (
               <li key={item.to}>
                 <Link
                   to={item.to}
                   preload="intent"
+                  activeOptions={{ exact: true }}
                   aria-current={on ? "page" : undefined}
                   className="equipe-barra-link"
                 >
@@ -99,12 +93,13 @@ export function NavegacaoEquipe() {
         <ul>
           {itens.map((item) => {
             const Icon = item.icon;
-            const on = ativo(caminho, item.to);
+            const on = itemDeNavegacaoAtivo(caminho, item.to);
             return (
               <li key={item.to}>
                 <Link
                   to={item.to}
                   preload="intent"
+                  activeOptions={{ exact: true }}
                   aria-current={on ? "page" : undefined}
                   title={item.label}
                   className="equipe-lateral-link"

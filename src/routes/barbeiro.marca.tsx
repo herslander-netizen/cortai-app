@@ -349,9 +349,10 @@ function Editor({
                 <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
                   <Button
                     variant="ghost"
+                    size="bloco"
                     type="button"
                     onClick={() => coverRef.current?.click()}
-                    className="relative aspect-video overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2"
+                    className="relative aspect-video overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2 p-0"
                   >
                     {coverPreview ? (
                       <img
@@ -368,9 +369,10 @@ function Editor({
                   </Button>
                   <Button
                     variant="ghost"
+                    size="bloco"
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2"
+                    className="aspect-square items-center justify-center overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2 p-0"
                   >
                     {logoPreview ? (
                       <img
@@ -403,6 +405,7 @@ function Editor({
                   {Object.entries(TEMAS).map(([id, theme]) => (
                     <Button
                       variant="ghost"
+                      size="bloco"
                       type="button"
                       key={id}
                       onClick={() => {

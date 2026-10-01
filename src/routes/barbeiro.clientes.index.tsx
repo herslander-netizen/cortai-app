@@ -147,7 +147,9 @@ function ClientesPage() {
                     {c.saldoCentavos < 0 ? (
                       <p className="mt-1 text-sm font-semibold text-brick">{brl(Math.abs(c.saldoCentavos))}</p>
                     ) : c.creditos > 0 ? (
-                      <p className="mt-1 text-xs text-mute2">{c.creditos} créditos</p>
+                      <p className="mt-1 text-xs text-mute2">
+                        {c.creditos} {c.creditos === 1 ? "crédito" : "créditos"}
+                      </p>
                     ) : null}
                   </div>
                 </div>

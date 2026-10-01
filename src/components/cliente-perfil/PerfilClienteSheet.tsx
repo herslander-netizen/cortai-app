@@ -228,7 +228,9 @@ function Conteudo({
           <dt className="text-xs text-mute">Total histórico</dt>
           <dd className="money-value text-paper">
             {brl(p.resumo.totalCentavos)}
-            <span className="ml-1 text-xs font-normal text-mute">· {p.resumo.visitas} visitas</span>
+            <span className="ml-1 text-xs font-normal text-mute">
+              · {p.resumo.visitas} {p.resumo.visitas === 1 ? "visita" : "visitas"}
+            </span>
           </dd>
         </div>
       </dl>

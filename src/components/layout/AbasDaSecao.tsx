@@ -26,6 +26,7 @@ export function AbasDaSecao() {
               <Link
                 to={aba.to as never}
                 preload="intent"
+                activeOptions={{ exact: true }}
                 aria-current={on ? "page" : undefined}
                 className={`-mb-px flex min-h-11 items-center border-b-2 px-3 text-sm font-semibold transition-colors ${
                   on ? "border-primary text-paper" : "border-transparent text-mute hover:text-paper"

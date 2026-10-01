@@ -25,6 +25,7 @@ const buttonVariants = cva(
         sm: "h-12 px-3 text-xs",
         lg: "h-14 px-6 text-base",
         icon: "size-12 p-0",
+        bloco: "h-auto min-h-12 flex-col items-stretch justify-start gap-1 whitespace-normal p-3 text-left",
       },
     },
     defaultVariants: { variant: "default", size: "default" },
