@@ -2,3 +2,4 @@
 - Relógio via `useAgora` (1 min, compartilhado), lido só onde mostra tempo — evita redesenhar a tela.
 - Cache offline só em `src/lib/agenda-cache.ts`: sem telefone/ficha, usado só em erro de rede/5xx, limpo no logout e em 401/403.
 - Ações dos cartões passam por `efeitoDaAcaoCard`; finalizar sempre abre a comanda e nunca muda direto para `finalizado`.
+- A faixa Agora/Próximo pertence à Timeline; Lista concentra estado, tempo e ações no próprio cartão.

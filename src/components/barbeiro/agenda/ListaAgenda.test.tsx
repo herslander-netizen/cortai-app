@@ -47,6 +47,7 @@ function montar(
   onFalta = vi.fn(),
   onAbrir = vi.fn(),
   ehHoje = false,
+  mostrarProfissional = false,
 ) {
   host = document.createElement("div");
   document.body.appendChild(host);
@@ -60,8 +61,8 @@ function montar(
         selecionado={null}
         novos={new Set()}
         online
+        mostrarProfissional={mostrarProfissional}
         onAbrir={onAbrir}
-        onPerfil={vi.fn()}
         onFalta={onFalta}
         onAcao={onAcao}
       />,
@@ -82,11 +83,12 @@ describe("ListaAgenda", () => {
   it.each([
     ["agendado", "Agendado", "Cliente chegou"],
     ["chegou", "Chegou", "Começar"],
-    ["na_cadeira", "Em atendimento", "Finalizar e cobrar"],
+    ["na_cadeira", null, "Finalizar e cobrar"],
   ])("cartão %s tem badge e ação principal", (status, badge, primaria) => {
     montar([item({ status })]);
     expect(host!.querySelector(`.agenda-item-${status}`)).not.toBeNull();
-    expect(host!.querySelector(".agenda-item-badge")!.textContent).toBe(badge);
+    if (badge) expect(host!.querySelector(".agenda-item-badge")?.textContent).toBe(badge);
+    else expect(host!.querySelector(".agenda-item-badge-na_cadeira")).toBeNull();
     expect(botao(primaria)).toBeTruthy();
   });
 
@@ -124,7 +126,7 @@ describe("ListaAgenda", () => {
     });
     const { onFalta } = montar([atrasado], vi.fn(), vi.fn(), vi.fn(), true);
     expect(host!.querySelector(".agenda-item-badge-atrasado")).not.toBeNull();
-    act(() => botao("Marcar falta").click());
+    act(() => botao("Faltou").click());
     expect(onFalta).toHaveBeenCalledWith(atrasado);
     act(() => botao("Aguardar").click());
     expect(host!.querySelector(".agenda-item-badge-atrasado")).toBeNull();
@@ -139,5 +141,39 @@ describe("ListaAgenda", () => {
   it("mostra badge de confirmação para agendado confirmado", () => {
     montar([item({ status: "agendado", confirmadoEm: new Date().toISOString() })]);
     expect(host!.querySelector(".agenda-item-badge-confirmado")).not.toBeNull();
+  });
+
+  it("mantém somente uma ação primary", () => {
+    montar([
+      item({ id: "a1", status: "agendado" }),
+      item({ id: "a2", status: "chegou" }),
+      item({ id: "a3", status: "na_cadeira" }),
+    ]);
+    expect(host!.querySelectorAll(".bg-primary")).toHaveLength(1);
+    expect(host!.querySelector(".agenda-item-na_cadeira .bg-primary")).not.toBeNull();
+  });
+
+  it("só mostra Cliente chegou nos 30 minutos anteriores", () => {
+    montar([item({ inicio: new Date(Date.now() + 31 * 60_000).toISOString() })], vi.fn(), vi.fn(), vi.fn(), true);
+    expect(host!.textContent).not.toContain("Cliente chegou");
+  });
+
+  it("troca as ações do atraso depois do fim", () => {
+    montar([item({ inicio: new Date(Date.now() - 60 * 60_000).toISOString(), fim: new Date(Date.now() - 30 * 60_000).toISOString() })], vi.fn(), vi.fn(), vi.fn(), true);
+    expect(host!.textContent).toContain("Atendi");
+    expect(host!.textContent).toContain("Faltou");
+    expect(host!.textContent).toContain("Remarcar");
+    expect(host!.textContent).not.toContain("Aguardar");
+  });
+
+  it("recolhe encerrados somente hoje", () => {
+    montar([item({ status: "finalizado" })], vi.fn(), vi.fn(), vi.fn(), true);
+    expect(host!.querySelector(".agenda-item-finalizado")).toBeNull();
+    expect(host!.textContent).toContain("Ver finalizados e cancelados (1)");
+  });
+
+  it("oculta profissional quando filtrado", () => {
+    montar([item()], vi.fn(), vi.fn(), vi.fn(), false, false);
+    expect(host!.textContent).not.toContain("Bia");
   });
 });

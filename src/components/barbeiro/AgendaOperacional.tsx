@@ -188,7 +188,9 @@ function FolhaFila(props: {
                       {f.clienteId ? (
                         <Button
                           variant="ghost"
-                          onClick={() => f.clienteId && props.onPerfil(f.clienteId)}
+                          onClick={() => {
+                            if (f.clienteId) props.onPerfil(f.clienteId);
+                          }}
                           className={`agenda-nome min-h-12 justify-start px-0 text-sm ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
                         >
                           {f.cliente}
