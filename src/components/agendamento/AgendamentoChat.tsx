@@ -211,6 +211,7 @@ export function AgendamentoChat({
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     autoComplete="name"
+                    enterKeyHint="next"
                     placeholder="Seu nome"
                     className="h-12 rounded-lg border border-line2 bg-ink2 px-4 text-paper outline-none"
                   />
@@ -218,6 +219,7 @@ export function AgendamentoChat({
                     value={telefone}
                     onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
                     autoComplete="tel"
+                    enterKeyHint="done"
                     inputMode="tel"
                     placeholder="WhatsApp com DDD"
                     className="h-12 rounded-lg border border-line2 bg-ink2 px-4 text-paper outline-none"
