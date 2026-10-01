@@ -1,5 +1,16 @@
 import * as React from "react";
-import { AlarmClock, CalendarClock, Check, Circle, Clock3, HandCoins, Scissors, UserRoundPlus, UserX, X } from "lucide-react";
+import {
+  AlarmClock,
+  CalendarClock,
+  Check,
+  Circle,
+  Clock3,
+  HandCoins,
+  Scissors,
+  UserRoundPlus,
+  UserX,
+  X,
+} from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -8,18 +19,26 @@ import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 
 const badgeVariants = cva(
   "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",
-  { variants: { variant: {
-    default: "border-transparent bg-primary text-primary-foreground",
-    secondary: "border-transparent bg-secondary text-secondary-foreground",
-    success: "border-sage bg-sage-soft text-sage",
-    strong: "border-foreground bg-foreground text-background",
-    destructive: "border-destructive bg-brick-soft text-destructive",
-    outline: "border-line2 bg-transparent text-muted-foreground",
-  } }, defaultVariants: { variant: "default" } },
+  {
+    variants: {
+      variant: {
+        default: "border-transparent bg-primary text-primary-foreground",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        success: "border-sage bg-sage-soft text-sage",
+        strong: "border-foreground bg-foreground text-background",
+        destructive: "border-destructive bg-brick-soft text-destructive",
+        outline: "border-line2 bg-transparent text-muted-foreground",
+      },
+    },
+    defaultVariants: { variant: "default" },
+  },
 );
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
-function Badge({ className, variant, ...props }: BadgeProps) { return <span className={cn(badgeVariants({ variant }), className)} {...props} />; }
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
+}
 
 const STATUS = {
   agendado: { label: "Agendado", variant: "outline", Icon: Clock3 },
@@ -39,14 +58,32 @@ const STATUS = {
 } as const;
 
 export type StatusKey = keyof typeof STATUS;
-export function StatusBadge({ status, label, className, segmento: segmentoProp }: { status: StatusKey | string; label?: string; className?: string; segmento?: Segmento }) {
+export function StatusBadge({
+  status,
+  label,
+  className,
+  segmento: segmentoProp,
+}: {
+  status: StatusKey | string;
+  label?: string;
+  className?: string;
+  segmento?: Segmento;
+}) {
   const segmentoDoPainel = useSegmentoDoPainel();
   const segmento = segmentoProp ?? segmentoDoPainel;
   const fallback = STATUS.agendado;
   const item = STATUS[status as StatusKey] ?? fallback;
   const Icon = item.Icon;
   const rotulo = status === "na_cadeira" ? termos(segmento).statusAtendimento : item.label;
-  return <Badge variant={item.variant} className={cn("status-badge", `status-badge-${status}`, className)}><Icon aria-hidden />{label ?? rotulo}</Badge>;
+  return (
+    <Badge
+      variant={item.variant}
+      className={cn("status-badge", `status-badge-${status}`, className)}
+    >
+      <Icon aria-hidden />
+      {label ?? rotulo}
+    </Badge>
+  );
 }
 
 export { Badge, badgeVariants };

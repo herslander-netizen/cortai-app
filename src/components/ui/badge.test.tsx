@@ -5,17 +5,28 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { StatusBadge, type StatusKey } from "./badge";
 
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 let host: HTMLDivElement | null = null;
-afterEach(() => { host?.remove(); host = null; });
+afterEach(() => {
+  host?.remove();
+  host = null;
+});
 
 const estados: Array<[StatusKey, string]> = [
-  ["agendado", "Agendado"], ["chegou", "Chegou"], ["na_cadeira", "Em atendimento"],
-  ["finalizado", "Finalizado"], ["remarcado", "Remarcado"], ["cancelado", "Cancelado"],
-  ["nao_compareceu", "Não compareceu"], ["aguardando_pagamento", "Aguardando pagamento"],
+  ["agendado", "Agendado"],
+  ["chegou", "Chegou"],
+  ["na_cadeira", "Em atendimento"],
+  ["finalizado", "Finalizado"],
+  ["remarcado", "Remarcado"],
+  ["cancelado", "Cancelado"],
+  ["nao_compareceu", "Não compareceu"],
+  ["aguardando_pagamento", "Aguardando pagamento"],
   ["atrasado", "Atrasado"],
-  ["pago", "Pago"], ["pendente", "Pendente"], ["livre", "Livre"],
+  ["pago", "Pago"],
+  ["pendente", "Pendente"],
+  ["livre", "Livre"],
 ];
 
 describe("StatusBadge", () => {

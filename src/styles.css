@@ -3803,7 +3803,11 @@ body:has(.auth-screen--claro) {
 .modo-foco-tempo-livre-textura {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(135deg, transparent 0 9px, color-mix(in oklab, var(--gold) 8%, transparent) 9px 10px);
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 9px,
+    color-mix(in oklab, var(--gold) 8%, transparent) 9px 10px
+  );
   pointer-events: none;
 }
 .modo-foco-tempo-livre > *:not(.modo-foco-tempo-livre-textura) {
