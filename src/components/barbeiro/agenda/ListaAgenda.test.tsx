@@ -1,0 +1,128 @@
+// @vitest-environment jsdom
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import type { AgendaItem } from "@/lib/barbeiro.functions";
+
+import { ListaAgenda, type AcaoCard } from "./ListaAgenda";
+
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+let host: HTMLDivElement | null = null;
+let root: Root | null = null;
+afterEach(() => {
+  act(() => root?.unmount());
+  host?.remove();
+  host = null;
+  root = null;
+});
+
+function item(extra: Partial<AgendaItem> = {}): AgendaItem {
+  const emTrintaMin = new Date(Date.now() + 30 * 60_000).toISOString();
+  return {
+    id: "a1",
+    inicio: emTrintaMin,
+    fim: new Date(Date.now() + 60 * 60_000).toISOString(),
+    status: "agendado",
+    forma_pagamento: null,
+    valor_centavos: 3000,
+    clienteId: "c1",
+    cliente: "Ana",
+    telefone: null,
+    ficha: null,
+    servico: "Corte",
+    duracaoMin: 30,
+    profissional: "Bia",
+    arrivedAt: null,
+    startedAt: null,
+    finishedAt: null,
+    ...extra,
+  };
+}
+
+function montar(itens: AgendaItem[], onAcao = vi.fn(), onFalta = vi.fn(), onAbrir = vi.fn()) {
+  host = document.createElement("div");
+  document.body.appendChild(host);
+  root = createRoot(host);
+  act(() =>
+    root!.render(
+      <ListaAgenda
+        itens={itens}
+        fuso="America/Sao_Paulo"
+        ehHoje={false}
+        selecionado={null}
+        novos={new Set()}
+        online
+        onAbrir={onAbrir}
+        onPerfil={vi.fn()}
+        onFalta={onFalta}
+        onAcao={onAcao}
+      />,
+    ),
+  );
+  return { onAcao, onFalta, onAbrir };
+}
+
+function botao(texto: string) {
+  const achado = host
+    ?.querySelectorAll<HTMLButtonElement>("button")
+    .find((b) => b.textContent?.includes(texto));
+  expect(achado, `botão "${texto}" deveria existir`).toBeTruthy();
+  return achado!;
+}
+
+describe("ListaAgenda", () => {
+  it.each([
+    ["agendado", "Agendado", "Cliente chegou"],
+    ["chegou", "Chegou", "Começar atendimento"],
+    ["na_cadeira", "Na cadeira", "Terminar"],
+  ])("cartão %s tem badge e ação principal", (status, badge, primaria) => {
+    montar([item({ status })]);
+    expect(host!.querySelector(`.agenda-item-${status}`)).not.toBeNull();
+    expect(host!.querySelector(".agenda-item-badge")!.textContent).toBe(badge);
+    expect(botao(primaria)).toBeTruthy();
+  });
+
+  it.each([
+    ["agendado", "chegou"],
+    ["chegou", "iniciar"],
+    ["na_cadeira", "terminar"],
+  ] as Array<[string, AcaoCard]>)("ação principal do cartão %s dispara %s sem abrir o cartão", (status, acao) => {
+    const { onAcao, onAbrir } = montar([item({ status })]);
+    const primaria = botao({ agendado: "Cliente chegou", chegou: "Começar atendimento", na_cadeira: "Terminar" }[status]!);
+    act(() => primaria.click());
+    expect(onAcao).toHaveBeenCalledWith(expect.objectContaining({ id: "a1" }), acao);
+    expect(onAbrir).not.toHaveBeenCalled();
+  });
+
+  it("estado finalizado não tem ação principal e abre o cartão ao clicar", () => {
+    const { onAcao, onAbrir } = montar([item({ status: "finalizado" })]);
+    expect(host!.querySelector(".agenda-item-primaria")).toBeNull();
+    act(() => host!.querySelector<HTMLLIElement>(".agenda-item")!.click());
+    expect(onAcao).not.toHaveBeenCalled();
+    expect(onAbrir).toHaveBeenCalledWith("a1");
+  });
+
+  it("atrasado mostra aviso e dispara falta; aguardar encerra o aviso", () => {
+    const atrasado = item({
+      status: "agendado",
+      inicio: new Date(Date.now() - 30 * 60_000).toISOString(),
+    });
+    const { onFalta } = montar([atrasado]);
+    expect(host!.querySelector(".agenda-item-badge-atrasado")).not.toBeNull();
+    act(() => botao("Marcar falta").click());
+    expect(onFalta).toHaveBeenCalledWith(atrasado);
+    act(() => botao("Aguardar").click());
+    expect(host!.querySelector(".agenda-item-badge-atrasado")).toBeNull();
+  });
+
+  it("marca AGORA na cadeira e badges de encaixe e confirmação", () => {
+    montar([
+      item({ status: "na_cadeira", encaixe: true, confirmadoEm: new Date().toISOString() }),
+    ]);
+    expect(host!.textContent).toContain("AGORA");
+    expect(host!.querySelector(".agenda-item-badge-encaixe")).not.toBeNull();
+    expect(host!.querySelector(".agenda-item-badge-confirmado")).not.toBeNull();
+  });
+});
