@@ -60,9 +60,9 @@ export function AgendamentoManual({
           profissionalInicial={profissionalInicial ?? null}
           iniciarNovoCliente={iniciarNovoCliente}
           onFechar={() => setAberto(false)}
-          onCriado={() => {
+          onCriado={(agendamentoId) => {
             setAberto(false);
-            onCriado?.();
+            onCriado?.(agendamentoId);
           }}
         />
       ) : null}
@@ -177,6 +177,7 @@ function Formulario({
       }
       // Visto animado por um instante antes de fechar.
       setConfirmado(true);
+      if (!r.agendamentoId) throw new Error("O agendamento foi salvo sem identificação.");
       setTimeout(() => onCriado(r.agendamentoId), 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível agendar agora.");
