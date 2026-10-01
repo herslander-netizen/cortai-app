@@ -183,7 +183,12 @@ export type DadosDaMensagem = {
  * Templates centralizados. Linha sem dado real simplesmente não aparece:
  * nunca "undefined", "null" ou "[object Object]".
  */
-export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): string {
+export function montarMensagem(
+  tipo: TipoDeNotificacao,
+  d: DadosDaMensagem,
+  /** Opções numeradas só para provedor sem botões. */
+  numerar = true,
+): string {
   const nome = primeiroNome(d.cliente);
   const linha = (texto: string | null | undefined, prefixo: string) =>
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
@@ -219,7 +224,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     );
   } else if (tipo === "lembrete_2h" || tipo === "aviso_proximo") {
     blocos.push(
-      `${nome}, seu horário está chegando.`,
+      `${nome}, seu horário ${em} está chegando.`,
       "",
       linha(d.servico, "Serviço: "),
       linha(d.profissional, "Profissional: "),
@@ -300,7 +305,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
   }
 
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
-  if (opcoes) {
+  if (opcoes && numerar) {
     blocos.push("", "Responda com o número:", ...opcoes.map((o, i) => `${i + 1} - ${o.rotulo}`));
     if (tipo === "retorno")
       blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
