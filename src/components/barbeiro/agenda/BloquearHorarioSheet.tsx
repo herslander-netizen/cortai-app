@@ -48,7 +48,7 @@ export function BloquearHorarioSheet({
   const lista = useQuery({ queryKey: chave, queryFn: () => listar({ data: { dia } }), enabled: aberto });
   const atualizar = () => {
     void qc.invalidateQueries({ queryKey: chave });
-    void qc.invalidateQueries({ queryKey: ["agenda"] });
+    void qc.invalidateQueries({ queryKey: ["agenda-dia"] });
   };
   const salvar = useMutation({
     mutationFn: () =>
