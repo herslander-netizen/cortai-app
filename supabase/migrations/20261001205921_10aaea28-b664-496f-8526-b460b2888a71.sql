@@ -1,0 +1,3 @@
+UPDATE public.modelos_whatsapp m SET status='PENDING', meta_template_id=v.id, waba_id='1051467980961489'
+FROM (VALUES ('cortai_confirmacao','1829135288532680'),('cortai_cancelamento','1628363158697904'),('cortai_cancelado_negocio','1094234689999513'),('cortai_remarcacao','1229841856031520'),('cortai_vaga_aberta','2568679043570930'),('cortai_falta','1414060960922505'),('cortai_valor_pendente','28401081176252725')) AS v(nome,id)
+WHERE m.nome=v.nome AND m.idioma='pt_BR';
