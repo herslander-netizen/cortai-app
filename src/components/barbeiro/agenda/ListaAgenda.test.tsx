@@ -154,12 +154,29 @@ describe("ListaAgenda", () => {
   });
 
   it("só mostra Cliente chegou nos 30 minutos anteriores", () => {
-    montar([item({ inicio: new Date(Date.now() + 31 * 60_000).toISOString() })], vi.fn(), vi.fn(), vi.fn(), true);
+    montar(
+      [item({ inicio: new Date(Date.now() + 31 * 60_000).toISOString() })],
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      true,
+    );
     expect(host!.textContent).not.toContain("Cliente chegou");
   });
 
   it("troca as ações do atraso depois do fim", () => {
-    montar([item({ inicio: new Date(Date.now() - 60 * 60_000).toISOString(), fim: new Date(Date.now() - 30 * 60_000).toISOString() })], vi.fn(), vi.fn(), vi.fn(), true);
+    montar(
+      [
+        item({
+          inicio: new Date(Date.now() - 60 * 60_000).toISOString(),
+          fim: new Date(Date.now() - 30 * 60_000).toISOString(),
+        }),
+      ],
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      true,
+    );
     expect(host!.textContent).toContain("Atendi");
     expect(host!.textContent).toContain("Faltou");
     expect(host!.textContent).toContain("Remarcar");
