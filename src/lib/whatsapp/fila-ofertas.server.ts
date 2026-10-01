@@ -219,17 +219,17 @@ async function enviarOferta(ofertaId: string) {
     _tipo: "fila",
     _titulo: "Vaga oferecida à lista de espera",
     _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}).`,
-    _link: "/barbeiro/fila",
+    _link: LINKS_DE_TELA.espera,
   });
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
-  const { data: conexao } = await db
-    .from("conexoes_whatsapp")
-    .select("id, sessao_id, status")
-    .eq("tenant_id", o.tenant_id)
-    .maybeSingle();
-  if (!conexao || conexao.status !== "conectado") return;
+  const { conexaoDeEnvio } = await import("./conexao-envio.server");
+  const conexao = await conexaoDeEnvio(o.tenant_id);
+  if (!conexao) {
+    console.warn("[whatsapp] oferta da lista de espera sem remetente: Nenhum WhatsApp disponível.");
+    return;
+  }
   const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
   const conversa = await conversaDoTelefone({
     tenantId: o.tenant_id,

@@ -822,7 +822,8 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   }
 
   // Retry controlado: só falhas recentes e abaixo do limite de tentativas.
-  const desde = new Date(agora.getTime() - 6 * 3600_000).toISOString();
+  // 30h: cobre a espera de 24h do limite de marketing (131049).
+  const desde = new Date(agora.getTime() - 30 * 3600_000).toISOString();
   const { data: falhas } = await db
     .from("envios_de_whatsapp")
     .select("agendamento_id, tipo, tentativas")
