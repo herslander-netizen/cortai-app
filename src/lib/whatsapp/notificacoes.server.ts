@@ -76,19 +76,37 @@ export const TIPOS_DE_RELACIONAMENTO = new Set<TipoDeNotificacao>([
   "retorno",
 ]);
 
-/** Opções de cada lembrete: número (qualquer canal) e botão (API oficial). */
+/**
+ * Ações de cada aviso: botão interativo (até 3, dentro da janela), opção
+ * numerada (provedor sem botões) e resposta por texto. Fora da janela, os
+ * botões vêm do modelo aprovado no catálogo.
+ */
 export const OPCOES_DO_LEMBRETE: Partial<
   Record<TipoDeNotificacao, { rotulo: string; acao: string }[]>
 > = {
+  confirmacao_agendamento: [
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+    { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  alteracao_agendamento: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+  ],
+  remarcacao: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+  ],
+  cancelamento: [{ rotulo: "Remarcar", acao: "CORTAI_REMARCAR" }],
+  cancelamento_agendamento: [{ rotulo: "Ver horários", acao: "CORTAI_AGENDAR" }],
   lembrete_24h: [
     { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
     { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
     { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
   ],
+  // Interativo aceita 3: no dia, "Cheguei" vale mais que "Remarcar" (o modelo leva os 4).
   lembrete_2h: [
     { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
     { rotulo: "Cheguei", acao: "CORTAI_CHEGUEI" },
-    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
     { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
   ],
   aviso_proximo: [
@@ -104,20 +122,6 @@ export const OPCOES_DO_LEMBRETE: Partial<
     { rotulo: "Agora não", acao: "CORTAI_AGORA_NAO" },
   ],
 };
-
-/** Nome do modelo aprovado na Meta para cada lembrete (opcional, por ambiente). */
-function modeloDoTipo(tipo: TipoDeNotificacao): string | null {
-  const chave =
-    tipo === "lembrete_24h"
-      ? "WHATSAPP_MODELO_LEMBRETE"
-      : tipo === "lembrete_2h"
-        ? "WHATSAPP_MODELO_LEMBRETE_DIA"
-        : tipo === "retorno"
-          ? "WHATSAPP_MODELO_RETORNO"
-          : null;
-  const nome = chave ? process.env[chave] : undefined;
-  return nome && nome.trim() ? nome.trim() : null;
-}
 
 const MAX_TENTATIVAS = 3;
 
