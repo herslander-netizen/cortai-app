@@ -405,7 +405,7 @@ function BlocoRemetenteOficial() {
     refetchInterval: 60_000,
   });
   const selo = estado.isLoading
-    ? { estado: "pendente", texto: "Verificando" }
+    ? { estado: "conectando", texto: "Verificando" }
     : estado.data?.status === "conectado"
       ? { estado: "conectado", texto: "Ativo" }
       : { estado: "erro", texto: "Indisponível" };
@@ -418,7 +418,7 @@ function BlocoRemetenteOficial() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-paper">WhatsApp oficial do Cortaí</h2>
-            <Selo estado={selo.estado as never} texto={selo.texto} />
+            <Selo estado={selo.estado as "conectando" | "conectado" | "erro"} texto={selo.texto} />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-mute">
             Seus avisos saem pelo WhatsApp oficial do Cortaí (+55 79 9818-1983), com o nome do seu
