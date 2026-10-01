@@ -17,7 +17,7 @@ export function AgendaLazy() {
           </div>
         }
       >
-        <AgendaPage />
+        <AgendaOperacional />
       </Suspense>
     </>
   );
