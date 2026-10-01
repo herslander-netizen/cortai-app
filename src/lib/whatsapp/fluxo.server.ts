@@ -42,9 +42,9 @@ async function negocioDoNumeroCompartilhado(
   telefone: string,
   texto: string,
   citadaId: string | null = null,
-): Promise<{ tenantId: string } | { semContexto: true }> {
+): Promise<{ tenantId: string } | { semContexto: true; menu?: string }> {
   const db = await admin();
-  const { decidirBarbearia } = await import("./multi-barbearia");
+  const { decidirBarbearia, ehPedidoDeTroca } = await import("./multi-barbearia");
 
   const variantes = variantesDoTelefone(telefone);
   const desde = new Date(Date.now() - 60 * 24 * 3600_000).toISOString();
@@ -101,7 +101,26 @@ async function negocioDoNumeroCompartilhado(
     porSlug,
   });
   const agora = new Date().toISOString();
-  if (d.tipo === "menu") return { semContexto: true };
+  if (d.tipo === "menu") {
+    // Um só negócio com relação: é ele. Nenhum: orientação genérica.
+    if (opcoes.length === 1 && !ehPedidoDeTroca(texto)) {
+      await db.from("whatsapp_contexto_numero").upsert({
+        telefone,
+        tenant_id: opcoes[0]!.id,
+        aguardando_escolha: false,
+        atualizado_em: agora,
+      });
+      return { tenantId: opcoes[0]!.id };
+    }
+    if (opcoes.length < 2) return { semContexto: true };
+    await db.from("whatsapp_contexto_numero").upsert({
+      telefone,
+      tenant_id: ctx?.tenant_id ?? null,
+      aguardando_escolha: true,
+      atualizado_em: agora,
+    });
+    return { semContexto: true, menu: d.texto };
+  }
   if (d.salvar) {
     const { error } = await db
       .from("whatsapp_contexto_numero")
@@ -421,7 +440,8 @@ export async function processarMensagemRecebida(input: {
         .enviarMensagem(
           input.sessaoId,
           telefone,
-          "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
+          r.menu ??
+            "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
         )
         .catch(() => undefined);
       return { tratada: true, motivo: "sem_contexto_transacional" };
