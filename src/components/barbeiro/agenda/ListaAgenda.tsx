@@ -11,7 +11,9 @@ import { estaAtrasado, hora, nomeEhGenerico, ROTULO_ESTADO, teclaDeAtivar } from
 export type AcaoCard = "chegou" | "iniciar" | "terminar";
 
 /** Ação principal do cartão, conforme o estado do atendimento. */
-const ACAO_PRIMARIA: Partial<Record<string, { acao: AcaoCard; rotulo: string; Icone: LucideIcon }>> = {
+const ACAO_PRIMARIA: Partial<
+  Record<string, { acao: AcaoCard; rotulo: string; Icone: LucideIcon }>
+> = {
   agendado: { acao: "chegou", rotulo: "Cliente chegou", Icone: UserRoundPlus },
   chegou: { acao: "iniciar", rotulo: "Começar atendimento", Icone: Play },
   na_cadeira: { acao: "terminar", rotulo: "Terminar", Icone: Check },
