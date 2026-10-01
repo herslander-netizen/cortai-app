@@ -1,0 +1,3 @@
+INSERT INTO public.envios_de_whatsapp (id, tenant_id, agendamento_id, cliente_id, telefone, tipo, status, tentativas, canal, aguarda_resposta, acoes, valido_ate, conteudo)
+VALUES ('7e570000-0000-4000-8000-000000000001','0de00000-0000-4000-8000-000000000001','69d20af4-cde5-4ac5-a2a7-774bce2f74cd','124feb2a-eb8d-4a71-bdaa-5995ac6fa54c','5579991787208','lembrete_2h','pendente',0,'whatsapp',true,ARRAY['CORTAI_CONFIRMAR','CORTAI_CHEGUEI','CORTAI_REMARCAR','CORTAI_CANCELAR'],'2026-10-03 17:15:00+00','Teste real: modelo cortai_lembrete_dia')
+ON CONFLICT (id) DO NOTHING;
