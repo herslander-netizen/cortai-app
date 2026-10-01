@@ -168,7 +168,7 @@ function CortaiPage() {
           <div className="mt-5">
             {aba === "whatsapp" ? (
               <>
-                <BlocoConexao painel={painel.data} />
+                <BlocoRemetenteOficial />
                 {painel.data.podeGerenciarWhatsapp ? <BlocoDiagnostico /> : null}
               </>
             ) : null}
@@ -393,7 +393,34 @@ function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: 
   );
 }
 
-function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
+/** Remetente real dos avisos: o número oficial do Cortaí. */
+function BlocoRemetenteOficial() {
+  return (
+    <section className="surface p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+          <MessageCircle size={18} aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-semibold text-paper">WhatsApp oficial do Cortaí</h2>
+            <Selo estado="conectado" texto="Ativo" />
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-mute">
+            Seus avisos saem pelo WhatsApp oficial do Cortaí (+55 79 9818-1983), com o nome do seu
+            negócio na mensagem.
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+        <p className="text-sm text-paper">Número próprio do negócio</p>
+        <span className="rounded-full border border-line2 px-2.5 py-1 text-xs text-mute">Em breve</span>
+      </div>
+    </section>
+  );
+}
+
+export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
   const conectar = useServerFn(conectarWhatsapp);
   const novoQr = useServerFn(atualizarQrCode);
