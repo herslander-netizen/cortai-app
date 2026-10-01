@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarPlus, Clock3, Plus, Scissors, ShoppingBag, UserRoundPlus } from "lucide-react";
+import { CalendarPlus, Clock3, Plus, Scissors, UserPlus, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export function MenuAcoesAgenda({
   onEncaixe,
   onChamarFila,
   onBloquear,
+  onNovoCliente,
   comBotaoFechar = true,
 }: {
   aberto: boolean;
@@ -36,6 +37,7 @@ export function MenuAcoesAgenda({
   onEncaixe: () => void;
   onChamarFila: () => void;
   onBloquear: () => void;
+  onNovoCliente: () => void;
   comBotaoFechar?: boolean;
 }) {
   const lista = useRef<HTMLDivElement>(null);
@@ -123,8 +125,20 @@ export function MenuAcoesAgenda({
           >
             <Scissors />
             <span>
-              <strong>Encaixe</strong>
+              <strong>Encaixar cliente</strong>
               <small>Atender quem chegou sem horário</small>
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            role="menuitem"
+            className="agenda-acao-lista"
+            onClick={escolher(onNovoCliente)}
+          >
+            <UserPlus />
+            <span>
+              <strong>Novo cliente</strong>
+              <small>Cadastrar e marcar um horário</small>
             </span>
           </Button>
           <Button
@@ -155,15 +169,6 @@ export function MenuAcoesAgenda({
               <strong>Bloquear horário</strong>
               <small>Fechar um período da agenda</small>
             </span>
-          </Button>
-          <Button asChild variant="ghost" role="menuitem" className="agenda-acao-lista">
-            <Link to="/barbeiro/produtos" onClick={() => onAberto(false)}>
-              <ShoppingBag />
-              <span>
-                <strong>Venda rápida</strong>
-                <small>Produto ou pacote</small>
-              </span>
-            </Link>
           </Button>
         </div>
       </SheetContent>
