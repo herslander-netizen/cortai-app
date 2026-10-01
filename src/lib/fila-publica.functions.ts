@@ -10,6 +10,13 @@ async function admin() {
   return supabaseAdmin;
 }
 
+export const MENSAGEM_SO_COM_HORARIO = "Este negócio atende com horário marcado.";
+
+/** Recusa a entrada pelo link quando o negócio só atende com horário marcado. */
+export function exigirFilaDeChegadaAtiva(ativa: boolean) {
+  if (!ativa) throw new Error(MENSAGEM_SO_COM_HORARIO);
+}
+
 export type BarbeariaDaFila = {
   nome: string;
   slug: string;
@@ -17,6 +24,7 @@ export type BarbeariaDaFila = {
   corPrimaria: string;
   servicos: { id: string; nome: string; duracaoMin: number; precoCentavos: number }[];
   naFila: number;
+  filaAtiva: boolean;
 };
 
 export const getFilaPublica = createServerFn({ method: "GET" })
@@ -36,18 +44,16 @@ export const getFilaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!tenant) return null;
 
-    const [servicosRes, filaRes] = await Promise.all([
+    const { filaDeChegadaAtiva, contarFilaDeChegada } = await import("@/lib/fila-chegada.server");
+    const [servicosRes, naFila, filaAtiva] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
-      db
-        .from("fila_de_espera")
-        .select("id", { count: "exact", head: true })
-        .eq("tenant_id", tenant.id)
-        .in("status", ["aguardando", "avisado"]),
+      contarFilaDeChegada(db, tenant.id),
+      filaDeChegadaAtiva(db, tenant.id),
     ]);
 
     return {
@@ -61,7 +67,8 @@ export const getFilaPublica = createServerFn({ method: "GET" })
         duracaoMin: s["duracao_min"] as number,
         precoCentavos: s["preco_centavos"] as number,
       })),
-      naFila: filaRes.count ?? 0,
+      naFila,
+      filaAtiva,
     };
   });
 
@@ -81,6 +88,8 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
     const resolvido = await resolverTenantPorSlug(db, data.slug);
     if (!resolvido) throw new Error("Negócio não encontrado.");
+    const { filaDeChegadaAtiva } = await import("@/lib/fila-chegada.server");
+    exigirFilaDeChegadaAtiva(await filaDeChegadaAtiva(db, resolvido.tenant_id));
     const { data: resultado, error } = await db.rpc("entrar_na_fila_publica", {
       _slug: resolvido.slug_atual,
       _nome: data.nome,

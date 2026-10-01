@@ -637,6 +637,59 @@ export const salvarModoAgendamento = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const getFilaDeChegadaConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { filaDeChegadaAtiva, contarFilaDeChegada } = await import("@/lib/fila-chegada.server");
+    const [ativa, naFila] = await Promise.all([
+      filaDeChegadaAtiva(context.supabase, tenantId),
+      contarFilaDeChegada(context.supabase, tenantId),
+    ]);
+    return { ativa, naFila };
+  });
+
+export const salvarFilaDeChegada = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { data: existente } = await context.supabase
+      .from("tenant_page_configs")
+      .select("draft_config, published_config")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    const draftContainer = (existente?.draft_config ?? existente?.published_config) as {
+      pagina?: unknown;
+    } | null;
+    const publishedContainer = (existente?.published_config ?? existente?.draft_config) as {
+      pagina?: unknown;
+    } | null;
+    const draftConfig = {
+      ...(draftContainer ?? {}),
+      pagina: { ...normalizarPagina(draftContainer?.pagina), filaDeChegada: data.ativa },
+    } as unknown as Json;
+    const publishedConfig = {
+      ...(publishedContainer ?? {}),
+      pagina: { ...normalizarPagina(publishedContainer?.pagina), filaDeChegada: data.ativa },
+    } as unknown as Json;
+    const { error } = await context.supabase.from("tenant_page_configs").upsert(
+      {
+        tenant_id: tenantId,
+        draft_config: draftConfig,
+        published_config: publishedConfig,
+        draft_by: context.userId,
+        published_by: context.userId,
+        published_at: new Date().toISOString(),
+      },
+      { onConflict: "tenant_id" },
+    );
+    if (error) throw new Error(error.message);
+    const { contarFilaDeChegada } = await import("@/lib/fila-chegada.server");
+    return { ok: true, naFila: await contarFilaDeChegada(context.supabase, tenantId) };
+  });
+
 export const alterarSegmento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>

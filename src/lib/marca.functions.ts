@@ -5,7 +5,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
-import { normalizarPagina, paginaConfigSchema, type PaginaConfig } from "@/lib/pagina-config";
+import {
+  normalizarPagina,
+  paginaConfigSchema,
+  preservarFilaDeChegada,
+  type PaginaConfig,
+} from "@/lib/pagina-config";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
@@ -75,6 +80,16 @@ export type MarcaVersion = {
 };
 
 const editorSchema = z.object({ marca: marcaSchema, pagina: paginaConfigSchema });
+
+/** Container salvo atual (publicado tem prioridade), para preservar a fila de chegada. */
+async function containerSalvo(db: SupabaseClient<Database>, tenantId: string) {
+  const { data } = await db
+    .from("tenant_page_configs")
+    .select("draft_config, published_config")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  return (data?.published_config ?? data?.draft_config ?? null) as unknown;
+}
 
 async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
   const { data: vinculo } = await supabase
@@ -247,7 +262,13 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("tenant_page_configs").upsert(
       {
         tenant_id: tenantId,
-        draft_config: { pagina: data.pagina, marca: data.marca } as unknown as Json,
+        draft_config: {
+          pagina: preservarFilaDeChegada(
+            data.pagina,
+            await containerSalvo(context.supabase, tenantId),
+          ),
+          marca: data.marca,
+        } as unknown as Json,
         draft_by: context.userId,
       },
       { onConflict: "tenant_id" },
@@ -298,7 +319,11 @@ export const publicarPagina = createServerFn({ method: "POST" })
       ...data.marca,
       assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,
     };
-    const configuracao = { pagina: data.pagina, marca } as unknown as Json;
+    const pagina = preservarFilaDeChegada(
+      data.pagina,
+      await containerSalvo(context.supabase, tenantId),
+    );
+    const configuracao = { pagina, marca } as unknown as Json;
     const { error } = await context.supabase.rpc("publish_tenant_page", {
       _tenant_id: tenantId,
       _config: configuracao,
@@ -374,7 +399,13 @@ export const restaurarMarca = createServerFn({ method: "POST" })
       const { error: pageError } = await context.supabase.from("tenant_page_configs").upsert(
         {
           tenant_id: tenantId,
-          draft_config: { pagina: composta.data.pagina, marca: restaurada } as unknown as Json,
+          draft_config: {
+            pagina: preservarFilaDeChegada(
+              composta.data.pagina,
+              await containerSalvo(context.supabase, tenantId),
+            ),
+            marca: restaurada,
+          } as unknown as Json,
           draft_by: context.userId,
         },
         { onConflict: "tenant_id" },

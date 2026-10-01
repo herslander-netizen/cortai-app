@@ -24,7 +24,7 @@ export function AgoraProximos({
   fuso,
   selecionado,
   onAbrir,
-  onPerfil,
+  mostrarProfissional = false,
   onComanda,
   onChegou,
   onFalta,
@@ -35,7 +35,8 @@ export function AgoraProximos({
   fuso: string;
   selecionado: string | null;
   onAbrir: (id: string) => void;
-  onPerfil: (clienteId: string) => void;
+  /** Só na visão Todos com 2 ou mais profissionais. */
+  mostrarProfissional?: boolean;
   onComanda: (item: AgendaItem) => void;
   onChegou: (item: AgendaItem) => void;
   onFalta: (item: AgendaItem) => void;
@@ -85,22 +86,14 @@ export function AgoraProximos({
                 <StatusBadge status="na_cadeira" />
               </div>
               <div className="mt-1 min-w-0">
-                {item.clienteId ? (
-                  <button
-                    type="button"
-                    className={`agenda-nome ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (item.clienteId) onPerfil(item.clienteId);
-                    }}
-                  >
-                    {nome}
-                  </button>
-                ) : (
-                  <p className="agenda-nome text-paper">{nome}</p>
-                )}
+                <p
+                  className={`agenda-nome ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
+                >
+                  {nome}
+                </p>
                 <p className="truncate text-xs text-mute">
-                  {item.servico} · {item.profissional}
+                  {item.servico}
+                  {mostrarProfissional ? ` · ${item.profissional}` : ""}
                 </p>
               </div>
               {alergia ? (

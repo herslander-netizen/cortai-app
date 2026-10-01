@@ -55,6 +55,8 @@ export type OperacaoFila = {
   chegada: ChegadaItem[];
   profissionais: { id: string; nome: string; livre: boolean }[];
   meuProfissionalId: string | null;
+  /** Configuração "Atendo clientes sem horário marcado". */
+  filaDeChegadaAtiva: boolean;
 };
 
 export const getOperacaoFila = createServerFn({ method: "GET" })
@@ -63,7 +65,8 @@ export const getOperacaoFila = createServerFn({ method: "GET" })
     const { db, tenantId, meuProfissionalId } = await base(context);
     await exigirRecurso(db, tenantId, "fila_espera");
     await exigirPermissao(context, tenantId, "agendamento_manual");
-    const [filaRes, profissionais] = await Promise.all([
+    const { filaDeChegadaAtiva } = await import("@/lib/fila-chegada.server");
+    const [filaRes, profissionais, ativa] = await Promise.all([
       db
         .from("fila_de_espera")
         .select("id, criado_em, cliente_id, clientes(nome), servicos(nome)")
@@ -73,8 +76,10 @@ export const getOperacaoFila = createServerFn({ method: "GET" })
         .order("posicao")
         .order("criado_em"),
       profissionaisComSituacao(db, tenantId),
+      filaDeChegadaAtiva(db, tenantId),
     ]);
     return {
+      filaDeChegadaAtiva: ativa,
       chegada: (filaRes.data ?? []).map((f) => ({
         id: f.id,
         clienteId: f.cliente_id ?? null,

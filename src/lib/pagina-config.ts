@@ -76,6 +76,8 @@ export const paginaConfigSchema = z.object({
   cta: z.string().trim().min(2).max(24),
   componentes: z.record(z.enum(componenteIds), z.boolean()),
   chat: chatConfigSchema.default({}),
+  /** Fila de chegada (clientes sem horário). Configurações antigas sem o campo = ligada. */
+  filaDeChegada: z.boolean().default(true),
 });
 
 export type PaginaConfig = z.infer<typeof paginaConfigSchema>;
@@ -355,4 +357,23 @@ const familiasGoogle: Record<FonteId, string> = {
 export function urlDasFontes(config: Pick<PaginaConfig, "fonteTitulo" | "fonteTexto">) {
   const ids = [...new Set([config.fonteTitulo, config.fonteTexto])];
   return `https://fonts.googleapis.com/css2?${ids.map((id) => `family=${familiasGoogle[id]}`).join("&")}&display=swap`;
+}
+
+/** Lê a fila de chegada de um container salvo ({ pagina }); ausente = ligada. */
+export function filaDeChegadaDoContainer(container: unknown): boolean {
+  const pagina =
+    container && typeof container === "object"
+      ? (container as Record<string, unknown>)["pagina"]
+      : undefined;
+  if (!pagina || typeof pagina !== "object") return true;
+  const valor = (pagina as Record<string, unknown>)["filaDeChegada"];
+  return typeof valor === "boolean" ? valor : true;
+}
+
+/** O editor de página não controla a fila: preserva o valor já salvo. */
+export function preservarFilaDeChegada<T extends { filaDeChegada?: boolean }>(
+  pagina: T,
+  containerSalvo: unknown,
+): T {
+  return { ...pagina, filaDeChegada: filaDeChegadaDoContainer(containerSalvo) };
 }

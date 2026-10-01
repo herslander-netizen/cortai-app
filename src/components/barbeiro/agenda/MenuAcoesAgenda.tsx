@@ -17,6 +17,7 @@ export function MenuAcoesAgenda({
   onAberto,
   fila,
   proximoDaFila,
+  mostrarFila = true,
   online,
   ocupado,
   onNovoAgendamento,
@@ -30,6 +31,8 @@ export function MenuAcoesAgenda({
   onAberto: (v: boolean) => void;
   fila: number;
   proximoDaFila?: string | undefined;
+  /** Fila de chegada visível (ligada ou ainda com gente). */
+  mostrarFila?: boolean;
   online: boolean;
   ocupado: boolean;
   onNovoAgendamento: () => void;
@@ -140,23 +143,25 @@ export function MenuAcoesAgenda({
               <small>Cadastrar e marcar um horário</small>
             </span>
           </Button>
-          <Button
-            variant="ghost"
-            role="menuitem"
-            className="agenda-acao-lista"
-            disabled={!fila || ocupado || !online}
-            onClick={escolher(onChamarFila)}
-          >
-            <UserRoundPlus />
-            <span>
-              <strong>Chamar próximo da fila</strong>
-              <small>
-                {fila
-                  ? `${proximoDaFila ?? "Cliente"} é o próximo da fila`
-                  : "Ninguém na fila agora"}
-              </small>
-            </span>
-          </Button>
+          {mostrarFila ? (
+            <Button
+              variant="ghost"
+              role="menuitem"
+              className="agenda-acao-lista"
+              disabled={!fila || ocupado || !online}
+              onClick={escolher(onChamarFila)}
+            >
+              <UserRoundPlus />
+              <span>
+                <strong>Chamar próximo da fila</strong>
+                <small>
+                  {fila
+                    ? `${proximoDaFila ?? "Cliente"} é o próximo da fila`
+                    : "Ninguém na fila agora"}
+                </small>
+              </span>
+            </Button>
+          ) : null}
           <Button
             variant="ghost"
             role="menuitem"

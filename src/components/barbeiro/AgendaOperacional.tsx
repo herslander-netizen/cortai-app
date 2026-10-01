@@ -14,6 +14,7 @@ import { AgoraProximos } from "@/components/barbeiro/agenda/AgoraProximos";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
+import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
 import {
   AgendaCarregando,
   AgendaErro,
@@ -264,8 +265,16 @@ export function AgendaOperacional() {
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  const celularInicial = window.matchMedia("(max-width: 767px)").matches;
-  const preferenciaInicial = preferenciaAgendaInicial(celularInicial);
+  const inicial = useRef<{
+    celular: boolean;
+    preferencia: ReturnType<typeof preferenciaAgendaInicial>;
+  } | null>(null);
+  if (!inicial.current) {
+    const celularLido = window.matchMedia("(max-width: 767px)").matches;
+    inicial.current = { celular: celularLido, preferencia: preferenciaAgendaInicial(celularLido) };
+  }
+  const celularInicial = inicial.current.celular;
+  const preferenciaInicial = inicial.current.preferencia;
   const [visualizacao, setVisualizacao] = useState<Visualizacao>(() =>
     preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
   );
@@ -366,6 +375,7 @@ export function AgendaOperacional() {
   });
   const aReceber = aReceberQ.data ?? [];
   const chegada = filaQ.data?.chegada ?? [];
+  const mostrarFila = filaDeChegadaVisivel(filaQ.data?.filaDeChegadaAtiva, chegada.length);
   const souRecepcao = Boolean(filaQ.data && !filaQ.data.meuProfissionalId);
   const profPadrao =
     filaQ.data?.profissionais.find((p) => p.livre)?.id ?? filaQ.data?.profissionais[0]?.id ?? null;
@@ -693,6 +703,7 @@ export function AgendaOperacional() {
       onAberto={setMenuAberto}
       fila={chegada.length}
       proximoDaFila={chegada[0] ? nomeDaAgenda(chegada[0].cliente, modoDiscreto) : undefined}
+      mostrarFila={mostrarFila}
       online={online}
       ocupado={ocupado}
       onNovoAgendamento={() => setManualAberto(true)}
@@ -988,6 +999,7 @@ export function AgendaOperacional() {
           onHoje={() => mudarDia(hojeNoFuso(fuso))}
           fila={chegada.length}
           onFila={() => setFilaAberta(true)}
+          mostrarFila={mostrarFila}
           onModoFoco={entrarNoModoFoco}
           focoNoPlano={celular || focoNoPlano}
           visualizacao={visualizacao}
@@ -1058,7 +1070,7 @@ export function AgendaOperacional() {
             fuso={fuso}
             selecionado={selecionado}
             onAbrir={abrir}
-            onPerfil={setPerfil}
+            mostrarProfissional={!profFiltro && profissionais.length > 1}
             onComanda={(i) => setFechando(i.id)}
             onChegou={(i) => void transicionar(i, "chegou")}
             onFalta={(i) => void transicionar(i, "nao_compareceu")}
