@@ -63,3 +63,4 @@
 - [ ] Validar visualmente as melhorias em 390px/1280px; bloqueado pela sessão da conta autorizada
 - [x] Validar tipos, lint dirigido, testes e build; não publicar
 - [x] Agenda — etapa 1/4: corrigir finalização, atraso, termos, estados e rótulos sem mudar layout
+- [ ] Agenda — etapa 2/4: limpar faixa, lista, cabeçalho, Timeline, resumo e alvos visuais
