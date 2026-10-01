@@ -3577,6 +3577,15 @@ body:has(.auth-screen--claro) {
   font-weight: 650;
   text-align: center;
 }
+.modo-foco-alertas {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-block: 1px solid var(--line);
+  padding: 8px 0;
+}
 .modo-foco-cockpit {
   display: grid;
   gap: 14px;
@@ -3777,6 +3786,44 @@ body:has(.auth-screen--claro) {
 .modo-foco-sequencia > button {
   width: 100%;
   margin-top: 12px;
+}
+.modo-foco-tempo-livre {
+  position: relative;
+  display: grid;
+  min-height: 72px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+  border: 1px dashed var(--line2);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+.modo-foco-tempo-livre-textura {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, transparent 0 9px, color-mix(in oklab, var(--gold) 8%, transparent) 9px 10px);
+  pointer-events: none;
+}
+.modo-foco-tempo-livre > *:not(.modo-foco-tempo-livre-textura) {
+  position: relative;
+}
+.modo-foco-tempo-livre strong,
+.modo-foco-tempo-livre small {
+  display: block;
+}
+.modo-foco-tempo-livre strong {
+  color: var(--paper);
+  font-size: 14px;
+}
+.modo-foco-tempo-livre small {
+  margin-top: 2px;
+  color: var(--mute);
+  font-size: 12px;
+}
+.modo-foco-tempo-livre button {
+  min-height: 52px;
 }
 
 @media (max-width: 767px) {

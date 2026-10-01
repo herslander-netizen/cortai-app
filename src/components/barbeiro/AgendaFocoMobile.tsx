@@ -222,6 +222,16 @@ export function AgendaFocoMobile(props: Props) {
           {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
           {resumo.faturado ? ` · ${brl(resumo.faturado)}` : ""}
         </p>
+        {props.fila ? (
+          <div className="modo-foco-alertas" role="status">
+            <span className="text-sm font-bold text-paper">{props.fila} {props.fila === 1 ? "cliente aguardando" : "clientes aguardando"}</span>
+            {props.onChamarFila ? (
+              <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
+                <ListOrdered /> Chamar fila
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
 
         {props.carregando ? (
           <div className="modo-foco-vazio" aria-label="Carregando agenda">

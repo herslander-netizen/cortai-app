@@ -45,8 +45,8 @@ function MaisPage() {
     },
     {
       to: "/barbeiro/plano",
-      label: "Plano",
-      detail: "Assinatura e recursos disponíveis",
+      label: "Minha assinatura",
+      detail: "Plano, cobranças e histórico",
       icon: CreditCard,
     },
     {
