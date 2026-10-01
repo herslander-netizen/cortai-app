@@ -6,8 +6,11 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
-import { estaAtrasado, intervaloDoDia } from "@/components/barbeiro/agenda/tempo";
-import { nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
+import {
+  estaAtrasado,
+  intervaloDoDia,
+  nomeDaAgenda,
+} from "@/components/barbeiro/agenda/tempo";
 
 type HorarioFuncionamento = {
   diaSemana: number;

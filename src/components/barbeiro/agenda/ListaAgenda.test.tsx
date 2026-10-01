@@ -49,7 +49,7 @@ function montar(
   ehHoje = false,
   mostrarProfissional = false,
   discreto = false,
-  ) {
+) {
   host = document.createElement("div");
   document.body.appendChild(host);
   root = createRoot(host);

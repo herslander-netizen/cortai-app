@@ -991,7 +991,7 @@ export function AgendaOperacional() {
           fila={chegada.length}
           onFila={() => setFilaAberta(true)}
           onModoFoco={entrarNoModoFoco}
-          focoNoPlano={focoNoPlano}
+          focoNoPlano={celular || focoNoPlano}
           visualizacao={visualizacao}
           onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
