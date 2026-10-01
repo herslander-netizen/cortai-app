@@ -67,13 +67,14 @@ describe("roteamento do webhook da Meta", () => {
   it("número desconhecido vira erro", () => {
     expect(rotearConexaoMeta([a, b], "999").tipo).toBe("erro");
   });
-  it("sem identificador só funciona com uma conexão", () => {
+  it("sem identificador: várias conexões viram número compartilhado, nunca descarte", () => {
     expect(rotearConexaoMeta([a], null).tipo).toBe("ok");
-    expect(rotearConexaoMeta([a, b], null).tipo).toBe("erro");
+    const r = rotearConexaoMeta([a, b], null);
+    expect(r.tipo === "ok" && r.compartilhada).toBe(true);
   });
   it("aprende o número na conexão única ainda sem número", () => {
     const r = rotearConexaoMeta([{ ...a, meta_phone_number_id: null }], "111");
-    expect(r.tipo === "ok" && r.aprender).toBe(true);
+    expect(r.tipo === "ok" && r.aprenderIds).toEqual(["1"]);
   });
 });
 
