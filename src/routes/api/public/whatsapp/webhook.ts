@@ -89,17 +89,13 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
   );
 
   const fluxo = await import("@/lib/whatsapp/fluxo.server");
+  const { toqueDaMensagem } = await import("@/lib/whatsapp/modelos");
   for (const mensagem of mensagens) {
     const telefone = mensagem.from ?? "";
     if (!telefone) continue;
     // Toque em botão (resposta rápida de modelo ou botão interativo) vira texto:
     // o identificador do botão segue como conteúdo para a regra do lembrete.
-    const toque =
-      mensagem.button?.payload ??
-      mensagem.button?.text ??
-      mensagem.interactive?.button_reply?.id ??
-      mensagem.interactive?.button_reply?.title ??
-      null;
+    const toque = toqueDaMensagem(mensagem);
     const tipoBruto = toque ? "text" : (mensagem.type ?? "text");
     const tipo = TIPOS_DE_MIDIA.has(tipoBruto)
       ? tipoBruto
@@ -141,7 +137,14 @@ async function processar(mudanca: MudancaMeta): Promise<void> {
   if (mudanca.field === "messages" && (mudanca.value?.statuses?.length ?? 0) > 0) {
     await processarEntregas(mudanca);
   }
-  // Demais tipos (erros da conta, modelos, histórico) ficam gravados na caixa
+  if (
+    mudanca.field === "message_template_status_update" ||
+    mudanca.field === "template_category_update"
+  ) {
+    const { atualizarModeloPeloWebhook } = await import("@/lib/whatsapp/modelos.server");
+    await atualizarModeloPeloWebhook(mudanca.field, (mudanca.value ?? {}) as never);
+  }
+  // Demais tipos (erros da conta, histórico) ficam gravados na caixa
   // de entrada para consulta, sem descartar o conteúdo.
 }
 
