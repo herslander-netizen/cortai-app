@@ -63,12 +63,19 @@ export async function atualizarModeloPeloWebhook(campo: string, valor: ValorDoMo
     if (error) throw new Error(error.message);
   }
 
-  if (novaCategoria && reclassificouParaMarketing(valor.previous_category ?? linha.categoria, novaCategoria)) {
+  if (
+    novaCategoria &&
+    reclassificouParaMarketing(valor.previous_category ?? linha.categoria, novaCategoria)
+  ) {
     await db.from("alertas_da_plataforma").insert({
       nivel: "critico",
       origem: "whatsapp",
       titulo: `Modelo ${nome} foi reclassificado como marketing`,
-      detalhes: { modelo: nome, anterior: valor.previous_category ?? linha.categoria, nova: novaCategoria },
+      detalhes: {
+        modelo: nome,
+        anterior: valor.previous_category ?? linha.categoria,
+        nova: novaCategoria,
+      },
     });
   }
 }

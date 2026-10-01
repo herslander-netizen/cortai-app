@@ -98,7 +98,11 @@ export async function tratarRespostaDeLembrete(input: {
       .eq("tenant_id", input.tenantId)
       .maybeSingle();
     const comEstado = data as
-      | (Envio & { valido_ate: string | null; respondido_em: string | null; oferta_id: string | null })
+      | (Envio & {
+          valido_ate: string | null;
+          respondido_em: string | null;
+          oferta_id: string | null;
+        })
       | null;
     if (comEstado && telefoneCorresponde(comEstado.telefone, input.telefone)) {
       const estado = estadoDoToque(comEstado, toque.acao);

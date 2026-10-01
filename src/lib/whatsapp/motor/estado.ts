@@ -26,12 +26,7 @@ export type EstadoDaConversa = (typeof ESTADOS)[number];
 
 /** Tipo do menu numerado apresentado na última mensagem. */
 export type TipoDeMenu =
-  | "servico"
-  | "profissional"
-  | "horario"
-  | "agendamento"
-  | "retomar"
-  | "barbearia";
+  "servico" | "profissional" | "horario" | "agendamento" | "retomar" | "barbearia";
 
 export type ItemDeMenu = {
   rotulo: string;

@@ -96,7 +96,10 @@ export function toqueDaMensagem(m: MensagemComToque): string | null {
 }
 
 export function lerToque(texto: string): { acao: string; envioId: string } | null {
-  const m = texto.trim().toUpperCase().match(/^(CORTAI_[A-Z_]+):([0-9A-F-]{36})$/);
+  const m = texto
+    .trim()
+    .toUpperCase()
+    .match(/^(CORTAI_[A-Z_]+):([0-9A-F-]{36})$/);
   return m ? { acao: m[1]!, envioId: m[2]!.toLowerCase() } : null;
 }
 
@@ -143,12 +146,25 @@ export function textoDaVagaMarcada(
   agora = new Date(),
 ) {
   const dia = (d: Date) =>
-    new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: fuso,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
   const inicio = new Date(inicioIso);
-  const hora = new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" }).format(inicio);
+  const hora = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(inicio);
   const quando =
     dia(inicio) === dia(agora)
       ? "hoje"
-      : new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit" }).format(inicio);
+      : new Intl.DateTimeFormat("pt-BR", {
+          timeZone: fuso,
+          day: "2-digit",
+          month: "2-digit",
+        }).format(inicio);
   return `Pronto, está marcado: ${quando} às ${hora}${profissional ? ` com ${profissional}` : ""}.`;
 }

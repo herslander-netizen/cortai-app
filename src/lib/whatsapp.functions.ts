@@ -806,7 +806,12 @@ export const getRemetenteOficial = createServerFn({ method: "GET" })
     }));
     return {
       provedor: provedorDoGateway(),
-      status: estado.status === "conectado" ? "conectado" : estado.status === "erro" ? "erro" : "desconectado",
+      status:
+        estado.status === "conectado"
+          ? "conectado"
+          : estado.status === "erro"
+            ? "erro"
+            : "desconectado",
       numero: estado.numero ?? null,
       erro: estado.status === "erro" ? "Não foi possível confirmar o número agora." : null,
     };

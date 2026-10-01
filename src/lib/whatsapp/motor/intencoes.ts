@@ -64,14 +64,18 @@ export type Classificacao = {
  */
 export function classificar(
   textoOriginal: string,
-  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date; segmento?: string } = { fuso: "America/Sao_Paulo" },
+  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date; segmento?: string } = {
+    fuso: "America/Sao_Paulo",
+  },
 ): Classificacao {
   const fuso = opcoes.fuso || "America/Sao_Paulo";
   const t = normalizar(textoOriginal);
   const total = opcoes.totalDeOpcoes ?? 0;
   // "bom dia" / "boa tarde" são cumprimento, não pedido de período.
-  const semCumprimento = t.replace(/\b(bom dia|boa tarde|boa noite)\b/g, " ").replace(/\s+/g, " ").trim();
-
+  const semCumprimento = t
+    .replace(/\b(bom dia|boa tarde|boa noite)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   const entidades: Entidades = {
     servico: servicoCitado(semCumprimento, opcoes.segmento),

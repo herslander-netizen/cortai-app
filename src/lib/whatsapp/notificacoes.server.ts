@@ -729,7 +729,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         )
       : null;
   const acoesDoEnvio = [
-    ...new Set([...(opcoes ?? []).map((o) => o.acao), ...(doCatalogo?.botoes ?? []).map((b) => b.acao)]),
+    ...new Set([
+      ...(opcoes ?? []).map((o) => o.acao),
+      ...(doCatalogo?.botoes ?? []).map((b) => b.acao),
+    ]),
   ];
 
   if (!conexao) return marcarFalhaDoEnvio(SEM_WHATSAPP_DISPONIVEL, texto);

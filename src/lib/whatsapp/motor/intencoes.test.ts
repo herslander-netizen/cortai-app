@@ -39,8 +39,12 @@ describe("intencoes deterministicas do WhatsApp", () => {
 
   it("nao confunde artigo indefinido com item do menu", () => {
     expect(classificar("quero um corte", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("AGENDAR");
-    expect(classificar("quanto custa um corte e barba", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("PRECO");
-    expect(classificar("segunda", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe("DISPONIBILIDADE");
+    expect(
+      classificar("quanto custa um corte e barba", { ...opcoes, totalDeOpcoes: 5 }).intencao,
+    ).toBe("PRECO");
+    expect(classificar("segunda", { ...opcoes, totalDeOpcoes: 5 }).intencao).toBe(
+      "DISPONIBILIDADE",
+    );
   });
 
   it("limpa selecoes antigas ao voltar ao menu principal", () => {
@@ -58,11 +62,16 @@ describe("intencoes deterministicas do WhatsApp", () => {
 });
 describe("ajustes obrigatorios", () => {
   it("'barbeiro' em pedido de agendamento nao transfere para humano", () => {
-    expect(classificar("quero marcar com o barbeiro João amanhã", opcoes).intencao).not.toBe("HUMANO");
+    expect(classificar("quero marcar com o barbeiro João amanhã", opcoes).intencao).not.toBe(
+      "HUMANO",
+    );
     expect(classificar("tem barbeiro livre hoje?", opcoes).intencao).not.toBe("HUMANO");
   });
   it("entende serviços de beleza e preserva corte na barbearia", () => {
-    const unhas = classificar("quero fazer as unhas amanhã às 15h", { ...opcoes, segmento: "salao" });
+    const unhas = classificar("quero fazer as unhas amanhã às 15h", {
+      ...opcoes,
+      segmento: "salao",
+    });
     expect(unhas.intencao).toBe("AGENDAR");
     expect(unhas.entidades.servico).toBe("manicure");
     expect(unhas.entidades.dia).toBe("2026-09-24");
@@ -72,7 +81,11 @@ describe("ajustes obrigatorios", () => {
     expect(escova.intencao).toBe("DISPONIBILIDADE");
     expect(escova.entidades.servico).toBe("escova");
 
-    expect(classificar("quero fazer o cabelo", { ...opcoes, segmento: "salao" }).entidades.servico).toBeNull();
-    expect(classificar("quero cortar o cabelo", { ...opcoes, segmento: "barbearia" }).entidades.servico).toBe("corte");
+    expect(
+      classificar("quero fazer o cabelo", { ...opcoes, segmento: "salao" }).entidades.servico,
+    ).toBeNull();
+    expect(
+      classificar("quero cortar o cabelo", { ...opcoes, segmento: "barbearia" }).entidades.servico,
+    ).toBe("corte");
   });
 });

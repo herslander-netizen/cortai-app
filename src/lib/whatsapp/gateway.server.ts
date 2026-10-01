@@ -139,7 +139,10 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
 /** O QR da Evolution chega em base64 (data URL) e vale poucos minutos. */
 const MINUTOS_DO_QR = 2;
 
-function qrDaEvolution(bruto: Record<string, unknown>): { qrCode: string | null; expiraEm: string | null } {
+function qrDaEvolution(bruto: Record<string, unknown>): {
+  qrCode: string | null;
+  expiraEm: string | null;
+} {
   const cru = bruto["qrcode"] ?? bruto["qrCode"] ?? bruto;
   const objeto = (typeof cru === "object" && cru !== null ? cru : {}) as Record<string, unknown>;
   const base64 = (objeto["base64"] as string) ?? (bruto["base64"] as string) ?? null;
@@ -195,7 +198,14 @@ const evolution = {
     );
     const { qrCode, expiraEm } = qrDaEvolution(r);
     if (!qrCode) return evolution.consultarStatus(sessaoId);
-    return { status: "qr_pronto", qrCode, qrExpiraEm: expiraEm, numero: null, nomeExibicao: null, erro: null };
+    return {
+      status: "qr_pronto",
+      qrCode,
+      qrExpiraEm: expiraEm,
+      numero: null,
+      nomeExibicao: null,
+      erro: null,
+    };
   },
 
   async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
@@ -225,7 +235,9 @@ const evolution = {
   },
 
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(() => undefined);
+    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
+      () => undefined,
+    );
     return evolution.obterQrCode(sessaoId);
   },
 
@@ -265,7 +277,11 @@ const generico = {
   },
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
-      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/restart`, "POST", {}),
+      await chamar<Record<string, unknown>>(
+        `/sessions/${encodeURIComponent(sessaoId)}/restart`,
+        "POST",
+        {},
+      ),
     );
   },
   async desconectar(sessaoId: string): Promise<void> {
@@ -381,7 +397,12 @@ function provedor() {
   return config.provedor === "generico" ? generico : evolution;
 }
 
-export type ModeloComBotoes = { nome: string; idioma: string; parametros: string[]; botoes: string[] };
+export type ModeloComBotoes = {
+  nome: string;
+  idioma: string;
+  parametros: string[];
+  botoes: string[];
+};
 export type MensagemInterativa = {
   texto: string;
   rodape?: string | null;
@@ -390,7 +411,8 @@ export type MensagemInterativa = {
 
 /** Interface única do provedor. Trocar de serviço é reimplementar isto. */
 export const gatewayDeWhatsapp = {
-  criarSessao: (sessaoId: string, webhookUrl: string) => provedor().criarSessao(sessaoId, webhookUrl),
+  criarSessao: (sessaoId: string, webhookUrl: string) =>
+    provedor().criarSessao(sessaoId, webhookUrl),
   obterQrCode: (sessaoId: string) => provedor().obterQrCode(sessaoId),
   consultarStatus: (sessaoId: string) => provedor().consultarStatus(sessaoId),
   enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>

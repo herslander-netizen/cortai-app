@@ -34,13 +34,19 @@ describe("regra única de formato", () => {
   });
   it("provedor sem botões → texto numerado", () => {
     expect(
-      decidirFormato({ ...base, oficial: false, janelaAberta: false, modeloAprovado: false }).formato,
+      decidirFormato({ ...base, oficial: false, janelaAberta: false, modeloAprovado: false })
+        .formato,
     ).toBe("texto");
   });
   it("variáveis na ordem exata do catálogo", () => {
     const vespera = ["cliente", "negocio", "data", "hora"];
     expect(
-      parametrosNaOrdem(vespera, { hora: "14:30", cliente: "Ana", data: "02/10/2026", negocio: "Studio" }),
+      parametrosNaOrdem(vespera, {
+        hora: "14:30",
+        cliente: "Ana",
+        data: "02/10/2026",
+        negocio: "Studio",
+      }),
     ).toEqual(["Ana", "Studio", "02/10/2026", "14:30"]);
     expect(() => parametrosNaOrdem(vespera, { cliente: "Ana" })).toThrow();
   });
@@ -73,7 +79,9 @@ describe("toque em botão chegando no webhook", () => {
   it.each(casos)("%s (%s) por modelo e por interativo", (acao) => {
     const payload = payloadDoBotao(acao, ID);
     const doModelo = toqueDaMensagem({ button: { payload, text: "x" } });
-    const doInterativo = toqueDaMensagem({ interactive: { button_reply: { id: payload, title: "x" } } });
+    const doInterativo = toqueDaMensagem({
+      interactive: { button_reply: { id: payload, title: "x" } },
+    });
     expect(lerToque(doModelo!)).toEqual({ acao, envioId: ID });
     expect(lerToque(doInterativo!)).toEqual({ acao, envioId: ID });
   });
@@ -90,20 +98,29 @@ describe("toque em botão chegando no webhook", () => {
     ).toBe("repetido");
   });
   it("botão vencido", () => {
-    expect(estadoDoToque(envio, "CORTAI_CONFIRMAR", new Date("2026-10-01T13:16:00Z"))).toBe("vencido");
+    expect(estadoDoToque(envio, "CORTAI_CONFIRMAR", new Date("2026-10-01T13:16:00Z"))).toBe(
+      "vencido",
+    );
   });
   it("ação fora do envio é ignorada", () => {
     expect(estadoDoToque(envio, "CORTAI_CHEGUEI", agora)).toBe("invalido");
   });
   it("validade: lembrete até início + 15 min; vaga até o prazo", () => {
-    expect(validadeDosBotoes("lembrete_2h", "2026-10-01T13:00:00Z")).toBe("2026-10-01T13:15:00.000Z");
+    expect(validadeDosBotoes("lembrete_2h", "2026-10-01T13:00:00Z")).toBe(
+      "2026-10-01T13:15:00.000Z",
+    );
     expect(validadeDosBotoes("vaga_lista_espera", null, agora, "2026-10-01T12:30:00Z")).toBe(
       "2026-10-01T12:30:00Z",
     );
   });
   it("resposta curta da vaga aceita", () => {
     expect(
-      textoDaVagaMarcada("2026-10-01T18:10:00Z", "America/Sao_Paulo", "Lucas", new Date("2026-10-01T15:00:00Z")),
+      textoDaVagaMarcada(
+        "2026-10-01T18:10:00Z",
+        "America/Sao_Paulo",
+        "Lucas",
+        new Date("2026-10-01T15:00:00Z"),
+      ),
     ).toBe("Pronto, está marcado: hoje às 15:10 com Lucas.");
   });
 });

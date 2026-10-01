@@ -49,25 +49,39 @@ function reais(centavos: number) {
 }
 
 function horaBr(iso: string, fuso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
 }
 
 function dataBr(iso: string, fuso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, day: "2-digit", month: "2-digit" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(iso));
 }
 
 function diaPorExtenso(dia: string) {
   const [a, m, d] = dia.split("-").map(Number);
   const data = new Date(Date.UTC(a ?? 1970, (m ?? 1) - 1, d ?? 1, 12));
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC", weekday: "long", day: "2-digit", month: "2-digit" }).format(
-    data,
-  );
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC",
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+  }).format(data);
 }
 
 function hojeNoFuso(fuso: string) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" }).format(
-    new Date(),
-  );
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: fuso,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 function somarDias(dia: string, dias: number) {
@@ -108,15 +122,27 @@ function frase(
     textos: entrada.config.textosConversa ?? null,
     desligadas: entrada.config.situacoesDesligadas ?? null,
   };
-  const r = textoDaConversaPadrao(chave, { ...vars, negocio: vars["negocio"] ?? entrada.nomeDaBarbearia, barbearia: vars["barbearia"] ?? entrada.nomeDaBarbearia }, p, entrada.config.segmento);
+  const r = textoDaConversaPadrao(
+    chave,
+    {
+      ...vars,
+      negocio: vars["negocio"] ?? entrada.nomeDaBarbearia,
+      barbearia: vars["barbearia"] ?? entrada.nomeDaBarbearia,
+    },
+    p,
+    entrada.config.segmento,
+  );
   if (!r || r.precisaHumano) return alternativa;
   return r.texto;
 }
 
-
 /** Ponto único de entrada: recebe a mensagem e devolve a resposta pronta. */
 export async function responderComMotor(entrada: EntradaDoMotor): Promise<RespostaDoMotor> {
-  const ctx: Ctx = { tenantId: entrada.tenantId, externalAgentId: null, fuso: await fusoDoTenant(entrada.tenantId) };
+  const ctx: Ctx = {
+    tenantId: entrada.tenantId,
+    externalAgentId: null,
+    fuso: await fusoDoTenant(entrada.tenantId),
+  };
   let contexto: ContextoDoMotor = { ...(entrada.contexto ?? {}) };
   if (entrada.clienteId) contexto.clienteId = entrada.clienteId;
 
@@ -148,7 +174,11 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
   }
 
   const menuItens = contexto.menuItens ?? [];
-  const cls = classificar(entrada.texto, { fuso: ctx.fuso, totalDeOpcoes: menuItens.length, segmento: entrada.config.segmento });
+  const cls = classificar(entrada.texto, {
+    fuso: ctx.fuso,
+    totalDeOpcoes: menuItens.length,
+    segmento: entrada.config.segmento,
+  });
 
   // Pedido de atendimento humano tem prioridade absoluta.
   if (cls.intencao === "HUMANO") {
@@ -160,7 +190,12 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       );
     }
     return responder(
-      frase(entrada, "humano", {}, "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋"),
+      frase(
+        entrada,
+        "humano",
+        {},
+        "Claro! Já estou chamando alguém da equipe para falar com você por aqui. 👋",
+      ),
       { ...limparFluxo(contexto), estado: "WAITING_HUMAN" },
       { intencao: "atendimento_humano", pedirHumano: true },
     );
@@ -190,7 +225,8 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
 
   // Confirmação / recusa de uma ação pendente.
   if (contexto.pendente && cls.intencao === "CONFIRMAR") {
-    if (contexto.pendente === "criar") return concluirAgendamento(ctx, entrada, contexto, responder);
+    if (contexto.pendente === "criar")
+      return concluirAgendamento(ctx, entrada, contexto, responder);
     if (contexto.pendente === "cancelar") return concluirCancelamento(ctx, contexto, responder);
     if (contexto.pendente === "remarcar") return concluirRemarcacao(ctx, contexto, responder);
   }
@@ -206,7 +242,12 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       const escrita = (entrada.config.mensagemBoasVindas ?? "").trim();
       const saudacao =
         escrita ||
-        frase(entrada, "saudacao_nova", { barbearia: entrada.nomeDaBarbearia }, saudacaoPadrao(entrada.config.segmento));
+        frase(
+          entrada,
+          "saudacao_nova",
+          { barbearia: entrada.nomeDaBarbearia },
+          saudacaoPadrao(entrada.config.segmento),
+        );
 
       // Cliente já conhecido: oferece o de sempre em vez de repetir o menu seco.
       if (contexto.clienteId) {
@@ -231,19 +272,27 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
         }
       }
 
-      return responder([saudacao, "", MENU_PRINCIPAL].join("\n"), {
-        ...limparFluxo(contexto),
-        menuTipo: "retomar",
-        menuItens: menuPrincipalItens(),
-      }, { intencao: "saudacao" });
+      return responder(
+        [saudacao, "", MENU_PRINCIPAL].join("\n"),
+        {
+          ...limparFluxo(contexto),
+          menuTipo: "retomar",
+          menuItens: menuPrincipalItens(),
+        },
+        { intencao: "saudacao" },
+      );
     }
 
     case "AJUDA":
-      return responder(["Posso te ajudar com:", "", MENU_PRINCIPAL].join("\n"), {
-        estado: "MAIN_MENU",
-        menuTipo: "retomar",
-        menuItens: menuPrincipalItens(),
-      }, { intencao: "duvida_geral" });
+      return responder(
+        ["Posso te ajudar com:", "", MENU_PRINCIPAL].join("\n"),
+        {
+          estado: "MAIN_MENU",
+          menuTipo: "retomar",
+          menuItens: menuPrincipalItens(),
+        },
+        { intencao: "duvida_geral" },
+      );
 
     case "SERVICOS":
     case "PRECO":
@@ -303,13 +352,17 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       return avancarAgendamento(ctx, entrada, contexto, cls, responder);
 
     case "CONFIRMAR":
-      return responder(
-        ["Perfeito! Como posso te ajudar?", "", MENU_PRINCIPAL].join("\n"),
-        { estado: "MAIN_MENU", menuTipo: "retomar", menuItens: menuPrincipalItens() },
-      );
+      return responder(["Perfeito! Como posso te ajudar?", "", MENU_PRINCIPAL].join("\n"), {
+        estado: "MAIN_MENU",
+        menuTipo: "retomar",
+        menuItens: menuPrincipalItens(),
+      });
 
     case "NEGAR":
-      return responder("Sem problema! Se precisar de qualquer coisa é só me chamar. 👋", limparFluxo(contexto));
+      return responder(
+        "Sem problema! Se precisar de qualquer coisa é só me chamar. 👋",
+        limparFluxo(contexto),
+      );
 
     case "ATRASO": {
       // Atraso avisado vira registro no sininho da equipe; nunca altera o horário sozinho.
@@ -367,14 +420,22 @@ async function listarServicosComPreco(ctx: Ctx, contexto: ContextoDoMotor, respo
   const { listarServicos } = await import("@/lib/ia/acoes.server");
   const servicos = await listarServicos(ctx);
   if (servicos.length === 0) {
-    return responder("Ainda não tenho a lista de serviços por aqui. Posso chamar alguém da equipe para te passar?");
+    return responder(
+      "Ainda não tenho a lista de serviços por aqui. Posso chamar alguém da equipe para te passar?",
+    );
   }
   const itens: ItemDeMenu[] = servicos.slice(0, 8).map((s) => ({
     rotulo: `${s.nome} — ${reais(s.preco_centavos ?? 0)} (${s.duracao_min} min)`,
     valor: s.id,
   }));
   return responder(
-    ["Nossos serviços:", "", listar(itens), "", "Quer agendar algum? Responda com o número. 😉"].join("\n"),
+    [
+      "Nossos serviços:",
+      "",
+      listar(itens),
+      "",
+      "Quer agendar algum? Responda com o número. 😉",
+    ].join("\n"),
     { estado: "CHOOSING_SERVICE", menuTipo: "servico", menuItens: itens },
     { intencao: "servicos" },
   );
@@ -387,7 +448,13 @@ async function listarEquipe(ctx: Ctx, responder: Responder) {
     return responder("No momento não tenho profissionais disponíveis para agendamento por aqui.");
   }
   return responder(
-    ["Nossa equipe:", "", equipe.map((p) => `💈 ${p.nome}`).join("\n"), "", "Quer agendar com alguém?"].join("\n"),
+    [
+      "Nossa equipe:",
+      "",
+      equipe.map((p) => `💈 ${p.nome}`).join("\n"),
+      "",
+      "Quer agendar com alguém?",
+    ].join("\n"),
     { estado: "MAIN_MENU", menuTipo: null, menuItens: null },
     { intencao: "profissionais" },
   );
@@ -402,12 +469,21 @@ async function informacoesDaCasa(
   const { consultarBarbearia } = await import("@/lib/ia/acoes.server");
   const casa = await consultarBarbearia(ctx);
   if (intencao === "BARBEARIA") {
-    return responder(`Você está falando com ${casa.nome ?? entrada.nomeDaBarbearia}.`, {}, { intencao: "duvida_geral" });
+    return responder(
+      `Você está falando com ${casa.nome ?? entrada.nomeDaBarbearia}.`,
+      {},
+      { intencao: "duvida_geral" },
+    );
   }
   if (intencao === "LOCALIZACAO") {
     return responder(
       casa.endereco
-        ? frase(entrada, "localizacao", { endereco: casa.endereco }, `📍 Estamos em: ${casa.endereco}`)
+        ? frase(
+            entrada,
+            "localizacao",
+            { endereco: casa.endereco },
+            `📍 Estamos em: ${casa.endereco}`,
+          )
         : "Ainda não tenho o endereço cadastrado aqui. Posso chamar alguém da equipe para te passar?",
       {},
       { intencao: "localizacao" },
@@ -420,7 +496,9 @@ async function informacoesDaCasa(
       : `${nomes[h.dia_semana]}: ${String(h.abre).slice(0, 5)} às ${String(h.fecha).slice(0, 5)}`,
   );
   return responder(
-    linhas.length ? ["Nosso funcionamento:", "", ...linhas].join("\n") : "Ainda não tenho os horários cadastrados aqui.",
+    linhas.length
+      ? ["Nosso funcionamento:", "", ...linhas].join("\n")
+      : "Ainda não tenho os horários cadastrados aqui.",
     {},
     { intencao: "horario_funcionamento" },
   );
@@ -438,7 +516,9 @@ async function avancarAgendamento(
   const { listarServicos } = await import("@/lib/ia/acoes.server");
   const servicos = await listarServicos(ctx);
   if (servicos.length === 0) {
-    return responder("Ainda não consigo agendar por aqui — o negócio não tem serviços cadastrados. Vou avisar a equipe.");
+    return responder(
+      "Ainda não consigo agendar por aqui — o negócio não tem serviços cadastrados. Vou avisar a equipe.",
+    );
   }
 
   // 1) Serviço: o citado na mensagem, o já escolhido, ou a lista numerada.
@@ -453,8 +533,14 @@ async function avancarAgendamento(
       servicoId = achado.id;
       servicoNome = achado.nome;
     } else if (compativeis.length > 1) {
-      const itens: ItemDeMenu[] = compativeis.slice(0, 8).map((s) => ({ rotulo: `${s.nome} — ${reais(s.preco_centavos ?? 0)}`, valor: s.id }));
-      return responder(["Qual deles você quer?", "", listar(itens), "", "Responda com o número."].join("\n"), { estado: "CHOOSING_SERVICE", menuTipo: "servico", menuItens: itens }, { intencao: "agendamento" });
+      const itens: ItemDeMenu[] = compativeis
+        .slice(0, 8)
+        .map((s) => ({ rotulo: `${s.nome} — ${reais(s.preco_centavos ?? 0)}`, valor: s.id }));
+      return responder(
+        ["Qual deles você quer?", "", listar(itens), "", "Responda com o número."].join("\n"),
+        { estado: "CHOOSING_SERVICE", menuTipo: "servico", menuItens: itens },
+        { intencao: "agendamento" },
+      );
     }
   }
   if (!servicoId) {
@@ -463,7 +549,13 @@ async function avancarAgendamento(
       valor: s.id,
     }));
     return responder(
-      ["Vamos agendar! Qual serviço você quer?", "", listar(itens), "", "Responda com o número."].join("\n"),
+      [
+        "Vamos agendar! Qual serviço você quer?",
+        "",
+        listar(itens),
+        "",
+        "Responda com o número.",
+      ].join("\n"),
       {
         estado: "CHOOSING_SERVICE",
         menuTipo: "servico",
@@ -478,9 +570,11 @@ async function avancarAgendamento(
   const dia = cls.entidades.dia ?? contexto.dia ?? null;
   if (!dia) {
     return responder(
-      [`Fechado: ${servicoNome}.`, "", "Para qual dia? Pode responder “hoje”, “amanhã”, “sexta” ou uma data como 12/05."].join(
-        "\n",
-      ),
+      [
+        `Fechado: ${servicoNome}.`,
+        "",
+        "Para qual dia? Pode responder “hoje”, “amanhã”, “sexta” ou uma data como 12/05.",
+      ].join("\n"),
       { estado: "CHOOSING_DATE", servicoId, servicoNome, menuTipo: null, menuItens: null },
       { intencao: "agendamento" },
     );
@@ -531,9 +625,11 @@ async function oferecerHorarios(
   if (grade.fechado) {
     const proximo = somarDias(opcoes.dia, 1);
     return responder(
-      [`Nesse dia (${diaPorExtenso(opcoes.dia)}) a barbearia está fechada.`, "", `Quer que eu veja ${diaPorExtenso(proximo)}?`].join(
-        "\n",
-      ),
+      [
+        `Nesse dia (${diaPorExtenso(opcoes.dia)}) a barbearia está fechada.`,
+        "",
+        `Quer que eu veja ${diaPorExtenso(proximo)}?`,
+      ].join("\n"),
       { ...base, estado: "CHOOSING_DATE", menuTipo: null, menuItens: null },
       { intencao: "disponibilidade" },
     );
@@ -569,7 +665,9 @@ async function oferecerHorarios(
       `Quer que eu procure em ${diaPorExtenso(proximo)}? Responda com o dia que preferir.`,
     ].join("\n");
     return responder(
-      opcoes.entrada && !opcoes.periodo ? frase(opcoes.entrada, "agenda_cheia", {}, padrao) : padrao,
+      opcoes.entrada && !opcoes.periodo
+        ? frase(opcoes.entrada, "agenda_cheia", {}, padrao)
+        : padrao,
       { ...base, estado: "CHOOSING_DATE", menuTipo: null, menuItens: null },
       { intencao: "disponibilidade" },
     );
@@ -619,14 +717,24 @@ async function tratarSelecao(
     case "retomar": {
       const acao = item.valor;
       if (acao === "humano") {
-        return responder("Já estou chamando alguém da equipe para falar com você. 👋", { estado: "WAITING_HUMAN" }, {
-          intencao: "atendimento_humano",
-          pedirHumano: true,
-        });
+        return responder(
+          "Já estou chamando alguém da equipe para falar com você. 👋",
+          { estado: "WAITING_HUMAN" },
+          {
+            intencao: "atendimento_humano",
+            pedirHumano: true,
+          },
+        );
       }
       if (acao === "servicos") return listarServicosComPreco(ctx, contexto, responder);
       if (acao === "meus") return meusAgendamentos(ctx, contexto, responder);
-      return avancarAgendamento(ctx, entrada, { ...contexto, menuTipo: null, menuItens: null }, cls, responder);
+      return avancarAgendamento(
+        ctx,
+        entrada,
+        { ...contexto, menuTipo: null, menuItens: null },
+        cls,
+        responder,
+      );
     }
 
     case "servico": {
@@ -707,7 +815,13 @@ async function tratarSelecao(
       if (contexto.pendente === "cancelar") {
         return responder(
           [`Quer mesmo cancelar ${item.rotulo}?`, "", "Responda *sim* para cancelar."].join("\n"),
-          { estado: "CANCELLING", agendamentoId: item.valor, pendente: "cancelar", menuTipo: null, menuItens: null },
+          {
+            estado: "CANCELLING",
+            agendamentoId: item.valor,
+            pendente: "cancelar",
+            menuTipo: null,
+            menuItens: null,
+          },
           { intencao: "cancelamento" },
         );
       }
@@ -733,7 +847,9 @@ async function tratarSelecao(
 async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDeMenu) {
   const { consultarServico, consultarBarbearia } = await import("@/lib/ia/acoes.server");
   const [servico, casa] = await Promise.all([
-    contexto.servicoId ? consultarServico(ctx, { servicoId: contexto.servicoId }) : Promise.resolve(null),
+    contexto.servicoId
+      ? consultarServico(ctx, { servicoId: contexto.servicoId })
+      : Promise.resolve(null),
     consultarBarbearia(ctx),
   ]);
   const texto = [
@@ -750,7 +866,9 @@ async function resumoDoHorario(ctx: Ctx, contexto: ContextoDoMotor, item: ItemDe
   const vars = {
     servico: servico?.nome ?? null,
     profissional: item.rotulo.replace(/^\d{2}:\d{2} com /, "") || null,
-    dia_semana: new Intl.DateTimeFormat("pt-BR", { timeZone: ctx.fuso, weekday: "long" }).format(new Date(item.valor)),
+    dia_semana: new Intl.DateTimeFormat("pt-BR", { timeZone: ctx.fuso, weekday: "long" }).format(
+      new Date(item.valor),
+    ),
     data: dataBr(item.valor, ctx.fuso),
     horario: horaBr(item.valor, ctx.fuso),
     valor: servico ? reais(servico.preco_centavos ?? 0) : null,
@@ -766,7 +884,10 @@ async function concluirAgendamento(
   responder: Responder,
 ) {
   if (!contexto.inicioEscolhido || !contexto.servicoId || !contexto.profissionalId) {
-    return responder("Preciso retomar a escolha do horário. Me diz o dia que você prefere.", limparFluxo(contexto));
+    return responder(
+      "Preciso retomar a escolha do horário. Me diz o dia que você prefere.",
+      limparFluxo(contexto),
+    );
   }
 
   // Sem cadastro ainda: pede o nome antes de criar o agendamento.
@@ -779,7 +900,11 @@ async function concluirAgendamento(
       });
     }
     const { registrarCliente } = await import("@/lib/ia/acoes.server");
-    const cliente = await registrarCliente(ctx, { nome, telefone: entrada.telefone, optInWhatsapp: true });
+    const cliente = await registrarCliente(ctx, {
+      nome,
+      telefone: entrada.telefone,
+      optInWhatsapp: true,
+    });
     contexto.clienteId = cliente.id;
   }
 
@@ -821,9 +946,11 @@ async function concluirAgendamento(
 
   const quando = `${dataBr(contexto.inicioEscolhido, ctx.fuso)} às ${horaBr(contexto.inicioEscolhido, ctx.fuso)}`;
   return responder(
-    [`Pronto! Seu horário está marcado para ${quando}. ✅`, "", "Te envio a confirmação com todos os detalhes por aqui."].join(
-      "\n",
-    ),
+    [
+      `Pronto! Seu horário está marcado para ${quando}. ✅`,
+      "",
+      "Te envio a confirmação com todos os detalhes por aqui.",
+    ].join("\n"),
     { ...limparFluxo(contexto), estado: "BOOKING_CONFIRMED" },
     { intencao: "agendamento" },
   );
@@ -833,7 +960,8 @@ async function concluirAgendamento(
 
 async function carregarAgendamentos(ctx: Ctx, contexto: ContextoDoMotor) {
   if (!contexto.clienteId) return [];
-  const { listarAgendamentosDoCliente, listarServicos, listarProfissionais } = await import("@/lib/ia/acoes.server");
+  const { listarAgendamentosDoCliente, listarServicos, listarProfissionais } =
+    await import("@/lib/ia/acoes.server");
   const [lista, servicos, equipe] = await Promise.all([
     listarAgendamentosDoCliente(ctx, { clienteId: contexto.clienteId }),
     listarServicos(ctx),
@@ -843,8 +971,10 @@ async function carregarAgendamentos(ctx: Ctx, contexto: ContextoDoMotor) {
   const nomeProfissional = new Map(equipe.map((p) => [p.id, p.nome]));
   return lista.map((a) => ({
     id: a.id,
-    rotulo: `${dataBr(a.inicio, ctx.fuso)} às ${horaBr(a.inicio, ctx.fuso)} — ${a.servico_id ? nomeServico.get(a.servico_id) ?? "atendimento" : "atendimento"} com ${
-      a.profissional_id ? nomeProfissional.get(a.profissional_id) ?? "nossa equipe" : "nossa equipe"
+    rotulo: `${dataBr(a.inicio, ctx.fuso)} às ${horaBr(a.inicio, ctx.fuso)} — ${a.servico_id ? (nomeServico.get(a.servico_id) ?? "atendimento") : "atendimento"} com ${
+      a.profissional_id
+        ? (nomeProfissional.get(a.profissional_id) ?? "nossa equipe")
+        : "nossa equipe"
     }`,
   }));
 }
@@ -852,15 +982,25 @@ async function carregarAgendamentos(ctx: Ctx, contexto: ContextoDoMotor) {
 async function meusAgendamentos(ctx: Ctx, contexto: ContextoDoMotor, responder: Responder) {
   const lista = await carregarAgendamentos(ctx, contexto);
   if (lista.length === 0) {
-    return responder("Não encontrei nenhum horário marcado no seu nome. Quer agendar um agora?", {
-      estado: "MAIN_MENU",
-      menuTipo: null,
-      menuItens: null,
-    }, { intencao: "consulta_agendamento" });
+    return responder(
+      "Não encontrei nenhum horário marcado no seu nome. Quer agendar um agora?",
+      {
+        estado: "MAIN_MENU",
+        menuTipo: null,
+        menuItens: null,
+      },
+      { intencao: "consulta_agendamento" },
+    );
   }
   const itens: ItemDeMenu[] = lista.map((a) => ({ rotulo: a.rotulo, valor: a.id }));
   return responder(
-    ["Seus próximos horários:", "", listar(itens), "", "Quer remarcar ou cancelar algum? É só me dizer."].join("\n"),
+    [
+      "Seus próximos horários:",
+      "",
+      listar(itens),
+      "",
+      "Quer remarcar ou cancelar algum? É só me dizer.",
+    ].join("\n"),
     { estado: "VIEWING_BOOKING", menuTipo: "agendamento", menuItens: itens, pendente: null },
     { intencao: "consulta_agendamento" },
   );
@@ -869,16 +1009,30 @@ async function meusAgendamentos(ctx: Ctx, contexto: ContextoDoMotor, responder: 
 async function iniciarCancelamento(ctx: Ctx, contexto: ContextoDoMotor, responder: Responder) {
   const lista = await carregarAgendamentos(ctx, contexto);
   if (lista.length === 0) {
-    return responder("Não encontrei horário marcado no seu nome para cancelar.", limparFluxo(contexto), {
-      intencao: "cancelamento",
-    });
+    return responder(
+      "Não encontrei horário marcado no seu nome para cancelar.",
+      limparFluxo(contexto),
+      {
+        intencao: "cancelamento",
+      },
+    );
   }
   if (lista.length === 1) {
     const unico = lista[0];
-    if (!unico) return responder("Não encontrei horário marcado no seu nome para cancelar.", limparFluxo(contexto));
+    if (!unico)
+      return responder(
+        "Não encontrei horário marcado no seu nome para cancelar.",
+        limparFluxo(contexto),
+      );
     return responder(
       [`Quer mesmo cancelar ${unico.rotulo}?`, "", "Responda *sim* para cancelar."].join("\n"),
-      { estado: "CANCELLING", agendamentoId: unico.id, pendente: "cancelar", menuTipo: null, menuItens: null },
+      {
+        estado: "CANCELLING",
+        agendamentoId: unico.id,
+        pendente: "cancelar",
+        menuTipo: null,
+        menuItens: null,
+      },
       { intencao: "cancelamento" },
     );
   }
@@ -892,16 +1046,23 @@ async function iniciarCancelamento(ctx: Ctx, contexto: ContextoDoMotor, responde
 
 async function concluirCancelamento(ctx: Ctx, contexto: ContextoDoMotor, responder: Responder) {
   if (!contexto.agendamentoId) {
-    return responder("Preciso saber qual horário cancelar. Quer ver seus agendamentos?", limparFluxo(contexto));
+    return responder(
+      "Preciso saber qual horário cancelar. Quer ver seus agendamentos?",
+      limparFluxo(contexto),
+    );
   }
   const { cancelarAgendamento } = await import("@/lib/ia/acoes.server");
   try {
     await cancelarAgendamento(ctx, { agendamentoId: contexto.agendamentoId });
   } catch {
-    return responder("Não consegui cancelar por aqui. Vou chamar alguém da equipe. 🙏", limparFluxo(contexto), {
-      pedirHumano: true,
-      intencao: "cancelamento",
-    });
+    return responder(
+      "Não consegui cancelar por aqui. Vou chamar alguém da equipe. 🙏",
+      limparFluxo(contexto),
+      {
+        pedirHumano: true,
+        intencao: "cancelamento",
+      },
+    );
   }
   return responder(
     "Cancelado. ✅ Se quiser remarcar, é só me dizer o dia que prefere.",
@@ -919,9 +1080,13 @@ async function iniciarRemarcacao(
 ) {
   const lista = await carregarAgendamentos(ctx, contexto);
   if (lista.length === 0) {
-    return responder("Não encontrei horário marcado no seu nome. Quer agendar um novo?", limparFluxo(contexto), {
-      intencao: "reagendamento",
-    });
+    return responder(
+      "Não encontrei horário marcado no seu nome. Quer agendar um novo?",
+      limparFluxo(contexto),
+      {
+        intencao: "reagendamento",
+      },
+    );
   }
   if (lista.length > 1) {
     const itens: ItemDeMenu[] = lista.map((a) => ({ rotulo: a.rotulo, valor: a.id }));
@@ -934,18 +1099,26 @@ async function iniciarRemarcacao(
 
   const alvo = lista[0];
   if (!alvo) {
-    return responder("Não encontrei horário marcado no seu nome. Quer agendar um novo?", limparFluxo(contexto), {
-      intencao: "reagendamento",
-    });
+    return responder(
+      "Não encontrei horário marcado no seu nome. Quer agendar um novo?",
+      limparFluxo(contexto),
+      {
+        intencao: "reagendamento",
+      },
+    );
   }
   const dia = cls.entidades.dia;
   const { listarAgendamentosDoCliente } = await import("@/lib/ia/acoes.server");
   const clienteId = contexto.clienteId;
   if (!clienteId) {
-    return responder("Não encontrei seu cadastro para remarcar. Vou chamar alguém da equipe.", limparFluxo(contexto), {
-      pedirHumano: true,
-      intencao: "reagendamento",
-    });
+    return responder(
+      "Não encontrei seu cadastro para remarcar. Vou chamar alguém da equipe.",
+      limparFluxo(contexto),
+      {
+        pedirHumano: true,
+        intencao: "reagendamento",
+      },
+    );
   }
   const cru = await listarAgendamentosDoCliente(ctx, { clienteId });
   const servicoId = cru.find((a) => a.id === alvo.id)?.servico_id ?? contexto.servicoId ?? null;
@@ -977,7 +1150,10 @@ async function iniciarRemarcacao(
 
 async function concluirRemarcacao(ctx: Ctx, contexto: ContextoDoMotor, responder: Responder) {
   if (!contexto.agendamentoId || !contexto.inicioEscolhido) {
-    return responder("Preciso retomar a escolha do novo horário. Me diz o dia que você prefere.", limparFluxo(contexto));
+    return responder(
+      "Preciso retomar a escolha do novo horário. Me diz o dia que você prefere.",
+      limparFluxo(contexto),
+    );
   }
   const { remarcarAgendamento } = await import("@/lib/ia/acoes.server");
   try {
@@ -987,10 +1163,14 @@ async function concluirRemarcacao(ctx: Ctx, contexto: ContextoDoMotor, responder
       profissionalId: contexto.profissionalId ?? null,
     });
   } catch {
-    return responder("Não consegui remarcar agora. Vou chamar alguém da equipe. 🙏", limparFluxo(contexto), {
-      pedirHumano: true,
-      intencao: "reagendamento",
-    });
+    return responder(
+      "Não consegui remarcar agora. Vou chamar alguém da equipe. 🙏",
+      limparFluxo(contexto),
+      {
+        pedirHumano: true,
+        intencao: "reagendamento",
+      },
+    );
   }
   return responder(
     `Remarcado! Seu novo horário é ${dataBr(contexto.inicioEscolhido, ctx.fuso)} às ${horaBr(contexto.inicioEscolhido, ctx.fuso)}. ✅`,
@@ -1001,14 +1181,21 @@ async function concluirRemarcacao(ctx: Ctx, contexto: ContextoDoMotor, responder
 
 /* --------------------------- histórico e fallback ------------------------- */
 
-async function repetirUltimo(ctx: Ctx, entrada: EntradaDoMotor, contexto: ContextoDoMotor, responder: Responder) {
+async function repetirUltimo(
+  ctx: Ctx,
+  entrada: EntradaDoMotor,
+  contexto: ContextoDoMotor,
+  responder: Responder,
+) {
   if (!contexto.clienteId) {
     return responder("Ainda não tenho seu histórico por aqui. Quer ver os serviços disponíveis?");
   }
   const { historicoDoCliente } = await import("@/lib/ia/acoes.server");
   const h = await historicoDoCliente(ctx, { clienteId: contexto.clienteId });
   if (!h.servicoPreferido?.id) {
-    return responder("Não encontrei um atendimento anterior seu. Quer escolher um serviço da lista?");
+    return responder(
+      "Não encontrei um atendimento anterior seu. Quer escolher um serviço da lista?",
+    );
   }
   return responder(
     [
@@ -1067,7 +1254,13 @@ async function naoEntendi(
       {},
       ["Não tenho certeza se entendi. 🤔", "", "Posso ajudar com:", "", MENU_PRINCIPAL].join("\n"),
     ),
-    { ...limparFluxo(contexto), semEntender: tentativas, estado: "MAIN_MENU", menuTipo: "retomar", menuItens: menuPrincipalItens() },
+    {
+      ...limparFluxo(contexto),
+      semEntender: tentativas,
+      estado: "MAIN_MENU",
+      menuTipo: "retomar",
+      menuItens: menuPrincipalItens(),
+    },
     { intencao: "desconhecida" },
   );
 }

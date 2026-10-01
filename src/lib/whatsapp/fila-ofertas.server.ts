@@ -225,8 +225,7 @@ async function enviarOferta(ofertaId: string) {
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
-  const clienteId =
-    (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
+  const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db
@@ -250,7 +249,11 @@ async function enviarOferta(ofertaId: string) {
   const conexao = await conexaoDeEnvio(o.tenant_id);
   const nome = (cli?.nome ?? "").split(/\s+/)[0];
   const prazo = partes(o.expira_em, fuso).hora;
-  const { data: tenant } = await db.from("tenants").select("nome").eq("id", o.tenant_id).maybeSingle();
+  const { data: tenant } = await db
+    .from("tenants")
+    .select("nome")
+    .eq("id", o.tenant_id)
+    .maybeSingle();
   const negocio = tenant?.nome ?? "Negócio";
   const texto = [
     `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera em ${negocio}.`,
