@@ -345,6 +345,27 @@ const meta = {
     const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
     return { id: (lista[0]?.["id"] as string) ?? null };
   },
+  /** Mensagem interativa com até 3 botões (só dentro da janela de 24h). */
+  async enviarInterativo(telefone: string, i: MensagemInterativa) {
+    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+      messaging_product: "whatsapp",
+      to: telefone.replace(/\D/g, ""),
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: i.texto.slice(0, 1024) },
+        ...(i.rodape ? { footer: { text: i.rodape.slice(0, 60) } } : {}),
+        action: {
+          buttons: i.botoes.slice(0, 3).map((b) => ({
+            type: "reply",
+            reply: { id: b.id.slice(0, 256), title: b.titulo.slice(0, 20) },
+          })),
+        },
+      },
+    });
+    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+    return { id: (lista[0]?.["id"] as string) ?? null };
+  },
   reiniciarSessao(): Promise<EstadoDaSessao> {
     return meta.consultarStatus();
   },
@@ -361,6 +382,11 @@ function provedor() {
 }
 
 export type ModeloComBotoes = { nome: string; idioma: string; parametros: string[]; botoes: string[] };
+export type MensagemInterativa = {
+  texto: string;
+  rodape?: string | null;
+  botoes: { id: string; titulo: string }[];
+};
 
 /** Interface única do provedor. Trocar de serviço é reimplementar isto. */
 export const gatewayDeWhatsapp = {
@@ -372,6 +398,8 @@ export const gatewayDeWhatsapp = {
   /** Só a API oficial garante botões; nos demais provedores devolve null. */
   enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
     lerConfig()?.provedor === "meta" ? meta.enviarTemplate(telefone, t) : Promise.resolve(null),
+  enviarInterativo: (telefone: string, i: MensagemInterativa) =>
+    lerConfig()?.provedor === "meta" ? meta.enviarInterativo(telefone, i) : Promise.resolve(null),
   /**
    * O que o canal atual suporta. Oficial: botões via template e janela de 24h
    * para mensagens iniciadas pela barbearia. Demais: opções numeradas, sem janela.
