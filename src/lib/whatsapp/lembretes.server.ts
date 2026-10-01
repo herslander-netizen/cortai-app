@@ -200,6 +200,8 @@ export async function tratarRespostaDeLembrete(input: {
     else if (/^(cheguei|to aqui|estou aqui|ja cheguei|cheguei aqui)$/.test(t))
       acao = "CORTAI_CHEGUEI";
     else if (/^(cancelar|cancela|quero cancelar)$/.test(t)) acao = "CORTAI_CANCELAR";
+    else if (/^(quero|quero sim|sim quero)$/.test(t)) acao = "CORTAI_QUERO";
+    else if (/^(nao posso|nao da|nao quero)$/.test(t)) acao = "CORTAI_NAO_POSSO";
     if (acao && !acoesPossiveis.has(acao)) acao = null;
   }
   if (!acao) return null;
@@ -234,6 +236,19 @@ export async function tratarRespostaDeLembrete(input: {
         "Responda com o número.",
       ].join("\n"),
     };
+  }
+  if (acao === "CORTAI_QUERO" || acao === "CORTAI_NAO_POSSO") {
+    const { data: comOferta } = await db
+      .from("envios_de_whatsapp")
+      .select("oferta_id")
+      .eq("id", envio.id)
+      .maybeSingle();
+    return responderOferta(
+      envio.id,
+      (comOferta as { oferta_id?: string | null } | null)?.oferta_id ?? null,
+      acao,
+      input.tenantId,
+    );
   }
   if (!envio.agendamento_id) return null;
 
