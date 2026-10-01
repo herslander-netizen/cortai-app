@@ -1,0 +1,1 @@
+UPDATE public.envios_de_whatsapp SET status='enviado', tentativas=1, enviado_em=now(), mensagem_externa_id='wamid.HBgMNTU3OTkxNzg3MjA4FQIAERgUQ0U1MEQ1NzgzRjIxMEJFODdFRUEA' WHERE id='7e570000-0000-4000-8000-000000000001';
