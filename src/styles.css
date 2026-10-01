@@ -5028,7 +5028,8 @@ body:has(.auth-screen--claro) {
 }
 .agenda-agora-compacto:focus-visible,
 .agenda-proximo-linha:focus-visible,
-.agenda-lista-item:focus-visible {
+.agenda-lista-item:focus-visible,
+.agenda-item:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
@@ -5122,6 +5123,97 @@ button.agenda-nome:hover {
 .agenda-barra-remarcado {
   border-left-color: var(--status-cancelled);
   opacity: 0.6;
+}
+/* Lista em cartões: barra de status 4px, badge com ponto e ações hierárquicas. */
+.agenda-item {
+  min-width: 0;
+  min-height: 64px;
+  border-left: 4px solid transparent;
+  padding: 12px 8px;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.agenda-item-agendado {
+  border-left-color: var(--status-scheduled);
+}
+.agenda-item-chegou {
+  border-left-color: var(--status-arrived);
+  background: var(--status-arrived-soft);
+}
+.agenda-item-na_cadeira {
+  border-left-color: var(--status-active);
+  background: var(--status-active-soft);
+}
+.agenda-item-finalizado {
+  border-left-color: var(--status-completed);
+  opacity: 0.72;
+}
+.agenda-item-cancelado,
+.agenda-item-remarcado,
+.agenda-item-nao_compareceu {
+  border-left-color: var(--status-cancelled);
+  opacity: 0.6;
+}
+.agenda-item-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--cor, var(--line2));
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--cor, var(--line2)) 12%, transparent);
+  padding: 2px 8px;
+  color: var(--cor, var(--mute));
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.agenda-item-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cor, var(--mute));
+}
+.agenda-item-badge-agendado {
+  --cor: var(--status-scheduled);
+}
+.agenda-item-badge-chegou {
+  --cor: var(--status-arrived);
+}
+.agenda-item-badge-na_cadeira {
+  --cor: var(--status-active);
+}
+.agenda-item-badge-finalizado {
+  --cor: var(--status-completed);
+}
+.agenda-item-badge-cancelado,
+.agenda-item-badge-nao_compareceu,
+.agenda-item-badge-remarcado,
+.agenda-item-badge-atrasado {
+  --cor: var(--status-cancelled);
+}
+.agenda-item-badge-encaixe {
+  --cor: var(--rosa);
+}
+.agenda-item-badge-confirmado {
+  --cor: var(--status-arrived);
+}
+.agenda-item-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.agenda-item-primaria {
+  grid-column: 1 / -1;
+}
+.agenda-item-hora-agora {
+  color: var(--rosa);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 /* Timeline limpa: status pela barra lateral, fundo neutro, passado apagado. */
 .agenda-timeline-bloco.agenda-timeline-agendado,

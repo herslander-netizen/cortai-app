@@ -1,11 +1,23 @@
 import { useState } from "react";
 
-import { StatusBadge } from "@/components/ui/badge";
+import { Check, Play, UserRoundPlus, type LucideIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
-import { estaAtrasado, hora, nomeEhGenerico, teclaDeAtivar } from "./tempo";
+import { estaAtrasado, hora, nomeEhGenerico, ROTULO_ESTADO, teclaDeAtivar } from "./tempo";
+
+export type AcaoCard = "chegou" | "iniciar" | "terminar";
+
+/** Ação principal do cartão, conforme o estado do atendimento. */
+const ACAO_PRIMARIA: Partial<
+  Record<string, { acao: AcaoCard; rotulo: string; Icone: LucideIcon }>
+> = {
+  agendado: { acao: "chegou", rotulo: "Cliente chegou", Icone: UserRoundPlus },
+  chegou: { acao: "iniciar", rotulo: "Começar atendimento", Icone: Play },
+  na_cadeira: { acao: "terminar", rotulo: "Terminar", Icone: Check },
+};
 
 export function ListaAgenda({
   itens,
@@ -17,6 +29,7 @@ export function ListaAgenda({
   onAbrir,
   onPerfil,
   onFalta,
+  onAcao,
 }: {
   itens: AgendaItem[];
   fuso: string;
@@ -27,6 +40,7 @@ export function ListaAgenda({
   onAbrir: (id: string) => void;
   onPerfil: (clienteId: string) => void;
   onFalta: (item: AgendaItem) => void;
+  onAcao?: (item: AgendaItem, acao: AcaoCard) => void;
 }) {
   const agora = useAgora();
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
@@ -34,19 +48,27 @@ export function ListaAgenda({
     <ul className="divide-y divide-line">
       {itens.map((item, indice) => {
         const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
+        const primaria = onAcao ? ACAO_PRIMARIA[item.status] : undefined;
         return (
           <li
             key={item.id}
             role="button"
             tabIndex={0}
             aria-label={`${hora(item.inicio, fuso)}, ${item.cliente}, ${item.servico}`}
-            className={`agenda-lista-item agenda-barra-${item.status} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
+            className={`agenda-item agenda-item-${item.status} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
             style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
             onClick={() => onAbrir(item.id)}
             onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
           >
             <div className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-start gap-3">
-              <p className="pt-0.5 text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
+              <div className="pt-0.5">
+                <p className="text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
+                {item.status === "na_cadeira" ? (
+                  <p className="agenda-item-hora-agora" aria-hidden>
+                    AGORA
+                  </p>
+                ) : null}
+              </div>
               <div className="min-w-0">
                 {item.clienteId ? (
                   <button
@@ -66,44 +88,65 @@ export function ListaAgenda({
                   {item.servico} · {item.profissional}
                 </p>
               </div>
-              <div className="flex flex-wrap justify-end gap-1">
-                {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
-                {atrasado ? <StatusBadge status="nao_compareceu" label="Atrasado" /> : null}
-                {item.encaixe ? <StatusBadge status="encaixe" /> : null}
-                {item.confirmadoEm && item.status === "agendado" ? (
-                  <StatusBadge status="confirmado" label="Confirmou" />
+              <div className="flex max-w-[45%] flex-wrap justify-end gap-1">
+                <span className={`agenda-item-badge agenda-item-badge-${item.status}`}>
+                  {ROTULO_ESTADO[item.status] ?? item.status}
+                </span>
+                {item.encaixe ? (
+                  <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span>
                 ) : null}
-                {item.status !== "agendado" && item.status !== "na_cadeira" ? (
-                  <StatusBadge status={item.status} />
+                {item.confirmadoEm && item.status === "agendado" ? (
+                  <span className="agenda-item-badge agenda-item-badge-confirmado">Confirmou</span>
+                ) : null}
+                {atrasado ? (
+                  <span className="agenda-item-badge agenda-item-badge-atrasado">Atrasado</span>
                 ) : null}
               </div>
             </div>
-            {atrasado ? (
-              <div className="mt-2 ml-[66px] flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-brick">Não chegou?</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-h-11"
-                  disabled={!online}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onFalta(item);
-                  }}
-                >
-                  Marcar falta
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="min-h-11"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAguardando((a) => new Set(a).add(item.id));
-                  }}
-                >
-                  Aguardar
-                </Button>
+            {primaria || atrasado ? (
+              <div className="agenda-item-acoes">
+                {primaria ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="agenda-item-primaria min-h-11"
+                    disabled={!online}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (primaria) onAcao?.(item, primaria.acao);
+                    }}
+                  >
+                    <primaria.Icone aria-hidden />
+                    {primaria.rotulo}
+                  </Button>
+                ) : null}
+                {atrasado ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="min-h-11"
+                      disabled={!online}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFalta(item);
+                      }}
+                    >
+                      Marcar falta
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-11"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAguardando((a) => new Set(a).add(item.id));
+                      }}
+                    >
+                      Aguardar
+                    </Button>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </li>
