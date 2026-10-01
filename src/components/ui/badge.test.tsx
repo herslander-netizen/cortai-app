@@ -45,4 +45,11 @@ describe("StatusBadge", () => {
     act(() => root.render(<StatusBadge status="na_cadeira" segmento="salao" />));
     expect(host.textContent).toContain("Em atendimento");
   });
+  it("usa cadeira na barbearia", () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    act(() => root.render(<StatusBadge status="na_cadeira" segmento="barbearia" />));
+    expect(host.textContent).toContain("Na cadeira");
+  });
 });

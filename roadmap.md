@@ -62,4 +62,4 @@
 - [x] Confirmar cancelamento do cliente integrado à oferta segura já existente da lista de espera
 - [ ] Validar visualmente as melhorias em 390px/1280px; bloqueado pela sessão da conta autorizada
 - [x] Validar tipos, lint dirigido, testes e build; não publicar
-- [ ] Agenda — etapa 1/4: corrigir finalização, atraso, termos, estados e rótulos sem mudar layout
+- [x] Agenda — etapa 1/4: corrigir finalização, atraso, termos, estados e rótulos sem mudar layout
