@@ -12,8 +12,10 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
         primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
-        secondary: "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
-        outline: "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
+        secondary:
+          "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
+        outline:
+          "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
         ghost: "bg-transparent text-foreground hover:bg-ink3 active:bg-ink2",
         text: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
         link: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
@@ -25,7 +27,8 @@ const buttonVariants = cva(
         sm: "h-12 px-3 text-xs",
         lg: "h-14 px-6 text-base",
         icon: "size-12 p-0",
-        bloco: "h-auto min-h-12 flex-col items-stretch justify-start gap-1 whitespace-normal p-3 text-left",
+        bloco:
+          "h-auto min-h-12 flex-col items-stretch justify-start gap-1 whitespace-normal p-3 text-left",
       },
     },
     defaultVariants: { variant: "default", size: "default" },
@@ -33,7 +36,9 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick">, VariantProps<typeof buttonVariants> {
+  extends
+    Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick">,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
   success?: boolean;
@@ -41,7 +46,22 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, loading = false, success = false, disabled, onClick, children, style, ...props }, forwardedRef) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      loading = false,
+      success = false,
+      disabled,
+      onClick,
+      children,
+      style,
+      ...props
+    },
+    forwardedRef,
+  ) => {
     if ((variant === "icon" || size === "icon") && !props["aria-label"]) {
       throw new Error("Button de ícone exige aria-label.");
     }
@@ -52,9 +72,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const alive = React.useRef(true);
     const width = React.useRef<number | null>(null);
 
-    React.useEffect(() => () => { alive.current = false; }, []);
+    React.useEffect(
+      () => () => {
+        alive.current = false;
+      },
+      [],
+    );
     React.useEffect(() => {
-      if (!loading) { setShowSpinner(false); return; }
+      if (!loading) {
+        setShowSpinner(false);
+        return;
+      }
       const timer = window.setTimeout(() => setShowSpinner(true), 300);
       return () => window.clearTimeout(timer);
     }, [loading]);
@@ -76,7 +104,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       void Promise.resolve(result).finally(() => {
         window.clearTimeout(timer);
         pendingRef.current = false;
-        if (alive.current) { setPending(false); setShowSpinner(false); }
+        if (alive.current) {
+          setPending(false);
+          setShowSpinner(false);
+        }
       });
     }
 

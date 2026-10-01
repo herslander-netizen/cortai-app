@@ -207,7 +207,11 @@ export function secaoDoCaminho(caminho: string) {
 export function itemDeNavegacaoAtivo(caminho: string, to: string) {
   const limpo = caminho.replace(/\/$/, "");
   if (to === "/barbeiro") return limpo === "/barbeiro" || limpo === "/barbeiro/agenda";
-  return limpo === to || limpo.startsWith(`${to}/`) || Boolean(secaoDoCaminho(limpo)?.abas.some((a) => a.to === to));
+  return (
+    limpo === to ||
+    limpo.startsWith(`${to}/`) ||
+    Boolean(secaoDoCaminho(limpo)?.abas.some((a) => a.to === to))
+  );
 }
 
 /** Itens fixos da barra inferior; o menu não os repete. */
