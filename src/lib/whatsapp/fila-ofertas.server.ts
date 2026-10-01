@@ -225,12 +225,74 @@ async function enviarOferta(ofertaId: string) {
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
-  const { conexaoDeEnvio } = await import("./conexao-envio.server");
+  const clienteId =
+    (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
+
+  // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
+  const { data: envio, error: erroEnvio } = await db
+    .from("envios_de_whatsapp")
+    .insert({
+      tenant_id: o.tenant_id,
+      cliente_id: clienteId,
+      telefone,
+      tipo: "vaga_lista_espera",
+      status: "enviando",
+      tentativas: 1,
+      oferta_id: o.id,
+    } as never)
+    .select("id")
+    .single();
+  if (erroEnvio || !envio) return;
+  const envioId = (envio as { id: string }).id;
+  const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
+
+  const { conexaoDeEnvio, SEM_WHATSAPP_DISPONIVEL } = await import("./conexao-envio.server");
   const conexao = await conexaoDeEnvio(o.tenant_id);
+  const nome = (cli?.nome ?? "").split(/\s+/)[0];
+  const prazo = partes(o.expira_em, fuso).hora;
+  const { data: tenant } = await db.from("tenants").select("nome").eq("id", o.tenant_id).maybeSingle();
+  const negocio = tenant?.nome ?? "Negócio";
+  const texto = [
+    `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera em ${negocio}.`,
+    `${servico}${profissional ? ` com ${profissional}` : ""} · ${p.dia} às ${p.hora}.`,
+    "",
+    `Responda até ${prazo}. Se preferir: ${linkDaOferta(o.token)}`,
+  ].join("\n");
   if (!conexao) {
-    console.warn("[whatsapp] oferta da lista de espera sem remetente: Nenhum WhatsApp disponível.");
+    await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
+    await aplicarFalhaDeEnvio({ envioId, codigo: null, motivo: SEM_WHATSAPP_DISPONIVEL });
     return;
   }
+
+  const { botoesInterativos, parametrosNaOrdem, payloadDoBotao } = await import("./modelos");
+  const { modeloAprovadoDoTipo } = await import("./modelos.server");
+  const doCatalogo = await modeloAprovadoDoTipo("vaga_lista_espera");
+  const botoes = [
+    { texto: "Quero", acao: "CORTAI_QUERO" },
+    { texto: "Não posso", acao: "CORTAI_NAO_POSSO" },
+  ];
+  let modelo: import("./gateway.server").ModeloComBotoes | null = null;
+  if (doCatalogo) {
+    try {
+      modelo = {
+        nome: doCatalogo.nome,
+        idioma: doCatalogo.idioma,
+        parametros: parametrosNaOrdem(doCatalogo.variaveis, {
+          cliente: nome || "cliente",
+          negocio,
+          data: p.dia,
+          hora: p.hora,
+          servico,
+          profissional: profissional ?? "a equipe",
+          prazo,
+        }),
+        botoes: doCatalogo.botoes.map((b) => payloadDoBotao(b.acao, envioId)),
+      };
+    } catch {
+      modelo = null;
+    }
+  }
+
   const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
   const conversa = await conversaDoTelefone({
     tenantId: o.tenant_id,
@@ -238,24 +300,44 @@ async function enviarOferta(ofertaId: string) {
     telefone,
     nomeContato: cli?.nome ?? null,
   });
-  const nome = (cli?.nome ?? "").split(/\s+/)[0];
-  const prazo = partes(o.expira_em, fuso).hora;
-  await enviarPelaBarbearia({
-    tenantId: o.tenant_id,
-    conversaId: conversa.id,
-    conexaoId: conexao.id,
-    sessaoId: conexao.sessao_id,
-    telefone,
-    texto: [
-      `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera.`,
-      `${servico}${profissional ? ` com ${profissional}` : ""} · ${p.dia} às ${p.hora}.`,
-      "",
-      `Para confirmar até ${prazo}: ${linkDaOferta(o.token)}`,
-    ].join("\n"),
-    porIa: false,
-    iniciadaPelaBarbearia: true,
-  });
-  await db.from("ofertas_da_fila").update({ enviada_whatsapp: true }).eq("id", o.id);
+  try {
+    const r = await enviarPelaBarbearia({
+      tenantId: o.tenant_id,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: conexao.sessao_id,
+      telefone,
+      texto,
+      porIa: false,
+      modelo,
+      interativo: botoesInterativos(botoes, envioId),
+      iniciadaPelaBarbearia: true,
+    });
+    await db
+      .from("envios_de_whatsapp")
+      .update({
+        status: "enviado",
+        conteudo: texto,
+        enviado_em: new Date().toISOString(),
+        aguarda_resposta: true,
+        acoes: botoes.map((b) => b.acao),
+        valido_ate: o.expira_em,
+        mensagem_externa_id: r.externoId,
+      } as never)
+      .eq("id", envioId);
+    await db.from("ofertas_da_fila").update({ enviada_whatsapp: true }).eq("id", o.id);
+  } catch (e) {
+    const motivo = e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.";
+    await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
+    const { lerErroMeta } = await import("./erros-meta");
+    const lido = lerErroMeta(motivo);
+    await aplicarFalhaDeEnvio({
+      envioId,
+      codigo: /janela de 24h/i.test(motivo) ? 131047 : lido.codigo,
+      httpStatus: lido.httpStatus,
+      motivo,
+    });
+  }
 }
 
 export async function aceitarOferta(token: string) {
