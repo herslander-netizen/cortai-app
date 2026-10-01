@@ -260,7 +260,6 @@ export function AgendaOperacional() {
   const [modoFoco, setModoFoco] = useState(false);
   const [focoMobileFechado, setFocoMobileFechado] = useState(false);
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
-  const [dicaVisivel, setDicaVisivel] = useState(false);
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
@@ -271,22 +270,6 @@ export function AgendaOperacional() {
   }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
-
-  useEffect(() => {
-    try {
-      setDicaVisivel(!window.localStorage.getItem(DICA_TIMELINE));
-    } catch {
-      setDicaVisivel(false);
-    }
-  }, []);
-  function esconderDica() {
-    setDicaVisivel(false);
-    try {
-      window.localStorage.setItem(DICA_TIMELINE, "1");
-    } catch {
-      /* opcional */
-    }
-  }
 
   useEffect(() => {
     const voltar = () => setModoFoco(false);
@@ -1076,22 +1059,6 @@ export function AgendaOperacional() {
           ))}
         </div>
 
-        {dicaVisivel && visualizacao === "timeline" && agenda.data ? (
-          <div className="agenda-dica" role="note">
-            <p>
-              Toque num horário livre para agendar. Segure e arraste um atendimento para remarcar.
-            </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Entendi, esconder dica"
-              onClick={esconderDica}
-            >
-              <X />
-            </Button>
-          </div>
-        ) : null}
-
         <div
           id="agenda-painel-visualizacao"
           role="tabpanel"
@@ -1190,6 +1157,12 @@ export function AgendaOperacional() {
             />
           )}
         </div>
+
+        {visualizacao === "timeline" && agenda.data ? (
+          <p className="mt-2 border-t border-line pt-2 text-center text-xs text-mute" role="note">
+            Toque em um horário livre para agendar · Segure e arraste um atendimento para remarcar
+          </p>
+        ) : null}
 
         {aReceber.length ? (
           <section aria-labelledby="receber-titulo" className="mt-6">

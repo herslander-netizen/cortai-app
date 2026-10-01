@@ -102,6 +102,7 @@ export function AgendaTimeline({
     arrastou: boolean;
   } | null>(null);
   const ignorarClique = useRef(false);
+  const gestoVazio = useRef<{ x: number; y: number; moveu: boolean } | null>(null);
   const hoje = new Intl.DateTimeFormat("en-CA", {
     timeZone: fuso,
     year: "numeric",
@@ -244,6 +245,10 @@ export function AgendaTimeline({
     const area = rolagemRef.current;
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      linha.scrollIntoView({ behavior: comportamento, block: "center" });
+      return;
+    }
     area.scrollTo({
       top: Math.max(0, linha.offsetTop - area.clientHeight * 0.42),
       behavior: comportamento,
@@ -266,9 +271,26 @@ export function AgendaTimeline({
       setAgoraVisivel(true);
       return;
     }
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      const caixa = linha.getBoundingClientRect();
+      setAgoraVisivel(caixa.top >= 0 && caixa.bottom <= window.innerHeight);
+      return;
+    }
     const topo = linha.offsetTop;
     setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
   }
+
+  useEffect(() => {
+    if (!ehHoje) return;
+    const acompanhar = () => acompanharAgora();
+    window.addEventListener("scroll", acompanhar, { passive: true });
+    window.addEventListener("resize", acompanhar);
+    acompanhar();
+    return () => {
+      window.removeEventListener("scroll", acompanhar);
+      window.removeEventListener("resize", acompanhar);
+    };
+  }, [ehHoje, altura]);
 
   const podeMover = (item: AgendaItem) =>
     Boolean(onMover) && (item.status === "agendado" || item.status === "chegou");
@@ -294,7 +316,7 @@ export function AgendaTimeline({
         }
         setArrasto({ id: item.id, dy: 0 });
         navigator.vibrate?.(10);
-      }, 300);
+      }, 400);
     }
     gesto.current = g;
   }
@@ -331,10 +353,18 @@ export function AgendaTimeline({
     if (!g.arrastou) return;
     ignorarClique.current = true;
     const delta = Math.round(dy / PX_POR_MINUTO / 15) * 15;
-    if (delta !== 0) onMover?.(item, delta);
+    if (delta !== 0) {
+      navigator.vibrate?.(18);
+      onMover?.(item, delta);
+    }
   }
   function cliqueNoVazio(e: React.MouseEvent<HTMLDivElement>) {
     if (!onHorarioVazio || e.target !== e.currentTarget) return;
+    if (gestoVazio.current?.moveu) {
+      gestoVazio.current = null;
+      return;
+    }
+    gestoVazio.current = null;
     const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
     let minuto = escala.inicio + y / PX_POR_MINUTO;
     minuto -= deslocamentoAte(minuto) / PX_POR_MINUTO;
@@ -368,7 +398,23 @@ export function AgendaTimeline({
         aria-label="Timeline de atendimentos"
         onScroll={acompanharAgora}
       >
-        <div className="agenda-timeline" style={{ height: `${altura}px` }} onClick={cliqueNoVazio}>
+        <div
+          className="agenda-timeline"
+          style={{ height: `${altura}px` }}
+          onPointerDown={(e) => {
+            if (e.target !== e.currentTarget) return;
+            gestoVazio.current = { x: e.clientX, y: e.clientY, moveu: false };
+          }}
+          onPointerMove={(e) => {
+            const g = gestoVazio.current;
+            if (!g) return;
+            if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6) g.moveu = true;
+          }}
+          onPointerCancel={() => {
+            gestoVazio.current = null;
+          }}
+          onClick={cliqueNoVazio}
+        >
           {intervalo ? (
             <div
               className="agenda-timeline-intervalo"

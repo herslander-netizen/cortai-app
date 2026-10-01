@@ -6,6 +6,7 @@ import {
   HandCoins,
   MessageCircle,
   NotebookPen,
+  Phone,
   Scissors,
   UserRoundPlus,
 } from "lucide-react";
@@ -62,7 +63,7 @@ export function PainelAtendimento(props: Props) {
   const [remarcar, setRemarcar] = useState<PedidoRemarcar | null>(null);
   const [erroRemarcar, setErroRemarcar] = useState<string | null>(null);
   const [verificando, setVerificando] = useState(false);
-  const [confirmarCancelar, setConfirmarCancelar] = useState(false);
+  const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
 
   useEffect(() => {
     setRemarcar(null);
@@ -72,6 +73,7 @@ export function PainelAtendimento(props: Props) {
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;
   const whatsapp = item ? linkWhatsApp(item.telefone) : null;
+  const telefone = item?.telefone?.replace(/[^\d+]/g, "") ?? "";
   const executar = (f: (i: AgendaItem) => void) => () => {
     if (!item) return;
     props.onFechar();
@@ -124,33 +126,91 @@ export function PainelAtendimento(props: Props) {
                   Sem conexão: as ações voltam quando a internet voltar.
                 </p>
               ) : null}
-              <div className="agenda-painel-acoes mt-4">
+              <div className="mt-5 grid gap-3">
                 {item.status === "agendado" ? (
-                  <Button variant="outline" disabled={bloqueado} onClick={executar(props.onChegou)}>
-                    <UserRoundPlus /> Chegou
+                  <Button size="lg" variant="primary" className="min-h-14 w-full" disabled={bloqueado} onClick={executar(props.onChegou)}>
+                    <UserRoundPlus /> Cliente chegou
                   </Button>
                 ) : null}
-                {pendente ? (
+                {item.status === "chegou" ? (
                   <Button
-                    variant="outline"
+                    size="lg"
+                    variant="primary"
+                    className="min-h-14 w-full"
                     disabled={bloqueado}
                     onClick={executar(props.onIniciar)}
                   >
-                    <Scissors /> Iniciar
+                    <Scissors /> Iniciar atendimento
                   </Button>
                 ) : null}
                 {item.status === "na_cadeira" ? (
                   <Button
-                    variant="outline"
+                    size="lg"
+                    variant="primary"
+                    className="min-h-14 w-full"
                     disabled={bloqueado}
                     onClick={executar(props.onComanda)}
                   >
-                    <Check /> Concluir
+                    <Check /> Concluir atendimento
                   </Button>
                 ) : null}
+
+                {telefone || whatsapp ? (
+                  <div className="grid grid-cols-2 gap-2" aria-label="Contato do cliente">
+                    {telefone ? (
+                      <Button asChild variant="outline" className="min-h-12">
+                        <a href={`tel:${telefone}`} aria-label={`Ligar para ${item.cliente}`}>
+                          <Phone /> Ligar
+                        </a>
+                      </Button>
+                    ) : <span />}
+                    {whatsapp ? (
+                      <Button asChild variant="outline" className="min-h-12">
+                        <a
+                          href={whatsapp}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Abrir conversa com ${item.cliente} no WhatsApp`}
+                        >
+                          <MessageCircle /> WhatsApp
+                        </a>
+                      </Button>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="grid grid-cols-2 gap-2" aria-label="Registro do atendimento">
+                  {item.clienteId ? (
+                    <Button
+                      variant="outline"
+                      className="min-h-12"
+                      onClick={() => {
+                        const id = item.clienteId;
+                        props.onFechar();
+                        if (id) props.onPerfil(id);
+                      }}
+                    >
+                      <NotebookPen /> Notas
+                    </Button>
+                  ) : null}
+                  {pendente || item.status === "finalizado" ? (
+                    <Button
+                      variant="outline"
+                      className="min-h-12"
+                      disabled={!props.online}
+                      onClick={executar(props.onComanda)}
+                    >
+                      <HandCoins /> Comanda
+                    </Button>
+                  ) : null}
+                </div>
+
+                {pendente ? <p className="border-t border-line pt-3 text-xs font-bold uppercase text-mute">Ajustar horário</p> : null}
+                <div className="grid grid-cols-2 gap-2">
                 {pendente ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
+                    className="min-h-12"
                     disabled={bloqueado}
                     onClick={() =>
                       setRemarcar({
@@ -164,55 +224,24 @@ export function PainelAtendimento(props: Props) {
                   </Button>
                 ) : null}
                 {pendente ? (
-                  <Button variant="outline" disabled={bloqueado} onClick={executar(props.onFalta)}>
+                  <Button variant="ghost" className="min-h-12" disabled={bloqueado} onClick={() => setConfirmacao("falta")}>
                     <Clock3 /> Falta
                   </Button>
                 ) : null}
                 {pendente ? (
                   <Button
-                    variant="outline"
+                    variant="destructive"
+                    className="min-h-12"
                     disabled={bloqueado}
                     onClick={() => {
-                      if (item.confirmadoEm) setConfirmarCancelar(true);
+                      if (item.confirmadoEm) setConfirmacao("cancelar");
                       else executar(props.onCancelar)();
                     }}
                   >
                     <Ban /> Cancelar
                   </Button>
                 ) : null}
-                {whatsapp ? (
-                  <Button asChild variant="outline">
-                    <a
-                      href={whatsapp}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Abrir conversa com ${item.cliente} no WhatsApp`}
-                    >
-                      <MessageCircle /> WhatsApp
-                    </a>
-                  </Button>
-                ) : null}
-                {item.clienteId ? (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const id = item.clienteId;
-                      props.onFechar();
-                      if (id) props.onPerfil(id);
-                    }}
-                  >
-                    <NotebookPen /> Notas do cliente
-                  </Button>
-                ) : null}
-                {pendente || item.status === "finalizado" ? (
-                  <Button
-                    variant="outline"
-                    disabled={!props.online}
-                    onClick={executar(props.onComanda)}
-                  >
-                    <HandCoins /> Comanda
-                  </Button>
-                ) : null}
+                </div>
               </div>
               {remarcar ? (
                 <form
@@ -293,24 +322,31 @@ export function PainelAtendimento(props: Props) {
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={confirmarCancelar} onOpenChange={setConfirmarCancelar}>
+      <AlertDialog open={Boolean(confirmacao)} onOpenChange={(aberto) => !aberto && setConfirmacao(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancelar o horário de {item?.cliente}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {confirmacao === "falta"
+                ? `Marcar falta de ${item?.cliente}?`
+                : `Cancelar o horário de ${item?.cliente}?`}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5
-              segundos.
+              {confirmacao === "falta"
+                ? "O atendimento será registrado como não comparecimento. Você poderá desfazer por 5 segundos."
+                : "Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5 segundos."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Voltar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                setConfirmarCancelar(false);
-                executar(props.onCancelar)();
+                const acao = confirmacao;
+                setConfirmacao(null);
+                if (acao === "falta") executar(props.onFalta)();
+                else executar(props.onCancelar)();
               }}
             >
-              Cancelar horário
+              {confirmacao === "falta" ? "Marcar falta" : "Cancelar horário"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
