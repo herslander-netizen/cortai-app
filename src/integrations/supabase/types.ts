@@ -603,6 +603,54 @@ export type Database = {
           },
         ]
       }
+      bloqueios_de_agenda: {
+        Row: {
+          criado_em: string
+          criado_por: string | null
+          fim: string
+          id: string
+          inicio: string
+          motivo: string | null
+          profissional_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          criado_em?: string
+          criado_por?: string | null
+          fim: string
+          id?: string
+          inicio: string
+          motivo?: string | null
+          profissional_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          criado_em?: string
+          criado_por?: string | null
+          fim?: string
+          id?: string
+          inicio?: string
+          motivo?: string | null
+          profissional_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bloqueios_de_agenda_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bloqueios_de_agenda_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       caixa_movimentos: {
         Row: {
           caixa_sessao_id: string | null
@@ -1952,6 +2000,54 @@ export type Database = {
           },
           {
             foreignKeyName: "envios_de_whatsapp_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalas_de_profissional: {
+        Row: {
+          abre: string | null
+          atualizado_em: string
+          dia_semana: number
+          fecha: string | null
+          id: string
+          profissional_id: string
+          tenant_id: string
+          trabalha: boolean
+        }
+        Insert: {
+          abre?: string | null
+          atualizado_em?: string
+          dia_semana: number
+          fecha?: string | null
+          id?: string
+          profissional_id: string
+          tenant_id: string
+          trabalha?: boolean
+        }
+        Update: {
+          abre?: string | null
+          atualizado_em?: string
+          dia_semana?: number
+          fecha?: string | null
+          id?: string
+          profissional_id?: string
+          tenant_id?: string
+          trabalha?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalas_de_profissional_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalas_de_profissional_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

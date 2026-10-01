@@ -11,7 +11,7 @@ import { z } from "zod";
 
 import { getRequest } from "@tanstack/react-start/server";
 
-import type { HorarioDeFuncionamento } from "@/lib/horarios";
+import { normalizarFuso as normalizarFusoExtra, type HorarioDeFuncionamento } from "@/lib/horarios";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -232,7 +232,15 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       },
       profissionais,
       horarios: mapearHorarios(horariosRes.data ?? []),
-      ocupados: ocupadosRes.data ?? [],
+      ocupados: [
+        ...(ocupadosRes.data ?? []),
+        ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+          tenantId: tenant.id,
+          fuso: normalizarFusoExtra(tenant.fuso),
+          desde,
+          ate,
+        })),
+      ],
       pagina: { ...pagina, chat: { ...pagina.chat, avatarUrl } },
     };
   });

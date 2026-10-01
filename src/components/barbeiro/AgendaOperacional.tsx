@@ -705,6 +705,8 @@ export function AgendaOperacional() {
         onAberto={setBloquearAberto}
         dia={dia}
         horarios={agenda.data?.horarios ?? []}
+        profissionais={agenda.data?.profissionais ?? []}
+        fuso={fuso}
       />
       <FolhaFila
         aberta={filaAberta}
