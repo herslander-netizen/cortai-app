@@ -122,6 +122,16 @@ function FilaPublicaPage() {
             </>
           )}
         </section>
+      ) : !data.filaAtiva ? (
+        <section className="mt-8 surface px-5 py-6 text-center">
+          <p className="text-sm text-paper">Este negócio atende com horário marcado.</p>
+          <a
+            href={`/b/${data.slug}`}
+            className="btn-primary mt-5 flex min-h-12 w-full items-center justify-center py-3 text-sm"
+          >
+            Agendar horário
+          </a>
+        </section>
       ) : (
         <form
           className="mt-8"
