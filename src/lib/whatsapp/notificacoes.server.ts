@@ -602,7 +602,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     await db.from("envios_de_whatsapp").update({ conteudo }).eq("id", registroId);
     const { lerErroMeta } = await import("./erros-meta");
     const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
-    const { codigo, httpStatus } = lerErroMeta(motivo);
+    const lido = lerErroMeta(motivo);
+    // A regra local da janela de 24h equivale ao 131047 da Meta.
+    const codigo = /janela de 24h/i.test(motivo) ? 131047 : lido.codigo;
+    const httpStatus = lido.httpStatus;
     await aplicarFalhaDeEnvio({ envioId: registroId, codigo, httpStatus, motivo });
     return { enviado: false, motivo };
   };
@@ -690,6 +693,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         }
       : null;
 
+  if (!conexao) return marcarFalhaDoEnvio(SEM_WHATSAPP_DISPONIVEL, texto);
+
   const conversa = await conversaDoTelefone({
     tenantId: ag.tenant_id,
     conexaoId: conexao.id,
@@ -712,7 +717,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     });
     externoId = r.externoId;
   } catch (e) {
-    return marcarErro(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.");
+    return marcarFalhaDoEnvio(e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.", texto);
   }
 
   // Notificação que espera resposta: guarda ações e prazo, e a conversa passa
@@ -822,6 +827,7 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
     .from("envios_de_whatsapp")
     .select("agendamento_id, tipo, tentativas")
     .eq("status", "erro")
+    .or(`proxima_tentativa_em.is.null,proxima_tentativa_em.lte.${agora.toISOString()}`)
     .gte("criado_em", desde)
     .lt("tentativas", MAX_TENTATIVAS)
     .not("agendamento_id", "is", null)
