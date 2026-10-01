@@ -781,3 +781,38 @@ export const getTermosNaoEntendidos = createServerFn({ method: "GET" })
       .sort((a, b) => b.total - a.total)
       .slice(0, 20);
   });
+
+export type RemetenteOficial = {
+  provedor: string;
+  status: "conectado" | "erro" | "desconectado";
+  numero: string | null;
+  erro: string | null;
+};
+
+/** Estado REAL do número oficial: "Ativo" só quando a consulta à Meta responde. */
+export const getRemetenteOficial = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<RemetenteOficial> => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "ver_cortai");
+    const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
+      await import("@/lib/whatsapp/gateway.server");
+    if (!gatewayConfigurado())
+      return { provedor: provedorDoGateway(), status: "desconectado", numero: null, erro: null };
+    const estado = await gatewayDeWhatsapp.consultarStatus("").catch((e: unknown) => ({
+      status: "erro" as const,
+      numero: null,
+      erro: e instanceof Error ? e.message : "Falha ao consultar o número.",
+    }));
+    return {
+      provedor: provedorDoGateway(),
+      status:
+        estado.status === "conectado"
+          ? "conectado"
+          : estado.status === "erro"
+            ? "erro"
+            : "desconectado",
+      numero: estado.numero ?? null,
+      erro: estado.status === "erro" ? "Não foi possível confirmar o número agora." : null,
+    };
+  });

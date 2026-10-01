@@ -43,15 +43,41 @@ export const ALIASES_DE_SERVICO: Record<string, string[]> = {
   sobrancelha: ["sobrancelha", "sobrancelhas", "design de sobrancelha", "pezinho da sobrancelha"],
   pezinho: ["pezinho", "acabamento", "contorno"],
   pigmentacao: ["pigmentacao", "pigmentar", "camuflagem"],
-  luzes: ["luzes", "platinado", "descoloracao", "descolorir", "mechas", "balayage", "morena iluminada"],
+  luzes: [
+    "luzes",
+    "platinado",
+    "descoloracao",
+    "descolorir",
+    "mechas",
+    "balayage",
+    "morena iluminada",
+  ],
   hidratacao: ["hidratacao", "hidratar", "relaxamento", "botox capilar"],
   infantil: ["infantil", "crianca", "corte infantil", "kids"],
   combo: ["combo", "corte e barba", "cabelo e barba", "completo", "pacotao"],
-  manicure: ["manicure", "fazer a unha", "fazer as unhas", "unha", "unhas", "mao", "maos", "esmaltar", "esmaltacao"],
+  manicure: [
+    "manicure",
+    "fazer a unha",
+    "fazer as unhas",
+    "unha",
+    "unhas",
+    "mao",
+    "maos",
+    "esmaltar",
+    "esmaltacao",
+  ],
   pedicure: ["pedicure", "fazer o pe", "fazer os pes", "unha do pe"],
   maos_e_pes: ["mao e pe", "maos e pes", "pe e mao", "pes e maos"],
   gel: ["gel", "unha de gel", "esmaltacao em gel"],
-  alongamento: ["alongamento", "fibra", "fibra de vidro", "postica", "acrigel", "acrilico", "manutencao do alongamento"],
+  alongamento: [
+    "alongamento",
+    "fibra",
+    "fibra de vidro",
+    "postica",
+    "acrigel",
+    "acrilico",
+    "manutencao do alongamento",
+  ],
   blindagem: ["blindagem"],
   escova: ["escova", "escovinha", "chapinha", "babyliss"],
   progressiva: ["progressiva", "selagem", "alisamento", "definitiva"],
@@ -59,7 +85,16 @@ export const ALIASES_DE_SERVICO: Record<string, string[]> = {
   raiz: ["raiz", "retoque de raiz", "retocar a raiz"],
   penteado: ["penteado", "penteado de festa", "noiva"],
   henna: ["henna", "design com henna"],
-  cilios: ["cilios", "extensao de cilios", "lash", "fio a fio", "volume russo", "manutencao de cilios", "lash lifting", "lifting de cilios"],
+  cilios: [
+    "cilios",
+    "extensao de cilios",
+    "lash",
+    "fio a fio",
+    "volume russo",
+    "manutencao de cilios",
+    "lash lifting",
+    "lifting de cilios",
+  ],
   depilacao: ["depilacao", "depilar", "cera", "buco", "virilha", "axila"],
   limpeza_de_pele: ["limpeza de pele", "limpeza facial"],
   massagem: ["massagem", "relaxante", "drenagem", "drenagem linfatica"],
@@ -67,7 +102,18 @@ export const ALIASES_DE_SERVICO: Record<string, string[]> = {
 };
 
 const PALAVRAS = {
-  saudacao: ["oi", "ola", "opa", "eai", "e ai", "bom dia", "boa tarde", "boa noite", "salve", "fala"],
+  saudacao: [
+    "oi",
+    "ola",
+    "opa",
+    "eai",
+    "e ai",
+    "bom dia",
+    "boa tarde",
+    "boa noite",
+    "salve",
+    "fala",
+  ],
   agendar: [
     "agendar",
     "agenda",
@@ -81,7 +127,13 @@ const PALAVRAS = {
     "quero marcar",
     "da pra marcar",
     "consigo marcar",
-    "fazer a unha", "fazer as unhas", "fazer o pe", "fazer escova", "fazer sobrancelha", "fazer cilios", "fazer o cabelo",
+    "fazer a unha",
+    "fazer as unhas",
+    "fazer o pe",
+    "fazer escova",
+    "fazer sobrancelha",
+    "fazer cilios",
+    "fazer o cabelo",
   ],
   disponibilidade: [
     "tem horario",
@@ -100,10 +152,54 @@ const PALAVRAS = {
     "encaixe",
     "encaixar",
   ],
-  barbearia: ["nome da barbearia", "qual barbearia", "como chama a barbearia", "que barbearia e essa", "qual salao", "nome do salao", "que salao e esse", "esmalteria", "qual studio", "qual espaco"],
-  servicos: ["servico", "servicos", "o que voces fazem", "o que faz", "fazem barba", "cardapio", "menu"],
-  preco: ["preco", "precos", "valor", "valores", "quanto custa", "quanto fica", "quanto e", "tabela"],
-  profissionais: ["barbeiro", "barbeiros", "profissional", "profissionais", "quem atende", "com quem", "equipe", "manicure", "manicures", "cabeleireira", "cabeleireiro", "esteticista", "designer", "nail designer", "lash designer"],
+  barbearia: [
+    "nome da barbearia",
+    "qual barbearia",
+    "como chama a barbearia",
+    "que barbearia e essa",
+    "qual salao",
+    "nome do salao",
+    "que salao e esse",
+    "esmalteria",
+    "qual studio",
+    "qual espaco",
+  ],
+  servicos: [
+    "servico",
+    "servicos",
+    "o que voces fazem",
+    "o que faz",
+    "fazem barba",
+    "cardapio",
+    "menu",
+  ],
+  preco: [
+    "preco",
+    "precos",
+    "valor",
+    "valores",
+    "quanto custa",
+    "quanto fica",
+    "quanto e",
+    "tabela",
+  ],
+  profissionais: [
+    "barbeiro",
+    "barbeiros",
+    "profissional",
+    "profissionais",
+    "quem atende",
+    "com quem",
+    "equipe",
+    "manicure",
+    "manicures",
+    "cabeleireira",
+    "cabeleireiro",
+    "esteticista",
+    "designer",
+    "nail designer",
+    "lash designer",
+  ],
   meusAgendamentos: [
     "meu horario",
     "meus horarios",
@@ -113,14 +209,56 @@ const PALAVRAS = {
     "que horas eu marquei",
     "tenho horario",
   ],
-  remarcar: ["remarcar", "remarca", "mudar o horario", "trocar o horario", "adiar", "outro dia", "outro horario"],
-  cancelar: ["cancelar", "cancela", "desmarcar", "desmarca", "nao vou poder", "nao vou conseguir ir"],
+  atraso: [
+    "atrasar",
+    "atrasado",
+    "atrasada",
+    "atraso",
+    "atrasando",
+    "vou chegar tarde",
+    "chego um pouco depois",
+  ],
+  remarcar: [
+    "remarcar",
+    "remarca",
+    "mudar o horario",
+    "trocar o horario",
+    "adiar",
+    "outro dia",
+    "outro horario",
+  ],
+  cancelar: [
+    "cancelar",
+    "cancela",
+    "desmarcar",
+    "desmarca",
+    "nao vou poder",
+    "nao vou conseguir ir",
+  ],
   localizacao: ["endereco", "onde fica", "localizacao", "como chego", "fica onde", "maps", "rua"],
-  horarios: ["horario de funcionamento", "que horas abre", "que horas fecha", "abre", "fecha", "funciona", "aberto"],
+  horarios: [
+    "horario de funcionamento",
+    "que horas abre",
+    "que horas fecha",
+    "abre",
+    "fecha",
+    "funciona",
+    "aberto",
+  ],
   fila: ["fila", "fila de espera", "espera", "tem fila", "entrar na fila"],
   historico: ["ultima vez", "historico", "o de sempre", "o mesmo de sempre", "costumo"],
   fidelidade: ["fidelidade", "cartao fidelidade", "selo", "selos", "pontos", "voltai"],
-  saldo: ["saldo", "credito", "creditos", "pacote", "meu plano", "quanto eu tenho", "fiado", "devendo", "devo"],
+  saldo: [
+    "saldo",
+    "credito",
+    "creditos",
+    "pacote",
+    "meu plano",
+    "quanto eu tenho",
+    "fiado",
+    "devendo",
+    "devo",
+  ],
   humano: [
     "atendente",
     "humano",
@@ -134,10 +272,32 @@ const PALAVRAS = {
     "pessimo",
     "absurdo",
   ],
-  confirmar: ["sim", "isso", "confirmo", "confirmar", "pode ser", "beleza", "ok", "fechado", "certo", "claro", "s"],
+  confirmar: [
+    "sim",
+    "isso",
+    "confirmo",
+    "confirmar",
+    "pode ser",
+    "beleza",
+    "ok",
+    "fechado",
+    "certo",
+    "claro",
+    "s",
+  ],
   negar: ["nao", "nao quero", "negativo", "deixa", "esquece", "nao e isso", "n"],
   ajuda: ["ajuda", "o que voce faz", "como funciona", "menu", "opcoes"],
-  trocarBarbearia: ["trocar de barbearia", "outra barbearia", "mudar barbearia", "outra unidade", "trocar barbearia", "trocar de salao", "outro salao", "outro studio", "outro lugar"],
+  trocarBarbearia: [
+    "trocar de barbearia",
+    "outra barbearia",
+    "mudar barbearia",
+    "outra unidade",
+    "trocar barbearia",
+    "trocar de salao",
+    "outro salao",
+    "outro studio",
+    "outro lugar",
+  ],
   recomecar: ["comecar de novo", "recomecar", "do inicio", "de novo", "voltar"],
 };
 
@@ -155,7 +315,10 @@ export function contem(textoNormalizado: string, termos: string[]): boolean {
 /** Termo canônico de serviço citado na mensagem (ex.: "tapa no cabelo" → corte). */
 export function servicoCitado(textoNormalizado: string, segmento = "barbearia"): string | null {
   for (const [canonico, aliases] of Object.entries(ALIASES_DE_SERVICO)) {
-    const termos = segmento === "barbearia" || canonico !== "corte" ? aliases : aliases.filter((alias) => alias !== "cabelo");
+    const termos =
+      segmento === "barbearia" || canonico !== "corte"
+        ? aliases
+        : aliases.filter((alias) => alias !== "cabelo");
     if (contem(textoNormalizado, termos)) return canonico;
   }
   return null;
@@ -163,21 +326,29 @@ export function servicoCitado(textoNormalizado: string, segmento = "barbearia"):
 
 /** Nome comparável: normalizado e sem conectores ("Corte + Barba" = "corte e barba"). */
 function chaveDeNome(texto: string): string {
-  return normalizar(texto.replace(/[+&]/g, " ")).split(" ").filter((p) => p && p !== "e").join(" ");
+  return normalizar(texto.replace(/[+&]/g, " "))
+    .split(" ")
+    .filter((p) => p && p !== "e")
+    .join(" ");
 }
 
 export type EscolhaDeServico<T> =
-  | { tipo: "unico"; servico: T }
-  | { tipo: "varios"; servicos: T[] }
-  | { tipo: "nenhum" };
+  { tipo: "unico"; servico: T } | { tipo: "varios"; servicos: T[] } | { tipo: "nenhum" };
 
 /**
  * Escolhe o serviço do negócio para um termo canônico:
  * 1) nome igual ao termo/sinônimo; 2) um único nome que contém o termo;
  * 3) vários → perguntar; 4) nenhum → lista completa.
  */
-export function escolherServicoPorCanonico<T extends { nome: string }>(servicos: T[], canonico: string): EscolhaDeServico<T> {
-  const termos = [...new Set([canonico.replace(/_/g, " "), ...(ALIASES_DE_SERVICO[canonico] ?? [])].map(chaveDeNome))].filter(Boolean);
+export function escolherServicoPorCanonico<T extends { nome: string }>(
+  servicos: T[],
+  canonico: string,
+): EscolhaDeServico<T> {
+  const termos = [
+    ...new Set(
+      [canonico.replace(/_/g, " "), ...(ALIASES_DE_SERVICO[canonico] ?? [])].map(chaveDeNome),
+    ),
+  ].filter(Boolean);
   const iguais = servicos.filter((s) => termos.includes(chaveDeNome(s.nome)));
   if (iguais.length === 1) return { tipo: "unico", servico: iguais[0]! };
   if (iguais.length > 1) return { tipo: "varios", servicos: iguais };
@@ -207,12 +378,16 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
     const n = Number(direto[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
-  const comIndicador = textoNormalizado.match(/(?:^|\s)(?:opcao|numero|item|o|a)\s*(\d{1,2})(?:\s+por favor)?\s*$/);
+  const comIndicador = textoNormalizado.match(
+    /(?:^|\s)(?:opcao|numero|item|o|a)\s*(\d{1,2})(?:\s+por favor)?\s*$/,
+  );
   if (comIndicador) {
     const n = Number(comIndicador[1]);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
-  const selecaoPorExtenso = textoNormalizado.match(/^(?:o|a|opcao)?\s*(primeiro|primeira|segundo|terceiro|terceira|quarto|quinto)(?:\s+por favor)?$/);
+  const selecaoPorExtenso = textoNormalizado.match(
+    /^(?:o|a|opcao)?\s*(primeiro|primeira|segundo|terceiro|terceira|quarto|quinto)(?:\s+por favor)?$/,
+  );
   if (selecaoPorExtenso) {
     const valor = NUMEROS_ESCRITOS[selecaoPorExtenso[1] ?? ""];
     return valor && valor <= totalDeOpcoes ? valor : null;
@@ -266,14 +441,20 @@ function diaDaSemana(dia: string): number {
  * Data citada na mensagem, em AAAA-MM-DD e sempre no fuso da barbearia.
  * Entende "hoje", "amanhã", "depois de amanhã", dia da semana e 12/05.
  */
-export function dataCitada(textoNormalizado: string, fuso: string, agora = new Date()): string | null {
+export function dataCitada(
+  textoNormalizado: string,
+  fuso: string,
+  agora = new Date(),
+): string | null {
   const hoje = diaLocal(agora, fuso);
 
   if (contem(textoNormalizado, ["depois de amanha"])) return somarDias(hoje, 2);
   if (contem(textoNormalizado, ["amanha"])) return somarDias(hoje, 1);
   if (contem(textoNormalizado, ["hoje", "agora", "hoje ainda"])) return hoje;
 
-  const dataCurta = textoNormalizado.match(/(^|\s)(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?(\s|$)/);
+  const dataCurta = textoNormalizado.match(
+    /(^|\s)(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?(\s|$)/,
+  );
   if (dataCurta) {
     const d = Number(dataCurta[2]);
     const m = Number(dataCurta[3]);
@@ -301,7 +482,9 @@ export function dataCitada(textoNormalizado: string, fuso: string, agora = new D
     if (d >= 1 && d <= 31) {
       const mes = hoje.slice(0, 7);
       const candidato = `${mes}-${String(d).padStart(2, "0")}`;
-      return candidato >= hoje ? candidato : somarDias(`${mes}-${String(d).padStart(2, "0")}`, 30).slice(0, 10);
+      return candidato >= hoje
+        ? candidato
+        : somarDias(`${mes}-${String(d).padStart(2, "0")}`, 30).slice(0, 10);
     }
   }
 
@@ -313,7 +496,9 @@ export type PeriodoDoDia = { deMinutos: number; ateMinutos: number } | null;
 /** Faixa de horário citada: "depois das 18", "de manhã", "às 15:30". */
 export function periodoCitado(textoNormalizado: string): PeriodoDoDia {
   const comMinutos = textoNormalizado.match(/(\d{1,2})[:h](\d{2})/);
-  const soHora = textoNormalizado.match(/(?:^|\s)(?:as|para as|pras)\s*(\d{1,2})(?:\s*h(?:oras?)?)?(?=\s|$)/);
+  const soHora = textoNormalizado.match(
+    /(?:^|\s)(?:as|para as|pras)\s*(\d{1,2})(?:\s*h(?:oras?)?)?(?=\s|$)/,
+  );
   const depois = /depois d[ao]s?\s*(\d{1,2})/.exec(textoNormalizado);
   const antes = /antes d[ao]s?\s*(\d{1,2})/.exec(textoNormalizado);
 
@@ -338,7 +523,9 @@ export function periodoCitado(textoNormalizado: string): PeriodoDoDia {
   if (contem(textoNormalizado, ["a tarde", "de tarde", "tarde"])) {
     return { deMinutos: 12 * 60, ateMinutos: 18 * 60 };
   }
-  if (contem(textoNormalizado, ["a noite", "de noite", "noite", "depois do trabalho", "fim do dia"])) {
+  if (
+    contem(textoNormalizado, ["a noite", "de noite", "noite", "depois do trabalho", "fim do dia"])
+  ) {
     return { deMinutos: 18 * 60, ateMinutos: 24 * 60 };
   }
   return null;

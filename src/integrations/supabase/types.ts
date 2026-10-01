@@ -1981,6 +1981,7 @@ export type Database = {
           id: string
           lido_em: string | null
           mensagem_externa_id: string | null
+          oferta_id: string | null
           proxima_tentativa_em: string | null
           respondido_em: string | null
           resposta: string | null
@@ -2008,6 +2009,7 @@ export type Database = {
           id?: string
           lido_em?: string | null
           mensagem_externa_id?: string | null
+          oferta_id?: string | null
           proxima_tentativa_em?: string | null
           respondido_em?: string | null
           resposta?: string | null
@@ -2035,6 +2037,7 @@ export type Database = {
           id?: string
           lido_em?: string | null
           mensagem_externa_id?: string | null
+          oferta_id?: string | null
           proxima_tentativa_em?: string | null
           respondido_em?: string | null
           resposta?: string | null
@@ -2058,6 +2061,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_de_whatsapp_oferta_id_fkey"
+            columns: ["oferta_id"]
+            isOneToOne: false
+            referencedRelation: "ofertas_da_fila"
             referencedColumns: ["id"]
           },
           {
@@ -3029,6 +3039,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      modelos_whatsapp: {
+        Row: {
+          atualizado_em: string
+          botoes: Json
+          categoria: string
+          corpo: string
+          criado_em: string
+          exemplos: string[]
+          id: string
+          idioma: string
+          meta_template_id: string | null
+          motivo_status: string | null
+          nome: string
+          rodape: string | null
+          status: string
+          tipo_aviso: string
+          variaveis: string[]
+          waba_id: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          botoes?: Json
+          categoria?: string
+          corpo: string
+          criado_em?: string
+          exemplos?: string[]
+          id?: string
+          idioma?: string
+          meta_template_id?: string | null
+          motivo_status?: string | null
+          nome: string
+          rodape?: string | null
+          status?: string
+          tipo_aviso: string
+          variaveis?: string[]
+          waba_id?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          botoes?: Json
+          categoria?: string
+          corpo?: string
+          criado_em?: string
+          exemplos?: string[]
+          id?: string
+          idioma?: string
+          meta_template_id?: string | null
+          motivo_status?: string | null
+          nome?: string
+          rodape?: string | null
+          status?: string
+          tipo_aviso?: string
+          variaveis?: string[]
+          waba_id?: string | null
+        }
+        Relationships: []
       }
       movimentos: {
         Row: {

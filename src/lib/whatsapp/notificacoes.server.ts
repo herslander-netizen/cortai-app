@@ -76,19 +76,37 @@ export const TIPOS_DE_RELACIONAMENTO = new Set<TipoDeNotificacao>([
   "retorno",
 ]);
 
-/** Opções de cada lembrete: número (qualquer canal) e botão (API oficial). */
+/**
+ * Ações de cada aviso: botão interativo (até 3, dentro da janela), opção
+ * numerada (provedor sem botões) e resposta por texto. Fora da janela, os
+ * botões vêm do modelo aprovado no catálogo.
+ */
 export const OPCOES_DO_LEMBRETE: Partial<
   Record<TipoDeNotificacao, { rotulo: string; acao: string }[]>
 > = {
+  confirmacao_agendamento: [
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+    { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
+  ],
+  alteracao_agendamento: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+  ],
+  remarcacao: [
+    { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
+    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
+  ],
+  cancelamento: [{ rotulo: "Remarcar", acao: "CORTAI_REMARCAR" }],
+  cancelamento_agendamento: [{ rotulo: "Ver horários", acao: "CORTAI_AGENDAR" }],
   lembrete_24h: [
     { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
     { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
     { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
   ],
+  // Interativo aceita 3: no dia, "Cheguei" vale mais que "Remarcar" (o modelo leva os 4).
   lembrete_2h: [
     { rotulo: "Confirmar", acao: "CORTAI_CONFIRMAR" },
     { rotulo: "Cheguei", acao: "CORTAI_CHEGUEI" },
-    { rotulo: "Remarcar", acao: "CORTAI_REMARCAR" },
     { rotulo: "Cancelar", acao: "CORTAI_CANCELAR" },
   ],
   aviso_proximo: [
@@ -104,20 +122,6 @@ export const OPCOES_DO_LEMBRETE: Partial<
     { rotulo: "Agora não", acao: "CORTAI_AGORA_NAO" },
   ],
 };
-
-/** Nome do modelo aprovado na Meta para cada lembrete (opcional, por ambiente). */
-function modeloDoTipo(tipo: TipoDeNotificacao): string | null {
-  const chave =
-    tipo === "lembrete_24h"
-      ? "WHATSAPP_MODELO_LEMBRETE"
-      : tipo === "lembrete_2h"
-        ? "WHATSAPP_MODELO_LEMBRETE_DIA"
-        : tipo === "retorno"
-          ? "WHATSAPP_MODELO_RETORNO"
-          : null;
-  const nome = chave ? process.env[chave] : undefined;
-  return nome && nome.trim() ? nome.trim() : null;
-}
 
 const MAX_TENTATIVAS = 3;
 
@@ -179,7 +183,12 @@ export type DadosDaMensagem = {
  * Templates centralizados. Linha sem dado real simplesmente não aparece:
  * nunca "undefined", "null" ou "[object Object]".
  */
-export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): string {
+export function montarMensagem(
+  tipo: TipoDeNotificacao,
+  d: DadosDaMensagem,
+  /** Opções numeradas só para provedor sem botões. */
+  numerar = true,
+): string {
   const nome = primeiroNome(d.cliente);
   const linha = (texto: string | null | undefined, prefixo: string) =>
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
@@ -215,7 +224,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
     );
   } else if (tipo === "lembrete_2h" || tipo === "aviso_proximo") {
     blocos.push(
-      `${nome}, seu horário está chegando.`,
+      `${nome}, seu horário ${em} está chegando.`,
       "",
       linha(d.servico, "Serviço: "),
       linha(d.profissional, "Profissional: "),
@@ -296,7 +305,7 @@ export function montarMensagem(tipo: TipoDeNotificacao, d: DadosDaMensagem): str
   }
 
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
-  if (opcoes) {
+  if (opcoes && numerar) {
     blocos.push("", "Responda com o número:", ...opcoes.map((o, i) => `${i + 1} - ${o.rotulo}`));
     if (tipo === "retorno")
       blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
@@ -653,50 +662,78 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
   }
 
-  const texto = montarMensagem(tipo, {
-    cliente: cliente?.nome ?? "cliente",
-    barbearia: tenant?.nome ?? "Negócio",
-    servico: relacoes.servicos?.nome ?? null,
-    profissional: relacoes.profissionais?.nome ?? null,
-    inicio: ag.inicio,
-    valorCentavos: ag.valor_centavos ?? 0,
-    endereco: tenant?.endereco ?? null,
-    fuso: await fusoDoTenant(ag.tenant_id),
-    segmento: tenant?.segmento ?? null,
-    textoRetorno,
-    linkAvaliacao,
-    linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
-    linkPagamento:
-      tipo === "confirmacao_agendamento" &&
-      config.pagamentoAntecipado &&
-      config.linkPagamento?.startsWith("http")
-        ? config.linkPagamento
-        : null,
-  });
-
-  // Modelos da Meta são cobrados: só com o interruptor da barbearia ligado (padrão desligado).
-  const modelosPagos = await modelosPagosLigados(ag.tenant_id);
-  const nomeModelo = modelosPagos ? modeloDoTipo(tipo) : null;
-  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  const { gatewayDeWhatsapp } = await import("./gateway.server");
+  const oficial = gatewayDeWhatsapp.capacidades().botoes;
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
-  const modelo =
-    nomeModelo && opcoes
-      ? {
-          nome: nomeModelo,
-          idioma: "pt_BR",
-          parametros:
-            tipo === "retorno"
-              ? [primeiroNome(cliente?.nome ?? "cliente"), tenant?.nome ?? "Negócio"]
-              : [
-                  primeiroNome(cliente?.nome ?? "cliente"),
-                  tenant?.nome ?? "Negócio",
-                  dataBr(ag.inicio, fusoModelo),
-                  horaBr(ag.inicio, fusoModelo),
-                ],
-          // O ID da notificação vai no payload do botão: a resposta nunca é adivinhada.
-          botoes: opcoes.map((o) => `${o.acao}:${registroId}`),
-        }
+  const texto = montarMensagem(
+    tipo,
+    {
+      cliente: cliente?.nome ?? "cliente",
+      barbearia: tenant?.nome ?? "Negócio",
+      servico: relacoes.servicos?.nome ?? null,
+      profissional: relacoes.profissionais?.nome ?? null,
+      inicio: ag.inicio,
+      valorCentavos: ag.valor_centavos ?? 0,
+      endereco: tenant?.endereco ?? null,
+      fuso: fusoModelo,
+      segmento: tenant?.segmento ?? null,
+      textoRetorno,
+      linkAvaliacao,
+      linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
+      linkPagamento:
+        tipo === "confirmacao_agendamento" &&
+        config.pagamentoAntecipado &&
+        config.linkPagamento?.startsWith("http")
+          ? config.linkPagamento
+          : null,
+    },
+    // Opções numeradas só quando o provedor não tem botões.
+    !oficial,
+  );
+
+  // Utilidade sai sempre pelo modelo aprovado do catálogo; marketing só com o interruptor do negócio.
+  const { TIPOS_DE_MARKETING, parametrosNaOrdem, payloadDoBotao, botoesInterativos } =
+    await import("./modelos");
+  const opcoes = OPCOES_DO_LEMBRETE[tipo];
+  const marketingLiberado =
+    !TIPOS_DE_MARKETING.has(tipo) || (await modelosPagosLigados(ag.tenant_id));
+  const { modeloAprovadoDoTipo } = await import("./modelos.server");
+  const doCatalogo = oficial && marketingLiberado ? await modeloAprovadoDoTipo(tipo) : null;
+  let modelo: import("./gateway.server").ModeloComBotoes | null = null;
+  if (doCatalogo && registroId) {
+    try {
+      modelo = {
+        nome: doCatalogo.nome,
+        idioma: doCatalogo.idioma,
+        parametros: parametrosNaOrdem(doCatalogo.variaveis, {
+          cliente: primeiroNome(cliente?.nome ?? "cliente"),
+          negocio: tenant?.nome ?? null,
+          data: dataBr(ag.inicio, fusoModelo),
+          hora: horaBr(ag.inicio, fusoModelo),
+          servico: relacoes.servicos?.nome ?? null,
+          profissional: relacoes.profissionais?.nome ?? null,
+          valor: ag.valor_centavos ? reais(ag.valor_centavos) : null,
+        }),
+        // O ID do envio vai no payload de cada botão: a resposta nunca é adivinhada.
+        botoes: doCatalogo.botoes.map((b) => payloadDoBotao(b.acao, registroId!)),
+      };
+    } catch {
+      modelo = null; // dado obrigatório ausente: sem modelo → sem_modelo
+    }
+  }
+  const interativo =
+    oficial && opcoes?.length && registroId
+      ? botoesInterativos(
+          opcoes.map((o) => ({ texto: o.rotulo, acao: o.acao })),
+          registroId,
+        )
       : null;
+  const acoesDoEnvio = [
+    ...new Set([
+      ...(opcoes ?? []).map((o) => o.acao),
+      ...(doCatalogo?.botoes ?? []).map((b) => b.acao),
+    ]),
+  ];
 
   if (!conexao) return marcarFalhaDoEnvio(SEM_WHATSAPP_DISPONIVEL, texto);
 
@@ -718,6 +755,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       texto,
       porIa: false,
       modelo,
+      interativo,
       iniciadaPelaBarbearia: true,
     });
     externoId = r.externoId;
@@ -730,12 +768,9 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   // Notificação que espera resposta: guarda ações e prazo, e a conversa passa
   // a interpretar a resposta por esse estado até o prazo vencer.
-  const aguarda = Boolean(opcoes?.length);
-  const validoAte = aguarda
-    ? tipo === "retorno"
-      ? new Date(Date.now() + 7 * 24 * 3600_000).toISOString()
-      : new Date(new Date(ag.inicio).getTime() + 15 * 60_000).toISOString()
-    : null;
+  const aguarda = acoesDoEnvio.length > 0;
+  const { validadeDosBotoes } = await import("./modelos");
+  const validoAte = aguarda ? validadeDosBotoes(tipo, ag.inicio) : null;
   await db
     .from("envios_de_whatsapp")
     .update({
@@ -745,7 +780,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       enviado_em: new Date().toISOString(),
       canal: "whatsapp",
       aguarda_resposta: aguarda,
-      acoes: (opcoes ?? []).map((o) => o.acao),
+      acoes: acoesDoEnvio,
       valido_ate: validoAte,
       mensagem_externa_id: externoId,
     } as never)
@@ -762,7 +797,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
           notificacao: {
             id: registroId,
             agendamentoId: ag.id,
-            acoes: (opcoes ?? []).map((o) => o.acao),
+            acoes: acoesDoEnvio,
             validoAte,
           },
         } as never,

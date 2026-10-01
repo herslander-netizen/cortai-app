@@ -69,8 +69,10 @@ export async function resumoFinanceiroDoCliente(input: {
   ]);
 
   const linhas: string[] = [];
-  if ((carteira?.saldo_centavos ?? 0) > 0) linhas.push(`💳 Crédito disponível: ${reais(carteira!.saldo_centavos)}`);
-  if ((carteira?.saldo_creditos ?? 0) > 0) linhas.push(`🎟️ Créditos de serviço: ${carteira!.saldo_creditos}`);
+  if ((carteira?.saldo_centavos ?? 0) > 0)
+    linhas.push(`💳 Crédito disponível: ${reais(carteira!.saldo_centavos)}`);
+  if ((carteira?.saldo_creditos ?? 0) > 0)
+    linhas.push(`🎟️ Créditos de serviço: ${carteira!.saldo_creditos}`);
   const emAberto = (fiados ?? []).reduce((soma, f) => soma + (f.saldo_centavos ?? 0), 0);
   if (emAberto > 0) linhas.push(`🧾 Em aberto: ${reais(emAberto)}`);
 
@@ -80,7 +82,10 @@ export async function resumoFinanceiroDoCliente(input: {
       texto: `Tudo certo por aqui, ${cliente.nome}: você não tem valores em aberto nem créditos acumulados.`,
     };
   }
-  return { autorizado: true, texto: [`Olá, ${cliente.nome}! Seu resumo:`, "", ...linhas].join("\n") };
+  return {
+    autorizado: true,
+    texto: [`Olá, ${cliente.nome}! Seu resumo:`, "", ...linhas].join("\n"),
+  };
 }
 
 /** Progresso do cartão fidelidade do titular. */

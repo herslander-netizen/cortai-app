@@ -139,7 +139,10 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
 /** O QR da Evolution chega em base64 (data URL) e vale poucos minutos. */
 const MINUTOS_DO_QR = 2;
 
-function qrDaEvolution(bruto: Record<string, unknown>): { qrCode: string | null; expiraEm: string | null } {
+function qrDaEvolution(bruto: Record<string, unknown>): {
+  qrCode: string | null;
+  expiraEm: string | null;
+} {
   const cru = bruto["qrcode"] ?? bruto["qrCode"] ?? bruto;
   const objeto = (typeof cru === "object" && cru !== null ? cru : {}) as Record<string, unknown>;
   const base64 = (objeto["base64"] as string) ?? (bruto["base64"] as string) ?? null;
@@ -195,7 +198,14 @@ const evolution = {
     );
     const { qrCode, expiraEm } = qrDaEvolution(r);
     if (!qrCode) return evolution.consultarStatus(sessaoId);
-    return { status: "qr_pronto", qrCode, qrExpiraEm: expiraEm, numero: null, nomeExibicao: null, erro: null };
+    return {
+      status: "qr_pronto",
+      qrCode,
+      qrExpiraEm: expiraEm,
+      numero: null,
+      nomeExibicao: null,
+      erro: null,
+    };
   },
 
   async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
@@ -225,7 +235,9 @@ const evolution = {
   },
 
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(() => undefined);
+    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
+      () => undefined,
+    );
     return evolution.obterQrCode(sessaoId);
   },
 
@@ -265,7 +277,11 @@ const generico = {
   },
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
-      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/restart`, "POST", {}),
+      await chamar<Record<string, unknown>>(
+        `/sessions/${encodeURIComponent(sessaoId)}/restart`,
+        "POST",
+        {},
+      ),
     );
   },
   async desconectar(sessaoId: string): Promise<void> {
@@ -345,6 +361,27 @@ const meta = {
     const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
     return { id: (lista[0]?.["id"] as string) ?? null };
   },
+  /** Mensagem interativa com até 3 botões (só dentro da janela de 24h). */
+  async enviarInterativo(telefone: string, i: MensagemInterativa) {
+    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+      messaging_product: "whatsapp",
+      to: telefone.replace(/\D/g, ""),
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: { text: i.texto.slice(0, 1024) },
+        ...(i.rodape ? { footer: { text: i.rodape.slice(0, 60) } } : {}),
+        action: {
+          buttons: i.botoes.slice(0, 3).map((b) => ({
+            type: "reply",
+            reply: { id: b.id.slice(0, 256), title: b.titulo.slice(0, 20) },
+          })),
+        },
+      },
+    });
+    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+    return { id: (lista[0]?.["id"] as string) ?? null };
+  },
   reiniciarSessao(): Promise<EstadoDaSessao> {
     return meta.consultarStatus();
   },
@@ -360,11 +397,22 @@ function provedor() {
   return config.provedor === "generico" ? generico : evolution;
 }
 
-export type ModeloComBotoes = { nome: string; idioma: string; parametros: string[]; botoes: string[] };
+export type ModeloComBotoes = {
+  nome: string;
+  idioma: string;
+  parametros: string[];
+  botoes: string[];
+};
+export type MensagemInterativa = {
+  texto: string;
+  rodape?: string | null;
+  botoes: { id: string; titulo: string }[];
+};
 
 /** Interface única do provedor. Trocar de serviço é reimplementar isto. */
 export const gatewayDeWhatsapp = {
-  criarSessao: (sessaoId: string, webhookUrl: string) => provedor().criarSessao(sessaoId, webhookUrl),
+  criarSessao: (sessaoId: string, webhookUrl: string) =>
+    provedor().criarSessao(sessaoId, webhookUrl),
   obterQrCode: (sessaoId: string) => provedor().obterQrCode(sessaoId),
   consultarStatus: (sessaoId: string) => provedor().consultarStatus(sessaoId),
   enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
@@ -372,6 +420,8 @@ export const gatewayDeWhatsapp = {
   /** Só a API oficial garante botões; nos demais provedores devolve null. */
   enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
     lerConfig()?.provedor === "meta" ? meta.enviarTemplate(telefone, t) : Promise.resolve(null),
+  enviarInterativo: (telefone: string, i: MensagemInterativa) =>
+    lerConfig()?.provedor === "meta" ? meta.enviarInterativo(telefone, i) : Promise.resolve(null),
   /**
    * O que o canal atual suporta. Oficial: botões via template e janela de 24h
    * para mensagens iniciadas pela barbearia. Demais: opções numeradas, sem janela.

@@ -25,6 +25,7 @@ export type IntencaoDoMotor =
   | "PROFISSIONAIS"
   | "MEUS_AGENDAMENTOS"
   | "REMARCAR"
+  | "ATRASO"
   | "CANCELAR"
   | "LOCALIZACAO"
   | "BARBEARIA"
@@ -63,14 +64,18 @@ export type Classificacao = {
  */
 export function classificar(
   textoOriginal: string,
-  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date; segmento?: string } = { fuso: "America/Sao_Paulo" },
+  opcoes: { fuso: string; totalDeOpcoes?: number; agora?: Date; segmento?: string } = {
+    fuso: "America/Sao_Paulo",
+  },
 ): Classificacao {
   const fuso = opcoes.fuso || "America/Sao_Paulo";
   const t = normalizar(textoOriginal);
   const total = opcoes.totalDeOpcoes ?? 0;
   // "bom dia" / "boa tarde" são cumprimento, não pedido de período.
-  const semCumprimento = t.replace(/\b(bom dia|boa tarde|boa noite)\b/g, " ").replace(/\s+/g, " ").trim();
-
+  const semCumprimento = t
+    .replace(/\b(bom dia|boa tarde|boa noite)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   const entidades: Entidades = {
     servico: servicoCitado(semCumprimento, opcoes.segmento),
@@ -100,6 +105,7 @@ export function classificar(
 
   if (contem(t, VOCABULARIO.cancelar)) return resultado("CANCELAR", 0.9);
   if (contem(t, VOCABULARIO.remarcar)) return resultado("REMARCAR", 0.9);
+  if (contem(t, VOCABULARIO.atraso)) return resultado("ATRASO", 0.85);
   if (contem(t, VOCABULARIO.meusAgendamentos)) return resultado("MEUS_AGENDAMENTOS", 0.85);
   if (contem(t, VOCABULARIO.saldo)) return resultado("SALDO", 0.85);
   if (contem(t, VOCABULARIO.fidelidade)) return resultado("FIDELIDADE", 0.85);

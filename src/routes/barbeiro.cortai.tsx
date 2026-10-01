@@ -19,6 +19,7 @@ import {
   desconectarWhatsapp,
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
+  getRemetenteOficial,
   listarEnviosDaSecretaria,
   type DiagnosticoDoWhatsapp,
   reconectarWhatsapp,
@@ -169,7 +170,9 @@ function CortaiPage() {
             {aba === "whatsapp" ? (
               <>
                 <BlocoRemetenteOficial />
-                {painel.data.podeGerenciarWhatsapp ? <BlocoDiagnostico /> : null}
+                {painel.data.podeGerenciarWhatsapp && painel.data.provedor !== "meta" ? (
+                  <BlocoDiagnostico />
+                ) : null}
               </>
             ) : null}
             {aba === "envios" ? <BlocoEnvios /> : null}
@@ -395,6 +398,17 @@ function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: 
 
 /** Remetente real dos avisos: o número oficial do Cortaí. */
 function BlocoRemetenteOficial() {
+  const consultar = useServerFn(getRemetenteOficial);
+  const estado = useQuery({
+    queryKey: ["remetente-oficial"],
+    queryFn: () => consultar(),
+    refetchInterval: 60_000,
+  });
+  const selo = estado.isLoading
+    ? { estado: "conectando", texto: "Verificando" }
+    : estado.data?.status === "conectado"
+      ? { estado: "conectado", texto: "Ativo" }
+      : { estado: "erro", texto: "Indisponível" };
   return (
     <section className="surface p-5">
       <div className="flex items-start gap-3">
@@ -404,12 +418,18 @@ function BlocoRemetenteOficial() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-paper">WhatsApp oficial do Cortaí</h2>
-            <Selo estado="conectado" texto="Ativo" />
+            <Selo estado={selo.estado as "conectando" | "conectado" | "erro"} texto={selo.texto} />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-mute">
             Seus avisos saem pelo WhatsApp oficial do Cortaí (+55 79 9818-1983), com o nome do seu
             negócio na mensagem.
           </p>
+          {!estado.isLoading && estado.data?.status !== "conectado" ? (
+            <p className="mt-2 text-sm text-brick" role="status">
+              Não conseguimos confirmar o número oficial agora. Os avisos com falha aparecem no
+              sininho com a opção de enviar pelo seu WhatsApp.
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
