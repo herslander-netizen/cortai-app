@@ -4,52 +4,7 @@ import { ValorAnimado } from "@/components/painel/ValorAnimado";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
-import { contarLivres, hora, minutosNoFuso, resumoOperacional, turnosDoDia } from "./tempo";
-
-const OCUPANDO_AGORA = new Set(["agendado", "chegou", "na_cadeira"]);
-
-export function disponibilidadeHoje({
-  itens,
-  horarios,
-  dia,
-  fuso,
-  profissionalIds,
-  agora,
-}: {
-  itens: AgendaItem[];
-  horarios: AgendaDia["horarios"];
-  dia: string;
-  fuso: string;
-  profissionalIds: string[];
-  agora: number;
-}) {
-  const minuto = minutosNoFuso(agora, fuso);
-  if (!turnosDoDia(horarios, dia).some(([inicio, fim]) => minuto >= inicio && minuto < fim))
-    return null;
-  const ocupado = (id: string) =>
-    itens.some(
-      (item) =>
-        item.profissionalId === id &&
-        OCUPANDO_AGORA.has(item.status) &&
-        new Date(item.inicio).getTime() <= agora &&
-        agora < new Date(item.fim).getTime(),
-    );
-  if (profissionalIds.length > 1) {
-    const livres = profissionalIds.filter((id) => !ocupado(id)).length;
-    return livres ? `${livres} livres agora` : null;
-  }
-  const id = profissionalIds[0];
-  if (id && ocupado(id)) return null;
-  const proximo = itens
-    .filter(
-      (item) =>
-        (!id || item.profissionalId === id) &&
-        OCUPANDO_AGORA.has(item.status) &&
-        new Date(item.inicio).getTime() > agora,
-    )
-    .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())[0];
-  return proximo ? `livre até ${hora(proximo.inicio, fuso)}` : "livre agora";
-}
+import { contarLivres, disponibilidadeHoje, resumoOperacional } from "./tempo";
 
 export function ResumoDia({
   itens,

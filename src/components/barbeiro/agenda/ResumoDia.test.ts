@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
-import { disponibilidadeHoje } from "./ResumoDia";
+import { disponibilidadeHoje } from "./tempo";
 
 const horarios = [{ diaSemana: 4, fechado: false, abre: "08:00", fecha: "18:00" }];
 const agora = Date.parse("2026-10-01T15:00:00Z");
