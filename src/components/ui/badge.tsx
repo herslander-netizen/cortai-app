@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CalendarClock, Check, Circle, Clock3, HandCoins, Scissors, UserRoundPlus, UserX, X } from "lucide-react";
+import { AlarmClock, CalendarClock, Check, Circle, Clock3, HandCoins, Scissors, UserRoundPlus, UserX, X } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ const STATUS = {
   remarcado: { label: "Remarcado", variant: "outline", Icon: CalendarClock },
   cancelado: { label: "Cancelado", variant: "destructive", Icon: X },
   nao_compareceu: { label: "Não compareceu", variant: "destructive", Icon: UserX },
+  atrasado: { label: "Atrasado", variant: "destructive", Icon: AlarmClock },
   encaixe: { label: "Encaixe", variant: "outline", Icon: Scissors },
   aguardando_pagamento: { label: "Aguardando pagamento", variant: "outline", Icon: HandCoins },
   pago: { label: "Pago", variant: "success", Icon: Check },

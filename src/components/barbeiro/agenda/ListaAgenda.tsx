@@ -1,10 +1,12 @@
 import { useState } from "react";
 
-import { Check, Play, UserRoundPlus, type LucideIcon } from "lucide-react";
+import { Check, Scissors, UserRoundPlus, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
+import { termos } from "@/lib/segmentos";
 
 import { estaAtrasado, hora, nomeEhGenerico, ROTULO_ESTADO, teclaDeAtivar } from "./tempo";
 
@@ -15,8 +17,8 @@ const ACAO_PRIMARIA: Partial<
   Record<string, { acao: AcaoCard; rotulo: string; Icone: LucideIcon }>
 > = {
   agendado: { acao: "chegou", rotulo: "Cliente chegou", Icone: UserRoundPlus },
-  chegou: { acao: "iniciar", rotulo: "Começar atendimento", Icone: Play },
-  na_cadeira: { acao: "terminar", rotulo: "Terminar", Icone: Check },
+  chegou: { acao: "iniciar", rotulo: "Começar", Icone: Scissors },
+  na_cadeira: { acao: "terminar", rotulo: "Finalizar e cobrar", Icone: Check },
 };
 
 export function ListaAgenda({
@@ -43,6 +45,7 @@ export function ListaAgenda({
   onAcao?: (item: AgendaItem, acao: AcaoCard) => void;
 }) {
   const agora = useAgora();
+  const segmento = useSegmentoDoPainel();
   const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
   return (
     <ul className="divide-y divide-line">
@@ -90,7 +93,9 @@ export function ListaAgenda({
               </div>
               <div className="flex max-w-[45%] flex-wrap justify-end gap-1">
                 <span className={`agenda-item-badge agenda-item-badge-${item.status}`}>
-                  {ROTULO_ESTADO[item.status] ?? item.status}
+                  {item.status === "na_cadeira"
+                    ? termos(segmento).statusAtendimento
+                    : (ROTULO_ESTADO[item.status] ?? item.status)}
                 </span>
                 {item.encaixe ? (
                   <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span>

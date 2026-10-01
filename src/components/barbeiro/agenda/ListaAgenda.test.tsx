@@ -81,8 +81,8 @@ function botao(texto: string) {
 describe("ListaAgenda", () => {
   it.each([
     ["agendado", "Agendado", "Cliente chegou"],
-    ["chegou", "Chegou", "Começar atendimento"],
-    ["na_cadeira", "Na cadeira", "Terminar"],
+    ["chegou", "Chegou", "Começar"],
+    ["na_cadeira", "Em atendimento", "Finalizar e cobrar"],
   ])("cartão %s tem badge e ação principal", (status, badge, primaria) => {
     montar([item({ status })]);
     expect(host!.querySelector(`.agenda-item-${status}`)).not.toBeNull();
@@ -99,7 +99,7 @@ describe("ListaAgenda", () => {
     (status, acao) => {
       const { onAcao, onAbrir } = montar([item({ status })]);
       const primaria = botao(
-        { agendado: "Cliente chegou", chegou: "Começar atendimento", na_cadeira: "Terminar" }[
+        { agendado: "Cliente chegou", chegou: "Começar", na_cadeira: "Finalizar e cobrar" }[
           status
         ]!,
       );

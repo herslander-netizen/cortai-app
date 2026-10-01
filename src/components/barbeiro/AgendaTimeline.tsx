@@ -538,7 +538,7 @@ export function AgendaTimeline({
                     ) : null}
                     {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
                     {ehHoje && estaAtrasado(item, agora) ? (
-                      <StatusBadge status="nao_compareceu" label="Atrasado" />
+                      <StatusBadge status="atrasado" />
                     ) : null}
                     {item.encaixe ? <StatusBadge status="encaixe" /> : null}
                     {item.confirmadoEm && item.status === "agendado" ? (

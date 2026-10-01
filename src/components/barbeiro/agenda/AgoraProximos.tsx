@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { Check, CalendarClock, MessageCircle, UserX } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 
 import {
   TERMINAIS,
+  estaAtrasado,
   fichaRelevante,
   hora,
   linkWhatsApp,
@@ -23,18 +24,31 @@ export function AgoraProximos({
   selecionado,
   onAbrir,
   onPerfil,
+  onComanda,
+  onFalta,
+  onLista,
 }: {
   itens: AgendaItem[];
   fuso: string;
   selecionado: string | null;
   onAbrir: (id: string) => void;
   onPerfil: (clienteId: string) => void;
+  onComanda: (item: AgendaItem) => void;
+  onFalta: (item: AgendaItem) => void;
+  onLista: () => void;
 }) {
   const agora = useAgora();
   const ativos = itens.filter((i) => i.status === "na_cadeira");
+  const pendentes = itens
+    .filter((i) => estaAtrasado(i, agora))
+    .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
+  const pendente = pendentes[0];
   const futuros = itens.filter(
     (i) =>
-      !TERMINAIS.has(i.status) && i.status !== "na_cadeira" && new Date(i.fim).getTime() >= agora,
+      !TERMINAIS.has(i.status) &&
+      i.status !== "na_cadeira" &&
+      !estaAtrasado(i, agora) &&
+      new Date(i.fim).getTime() >= agora,
   );
   const destaques = futuros.slice(0, 2);
   const fimPrevisto = ativos.length
@@ -106,6 +120,30 @@ export function AgoraProximos({
             </article>
           );
         })
+      ) : pendente ? (
+        <div className="agenda-livre-agora" role="status">
+          <p>
+            <span className="agenda-rotulo">Agora</span> Pendente: {pendente.cliente},{" "}
+            {hora(pendente.inicio, fuso)} · atrasado
+            {pendentes.length > 1 ? ` · +${pendentes.length - 1} pendentes` : ""}
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Button className="min-h-12" onClick={() => onComanda(pendente)}>
+              <Check /> Atendi
+            </Button>
+            <Button variant="outline" className="min-h-12" onClick={() => onFalta(pendente)}>
+              <UserX /> Faltou
+            </Button>
+            <Button variant="ghost" className="min-h-12" onClick={() => onAbrir(pendente.id)}>
+              <CalendarClock /> Remarcar
+            </Button>
+            {pendentes.length > 1 ? (
+              <Button variant="ghost" className="min-h-12" onClick={onLista}>
+                +{pendentes.length - 1} pendentes
+              </Button>
+            ) : null}
+          </div>
+        </div>
       ) : (
         <p className="agenda-livre-agora">
           <span className="agenda-rotulo">Agora</span> Livre

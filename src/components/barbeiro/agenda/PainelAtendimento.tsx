@@ -146,7 +146,7 @@ export function PainelAtendimento(props: Props) {
                     disabled={bloqueado}
                     onClick={executar(props.onIniciar)}
                   >
-                    <Scissors /> Iniciar atendimento
+                    <Scissors /> Começar
                   </Button>
                 ) : null}
                 {item.status === "na_cadeira" ? (
@@ -157,7 +157,7 @@ export function PainelAtendimento(props: Props) {
                     disabled={bloqueado}
                     onClick={executar(props.onComanda)}
                   >
-                    <Check /> Concluir atendimento
+                    <Check /> Finalizar e cobrar
                   </Button>
                 ) : null}
 

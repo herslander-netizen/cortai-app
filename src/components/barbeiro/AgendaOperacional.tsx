@@ -11,6 +11,7 @@ import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
 import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { AgoraProximos } from "@/components/barbeiro/agenda/AgoraProximos";
+import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
 import {
@@ -768,7 +769,7 @@ export function AgendaOperacional() {
                 setConflito(null);
               }}
             >
-              Finalizar atual
+              Finalizar e cobrar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1005,6 +1006,9 @@ export function AgendaOperacional() {
             selecionado={selecionado}
             onAbrir={abrir}
             onPerfil={setPerfil}
+            onComanda={(i) => setFechando(i.id)}
+            onFalta={(i) => void transicionar(i, "nao_compareceu")}
+            onLista={() => setVisualizacao("lista")}
           />
         ) : null}
 
@@ -1154,9 +1158,10 @@ export function AgendaOperacional() {
               onPerfil={setPerfil}
               onFalta={(i) => void transicionar(i, "nao_compareceu")}
               onAcao={(i, acao) => {
-                if (acao === "chegou") void transicionar(i, "chegou");
-                else if (acao === "iniciar") iniciar(i);
-                else void transicionar(i, "finalizado");
+                const efeito = efeitoDaAcaoCard(acao);
+                if (efeito === "marcar_chegada") void transicionar(i, "chegou");
+                else if (efeito === "comecar") iniciar(i);
+                else setFechando(i.id);
               }}
             />
           )}
