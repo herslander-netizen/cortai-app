@@ -1054,8 +1054,8 @@ html.light .brand-logo-on-light,
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding-block: 10px;
 }
 .agenda-timeline {
@@ -2808,9 +2808,11 @@ body:has(.auth-screen--claro) {
   border-style: dashed !important;
 }
 .agenda-arrastando {
-  z-index: 5;
-  box-shadow: var(--shadow-md);
-  opacity: 0.92;
+  z-index: 6;
+  box-shadow: var(--shadow-lg, var(--shadow-md));
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  opacity: 0.85;
   cursor: grabbing;
   touch-action: none;
   transition: none !important;
@@ -2818,6 +2820,35 @@ body:has(.auth-screen--claro) {
 }
 .agenda-timeline-bloco {
   touch-action: pan-y;
+  cursor: grab;
+}
+.agenda-timeline-bloco::after {
+  content: "";
+  position: absolute;
+  inset: -4px -2px;
+}
+.agenda-timeline-alvo {
+  position: absolute;
+  left: 7px;
+  right: 4px;
+  z-index: 4;
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  pointer-events: none;
+}
+.agenda-timeline-alvo span {
+  position: absolute;
+  top: -10px;
+  left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.agenda-timeline-bloco {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;

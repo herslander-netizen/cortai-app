@@ -1,5 +1,5 @@
 import { Check, Clock3 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
@@ -521,87 +521,95 @@ export function AgendaTimeline({
               arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : 0;
             return (
               <Fragment key={item.id}>
-              {arrasto?.id === item.id ? (
-                <div
-                  className="agenda-timeline-alvo"
-                  style={{ top: `${topo + passoArrasto * PX_POR_MINUTO}px`, height: `${blocoAltura}px` }}
-                  aria-hidden
-                >
-                  <span>{horaMinuto(inicio + passoArrasto)}</span>
-                </div>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
-                className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
-                style={{
-                  top: `${topo}px`,
-                  minHeight: `${blocoAltura}px`,
-                  ...(posicao?.colunas
-                    ? {
-                        left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
-                        right: "auto",
-                        width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
-                      }
-                    : {}),
-                  ...(arrasto?.id === item.id
-                    ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
-                    : {}),
-                }}
-                aria-pressed={selecionado === item.id}
-                onPointerDown={(e) => inicioGesto(e, item)}
-                onPointerMove={moverGesto}
-                onPointerUp={() => fimGesto(item)}
-                onPointerCancel={() => {
-                  if (gesto.current) window.clearTimeout(gesto.current.timer);
-                  gesto.current = null;
-                  soltarRolagemDoToque();
-                  setArrasto(null);
-                }}
-                onContextMenu={(e) => {
-                  if (podeMover(item)) e.preventDefault();
-                }}
-                onClick={() => {
-                  if (ignorarClique.current) {
-                    ignorarClique.current = false;
-                    return;
-                  }
-                  onSelecionar(item.id);
-                }}
-              >
-                <span className="agenda-timeline-bloco-topo">
-                  <strong className="col-span-2">
-                    {horaMinuto(
-                      arrasto?.id === item.id
-                        ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
-                        : inicio,
-                    )}{" "}
-                    · {nome}
-                  </strong>
-                </span>
-                <span className="flex min-w-0 items-center gap-1">
-                  <span className="agenda-timeline-servico min-w-0 flex-1">
-                    {item.servico}
-                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
-                  </span>
-                  <span className="flex shrink-0 gap-1">
-                    {item.status === "finalizado" ? (
-                      <Check className="agenda-check-finalizado" aria-label="Finalizado" />
-                    ) : null}
-                    {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
-                    {ehHoje && estaAtrasado(item, agora) ? <StatusBadge status="atrasado" /> : null}
-                    {item.encaixe ? <StatusBadge status="encaixe" /> : null}
-                    {item.confirmadoEm && item.status === "agendado" ? (
-                      <StatusBadge status="confirmado" label="Confirmou" />
-                    ) : null}
-                  </span>
-                </span>
-                {item.daListaDeEspera ? (
-                  <span className="agenda-timeline-fila">Vaga preenchida pela lista de espera</span>
+                {arrasto?.id === item.id ? (
+                  <div
+                    className="agenda-timeline-alvo"
+                    style={{
+                      top: `${topo + passoArrasto * PX_POR_MINUTO}px`,
+                      height: `${blocoAltura}px`,
+                    }}
+                    aria-hidden
+                  >
+                    <span>{horaMinuto(inicio + passoArrasto)}</span>
+                  </div>
                 ) : null}
-                {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                  className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                  style={{
+                    top: `${topo}px`,
+                    minHeight: `${blocoAltura}px`,
+                    ...(posicao?.colunas
+                      ? {
+                          left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                          right: "auto",
+                          width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                        }
+                      : {}),
+                    ...(arrasto?.id === item.id
+                      ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
+                      : {}),
+                  }}
+                  aria-pressed={selecionado === item.id}
+                  onPointerDown={(e) => inicioGesto(e, item)}
+                  onPointerMove={moverGesto}
+                  onPointerUp={() => fimGesto(item)}
+                  onPointerCancel={() => {
+                    if (gesto.current) window.clearTimeout(gesto.current.timer);
+                    gesto.current = null;
+                    soltarRolagemDoToque();
+                    setArrasto(null);
+                  }}
+                  onContextMenu={(e) => {
+                    if (podeMover(item)) e.preventDefault();
+                  }}
+                  onClick={() => {
+                    if (ignorarClique.current) {
+                      ignorarClique.current = false;
+                      return;
+                    }
+                    onSelecionar(item.id);
+                  }}
+                >
+                  <span className="agenda-timeline-bloco-topo">
+                    <strong className="col-span-2">
+                      {horaMinuto(
+                        arrasto?.id === item.id
+                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
+                          : inicio,
+                      )}{" "}
+                      · {nome}
+                    </strong>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1">
+                    <span className="agenda-timeline-servico min-w-0 flex-1">
+                      {item.servico}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
+                    </span>
+                    <span className="flex shrink-0 gap-1">
+                      {item.status === "finalizado" ? (
+                        <Check className="agenda-check-finalizado" aria-label="Finalizado" />
+                      ) : null}
+                      {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
+                      {ehHoje && estaAtrasado(item, agora) ? (
+                        <StatusBadge status="atrasado" />
+                      ) : null}
+                      {item.encaixe ? <StatusBadge status="encaixe" /> : null}
+                      {item.confirmadoEm && item.status === "agendado" ? (
+                        <StatusBadge status="confirmado" label="Confirmou" />
+                      ) : null}
+                    </span>
+                  </span>
+                  {item.daListaDeEspera ? (
+                    <span className="agenda-timeline-fila">
+                      Vaga preenchida pela lista de espera
+                    </span>
+                  ) : null}
+                  {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
+                </Button>
+              </Fragment>
             );
           })}
 
