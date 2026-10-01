@@ -2,7 +2,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus, X } from "lucide-react";
+import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
@@ -93,7 +93,6 @@ const PerfilClienteLazy = lazy(() =>
   })),
 );
 
-const DICA_TIMELINE = "cortai-agenda-dica-timeline";
 type Visualizacao = "lista" | "timeline" | "semana";
 
 function useEhDesktop() {

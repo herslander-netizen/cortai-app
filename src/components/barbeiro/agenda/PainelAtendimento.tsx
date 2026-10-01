@@ -156,14 +156,17 @@ export function PainelAtendimento(props: Props) {
                 ) : null}
 
                 {telefone || whatsapp ? (
-                  <div className="grid grid-cols-2 gap-2" aria-label="Contato do cliente">
+                  <div
+                    className={`grid gap-2 ${telefone && whatsapp ? "grid-cols-2" : "grid-cols-1"}`}
+                    aria-label="Contato do cliente"
+                  >
                     {telefone ? (
                       <Button asChild variant="outline" className="min-h-12">
                         <a href={`tel:${telefone}`} aria-label={`Ligar para ${item.cliente}`}>
                           <Phone /> Ligar
                         </a>
                       </Button>
-                    ) : <span />}
+                    ) : null}
                     {whatsapp ? (
                       <Button asChild variant="outline" className="min-h-12">
                         <a

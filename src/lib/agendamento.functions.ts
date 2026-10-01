@@ -278,12 +278,6 @@ export const cancelarAgendamento = createServerFn({ method: "POST" })
     } catch {
       /* o cancelamento já está salvo */
     }
-    try {
-      const { ofertarVaga } = await import("@/lib/whatsapp/fila-ofertas.server");
-      await ofertarVaga(data.agendamentoId);
-    } catch {
-      /* o cancelamento já está salvo; a varredura tenta novamente */
-    }
     return res as unknown as { devolvido: boolean; saldo_creditos: number; saldo_centavos: number };
   });
 
