@@ -56,7 +56,9 @@ function HorariosPage() {
     >
       {isLoading ? <Carregando /> : null}
       <label className="mt-2 block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-mute">Fuso horário do negócio</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-mute">
+          Fuso horário do negócio
+        </span>
         <select
           className="mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none focus:border-gold"
           value={fuso}
@@ -76,10 +78,15 @@ function HorariosPage() {
       <InterruptorFilaDeChegada />
 
       <div className="mt-6" data-guia="horarios-editor">
-        <EditorDeHorarios horarios={horarios} onChange={setHorarios} segmento={data?.tenant.segmento ?? "outro"} />
+        <EditorDeHorarios
+          horarios={horarios}
+          onChange={setHorarios}
+          segmento={data?.tenant.segmento ?? "outro"}
+        />
       </div>
 
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         className="btn-primary mt-8 w-full py-3.5"
         disabled={estado === "salvando"}
@@ -96,7 +103,11 @@ function HorariosPage() {
           }
         }}
       >
-        {estado === "salvando" ? "Salvando…" : estado === "salvo" ? "Horários salvos" : "Salvar horários"}
+        {estado === "salvando"
+          ? "Salvando…"
+          : estado === "salvo"
+            ? "Horários salvos"
+            : "Salvar horários"}
       </Button>
       {erro ? (
         <p className="mt-3 text-sm text-brick" role="alert">

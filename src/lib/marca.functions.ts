@@ -263,7 +263,10 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
       {
         tenant_id: tenantId,
         draft_config: {
-          pagina: preservarFilaDeChegada(data.pagina, await containerSalvo(context.supabase, tenantId)),
+          pagina: preservarFilaDeChegada(
+            data.pagina,
+            await containerSalvo(context.supabase, tenantId),
+          ),
           marca: data.marca,
         } as unknown as Json,
         draft_by: context.userId,

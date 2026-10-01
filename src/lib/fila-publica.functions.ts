@@ -12,6 +12,11 @@ async function admin() {
 
 export const MENSAGEM_SO_COM_HORARIO = "Este negócio atende com horário marcado.";
 
+/** Recusa a entrada pelo link quando o negócio só atende com horário marcado. */
+export function exigirFilaDeChegadaAtiva(ativa: boolean) {
+  if (!ativa) throw new Error(MENSAGEM_SO_COM_HORARIO);
+}
+
 export type BarbeariaDaFila = {
   nome: string;
   slug: string;
@@ -84,7 +89,7 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
     const resolvido = await resolverTenantPorSlug(db, data.slug);
     if (!resolvido) throw new Error("Negócio não encontrado.");
     const { filaDeChegadaAtiva } = await import("@/lib/fila-chegada.server");
-    if (!(await filaDeChegadaAtiva(db, resolvido.tenant_id))) throw new Error(MENSAGEM_SO_COM_HORARIO);
+    exigirFilaDeChegadaAtiva(await filaDeChegadaAtiva(db, resolvido.tenant_id));
     const { data: resultado, error } = await db.rpc("entrar_na_fila_publica", {
       _slug: resolvido.slug_atual,
       _nome: data.nome,

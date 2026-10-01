@@ -144,23 +144,23 @@ export function MenuAcoesAgenda({
             </span>
           </Button>
           {mostrarFila ? (
-          <Button
-            variant="ghost"
-            role="menuitem"
-            className="agenda-acao-lista"
-            disabled={!fila || ocupado || !online}
-            onClick={escolher(onChamarFila)}
-          >
-            <UserRoundPlus />
-            <span>
-              <strong>Chamar próximo da fila</strong>
-              <small>
-                {fila
-                  ? `${proximoDaFila ?? "Cliente"} é o próximo da fila`
-                  : "Ninguém na fila agora"}
-              </small>
-            </span>
-          </Button>
+            <Button
+              variant="ghost"
+              role="menuitem"
+              className="agenda-acao-lista"
+              disabled={!fila || ocupado || !online}
+              onClick={escolher(onChamarFila)}
+            >
+              <UserRoundPlus />
+              <span>
+                <strong>Chamar próximo da fila</strong>
+                <small>
+                  {fila
+                    ? `${proximoDaFila ?? "Cliente"} é o próximo da fila`
+                    : "Ninguém na fila agora"}
+                </small>
+              </span>
+            </Button>
           ) : null}
           <Button
             variant="ghost"

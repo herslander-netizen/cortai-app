@@ -265,7 +265,10 @@ export function AgendaOperacional() {
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  const inicial = useRef<{ celular: boolean; preferencia: ReturnType<typeof preferenciaAgendaInicial> } | null>(null);
+  const inicial = useRef<{
+    celular: boolean;
+    preferencia: ReturnType<typeof preferenciaAgendaInicial>;
+  } | null>(null);
   if (!inicial.current) {
     const celularLido = window.matchMedia("(max-width: 767px)").matches;
     inicial.current = { celular: celularLido, preferencia: preferenciaAgendaInicial(celularLido) };
