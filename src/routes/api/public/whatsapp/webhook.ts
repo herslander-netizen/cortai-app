@@ -45,9 +45,6 @@ type MudancaMeta = {
 
 const TIPOS_DE_MIDIA = new Set(["audio", "image", "document", "location", "interactive"]);
 
-/** Ordem de avanço do estado de entrega: um aviso antigo nunca regride. */
-const ORDEM_ENTREGA: Record<string, number> = { enviada: 1, entregue: 2, lida: 3, falhou: 9 };
-
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -57,18 +54,25 @@ async function admin() {
  * Barbearia dona do aviso: pelo phone_number_id que a Meta envia em value.metadata.
  * Sem correspondência, o aviso fica registrado com erro e não é processado.
  */
-async function conexaoMeta(phoneNumberId: string | null) {
+async function conexaoMeta(phoneNumberId: string | null, numeroExibido: string | null) {
   const db = await admin();
   const { rotearConexaoMeta } = await import("@/lib/whatsapp/roteamento-meta");
   const { data } = await db
     .from("conexoes_whatsapp")
-    .select("id, tenant_id, sessao_id, meta_phone_number_id")
+    .select("id, tenant_id, sessao_id, meta_phone_number_id, numero, compartilhada")
     .eq("provedor", "meta")
     .order("criado_em", { ascending: true });
-  const rota = rotearConexaoMeta((data ?? []) as never, phoneNumberId);
+  const rota = rotearConexaoMeta((data ?? []) as never, phoneNumberId, numeroExibido);
   if (rota.tipo === "erro") throw new Error(rota.motivo);
-  if (rota.aprender && phoneNumberId) {
-    await db.from("conexoes_whatsapp").update({ meta_phone_number_id: phoneNumberId }).eq("id", rota.conexao.id);
+  if (rota.aprenderIds.length > 0 && phoneNumberId) {
+    // Todas as conexões do mesmo número passam a gravar o id; várias = compartilhada.
+    await db
+      .from("conexoes_whatsapp")
+      .update({
+        meta_phone_number_id: phoneNumberId,
+        ...(rota.compartilhada ? { compartilhada: true } : {}),
+      })
+      .in("id", rota.aprenderIds);
   }
   return rota.conexao;
 }
@@ -78,7 +82,10 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
   const mensagens = valor?.messages ?? [];
   if (!valor || mensagens.length === 0) return;
 
-  const conexao = await conexaoMeta(valor.metadata?.phone_number_id ?? null);
+  const conexao = await conexaoMeta(
+    valor.metadata?.phone_number_id ?? null,
+    valor.metadata?.display_phone_number ?? null,
+  );
 
   const fluxo = await import("@/lib/whatsapp/fluxo.server");
   for (const mensagem of mensagens) {
@@ -116,36 +123,9 @@ async function processarMensagens(mudanca: MudancaMeta): Promise<void> {
 async function processarEntregas(mudanca: MudancaMeta): Promise<void> {
   const estados = mudanca.value?.statuses ?? [];
   if (estados.length === 0) return;
-  const db = await admin();
+  const { aplicarEntrega } = await import("@/lib/whatsapp/entregas.server");
   for (const estado of estados) {
-    if (!estado.id || !estado.status) continue;
-    const novo =
-      estado.status === "sent"
-        ? "enviada"
-        : estado.status === "delivered"
-          ? "entregue"
-          : estado.status === "read"
-            ? "lida"
-            : estado.status === "failed"
-              ? "falhou"
-              : null;
-    if (!novo) continue;
-    const erro =
-      estado.status === "failed"
-        ? (estado.errors?.map((e) => e.message ?? e.title ?? String(e.code)).join("; ") ?? "Falha na entrega.")
-        : null;
-    // Só avança: um "enviada" atrasado não sobrescreve "entregue"/"lida".
-    const { data: atual } = await db
-      .from("mensagens_whatsapp")
-      .select("id, status")
-      .eq("mensagem_externa_id", estado.id)
-      .maybeSingle();
-    if (!atual) continue; // pode chegar antes do registro do envio; fica na caixa de entrada
-    if ((ORDEM_ENTREGA[atual.status] ?? 0) >= (ORDEM_ENTREGA[novo] ?? 0)) continue;
-    await db
-      .from("mensagens_whatsapp")
-      .update({ status: novo, ...(erro ? { erro } : {}) })
-      .eq("id", atual.id);
+    await aplicarEntrega(estado);
   }
 }
 
