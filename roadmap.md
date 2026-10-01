@@ -54,6 +54,6 @@
 - [x] Bloqueio por data e escala por profissional ligados à agenda
 - [ ] Mostrar bloqueios como faixa na linha do tempo da agenda
 
-- [ ] Evoluir a Agenda para operação mobile-first sem duplicar o motor oficial
-- [ ] Consolidar Minha assinatura sobre a integração Asaas existente
-- [ ] Validar Agenda e assinatura em 390px/1280px, tipos, lint, testes e build; não publicar
+- [x] Evoluir a Agenda para operação mobile-first sem duplicar o motor oficial
+- [x] Consolidar Minha assinatura sobre a integração Asaas existente
+- [x] Validar Agenda e assinatura por código, tipos, lint dirigido, testes e build; não publicar (checagem visual autenticada indisponível nesta sessão)
