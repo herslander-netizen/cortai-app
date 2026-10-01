@@ -109,7 +109,7 @@ describe("ListaAgenda", () => {
       status: "agendado",
       inicio: new Date(Date.now() - 30 * 60_000).toISOString(),
     });
-    const { onFalta } = montar([atrasado]);
+    const { onFalta } = montar([atrasado], vi.fn(), vi.fn(), vi.fn(), true);
     expect(host!.querySelector(".agenda-item-badge-atrasado")).not.toBeNull();
     act(() => botao("Marcar falta").click());
     expect(onFalta).toHaveBeenCalledWith(atrasado);
@@ -117,12 +117,15 @@ describe("ListaAgenda", () => {
     expect(host!.querySelector(".agenda-item-badge-atrasado")).toBeNull();
   });
 
-  it("marca AGORA na cadeira e badges de encaixe e confirmação", () => {
-    montar([
-      item({ status: "na_cadeira", encaixe: true, confirmadoEm: new Date().toISOString() }),
-    ]);
+  it("marca AGORA na cadeira e badge de encaixe", () => {
+    montar([item({ status: "na_cadeira", encaixe: true })]);
     expect(host!.textContent).toContain("AGORA");
     expect(host!.querySelector(".agenda-item-badge-encaixe")).not.toBeNull();
+ecpect: placeholder
+  });
+
+  it("mostra badge de confirmação para agendado confirmado", () => {
+    montar([item({ status: "agendado", confirmadoEm: new Date().toISOString() })]);
     expect(host!.querySelector(".agenda-item-badge-confirmado")).not.toBeNull();
   });
 });
