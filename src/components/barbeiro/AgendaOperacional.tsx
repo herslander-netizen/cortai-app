@@ -31,6 +31,7 @@ import {
   ROTULO_ESTADO,
   hora,
   minutosDecorridos,
+  nomeDaAgenda,
   nomeEhGenerico,
   somarDias,
   dataEditorial,
@@ -76,6 +77,13 @@ import {
   getOperacaoFila,
 } from "@/lib/atendimento.functions";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import {
+  modoDiscretoInicial,
+  preferenciaAgendaInicial,
+  salvarModoDiscreto,
+  salvarPreferenciaAgenda,
+  ultimaVisaoCompleta,
+} from "@/components/barbeiro/agenda/preferencias";
 
 const AgendamentoManualLazy = lazy(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
@@ -126,6 +134,7 @@ function FolhaFila(props: {
   online: boolean;
   onChamar: () => void;
   onPerfil: (id: string) => void;
+  discreto: boolean;
 }) {
   const agora = useAgora();
   return (
@@ -144,7 +153,7 @@ function FolhaFila(props: {
         </SheetHeader>
         <section aria-label="Fila de chegada" className="mt-3 pb-4">
           {props.chegada.length === 0 ? (
-            <p className="py-6 text-center text-sm text-mute">Ninguém aguardando agora.</p>
+            <p className="py-6 text-center text-sm text-mute">Ninguém na fila agora.</p>
           ) : (
             <>
               <div className="mb-2 flex justify-end">
@@ -191,12 +200,16 @@ function FolhaFila(props: {
                           onClick={() => {
                             if (f.clienteId) props.onPerfil(f.clienteId);
                           }}
-                          className={`agenda-nome min-h-12 justify-start px-0 text-sm ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
+                          className={`min-h-12 w-full justify-start truncate px-0 text-left text-sm ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
                         >
-                          {f.cliente}
+                          {nomeDaAgenda(f.cliente, props.discreto)}
                         </Button>
                       ) : (
-                        <p className="agenda-nome text-sm text-paper">{f.cliente}</p>
+                        <p
+                          className={`truncate text-left text-sm font-bold ${nomeEhGenerico(f.cliente) ? "text-mute" : "text-paper"}`}
+                        >
+                          {nomeDaAgenda(f.cliente, props.discreto)}
+                        </p>
                       )}
                       <p className="truncate text-xs text-mute">
                         {f.servico ?? "Serviço a definir"}
@@ -251,7 +264,11 @@ export function AgendaOperacional() {
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  const [visualizacao, setVisualizacao] = useState<Visualizacao>("timeline");
+  const celularInicial = window.matchMedia("(max-width: 767px)").matches;
+  const preferenciaInicial = preferenciaAgendaInicial(celularInicial);
+  const [visualizacao, setVisualizacao] = useState<Visualizacao>(() =>
+    preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
+  );
   const celular = useIsMobile();
   const ehDesktop = useEhDesktop();
   const [profVazio, setProfVazio] = useState<string | null>(null);
@@ -259,12 +276,25 @@ export function AgendaOperacional() {
   const [filaAberta, setFilaAberta] = useState(false);
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
   const filtroInicial = useRef(false);
-  const [modoFoco, setModoFoco] = useState(false);
-  const [focoMobileFechado, setFocoMobileFechado] = useState(false);
+  const [modoFoco, setModoFoco] = useState(preferenciaInicial === "foco" && celularInicial);
+  const [modoDiscreto, setModoDiscreto] = useState(modoDiscretoInicial);
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
+
+  function alterarVisualizacao(proxima: Visualizacao) {
+    const segura = celular && proxima === "semana" ? "lista" : proxima;
+    setVisualizacao(segura);
+    salvarPreferenciaAgenda(segura);
+  }
+
+  function alternarModoDiscreto() {
+    setModoDiscreto((atual) => {
+      salvarModoDiscreto(!atual);
+      return !atual;
+    });
+  }
 
   function mudarDia(proximo: string) {
     setDirecaoDia(proximo < dia ? "anterior" : "proximo");
@@ -288,6 +318,11 @@ export function AgendaOperacional() {
 
   function entrarNoModoFoco() {
     if (modoFoco) return;
+    if (celular) {
+      salvarPreferenciaAgenda("foco");
+      setModoFoco(true);
+      return;
+    }
     if (!focoNoPlano) {
       setFocoTrancado(true);
       return;
@@ -296,6 +331,12 @@ export function AgendaOperacional() {
     setModoFoco(true);
   }
   function sairDoModoFoco() {
+    if (celular) {
+      const anterior = ultimaVisaoCompleta();
+      setModoFoco(false);
+      alterarVisualizacao(anterior);
+      return;
+    }
     if (window.history.state?.modoFoco) window.history.back();
     else setModoFoco(false);
   }
@@ -713,6 +754,7 @@ export function AgendaOperacional() {
           void chamarFila();
         }}
         onPerfil={setPerfil}
+        discreto={modoDiscreto}
       />
       {manualAberto ? (
         <div className="agenda-manual-auto">
@@ -845,7 +887,7 @@ export function AgendaOperacional() {
     </>
   );
 
-  const focoAtivo = modoFoco || (celular && !focoMobileFechado);
+  const focoAtivo = modoFoco;
   if (focoAtivo) {
     return (
       <Screen title="Agenda" hideHeader wide>
@@ -862,8 +904,7 @@ export function AgendaOperacional() {
           carregando={carregandoInicial}
           erro={erroInicial ? (mensagemErro ?? "Tente novamente.") : null}
           onSair={() => {
-            if (modoFoco) sairDoModoFoco();
-            else setFocoMobileFechado(true);
+            sairDoModoFoco();
           }}
           onDia={mudarDia}
           onProfissional={setProfFiltro}
@@ -879,6 +920,7 @@ export function AgendaOperacional() {
           onReceber={(item) => setFechando(item.id)}
           pagamentosPendentes={new Set(aReceber.map((item) => item.agendamentoId))}
           onTentarNovamente={() => void agenda.refetch()}
+          discreto={modoDiscreto}
         />
         {compartilhados}
       </Screen>
@@ -923,7 +965,7 @@ export function AgendaOperacional() {
           : (atual + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
     const alvo = abasVisiveis[proximo];
     if (!alvo) return;
-    setVisualizacao(alvo.id);
+    alterarVisualizacao(alvo.id);
     document.getElementById(`agenda-aba-${alvo.id}`)?.focus();
   }
 
@@ -949,9 +991,11 @@ export function AgendaOperacional() {
           onModoFoco={entrarNoModoFoco}
           focoNoPlano={focoNoPlano}
           visualizacao={visualizacao}
-          onVisualizacao={setVisualizacao}
+          onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
           onTeclasVisualizacao={teclasAbas}
+          discreto={modoDiscreto}
+          onDiscreto={alternarModoDiscreto}
           resumo={
             agenda.data ? (
               <ResumoDia
@@ -1018,7 +1062,8 @@ export function AgendaOperacional() {
             onComanda={(i) => setFechando(i.id)}
             onChegou={(i) => void transicionar(i, "chegou")}
             onFalta={(i) => void transicionar(i, "nao_compareceu")}
-            onLista={() => setVisualizacao("lista")}
+            onLista={() => alterarVisualizacao("lista")}
+            discreto={modoDiscreto}
           />
         ) : null}
 
@@ -1061,7 +1106,7 @@ export function AgendaOperacional() {
               profissional={nomeDoProf(profFiltro)}
               onAbrirDia={(d) => {
                 mudarDia(d);
-                setVisualizacao("timeline");
+                alterarVisualizacao("timeline");
               }}
             />
           ) : diaSemAgenda ? (
@@ -1109,6 +1154,7 @@ export function AgendaOperacional() {
                     }}
                     destaques={novos}
                     mostrarProfissional={false}
+                    discreto={modoDiscreto}
                   />
                 </section>
               ))}
@@ -1129,6 +1175,7 @@ export function AgendaOperacional() {
               }}
               destaques={novos}
               mostrarProfissional={!profFiltro && profissionais.length > 1}
+              discreto={modoDiscreto}
             />
           ) : (
             <ListaAgenda
@@ -1139,6 +1186,7 @@ export function AgendaOperacional() {
               novos={novos}
               online={online}
               mostrarProfissional={!profFiltro && profissionais.length > 1}
+              discreto={modoDiscreto}
               onAbrir={abrir}
               onFalta={(i) => void transicionar(i, "nao_compareceu")}
               onAcao={(i, acao) => {
@@ -1173,7 +1221,7 @@ export function AgendaOperacional() {
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-bold text-paper">
-                        {c.cliente}
+                        {nomeDaAgenda(c.cliente, modoDiscreto)}
                       </span>
                       <span className="block truncate text-xs text-mute">
                         {c.profissional} · #{c.numero}
@@ -1182,7 +1230,7 @@ export function AgendaOperacional() {
                     </span>
                     <span className="money-value flex items-center gap-2 text-sm text-paper">
                       <HandCoins aria-hidden className="size-4" />
-                      {brl(c.total)}
+                      {modoDiscreto ? "R$ •••" : brl(c.total)}
                     </span>
                   </Button>
                 </li>
@@ -1205,7 +1253,8 @@ export function AgendaOperacional() {
                 Meu dia
               </span>
               <span className="text-xs text-mute">
-                {meuDiaQ.data.atendimentos} atend. · {brl(meuDiaQ.data.vendido)}
+                {meuDiaQ.data.atendimentos} atend. ·{" "}
+                {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
               </span>
             </Button>
             {meuDiaAberto ? (
@@ -1216,18 +1265,24 @@ export function AgendaOperacional() {
                 </div>
                 <div>
                   <dt className="text-xs text-mute">Vendido (caixa)</dt>
-                  <dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.vendido)}</dd>
+                  <dd className="money-value text-lg text-paper">
+                    {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
+                  </dd>
                 </div>
                 {meuDiaQ.data.temComissao ? (
                   <div>
                     <dt className="text-xs text-mute">Comissão estimada</dt>
-                    <dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.comissao)}</dd>
+                    <dd className="money-value text-lg text-paper">
+                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.comissao)}
+                    </dd>
                   </div>
                 ) : null}
                 {meuDiaQ.data.fiado ? (
                   <div>
                     <dt className="text-xs text-mute">No fiado</dt>
-                    <dd className="money-value text-lg text-paper">{brl(meuDiaQ.data.fiado)}</dd>
+                    <dd className="money-value text-lg text-paper">
+                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.fiado)}
+                    </dd>
                   </div>
                 ) : null}
                 {meuDiaQ.data.noPlano ? (

@@ -109,7 +109,7 @@ export function ThemeToggle({ identidadeDaBarbearia, tenantId, podeAlterarIdenti
   );
 }
 
-export function ModeShortcut() {
+export function ModeMenuItem() {
   const [modo, setModo] = useState<Modo>("escuro");
 
   useEffect(() => {
@@ -126,8 +126,18 @@ export function ModeShortcut() {
   const Icon = escuro ? Sun : Moon;
   const proximo: Modo = escuro ? "claro" : "escuro";
   return (
-    <Button type="button" variant="ghost" size="icon" onClick={() => { setModo(proximo); aplicarModo(proximo, true); }} aria-label={escuro ? "Ativar modo claro" : "Ativar modo escuro"} title={escuro ? "Modo claro" : "Modo escuro"}>
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={() => {
+        setModo(proximo);
+        aplicarModo(proximo, true);
+      }}
+      className="drawer-link w-full justify-start"
+      aria-label={escuro ? "Ativar modo claro" : "Ativar modo escuro"}
+    >
       <Icon strokeWidth={1.75} />
+      <span>{escuro ? "Modo claro" : "Modo escuro"}</span>
       <span className="sr-only">Modo atual: {modo}</span>
     </Button>
   );

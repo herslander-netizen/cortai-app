@@ -22,7 +22,7 @@ import { getAgendaDia } from "@/lib/barbeiro.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
-import { ModeShortcut } from "@/components/layout/ThemeToggle";
+import { ModeMenuItem } from "@/components/layout/ThemeToggle";
 import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
 import {
   GRUPOS_DE_NAVEGACAO,
@@ -173,12 +173,19 @@ export function ManagementHeader() {
                   </section>
                 ) : null,
               )}
+              <section className="mb-4">
+                <h2 className="px-2 pb-1.5 text-xs font-bold uppercase text-mute2">Sistema</h2>
+                <ul>
+                  <li>
+                    <ModeMenuItem />
+                  </li>
+                </ul>
+              </section>
             </nav>
           </SheetContent>
         </Sheet>
 
         <div className="flex items-center gap-1">
-          <ModeShortcut />
           {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AcoesRapidas />}
           <SinoDeAvisos />
         </div>
