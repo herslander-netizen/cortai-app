@@ -105,6 +105,45 @@ export function estaAtrasado(item: AgendaItem, agora: number) {
 
 type Horario = AgendaDia["horarios"][number];
 
+export type FaixaForaDoExpediente = {
+  inicio: number;
+  fim: number;
+  fechado?: boolean;
+};
+
+/** Altura ocupada pelas duas barras fixas acima da Agenda no celular. */
+export function alturaDoTopoDaAgenda() {
+  return (
+    (document.querySelector<HTMLElement>(".management-header")?.offsetHeight ?? 0) +
+    (document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0)
+  );
+}
+
+/** Trechos visuais da escala que ficam fora do expediente do dia. */
+export function faixasForaDoExpediente(
+  horarios: Horario[],
+  dia: string,
+  escala: { inicio: number; fim: number },
+): FaixaForaDoExpediente[] {
+  if (horarios.length === 0 || escala.fim <= escala.inicio) return [];
+  const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
+  const horario = horarios.find((item) => item.diaSemana === dow);
+  if (!horario || horario.fechado) {
+    return [{ inicio: escala.inicio, fim: escala.fim, fechado: true }];
+  }
+
+  const abre = minutosDoHorario(horario.abre);
+  const fecha = minutosDoHorario(horario.fecha);
+  const faixas: FaixaForaDoExpediente[] = [];
+  if (escala.inicio < abre) {
+    faixas.push({ inicio: escala.inicio, fim: Math.min(abre, escala.fim) });
+  }
+  if (escala.fim > fecha) {
+    faixas.push({ inicio: Math.max(fecha, escala.inicio), fim: escala.fim });
+  }
+  return faixas.filter((faixa) => faixa.fim > faixa.inicio);
+}
+
 /** Turnos do dia (o intervalo de almoço divide o expediente em dois). */
 export function turnosDoDia(horarios: Horario[], dia: string): Array<[number, number]> {
   const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();

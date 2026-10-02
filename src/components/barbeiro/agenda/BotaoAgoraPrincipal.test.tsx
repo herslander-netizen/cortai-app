@@ -111,9 +111,19 @@ describe("BotaoAgoraPrincipal", () => {
     painel.id = "agenda-painel-visualizacao";
     painel.appendChild(item);
     document.body.appendChild(painel);
+    const barra = document.createElement("header");
+    barra.className = "management-header";
+    Object.defineProperty(barra, "offsetHeight", { configurable: true, value: 56 });
+    const cabecalho = document.createElement("div");
+    cabecalho.className = "agenda-cabecalho-unico";
+    Object.defineProperty(cabecalho, "offsetHeight", { configurable: true, value: 100 });
+    document.body.append(barra, cabecalho);
     act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());
     expect(onVisualizacao).not.toHaveBeenCalled();
-    expect(rolar).toHaveBeenCalledWith({ top: 232, behavior: "smooth" });
+    expect(rolar).toHaveBeenCalledWith({ top: 76, behavior: "smooth" });
+    expect(240 - 76).toBe(164);
+    barra.remove();
+    cabecalho.remove();
     painel.remove();
   });
 

@@ -6,7 +6,13 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
-import { estaAtrasado, intervaloDoDia, nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
+import {
+  alturaDoTopoDaAgenda,
+  estaAtrasado,
+  faixasForaDoExpediente,
+  intervaloDoDia,
+  nomeDaAgenda,
+} from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { prefereMenosMovimento } from "@/lib/motion";
 
@@ -15,9 +21,7 @@ const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CE
 
 /** Área livre do celular: abaixo do cabeçalho que gruda e acima do controle do pé. */
 function areaLivre() {
-  const topo =
-    (document.querySelector<HTMLElement>(".management-header")?.offsetHeight ?? 0) +
-    (document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0);
+  const topo = alturaDoTopoDaAgenda();
   const controle = document.querySelector<HTMLElement>(".agenda-botao-agora-principal");
   const base = controle ? controle.getBoundingClientRect().top - 8 : window.innerHeight;
   return { top: topo, bottom: Math.max(topo + 1, base) };
@@ -463,6 +467,7 @@ export function AgendaTimeline({
     }, 160);
   }
   const intervalo = intervaloDoDia(horarios, dia);
+  const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
 
   return (
     <div className="agenda-timeline-wrap">
@@ -501,6 +506,19 @@ export function AgendaTimeline({
           }}
           onClick={cliqueNoVazio}
         >
+          {faixasFora.map((faixa) => (
+            <div
+              key={`${faixa.inicio}-${faixa.fim}`}
+              className="agenda-timeline-intervalo agenda-timeline-fora-expediente"
+              style={{
+                top: `${(faixa.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.inicio)}px`,
+                height: `${(faixa.fim - faixa.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.fim) - deslocamentoAte(faixa.inicio)}px`,
+              }}
+              aria-hidden
+            >
+              {faixa.fechado ? <span>Fechado</span> : null}
+            </div>
+          ))}
           {intervalo ? (
             <div
               className="agenda-timeline-intervalo"
