@@ -24,6 +24,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
 import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -169,6 +170,11 @@ const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwDotjsRoute = SwDotjsRouteImport.update({
+  id: '/sw.js',
+  path: '/sw.js',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VisitanteRoute = VisitanteRouteImport.update({
@@ -543,6 +549,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -627,6 +634,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -714,6 +722,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -803,6 +812,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -887,6 +897,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -973,6 +984,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -1061,6 +1073,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  SwDotjsRoute: typeof SwDotjsRoute
   VisitanteRoute: typeof VisitanteRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
@@ -1189,6 +1202,13 @@ declare module '@tanstack/react-router' {
       path: '/redefinir-senha'
       fullPath: '/redefinir-senha'
       preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sw.js': {
+      id: '/sw.js'
+      path: '/sw.js'
+      fullPath: '/sw.js'
+      preLoaderRoute: typeof SwDotjsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/visitante': {
@@ -1833,6 +1853,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
+  SwDotjsRoute: SwDotjsRoute,
   VisitanteRoute: VisitanteRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
