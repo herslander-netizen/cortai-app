@@ -51,51 +51,51 @@ function PerfilPage() {
       ) : null}
       {data ? (
         <>
-      <div className="flex items-center gap-4 border-b border-line pb-6">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
-          <UserRound size={22} />
-        </span>
-        <div className="min-w-0">
-          <p className="truncate font-semibold text-paper">{data?.nome ?? "Meu perfil"}</p>
-          <p className="mt-1 truncate text-xs text-mute">{data?.email ?? "Conta conectada"}</p>
-        </div>
-      </div>
-      <ul className="mt-3">
-        <li className="border-b border-line">
-          <Link
-            to="/app/carteira"
-            search={slug ? { b: slug } : {}}
-            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
-          >
-            <Wallet size={18} className="text-mute" />
-            <span className="text-sm text-paper">Carteira e fidelidade</span>
-            <ChevronRight size={16} className="text-mute2" />
-          </Link>
-        </li>
-        <li>
-          <AlterarSenha />
-        </li>
-        <li>
-          <ThemeToggle />
-        </li>
-        <li>
-          <InstalarCortai />
-        </li>
-        <li className="border-b border-line">
-          <button
-            type="button"
-            onClick={() => void sair()}
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
-          >
-            <LogOut size={18} className="text-mute" />
-            <span className="text-sm text-paper">Sair da conta</span>
-            <ChevronRight size={16} className="text-mute2" />
-          </button>
-        </li>
-      </ul>
-      <PreferenciasDoCliente />
-      <PreferenciasDicas />
-      <PreferenciasDePrivacidade />
+          <div className="flex items-center gap-4 border-b border-line pb-6">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
+              <UserRound size={22} />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-paper">{data?.nome ?? "Meu perfil"}</p>
+              <p className="mt-1 truncate text-xs text-mute">{data?.email ?? "Conta conectada"}</p>
+            </div>
+          </div>
+          <ul className="mt-3">
+            <li className="border-b border-line">
+              <Link
+                to="/app/carteira"
+                search={slug ? { b: slug } : {}}
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+              >
+                <Wallet size={18} className="text-mute" />
+                <span className="text-sm text-paper">Carteira e fidelidade</span>
+                <ChevronRight size={16} className="text-mute2" />
+              </Link>
+            </li>
+            <li>
+              <AlterarSenha />
+            </li>
+            <li>
+              <ThemeToggle />
+            </li>
+            <li>
+              <InstalarCortai />
+            </li>
+            <li className="border-b border-line">
+              <button
+                type="button"
+                onClick={() => void sair()}
+                className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
+              >
+                <LogOut size={18} className="text-mute" />
+                <span className="text-sm text-paper">Sair da conta</span>
+                <ChevronRight size={16} className="text-mute2" />
+              </button>
+            </li>
+          </ul>
+          <PreferenciasDoCliente />
+          <PreferenciasDicas />
+          <PreferenciasDePrivacidade />
         </>
       ) : null}
     </Screen>
