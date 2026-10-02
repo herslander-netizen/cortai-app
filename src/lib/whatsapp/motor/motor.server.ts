@@ -17,6 +17,7 @@ import { saudacaoPadrao } from "../contrato";
 import { classificar, type Classificacao } from "./intencoes";
 import { expirou, limparFluxo, type ContextoDoMotor, type ItemDeMenu } from "./estado";
 import { escolherServicoPorCanonico } from "./vocabulario";
+import { extrasDoPedido, pareceUmPedidoDeHorario } from "./entendimento-whatsapp";
 import {
   responder as textoDaConversaPadrao,
   type ChaveDeTexto,
@@ -235,6 +236,15 @@ export async function responderComMotor(entrada: EntradaDoMotor): Promise<Respos
       "Tudo bem, não fiz nada. Quer tentar outro horário ou posso ajudar em algo mais?",
       limparFluxo(contexto),
     );
+  }
+
+  // "corte amanhã 15h" sem verbo também é pedido de horário (mesmo motor do site).
+  if (
+    (cls.intencao === "DESCONHECIDA" || cls.intencao === "SERVICOS") &&
+    !contexto.pendente &&
+    pareceUmPedidoDeHorario(entrada.texto, hojeNoFuso(ctx.fuso))
+  ) {
+    return avancarAgendamento(ctx, entrada, contexto, cls, responder);
   }
 
   switch (cls.intencao) {
@@ -512,9 +522,15 @@ async function avancarAgendamento(
   contexto: ContextoDoMotor,
   cls: Classificacao,
   responder: Responder,
-) {
-  const { listarServicos } = await import("@/lib/ia/acoes.server");
-  const servicos = await listarServicos(ctx);
+): Promise<RespostaDoMotor> {
+  const { listarServicos, listarProfissionais } = await import("@/lib/ia/acoes.server");
+  const [servicos, equipe] = await Promise.all([listarServicos(ctx), listarProfissionais(ctx)]);
+  const extras = extrasDoPedido(entrada.texto, {
+    hoje: hojeNoFuso(ctx.fuso),
+    servicos: servicos.map((s) => ({ id: s.id, nome: s.nome })),
+    profissionais: equipe.map((p) => ({ id: p.id, nome: p.nome })),
+  });
+  if (extras.profissionalId) contexto = { ...contexto, profissionalId: extras.profissionalId };
   if (servicos.length === 0) {
     return responder(
       "Ainda não consigo agendar por aqui — o negócio não tem serviços cadastrados. Vou avisar a equipe.",
@@ -524,6 +540,13 @@ async function avancarAgendamento(
   // 1) Serviço: o citado na mensagem, o já escolhido, ou a lista numerada.
   let servicoId = contexto.servicoId ?? null;
   let servicoNome = contexto.servicoNome ?? null;
+  if (!servicoId && !cls.entidades.servico && extras.servicoId) {
+    const achado = servicos.find((s) => s.id === extras.servicoId);
+    if (achado) {
+      servicoId = achado.id;
+      servicoNome = achado.nome;
+    }
+  }
   if (!servicoId && cls.entidades.servico) {
     const alvo = cls.entidades.servico;
     const escolha = escolherServicoPorCanonico(servicos, alvo);
@@ -561,6 +584,7 @@ async function avancarAgendamento(
         menuTipo: "servico",
         menuItens: itens,
         dia: cls.entidades.dia ?? contexto.dia ?? null,
+        profissionalId: contexto.profissionalId ?? null,
       },
       { intencao: "agendamento" },
     );
@@ -575,7 +599,14 @@ async function avancarAgendamento(
         "",
         "Para qual dia? Pode responder “hoje”, “amanhã”, “sexta” ou uma data como 12/05.",
       ].join("\n"),
-      { estado: "CHOOSING_DATE", servicoId, servicoNome, menuTipo: null, menuItens: null },
+      {
+        estado: "CHOOSING_DATE",
+        servicoId,
+        servicoNome,
+        profissionalId: contexto.profissionalId ?? null,
+        menuTipo: null,
+        menuItens: null,
+      },
       { intencao: "agendamento" },
     );
   }
@@ -587,6 +618,7 @@ async function avancarAgendamento(
     dia,
     profissionalId: contexto.profissionalId ?? null,
     periodo: cls.entidades.periodo,
+    horarioPedido: extras.horario,
   });
 }
 
@@ -601,10 +633,12 @@ async function oferecerHorarios(
     profissionalId: string | null;
     periodo: { deMinutos: number; ateMinutos: number } | null;
     remarcando?: boolean;
+    /** "HH:MM" dito pelo cliente; se estiver livre, vai direto ao resumo. */
+    horarioPedido?: string | null;
     /** Usada só para aplicar os textos da Conversa Padrão da barbearia. */
     entrada?: EntradaDoMotor;
   },
-) {
+): Promise<RespostaDoMotor> {
   const { consultarDisponibilidade, listarProfissionais } = await import("@/lib/ia/acoes.server");
   const [grade, equipe] = await Promise.all([
     consultarDisponibilidade(ctx, {
@@ -674,6 +708,40 @@ async function oferecerHorarios(
   }
 
   const nomeProfissional = new Map(equipe.map((p) => [p.id, p.nome]));
+  const pedido = opcoes.horarioPedido
+    ? livres.find((l) => horaBr(l.inicio, ctx.fuso) === opcoes.horarioPedido)
+    : undefined;
+  if (pedido && opcoes.entrada) {
+    const item: ItemDeMenu = {
+      rotulo: `${horaBr(pedido.inicio, ctx.fuso)} com ${nomeProfissional.get(pedido.profissionalId) ?? "nossa equipe"}`,
+      valor: pedido.inicio,
+      extra: pedido.profissionalId,
+    };
+    const ctxEscolha: ContextoDoMotor = {
+      ...contexto,
+      ...base,
+      menuTipo: "horario",
+      menuItens: [item],
+      pendente: opcoes.remarcando ? "remarcar" : null,
+    };
+    return tratarSelecao(
+      ctx,
+      opcoes.entrada,
+      ctxEscolha,
+      {
+        ...classificar("1", { fuso: ctx.fuso, totalDeOpcoes: 1 }),
+        entidades: {
+          servico: null,
+          dia: null,
+          periodo: null,
+          selecao: 1,
+          codigoBarbearia: null,
+          nomeCitado: null,
+        },
+      },
+      responder,
+    );
+  }
   // Espalha as sugestões ao longo do dia em vez de mostrar tudo colado.
   const passo = Math.max(1, Math.floor(livres.length / 5));
   const escolhidos = livres.filter((_, i) => i % passo === 0).slice(0, 5);
@@ -709,7 +777,7 @@ async function tratarSelecao(
   contexto: ContextoDoMotor,
   cls: Classificacao,
   responder: Responder,
-) {
+): Promise<RespostaDoMotor> {
   const item = (contexto.menuItens ?? [])[(cls.entidades.selecao ?? 1) - 1];
   if (!item) return naoEntendi(entrada, contexto, cls, responder);
 
