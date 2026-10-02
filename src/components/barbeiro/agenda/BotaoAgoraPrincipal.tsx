@@ -81,7 +81,7 @@ export function BotaoAgoraPrincipal({
   }
 
   function soltarFocoDoToque(evento: PointerEvent<HTMLButtonElement>) {
-    if (evento.pointerType !== "") evento.currentTarget.blur();
+    evento.currentTarget.blur();
   }
 
   function teclasDaVisualizacao(evento: KeyboardEvent<HTMLButtonElement>) {
