@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Check, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -159,7 +160,7 @@ export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Prop
 
       <p className="mt-5 text-sm leading-relaxed text-mute">
         Usamos isso só para atender você melhor. Só a equipe desta barbearia vê. Você pode pedir
-        para apagar.
+        para apagar. <Link to="/privacidade" className="font-medium text-gold underline underline-offset-2">Privacidade</Link>
       </p>
       {erro ? <p className="mt-3 text-sm text-brick" role="alert">{erro}</p> : null}
       <div className="mt-5 grid grid-cols-2 gap-2">

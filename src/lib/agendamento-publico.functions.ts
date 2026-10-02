@@ -463,10 +463,14 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     const criado = res as any;
     const preferenciasToken = criarTokenDePreferencias();
     const preferenciasTokenHash = await hashDoTokenDePreferencias(preferenciasToken);
-    await db
+    const { error: erroToken } = await db
       .from("agendamentos")
       .update({ origem: "link_publico", preferencias_token_hash: preferenciasTokenHash })
       .eq("id", criado.agendamento_id);
+    if (erroToken) {
+      await db.rpc("cancelar_agendamento", { _agendamento_id: criado.agendamento_id });
+      throw new Error("Não foi possível concluir o agendamento agora.");
+    }
 
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
     // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
