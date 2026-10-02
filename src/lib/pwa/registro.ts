@@ -45,11 +45,3 @@ export async function iniciarServiceWorker() {
     /* registro opcional: nunca atrapalha o uso */
   }
 }
-
-/** Avisa o service worker do Modo Foco e do modo discreto deste aparelho. */
-export function informarEstadoAoServiceWorker(estado: { foco: boolean; discreto: boolean }) {
-  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
-  void navigator.serviceWorker.ready
-    .then((r) => r.active?.postMessage({ tipo: "cortai-estado", ...estado }))
-    .catch(() => undefined);
-}

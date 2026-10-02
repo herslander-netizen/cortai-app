@@ -6,9 +6,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { linkDoAgendamento } from "@/lib/links-de-tela";
 import {
+  decidirExibicao,
   destinatariosDoPush,
+  focoAtivo,
   inscricaoVencida,
-  primeiroNome,
+  textoDoPush,
   type MembroDaEquipe,
   type TipoDePush,
 } from "./regras";
@@ -43,7 +45,10 @@ export async function chavesVapid(db?: Db): Promise<ChavesVapid> {
       { nome: "vapid", valor: JSON.stringify(novas) },
       { onConflict: "nome", ignoreDuplicates: true },
     );
-  return (await ler()) ?? novas;
+  // Releitura: com duas chamadas simultâneas, vale sempre o par que ficou gravado.
+  const gravadas = await ler();
+  if (!gravadas) throw new Error("Chaves de push indisponíveis.");
+  return gravadas;
 }
 
 function formatarQuando(inicio: string, fuso: string) {
@@ -139,7 +144,7 @@ export async function processarEventoDePush(evento: {
 
   const { data: inscricoes } = await db
     .from("push_inscricoes")
-    .select("id, user_id, endpoint, p256dh, auth, falhas")
+    .select("id, user_id, endpoint, p256dh, auth, falhas, em_foco_ate, discreto")
     .eq("tenant_id", a.tenant_id)
     .in("user_id", pessoas);
   const lista = (inscricoes ?? []) as {
@@ -149,22 +154,36 @@ export async function processarEventoDePush(evento: {
     p256dh: string;
     auth: string;
     falhas: number;
+    em_foco_ate: string | null;
+    discreto: boolean | null;
   }[];
   if (!lista.length) return { enviados: 0 };
 
   const chaves = await chavesVapid(db);
-  const conteudo = {
+  const quando = formatarQuando(a.inicio, fuso);
+  const base = {
     tipo: evento.tipo,
-    nome: primeiroNome(a.clientes?.nome),
-    quando: formatarQuando(a.inicio, fuso),
     link: linkDoAgendamento(a.id),
     tag: `ag-${a.id}`,
-    proximo,
     naoLidas: naoLidas ?? 0,
   };
   const imediato = evento.tipo === "cliente_chegou" || evento.tipo === "agendamento_cancelado";
   let enviados = 0;
   for (const inscricao of lista) {
+    // Foco e modo discreto vêm de cada aparelho; o que não passa nem é enviado.
+    const foco = focoAtivo(inscricao.em_foco_ate);
+    if (decidirExibicao({ appVisivel: false, foco, tipo: evento.tipo, proximo }) === "nada")
+      continue;
+    const discreto = inscricao.discreto === true;
+    const conteudo = {
+      ...base,
+      corpo: textoDoPush({
+        tipo: evento.tipo,
+        nome: discreto ? "" : (a.clientes?.nome ?? ""),
+        quando,
+        discreto,
+      }),
+    };
     // Dedupe por evento e pessoa: o mesmo acontecimento não toca duas vezes.
     const chave = `${a.id}:${evento.tipo}:${a.inicio}:${inscricao.user_id}:${inscricao.id}`;
     const { error: repetido } = await db.from("push_entregas").insert({ chave });

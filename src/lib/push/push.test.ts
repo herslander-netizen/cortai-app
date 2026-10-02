@@ -6,6 +6,8 @@ import { podeRegistrar } from "@/lib/pwa/registro";
 import {
   decidirExibicao,
   destinatariosDoPush,
+  focoAtivo,
+  passaNoModoFoco,
   inscricaoVencida,
   textoDoPush,
   type MembroDaEquipe,
@@ -39,12 +41,80 @@ describe("registro do service worker", () => {
   });
 });
 
+describe("handler de push do service worker", () => {
+  async function rodarPush(dados: unknown, janelas: unknown[] = []) {
+    const ouvintes: Record<string, (e: unknown) => void> = {};
+    const mostradas: { titulo: string; opcoes: Record<string, unknown> }[] = [];
+    const mensagens: unknown[] = [];
+    const janelasMock = janelas.map((j) => ({
+      ...(j as object),
+      postMessage: (m: unknown) => mensagens.push(m),
+    }));
+    const self = {
+      addEventListener: (nome: string, fn: (e: unknown) => void) => (ouvintes[nome] = fn),
+      clients: { matchAll: async () => janelasMock },
+      registration: {
+        showNotification: async (titulo: string, opcoes: Record<string, unknown>) => {
+          mostradas.push({ titulo, opcoes });
+        },
+      },
+      navigator: {},
+      location: { origin: "https://cortai.dev" },
+    };
+    new Function("self", "caches", fonteDoServiceWorker())(self, {});
+    let espera: Promise<unknown> = Promise.resolve();
+    ouvintes["push"]!({
+      data: { json: () => dados },
+      waitUntil: (p: Promise<unknown>) => (espera = p),
+    });
+    await espera;
+    return { mostradas, mensagens };
+  }
+
+  it("sempre mostra notificação, mesmo com conteúdo vazio", async () => {
+    const r = await rodarPush({});
+    expect(r.mostradas).toHaveLength(1);
+  });
+
+  it("com o app visível mostra em silêncio e manda o aviso para dentro do app", async () => {
+    const r = await rodarPush({ tipo: "agendamento_novo", corpo: "Ana agendou · 10:00" }, [
+      { visibilityState: "visible", focused: true },
+    ]);
+    expect(r.mostradas).toHaveLength(1);
+    expect(r.mostradas[0]!.opcoes["silent"]).toBe(true);
+    expect(r.mensagens).toHaveLength(1);
+  });
+
+  it("com o app fechado mostra com som", async () => {
+    const r = await rodarPush({ tipo: "agendamento_novo", corpo: "Ana agendou · 10:00" });
+    expect(r.mostradas[0]!.opcoes["silent"]).toBe(false);
+    expect(r.mostradas[0]!.opcoes["body"]).toBe("Ana agendou · 10:00");
+  });
+
+  it("serve o ícone da página offline a partir do cache", () => {
+    expect(fonteDoServiceWorker()).toContain("url.pathname === ICONE");
+  });
+});
+
 describe("página offline", () => {
   it("tem a marca e o botão Tentar de novo", () => {
     const html = paginaOffline();
     expect(html).toContain("Cortaí");
     expect(html).toContain("Tentar de novo");
     expect(html).toContain("/icone-cortai-oficial-192-v2.png");
+  });
+});
+
+describe("Foco informado pelo aparelho", () => {
+  it("expira sozinho", () => {
+    const agora = Date.parse("2026-10-02T12:00:00Z");
+    expect(focoAtivo(null, agora)).toBe(false);
+    expect(focoAtivo("2026-10-02T13:00:00Z", agora)).toBe(true);
+    expect(focoAtivo("2026-10-02T11:59:00Z", agora)).toBe(false);
+  });
+  it("passaNoModoFoco", () => {
+    expect(passaNoModoFoco("agendamento_novo", false)).toBe(false);
+    expect(passaNoModoFoco("cliente_chegou", true)).toBe(true);
   });
 });
 

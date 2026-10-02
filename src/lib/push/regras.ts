@@ -63,19 +63,23 @@ export function passaNoModoFoco(tipo: string, proximo: boolean) {
 
 export type DecisaoDeExibicao = "no_app" | "sistema" | "nada";
 
+/** Foco informado pelo aparelho expira sozinho se não for renovado. */
+export const FOCO_EXPIRA_MS = 3 * 3600_000;
+
+export function focoAtivo(emFocoAte: string | null | undefined, agora = Date.now()) {
+  if (!emFocoAte) return false;
+  const t = Date.parse(emFocoAte);
+  return Number.isFinite(t) && t > agora;
+}
+
+/** Aplicada no servidor por inscrição: "nada" = não envia para esse aparelho. */
 export function decidirExibicao(opcoes: {
   appVisivel: boolean;
   foco: boolean;
   tipo: string;
   proximo: boolean;
 }): DecisaoDeExibicao {
-  // Autocontida (vai para o service worker por toString): sem referências externas.
-  const t = opcoes.tipo;
-  const passa =
-    t === "agendamento_cancelado" ||
-    t === "agendamento_remarcado" ||
-    (t === "cliente_chegou" && opcoes.proximo);
-  if (opcoes.foco && !passa) return "nada";
+  if (opcoes.foco && !passaNoModoFoco(opcoes.tipo, opcoes.proximo)) return "nada";
   return opcoes.appVisivel ? "no_app" : "sistema";
 }
 
@@ -91,7 +95,6 @@ export function textoDoPush(opcoes: {
   quando: string;
   discreto: boolean;
 }) {
-  // Autocontida (vai para o service worker por toString): sem referências externas.
   const verbos: Record<string, string> = {
     agendamento_novo: "agendou",
     agendamento_cancelado: "cancelou",

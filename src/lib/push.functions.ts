@@ -49,3 +49,27 @@ export const salvarInscricaoPush = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, motivo: "Não deu para ativar agora." };
     return { ok: true as const };
   });
+
+const Estado = z.object({
+  endpoint: z.string().url().max(1000),
+  foco: z.boolean(),
+  discreto: z.boolean(),
+});
+
+/** Cada aparelho informa Foco e modo discreto; o Foco expira sozinho. */
+export const atualizarEstadoPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((dados) => Estado.parse(dados))
+  .handler(async ({ data, context }) => {
+    const { FOCO_EXPIRA_MS } = await import("@/lib/push/regras");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("push_inscricoes")
+      .update({
+        em_foco_ate: data.foco ? new Date(Date.now() + FOCO_EXPIRA_MS).toISOString() : null,
+        discreto: data.discreto,
+      })
+      .eq("endpoint", data.endpoint)
+      .eq("user_id", context.userId);
+    return { ok: !error };
+  });
