@@ -47,7 +47,8 @@ export function saudacaoDoMenu({
 }) {
   const periodo = periodoDoDia(hora);
   const primeiroNome = nome?.trim().split(/\s+/)[0];
-  const cumprimento = periodo === "manha" ? "Bom dia" : periodo === "tarde" ? "Boa tarde" : "Boa noite";
+  const cumprimento =
+    periodo === "manha" ? "Bom dia" : periodo === "tarde" ? "Boa tarde" : "Boa noite";
   const frases = FRASES[periodo];
   return {
     periodo,

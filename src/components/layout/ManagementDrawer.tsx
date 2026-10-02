@@ -77,7 +77,11 @@ export function ManagementHeader() {
   const horarioDeHoje = agenda ? horarioDoDia(hoje, agenda.horarios) : null;
   const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
   const fuso = normalizarFuso(sessao?.tenantFuso);
-  const saudacao = saudacaoDoMenu({ dia: hoje, hora: horaNoFuso(fuso), nome: sessao?.nome });
+  const saudacao = saudacaoDoMenu({
+    dia: hoje,
+    hora: horaNoFuso(fuso),
+    nome: sessao?.nome ?? null,
+  });
   const atendimentosDeHoje = agenda?.itens.filter(
     (item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status),
   ).length;

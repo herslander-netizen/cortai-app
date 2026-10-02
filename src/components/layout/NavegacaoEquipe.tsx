@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Banknote, CalendarDays, ContactRound, Hourglass, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  Banknote,
+  CalendarDays,
+  ContactRound,
+  Hourglass,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
 import { itemDeNavegacaoAtivo, itensDaBarra } from "@/lib/navegacao-barbeiro";
@@ -48,51 +56,51 @@ export function NavegacaoEquipe() {
 
   return (
     <nav className="equipe-lateral" aria-label="Navegação principal">
-        <ul>
-          {itens.map((item) => {
-            const Icon = item.icon;
-            const on = itemDeNavegacaoAtivo(caminho, item.to);
-            return (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  preload="intent"
-                  activeOptions={{ exact: true }}
-                  aria-current={on ? "page" : undefined}
-                  title={item.label}
-                  className="equipe-lateral-link"
-                >
-                  <Icon size={19} strokeWidth={1.75} aria-hidden />
-                  <span className="equipe-lateral-rotulo">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-          <li>
-            <button
-              type="button"
-              title="Menu"
-              className="equipe-lateral-link w-full"
-              onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
-            >
-              <Menu size={19} strokeWidth={1.75} aria-hidden />
-              <span className="equipe-lateral-rotulo">Menu</span>
-            </button>
-          </li>
-        </ul>
-        <button
-          type="button"
-          onClick={alternar}
-          className="equipe-lateral-link equipe-lateral-alternar"
-          aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}
-        >
-          {recolhida ? (
-            <PanelLeftOpen size={19} strokeWidth={1.75} aria-hidden />
-          ) : (
-            <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />
-          )}
-          <span className="equipe-lateral-rotulo">Recolher</span>
-        </button>
+      <ul>
+        {itens.map((item) => {
+          const Icon = item.icon;
+          const on = itemDeNavegacaoAtivo(caminho, item.to);
+          return (
+            <li key={item.to}>
+              <Link
+                to={item.to}
+                preload="intent"
+                activeOptions={{ exact: true }}
+                aria-current={on ? "page" : undefined}
+                title={item.label}
+                className="equipe-lateral-link"
+              >
+                <Icon size={19} strokeWidth={1.75} aria-hidden />
+                <span className="equipe-lateral-rotulo">{item.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+        <li>
+          <button
+            type="button"
+            title="Menu"
+            className="equipe-lateral-link w-full"
+            onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
+          >
+            <Menu size={19} strokeWidth={1.75} aria-hidden />
+            <span className="equipe-lateral-rotulo">Menu</span>
+          </button>
+        </li>
+      </ul>
+      <button
+        type="button"
+        onClick={alternar}
+        className="equipe-lateral-link equipe-lateral-alternar"
+        aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}
+      >
+        {recolhida ? (
+          <PanelLeftOpen size={19} strokeWidth={1.75} aria-hidden />
+        ) : (
+          <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />
+        )}
+        <span className="equipe-lateral-rotulo">Recolher</span>
+      </button>
     </nav>
   );
 }

@@ -5,14 +5,20 @@ import { itensDoDiaADiaNoMenuMovel } from "./navegacao-barbeiro";
 
 describe("navegação móvel", () => {
   it("leva os antigos atalhos para Dia a dia e mantém a Agenda primeiro", () => {
-    const itens = itensDoDiaADiaNoMenuMovel(["criar_agendamento", "visualizar_clientes", "visualizar_financeiro"]);
+    const itens = itensDoDiaADiaNoMenuMovel([
+      "criar_agendamento",
+      "visualizar_clientes",
+      "visualizar_financeiro",
+    ]);
     expect(itens[0]?.to).toBe("/barbeiro");
-    expect(itens.map((item) => item.to)).toEqual(expect.arrayContaining([
-      "/barbeiro",
-      "/barbeiro/clientes",
-      "/barbeiro/caixa",
-      "/barbeiro/fila",
-    ]));
+    expect(itens.map((item) => item.to)).toEqual(
+      expect.arrayContaining([
+        "/barbeiro",
+        "/barbeiro/clientes",
+        "/barbeiro/caixa",
+        "/barbeiro/fila",
+      ]),
+    );
   });
 
   it("não renderiza mais a barra inferior", () => {
