@@ -159,7 +159,18 @@ export function AgendaTimeline({
       setToqueVazio(null);
     },
   });
-  useEffect(() => () => toqueLongoVazio.current?.cancelar(), []);
+  useEffect(() => {
+    const cancelar = () => toqueLongoVazio.current?.cancelar();
+    const outroPonteiro = (evento: PointerEvent) =>
+      toqueLongoVazio.current?.novoPonteiro(evento.pointerId);
+    window.addEventListener("scroll", cancelar, { passive: true });
+    document.addEventListener("pointerdown", outroPonteiro, { capture: true, passive: true });
+    return () => {
+      cancelar();
+      window.removeEventListener("scroll", cancelar);
+      document.removeEventListener("pointerdown", outroPonteiro, { capture: true });
+    };
+  }, []);
   const hoje = new Intl.DateTimeFormat("en-CA", {
     timeZone: fuso,
     year: "numeric",
@@ -576,7 +587,9 @@ export function AgendaTimeline({
                 },
                 onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) =>
                   toqueLongoVazio.current?.terminar(e.pointerId),
-                onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => e.preventDefault(),
+                onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => {
+                  if (window.matchMedia("(pointer: coarse)").matches) e.preventDefault();
+                },
               })}
         >
           {faixasFora.map((faixa) => (
