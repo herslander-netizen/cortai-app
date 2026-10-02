@@ -70,7 +70,7 @@ export function periodoMaisFrequente(periodos: PeriodoMemoria[]) {
   const contagem = new Map<PeriodoMemoria, number>();
   for (const periodo of periodos) contagem.set(periodo, (contagem.get(periodo) ?? 0) + 1);
   let melhor: PeriodoMemoria | undefined;
-  for (const periodo of periodos.toReversed()) {
+  for (const periodo of [...periodos].reverse()) {
     if (!melhor || (contagem.get(periodo) ?? 0) > (contagem.get(melhor) ?? 0)) melhor = periodo;
   }
   return melhor;
