@@ -5,6 +5,7 @@ import { AlertasFoco } from "@/components/barbeiro/agenda/AlertasFoco";
 import { CockpitFoco } from "@/components/barbeiro/agenda/CockpitFoco";
 import {
   alertasDeEmergencia,
+  mesclarAlertasPersistentes,
   type AlertaEmergencia,
 } from "@/components/barbeiro/agenda/alertas-foco";
 import { dadosDoCockpit } from "@/components/barbeiro/agenda/cockpit-foco";
@@ -57,12 +58,7 @@ function useAlertasPersistentes(props: Pick<Props, "itens" | "online" | "fuso">,
       online: props.online,
       fuso: props.fuso,
     });
-    setGuardados((atuais) => {
-      const mapa = new Map(atuais.map((alerta) => [alerta.id, alerta]));
-      if (props.online) mapa.delete("sem-internet");
-      for (const alerta of detectados) mapa.set(alerta.id, alerta);
-      return [...mapa.values()].slice(0, 2);
-    });
+    setGuardados((atuais) => mesclarAlertasPersistentes(atuais, detectados, props.online));
     for (const alerta of detectados) {
       if (alerta.tipo === "sem_internet" || vibrou.current.has(alerta.id)) continue;
       vibrou.current.add(alerta.id);
@@ -166,6 +162,7 @@ export function AgendaFocoMobile(props: Props) {
             agora={agora}
             fuso={props.fuso}
             discreto={Boolean(props.discreto)}
+            bloqueado={props.ocupado || !props.online}
             fila={props.fila}
             onPrincipal={acaoPrincipal}
             onMais={() => {

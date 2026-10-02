@@ -17,4 +17,18 @@ describe("visual compartilhado do Modo Foco", () => {
     expect(demo).not.toContain("showroom-foco-estado");
     expect(demo).not.toContain("Finalizar atendimento");
   });
+
+  it("mantém o Foco em hoje e não oferece setas de dia", () => {
+    const operacao = fs.readFileSync(
+      path.resolve(process.cwd(), "src/components/barbeiro/AgendaOperacional.tsx"),
+      "utf8",
+    );
+    const foco = fs.readFileSync(
+      path.resolve(process.cwd(), "src/components/barbeiro/AgendaFocoMobile.tsx"),
+      "utf8",
+    );
+    expect(operacao).toContain("if (dia !== hoje) setDia(hoje)");
+    expect(foco).not.toContain("ChevronLeft");
+    expect(foco).not.toContain("ChevronRight");
+  });
 });

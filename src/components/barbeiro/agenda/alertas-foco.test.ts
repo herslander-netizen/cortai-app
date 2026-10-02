@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alertasDeEmergencia } from "./alertas-foco";
+import { alertasDeEmergencia, mesclarAlertasPersistentes } from "./alertas-foco";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
 const item = (id: string, inicio: string, status = "agendado"): AgendaItem => ({
@@ -83,5 +83,27 @@ describe("alertasDeEmergencia", () => {
         online: true,
       })[0]?.texto,
     ).toContain("aguarda há 6 min");
+  });
+
+  it("mantém uma mudança detectada em nova renderização até Entendi", () => {
+    const alerta = {
+      id: "mudou:1:cancelado:agora",
+      tipo: "proximo_mudou" as const,
+      texto: "Ana cancelou",
+      dispensavel: true,
+    };
+    const primeira = mesclarAlertasPersistentes([], [alerta], true);
+    expect(mesclarAlertasPersistentes(primeira, [], true)).toEqual([alerta]);
+    expect(primeira.filter((item) => item.id !== alerta.id)).toEqual([]);
+  });
+
+  it("remove só o alerta de conexão quando a internet volta", () => {
+    const semInternet = {
+      id: "sem-internet",
+      tipo: "sem_internet" as const,
+      texto: "Sem internet",
+      dispensavel: false,
+    };
+    expect(mesclarAlertasPersistentes([semInternet], [], true)).toEqual([]);
   });
 });

@@ -11,6 +11,7 @@ type Props = {
   fuso?: string | undefined;
   agora: number;
   discreto: boolean;
+  bloqueado?: boolean;
   ficha?: ReactNode;
   somenteLeitura?: boolean;
   fila?: number | undefined;
@@ -146,7 +147,7 @@ export function CockpitFoco(props: Props) {
           className="size-16"
           aria-label="Outras ações"
           onClick={props.onMais}
-          disabled={props.somenteLeitura || dados.estado === "encerrado"}
+          disabled={props.somenteLeitura || props.bloqueado || dados.estado === "encerrado"}
         >
           <MoreHorizontal className="size-6" />
         </Button>
@@ -154,7 +155,7 @@ export function CockpitFoco(props: Props) {
           size="lg"
           className="min-h-16 text-base"
           onClick={props.onPrincipal}
-          disabled={props.somenteLeitura}
+          disabled={props.somenteLeitura || props.bloqueado}
         >
           {acao}
         </Button>
@@ -164,7 +165,7 @@ export function CockpitFoco(props: Props) {
               variant="outline"
               className="min-h-12"
               onClick={props.onFalta}
-              disabled={props.somenteLeitura}
+              disabled={props.somenteLeitura || props.bloqueado}
             >
               Não veio
             </Button>
@@ -172,7 +173,7 @@ export function CockpitFoco(props: Props) {
               variant="outline"
               className="min-h-12"
               onClick={props.onRemarcar}
-              disabled={props.somenteLeitura}
+              disabled={props.somenteLeitura || props.bloqueado}
             >
               Remarcar
             </Button>
@@ -180,7 +181,7 @@ export function CockpitFoco(props: Props) {
               variant="destructive"
               className="min-h-12"
               onClick={props.onCancelar}
-              disabled={props.somenteLeitura}
+              disabled={props.somenteLeitura || props.bloqueado}
             >
               Cancelar
             </Button>
@@ -190,7 +191,7 @@ export function CockpitFoco(props: Props) {
               onClick={() => {
                 if (item) props.onAvisar?.(item);
               }}
-              disabled={props.somenteLeitura}
+              disabled={props.somenteLeitura || props.bloqueado}
             >
               Avisar
             </Button>
@@ -201,7 +202,7 @@ export function CockpitFoco(props: Props) {
             variant="outline"
             className="col-span-2 min-h-12"
             onClick={props.onChamarFila}
-            disabled={props.somenteLeitura}
+            disabled={props.somenteLeitura || props.bloqueado}
           >
             Chamar da fila
           </Button>

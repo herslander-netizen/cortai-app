@@ -7,6 +7,17 @@ export type AlertaEmergencia = {
   dispensavel: boolean;
 };
 
+export function mesclarAlertasPersistentes(
+  atuais: AlertaEmergencia[],
+  detectados: AlertaEmergencia[],
+  online: boolean,
+) {
+  const mapa = new Map(atuais.map((alerta) => [alerta.id, alerta]));
+  if (online) mapa.delete("sem-internet");
+  for (const alerta of detectados) mapa.set(alerta.id, alerta);
+  return [...mapa.values()].slice(0, 2);
+}
+
 type Entrada = {
   itens: AgendaItem[];
   itensAnteriores: AgendaItem[];
