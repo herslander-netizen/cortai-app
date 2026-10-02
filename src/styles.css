@@ -5441,3 +5441,61 @@ button.agenda-nome:hover {
     font-weight: 600;
   }
 }
+
+/* Faixa do pé da Agenda (celular): seletor à esquerda, "Agora" no meio, "+" à direita */
+.agenda-faixa-operacao {
+  position: fixed;
+  z-index: 24;
+  left: 14px;
+  right: 14px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  display: flex;
+  height: 50px;
+  align-items: center;
+  pointer-events: none;
+}
+.agenda-faixa-seletor {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ink2);
+  padding: 1px;
+  pointer-events: auto;
+}
+.agenda-faixa-agora {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 48px;
+  border-radius: 999px;
+  border-color: var(--line);
+  background: var(--ink2);
+  padding-inline: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms var(--ease-saida), visibility 0s linear 150ms;
+}
+.agenda-faixa-agora[data-aparece="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 150ms var(--ease-saida), visibility 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-faixa-agora,
+  .agenda-faixa-agora[data-aparece="true"] {
+    transition: none;
+  }
+}
+@media (max-width: 767px) {
+  .agenda-operacional :focus-visible {
+    scroll-margin-top: 120px;
+    scroll-margin-bottom: calc(140px + env(safe-area-inset-bottom));
+  }
+}
+@media (min-width: 768px) {
+  .agenda-faixa-operacao {
+    display: none;
+  }
+}

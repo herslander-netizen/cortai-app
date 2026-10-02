@@ -51,6 +51,7 @@ export function CabecalhoAgenda({
   visualizacao,
   onVisualizacao,
   mostrarSemana,
+  mostrarSeletor = true,
   onTeclasVisualizacao,
   discreto,
   onDiscreto,
@@ -69,6 +70,7 @@ export function CabecalhoAgenda({
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
   mostrarSemana: boolean;
+  mostrarSeletor?: boolean;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
   discreto: boolean;
   onDiscreto: () => void;
@@ -176,28 +178,30 @@ export function CabecalhoAgenda({
             Hoje
           </Button>
         ) : null}
-        <div
-          className="flex shrink-0"
-          role="group"
-          aria-label="Visualização da agenda"
-          onKeyDown={onTeclasVisualizacao}
-        >
-          {opcoes.map(({ id, rotulo, Icone }) => (
-            <Button
-              key={id}
-              id={`agenda-aba-${id}`}
-              variant="ghost"
-              size="icon"
-              className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
-              aria-label={rotulo}
-              aria-pressed={visualizacao === id}
-              tabIndex={visualizacao === id ? 0 : -1}
-              onClick={() => onVisualizacao(id)}
-            >
-              <Icone />
-            </Button>
-          ))}
-        </div>
+        {mostrarSeletor ? (
+          <div
+            className="flex shrink-0"
+            role="group"
+            aria-label="Visualização da agenda"
+            onKeyDown={onTeclasVisualizacao}
+          >
+            {opcoes.map(({ id, rotulo, Icone }) => (
+              <Button
+                key={id}
+                id={`agenda-aba-${id}`}
+                variant="ghost"
+                size="icon"
+                className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
+                aria-label={rotulo}
+                aria-pressed={visualizacao === id}
+                tabIndex={visualizacao === id ? 0 : -1}
+                onClick={() => onVisualizacao(id)}
+              >
+                <Icone />
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </div>
       {children}
     </header>
