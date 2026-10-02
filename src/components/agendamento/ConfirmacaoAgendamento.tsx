@@ -15,67 +15,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { IngressoAgendamento } from "./IngressoAgendamento";
-import { gerarIcs } from "@/lib/previa";
+import { baixarArquivoIcs, linkGoogleAgenda } from "@/lib/calendario-agendamento";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
 
 export type SituacaoPublica =
   "confirmado" | "cancelado" | "cancelado_pela_barbearia" | "remarcado" | "nao_compareceu";
-
-function calendario(confirmacao: ConfirmacaoPublica) {
-  return gerarIcs({
-    id: confirmacao.agendamentoId,
-    inicio: confirmacao.inicio,
-    fim: confirmacao.fim,
-    titulo: `${confirmacao.servico} — ${confirmacao.barbearia}`,
-    local: confirmacao.endereco ?? confirmacao.barbearia,
-    descricao: `Com ${confirmacao.profissional}. Agendado pelo Cortaí.`,
-  });
-}
-
-function carimboGoogle(iso: string) {
-  return new Date(iso)
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .replace(/\.\d{3}/, "");
-}
-
-function horaLocal(iso: string, fuso: string) {
-  return new Date(iso).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: fuso,
-  });
-}
-
-function dataLocal(iso: string, fuso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    timeZone: fuso,
-  });
-}
-
-export function linkGoogleAgenda(confirmacao: ConfirmacaoPublica) {
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: `${confirmacao.servico} — ${confirmacao.barbearia}`,
-    dates: `${carimboGoogle(confirmacao.inicio)}/${carimboGoogle(confirmacao.fim)}`,
-    location: confirmacao.endereco ?? confirmacao.barbearia,
-    details: `Atendimento com ${confirmacao.profissional}. Agendado pelo Cortaí.`,
-  });
-  return `https://calendar.google.com/calendar/render?${params}`;
-}
-
-export function baixarArquivoIcs(confirmacao: ConfirmacaoPublica) {
-  const url = URL.createObjectURL(
-    new Blob([calendario(confirmacao)], { type: "text/calendar;charset=utf-8" }),
-  );
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "agendamento.ics";
-  link.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
-}
 
 export function ConfirmacaoAgendamento({
   confirmacao,
