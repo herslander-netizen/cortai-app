@@ -1129,11 +1129,7 @@ export function AgendaOperacional() {
                   Encaixe
                 </Button>
               ) : null}
-              {ehHoje ? (
-                <div className="w-full basis-full text-left">
-                  <PrimeirosPassos />
-                </div>
-              ) : null}
+              {ehHoje ? <PrimeirosPassos /> : null}
             </AgendaVazia>
           ) : colunas ? (
             <div

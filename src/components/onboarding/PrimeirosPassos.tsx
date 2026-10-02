@@ -28,7 +28,7 @@ export function PrimeirosPassos() {
     return (
       <Link
         to="/barbeiro/configurar"
-        className="mt-4 flex min-h-14 items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4"
+        className="mt-4 flex w-full basis-full text-left min-h-14 items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4"
       >
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold text-paper">Termine de configurar</span>
@@ -43,7 +43,7 @@ export function PrimeirosPassos() {
   if (feitos === ITENS_DO_CHECKLIST.length) return null;
 
   return (
-    <section className="mt-4 surface px-4 py-3" aria-label="Primeiros passos">
+    <section className="mt-4 w-full basis-full surface px-4 py-3 text-left" aria-label="Primeiros passos">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-semibold text-paper">Primeiros passos</h2>
         <span className="text-xs text-mute">
