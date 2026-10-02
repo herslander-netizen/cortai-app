@@ -4,13 +4,41 @@ import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
+import { getCapacidades } from "@/lib/capacidades.functions";
 import { getConfiguracaoInicial, ITENS_DO_CHECKLIST, marcarItemDoChecklist } from "@/lib/onboarding.functions";
 
 /**
  * Primeiros passos na tela inicial. Só para quem cuida da barbearia.
  * Cada item é detectado de verdade; a lista some quando tudo estiver feito.
  */
+/** Contador discreto do teste grátis. */
+function ContadorDoTeste() {
+  const { data } = useQuery({ queryKey: ["capacidades"], queryFn: () => getCapacidades(), staleTime: 300_000 });
+  if (!data?.teste?.ativo) return null;
+  const dias = data.teste.diasRestantes;
+  return (
+    <Link
+      to="/barbeiro/plano"
+      className="mt-4 flex min-h-12 w-full basis-full items-center justify-between gap-3 rounded-xl border border-line px-4 text-left text-xs text-mute"
+    >
+      <span>
+        Teste grátis: {dias === 1 ? "resta 1 dia" : `restam ${dias} dias`}
+      </span>
+      <ChevronRight size={16} aria-hidden />
+    </Link>
+  );
+}
+
 export function PrimeirosPassos() {
+  return (
+    <>
+      <ContadorDoTeste />
+      <ListaDePrimeirosPassos />
+    </>
+  );
+}
+
+function ListaDePrimeirosPassos() {
   const marcar = useServerFn(marcarItemDoChecklist);
   const queryClient = useQueryClient();
   const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
@@ -54,10 +82,10 @@ export function PrimeirosPassos() {
         {ITENS_DO_CHECKLIST.map((item) => {
           const feito = Boolean(data.itens[item.chave]);
           return (
-            <li key={item.chave}>
+            <li key={item.chave} className="flex items-center gap-2">
               <Link
                 to={item.destino}
-                className="flex min-h-12 items-center gap-3"
+                className="flex min-h-12 flex-1 items-center gap-3"
                 onClick={() => {
                   // Compartilhar o link é o único que não dá para detectar sozinho.
                   if (feito || item.chave !== "compartilhar_link") return;
@@ -73,6 +101,19 @@ export function PrimeirosPassos() {
                 )}
                 <span className={`text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>{item.rotulo}</span>
               </Link>
+              {feito ? null : (
+                <button
+                  type="button"
+                  className="min-h-12 px-3 text-xs font-medium text-mute"
+                  onClick={() =>
+                    void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
+                      queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
+                    )
+                  }
+                >
+                  Pular
+                </button>
+              )}
             </li>
           );
         })}
