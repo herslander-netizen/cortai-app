@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 import appCss from "../styles.css?url";
+import { manifestDaRota } from "@/lib/manifest";
 import { RouteError } from "@/components/layout/RouteError";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
@@ -42,7 +43,7 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       { charSet: "utf-8" },
       {
@@ -75,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon-cortai-v3.png", type: "image/png", sizes: "any" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon-cortai-v2.png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "manifest", href: manifestDaRota(matches.map((m) => m.routeId)) },
     ],
   }),
   shellComponent: RootShell,
