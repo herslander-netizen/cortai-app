@@ -327,7 +327,7 @@ function AgendamentoPublico() {
             data.pagina.chat.modo === "conversa" ? data.pagina.chat.textoFinal : undefined
           }
           cancelando={cancelar.isPending}
-          erro={erro}
+          erro={erro ?? undefined}
           onAlterar={() => {
             setSubstituiId(confirmado.agendamentoId);
             setHorario(null);
