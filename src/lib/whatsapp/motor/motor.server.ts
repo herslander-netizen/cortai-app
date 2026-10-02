@@ -428,14 +428,7 @@ type Responder = (
 
 async function listarServicosComPreco(ctx: Ctx, contexto: ContextoDoMotor, responder: Responder) {
   const { listarServicos } = await import("@/lib/ia/acoes.server");
-  const { listarProfissionais } = await import("@/lib/ia/acoes.server");
-  const [servicos, equipe] = await Promise.all([listarServicos(ctx), listarProfissionais(ctx)]);
-  const extras = extrasDoPedido(entrada.texto, {
-    hoje: hojeNoFuso(ctx.fuso),
-    servicos: servicos.map((s) => ({ id: s.id, nome: s.nome })),
-    profissionais: equipe.map((p) => ({ id: p.id, nome: p.nome })),
-  });
-  if (extras.profissionalId) contexto = { ...contexto, profissionalId: extras.profissionalId };
+  const servicos = await listarServicos(ctx);
   if (servicos.length === 0) {
     return responder(
       "Ainda não tenho a lista de serviços por aqui. Posso chamar alguém da equipe para te passar?",
@@ -529,9 +522,15 @@ async function avancarAgendamento(
   contexto: ContextoDoMotor,
   cls: Classificacao,
   responder: Responder,
-) {
-  const { listarServicos } = await import("@/lib/ia/acoes.server");
-  const servicos = await listarServicos(ctx);
+): Promise<RespostaDoMotor> {
+  const { listarServicos, listarProfissionais } = await import("@/lib/ia/acoes.server");
+  const [servicos, equipe] = await Promise.all([listarServicos(ctx), listarProfissionais(ctx)]);
+  const extras = extrasDoPedido(entrada.texto, {
+    hoje: hojeNoFuso(ctx.fuso),
+    servicos: servicos.map((s) => ({ id: s.id, nome: s.nome })),
+    profissionais: equipe.map((p) => ({ id: p.id, nome: p.nome })),
+  });
+  if (extras.profissionalId) contexto = { ...contexto, profissionalId: extras.profissionalId };
   if (servicos.length === 0) {
     return responder(
       "Ainda não consigo agendar por aqui — o negócio não tem serviços cadastrados. Vou avisar a equipe.",
