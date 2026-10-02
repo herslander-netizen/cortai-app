@@ -126,7 +126,8 @@ export async function enviarPush(
     Urgency: opcoes.urgente ? "high" : "normal",
     Authorization: `vapid t=${jwt}, k=${chaves.publica}`,
   };
-  if (opcoes.topico) cabecalhos["Topic"] = opcoes.topico.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32);
+  if (opcoes.topico)
+    cabecalhos["Topic"] = opcoes.topico.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32);
   try {
     const resposta = await fetch(inscricao.endpoint, {
       method: "POST",

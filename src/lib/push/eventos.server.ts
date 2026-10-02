@@ -39,7 +39,10 @@ export async function chavesVapid(db?: Db): Promise<ChavesVapid> {
   const novas = await gerarChavesVapid();
   await banco
     .from("chaves_internas")
-    .upsert({ nome: "vapid", valor: JSON.stringify(novas) }, { onConflict: "nome", ignoreDuplicates: true });
+    .upsert(
+      { nome: "vapid", valor: JSON.stringify(novas) },
+      { onConflict: "nome", ignoreDuplicates: true },
+    );
   return (await ler()) ?? novas;
 }
 
