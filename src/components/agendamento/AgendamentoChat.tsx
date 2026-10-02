@@ -18,6 +18,7 @@ import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 import { agendamentoStyle } from "@/lib/pagina-config";
 import { pausaDaResposta, RESPOSTA_POR_ETAPA } from "@/lib/pausa-chat";
+import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 
 type ServicoSelecionavel = {
   id: string;
@@ -133,6 +134,21 @@ export function AgendamentoChat({
           : "dados";
   const digitando = etapaPronta !== etapa;
   const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
+  useHistoricoAgendamento(etapa, (destino) => {
+    if (destino === "servico") {
+      setServicoId(null);
+      setProfissionalEscolhido(false);
+      setDiaEscolhido(false);
+    } else if (destino === "profissional") {
+      setProfissionalEscolhido(false);
+      setDiaEscolhido(false);
+    } else if (destino === "dia") {
+      setDiaEscolhido(false);
+      setInicio(null);
+    } else if (destino === "horario") {
+      setInicio(null);
+    }
+  });
 
   useEffect(() => {
     const id = window.setTimeout(
