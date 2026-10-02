@@ -927,6 +927,7 @@ export type Database = {
           opt_in_em: string | null
           opt_in_whatsapp: boolean
           origem: string
+          preferencias: Json
           sem_whatsapp_em: string | null
           telefone: string
           tenant_id: string
@@ -949,6 +950,7 @@ export type Database = {
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
+          preferencias?: Json
           sem_whatsapp_em?: string | null
           telefone: string
           tenant_id: string
@@ -971,6 +973,7 @@ export type Database = {
           opt_in_em?: string | null
           opt_in_whatsapp?: boolean
           origem?: string
+          preferencias?: Json
           sem_whatsapp_em?: string | null
           telefone?: string
           tenant_id?: string
