@@ -305,7 +305,7 @@ export function AgendaTimeline({
       posicionouRef.current = dia;
     });
     return () => window.cancelAnimationFrame(quadro);
-  }, [dia, ehHoje, altura]);
+  }, [dia, ehHoje, altura, previa]);
 
   function acompanharAgora() {
     const area = rolagemRef.current;
@@ -360,7 +360,7 @@ export function AgendaTimeline({
       observador?.disconnect();
       publicarAgora({ lado: null, ir: null });
     };
-  }, [ehHoje, altura]);
+  }, [ehHoje, altura, previa]);
 
   useEffect(() => {
     if (previa || !ehHoje || window.matchMedia(CELULAR).matches) return;
@@ -368,7 +368,7 @@ export function AgendaTimeline({
     window.addEventListener("resize", acompanhar);
     acompanhar();
     return () => window.removeEventListener("resize", acompanhar);
-  }, [ehHoje, altura]);
+  }, [ehHoje, altura, previa]);
 
   const podeMover = (item: AgendaItem) =>
     Boolean(onMover) && (item.status === "agendado" || item.status === "chegou");
