@@ -4,9 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  PreferenciasAposAgendamento,
-} from "./PreferenciasAposAgendamento";
+import { PreferenciasAposAgendamento } from "./PreferenciasAposAgendamento";
 import { chaveLembretePreferencias, deveMostrarPreferencias } from "./lembrete-preferencias";
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
