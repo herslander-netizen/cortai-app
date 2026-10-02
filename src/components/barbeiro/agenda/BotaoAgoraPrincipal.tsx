@@ -59,7 +59,7 @@ export function BotaoAgoraPrincipal({
         >
           <Button
             variant="ghost"
-            className="agenda-botao-agora-ir"
+            className="agenda-botao-agora-ir active:translate-y-0 active:bg-transparent"
             aria-label="Ir para agora"
             onClick={irParaAgora}
           >
@@ -71,7 +71,7 @@ export function BotaoAgoraPrincipal({
             id={`agenda-aba-${visualizacao}`}
             variant="ghost"
             size="icon"
-            className={`agenda-botao-agora-visualizacao transition-opacity duration-120 ease-[var(--ease-saida)] motion-reduce:transition-none ${esmaecendo ? "opacity-50" : "opacity-100"}`}
+            className={`agenda-botao-agora-visualizacao transition-opacity duration-120 ease-[var(--ease-saida)] active:translate-y-0 motion-reduce:transition-none ${esmaecendo ? "opacity-50" : "opacity-100"}`}
             aria-label={`Alternar para ${proxima === "timeline" ? "Timeline" : "Lista"}`}
             aria-pressed={visualizacao === "lista"}
             onKeyDown={teclasDaVisualizacao}
