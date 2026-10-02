@@ -7,7 +7,10 @@ export type LadoDoAgora = "visivel" | "acima" | "abaixo";
  * (entre o que gruda no topo e a faixa de baixo).
  * Na borda conta como visível — evita piscar.
  */
-export function ladoDoAgora(linha: { top: number; bottom: number }, area: { top: number; bottom: number }): LadoDoAgora {
+export function ladoDoAgora(
+  linha: { top: number; bottom: number },
+  area: { top: number; bottom: number },
+): LadoDoAgora {
   if (linha.bottom < area.top) return "acima";
   if (linha.top > area.bottom) return "abaixo";
   return "visivel";
@@ -36,5 +39,9 @@ function assinar(f: () => void) {
 
 const vazio: Estado = { lado: null, ir: null };
 export function usePilulaAgora() {
-  return useSyncExternalStore(assinar, () => estado, () => vazio);
+  return useSyncExternalStore(
+    assinar,
+    () => estado,
+    () => vazio,
+  );
 }

@@ -178,28 +178,30 @@ export function CabecalhoAgenda({
             Hoje
           </Button>
         ) : null}
-        {mostrarSeletor ? (<div
-          className="flex shrink-0"
-          role="group"
-          aria-label="Visualização da agenda"
-          onKeyDown={onTeclasVisualizacao}
-        >
-          {opcoes.map(({ id, rotulo, Icone }) => (
-            <Button
-              key={id}
-              id={`agenda-aba-${id}`}
-              variant="ghost"
-              size="icon"
-              className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
-              aria-label={rotulo}
-              aria-pressed={visualizacao === id}
-              tabIndex={visualizacao === id ? 0 : -1}
-              onClick={() => onVisualizacao(id)}
-            >
-              <Icone />
-            </Button>
-          ))}
-        </div>) : null}
+        {mostrarSeletor ? (
+          <div
+            className="flex shrink-0"
+            role="group"
+            aria-label="Visualização da agenda"
+            onKeyDown={onTeclasVisualizacao}
+          >
+            {opcoes.map(({ id, rotulo, Icone }) => (
+              <Button
+                key={id}
+                id={`agenda-aba-${id}`}
+                variant="ghost"
+                size="icon"
+                className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
+                aria-label={rotulo}
+                aria-pressed={visualizacao === id}
+                tabIndex={visualizacao === id ? 0 : -1}
+                onClick={() => onVisualizacao(id)}
+              >
+                <Icone />
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </div>
       {children}
     </header>
