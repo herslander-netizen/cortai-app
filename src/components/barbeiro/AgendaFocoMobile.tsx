@@ -14,7 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Lightbulb, LightbulbOff } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useTelaAcesa } from "@/hooks/useTelaAcesa";
 import { salvarTelaAcesa, telaAcesaInicial } from "@/components/barbeiro/agenda/preferencias";
@@ -175,7 +175,7 @@ export function AgendaFocoMobile(props: Props) {
     }
     anteriores.current = props.itens;
   }, [props.itens, idsMudanca]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     definirModoFoco(true);
     return () => {
       definirModoFoco(false);
