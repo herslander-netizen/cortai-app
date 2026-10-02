@@ -1,6 +1,6 @@
+import { useSyncExternalStore } from "react";
+
 /** Decisão pura do gesto lateral que troca o dia da Agenda. */
-export const DESLOCAMENTO_MIN_X = 70;
-export const DESLOCAMENTO_MAX_Y = 40;
 export const BORDA_DO_SISTEMA = 24;
 
 export type InicioDoGesto = {
@@ -15,22 +15,6 @@ export type InicioDoGesto = {
 export function gestoPodeComecar(g: InicioDoGesto) {
   if (g.arrastando || g.dentroDeRolagemLateral) return false;
   return g.x >= BORDA_DO_SISTEMA && g.x <= g.larguraTela - BORDA_DO_SISTEMA;
-}
-
-/** -1 = dia anterior, 1 = próximo dia, 0 = não troca. */
-export function deveTrocarDia(f: {
-  inicio: InicioDoGesto | null;
-  fimX: number;
-  fimY: number;
-  cancelado?: boolean;
-  arrastandoNoFim?: boolean;
-}): -1 | 0 | 1 {
-  if (!f.inicio || f.cancelado || f.arrastandoNoFim || !gestoPodeComecar(f.inicio)) return 0;
-  const dx = f.fimX - f.inicio.x;
-  const dy = f.fimY - f.inicio.y;
-  if (Math.abs(dx) > DESLOCAMENTO_MIN_X && Math.abs(dy) < DESLOCAMENTO_MAX_Y)
-    return dx < 0 ? 1 : -1;
-  return 0;
 }
 
 /** Algum ancestral rola para os lados (colunas por profissional, chips)? */
@@ -98,4 +82,24 @@ export function decidirFimDoGesto(f: {
     Math.abs(f.distanciaRecente) >= PETELECO_DISTANCIA &&
     Math.sign(f.velocidade) === Math.sign(f.dx);
   return passouMetade || peteleco ? direcao : 0;
+}
+
+/* ---------- Dia vizinho visível durante o gesto ----------
+ * Estado externo: só a prévia redesenha; a Agenda inteira fica parada. */
+let vizinho: -1 | 0 | 1 = 0;
+const ouvintes = new Set<() => void>();
+export function definirVizinhoDoGesto(d: -1 | 0 | 1) {
+  if (vizinho === d) return;
+  vizinho = d;
+  ouvintes.forEach((o) => o());
+}
+export function vizinhoDoGesto() {
+  return vizinho;
+}
+function assinar(o: () => void) {
+  ouvintes.add(o);
+  return () => ouvintes.delete(o);
+}
+export function useVizinhoDoGesto() {
+  return useSyncExternalStore(assinar, vizinhoDoGesto, () => 0 as const);
 }

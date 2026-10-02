@@ -1,10 +1,12 @@
 import { animate } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 import { molaLenta, prefereMenosMovimento } from "@/lib/motion";
 
 import {
   decidirFimDoGesto,
+  definirVizinhoDoGesto,
   dentroDeRolagemLateral,
   gestoPodeComecar,
   limitarDeslocamento,
@@ -37,8 +39,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const previa = useRef<HTMLDivElement | null>(null);
   const estado = useRef<Estado | null>(null);
   const animacao = useRef<{ stop: () => void } | null>(null);
-  const [vizinho, setVizinho] = useState<-1 | 0 | 1>(0);
-  const vizinhoAtual = useRef<-1 | 0 | 1>(0);
   const [diaDoGesto, setDiaDoGesto] = useState<string | null>(null);
   const diaRef = useRef(dia);
   diaRef.current = dia;
@@ -53,12 +53,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
   }, []);
 
-  const mostrarVizinho = useCallback((d: -1 | 0 | 1) => {
-    if (vizinhoAtual.current === d) return;
-    vizinhoAtual.current = d;
-    setVizinho(d);
-  }, []);
-
   const limpar = useCallback(() => {
     const el = palco.current;
     if (el) {
@@ -66,8 +60,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.willChange = "";
     }
     document.documentElement.classList.remove("agenda-gesto-ativo");
-    mostrarVizinho(0);
-  }, [mostrarVizinho]);
+    definirVizinhoDoGesto(0);
+  }, []);
 
   const assentar = useCallback(
     (de: number, para: number, velocidade: number, fim: () => void) => {
@@ -123,10 +117,13 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       const alvo = proximo ? (d === 1 ? -largura : largura) : 0;
       assentar(s.dx, alvo, velocidade, () => {
         animacao.current = null;
-        if (proximo) {
-          setDiaDoGesto(proximo);
-          trocarRef.current(proximo);
-        }
+        // Troca o dia antes de limpar: nenhum quadro mostra o dia antigo de volta.
+        if (proximo)
+          flushSync(() => {
+            setDiaDoGesto(proximo);
+            trocarRef.current(proximo);
+            definirVizinhoDoGesto(0);
+          });
         limpar();
       });
     },
@@ -165,14 +162,14 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       if (s.amostras.length > 12) s.amostras.shift();
       s.dx = limitarDeslocamento(dx, window.innerWidth);
       if (prefereMenosMovimento()) return;
-      mostrarVizinho(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
+      definirVizinhoDoGesto(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
       if (s.quadro === null)
         s.quadro = requestAnimationFrame(() => {
           s.quadro = null;
           if (estado.current === s) escrever(s.dx);
         });
     },
-    [escrever, limpar, mostrarVizinho],
+    [escrever, limpar],
   );
 
   const aoComecar = useCallback((e: TouchEvent) => {
@@ -227,6 +224,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     () => () => {
       animacao.current?.stop();
       document.documentElement.classList.remove("agenda-gesto-ativo");
+      definirVizinhoDoGesto(0);
     },
     [],
   );
@@ -243,8 +241,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   return {
     ref,
     refPrevia,
-    /** Dia que está entrando pela lateral, ou null. */
-    diaVizinho: vizinho ? somarDias(dia, vizinho) : null,
     /** A agenda atual chegou pelo gesto: não repete a animação de entrada. */
     entradaPeloGesto: diaDoGesto === dia,
   };

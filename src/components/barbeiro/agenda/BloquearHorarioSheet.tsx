@@ -45,7 +45,11 @@ export function BloquearHorarioSheet({
   const criar = useServerFn(criarBloqueio);
   const remover = useServerFn(removerBloqueio);
   const chave = ["bloqueios", dia];
-  const lista = useQuery({ queryKey: chave, queryFn: () => listar({ data: { dia } }), enabled: aberto });
+  const lista = useQuery({
+    queryKey: chave,
+    queryFn: () => listar({ data: { dia } }),
+    enabled: aberto,
+  });
   const atualizar = () => {
     void qc.invalidateQueries({ queryKey: chave });
     void qc.invalidateQueries({ queryKey: ["agenda-dia"] });
@@ -53,7 +57,13 @@ export function BloquearHorarioSheet({
   const salvar = useMutation({
     mutationFn: () =>
       criar({
-        data: { dia, de, ate, profissionalId: prof || null, ...(motivo.trim() ? { motivo: motivo.trim() } : {}) },
+        data: {
+          dia,
+          de,
+          ate,
+          profissionalId: prof || null,
+          ...(motivo.trim() ? { motivo: motivo.trim() } : {}),
+        },
       }),
     onSuccess: (r) => {
       atualizar();
@@ -75,7 +85,11 @@ export function BloquearHorarioSheet({
     onError: () => aviso.erro("Não foi possível liberar. Tente de novo."),
   });
   const hora = (iso: string) =>
-    new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
+    new Date(iso).toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: fuso,
+    });
   const nomeDe = (id: string | null) =>
     id ? (profissionais.find((p) => p.id === id)?.nome ?? "Profissional") : "Equipe toda";
   const invalido = ate <= de;
@@ -89,24 +103,39 @@ export function BloquearHorarioSheet({
         <SheetHeader className="pr-10 text-left">
           <SheetTitle className="text-base text-paper">Bloquear horário</SheetTitle>
           <SheetDescription className="text-sm text-mute">
-            {dataEditorial(dia)} · {!h || h.fechado ? "Fechado" : `expediente ${h.abre} – ${h.fecha}`}
+            {dataEditorial(dia)} ·{" "}
+            {!h || h.fechado ? "Fechado" : `expediente ${h.abre} – ${h.fecha}`}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <label className="block text-sm text-mute">
             De
-            <input type="time" value={de} onChange={(e) => setDe(e.target.value)} className="input-premium mt-1 min-h-11 w-full" />
+            <input
+              type="time"
+              value={de}
+              onChange={(e) => setDe(e.target.value)}
+              className="input-premium mt-1 min-h-11 w-full"
+            />
           </label>
           <label className="block text-sm text-mute">
             Até
-            <input type="time" value={ate} onChange={(e) => setAte(e.target.value)} className="input-premium mt-1 min-h-11 w-full" />
+            <input
+              type="time"
+              value={ate}
+              onChange={(e) => setAte(e.target.value)}
+              className="input-premium mt-1 min-h-11 w-full"
+            />
           </label>
         </div>
         {profissionais.length > 1 ? (
           <label className="mt-3 block text-sm text-mute">
             Para quem
-            <select value={prof} onChange={(e) => setProf(e.target.value)} className="input-premium mt-1 min-h-11 w-full">
+            <select
+              value={prof}
+              onChange={(e) => setProf(e.target.value)}
+              className="input-premium mt-1 min-h-11 w-full"
+            >
               <option value="">Equipe toda</option>
               {profissionais.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -127,13 +156,23 @@ export function BloquearHorarioSheet({
             className="input-premium mt-1 min-h-11 w-full"
           />
         </label>
-        {invalido ? <p className="mt-2 text-sm text-brick">O fim precisa ser depois do início.</p> : null}
-        <Button className="mt-4 w-full" size="lg" disabled={invalido || salvar.isPending} onClick={() => salvar.mutate()}>
+        {invalido ? (
+          <p className="mt-2 text-sm text-brick">O fim precisa ser depois do início.</p>
+        ) : null}
+        <Button
+          className="mt-4 w-full"
+          size="lg"
+          disabled={invalido || salvar.isPending}
+          onClick={() => salvar.mutate()}
+        >
           <Lock /> {salvar.isPending ? "Bloqueando…" : "Bloquear este período"}
         </Button>
 
         {lista.data?.length ? (
-          <ul className="mt-5 divide-y divide-line border-y border-line text-sm" aria-label="Bloqueios do dia">
+          <ul
+            className="mt-5 divide-y divide-line border-y border-line text-sm"
+            aria-label="Bloqueios do dia"
+          >
             {lista.data.map((b) => (
               <li key={b.id} className="flex min-h-12 items-center justify-between gap-3 py-1">
                 <span className="text-paper">

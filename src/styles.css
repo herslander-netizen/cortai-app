@@ -2889,7 +2889,7 @@ body:has(.auth-screen--claro) {
   animation: none;
 }
 .agenda-operacional {
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 html.agenda-gesto-ativo,
 html.agenda-gesto-ativo body {
