@@ -34,7 +34,7 @@ export function BotaoAgoraPrincipal({
 
   const rolarLista = useCallback(() => {
     const primeiro = document.querySelector<HTMLElement>(
-      '#agenda-painel-visualizacao .agenda-item',
+      "#agenda-painel-visualizacao .agenda-item",
     );
     const topo = document.getElementById("agenda-painel-visualizacao");
     const alvo = primeiro ?? topo;
@@ -46,10 +46,13 @@ export function BotaoAgoraPrincipal({
     });
   }, [menosMovimento]);
 
-  const levarAoAgora = useCallback((destino: VisualizacaoAgenda) => {
-    if (destino === "lista") rolarLista();
-    else solicitarAgora();
-  }, [rolarLista]);
+  const levarAoAgora = useCallback(
+    (destino: VisualizacaoAgenda) => {
+      if (destino === "lista") rolarLista();
+      else solicitarAgora();
+    },
+    [rolarLista],
+  );
 
   useEffect(() => {
     if (!ehHoje || !levarAoAgoraQuandoForHoje.current) return;
@@ -109,11 +112,7 @@ export function BotaoAgoraPrincipal({
               <motion.span
                 key={proxima}
                 className="inline-flex"
-                initial={
-                  menosMovimento
-                    ? { opacity: 0 }
-                    : { opacity: 0, rotate: 90, scale: 0.8 }
-                }
+                initial={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.8 }}
                 animate={{
                   opacity: 1,
                   rotate: 0,
