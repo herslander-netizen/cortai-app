@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   CalendarDays,
+  Check,
   CreditCard,
   Focus,
   MessageCircle,

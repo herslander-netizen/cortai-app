@@ -361,13 +361,6 @@ export function AgendaOperacional() {
     window.history.pushState({ ...window.history.state, modoFoco: true }, "");
     setModoFoco(true);
   }
-  useEffect(() => {
-    if (!modoFoco) return;
-    const hoje = hojeNoFuso(fuso);
-    if (dia !== hoje) setDia(hoje);
-    if (meuId && profFiltro !== meuId) setProfFiltro(meuId);
-    else if (!meuId && !profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
-  }, [modoFoco, dia, fuso, meuId, profFiltro, profissionais]);
   function sairDoModoFoco() {
     if (celular) {
       const anterior = ultimaVisaoCompleta();
@@ -470,6 +463,14 @@ export function AgendaOperacional() {
   const nomeDoProf = (id: string | null) =>
     id ? (profissionais.find((p) => p.id === id)?.nome ?? null) : null;
   const meuId = filaQ.data?.meuProfissionalId ?? null;
+
+  useEffect(() => {
+    if (!modoFoco) return;
+    const hoje = hojeNoFuso(fuso);
+    if (dia !== hoje) setDia(hoje);
+    if (meuId && profFiltro !== meuId) setProfFiltro(meuId);
+    else if (!meuId && !profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
+  }, [modoFoco, dia, fuso, meuId, profFiltro, profissionais]);
 
   // Barbeiro vê a própria agenda por padrão; dono/recepção vê todos.
   useEffect(() => {

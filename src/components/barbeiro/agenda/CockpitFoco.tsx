@@ -8,12 +8,12 @@ import { situacaoDoLembrete, type DadosCockpit } from "./cockpit-foco";
 
 type Props = {
   dados: DadosCockpit;
-  fuso?: string;
+  fuso?: string | undefined;
   agora: number;
   discreto: boolean;
   ficha?: ReactNode;
   somenteLeitura?: boolean;
-  fila?: number;
+  fila?: number | undefined;
   onPrincipal?: () => void;
   onMais?: () => void;
   onChegou?: () => void;
@@ -187,7 +187,9 @@ export function CockpitFoco(props: Props) {
             <Button
               variant="outline"
               className="min-h-12"
-              onClick={() => item && props.onAvisar?.(item)}
+              onClick={() => {
+                if (item) props.onAvisar?.(item);
+              }}
               disabled={props.somenteLeitura}
             >
               Avisar

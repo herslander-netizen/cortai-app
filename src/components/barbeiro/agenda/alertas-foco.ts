@@ -13,7 +13,7 @@ type Entrada = {
   agora: number;
   online: boolean;
   dispensados?: Set<string>;
-  fuso?: string;
+  fuso?: string | undefined;
 };
 const FORA = new Set(["cancelado", "remarcado", "nao_compareceu", "finalizado"]);
 const ordenar = (itens: AgendaItem[]) =>

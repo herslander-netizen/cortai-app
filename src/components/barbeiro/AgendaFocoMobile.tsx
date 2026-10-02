@@ -200,7 +200,7 @@ export function AgendaFocoMobile(props: Props) {
   );
 }
 
-function Relogio({ agora, fuso }: { agora: number; fuso?: string }) {
+function Relogio({ agora, fuso }: { agora: number; fuso?: string | undefined }) {
   return (
     <time className="text-2xl font-extrabold tabular-nums text-paper">
       {new Date(agora).toLocaleTimeString("pt-BR", {
