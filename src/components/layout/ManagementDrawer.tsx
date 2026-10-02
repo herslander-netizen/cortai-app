@@ -236,6 +236,7 @@ export function ManagementHeader() {
               >
                 <DrawerDestaques
                   slug={sessao?.tenantSlug}
+                  paginaPublicada={sessao?.tenantPaginaPublicada ?? false}
                   resumoDaAgenda={resumoDaAgenda}
                   agendaAtiva={itemDeNavegacaoAtivo(caminho, "/barbeiro")}
                   operacaoAberta={operacaoAberta}

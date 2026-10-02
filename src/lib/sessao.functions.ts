@@ -20,6 +20,7 @@ export type Sessao = {
   tenantNome: string | null;
   tenantSlug: string | null;
   tenantLogoUrl: string | null;
+  tenantPaginaPublicada: boolean;
   /** Fuso da barbearia; todas as telas formatam horários nele. */
   tenantFuso: string | null;
   identidadeApp: Identidade;
@@ -116,6 +117,7 @@ export const getSessao = createServerFn({ method: "GET" })
       tenantNome: null,
       tenantSlug: null,
       tenantLogoUrl: null,
+      tenantPaginaPublicada: false,
       tenantFuso: null,
       identidadeApp: "moderno" as Identidade,
       segmento: "barbearia" as Segmento,
@@ -142,6 +144,15 @@ export const getSessao = createServerFn({ method: "GET" })
         ? ((await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data
             ?.signedUrl ?? null)
         : null;
+      const { data: paginaPublica } = await db
+        .from("tenant_page_configs")
+        .select("published_config")
+        .eq("tenant_id", vinculo.tenant_id)
+        .maybeSingle();
+      const tenantPaginaPublicada = Boolean(
+        paginaPublica?.published_config &&
+          Object.keys(paginaPublica.published_config as Record<string, unknown>).length,
+      );
       const permissoes =
         vinculo.papel === "dono"
           ? PERMISSOES_DE_DONO
@@ -153,6 +164,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantNome: t?.nome ?? null,
         tenantSlug: t?.slug ?? null,
         tenantLogoUrl,
+        tenantPaginaPublicada,
         tenantFuso: t?.fuso ?? null,
         identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade)
           ? (t?.identidade_app as Identidade)
