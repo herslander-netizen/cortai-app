@@ -68,7 +68,7 @@ describe("BotaoAgoraPrincipal", () => {
     host?.remove();
     host = null;
     await montar(1280);
-    expect(host?.querySelector(".agenda-botao-agora-principal")).toBeNull();
+    expect(document.querySelector(".agenda-botao-agora-principal")).toBeNull();
   });
 
   it("alterna entre Timeline e Lista", async () => {
