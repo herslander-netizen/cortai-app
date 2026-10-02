@@ -4,7 +4,10 @@ import { extrasDoPedido, pareceUmPedidoDeHorario } from "./entendimento-whatsapp
 const ctx = {
   hoje: "2026-10-02",
   servicos: [{ id: "s1", nome: "Pézinho", apelidos: ["pezinho"] }],
-  profissionais: [{ id: "p1", nome: "Davi" }, { id: "p2", nome: "Lucas" }],
+  profissionais: [
+    { id: "p1", nome: "Davi" },
+    { id: "p2", nome: "Lucas" },
+  ],
 };
 
 describe("extrasDoPedido", () => {
@@ -18,7 +21,12 @@ describe("extrasDoPedido", () => {
   });
   it("não inventa nada sem dados", () => {
     const r = extrasDoPedido("oi tudo bem", ctx);
-    expect(r).toEqual({ servicoId: null, profissionalId: null, horario: null, temDiaOuHora: false });
+    expect(r).toEqual({
+      servicoId: null,
+      profissionalId: null,
+      horario: null,
+      temDiaOuHora: false,
+    });
   });
   it("detecta pedido de horário sem verbo", () => {
     expect(pareceUmPedidoDeHorario("corte amanhã de tarde", ctx.hoje)).toBe(true);

@@ -729,7 +729,17 @@ async function oferecerHorarios(
       ctx,
       opcoes.entrada,
       ctxEscolha,
-      { ...classificar("1", { fuso: ctx.fuso, totalDeOpcoes: 1 }), entidades: { servico: null, dia: null, periodo: null, selecao: 1, codigoBarbearia: null, nomeCitado: null } },
+      {
+        ...classificar("1", { fuso: ctx.fuso, totalDeOpcoes: 1 }),
+        entidades: {
+          servico: null,
+          dia: null,
+          periodo: null,
+          selecao: 1,
+          codigoBarbearia: null,
+          nomeCitado: null,
+        },
+      },
       responder,
     );
   }
