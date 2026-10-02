@@ -91,7 +91,7 @@ describe("BotaoAgoraPrincipal", () => {
     expect(ir).toHaveBeenCalledOnce();
   });
 
-  it("troca da Lista para Timeline antes de levar ao agora", async () => {
+  it("mantém a Lista e leva ao primeiro atendimento aberto", async () => {
     const { onVisualizacao } = await montar(390, "lista");
     const item = document.createElement("li");
     item.className = "agenda-item";
@@ -107,6 +107,10 @@ describe("BotaoAgoraPrincipal", () => {
   });
 
   it("fora de hoje volta para hoje antes de levar ao agora", async () => {
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback(0);
+      return 1;
+    });
     const ir = vi.fn();
     publicarAgora({ lado: "visivel", ir });
     const onHoje = vi.fn();
@@ -127,7 +131,6 @@ describe("BotaoAgoraPrincipal", () => {
         />,
       ),
     );
-    await act(async () => window.requestAnimationFrame(() => undefined));
     expect(ir).toHaveBeenCalledOnce();
   });
 });

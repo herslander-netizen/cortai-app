@@ -115,14 +115,23 @@ export function BotaoAgoraPrincipal({
               <motion.span
                 key={proxima}
                 className="inline-flex"
-                initial={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.8 }}
-                animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                exit={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: -90, scale: 0.8 }}
-                transition={
+                initial={
                   menosMovimento
-                    ? { duration: DURACAO.rapida, ease: SUAVE }
-                    : { duration: proxima === "timeline" ? 0.11 : 0.1, ease: SUAVE }
+                    ? { opacity: 0 }
+                    : { opacity: 0, rotate: 90, scale: 0.8 }
                 }
+                animate={{
+                  opacity: 1,
+                  rotate: 0,
+                  scale: 1,
+                  transition: { duration: menosMovimento ? DURACAO.rapida : 0.11, ease: SUAVE },
+                }}
+                exit={{
+                  opacity: 0,
+                  rotate: menosMovimento ? 0 : -90,
+                  scale: menosMovimento ? 1 : 0.8,
+                  transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
+                }}
               >
                 <IconeVisualizacao aria-hidden />
               </motion.span>
