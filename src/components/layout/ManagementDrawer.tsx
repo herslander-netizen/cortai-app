@@ -164,7 +164,7 @@ export function ManagementHeader() {
                         variant="ghost"
                         className="min-h-12 w-full justify-between px-2 text-xs font-bold uppercase text-mute2"
                         aria-expanded={abertos.includes(grupo.titulo)}
-                        aria-controls={`menu-grupo-${grupo.titulo}`}
+                        aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
                         onClick={() => alternar(grupo.titulo)}
                       >
                         {grupo.titulo}
@@ -176,7 +176,7 @@ export function ManagementHeader() {
                     </h2>
                     {abertos.includes(grupo.titulo) ? (
                     <ul
-                      id={`menu-grupo-${grupo.titulo}`}
+                      id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
                       className="animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
                     >
                       {grupo.itens.map((item) => {
