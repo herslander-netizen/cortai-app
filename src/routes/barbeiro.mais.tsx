@@ -1,3 +1,4 @@
+import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
 import { termos } from "@/lib/segmentos";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -94,6 +95,7 @@ function MaisPage() {
           <BotaoAssistente variante="linha" />
         </div>
       </section>
+      <PrimeirosPassos />
       <PreferenciasDeAvisos />
       <PreferenciasDicas />
       <SobreOCortai />

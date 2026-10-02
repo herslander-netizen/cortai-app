@@ -18,6 +18,7 @@ import { mostrarAviso } from "@/lib/avisos-do-navegador";
 import { molaFolha, transicaoBase } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
+import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -143,6 +144,7 @@ export function SinoDeAvisos() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
+        <ConvitesNoSino />
         {lista.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-mute">Tudo em dia por aqui.</p>
         ) : (

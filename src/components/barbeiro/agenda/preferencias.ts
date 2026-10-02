@@ -58,6 +58,17 @@ export function salvarModoDiscreto(ativo: boolean, armazenamento?: Armazenamento
   salvar(CHAVE_DISCRETO, ativo ? "1" : "0", armazenamento);
 }
 
+const CHAVE_TELA_ACESA = "cortai-agenda-tela-acesa";
+
+/** Lâmpada do Foco: começa ligada; o aparelho lembra a escolha. */
+export function telaAcesaInicial(armazenamento?: Armazenamento) {
+  return ler(CHAVE_TELA_ACESA, armazenamento) !== "0";
+}
+
+export function salvarTelaAcesa(ativo: boolean, armazenamento?: Armazenamento) {
+  salvar(CHAVE_TELA_ACESA, ativo ? "1" : "0", armazenamento);
+}
+
 // ---- Contexto da sessão da aba: voltar ao mesmo lugar ----
 const CHAVE_CONTEXTO = "cortai-agenda-contexto";
 export const VALIDADE_CONTEXTO_MS = 30 * 60 * 1000;
