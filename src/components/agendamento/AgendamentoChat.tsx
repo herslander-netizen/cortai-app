@@ -136,19 +136,22 @@ export function AgendamentoChat({
     escolhido,
   } = selecao;
   const etapa = !servico
-      ? "servico"
-      : !profissionalEscolhido
-        ? "profissional"
-        : !diaEscolhido || !dia
-          ? "dia"
-          : !escolhido
-            ? "horario"
-            : "dados";
+    ? "servico"
+    : !profissionalEscolhido
+      ? "profissional"
+      : !diaEscolhido || !dia
+        ? "dia"
+        : !escolhido
+          ? "horario"
+          : "dados";
   const digitando = etapaPronta !== etapa;
   const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
 
   useEffect(() => {
-    const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa, primeiraVisita));
+    const id = window.setTimeout(
+      () => setEtapaPronta(etapa),
+      pausaDaResposta(etapa, primeiraVisita),
+    );
     return () => window.clearTimeout(id);
   }, [etapa, primeiraVisita]);
   useEffect(() => {
@@ -198,7 +201,9 @@ export function AgendamentoChat({
           <ChatHeader
             nome={chat.nomeRecepcao}
             avatarUrl={chat.avatarUrl}
-            status={digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")}
+            status={
+              digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
+            }
             detalhe={data.tenant.nome}
             processando={digitando || enviando}
           />
@@ -206,7 +211,13 @@ export function AgendamentoChat({
       >
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6">
-            {!digitando ? <Fala>{primeiroNome ? `Oi, ${primeiroNome}. ${chat.mensagemInicial}` : chat.mensagemInicial}</Fala> : null}
+            {!digitando ? (
+              <Fala>
+                {primeiroNome
+                  ? `Oi, ${primeiroNome}. ${chat.mensagemInicial}`
+                  : chat.mensagemInicial}
+              </Fala>
+            ) : null}
             {servico ? <Fala cliente>{servico.nome}</Fala> : null}
             {servico && profissionalEscolhido ? (
               <Fala cliente>
@@ -423,12 +434,38 @@ export function AgendamentoChat({
 
             {!digitando && etapa === "dados" && servico && escolhido ? (
               <Fala>
-                <p className="mb-3 text-base font-extrabold">Só preciso dos seus dados para confirmar.</p>
+                <p className="mb-3 text-base font-extrabold">
+                  Só preciso dos seus dados para confirmar.
+                </p>
                 <div className="grid gap-3">
-                  <Input ref={nomeRef} value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" enterKeyHint="next" placeholder="Seu nome" />
-                  <Input value={telefone} onChange={(e) => setTelefone(mascaraTelefone(e.target.value))} autoComplete="tel" enterKeyHint="done" inputMode="tel" placeholder="WhatsApp com DDD" />
+                  <Input
+                    ref={nomeRef}
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    autoComplete="name"
+                    enterKeyHint="next"
+                    placeholder="Seu nome"
+                  />
+                  <Input
+                    value={telefone}
+                    onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+                    autoComplete="tel"
+                    enterKeyHint="done"
+                    inputMode="tel"
+                    placeholder="WhatsApp com DDD"
+                  />
                 </div>
-                <div className="mt-4"><IngressoAgendamento negocio={data.tenant.nome} servico={servico.nome} profissional={proNome ?? "Profissional disponível"} data={local(escolhido.iso)} horario={escolhido.label} duracao={servico.duracao_min} valorCentavos={servico.preco_centavos} /></div>
+                <div className="mt-4">
+                  <IngressoAgendamento
+                    negocio={data.tenant.nome}
+                    servico={servico.nome}
+                    profissional={proNome ?? "Profissional disponível"}
+                    data={local(escolhido.iso)}
+                    horario={escolhido.label}
+                    duracao={servico.duracao_min}
+                    valorCentavos={servico.preco_centavos}
+                  />
+                </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
@@ -495,7 +532,8 @@ export function AgendamentoChat({
         {etapa === "dados" && !digitando ? (
           <div className="chat-bandeja agendamento-marca-barra border-t border-line px-4 py-3">
             <Button className="w-full" disabled={!dadosValidos || enviando} onClick={confirmar}>
-              <Check />{enviando ? "Confirmando…" : "Confirmar horário"}
+              <Check />
+              {enviando ? "Confirmando…" : "Confirmar horário"}
             </Button>
           </div>
         ) : null}

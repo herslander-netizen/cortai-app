@@ -11,7 +11,8 @@ const semana: HorarioDeFuncionamento[] = Array.from({ length: 7 }, (_, diaSemana
   intervaloFim: diaSemana === 1 ? "13:00" : null,
 }));
 
-const emSaoPaulo = (iso: string) => statusDeFuncionamento(semana, "America/Sao_Paulo", new Date(iso));
+const emSaoPaulo = (iso: string) =>
+  statusDeFuncionamento(semana, "America/Sao_Paulo", new Date(iso));
 
 describe("statusDeFuncionamento", () => {
   it("encontra a próxima abertura em dia fechado", () => {
@@ -22,7 +23,10 @@ describe("statusDeFuncionamento", () => {
   });
   it("mantém aberto após meia-noite quando o expediente começou no dia anterior", () => {
     const horarios = [{ diaSemana: 5, fechado: false, abre: "20:00", fecha: "02:00" }];
-    expect(statusDeFuncionamento(horarios, "America/Sao_Paulo", new Date("2026-10-03T04:00:00Z"))?.aberto).toBe(true);
+    expect(
+      statusDeFuncionamento(horarios, "America/Sao_Paulo", new Date("2026-10-03T04:00:00Z"))
+        ?.aberto,
+    ).toBe(true);
   });
   it("não inventa status sem horários", () => {
     expect(statusDeFuncionamento([], "America/Sao_Paulo")).toBeNull();

@@ -64,7 +64,10 @@ function normalizar(cor: string | null | undefined) {
   return valor;
 }
 
-export function estiloDaMarca(cor: string | null | undefined): { style?: CSSProperties; personalizada: boolean } {
+export function estiloDaMarca(cor: string | null | undefined): {
+  style?: CSSProperties;
+  personalizada: boolean;
+} {
   const base = normalizar(cor);
   if (!base) return { personalizada: false };
   const texto = contraste(base, "#FFFFFF") >= 4.5 ? "#FFFFFF" : "#1B1C1F";

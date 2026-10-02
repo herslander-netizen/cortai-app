@@ -51,8 +51,16 @@ export function statusDeFuncionamento(
   const anterior = horarioDoDia(ontem, horarios);
   const fechamentoAnterior = minutos(anterior.fecha);
 
-  if (!anterior.fechado && minutos(anterior.fecha) <= minutos(anterior.abre) && agora < fechamentoAnterior) {
-    return { aberto: true, texto: `Aberto agora · fecha às ${anterior.fecha}`, proximaMudanca: anterior.fecha };
+  if (
+    !anterior.fechado &&
+    minutos(anterior.fecha) <= minutos(anterior.abre) &&
+    agora < fechamentoAnterior
+  ) {
+    return {
+      aberto: true,
+      texto: `Aberto agora · fecha às ${anterior.fecha}`,
+      proximaMudanca: anterior.fecha,
+    };
   }
 
   const atual = horarioDoDia(hoje, horarios);
@@ -63,18 +71,32 @@ export function statusDeFuncionamento(
     const intervaloInicio = atual.intervaloInicio ? minutos(atual.intervaloInicio) : null;
     const intervaloFim = atual.intervaloFim ? minutos(atual.intervaloFim) : null;
     if (agora >= abre && agora < fecha) {
-      if (intervaloInicio != null && intervaloFim != null && agora >= intervaloInicio && agora < intervaloFim) {
+      if (
+        intervaloInicio != null &&
+        intervaloFim != null &&
+        agora >= intervaloInicio &&
+        agora < intervaloFim
+      ) {
         return {
           aberto: false,
           texto: `Fechado agora · abre hoje às ${atual.intervaloFim}`,
           proximaMudanca: atual.intervaloFim,
         };
       }
-      const fechaTexto = intervaloInicio != null && agora < intervaloInicio ? atual.intervaloInicio : atual.fecha;
-      return { aberto: true, texto: `Aberto agora · fecha às ${fechaTexto}`, proximaMudanca: fechaTexto };
+      const fechaTexto =
+        intervaloInicio != null && agora < intervaloInicio ? atual.intervaloInicio : atual.fecha;
+      return {
+        aberto: true,
+        texto: `Aberto agora · fecha às ${fechaTexto}`,
+        proximaMudanca: fechaTexto,
+      };
     }
     if (agora < abre) {
-      return { aberto: false, texto: `Fechado agora · abre hoje às ${atual.abre}`, proximaMudanca: atual.abre };
+      return {
+        aberto: false,
+        texto: `Fechado agora · abre hoje às ${atual.abre}`,
+        proximaMudanca: atual.abre,
+      };
     }
   }
 

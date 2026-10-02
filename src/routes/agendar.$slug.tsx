@@ -5,13 +5,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  Check,
-  Clock3,
-  MessageCircle,
-  Scissors,
-  UserRound,
-} from "lucide-react";
+import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -329,7 +323,9 @@ function AgendamentoPublico() {
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
-          textoFinal={data.pagina.chat.modo === "conversa" ? data.pagina.chat.textoFinal : undefined}
+          textoFinal={
+            data.pagina.chat.modo === "conversa" ? data.pagina.chat.textoFinal : undefined
+          }
           cancelando={cancelar.isPending}
           erro={erro}
           onAlterar={() => {
