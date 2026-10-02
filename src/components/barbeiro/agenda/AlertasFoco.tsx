@@ -11,12 +11,12 @@ export function AlertasFoco({
 }) {
   if (!alertas.length) return null;
   return (
-    <div className="grid gap-2" aria-live="assertive">
+    <div className="grid gap-2 px-3 pt-2" aria-live="assertive">
       {alertas.map((alerta) => (
         <div
           key={alerta.id}
           role="alert"
-          className={`flex min-h-12 items-center gap-3 px-3 py-2 ${alerta.tipo === "sem_internet" ? "bg-brick text-paper" : "border border-brick bg-ink2 text-paper"}`}
+          className={`flex min-h-12 items-center gap-3 px-3 py-2 text-base ${alerta.tipo === "sem_internet" ? "bg-brick text-paper" : "border border-brick bg-ink2 text-paper"}`}
         >
           {alerta.tipo === "sem_internet" ? (
             <WifiOff className="size-5 shrink-0" aria-hidden />
