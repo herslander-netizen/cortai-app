@@ -108,8 +108,8 @@
 
 ## Configuração administrativa da conta Asaas
 
-- [ ] Adicionar aba Conta Asaas ao painel administrativo
-- [ ] Criar funções administrativas seguras para estado, gravação, teste e remoção
-- [ ] Garantir que a chave nunca retorne ao navegador nem apareça em logs
+- [x] Adicionar aba Conta Asaas ao painel administrativo
+- [x] Criar funções administrativas seguras para estado, gravação, teste e remoção
+- [x] Garantir que a chave nunca retorne ao navegador nem apareça em logs
 - [ ] Cobrir validação e operações com testes
 - [ ] Validar tipos, lint, testes e build; não publicar

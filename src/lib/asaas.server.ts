@@ -57,6 +57,11 @@ export async function salvarChaveInterna(nome: string, valor: string) {
   if (error) throw new Error("Não consegui guardar a configuração.");
 }
 
+export async function removerChaveInterna(nome: string) {
+  const { error } = await (await db()).from("chaves_internas" as never).delete().eq("nome", nome);
+  if (error) throw new Error("Não consegui remover a configuração.");
+}
+
 export async function chaveDoAsaas(): Promise<string | null> {
   return (await chaveInterna("asaas_api_key")) ?? process.env["ASAAS_API_KEY"] ?? null;
 }

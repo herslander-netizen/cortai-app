@@ -47,6 +47,64 @@ export type AdminTenant = {
   motivosRisco: string[];
 };
 
+type EstadoAsaas = {
+  configurada: boolean;
+  ambiente: "producao" | "sandbox" | null;
+};
+
+async function estadoSeguroDoAsaas(): Promise<EstadoAsaas> {
+  const { ambienteDaChave, chaveDoAsaas } = await import("@/lib/asaas.server");
+  const chave = await chaveDoAsaas();
+  if (!chave) return { configurada: false, ambiente: null };
+  const ambiente = ambienteDaChave(chave);
+  return ambiente === "invalida"
+    ? { configurada: false, ambiente: null }
+    : { configurada: true, ambiente };
+}
+
+export const getEstadoAsaas = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    return estadoSeguroDoAsaas();
+  });
+
+export const salvarChaveAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ chave: z.string().trim().min(1).max(500) }).parse(input))
+  .handler(async ({ data, context }) => {
+    await adminContext(context);
+    const { ambienteDaChave, salvarChaveInterna } = await import("@/lib/asaas.server");
+    if (ambienteDaChave(data.chave) === "invalida") {
+      throw new Error("Chave inválida. Use uma chave de Produção ou Sandbox criada no Asaas.");
+    }
+    await salvarChaveInterna("asaas_api_key", data.chave);
+    return estadoSeguroDoAsaas();
+  });
+
+export const testarConexaoAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    const { asaas } = await import("@/lib/asaas.server");
+    const cliente = await asaas();
+    await cliente.call("GET", "/myAccount");
+    return {
+      configurada: true,
+      ambiente: cliente.ambiente,
+      mensagem: "Conexão com o Asaas confirmada.",
+    };
+  });
+
+export const removerChaveAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    const { removerChaveInterna } = await import("@/lib/asaas.server");
+    await removerChaveInterna("asaas_api_key");
+    return estadoSeguroDoAsaas();
+  });
+
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

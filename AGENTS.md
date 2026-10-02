@@ -25,6 +25,7 @@
 - Datas: `hojeNoFuso`/`inicioDoDiaNoFuso`/`inicioDoMesNoFuso` com fuso do tenant; nunca relógio local/`setHours(0)`.
 - Imagens via `imagem.ts` (bucket 2 MB, logos WebP).
 - Comandas usam preços do catálogo no banco.
+- A chave do Asaas é administrada somente por funções protegidas em `admin.functions.ts`; o navegador recebe apenas estado e ambiente — evita exposição do segredo.
 - Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
 - Navegação do painel: o drawer reúne só trabalho e administração; conta, aparência, plano e ajuda ficam em Ajustes; a lateral fixa mantém atalhos sem repetir a lista operacional.
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
