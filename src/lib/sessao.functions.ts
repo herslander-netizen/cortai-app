@@ -19,6 +19,7 @@ export type Sessao = {
   tenantId: string | null;
   tenantNome: string | null;
   tenantSlug: string | null;
+  tenantLogoUrl: string | null;
   /** Fuso da barbearia; todas as telas formatam horários nele. */
   tenantFuso: string | null;
   identidadeApp: Identidade;
@@ -83,7 +84,7 @@ export const getSessao = createServerFn({ method: "GET" })
       db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       db
         .from("tenant_usuarios")
-        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug, identidade_app, fuso, segmento, modo)")
+        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)")
         .eq("user_id", context.userId),
       db.from("perfis").select("nome, tipo, tenant_ativo").eq("user_id", context.userId).maybeSingle(),
     ]);
@@ -104,6 +105,7 @@ export const getSessao = createServerFn({ method: "GET" })
       tenantId: null,
       tenantNome: null,
       tenantSlug: null,
+      tenantLogoUrl: null,
       tenantFuso: null,
       identidadeApp: "moderno" as Identidade,
       segmento: "barbearia" as Segmento,
@@ -117,7 +119,10 @@ export const getSessao = createServerFn({ method: "GET" })
       return { ...base, papel: "admin" as const };
     }
     if (vinculo && vinculo.ativo) {
-      const t = vinculo.tenants as unknown as { nome: string; slug: string; identidade_app: string; fuso: string | null; segmento: string; modo: string } | null;
+      const t = vinculo.tenants as unknown as { nome: string; slug: string; logo_url: string | null; identidade_app: string; fuso: string | null; segmento: string; modo: string } | null;
+      const tenantLogoUrl = t?.logo_url
+        ? (await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data?.signedUrl ?? null
+        : null;
       const permissoes =
         vinculo.papel === "dono" ? PERMISSOES_DE_DONO : ((vinculo.permissoes as string[] | null) ?? []);
       return {
@@ -126,6 +131,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantId: vinculo.tenant_id,
         tenantNome: t?.nome ?? null,
         tenantSlug: t?.slug ?? null,
+        tenantLogoUrl,
         tenantFuso: t?.fuso ?? null,
         identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade) ? t?.identidade_app as Identidade : "moderno",
         segmento: segmentoValido(t?.segmento),

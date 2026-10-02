@@ -64,6 +64,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-drawer-surface: var(--drawer-surface);
+  --color-drawer-card: var(--drawer-card);
+  --color-drawer-band: var(--drawer-band);
 }
 
 :root,
@@ -182,6 +185,9 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
+  --drawer-surface: color-mix(in oklab, var(--primary) 7%, var(--ink));
+  --drawer-card: var(--ink2);
+  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
 }
 
 .light,
@@ -224,6 +230,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
+  --drawer-surface: color-mix(in oklab, var(--primary) 7%, var(--ink));
+  --drawer-card: var(--ink2);
+  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
 
   --status-scheduled: #696862;
   --status-confirmed: #4e705e;
