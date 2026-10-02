@@ -25,6 +25,12 @@ describe("travarEixo", () => {
     expect(travarEixo(2, -12)).toBe("y");
     expect(travarEixo(80, 0, "y")).toBe("y");
   });
+  it("diagonal vira rolagem: horizontal só com |dx| > 1,5 × |dy|", () => {
+    expect(travarEixo(12, 10)).toBe("y");
+    expect(travarEixo(15, 10)).toBe("y");
+    expect(travarEixo(16, 10)).toBe("x");
+    expect(travarEixo(-30, 8)).toBe("x");
+  });
 });
 
 describe("limitarDeslocamento", () => {

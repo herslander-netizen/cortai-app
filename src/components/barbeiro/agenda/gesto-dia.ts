@@ -38,11 +38,14 @@ export const PETELECO_JANELA_MS = 250;
 
 export type Eixo = "x" | "y" | null;
 
+/** Horizontal só quando claramente horizontal: o polegar rola na diagonal. */
+export const RAZAO_EIXO_X = 1.5;
+
 /** Nos primeiros ~10 px decide o eixo; depois a decisão não muda. */
 export function travarEixo(dx: number, dy: number, atual: Eixo = null): Eixo {
   if (atual) return atual;
   if (Math.hypot(dx, dy) < TRAVA_EIXO) return null;
-  return Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+  return Math.abs(dx) > Math.abs(dy) * RAZAO_EIXO_X ? "x" : "y";
 }
 
 /** O dia nunca anda mais que a largura da tela. */

@@ -54,6 +54,8 @@ type AgendaTimelineProps = {
   alinhado?: boolean;
   mostrarProfissional?: boolean;
   discreto?: boolean;
+  /** Prévia só de leitura (dia vizinho no gesto): sem efeitos, ponteiros nem cápsula. */
+  previa?: boolean;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -108,6 +110,7 @@ export function AgendaTimeline({
   alinhado,
   mostrarProfissional = false,
   discreto = false,
+  previa = false,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -297,7 +300,7 @@ export function AgendaTimeline({
   }
 
   useEffect(() => {
-    if (!ehHoje || posicionouRef.current === dia) return;
+    if (previa || !ehHoje || posicionouRef.current === dia) return;
     const quadro = window.requestAnimationFrame(() => {
       voltarParaAgora("auto");
       posicionouRef.current = dia;
@@ -321,6 +324,7 @@ export function AgendaTimeline({
   const irAgoraRef = useRef(() => voltarParaAgora());
   irAgoraRef.current = () => voltarParaAgora();
   useEffect(() => {
+    if (previa) return;
     const linha = linhaAgoraRef.current;
     if (
       !ehHoje ||
@@ -360,7 +364,7 @@ export function AgendaTimeline({
   }, [ehHoje, altura]);
 
   useEffect(() => {
-    if (!ehHoje || window.matchMedia(CELULAR).matches) return;
+    if (previa || !ehHoje || window.matchMedia(CELULAR).matches) return;
     const acompanhar = () => acompanharAgora();
     window.addEventListener("resize", acompanhar);
     acompanhar();
@@ -385,13 +389,16 @@ export function AgendaTimeline({
     const pid = e.pointerId;
     if (e.pointerType !== "mouse") {
       g.timer = window.setTimeout(() => {
-        g.ativo = true;
-        travarRolagemDoToque();
+        if (gesto.current !== g) return;
         try {
           alvo.setPointerCapture(pid);
         } catch {
-          /* */
+          // Sem captura o fim do toque pode não chegar: cancela o arrasto.
+          gesto.current = null;
+          return;
         }
+        g.ativo = true;
+        travarRolagemDoToque();
         setArrasto({ id: item.id, dy: 0 });
         navigator.vibrate?.(10);
       }, 280);
@@ -433,9 +440,9 @@ export function AgendaTimeline({
   function fimGesto(item: AgendaItem) {
     const g = gesto.current;
     gesto.current = null;
+    soltarRolagemDoToque();
     if (!g) return;
     window.clearTimeout(g.timer);
-    soltarRolagemDoToque();
     const dy = g.id === item.id ? g.dy : 0;
     setArrasto(null);
     if (!g.arrastou) return;
@@ -467,9 +474,32 @@ export function AgendaTimeline({
   const intervalo = intervaloDoDia(horarios, dia);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
 
+  // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
+  const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
+  const deslocamentoPrevia = !previa
+    ? 0
+    : ehHoje
+      ? Math.max(
+          0,
+          posicaoAgora -
+            (typeof window === "undefined" ? 600 : window.innerHeight - 56) / 2 +
+            40,
+        )
+      : Math.max(
+          0,
+          funcionamentoDoDia
+            ? (minutosDoHorario(funcionamentoDoDia.abre) - escala.inicio) * PX_POR_MINUTO
+            : 0,
+        );
+  const interativo = !previa;
+
   return (
-    <div className="agenda-timeline-wrap">
-      {ehHoje && !agoraVisivel && !celularAgora() ? (
+    <div
+      className={`agenda-timeline-wrap${previa ? " agenda-timeline-previa" : ""}`}
+      aria-hidden={previa || undefined}
+      style={previa ? { pointerEvents: "none" } : undefined}
+    >
+      {interativo && ehHoje && !agoraVisivel && !celularAgora() ? (
         <Button
           type="button"
           variant="secondary"
@@ -484,25 +514,36 @@ export function AgendaTimeline({
       <div
         ref={rolagemRef}
         className="agenda-timeline-scroll"
-        aria-label="Timeline de atendimentos"
-        onScroll={acompanharAgora}
+        aria-label={previa ? undefined : "Timeline de atendimentos"}
+        onScroll={interativo ? acompanharAgora : undefined}
+        style={
+          previa
+            ? {
+                maxHeight: "none",
+                overflow: "visible",
+                transform: `translateY(${-deslocamentoPrevia}px)`,
+              }
+            : undefined
+        }
       >
         <div
           className="agenda-timeline"
           style={{ height: `${altura}px` }}
-          onPointerDown={(e) => {
+          {...(previa ? {} : {
+          onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
             if (e.target !== e.currentTarget) return;
             gestoVazio.current = { x: e.clientX, y: e.clientY, moveu: false };
-          }}
-          onPointerMove={(e) => {
+          },
+          onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
             const g = gestoVazio.current;
             if (!g) return;
             if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6) g.moveu = true;
-          }}
-          onPointerCancel={() => {
+          },
+          onPointerCancel: () => {
             gestoVazio.current = null;
-          }}
-          onClick={cliqueNoVazio}
+          },
+          onClick: cliqueNoVazio,
+          })}
         >
           {faixasFora.map((faixa) => (
             <div
@@ -610,25 +651,28 @@ export function AgendaTimeline({
                       : {}),
                   }}
                   aria-pressed={selecionado === item.id}
-                  onPointerDown={(e) => inicioGesto(e, item)}
-                  onPointerMove={moverGesto}
-                  onPointerUp={() => fimGesto(item)}
-                  onPointerCancel={() => {
+                  tabIndex={previa ? -1 : undefined}
+                  {...(previa ? {} : {
+                  onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
+                  onPointerMove: moverGesto,
+                  onPointerUp: () => fimGesto(item),
+                  onPointerCancel: () => {
                     if (gesto.current) window.clearTimeout(gesto.current.timer);
                     gesto.current = null;
                     soltarRolagemDoToque();
                     setArrasto(null);
-                  }}
-                  onContextMenu={(e) => {
+                  },
+                  onContextMenu: (e: React.MouseEvent) => {
                     if (podeMover(item)) e.preventDefault();
-                  }}
-                  onClick={() => {
+                  },
+                  onClick: () => {
                     if (ignorarClique.current) {
                       ignorarClique.current = false;
                       return;
                     }
                     onSelecionar(item.id);
-                  }}
+                  },
+                  })}
                 >
                   <span className="agenda-timeline-bloco-topo">
                     <strong className="col-span-2">
