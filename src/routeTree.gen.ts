@@ -29,6 +29,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAjustesRouteImport } from './routes/admin.ajustes'
 import { Route as AdminApresentacaoRouteImport } from './routes/admin.apresentacao'
+import { Route as AdminAsaasRouteImport } from './routes/admin.asaas'
 import { Route as AdminBarbeariasRouteImport } from './routes/admin.barbearias'
 import { Route as AdminHomeRouteImport } from './routes/admin.home'
 import { Route as AdminMaisRouteImport } from './routes/admin.mais'
@@ -193,6 +194,11 @@ const AdminAjustesRoute = AdminAjustesRouteImport.update({
 const AdminApresentacaoRoute = AdminApresentacaoRouteImport.update({
   id: '/apresentacao',
   path: '/apresentacao',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAsaasRoute = AdminAsaasRouteImport.update({
+  id: '/asaas',
+  path: '/asaas',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminBarbeariasRoute = AdminBarbeariasRouteImport.update({
@@ -535,6 +541,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
+  '/admin/asaas': typeof AdminAsaasRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -617,6 +624,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
+  '/admin/asaas': typeof AdminAsaasRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -702,6 +710,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
   '/admin/apresentacao': typeof AdminApresentacaoRoute
+  '/admin/asaas': typeof AdminAsaasRoute
   '/admin/barbearias': typeof AdminBarbeariasRoute
   '/admin/home': typeof AdminHomeRoute
   '/admin/mais': typeof AdminMaisRoute
@@ -789,6 +798,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
+    | '/admin/asaas'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -871,6 +881,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
+    | '/admin/asaas'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -955,6 +966,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
     | '/admin/apresentacao'
+    | '/admin/asaas'
     | '/admin/barbearias'
     | '/admin/home'
     | '/admin/mais'
@@ -1199,6 +1211,13 @@ declare module '@tanstack/react-router' {
       path: '/apresentacao'
       fullPath: '/admin/apresentacao'
       preLoaderRoute: typeof AdminApresentacaoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/asaas': {
+      id: '/admin/asaas'
+      path: '/asaas'
+      fullPath: '/admin/asaas'
+      preLoaderRoute: typeof AdminAsaasRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/barbearias': {
@@ -1648,6 +1667,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAjustesRoute: typeof AdminAjustesRoute
   AdminApresentacaoRoute: typeof AdminApresentacaoRoute
+  AdminAsaasRoute: typeof AdminAsaasRoute
   AdminBarbeariasRoute: typeof AdminBarbeariasRoute
   AdminHomeRoute: typeof AdminHomeRoute
   AdminMaisRoute: typeof AdminMaisRoute
@@ -1663,6 +1683,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAjustesRoute: AdminAjustesRoute,
   AdminApresentacaoRoute: AdminApresentacaoRoute,
+  AdminAsaasRoute: AdminAsaasRoute,
   AdminBarbeariasRoute: AdminBarbeariasRoute,
   AdminHomeRoute: AdminHomeRoute,
   AdminMaisRoute: AdminMaisRoute,

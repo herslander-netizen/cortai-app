@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-async function adminContext(context: { supabase: any; userId: string }) {
+async function adminContext(context: { supabase: SupabaseClient<Database>; userId: string }) {
   const { data: allowed } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
@@ -46,6 +46,66 @@ export type AdminTenant = {
   risco: boolean;
   motivosRisco: string[];
 };
+
+type EstadoAsaas = {
+  configurada: boolean;
+  ambiente: "producao" | "sandbox" | null;
+};
+
+async function estadoSeguroDoAsaas(): Promise<EstadoAsaas> {
+  const { ambienteDaChave, chaveDoAsaas } = await import("@/lib/asaas.server");
+  const chave = await chaveDoAsaas();
+  if (!chave) return { configurada: false, ambiente: null };
+  const ambiente = ambienteDaChave(chave);
+  return ambiente === "invalida"
+    ? { configurada: false, ambiente: null }
+    : { configurada: true, ambiente };
+}
+
+export const getEstadoAsaas = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    return estadoSeguroDoAsaas();
+  });
+
+export const salvarChaveAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z.object({ chave: z.string().trim().min(1).max(500) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await adminContext(context);
+    const { ambienteDaChave, salvarChaveInterna } = await import("@/lib/asaas.server");
+    if (ambienteDaChave(data.chave) === "invalida") {
+      throw new Error("Chave inválida. Use uma chave de Produção ou Sandbox criada no Asaas.");
+    }
+    await salvarChaveInterna("asaas_api_key", data.chave);
+    return estadoSeguroDoAsaas();
+  });
+
+export const testarConexaoAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    const { asaas } = await import("@/lib/asaas.server");
+    const cliente = await asaas();
+    await cliente.call("GET", "/myAccount");
+    return {
+      configurada: true,
+      ambiente: cliente.ambiente,
+      mensagem: "Conexão com o Asaas confirmada.",
+    };
+  });
+
+export const removerChaveAsaas = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    const { removerChaveInterna } = await import("@/lib/asaas.server");
+    await removerChaveInterna("asaas_api_key");
+    return estadoSeguroDoAsaas();
+  });
 
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -91,7 +151,14 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const activeRules = rulesRes.data ?? [];
     const queueTenants = new Set((queueRes.data ?? []).map((q) => q.tenant_id));
     const packageTenants = new Set(
-      (movesRes.data ?? []).map((m: any) => m.carteiras?.tenant_id).filter(Boolean),
+      (movesRes.data ?? [])
+        .map((movimento) => {
+          const carteira = Array.isArray(movimento.carteiras)
+            ? movimento.carteiras[0]
+            : movimento.carteiras;
+          return carteira?.tenant_id;
+        })
+        .filter(Boolean),
     );
     const signals = [
       {
@@ -192,15 +259,13 @@ export const addRetentionContact = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db
-      .from("contatos_de_retencao")
-      .insert({
-        tenant_id: data.tenantId,
-        canal: data.canal,
-        resultado: data.resultado,
-        observacao: data.observacao,
-        criado_por: context.userId,
-      });
+    const { error } = await db.from("contatos_de_retencao").insert({
+      tenant_id: data.tenantId,
+      canal: data.canal,
+      resultado: data.resultado,
+      observacao: data.observacao,
+      criado_por: context.userId,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -287,16 +352,14 @@ export const saveSuggestion = createServerFn({ method: "POST" })
   .validator((input: unknown) => suggestionSchema.parse(input))
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db
-      .from("sugestoes_da_plataforma")
-      .insert({
-        pedido: data.pedido,
-        motivo: data.motivo,
-        canal: data.canal,
-        tenants_que_pediram: data.tenants,
-        status: data.status,
-        criado_por: context.userId,
-      });
+    const { error } = await db.from("sugestoes_da_plataforma").insert({
+      pedido: data.pedido,
+      motivo: data.motivo,
+      canal: data.canal,
+      tenants_que_pediram: data.tenants,
+      status: data.status,
+      criado_por: context.userId,
+    });
     if (error) {
       console.error("[admin] saveSuggestion falhou:", error.message);
       throw new Error("Não foi possível registrar a sugestão agora. Tente novamente.");

@@ -5,6 +5,7 @@ import {
   LayoutTemplate,
   Megaphone,
   Palette,
+  KeyRound,
   SlidersHorizontal,
   UserRound,
   UsersRound,
@@ -82,6 +83,12 @@ const grupos = [
         label: "Recursos dos planos",
         detail: "Matriz de disponibilidade por plano",
         icon: SlidersHorizontal,
+      },
+      {
+        to: "/admin/asaas",
+        label: "Conta Asaas",
+        detail: "Chave de API e teste de conexão",
+        icon: KeyRound,
       },
       {
         to: "/admin/perfil",

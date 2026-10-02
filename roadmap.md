@@ -105,3 +105,11 @@
 - [x] Reusar o cockpit na demonstração da apresentação
 - [x] Cobrir lógica, persistência e paridade da demo com testes
 - [x] Validar 390px, 844x390, tipos, lint, testes e build; não publicar
+
+## Configuração administrativa da conta Asaas
+
+- [x] Adicionar aba Conta Asaas ao painel administrativo
+- [x] Criar funções administrativas seguras para estado, gravação, teste e remoção
+- [x] Garantir que a chave nunca retorne ao navegador nem apareça em logs
+- [x] Cobrir validação e operações com testes
+- [x] Validar tipos, lint, testes e build; não publicar
