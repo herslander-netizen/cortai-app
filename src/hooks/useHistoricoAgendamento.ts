@@ -11,7 +11,9 @@ export function useHistoricoAgendamento(etapa: string, aoVoltar: (etapa: string)
 
   useEffect(() => {
     const estado = history.state as Record<string, unknown> | null;
-    if (!estado?.[CHAVE]) history.replaceState({ ...estado, [CHAVE]: etapa }, "");
+    // Uma URL aberta/recarregada sempre nasce no primeiro passo. Estados de uma
+    // navegação anterior não podem reabrir o fluxo no meio.
+    history.replaceState({ ...estado, [CHAVE]: etapa }, "");
     const voltar = (evento: PopStateEvent) => {
       const destino = (evento.state as Record<string, unknown> | null)?.[CHAVE];
       if (typeof destino !== "string") return;

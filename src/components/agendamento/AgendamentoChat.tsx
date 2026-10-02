@@ -187,7 +187,6 @@ export function AgendamentoChat({
         header={
           <ChatHeader
             nome={chat.nomeRecepcao}
-            avatarUrl={chat.avatarUrl}
             status={
               digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
             }
