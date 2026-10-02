@@ -101,8 +101,8 @@ function ContaAsaasPage() {
           <div className="mt-3 flex gap-3 border-l-2 border-gold py-1 pl-4">
             <ShieldAlert className="mt-0.5 shrink-0 text-gold" size={20} aria-hidden />
             <p className="text-sm leading-relaxed text-mute">
-              A chave é sensível. Crie-a no painel web do Asaas e informe somente neste campo;
-              nunca envie a chave por chat. Depois de salva, ela não poderá ser visualizada.
+              A chave é sensível. Crie-a no painel web do Asaas e informe somente neste campo; nunca
+              envie a chave por chat. Depois de salva, ela não poderá ser visualizada.
             </p>
           </div>
           <form
@@ -136,7 +136,11 @@ function ContaAsaasPage() {
               className="min-h-12 w-full rounded-md border border-line2 bg-ink2 px-4 text-base text-paper outline-none focus:border-gold focus:ring-2 focus:ring-gold-soft"
             />
             <Button type="submit" size="lg" disabled={acao.ocupado} className="w-full sm:w-auto">
-              {acao.estaEm("salvar") ? "Salvando…" : estado?.configurada ? "Substituir chave" : "Salvar chave"}
+              {acao.estaEm("salvar")
+                ? "Salvando…"
+                : estado?.configurada
+                  ? "Substituir chave"
+                  : "Salvar chave"}
             </Button>
           </form>
         </section>

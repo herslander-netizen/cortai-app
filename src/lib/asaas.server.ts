@@ -58,7 +58,12 @@ export async function salvarChaveInterna(nome: string, valor: string) {
 }
 
 export async function removerChaveInterna(nome: string) {
-  const { error } = await (await db()).from("chaves_internas" as never).delete().eq("nome", nome);
+  const { error } = await (
+    await db()
+  )
+    .from("chaves_internas" as never)
+    .delete()
+    .eq("nome", nome);
   if (error) throw new Error("Não consegui remover a configuração.");
 }
 

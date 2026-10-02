@@ -71,7 +71,9 @@ export const getEstadoAsaas = createServerFn({ method: "GET" })
 
 export const salvarChaveAsaas = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ chave: z.string().trim().min(1).max(500) }).parse(input))
+  .validator((input: unknown) =>
+    z.object({ chave: z.string().trim().min(1).max(500) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     await adminContext(context);
     const { ambienteDaChave, salvarChaveInterna } = await import("@/lib/asaas.server");
@@ -250,15 +252,13 @@ export const addRetentionContact = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db
-      .from("contatos_de_retencao")
-      .insert({
-        tenant_id: data.tenantId,
-        canal: data.canal,
-        resultado: data.resultado,
-        observacao: data.observacao,
-        criado_por: context.userId,
-      });
+    const { error } = await db.from("contatos_de_retencao").insert({
+      tenant_id: data.tenantId,
+      canal: data.canal,
+      resultado: data.resultado,
+      observacao: data.observacao,
+      criado_por: context.userId,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -345,16 +345,14 @@ export const saveSuggestion = createServerFn({ method: "POST" })
   .validator((input: unknown) => suggestionSchema.parse(input))
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db
-      .from("sugestoes_da_plataforma")
-      .insert({
-        pedido: data.pedido,
-        motivo: data.motivo,
-        canal: data.canal,
-        tenants_que_pediram: data.tenants,
-        status: data.status,
-        criado_por: context.userId,
-      });
+    const { error } = await db.from("sugestoes_da_plataforma").insert({
+      pedido: data.pedido,
+      motivo: data.motivo,
+      canal: data.canal,
+      tenants_que_pediram: data.tenants,
+      status: data.status,
+      criado_por: context.userId,
+    });
     if (error) {
       console.error("[admin] saveSuggestion falhou:", error.message);
       throw new Error("Não foi possível registrar a sugestão agora. Tente novamente.");
