@@ -12,7 +12,8 @@ import {
   Maximize2,
   MoreHorizontal,
 } from "lucide-react";
-import { useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import { useGuia } from "@/components/guia/GuiaProvider";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function CabecalhoAgenda({
   visualizacao,
   onVisualizacao,
   mostrarSemana,
-  mostrarSeletor = true,
+  celular = false,
   onTeclasVisualizacao,
   discreto,
   onDiscreto,
@@ -70,7 +71,8 @@ export function CabecalhoAgenda({
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
   mostrarSemana: boolean;
-  mostrarSeletor?: boolean;
+  /** Celular: data vai para a barra do topo, "⋯" para a linha do resumo e os chips rolam. */
+  celular?: boolean;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
   discreto: boolean;
   onDiscreto: () => void;
@@ -83,127 +85,162 @@ export function CabecalhoAgenda({
     { id: "lista" as const, rotulo: "Lista", Icone: List },
     ...(mostrarSemana ? [{ id: "semana" as const, rotulo: "Semana", Icone: CalendarDays }] : []),
   ];
-  return (
-    <header className="agenda-cabecalho-compacto agenda-cabecalho-unico">
-      <h1 className="sr-only">Agenda</h1>
-      <div className="agenda-cabecalho-linha">
-        <Popover open={calendario} onOpenChange={setCalendario}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              className="agenda-data-botao min-h-12"
-              aria-label={`${ehHoje ? "Hoje, " : ""}${dataEditorial(dia)}. Abrir calendário`}
-            >
-              <strong>{ehHoje ? "Hoje" : dataEditorial(dia)}</strong>
-              {ehHoje ? <span>{dataEditorial(dia)}</span> : null}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto border-line bg-ink2 p-2">
-            <Calendar
-              mode="single"
-              selected={paraData(dia)}
-              defaultMonth={paraData(dia)}
-              onSelect={(data) => {
-                if (data) onDia(deData(data));
-                setCalendario(false);
-              }}
-            />
-          </PopoverContent>
-        </Popover>
+  const [topo, setTopo] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setTopo(celular ? document.getElementById("topo-centro") : null);
+  }, [celular]);
+  const data = (
+    <>
+      <Popover open={calendario} onOpenChange={setCalendario}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            className="agenda-data-botao min-h-12"
+            aria-label={`${ehHoje ? "Hoje, " : ""}${dataEditorial(dia)}. Abrir calendário`}
+          >
+            <strong>{ehHoje ? "Hoje" : dataEditorial(dia)}</strong>
+            {ehHoje ? <span>{dataEditorial(dia)}</span> : null}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto border-line bg-ink2 p-2">
+          <Calendar
+            mode="single"
+            selected={paraData(dia)}
+            defaultMonth={paraData(dia)}
+            onSelect={(data) => {
+              if (data) onDia(deData(data));
+              setCalendario(false);
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Dia anterior"
+        onClick={() => onDia(somarDias(dia, -1))}
+      >
+        <ChevronLeft />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Próximo dia"
+        onClick={() => onDia(somarDias(dia, 1))}
+      >
+        <ChevronRight />
+      </Button>
+    </>
+  );
+  const menu = (
+    <>
+      {discreto ? (
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Dia anterior"
-          onClick={() => onDia(somarDias(dia, -1))}
+          className="ml-auto"
+          aria-label="Desativar modo discreto"
+          onClick={onDiscreto}
         >
-          <ChevronLeft />
+          <EyeOff />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Próximo dia"
-          onClick={() => onDia(somarDias(dia, 1))}
-        >
-          <ChevronRight />
-        </Button>
-        {discreto ? (
+      ) : null}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto"
-            aria-label="Desativar modo discreto"
-            onClick={onDiscreto}
+            aria-label="Mais opções da agenda"
+            className={`relative ${discreto ? "" : "ml-auto"}`}
           >
-            <EyeOff />
+            <MoreHorizontal />
+            {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
           </Button>
-        ) : null}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Mais opções da agenda"
-              className={`relative ${discreto ? "" : "ml-auto"}`}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
+          <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
+            {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
+          </DropdownMenuItem>
+          {mostrarFila ? (
+            <DropdownMenuItem className="min-h-12" onSelect={onFila}>
+              <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
+            </DropdownMenuItem>
+          ) : null}
+          <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
+            {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
+          </DropdownMenuItem>
+          {guiaDisponivel ? (
+            <DropdownMenuItem className="min-h-12" onSelect={abrirGuia}>
+              <HelpCircle /> Ajuda desta tela
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+  const parar = (e: { stopPropagation: () => void }) => e.stopPropagation();
+  return (
+    <>
+      {topo
+        ? createPortal(
+            // Toques na barra do topo não sobem até o deslize de dia.
+            <div
+              className="agenda-topo-data"
+              onTouchStart={parar}
+              onTouchMove={parar}
+              onTouchEnd={parar}
+              onTouchCancel={parar}
             >
-              <MoreHorizontal />
-              {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
-            <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
-              {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
-            </DropdownMenuItem>
-            {mostrarFila ? (
-              <DropdownMenuItem className="min-h-12" onSelect={onFila}>
-                <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
-              {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
-            </DropdownMenuItem>
-            {guiaDisponivel ? (
-              <DropdownMenuItem className="min-h-12" onSelect={abrirGuia}>
-                <HelpCircle /> Ajuda desta tela
-              </DropdownMenuItem>
-            ) : null}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="mt-1 flex min-w-0 items-center gap-1">
-        <p className="agenda-resumo-dia min-w-0 flex-1 truncate text-left" aria-live="polite">
-          {resumo}
-        </p>
-        {!ehHoje ? (
-          <Button variant="ghost" className="min-h-12 shrink-0 px-3" onClick={onHoje}>
-            Hoje
-          </Button>
-        ) : null}
-        {mostrarSeletor ? (
-          <div
-            className="flex shrink-0"
-            role="group"
-            aria-label="Visualização da agenda"
-            onKeyDown={onTeclasVisualizacao}
-          >
-            {opcoes.map(({ id, rotulo, Icone }) => (
-              <Button
-                key={id}
-                id={`agenda-aba-${id}`}
-                variant="ghost"
-                size="icon"
-                className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
-                aria-label={rotulo}
-                aria-pressed={visualizacao === id}
-                tabIndex={visualizacao === id ? 0 : -1}
-                onClick={() => onVisualizacao(id)}
-              >
-                <Icone />
-              </Button>
-            ))}
+              {data}
+            </div>,
+            topo,
+          )
+        : null}
+      <header className="agenda-cabecalho-compacto agenda-cabecalho-unico">
+        <h1 className="sr-only">Agenda</h1>
+        {celular ? null : (
+          <div className="agenda-cabecalho-linha">
+            {data}
+            {menu}
           </div>
-        ) : null}
-      </div>
-      {children}
-    </header>
+        )}
+        <div className="mt-1 flex min-w-0 items-center gap-1">
+          <p className="agenda-resumo-dia min-w-0 flex-1 truncate text-left" aria-live="polite">
+            {resumo}
+          </p>
+          {!ehHoje ? (
+            <Button variant="ghost" className="min-h-12 shrink-0 px-3" onClick={onHoje}>
+              Hoje
+            </Button>
+          ) : null}
+          {mostrarSeletor ? (
+            <div
+              className="flex shrink-0"
+              role="group"
+              aria-label="Visualização da agenda"
+              onKeyDown={onTeclasVisualizacao}
+            >
+              {opcoes.map(({ id, rotulo, Icone }) => (
+                <Button
+                  key={id}
+                  id={`agenda-aba-${id}`}
+                  variant="ghost"
+                  size="icon"
+                  className={visualizacao === id ? "bg-ink3 text-paper" : "text-mute"}
+                  aria-label={rotulo}
+                  aria-pressed={visualizacao === id}
+                  tabIndex={visualizacao === id ? 0 : -1}
+                  onClick={() => onVisualizacao(id)}
+                >
+                  <Icone />
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+        {celular ? null : children}
+      </header>
+      {celular ? children : null}
+    </>
   );
 }

@@ -1000,7 +1000,7 @@ export function AgendaOperacional() {
           visualizacao={visualizacao}
           onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
-          mostrarSeletor={!celular}
+          celular={celular}
           onTeclasVisualizacao={teclasAbas}
           discreto={modoDiscreto}
           onDiscreto={alternarModoDiscreto}
