@@ -65,6 +65,6 @@
 - [x] Agenda — etapa 1/4: corrigir finalização, atraso, termos, estados e rótulos sem mudar layout
 - [x] Agenda — etapa 2/4: limpar faixa, lista, cabeçalho, Timeline, resumo e alvos visuais
 - [x] Agenda — etapa 3/4: corrigir acabamento, persistir visualização e adicionar modo discreto
-- [ ] Concentrar a navegação móvel no drawer e remover a barra inferior sem publicar
-- [ ] Substituir o acionador do menu pelos ícones enviados, alternando conforme o modo claro/escuro
-- [ ] Validar tipos, lint e testes da nova navegação móvel
+- [x] Concentrar a navegação móvel no drawer e remover a barra inferior sem publicar
+- [x] Substituir o acionador do menu pelos ícones enviados, alternando conforme o modo claro/escuro
+- [x] Validar tipos, lint e testes da nova navegação móvel

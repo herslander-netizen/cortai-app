@@ -44,8 +44,8 @@ import {
 } from "@/lib/navegacao-barbeiro";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
-import menuClaro from "@/assets/cortai-menu-light.png.asset.json";
-import menuEscuro from "@/assets/cortai-menu-dark.png.asset.json";
+import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
+import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
 
 type ItemDoMenu = {
   label: string;
