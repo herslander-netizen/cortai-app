@@ -632,17 +632,9 @@
 /* O modo tradicional usa a mesma identidade publicada, sem alterar o motor de agenda. */
 .agendamento-marca {
   --ink: var(--chat-page, var(--background));
-  --ink2: color-mix(
-    in oklab,
-    var(--chat-page, var(--background)) 88%,
-    var(--chat-secondary, transparent)
-  );
+  --ink2: var(--chat-superficie-1, var(--ink2));
   --paper: var(--chat-page-text, var(--foreground));
-  --ink3: color-mix(
-    in oklab,
-    var(--chat-page, var(--background)) 78%,
-    var(--chat-secondary, transparent)
-  );
+  --ink3: var(--chat-superficie-2, var(--ink3));
   --background: var(--chat-page, var(--background));
   --foreground: var(--chat-page-text, var(--foreground));
   --card: var(--chat-page, var(--background));
@@ -654,11 +646,8 @@
   --secondary: var(--ink3);
   --secondary-foreground: var(--paper);
   --muted: var(--ink3);
-  --muted-foreground: color-mix(
-    in oklab,
-    var(--chat-page-text, var(--foreground)) 72%,
-    var(--chat-page, var(--background))
-  );
+  --muted-foreground: var(--chat-texto-auxiliar, var(--muted-foreground));
+  --mute: var(--chat-texto-auxiliar, var(--mute));
   --accent: var(--ink3);
   --accent-foreground: var(--paper);
   --border: color-mix(in oklab, var(--chat-page-text, var(--foreground)) 24%, transparent);

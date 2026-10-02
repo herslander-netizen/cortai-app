@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { CSSProperties } from "react";
-import { CORES_AGENDAMENTO, contrasteDaMarca } from "@/lib/cor-marca";
+import { CORES_AGENDAMENTO, contrasteDaMarca, tokensDoAgendamento } from "@/lib/cor-marca";
 
 export const temaIds = [
   "cortai",
