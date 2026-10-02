@@ -137,7 +137,7 @@ export function ManagementHeader() {
               <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_48px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <LogoBarbearia nome={sessao?.tenantNome ?? "Meu negócio"} url={sessao?.tenantLogoUrl} size={56} className="rounded-full border-0 bg-drawer-card" />
+                    <LogoBarbearia nome={sessao?.tenantNome ?? "Meu negócio"} url={sessao?.tenantLogoUrl ?? null} size={56} className="rounded-full border-0 bg-drawer-card" />
                     <div className="min-w-0">
                       <SheetTitle className="truncate text-[22px] font-semibold leading-tight text-paper">{sessao?.tenantNome ?? "Meu negócio"}</SheetTitle>
                       <SheetDescription className="mt-1 truncate text-[15px] text-mute">

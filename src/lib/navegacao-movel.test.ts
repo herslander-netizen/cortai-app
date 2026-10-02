@@ -25,4 +25,27 @@ describe("navegação móvel", () => {
     const fonte = readFileSync("src/components/layout/NavegacaoEquipe.tsx", "utf8");
     expect(fonte).not.toContain("equipe-barra");
   });
+
+  it("mantém o drawer operacional e move itens secundários para Ajustes", () => {
+    const drawer = readFileSync("src/components/layout/ManagementDrawer.tsx", "utf8");
+    const ajustes = readFileSync("src/components/layout/DrawerAjustes.tsx", "utf8");
+    expect(drawer).not.toContain('titulo: "Sistema"');
+    expect(drawer).not.toContain("ModeMenuItem");
+    expect(drawer).toContain("DrawerDestaques");
+    expect(drawer).toContain("saudacao.titulo");
+    expect(ajustes).toContain("Conta e negócio");
+    expect(ajustes).toContain("Plano");
+    expect(ajustes).toContain("Aparência");
+    expect(ajustes).toContain("Avisos e notificações");
+    expect(ajustes).toContain("Ajuda e suporte");
+    expect(ajustes).toContain("Sair da conta");
+  });
+
+  it("promove Agenda ao primeiro destaque fora dos grupos", () => {
+    const destaques = readFileSync("src/components/layout/DrawerDestaques.tsx", "utf8");
+    const drawer = readFileSync("src/components/layout/ManagementDrawer.tsx", "utf8");
+    expect(destaques).toContain('to="/barbeiro"');
+    expect(destaques).toContain("Agenda");
+    expect(drawer).toContain('item.to !== "/barbeiro"');
+  });
 });
