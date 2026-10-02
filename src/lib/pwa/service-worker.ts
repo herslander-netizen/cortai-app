@@ -4,7 +4,7 @@
  * mostra a página offline. Nunca guarda HTML, server functions, /api ou banco.
  */
 import { VERSAO_INSTALADA } from "@/lib/versao";
-import { decidirExibicao, passaNoModoFoco, primeiroNome, textoDoPush } from "@/lib/push/regras";
+import { decidirExibicao, textoDoPush } from "@/lib/push/regras";
 
 export const ICONE_OFFLINE = "/icone-cortai-oficial-192-v2.png";
 
@@ -20,11 +20,7 @@ const CACHE_ESTADO = "cortai-estado-v1";
 const MANTER = [CACHE_ASSETS, CACHE_OFFLINE, CACHE_ESTADO];
 const ICONE = ${JSON.stringify(ICONE_OFFLINE)};
 const OFFLINE = ${JSON.stringify(paginaOffline())};
-const passaNoModoFoco = ${passaNoModoFoco.toString()};
 const decidirExibicao = ${decidirExibicao.toString()};
-const primeiroNome = ${primeiroNome.toString()};
-const VERBO = {agendamento_novo:"agendou",agendamento_cancelado:"cancelou",agendamento_remarcado:"remarcou",cliente_chegou:"chegou"};
-const tipoDePushValido = (v) => typeof v === "string" && v in VERBO;
 const textoDoPush = ${textoDoPush.toString()};
 
 self.addEventListener("install", (e) => {

@@ -69,16 +69,15 @@ export function decidirExibicao(opcoes: {
   tipo: string;
   proximo: boolean;
 }): DecisaoDeExibicao {
-  if (opcoes.foco && !passaNoModoFoco(opcoes.tipo, opcoes.proximo)) return "nada";
+  // Autocontida (vai para o service worker por toString): sem referências externas.
+  const t = opcoes.tipo;
+  const passa =
+    t === "agendamento_cancelado" ||
+    t === "agendamento_remarcado" ||
+    (t === "cliente_chegou" && opcoes.proximo);
+  if (opcoes.foco && !passa) return "nada";
   return opcoes.appVisivel ? "no_app" : "sistema";
 }
-
-const VERBO: Record<TipoDePush, string> = {
-  agendamento_novo: "agendou",
-  agendamento_cancelado: "cancelou",
-  agendamento_remarcado: "remarcou",
-  cliente_chegou: "chegou",
-};
 
 export function primeiroNome(nome: string | null | undefined) {
   const p = (nome ?? "").trim().split(/\s+/)[0] ?? "";
@@ -92,8 +91,16 @@ export function textoDoPush(opcoes: {
   quando: string;
   discreto: boolean;
 }) {
-  const nome = opcoes.discreto ? "Cliente" : primeiroNome(opcoes.nome);
-  const verbo = tipoDePushValido(opcoes.tipo) ? VERBO[opcoes.tipo] : "atualizou";
+  // Autocontida (vai para o service worker por toString): sem referências externas.
+  const verbos: Record<string, string> = {
+    agendamento_novo: "agendou",
+    agendamento_cancelado: "cancelou",
+    agendamento_remarcado: "remarcou",
+    cliente_chegou: "chegou",
+  };
+  const primeiro = (opcoes.nome ?? "").trim().split(/\s+/)[0]?.slice(0, 24) || "Cliente";
+  const nome = opcoes.discreto ? "Cliente" : primeiro;
+  const verbo = verbos[opcoes.tipo] ?? "atualizou";
   return `${nome} ${verbo} · ${opcoes.quando}`;
 }
 
