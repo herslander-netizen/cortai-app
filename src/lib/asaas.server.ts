@@ -104,7 +104,7 @@ export async function asaas() {
     const r = await fetch(`${base}${path}`, {
       method,
       headers: {
-        access_token: chave!,
+        access_token: chave,
         "Content-Type": "application/json",
         "User-Agent": "Cortai/1.0",
       },
