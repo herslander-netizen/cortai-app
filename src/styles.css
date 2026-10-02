@@ -5478,13 +5478,17 @@ button.agenda-nome:hover {
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 150ms var(--ease-saida), visibility 0s linear 150ms;
+  transition:
+    opacity 150ms var(--ease-saida),
+    visibility 0s linear 150ms;
 }
 .agenda-faixa-agora[data-aparece="true"] {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 150ms var(--ease-saida), visibility 0s;
+  transition:
+    opacity 150ms var(--ease-saida),
+    visibility 0s;
 }
 @media (prefers-reduced-motion: reduce) {
   .agenda-faixa-agora,

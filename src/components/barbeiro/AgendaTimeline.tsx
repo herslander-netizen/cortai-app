@@ -325,7 +325,12 @@ export function AgendaTimeline({
   irAgoraRef.current = () => voltarParaAgora();
   useEffect(() => {
     const linha = linhaAgoraRef.current;
-    if (!ehHoje || !linha || !window.matchMedia(CELULAR).matches || !("IntersectionObserver" in window)) {
+    if (
+      !ehHoje ||
+      !linha ||
+      !window.matchMedia(CELULAR).matches ||
+      !("IntersectionObserver" in window)
+    ) {
       publicarAgora({ lado: null, ir: null });
       return;
     }
@@ -342,7 +347,9 @@ export function AgendaTimeline({
             : ladoDoAgora(entrada.boundingClientRect, entrada.rootBounds ?? area);
           publicarAgora({ lado, ir });
         },
-        { rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px` },
+        {
+          rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px`,
+        },
       );
       observador.observe(linha);
     };
