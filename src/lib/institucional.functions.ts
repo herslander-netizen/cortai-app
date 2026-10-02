@@ -26,7 +26,7 @@ export type PedidoDeProjeto = z.infer<typeof esquema>;
 
 /** Recebe pedidos comerciais da Alvo Digital. Público por natureza: só grava, nunca lê. */
 export const enviarPedidoDeProjeto = createServerFn({ method: "POST" })
-  .inputValidator((input: PedidoDeProjeto) => esquema.parse(input))
+  .validator((input: PedidoDeProjeto) => esquema.parse(input))
   .handler(async ({ data }) => {
     const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
     const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {

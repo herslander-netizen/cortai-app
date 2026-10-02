@@ -96,7 +96,7 @@ export const getConversaDoAssistente = createServerFn({ method: "GET" })
 
 export const perguntarAoCortai = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         mensagem: z.string().trim().min(1).max(1500),
@@ -179,7 +179,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
 /** Interpreta texto livre e devolve uma PRÉVIA de serviços — nada é gravado aqui. */
 export const interpretarServicos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input),
   )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
@@ -196,7 +196,7 @@ export const interpretarServicos = createServerFn({ method: "POST" })
 /** Interpreta texto livre e devolve uma PRÉVIA de horários — nada é gravado aqui. */
 export const interpretarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input),
   )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
@@ -216,7 +216,7 @@ export const interpretarHorarios = createServerFn({ method: "POST" })
  */
 export const confirmarAcaoDaIa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         tipo: z.enum(["cadastrar_servicos", "definir_horarios"]),

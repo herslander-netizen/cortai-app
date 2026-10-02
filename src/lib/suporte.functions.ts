@@ -75,7 +75,7 @@ export type BarbeariaSuporte = {
 /** Ficha completa da barbearia para a tela de suporte. */
 export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<BarbeariaSuporte> => {
     const { db } = await comoSuporte(context);
     const [tenantRes, servicosRes, profRes, prodRes, auditoriaRes] = await Promise.all([
@@ -158,7 +158,7 @@ const camposSchema = z.object({
  */
 export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         tenantId: z.string().uuid(),
@@ -208,7 +208,7 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
 /** Liga/desliga um serviço, profissional ou produto como suporte. */
 export const alternarItemComoSuporte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         tenantId: z.string().uuid(),

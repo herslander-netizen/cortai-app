@@ -58,7 +58,7 @@ export const getConfigFidelidade = createServerFn({ method: "GET" })
 
 export const salvarFidelidade = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { ativo: boolean; alvo: number }) => {
+  .validator((data: { ativo: boolean; alvo: number }) => {
     const alvo = Math.round(data.alvo);
     if (alvo < 4 || alvo > 20) throw new Error("alvo fora da faixa");
     return { ativo: !!data.ativo, alvo };

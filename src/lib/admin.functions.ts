@@ -493,7 +493,7 @@ export const getMatrizDeRecursos = createServerFn({ method: "GET" })
 /** Liberar/bloquear um recurso para um plano. */
 export const definirRecursoDePlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         chave: z.string().min(2).max(60),

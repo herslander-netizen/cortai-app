@@ -85,7 +85,7 @@ export const getMinhasBarbearias = createServerFn({ method: "GET" })
 /** Troca a barbearia em uso. Só aceita barbearias em que a conta tem vínculo ativo. */
 export const definirBarbeariaAtiva = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const db = await admin();
     const { data: vinculo } = await db

@@ -20,7 +20,7 @@ export type OfertaPublica = {
 
 /** Público pelo token secreto da oferta: só dados necessários para decidir. */
 export const getOfertaPublica = createServerFn({ method: "GET" })
-  .inputValidator((data: { token: string }) => ({ token: validarToken(data) }))
+  .validator((data: { token: string }) => ({ token: validarToken(data) }))
   .handler(async ({ data }): Promise<OfertaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: o } = await supabaseAdmin
@@ -46,7 +46,7 @@ export const getOfertaPublica = createServerFn({ method: "GET" })
   });
 
 export const responderOferta = createServerFn({ method: "POST" })
-  .inputValidator((data: { token: string; aceitar: boolean }) => ({
+  .validator((data: { token: string; aceitar: boolean }) => ({
     token: validarToken(data),
     aceitar: Boolean(data.aceitar),
   }))

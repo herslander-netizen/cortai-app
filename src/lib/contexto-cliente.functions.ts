@@ -32,7 +32,7 @@ async function assinada(db: any, caminho: string | null) {
  */
 export const getContextoCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ slug: z.string().trim().max(100).optional() }).parse(input ?? {}),
   )
   .handler(async ({ data, context }): Promise<ContextoClienteAtual | null> => {

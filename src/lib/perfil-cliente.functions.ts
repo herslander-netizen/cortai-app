@@ -57,7 +57,7 @@ export type PerfilCliente = {
 
 export const getPerfilCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { clienteId: string }) => {
+  .validator((d: { clienteId: string }) => {
     if (!d?.clienteId) throw new Error("cliente invalido");
     return { clienteId: String(d.clienteId) };
   })
@@ -174,7 +174,7 @@ const limpar = (t: string | null | undefined, max: number) => {
 
 export const salvarFichaCorte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       clienteId: string;
       chips: string[];
@@ -221,7 +221,7 @@ export const salvarFichaCorte = createServerFn({ method: "POST" })
 
 export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { clienteId: string; preferencias: unknown }) => ({
+  .validator((d: { clienteId: string; preferencias: unknown }) => ({
     clienteId: String(d.clienteId),
     preferencias: validarPreferenciasCliente(d.preferencias),
   }))
@@ -243,7 +243,7 @@ export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
 
 export const enviarFotoCorte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       clienteId: string;
       agendamentoId?: string | null;
@@ -300,7 +300,7 @@ export const enviarFotoCorte = createServerFn({ method: "POST" })
 
 export const apagarFotoCorte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { fotoId: string }) => ({ fotoId: String(d.fotoId) }))
+  .validator((d: { fotoId: string }) => ({ fotoId: String(d.fotoId) }))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "editar_clientes");

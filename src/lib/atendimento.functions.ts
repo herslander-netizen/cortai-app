@@ -230,7 +230,7 @@ async function profissionalValido(db: Db, tenantId: string, id: string) {
 /** Cliente sem horário: entra direto Na cadeira. */
 export const iniciarAtendimentoAgora = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { clienteId?: string | null; servicoId: string | null; profissionalId: string }) => data,
   )
   .handler(async ({ data, context }) => {
@@ -265,7 +265,7 @@ export const iniciarAtendimentoAgora = createServerFn({ method: "POST" })
 /** Chama o próximo da fila de chegada. Padrão: quem chamou; senão o primeiro livre. */
 export const chamarProximoDaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { profissionalId?: string | null; filaId?: string | null }) => data ?? {})
+  .validator((data: { profissionalId?: string | null; filaId?: string | null }) => data ?? {})
   .handler(async ({ data, context }) => {
     const { db, tenantId, meuProfissionalId } = await base(context);
     await exigirRecurso(db, tenantId, "fila_espera");
@@ -335,7 +335,7 @@ export const chamarProximoDaFila = createServerFn({ method: "POST" })
 /** Desfazer (5 s) de um atendimento aberto agora ou chamado da fila. */
 export const desfazerInicioRapido = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; filaId?: string | null }) => data)
+  .validator((data: { agendamentoId: string; filaId?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenantId } = await base(context);
     await exigirPermissao(context, tenantId, "agendamento_manual");

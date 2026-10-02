@@ -67,7 +67,7 @@ export const listarParceirosAdmin = createServerFn({ method: "GET" })
 
 export const salvarParceiro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -97,7 +97,7 @@ export const salvarParceiro = createServerFn({ method: "POST" })
 
 export const removerParceiro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
     const { error } = await db.from("parceiros_da_plataforma").delete().eq("id", data.id);

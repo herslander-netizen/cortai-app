@@ -213,7 +213,7 @@ export const getBannersDaHome = createServerFn({ method: "GET" })
  */
 export const aplicarCupom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ codigo: z.string().trim().min(2).max(40) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -303,7 +303,7 @@ const planoSchema = z.object({
 
 export const salvarPlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => planoSchema.parse(input))
+  .validator((input: unknown) => planoSchema.parse(input))
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
     const linha = {
@@ -351,7 +351,7 @@ export type VisaoComercial = {
 
 export const getVisaoComercialDoTenant = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<VisaoComercial> => {
     const client = await somenteAdmin(context);
     const inicioDoMes = new Date();
@@ -438,7 +438,7 @@ const condicaoSchema = z.object({
 /** Condição especial de uma barbearia — não muda o preço padrão global. */
 export const salvarCondicao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => condicaoSchema.parse(input))
+  .validator((input: unknown) => condicaoSchema.parse(input))
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
     const linha = {
@@ -465,7 +465,7 @@ export const salvarCondicao = createServerFn({ method: "POST" })
 
 export const encerrarCondicao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
     const { error } = await client
@@ -479,7 +479,7 @@ export const encerrarCondicao = createServerFn({ method: "POST" })
 /** Troca o plano padrão da barbearia e, quando pedido, abre o teste grátis. */
 export const definirPlanoDoTenant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         tenantId: z.string().uuid(),
@@ -555,7 +555,7 @@ export const listarCupons = createServerFn({ method: "GET" })
 
 export const salvarCupom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -644,7 +644,7 @@ export const listarBanners = createServerFn({ method: "GET" })
 
 export const salvarBanner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -689,7 +689,7 @@ export const salvarBanner = createServerFn({ method: "POST" })
 
 export const removerBanner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
     const { error } = await client.from("banners_da_plataforma").delete().eq("id", data.id);

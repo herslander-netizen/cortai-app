@@ -40,7 +40,7 @@ export type DadosAgendar = {
 
 export const getDadosAgendar = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { slug?: string | undefined }) => data ?? {})
+  .validator((data: { slug?: string | undefined }) => data ?? {})
   .handler(async ({ data, context }): Promise<DadosAgendar> => {
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
     const { STATUS_QUE_OCUPAM, regrasDaBarbearia } = await import("@/lib/agenda-regras.server");
@@ -159,7 +159,7 @@ export type ConflitoAgendamento = { conflito: true; agendamentoId: string; hora:
 
 export const criarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       slug?: string;
       profissionalId: string;
@@ -259,7 +259,7 @@ export const criarAgendamento = createServerFn({ method: "POST" })
 
 export const cancelarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string }) => data)
+  .validator((data: { agendamentoId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, fichas } = await fichasDoUsuario(context);
     const ids = fichas.map((f) => f.cliente.id);
@@ -296,7 +296,7 @@ export type AgendamentoCliente = {
 
 export const listarAgendamentosCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { slug?: string | undefined }) => data ?? {})
+  .validator((data: { slug?: string | undefined }) => data ?? {})
   .handler(async ({ data, context }): Promise<AgendamentoCliente[]> => {
     const { db, fichas } = await fichasDoUsuario(context);
     const ids = data.slug

@@ -88,7 +88,7 @@ export const getPlanosDaBarbearia = createServerFn({ method: "GET" })
 /** Troca o plano da barbearia. Só muda a chave do plano: nenhum dado é apagado. */
 export const escolherPlanoDaBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         chave: z

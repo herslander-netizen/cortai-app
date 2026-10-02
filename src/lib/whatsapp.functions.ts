@@ -557,7 +557,7 @@ const configSchema = z.object({
 
 export const salvarConfiguracaoDoCortai = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => configSchema.parse(input))
+  .validator((input: unknown) => configSchema.parse(input))
   .handler(async ({ context, data }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "configurar_automacoes");
@@ -680,7 +680,7 @@ export type AtividadeDoCortai = {
  */
 export const getAtividadeDoCortai = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { apenasFalhas?: boolean } | undefined) => input ?? {})
+  .validator((input: { apenasFalhas?: boolean } | undefined) => input ?? {})
   .handler(async ({ context, data }): Promise<AtividadeDoCortai> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");

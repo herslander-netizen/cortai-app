@@ -157,7 +157,7 @@ export async function hashDoTokenDePreferencias(token: string) {
 }
 
 export const getAgendaPublica = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
+  .validator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
     const { STATUS_QUE_OCUPAM, mapearHorarios, janelaValida, passoValido } =
       await import("@/lib/agenda-regras.server");
@@ -272,7 +272,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
  * Mantido para compatibilidade com telas antigas; sempre devolve nome null.
  */
 export const reconhecerCliente = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ slug: slugSchema, telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data }): Promise<{ nome: string | null }> => {
@@ -299,7 +299,7 @@ export type ResultadoConvidado =
   | { tipo: "conflito"; agendamentoId: string; hora: string };
 
 export const agendarComoConvidado = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         slug: slugSchema,
@@ -520,7 +520,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
 
 /** Preferências opcionais após a confirmação; não lê nem devolve a ficha privada. */
 export const salvarPreferenciasDoAgendamento = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const base = z
       .object({
         agendamentoId: z.string().uuid(),
@@ -550,7 +550,7 @@ export const salvarPreferenciasDoAgendamento = createServerFn({ method: "POST" }
 
 /** Situação atual de um agendamento guardado no aparelho (prova: id + WhatsApp). */
 export const situacaoComoConvidado = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data }): Promise<{ status: string; inicio: string; fim: string } | null> => {
@@ -574,7 +574,7 @@ export const situacaoComoConvidado = createServerFn({ method: "POST" })
 
 /** Nome, descrição e capa da barbearia para a prévia do link (WhatsApp, Instagram). */
 export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
+  .validator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(
     async ({
       data,
@@ -614,7 +614,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
 
 /** Cancelamento sem conta: só vale com o mesmo WhatsApp que marcou. */
 export const cancelarComoConvidado = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data }): Promise<{ cancelado: boolean }> => {
@@ -646,7 +646,7 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
  */
 export const vincularFichaDoConvidado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ agendamentoId: z.string().uuid(), telefone: telefoneSchema }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ vinculado: boolean; slug: string | null }> => {

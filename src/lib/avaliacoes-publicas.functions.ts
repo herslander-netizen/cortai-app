@@ -61,7 +61,7 @@ export async function criarConviteDeAvaliacao(agendamentoId: string) {
 }
 
 export const getConviteDeAvaliacao = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ token: z.string().min(40).max(100) }).parse(input))
+  .validator((input: unknown) => z.object({ token: z.string().min(40).max(100) }).parse(input))
   .handler(async ({ data }) => {
     const db = await admin();
     const tokenHash = await hashToken(data.token);
@@ -84,7 +84,7 @@ export const getConviteDeAvaliacao = createServerFn({ method: "GET" })
   });
 
 export const registrarAvaliacaoPublica = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         token: z.string().min(40).max(100),

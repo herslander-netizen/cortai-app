@@ -227,7 +227,7 @@ async function gravarOnboarding(
 
 export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         nome: z.string().trim().min(2).max(80),
@@ -269,7 +269,7 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
 
 export const salvarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         horarios: z.array(horarioSchema).min(1).max(7),
@@ -309,7 +309,7 @@ export const salvarHorarios = createServerFn({ method: "POST" })
 
 export const salvarServicos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ servicos: z.array(servicoSchema).min(1).max(40) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -361,7 +361,7 @@ export const salvarServicos = createServerFn({ method: "POST" })
 
 export const removerServico = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
@@ -402,7 +402,7 @@ export const concluirConfiguracao = createServerFn({ method: "POST" })
 
 export const marcarItemDoChecklist = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ chave: z.string().trim().min(2).max(30), feito: z.boolean().default(true) })
       .parse(input),
@@ -596,7 +596,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
 
 export const salvarModoAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ modo: z.enum(["tradicional", "conversa"]) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -654,7 +654,7 @@ export const getFilaDeChegadaConfig = createServerFn({ method: "GET" })
 
 export const salvarFilaDeChegada = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .validator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
@@ -695,7 +695,7 @@ export const salvarFilaDeChegada = createServerFn({ method: "POST" })
 
 export const alterarSegmento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         segmento: z.enum([
@@ -763,7 +763,7 @@ export const trocarAtalhosDaFicha = createServerFn({ method: "POST" })
 /** Guarda a etapa alcançada, para a pessoa poder sair e voltar sem perder nada. */
 export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ etapa: z.enum(ETAPAS_DA_IMPLANTACAO) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -775,7 +775,7 @@ export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
 /** Cadastra o primeiro profissional (e os próximos) respeitando o limite do plano. */
 export const adicionarProfissional = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ nome: z.string().trim().min(2).max(60) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -798,7 +798,7 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
 /** Regras de agendamento da barbearia (antecedência, cancelamento, intervalo e encaixe). */
 export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         antecedenciaMinMinutos: z.number().int().min(0).max(10080),

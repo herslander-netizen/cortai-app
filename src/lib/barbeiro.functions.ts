@@ -55,7 +55,7 @@ export type PainelHoje = {
 
 export const finalizarAtendimento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string }) => data)
+  .validator((data: { agendamentoId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "confirmar_pagamento");
@@ -126,7 +126,7 @@ export type AgendaDia = {
 
 export const getAgendaDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { dia?: string | undefined }) => data ?? {})
+  .validator((data: { dia?: string | undefined }) => data ?? {})
   .handler(async ({ data, context }): Promise<AgendaDia> => {
     const { db, tenant } = await tenantPadrao(context);
     const fuso = await fusoDoTenant(tenant.id);
@@ -231,7 +231,7 @@ export type EstadoAtendimento = (typeof ESTADOS_ATENDIMENTO)[number];
 /** Muda a etapa do atendimento. Horários e quem fez são gravados pelo banco. */
 export const mudarEstadoAtendimento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       agendamentoId: string;
       estado: EstadoAtendimento;
@@ -339,7 +339,7 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
 
 export const avisarFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { filaId: string }) => data)
+  .validator((data: { filaId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirRecurso(db, tenant.id, "fila_espera");
@@ -355,7 +355,7 @@ export const avisarFila = createServerFn({ method: "POST" })
 
 export const oferecerHorarioAFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { inicioIso: string }) => data)
+  .validator((data: { inicioIso: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirRecurso(db, tenant.id, "fila_espera");
@@ -443,7 +443,7 @@ export const listarClientesBarbeiro = createServerFn({ method: "GET" })
 
 export const getFichaCliente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string }) => data)
+  .validator((data: { clienteId: string }) => data)
   .handler(async ({ data, context }): Promise<FichaCliente> => {
     const { db, tenant } = await tenantPadrao(context);
     const { data: cliente } = await db
@@ -514,7 +514,7 @@ export const getFichaCliente = createServerFn({ method: "GET" })
  */
 export const registrarBaixaFiado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string; centavos: number }) => {
+  .validator((data: { clienteId: string; centavos: number }) => {
     const centavos = Math.round(data.centavos);
     if (centavos <= 0) throw new Error("valor invalido");
     return { clienteId: data.clienteId, centavos };
@@ -676,7 +676,7 @@ export const getFila = createServerFn({ method: "GET" })
 /** Remove da lista sem apagar histórico: status "saiu". */
 export const removerDaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { filaId: string }) => data)
+  .validator((data: { filaId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirRecurso(db, tenant.id, "fila_espera");
@@ -700,7 +700,7 @@ export const removerDaFila = createServerFn({ method: "POST" })
 /** Prioriza: troca a posição com o vizinho (para cima ou para baixo). */
 export const moverNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { filaId: string; direcao: "subir" | "descer" }) => ({
+  .validator((data: { filaId: string; direcao: "subir" | "descer" }) => ({
     filaId: String(data.filaId),
     direcao: data.direcao === "descer" ? ("descer" as const) : ("subir" as const),
   }))
@@ -734,7 +734,7 @@ export const moverNaFila = createServerFn({ method: "POST" })
 
 export const editarFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       filaId: string;
       servicoId: string | null;
@@ -789,7 +789,7 @@ export const editarFila = createServerFn({ method: "POST" })
  */
 export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { filaId: string; servicoId: string; profissionalId: string; inicioIso: string }) => {
       if (Number.isNaN(new Date(data.inicioIso).getTime())) throw new Error("Horário inválido.");
       return data;
@@ -901,7 +901,7 @@ export const getOpcoesDaFila = createServerFn({ method: "GET" })
 /** Arquivar é reversível: some das listas, mas nada de histórico é apagado. */
 export const arquivarCliente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string; arquivar: boolean }) => ({
+  .validator((data: { clienteId: string; arquivar: boolean }) => ({
     clienteId: String(data.clienteId),
     arquivar: Boolean(data.arquivar),
   }))
@@ -923,7 +923,7 @@ export const arquivarCliente = createServerFn({ method: "POST" })
  */
 export const excluirClientePermanente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { clienteId: string }) => ({
+  .validator((data: { clienteId: string }) => ({
     clienteId: String(data.clienteId),
   }))
   .handler(async ({ data, context }) => {
@@ -1029,7 +1029,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
 /** Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. */
 export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { termo?: string | undefined }) => ({
+  .validator((data: { termo?: string | undefined }) => ({
     termo: (data?.termo ?? "").trim().slice(0, 60),
   }))
   .handler(async ({ data, context }) => {
@@ -1094,7 +1094,7 @@ export type ResultadoManual = {
  */
 export const criarAgendamentoManual = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       clienteId?: string | undefined;
       novoNome?: string | undefined;
@@ -1293,7 +1293,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
 /** Próximo horário realmente livre (hoje, dentro do funcionamento) para "atender agora". */
 export const getProximoHorarioLivre = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { profissionalId?: string | undefined; servicoId?: string | undefined }) => data ?? {},
   )
   .handler(async ({ data, context }): Promise<{ iso: string; label: string } | null> => {
@@ -1369,7 +1369,7 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
  */
 export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       clienteId: string;
       fidelidadeParticipa: boolean | null;
@@ -1428,7 +1428,7 @@ export const salvarPersonalizacaoCliente = createServerFn({ method: "POST" })
 /** Remarcar = cancelar pelas regras atuais e recriar com o mesmo serviço. */
 export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string; novoInicio: string }) => data)
+  .validator((data: { agendamentoId: string; novoInicio: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "agendamento_manual");
@@ -1468,7 +1468,7 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
 
 export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { agendamentoId: string }) => data)
+  .validator((data: { agendamentoId: string }) => data)
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "agendamento_manual");
@@ -1493,7 +1493,7 @@ export const cancelarAgendamentoPainel = createServerFn({ method: "POST" })
 /** Mover horário (arrastar na agenda): atualiza o mesmo agendamento; a trava do banco rejeita sobreposição. */
 export const moverAgendamentoPainel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       agendamentoId: string;
       novoInicio: string;

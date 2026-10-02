@@ -120,7 +120,7 @@ const dadosSchema = z.object({
 
 export const salvarMeusDadosDeCobranca = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => dadosSchema.parse(input))
+  .validator((input: unknown) => dadosSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_plano");
@@ -142,7 +142,7 @@ export const salvarMeusDadosDeCobranca = createServerFn({ method: "POST" })
 
 export const contratarPlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         plano: z.string().regex(/^[a-z0-9_]{2,30}$/),

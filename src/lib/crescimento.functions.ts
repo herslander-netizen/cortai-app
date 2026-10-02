@@ -305,7 +305,7 @@ export const getIndicacoes = createServerFn({ method: "GET" })
 
 export const salvarConfigIndicacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         ativa: z.boolean(),
@@ -337,7 +337,7 @@ export const salvarConfigIndicacao = createServerFn({ method: "POST" })
 
 export const registrarIndicacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         indicadorClienteId: z.string().uuid().nullable(),
@@ -360,7 +360,7 @@ export const registrarIndicacao = createServerFn({ method: "POST" })
 
 export const atualizarIndicacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -448,7 +448,7 @@ export const getAvaliacoes = createServerFn({ method: "GET" })
 
 export const registrarAvaliacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         agendamentoId: z.string().uuid(),
@@ -481,7 +481,7 @@ export const registrarAvaliacao = createServerFn({ method: "POST" })
 
 export const salvarLinkAvaliacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ link: z.string().trim().max(300) }).parse(input))
+  .validator((input: unknown) => z.object({ link: z.string().trim().max(300) }).parse(input))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     const { error } = await db
@@ -498,7 +498,7 @@ const PERIODOS = { semanal: 7, quinzenal: 14, mensal: 28 } as const;
 
 export const repetirAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         agendamentoId: z.string().uuid(),
@@ -576,7 +576,7 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" })
 
 export const salvarPerfilProfissional = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string().uuid(),

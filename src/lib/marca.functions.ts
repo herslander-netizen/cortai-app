@@ -279,7 +279,7 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
 
 export const alterarLinkPublico = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         slug: z

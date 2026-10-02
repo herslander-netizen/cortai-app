@@ -33,7 +33,7 @@ export type LojaPublica = {
  * + produto ativo + marcado como disponível para venda + preço válido.
  */
 export const getLojaPublica = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ slug: z.string().trim().min(1).max(100) }).parse(input),
   )
   .handler(async ({ data }): Promise<LojaPublica | null> => {

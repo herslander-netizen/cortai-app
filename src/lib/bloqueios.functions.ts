@@ -19,7 +19,7 @@ export type Bloqueio = {
 
 export const listarBloqueiosDoDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ dia: z.string().regex(DIA) }).parse(d))
+  .validator((d) => z.object({ dia: z.string().regex(DIA) }).parse(d))
   .handler(async ({ data, context }): Promise<Bloqueio[]> => {
     const tenantId = await tenantIdDoMembro(context);
     const fuso = await fusoDoTenant(tenantId);
@@ -44,7 +44,7 @@ export const listarBloqueiosDoDia = createServerFn({ method: "GET" })
 
 export const criarBloqueio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         dia: z.string().regex(DIA),
@@ -93,7 +93,7 @@ export const criarBloqueio = createServerFn({ method: "POST" })
 
 export const removerBloqueio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const { error } = await context.supabase
@@ -109,7 +109,7 @@ export type DiaDaEscala = { diaSemana: number; trabalha: boolean; abre: string; 
 
 export const getEscalaDoProfissional = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ profissionalId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ profissionalId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const { data: linhas } = await context.supabase
@@ -128,7 +128,7 @@ export const getEscalaDoProfissional = createServerFn({ method: "GET" })
 /** Grava a escala inteira; dias ausentes voltam a seguir o expediente do negócio. */
 export const salvarEscalaDoProfissional = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         profissionalId: z.string().uuid(),

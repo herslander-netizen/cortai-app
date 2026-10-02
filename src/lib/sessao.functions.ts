@@ -192,7 +192,7 @@ export const getSessao = createServerFn({ method: "GET" })
 
 export const salvarIdentidadeApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ identidade: z.enum(IDENTIDADES), tenantId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -216,7 +216,7 @@ export const salvarIdentidadeApp = createServerFn({ method: "POST" })
 
 export const definirTipoDePerfil = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ tipo: z.enum(["cliente", "barbeiro"]), nome: z.string().trim().max(80).optional() })
       .parse(input),
@@ -235,7 +235,7 @@ export const definirTipoDePerfil = createServerFn({ method: "POST" })
 
 export const criarBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         nome: z.string().trim().min(2).max(80),
