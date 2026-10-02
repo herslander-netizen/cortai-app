@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { type InicioDoGesto } from "./gesto-dia";
+import {
+  decidirFimDoGesto,
+  definirVizinhoDoGesto,
+  limitarDeslocamento,
+  movimentoRecente,
+  travarEixo,
+  vizinhoDoGesto,
+  type InicioDoGesto,
+} from "./gesto-dia";
 
 const base: InicioDoGesto = {
   x: 200,
@@ -10,7 +18,6 @@ const base: InicioDoGesto = {
   arrastando: false,
 };
 
-import { decidirFimDoGesto, limitarDeslocamento, movimentoRecente, travarEixo } from "./gesto-dia";
 
 describe("travarEixo", () => {
   it("só decide depois de ~10 px e mantém a decisão", () => {
