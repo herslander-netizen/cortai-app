@@ -35,3 +35,4 @@
 - WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
 - Links de tela do painel ficam em `src/lib/links-de-tela.ts` (espelho SQL `link_de_tela`) — a troca de rota acontece num lugar só.
 - WhatsApp: formato do aviso decidido só por `decidirFormato` (`whatsapp/modelos.ts`) — interativo dentro da janela de 24h, modelo APROVADO do catálogo `modelos_whatsapp` fora dela, senão `sem_modelo`; botões sempre `ACAO:{id do envio}` — uma regra só para formato, custo e respostas.
+- Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app.
