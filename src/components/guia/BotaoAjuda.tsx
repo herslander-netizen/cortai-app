@@ -1,9 +1,11 @@
 import { HelpCircle } from "lucide-react";
 import { useGuia } from "./GuiaProvider";
+import { useModoFoco } from "@/lib/modo-foco";
 
 export function BotaoAjuda() {
+  const foco = useModoFoco();
   const { guiaDisponivel, abrirGuia, emAndamento, prefs } = useGuia();
-  if (!guiaDisponivel || emAndamento) return null;
+  if (foco || !guiaDisponivel || emAndamento) return null;
   return (
     <button
       type="button"

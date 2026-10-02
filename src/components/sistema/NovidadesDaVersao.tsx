@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 import { APP_VERSION, VERSAO_ATUAL_INFO } from "@/lib/versao";
+import { useModoFoco } from "@/lib/modo-foco";
 
 const CHAVE = "cortai-novidades-vistas";
 
@@ -12,6 +13,7 @@ const CHAVE = "cortai-novidades-vistas";
  * interrompe o funcionamento do app — dá para fechar a qualquer momento.
  */
 export function NovidadesDaVersao() {
+  const foco = useModoFoco();
   const caminho = useRouterState({ select: (s) => s.location.pathname });
   const [aberto, setAberto] = useState(false);
 
@@ -19,15 +21,14 @@ export function NovidadesDaVersao() {
   const areaLogada = caminho.startsWith("/app") || caminho.startsWith("/admin");
 
   useEffect(() => {
-    if (!areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
+    if (foco || !areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
     try {
       const vista = localStorage.getItem(CHAVE);
       if (vista === APP_VERSION) return;
       // Primeiro acesso neste aparelho: não há "novidade" para quem acabou de chegar.
       // Registra a versão em silêncio e deixa só as dicas de boas-vindas.
       const jaUsou =
-        vista !== null ||
-        Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
+        vista !== null || Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
       if (!jaUsou) {
         localStorage.setItem(CHAVE, APP_VERSION);
         return;
@@ -37,7 +38,7 @@ export function NovidadesDaVersao() {
     }
     const timer = window.setTimeout(() => setAberto(true), 600);
     return () => window.clearTimeout(timer);
-  }, [areaLogada]);
+  }, [areaLogada, foco]);
 
   function fechar() {
     setAberto(false);
@@ -55,19 +56,30 @@ export function NovidadesDaVersao() {
     return () => window.removeEventListener("keydown", tecla);
   }, [aberto]);
 
-  if (!aberto) return null;
+  if (!aberto || foco) return null;
 
   const destaques = [...VERSAO_ATUAL_INFO.funcionalidades, ...VERSAO_ATUAL_INFO.visual].slice(0, 5);
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/80 p-4 sm:items-center">
-      <div role="dialog" aria-label="Novidades do Cortaí" className="w-full max-w-md surface p-6 shadow-xl">
+      <div
+        role="dialog"
+        aria-label="Novidades do Cortaí"
+        className="w-full max-w-md surface p-6 shadow-xl"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-rosa">NOVIDADES</p>
-            <h2 className="mt-2 text-2xl font-semibold text-paper">{VERSAO_ATUAL_INFO.titulo} chegou.</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-paper">
+              {VERSAO_ATUAL_INFO.titulo} chegou.
+            </h2>
           </div>
-          <button type="button" onClick={fechar} aria-label="Fechar novidades" className="rounded-full p-2 text-mute hover:text-paper">
+          <button
+            type="button"
+            onClick={fechar}
+            aria-label="Fechar novidades"
+            className="rounded-full p-2 text-mute hover:text-paper"
+          >
             <X size={18} />
           </button>
         </div>

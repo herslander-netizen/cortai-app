@@ -18,3 +18,13 @@ export function comDesfazer(texto: string, desfazer: () => void | Promise<void>)
     action: { label: "Desfazer", onClick: () => void desfazer() },
   });
 }
+
+export function avisosGuardados(total: number) {
+  toast(`${total} ${total === 1 ? "aviso guardado" : "avisos guardados"} enquanto você atendia`, {
+    duration: 6000,
+    action: {
+      label: "Ver avisos",
+      onClick: () => window.dispatchEvent(new Event("cortai:abrir-avisos")),
+    },
+  });
+}

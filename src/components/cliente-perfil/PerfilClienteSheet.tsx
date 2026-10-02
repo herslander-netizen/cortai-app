@@ -1,7 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Plus, TriangleAlert, Trash2, X } from "lucide-react";
+import {
+  Check,
+  Coffee,
+  MessageCircle,
+  Music,
+  Plus,
+  Snowflake,
+  Sparkles,
+  TriangleAlert,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,8 +23,10 @@ import {
   apagarFotoCorte,
   getPerfilCliente,
   salvarFichaCorte,
+  salvarPreferenciasCliente,
   type PerfilCliente,
 } from "@/lib/perfil-cliente.functions";
+import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { termos as termosPara, type Segmento } from "@/lib/segmentos";
 
 function data(iso: string, fuso: string) {
@@ -252,7 +265,10 @@ function Conteudo({
           Cliente avulso: identifique na comanda para guardar ficha e fotos.
         </p>
       ) : (
-        <EditorFicha p={p} onSalvo={recarregar} />
+        <>
+          <EditorPreferencias p={p} onSalvo={recarregar} />
+          <EditorFicha p={p} onSalvo={recarregar} />
+        </>
       )}
 
       {!p.cliente.avulso ? (
@@ -350,6 +366,111 @@ function Conteudo({
         </div>
       ) : null}
     </>
+  );
+}
+
+const OPCOES = {
+  conversa: ["papo", "silencio", "tanto_faz"],
+  ar: ["gelado", "ameno", "sem_ar"],
+  bebida: ["cafe", "agua", "refri", "cerveja", "nada"],
+} as const;
+
+function EditorPreferencias({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) {
+  const salvar = useServerFn(salvarPreferenciasCliente);
+  const [preferencias, setPreferencias] = useState<PreferenciasCliente>(p.preferencias);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const grupos = [
+    { chave: "conversa" as const, titulo: "Conversa", icone: MessageCircle },
+    { chave: "ar" as const, titulo: "Ambiente", icone: Snowflake },
+    { chave: "bebida" as const, titulo: "Bebida", icone: Coffee },
+  ];
+  async function gravar() {
+    setSalvando(true);
+    setErro(null);
+    try {
+      const resultado = await salvar({ data: { clienteId: p.cliente.id, preferencias } });
+      setPreferencias(resultado.preferencias);
+      onSalvo();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não foi possível salvar.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+  return (
+    <section className="mt-6 border-t border-line pt-5">
+      <p className="mb-3 text-xs font-bold uppercase text-mute">Preferências</p>
+      <div className="space-y-4">
+        {grupos.map(({ chave, titulo, icone: Icone }) => (
+          <fieldset key={chave}>
+            <legend className="mb-2 flex items-center gap-2 text-sm font-semibold text-paper">
+              <Icone className="size-4" aria-hidden />
+              {titulo}
+            </legend>
+            <div className="flex flex-wrap gap-2">
+              {OPCOES[chave].map((valor) => (
+                <Button
+                  key={valor}
+                  type="button"
+                  variant="ghost"
+                  className="min-h-12 rounded-full border border-line"
+                  aria-pressed={preferencias[chave] === valor}
+                  onClick={() => setPreferencias((atual) => ({ ...atual, [chave]: valor }))}
+                >
+                  {String((ROTULOS_PREFERENCIAS[chave] as Record<string, string>)[valor])}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+        <label className="field-label">
+          Música
+          <input
+            className="field-control"
+            maxLength={40}
+            value={preferencias.musica ?? ""}
+            onChange={(e) => setPreferencias((a) => ({ ...a, musica: e.target.value }))}
+          />
+        </label>
+        <label className="field-label">
+          Atendimento habitual
+          <input
+            className="field-control"
+            maxLength={60}
+            value={preferencias.corte_habitual ?? ""}
+            onChange={(e) => setPreferencias((a) => ({ ...a, corte_habitual: e.target.value }))}
+          />
+        </label>
+        <label className="field-label">
+          Atenção
+          <input
+            className="field-control"
+            maxLength={80}
+            value={preferencias.atencao ?? ""}
+            onChange={(e) => setPreferencias((a) => ({ ...a, atencao: e.target.value }))}
+          />
+        </label>
+        <label className="field-label">
+          Assuntos
+          <input
+            className="field-control"
+            maxLength={80}
+            value={preferencias.assuntos ?? ""}
+            onChange={(e) => setPreferencias((a) => ({ ...a, assuntos: e.target.value }))}
+          />
+        </label>
+      </div>
+      <Button className="mt-4 h-12 w-full" disabled={salvando} onClick={() => void gravar()}>
+        <Sparkles aria-hidden />
+        {salvando ? "Salvando…" : "Salvar preferências"}
+      </Button>
+      {erro ? (
+        <p className="field-error mt-2" role="alert">
+          {erro}
+        </p>
+      ) : null}
+    </section>
   );
 }
 

@@ -19,6 +19,7 @@ import { molaFolha, transicaoBase } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
+import { guardarAvisoDoFoco, modoFocoAtivo } from "@/lib/modo-foco";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -69,6 +70,10 @@ export function SinoDeAvisos() {
         (payload) => {
           void queryClient.invalidateQueries({ queryKey: ["notificacoes", tenantId] });
           const novo = payload.new as Partial<Notificacao> | undefined;
+          if (modoFocoAtivo()) {
+            guardarAvisoDoFoco();
+            return;
+          }
           if (novo?.titulo) mostrarAviso(novo.titulo, novo.corpo ?? null, novo.link ?? null);
           setPulsar(true);
           setTimeout(() => montado.current && setPulsar(false), 1200);
@@ -91,6 +96,12 @@ export function SinoDeAvisos() {
       document.body.style.overflow = anterior;
     };
   }, [aberto]);
+
+  useEffect(() => {
+    const abrir = () => setAberto(true);
+    window.addEventListener("cortai:abrir-avisos", abrir);
+    return () => window.removeEventListener("cortai:abrir-avisos", abrir);
+  }, []);
 
   if (!tenantId) return null;
 

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao } from "@/lib/tenant";
+import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 const BUCKET = "fotos-corte";
 
@@ -16,7 +17,9 @@ async function contexto(context: any, clienteId: string) {
   const db = await admin();
   const { data: cliente } = await db
     .from("clientes")
-    .select("id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp")
+    .select(
+      "id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
+    )
     .eq("id", clienteId)
     .eq("tenant_id", tenantId)
     .maybeSingle();
@@ -27,6 +30,7 @@ async function contexto(context: any, clienteId: string) {
 export type PerfilCliente = {
   cliente: { id: string; nome: string; telefone: string; avulso: boolean };
   ficha: { chips: string[]; alergias: string | null; texto: string | null };
+  preferencias: PreferenciasCliente;
   catalogo: string[];
   resumo: {
     ultimo: string | null;
@@ -141,6 +145,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
         alergias: cliente.alergias,
         texto: cliente.ficha_tecnica,
       },
+      preferencias: validarPreferenciasCliente(cliente.preferencias),
       catalogo: tenantRes.data?.chips_ficha ?? [],
       resumo: {
         ultimo: ultimo?.inicio ?? null,
@@ -212,6 +217,28 @@ export const salvarFichaCorte = createServerFn({ method: "POST" })
       }
     }
     return { ok: true };
+  });
+
+export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { clienteId: string; preferencias: unknown }) => ({
+    clienteId: String(d.clienteId),
+    preferencias: validarPreferenciasCliente(d.preferencias),
+  }))
+  .handler(async ({ data, context }) => {
+    const { db, tenantId, cliente } = await contexto(context, data.clienteId);
+    await exigirPermissao(context, tenantId, "editar_clientes");
+    if (cliente.telefone === "avulso")
+      throw new Error("Identifique o cliente antes de salvar preferências.");
+    const atuais = validarPreferenciasCliente(cliente.preferencias);
+    const preferencias = validarPreferenciasCliente({ ...atuais, ...data.preferencias });
+    const { error } = await db
+      .from("clientes")
+      .update({ preferencias })
+      .eq("id", cliente.id)
+      .eq("tenant_id", tenantId);
+    if (error) throw new Error("Não foi possível salvar as preferências.");
+    return { preferencias };
   });
 
 export const enviarFotoCorte = createServerFn({ method: "POST" })

@@ -8,17 +8,19 @@ import {
   useConsentimento,
   type Categorias,
 } from "@/lib/consentimento";
+import { useModoFoco } from "@/lib/modo-foco";
 
 /**
  * Aviso discreto de cookies e privacidade, mostrado apenas no primeiro acesso.
  * Todas as opções ficam com o mesmo peso visual: nada de escolhas escondidas.
  */
 export function BannerDeCookies() {
+  const foco = useModoFoco();
   const { pronto, consentimento, registrar } = useConsentimento();
   const [configurando, setConfigurando] = useState(false);
   const [escolhas, setEscolhas] = useState<Categorias>(SOMENTE_NECESSARIAS);
 
-  if (!pronto || consentimento) return null;
+  if (!pronto || consentimento || foco) return null;
 
   return (
     <div className="banner-cookies pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
@@ -52,7 +54,9 @@ export function BannerDeCookies() {
                     }
                   />
                   <span>
-                    <span className="block text-xs font-semibold text-paper">{categoria.titulo}</span>
+                    <span className="block text-xs font-semibold text-paper">
+                      {categoria.titulo}
+                    </span>
                     <span className="mt-0.5 block text-xs leading-relaxed text-mute">
                       {categoria.detalhe}
                     </span>
