@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
@@ -352,6 +353,7 @@ function AgendamentoPublico() {
       <FontesDaMarca config={data.pagina} />
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
+      <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
       {substituiId ? (
         <p
           className="mt-3 rounded-xl border border-line px-4 py-3 text-sm text-paper"
@@ -449,8 +451,8 @@ function AgendamentoPublico() {
                 >
                   <span className="text-xs uppercase">{rotulo}</span>
                   <span className="text-lg font-semibold">{numero}</span>
-                  {fechado ? <span className="text-[10px] leading-none">Fechado</span> : null}
-                  {lotado ? <span className="text-[10px] leading-none">Lotado</span> : null}
+                  {fechado ? <span className="text-xs leading-none">Fechado</span> : null}
+                  {lotado ? <span className="text-xs leading-none">Lotado</span> : null}
                 </button>
               );
             })}

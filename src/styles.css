@@ -2160,7 +2160,7 @@ body:has(.auth-screen--claro) {
 
 /* Página pública personalizável */
 .public-brand {
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   background: var(--brand-background);
   color: var(--brand-text);
@@ -2205,7 +2205,7 @@ body:has(.auth-screen--claro) {
 .brand-eyebrow,
 .brand-kicker {
   color: var(--brand-accent);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
 }

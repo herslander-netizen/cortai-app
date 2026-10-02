@@ -22,6 +22,7 @@ export type PaginaPublica = {
     capa_signed_url: string | null;
     fotos_signed_urls: string[];
     segmento: Segmento;
+    fuso: string;
   };
   servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
   profissionais: {
@@ -59,7 +60,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
     const colunas =
-      "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos, segmento";
+      "id, nome, slug, plano, loja_ativa, descricao, endereco, telefone, whatsapp, instagram, texto_boas_vindas, cor_primaria, cor_secundaria, cor_accent, assinatura_visivel, logo_url, capa_url, fotos, segmento, fuso";
     const resolvido = UUID_RE.test(data.slug)
       ? { tenant_id: data.slug }
       : await resolverTenantPorSlug(supabaseAdmin, data.slug);
@@ -148,6 +149,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         capa_signed_url: capa,
         fotos_signed_urls: galeria.filter((url): url is string => Boolean(url)),
         segmento: segmentoValido(tenant.segmento),
+        fuso: tenant.fuso,
       },
       servicos: servicos ?? [],
       profissionais: (profissionais ?? []).map((p) => ({

@@ -6,5 +6,11 @@ export function FontesDaMarca({
 }: {
   config: Pick<PaginaConfig, "fonteTitulo" | "fonteTexto">;
 }) {
-  return <link rel="stylesheet" href={urlDasFontes(config)} precedence="default" />;
+  return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link rel="stylesheet" href={urlDasFontes(config)} precedence="default" />
+    </>
+  );
 }
