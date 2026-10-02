@@ -46,17 +46,11 @@ export function BotaoAgoraPrincipal({
     const topo = document.getElementById("agenda-painel-visualizacao");
     const alvo = primeiro ?? topo;
     if (!alvo) return;
-    alvo.scrollIntoView({
-      block: primeiro ? "start" : "start",
+    const cabecalho = document.querySelector<HTMLElement>(".agenda-cabecalho-unico");
+    window.scrollTo({
+      top: window.scrollY + alvo.getBoundingClientRect().top - (cabecalho?.offsetHeight ?? 0) - 8,
       behavior: menosMovimento ? "auto" : "smooth",
     });
-    if (primeiro) {
-      const cabecalho = document.querySelector<HTMLElement>(".agenda-cabecalho-unico");
-      window.scrollBy({
-        top: -(cabecalho?.offsetHeight ?? 0) - 8,
-        behavior: menosMovimento ? "auto" : "smooth",
-      });
-    }
   }
 
   function levarAoAgora(destino: VisualizacaoAgenda) {

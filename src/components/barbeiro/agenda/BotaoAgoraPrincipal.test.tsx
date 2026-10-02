@@ -93,16 +93,27 @@ describe("BotaoAgoraPrincipal", () => {
 
   it("mantém a Lista e leva ao primeiro atendimento aberto", async () => {
     const { onVisualizacao } = await montar(390, "lista");
+    const rolar = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const item = document.createElement("li");
     item.className = "agenda-item";
-    item.scrollIntoView = vi.fn();
+    vi.spyOn(item, "getBoundingClientRect").mockReturnValue({
+      top: 240,
+      bottom: 300,
+      left: 0,
+      right: 300,
+      width: 300,
+      height: 60,
+      x: 0,
+      y: 240,
+      toJSON: () => ({}),
+    });
     const painel = document.createElement("div");
     painel.id = "agenda-painel-visualizacao";
     painel.appendChild(item);
     document.body.appendChild(painel);
     act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());
     expect(onVisualizacao).not.toHaveBeenCalled();
-    expect(item.scrollIntoView).toHaveBeenCalledWith({ block: "start", behavior: "smooth" });
+    expect(rolar).toHaveBeenCalledWith({ top: 232, behavior: "smooth" });
     painel.remove();
   });
 
