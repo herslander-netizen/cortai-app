@@ -25,14 +25,21 @@ export function deslocamentoAteOMeio(linhaTop: number, area: { top: number; bott
 type Estado = { lado: LadoDoAgora | null; ir: (() => void) | null };
 let estado: Estado = { lado: null, ir: null };
 let pedidoPendente = false;
+let expiraPedido: number | undefined;
 const ouvintes = new Set<() => void>();
+
+function limparPedidoPendente() {
+  pedidoPendente = false;
+  if (expiraPedido !== undefined) window.clearTimeout(expiraPedido);
+  expiraPedido = undefined;
+}
 
 export function publicarAgora(proximo: Estado) {
   if (proximo.lado === estado.lado && proximo.ir === estado.ir) return;
   estado = proximo;
   ouvintes.forEach((f) => f());
   if (pedidoPendente && proximo.ir) {
-    pedidoPendente = false;
+    limparPedidoPendente();
     window.requestAnimationFrame(() => proximo.ir?.());
   }
 }
@@ -40,10 +47,13 @@ export function publicarAgora(proximo: Estado) {
 /** Leva à linha atual; se a Timeline ainda não está montada, conclui assim que ela aparecer. */
 export function solicitarAgora() {
   if (estado.ir) {
+    limparPedidoPendente();
     estado.ir();
     return;
   }
+  limparPedidoPendente();
   pedidoPendente = true;
+  expiraPedido = window.setTimeout(limparPedidoPendente, 2_000);
 }
 
 function assinar(f: () => void) {

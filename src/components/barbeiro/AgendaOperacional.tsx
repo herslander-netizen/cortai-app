@@ -1312,6 +1312,8 @@ export function AgendaOperacional() {
       <BotaoAgoraPrincipal
         visualizacao={visualizacao}
         onVisualizacao={alterarVisualizacao}
+        ehHoje={ehHoje}
+        onHoje={() => mudarDia(hojeNoFuso(fuso))}
         menuAberto={menuAberto}
         onAlternarMenu={() => {
           setPainelAberto(false);
