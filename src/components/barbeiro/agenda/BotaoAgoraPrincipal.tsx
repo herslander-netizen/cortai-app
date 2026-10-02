@@ -1,8 +1,11 @@
 import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
+import { useMenosMovimento } from "@/hooks/useMovimento";
+import { DURACAO, SUAVE } from "@/lib/motion";
 
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
 import { solicitarAgora } from "./pilula-agora";
@@ -11,31 +14,60 @@ import { solicitarAgora } from "./pilula-agora";
 export function BotaoAgoraPrincipal({
   visualizacao,
   onVisualizacao,
+  ehHoje,
+  onHoje,
   menuAberto,
   onAlternarMenu,
 }: {
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
+  ehHoje: boolean;
+  onHoje: () => void;
   menuAberto: boolean;
   onAlternarMenu: () => void;
 }) {
   const celular = useMediaQuery("(max-width: 600px)");
-  const anterior = useRef(visualizacao);
-  const [esmaecendo, setEsmaecendo] = useState(false);
+  const menosMovimento = useMenosMovimento();
+  const levarAoAgoraQuandoForHoje = useRef(false);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
-  const IconeVisualizacao = visualizacao === "timeline" ? CalendarClock : List;
+  const IconeVisualizacao = proxima === "timeline" ? CalendarClock : List;
+
+  const rolarLista = useCallback(() => {
+    const primeiro = document.querySelector<HTMLElement>(
+      "#agenda-painel-visualizacao .agenda-item",
+    );
+    const topo = document.getElementById("agenda-painel-visualizacao");
+    const alvo = primeiro ?? topo;
+    if (!alvo) return;
+    const cabecalho = document.querySelector<HTMLElement>(".agenda-cabecalho-unico");
+    window.scrollTo({
+      top: window.scrollY + alvo.getBoundingClientRect().top - (cabecalho?.offsetHeight ?? 0) - 8,
+      behavior: menosMovimento ? "auto" : "smooth",
+    });
+  }, [menosMovimento]);
+
+  const levarAoAgora = useCallback(
+    (destino: VisualizacaoAgenda) => {
+      if (destino === "lista") rolarLista();
+      else solicitarAgora();
+    },
+    [rolarLista],
+  );
 
   useEffect(() => {
-    if (anterior.current === visualizacao) return;
-    anterior.current = visualizacao;
-    setEsmaecendo(true);
-    const timer = window.setTimeout(() => setEsmaecendo(false), 120);
-    return () => window.clearTimeout(timer);
-  }, [visualizacao]);
+    if (!ehHoje || !levarAoAgoraQuandoForHoje.current) return;
+    levarAoAgoraQuandoForHoje.current = false;
+    const quadro = window.requestAnimationFrame(() => levarAoAgora(visualizacao));
+    return () => window.cancelAnimationFrame(quadro);
+  }, [ehHoje, levarAoAgora, visualizacao]);
 
   function irParaAgora() {
-    solicitarAgora();
-    if (visualizacao !== "timeline") onVisualizacao("timeline");
+    if (!ehHoje) {
+      levarAoAgoraQuandoForHoje.current = true;
+      onHoje();
+      return;
+    }
+    levarAoAgora(visualizacao);
   }
 
   function alternarVisualizacao() {
@@ -71,13 +103,32 @@ export function BotaoAgoraPrincipal({
             id={`agenda-aba-${visualizacao}`}
             variant="ghost"
             size="icon"
-            className={`agenda-botao-agora-visualizacao transition-opacity duration-120 ease-[var(--ease-saida)] active:translate-y-0 motion-reduce:transition-none ${esmaecendo ? "opacity-50" : "opacity-100"}`}
-            aria-label={`Alternar para ${proxima === "timeline" ? "Timeline" : "Lista"}`}
-            aria-pressed={visualizacao === "lista"}
+            className="agenda-botao-agora-visualizacao active:translate-y-0"
+            aria-label={`Mostrar ${proxima === "timeline" ? "Timeline" : "Lista"}`}
             onKeyDown={teclasDaVisualizacao}
             onClick={alternarVisualizacao}
           >
-            <IconeVisualizacao aria-hidden />
+            <AnimatePresence initial={false} mode="wait">
+              <motion.span
+                key={proxima}
+                className="inline-flex"
+                initial={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.8 }}
+                animate={{
+                  opacity: 1,
+                  rotate: 0,
+                  scale: 1,
+                  transition: { duration: menosMovimento ? DURACAO.rapida : 0.11, ease: SUAVE },
+                }}
+                exit={{
+                  opacity: 0,
+                  rotate: menosMovimento ? 0 : -90,
+                  scale: menosMovimento ? 1 : 0.8,
+                  transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
+                }}
+              >
+                <IconeVisualizacao aria-hidden />
+              </motion.span>
+            </AnimatePresence>
           </Button>
         </div>
       ) : null}

@@ -41,6 +41,8 @@ async function montar(
   largura: number,
   visualizacao: "timeline" | "lista" = "timeline",
   onVisualizacao = vi.fn(),
+  ehHoje = true,
+  onHoje = vi.fn(),
 ) {
   prepararLargura(largura);
   host = document.createElement("div");
@@ -51,12 +53,14 @@ async function montar(
       <BotaoAgoraPrincipal
         visualizacao={visualizacao}
         onVisualizacao={onVisualizacao}
+        ehHoje={ehHoje}
+        onHoje={onHoje}
         menuAberto={false}
         onAlternarMenu={vi.fn()}
       />,
     ),
   );
-  return onVisualizacao;
+  return { onVisualizacao, onHoje };
 }
 
 describe("BotaoAgoraPrincipal", () => {
@@ -72,11 +76,11 @@ describe("BotaoAgoraPrincipal", () => {
   });
 
   it("alterna entre Timeline e Lista", async () => {
-    const onVisualizacao = await montar(390);
-    const botao = host?.querySelector<HTMLButtonElement>('[aria-label="Alternar para Lista"]');
+    const { onVisualizacao } = await montar(390);
+    const botao = host?.querySelector<HTMLButtonElement>('[aria-label="Mostrar Lista"]');
     act(() => botao?.click());
     expect(onVisualizacao).toHaveBeenCalledWith("lista");
-    expect(botao?.className).toContain("motion-reduce:transition-none");
+    expect(botao?.querySelector("svg")).not.toBeNull();
   });
 
   it("leva ao agora na Timeline", async () => {
@@ -87,9 +91,57 @@ describe("BotaoAgoraPrincipal", () => {
     expect(ir).toHaveBeenCalledOnce();
   });
 
-  it("troca da Lista para Timeline antes de levar ao agora", async () => {
-    const onVisualizacao = await montar(390, "lista");
+  it("mantém a Lista e leva ao primeiro atendimento aberto", async () => {
+    const { onVisualizacao } = await montar(390, "lista");
+    const rolar = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const item = document.createElement("li");
+    item.className = "agenda-item";
+    vi.spyOn(item, "getBoundingClientRect").mockReturnValue({
+      top: 240,
+      bottom: 300,
+      left: 0,
+      right: 300,
+      width: 300,
+      height: 60,
+      x: 0,
+      y: 240,
+      toJSON: () => ({}),
+    });
+    const painel = document.createElement("div");
+    painel.id = "agenda-painel-visualizacao";
+    painel.appendChild(item);
+    document.body.appendChild(painel);
     act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());
-    expect(onVisualizacao).toHaveBeenCalledWith("timeline");
+    expect(onVisualizacao).not.toHaveBeenCalled();
+    expect(rolar).toHaveBeenCalledWith({ top: 232, behavior: "smooth" });
+    painel.remove();
+  });
+
+  it("fora de hoje volta para hoje antes de levar ao agora", async () => {
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback(0);
+      return 1;
+    });
+    const ir = vi.fn();
+    publicarAgora({ lado: "visivel", ir });
+    const onHoje = vi.fn();
+    await montar(390, "timeline", vi.fn(), false, onHoje);
+    act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());
+    expect(onHoje).toHaveBeenCalledOnce();
+    expect(ir).not.toHaveBeenCalled();
+
+    await act(async () =>
+      raiz?.render(
+        <BotaoAgoraPrincipal
+          visualizacao="timeline"
+          onVisualizacao={vi.fn()}
+          ehHoje
+          onHoje={onHoje}
+          menuAberto={false}
+          onAlternarMenu={vi.fn()}
+        />,
+      ),
+    );
+    expect(ir).toHaveBeenCalledOnce();
   });
 });

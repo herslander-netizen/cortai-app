@@ -1,10 +1,15 @@
-import { describe, expect, it } from "vitest";
+// @vitest-environment jsdom
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { deslocamentoAteOMeio, ladoDoAgora } from "./pilula-agora";
+import { deslocamentoAteOMeio, ladoDoAgora, publicarAgora, solicitarAgora } from "./pilula-agora";
 
 const area = { top: 100, bottom: 600 };
 
 describe("pílula Agora", () => {
+  afterEach(() => {
+    publicarAgora({ lado: null, ir: null });
+    vi.useRealTimers();
+  });
   it("visível dentro da área livre", () => {
     expect(ladoDoAgora({ top: 300, bottom: 302 }, area)).toBe("visivel");
   });
@@ -22,5 +27,14 @@ describe("pílula Agora", () => {
   it("calcula a rolagem até o meio", () => {
     expect(deslocamentoAteOMeio(900, area)).toBe(550);
     expect(deslocamentoAteOMeio(350, area)).toBe(0);
+  });
+  it("expira um pedido guardado depois de dois segundos", () => {
+    vi.useFakeTimers();
+    const ir = vi.fn();
+    solicitarAgora();
+    vi.advanceTimersByTime(2_001);
+    publicarAgora({ lado: "visivel", ir });
+    vi.runAllTimers();
+    expect(ir).not.toHaveBeenCalled();
   });
 });

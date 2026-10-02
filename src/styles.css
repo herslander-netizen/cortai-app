@@ -2656,7 +2656,7 @@ body:has(.auth-screen--claro) {
   display: none;
 }
 .agenda-acao-fixa {
-  bottom: calc(76px + env(safe-area-inset-bottom));
+  bottom: var(--agenda-controle-pe);
 }
 .agenda-acao-fechar {
   bottom: calc(76px + env(safe-area-inset-bottom));
@@ -5443,23 +5443,27 @@ button.agenda-nome:hover {
 }
 
 /* Botão composto do pé da Agenda (celular): "Agora" e alternância Timeline/Lista */
+:root {
+  --agenda-area-segura: env(safe-area-inset-bottom);
+  --agenda-controle-pe: calc(76px + var(--agenda-area-segura));
+}
 .agenda-botao-agora-principal {
   position: fixed;
   z-index: 25;
-  bottom: 56px;
+  bottom: var(--agenda-controle-pe);
   left: 14px;
   display: none;
-  height: 48px;
+  height: 50px;
   align-items: center;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--paper);
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 .agenda-botao-agora-ir {
-  height: 48px;
-  min-height: 48px;
+  height: 50px;
+  min-height: 50px;
   border-radius: 999px 0 0 999px;
   padding-inline: 14px 12px;
   color: var(--ink);
