@@ -5489,9 +5489,9 @@ button.agenda-nome:hover {
   }
 }
 @media (max-width: 767px) {
-  html:has(.agenda-faixa-operacao) {
-    scroll-padding-top: 120px;
-    scroll-padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  .agenda-operacional :focus-visible {
+    scroll-margin-top: 120px;
+    scroll-margin-bottom: calc(140px + env(safe-area-inset-bottom));
   }
 }
 @media (min-width: 768px) {
