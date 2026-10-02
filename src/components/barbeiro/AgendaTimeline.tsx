@@ -7,6 +7,23 @@ import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { estaAtrasado, intervaloDoDia, nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
+import {
+  deslocamentoAteOMeio,
+  ladoDoAgora,
+  publicarAgora,
+} from "@/components/barbeiro/agenda/pilula-agora";
+import { prefereMenosMovimento } from "@/lib/motion";
+
+const CELULAR = "(max-width: 767px)";
+const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
+
+/** Área livre do celular: abaixo do cabeçalho que gruda e acima da faixa de baixo. */
+function areaLivre() {
+  const topo = document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0;
+  const faixa = document.querySelector<HTMLElement>(".agenda-faixa-operacao");
+  const base = faixa ? faixa.getBoundingClientRect().top - 8 : window.innerHeight;
+  return { top: topo, bottom: Math.max(topo + 1, base) };
+}
 
 type HorarioFuncionamento = {
   diaSemana: number;
@@ -266,8 +283,12 @@ export function AgendaTimeline({
     const area = rolagemRef.current;
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      linha.scrollIntoView({ behavior: comportamento, block: "center" });
+    if (window.matchMedia(CELULAR).matches) {
+      const delta = deslocamentoAteOMeio(linha.getBoundingClientRect().top, areaLivre());
+      window.scrollBy({
+        top: delta,
+        behavior: comportamento === "smooth" && prefereMenosMovimento() ? "auto" : comportamento,
+      });
       return;
     }
     area.scrollTo({
@@ -292,36 +313,52 @@ export function AgendaTimeline({
       setAgoraVisivel(true);
       return;
     }
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      const caixa = linha.getBoundingClientRect();
-      setAgoraVisivel(caixa.top >= 0 && caixa.bottom <= window.innerHeight);
-      return;
-    }
+    if (window.matchMedia(CELULAR).matches) return;
     const topo = linha.offsetTop;
     setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
   }
 
+  // Celular: a pílula "Agora" da faixa de baixo; IntersectionObserver, sem medir a cada rolagem.
+  const irAgoraRef = useRef(() => voltarParaAgora());
+  irAgoraRef.current = () => voltarParaAgora();
   useEffect(() => {
-    if (!ehHoje) return;
-    const acompanhar = () => {
-      const area = rolagemRef.current;
-      const linha = linhaAgoraRef.current;
-      if (!area || !linha) return;
-      if (window.matchMedia("(max-width: 767px)").matches) {
-        const caixa = linha.getBoundingClientRect();
-        setAgoraVisivel(caixa.top >= 0 && caixa.bottom <= window.innerHeight);
-        return;
-      }
-      const topo = linha.offsetTop;
-      setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
+    const linha = linhaAgoraRef.current;
+    if (!ehHoje || !linha || !window.matchMedia(CELULAR).matches || !("IntersectionObserver" in window)) {
+      publicarAgora({ lado: null, ir: null });
+      return;
+    }
+    const ir = () => irAgoraRef.current();
+    let observador: IntersectionObserver | undefined;
+    const montar = () => {
+      observador?.disconnect();
+      const area = areaLivre();
+      observador = new IntersectionObserver(
+        ([entrada]) => {
+          if (!entrada) return;
+          const lado = entrada.isIntersecting
+            ? "visivel"
+            : ladoDoAgora(entrada.boundingClientRect, entrada.rootBounds ?? area);
+          publicarAgora({ lado, ir });
+        },
+        { rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px` },
+      );
+      observador.observe(linha);
     };
-    window.addEventListener("scroll", acompanhar, { passive: true });
+    montar();
+    window.addEventListener("resize", montar);
+    return () => {
+      window.removeEventListener("resize", montar);
+      observador?.disconnect();
+      publicarAgora({ lado: null, ir: null });
+    };
+  }, [ehHoje, altura]);
+
+  useEffect(() => {
+    if (!ehHoje || window.matchMedia(CELULAR).matches) return;
+    const acompanhar = () => acompanharAgora();
     window.addEventListener("resize", acompanhar);
     acompanhar();
-    return () => {
-      window.removeEventListener("scroll", acompanhar);
-      window.removeEventListener("resize", acompanhar);
-    };
+    return () => window.removeEventListener("resize", acompanhar);
   }, [ehHoje, altura]);
 
   const podeMover = (item: AgendaItem) =>
@@ -425,7 +462,7 @@ export function AgendaTimeline({
 
   return (
     <div className="agenda-timeline-wrap">
-      {ehHoje && !agoraVisivel ? (
+      {ehHoje && !agoraVisivel && !celularAgora() ? (
         <Button
           type="button"
           variant="secondary"
