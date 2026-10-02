@@ -556,10 +556,7 @@ export function AgendaTimeline({
                 onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
                   toqueLongoVazio.current?.novoPonteiro(e.pointerId);
                   if (!onHorarioVazio || e.target !== e.currentTarget) return;
-                  if (e.pointerType === "mouse") {
-                    cliqueMouseNoVazio(e);
-                    return;
-                  }
+                  if (e.pointerType === "mouse") return;
                   const minuto = minutoNoVazio(e);
                   if (minuto === null) return;
                   horarioVazioRef.current = minuto;
@@ -573,12 +570,16 @@ export function AgendaTimeline({
                 onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
                   toqueLongoVazio.current?.mover(e.pointerId, e.clientX, e.clientY);
                 },
-                onPointerUp: (e: React.PointerEvent<HTMLDivElement>) =>
-                  toqueLongoVazio.current?.terminar(e.pointerId),
+                onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => {
+                  if (e.pointerType === "mouse") cliqueMouseNoVazio(e);
+                  else toqueLongoVazio.current?.terminar(e.pointerId);
+                },
                 onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) =>
                   toqueLongoVazio.current?.terminar(e.pointerId),
                 onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => {
-                  if (toqueLongoVazio.current?.ativo()) e.preventDefault();
+                  const ponteiro = e.nativeEvent as PointerEvent;
+                  if (ponteiro.pointerType !== "mouse" || toqueLongoVazio.current?.ativo())
+                    e.preventDefault();
                 },
               })}
         >
