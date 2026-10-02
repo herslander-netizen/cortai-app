@@ -87,7 +87,9 @@
 - [ ] Otimizar marca, fontes, capa, toque e segurança visual
 - [ ] Cobrir testes, métricas 4G/CPU, 360/390/1280, tipos, lint e build; não publicar
 - [x] Corrigir rolagem livre da Timeline e trocar horário vazio por toque longo
+
 ## Chat público conversacional — Fase 1
+
 - [ ] Corrigir contraste da confirmação nos temas
 - [ ] Adicionar recepcionista configurável e cabeçalho contextual
 - [ ] Implementar interpretação determinística, digitação e respostas rápidas
@@ -96,6 +98,7 @@
 - [ ] Validar tamanhos, acessibilidade, testes e build
 
 ## Modo Foco — cockpit do profissional
+
 - [x] Limpar formatação pendente e reconferir testes da entrega anterior
 - [x] Corrigir seleção de hoje/profissional, estados, alertas persistentes, ordem e contagens
 - [x] Extrair cockpit visual puro e integrar ações oficiais da Agenda

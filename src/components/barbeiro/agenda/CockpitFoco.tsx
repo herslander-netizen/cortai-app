@@ -36,8 +36,8 @@ export function CockpitFoco(props: Props) {
           : dados.estado === "encerrado"
             ? "Dia encerrado"
             : dados.estado === "livre"
-            ? "Encaixar cliente"
-            : "Cliente chegou";
+              ? "Encaixar cliente"
+              : "Cliente chegou";
   return (
     <main
       className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,.8fr)]"

@@ -65,7 +65,9 @@ export function dadosDoCockpit(
     : 0;
   const restante = naCadeira ? Math.max(0, naCadeira.duracaoMin - decorrido) : 0;
   const passou = Boolean(naCadeira && decorrido > naCadeira.duracaoMin);
-  const atrasoPrevisto = naCadeira ? Math.max(0, Math.ceil((agora - +new Date(naCadeira.fim)) / 60_000)) : 0;
+  const atrasoPrevisto = naCadeira
+    ? Math.max(0, Math.ceil((agora - +new Date(naCadeira.fim)) / 60_000))
+    : 0;
   const estado: EstadoCockpit = naCadeira
     ? passou
       ? "passou_do_tempo"

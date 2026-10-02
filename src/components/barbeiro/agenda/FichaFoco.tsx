@@ -12,10 +12,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { salvarPreferenciasCliente } from "@/lib/perfil-cliente.functions";
-import {
-  ROTULOS_PREFERENCIAS,
-  type PreferenciasCliente,
-} from "@/lib/preferencias-cliente";
+import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { comDesfazer } from "@/lib/avisos";
 
 export function FichaFoco({

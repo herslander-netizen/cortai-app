@@ -77,6 +77,8 @@ describe("dadosDoCockpit", () => {
   });
 
   it("expõe pedido de remarcação", () => {
-    expect(situacaoDoLembrete(item("x", "2026-10-02T14:00:00Z", "remarcado"))).toBe("Pediu para remarcar");
+    expect(situacaoDoLembrete(item("x", "2026-10-02T14:00:00Z", "remarcado"))).toBe(
+      "Pediu para remarcar",
+    );
   });
 });
