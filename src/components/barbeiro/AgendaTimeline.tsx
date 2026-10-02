@@ -13,13 +13,13 @@ import { prefereMenosMovimento } from "@/lib/motion";
 const CELULAR = "(max-width: 600px)";
 const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
 
-/** Área livre do celular: abaixo do cabeçalho que gruda e acima da faixa de baixo. */
+/** Área livre do celular: abaixo do cabeçalho que gruda e acima do controle do pé. */
 function areaLivre() {
   const topo =
     (document.querySelector<HTMLElement>(".management-header")?.offsetHeight ?? 0) +
     (document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0);
-  const faixa = document.querySelector<HTMLElement>(".agenda-faixa-operacao");
-  const base = faixa ? faixa.getBoundingClientRect().top - 8 : window.innerHeight;
+  const controle = document.querySelector<HTMLElement>(".agenda-botao-agora-principal");
+  const base = controle ? controle.getBoundingClientRect().top - 8 : window.innerHeight;
   return { top: topo, bottom: Math.max(topo + 1, base) };
 }
 
@@ -315,7 +315,7 @@ export function AgendaTimeline({
     setAgoraVisivel(topo >= area.scrollTop && topo <= area.scrollTop + area.clientHeight);
   }
 
-  // Celular: a pílula "Agora" da faixa de baixo; IntersectionObserver, sem medir a cada rolagem.
+  // Celular: disponibiliza a rolagem da linha atual para o botão composto do pé.
   const irAgoraRef = useRef(() => voltarParaAgora());
   irAgoraRef.current = () => voltarParaAgora();
   useEffect(() => {

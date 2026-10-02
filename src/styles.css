@@ -5442,63 +5442,42 @@ button.agenda-nome:hover {
   }
 }
 
-/* Faixa do pé da Agenda (celular): seletor à esquerda, "Agora" no meio, "+" à direita */
-.agenda-faixa-operacao {
+/* Botão composto do pé da Agenda (celular): "Agora" e alternância Timeline/Lista */
+.agenda-botao-agora-principal {
   position: fixed;
   z-index: 25;
-  right: 0;
   bottom: 56px;
-  left: 0;
+  left: 14px;
   display: none;
-  height: 64px;
-  grid-template-columns: minmax(96px, 1fr) auto minmax(96px, 1fr);
+  height: 48px;
   align-items: center;
-  padding: 8px 14px;
-  background: var(--paper);
-  pointer-events: none;
-}
-.agenda-faixa-seletor {
-  display: flex;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--ink2);
-  padding: 1px;
-  pointer-events: auto;
-}
-.agenda-faixa-agora {
-  grid-column: 2;
-  min-height: 48px;
-  min-width: 80px;
-  border-radius: 999px;
-  border: 0;
-  background: var(--mute);
-  color: var(--ink);
+  background: var(--paper);
   box-shadow: none;
-  padding-inline: 12px;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 150ms var(--ease-saida),
-    visibility 0s linear 150ms;
 }
-.agenda-faixa-agora[data-aparece="true"] {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition:
-    opacity 150ms var(--ease-saida),
-    visibility 0s;
+.agenda-botao-agora-ir {
+  height: 48px;
+  min-height: 48px;
+  border-radius: 999px 0 0 999px;
+  padding-inline: 14px 12px;
+  color: var(--ink);
 }
-@media (prefers-reduced-motion: reduce) {
-  .agenda-faixa-agora,
-  .agenda-faixa-agora[data-aparece="true"] {
-    transition: none;
-  }
+.agenda-botao-agora-separador {
+  width: 1px;
+  height: 24px;
+  flex: 0 0 1px;
+  background: var(--line);
+}
+.agenda-botao-agora-visualizacao {
+  min-width: 48px;
+  border-radius: 0 999px 999px 0;
+  color: var(--ink);
 }
 @media (max-width: 600px) {
-  .agenda-faixa-operacao {
-    display: grid;
+  .agenda-botao-agora-principal {
+    display: flex;
   }
   .agenda-operacional {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
