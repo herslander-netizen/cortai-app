@@ -2,15 +2,12 @@ import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   CalendarDays,
-  Check,
-  Clock3,
   CreditCard,
   Focus,
   MessageCircle,
   Plus,
   ReceiptText,
   Sparkles,
-  UserRound,
   UsersRound,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
@@ -18,6 +15,9 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Conversation, ConversationContent } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
+import { CockpitFoco } from "@/components/barbeiro/agenda/CockpitFoco";
+import { dadosDoCockpit } from "@/components/barbeiro/agenda/cockpit-foco";
+import { FichaFocoVisual } from "@/components/barbeiro/agenda/FichaFoco";
 import { ChatHeader } from "@/components/chat/ChatShell";
 import { useWhatsappAlvo } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
@@ -84,17 +84,33 @@ function itens(segmento: Segmento): AgendaItem[] {
 
   return [
     {
+      ...base("concluido", h("09:00"), h("09:45"), "Bia Alves", 2),
+      status: "finalizado",
+      arrivedAt: h("08:56"),
+      startedAt: h("09:00"),
+      finishedAt: h("09:43"),
+    },
+    {
       ...base("agora", h("10:00"), h("10:45"), "Marina Costa", 0),
       status: "na_cadeira",
       arrivedAt: h("09:56"),
       startedAt: h("10:00"),
-      ficha: "Prefere acabamento leve, como no último atendimento.",
+      ficha: "Gosta de confirmar o acabamento antes de finalizar.",
+      preferencias: {
+        atencao: "alergia a pomada com álcool",
+        conversa: "silencio",
+        ar: "ameno",
+        bebida: "cafe",
+        musica: "MPB baixinho",
+        corte_habitual: "degradê baixo na 1, acabamento leve",
+      },
     },
     {
       ...base("proximo", h("11:00"), h("11:45"), "Rafa Lima", 1),
-      status: "confirmado",
+      confirmadoEm: h("08:30"),
     },
     base("depois", h("12:15"), h("13:00"), "Ana Souza", 2),
+    base("fim", h("13:30"), h("14:15"), "João Silva", 0),
   ];
 }
 
@@ -125,42 +141,22 @@ function Agenda({ segmento }: { segmento: Segmento }) {
 }
 
 function Foco({ segmento }: { segmento: Segmento }) {
-  const [atual, proximo] = itens(segmento);
-  if (!atual || !proximo) return null;
+  const dados = dadosDoCockpit(itens(segmento), AGORA, FUSO);
+  const atual = dados.principal;
   return (
-    <div className="showroom-produto showroom-foco-demo" aria-label="Demonstração do Modo Foco">
-      <div className="showroom-produto-topo">
-        <span>
-          <small>Modo Foco · Hoje</small>
-          <strong>2 restantes · 1 concluído</strong>
-        </span>
-        <em>Ao vivo</em>
-      </div>
-      <div className="showroom-foco-estado">
-        <span>EM ATENDIMENTO</span>
-        <small>
-          <Clock3 /> 18 min
-        </small>
-      </div>
-      <div className="showroom-foco-cliente">
-        <time>10:00</time>
-        <UserRound />
-        <span>
-          <strong>{atual.cliente}</strong>
-          <small>
-            {atual.servico} · {atual.duracaoMin} min
-          </small>
-        </span>
-      </div>
-      <p className="showroom-foco-nota">{atual.ficha}</p>
-      <Button size="lg">
-        Finalizar atendimento <Check />
-      </Button>
-      <div className="showroom-proximo">
-        <small>Próximo · 11:00</small>
-        <strong>{proximo.cliente}</strong>
-        <span>{proximo.servico}</span>
-      </div>
+    <div className="modo-foco showroom-produto flex min-h-[620px] flex-col p-3" aria-label="Demonstração do Modo Foco" data-showroom-cockpit>
+      <header className="border-b border-line pb-3 text-center">
+        <strong className="text-2xl tabular-nums text-paper">10:18</strong>
+        <p className="mt-1 text-[15px] text-mute">Alex · {dados.concluidos} concluído · {dados.pelaFrente} pela frente</p>
+      </header>
+      <CockpitFoco
+        dados={dados}
+        agora={AGORA}
+        fuso={FUSO}
+        discreto={false}
+        somenteLeitura
+        ficha={atual ? <FichaFocoVisual preferencias={atual.preferencias ?? {}} observacao={atual.ficha} discreto={false} /> : null}
+      />
     </div>
   );
 }
