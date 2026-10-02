@@ -4,6 +4,7 @@ import { History, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
@@ -73,7 +74,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   }, [query.data]);
 
   if (query.isError) return <p className="text-sm text-brick">{(query.error as Error).message}</p>;
-  if (!query.data) return <p className="text-sm text-mute">Carregando dados da barbearia…</p>;
+  if (!query.data) return <EsqueletoFormulario campos={5} />;
 
   const dados = query.data as BarbeariaSuporte;
   const camposIniciais = dados.campos;

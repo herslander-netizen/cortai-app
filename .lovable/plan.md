@@ -1,26 +1,24 @@
-# Painel administrativo da conta Asaas
+# Carregamentos consistentes no Cortaí
 
 ## Objetivo
-Adicionar ao `/admin` uma área exclusiva para configurar, testar e remover manualmente a chave de API do Asaas, sem expor o segredo e sem alterar cobrança, assinaturas ou finanças dos negócios.
+Eliminar telas vazias e unificar toda espera real em esqueletos que imitam o conteúdo, sem alterar regras de negócio nem publicar.
 
 ## Implementação
-- Criar a aba **Conta Asaas** no menu administrativo, responsiva e coerente com o visual atual.
-- Criar funções protegidas pelo mesmo controle de administrador da plataforma já usado no painel para:
-  - consultar apenas se a chave está configurada e seu ambiente;
-  - validar o prefixo e salvar/substituir a chave;
-  - testar no servidor a chave armazenada com `GET /myAccount`;
-  - remover somente `asaas_api_key` de `chaves_internas`, após confirmação.
-- Reutilizar `salvarChaveInterna`, `chaveDoAsaas`, `ambienteDaChave` e `asaas`; acrescentar apenas o helper mínimo de remoção na mesma infraestrutura.
-- Usar campo de senha não controlado, limpo após o envio. A chave salva nunca será devolvida, reapresentada ou registrada.
-- Mostrar somente **Configurada/Não configurada**, **Produção/Sandbox** e mensagens seguras do teste.
-- Usar confirmação destrutiva antes da remoção e botões com alvos adequados para celular.
+- Consolidar blocos, regiões acessíveis e esqueletos nomeados em `Esqueleto.tsx`, com brilho único sincronizado, atraso anti-pisca, redução de movimento e entrada suave do conteúdo.
+- Fazer o componente visual genérico de esqueleto usar o mesmo padrão; manter indicadores dentro de botões e os três pontos somente para chats.
+- Corrigir as animações reais de espera que hoje são desligadas no fim dos estilos.
+- Adicionar esqueletos do casco aos layouts de equipe, cliente e administração, mais um fallback geral do roteador com tempos mínimos estáveis.
+- Substituir carregamentos visíveis nas telas prioritárias por esqueletos do formato correspondente, preservando conteúdo durante atualizações com dados já presentes.
+- Padronizar placeholders de imagens prioritárias sem mudança de proporção.
+- Reaproveitar os componentes de erro existentes para esperas prolongadas onde o fluxo já oferece repetição segura.
+- Registrar o padrão no contrato de design e adicionar testes de estrutura, acessibilidade e movimento.
 
-## Segurança e escopo
-- Nenhum endpoint público, log da chave, alteração de webhook, schema novo ou tabela paralela.
-- A variável `ASAAS_API_KEY` do ambiente não será modificada nem removida.
-- Nenhuma mudança nos fluxos financeiros atuais, Cortay Pay, subcontas, split, checkout ou recebimentos.
+## Verificação
+- Confirmar no HTML inicial, com JavaScript desligado, que equipe, cliente e administração não ficam vazios.
+- Conferir as telas principais em 390 px e 1280 px, claro e escuro, incluindo uma simulação de rede lenta quando o acesso permitir.
+- Rodar formatação dirigida, tipos, lint, testes e montagem completa.
 
-## Validação
-- Testes das regras de ambiente, retorno mascarado, rejeição de chave inválida e operações administrativas.
-- Typecheck, lint dos arquivos alterados, testes relevantes e build da prévia.
-- Nada será publicado.
+## Premissas
+- A tela de retorno do acesso pode manter o splash da marca, com barra animada.
+- Ações em botões continuam usando o indicador pequeno dentro do próprio botão.
+- Sem credencial aprovada para um perfil, a verificação visual autenticada será registrada como pendente sem bloquear as demais validações.

@@ -8,6 +8,7 @@
 - Feedback: aviso.* e comDesfazer (lib/avisos). Não chamar toast direto.
 - Folhas e modais: Sheet ou Dialog de ui/. Proibido criar overlay ou folha própria em CSS.
 - Telas de gestão começam por Screen. Reusar os componentes existentes de carregando, vazio e erro; não criar variações.
+- Carregamento: usar somente os formatos de `Esqueleto.tsx`, iguais ao conteúdo; sem texto visível, giro central ou retorno ao esqueleto durante atualização com dados já exibidos.
 - Alvo de toque mínimo de 48px, foco visível e texto mínimo de 12px.
 - CSS: não criar classe nova em styles.css para uma tela; usar Tailwind com tokens. Proibido !important, body:has(...) e redefinir tokens fora dos escopos que já existem (.chat-sistema, .agendamento-marca, .client-brand).
 - Tamanho: rota ou componente com mais de 300 linhas deve ser dividido (visual em componentes, lógica em hook use*).

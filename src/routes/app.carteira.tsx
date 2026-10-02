@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getCarteira, type Movimento } from "@/lib/carteira.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFicha } from "@/components/layout/Esqueleto";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 
 export const Route = createFileRoute("/app/carteira")({
@@ -125,7 +125,7 @@ function CarteiraPage() {
 
   return (
     <Screen title={rotulo} subtitle={data?.cliente.nome ?? ""}>
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFicha /> : null}
 
       {data ? (
         <>

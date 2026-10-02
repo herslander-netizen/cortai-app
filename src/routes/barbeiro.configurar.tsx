@@ -24,6 +24,7 @@ import { aviso } from "@/lib/avisos";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
 import { Button } from "@/components/ui/button";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import {
   adicionarProfissional,
   concluirConfiguracao,
@@ -363,7 +364,7 @@ function ConfigurarPage() {
           : "O progresso fica salvo. Dá para parar e voltar depois."
       }
     >
-      {isLoading && !data ? <Esqueleto /> : null}
+      {isLoading && !data ? <EsqueletoFormulario campos={4} /> : null}
 
       {data ? (
         <>
@@ -820,16 +821,5 @@ function Escolha({
         ))}
       </div>
     </fieldset>
-  );
-}
-
-function Esqueleto() {
-  return (
-    <div className="animate-pulse space-y-4" aria-hidden>
-      <div className="h-1.5 rounded-full bg-ink3" />
-      <div className="h-12 rounded-lg bg-ink2" />
-      <div className="h-12 rounded-lg bg-ink2" />
-      <div className="h-32 rounded-xl bg-ink2" />
-    </div>
   );
 }

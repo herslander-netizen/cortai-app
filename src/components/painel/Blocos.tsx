@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 
 /** Peças visuais do Painel de Controle — mesma identidade do Cortaí. */
 
@@ -89,17 +90,7 @@ export function Vazio({ texto }: { texto: string }) {
 }
 
 export function Esqueleto() {
-  return (
-    <div aria-hidden className="space-y-3">
-      <div className="h-28 animate-pulse rounded-xl bg-ink2" />
-      <div className="grid grid-cols-2 gap-3">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-ink2" />
-        ))}
-      </div>
-      <div className="h-40 animate-pulse rounded-xl bg-ink2" />
-    </div>
-  );
+  return <EsqueletoPainel />;
 }
 
 export function Erro({ onTentar }: { onTentar: () => void }) {

@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Check, Monitor, Save, Send, Smartphone } from "lucide-react";
 import { useState } from "react";
 
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario, EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ function TemasPage() {
   if (query.isLoading)
     return (
       <Screen voltarPara="/barbeiro/mais" title="Temas e layouts">
-        <Carregando />
+        <EsqueletoFormulario campos={4} />
       </Screen>
     );
   if (!query.data)
@@ -273,7 +273,7 @@ function EditorDeTemas({ marca, recarregar }: { marca: MarcaData; recarregar: ()
                 <PaginaPublicaConteudo data={preview} config={config} />
               ) : (
                 <div className="p-6">
-                  <Carregando />
+                  <EsqueletoPaginaPublica />
                 </div>
               )}
             </div>

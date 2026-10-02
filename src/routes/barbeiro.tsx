@@ -10,10 +10,12 @@ import { AtivarAvisosNoAparelho } from "@/components/notificacoes/AtivarAvisosNo
 import { usePushNoApp } from "@/lib/push/use-push-no-app";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
+import { EsqueletoCascoEquipe } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
   beforeLoad: () => exigirPapel("barbeiro"),
+  pendingComponent: EsqueletoCascoEquipe,
   component: BarberLayout,
 });
 

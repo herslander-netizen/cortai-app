@@ -4,7 +4,7 @@ import { Check, Copy, MessageCircle, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
-import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Signature } from "@/components/layout/Signature";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQr);
   }, [mostrarQr, qr]);
 
-  if (isLoading) return <TelaDeCarregamento texto="Abrindo o negócio…" />;
+  if (isLoading) return <EsqueletoPaginaPublica />;
   if (!data) throw notFound();
 
   return (

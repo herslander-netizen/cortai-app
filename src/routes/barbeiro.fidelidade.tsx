@@ -11,7 +11,7 @@ import {
   getConfigFidelidade,
   salvarFidelidade,
 } from "@/lib/fidelidade.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
 
@@ -83,7 +83,7 @@ function FidelidadePage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Voltaí" subtitle="Seu cliente corta. Ganha. Volta.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFormulario campos={4} /> : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">
         <div className="pr-4">

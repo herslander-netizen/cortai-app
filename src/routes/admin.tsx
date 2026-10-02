@@ -4,6 +4,7 @@ import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
+import { EsqueletoCascoAdmin } from "@/components/layout/Esqueleto";
 
 const tabs = [
   { to: "/admin", label: "Visão geral", icon: LineChart },
@@ -21,6 +22,7 @@ const desktopGroups = [
 export const Route = createFileRoute("/admin")({
   ssr: false,
   beforeLoad: () => exigirPapel("admin"),
+  pendingComponent: EsqueletoCascoAdmin,
   component: AdminLayout,
 });
 

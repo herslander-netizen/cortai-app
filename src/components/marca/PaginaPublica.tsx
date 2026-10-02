@@ -143,7 +143,7 @@ export function PaginaPublicaConteudo({
               {data.profissionais.map((p) => (
                 <article key={p.id} className="brand-person">
                   {p.avatar_url ? (
-                    <img src={p.avatar_url} alt={p.nome} loading="lazy" />
+                    <img src={p.avatar_url} alt={p.nome} loading="lazy" width={96} height={96} />
                   ) : (
                     <span>{p.nome.charAt(0)}</span>
                   )}
@@ -166,6 +166,8 @@ export function PaginaPublicaConteudo({
                   src={foto}
                   alt={`Ambiente da ${tenant.nome} ${index + 1}`}
                   loading="lazy"
+                  width={800}
+                  height={800}
                 />
               ))}
             </div>

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -164,9 +165,7 @@ function EditorDaHome() {
     >
       {error ? <AdminNotice error={error} /> : null}
       {isLoading ? (
-        <p className="flex items-center gap-2 text-sm text-mute">
-          <Loader2 className="animate-spin" size={16} /> Carregando…
-        </p>
+        <EsqueletoFormulario campos={6} />
       ) : data ? (
         <div className="max-w-3xl space-y-6">
           <p className="text-sm text-mute">

@@ -15,7 +15,7 @@ import {
   getFichaCliente,
   registrarBaixaFiado,
 } from "@/lib/barbeiro.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFicha } from "@/components/layout/Esqueleto";
 import { PersonalizacaoCliente } from "@/components/barbeiro/PersonalizacaoCliente";
 import { Button } from "@/components/ui/button";
 
@@ -95,7 +95,7 @@ function FichaPage() {
         Voltar para clientes
       </Link>
 
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFicha /> : null}
       {aviso ? (
         <Aviso tom="info" className="mb-4">
           {aviso}

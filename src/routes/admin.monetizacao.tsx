@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario, EsqueletoLista } from "@/components/layout/Esqueleto";
 import { Switch } from "@/components/ui/switch";
 import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
@@ -123,7 +123,7 @@ function AbaPlanos() {
   const [erro, setErro] = useState("");
 
   if (query.isError) return <AdminNotice error={query.error} />;
-  if (!query.data) return <Carregando texto="Carregando planos…" />;
+  if (!query.data) return <EsqueletoLista linhas={3} />;
 
   const novo: Plano = {
     id: "",
@@ -460,9 +460,7 @@ function AbaBarbearia() {
           <AdminNotice error={visao.error} />
         </div>
       ) : null}
-      {tenantId && !visao.data && !visao.isError ? (
-        <Carregando texto="Carregando barbearia…" />
-      ) : null}
+      {tenantId && !visao.data && !visao.isError ? <EsqueletoFormulario campos={3} /> : null}
 
       {visao.data ? (
         <>

@@ -4,7 +4,7 @@ import { MapPin, Search } from "lucide-react";
 import { useState } from "react";
 
 import { buscarBarbearias } from "@/lib/descoberta.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { definicaoDoSegmento } from "@/lib/segmentos";
 
 export function DescobrirBarbearias({
@@ -60,7 +60,7 @@ export function DescobrirBarbearias({
         {discreto && busca.length < 2 ? (
           <p className="text-xs text-mute2">Digite ao menos duas letras para ver os lugares.</p>
         ) : null}
-        {consulta.isFetching ? <Carregando texto="Carregando…" /> : null}
+        {consulta.isLoading ? <EsqueletoLista linhas={discreto ? 3 : 5} /> : null}
         {consulta.isError ? (
           <p className="text-sm text-brick" role="alert">
             Não foi possível carregar os lugares. Tente de novo em instantes.

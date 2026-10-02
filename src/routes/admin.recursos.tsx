@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Switch } from "@/components/ui/switch";
 import { useAcao } from "@/hooks/useAcao";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { definirRecursoDePlano, getMatrizDeRecursos } from "@/lib/admin.functions";
 import { PLANOS, ROTULO_DO_PLANO } from "@/lib/planos";
 
@@ -71,7 +71,7 @@ function RecursosPage() {
       }
     >
       {!query.data ? (
-        <Carregando texto="Carregando matriz…" />
+        <EsqueletoLista linhas={6} />
       ) : (
         <>
           <div className="hidden overflow-x-auto sm:block">

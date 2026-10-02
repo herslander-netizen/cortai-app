@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { getConfiguracaoInicial, salvarServicos } from "@/lib/onboarding.functions";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ function ServicosPage() {
       title="Serviços"
       subtitle="O que você oferece e por quanto."
     >
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFormulario campos={4} /> : null}
       <div data-guia="servicos-editor">
         <EditorDeServicos
           servicos={servicos}

@@ -19,7 +19,7 @@ import {
   limparRascunho,
   registrarAgendamentoNaMemoria,
 } from "@/lib/conversa/memoria-cliente";
-import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { brl } from "@/lib/format";
 import { hojeNoFuso, normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
@@ -297,7 +297,12 @@ function AgendamentoPublico() {
     setErro(null);
   }
 
-  if (isLoading) return <TelaDeCarregamento texto="Abrindo a agenda…" />;
+  if (isLoading)
+    return (
+      <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 py-8">
+        <EsqueletoFormulario campos={5} />
+      </main>
+    );
   if (!data) {
     return (
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">

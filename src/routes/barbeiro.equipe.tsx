@@ -17,6 +17,7 @@ import {
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
 import { Button } from "@/components/ui/button";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import {
   ACOES,
   DESCRICAO_DO_PAPEL,
@@ -195,7 +196,7 @@ function EquipePage() {
           <section>
             <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Quem tem acesso</h2>
             {equipe.isLoading ? (
-              <EmptyState text="Carregando a equipe…" />
+              <EsqueletoLista linhas={3} />
             ) : (equipe.data?.length ?? 0) === 0 ? (
               <EmptyState text="Só você tem acesso a este negócio." />
             ) : (

@@ -11,6 +11,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { vincularFichaDoConvidado } from "@/lib/agendamento-publico.functions";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-cliente";
+import { EsqueletoCascoCliente } from "@/components/layout/Esqueleto";
 
 const tabsBase: TabItem[] = [
   { to: "/app", label: "Início", icon: Scissors },
@@ -22,6 +23,7 @@ const tabsBase: TabItem[] = [
 export const Route = createFileRoute("/app")({
   ssr: false,
   beforeLoad: () => exigirPapel("cliente"),
+  pendingComponent: EsqueletoCascoCliente,
   component: ClientLayout,
 });
 

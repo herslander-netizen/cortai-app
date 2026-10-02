@@ -13,7 +13,7 @@ import {
   type DadosAgendar,
   type ResultadoAgendamento,
 } from "@/lib/agendamento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 import { Button } from "@/components/ui/button";
@@ -127,7 +127,7 @@ function AgendarPage() {
   if (dados.isLoading || !dados.data) {
     return (
       <Screen title="Agendar" subtitle="Escolha serviço, profissional e horário.">
-        <Carregando />
+        <EsqueletoFormulario campos={5} />
       </Screen>
     );
   }
