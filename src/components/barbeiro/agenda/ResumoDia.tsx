@@ -37,7 +37,8 @@ export function ResumoDia({
     : contarLivres({ horarios, dia, fuso, itens, profissionalIds, passoMin, agora, ehHoje });
   const partes = [
     <span key="fazer">
-      <ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga /> restantes
+      <ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga />{" "}
+      {r.aFazer === 1 ? "restante" : "restantes"}
     </span>,
     r.emAtendimento ? (
       <span key="atendimento">

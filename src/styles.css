@@ -67,6 +67,9 @@
   --color-drawer-surface: var(--drawer-surface);
   --color-drawer-card: var(--drawer-card);
   --color-drawer-band: var(--drawer-band);
+  --color-drawer-borda: var(--drawer-borda);
+  --color-menu-icone: var(--menu-icone);
+  --color-menu-icone-fundo: var(--menu-icone-fundo);
 }
 
 :root,
@@ -93,13 +96,13 @@
   --identity-white: #ffffff;
   --identity-border: #d9e3f0;
   --grafite-ink: #021a46;
-  --grafite-surface: #08275a;
-  --grafite-raised: #0d3168;
+  --grafite-surface: #102f63;
+  --grafite-raised: #193c75;
   --grafite-paper: #f7faff;
   --grafite-muted: #a9bad3;
-  --grafite-muted-2: #879dbd;
-  --grafite-line: #123966;
-  --grafite-line-2: #174478;
+  --grafite-muted-2: #98acc9;
+  --grafite-line: #224977;
+  --grafite-line-2: #2d598f;
   --grafite-primary: #087cf0;
   --grafite-accent: #00b7f4;
   --whatsapp: #25d366;
@@ -185,21 +188,24 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: color-mix(in oklab, var(--primary) 7%, var(--ink));
+  --drawer-surface: var(--ink);
   --drawer-card: var(--ink2);
   --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
+  --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
+  --menu-icone: var(--gold);
+  --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
 }
 
 .light,
 :root[data-identidade="moderno"].light {
-  --ink: var(--identity-off-white);
+  --ink: #e7ecf3;
   --ink2: var(--identity-white);
-  --ink3: #eaf2fb;
+  --ink3: #dde5ef;
   --paper: #021a46;
-  --mute: var(--identity-muted);
-  --mute2: #6d7f99;
-  --line: var(--identity-border);
-  --line2: #bfd0e4;
+  --mute: #53657e;
+  --mute2: #5a6b84;
+  --line: #c8d2df;
+  --line2: #afb8c5;
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -230,9 +236,12 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: color-mix(in oklab, var(--primary) 7%, var(--ink));
+  --drawer-surface: var(--ink);
   --drawer-card: var(--ink2);
   --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
+  --drawer-borda: var(--line);
+  --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
+  --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
 
   --status-scheduled: #696862;
   --status-confirmed: #4e705e;
@@ -1102,7 +1111,7 @@ html.light .brand-logo-on-light,
   right: 0;
   left: 0;
   height: 1px;
-  border-top: 1px solid color-mix(in oklab, var(--line) 58%, transparent);
+  border-top: 1px solid var(--line);
   pointer-events: none;
 }
 .agenda-timeline-marca span {
@@ -1116,7 +1125,7 @@ html.light .brand-logo-on-light,
   text-align: right;
 }
 .agenda-timeline-hora {
-  border-color: var(--line);
+  border-color: var(--line2);
 }
 .agenda-timeline-bloco {
   position: absolute;

@@ -16,6 +16,7 @@ import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { DrawerAjustes } from "@/components/layout/DrawerAjustes";
 import { DrawerDestaques } from "@/components/layout/DrawerDestaques";
+import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { getAgendaDia } from "@/lib/barbeiro.functions";
@@ -249,7 +250,7 @@ export function ManagementHeader() {
                       <section key={grupo.titulo}>
                         <Button
                           variant="ghost"
-                          className="min-h-12 w-full justify-between px-1 text-lg font-bold text-primary hover:bg-transparent"
+                          className="min-h-12 w-full justify-between px-1 text-lg font-bold text-menu-icone hover:bg-transparent"
                           aria-expanded={abertos.includes(grupo.titulo)}
                           aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
                           onClick={() => alternar(grupo.titulo)}
@@ -283,13 +284,9 @@ export function ManagementHeader() {
                                     preload="intent"
                                     onClick={() => setAberto(false)}
                                     aria-current={ativo ? "page" : undefined}
-                                    className={`grid min-h-16 grid-cols-[28px_minmax(0,1fr)] items-center gap-3 bg-drawer-card px-5 py-3 text-lg font-medium text-paper ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}
+                                    className={`grid min-h-16 grid-cols-[40px_minmax(0,1fr)] items-center gap-3 border border-drawer-borda bg-drawer-card px-4 py-3 text-lg font-medium text-paper ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}
                                   >
-                                    <Icon
-                                      className="size-6 text-primary"
-                                      strokeWidth={1.75}
-                                      aria-hidden
-                                    />
+                                    <IconeDoMenu icone={Icon} ativo={ativo} />
                                     <span className="truncate">{item.label}</span>
                                   </Link>
                                 </li>

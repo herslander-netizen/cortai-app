@@ -11,6 +11,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -85,9 +86,9 @@ export function DrawerAjustes({
           variant="icon"
           size="icon"
           aria-label="Abrir ajustes"
-          className="shrink-0 rounded-full text-mute hover:bg-drawer-card"
+          className="size-12 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
         >
-          <SlidersHorizontal className="size-6" aria-hidden />
+          <SlidersHorizontal className="size-[22px]" aria-hidden />
         </Button>
       </SheetTrigger>
       <SheetContent
@@ -112,14 +113,14 @@ export function DrawerAjustes({
                 asChild
                 variant="ghost"
                 size="bloco"
-                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
               >
                 <Link
                   to={item.to}
                   onClick={navegar}
-                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
                 >
-                  <Icon className="size-6 text-primary" aria-hidden />
+                  <IconeDoMenu icone={Icon} />
                   <span className="min-w-0">
                     <span className="block truncate text-base font-semibold text-paper">
                       {item.label}
@@ -140,10 +141,10 @@ export function DrawerAjustes({
             size="bloco"
             aria-expanded={aparenciaAberta}
             onClick={() => setAparenciaAberta((valor) => !valor)}
-            className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+            className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
           >
-            <span className="grid w-full grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3">
-              <Palette className="size-6 text-primary" aria-hidden />
+            <span className="grid w-full grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3">
+              <IconeDoMenu icone={Palette} />
               <span className="min-w-0">
                 <span className="block truncate text-base font-semibold text-paper">Aparência</span>
                 <span className="mt-0.5 block truncate text-xs font-normal text-mute">
@@ -157,7 +158,7 @@ export function DrawerAjustes({
             </span>
           </Button>
           {aparenciaAberta ? (
-            <div className="rounded-[18px] bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
+            <div className="rounded-[18px] border border-drawer-borda bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
               <ThemeToggle
                 identidadeDaBarbearia={identidade}
                 tenantId={tenantId}
@@ -174,14 +175,14 @@ export function DrawerAjustes({
                 asChild
                 variant="ghost"
                 size="bloco"
-                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
               >
                 <Link
                   to={item.to}
                   onClick={navegar}
-                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
                 >
-                  <Icon className="size-6 text-primary" aria-hidden />
+                  <IconeDoMenu icone={Icon} />
                   <span className="min-w-0">
                     <span className="block truncate text-base font-semibold text-paper">
                       {item.label}
@@ -201,7 +202,7 @@ export function DrawerAjustes({
               <Button
                 variant="ghost"
                 size="bloco"
-                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 text-brick hover:bg-brick-soft"
+                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 text-brick hover:bg-brick-soft"
               >
                 <span className="flex w-full items-center gap-3">
                   <LogOut className="size-6" aria-hidden />

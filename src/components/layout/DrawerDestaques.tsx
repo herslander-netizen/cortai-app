@@ -3,6 +3,7 @@ import { CalendarDays, Link2, Share2, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { aviso } from "@/lib/avisos";
+import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
 
 type Props = {
   slug: string | null | undefined;
@@ -41,15 +42,15 @@ export function DrawerDestaques({
   return (
     <div className="space-y-4">
       {slug ? (
-        <div className="overflow-hidden rounded-[28px] bg-drawer-card">
+        <div className="overflow-hidden rounded-[28px] border border-drawer-borda bg-drawer-card">
           <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_48px] items-center pl-5 pr-2">
             <Link
               to="/b/$slug"
               params={{ slug }}
               onClick={fechar}
-              className="grid min-w-0 grid-cols-[32px_minmax(0,1fr)] items-center gap-3 py-3"
+              className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)] items-center gap-3 py-3"
             >
-              <Link2 className="size-7 text-sage" aria-hidden />
+              <IconeDoMenu icone={Link2} destaque />
               <span className="min-w-0">
                 <span className="block truncate text-lg font-semibold text-paper">Sua Página</span>
                 {paginaPublicada ? (
@@ -64,9 +65,9 @@ export function DrawerDestaques({
               size="icon"
               aria-label="Compartilhar sua página"
               onClick={() => void compartilhar()}
-              className="rounded-full text-primary"
+              className="size-12 rounded-full text-menu-icone"
             >
-              <Share2 className="size-6" aria-hidden />
+              <Share2 className="size-[22px]" aria-hidden />
             </Button>
           </div>
           <div className="flex min-h-10 items-center gap-2 bg-drawer-band px-5 py-2 text-sm text-mute">
@@ -80,9 +81,9 @@ export function DrawerDestaques({
         to="/barbeiro"
         onClick={fechar}
         aria-current={agendaAtiva ? "page" : undefined}
-        className={`grid min-h-20 grid-cols-[40px_minmax(0,1fr)_12px] items-center gap-3 rounded-[30px] bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
+        className={`grid min-h-20 grid-cols-[44px_minmax(0,1fr)_12px] items-center gap-3 rounded-[30px] border border-drawer-borda bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
       >
-        <CalendarDays className="size-8 text-primary" aria-hidden />
+        <IconeDoMenu icone={CalendarDays} destaque ativo={agendaAtiva} />
         <span className="min-w-0">
           <span className="block truncate text-[22px] font-semibold leading-tight text-paper">
             Agenda
