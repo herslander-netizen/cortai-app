@@ -78,6 +78,14 @@ export function useConversaAgendamento({
   // Pedidos que dependem de horários recalculados pelo motor oficial.
   useEffect(() => {
     if (!s.servico || !profEscolhido) return;
+    if (pendente.dia) {
+      // Dia dito antes do serviço/profissional: aplica quando a agenda existir.
+      const { dia, ...resto } = pendente;
+      setPendente(resto);
+      if (s.dias.includes(dia)) escolherDia(dia);
+      else falar(TEXTOS_CONVERSA.horarioIndisponivel);
+      return;
+    }
     if (pendente.primeiro) {
       const livre = s.dias.find((d) => (s.porDia.get(d)?.opcoes.length ?? 0) > 0);
       setPendente((p) => ({ ...p, primeiro: false }));
@@ -215,8 +223,10 @@ export function useConversaAgendamento({
       escolherProfissional("qualquer");
       entendeu = true;
     }
-    if (e.dia && s.dias.includes(e.dia)) {
-      escolherDia(e.dia);
+    if (e.dia) {
+      if (s.servico && profEscolhido && !e.servicoId && !e.profissionalId && s.dias.includes(e.dia))
+        escolherDia(e.dia);
+      else setPendente((p) => ({ ...p, dia: e.dia! }));
       entendeu = true;
     } else if (e.confirmarDia) {
       setConfirmarDia(e.confirmarDia);
@@ -227,7 +237,7 @@ export function useConversaAgendamento({
       entendeu = true;
     }
     if (e.primeiroDisponivel) {
-      setPendente({ primeiro: true });
+      setPendente((p) => ({ ...p, primeiro: true }));
       entendeu = true;
     }
     if (e.horario) {
