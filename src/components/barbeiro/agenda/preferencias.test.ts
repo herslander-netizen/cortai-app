@@ -96,3 +96,15 @@ describe("voltar ao mesmo lugar", () => {
     expect(lerContextoAgenda(memoria())).toBeNull();
   });
 });
+
+import { salvarTelaAcesa as _salvarTA, telaAcesaInicial as _taInicial } from "./preferencias";
+import { describe as _d, expect as _e, it as _i } from "vitest";
+_d("lâmpada do Foco", () => {
+  _i("começa ligada e lembra a escolha", () => {
+    const m = new Map<string, string>();
+    const a = { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v) };
+    _e(_taInicial(a)).toBe(true);
+    _salvarTA(false, a);
+    _e(_taInicial(a)).toBe(false);
+  });
+});
