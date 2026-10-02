@@ -25,6 +25,12 @@ import { linkDaEquipe } from "./chat/respostasRapidas";
 import type { Chip, HorarioFuturo, Selecao } from "./chat/tipos";
 import { useConversaAgendamento } from "./chat/useConversaAgendamento";
 
+/** Nome vazio ou o antigo padrão "Recepção" viram Lisa; nomes próprios salvos continuam. */
+function nomeDaRecepcao(nome: string | undefined) {
+  const limpo = nome?.trim() ?? "";
+  return !limpo || /^recep(?:ç|c)[aã]o$/i.test(limpo) ? "Lisa" : limpo;
+}
+
 export function AgendamentoChat({
   data,
   selecao,
@@ -147,7 +153,7 @@ export function AgendamentoChat({
         style={agendamentoStyle(data.pagina)}
         header={
           <ChatHeader
-            nome={data.pagina.chat.nomeRecepcao}
+            nome={nomeDaRecepcao(data.pagina.chat.nomeRecepcao)}
             status={
               digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
             }
