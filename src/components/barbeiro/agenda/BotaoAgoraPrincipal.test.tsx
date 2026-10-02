@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -81,6 +82,33 @@ describe("BotaoAgoraPrincipal", () => {
     act(() => botao?.click());
     expect(onVisualizacao).toHaveBeenCalledWith("lista");
     expect(botao?.querySelector("svg")).not.toBeNull();
+  });
+
+  it("mantém cor e fundo da cápsula em todos os estados e solta o foco após toque", async () => {
+    await montar(390);
+    const estilos = readFileSync("src/styles.css", "utf8");
+    expect(estilos).toContain(".agenda-botao-agora-principal button:hover,");
+    expect(estilos).toContain(".agenda-botao-agora-principal button:focus-visible,");
+    expect(estilos).toContain(".agenda-botao-agora-principal button:active {");
+    expect(estilos).toMatch(
+      /\.agenda-botao-agora-principal button:active \{[\s\S]*?background: transparent;[\s\S]*?color: var\(--ink\);/,
+    );
+    const botoes = Array.from(
+      host?.querySelectorAll<HTMLButtonElement>(
+        ".agenda-botao-agora-ir, .agenda-botao-agora-visualizacao",
+      ) ?? [],
+    );
+    expect(botoes).toHaveLength(2);
+    for (const botao of botoes) {
+      const blur = vi.spyOn(botao, "blur");
+      const toque = new MouseEvent("pointerup", { bubbles: true });
+      Object.defineProperty(toque, "pointerType", { value: "touch" });
+      act(() => {
+        botao.focus();
+        botao.dispatchEvent(toque);
+      });
+      expect(blur).toHaveBeenCalledOnce();
+    }
   });
 
   it("leva ao agora na Timeline", async () => {
