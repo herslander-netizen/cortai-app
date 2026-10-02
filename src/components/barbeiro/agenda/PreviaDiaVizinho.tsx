@@ -27,7 +27,8 @@ export function PreviaDiaVizinho({
   discreto: boolean;
   ref?: Ref<HTMLDivElement>;
 }) {
-  const { data } = useQuery({ ...opcoesAgendaDia(dia), refetchOnMount: false });
+  const consulta = useQuery({ ...opcoesAgendaDia(dia), refetchOnMount: false });
+  const { data } = consulta;
   const itens = (data?.itens ?? [])
     .filter((i) => !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
@@ -38,9 +39,9 @@ export function PreviaDiaVizinho({
       <strong className="agenda-previa-data">{dataEditorial(dia)}</strong>
       {!data ? (
         timeline ? (
-          <EsqueletoTimeline />
+          <EsqueletoTimeline onTentarDeNovo={() => void consulta.refetch()} />
         ) : (
-          <EsqueletoAgenda linhas={4} />
+          <EsqueletoAgenda linhas={4} onTentarDeNovo={() => void consulta.refetch()} />
         )
       ) : itens.length === 0 ? (
         <p className="mt-4 text-sm text-mute">Agenda livre</p>

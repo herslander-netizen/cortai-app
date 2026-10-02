@@ -74,7 +74,8 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
   }, [query.data]);
 
   if (query.isError) return <p className="text-sm text-brick">{(query.error as Error).message}</p>;
-  if (!query.data) return <EsqueletoFormulario campos={5} />;
+  if (!query.data)
+    return <EsqueletoFormulario campos={5} onTentarDeNovo={() => void query.refetch()} />;
 
   const dados = query.data as BarbeariaSuporte;
   const camposIniciais = dados.campos;

@@ -60,7 +60,7 @@ function ServicosPage() {
       title="Serviços"
       subtitle="O que você oferece e por quanto."
     >
-      {isLoading ? <EsqueletoFormulario campos={4} /> : null}
+      {isLoading ? <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} /> : null}
       <div data-guia="servicos-editor">
         <EditorDeServicos
           servicos={servicos}

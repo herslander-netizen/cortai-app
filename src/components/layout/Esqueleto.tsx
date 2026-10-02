@@ -1,11 +1,18 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type RegiaoProps = { children: ReactNode; className?: string };
+type RegiaoProps = {
+  children: ReactNode;
+  className?: string;
+  onTentarDeNovo?: (() => void) | undefined;
+};
+
+type TentativaProps = Pick<RegiaoProps, "onTentarDeNovo">;
 
 /** Uma região de espera anuncia o estado uma vez; os blocos internos são decorativos. */
-export function RegiaoDeEsqueleto({ children, className }: RegiaoProps) {
+export function RegiaoDeEsqueleto({ children, className, onTentarDeNovo }: RegiaoProps) {
   const [demorou, setDemorou] = useState(false);
 
   useEffect(() => {
@@ -18,13 +25,13 @@ export function RegiaoDeEsqueleto({ children, className }: RegiaoProps) {
       <div role="alert" className={cn("surface p-5", className)}>
         <p className="text-sm font-semibold text-paper">Não conseguimos carregar agora.</p>
         <p className="mt-1 text-xs text-mute">Confira sua conexão e tente novamente.</p>
-        <button
-          type="button"
-          className="mt-4 min-h-11 rounded-md border border-line2 px-4 text-sm font-semibold text-paper"
-          onClick={() => window.location.reload()}
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={onTentarDeNovo ?? (() => window.location.reload())}
         >
           Tentar de novo
-        </button>
+        </Button>
       </div>
     );
   }
@@ -86,9 +93,12 @@ function Linhas({ linhas = 3 }: { linhas?: number }) {
   );
 }
 
-export function EsqueletoLista({ linhas = 5 }: { linhas?: number }) {
+export function EsqueletoLista({
+  linhas = 5,
+  onTentarDeNovo,
+}: { linhas?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto className="mt-2">
+    <RegiaoDeEsqueleto className="mt-2" onTentarDeNovo={onTentarDeNovo}>
       <div className="divide-y divide-line">
         {Array.from({ length: linhas }).map((_, i) => (
           <div
@@ -104,9 +114,15 @@ export function EsqueletoLista({ linhas = 5 }: { linhas?: number }) {
   );
 }
 
-export function EsqueletoMetricas({ colunas = 3 }: { colunas?: number }) {
+export function EsqueletoMetricas({
+  colunas = 3,
+  onTentarDeNovo,
+}: { colunas?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+    <RegiaoDeEsqueleto
+      className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      onTentarDeNovo={onTentarDeNovo}
+    >
       {Array.from({ length: colunas }).map((_, i) => (
         <div key={i} className="min-h-24 rounded-md border border-line bg-ink2 px-3 py-4">
           <Barra w="60%" h={10} />
@@ -117,9 +133,12 @@ export function EsqueletoMetricas({ colunas = 3 }: { colunas?: number }) {
   );
 }
 
-export function EsqueletoTimeline({ blocos = 3 }: { blocos?: number }) {
+export function EsqueletoTimeline({
+  blocos = 3,
+  onTentarDeNovo,
+}: { blocos?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto className="relative mt-4 h-[420px]">
+    <RegiaoDeEsqueleto className="relative mt-4 h-[420px]" onTentarDeNovo={onTentarDeNovo}>
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
@@ -144,9 +163,12 @@ export function EsqueletoTimeline({ blocos = 3 }: { blocos?: number }) {
   );
 }
 
-export function EsqueletoAgenda({ linhas = 4 }: { linhas?: number }) {
+export function EsqueletoAgenda({
+  linhas = 4,
+  onTentarDeNovo,
+}: { linhas?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto className="mt-4 space-y-2">
+    <RegiaoDeEsqueleto className="mt-4 space-y-2" onTentarDeNovo={onTentarDeNovo}>
       {Array.from({ length: linhas }).map((_, i) => (
         <div
           key={i}
@@ -160,9 +182,12 @@ export function EsqueletoAgenda({ linhas = 4 }: { linhas?: number }) {
   );
 }
 
-export function EsqueletoFormulario({ campos = 4 }: { campos?: number }) {
+export function EsqueletoFormulario({
+  campos = 4,
+  onTentarDeNovo,
+}: { campos?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto className="space-y-5">
+    <RegiaoDeEsqueleto className="space-y-5" onTentarDeNovo={onTentarDeNovo}>
       {Array.from({ length: campos }).map((_, i) => (
         <div key={i}>
           <Barra w={i % 2 ? "36%" : "28%"} h={11} />
@@ -174,9 +199,9 @@ export function EsqueletoFormulario({ campos = 4 }: { campos?: number }) {
   );
 }
 
-export function EsqueletoFicha() {
+export function EsqueletoFicha({ onTentarDeNovo }: TentativaProps = {}) {
   return (
-    <RegiaoDeEsqueleto className="space-y-6">
+    <RegiaoDeEsqueleto className="space-y-6" onTentarDeNovo={onTentarDeNovo}>
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <BlocoEsqueleto className="size-14 shrink-0 rounded-full" />
         <div className="min-w-0 flex-1">
@@ -195,9 +220,9 @@ export function EsqueletoFicha() {
   );
 }
 
-export function EsqueletoComanda() {
+export function EsqueletoComanda({ onTentarDeNovo }: TentativaProps = {}) {
   return (
-    <RegiaoDeEsqueleto className="space-y-4 py-2">
+    <RegiaoDeEsqueleto className="space-y-4 py-2" onTentarDeNovo={onTentarDeNovo}>
       <Barra w="48%" h={24} />
       <div className="divide-y divide-line">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -218,9 +243,9 @@ export function EsqueletoComanda() {
   );
 }
 
-export function EsqueletoPainel() {
+export function EsqueletoPainel({ onTentarDeNovo }: TentativaProps = {}) {
   return (
-    <RegiaoDeEsqueleto>
+    <RegiaoDeEsqueleto onTentarDeNovo={onTentarDeNovo}>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <BlocoEsqueleto key={i} className="h-24" />
@@ -231,9 +256,9 @@ export function EsqueletoPainel() {
   );
 }
 
-export function EsqueletoPaginaPublica() {
+export function EsqueletoPaginaPublica({ onTentarDeNovo }: TentativaProps = {}) {
   return (
-    <RegiaoDeEsqueleto className="min-h-screen bg-ink">
+    <RegiaoDeEsqueleto className="min-h-screen bg-ink" onTentarDeNovo={onTentarDeNovo}>
       <BlocoEsqueleto className="h-[62vh] min-h-[420px] w-full rounded-none" />
       <div className="mx-auto max-w-5xl space-y-4 px-5 py-8">
         <Barra w="28%" h={12} />

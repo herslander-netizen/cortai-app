@@ -71,7 +71,9 @@ function PedidosPage() {
         </Button>
       }
     >
-      {query.isLoading ? <EsqueletoLista linhas={5} /> : null}
+      {query.isLoading ? (
+        <EsqueletoLista linhas={5} onTentarDeNovo={() => void query.refetch()} />
+      ) : null}
       {query.isError ? (
         <AdminNotice error={query.error} />
       ) : (

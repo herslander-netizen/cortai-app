@@ -52,7 +52,7 @@ function ProfissionaisPage() {
       title="Profissionais"
       subtitle="O que aparece na sua página pública."
     >
-      {isLoading ? <EsqueletoFormulario campos={3} /> : null}
+      {isLoading ? <EsqueletoFormulario campos={3} onTentarDeNovo={() => void refetch()} /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
 
       <ul className="space-y-6">

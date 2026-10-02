@@ -54,7 +54,7 @@ function HorariosPage() {
       title="Horários"
       subtitle="Quando o negócio atende. Vale para a agenda e para a fila."
     >
-      {isLoading ? <EsqueletoFormulario campos={6} /> : null}
+      {isLoading ? <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} /> : null}
       <label className="mt-2 block">
         <span className="text-xs font-semibold uppercase tracking-wide text-mute">
           Fuso horário do negócio

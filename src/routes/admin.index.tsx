@@ -42,7 +42,7 @@ function AdminOverview() {
   });
   return (
     <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">
-      {query.isLoading ? <EsqueletoPainel /> : null}
+      {query.isLoading ? <EsqueletoPainel onTentarDeNovo={() => void query.refetch()} /> : null}
       {query.isError ? <AdminNotice error={query.error} /> : null}
       {query.data ? (
         <>

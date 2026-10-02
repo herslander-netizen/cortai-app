@@ -50,7 +50,7 @@ function MinhasBarbeariasPage() {
   const trocar = useServerFn(definirBarbeariaAtiva);
   const [indo, setIndo] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["minhas-barbearias"],
     queryFn: () => getMinhasBarbearias(),
     staleTime: 60_000,
@@ -77,7 +77,7 @@ function MinhasBarbeariasPage() {
       subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar."
     >
       {isLoading || !data ? (
-        <EsqueletoLista linhas={2} />
+        <EsqueletoLista linhas={2} onTentarDeNovo={() => void refetch()} />
       ) : !data.length ? (
         <p className="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-mute">
           Sua conta ainda não está ligada a nenhuma barbearia.

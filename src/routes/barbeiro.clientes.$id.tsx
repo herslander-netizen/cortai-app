@@ -95,7 +95,7 @@ function FichaPage() {
         Voltar para clientes
       </Link>
 
-      {isLoading ? <EsqueletoFicha /> : null}
+      {isLoading ? <EsqueletoFicha onTentarDeNovo={() => void refetch()} /> : null}
       {aviso ? (
         <Aviso tom="info" className="mb-4">
           {aviso}

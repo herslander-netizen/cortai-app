@@ -300,7 +300,7 @@ function AgendamentoPublico() {
   if (isLoading)
     return (
       <main className="mx-auto min-h-screen w-full max-w-[520px] px-5 py-8">
-        <EsqueletoFormulario campos={5} />
+        <EsqueletoFormulario campos={5} onTentarDeNovo={() => void refetch()} />
       </main>
     );
   if (!data) {

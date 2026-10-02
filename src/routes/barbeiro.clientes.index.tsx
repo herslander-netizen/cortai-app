@@ -150,7 +150,9 @@ function ClientesPage() {
         </Button>
       </div>
 
-      {isLoading ? <EsqueletoLista linhas={6} /> : null}
+      {isLoading ? (
+        <EsqueletoLista linhas={6} onTentarDeNovo={() => void consulta.refetch()} />
+      ) : null}
       {consulta.isError ? (
         <div className="surface mt-4 p-5">
           <p className="text-sm text-paper">Não conseguimos carregar seus clientes agora.</p>

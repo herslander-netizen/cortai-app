@@ -40,7 +40,7 @@ function Metrica({ rotulo, valor, detalhe }: { rotulo: string; valor: string; de
 }
 
 function CrescimentoPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["crescimento"],
     queryFn: () => getCrescimento(),
   });
@@ -71,7 +71,7 @@ function CrescimentoPage() {
       title="Crescimento"
       subtitle={data?.tenant.nome ?? "O que faz seu negócio crescer."}
     >
-      {isLoading ? <EsqueletoPainel /> : null}
+      {isLoading ? <EsqueletoPainel onTentarDeNovo={() => void refetch()} /> : null}
 
       {data ? (
         <>

@@ -114,7 +114,7 @@ function CartaoFidelidade({ progresso, alvo }: { progresso: number; alvo: number
 function CarteiraPage() {
   const { b } = Route.useSearch();
   const slug = useContextoCliente(b);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["carteira", slug],
     queryFn: () => getCarteira({ data: slug ? { slug } : {} }),
   });
@@ -125,7 +125,7 @@ function CarteiraPage() {
 
   return (
     <Screen title={rotulo} subtitle={data?.cliente.nome ?? ""}>
-      {isLoading ? <EsqueletoFicha /> : null}
+      {isLoading ? <EsqueletoFicha onTentarDeNovo={() => void refetch()} /> : null}
 
       {data ? (
         <>

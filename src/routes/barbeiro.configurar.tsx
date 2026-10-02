@@ -140,7 +140,7 @@ function ConfigurarPage() {
   const concluir = useServerFn(concluirConfiguracao);
   const gravarModo = useServerFn(salvarModoAgendamento);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["implantacao"],
     queryFn: () => getImplantacao(),
     staleTime: 60_000,
@@ -364,7 +364,9 @@ function ConfigurarPage() {
           : "O progresso fica salvo. Dá para parar e voltar depois."
       }
     >
-      {isLoading && !data ? <EsqueletoFormulario campos={4} /> : null}
+      {isLoading && !data ? (
+        <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
+      ) : null}
 
       {data ? (
         <>
