@@ -6,31 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { salvarPreferenciasDoAgendamento } from "@/lib/agendamento-publico.functions";
-
-const NOVENTA_DIAS = 90 * 24 * 60 * 60 * 1000;
-
-export function chaveLembretePreferencias(slug: string) {
-  return `cortai-preferencias-atendimento:${slug}`;
-}
-
-export function deveMostrarPreferencias(slug: string, agora = Date.now()) {
-  try {
-    const valor = localStorage.getItem(chaveLembretePreferencias(slug));
-    if (!valor) return true;
-    const salvoEm = Number(valor);
-    return !Number.isFinite(salvoEm) || agora - salvoEm >= NOVENTA_DIAS;
-  } catch {
-    return true;
-  }
-}
-
-function lembrar(slug: string) {
-  try {
-    localStorage.setItem(chaveLembretePreferencias(slug), String(Date.now()));
-  } catch {
-    /* armazenamento opcional */
-  }
-}
+import {
+  deveMostrarPreferencias,
+  lembrarPreferencias,
+} from "@/components/agendamento/lembrete-preferencias";
 
 type Props = { agendamentoId: string; token: string; slug: string };
 
@@ -45,7 +24,7 @@ export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Prop
     mutationFn: () =>
       salvarPreferenciasDoAgendamento({ data: { agendamentoId, token, preferencias } }),
     onSuccess: () => {
-      lembrar(slug);
+      lembrarPreferencias(slug);
       setAnotado(true);
       setErro(null);
     },
@@ -180,7 +159,7 @@ export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Prop
           variant="outline"
           className="min-h-12 font-semibold"
           onClick={() => {
-            lembrar(slug);
+            lembrarPreferencias(slug);
             setVisivel(false);
           }}
         >
