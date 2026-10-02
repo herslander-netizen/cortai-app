@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { readFileSync } from "node:fs";
 import { act } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
