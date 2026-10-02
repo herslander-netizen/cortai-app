@@ -1,5 +1,18 @@
 import type { CSSProperties } from "react";
 
+export const CORES_AGENDAMENTO = {
+  destaques: { azul: "#2F5BEA", ciano: "#00A8E8", rosa: "#E85A8A" },
+  pagina: "#F7F9FC",
+  texto: "#07152F",
+  claro: "#FFFFFF",
+} as const;
+
+export function contrasteDaMarca(cor: string) {
+  return contraste(cor, CORES_AGENDAMENTO.claro) >= 4.5
+    ? CORES_AGENDAMENTO.claro
+    : CORES_AGENDAMENTO.texto;
+}
+
 const CORES_PADRAO_CORTAI = new Set([
   "#C9A96A",
   "#D4AF6A",
@@ -51,7 +64,10 @@ function normalizar(cor: string | null | undefined) {
   return valor;
 }
 
-export function estiloDaMarca(cor: string | null | undefined): { style?: CSSProperties; personalizada: boolean } {
+export function estiloDaMarca(cor: string | null | undefined): {
+  style?: CSSProperties;
+  personalizada: boolean;
+} {
   const base = normalizar(cor);
   if (!base) return { personalizada: false };
   const texto = contraste(base, "#FFFFFF") >= 4.5 ? "#FFFFFF" : "#1B1C1F";

@@ -15,6 +15,7 @@ import { type ReactNode } from "react";
 import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
+import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { brl } from "@/lib/format";
 import { type PaginaConfig, paginaStyle } from "@/lib/pagina-config";
 import type { PaginaPublica } from "@/lib/publico.functions";
@@ -73,10 +74,20 @@ export function PaginaPublicaConteudo({
           width={1200}
           height={1500}
           fetchPriority="high"
+          decoding="async"
           className="brand-cover"
         />
         <div className="brand-overlay" />
         <div className="brand-hero-content">
+          <StatusFuncionamento
+            fuso={tenant.fuso}
+            horarios={data.horarios.map((h) => ({
+              diaSemana: h.dia_semana,
+              fechado: h.fechado,
+              abre: h.abre,
+              fecha: h.fecha,
+            }))}
+          />
           <LogoBarbearia
             nome={tenant.nome}
             url={tenant.logo_signed_url}

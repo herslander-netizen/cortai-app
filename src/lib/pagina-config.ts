@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CSSProperties } from "react";
+import { CORES_AGENDAMENTO, contrasteDaMarca } from "@/lib/cor-marca";
 
 export const temaIds = [
   "cortai",
@@ -314,31 +315,16 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
   } as CSSProperties;
 }
 
-function contrastePara(hex: string) {
-  const canais = hex
-    .slice(1)
-    .match(/.{2}/g)
-    ?.map((canal) => Number.parseInt(canal, 16) / 255);
-  if (!canais || canais.some(Number.isNaN)) return "#FFFFFF";
-  const linear = canais.map((canal) =>
-    canal <= 0.04045 ? canal / 12.92 : ((canal + 0.055) / 1.055) ** 2.4,
-  );
-  const [vermelho = 0, verde = 0, azul = 0] = linear;
-  const luminancia = 0.2126 * vermelho + 0.7152 * verde + 0.0722 * azul;
-  return luminancia > 0.48 ? "#07152F" : "#FFFFFF";
-}
-
 /** Tokens da identidade publicada usados pelo agendamento, sem duplicar a configuração da marca. */
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
-  const destaques = { azul: "#2F5BEA", ciano: "#00A8E8", rosa: "#E85A8A" } as const;
-  const corPrincipal = destaques[config.chat.corDestaque] ?? config.cores.botao;
+  const corPrincipal = CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao;
   return {
     "--chat-primary": corPrincipal,
-    "--chat-primary-foreground": contrastePara(corPrincipal),
+    "--chat-primary-foreground": contrasteDaMarca(corPrincipal),
     "--chat-secondary": config.cores.secundaria,
     "--chat-accent": config.cores.destaque,
-    "--chat-page": "#F7F9FC",
-    "--chat-page-text": "#07152F",
+    "--chat-page": CORES_AGENDAMENTO.pagina,
+    "--chat-page-text": CORES_AGENDAMENTO.texto,
     "--chat-heading": fontes[config.fonteTitulo],
     "--chat-body": fontes[config.fonteTexto],
   } as CSSProperties;

@@ -9,12 +9,16 @@ import {
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatShell";
+import { IngressoAgendamento } from "./IngressoAgendamento";
+import { statusDeFuncionamento } from "@/lib/status-funcionamento";
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 import { agendamentoStyle } from "@/lib/pagina-config";
-import { prefereMenosMovimento } from "@/lib/motion";
+import { pausaDaResposta, RESPOSTA_POR_ETAPA } from "@/lib/pausa-chat";
+import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 
 type ServicoSelecionavel = {
   id: string;
@@ -48,20 +52,6 @@ type Selecao = {
 
 function Typing() {
   return <TypingIndicator />;
-}
-
-const RESPOSTA_POR_ETAPA = {
-  identidade: "Antes de começar, como posso chamar você?",
-  servico: "Vamos escolher seu atendimento. Qual serviço você quer agendar?",
-  profissional: "Ótima escolha. Você prefere alguém específico?",
-  dia: "Qual dia fica melhor?",
-  horario: "Encontrei estes horários:",
-  confirmacao: "Posso confirmar?",
-} as const;
-
-function pausaDaResposta(etapa: keyof typeof RESPOSTA_POR_ETAPA) {
-  if (prefereMenosMovimento()) return 0;
-  return Math.min(280, 120 + RESPOSTA_POR_ETAPA[etapa].length * 2);
 }
 
 function cascataLeve(indice: number) {
@@ -111,10 +101,10 @@ export function AgendamentoChat({
   enviando: boolean;
   erro: string | null;
 }) {
-  const [identificado, setIdentificado] = useState(false);
   const [profissionalEscolhido, setProfissionalEscolhido] = useState(false);
   const [diaEscolhido, setDiaEscolhido] = useState(false);
   const [etapaPronta, setEtapaPronta] = useState<string | null>(null);
+  const [primeiraVisita, setPrimeiraVisita] = useState(true);
   const nomeRef = useRef<HTMLInputElement>(null);
   const chat = data.pagina.chat;
   const {
@@ -133,26 +123,64 @@ export function AgendamentoChat({
     setInicio,
     escolhido,
   } = selecao;
-  const etapa = !identificado
-    ? "identidade"
-    : !servico
-      ? "servico"
-      : !profissionalEscolhido
-        ? "profissional"
-        : !diaEscolhido || !dia
-          ? "dia"
-          : !escolhido
-            ? "horario"
-            : "confirmacao";
+  const etapa = !servico
+    ? "servico"
+    : !profissionalEscolhido
+      ? "profissional"
+      : !diaEscolhido || !dia
+        ? "dia"
+        : !escolhido
+          ? "horario"
+          : "dados";
   const digitando = etapaPronta !== etapa;
+  const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
+  useHistoricoAgendamento(etapa, (destino) => {
+    if (destino === "servico") {
+      setServicoId(null);
+      setProfissionalEscolhido(false);
+      setDiaEscolhido(false);
+    } else if (destino === "profissional") {
+      setProfissionalEscolhido(false);
+      setDiaEscolhido(false);
+    } else if (destino === "dia") {
+      setDiaEscolhido(false);
+      setInicio(null);
+    } else if (destino === "horario") {
+      setInicio(null);
+    }
+  });
 
   useEffect(() => {
-    const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa));
+    const id = window.setTimeout(
+      () => setEtapaPronta(etapa),
+      pausaDaResposta(etapa, primeiraVisita),
+    );
     return () => window.clearTimeout(id);
-  }, [etapa]);
+  }, [etapa, primeiraVisita]);
   useEffect(() => {
-    if (!identificado && !digitando) nomeRef.current?.focus();
-  }, [digitando, identificado]);
+    try {
+      const cliente = localStorage.getItem(`cortai-cliente-publico:${data.tenant.slug}`);
+      if (cliente) {
+        const salvo = JSON.parse(cliente) as { nome?: string; telefone?: string };
+        if (salvo.nome && !nome) setNome(salvo.nome);
+        if (salvo.telefone && !telefone) setTelefone(mascaraTelefone(salvo.telefone));
+      }
+      const chave = `cortai-chat-visitado:${data.tenant.slug}`;
+      setPrimeiraVisita(localStorage.getItem(chave) !== "1");
+      localStorage.setItem(chave, "1");
+    } catch {
+      setPrimeiraVisita(true);
+    }
+    // Apenas na primeira montagem: estado posterior continua controlado pelas props.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.tenant.slug]);
+  useEffect(() => {
+    if (etapa === "dados" && !digitando) nomeRef.current?.focus();
+  }, [digitando, etapa]);
+  useEffect(() => {
+    if (!servico) setProfissionalEscolhido(false);
+    if (!dia) setDiaEscolhido(false);
+  }, [servico, dia]);
 
   const local = (iso: string) =>
     new Date(iso).toLocaleDateString("pt-BR", {
@@ -163,8 +191,8 @@ export function AgendamentoChat({
   const proNome = escolhido
     ? data.profissionais.find((p) => p.id === escolhido.profId)?.nome
     : null;
-  const validarIdentidade = () =>
-    identificado || (nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10);
+  const dadosValidos = nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10;
+  const primeiroNome = nome.trim().split(/\s+/)[0];
 
   return (
     <>
@@ -175,8 +203,9 @@ export function AgendamentoChat({
         header={
           <ChatHeader
             nome={chat.nomeRecepcao}
-            avatarUrl={chat.avatarUrl}
-            status={digitando || enviando ? "Digitando..." : "Online"}
+            status={
+              digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
+            }
             detalhe={data.tenant.nome}
             processando={digitando || enviando}
           />
@@ -184,8 +213,13 @@ export function AgendamentoChat({
       >
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6">
-            {!digitando ? <Fala>{chat.mensagemInicial}</Fala> : null}
-            {identificado ? <Fala cliente>Sou {nome.trim()}.</Fala> : null}
+            {!digitando ? (
+              <Fala>
+                {primeiroNome
+                  ? `Oi, ${primeiroNome}. ${chat.mensagemInicial}`
+                  : chat.mensagemInicial}
+              </Fala>
+            ) : null}
             {servico ? <Fala cliente>{servico.nome}</Fala> : null}
             {servico && profissionalEscolhido ? (
               <Fala cliente>
@@ -199,39 +233,6 @@ export function AgendamentoChat({
             {digitando ? (
               <Fala>
                 <Typing />
-              </Fala>
-            ) : null}
-
-            {!digitando && etapa === "identidade" ? (
-              <Fala>
-                <p className="mb-3">Antes de começar, como posso chamar você?</p>
-                <div className="grid gap-3">
-                  <input
-                    ref={nomeRef}
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    autoComplete="name"
-                    enterKeyHint="next"
-                    placeholder="Seu nome"
-                    className="h-12 rounded-lg border border-line2 bg-ink2 px-4 text-paper outline-none"
-                  />
-                  <input
-                    value={telefone}
-                    onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-                    autoComplete="tel"
-                    enterKeyHint="done"
-                    inputMode="tel"
-                    placeholder="WhatsApp com DDD"
-                    className="h-12 rounded-lg border border-line2 bg-ink2 px-4 text-paper outline-none"
-                  />
-                  <Button
-                    className="h-12"
-                    disabled={!validarIdentidade()}
-                    onClick={() => setIdentificado(true)}
-                  >
-                    Continuar
-                  </Button>
-                </div>
               </Fala>
             ) : null}
 
@@ -433,31 +434,39 @@ export function AgendamentoChat({
               </Fala>
             ) : null}
 
-            {!digitando && etapa === "confirmacao" && servico && escolhido ? (
+            {!digitando && etapa === "dados" && servico && escolhido ? (
               <Fala>
-                <p className="text-base font-extrabold">Posso confirmar?</p>
-                <div className="chat-ingresso mt-3">
-                  <div className="px-4 pb-3 pt-4">
-                    <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-                      {data.tenant.nome}
-                    </p>
-                    <p className="mt-1 text-lg font-extrabold">{servico.nome}</p>
-                    <p className="text-sm text-mute">{proNome ?? "Profissional disponível"}</p>
-                  </div>
-                  <div className="chat-ingresso-corte" aria-hidden />
-                  <dl className="grid grid-cols-2 gap-3 px-4 pb-4 pt-3">
-                    {[
-                      ["Data", local(escolhido.iso)],
-                      ["Horário", escolhido.label],
-                      ["Duração", `${servico.duracao_min} min`],
-                      ["Valor", brl(servico.preco_centavos)],
-                    ].map(([k, v]) => (
-                      <div key={k}>
-                        <dt className="text-xs text-mute">{k}</dt>
-                        <dd className="font-extrabold">{v}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                <p className="mb-3 text-base font-extrabold">
+                  Só preciso dos seus dados para confirmar.
+                </p>
+                <div className="grid gap-3">
+                  <Input
+                    ref={nomeRef}
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    autoComplete="name"
+                    enterKeyHint="next"
+                    placeholder="Seu nome"
+                  />
+                  <Input
+                    value={telefone}
+                    onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+                    autoComplete="tel"
+                    enterKeyHint="done"
+                    inputMode="tel"
+                    placeholder="WhatsApp com DDD"
+                  />
+                </div>
+                <div className="mt-4">
+                  <IngressoAgendamento
+                    negocio={data.tenant.nome}
+                    servico={servico.nome}
+                    profissional={proNome ?? "Profissional disponível"}
+                    data={local(escolhido.iso)}
+                    horario={escolhido.label}
+                    duracao={servico.duracao_min}
+                    valorCentavos={servico.preco_centavos}
+                  />
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Button
@@ -480,10 +489,6 @@ export function AgendamentoChat({
                     }}
                   >
                     Dia
-                  </Button>
-                  <Button className="col-span-2 h-12" disabled={enviando} onClick={confirmar}>
-                    <Check />
-                    {enviando ? "Confirmando…" : "Confirmar"}
                   </Button>
                 </div>
                 <Button
@@ -526,6 +531,14 @@ export function AgendamentoChat({
           </ConversationContent>
           <ConversationScrollButton aria-label="Ir para a mensagem mais recente" />
         </Conversation>
+        {etapa === "dados" && !digitando ? (
+          <div className="chat-bandeja agendamento-marca-barra border-t border-line px-4 py-3">
+            <Button className="w-full" disabled={!dadosValidos || enviando} onClick={confirmar}>
+              <Check />
+              {enviando ? "Confirmando…" : "Confirmar horário"}
+            </Button>
+          </div>
+        ) : null}
       </ChatShell>
     </>
   );

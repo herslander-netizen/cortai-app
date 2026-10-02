@@ -77,6 +77,7 @@ export type AgendaPublica = {
     segmento: Segmento;
     logoUrl: string | null;
     capaUrl: string | null;
+    assinaturaVisivel?: boolean;
   };
   servicos: {
     id: string;
@@ -239,6 +240,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         segmento: segmentoParaApresentacao((tenant as Record<string, unknown>)["segmento"]),
         logoUrl: await assinar((tenant as Record<string, unknown>)["logo_url"] as string | null),
         capaUrl: await assinar((tenant as Record<string, unknown>)["capa_url"] as string | null),
+        assinaturaVisivel: (tenant as Record<string, unknown>)["assinatura_visivel"] !== false,
       },
       servicos,
       regras: {

@@ -2,31 +2,24 @@
  * Agendamento público do cliente — sem conta, sem senha, sem login.
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  CalendarPlus,
-  CalendarX,
-  Check,
-  Clock3,
-  MessageCircle,
-  Scissors,
-  UserRound,
-} from "lucide-react";
+import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { VistoAnimado } from "@/components/ui/VistoAnimado";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
-import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
+import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
+import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
-import { CHAVE_VINCULO } from "@/lib/vinculo";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -130,6 +123,40 @@ function AgendamentoPublico() {
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
   const chaveSalva = `cortai-agendamento-publico:${slug}`;
+  const etapa = confirmado
+    ? "confirmacao"
+    : !servico
+      ? "servico"
+      : !dia
+        ? "dia"
+        : !escolhido
+          ? "horario"
+          : "dados";
+  useHistoricoAgendamento(etapa, (destino) => {
+    if (destino === "servico") setServicoId(null);
+    else if (destino === "profissional") {
+      setDia(null);
+      setHorario(null);
+    } else if (destino === "dia") {
+      setHorario(null);
+    } else if (destino === "horario") {
+      setHorario(null);
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
+      const salvo = bruto ? (JSON.parse(bruto) as { telefone?: string; nome?: string }) : null;
+      if (salvo?.telefone) setTelefone(mascaraTelefone(salvo.telefone));
+      if (salvo?.nome) {
+        setNome(salvo.nome);
+        setSaudacao(salvo.nome.split(/\s+/)[0] ?? salvo.nome);
+      }
+    } catch {
+      /* cache opcional: o fluxo segue sem identificação */
+    }
+  }, [slug]);
 
   // A confirmação sobrevive a recarregar a página — e é conferida no servidor.
   useEffect(() => {
@@ -286,170 +313,39 @@ function AgendamentoPublico() {
   }
 
   if (confirmado) {
-    const whatsapp = confirmado.whatsapp?.replace(/\D/g, "") || null;
-    const texto = encodeURIComponent(
-      `Olá! Agendei ${confirmado.servico} com ${confirmado.profissional} em ${dataLocal(confirmado.inicio, fuso)} às ${horaLocal(confirmado.inicio, fuso)}.`,
-    );
-    const ativo = situacao === "confirmado";
-    const titulo = {
-      confirmado: "Agendamento confirmado",
-      cancelado: "Agendamento cancelado",
-      cancelado_pela_barbearia: "O negócio cancelou este horário",
-      remarcado: "O negócio remarcou este horário",
-      nao_compareceu: "Este horário foi marcado como falta",
-    }[situacao];
-    const ics = gerarIcs({
-      id: confirmado.agendamentoId,
-      inicio: confirmado.inicio,
-      fim: confirmado.fim,
-      titulo: `${confirmado.servico} — ${confirmado.barbearia}`,
-      local: confirmado.endereco ?? confirmado.barbearia,
-      descricao: `Com ${confirmado.profissional}. Agendado pelo Cortaí.`,
-    });
     return (
-      <main
-        className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-6 pb-16 pt-12"
-        style={agendamentoStyle(data.pagina)}
-      >
+      <div className="agendamento-marca" style={agendamentoStyle(data.pagina)}>
         <FontesDaMarca config={data.pagina} />
-        <span
-          className={`mov-confirmacao flex h-14 w-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
-        >
-          {ativo ? <VistoAnimado tamanho={56} /> : <CalendarX size={28} aria-hidden />}
-        </span>
-        <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
-        {ativo && data.pagina.chat.modo === "conversa" ? (
-          <p className="mt-2 text-sm text-mute">{data.pagina.chat.textoFinal}</p>
-        ) : null}
-        {situacao === "cancelado_pela_barbearia" || situacao === "remarcado" ? (
-          <p className="mt-2 text-sm text-mute">
-            Fale com o negócio ou escolha outro horário abaixo.
-          </p>
-        ) : null}
-        {ativo ? (
-          <dl className="mt-6 divide-y divide-line surface">
-            {[
-              ["Cliente", confirmado.cliente],
-              ["Serviço", `${confirmado.servico} · ${brl(confirmado.valor_centavos)}`],
-              ["Profissional", confirmado.profissional],
-              ["Data", dataLocal(confirmado.inicio, fuso)],
-              ["Horário", horaLocal(confirmado.inicio, fuso)],
-              ["Negócio", confirmado.barbearia],
-            ].map(([rotulo, valor]) => (
-              <div key={rotulo} className="flex items-center justify-between gap-4 px-4 py-3">
-                <dt className="text-xs uppercase tracking-wide text-mute2">{rotulo}</dt>
-                <dd className="text-right text-sm font-semibold text-paper">{valor}</dd>
-              </div>
-            ))}
-          </dl>
-        ) : situacao === "cancelado" ? (
-          <p className="mt-4 text-sm text-mute">Se quiser, escolha outro horário.</p>
-        ) : null}
-
-        {ativo ? (
-          <p className="mt-4 text-sm leading-relaxed text-mute">
-            Guarde esta página: por ela você altera ou cancela quando quiser. Se o negócio usa
-            WhatsApp, você recebe a confirmação e o lembrete por lá — é só responder para confirmar
-            a chegada.
-          </p>
-        ) : null}
-
-        {ativo && confirmado.preferenciasToken ? (
-          <PreferenciasAposAgendamento
-            agendamentoId={confirmado.agendamentoId}
-            token={confirmado.preferenciasToken}
-            slug={slug}
-          />
-        ) : null}
-
-        {erro ? (
-          <p className="mt-4 text-sm text-brick" role="alert">
-            {erro}
-          </p>
-        ) : null}
-
-        {ativo ? (
-          <div className="mt-6 grid gap-2">
-            <Button asChild variant="outline" className="h-12">
-              <a
-                href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
-                download="agendamento.ics"
-              >
-                <CalendarPlus />
-                Adicionar à agenda
-              </a>
-            </Button>
-            {whatsapp ? (
-              <Button asChild variant="outline" className="h-12">
-                <a
-                  href={`https://wa.me/${whatsapp}?text=${texto}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <MessageCircle />
-                  Enviar confirmação pelo WhatsApp
-                </a>
-              </Button>
-            ) : null}
-            <Button
-              variant="outline"
-              className="h-12"
-              disabled={cancelar.isPending}
-              onClick={() => {
-                setSubstituiId(confirmado.agendamentoId);
-                setHorario(null);
-                setConfirmado(null);
-              }}
-            >
-              Alterar agendamento
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-12 text-brick"
-              disabled={cancelar.isPending}
-              onClick={() => cancelar.mutate()}
-            >
-              {cancelar.isPending ? "Cancelando…" : "Cancelar agendamento"}
-            </Button>
-            <Button variant="ghost" className="h-12" onClick={novoAgendamento}>
-              Fazer outro agendamento
-            </Button>
-          </div>
-        ) : (
-          <Button className="mt-6 h-12 w-full font-bold" onClick={novoAgendamento}>
-            Escolher outro horário
-          </Button>
-        )}
-
-        <div className="mt-10 rounded-2xl border border-line p-5">
-          <p className="text-sm font-semibold text-paper">Ganhe pontos a cada atendimento</p>
-          <p className="mt-1 text-xs leading-relaxed text-mute">
-            Com uma conta gratuita você acumula fidelidade, recebe descontos da casa e vê seus
-            horários. É opcional — seu horário já está marcado.
-          </p>
-          <Button asChild variant="outline" className="mt-3 h-12">
-            <Link
-              to="/visitante"
-              search={{ b: slug }}
-              onClick={() => {
-                try {
-                  localStorage.setItem(
-                    CHAVE_VINCULO,
-                    JSON.stringify({
-                      agendamentoId: confirmado.agendamentoId,
-                      telefone: digitosTel,
-                    }),
-                  );
-                } catch {
-                  /* opcional */
-                }
-              }}
-            >
-              Criar conta grátis
-            </Link>
-          </Button>
-        </div>
-      </main>
+        <ConfirmacaoAgendamento
+          confirmacao={confirmado}
+          situacao={situacao}
+          fuso={fuso ?? "America/Sao_Paulo"}
+          logoUrl={data.tenant.logoUrl}
+          capaUrl={data.tenant.capaUrl}
+          assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
+          {...(data.pagina.chat.modo === "conversa"
+            ? { textoFinal: data.pagina.chat.textoFinal }
+            : {})}
+          cancelando={cancelar.isPending}
+          {...(erro ? { erro } : {})}
+          onAlterar={() => {
+            setSubstituiId(confirmado.agendamentoId);
+            setHorario(null);
+            setConfirmado(null);
+          }}
+          onCancelar={() => cancelar.mutate()}
+          onNovo={novoAgendamento}
+          extras={
+            situacao === "confirmado" && confirmado.preferenciasToken ? (
+              <PreferenciasAposAgendamento
+                agendamentoId={confirmado.agendamentoId}
+                token={confirmado.preferenciasToken}
+                slug={slug}
+              />
+            ) : null
+          }
+        />
+      </div>
     );
   }
 
@@ -489,6 +385,7 @@ function AgendamentoPublico() {
       <FontesDaMarca config={data.pagina} />
       <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
+      <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
       {substituiId ? (
         <p
           className="mt-3 rounded-xl border border-line px-4 py-3 text-sm text-paper"
@@ -586,8 +483,8 @@ function AgendamentoPublico() {
                 >
                   <span className="text-xs uppercase">{rotulo}</span>
                   <span className="text-lg font-semibold">{numero}</span>
-                  {fechado ? <span className="text-[10px] leading-none">Fechado</span> : null}
-                  {lotado ? <span className="text-[10px] leading-none">Lotado</span> : null}
+                  {fechado ? <span className="text-xs leading-none">Fechado</span> : null}
+                  {lotado ? <span className="text-xs leading-none">Lotado</span> : null}
                 </button>
               );
             })}
