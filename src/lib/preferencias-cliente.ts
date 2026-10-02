@@ -44,12 +44,11 @@ export function validarPreferenciasCliente(valor: unknown): PreferenciasCliente 
   if (entrada["ar"]) resultado.ar = entrada["ar"] as ArCliente;
   if (entrada["bebida"]) resultado.bebida = entrada["bebida"] as BebidaCliente;
   for (const [chave, limite] of Object.entries(LIMITES)) {
-    const titulo = chave === "corte_habitual" ? "Corte habitual" : `${chave.charAt(0).toUpperCase()}${chave.slice(1)}`;
-    const limpo = texto(
-      entrada[chave],
-      limite,
-      titulo,
-    );
+    const titulo =
+      chave === "corte_habitual"
+        ? "Corte habitual"
+        : `${chave.charAt(0).toUpperCase()}${chave.slice(1)}`;
+    const limpo = texto(entrada[chave], limite, titulo);
     if (limpo) resultado[chave as keyof typeof LIMITES] = limpo;
   }
   return resultado;
