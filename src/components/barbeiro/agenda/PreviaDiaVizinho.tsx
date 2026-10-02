@@ -1,22 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Ref } from "react";
 
-import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
+import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
+import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 
 import { useVizinhoDoGesto } from "./gesto-dia";
 import { dataEditorial, hora, nomeDaAgenda, somarDias } from "./tempo";
 import { opcoesAgendaDia } from "./useAgendaDia";
 
 const ENCERRADOS = new Set(["cancelado", "remarcado"]);
+const nada = () => {};
 
-/** Prévia leve e só de leitura do dia que entra pela lateral durante o gesto. */
+export type FormatoDaPrevia = "lista" | "timeline";
+
+/** Prévia só de leitura do dia que entra pela lateral, no mesmo formato da Agenda. */
 export function PreviaDiaVizinho({
   dia,
+  visualizacao = "lista",
   profissionalId,
   discreto,
   ref,
 }: {
   dia: string;
+  visualizacao?: FormatoDaPrevia;
   profissionalId: string | null;
   discreto: boolean;
   ref?: Ref<HTMLDivElement>;
@@ -26,13 +32,31 @@ export function PreviaDiaVizinho({
     .filter((i) => !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  const timeline = visualizacao === "timeline";
   return (
-    <div ref={ref} className="agenda-previa-vizinho" aria-hidden="true">
+    <div ref={ref} className="agenda-previa-vizinho" aria-hidden="true" data-formato={visualizacao}>
       <strong className="agenda-previa-data">{dataEditorial(dia)}</strong>
       {!data ? (
-        <EsqueletoAgenda linhas={4} />
+        timeline ? (
+          <EsqueletoTimeline />
+        ) : (
+          <EsqueletoAgenda linhas={4} />
+        )
       ) : itens.length === 0 ? (
         <p className="mt-4 text-sm text-mute">Agenda livre</p>
+      ) : timeline ? (
+        <div className="mt-3">
+          <AgendaTimeline
+            previa
+            dia={dia}
+            fuso={data.fuso}
+            itens={itens}
+            horarios={data.horarios ?? []}
+            selecionado={null}
+            onSelecionar={nada}
+            discreto={discreto}
+          />
+        </div>
       ) : (
         <ul className="mt-3 space-y-2">
           {itens.map((i) => (
@@ -58,6 +82,7 @@ export function PreviaDoGesto({
   ...props
 }: {
   diaAtual: string;
+  visualizacao?: FormatoDaPrevia;
   profissionalId: string | null;
   discreto: boolean;
   ref?: Ref<HTMLDivElement>;
