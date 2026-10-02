@@ -40,6 +40,7 @@ import {
 import { useAgendaDia } from "@/components/barbeiro/agenda/useAgendaDia";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAgora } from "@/hooks/useAgora";
+import { useTelaAcesa } from "@/hooks/useTelaAcesa";
 import { Screen } from "@/components/layout/Screen";
 import {
   AlertDialog,
@@ -317,6 +318,7 @@ export function AgendaOperacional() {
   const { agenda, online, aoVivo } = useAgendaDia(dia);
   const gestoDia = useGestoDia((d) => mudarDia(somarDias(dia, d)));
   useLugarDaAgenda({ dia, visualizacao, fuso, foco: modoFoco, pronto: !!agenda.data, restaurado });
+  useTelaAcesa(modoFoco && celular);
 
   useEffect(() => {
     const voltar = () => setModoFoco(false);
