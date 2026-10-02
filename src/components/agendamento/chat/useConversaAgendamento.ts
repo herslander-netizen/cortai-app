@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
-import { entender, horarioNoPeriodo, normalizarTexto, type Periodo } from "@/lib/conversa/entender";
+import {
+  entender,
+  horarioNoPeriodo,
+  servicosParecidos,
+  type Periodo,
+} from "@/lib/conversa/entender";
 import {
   armazenamentoLocal,
   lerMemoriaCliente,
@@ -257,10 +262,7 @@ export function useConversaAgendamento({
     }
     if (!e.servicoId && !s.servico) {
       // "corte" pode ser mais de um serviço: pergunta em vez de supor.
-      const palavras = e.textoNormalizado.split(" ").filter((p) => p.length >= 4);
-      const candidatos = data.servicos.filter((x) =>
-        palavras.some((p) => normalizarTexto(x.nome).split(" ").includes(p)),
-      );
+      const candidatos = servicosParecidos(e.textoNormalizado, data.servicos);
       if (candidatos.length === 1) {
         s.setServicoId(candidatos[0]!.id);
         entendeu = true;

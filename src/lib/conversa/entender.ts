@@ -222,3 +222,14 @@ export function horarioNoPeriodo(horario: string, periodo: Periodo) {
   const [inicio, fim] = faixas[periodo];
   return total >= inicio && total < fim;
 }
+
+/** Serviços cujo nome tem alguma palavra da frase (ex.: "corte" → todos os cortes). */
+export function servicosParecidos<T extends ItemReconhecivel>(
+  textoNormalizado: string,
+  itens: T[],
+) {
+  const palavras = textoNormalizado.split(" ").filter((p) => p.length >= 4);
+  return itens.filter((item) =>
+    palavras.some((p) => normalizarTexto(item.nome).split(" ").includes(p)),
+  );
+}

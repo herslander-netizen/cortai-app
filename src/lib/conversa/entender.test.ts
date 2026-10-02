@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { entender, horarioNoPeriodo } from "./entender";
+import { entender, horarioNoPeriodo, servicosParecidos } from "./entender";
 
 const contexto = {
   hoje: "2026-10-01",
@@ -74,5 +74,12 @@ describe("entender (casos da conversa padrão)", () => {
   it("faixa de fim da tarde", () => {
     expect(horarioNoPeriodo("17:00", "fim_tarde")).toBe(true);
     expect(horarioNoPeriodo("10:00", "fim_tarde")).toBe(false);
+  });
+
+  it("palavra ambígua lista os serviços parecidos", () => {
+    expect(servicosParecidos("corte amanha", contexto.servicos).map((s) => s.id)).toEqual([
+      "combo",
+      "corte",
+    ]);
   });
 });
