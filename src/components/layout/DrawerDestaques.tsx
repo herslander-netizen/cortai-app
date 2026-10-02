@@ -6,6 +6,7 @@ import { aviso } from "@/lib/avisos";
 
 type Props = {
   slug: string | null | undefined;
+  paginaPublicada: boolean;
   resumoDaAgenda: string | null;
   agendaAtiva: boolean;
   operacaoAberta: boolean | null;
@@ -15,6 +16,7 @@ type Props = {
 
 export function DrawerDestaques({
   slug,
+  paginaPublicada,
   resumoDaAgenda,
   agendaAtiva,
   operacaoAberta,
@@ -50,9 +52,11 @@ export function DrawerDestaques({
               <Link2 className="size-7 text-sage" aria-hidden />
               <span className="min-w-0">
                 <span className="block truncate text-lg font-semibold text-paper">Sua Página</span>
-                <span className="mt-0.5 flex items-center gap-2 text-sm text-sage">
-                  <span className="size-2.5 rounded-full bg-sage" aria-hidden /> Online
-                </span>
+                {paginaPublicada ? (
+                  <span className="mt-0.5 flex items-center gap-2 text-sm text-sage">
+                    <span className="size-2.5 rounded-full bg-sage" aria-hidden /> Online
+                  </span>
+                ) : null}
               </span>
             </Link>
             <Button
