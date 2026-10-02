@@ -26,6 +26,8 @@ describe("padrão de carregamento", () => {
     const css = readFileSync("src/styles.css", "utf8");
     expect(css).toContain("background-attachment: fixed");
     expect(css).toContain("animation: esqueleto-aparecer 150ms");
-    expect(css).toMatch(/prefers-reduced-motion: reduce[\s\S]*\.esqueleto-barra[\s\S]*animation: none/);
+    expect(css).toMatch(
+      /prefers-reduced-motion: reduce[\s\S]*\.esqueleto-barra[\s\S]*animation: none/,
+    );
   });
 });
