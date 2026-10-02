@@ -1,6 +1,7 @@
 import { Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useConsentimento } from "@/lib/consentimento";
 import { useModoFoco } from "@/lib/modo-foco";
 import { instrucaoDeInstalacao, marcarConviteDeInstalacao, useInstalacao } from "@/lib/pwa";
 
@@ -10,6 +11,8 @@ import { instrucaoDeInstalacao, marcarConviteDeInstalacao, useInstalacao } from 
  */
 export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "topo" }) {
   const foco = useModoFoco();
+  // Um aviso por vez: espera o banner de cookies ser respondido.
+  const { pronto: cookiesProntos, consentimento } = useConsentimento();
   const {
     pronto,
     plataforma,
@@ -25,6 +28,8 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
   const podeOrientar = plataforma === "ios" || plataforma === "android";
   const visivel =
     !foco &&
+    cookiesProntos &&
+    Boolean(consentimento) &&
     pronto &&
     passouTempo &&
     !instalado &&
@@ -74,7 +79,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
             type="button"
             onClick={dispensar}
             aria-label="Fechar convite"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-mute"
+            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mute"
           >
             <X size={15} />
           </button>
@@ -93,7 +98,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
               if (podeInstalarAgora) void instalar();
               else setVerComoNoIphone(true);
             }}
-            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-gold text-xs font-bold text-ink"
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-gold text-xs font-bold text-ink"
           >
             <Download size={14} />
             {podeInstalarAgora ? "Instalar" : "Como instalar"}
@@ -101,7 +106,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
           <button
             type="button"
             onClick={dispensar}
-            className="h-10 rounded-lg px-4 text-xs font-semibold text-mute"
+            className="h-11 rounded-lg px-4 text-xs font-semibold text-mute"
           >
             Agora não
           </button>

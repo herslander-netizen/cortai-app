@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 
 import appCss from "../styles.css?url";
 import { manifestDaRota } from "@/lib/manifest";
+import { iniciarServiceWorker } from "@/lib/pwa/registro";
 import { RouteError } from "@/components/layout/RouteError";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
@@ -107,6 +108,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  useEffect(() => {
+    void iniciarServiceWorker();
+  }, []);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {

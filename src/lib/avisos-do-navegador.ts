@@ -24,6 +24,12 @@ export function estadoAtual(): EstadoDeAvisos {
 export function mostrarAviso(titulo: string, corpo?: string | null, link?: string | null) {
   if (!suportado() || Notification.permission !== "granted") return;
   if (typeof document !== "undefined" && document.visibilityState === "visible") return;
+  // Com push ativo neste aparelho, quem avisa é o service worker (evita aviso duplo).
+  try {
+    if (localStorage.getItem("cortai:push-ativo") === "sim") return;
+  } catch {
+    /* segue */
+  }
   try {
     const opcoes: NotificationOptions = {
       icon: "/icone-cortai-oficial-192-v2.png",
