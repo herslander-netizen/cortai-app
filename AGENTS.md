@@ -26,7 +26,7 @@
 - Imagens via `imagem.ts` (bucket 2 MB, logos WebP).
 - Comandas usam preços do catálogo no banco.
 - Plano/assinatura/teste só mudam no servidor; acesso em `recursos_de_plano`, vitrine em `planos-comerciais.ts`.
-- Navegação barbeiro: um item por área (`navegacao-barbeiro.ts`); telas irmãs viram abas (`SECOES`); barra não se repete no menu.
+- Navegação do painel: o drawer móvel reúne todas as áreas; a lateral fixa de telas maiores mantém os atalhos sem duplicá-los no drawer.
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
