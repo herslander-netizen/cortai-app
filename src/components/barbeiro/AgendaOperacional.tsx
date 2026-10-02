@@ -344,6 +344,10 @@ export function AgendaOperacional() {
 
   function entrarNoModoFoco() {
     if (modoFoco) return;
+    const hoje = hojeNoFuso(fuso);
+    if (dia !== hoje) setDia(hoje);
+    if (meuId) setProfFiltro(meuId);
+    else if (!profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
     if (celular) {
       salvarPreferenciaAgenda("foco");
       setModoFoco(true);
@@ -921,12 +925,11 @@ export function AgendaOperacional() {
       <Screen title="Agenda" hideHeader wide>
         {faixa}
         <AgendaFocoMobile
-          dia={dia}
-          hoje={ehHoje}
           fuso={fuso}
           itens={itens}
           profissional={profFiltro}
           profissionais={profissionais}
+          podeEscolherProfissional={!meuId}
           online={online}
           ocupado={ocupado}
           carregando={carregandoInicial}
@@ -934,17 +937,15 @@ export function AgendaOperacional() {
           onSair={() => {
             sairDoModoFoco();
           }}
-          onDia={mudarDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
           onComecar={iniciar}
           onTerminar={(item) => setFechando(item.id)}
+          onFalta={(item) => void transicionar(item, "nao_compareceu")}
           onMaisOpcoes={(item) => abrir(item.id)}
           fila={chegada.length}
           onChamarFila={() => void chamarFila()}
-          onAcoes={() => setMenuAberto(true)}
           onNovoAtendimento={() => setRapidoAberto(true)}
-          onNovoAgendamento={() => setManualAberto(true)}
           onReceber={(item) => setFechando(item.id)}
           pagamentosPendentes={new Set(aReceber.map((item) => item.agendamentoId))}
           onTentarNovamente={() => void agenda.refetch()}
