@@ -87,10 +87,7 @@ import {
   ultimaVisaoCompleta,
 } from "@/components/barbeiro/agenda/preferencias";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
-import {
-  contextoInicialDaAgenda,
-  useLugarDaAgenda,
-} from "@/components/barbeiro/agenda/useLugarDaAgenda";
+import { contextoInicialDaAgenda, useLugarDaAgenda } from "@/components/barbeiro/agenda/useLugarDaAgenda";
 
 const AgendamentoManualLazy = lazy(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
