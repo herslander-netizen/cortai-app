@@ -81,3 +81,8 @@
 - [x] Integrar passo opcional após confirmação
 - [x] Cobrir segurança e interface com testes
 - [x] Atualizar regras e validar tipos, lint, testes e build
+- [ ] Reorganizar fluxo público e confirmação sem alterar regras de agenda
+- [ ] Integrar histórico por etapa, CTA móvel e dados ao final do chat
+- [ ] Adicionar status de funcionamento e avaliar próximo horário oficial
+- [ ] Otimizar marca, fontes, capa, toque e segurança visual
+- [ ] Cobrir testes, métricas 4G/CPU, 360/390/1280, tipos, lint e build; não publicar
