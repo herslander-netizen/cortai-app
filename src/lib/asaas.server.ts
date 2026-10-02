@@ -99,12 +99,13 @@ export async function asaas() {
   const chave = await chaveDoAsaas();
   if (!chave || ambienteDaChave(chave) === "invalida")
     throw new AsaasError("Chave do Asaas não configurada.", 0);
+  const chaveValida = chave;
   const base = asaasBaseUrl(chave);
   async function call<T = unknown>(method: string, path: string, body?: unknown): Promise<T> {
     const r = await fetch(`${base}${path}`, {
       method,
       headers: {
-        access_token: chave!,
+        access_token: chaveValida,
         "Content-Type": "application/json",
         "User-Agent": "Cortai/1.0",
       },
