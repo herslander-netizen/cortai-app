@@ -54,9 +54,10 @@ export function useSelecaoAgendamento({
     return () => window.clearInterval(id);
   }, []);
   const hojeChave = new Date(agora).toISOString().slice(0, 13);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const dias = useMemo(
     () => proximosDiasNoFuso(quantidadeDias, fuso, agora),
+    // Recalcula só quando a hora muda, não a cada minuto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [quantidadeDias, fuso, hojeChave],
   );
 
