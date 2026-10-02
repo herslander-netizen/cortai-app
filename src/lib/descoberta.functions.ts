@@ -13,7 +13,7 @@ export type BarbeariaResumo = {
 
 /** Busca pública de barbearias ativas. Nunca retorna barbearias inativas. */
 export const buscarBarbearias = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ termo: z.string().trim().max(80).optional() }).parse(input ?? {}),
   )
   .handler(async ({ data }): Promise<BarbeariaResumo[]> => {

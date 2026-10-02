@@ -57,7 +57,7 @@ export type GradeDoDia = {
  */
 export const getGradeDoDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         dia: z

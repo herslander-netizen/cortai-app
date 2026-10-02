@@ -28,9 +28,7 @@ export type BarbeariaDaFila = {
 };
 
 export const getFilaPublica = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
-    z.object({ slug: z.string().trim().min(1).max(80) }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(80) }).parse(input))
   .handler(async ({ data }): Promise<BarbeariaDaFila | null> => {
     const db = await admin();
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
@@ -73,7 +71,7 @@ export const getFilaPublica = createServerFn({ method: "GET" })
   });
 
 export const entrarNaFilaPublica = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         slug: z.string().trim().min(1).max(80),
@@ -111,9 +109,7 @@ export type StatusNaFila = {
 };
 
 export const getStatusNaFila = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
-    z.object({ token: z.string().trim().min(8).max(80) }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ token: z.string().trim().min(8).max(80) }).parse(input))
   .handler(async ({ data }): Promise<StatusNaFila | null> => {
     const db = await admin();
     const { data: resultado, error } = await db.rpc("fila_publica_status", { _token: data.token });

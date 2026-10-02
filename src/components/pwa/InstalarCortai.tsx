@@ -1,7 +1,7 @@
 import { CheckCircle2, Download, Smartphone } from "lucide-react";
 import { useState } from "react";
 
-import { useInstalacao } from "@/lib/pwa";
+import { instrucaoDeInstalacao, useInstalacao } from "@/lib/pwa";
 
 /**
  * Linha de Perfil/Configurações para instalar o Cortaí, com a instrução do dispositivo atual.
@@ -21,12 +21,7 @@ export function InstalarCortai() {
     );
   }
 
-  const instrucao =
-    plataforma === "ios"
-      ? "No Safari, toque em Compartilhar e depois em Adicionar à Tela de Início."
-      : plataforma === "android"
-        ? "No menu do navegador, toque em Instalar aplicativo ou Adicionar à tela inicial."
-        : "No navegador, use o ícone de instalar na barra de endereço ou o menu Instalar Cortaí.";
+  const instrucao = instrucaoDeInstalacao(plataforma);
 
   return (
     <div className="border-b border-line py-2">

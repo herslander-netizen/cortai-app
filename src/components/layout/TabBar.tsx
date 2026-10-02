@@ -17,7 +17,7 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2"
-      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 6px)" }}
+      style={{ paddingBottom: "calc(6px + env(safe-area-inset-bottom))" }}
       aria-label="Navegação principal"
     >
       <ul

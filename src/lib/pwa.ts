@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 const CHAVE_CONVITE = "cortai:convite-instalacao";
 
@@ -112,4 +112,31 @@ export function useInstalacao() {
     instalar,
     dispensar,
   };
+}
+
+export function instrucaoDeInstalacao(plataforma: Plataforma) {
+  return plataforma === "ios"
+    ? "No Safari, toque em Compartilhar e depois em Adicionar à Tela de Início."
+    : plataforma === "android"
+      ? "No menu do navegador, toque em Instalar aplicativo ou Adicionar à tela inicial."
+      : "No navegador, use o ícone de instalar na barra de endereço ou o menu Instalar Cortaí.";
+}
+
+/* Um convite por vez: enquanto o de instalar está na tela, o de avisos espera. */
+let conviteVisivel = false;
+const ouvintesConvite = new Set<() => void>();
+export function marcarConviteDeInstalacao(visivel: boolean) {
+  if (conviteVisivel === visivel) return;
+  conviteVisivel = visivel;
+  ouvintesConvite.forEach((ouvir) => ouvir());
+}
+export function useConviteDeInstalacaoVisivel() {
+  return useSyncExternalStore(
+    (ouvir) => {
+      ouvintesConvite.add(ouvir);
+      return () => ouvintesConvite.delete(ouvir);
+    },
+    () => conviteVisivel,
+    () => false,
+  );
 }

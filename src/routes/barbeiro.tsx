@@ -6,6 +6,7 @@ import { getSessao } from "@/lib/sessao.functions";
 import { SegmentoProvider } from "@/lib/segmento-contexto";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
+import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 
 export const Route = createFileRoute("/barbeiro")({
@@ -36,6 +37,8 @@ function BarberLayout() {
           <AbasDaSecao />
           <Outlet />
         </div>
+        {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
+        <ConviteDeInstalacao posicao="topo" />
       </div>
     </SegmentoProvider>
   );

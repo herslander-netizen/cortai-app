@@ -60,7 +60,7 @@ export const listarEquipe = createServerFn({ method: "GET" })
  */
 export const convidarMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         email: z.string().trim().email(),
@@ -125,7 +125,7 @@ export const confirmarMeuAcesso = createServerFn({ method: "POST" })
 
 export const salvarAcessoDoMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -150,7 +150,7 @@ export const salvarAcessoDoMembro = createServerFn({ method: "POST" })
 
 export const removerMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const { error } = await context.supabase.rpc("remover_membro", {
@@ -167,7 +167,7 @@ export const removerMembro = createServerFn({ method: "POST" })
  */
 export const enviarRecuperacaoParaMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), redirectTo: z.string().url() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -213,7 +213,7 @@ export const getBarbeiroRecebe = createServerFn({ method: "GET" })
 
 export const definirBarbeiroRecebe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ ativo: z.boolean() }).parse(input))
+  .validator((input: unknown) => z.object({ ativo: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const { error } = await (context.supabase as any).rpc("definir_barbeiro_recebe", {

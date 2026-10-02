@@ -96,7 +96,7 @@ export const getHomeAdmin = createServerFn({ method: "GET" })
 
 export const salvarRascunhoHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => esquemaHome.parse(input))
+  .validator((input: unknown) => esquemaHome.parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
     const { error } = await db
@@ -109,7 +109,7 @@ export const salvarRascunhoHome = createServerFn({ method: "POST" })
 
 export const publicarHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => esquemaHome.parse(input))
+  .validator((input: unknown) => esquemaHome.parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
     const { data: atual } = await db
@@ -156,7 +156,7 @@ export const descartarRascunhoHome = createServerFn({ method: "POST" })
 
 export const restaurarVersaoHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const db = await exigirAdmin(context);
     const { data: versao } = await db
@@ -176,7 +176,7 @@ export const restaurarVersaoHome = createServerFn({ method: "POST" })
 /** Endereços temporários das imagens do editor, para a prévia do admin. */
 export const assinarImagensHome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ caminhos: z.array(z.string().max(500)).max(60) }).parse(input),
   )
   .handler(async ({ data, context }) => {

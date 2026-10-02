@@ -198,7 +198,7 @@ export const criarRascunhoDeBarbearia = createServerFn({ method: "POST" }).handl
 );
 
 export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }): Promise<RascunhoPublico> => {
     const { db, linha } = await lerRascunho(data.token);
     let slug: string | null = null;
@@ -219,9 +219,7 @@ export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
   });
 
 export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    z.object({ token: tokenSchema, dados: dadosSchema }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ token: tokenSchema, dados: dadosSchema }).parse(input))
   .handler(async ({ data }) => {
     const { db, linha } = await lerRascunho(data.token);
     if (linha["publicado_em"]) {
@@ -243,7 +241,7 @@ export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
  * depois que alguém entra com uma conta e reivindica o rascunho.
  */
 export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }): Promise<{ slug: string }> => {
     const { db, linha } = await lerRascunho(data.token);
     const dados = comDefaults(linha["dados"]);
@@ -351,7 +349,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
  */
 export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data, context }): Promise<{ ok: true; slug: string }> => {
     const { db, linha } = await lerRascunho(data.token);
     const tenantId = linha["tenant_id"] as string | null;
@@ -374,14 +372,12 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
       .maybeSingle();
     if (outroVinculo) throw new Error("Sua conta já está ligada a uma barbearia.");
 
-    const { error } = await db
-      .from("tenant_usuarios")
-      .insert({
-        tenant_id: tenantId,
-        user_id: context.userId,
-        papel: "dono",
-        aceito_em: new Date().toISOString(),
-      });
+    const { error } = await db.from("tenant_usuarios").insert({
+      tenant_id: tenantId,
+      user_id: context.userId,
+      papel: "dono",
+      aceito_em: new Date().toISOString(),
+    });
     if (error) throw new Error(error.message);
 
     await db

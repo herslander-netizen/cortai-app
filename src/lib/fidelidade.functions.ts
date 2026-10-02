@@ -58,7 +58,7 @@ export const getConfigFidelidade = createServerFn({ method: "GET" })
 
 export const salvarFidelidade = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { ativo: boolean; alvo: number }) => {
+  .validator((data: { ativo: boolean; alvo: number }) => {
     const alvo = Math.round(data.alvo);
     if (alvo < 4 || alvo > 20) throw new Error("alvo fora da faixa");
     return { ativo: !!data.ativo, alvo };
@@ -84,14 +84,12 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
         .eq("id", existente.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await db
-        .from("regras_de_plano")
-        .insert({
-          tenant_id: tenantId,
-          tipo: "fidelidade",
-          ativo: data.ativo,
-          fidelidade_alvo: data.alvo,
-        });
+      const { error } = await db.from("regras_de_plano").insert({
+        tenant_id: tenantId,
+        tipo: "fidelidade",
+        ativo: data.ativo,
+        fidelidade_alvo: data.alvo,
+      });
       if (error) throw new Error(error.message);
     }
 

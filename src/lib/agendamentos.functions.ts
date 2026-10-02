@@ -28,7 +28,7 @@ const ATIVOS = ["agendado", "chegou", "na_cadeira"];
  */
 export const listarAgendamentosConfirmados = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ periodo: z.enum(["hoje", "proximos", "passados"]).default("proximos") })
       .parse(input ?? {}),

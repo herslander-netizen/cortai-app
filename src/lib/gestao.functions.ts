@@ -174,7 +174,7 @@ export const registrarVendaProduto = createServerFn({ method: "POST" })
   });
 export const definirLojaAtiva = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .validator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");

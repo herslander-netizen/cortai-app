@@ -5,7 +5,7 @@ import { clienteDoUsuario } from "@/lib/cliente";
 
 export const entrarNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       nome: string;
       telefone: string;

@@ -65,7 +65,7 @@ async function podeReceberAqui(context: any, db: any, tenantId: string) {
 
 export const getFechamentoComanda = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
@@ -237,7 +237,7 @@ async function salvarItens(
 
 export const salvarComanda = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => salvarSchema.parse(input))
+  .validator((input: unknown) => salvarSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     return salvarItens(await admin(), context.userId, tenantId, data);
@@ -246,7 +246,7 @@ export const salvarComanda = createServerFn({ method: "POST" })
 /** Barbeiro finaliza e a recepção recebe: comanda fica "Aguardando pagamento" e a cadeira é liberada. */
 export const enviarParaRecepcao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => salvarSchema.parse(input))
+  .validator((input: unknown) => salvarSchema.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
@@ -273,7 +273,7 @@ export const enviarParaRecepcao = createServerFn({ method: "POST" })
 
 export const pagarComanda = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         comandaId: z.string().uuid(),
@@ -318,7 +318,7 @@ export const pagarComanda = createServerFn({ method: "POST" })
 
 export const pagarComPlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "confirmar_pagamento");
@@ -369,7 +369,7 @@ export const getAguardandoPagamento = createServerFn({ method: "GET" })
 /** Retorno sugerido pelo intervalo médio do cliente (30 dias se houver pouco histórico). */
 export const getSugestaoRetorno = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
@@ -445,7 +445,7 @@ export const getSugestaoRetorno = createServerFn({ method: "GET" })
 
 export const criarRetorno = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ comandaId: z.string().uuid(), inicio: z.string().datetime() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -614,7 +614,7 @@ export const getCaixa = createServerFn({ method: "GET" })
 /** Estorno supervisionado: só quem pode autorizar estorno; nada é apagado, vira lançamento de saída. */
 export const estornarPagamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ pagamentoId: z.string().uuid(), motivo: z.string().trim().min(3).max(200) })
       .parse(input),
@@ -640,7 +640,7 @@ export const estornarPagamento = createServerFn({ method: "POST" })
 
 export const getComissoes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ de: z.string().optional(), ate: z.string().optional() }).parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -718,7 +718,7 @@ export const getConfiguracaoFinanceira = createServerFn({ method: "GET" })
 
 export const salvarConfiguracaoFinanceira = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         pixAtivo: z.boolean(),
@@ -750,7 +750,7 @@ export const salvarConfiguracaoFinanceira = createServerFn({ method: "POST" })
 
 export const abrirOuFecharCaixa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ acao: z.enum(["abrir", "fechar"]), valorCentavos: z.number().int().min(0) })
       .parse(input),
@@ -805,7 +805,7 @@ export const abrirOuFecharCaixa = createServerFn({ method: "POST" })
 
 export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         tipo: z.enum(["saida", "sangria", "despesa"]),
@@ -839,7 +839,7 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
 
 export const pagarComissao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ profissionalId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ profissionalId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "comissao_pagar");
@@ -894,7 +894,7 @@ export const getFiados = createServerFn({ method: "GET" })
 
 export const quitarFiado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         fiadoId: z.string().uuid(),
@@ -988,7 +988,7 @@ export const quitarFiado = createServerFn({ method: "POST" })
 
 export const identificarClienteAvulso = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         comandaId: z.string().uuid(),
