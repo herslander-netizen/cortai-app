@@ -46,7 +46,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
   const lugar =
     posicao === "topo"
       ? "top-[calc(76px+env(safe-area-inset-top))]"
-      : "bottom-[calc(16px+env(safe-area-inset-bottom))] sm:bottom-6";
+      : "bottom-[calc(88px+env(safe-area-inset-bottom))]";
 
   return (
     <div className={`pointer-events-none fixed inset-x-0 ${lugar} z-40 flex justify-center px-4`}>

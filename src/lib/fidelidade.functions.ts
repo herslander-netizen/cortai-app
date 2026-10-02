@@ -84,14 +84,12 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
         .eq("id", existente.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await db
-        .from("regras_de_plano")
-        .insert({
-          tenant_id: tenantId,
-          tipo: "fidelidade",
-          ativo: data.ativo,
-          fidelidade_alvo: data.alvo,
-        });
+      const { error } = await db.from("regras_de_plano").insert({
+        tenant_id: tenantId,
+        tipo: "fidelidade",
+        ativo: data.ativo,
+        fidelidade_alvo: data.alvo,
+      });
       if (error) throw new Error(error.message);
     }
 

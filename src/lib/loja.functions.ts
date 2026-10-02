@@ -33,9 +33,7 @@ export type LojaPublica = {
  * + produto ativo + marcado como disponível para venda + preço válido.
  */
 export const getLojaPublica = createServerFn({ method: "GET" })
-  .validator((input: unknown) =>
-    z.object({ slug: z.string().trim().min(1).max(100) }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ slug: z.string().trim().min(1).max(100) }).parse(input))
   .handler(async ({ data }): Promise<LojaPublica | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");

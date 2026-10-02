@@ -219,9 +219,7 @@ export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
   });
 
 export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
-    z.object({ token: tokenSchema, dados: dadosSchema }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ token: tokenSchema, dados: dadosSchema }).parse(input))
   .handler(async ({ data }) => {
     const { db, linha } = await lerRascunho(data.token);
     if (linha["publicado_em"]) {
@@ -374,14 +372,12 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
       .maybeSingle();
     if (outroVinculo) throw new Error("Sua conta já está ligada a uma barbearia.");
 
-    const { error } = await db
-      .from("tenant_usuarios")
-      .insert({
-        tenant_id: tenantId,
-        user_id: context.userId,
-        papel: "dono",
-        aceito_em: new Date().toISOString(),
-      });
+    const { error } = await db.from("tenant_usuarios").insert({
+      tenant_id: tenantId,
+      user_id: context.userId,
+      papel: "dono",
+      aceito_em: new Date().toISOString(),
+    });
     if (error) throw new Error(error.message);
 
     await db

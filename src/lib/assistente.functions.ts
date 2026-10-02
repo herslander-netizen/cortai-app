@@ -152,12 +152,10 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
       const resposta = await pensar({
         mensagem: data.mensagem,
         contexto: await contextoDaBarbearia(context, tenantId),
-        historico: ((anteriores ?? []) as Record<string, any>[])
-          .reverse()
-          .map((m) => ({
-            autor: m["autor"] as "barbeiro" | "assistente",
-            conteudo: m["conteudo"] as string,
-          })),
+        historico: ((anteriores ?? []) as Record<string, any>[]).reverse().map((m) => ({
+          autor: m["autor"] as "barbeiro" | "assistente",
+          conteudo: m["conteudo"] as string,
+        })),
       });
 
       await db.from("mensagens_de_ia").insert({

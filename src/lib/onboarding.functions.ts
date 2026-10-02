@@ -763,9 +763,7 @@ export const trocarAtalhosDaFicha = createServerFn({ method: "POST" })
 /** Guarda a etapa alcançada, para a pessoa poder sair e voltar sem perder nada. */
 export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z.object({ etapa: z.enum(ETAPAS_DA_IMPLANTACAO) }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ etapa: z.enum(ETAPAS_DA_IMPLANTACAO) }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await gravarOnboarding(context, tenantId, { etapa: data.etapa });
@@ -775,9 +773,7 @@ export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
 /** Cadastra o primeiro profissional (e os próximos) respeitando o limite do plano. */
 export const adicionarProfissional = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z.object({ nome: z.string().trim().min(2).max(60) }).parse(input),
-  )
+  .validator((input: unknown) => z.object({ nome: z.string().trim().min(2).max(60) }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_profissionais");

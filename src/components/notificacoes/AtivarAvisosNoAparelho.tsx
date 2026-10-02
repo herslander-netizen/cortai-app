@@ -20,7 +20,8 @@ export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
     return () => window.clearTimeout(t);
   }, []);
 
-  if (foco || conviteNaTela || !pronto || !passouTempo || dispensado || estado !== "perguntar") return null;
+  if (foco || conviteNaTela || !pronto || !passouTempo || dispensado || estado !== "perguntar")
+    return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(88px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
