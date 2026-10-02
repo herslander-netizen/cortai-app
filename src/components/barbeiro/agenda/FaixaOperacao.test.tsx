@@ -23,16 +23,19 @@ afterEach(() => {
 
 function prepararLargura(largura: number) {
   Object.defineProperty(window, "innerWidth", { configurable: true, value: largura });
-  vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
-    matches: query === "(max-width: 600px)" ? largura <= 600 : false,
-    media: query,
-    onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }));
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: vi.fn((query: string) => ({
+      matches: query === "(max-width: 600px)" ? largura <= 600 : false,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
 }
 
 function Exemplo() {
