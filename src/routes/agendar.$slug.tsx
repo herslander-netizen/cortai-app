@@ -127,13 +127,11 @@ function AgendamentoPublico() {
     ? "confirmacao"
     : !servico
       ? "servico"
-      : profId === "qualquer"
-        ? "profissional"
-        : !dia
-          ? "dia"
-          : !escolhido
-            ? "horario"
-            : "dados";
+      : !dia
+        ? "dia"
+        : !escolhido
+          ? "horario"
+          : "dados";
   useHistoricoAgendamento(etapa, (destino) => {
     if (destino === "servico") setServicoId(null);
     else if (destino === "profissional") {
