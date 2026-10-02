@@ -2884,6 +2884,35 @@ body:has(.auth-screen--claro) {
 .agenda-troca-dia[data-direcao="anterior"] {
   animation-name: agenda-troca-anterior;
 }
+/* Troca pelo gesto: o dia já entrou acompanhando o dedo. */
+.agenda-troca-dia[data-entrada="gesto"] {
+  animation: none;
+}
+.agenda-operacional {
+  touch-action: pan-y;
+}
+html.agenda-gesto-ativo,
+html.agenda-gesto-ativo body {
+  overflow-x: clip;
+}
+.agenda-previa-vizinho {
+  position: fixed;
+  top: 3.5rem;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  left: 0;
+  width: 100vw;
+  z-index: 5;
+  overflow: hidden;
+  padding: 16px;
+  background: var(--background);
+  pointer-events: none;
+  will-change: transform;
+}
+.agenda-previa-data {
+  display: block;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+}
 @keyframes agenda-troca-proximo {
   from {
     opacity: 0;
