@@ -52,7 +52,11 @@ export function BotaoAgoraPrincipal({
   return (
     <>
       {celular ? (
-        <div className="agenda-botao-agora-principal" role="group" aria-label="Agora e visualização da agenda">
+        <div
+          className="agenda-botao-agora-principal"
+          role="group"
+          aria-label="Agora e visualização da agenda"
+        >
           <Button
             variant="ghost"
             className="agenda-botao-agora-ir"
