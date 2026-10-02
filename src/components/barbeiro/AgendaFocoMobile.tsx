@@ -14,7 +14,12 @@ import {
   UserRoundPlus,
   XCircle,
 } from "lucide-react";
-import { useMemo } from "react";
+import { Lightbulb, LightbulbOff } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
+import { useTelaAcesa } from "@/hooks/useTelaAcesa";
+import { salvarTelaAcesa, telaAcesaInicial } from "@/components/barbeiro/agenda/preferencias";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,9 +174,13 @@ export function AgendaFocoMobile(props: Props) {
           <ArrowLeft />
           Ver agenda completa
         </Button>
-        <span className={props.online ? "modo-foco-ao-vivo" : "text-mute"}>
-          {props.online ? "Ao vivo" : "Somente leitura"}
-        </span>
+        <div className="modo-foco-topo-acoes">
+          <span className={props.online ? "modo-foco-ao-vivo" : "text-mute"}>
+            {props.online ? "Ao vivo" : "Somente leitura"}
+          </span>
+          <LampadaDaTela />
+          <SinoDeAvisos />
+        </div>
       </header>
 
       <div className="modo-foco-corpo">
@@ -436,5 +445,32 @@ export function AgendaFocoMobile(props: Props) {
         )}
       </div>
     </section>
+  );
+}
+
+/** Lâmpada do Foco: mantém a tela acesa. Só aparece com suporte do aparelho. */
+function LampadaDaTela() {
+  const [suporte, setSuporte] = useState(false);
+  const [ligada, setLigada] = useState(true);
+  useEffect(() => {
+    setSuporte(typeof navigator !== "undefined" && "wakeLock" in navigator);
+    setLigada(telaAcesaInicial());
+  }, []);
+  useTelaAcesa(ligada);
+  if (!suporte) return null;
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-12 w-12 text-mute"
+      aria-label="Manter tela acesa"
+      aria-pressed={ligada}
+      onClick={() => {
+        setLigada(!ligada);
+        salvarTelaAcesa(!ligada);
+      }}
+    >
+      {ligada ? <Lightbulb aria-hidden /> : <LightbulbOff aria-hidden />}
+    </Button>
   );
 }

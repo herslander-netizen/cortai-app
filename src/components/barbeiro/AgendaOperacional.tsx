@@ -1129,7 +1129,11 @@ export function AgendaOperacional() {
                   Encaixe
                 </Button>
               ) : null}
-              {ehHoje ? <PrimeirosPassos /> : null}
+              {ehHoje ? (
+                <div className="w-full basis-full text-left">
+                  <PrimeirosPassos />
+                </div>
+              ) : null}
             </AgendaVazia>
           ) : colunas ? (
             <div
@@ -1303,7 +1307,6 @@ export function AgendaOperacional() {
             ) : null}
           </section>
         ) : null}
-
       </div>
 
       <div className="agenda-acao-fixa">
