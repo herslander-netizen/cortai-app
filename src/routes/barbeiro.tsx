@@ -4,8 +4,6 @@ import { useSessaoTempoReal } from "@/lib/use-sessao-tempo-real";
 import { useQuery } from "@tanstack/react-query";
 import { getSessao } from "@/lib/sessao.functions";
 import { SegmentoProvider } from "@/lib/segmento-contexto";
-import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
-import { AtivarAvisosNoAparelho } from "@/components/notificacoes/AtivarAvisosNoAparelho";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
@@ -38,8 +36,6 @@ function BarberLayout() {
           <AbasDaSecao />
           <Outlet />
         </div>
-        <ConviteDeInstalacao />
-        <AtivarAvisosNoAparelho texto="Avise-me de novos agendamentos, pagamentos e cancelamentos." />
       </div>
     </SegmentoProvider>
   );
