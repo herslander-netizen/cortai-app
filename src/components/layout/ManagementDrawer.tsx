@@ -206,7 +206,7 @@ export function ManagementHeader() {
               aria-label="Abrir navegação"
             >
               <img
-                src={modoClaro ? menuClaro.url : menuEscuro.url}
+                src={modoClaro ? menuEscuro.url : menuClaro.url}
                 alt=""
                 aria-hidden
                 className="h-11 w-11 rounded-[8px] object-cover"
