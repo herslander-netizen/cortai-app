@@ -14,7 +14,7 @@ import {
 } from "@/components/barbeiro/agenda/pilula-agora";
 import { prefereMenosMovimento } from "@/lib/motion";
 
-const CELULAR = "(max-width: 767px)";
+const CELULAR = "(max-width: 600px)";
 const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
 
 /** Área livre do celular: abaixo do cabeçalho que gruda e acima da faixa de baixo. */

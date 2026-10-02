@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, CalendarClock, List, Plus } from "lucide-react";
-import type { KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
@@ -41,7 +41,7 @@ function PilulaAgora({ fuso }: { fuso: string | undefined }) {
 
 /** Faixa do pé da Agenda: seletor (só celular), pílula "Agora" e o "+". Fica fora do deslize de dia. */
 export function FaixaOperacao({
-  celular,
+  visivel,
   visualizacao,
   onVisualizacao,
   onTeclasVisualizacao,
@@ -50,7 +50,7 @@ export function FaixaOperacao({
   menuAberto,
   onAlternarMenu,
 }: {
-  celular: boolean;
+  visivel: boolean;
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (v: VisualizacaoAgenda) => void;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
@@ -59,9 +59,20 @@ export function FaixaOperacao({
   menuAberto: boolean;
   onAlternarMenu: () => void;
 }) {
+  const anterior = useRef(visualizacao);
+  const [esmaecendo, setEsmaecendo] = useState<VisualizacaoAgenda | null>(null);
+
+  useEffect(() => {
+    if (anterior.current === visualizacao) return;
+    setEsmaecendo(anterior.current);
+    anterior.current = visualizacao;
+    const timer = window.setTimeout(() => setEsmaecendo(null), 120);
+    return () => window.clearTimeout(timer);
+  }, [visualizacao]);
+
   return (
     <>
-      {celular ? (
+      {visivel ? (
         <div className="agenda-faixa-operacao">
           <div
             className="agenda-faixa-seletor"
@@ -77,7 +88,7 @@ export function FaixaOperacao({
                   id={`agenda-aba-${id}`}
                   variant="ghost"
                   size="icon"
-                  className={`relative h-12 w-12 rounded-full ${ativo ? "text-paper" : "text-mute"}`}
+                  className={`relative h-12 w-12 rounded-full transition-opacity duration-120 ease-[var(--ease-saida)] motion-reduce:transition-none ${esmaecendo === id ? "opacity-50" : "opacity-100"} ${ativo ? "text-paper" : "text-mute"}`}
                   aria-label={rotulo}
                   aria-pressed={ativo}
                   tabIndex={ativo ? 0 : -1}
