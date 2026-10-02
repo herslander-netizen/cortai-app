@@ -151,7 +151,7 @@ export const getSessao = createServerFn({ method: "GET" })
         .maybeSingle();
       const tenantPaginaPublicada = Boolean(
         paginaPublica?.published_config &&
-          Object.keys(paginaPublica.published_config as Record<string, unknown>).length,
+        Object.keys(paginaPublica.published_config as Record<string, unknown>).length,
       );
       const permissoes =
         vinculo.papel === "dono"
