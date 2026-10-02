@@ -61,6 +61,13 @@ describe("dadosDoCockpit", () => {
     );
   });
 
+  it("mostra pagamento pendente, intervalo livre e dia encerrado", () => {
+    const finalizado = item("fim", "2026-10-02T12:00:00Z", "finalizado");
+    expect(dadosDoCockpit([finalizado], AGORA, "UTC", new Set(["fim"])).estado).toBe("receber");
+    expect(dadosDoCockpit([], AGORA, "UTC").estado).toBe("livre");
+    expect(dadosDoCockpit([finalizado], AGORA, "UTC").estado).toBe("encerrado");
+  });
+
   it("trata confirmado como atraso depois da tolerância", () => {
     expect(
       dadosDoCockpit([item("x", "2026-10-02T13:00:00Z", "confirmado")], AGORA, "UTC").estado,

@@ -104,4 +104,4 @@
 - [x] Extrair cockpit visual puro e integrar ações oficiais da Agenda
 - [x] Reusar o cockpit na demonstração da apresentação
 - [x] Cobrir lógica, persistência e paridade da demo com testes
-- [ ] Validar 390px, 844x390, tipos, lint, testes e build; não publicar
+- [x] Validar 390px, 844x390, tipos, lint, testes e build; não publicar
