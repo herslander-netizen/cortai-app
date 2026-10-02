@@ -19,12 +19,14 @@ export function b64url(bytes: ArrayBuffer | Uint8Array) {
 export function deB64url(texto: string) {
   const base = texto.replace(/-/g, "+").replace(/_/g, "/");
   const bin = atob(base + "===".slice((base.length + 3) % 4));
-  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  const out = new Uint8Array(new ArrayBuffer(bin.length));
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
-function juntar(...partes: Uint8Array[]) {
+function juntar(...partes: Uint8Array[]): Uint8Array<ArrayBuffer> {
   const total = partes.reduce((s, p) => s + p.length, 0);
-  const out = new Uint8Array(total);
+  const out = new Uint8Array(new ArrayBuffer(total));
   let i = 0;
   for (const p of partes) {
     out.set(p, i);
@@ -33,7 +35,7 @@ function juntar(...partes: Uint8Array[]) {
   return out;
 }
 
-async function hmac(chave: Uint8Array, dados: Uint8Array) {
+async function hmac(chave: Uint8Array<ArrayBuffer>, dados: Uint8Array<ArrayBuffer>) {
   const k = await crypto.subtle.importKey("raw", chave, { name: "HMAC", hash: "SHA-256" }, false, [
     "sign",
   ]);
