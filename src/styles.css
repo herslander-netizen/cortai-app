@@ -4224,11 +4224,15 @@ html.agenda-gesto-ativo body {
 }
 .showroom-hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(480px, 1.1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(500px, 620px);
   align-items: center;
-  gap: clamp(2rem, 6vw, 6rem);
-  min-height: min(860px, calc(100dvh - 68px));
-  padding-block: clamp(4rem, 9vw, 8rem);
+  gap: clamp(2rem, 4vw, 4rem);
+  min-height: min(820px, calc(100dvh - 68px));
+  padding-block: clamp(3.5rem, 6vw, 6rem);
+}
+.showroom-hero-copy {
+  min-width: 0;
+  max-width: 560px;
 }
 .showroom-eyebrow {
   margin: 0 0 1rem;
@@ -4246,9 +4250,9 @@ html.agenda-gesto-ativo body {
   letter-spacing: 0;
 }
 .showroom-hero h1 {
-  max-width: 15ch;
-  font-size: clamp(2.7rem, 5.3vw, 5.35rem);
-  line-height: 1.02;
+  max-width: 14ch;
+  font-size: clamp(2.7rem, 3.5vw, 3.5rem);
+  line-height: 1.05;
 }
 .showroom-lead {
   max-width: 54ch;
@@ -4271,11 +4275,12 @@ html.agenda-gesto-ativo body {
 }
 .showroom-hero-produto {
   position: relative;
-  min-height: 610px;
+  min-width: 0;
+  min-height: 0;
 }
 .showroom-hero-produto > .showroom-agenda {
-  position: absolute;
-  inset: 0 10% auto 0;
+  position: relative;
+  inset: auto;
 }
 .showroom-hero-cliente {
   position: absolute;
@@ -4501,10 +4506,38 @@ html.agenda-gesto-ativo body {
   background: var(--status-confirmed);
 }
 .showroom-agenda {
-  max-height: 620px;
+  max-height: none;
 }
-.showroom-agenda .agenda-timeline {
-  max-height: 520px;
+.showroom-agenda .agenda-timeline-scroll {
+  max-height: 500px;
+  padding-bottom: 14px;
+}
+.showroom-agenda .agenda-timeline-marca {
+  z-index: 0;
+}
+.showroom-agenda .agenda-timeline-bloco {
+  z-index: 3;
+  gap: 0;
+  background: var(--show-surface);
+  padding: 4px 9px;
+}
+.showroom-agenda .agenda-linha-agora {
+  z-index: 2;
+}
+.showroom-agenda .agenda-timeline-fora-expediente {
+  opacity: 0.55;
+}
+.showroom-agenda .agenda-timeline-fora-expediente::after {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--show-surface);
+  padding: 2px 6px;
+  color: var(--show-muted);
+  content: "Fora do expediente";
+  font-size: 12px;
+  font-weight: 700;
 }
 .showroom-foco-demo {
   max-width: 500px;
@@ -4916,7 +4949,9 @@ html.agenda-gesto-ativo body {
     justify-content: center;
   }
   .showroom-hero-produto {
-    min-height: 590px;
+    width: min(100%, 620px);
+    min-height: 0;
+    margin-inline: auto;
   }
   .showroom-prova-layout,
   .showroom-dividida,
@@ -4957,14 +4992,16 @@ html.agenda-gesto-ativo body {
     width: 100%;
   }
   .showroom-hero-produto {
-    min-height: 500px;
+    min-height: 0;
   }
   .showroom-hero-produto > .showroom-agenda {
-    inset: 0 0 auto;
-    max-height: 430px;
+    inset: auto;
+    max-height: none;
   }
-  .showroom-hero-produto > .showroom-agenda .agenda-timeline {
+  .showroom-hero-produto > .showroom-agenda .agenda-timeline-scroll {
     max-height: 340px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .showroom-hero-cliente {
     right: -0.25rem;
