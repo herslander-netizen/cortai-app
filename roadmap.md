@@ -80,4 +80,4 @@
 - [x] Implementar salvamento público atômico e seguro de preferências
 - [x] Integrar passo opcional após confirmação
 - [x] Cobrir segurança e interface com testes
-- [ ] Atualizar regras e validar tipos, lint, testes e build
+- [x] Atualizar regras e validar tipos, lint, testes e build
