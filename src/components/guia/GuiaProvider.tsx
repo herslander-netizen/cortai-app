@@ -13,6 +13,7 @@ import { Lightbulb } from "lucide-react";
 
 import { guiaDaRota, type Guia } from "@/lib/guia/tours";
 import { supabase } from "@/integrations/supabase/client";
+import { useModoFoco } from "@/lib/modo-foco";
 
 type Prefs = { ativo: boolean; concluidos: string[] };
 
@@ -51,6 +52,7 @@ function ler(chave: string): Prefs {
 }
 
 export function GuiaProvider({ children }: { children: ReactNode }) {
+  const foco = useModoFoco();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [chave, setChave] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<Prefs>(PADRAO);
@@ -109,7 +111,7 @@ export function GuiaProvider({ children }: { children: ReactNode }) {
   // abertura automática na primeira vez
   const tentado = useRef<string | null>(null);
   useEffect(() => {
-    if (!chave || !guiaDisponivel || !prefs.ativo) return;
+    if (foco || !chave || !guiaDisponivel || !prefs.ativo) return;
     if (prefs.concluidos.includes(guiaDisponivel.id)) return;
     if (tentado.current === guiaDisponivel.id + pathname) return;
     let cancelado = false;
@@ -132,7 +134,7 @@ export function GuiaProvider({ children }: { children: ReactNode }) {
       cancelado = true;
       window.clearInterval(id);
     };
-  }, [chave, guiaDisponivel, prefs.ativo, prefs.concluidos, pathname]);
+  }, [chave, guiaDisponivel, prefs.ativo, prefs.concluidos, pathname, foco]);
 
   const encerrar = useCallback(
     (marcarConcluido: boolean) => {
@@ -173,7 +175,7 @@ export function GuiaProvider({ children }: { children: ReactNode }) {
   return (
     <GuiaContext.Provider value={valor}>
       {children}
-      {guiaAtivo ? (
+      {guiaAtivo && !foco ? (
         <GuiaOverlay
           guia={guiaAtivo}
           passo={passo}
