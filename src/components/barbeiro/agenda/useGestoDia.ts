@@ -6,6 +6,7 @@ import { molaLenta, prefereMenosMovimento } from "@/lib/motion";
 import {
   decidirFimDoGesto,
   dentroDeRolagemLateral,
+  gestoPodeComecar,
   limitarDeslocamento,
   movimentoRecente,
   travarEixo,
@@ -189,12 +190,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       dentroDeRolagemLateral: dentroDeRolagemLateral(alvo, e.currentTarget as Element),
       arrastando: arrastando(),
     };
-    const pode =
-      !inicio.arrastando &&
-      !inicio.dentroDeRolagemLateral &&
-      inicio.x >= 24 &&
-      inicio.x <= inicio.larguraTela - 24;
-    estado.current = pode
+    estado.current = gestoPodeComecar(inicio)
       ? { inicio, eixo: null, dx: 0, amostras: [{ x: t.clientX, t: performance.now() }], quadro: null }
       : null;
   }, []);
