@@ -76,3 +76,8 @@
 - [x] Redesenhar visualmente o drawer e promover Agenda/Sua Página
 - [x] Mover conta, plano, aparência, avisos, ajuda e saída para Ajustes
 - [x] Validar drawer claro/escuro em 360/412px, tipos, lint, testes e build; não publicar
+- [ ] Inspecionar fluxo público, token e rate limit existentes
+- [ ] Implementar salvamento público atômico e seguro de preferências
+- [ ] Integrar passo opcional após confirmação
+- [ ] Cobrir segurança e interface com testes
+- [ ] Atualizar regras e validar tipos, lint, testes e build
