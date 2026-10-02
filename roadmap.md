@@ -73,6 +73,6 @@
 - [x] Estender ficha do cliente com preferências estruturadas e edição
 - [x] Aplicar migração segura, RLS existente e validação
 - [ ] Validar tipos, lint, testes e build sem publicar
-- [ ] Redesenhar visualmente o drawer e promover Agenda/Sua Página
-- [ ] Mover conta, plano, aparência, avisos, ajuda e saída para Ajustes
+- [x] Redesenhar visualmente o drawer e promover Agenda/Sua Página
+- [x] Mover conta, plano, aparência, avisos, ajuda e saída para Ajustes
 - [ ] Validar drawer claro/escuro em 360/412px, tipos, lint, testes e build; não publicar

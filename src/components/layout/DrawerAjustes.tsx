@@ -1,0 +1,234 @@
+import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  Bell,
+  ChevronRight,
+  CircleHelp,
+  CreditCard,
+  LogOut,
+  Palette,
+  Settings,
+  SlidersHorizontal,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { sair } from "@/lib/guarda";
+
+type Props = {
+  identidade?: string | undefined;
+  tenantId?: string | undefined;
+  podeAlterarIdentidade: boolean;
+  fecharDrawer: () => void;
+};
+
+const ITENS = [
+  {
+    label: "Conta e negócio",
+    detalhe: "Dados pessoais e do negócio",
+    to: "/barbeiro/conta",
+    icon: Settings,
+  },
+  {
+    label: "Plano",
+    detalhe: "Assinatura, cobranças e histórico",
+    to: "/barbeiro/plano",
+    icon: CreditCard,
+  },
+  {
+    label: "Avisos e notificações",
+    detalhe: "Preferências de cada aviso",
+    to: "/barbeiro/mais",
+    icon: Bell,
+  },
+  { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },
+] as const;
+
+export function DrawerAjustes({
+  identidade,
+  tenantId,
+  podeAlterarIdentidade,
+  fecharDrawer,
+}: Props) {
+  const [aberto, setAberto] = useState(false);
+  const [aparenciaAberta, setAparenciaAberta] = useState(false);
+  const gatilhoRef = useRef<HTMLButtonElement | null>(null);
+
+  function navegar() {
+    setAberto(false);
+    fecharDrawer();
+  }
+
+  return (
+    <Sheet open={aberto} onOpenChange={setAberto}>
+      <SheetTrigger asChild>
+        <Button
+          ref={gatilhoRef}
+          variant="icon"
+          size="icon"
+          aria-label="Abrir ajustes"
+          className="shrink-0 rounded-full text-mute hover:bg-drawer-card"
+        >
+          <SlidersHorizontal className="size-6" aria-hidden />
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        onCloseAutoFocus={(evento) => {
+          evento.preventDefault();
+          gatilhoRef.current?.focus();
+        }}
+        className="z-[70] rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
+      >
+        <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
+        <SheetDescription className="mt-1 text-sm text-mute">
+          Conta, aparência e preferências do aplicativo.
+        </SheetDescription>
+
+        <div className="mt-5 space-y-1.5">
+          {ITENS.slice(0, 2).map((item) => {
+            const Icon = item.icon;
+            return (
+              <Button
+                key={item.label}
+                asChild
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+              >
+                <Link
+                  to={item.to}
+                  onClick={navegar}
+                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                >
+                  <Icon className="size-6 text-primary" aria-hidden />
+                  <span className="min-w-0">
+                    <span className="block truncate text-base font-semibold text-paper">
+                      {item.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                      {item.detalhe}
+                    </span>
+                  </span>
+                  <ChevronRight className="size-5 text-mute2" aria-hidden />
+                </Link>
+              </Button>
+            );
+          })}
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="bloco"
+            aria-expanded={aparenciaAberta}
+            onClick={() => setAparenciaAberta((valor) => !valor)}
+            className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+          >
+            <span className="grid w-full grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3">
+              <Palette className="size-6 text-primary" aria-hidden />
+              <span className="min-w-0">
+                <span className="block truncate text-base font-semibold text-paper">Aparência</span>
+                <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                  Claro, escuro, sistema e identidade
+                </span>
+              </span>
+              <ChevronRight
+                className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
+                aria-hidden
+              />
+            </span>
+          </Button>
+          {aparenciaAberta ? (
+            <div className="rounded-[18px] bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
+              <ThemeToggle
+                identidadeDaBarbearia={identidade}
+                tenantId={tenantId}
+                podeAlterarIdentidade={podeAlterarIdentidade}
+              />
+            </div>
+          ) : null}
+
+          {ITENS.slice(2).map((item) => {
+            const Icon = item.icon;
+            return (
+              <Button
+                key={item.label}
+                asChild
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+              >
+                <Link
+                  to={item.to}
+                  onClick={navegar}
+                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                >
+                  <Icon className="size-6 text-primary" aria-hidden />
+                  <span className="min-w-0">
+                    <span className="block truncate text-base font-semibold text-paper">
+                      {item.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                      {item.detalhe}
+                    </span>
+                  </span>
+                  <ChevronRight className="size-5 text-mute2" aria-hidden />
+                </Link>
+              </Button>
+            );
+          })}
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 text-brick hover:bg-brick-soft"
+              >
+                <span className="flex w-full items-center gap-3">
+                  <LogOut className="size-6" aria-hidden />
+                  <span className="text-base font-semibold">Sair da conta</span>
+                </span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Você precisará entrar novamente para acessar o seu negócio.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Continuar conectado</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => void sair()}
+                  className="bg-destructive text-destructive-foreground"
+                >
+                  Sair
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
