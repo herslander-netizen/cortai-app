@@ -576,11 +576,7 @@ export function AgendaTimeline({
                 },
                 onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) =>
                   toqueLongoVazio.current?.terminar(e.pointerId),
-                onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => {
-                  const ponteiro = e.nativeEvent as PointerEvent;
-                  if (ponteiro.pointerType !== "mouse" || toqueLongoVazio.current?.ativo())
-                    e.preventDefault();
-                },
+                onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => e.preventDefault(),
               })}
         >
           {faixasFora.map((faixa) => (
