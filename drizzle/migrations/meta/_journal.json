@@ -8,6 +8,13 @@
       "when": 1790951979163,
       "tag": "0000_add_client_service_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790955385353,
+      "tag": "0001_secure_public_appointment_preferences",
+      "breakpoints": true
     }
   ]
 }

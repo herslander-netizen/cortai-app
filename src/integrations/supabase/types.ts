@@ -165,6 +165,8 @@ export type Database = {
           origem_fila_id: string | null
           pagamento_confirmado_em: string | null
           pagamento_confirmado_por: string | null
+          preferencias_gravacoes: number
+          preferencias_token_hash: string | null
           profissional_id: string | null
           recorrencia: string | null
           servico_id: string | null
@@ -194,6 +196,8 @@ export type Database = {
           origem_fila_id?: string | null
           pagamento_confirmado_em?: string | null
           pagamento_confirmado_por?: string | null
+          preferencias_gravacoes?: number
+          preferencias_token_hash?: string | null
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
@@ -223,6 +227,8 @@ export type Database = {
           origem_fila_id?: string | null
           pagamento_confirmado_em?: string | null
           pagamento_confirmado_por?: string | null
+          preferencias_gravacoes?: number
+          preferencias_token_hash?: string | null
           profissional_id?: string | null
           recorrencia?: string | null
           servico_id?: string | null
@@ -4903,6 +4909,14 @@ export type Database = {
           _tenant: string
         }
         Returns: undefined
+      }
+      salvar_preferencias_do_agendamento: {
+        Args: {
+          _agendamento_id: string
+          _preferencias: Json
+          _token_hash: string
+        }
+        Returns: Json
       }
       teto_do_papel: { Args: { _papel: string }; Returns: string[] }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }
