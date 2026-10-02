@@ -638,7 +638,7 @@ async function oferecerHorarios(
     /** Usada só para aplicar os textos da Conversa Padrão da barbearia. */
     entrada?: EntradaDoMotor;
   },
-) {
+): Promise<RespostaDoMotor> {
   const { consultarDisponibilidade, listarProfissionais } = await import("@/lib/ia/acoes.server");
   const [grade, equipe] = await Promise.all([
     consultarDisponibilidade(ctx, {
@@ -777,7 +777,7 @@ async function tratarSelecao(
   contexto: ContextoDoMotor,
   cls: Classificacao,
   responder: Responder,
-) {
+): Promise<RespostaDoMotor> {
   const item = (contexto.menuItens ?? [])[(cls.entidades.selecao ?? 1) - 1];
   if (!item) return naoEntendi(entrada, contexto, cls, responder);
 
