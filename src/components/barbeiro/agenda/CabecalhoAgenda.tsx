@@ -213,7 +213,7 @@ export function CabecalhoAgenda({
               Hoje
             </Button>
           ) : null}
-          {mostrarSeletor ? (
+          {!celular ? (
             <div
               className="flex shrink-0"
               role="group"
