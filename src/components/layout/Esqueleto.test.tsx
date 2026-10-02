@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
+import { act } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createRoot } from "react-dom/client";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -29,5 +31,17 @@ describe("padrão de carregamento", () => {
     expect(css).toMatch(
       /prefers-reduced-motion: reduce[\s\S]*\.esqueleto-barra[\s\S]*animation: none/,
     );
+  });
+
+  it("troca a espera longa por uma mensagem com nova tentativa", () => {
+    const host = document.createElement("div");
+    const root = createRoot(host);
+    vi.useFakeTimers();
+    act(() => root.render(<EsqueletoFormulario />));
+    act(() => vi.advanceTimersByTime(10_000));
+    expect(host.textContent).toContain("Não conseguimos carregar agora.");
+    expect(host.textContent).toContain("Tentar de novo");
+    act(() => root.unmount());
+    vi.useRealTimers();
   });
 });

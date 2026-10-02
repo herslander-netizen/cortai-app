@@ -47,6 +47,8 @@ const statuses = {
   recusada: "Recusada",
 } as const;
 type Status = keyof typeof statuses;
+type Pedido = Awaited<ReturnType<typeof getSuggestions>>[number];
+type Solicitante = Pedido["solicitantes"][number];
 
 function PedidosPage() {
   const query = useQuery({
@@ -57,7 +59,7 @@ function PedidosPage() {
   const update = useServerFn(updateSuggestionStatus);
   const acao = useAcao();
   const [newOpen, setNewOpen] = useState(false);
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<Pedido | null>(null);
   return (
     <AdminScreen
       title="Pedidos"
@@ -152,7 +154,7 @@ function PedidosPage() {
             <section className="mt-4">
               <h3 className="text-sm font-semibold text-paper">Quem pediu</h3>
               <ul className="mt-2">
-                {selected.solicitantes.map((tenant: any) => (
+                {selected.solicitantes.map((tenant: Solicitante) => (
                   <li key={tenant.id} className="flex justify-between border-b border-line py-3">
                     <span className="text-sm text-paper">
                       {tenant.nome ?? "Barbearia removida"}
