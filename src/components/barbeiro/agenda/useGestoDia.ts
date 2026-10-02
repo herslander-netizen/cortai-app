@@ -53,7 +53,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
   }, []);
 
-  const mostrarVizinho = definirVizinhoDoGesto;
 
   const limpar = useCallback(() => {
     const el = palco.current;
@@ -62,7 +61,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.willChange = "";
     }
     document.documentElement.classList.remove("agenda-gesto-ativo");
-    mostrarVizinho(0);
+    definirVizinhoDoGesto(0);
   }, []);
 
   const assentar = useCallback(
@@ -164,7 +163,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       if (s.amostras.length > 12) s.amostras.shift();
       s.dx = limitarDeslocamento(dx, window.innerWidth);
       if (prefereMenosMovimento()) return;
-      mostrarVizinho(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
+      definirVizinhoDoGesto(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
       if (s.quadro === null)
         s.quadro = requestAnimationFrame(() => {
           s.quadro = null;
