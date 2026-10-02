@@ -77,7 +77,7 @@ export type AgendaPublica = {
     segmento: Segmento;
     logoUrl: string | null;
     capaUrl: string | null;
-    assinaturaVisivel: boolean;
+    assinaturaVisivel?: boolean;
   };
   servicos: {
     id: string;

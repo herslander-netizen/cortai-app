@@ -2,31 +2,27 @@
  * Agendamento público do cliente — sem conta, sem senha, sem login.
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  CalendarPlus,
-  CalendarX,
   Check,
   Clock3,
-  MessageCircle,
   Scissors,
   UserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { VistoAnimado } from "@/components/ui/VistoAnimado";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
-import { gerarIcs, headDaBarbearia, mascaraTelefone } from "@/lib/previa";
+import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
-import { CHAVE_VINCULO } from "@/lib/vinculo";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
