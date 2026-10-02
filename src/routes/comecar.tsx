@@ -45,8 +45,11 @@ function ComecarPage() {
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
     sessao.papel === "barbeiro" ? "segmento" : "escolha",
   );
-  const [segmento, setSegmento] = useState<Segmento>("outro");
+  const [segmento, setSegmento] = useState<Segmento>("barbearia");
   const [nome, setNome] = useState("");
+  const [documento, setDocumento] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [avisoTeste, setAvisoTeste] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
@@ -120,7 +123,8 @@ function ComecarPage() {
       {concluido ? (
         <div className="mt-8">
           <p className="text-base leading-relaxed text-mute">
-            Agora são 5 minutos para deixar seu link de agendamento pronto.
+            {avisoTeste ?? "Seu teste grátis de 45 dias começou, com tudo liberado."} Agora são 5 minutos para
+            deixar seu link de agendamento pronto.
           </p>
           <button
             type="button"
@@ -226,7 +230,10 @@ function ComecarPage() {
             setEnviando(true);
             setErro(null);
             try {
-              const resultado = await criarBarbearia({ data: { nome: nome.trim(), segmento } });
+              const resultado = await criarBarbearia({
+                data: { nome: nome.trim(), segmento, documento, telefone },
+              });
+              setAvisoTeste(resultado.avisoDoTeste);
               aplicarIdentidade(resultado.identidade);
               aplicarModo(resultado.modo, true);
               esquecerSessao();
@@ -247,6 +254,33 @@ function ComecarPage() {
               className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
             />
           </label>
+          <label className="mt-4 block text-xs font-medium text-mute">
+            CPF ou CNPJ
+            <input
+              value={documento}
+              onChange={(e) => setDocumento(e.target.value)}
+              required
+              inputMode="numeric"
+              autoComplete="off"
+              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+            />
+          </label>
+          <label className="mt-4 block text-xs font-medium text-mute">
+            Telefone com DDD
+            <input
+              value={telefone}
+              onChange={(e) => setTelefone(e.target.value)}
+              required
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+            />
+          </label>
+          <p className="mt-3 text-xs text-mute">
+            45 dias grátis com tudo liberado. Sem cartão. Usamos o CPF/CNPJ e o telefone só para garantir um teste por
+            negócio.
+          </p>
           <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
             {enviando ? "Criando…" : "Criar meu negócio"}
           </button>

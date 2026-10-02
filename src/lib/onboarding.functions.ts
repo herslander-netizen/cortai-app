@@ -19,10 +19,10 @@ import type { Json } from "@/integrations/supabase/types";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
-  { chave: "compartilhar_link", rotulo: "Compartilhe seu link", destino: "/barbeiro/configurar" },
-  { chave: "primeiro_atendimento", rotulo: "Faça o primeiro atendimento", destino: "/barbeiro" },
+  { chave: "cadastrar_servicos", rotulo: "Cadastre seus serviços", destino: "/barbeiro/servicos" },
+  { chave: "cadastrar_profissionais", rotulo: "Cadastre os profissionais", destino: "/barbeiro/profissionais" },
   { chave: "whatsapp", rotulo: "Conecte o WhatsApp", destino: "/barbeiro/cortai" },
-  { chave: "convidar_equipe", rotulo: "Convide sua equipe", destino: "/barbeiro/equipe" },
+  { chave: "compartilhar_link", rotulo: "Compartilhe seu link de agendamento", destino: "/barbeiro/configurar" },
 ] as const;
 
 export type ChaveDoChecklist = (typeof ITENS_DO_CHECKLIST)[number]["chave"];
@@ -87,28 +87,22 @@ function paraHorario(h: Record<string, any>): HorarioSugerido {
 
 /** Detecta os primeiros passos pelo que aconteceu de fato. */
 async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<string, boolean>) {
-  const [atend, conexao, equipe] = await Promise.all([
-    db
-      .from("agendamentos")
-      .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId)
-      .in("status", ["na_cadeira", "finalizado"]),
+  const [servicos, conexao, profissionais] = await Promise.all([
+    db.from("servicos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId),
     db
       .from("conexoes_whatsapp")
       .select("status")
       .eq("tenant_id", tenantId)
       .eq("status", "conectado")
       .limit(1),
-    db
-      .from("tenant_usuarios")
-      .select("user_id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+    db.from("profissionais").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId),
   ]);
+  // Cada item conta como feito quando detectado de verdade ou quando o dono pulou.
   return {
+    cadastrar_servicos: Boolean(itens["cadastrar_servicos"]) || (servicos.count ?? 0) > 0,
+    cadastrar_profissionais: Boolean(itens["cadastrar_profissionais"]) || (profissionais.count ?? 0) > 0,
+    whatsapp: Boolean(itens["whatsapp"]) || (conexao.data ?? []).length > 0,
     compartilhar_link: Boolean(itens["compartilhar_link"]),
-    primeiro_atendimento: Boolean(itens["primeiro_atendimento"]) || (atend.count ?? 0) > 0,
-    whatsapp: (conexao.data ?? []).length > 0,
-    convidar_equipe: Boolean(itens["sozinho"]) || (equipe.count ?? 0) > 1,
   };
 }
 

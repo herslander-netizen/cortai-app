@@ -40,7 +40,7 @@ function ApresentacaoPage() {
   return (
     <ShowroomCortai
       etapa={etapa as EtapaShowroom}
-      segmento={segmentoParaApresentacao(segmento)}
+      segmento={segmento ? segmentoParaApresentacao(segmento) : "barbearia"}
       conteudo={dados?.conteudo}
     />
   );

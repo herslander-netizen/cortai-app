@@ -11,6 +11,7 @@ export type Plano = {
   descricao: string | null;
   precoMensalCentavos: number;
   precoAnualCentavos: number;
+  /** Legado: a duração real do teste é única (`DIAS_DE_TESTE` em teste-gratis.ts). */
   diasTeste: number;
   limiteProfissionais: number | null;
   limiteClientes: number | null;

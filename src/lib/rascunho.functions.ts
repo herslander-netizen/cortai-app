@@ -346,6 +346,8 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
       .update({ reivindicado_por: context.userId, reivindicado_em: new Date().toISOString() })
       .eq("id", linha["id"]);
 
-    const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
+    const { data: tenant } = await db.from("tenants").select("slug, whatsapp").eq("id", tenantId).maybeSingle();
+    const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
+    await iniciarTesteGratis(tenantId, { telefone: (tenant?.whatsapp as string) ?? null }).catch(() => undefined);
     return { ok: true, slug: (tenant?.slug as string) ?? "" };
   });
