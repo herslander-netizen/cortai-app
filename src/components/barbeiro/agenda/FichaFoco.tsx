@@ -151,3 +151,17 @@ export function FichaFoco({
     </section>
   );
 }
+
+/** Renderização pura usada também pelos testes de privacidade e campos opcionais. */
+export function fichaFocoVisivel(preferencias: PreferenciasCliente, observacao: string | null) {
+  return {
+    atencao: preferencias.atencao ?? null,
+    conversa: preferencias.conversa ?? null,
+    ar: preferencias.ar ?? null,
+    bebida: preferencias.bebida ?? null,
+    musica: preferencias.musica ?? null,
+    corte: preferencias.corte_habitual ?? null,
+    assuntos: preferencias.assuntos ?? null,
+    observacao,
+  };
+}
