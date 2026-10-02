@@ -4,3 +4,5 @@
 - Ações dos cartões passam por `efeitoDaAcaoCard`; finalizar sempre abre a comanda e nunca muda direto para `finalizado`.
 - A faixa Agora/Próximo pertence à Timeline; Lista concentra estado, tempo e ações no próprio cartão.
 - Gesto de troca de dia (acompanha o dedo) decidido só por `travarEixo`/`decidirFimDoGesto` (`gesto-dia.ts`), movimento só por transform via ref; dias vizinhos pré-buscados com `opcoesAgendaDia`; lugar da Agenda (dia, visão, rolagem) só via `useLugarDaAgenda` + sessionStorage em `preferencias.ts` — uma regra testável para cada comportamento.
+- Bloqueio de rolagem do arrasto só via `criarBloqueioDeRolagem` (`bloqueio-rolagem.ts`): bloqueia apenas com arrasto ativo e libera em qualquer fim de toque — um toque novo sempre rola.
+- Prévia do dia vizinho usa o mesmo formato da visualização (Timeline com `previa`, só leitura, sem efeitos na cápsula Agora); esqueletos também seguem o formato.
