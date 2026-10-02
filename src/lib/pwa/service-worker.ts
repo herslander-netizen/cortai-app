@@ -4,7 +4,6 @@
  * mostra a página offline. Nunca guarda HTML, server functions, /api ou banco.
  */
 import { VERSAO_INSTALADA } from "@/lib/versao";
-import { decidirExibicao, textoDoPush } from "@/lib/push/regras";
 
 export const ICONE_OFFLINE = "/icone-cortai-oficial-192-v2.png";
 
@@ -16,12 +15,9 @@ export function fonteDoServiceWorker() {
   return `/* Cortaí ${VERSAO_INSTALADA} — gerado; não editar à mão. */
 const CACHE_ASSETS = "cortai-assets-${VERSAO_INSTALADA}";
 const CACHE_OFFLINE = "cortai-offline-v1";
-const CACHE_ESTADO = "cortai-estado-v1";
-const MANTER = [CACHE_ASSETS, CACHE_OFFLINE, CACHE_ESTADO];
+const MANTER = [CACHE_ASSETS, CACHE_OFFLINE];
 const ICONE = ${JSON.stringify(ICONE_OFFLINE)};
 const OFFLINE = ${JSON.stringify(paginaOffline())};
-const decidirExibicao = ${decidirExibicao.toString()};
-const textoDoPush = ${textoDoPush.toString()};
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
@@ -41,6 +37,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname === ICONE) {
+    e.respondWith(caches.match(ICONE, { cacheName: CACHE_OFFLINE }).then((r) => r || fetch(req)));
+    return;
+  }
   if (url.pathname.startsWith("/assets/")) {
     e.respondWith((async () => {
       const cache = await caches.open(CACHE_ASSETS);
@@ -58,21 +58,6 @@ self.addEventListener("fetch", (e) => {
   /* Todo o resto segue direto para a rede. */
 });
 
-async function lerEstado() {
-  try {
-    const c = await caches.open(CACHE_ESTADO);
-    const r = await c.match("/__cortai-estado");
-    return r ? await r.json() : { foco: false, discreto: false };
-  } catch { return { foco: false, discreto: false }; }
-}
-
-self.addEventListener("message", (e) => {
-  const d = e.data || {};
-  if (d.tipo !== "cortai-estado") return;
-  const estado = { foco: !!d.foco, discreto: !!d.discreto };
-  e.waitUntil(caches.open(CACHE_ESTADO).then((c) => c.put("/__cortai-estado", new Response(JSON.stringify(estado)))));
-});
-
 self.addEventListener("push", (e) => {
   e.waitUntil((async () => {
     let d = {};
@@ -80,14 +65,16 @@ self.addEventListener("push", (e) => {
     if (self.navigator.setAppBadge && typeof d.naoLidas === "number") {
       (d.naoLidas > 0 ? self.navigator.setAppBadge(d.naoLidas) : self.navigator.clearAppBadge()).catch(() => undefined);
     }
-    const estado = await lerEstado();
-    const janelas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    const visivel = janelas.find((j) => j.visibilityState === "visible" && j.focused);
-    const decisao = decidirExibicao({ appVisivel: !!visivel, foco: estado.foco, tipo: d.tipo, proximo: !!d.proximo });
-    if (decisao === "nada") return;
-    if (decisao === "no_app") { visivel.postMessage({ tipo: "cortai-push", aviso: d }); return; }
-    const corpo = textoDoPush({ tipo: d.tipo, nome: d.nome || "", quando: d.quando || "", discreto: estado.discreto });
-    await self.registration.showNotification("Cortaí", { body: corpo, tag: d.tag || d.tipo, renotify: true, icon: ICONE, badge: ICONE, data: { link: d.link || "/barbeiro/agenda" } });
+    /* Foco e modo discreto já foram decididos no servidor. Todo push mostra notificação
+       (sem isso o iPhone revoga a inscrição e o Chrome mostra um aviso genérico). */
+    let visivel = null;
+    try {
+      const janelas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      visivel = janelas.find((j) => j.visibilityState === "visible" && j.focused) || null;
+    } catch { visivel = null; }
+    const corpo = typeof d.corpo === "string" && d.corpo ? d.corpo : "Novo aviso na agenda";
+    if (visivel) { try { visivel.postMessage({ tipo: "cortai-push", aviso: { tipo: d.tipo, corpo } }); } catch { /* segue */ } }
+    await self.registration.showNotification("Cortaí", { body: corpo, tag: d.tag || d.tipo || "cortai", renotify: !visivel, silent: !!visivel, icon: ICONE, badge: ICONE, data: { link: d.link || "/barbeiro/agenda" } });
   })());
 });
 
@@ -97,7 +84,14 @@ self.addEventListener("notificationclick", (e) => {
   e.waitUntil((async () => {
     const janelas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     const janela = janelas[0];
-    if (janela) { await janela.focus(); return janela.navigate(link).catch(() => undefined); }
+    if (janela) {
+      try {
+        await janela.focus();
+        /* navigate só funciona em janela controlada por este service worker. */
+        const navegou = await janela.navigate(link);
+        if (navegou) return;
+      } catch { /* abre uma nova */ }
+    }
     return self.clients.openWindow(link);
   })());
 });
