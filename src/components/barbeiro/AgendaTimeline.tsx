@@ -14,6 +14,7 @@ import {
   nomeDaAgenda,
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
+import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { prefereMenosMovimento } from "@/lib/motion";
 
 const CELULAR = "(max-width: 600px)";
@@ -126,19 +127,16 @@ export function AgendaTimeline({
     rolagem0: number;
     dy: number;
   } | null>(null);
-  const bloqueioToque = useRef<((ev: TouchEvent) => void) | null>(null);
+  const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
   function travarRolagemDoToque() {
-    if (bloqueioToque.current) return;
-    const bloquear = (ev: TouchEvent) => {
-      if (ev.cancelable) ev.preventDefault();
-    };
-    bloqueioToque.current = bloquear;
-    document.addEventListener("touchmove", bloquear, { passive: false });
+    bloqueio.current ??= criarBloqueioDeRolagem(
+      () =>
+        Boolean(gesto.current?.ativo) || document.querySelector(".agenda-arrastando") !== null,
+    );
+    bloqueio.current.travar();
   }
   function soltarRolagemDoToque() {
-    if (!bloqueioToque.current) return;
-    document.removeEventListener("touchmove", bloqueioToque.current);
-    bloqueioToque.current = null;
+    bloqueio.current?.soltar();
   }
   useEffect(() => soltarRolagemDoToque, []);
   const ignorarClique = useRef(false);
