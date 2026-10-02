@@ -33,7 +33,9 @@ describe("registro do service worker", () => {
     expect(fonte).toContain('url.pathname.startsWith("/assets/")');
     expect(fonte).toContain("skipWaiting");
     expect(fonte).toContain("clients.claim");
-    expect(fonte).not.toMatch(/cache\.put\(req[^)]*\)[^]*navigate/);
+    // Só um ponto grava em cache, e ele fica antes do ramo de navegação (HTML nunca é guardado).
+    expect(fonte.split("cache.put(req").length - 1).toBe(1);
+    expect(fonte.indexOf("cache.put(req")).toBeLessThan(fonte.indexOf('req.mode === "navigate"'));
   });
 });
 
@@ -152,7 +154,7 @@ describe("cifra do push (RFC 8291)", () => {
     const idlen = corpo[20]!;
     const asPub = corpo.slice(21, 21 + idlen);
     const cifrado = corpo.slice(21 + idlen);
-    const h = async (k: Uint8Array, d: Uint8Array) =>
+    const h = async (k: Uint8Array<ArrayBuffer>, d: Uint8Array<ArrayBuffer>) =>
       new Uint8Array(
         await crypto.subtle.sign(
           "HMAC",
@@ -163,7 +165,7 @@ describe("cifra do push (RFC 8291)", () => {
         ),
       );
     const te = new TextEncoder();
-    const cat = (...p: Uint8Array[]) => {
+    const cat = (...p: Uint8Array[]): Uint8Array<ArrayBuffer> => {
       const o = new Uint8Array(p.reduce((s, x) => s + x.length, 0));
       let i = 0;
       for (const x of p) {
