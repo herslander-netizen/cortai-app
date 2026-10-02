@@ -144,6 +144,8 @@ export function AgendaTimeline({
   useEffect(() => soltarRolagemDoToque, []);
   const ignorarClique = useRef(false);
   const horarioVazioRef = useRef<number | null>(null);
+  const ponteirosDeToque = useRef(new Set<number>());
+  const multitoque = useRef(false);
   const toqueLongoVazio = useRef<ReturnType<typeof criarToqueLongoVazio> | null>(null);
   toqueLongoVazio.current ??= criarToqueLongoVazio({
     aoConfirmar: () => {
@@ -161,14 +163,28 @@ export function AgendaTimeline({
   });
   useEffect(() => {
     const cancelar = () => toqueLongoVazio.current?.cancelar();
-    const outroPonteiro = (evento: PointerEvent) =>
-      toqueLongoVazio.current?.novoPonteiro(evento.pointerId);
+    const novoPonteiro = (evento: PointerEvent) => {
+      if (evento.pointerType === "mouse") return;
+      if (ponteirosDeToque.current.size > 0 && !ponteirosDeToque.current.has(evento.pointerId)) {
+        multitoque.current = true;
+        cancelar();
+      }
+      ponteirosDeToque.current.add(evento.pointerId);
+    };
+    const fimDoPonteiro = (evento: PointerEvent) => {
+      ponteirosDeToque.current.delete(evento.pointerId);
+      if (ponteirosDeToque.current.size === 0) multitoque.current = false;
+    };
     window.addEventListener("scroll", cancelar, { passive: true });
-    document.addEventListener("pointerdown", outroPonteiro, { capture: true, passive: true });
+    document.addEventListener("pointerdown", novoPonteiro, { capture: true, passive: true });
+    document.addEventListener("pointerup", fimDoPonteiro, { capture: true, passive: true });
+    document.addEventListener("pointercancel", fimDoPonteiro, { capture: true, passive: true });
     return () => {
       cancelar();
       window.removeEventListener("scroll", cancelar);
-      document.removeEventListener("pointerdown", outroPonteiro, { capture: true });
+      document.removeEventListener("pointerdown", novoPonteiro, { capture: true });
+      document.removeEventListener("pointerup", fimDoPonteiro, { capture: true });
+      document.removeEventListener("pointercancel", fimDoPonteiro, { capture: true });
     };
   }, []);
   const hoje = new Intl.DateTimeFormat("en-CA", {
@@ -565,9 +581,9 @@ export function AgendaTimeline({
             ? {}
             : {
                 onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
-                  toqueLongoVazio.current?.novoPonteiro(e.pointerId);
                   if (!onHorarioVazio || e.target !== e.currentTarget) return;
                   if (e.pointerType === "mouse") return;
+                  if (multitoque.current) return;
                   const minuto = minutoNoVazio(e);
                   if (minuto === null) return;
                   horarioVazioRef.current = minuto;
