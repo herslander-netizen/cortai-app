@@ -132,7 +132,9 @@ function AgendamentosPage() {
         </Button>
       </div>
 
-      {isLoading ? <EsqueletoAgenda linhas={5} /> : null}
+      {isLoading ? (
+        <EsqueletoAgenda linhas={5} onTentarDeNovo={() => void refetch()} />
+      ) : null}
       {isError ? (
         <div className="surface p-5">
           <p className="text-sm text-paper">Não conseguimos carregar os agendamentos agora.</p>

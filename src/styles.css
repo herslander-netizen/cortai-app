@@ -3016,10 +3016,10 @@ html.agenda-gesto-ativo body {
 }
 @keyframes esqueleto-brilho {
   from {
-    background-position: 100vw 0;
+    background-position: -100vw 0;
   }
   to {
-    background-position: -100vw 0;
+    background-position: 100vw 0;
   }
 }
 @keyframes mov-fade {

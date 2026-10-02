@@ -26,23 +26,31 @@ describe("padrão de carregamento", () => {
     expect(html).toContain(">Carregando<");
   });
 
-  it("sincroniza o brilho, atrasa a entrada e respeita movimento reduzido", () => {
+  it("sincroniza o brilho da esquerda para a direita, atrasa a entrada e respeita movimento reduzido", () => {
     const css = readFileSync("src/styles.css", "utf8");
     expect(css).toContain("background-attachment: fixed");
+    expect(css).toMatch(
+      /@keyframes esqueleto-brilho\s*{\s*from\s*{\s*background-position: -100vw 0;\s*}\s*to\s*{\s*background-position: 100vw 0;/,
+    );
     expect(css).toContain("animation: esqueleto-aparecer 150ms");
     expect(css).toMatch(
       /prefers-reduced-motion: reduce[\s\S]*\.esqueleto-barra[\s\S]*animation: none/,
     );
   });
 
-  it("troca a espera longa por uma mensagem com nova tentativa", () => {
+  it("troca a espera longa por uma mensagem e usa a nova tentativa fornecida", () => {
     const host = document.createElement("div");
     const root = createRoot(host);
+    const tentarDeNovo = vi.fn();
     vi.useFakeTimers();
-    act(() => root.render(<EsqueletoFormulario />));
+    act(() => root.render(<EsqueletoFormulario onTentarDeNovo={tentarDeNovo} />));
     act(() => vi.advanceTimersByTime(10_000));
     expect(host.textContent).toContain("Não conseguimos carregar agora.");
     expect(host.textContent).toContain("Tentar de novo");
+    const botao = host.querySelector("button");
+    expect(botao?.getAttribute("data-slot")).toBe("button");
+    act(() => botao?.click());
+    expect(tentarDeNovo).toHaveBeenCalledOnce();
     act(() => root.unmount());
     vi.useRealTimers();
   });
