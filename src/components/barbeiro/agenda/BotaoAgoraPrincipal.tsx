@@ -1,6 +1,6 @@
 import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
@@ -32,14 +32,7 @@ export function BotaoAgoraPrincipal({
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
   const IconeVisualizacao = proxima === "timeline" ? CalendarClock : List;
 
-  useEffect(() => {
-    if (!ehHoje || !levarAoAgoraQuandoForHoje.current) return;
-    levarAoAgoraQuandoForHoje.current = false;
-    const quadro = window.requestAnimationFrame(() => levarAoAgora(visualizacao));
-    return () => window.cancelAnimationFrame(quadro);
-  }, [ehHoje, visualizacao]);
-
-  function rolarLista() {
+  const rolarLista = useCallback(() => {
     const primeiro = document.querySelector<HTMLElement>(
       '#agenda-painel-visualizacao .agenda-item',
     );
@@ -51,12 +44,19 @@ export function BotaoAgoraPrincipal({
       top: window.scrollY + alvo.getBoundingClientRect().top - (cabecalho?.offsetHeight ?? 0) - 8,
       behavior: menosMovimento ? "auto" : "smooth",
     });
-  }
+  }, [menosMovimento]);
 
-  function levarAoAgora(destino: VisualizacaoAgenda) {
+  const levarAoAgora = useCallback((destino: VisualizacaoAgenda) => {
     if (destino === "lista") rolarLista();
     else solicitarAgora();
-  }
+  }, [rolarLista]);
+
+  useEffect(() => {
+    if (!ehHoje || !levarAoAgoraQuandoForHoje.current) return;
+    levarAoAgoraQuandoForHoje.current = false;
+    const quadro = window.requestAnimationFrame(() => levarAoAgora(visualizacao));
+    return () => window.cancelAnimationFrame(quadro);
+  }, [ehHoje, levarAoAgora, visualizacao]);
 
   function irParaAgora() {
     if (!ehHoje) {
