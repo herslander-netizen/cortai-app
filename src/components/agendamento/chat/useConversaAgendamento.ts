@@ -14,7 +14,7 @@ import { useMemoriaDaConversa } from "./useMemoriaDaConversa";
 import { respostaNaoEntendi, respostaRapida } from "./respostasRapidas";
 import type { Chip, Etapa, MensagemExtra, Selecao } from "./tipos";
 
-type Pendente = { primeiro?: boolean; horario?: string; iso?: string };
+type Pendente = { dia?: string; primeiro?: boolean; horario?: string; iso?: string };
 
 /**
  * Orquestra a conversa sobre a seleção oficial. Não calcula disponibilidade:
@@ -190,7 +190,8 @@ export function useConversaAgendamento({
       return corrigir(etapa in anterior ? anterior[etapa as keyof typeof anterior] : "servico");
     }
     if (e.intencao === "sim" && confirmarDia) {
-      escolherDia(confirmarDia.dia);
+      if (s.servico && profEscolhido) escolherDia(confirmarDia.dia);
+      else setPendente((p) => ({ ...p, dia: confirmarDia.dia }));
       return setConfirmarDia(null);
     }
     if (e.intencao === "nao" && confirmarDia) {
