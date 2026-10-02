@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
+import { ChevronDown, CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
+import { alternarGrupo, comGrupoAtual, gruposAbertosSalvos, salvarGruposAbertos } from "@/lib/grupos-do-menu";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +105,20 @@ export function ManagementHeader() {
     return [...operacionais, sistema];
   }, [capacidades, sessao?.permissoes, sessao?.segmento]);
 
+  const [abertos, setAbertos] = useState<string[]>(["Dia a dia"]);
+  const grupoAtual =
+    grupos.find((g) => g.itens.some((i) => itemDeNavegacaoAtivo(caminho, i.to)))?.titulo ?? null;
+  useEffect(() => {
+    if (aberto) setAbertos(comGrupoAtual(gruposAbertosSalvos(), grupoAtual));
+  }, [aberto, grupoAtual]);
+  function alternar(titulo: string) {
+    setAbertos((atual) => {
+      const proximo = alternarGrupo(atual, titulo);
+      salvarGruposAbertos(proximo);
+      return proximo;
+    });
+  }
+
   return (
     <header className="management-header">
       <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between gap-3 px-4 md:px-8">
@@ -143,11 +158,27 @@ export function ManagementHeader() {
             <nav aria-label="Módulos do negócio" className="px-3 py-3">
               {grupos.map((grupo) =>
                 grupo.itens.length ? (
-                  <section key={grupo.titulo} className="mb-4">
-                    <h2 className="px-2 pb-1.5 text-xs font-bold uppercase text-mute2">
-                      {grupo.titulo}
+                  <section key={grupo.titulo} className="mb-2">
+                    <h2 className="text-xs font-bold uppercase text-mute2">
+                      <Button
+                        variant="ghost"
+                        className="min-h-12 w-full justify-between px-2 text-xs font-bold uppercase text-mute2"
+                        aria-expanded={abertos.includes(grupo.titulo)}
+                        aria-controls={`menu-grupo-${grupo.titulo}`}
+                        onClick={() => alternar(grupo.titulo)}
+                      >
+                        {grupo.titulo}
+                        <ChevronDown
+                          aria-hidden
+                          className={`size-4 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
+                        />
+                      </Button>
                     </h2>
-                    <ul>
+                    {abertos.includes(grupo.titulo) ? (
+                    <ul
+                      id={`menu-grupo-${grupo.titulo}`}
+                      className="animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
+                    >
                       {grupo.itens.map((item) => {
                         const Icon = item.icon;
                         const ativo = itemDeNavegacaoAtivo(caminho, item.to);
@@ -172,6 +203,7 @@ export function ManagementHeader() {
                         </li>
                       ) : null}
                     </ul>
+                    ) : null}
                   </section>
                 ) : null,
               )}
