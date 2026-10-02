@@ -103,6 +103,8 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
 }
 
 export async function sair() {
+  const { removerPushDesteAparelho } = await import("@/lib/push/aparelho");
+  await removerPushDesteAparelho();
   esquecerSessao();
   await supabase.auth.signOut();
   if (typeof window !== "undefined") window.location.assign("/");

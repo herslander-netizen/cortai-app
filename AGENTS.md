@@ -1,4 +1,3 @@
-- Preferências locais da Agenda (visualização e modo discreto) ficam em `agenda/preferencias.ts`; componentes recebem uma única flag — evita estado visual divergente.
 - Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.
 
 <!-- LOVABLE:BEGIN -->
@@ -31,7 +30,6 @@
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
-- A visualização pura `CockpitFoco` é compartilhada entre o Modo Foco real e a apresentação; dados e ações ficam nos adaptadores — evita duas interfaces divergentes.
 - Movimento: escala única de 120/200/280 ms; só transform/opacity, cascata até 6 itens e redução de movimento global — evita peso e inconsistência.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
@@ -42,3 +40,6 @@
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
 - WhatsApp completa pedidos (profissional, horário exato, apelidos) só via `entendimento-whatsapp.ts`, que reaproveita `lib/conversa/entender.ts` — um entendimento só para site e WhatsApp.
+- PWA: SW gerado em `lib/pwa/service-worker.ts`, servido em `/sw.js` (no-cache), registrado só por `lib/pwa/registro.ts` em cortai.dev; cache só de `/assets/*` — nunca HTML/API/banco.
+- Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.
+- Push só da equipe, disparado pelo gatilho do sino; regras em `lib/push/regras.ts`, envio WebCrypto, VAPID em `chaves_internas` — um ponto de decisão.

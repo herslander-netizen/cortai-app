@@ -6,6 +6,8 @@ import { getSessao } from "@/lib/sessao.functions";
 import { SegmentoProvider } from "@/lib/segmento-contexto";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
+import { AtivarAvisosNoAparelho } from "@/components/notificacoes/AtivarAvisosNoAparelho";
+import { usePushNoApp } from "@/lib/push/use-push-no-app";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 
@@ -18,6 +20,7 @@ export const Route = createFileRoute("/barbeiro")({
 function BarberLayout() {
   const { userId } = Route.useRouteContext();
   useSessaoTempoReal(userId);
+  usePushNoApp();
   const { data: sessao } = useQuery({
     queryKey: ["sessao"],
     queryFn: () => getSessao(),
@@ -39,6 +42,7 @@ function BarberLayout() {
         </div>
         {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
         <ConviteDeInstalacao posicao="topo" />
+        <AtivarAvisosNoAparelho equipe={sessao?.tenantId ?? null} posicao="topo" />
       </div>
     </SegmentoProvider>
   );

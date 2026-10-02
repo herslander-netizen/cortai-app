@@ -24,6 +24,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
 import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -89,6 +90,7 @@ import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
+import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
@@ -168,6 +170,11 @@ const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwDotjsRoute = SwDotjsRouteImport.update({
+  id: '/sw.js',
+  path: '/sw.js',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VisitanteRoute = VisitanteRouteImport.update({
@@ -496,6 +503,11 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushEventoRoute = ApiPublicPushEventoRouteImport.update({
+  id: '/api/public/push/evento',
+  path: '/api/public/push/evento',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWhatsappAutomacoesRoute =
   ApiPublicWhatsappAutomacoesRouteImport.update({
     id: '/api/public/whatsapp/automacoes',
@@ -537,6 +549,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -602,6 +615,7 @@ export interface FileRoutesByFullPath {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -620,6 +634,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -684,6 +699,7 @@ export interface FileRoutesByTo {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -706,6 +722,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/sw.js': typeof SwDotjsRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -771,6 +788,7 @@ export interface FileRoutesById {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -794,6 +812,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -859,6 +878,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -877,6 +897,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -941,6 +962,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -962,6 +984,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/sw.js'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -1027,6 +1050,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -1049,6 +1073,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  SwDotjsRoute: typeof SwDotjsRoute
   VisitanteRoute: typeof VisitanteRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
@@ -1065,6 +1090,7 @@ export interface RootRouteChildren {
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
   ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
+  ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
   ApiPublicWhatsappEvolutionRoute: typeof ApiPublicWhatsappEvolutionRoute
@@ -1176,6 +1202,13 @@ declare module '@tanstack/react-router' {
       path: '/redefinir-senha'
       fullPath: '/redefinir-senha'
       preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sw.js': {
+      id: '/sw.js'
+      path: '/sw.js'
+      fullPath: '/sw.js'
+      preLoaderRoute: typeof SwDotjsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/visitante': {
@@ -1633,6 +1666,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/evento': {
+      id: '/api/public/push/evento'
+      path: '/api/public/push/evento'
+      fullPath: '/api/public/push/evento'
+      preLoaderRoute: typeof ApiPublicPushEventoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whatsapp/automacoes': {
       id: '/api/public/whatsapp/automacoes'
       path: '/api/public/whatsapp/automacoes'
@@ -1813,6 +1853,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
+  SwDotjsRoute: SwDotjsRoute,
   VisitanteRoute: VisitanteRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
@@ -1830,6 +1871,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,
   ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
+  ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
   ApiPublicWhatsappEvolutionRoute: ApiPublicWhatsappEvolutionRoute,

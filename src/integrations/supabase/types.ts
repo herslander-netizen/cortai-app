@@ -3201,6 +3201,7 @@ export type Database = {
           atualizado_em: string;
           id: string;
           no_app: boolean;
+          no_push: boolean;
           no_whatsapp: boolean;
           tenant_id: string;
           tipo: string;
@@ -3210,6 +3211,7 @@ export type Database = {
           atualizado_em?: string;
           id?: string;
           no_app?: boolean;
+          no_push?: boolean;
           no_whatsapp?: boolean;
           tenant_id: string;
           tipo: string;
@@ -3219,6 +3221,7 @@ export type Database = {
           atualizado_em?: string;
           id?: string;
           no_app?: boolean;
+          no_push?: boolean;
           no_whatsapp?: boolean;
           tenant_id?: string;
           tipo?: string;
@@ -3741,6 +3744,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profissionais_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      push_entregas: {
+        Row: {
+          chave: string;
+          criado_em: string;
+        };
+        Insert: {
+          chave: string;
+          criado_em?: string;
+        };
+        Update: {
+          chave?: string;
+          criado_em?: string;
+        };
+        Relationships: [];
+      };
+      push_inscricoes: {
+        Row: {
+          auth: string;
+          criado_em: string;
+          endpoint: string;
+          falhas: number;
+          id: string;
+          p256dh: string;
+          plataforma: string;
+          tenant_id: string;
+          ultimo_sucesso_em: string | null;
+          user_id: string;
+        };
+        Insert: {
+          auth: string;
+          criado_em?: string;
+          endpoint: string;
+          falhas?: number;
+          id?: string;
+          p256dh: string;
+          plataforma: string;
+          tenant_id: string;
+          ultimo_sucesso_em?: string | null;
+          user_id: string;
+        };
+        Update: {
+          auth?: string;
+          criado_em?: string;
+          endpoint?: string;
+          falhas?: number;
+          id?: string;
+          p256dh?: string;
+          plataforma?: string;
+          tenant_id?: string;
+          ultimo_sucesso_em?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_inscricoes_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenants";
@@ -4641,6 +4706,7 @@ export type Database = {
         Returns: boolean;
       };
       chamada_do_servidor: { Args: never; Returns: boolean };
+      chave_push_eventos: { Args: never; Returns: string };
       checkin_whatsapp: { Args: { _agendamento_id: string }; Returns: Json };
       configuracao_visual_global: {
         Args: never;
@@ -4743,6 +4809,10 @@ export type Database = {
           _tenant_id: string;
         };
         Returns: Json;
+      };
+      disparar_push_agendamento: {
+        Args: { _agendamento: string; _ator: string; _tipo: string };
+        Returns: undefined;
       };
       eh_hoje_na_barbearia: {
         Args: { _em: string; _tenant: string };
