@@ -83,7 +83,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         setShowSpinner(false);
         return;
       }
-      const timer = window.setTimeout(() => setShowSpinner(true), 300);
+      const timer = window.setTimeout(() => setShowSpinner(true), 150);
       return () => window.clearTimeout(timer);
     }, [loading]);
 
@@ -100,7 +100,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       width.current = internalRef.current?.offsetWidth ?? null;
       pendingRef.current = true;
       setPending(true);
-      const timer = window.setTimeout(() => alive.current && setShowSpinner(true), 300);
+      const timer = window.setTimeout(() => alive.current && setShowSpinner(true), 150);
       void Promise.resolve(result).finally(() => {
         window.clearTimeout(timer);
         pendingRef.current = false;

@@ -9,7 +9,7 @@ import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { StatusAgendamento } from "@/components/cliente/StatusAgendamento";
 import { getContextoCliente } from "@/lib/contexto-cliente.functions";
 import { listarAgendamentosCliente } from "@/lib/agendamento.functions";
-import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { EsqueletoCascoCliente, EsqueletoLista } from "@/components/layout/Esqueleto";
 import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-cliente";
 import { useEffect } from "react";
 
@@ -62,7 +62,7 @@ function InicioCliente() {
     .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())[0];
 
   if (isLoading) {
-    return <TelaDeCarregamento />;
+    return <EsqueletoCascoCliente />;
   }
 
   if (!data) {
@@ -167,11 +167,11 @@ function InicioCliente() {
                 aria-hidden
               />
             </Link>
+          ) : agendamentos.isLoading ? (
+            <EsqueletoLista linhas={1} />
           ) : (
             <div className="mt-4 border-y border-line py-5">
-              <p className="text-base font-semibold text-paper">
-                {agendamentos.isLoading ? "Carregando…" : "Nenhum horário marcado"}
-              </p>
+              <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
               <p className="mt-1 text-sm text-mute">
                 Escolha o melhor dia para o próximo atendimento.
               </p>
@@ -217,6 +217,8 @@ function InicioCliente() {
                       <img
                         src={produto.foto_url}
                         alt={produto.nome}
+                        width={320}
+                        height={320}
                         loading="lazy"
                         className="aspect-square w-full object-cover"
                       />

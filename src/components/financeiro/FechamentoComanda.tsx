@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl, hora } from "@/lib/format";
+import { EsqueletoComanda } from "@/components/layout/Esqueleto";
 import {
   criarRetorno,
   enviarParaRecepcao,
@@ -270,7 +271,7 @@ export function FechamentoComanda({
               Comanda{d ? ` #${d.comanda.numero}` : ""}
             </p>
             <h2 className="mt-1 truncate text-xl font-bold text-paper">
-              {d?.comanda.clientes?.nome ?? "Preparando comanda…"}
+              {d?.comanda.clientes?.nome ?? "Comanda"}
             </h2>
             <p className="text-xs text-mute">{d?.comanda.profissionais?.nome ?? "Profissional"}</p>
           </div>
@@ -278,9 +279,7 @@ export function FechamentoComanda({
             <X />
           </Button>
         </div>
-        {query.isLoading ? (
-          <p className="py-10 text-center text-sm text-mute">Preparando comanda…</p>
-        ) : null}
+        {query.isLoading ? <EsqueletoComanda /> : null}
         {query.error ? (
           <p className="py-6 text-sm text-paper" role="alert">
             {(query.error as Error).message}

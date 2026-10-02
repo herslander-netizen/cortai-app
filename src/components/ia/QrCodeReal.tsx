@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BlocoEsqueleto, RegiaoDeEsqueleto } from "@/components/layout/Esqueleto";
 
 /**
  * Mostra o QR Code REAL devolvido pelo serviço de WhatsApp.
@@ -58,11 +59,9 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
 
   if (!src) {
     return (
-      <div
-        className="mx-auto h-56 w-56 animate-pulse rounded-xl border border-line2 bg-ink"
-        aria-label="Gerando QR Code"
-        role="status"
-      />
+      <RegiaoDeEsqueleto className="mx-auto h-56 w-56">
+        <BlocoEsqueleto className="h-56 w-56 border border-line2" />
+      </RegiaoDeEsqueleto>
     );
   }
 

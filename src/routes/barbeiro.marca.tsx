@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario, EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
@@ -123,7 +123,7 @@ function MarcaPage() {
   if (query.isLoading)
     return (
       <Screen voltarPara="/barbeiro/mais" title="Personalizar página">
-        <Carregando />
+        <EsqueletoFormulario campos={6} />
       </Screen>
     );
   if (!query.data)
@@ -912,7 +912,7 @@ function Editor({
               {previewData ? (
                 <PaginaPublicaConteudo data={previewData} config={config} preview />
               ) : (
-                <Carregando />
+                <EsqueletoPaginaPublica />
               )}
             </div>
           </div>

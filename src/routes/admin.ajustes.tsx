@@ -8,7 +8,7 @@ import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { getPlatformConfig, savePlatformConfig } from "@/lib/admin.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/admin/ajustes")({
   head: () => ({
@@ -66,7 +66,7 @@ function DesignSystemPage() {
       subtitle="Alterações aqui definem a base para todos os tenants."
     >
       {!form ? (
-        <Carregando texto="Carregando configuração…" />
+        <EsqueletoFormulario campos={5} />
       ) : (
         <form
           onSubmit={(e) => {

@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ChevronRight, Undo2 } from "lucide-react";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, dataCurta, hora } from "@/lib/format";
@@ -93,7 +93,7 @@ function CaixaPage() {
       title="Caixa do dia"
       subtitle="Toda entrada mostra de onde veio."
     >
-      {caixa.isLoading ? <Carregando /> : null}
+      {caixa.isLoading ? <EsqueletoPainel /> : null}
       {caixa.isError ? (
         <p className="text-sm text-mute">Você não tem acesso ao caixa desta barbearia.</p>
       ) : null}

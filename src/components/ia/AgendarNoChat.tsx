@@ -2,8 +2,9 @@ import { useMemo, useState } from "react";
 import { mascaraTelefone } from "@/lib/previa";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 
+import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { brl } from "@/lib/format";
 import { getGradeDoDia } from "@/lib/agenda-chat.functions";
 import { criarAgendamentoManual } from "@/lib/barbeiro.functions";
@@ -218,9 +219,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
       {/* Horários */}
       <div className="mt-3">
         {grade.isLoading ? (
-          <p className="flex items-center gap-2 text-xs text-mute">
-            <Loader2 size={13} className="animate-spin" aria-hidden /> Carregando a agenda…
-          </p>
+          <EsqueletoAgenda linhas={2} />
         ) : grade.data?.fechado ? (
           <p className="text-xs text-mute">Barbearia fechada neste dia.</p>
         ) : (

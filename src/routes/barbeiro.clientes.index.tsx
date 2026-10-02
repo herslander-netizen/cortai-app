@@ -50,10 +50,11 @@ function whatsappLink(telefone: string, nome: string, barbearia = true, servico?
 }
 
 function ClientesPage() {
-  const { data, isLoading } = useQuery({
+  const consulta = useQuery({
     queryKey: ["clientes-crm"],
     queryFn: () => getClientesCRM(),
   });
+  const { data, isLoading } = consulta;
   const [busca, setBusca] = useState("");
   const [soHoraDeVoltar, setSoHoraDeVoltar] = useState(false);
   const segmentoClientes = data?.tenant.segmento ?? "barbearia";
@@ -150,6 +151,14 @@ function ClientesPage() {
       </div>
 
       {isLoading ? <EsqueletoLista linhas={6} /> : null}
+      {consulta.isError ? (
+        <div className="surface mt-4 p-5">
+          <p className="text-sm text-paper">Não conseguimos carregar seus clientes agora.</p>
+          <Button variant="outline" className="mt-4" onClick={() => void consulta.refetch()}>
+            Tentar de novo
+          </Button>
+        </div>
+      ) : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
       <ul data-guia="clientes-lista" className="mt-2">
         {lista.map((c, i) => {

@@ -4,7 +4,7 @@ import { Check, Copy, MessageCircle, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
-import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Signature } from "@/components/layout/Signature";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,11 @@ import {
 import { getPaginaPublica } from "@/lib/publico.functions";
 
 export function TelaPublicaBarbearia({ chave }: { chave: string }) {
-  const { data, isLoading } = useQuery({
+  const consulta = useQuery({
     queryKey: ["pagina-publica", chave],
     queryFn: () => getPaginaPublica({ data: { slug: chave } }),
   });
+  const { data, isLoading } = consulta;
   const [qr, setQr] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [mostrarQr, setMostrarQr] = useState(false);
@@ -30,7 +31,19 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQr);
   }, [mostrarQr, qr]);
 
-  if (isLoading) return <TelaDeCarregamento texto="Abrindo o negócio…" />;
+  if (isLoading) return <EsqueletoPaginaPublica />;
+  if (consulta.isError)
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-xl items-center px-5">
+        <div className="surface w-full p-5">
+          <h1 className="text-lg font-semibold text-paper">Não conseguimos abrir esta página.</h1>
+          <p className="mt-2 text-sm text-mute">Confira sua conexão e tente novamente.</p>
+          <Button className="mt-5 w-full" onClick={() => void consulta.refetch()}>
+            Tentar de novo
+          </Button>
+        </div>
+      </main>
+    );
   if (!data) throw notFound();
 
   return (

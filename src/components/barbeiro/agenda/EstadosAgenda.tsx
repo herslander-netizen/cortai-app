@@ -52,11 +52,7 @@ export function FaixaConexao({
 }
 
 export function AgendaCarregando({ formato = "lista" }: { formato?: "lista" | "timeline" }) {
-  return (
-    <div role="status" aria-label="Carregando agenda">
-      {formato === "timeline" ? <EsqueletoTimeline /> : <EsqueletoAgenda linhas={5} />}
-    </div>
-  );
+  return formato === "timeline" ? <EsqueletoTimeline /> : <EsqueletoAgenda linhas={5} />;
 }
 
 export function AgendaErro({

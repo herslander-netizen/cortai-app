@@ -16,7 +16,7 @@ import {
   removerDaFila,
   type FilaItem,
 } from "@/lib/barbeiro.functions";
-import { EsqueletoLista } from "@/components/layout/Esqueleto";
+import { EsqueletoFormulario, EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { ItemCascata } from "@/components/layout/ItemCascata";
 import { Button } from "@/components/ui/button";
@@ -374,7 +374,7 @@ function FormularioFila({
   });
   const agendar = modo === "agendar";
   const valido = !agendar || Boolean(v.servicoId && v.profissionalId && v.dia && v.hora);
-  if (!opcoes) return <p className="mt-3 pl-12 text-xs text-mute">Carregando opções…</p>;
+  if (!opcoes) return <EsqueletoFormulario campos={3} />;
   return (
     <div className="mt-3 space-y-3 rounded-lg border border-line p-3 sm:ml-12">
       <label className="block text-xs text-mute2">

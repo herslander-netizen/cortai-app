@@ -6,6 +6,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { confirmarMeuAcesso, meuConvite } from "@/lib/equipe.functions";
 import { ACOES, MODULOS, PAPEIS, type PapelDeEquipe } from "@/lib/permissoes";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/convite")({
   ssr: false,
@@ -42,7 +43,9 @@ function ConvitePage() {
       <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
 
       {convite.isLoading ? (
-        <p className="mt-8 text-sm text-mute">Carregando o seu acesso…</p>
+        <div className="mt-8">
+          <EsqueletoFormulario campos={3} />
+        </div>
       ) : !dados ? (
         <div className="mt-8 space-y-5">
           <Aviso tom="atencao" titulo="Nenhum acesso de equipe por aqui.">

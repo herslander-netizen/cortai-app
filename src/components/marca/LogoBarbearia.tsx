@@ -21,6 +21,8 @@ export function LogoBarbearia({
       <img
         src={url}
         alt={`Logo ${nome}`}
+        width={size}
+        height={size}
         style={{ width: size, height: size }}
         className={`shrink-0 rounded-xl border border-border bg-card object-contain p-1 ${className}`}
       />

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { getCrescimento } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
 
@@ -71,7 +71,7 @@ function CrescimentoPage() {
       title="Crescimento"
       subtitle={data?.tenant.nome ?? "O que faz seu negócio crescer."}
     >
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoPainel /> : null}
 
       {data ? (
         <>

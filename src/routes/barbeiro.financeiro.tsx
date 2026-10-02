@@ -5,7 +5,7 @@ import { Banknote, PackageCheck, Scissors, Shapes } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getFinanceiro } from "@/lib/gestao.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({
@@ -33,7 +33,7 @@ function FinanceiroPage() {
   });
   return (
     <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoPainel /> : null}
       {isError ? (
         <p className="border-l-2 border-brick pl-4 text-sm text-brick">
           Entre com uma conta vinculada ao negócio para ver o financeiro.

@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { FUSOS_DA_BARBEARIA, FUSO_BARBEARIA } from "@/lib/horarios";
@@ -54,7 +54,7 @@ function HorariosPage() {
       title="Horários"
       subtitle="Quando o negócio atende. Vale para a agenda e para a fila."
     >
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFormulario campos={6} /> : null}
       <label className="mt-2 block">
         <span className="text-xs font-semibold uppercase tracking-wide text-mute">
           Fuso horário do negócio

@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { EsqueletoGenerico } from "./components/layout/Esqueleto";
 
 export const getRouter = () => {
   const queryClient = new QueryClient();
@@ -13,6 +14,9 @@ export const getRouter = () => {
     defaultPreload: "intent",
     defaultPreloadDelay: 30,
     defaultPreloadStaleTime: 0,
+    defaultPendingComponent: EsqueletoGenerico,
+    defaultPendingMs: 150,
+    defaultPendingMinMs: 300,
   });
 
   return router;

@@ -25,6 +25,7 @@ import {
   getRetentionContacts,
   type AdminTenant,
 } from "@/lib/admin.functions";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({
@@ -136,6 +137,7 @@ function BarbeariasPage() {
               ))}
             </div>
           </div>
+          {query.isLoading ? <EsqueletoLista linhas={6} /> : null}
           <ul className="mt-6 divide-y divide-line border-y border-line md:hidden">
             {list.map((tenant) => (
               <li key={tenant.id}>

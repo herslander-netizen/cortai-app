@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
 import { useAcao } from "@/hooks/useAcao";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
@@ -52,7 +52,7 @@ function ProfissionaisPage() {
       title="Profissionais"
       subtitle="O que aparece na sua página pública."
     >
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoFormulario campos={3} /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
 
       <ul className="space-y-6">

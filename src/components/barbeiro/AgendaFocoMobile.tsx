@@ -17,6 +17,7 @@ import { useTelaAcesa } from "@/hooks/useTelaAcesa";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { avisosGuardados } from "@/lib/avisos";
 import { consumirAvisosDoFoco, definirModoFoco } from "@/lib/modo-foco";
+import { EsqueletoCockpit } from "@/components/layout/Esqueleto";
 
 type Props = {
   fuso: string | undefined;
@@ -144,9 +145,7 @@ export function AgendaFocoMobile(props: Props) {
       <AlertasFoco alertas={alertas} onDispensar={dispensar} />
 
       {props.carregando && !props.itens.length ? (
-        <div className="grid flex-1 place-content-center text-[15px] text-mute">
-          Carregando agenda…
-        </div>
+        <EsqueletoCockpit />
       ) : props.erro && !props.itens.length ? (
         <div className="grid flex-1 place-content-center gap-3 text-center" role="alert">
           <strong>Não foi possível carregar a agenda</strong>

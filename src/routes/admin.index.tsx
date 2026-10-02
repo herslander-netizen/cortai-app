@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { brl } from "@/lib/format";
 import { getAdminOverview } from "@/lib/admin.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -42,7 +42,7 @@ function AdminOverview() {
   });
   return (
     <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">
-      {query.isLoading ? <Carregando texto="Carregando indicadores…" /> : null}
+      {query.isLoading ? <EsqueletoPainel /> : null}
       {query.isError ? <AdminNotice error={query.error} /> : null}
       {query.data ? (
         <>
