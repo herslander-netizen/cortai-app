@@ -68,3 +68,8 @@
 - [x] Concentrar a navegação móvel no drawer e remover a barra inferior sem publicar
 - [x] Substituir o acionador do menu pelos ícones enviados, alternando conforme o modo claro/escuro
 - [x] Validar tipos, lint e testes da nova navegação móvel
+
+- [ ] Redesenhar Modo Foco: emergências, silêncio global e resumo sem valores
+- [ ] Estender ficha do cliente com preferências estruturadas e edição
+- [ ] Aplicar migração segura, RLS existente e validação
+- [ ] Validar tipos, lint, testes e build sem publicar
