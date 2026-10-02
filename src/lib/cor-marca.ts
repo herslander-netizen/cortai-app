@@ -39,7 +39,7 @@ function luminancia(cor: string) {
   return 0.2126 * (canais[0] ?? 0) + 0.7152 * (canais[1] ?? 0) + 0.0722 * (canais[2] ?? 0);
 }
 
-function contraste(a: string, b: string) {
+export function contraste(a: string, b: string) {
   const [clara, escura] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
   return ((clara ?? 0) + 0.05) / ((escura ?? 0) + 0.05);
 }

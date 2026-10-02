@@ -638,10 +638,32 @@
     var(--chat-secondary, transparent)
   );
   --paper: var(--chat-page-text, var(--foreground));
+  --ink3: color-mix(
+    in oklab,
+    var(--chat-page, var(--background)) 78%,
+    var(--chat-secondary, transparent)
+  );
+  --background: var(--chat-page, var(--background));
+  --foreground: var(--chat-page-text, var(--foreground));
+  --card: var(--chat-page, var(--background));
+  --card-foreground: var(--chat-page-text, var(--foreground));
   --gold: var(--chat-primary, var(--primary));
   --gold-soft: color-mix(in oklab, var(--chat-primary, var(--primary)) 16%, transparent);
   --primary: var(--chat-primary, var(--primary));
   --primary-foreground: var(--chat-primary-foreground, var(--primary-foreground));
+  --secondary: var(--ink3);
+  --secondary-foreground: var(--paper);
+  --muted: var(--ink3);
+  --muted-foreground: color-mix(
+    in oklab,
+    var(--chat-page-text, var(--foreground)) 72%,
+    var(--chat-page, var(--background))
+  );
+  --accent: var(--ink3);
+  --accent-foreground: var(--paper);
+  --border: color-mix(in oklab, var(--chat-page-text, var(--foreground)) 24%, transparent);
+  --input: var(--border);
+  --ring: var(--chat-primary, var(--ring));
   color: var(--chat-page-text, var(--foreground));
   background: var(--chat-page, var(--background));
   font-family: var(--chat-body, "Manrope", sans-serif);
