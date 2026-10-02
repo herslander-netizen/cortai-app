@@ -133,8 +133,7 @@ export function AgendaTimeline({
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
   function travarRolagemDoToque() {
     bloqueio.current ??= criarBloqueioDeRolagem(
-      () =>
-        Boolean(gesto.current?.ativo) || document.querySelector(".agenda-arrastando") !== null,
+      () => Boolean(gesto.current?.ativo) || document.querySelector(".agenda-arrastando") !== null,
     );
     bloqueio.current.travar();
   }
@@ -481,9 +480,7 @@ export function AgendaTimeline({
     : ehHoje
       ? Math.max(
           0,
-          posicaoAgora -
-            (typeof window === "undefined" ? 600 : window.innerHeight - 56) / 2 +
-            40,
+          posicaoAgora - (typeof window === "undefined" ? 600 : window.innerHeight - 56) / 2 + 40,
         )
       : Math.max(
           0,
@@ -529,21 +526,23 @@ export function AgendaTimeline({
         <div
           className="agenda-timeline"
           style={{ height: `${altura}px` }}
-          {...(previa ? {} : {
-          onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
-            if (e.target !== e.currentTarget) return;
-            gestoVazio.current = { x: e.clientX, y: e.clientY, moveu: false };
-          },
-          onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
-            const g = gestoVazio.current;
-            if (!g) return;
-            if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6) g.moveu = true;
-          },
-          onPointerCancel: () => {
-            gestoVazio.current = null;
-          },
-          onClick: cliqueNoVazio,
-          })}
+          {...(previa
+            ? {}
+            : {
+                onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+                  if (e.target !== e.currentTarget) return;
+                  gestoVazio.current = { x: e.clientX, y: e.clientY, moveu: false };
+                },
+                onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+                  const g = gestoVazio.current;
+                  if (!g) return;
+                  if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6) g.moveu = true;
+                },
+                onPointerCancel: () => {
+                  gestoVazio.current = null;
+                },
+                onClick: cliqueNoVazio,
+              })}
         >
           {faixasFora.map((faixa) => (
             <div
@@ -652,27 +651,29 @@ export function AgendaTimeline({
                   }}
                   aria-pressed={selecionado === item.id}
                   tabIndex={previa ? -1 : undefined}
-                  {...(previa ? {} : {
-                  onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
-                  onPointerMove: moverGesto,
-                  onPointerUp: () => fimGesto(item),
-                  onPointerCancel: () => {
-                    if (gesto.current) window.clearTimeout(gesto.current.timer);
-                    gesto.current = null;
-                    soltarRolagemDoToque();
-                    setArrasto(null);
-                  },
-                  onContextMenu: (e: React.MouseEvent) => {
-                    if (podeMover(item)) e.preventDefault();
-                  },
-                  onClick: () => {
-                    if (ignorarClique.current) {
-                      ignorarClique.current = false;
-                      return;
-                    }
-                    onSelecionar(item.id);
-                  },
-                  })}
+                  {...(previa
+                    ? {}
+                    : {
+                        onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
+                        onPointerMove: moverGesto,
+                        onPointerUp: () => fimGesto(item),
+                        onPointerCancel: () => {
+                          if (gesto.current) window.clearTimeout(gesto.current.timer);
+                          gesto.current = null;
+                          soltarRolagemDoToque();
+                          setArrasto(null);
+                        },
+                        onContextMenu: (e: React.MouseEvent) => {
+                          if (podeMover(item)) e.preventDefault();
+                        },
+                        onClick: () => {
+                          if (ignorarClique.current) {
+                            ignorarClique.current = false;
+                            return;
+                          }
+                          onSelecionar(item.id);
+                        },
+                      })}
                 >
                   <span className="agenda-timeline-bloco-topo">
                     <strong className="col-span-2">

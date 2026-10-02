@@ -34,12 +34,7 @@ export function PreviaDiaVizinho({
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
   const timeline = visualizacao === "timeline";
   return (
-    <div
-      ref={ref}
-      className="agenda-previa-vizinho"
-      aria-hidden="true"
-      data-formato={visualizacao}
-    >
+    <div ref={ref} className="agenda-previa-vizinho" aria-hidden="true" data-formato={visualizacao}>
       <strong className="agenda-previa-data">{dataEditorial(dia)}</strong>
       {!data ? (
         timeline ? (
