@@ -10,7 +10,8 @@ import {
   PreferenciasAposAgendamento,
 } from "./PreferenciasAposAgendamento";
 
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 let host: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -31,7 +32,11 @@ function montar() {
   act(() =>
     root?.render(
       <QueryClientProvider client={new QueryClient()}>
-        <PreferenciasAposAgendamento agendamentoId="00000000-0000-4000-8000-000000000001" token={"a".repeat(64)} slug="demo" />
+        <PreferenciasAposAgendamento
+          agendamentoId="00000000-0000-4000-8000-000000000001"
+          token={"a".repeat(64)}
+          slug="demo"
+        />
       </QueryClientProvider>,
     ),
   );
@@ -41,13 +46,17 @@ describe("PreferenciasAposAgendamento", () => {
   it("aparece após a confirmação e mantém Salvar desabilitado sem seleção", () => {
     montar();
     expect(host?.textContent).toContain("Agendado!");
-    const salvar = Array.from(host?.querySelectorAll("button") ?? []).find((b) => b.textContent === "Salvar");
+    const salvar = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent === "Salvar",
+    );
     expect(salvar?.disabled).toBe(true);
   });
 
   it("Agora não fecha sem gravar e lembra por 90 dias", () => {
     montar();
-    const agoraNao = Array.from(host?.querySelectorAll("button") ?? []).find((b) => b.textContent === "Agora não");
+    const agoraNao = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent === "Agora não",
+    );
     act(() => agoraNao?.click());
     expect(host?.textContent).not.toContain("Agendado!");
     const salvo = Number(localStorage.getItem(chaveLembretePreferencias("demo")));
@@ -57,8 +66,12 @@ describe("PreferenciasAposAgendamento", () => {
 
   it("habilita Salvar depois de uma seleção e permite desmarcar", () => {
     montar();
-    const opcao = Array.from(host?.querySelectorAll("button") ?? []).find((b) => b.textContent === "Gosta de papo");
-    const salvar = Array.from(host?.querySelectorAll("button") ?? []).find((b) => b.textContent === "Salvar");
+    const opcao = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent === "Gosta de papo",
+    );
+    const salvar = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent === "Salvar",
+    );
     act(() => opcao?.click());
     expect(salvar?.disabled).toBe(false);
     act(() => opcao?.click());
@@ -66,7 +79,9 @@ describe("PreferenciasAposAgendamento", () => {
   });
 
   it("continua funcionando quando o armazenamento local está indisponível", () => {
-    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new Error("indisponível"); });
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("indisponível");
+    });
     expect(() => montar()).not.toThrow();
     expect(host?.textContent).toContain("Agendado!");
   });

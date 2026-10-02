@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { criarTokenDePreferencias, hashDoTokenDePreferencias } from "./agendamento-publico.functions";
+import {
+  criarTokenDePreferencias,
+  hashDoTokenDePreferencias,
+} from "./agendamento-publico.functions";
 import { validarPreferenciasCliente } from "./preferencias-cliente";
 
 const migracao = readFileSync(

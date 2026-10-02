@@ -5,10 +5,7 @@ import { Check, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ROTULOS_PREFERENCIAS,
-  type PreferenciasCliente,
-} from "@/lib/preferencias-cliente";
+import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { salvarPreferenciasDoAgendamento } from "@/lib/agendamento-publico.functions";
 
 const NOVENTA_DIAS = 90 * 24 * 60 * 60 * 1000;
@@ -160,9 +157,16 @@ export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Prop
 
       <p className="mt-5 text-sm leading-relaxed text-mute">
         Usamos isso só para atender você melhor. Só a equipe desta barbearia vê. Você pode pedir
-        para apagar. <Link to="/privacidade" className="font-medium text-gold underline underline-offset-2">Privacidade</Link>
+        para apagar.{" "}
+        <Link to="/privacidade" className="font-medium text-gold underline underline-offset-2">
+          Privacidade
+        </Link>
       </p>
-      {erro ? <p className="mt-3 text-sm text-brick" role="alert">{erro}</p> : null}
+      {erro ? (
+        <p className="mt-3 text-sm text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
       <div className="mt-5 grid grid-cols-2 gap-2">
         <Button
           type="button"

@@ -251,7 +251,9 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       horarios: mapearHorarios(horariosRes.data ?? []),
       ocupados: [
         ...(ocupadosRes.data ?? []),
-        ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+        ...(await (
+          await import("@/lib/ocupacoes-extras.server")
+        ).ocupacoesExtras(db, {
           tenantId: tenant.id,
           fuso: normalizarFusoExtra(tenant.fuso),
           desde,
@@ -520,7 +522,10 @@ export const salvarPreferenciasDoAgendamento = createServerFn({ method: "POST" }
     const base = z
       .object({
         agendamentoId: z.string().uuid(),
-        token: z.string().length(64).regex(/^[a-f0-9]+$/),
+        token: z
+          .string()
+          .length(64)
+          .regex(/^[a-f0-9]+$/),
         preferencias: z.unknown(),
       })
       .strict()
@@ -529,7 +534,8 @@ export const salvarPreferenciasDoAgendamento = createServerFn({ method: "POST" }
   })
   .handler(async ({ data }): Promise<{ ok: true }> => {
     await limitarPublico("preferencias");
-    if (Object.keys(data.preferencias).length === 0) throw new Error("Não foi possível salvar agora.");
+    if (Object.keys(data.preferencias).length === 0)
+      throw new Error("Não foi possível salvar agora.");
     const db = await admin();
     const { error } = await db.rpc("salvar_preferencias_do_agendamento", {
       _agendamento_id: data.agendamentoId,
