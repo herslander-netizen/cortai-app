@@ -1,7 +1,7 @@
 import { CloudOff, RefreshCw, Scissors, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
+import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
 
 /** Faixa de conexão: mesma nas duas telas (normal e Modo Foco). */
@@ -51,10 +51,10 @@ export function FaixaConexao({
   return null;
 }
 
-export function AgendaCarregando() {
+export function AgendaCarregando({ formato = "lista" }: { formato?: "lista" | "timeline" }) {
   return (
     <div role="status" aria-label="Carregando agenda">
-      <EsqueletoAgenda linhas={5} />
+      {formato === "timeline" ? <EsqueletoTimeline /> : <EsqueletoAgenda linhas={5} />}
     </div>
   );
 }

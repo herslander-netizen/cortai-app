@@ -59,6 +59,34 @@ export function EsqueletoMetricas({ colunas = 3 }: { colunas?: number }) {
 }
 
 /** Cartões de horário da agenda. */
+/** Esqueleto no formato da Timeline: escala de horas e alguns blocos. */
+export function EsqueletoTimeline({ blocos = 3 }: { blocos?: number }) {
+  return (
+    <div role="status" aria-label="Carregando" className="relative mt-4" style={{ height: 420 }}>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute left-0 right-0 flex items-center gap-3"
+          style={{ top: i * 56 }}
+        >
+          <Barra w="36px" h={10} />
+          <div className="h-px flex-1 bg-line" />
+        </div>
+      ))}
+      {Array.from({ length: blocos }).map((_, i) => (
+        <div
+          key={`b${i}`}
+          className="surface absolute space-y-2 p-3"
+          style={{ top: 20 + i * 130, left: 56, right: 4, height: 72 }}
+        >
+          <Barra w="50%" h={13} />
+          <Barra w="35%" h={10} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function EsqueletoAgenda({ linhas = 4 }: { linhas?: number }) {
   return (
     <div role="status" aria-label="Carregando" className="mt-4 space-y-2">

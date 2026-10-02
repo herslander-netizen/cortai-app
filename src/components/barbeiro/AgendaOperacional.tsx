@@ -1108,7 +1108,7 @@ export function AgendaOperacional() {
 
         <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
-            <AgendaCarregando />
+            <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
           ) : erroInicial ? (
             <AgendaErro mensagem={mensagemErro} onTentar={() => void agenda.refetch()} />
           ) : visualizacao === "semana" && !celular ? (
@@ -1314,6 +1314,7 @@ export function AgendaOperacional() {
       <PreviaDoGesto
         ref={gestoDia.refPrevia}
         diaAtual={dia}
+        visualizacao={visualizacao === "lista" ? "lista" : "timeline"}
         profissionalId={profFiltro}
         discreto={modoDiscreto}
       />
