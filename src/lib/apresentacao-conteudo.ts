@@ -49,9 +49,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     cta: "Começar agora",
   },
   agenda: {
-    etiqueta: "O DIA COMEÇA AQUI",
-    titulo: "Tudo começa pela agenda.",
-    texto: "O Cortaí reúne o que acontece antes, durante e depois de cada atendimento.",
+    etiqueta: "MENOS FALTAS",
+    titulo: "O lembrete vai sozinho pelo WhatsApp.",
+    texto: "Antes de cada horário o cliente recebe um aviso e confirma com um toque. Você não precisa mandar mensagem.",
   },
   foco: {
     etiqueta: "MODO FOCO",

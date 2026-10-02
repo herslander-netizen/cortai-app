@@ -3,17 +3,19 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
-import { TelaDeCarregamento } from "@/components/layout/Carregando";
+import { getApresentacaoPublicada } from "@/lib/home.functions";
+import { SEO_APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
+import { ShowroomCortai } from "@/components/apresentacao/ShowroomCortai";
 
-/** "/" leva direto para a área da pessoa: com sessão, a área do papel; sem sessão, o login. */
+/** "/": com sessão, vai para a área do papel; sem sessão, mostra a apresentação. */
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
-      { name: "description", content: "Agenda, clientes, equipe e financeiro para negócios e profissionais de Beleza." },
-      { property: "og:title", content: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
-      { property: "og:description", content: "Simplifica. Conecta. Cresce." },
+      { title: SEO_APRESENTACAO_PADRAO.titulo },
+      { name: "description", content: SEO_APRESENTACAO_PADRAO.descricao },
+      { property: "og:title", content: SEO_APRESENTACAO_PADRAO.titulo },
+      { property: "og:description", content: SEO_APRESENTACAO_PADRAO.descricao },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cortai.dev/" },
       { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
@@ -24,9 +26,15 @@ export const Route = createFileRoute("/")({
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
+    if (!data.user) return;
     const sessao = await getSessao();
     throw redirect({ to: destinoDoPapel(sessao) });
   },
-  component: () => <TelaDeCarregamento />,
+  loader: () => getApresentacaoPublicada(),
+  component: Inicio,
 });
+
+function Inicio() {
+  const dados = Route.useLoaderData();
+  return <ShowroomCortai segmento="barbearia" conteudo={dados?.conteudo} />;
+}
