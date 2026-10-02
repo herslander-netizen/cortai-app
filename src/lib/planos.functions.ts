@@ -89,7 +89,14 @@ export const getPlanosDaBarbearia = createServerFn({ method: "GET" })
 export const escolherPlanoDaBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ chave: z.string().trim().regex(/^[a-z0-9_]{2,30}$/) }).parse(input),
+    z
+      .object({
+        chave: z
+          .string()
+          .trim()
+          .regex(/^[a-z0-9_]{2,30}$/),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
@@ -102,13 +109,19 @@ export const escolherPlanoDaBarbearia = createServerFn({ method: "POST" })
       .eq("chave", data.chave)
       .maybeSingle();
     if (!plano || plano.ativo === false) throw new Error("Este plano não está disponível.");
-    if ((plano.preco_mensal_centavos ?? 0) <= 0) throw new Error("Este plano só pode ser atribuído pelo admin.");
+    if ((plano.preco_mensal_centavos ?? 0) <= 0)
+      throw new Error("Este plano só pode ser atribuído pelo admin.");
     const { configDeCobranca } = await import("@/lib/cobranca.server");
     if ((await configDeCobranca()).ligada) {
-      throw new Error("Com a cobrança ligada, o plano pago é ativado pelo pagamento ou pelo teste grátis.");
+      throw new Error(
+        "Com a cobrança ligada, o plano pago é ativado pelo pagamento ou pelo teste grátis.",
+      );
     }
 
-    const { error } = await context.supabase.from("tenants").update({ plano: data.chave }).eq("id", tenantId);
+    const { error } = await context.supabase
+      .from("tenants")
+      .update({ plano: data.chave })
+      .eq("id", tenantId);
     if (error) throw new Error(error.message);
 
     await context.supabase.rpc("registrar_auditoria_barbearia", {

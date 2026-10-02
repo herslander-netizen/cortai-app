@@ -7,13 +7,7 @@ import { precoEfetivoCentavos, type Condicao, type Plano } from "@/lib/monetizac
 export type Ciclo = "mensal" | "anual";
 export type Forma = "pix" | "boleto" | "cartao";
 export type StatusAssinatura =
-  | "teste"
-  | "aguardando_pagamento"
-  | "ativa"
-  | "pendente"
-  | "suspensa"
-  | "cancelada"
-  | "cortesia";
+  "teste" | "aguardando_pagamento" | "ativa" | "pendente" | "suspensa" | "cancelada" | "cortesia";
 
 export type Cupom = {
   id: string;
@@ -33,9 +27,13 @@ export type Cupom = {
 const DIA = 86_400_000;
 
 /** Cupom aplicado sobre o preço já com a condição comercial. */
-export function aplicarCupomAoValor(valor: number, cupom: Pick<Cupom, "tipo" | "valor"> | null): number {
+export function aplicarCupomAoValor(
+  valor: number,
+  cupom: Pick<Cupom, "tipo" | "valor"> | null,
+): number {
   if (!cupom) return valor;
-  if (cupom.tipo === "percentual") return Math.max(0, valor - Math.round((valor * cupom.valor) / 100));
+  if (cupom.tipo === "percentual")
+    return Math.max(0, valor - Math.round((valor * cupom.valor) / 100));
   return Math.max(0, valor - cupom.valor);
 }
 
@@ -46,13 +44,17 @@ export function valorDaCobranca(input: {
   cupom?: Pick<Cupom, "tipo" | "valor"> | null;
 }): { base: number; comCupom: number } {
   // Condição só vale se for do mesmo plano; senão, preço padrão do plano escolhido.
-  const condicao = input.condicao && input.condicao.planoChave === input.plano.chave ? input.condicao : null;
+  const condicao =
+    input.condicao && input.condicao.planoChave === input.plano.chave ? input.condicao : null;
   const base = precoEfetivoCentavos(input.plano, input.ciclo, condicao);
   return { base, comCupom: aplicarCupomAoValor(base, input.cupom ?? null) };
 }
 
 /** Valor anual e economia em relação a 12 mensalidades. */
-export function economiaAnual(mensal: number, anual: number): { anual: number; economia: number; percentual: number } {
+export function economiaAnual(
+  mensal: number,
+  anual: number,
+): { anual: number; economia: number; percentual: number } {
   const doze = mensal * 12;
   const economia = Math.max(0, doze - anual);
   return { anual, economia, percentual: doze > 0 ? Math.round((economia / doze) * 100) : 0 };
@@ -63,11 +65,15 @@ export function validarCupom(
   ctx: { plano: string; tenantNovo: boolean; hoje: string },
 ): string | null {
   if (!cupom || !cupom.ativo) return "Cupom inválido ou expirado.";
-  if (cupom.inicio > ctx.hoje || (cupom.fim && cupom.fim < ctx.hoje)) return "Cupom inválido ou expirado.";
-  if (cupom.usos_max != null && cupom.usos >= cupom.usos_max) return "Este cupom já atingiu o limite de usos.";
-  if (cupom.planos.length && !cupom.planos.includes(ctx.plano)) return "Este cupom não vale para este plano.";
+  if (cupom.inicio > ctx.hoje || (cupom.fim && cupom.fim < ctx.hoje))
+    return "Cupom inválido ou expirado.";
+  if (cupom.usos_max != null && cupom.usos >= cupom.usos_max)
+    return "Este cupom já atingiu o limite de usos.";
+  if (cupom.planos.length && !cupom.planos.includes(ctx.plano))
+    return "Este cupom não vale para este plano.";
   if (cupom.publico === "novos" && !ctx.tenantNovo) return "Este cupom é só para negócios novos.";
-  if (cupom.publico === "existentes" && ctx.tenantNovo) return "Este cupom é só para quem já é cliente.";
+  if (cupom.publico === "existentes" && ctx.tenantNovo)
+    return "Este cupom é só para quem já é cliente.";
   return null;
 }
 

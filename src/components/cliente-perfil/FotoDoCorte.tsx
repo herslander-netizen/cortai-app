@@ -18,7 +18,17 @@ async function comprimir(arquivo: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.72);
 }
 
-export function FotoDoCorte({ clienteId, agendamentoId, onEnviada, segmento = "outro" }: { clienteId: string; agendamentoId?: string | null; onEnviada?: () => void; segmento?: Segmento }) {
+export function FotoDoCorte({
+  clienteId,
+  agendamentoId,
+  onEnviada,
+  segmento = "outro",
+}: {
+  clienteId: string;
+  agendamentoId?: string | null;
+  onEnviada?: () => void;
+  segmento?: Segmento;
+}) {
   const termos = termosPara(segmento);
   const barbeiro = segmento === "barbearia";
   const enviar = useServerFn(enviarFotoCorte);
@@ -29,30 +39,75 @@ export function FotoDoCorte({ clienteId, agendamentoId, onEnviada, segmento = "o
 
   async function escolher(arquivo: File | undefined) {
     if (!arquivo) return;
-    setEstado("enviando"); setErro(null);
+    setEstado("enviando");
+    setErro(null);
     try {
       const imagem = await comprimir(arquivo);
-      await enviar({ data: { clienteId, agendamentoId: agendamentoId ?? null, imagem, consentimento: true } });
-      setEstado("ok"); onEnviada?.();
+      await enviar({
+        data: { clienteId, agendamentoId: agendamentoId ?? null, imagem, consentimento: true },
+      });
+      setEstado("ok");
+      onEnviada?.();
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível salvar a foto.");
       setEstado("livre");
-    } finally { if (input.current) input.current.value = ""; }
+    } finally {
+      if (input.current) input.current.value = "";
+    }
   }
 
-  if (estado === "ok") return <p className="flex min-h-12 items-center gap-2 text-sm font-semibold text-paper"><Check aria-hidden className="size-4" />{termos.fotoAtendimento} salva na ficha.</p>;
+  if (estado === "ok")
+    return (
+      <p className="flex min-h-12 items-center gap-2 text-sm font-semibold text-paper">
+        <Check aria-hidden className="size-4" />
+        {termos.fotoAtendimento} salva na ficha.
+      </p>
+    );
 
   return (
     <div>
       <label className="flex min-h-12 cursor-pointer items-start gap-3 py-2 text-sm text-paper">
-        <input type="checkbox" className="mt-1 size-5 accent-current" checked={autorizou} onChange={(e) => setAutorizou(e.target.checked)} />
-        <span>{barbeiro ? "O cliente autorizou fotografar o corte." : "Cliente autorizou fotografar o resultado."} <span className="block text-xs text-mute">Só {termos.comArtigo} vê. Dá para apagar depois.</span></span>
+        <input
+          type="checkbox"
+          className="mt-1 size-5 accent-current"
+          checked={autorizou}
+          onChange={(e) => setAutorizou(e.target.checked)}
+        />
+        <span>
+          {barbeiro
+            ? "O cliente autorizou fotografar o corte."
+            : "Cliente autorizou fotografar o resultado."}{" "}
+          <span className="block text-xs text-mute">
+            Só {termos.comArtigo} vê. Dá para apagar depois.
+          </span>
+        </span>
       </label>
-      <input ref={input} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void escolher(e.target.files?.[0])} />
-      <Button variant="outline" className="mt-1 h-12 w-full" disabled={!autorizou || estado === "enviando"} onClick={() => input.current?.click()}>
-        <Camera aria-hidden />{estado === "enviando" ? "Salvando foto…" : barbeiro ? "Fotografar o corte" : "Fotografar o resultado"}
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => void escolher(e.target.files?.[0])}
+      />
+      <Button
+        variant="outline"
+        className="mt-1 h-12 w-full"
+        disabled={!autorizou || estado === "enviando"}
+        onClick={() => input.current?.click()}
+      >
+        <Camera aria-hidden />
+        {estado === "enviando"
+          ? "Salvando foto…"
+          : barbeiro
+            ? "Fotografar o corte"
+            : "Fotografar o resultado"}
       </Button>
-      {erro ? <p className="mt-2 text-sm text-paper" role="alert">{erro}</p> : null}
+      {erro ? (
+        <p className="mt-2 text-sm text-paper" role="alert">
+          {erro}
+        </p>
+      ) : null}
     </div>
   );
 }

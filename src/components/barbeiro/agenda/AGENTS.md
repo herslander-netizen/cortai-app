@@ -10,3 +10,6 @@
 - Modo Foco mostra só emergências de conexão, mudança do atual/próximo e atraso do próximo; silencia avisos espontâneos e nunca exibe valores financeiros.
 - Preferências do atendimento ficam estruturadas em `clientes.preferencias`, validadas no servidor e visíveis somente à equipe do próprio negócio.
 - No celular a Timeline não é contêiner de rolagem: nada de overflow auto/scroll nem overscroll-behavior contain em .agenda-timeline-scroll ou em ancestrais até a página. A rolagem é da página.
+- O Modo Foco é o cockpit de hoje e de um único profissional: profissional logado é fixo; só dono/recepção escolhe outra pessoa; outros dias ficam na Agenda completa.
+- Estado, ordem, contagens e progresso do cockpit vêm de `cockpit-foco.ts`; a visualização pura `CockpitFoco` também alimenta a demonstração — evita divergência entre produto e apresentação.
+- Alertas detectados no Foco persistem até “Entendi” ou até a condição transitória acabar; no máximo dois e uma vibração por alerta.

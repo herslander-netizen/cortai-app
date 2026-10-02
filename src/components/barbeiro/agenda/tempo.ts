@@ -99,7 +99,8 @@ export function minutosNoFuso(valor: string | number, fuso?: string) {
 
 export function estaAtrasado(item: AgendaItem, agora: number) {
   return (
-    item.status === "agendado" && agora > new Date(item.inicio).getTime() + TOLERANCIA_MIN * 60_000
+    ["agendado", "confirmado"].includes(item.status) &&
+    agora > new Date(item.inicio).getTime() + TOLERANCIA_MIN * 60_000
   );
 }
 

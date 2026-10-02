@@ -55,6 +55,7 @@ type Props = {
   onPerfil: (clienteId: string) => void;
   onVerificar: (item: AgendaItem, pedido: PedidoRemarcar) => Promise<boolean>;
   onRemarcar: (item: AgendaItem, pedido: PedidoRemarcar) => Promise<void>;
+  iniciarEm?: "remarcar" | "cancelar" | null;
 };
 
 /** Painel único do atendimento, usado na agenda e no Modo Foco. */
@@ -66,9 +67,18 @@ export function PainelAtendimento(props: Props) {
   const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
 
   useEffect(() => {
-    setRemarcar(null);
+    setRemarcar(
+      props.iniciarEm === "remarcar" && item
+        ? {
+            dia: diaNoFuso(item.inicio, props.fuso),
+            hora: hora(item.inicio, props.fuso),
+            profissionalId: item.profissionalId ?? null,
+          }
+        : null,
+    );
+    setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
     setErroRemarcar(null);
-  }, [item?.id, props.aberto]);
+  }, [item, props.aberto, props.fuso, props.iniciarEm]);
 
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;

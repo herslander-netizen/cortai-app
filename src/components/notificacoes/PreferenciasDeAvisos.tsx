@@ -24,7 +24,11 @@ const ROTULO_DO_CANAL: Record<Canal, string> = { no_app: "No app", no_whatsapp: 
 
 export function PreferenciasDeAvisos() {
   const queryClient = useQueryClient();
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300000,
+  });
   const tenantId = sessao?.tenantId ?? null;
   const userId = sessao?.userId ?? null;
   const chaveDaLista = ["preferencias-avisos", tenantId, userId] as const;
@@ -99,7 +103,10 @@ export function PreferenciasDeAvisos() {
         {TIPOS.map((t) => {
           const linha = linhaDe(prefs, t.chave);
           return (
-            <li key={t.chave} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3">
+            <li
+              key={t.chave}
+              className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3"
+            >
               <span className="min-w-0 flex-1 truncate text-sm text-paper">{t.rotulo}</span>
               <span className="flex gap-2">
                 {(["no_app", "no_whatsapp"] as Canal[]).map((canal) => {
@@ -120,7 +127,9 @@ export function PreferenciasDeAvisos() {
                       <span
                         aria-hidden
                         className={`flex h-3.5 w-3.5 items-center justify-center rounded-[4px] border ${
-                          ativo ? "border-gold bg-gold/20 text-gold" : "border-line2 text-transparent"
+                          ativo
+                            ? "border-gold bg-gold/20 text-gold"
+                            : "border-line2 text-transparent"
                         }`}
                       >
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />

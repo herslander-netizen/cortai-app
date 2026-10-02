@@ -34,7 +34,8 @@ export const enviarPedidoDeProjeto = createServerFn({ method: "POST" })
       global: {
         fetch: (input, init) => {
           const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+            h.delete("Authorization");
           h.set("apikey", key);
           return fetch(input, { ...init, headers: h });
         },
@@ -49,7 +50,8 @@ export const enviarPedidoDeProjeto = createServerFn({ method: "POST" })
       tipo: data.tipo,
       mensagem: data.mensagem,
     });
-    if (error) throw new Error("Não foi possível enviar seu pedido agora. Tente novamente em instantes.");
+    if (error)
+      throw new Error("Não foi possível enviar seu pedido agora. Tente novamente em instantes.");
     return { ok: true as const };
   });
 

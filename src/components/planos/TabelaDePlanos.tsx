@@ -1,7 +1,12 @@
 import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 
-import { PLANOS_COMERCIAIS, precoAnualComercial, precoComercial, type PlanoComercial } from "@/lib/planos-comerciais";
+import {
+  PLANOS_COMERCIAIS,
+  precoAnualComercial,
+  precoComercial,
+  type PlanoComercial,
+} from "@/lib/planos-comerciais";
 
 /**
  * Tabela única dos planos à venda, usada na apresentação pública e no painel.
@@ -53,7 +58,8 @@ export function TabelaDePlanos({
                   <>Grátis</>
                 ) : anual ? (
                   <>
-                    <small>R$</small> {precoComercial(precoAnualComercial(mensal))} <span>por ano</span>
+                    <small>R$</small> {precoComercial(precoAnualComercial(mensal))}{" "}
+                    <span>por ano</span>
                   </>
                 ) : (
                   <>
@@ -62,8 +68,13 @@ export function TabelaDePlanos({
                 )}
               </p>
               <p className="planos-herda">
-                {plano.profissionais === 1 ? "1 profissional" : `Até ${plano.profissionais} profissionais`} ·{" "}
-                {plano.agendamentosMes ? `${plano.agendamentosMes} agendamentos/mês` : "agendamentos ilimitados"}
+                {plano.profissionais === 1
+                  ? "1 profissional"
+                  : `Até ${plano.profissionais} profissionais`}{" "}
+                ·{" "}
+                {plano.agendamentosMes
+                  ? `${plano.agendamentosMes} agendamentos/mês`
+                  : "agendamentos ilimitados"}
               </p>
               {plano.herda ? <p className="planos-herda">{plano.herda}, mais:</p> : null}
               <ul>

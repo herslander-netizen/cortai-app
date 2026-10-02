@@ -33,5 +33,8 @@ export const buscarBarbearias = createServerFn({ method: "GET" })
 
     const { data: linhas, error } = await consulta;
     if (error) throw new Error("Não foi possível buscar lugares agora.");
-    return (linhas ?? []).map((linha) => ({ ...linha, segmento: segmentoValido(linha.segmento) })) as BarbeariaResumo[];
+    return (linhas ?? []).map((linha) => ({
+      ...linha,
+      segmento: segmentoValido(linha.segmento),
+    })) as BarbeariaResumo[];
   });

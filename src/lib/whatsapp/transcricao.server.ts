@@ -20,7 +20,9 @@ export function transcricaoConfigurada(): boolean {
  * Transcreve um áudio a partir do endereço entregue pelo gateway.
  * Devolve `null` quando não é possível transcrever de verdade.
  */
-export async function transcreverAudio(midiaUrl: string | null | undefined): Promise<string | null> {
+export async function transcreverAudio(
+  midiaUrl: string | null | undefined,
+): Promise<string | null> {
   const chave = process.env["LOVABLE_API_KEY"];
   if (!chave || !midiaUrl) return null;
   if (!/^https?:\/\//i.test(midiaUrl)) return null;

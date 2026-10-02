@@ -251,7 +251,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         documento: z
           .string()
           .trim()
-          .refine((v) => [11, 14].includes(v.replace(/\D/g, "").length), "Informe um CPF ou CNPJ válido."),
+          .refine(
+            (v) => [11, 14].includes(v.replace(/\D/g, "").length),
+            "Informe um CPF ou CNPJ válido.",
+          ),
         telefone: z
           .string()
           .trim()
@@ -299,9 +302,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     if (error || !tenant) throw new Error("Não foi possível criar seu negócio agora.");
     const tenantId = tenant.id;
     const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
-    const teste = await iniciarTesteGratis(tenantId, { documento: data.documento, telefone: data.telefone }).catch(
-      () => ({ emTeste: false, motivo: undefined }),
-    );
+    const teste = await iniciarTesteGratis(tenantId, {
+      documento: data.documento,
+      telefone: data.telefone,
+    }).catch(() => ({ emTeste: false, motivo: undefined }));
     const pagina = configPadrao(
       definicao.temaPagina === "rose-creme"
         ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }

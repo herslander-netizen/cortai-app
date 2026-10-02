@@ -47,7 +47,7 @@ function ServicosPage() {
           categoria: s.categoria,
           duracaoMin: s.duracaoMin,
           precoCentavos: s.precoCentavos,
-           profissionalIds: s.profissionalIds,
+          profissionalIds: s.profissionalIds,
           retornoDias: s.retornoDias,
         })),
     );
@@ -55,16 +55,27 @@ function ServicosPage() {
   }, [data, iniciado]);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Serviços" subtitle="O que você oferece e por quanto.">
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Serviços"
+      subtitle="O que você oferece e por quanto."
+    >
       {isLoading ? <Carregando /> : null}
       <div data-guia="servicos-editor">
-        <EditorDeServicos servicos={servicos} onChange={setServicos} segmento={data?.tenant.segmento ?? "outro"} />
+        <EditorDeServicos
+          servicos={servicos}
+          onChange={setServicos}
+          segmento={data?.tenant.segmento ?? "outro"}
+        />
       </div>
 
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         className="btn-primary mt-8 w-full py-3.5"
-        disabled={estado === "salvando" || servicos.filter((s) => s.nome.trim().length >= 2).length === 0}
+        disabled={
+          estado === "salvando" || servicos.filter((s) => s.nome.trim().length >= 2).length === 0
+        }
         onClick={async () => {
           setEstado("salvando");
           setErro(null);
@@ -79,8 +90,10 @@ function ServicosPage() {
                     duracaoMin: s.duracaoMin,
                     precoCentavos: s.precoCentavos,
                     categoria: s.categoria,
-                    ...(s.profissionalIds !== undefined ? { profissionalIds: s.profissionalIds } : {}),
-          ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
+                    ...(s.profissionalIds !== undefined
+                      ? { profissionalIds: s.profissionalIds }
+                      : {}),
+                    ...(s.retornoDias !== undefined ? { retornoDias: s.retornoDias } : {}),
                   })),
               },
             });
@@ -93,7 +106,11 @@ function ServicosPage() {
           }
         }}
       >
-        {estado === "salvando" ? "Salvando…" : estado === "salvo" ? "Serviços salvos" : "Salvar serviços"}
+        {estado === "salvando"
+          ? "Salvando…"
+          : estado === "salvo"
+            ? "Serviços salvos"
+            : "Salvar serviços"}
       </Button>
       {erro ? (
         <p className="mt-3 text-sm text-brick" role="alert">

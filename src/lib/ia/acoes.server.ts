@@ -152,7 +152,9 @@ export async function consultarDisponibilidade(
     fuso: regras.fuso,
     ocupados: [
       ...(ocupados ?? []),
-      ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+      ...(await (
+        await import("@/lib/ocupacoes-extras.server")
+      ).ocupacoesExtras(db, {
         tenantId: ctx.tenantId,
         fuso: regras.fuso,
         desde: inicioJanela,

@@ -10,7 +10,11 @@ export async function tenantIdDoMembro(context: ContextoAutenticado): Promise<st
     .maybeSingle();
   if (!data) throw new Error("Sua conta ainda não está ligada a uma barbearia.");
   const tenantId = data.tenant_id as string;
-  const { data: tenant } = await context.supabase.from("tenants").select("ativo").eq("id", tenantId).maybeSingle();
+  const { data: tenant } = await context.supabase
+    .from("tenants")
+    .select("ativo")
+    .eq("id", tenantId)
+    .maybeSingle();
   if (tenant && tenant.ativo === false) {
     throw new Error("Esta barbearia está desativada. Fale com o suporte do Cortaí para reativar.");
   }
@@ -31,6 +35,8 @@ export async function exigirPermissao(
     _permission: chave,
   });
   if (error || !data) {
-    throw new Error("Você não tem permissão para esta ação. Fale com o responsável pela barbearia.");
+    throw new Error(
+      "Você não tem permissão para esta ação. Fale com o responsável pela barbearia.",
+    );
   }
 }

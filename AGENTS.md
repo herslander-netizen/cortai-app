@@ -30,6 +30,7 @@
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
+- A visualização pura `CockpitFoco` é compartilhada entre o Modo Foco real e a apresentação; dados e ações ficam nos adaptadores — evita duas interfaces divergentes.
 - Movimento: escala única de 120/200/280 ms; só transform/opacity, cascata até 6 itens e redução de movimento global — evita peso e inconsistência.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.

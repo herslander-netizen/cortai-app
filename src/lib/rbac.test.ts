@@ -20,7 +20,12 @@ describe("presets por função", () => {
     }
   });
   it("relatórios e comissões de todos só para gerente e dono", () => {
-    for (const chave of ["relatorios", "comissao_visualizar_todas", "visualizar_financeiro", "gerenciar_permissoes"] as const) {
+    for (const chave of [
+      "relatorios",
+      "comissao_visualizar_todas",
+      "visualizar_financeiro",
+      "gerenciar_permissoes",
+    ] as const) {
       expect(TETO_DO_PAPEL.barbeiro).not.toContain(chave);
       expect(TETO_DO_PAPEL.recepcao).not.toContain(chave);
       expect(TETO_DO_PAPEL.gerente).toContain(chave);
@@ -38,7 +43,11 @@ describe.skipIf(!temBanco)("regras no banco por função", () => {
     expect(existsSync(arquivo)).toBe(true);
     let saida = "";
     try {
-      execFileSync("psql", [urlDoBanco!, "-X", "-q", "-f", arquivo], { encoding: "utf8", timeout: 60000, stdio: "pipe" });
+      execFileSync("psql", [urlDoBanco!, "-X", "-q", "-f", arquivo], {
+        encoding: "utf8",
+        timeout: 60000,
+        stdio: "pipe",
+      });
     } catch (erro) {
       saida = String((erro as { stderr?: string }).stderr ?? erro);
     }

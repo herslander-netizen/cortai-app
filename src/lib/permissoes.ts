@@ -40,7 +40,6 @@ export const PERMISSOES = {
   excluir_barbearia: "Excluir o negócio",
 } as const;
 
-
 export type ChaveDePermissao = keyof typeof PERMISSOES;
 
 /** Ações da matriz, sempre nesta ordem e sempre em português. */
@@ -83,7 +82,11 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     descricao: "Dinheiro que entra e sai do negócio.",
     itens: [
       { acao: "visualizar", chave: "caixa_do_dia", rotulo: "Ver o caixa de hoje" },
-      { acao: "visualizar", chave: "visualizar_financeiro", rotulo: "Ver caixa e financeiro completos" },
+      {
+        acao: "visualizar",
+        chave: "visualizar_financeiro",
+        rotulo: "Ver caixa e financeiro completos",
+      },
       { acao: "criar", chave: "confirmar_pagamento", rotulo: "Confirmar pagamento recebido" },
       { acao: "criar", chave: "conceder_desconto", rotulo: "Dar desconto na comanda" },
       { acao: "editar", chave: "caixa_movimentar", rotulo: "Registrar saída, sangria e despesa" },
@@ -91,16 +94,21 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
       { acao: "administrar", chave: "estorno_autorizar", rotulo: "Autorizar estorno e ajuste" },
       { acao: "administrar", chave: "comissao_configurar", rotulo: "Configurar comissões e Pix" },
       { acao: "administrar", chave: "comissao_pagar", rotulo: "Pagar comissões" },
-      { acao: "visualizar", chave: "comissao_visualizar_todas", rotulo: "Ver comissões de toda a equipe" },
+      {
+        acao: "visualizar",
+        chave: "comissao_visualizar_todas",
+        rotulo: "Ver comissões de toda a equipe",
+      },
       { acao: "administrar", chave: "alterar_preco", rotulo: "Alterar preços e serviços" },
-
     ],
   },
   {
     id: "voltai",
     titulo: "Voltaí",
     descricao: "Programa de fidelidade que traz o cliente de volta.",
-    itens: [{ acao: "administrar", chave: "gerenciar_voltai", rotulo: "Configurar as regras do Voltaí" }],
+    itens: [
+      { acao: "administrar", chave: "gerenciar_voltai", rotulo: "Configurar as regras do Voltaí" },
+    ],
   },
   {
     id: "loja",
@@ -119,8 +127,16 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
     itens: [
       { acao: "editar", chave: "gerenciar_profissionais", rotulo: "Gerenciar profissionais" },
       { acao: "excluir", chave: "acoes_destrutivas", rotulo: "Excluir dados e acessos" },
-      { acao: "administrar", chave: "gerenciar_permissoes", rotulo: "Convidar pessoas e definir permissões" },
-      { acao: "administrar", chave: "alterar_dados_barbearia", rotulo: "Alterar dados e marca do negócio" },
+      {
+        acao: "administrar",
+        chave: "gerenciar_permissoes",
+        rotulo: "Convidar pessoas e definir permissões",
+      },
+      {
+        acao: "administrar",
+        chave: "alterar_dados_barbearia",
+        rotulo: "Alterar dados e marca do negócio",
+      },
     ],
   },
   {
@@ -137,8 +153,16 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
       { acao: "visualizar", chave: "ver_cortai", rotulo: "Ver o CortAI e as conversas" },
       { acao: "editar", chave: "gerenciar_conversas", rotulo: "Organizar e encerrar conversas" },
       { acao: "criar", chave: "assumir_conversa", rotulo: "Assumir e responder conversas" },
-      { acao: "administrar", chave: "configurar_automacoes", rotulo: "Configurar o atendimento automático" },
-      { acao: "administrar", chave: "gerenciar_whatsapp", rotulo: "Conectar e desconectar o WhatsApp" },
+      {
+        acao: "administrar",
+        chave: "configurar_automacoes",
+        rotulo: "Configurar o atendimento automático",
+      },
+      {
+        acao: "administrar",
+        chave: "gerenciar_whatsapp",
+        rotulo: "Conectar e desconectar o WhatsApp",
+      },
     ],
   },
 ];
@@ -147,7 +171,6 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
 export const GRUPOS_DE_PERMISSAO: { titulo: string; chaves: ChaveDePermissao[] }[] = MODULOS.map(
   (modulo) => ({ titulo: modulo.titulo, chaves: modulo.itens.map((item) => item.chave) }),
 );
-
 
 export const PAPEIS = {
   dono: "Proprietário",
@@ -173,15 +196,34 @@ export const TETO_DO_PAPEL: Record<PapelDeEquipe, ChaveDePermissao[]> = {
   dono: TODAS,
   gerente: TODAS.filter((c) => !SO_DONO.includes(c)),
   recepcao: [
-    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
-    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "ver_cortai",
-    "gerenciar_conversas", "assumir_conversa", "conceder_desconto", "caixa_abrir_fechar",
-    "caixa_movimentar", "caixa_do_dia",
+    "criar_agendamento",
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "confirmar_pagamento",
+    "registrar_venda",
+    "visualizar_estoque",
+    "visualizar_clientes",
+    "editar_clientes",
+    "ver_cortai",
+    "gerenciar_conversas",
+    "assumir_conversa",
+    "conceder_desconto",
+    "caixa_abrir_fechar",
+    "caixa_movimentar",
+    "caixa_do_dia",
   ],
   barbeiro: [
-    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
-    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "ver_cortai",
-    "assumir_conversa", "conceder_desconto",
+    "criar_agendamento",
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "confirmar_pagamento",
+    "registrar_venda",
+    "visualizar_estoque",
+    "visualizar_clientes",
+    "editar_clientes",
+    "ver_cortai",
+    "assumir_conversa",
+    "conceder_desconto",
   ],
 };
 
@@ -189,20 +231,53 @@ export const TETO_DO_PAPEL: Record<PapelDeEquipe, ChaveDePermissao[]> = {
 export const PERMISSOES_PADRAO: Record<PapelDeEquipe, ChaveDePermissao[]> = {
   dono: TODAS,
   gerente: [
-    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
-    "registrar_venda", "alterar_preco", "visualizar_estoque", "alterar_estoque", "visualizar_clientes",
-    "editar_clientes", "visualizar_financeiro", "relatorios", "gerenciar_profissionais",
-    "alterar_dados_barbearia", "gerenciar_permissoes", "gerenciar_voltai", "ver_cortai",
-    "gerenciar_conversas", "assumir_conversa", "configurar_automacoes", "gerenciar_whatsapp",
-    "conceder_desconto", "caixa_abrir_fechar", "caixa_movimentar", "comissao_visualizar_todas", "caixa_do_dia",
+    "criar_agendamento",
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "confirmar_pagamento",
+    "registrar_venda",
+    "alterar_preco",
+    "visualizar_estoque",
+    "alterar_estoque",
+    "visualizar_clientes",
+    "editar_clientes",
+    "visualizar_financeiro",
+    "relatorios",
+    "gerenciar_profissionais",
+    "alterar_dados_barbearia",
+    "gerenciar_permissoes",
+    "gerenciar_voltai",
+    "ver_cortai",
+    "gerenciar_conversas",
+    "assumir_conversa",
+    "configurar_automacoes",
+    "gerenciar_whatsapp",
+    "conceder_desconto",
+    "caixa_abrir_fechar",
+    "caixa_movimentar",
+    "comissao_visualizar_todas",
+    "caixa_do_dia",
   ],
   barbeiro: [
-    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
-    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes",
+    "criar_agendamento",
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "confirmar_pagamento",
+    "registrar_venda",
+    "visualizar_estoque",
+    "visualizar_clientes",
+    "editar_clientes",
   ],
   recepcao: [
-    "criar_agendamento", "agendamento_manual", "cancelar_agendamento", "confirmar_pagamento",
-    "registrar_venda", "visualizar_estoque", "visualizar_clientes", "editar_clientes", "caixa_do_dia",
+    "criar_agendamento",
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "confirmar_pagamento",
+    "registrar_venda",
+    "visualizar_estoque",
+    "visualizar_clientes",
+    "editar_clientes",
+    "caixa_do_dia",
   ],
 };
 

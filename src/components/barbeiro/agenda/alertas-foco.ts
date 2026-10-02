@@ -7,12 +7,24 @@ export type AlertaEmergencia = {
   dispensavel: boolean;
 };
 
+export function mesclarAlertasPersistentes(
+  atuais: AlertaEmergencia[],
+  detectados: AlertaEmergencia[],
+  online: boolean,
+) {
+  const mapa = new Map(atuais.map((alerta) => [alerta.id, alerta]));
+  if (online) mapa.delete("sem-internet");
+  for (const alerta of detectados) mapa.set(alerta.id, alerta);
+  return [...mapa.values()].slice(0, 2);
+}
+
 type Entrada = {
   itens: AgendaItem[];
   itensAnteriores: AgendaItem[];
   agora: number;
   online: boolean;
   dispensados?: Set<string>;
+  fuso?: string | undefined;
 };
 const FORA = new Set(["cancelado", "remarcado", "nao_compareceu", "finalizado"]);
 const ordenar = (itens: AgendaItem[]) =>
@@ -26,8 +38,8 @@ const atuais = (itens: AgendaItem[]) => {
   return [principal, abertos.find((i) => i.id !== principal?.id)].filter(Boolean) as AgendaItem[];
 };
 const nome = (item: AgendaItem) => item.cliente.split(" ")[0] || "Cliente";
-const hora = (iso: string) =>
-  new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const hora = (iso: string, fuso?: string) =>
+  new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
 
 export function alertasDeEmergencia({
   itens,
@@ -35,6 +47,7 @@ export function alertasDeEmergencia({
   agora,
   online,
   dispensados = new Set(),
+  fuso,
 }: Entrada) {
   const alertas: AlertaEmergencia[] = [];
   if (!online)
@@ -52,11 +65,11 @@ export function alertasDeEmergencia({
     if (atual.status !== anterior.status && atual.status === "cancelado")
       texto = `${nome(atual)} cancelou`;
     else if (atual.status !== anterior.status && atual.status === "remarcado")
-      texto = `${nome(atual)} remarcou para ${hora(atual.inicio)}`;
+      texto = `${nome(atual)} remarcou para ${hora(atual.inicio, fuso)}`;
     else if (atual.status === "nao_compareceu" && anterior.status !== atual.status)
       texto = `${nome(atual)} marcou falta`;
     else if (atual.inicio !== anterior.inicio)
-      texto = `${nome(atual)}: horário mudou para ${hora(atual.inicio)}`;
+      texto = `${nome(atual)}: horário mudou para ${hora(atual.inicio, fuso)}`;
     if (texto) {
       const id = `mudou:${atual.id}:${atual.status}:${atual.inicio}`;
       if (!dispensados.has(id))

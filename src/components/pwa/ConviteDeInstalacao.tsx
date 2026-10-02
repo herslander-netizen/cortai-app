@@ -8,8 +8,16 @@ import { useInstalacao } from "@/lib/pwa";
  * Nunca bloqueia a tela, respeita o "Agora não" e some quando o app já está instalado.
  */
 export function ConviteDeInstalacao() {
-  const { pronto, plataforma, instalado, dispensado, emIframe, podeInstalarAgora, instalar, dispensar } =
-    useInstalacao();
+  const {
+    pronto,
+    plataforma,
+    instalado,
+    dispensado,
+    emIframe,
+    podeInstalarAgora,
+    instalar,
+    dispensar,
+  } = useInstalacao();
   const [passouTempo, setPassouTempo] = useState(false);
   const [verComoNoIphone, setVerComoNoIphone] = useState(false);
 

@@ -28,7 +28,9 @@ export function DescobrirBarbearias({
     <section className={discreto ? "mt-12 border-t border-line pt-8" : ""}>
       {discreto ? (
         <>
-          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">Já é cliente?</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">
+            Já é cliente?
+          </h2>
           <p className="mt-2 text-sm text-mute">Busque pelo nome ou endereço.</p>
         </>
       ) : (
@@ -79,8 +81,14 @@ export function DescobrirBarbearias({
                 className={`flex items-center justify-between gap-4 border-b border-line ${discreto ? "min-h-[56px] py-3" : "min-h-[64px] py-4"}`}
               >
                 <span className="min-w-0">
-                  <span className={`block truncate font-semibold text-paper ${discreto ? "text-sm" : "text-base"}`}>{barbearia.nome}</span>
-                  <span className="mt-0.5 block text-[11px] font-semibold text-mute2">{definicaoDoSegmento(barbearia.segmento).rotulo}</span>
+                  <span
+                    className={`block truncate font-semibold text-paper ${discreto ? "text-sm" : "text-base"}`}
+                  >
+                    {barbearia.nome}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] font-semibold text-mute2">
+                    {definicaoDoSegmento(barbearia.segmento).rotulo}
+                  </span>
                   {barbearia.endereco ? (
                     <span className="mt-1 flex items-center gap-1.5 text-xs text-mute">
                       <MapPin size={12} className="shrink-0" aria-hidden />

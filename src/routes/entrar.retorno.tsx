@@ -14,7 +14,9 @@ import { getSessao } from "@/lib/sessao.functions";
 export const Route = createFileRoute("/entrar/retorno")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
-    typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {},
+    typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrando — Cortaí" },

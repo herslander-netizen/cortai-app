@@ -68,7 +68,11 @@ function deslocamento(instante: Date, fuso: string): number {
 }
 
 /** Converte "2026-09-21" + "09:00" (hora local da barbearia) no ISO real em UTC. */
-export function isoNoFusoDaBarbearia(dia: string, hhmm: string, fuso: string = FUSO_BARBEARIA): string {
+export function isoNoFusoDaBarbearia(
+  dia: string,
+  hhmm: string,
+  fuso: string = FUSO_BARBEARIA,
+): string {
   const [ano, mes, d] = dia.split("-").map(Number);
   const [h, m] = hhmm.split(":").map(Number);
   const palpite = Date.UTC(ano ?? 1970, (mes ?? 1) - 1, d ?? 1, h ?? 0, m ?? 0);
@@ -113,11 +117,24 @@ export function semNenhumDiaAberto(horarios: HorarioDeFuncionamento[] | undefine
 export function horarioDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
-): { fechado: boolean; abre: string; fecha: string; intervaloInicio: string | null; intervaloFim: string | null } {
+): {
+  fechado: boolean;
+  abre: string;
+  fecha: string;
+  intervaloInicio: string | null;
+  intervaloFim: string | null;
+} {
   const semana = diaDaSemanaDoDia(dia);
   const achado = (horarios ?? []).find((h) => h.diaSemana === semana);
   // Dia sem horário cadastrado = FECHADO. Nunca abrimos a agenda por suposição.
-  if (!achado) return { fechado: true, abre: ABERTURA_PADRAO, fecha: FECHAMENTO_PADRAO, intervaloInicio: null, intervaloFim: null };
+  if (!achado)
+    return {
+      fechado: true,
+      abre: ABERTURA_PADRAO,
+      fecha: FECHAMENTO_PADRAO,
+      intervaloInicio: null,
+      intervaloFim: null,
+    };
   const temIntervalo = Boolean(achado.intervaloInicio && achado.intervaloFim);
   return {
     fechado: Boolean(achado.fechado),
@@ -134,7 +151,14 @@ export function slotsDoDia(
   horarios: HorarioDeFuncionamento[] | undefined | null,
   passoMin = 30,
   fuso: string = FUSO_BARBEARIA,
-): { fechado: boolean; abre: string; fecha: string; intervaloInicio: string | null; intervaloFim: string | null; slots: SlotDaAgenda[] } {
+): {
+  fechado: boolean;
+  abre: string;
+  fecha: string;
+  intervaloInicio: string | null;
+  intervaloFim: string | null;
+  slots: SlotDaAgenda[];
+} {
   const info = horarioDoDia(dia, horarios);
   if (info.fechado) return { ...info, slots: [] };
   const inicio = minutos(info.abre);
@@ -156,17 +180,28 @@ export function slotsDoDia(
 
 /** "Hoje" (AAAA-MM-DD) no fuso da barbearia, nunca no relógio do aparelho. */
 export function hojeNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: normalizarFuso(fuso), year: "numeric", month: "2-digit", day: "2-digit" }).format(instante);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: normalizarFuso(fuso),
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(instante);
 }
 
 /** Meia-noite (início do dia) da barbearia para o instante dado, como Date UTC. */
-export function inicioDoDiaNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): Date {
+export function inicioDoDiaNoFuso(
+  fuso: string = FUSO_BARBEARIA,
+  instante: Date = new Date(),
+): Date {
   const f = normalizarFuso(fuso);
   return new Date(isoNoFusoDaBarbearia(hojeNoFuso(f, instante), "00:00", f));
 }
 
 /** Dia 1 do mês corrente da barbearia, 00:00 no fuso dela. */
-export function inicioDoMesNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): Date {
+export function inicioDoMesNoFuso(
+  fuso: string = FUSO_BARBEARIA,
+  instante: Date = new Date(),
+): Date {
   const f = normalizarFuso(fuso);
   return new Date(isoNoFusoDaBarbearia(`${hojeNoFuso(f, instante).slice(0, 8)}01`, "00:00", f));
 }

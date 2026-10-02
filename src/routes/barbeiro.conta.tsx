@@ -60,17 +60,19 @@ function ContaPage() {
       </div>
 
       <ul className="mt-3">
-        {data?.permissoes.includes("alterar_dados_barbearia") ? <li className="border-b border-line">
-          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
-            <Building2 size={18} className="text-mute" />
-            <span className="min-w-0">
-              <span className="block text-sm text-paper">Negócio</span>
-              <span className="mt-0.5 block truncate text-xs text-mute">
-                {data?.tenantNome ?? "Sem negócio vinculado"}
+        {data?.permissoes.includes("alterar_dados_barbearia") ? (
+          <li className="border-b border-line">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
+              <Building2 size={18} className="text-mute" />
+              <span className="min-w-0">
+                <span className="block text-sm text-paper">Negócio</span>
+                <span className="mt-0.5 block truncate text-xs text-mute">
+                  {data?.tenantNome ?? "Sem negócio vinculado"}
+                </span>
               </span>
-            </span>
-          </div>
-        </li> : null}
+            </div>
+          </li>
+        ) : null}
         {data?.tenantSlug ? (
           <li className="border-b border-line">
             <a
@@ -98,10 +100,19 @@ function ContaPage() {
         <li>
           <AlterarSenha />
         </li>
-        <li><ThemeToggle identidadeDaBarbearia={data?.identidadeApp} tenantId={data?.tenantId ?? undefined} podeAlterarIdentidade={data?.papelNaEquipe === "dono"} /></li>
-        <li><InstalarCortai /></li>
+        <li>
+          <ThemeToggle
+            identidadeDaBarbearia={data?.identidadeApp}
+            tenantId={data?.tenantId ?? undefined}
+            podeAlterarIdentidade={data?.papelNaEquipe === "dono"}
+          />
+        </li>
+        <li>
+          <InstalarCortai />
+        </li>
         <li className="border-b border-line">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             disabled={saindo}
             onClick={() => {
@@ -117,11 +128,62 @@ function ContaPage() {
         </li>
       </ul>
 
-      {data?.permissoes.includes("alterar_dados_barbearia") ? <section className="border-b border-line py-5">
-        <label className="block text-xs font-medium text-mute">Tipo de negócio<select className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper" value={segmento} onChange={(event) => setSegmento(event.target.value as typeof segmento)}>{LISTA_DE_SEGMENTOS.map((item) => <option key={item.id} value={item.id}>{item.rotulo}</option>)}</select></label>
-        <p className="mt-2 text-xs text-mute">Ajusta sugestões e palavras. Seus serviços, clientes e horários não mudam.</p>
-        <Button variant="outline" type="button" className="mt-3 min-h-12 w-full" disabled={salvandoSegmento || segmento === data.segmento} onClick={async () => { setSalvandoSegmento(true); try { const aplicarCores = window.confirm(`Usar também as cores recomendadas para ${termos(segmento).nome}?`); const resultado = await salvarSegmento({ data: { segmento, aplicarCores } }); if (aplicarCores) { aplicarIdentidade(resultado.identidade); aplicarModo(resultado.modo, true); } if (resultado.ofereceTrocarAtalhos && window.confirm(`Trocar os atalhos da ficha do cliente pelos sugeridos para ${termos(segmento).nome}?`)) await trocarAtalhos(); await queryClient.invalidateQueries({ queryKey: ["sessao"] }); await queryClient.invalidateQueries({ queryKey: ["implantacao"] }); aviso.ok("Tipo de negócio atualizado."); } catch (erro) { aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar."); } finally { setSalvandoSegmento(false); } }}>Salvar tipo de negócio</Button>
-      </section> : null}
+      {data?.permissoes.includes("alterar_dados_barbearia") ? (
+        <section className="border-b border-line py-5">
+          <label className="block text-xs font-medium text-mute">
+            Tipo de negócio
+            <select
+              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper"
+              value={segmento}
+              onChange={(event) => setSegmento(event.target.value as typeof segmento)}
+            >
+              {LISTA_DE_SEGMENTOS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.rotulo}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="mt-2 text-xs text-mute">
+            Ajusta sugestões e palavras. Seus serviços, clientes e horários não mudam.
+          </p>
+          <Button
+            variant="outline"
+            type="button"
+            className="mt-3 min-h-12 w-full"
+            disabled={salvandoSegmento || segmento === data.segmento}
+            onClick={async () => {
+              setSalvandoSegmento(true);
+              try {
+                const aplicarCores = window.confirm(
+                  `Usar também as cores recomendadas para ${termos(segmento).nome}?`,
+                );
+                const resultado = await salvarSegmento({ data: { segmento, aplicarCores } });
+                if (aplicarCores) {
+                  aplicarIdentidade(resultado.identidade);
+                  aplicarModo(resultado.modo, true);
+                }
+                if (
+                  resultado.ofereceTrocarAtalhos &&
+                  window.confirm(
+                    `Trocar os atalhos da ficha do cliente pelos sugeridos para ${termos(segmento).nome}?`,
+                  )
+                )
+                  await trocarAtalhos();
+                await queryClient.invalidateQueries({ queryKey: ["sessao"] });
+                await queryClient.invalidateQueries({ queryKey: ["implantacao"] });
+                aviso.ok("Tipo de negócio atualizado.");
+              } catch (erro) {
+                aviso.erro(erro instanceof Error ? erro.message : "Não foi possível atualizar.");
+              } finally {
+                setSalvandoSegmento(false);
+              }
+            }}
+          >
+            Salvar tipo de negócio
+          </Button>
+        </section>
+      ) : null}
 
       <PreferenciasDicas />
       <PreferenciasDePrivacidade />

@@ -11,7 +11,7 @@ export function useAcao() {
   const travado = useRef(false);
 
   const executar = useCallback(
-    async <T,>(
+    async <T>(
       chave: string,
       tarefa: () => Promise<T>,
       opcoes: {
@@ -29,7 +29,10 @@ export function useAcao() {
         if (opcoes.sucesso) toast.success(opcoes.sucesso);
         return resultado;
       } catch (e) {
-        const mensagem = e instanceof Error && e.message ? e.message : (opcoes.erro ?? "Não foi possível concluir agora. Tente novamente.");
+        const mensagem =
+          e instanceof Error && e.message
+            ? e.message
+            : (opcoes.erro ?? "Não foi possível concluir agora. Tente novamente.");
         toast.error(mensagem);
         return undefined;
       } finally {

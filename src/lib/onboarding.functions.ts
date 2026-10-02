@@ -20,9 +20,17 @@ import type { Json } from "@/integrations/supabase/types";
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
 export const ITENS_DO_CHECKLIST = [
   { chave: "cadastrar_servicos", rotulo: "Cadastre seus serviços", destino: "/barbeiro/servicos" },
-  { chave: "cadastrar_profissionais", rotulo: "Cadastre os profissionais", destino: "/barbeiro/profissionais" },
+  {
+    chave: "cadastrar_profissionais",
+    rotulo: "Cadastre os profissionais",
+    destino: "/barbeiro/profissionais",
+  },
   { chave: "whatsapp", rotulo: "Conecte o WhatsApp", destino: "/barbeiro/cortai" },
-  { chave: "compartilhar_link", rotulo: "Compartilhe seu link de agendamento", destino: "/barbeiro/configurar" },
+  {
+    chave: "compartilhar_link",
+    rotulo: "Compartilhe seu link de agendamento",
+    destino: "/barbeiro/configurar",
+  },
 ] as const;
 
 export type ChaveDoChecklist = (typeof ITENS_DO_CHECKLIST)[number]["chave"];
@@ -100,7 +108,8 @@ async function detectarPrimeirosPassos(db: any, tenantId: string, itens: Record<
   // Cada item conta como feito quando detectado de verdade ou quando o dono pulou.
   return {
     cadastrar_servicos: Boolean(itens["cadastrar_servicos"]) || (servicos.count ?? 0) > 0,
-    cadastrar_profissionais: Boolean(itens["cadastrar_profissionais"]) || (profissionais.count ?? 0) > 0,
+    cadastrar_profissionais:
+      Boolean(itens["cadastrar_profissionais"]) || (profissionais.count ?? 0) > 0,
     whatsapp: Boolean(itens["whatsapp"]) || (conexao.data ?? []).length > 0,
     compartilhar_link: Boolean(itens["compartilhar_link"]),
   };

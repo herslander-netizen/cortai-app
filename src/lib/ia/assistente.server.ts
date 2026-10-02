@@ -125,7 +125,6 @@ ${horarios}`;
 
 type Turno = { autor: "barbeiro" | "assistente"; conteudo: string };
 
-
 function inteiro(valor: unknown, padrao: number): number {
   const n = typeof valor === "number" ? valor : Number(valor);
   return Number.isFinite(n) ? Math.round(n) : padrao;
@@ -146,8 +145,13 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
   const servicos: ServicoSugerido[] | null = servicosBrutos
     ? servicosBrutos
         .map((s: Record<string, any>) => ({
-          nome: String(s?.["nome"] ?? "").trim().slice(0, 60),
-          categoria: String(s?.["categoria"] ?? "Serviço").trim().slice(0, 40) || "Serviço",
+          nome: String(s?.["nome"] ?? "")
+            .trim()
+            .slice(0, 60),
+          categoria:
+            String(s?.["categoria"] ?? "Serviço")
+              .trim()
+              .slice(0, 40) || "Serviço",
           duracaoMin: Math.min(480, Math.max(5, inteiro(s?.["duracao_min"], 30))),
           precoCentavos: Math.min(10_000_000, Math.max(0, inteiro(s?.["preco_centavos"], 0))),
         }))
@@ -179,10 +183,12 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
   const intencao = intencoes.includes(o["intencao"]) ? (o["intencao"] as IntencaoDaIA) : "conversa";
 
   return {
-    resposta: String(o["resposta"] ?? "").trim() || "Pode repetir de outro jeito? Não entendi direito.",
+    resposta:
+      String(o["resposta"] ?? "").trim() || "Pode repetir de outro jeito? Não entendi direito.",
     intencao,
     precisaConfirmar:
-      Boolean(o["precisa_confirmar"]) && Boolean((servicos && servicos.length) || (horarios && horarios.length)),
+      Boolean(o["precisa_confirmar"]) &&
+      Boolean((servicos && servicos.length) || (horarios && horarios.length)),
     perguntaDeConfirmacao:
       typeof o["pergunta_de_confirmacao"] === "string" && o["pergunta_de_confirmacao"].trim()
         ? o["pergunta_de_confirmacao"].trim()
@@ -198,13 +204,18 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
 /** Erros do gateway viram mensagem clara — nunca uma resposta inventada. */
 function erroDoGateway(status: number, corpo: string): Error {
   if (status === 402) {
-    return new Error("Os créditos de IA do CortAI acabaram. Peça para o responsável adicionar créditos.");
+    return new Error(
+      "Os créditos de IA do CortAI acabaram. Peça para o responsável adicionar créditos.",
+    );
   }
-  if (status === 429) return new Error("O assistente está sobrecarregado agora. Tente de novo em instantes.");
+  if (status === 429)
+    return new Error("O assistente está sobrecarregado agora. Tente de novo em instantes.");
   if (status === 401 || status === 403) {
     return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do CortAI.");
   }
-  return new Error(`O assistente não conseguiu responder agora (${status}). ${corpo.slice(0, 120)}`);
+  return new Error(
+    `O assistente não conseguiu responder agora (${status}). ${corpo.slice(0, 120)}`,
+  );
 }
 
 /**

@@ -25,7 +25,9 @@ const evento = z.object({
       id: z.string().max(200).nullish(),
       de: z.string().min(6).max(30),
       nome: z.string().max(120).nullish(),
-      tipo: z.enum(["text", "audio", "image", "document", "location", "interactive", "unknown"]).default("text"),
+      tipo: z
+        .enum(["text", "audio", "image", "document", "location", "interactive", "unknown"])
+        .default("text"),
       texto: z.string().max(4000).default(""),
       midiaUrl: z.string().url().max(2000).nullish(),
     })
@@ -56,7 +58,11 @@ export const Route = createFileRoute("/api/public/whatsapp/eventos")({
         const assinatura =
           request.headers.get("x-whatsapp-signature") ?? request.headers.get("x-hub-signature-256");
         if (!(await assinaturaValida(corpo, assinatura, segredo))) {
-          return guard.rejeitar(request, "whatsapp/eventos", assinatura ? "assinatura invalida" : "sem assinatura");
+          return guard.rejeitar(
+            request,
+            "whatsapp/eventos",
+            assinatura ? "assinatura invalida" : "sem assinatura",
+          );
         }
         const limite = await guard.limiteAutenticado(request, "whatsapp/eventos");
         if (limite) return limite;

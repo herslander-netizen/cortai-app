@@ -12,7 +12,10 @@ export const Route = createFileRoute("/convite")({
   head: () => ({
     meta: [
       { title: "Confirmar acesso ao negócio — Cortaí" },
-      { name: "description", content: "Veja o que você pode fazer no negócio e confirme o seu acesso." },
+      {
+        name: "description",
+        content: "Veja o que você pode fazer no negócio e confirme o seu acesso.",
+      },
       { property: "og:title", content: "Confirmar acesso ao negócio — Cortaí" },
       { property: "og:description", content: "Confirme o acesso que o negócio liberou para você." },
       { property: "og:type", content: "website" },
@@ -45,7 +48,11 @@ function ConvitePage() {
           <Aviso tom="atencao" titulo="Nenhum acesso de equipe por aqui.">
             Sua conta ainda não foi ligada a um negócio. Peça ao responsável para convidar você.
           </Aviso>
-          <button type="button" className="btn-primary w-full py-3.5" onClick={() => void navigate({ to: "/app" })}>
+          <button
+            type="button"
+            className="btn-primary w-full py-3.5"
+            onClick={() => void navigate({ to: "/app" })}
+          >
             Ir para meus agendamentos
           </button>
         </div>
@@ -72,17 +79,25 @@ function ConvitePage() {
 
           <ul className="space-y-3">
             {MODULOS.map((modulo) => {
-              const liberados = modulo.itens.filter((item) => dados.permissoes.includes(item.chave));
+              const liberados = modulo.itens.filter((item) =>
+                dados.permissoes.includes(item.chave),
+              );
               return (
                 <li key={modulo.id} className="surface p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gold">{modulo.titulo}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+                    {modulo.titulo}
+                  </p>
                   {liberados.length === 0 ? (
                     <p className="mt-1 text-xs text-mute2">Sem acesso a este módulo.</p>
                   ) : (
                     <ul className="mt-2 space-y-1">
                       {liberados.map((item) => (
                         <li key={item.chave} className="flex items-start gap-2 text-sm text-paper">
-                          <ShieldCheck size={15} className="mt-0.5 shrink-0 text-sage" aria-hidden />
+                          <ShieldCheck
+                            size={15}
+                            className="mt-0.5 shrink-0 text-sage"
+                            aria-hidden
+                          />
                           <span className="min-w-0">
                             {item.rotulo}
                             <span className="ml-2 text-xs uppercase tracking-wide text-mute2">

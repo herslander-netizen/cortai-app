@@ -9,7 +9,13 @@ export function Clipper({ size = 44 }: { size?: number }) {
   );
 }
 
-export function Carregando({ texto = "Carregando…", className = "" }: { texto?: string; className?: string }) {
+export function Carregando({
+  texto = "Carregando…",
+  className = "",
+}: {
+  texto?: string;
+  className?: string;
+}) {
   return (
     <div role="status" aria-live="polite" className={`flex items-center gap-3 py-6 ${className}`}>
       <Clipper size={30} />

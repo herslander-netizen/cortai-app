@@ -62,9 +62,9 @@ function ComecarPage() {
           Seu acesso foi desativado.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
-          Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso
-          é um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o Cortaí para
-          agendar como cliente.
+          Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso é
+          um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o
+          Cortaí para agendar como cliente.
         </p>
         <button
           type="button"
@@ -123,8 +123,8 @@ function ComecarPage() {
       {concluido ? (
         <div className="mt-8">
           <p className="text-base leading-relaxed text-mute">
-            {avisoTeste ?? "Seu teste grátis de 45 dias começou, com tudo liberado."} Agora são 5 minutos para
-            deixar seu link de agendamento pronto.
+            {avisoTeste ?? "Seu teste grátis de 45 dias começou, com tudo liberado."} Agora são 5
+            minutos para deixar seu link de agendamento pronto.
           </p>
           <button
             type="button"
@@ -157,7 +157,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
               <span className="mt-1 block text-xs text-mute">
-                 Marcar horários em negócios de Beleza.
+                Marcar horários em negócios de Beleza.
               </span>
             </span>
           </button>
@@ -169,9 +169,7 @@ function ComecarPage() {
             <Scissors size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
-              <span className="mt-1 block text-xs text-mute">
-                 Escolha seu segmento de Beleza.
-              </span>
+              <span className="mt-1 block text-xs text-mute">Escolha seu segmento de Beleza.</span>
             </span>
           </button>
         </div>
@@ -278,8 +276,8 @@ function ComecarPage() {
             />
           </label>
           <p className="mt-3 text-xs text-mute">
-            45 dias grátis com tudo liberado. Sem cartão. Usamos o CPF/CNPJ e o telefone só para garantir um teste por
-            negócio.
+            45 dias grátis com tudo liberado. Sem cartão. Usamos o CPF/CNPJ e o telefone só para
+            garantir um teste por negócio.
           </p>
           <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
             {enviando ? "Criando…" : "Criar meu negócio"}

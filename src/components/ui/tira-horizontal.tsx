@@ -58,7 +58,9 @@ export function TiraHorizontal({
         }`}
       />
       {maisDepois ? (
-        <span className="mt-1.5 block text-right text-xs text-mute2">arraste para ver mais dias →</span>
+        <span className="mt-1.5 block text-right text-xs text-mute2">
+          arraste para ver mais dias →
+        </span>
       ) : null}
     </div>
   );

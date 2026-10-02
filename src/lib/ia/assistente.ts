@@ -6,12 +6,7 @@
  */
 
 export type IntencaoDaIA =
-  | "conversa"
-  | "cadastrar_servicos"
-  | "definir_horarios"
-  | "navegar"
-  | "consultar"
-  | "ajuda";
+  "conversa" | "cadastrar_servicos" | "definir_horarios" | "navegar" | "consultar" | "ajuda";
 
 export type ServicoSugerido = {
   nome: string;

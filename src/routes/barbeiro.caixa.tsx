@@ -23,9 +23,15 @@ export const Route = createFileRoute("/barbeiro/caixa")({
   head: () => ({
     meta: [
       { title: "Caixa do dia — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Entradas, saídas, fiado em aberto e origem de cada movimentação." },
+      {
+        name: "description",
+        content: "Entradas, saídas, fiado em aberto e origem de cada movimentação.",
+      },
       { property: "og:title", content: "Caixa do dia — Cortaí" },
-      { property: "og:description", content: "Todo valor com cliente, profissional e comanda de origem." },
+      {
+        property: "og:description",
+        content: "Todo valor com cliente, profissional e comanda de origem.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -54,7 +60,11 @@ function CaixaPage() {
   const queryClient = useQueryClient();
 
   const [valorCaixa, setValorCaixa] = useState("");
-  const [saida, setSaida] = useState({ tipo: "saida" as "saida" | "sangria" | "despesa", descricao: "", valor: "" });
+  const [saida, setSaida] = useState({
+    tipo: "saida" as "saida" | "sangria" | "despesa",
+    descricao: "",
+    valor: "",
+  });
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -78,15 +88,23 @@ function CaixaPage() {
   const sessaoAberta = Boolean(caixa.data?.sessao);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Caixa do dia" subtitle="Toda entrada mostra de onde veio.">
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Caixa do dia"
+      subtitle="Toda entrada mostra de onde veio."
+    >
       {caixa.isLoading ? <Carregando /> : null}
-      {caixa.isError ? <p className="text-sm text-mute">Você não tem acesso ao caixa desta barbearia.</p> : null}
+      {caixa.isError ? (
+        <p className="text-sm text-mute">Você não tem acesso ao caixa desta barbearia.</p>
+      ) : null}
 
       {caixa.data ? (
         <>
           <section className="surface-card p-4 md:max-w-3xl md:p-5">
             <p className="text-xs text-mute">{sessaoAberta ? "Caixa aberto" : "Caixa fechado"}</p>
-            <p className="mt-2 text-[30px] font-bold leading-none text-paper">{brl(caixa.data.resumo.liquido)}</p>
+            <p className="mt-2 text-[30px] font-bold leading-none text-paper">
+              {brl(caixa.data.resumo.liquido)}
+            </p>
             <p className="mt-1 text-xs text-mute2">
               Saldo inicial {brl(caixa.data.sessao?.saldo_inicial_centavos ?? 0)}
               {caixa.data.sessao?.aberto_em ? ` · desde ${hora(caixa.data.sessao.aberto_em)}` : ""}
@@ -97,7 +115,11 @@ function CaixaPage() {
               <Linha rotulo="Pix" valor={brl(caixa.data.resumo.pix)} />
               <Linha rotulo="Dinheiro" valor={brl(caixa.data.resumo.dinheiro)} />
               <Linha rotulo="Cartão" valor={brl(caixa.data.resumo.cartao)} />
-              <Linha rotulo="Fiado em aberto" valor={brl(caixa.data.resumo.fiado)} cor="text-brick" />
+              <Linha
+                rotulo="Fiado em aberto"
+                valor={brl(caixa.data.resumo.fiado)}
+                cor="text-brick"
+              />
             </div>
             <div className="mt-4 grid gap-2 border-t border-line pt-4 sm:grid-cols-[minmax(0,1fr)_auto]">
               <input
@@ -195,7 +217,8 @@ function CaixaPage() {
               const aberto = detalhe === m.id;
               return (
                 <li key={m.id} className="border-b border-line">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     className="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 py-4 text-left"
                     onClick={() => setDetalhe(aberto ? null : m.id)}
@@ -204,7 +227,11 @@ function CaixaPage() {
                     <span className="min-w-0">
                       <span className="block truncate text-sm text-paper">{m.descricao}</span>
                       <span className="mt-0.5 block truncate text-xs text-mute2">
-                        {[cliente, profissional ? `Profissional: ${profissional}` : null, m.comandas?.numero ? `Comanda #${m.comandas.numero}` : null]
+                        {[
+                          cliente,
+                          profissional ? `Profissional: ${profissional}` : null,
+                          m.comandas?.numero ? `Comanda #${m.comandas.numero}` : null,
+                        ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
@@ -213,7 +240,9 @@ function CaixaPage() {
                         {m.forma_pagamento ? ` · ${m.forma_pagamento}` : ""}
                       </span>
                     </span>
-                    <span className={`text-sm font-semibold ${m.tipo === "entrada" ? "text-sage" : "text-brick"}`}>
+                    <span
+                      className={`text-sm font-semibold ${m.tipo === "entrada" ? "text-sage" : "text-brick"}`}
+                    >
                       {m.tipo === "entrada" ? "+" : "−"} {brl(m.valor_centavos)}
                     </span>
                     <ChevronRight size={16} className="text-mute2" />
@@ -238,7 +267,10 @@ function CaixaPage() {
                       </div>
                     </dl>
                   ) : null}
-                  {aberto && m.tipo === "entrada" && m.pagamento_id && m.pagamentos?.status === "confirmado" ? (
+                  {aberto &&
+                  m.tipo === "entrada" &&
+                  m.pagamento_id &&
+                  m.pagamentos?.status === "confirmado" ? (
                     <div className="flex gap-2 pb-4">
                       <input
                         value={motivoEstorno}
@@ -252,7 +284,9 @@ function CaixaPage() {
                         disabled={ocupado || motivoEstorno.trim().length < 3}
                         onClick={() =>
                           executar(async () => {
-                            await estornar({ data: { pagamentoId: m.pagamento_id, motivo: motivoEstorno } });
+                            await estornar({
+                              data: { pagamentoId: m.pagamento_id, motivo: motivoEstorno },
+                            });
                             setMotivoEstorno("");
                           }, "Estorno registrado.")
                         }
@@ -262,7 +296,9 @@ function CaixaPage() {
                     </div>
                   ) : null}
                   {m.pagamentos?.status === "estornado" && m.tipo === "entrada" ? (
-                    <p className="flex items-center gap-1.5 pb-3 text-xs text-brick"><Undo2 size={14} strokeWidth={1.75} /> Estornado</p>
+                    <p className="flex items-center gap-1.5 pb-3 text-xs text-brick">
+                      <Undo2 size={14} strokeWidth={1.75} /> Estornado
+                    </p>
                   ) : null}
                 </li>
               );
@@ -282,7 +318,10 @@ function CaixaPage() {
           ) : null}
           <ul className="mt-2">
             {(fiados.data ?? []).map((f: any) => (
-              <li key={f.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4">
+              <li
+                key={f.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm text-paper">{f.clientes?.nome ?? "Cliente"}</p>
                   <p className="mt-0.5 text-xs text-mute2">
@@ -306,7 +345,13 @@ function CaixaPage() {
                           );
                         }
                         try {
-                          await quitar({ data: { fiadoId: f.id, valorCentavos: f.saldo_centavos, forma: "dinheiro" } });
+                          await quitar({
+                            data: {
+                              fiadoId: f.id,
+                              valorCentavos: f.saldo_centavos,
+                              forma: "dinheiro",
+                            },
+                          });
                         } catch (e) {
                           if (anterior) queryClient.setQueryData(["fiados"], anterior);
                           throw e;

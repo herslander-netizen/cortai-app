@@ -28,7 +28,12 @@ export function ConvitesNoSino() {
     <ul aria-label="Convites" className="border-b border-line">
       {mostraInstalar ? (
         <li className="flex items-start gap-3 px-5 py-3">
-          <Download size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-gold" aria-hidden />
+          <Download
+            size={16}
+            strokeWidth={1.75}
+            className="mt-0.5 shrink-0 text-gold"
+            aria-hidden
+          />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-paper">📲 Instale o Cortaí</p>
             <p className="text-xs text-mute2">Tenha acesso mais rápido ao seu sistema.</p>

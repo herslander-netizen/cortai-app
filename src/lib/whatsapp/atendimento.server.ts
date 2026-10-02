@@ -141,7 +141,11 @@ async function ferramentas(config: ConfiguracaoDoAtendimento): Promise<Ferrament
       nome: "registrar_cliente",
       descricao: "Cadastra o cliente nesta barbearia. Só use depois que a pessoa disser o nome.",
       parametros: objeto(
-        { nome: { type: "string" }, telefone: { type: "string" }, optInWhatsapp: { type: "boolean" } },
+        {
+          nome: { type: "string" },
+          telefone: { type: "string" },
+          optInWhatsapp: { type: "boolean" },
+        },
         ["nome", "telefone", "optInWhatsapp"],
       ),
       executar: (ctx, d) => acoes.registrarCliente(ctx, d),
@@ -225,9 +229,11 @@ async function ferramentas(config: ConfiguracaoDoAtendimento): Promise<Ferrament
 
 function resumoDoContexto(contexto: ContextoDaConversa): string {
   const partes: string[] = [];
-  if (contexto.intencao) partes.push(`assunto atual: ${INTENCOES[contexto.intencao] ?? contexto.intencao}`);
+  if (contexto.intencao)
+    partes.push(`assunto atual: ${INTENCOES[contexto.intencao] ?? contexto.intencao}`);
   if (contexto.resumo) partes.push(`combinado até agora: ${contexto.resumo}`);
-  if (contexto.servicoNome || contexto.servicoId) partes.push(`serviço escolhido: ${contexto.servicoNome ?? contexto.servicoId}`);
+  if (contexto.servicoNome || contexto.servicoId)
+    partes.push(`serviço escolhido: ${contexto.servicoNome ?? contexto.servicoId}`);
   if (contexto.profissionalNome || contexto.profissionalId)
     partes.push(`profissional escolhido: ${contexto.profissionalNome ?? contexto.profissionalId}`);
   if (contexto.dia) partes.push(`dia escolhido: ${contexto.dia}`);
@@ -235,7 +241,10 @@ function resumoDoContexto(contexto: ContextoDaConversa): string {
   if (contexto.opcoes?.length) {
     partes.push(
       `opções oferecidas na última mensagem, em ordem: ${contexto.opcoes
-        .map((o, i) => `${i + 1}) ${o.rotulo} [inicio=${o.inicio}; profissionalId=${o.profissionalId}${o.servicoId ? `; servicoId=${o.servicoId}` : ""}]`)
+        .map(
+          (o, i) =>
+            `${i + 1}) ${o.rotulo} [inicio=${o.inicio}; profissionalId=${o.profissionalId}${o.servicoId ? `; servicoId=${o.servicoId}` : ""}]`,
+        )
         .join(" | ")}`,
     );
   }
@@ -308,7 +317,7 @@ async function registrarAcao(entrada: {
     acao: entrada.acao,
     intencao: entrada.intencao,
     entrada: (entrada.dados ?? {}) as never,
-    resultado: (entrada.sucesso ? entrada.resultado ?? {} : {}) as never,
+    resultado: (entrada.sucesso ? (entrada.resultado ?? {}) : {}) as never,
     sucesso: entrada.sucesso,
     erro: entrada.erro ?? null,
   });
@@ -390,7 +399,8 @@ export async function responderConversa(input: {
         "agendamentoId",
       ] as const) {
         const valor = (dados as Record<string, unknown>)[campo];
-        if (valor !== undefined && valor !== null && valor !== "") (contextoAtual as Record<string, unknown>)[campo] = valor;
+        if (valor !== undefined && valor !== null && valor !== "")
+          (contextoAtual as Record<string, unknown>)[campo] = valor;
       }
       if (Array.isArray(dados.opcoes)) contextoAtual.opcoes = dados.opcoes.slice(0, 5);
       if (intencao) contextoAtual.intencao = intencao;
@@ -436,7 +446,9 @@ export async function responderConversa(input: {
     });
     if (!resposta.ok) {
       const detalhe = await resposta.text().catch(() => "");
-      throw new Error(`IA indisponível (${resposta.status})${detalhe ? `: ${detalhe.slice(0, 160)}` : ""}`);
+      throw new Error(
+        `IA indisponível (${resposta.status})${detalhe ? `: ${detalhe.slice(0, 160)}` : ""}`,
+      );
     }
     const corpo = (await resposta.json()) as any;
     const escolha = corpo?.choices?.[0]?.message;

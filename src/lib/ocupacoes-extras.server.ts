@@ -28,9 +28,14 @@ export async function ocupacoesExtras(
       .eq("tenant_id", p.tenantId),
   ]);
   const extras: Ocupado[] = [];
-  for (const b of (bloqueios ?? []) as { profissional_id: string | null; inicio: string; fim: string }[]) {
+  for (const b of (bloqueios ?? []) as {
+    profissional_id: string | null;
+    inicio: string;
+    fim: string;
+  }[]) {
     const alvo = b.profissional_id ? [b.profissional_id] : ids;
-    for (const id of alvo) extras.push({ profissional_id: id, inicio: b.inicio, fim: b.fim, bloqueio: true });
+    for (const id of alvo)
+      extras.push({ profissional_id: id, inicio: b.inicio, fim: b.fim, bloqueio: true });
   }
   const lista = (escalas ?? []) as {
     profissional_id: string;
@@ -55,8 +60,10 @@ export async function ocupacoesExtras(
         }
         const abre = isoNoFusoDaBarbearia(dia, e.abre.slice(0, 5), p.fuso);
         const fecha = isoNoFusoDaBarbearia(dia, e.fecha.slice(0, 5), p.fuso);
-        if (Date.parse(abre) > Date.parse(ini)) extras.push({ profissional_id: pid, inicio: ini, fim: abre, bloqueio: true });
-        if (Date.parse(fecha) < Date.parse(fim)) extras.push({ profissional_id: pid, inicio: fecha, fim, bloqueio: true });
+        if (Date.parse(abre) > Date.parse(ini))
+          extras.push({ profissional_id: pid, inicio: ini, fim: abre, bloqueio: true });
+        if (Date.parse(fecha) < Date.parse(fim))
+          extras.push({ profissional_id: pid, inicio: fecha, fim, bloqueio: true });
       }
     }
   }

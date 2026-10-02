@@ -133,7 +133,8 @@ export function motivoAntecedencia(
 
 function contagemNoDia(profId: string, dia: string, ocupados: Ocupado[], fuso: string) {
   return ocupados.filter(
-    (o) => !o.bloqueio && o.profissional_id === profId && hojeNoFuso(fuso, new Date(o.inicio)) === dia,
+    (o) =>
+      !o.bloqueio && o.profissional_id === profId && hojeNoFuso(fuso, new Date(o.inicio)) === dia,
   ).length;
 }
 

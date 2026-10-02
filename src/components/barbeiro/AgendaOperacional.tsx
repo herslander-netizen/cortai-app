@@ -300,6 +300,7 @@ export function AgendaOperacional() {
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
   const [filaAberta, setFilaAberta] = useState(false);
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
+  const [acaoPainel, setAcaoPainel] = useState<"remarcar" | "cancelar" | null>(null);
   const filtroInicial = useRef(false);
   const [modoFoco, setModoFoco] = useState(preferenciaInicial === "foco" && celularInicial);
   const [modoDiscreto, setModoDiscreto] = useState(modoDiscretoInicial);
@@ -344,6 +345,10 @@ export function AgendaOperacional() {
 
   function entrarNoModoFoco() {
     if (modoFoco) return;
+    const hoje = hojeNoFuso(fuso);
+    if (dia !== hoje) setDia(hoje);
+    if (meuId) setProfFiltro(meuId);
+    else if (!profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
     if (celular) {
       salvarPreferenciaAgenda("foco");
       setModoFoco(true);
@@ -458,6 +463,14 @@ export function AgendaOperacional() {
   const nomeDoProf = (id: string | null) =>
     id ? (profissionais.find((p) => p.id === id)?.nome ?? null) : null;
   const meuId = filaQ.data?.meuProfissionalId ?? null;
+
+  useEffect(() => {
+    if (!modoFoco) return;
+    const hoje = hojeNoFuso(fuso);
+    if (dia !== hoje) setDia(hoje);
+    if (meuId && profFiltro !== meuId) setProfFiltro(meuId);
+    else if (!meuId && !profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
+  }, [modoFoco, dia, fuso, meuId, profFiltro, profissionais]);
 
   // Barbeiro vê a própria agenda por padrão; dono/recepção vê todos.
   useEffect(() => {
@@ -621,8 +634,14 @@ export function AgendaOperacional() {
   }
 
   function abrir(id: string | null) {
+    setAcaoPainel(null);
     setSelecionado(id);
     setPainelAberto(Boolean(id));
+  }
+  function abrirAcao(item: AgendaItem, acao: "remarcar" | "cancelar") {
+    setAcaoPainel(acao);
+    setSelecionado(item.id);
+    setPainelAberto(true);
   }
   function fecharPainel() {
     setPainelAberto(false);
@@ -742,6 +761,7 @@ export function AgendaOperacional() {
         item={itemSelecionado}
         aberto={painelAberto}
         onFechar={fecharPainel}
+        iniciarEm={acaoPainel}
         lateral={ehDesktop && !modoFoco}
         fuso={fuso}
         online={online}
@@ -921,12 +941,11 @@ export function AgendaOperacional() {
       <Screen title="Agenda" hideHeader wide>
         {faixa}
         <AgendaFocoMobile
-          dia={dia}
-          hoje={ehHoje}
           fuso={fuso}
           itens={itens}
           profissional={profFiltro}
           profissionais={profissionais}
+          podeEscolherProfissional={!meuId}
           online={online}
           ocupado={ocupado}
           carregando={carregandoInicial}
@@ -934,17 +953,17 @@ export function AgendaOperacional() {
           onSair={() => {
             sairDoModoFoco();
           }}
-          onDia={mudarDia}
           onProfissional={setProfFiltro}
           onChegou={(item) => void transicionar(item, "chegou")}
           onComecar={iniciar}
           onTerminar={(item) => setFechando(item.id)}
+          onFalta={(item) => void transicionar(item, "nao_compareceu")}
+          onRemarcar={(item) => abrirAcao(item, "remarcar")}
+          onCancelar={(item) => abrirAcao(item, "cancelar")}
           onMaisOpcoes={(item) => abrir(item.id)}
           fila={chegada.length}
           onChamarFila={() => void chamarFila()}
-          onAcoes={() => setMenuAberto(true)}
           onNovoAtendimento={() => setRapidoAberto(true)}
-          onNovoAgendamento={() => setManualAberto(true)}
           onReceber={(item) => setFechando(item.id)}
           pagamentosPendentes={new Set(aReceber.map((item) => item.agendamentoId))}
           onTentarNovamente={() => void agenda.refetch()}

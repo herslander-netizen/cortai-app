@@ -24,8 +24,8 @@ async function tenantPadrao(context: ContextoAutenticado) {
 }
 
 export const getConfigFidelidade = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth]).handler(
-  async ({ context }): Promise<ConfigFidelidade> => {
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ConfigFidelidade> => {
     const { db, tenantId } = await tenantPadrao(context);
     await exigirRecurso(db, tenantId, "fidelidade");
 
@@ -54,8 +54,7 @@ export const getConfigFidelidade = createServerFn({ method: "GET" })
       precoBaseCentavos: servicoRes.data?.preco_centavos ?? 0,
       clientesComProgresso: carteirasRes.data?.length ?? 0,
     };
-  },
-);
+  });
 
 export const salvarFidelidade = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -87,7 +86,12 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
     } else {
       const { error } = await db
         .from("regras_de_plano")
-        .insert({ tenant_id: tenantId, tipo: "fidelidade", ativo: data.ativo, fidelidade_alvo: data.alvo });
+        .insert({
+          tenant_id: tenantId,
+          tipo: "fidelidade",
+          ativo: data.ativo,
+          fidelidade_alvo: data.alvo,
+        });
       if (error) throw new Error(error.message);
     }
 
@@ -95,31 +99,32 @@ export const salvarFidelidade = createServerFn({ method: "POST" })
   });
 
 export const getClientesFidelidade = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
-  const { db, tenantId } = await tenantPadrao(context);
-  await exigirRecurso(db, tenantId, "fidelidade");
-  const [regraRes, carteirasRes] = await Promise.all([
-    db
-      .from("regras_de_plano")
-      .select("fidelidade_alvo")
-      .eq("tenant_id", tenantId)
-      .eq("tipo", "fidelidade")
-      .maybeSingle(),
-    db
-      .from("carteiras")
-      .select("cliente_id, fidelidade_progresso, clientes(nome)")
-      .eq("tenant_id", tenantId)
-      .gt("fidelidade_progresso", 0)
-      .order("fidelidade_progresso", { ascending: false }),
-  ]);
-  const alvo = regraRes.data?.fidelidade_alvo ?? 10;
-  return {
-    alvo,
-    clientes: (carteirasRes.data ?? []).map((c) => ({
-      id: c.cliente_id,
-      nome: (c as { clientes?: { nome?: string } | null }).clientes?.nome ?? "Cliente",
-      progresso: c.fidelidade_progresso,
-      elegivel: c.fidelidade_progresso >= alvo,
-    })),
-  };
-});
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { db, tenantId } = await tenantPadrao(context);
+    await exigirRecurso(db, tenantId, "fidelidade");
+    const [regraRes, carteirasRes] = await Promise.all([
+      db
+        .from("regras_de_plano")
+        .select("fidelidade_alvo")
+        .eq("tenant_id", tenantId)
+        .eq("tipo", "fidelidade")
+        .maybeSingle(),
+      db
+        .from("carteiras")
+        .select("cliente_id, fidelidade_progresso, clientes(nome)")
+        .eq("tenant_id", tenantId)
+        .gt("fidelidade_progresso", 0)
+        .order("fidelidade_progresso", { ascending: false }),
+    ]);
+    const alvo = regraRes.data?.fidelidade_alvo ?? 10;
+    return {
+      alvo,
+      clientes: (carteirasRes.data ?? []).map((c) => ({
+        id: c.cliente_id,
+        nome: (c as { clientes?: { nome?: string } | null }).clientes?.nome ?? "Cliente",
+        progresso: c.fidelidade_progresso,
+        elegivel: c.fidelidade_progresso >= alvo,
+      })),
+    };
+  });

@@ -14,7 +14,11 @@ async function admin() {
   return supabaseAdmin;
 }
 
-async function pode(context: ContextoAutenticado, tenantId: string, permissao: string): Promise<boolean> {
+async function pode(
+  context: ContextoAutenticado,
+  tenantId: string,
+  permissao: string,
+): Promise<boolean> {
   const { data } = await context.supabase.rpc("has_tenant_permission", {
     _tenant_id: tenantId,
     _permission: permissao,
@@ -105,13 +109,14 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(ctx);
     const db = await admin();
 
-    const [podeFinanceiro, podeClientes, podeCortai, podeRelatorios, podeComissoes] = await Promise.all([
-      pode(ctx, tenantId, "visualizar_financeiro"),
-      pode(ctx, tenantId, "visualizar_clientes"),
-      pode(ctx, tenantId, "ver_cortai"),
-      pode(ctx, tenantId, "relatorios"),
-      pode(ctx, tenantId, "comissao_visualizar_todas"),
-    ]);
+    const [podeFinanceiro, podeClientes, podeCortai, podeRelatorios, podeComissoes] =
+      await Promise.all([
+        pode(ctx, tenantId, "visualizar_financeiro"),
+        pode(ctx, tenantId, "visualizar_clientes"),
+        pode(ctx, tenantId, "ver_cortai"),
+        pode(ctx, tenantId, "relatorios"),
+        pode(ctx, tenantId, "comissao_visualizar_todas"),
+      ]);
 
     const agora = Date.now();
     const fusoDoNegocio = await fusoDoTenant(tenantId);
@@ -136,7 +141,10 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     ] = await Promise.all([
       db.from("tenants").select("id, nome").eq("id", tenantId).maybeSingle(),
       db.from("perfis").select("nome").eq("user_id", ctx.userId).maybeSingle(),
-      db.from("horarios_de_funcionamento").select("dia_semana, fechado, abre, fecha").eq("tenant_id", tenantId),
+      db
+        .from("horarios_de_funcionamento")
+        .select("dia_semana, fechado, abre, fecha")
+        .eq("tenant_id", tenantId),
       db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true),
       db
         .from("agendamentos")
@@ -158,7 +166,11 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         .from("carteiras")
         .select("id, saldo_centavos, saldo_creditos, fidelidade_progresso")
         .eq("tenant_id", tenantId),
-      db.from("produtos").select("id, nome, quantidade, estoque_minimo").eq("tenant_id", tenantId).eq("ativo", true),
+      db
+        .from("produtos")
+        .select("id, nome, quantidade, estoque_minimo")
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true),
       db.from("avaliacoes").select("agendamento_id").eq("tenant_id", tenantId),
       db
         .from("agendamentos")
@@ -177,15 +189,23 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     const horariosConfigurados = horarios.length > 0;
     const grade = slotsDoDia(diaIso, horarios);
     const profissionais = profRes.data ?? [];
-    const totalSlots = horariosConfigurados && !grade.fechado ? grade.slots.length * Math.max(profissionais.length, 1) : 0;
+    const totalSlots =
+      horariosConfigurados && !grade.fechado
+        ? grade.slots.length * Math.max(profissionais.length, 1)
+        : 0;
 
     const agendamentosHoje = (agHojeRes.data ?? []) as any[];
-    const ativosHoje = agendamentosHoje.filter((a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado");
+    const ativosHoje = agendamentosHoje.filter(
+      (a) => a.status !== "cancelado" && a.status !== "nao_compareceu" && a.status !== "remarcado",
+    );
     const cancelamentos = agendamentosHoje.filter((a) => a.status === "cancelado");
     const faltas = agendamentosHoje.filter((a) => a.status === "nao_compareceu").length;
-    const encaixes = ativosHoje.filter((a) => a.origem === "manual" || a.origem === "encaixe").length;
+    const encaixes = ativosHoje.filter(
+      (a) => a.origem === "manual" || a.origem === "encaixe",
+    ).length;
 
-    const ocupacaoPct = totalSlots > 0 ? Math.min(100, Math.round((ativosHoje.length / totalSlots) * 100)) : null;
+    const ocupacaoPct =
+      totalSlots > 0 ? Math.min(100, Math.round((ativosHoje.length / totalSlots) * 100)) : null;
     const horariosLivres = totalSlots > 0 ? Math.max(0, totalSlots - ativosHoje.length) : null;
 
     // Histórico por cliente: recorrência, retorno próximo e inatividade.
@@ -224,9 +244,13 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     ).length;
 
     const carteiras = carteirasRes.data ?? [];
-    const estoqueBaixo = (produtosRes.data ?? []).filter((p: any) => p.quantidade <= p.estoque_minimo);
+    const estoqueBaixo = (produtosRes.data ?? []).filter(
+      (p: any) => p.quantidade <= p.estoque_minimo,
+    );
     const avaliadas = new Set((avaliacoesRes.data ?? []).map((a: any) => a.agendamento_id));
-    const avaliacoesPendentes = (concluidosRes.data ?? []).filter((a: any) => !avaliadas.has(a.id)).length;
+    const avaliacoesPendentes = (concluidosRes.data ?? []).filter(
+      (a: any) => !avaliadas.has(a.id),
+    ).length;
 
     // Fiado vencido: débito aberto há mais de 25 dias.
     const negativas = carteiras.filter((c: any) => c.saldo_centavos < 0).map((c: any) => c.id);
@@ -252,8 +276,17 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
           .select("tipo, valor_centavos")
           .eq("tenant_id", tenantId)
           .gte("criado_em", inicioDoDia.toISOString()),
-        db.from("fiados").select("saldo_centavos").eq("tenant_id", tenantId).in("status", ["pendente", "parcial"]),
-        db.from("caixa_sessoes").select("id").eq("tenant_id", tenantId).eq("status", "aberto").maybeSingle(),
+        db
+          .from("fiados")
+          .select("saldo_centavos")
+          .eq("tenant_id", tenantId)
+          .in("status", ["pendente", "parcial"]),
+        db
+          .from("caixa_sessoes")
+          .select("id")
+          .eq("tenant_id", tenantId)
+          .eq("status", "aberto")
+          .maybeSingle(),
         podeComissoes
           ? db
               .from("comissoes")
@@ -263,14 +296,21 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
           : Promise.resolve({ data: null } as any),
       ]);
       const movimentos = (movRes.data ?? []) as any[];
-      const entradas = movimentos.filter((m) => m.tipo === "entrada").reduce((s, m) => s + m.valor_centavos, 0);
-      const saidas = movimentos.filter((m) => m.tipo !== "entrada").reduce((s, m) => s + m.valor_centavos, 0);
+      const entradas = movimentos
+        .filter((m) => m.tipo === "entrada")
+        .reduce((s, m) => s + m.valor_centavos, 0);
+      const saidas = movimentos
+        .filter((m) => m.tipo !== "entrada")
+        .reduce((s, m) => s + m.valor_centavos, 0);
       faturamentoCentavos = entradas;
       financeiro = {
         entradasCentavos: entradas,
         saidasCentavos: saidas,
         liquidoCentavos: entradas - saidas,
-        fiadoAbertoCentavos: ((fiadosRes.data ?? []) as any[]).reduce((s, f) => s + f.saldo_centavos, 0),
+        fiadoAbertoCentavos: ((fiadosRes.data ?? []) as any[]).reduce(
+          (s, f) => s + f.saldo_centavos,
+          0,
+        ),
         caixaAberto: Boolean(sessaoRes.data),
         comissoesPendentesCentavos: podeComissoes
           ? ((comissoesRes.data ?? []) as any[])
@@ -315,7 +355,9 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         nome: p.nome as string,
         atendimentos: meus.length,
         ocupacaoPct: slots > 0 ? Math.min(100, Math.round((meus.length / slots) * 100)) : null,
-        faturamentoCentavos: podeFinanceiro ? meus.reduce((s, a) => s + (a.valor_centavos ?? 0), 0) : null,
+        faturamentoCentavos: podeFinanceiro
+          ? meus.reduce((s, a) => s + (a.valor_centavos ?? 0), 0)
+          : null,
       };
     });
 
@@ -334,7 +376,9 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
       inativos: podeClientes ? inativos : 0,
       naFila: filaRes.data?.length ?? 0,
       canceladosHoje: {
-        label: cancelamentos[0] ? new Date(cancelamentos[0].inicio).toISOString().slice(11, 16) : null,
+        label: cancelamentos[0]
+          ? new Date(cancelamentos[0].inicio).toISOString().slice(11, 16)
+          : null,
         quantidade: cancelamentos.length,
       },
       profissionaisBaixaOcupacao: porProfissional
@@ -402,9 +446,11 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
     const receitaAgendada = ticketBase.reduce((s, a) => s + (a.valor_centavos ?? 0), 0);
 
     const horaLocal = Number(
-      new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", hour12: false, timeZone: "America/Sao_Paulo" }).format(
-        new Date(),
-      ),
+      new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        hour12: false,
+        timeZone: "America/Sao_Paulo",
+      }).format(new Date()),
     );
 
     return {
@@ -423,7 +469,9 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         faturamentoCentavos,
         atendimentos: ativosHoje.length,
         ticketMedioCentavos:
-          podeFinanceiro && ticketBase.length ? Math.round(receitaAgendada / ticketBase.length) : null,
+          podeFinanceiro && ticketBase.length
+            ? Math.round(receitaAgendada / ticketBase.length)
+            : null,
         ocupacaoPct,
         horariosLivres,
         horariosConfigurados,

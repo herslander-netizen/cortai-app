@@ -26,17 +26,22 @@ export const SITUACOES = {
 export const NOTIFICACOES = {
   confirmacao:
     "✅ Horário confirmado! {{servico}} com {{profissional}}, {{dia_semana}} {{data}} às {{horario}}. Para remarcar ou cancelar, é só responder aqui.",
-  lembrete_24h: "Oi, {{nome}}! Amanhã às {{horario}} você tem {{servico}} com {{profissional}}. Confirma?",
+  lembrete_24h:
+    "Oi, {{nome}}! Amanhã às {{horario}} você tem {{servico}} com {{profissional}}. Confirma?",
   horario_proximo: "Seu horário é às {{horario}}. Te esperamos! 📍 {{endereco}}",
-  cancelamento: "Seu horário de {{dia_semana}} às {{horario}} foi cancelado. Quando quiser remarcar, é só chamar.",
+  cancelamento:
+    "Seu horário de {{dia_semana}} às {{horario}} foi cancelado. Quando quiser remarcar, é só chamar.",
   cancelado_pela_barbearia:
     "Precisamos cancelar seu horário de {{dia_semana}} às {{horario}} por um imprevisto. Desculpa! Quer que eu veja outro horário?",
   remarcacao: "🔄 Seu horário mudou para {{dia_semana}} {{data}} às {{horario}}.",
-  vaga_lista_espera: "Abriu um horário {{dia_semana}} às {{horario}} com {{profissional}}. Quer pegar?",
+  vaga_lista_espera:
+    "Abriu um horário {{dia_semana}} às {{horario}} com {{profissional}}. Quer pegar?",
   pos_atendimento: "Valeu pela visita, {{nome}}! 👊 Curtiu o resultado?",
   falta: "Sentimos sua falta hoje, {{nome}}. Quer remarcar?",
-  retorno: "E aí, {{nome}}! Já faz {{dias}} dias do último corte. Quer que eu veja um horário com {{profissional}}?",
-  valor_a_pagar: "Oi, {{nome}}! Passando pra lembrar que ficou {{valor}} a pagar. Quer que eu mande a chave Pix?",
+  retorno:
+    "E aí, {{nome}}! Já faz {{dias}} dias do último corte. Quer que eu veja um horário com {{profissional}}?",
+  valor_a_pagar:
+    "Oi, {{nome}}! Passando pra lembrar que ficou {{valor}} a pagar. Quer que eu mande a chave Pix?",
   aniversario: "Feliz aniversário, {{nome}}! 🎉 {{beneficio}}",
 } as const;
 
@@ -69,23 +74,38 @@ export type PersonalizacaoConversa = {
 const PADRAO_BELEZA: Partial<Record<ChaveDeTexto, string>> = {
   pos_atendimento: "Foi um prazer te atender, {{nome}}! Gostou do resultado? ✨",
   elogio: "Que bom saber, {{nome}}! Vou passar pra equipe.",
-  retorno: "Oi, {{nome}}! Já faz {{dias}} dias do seu último atendimento ({{ultimo_servico}}). Quer que eu veja um horário com {{profissional}}?",
+  retorno:
+    "Oi, {{nome}}! Já faz {{dias}} dias do seu último atendimento ({{ultimo_servico}}). Quer que eu veja um horário com {{profissional}}?",
 };
 
 /** Texto da situação: personalizado > padrão. null se a barbearia desligou. */
-export function textoDaSituacao(chave: ChaveDeTexto, p?: PersonalizacaoConversa, segmento: Segmento = "barbearia"): string | null {
+export function textoDaSituacao(
+  chave: ChaveDeTexto,
+  p?: PersonalizacaoConversa,
+  segmento: Segmento = "barbearia",
+): string | null {
   if (p?.desligadas?.includes(chave)) return null;
   const custom = p?.textos?.[chave]?.trim();
   if (custom) return custom;
   const porSegmento = segmentoValido(segmento) === "barbearia" ? null : PADRAO_BELEZA[chave];
-  return porSegmento ?? (SITUACOES as Record<string, string>)[chave] ?? (NOTIFICACOES as Record<string, string>)[chave] ?? null;
+  return (
+    porSegmento ??
+    (SITUACOES as Record<string, string>)[chave] ??
+    (NOTIFICACOES as Record<string, string>)[chave] ??
+    null
+  );
 }
 
 /** Troca {{variavel}}. Variável sem dado vira null (nunca inventar). */
-export function preencher(texto: string, vars: Record<string, string | number | null | undefined>): string | null {
+export function preencher(
+  texto: string,
+  vars: Record<string, string | number | null | undefined>,
+): string | null {
   let faltou = false;
   const out = texto.replace(/\{\{(\w+)\}\}/g, (_, k: string) => {
-    const v = vars[k] ?? (k === "negocio" ? vars["barbearia"] : k === "barbearia" ? vars["negocio"] : undefined);
+    const v =
+      vars[k] ??
+      (k === "negocio" ? vars["barbearia"] : k === "barbearia" ? vars["negocio"] : undefined);
     if (v === null || v === undefined || v === "") {
       faltou = true;
       return "";
@@ -98,11 +118,14 @@ export function preencher(texto: string, vars: Record<string, string | number | 
 /** Máximo de 1 emoji por mensagem (princípio 8). */
 export function limitarEmojis(texto: string): string {
   let visto = false;
-  return texto.replace(/\p{Extended_Pictographic}\uFE0F?/gu, (e) => {
-    if (visto) return "";
-    visto = true;
-    return e;
-  }).replace(/ {2,}/g, " ").trim();
+  return texto
+    .replace(/\p{Extended_Pictographic}\uFE0F?/gu, (e) => {
+      if (visto) return "";
+      visto = true;
+      return e;
+    })
+    .replace(/ {2,}/g, " ")
+    .trim();
 }
 
 /** Resposta final: texto da situação preenchido; sem dado → "Vou confirmar com a equipe". */

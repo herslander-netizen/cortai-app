@@ -16,7 +16,10 @@ export function destinoDoPapel(sessao: Sessao): Destino {
  * Só devolve o destino pedido no login quando ele é um caminho interno
  * dentro da área permitida para o papel da pessoa. Caso contrário, null.
  */
-export function destinoSolicitadoPermitido(proximo: string | undefined, destino: Destino): string | null {
+export function destinoSolicitadoPermitido(
+  proximo: string | undefined,
+  destino: Destino,
+): string | null {
   if (!proximo || !proximo.startsWith("/") || proximo.startsWith("//")) return null;
   const caminho = proximo.split("?")[0] ?? "";
   // Autorização de assistentes externos (MCP): volta à tela de consentimento.
@@ -46,7 +49,11 @@ if (typeof window !== "undefined") {
 
 export async function sessaoDoUsuario(userId: string): Promise<Sessao> {
   const agora = Date.now();
-  if (cacheDaSessao && cacheDaSessao.userId === userId && agora - cacheDaSessao.em < VALIDADE_DA_SESSAO_MS) {
+  if (
+    cacheDaSessao &&
+    cacheDaSessao.userId === userId &&
+    agora - cacheDaSessao.em < VALIDADE_DA_SESSAO_MS
+  ) {
     return cacheDaSessao.promessa;
   }
   const promessa = getSessao();
@@ -74,7 +81,9 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
       to: "/login",
       search: {
         proximo:
-          typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "",
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : "",
       },
     });
   }

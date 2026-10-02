@@ -22,7 +22,8 @@ function clientePublico() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -31,18 +32,23 @@ function clientePublico() {
 }
 
 /** Lista pública: só parceiros ativos, para a faixa da home. */
-export const listarParceiros = createServerFn({ method: "GET" }).handler(async (): Promise<Parceiro[]> => {
-  const { data } = await clientePublico()
-    .from("parceiros_da_plataforma")
-    .select("id, nome, logo_url, link, ordem, ativo")
-    .eq("ativo", true)
-    .order("ordem")
-    .limit(24);
-  return data ?? [];
-});
+export const listarParceiros = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Parceiro[]> => {
+    const { data } = await clientePublico()
+      .from("parceiros_da_plataforma")
+      .select("id, nome, logo_url, link, ordem, ativo")
+      .eq("ativo", true)
+      .order("ordem")
+      .limit(24);
+    return data ?? [];
+  },
+);
 
 async function exigirAdmin(context: { supabase: any; userId: string }) {
-  const { data: admin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+  const { data: admin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
   if (!admin) throw new Error("Acesso exclusivo do dono da plataforma.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;

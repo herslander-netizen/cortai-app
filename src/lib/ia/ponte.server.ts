@@ -53,7 +53,11 @@ export async function contextoDoToken(token: string | null): Promise<ContextoDoA
     .maybeSingle();
   if (!data || data.status === "suspenso" || data.status === "desconectado") return null;
 
-  const { data: tenant } = await db.from("tenants").select("id, ativo").eq("id", data.tenant_id).maybeSingle();
+  const { data: tenant } = await db
+    .from("tenants")
+    .select("id, ativo")
+    .eq("id", data.tenant_id)
+    .maybeSingle();
   if (!tenant || tenant.ativo === false) return null;
 
   await db
@@ -62,5 +66,8 @@ export async function contextoDoToken(token: string | null): Promise<ContextoDoA
     .eq("tenant_id", data.tenant_id)
     .eq("provedor", PROVEDOR_PADRAO);
 
-  return { tenantId: data.tenant_id as string, externalAgentId: (data.external_agent_id as string) ?? null };
+  return {
+    tenantId: data.tenant_id as string,
+    externalAgentId: (data.external_agent_id as string) ?? null,
+  };
 }

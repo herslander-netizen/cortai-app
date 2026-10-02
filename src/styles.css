@@ -715,6 +715,16 @@
   }
 }
 
+@media (orientation: landscape) and (min-width: 700px) {
+  [data-cockpit-foco] {
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+    align-items: start;
+  }
+  [data-cockpit-foco] > footer {
+    grid-column: 1 / -1;
+  }
+}
+
 .management-header {
   position: sticky;
   top: 0;

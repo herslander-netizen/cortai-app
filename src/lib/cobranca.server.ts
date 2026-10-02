@@ -236,8 +236,7 @@ export async function criarAssinatura(input: {
     await api.call("DELETE", `/subscriptions/${atual.asaas_subscription_id}`).catch(() => null);
   }
 
-  const usaTeste =
-    input.permitirTeste && !tenant.teste_inicio && !atual;
+  const usaTeste = input.permitirTeste && !tenant.teste_inicio && !atual;
   const teste = usaTeste ? datasDoTeste(new Date(), DIAS_DE_TESTE) : null;
   const vencimento = teste?.primeiroVencimento ?? dataIso(new Date());
 
@@ -623,20 +622,18 @@ export async function iniciarTesteDoNovoNegocio(tenantId: string) {
         assinatura_status: "teste",
       })
       .eq("id", tenantId);
-    await client
-      .from("assinaturas")
-      .upsert(
-        {
-          tenant_id: tenantId,
-          plano_chave: plano.chave,
-          ciclo: "mensal",
-          valor_centavos: plano.precoMensalCentavos,
-          status: "teste",
-          proximo_vencimento: teste.primeiroVencimento,
-          pago_ate: teste.primeiroVencimento,
-        },
-        { onConflict: "tenant_id" },
-      );
+    await client.from("assinaturas").upsert(
+      {
+        tenant_id: tenantId,
+        plano_chave: plano.chave,
+        ciclo: "mensal",
+        valor_centavos: plano.precoMensalCentavos,
+        status: "teste",
+        proximo_vencimento: teste.primeiroVencimento,
+        pago_ate: teste.primeiroVencimento,
+      },
+      { onConflict: "tenant_id" },
+    );
   } catch {
     /* criação do negócio nunca falha por causa da cobrança */
   }

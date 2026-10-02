@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fichaFocoVisivel } from "./FichaFoco";
+import { fichaFocoVisivel } from "./ficha-foco";
 
 describe("fichaFocoVisivel", () => {
   it("expõe somente os campos existentes", () => {

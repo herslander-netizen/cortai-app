@@ -5,7 +5,11 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
-import { getConfiguracaoInicial, ITENS_DO_CHECKLIST, marcarItemDoChecklist } from "@/lib/onboarding.functions";
+import {
+  getConfiguracaoInicial,
+  ITENS_DO_CHECKLIST,
+  marcarItemDoChecklist,
+} from "@/lib/onboarding.functions";
 
 /**
  * Primeiros passos na tela inicial. Só para quem cuida da barbearia.
@@ -13,7 +17,11 @@ import { getConfiguracaoInicial, ITENS_DO_CHECKLIST, marcarItemDoChecklist } fro
  */
 /** Contador discreto do teste grátis. */
 function ContadorDoTeste() {
-  const { data } = useQuery({ queryKey: ["capacidades"], queryFn: () => getCapacidades(), staleTime: 300_000 });
+  const { data } = useQuery({
+    queryKey: ["capacidades"],
+    queryFn: () => getCapacidades(),
+    staleTime: 300_000,
+  });
   if (!data?.teste?.ativo) return null;
   const dias = data.teste.diasRestantes;
   return (
@@ -21,9 +29,7 @@ function ContadorDoTeste() {
       to="/barbeiro/plano"
       className="mt-4 flex min-h-12 w-full basis-full items-center justify-between gap-3 rounded-xl border border-line px-4 text-left text-xs text-mute"
     >
-      <span>
-        Teste grátis: {dias === 1 ? "resta 1 dia" : `restam ${dias} dias`}
-      </span>
+      <span>Teste grátis: {dias === 1 ? "resta 1 dia" : `restam ${dias} dias`}</span>
       <ChevronRight size={16} aria-hidden />
     </Link>
   );
@@ -41,7 +47,11 @@ export function PrimeirosPassos() {
 function ListaDePrimeirosPassos() {
   const marcar = useServerFn(marcarItemDoChecklist);
   const queryClient = useQueryClient();
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300_000,
+  });
   const cuidaDaBarbearia = Boolean(sessao?.permissoes.includes("alterar_dados_barbearia"));
   const { data } = useQuery({
     queryKey: ["configuracao-inicial"],
@@ -60,7 +70,9 @@ function ListaDePrimeirosPassos() {
       >
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold text-paper">Termine de configurar</span>
-          <span className="block text-xs text-mute">Faltam poucos passos para seu link ficar pronto.</span>
+          <span className="block text-xs text-mute">
+            Faltam poucos passos para seu link ficar pronto.
+          </span>
         </span>
         <ChevronRight size={16} className="text-mute" aria-hidden />
       </Link>
@@ -71,7 +83,10 @@ function ListaDePrimeirosPassos() {
   if (feitos === ITENS_DO_CHECKLIST.length) return null;
 
   return (
-    <section className="mt-4 w-full basis-full surface px-4 py-3 text-left" aria-label="Primeiros passos">
+    <section
+      className="mt-4 w-full basis-full surface px-4 py-3 text-left"
+      aria-label="Primeiros passos"
+    >
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-semibold text-paper">Primeiros passos</h2>
         <span className="text-xs text-mute">
@@ -99,7 +114,9 @@ function ListaDePrimeirosPassos() {
                 ) : (
                   <Circle size={16} className="shrink-0 text-mute2" aria-hidden />
                 )}
-                <span className={`text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>{item.rotulo}</span>
+                <span className={`text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>
+                  {item.rotulo}
+                </span>
               </Link>
               {feito ? null : (
                 <button

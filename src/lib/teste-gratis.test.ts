@@ -23,7 +23,9 @@ describe("teste grátis", () => {
 
   it("libera o Studio durante o teste", () => {
     const { fim } = datasDoNovoTeste(agora);
-    expect(planoEfetivo({ status: "teste", testeFim: fim, plano: "essencial" }, agora)).toBe("studio");
+    expect(planoEfetivo({ status: "teste", testeFim: fim, plano: "essencial" }, agora)).toBe(
+      "studio",
+    );
   });
 
   it("rebaixa para o Essencial quando o teste vence", () => {

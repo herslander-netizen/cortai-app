@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { dataCurta } from "@/lib/format";
-import { getAvaliacoes, registrarAvaliacao, salvarLinkAvaliacao } from "@/lib/crescimento.functions";
+import {
+  getAvaliacoes,
+  registrarAvaliacao,
+  salvarLinkAvaliacao,
+} from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { useAcao } from "@/hooks/useAcao";
 import { Button } from "@/components/ui/button";
@@ -15,9 +19,16 @@ export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
     meta: [
       { title: "Avaliações — Cortaí Gestão" },
-      { name: "description", content: "Registre a nota de cada atendimento e convide os satisfeitos a avaliar publicamente." },
+      {
+        name: "description",
+        content:
+          "Registre a nota de cada atendimento e convide os satisfeitos a avaliar publicamente.",
+      },
       { property: "og:title", content: "Avaliações — Cortaí Gestão" },
-      { property: "og:description", content: "Feedback interno e convite público na medida certa." },
+      {
+        property: "og:description",
+        content: "Feedback interno e convite público na medida certa.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -30,7 +41,8 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
   return (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           key={n}
           type="button"
           disabled={!onChange}
@@ -48,7 +60,10 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
 function AvaliacoesPage() {
   const registrar = useServerFn(registrarAvaliacao);
   const salvarLink = useServerFn(salvarLinkAvaliacao);
-  const { data, isLoading, refetch } = useQuery({ queryKey: ["avaliacoes"], queryFn: () => getAvaliacoes() });
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["avaliacoes"],
+    queryFn: () => getAvaliacoes(),
+  });
 
   const [notas, setNotas] = useState<Record<string, number>>({});
   const [comentarios, setComentarios] = useState<Record<string, string>>({});
@@ -61,7 +76,11 @@ function AvaliacoesPage() {
   }, [data]);
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Avaliações" subtitle="Feedback interno, convite público só quando faz sentido.">
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Avaliações"
+      subtitle="Feedback interno, convite público só quando faz sentido."
+    >
       {isLoading ? <Carregando /> : null}
 
       {data ? (
@@ -69,23 +88,32 @@ function AvaliacoesPage() {
           <p className="text-xs text-mute">Média interna</p>
           <p className="mt-1 text-[30px] font-bold leading-none text-paper">{data.media ?? "—"}</p>
           <p className="mt-2 text-xs text-mute2">
-            {data.registradas.length} {data.registradas.length === 1 ? "avaliação registrada" : "avaliações registradas"}
+            {data.registradas.length}{" "}
+            {data.registradas.length === 1 ? "avaliação registrada" : "avaliações registradas"}
           </p>
         </div>
       ) : null}
 
       <label className="mt-6 block">
         <span className="text-xs text-mute2">Link de avaliação pública (Google, por exemplo)</span>
-        <input value={link} onChange={(e) => setLink(e.target.value)} className="input-premium mt-1 w-full" placeholder="https://" />
+        <input
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          className="input-premium mt-1 w-full"
+          placeholder="https://"
+        />
       </label>
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         className="btn-tertiary mt-2 text-xs disabled:opacity-60"
         disabled={acao.ocupado}
         onClick={() =>
           acao.executar("link", () => salvarLink({ data: { link } }), {
             sucesso: "Link de avaliação salvo.",
-            aoConcluir: async () => { await refetch(); },
+            aoConcluir: async () => {
+              await refetch();
+            },
           })
         }
       >
@@ -93,7 +121,9 @@ function AvaliacoesPage() {
       </Button>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Atendimentos sem avaliação</h2>
-      {data && data.pendentes.length === 0 ? <EmptyState text="Todos os atendimentos recentes já foram avaliados." /> : null}
+      {data && data.pendentes.length === 0 ? (
+        <EmptyState text="Todos os atendimentos recentes já foram avaliados." />
+      ) : null}
       <ul>
         {(data?.pendentes ?? []).map((p) => {
           const nota = notas[p.id] ?? 0;
@@ -115,14 +145,22 @@ function AvaliacoesPage() {
                     placeholder="Comentário (opcional)"
                     className="input-premium mt-3 w-full resize-none"
                   />
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     className="btn-tertiary mt-2 text-xs disabled:opacity-60"
                     disabled={acao.ocupado}
                     onClick={() =>
                       acao.executar(
                         `avaliar-${p.id}`,
-                        () => registrar({ data: { agendamentoId: p.id, nota, comentario: comentarios[p.id] ?? "" } }),
+                        () =>
+                          registrar({
+                            data: {
+                              agendamentoId: p.id,
+                              nota,
+                              comentario: comentarios[p.id] ?? "",
+                            },
+                          }),
                         {
                           sucesso: "Avaliação registrada.",
                           aoConcluir: async (r) => {
@@ -151,7 +189,9 @@ function AvaliacoesPage() {
       {convite ? <p className="mt-4 break-words text-sm text-sage">{convite}</p> : null}
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Registradas</h2>
-      {data && data.registradas.length === 0 ? <EmptyState text="Nenhuma avaliação ainda." /> : null}
+      {data && data.registradas.length === 0 ? (
+        <EmptyState text="Nenhuma avaliação ainda." />
+      ) : null}
       <ul>
         {(data?.registradas ?? []).map((a) => (
           <li key={a.id} className="border-b border-line py-4">

@@ -172,7 +172,9 @@ function InicioCliente() {
               <p className="text-base font-semibold text-paper">
                 {agendamentos.isLoading ? "Carregando…" : "Nenhum horário marcado"}
               </p>
-              <p className="mt-1 text-sm text-mute">Escolha o melhor dia para o próximo atendimento.</p>
+              <p className="mt-1 text-sm text-mute">
+                Escolha o melhor dia para o próximo atendimento.
+              </p>
             </div>
           )}
           <Link

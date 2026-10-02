@@ -10,7 +10,10 @@
 
 /** Valor simples serializável — nada de objetos exóticos atravessando a fronteira. */
 export type ValorSimples = string | number | boolean | null;
-export type DadosDeEvento = Record<string, ValorSimples | ValorSimples[] | Record<string, ValorSimples>>;
+export type DadosDeEvento = Record<
+  string,
+  ValorSimples | ValorSimples[] | Record<string, ValorSimples>
+>;
 
 export const PROVEDOR_PADRAO = "alvo_ia" as const;
 export type ProvedorDeIAId = typeof PROVEDOR_PADRAO;
@@ -119,7 +122,10 @@ export interface ProvedorDeIA {
   /** Cria/vincula a conta da barbearia no provedor. */
   registrarTenant(input: { tenantId: string; nome: string }): Promise<RespostaDeVinculo>;
   /** Envia os dados básicos da barbearia (serviços, profissionais, horários). */
-  sincronizarBarbearia(input: { externalTenantId: string; resumo: ResumoDaBarbearia }): Promise<void>;
+  sincronizarBarbearia(input: {
+    externalTenantId: string;
+    resumo: ResumoDaBarbearia;
+  }): Promise<void>;
   /** Cria ou atualiza o agente (nome público + persona). */
   salvarAgente(input: {
     externalTenantId: string;
@@ -128,7 +134,9 @@ export interface ProvedorDeIA {
     persona: PersonaDoAgente;
   }): Promise<RespostaDeAgente>;
   /** Consulta o estado da conexão no provedor. */
-  consultarStatus(input: { externalTenantId: string }): Promise<{ status: StatusDaIntegracao; detalhe?: string }>;
+  consultarStatus(input: {
+    externalTenantId: string;
+  }): Promise<{ status: StatusDaIntegracao; detalhe?: string }>;
   /** Entrega um evento de negócio ao provedor. */
   enviarEvento(evento: EventoDeNegocio & { externalTenantId: string }): Promise<void>;
   /** Normaliza um evento recebido do provedor para o formato interno. */

@@ -52,17 +52,27 @@ export const Route = createFileRoute("/api/public/cortai/acoes")({
         const nome = envelope.data.acao as NomeDeAcao;
         const validador = acharValidador(envelope.data.acao);
         if (!validador) {
-          return json({ erro: `Ação desconhecida: ${envelope.data.acao}`, acoes: Object.keys(ENTRADAS) }, 400);
+          return json(
+            { erro: `Ação desconhecida: ${envelope.data.acao}`, acoes: Object.keys(ENTRADAS) },
+            400,
+          );
         }
 
         const entrada = validador.safeParse(envelope.data.dados ?? {});
         if (!entrada.success) {
-          return json({ erro: "Dados inválidos.", detalhes: entrada.error.issues.map((i) => i.message) }, 422);
+          return json(
+            { erro: "Dados inválidos.", detalhes: entrada.error.issues.map((i) => i.message) },
+            422,
+          );
         }
 
-        const { limiteDaApiExcedido, registrarChamadaDaApi } = await import("@/lib/ia/limite.server");
+        const { limiteDaApiExcedido, registrarChamadaDaApi } =
+          await import("@/lib/ia/limite.server");
         if (await limiteDaApiExcedido(ctx.tenantId)) {
-          return json({ erro: "Muitas chamadas em pouco tempo. Tente novamente em instantes." }, 429);
+          return json(
+            { erro: "Muitas chamadas em pouco tempo. Tente novamente em instantes." },
+            429,
+          );
         }
 
         const { ACOES_DO_AGENTE } = await import("@/lib/ia/acoes.server");

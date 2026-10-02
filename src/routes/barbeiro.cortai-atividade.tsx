@@ -23,10 +23,14 @@ export const Route = createFileRoute("/barbeiro/cortai-atividade")({
       { title: "Atividade do CortAI — Cortaí Gestão" },
       {
         name: "description",
-        content: "Acompanhe o que o CortAI entendeu, o que consultou no seu negócio e o que não deu certo.",
+        content:
+          "Acompanhe o que o CortAI entendeu, o que consultou no seu negócio e o que não deu certo.",
       },
       { property: "og:title", content: "Atividade do CortAI — Cortaí Gestão" },
-      { property: "og:description", content: "Conversas, assuntos, consultas e falhas do atendimento inteligente." },
+      {
+        property: "og:description",
+        content: "Conversas, assuntos, consultas e falhas do atendimento inteligente.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -156,7 +160,9 @@ function AtividadePage() {
                 <span className="text-xs text-paper">{rotuloDaAcao(f.acao)}</span>
                 <span className="shrink-0 text-xs text-mute">
                   {f.total}
-                  {f.falhas > 0 ? <span className="text-brick"> · {f.falhas} com falha</span> : null}
+                  {f.falhas > 0 ? (
+                    <span className="text-brick"> · {f.falhas} com falha</span>
+                  ) : null}
                 </span>
               </li>
             ))}
@@ -166,9 +172,12 @@ function AtividadePage() {
 
       {termos.data && termos.data.length > 0 ? (
         <section className="mt-5" aria-label="Palavras que o CortAI não entendeu">
-          <h2 className="text-sm text-paper">Palavras que os clientes usam e o CortAI não entendeu</h2>
+          <h2 className="text-sm text-paper">
+            Palavras que os clientes usam e o CortAI não entendeu
+          </h2>
           <p className="mt-1 text-xs text-mute2">
-            Cadastre estes pedidos como serviço ou pergunta frequente para o CortAI passar a responder sozinho.
+            Cadastre estes pedidos como serviço ou pergunta frequente para o CortAI passar a
+            responder sozinho.
           </p>
           <ul className="mt-2 divide-y divide-line surface">
             {termos.data.map((t) => (
@@ -184,7 +193,8 @@ function AtividadePage() {
       <section className="mt-5" aria-label="Registro das ações">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm text-paper">Registro das ações</h2>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => setApenasFalhas((v) => !v)}
             className={`rounded-full border px-3 py-1.5 text-xs ${
@@ -202,10 +212,7 @@ function AtividadePage() {
 
         <ul className="mt-3 space-y-2">
           {(atividade.data?.registros ?? []).map((r) => (
-            <li
-              key={r.id}
-              className="surface px-4 py-3"
-            >
+            <li key={r.id} className="surface px-4 py-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-xs text-paper">

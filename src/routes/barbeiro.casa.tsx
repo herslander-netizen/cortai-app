@@ -6,7 +6,10 @@ export const Route = createFileRoute("/barbeiro/casa")({
       { title: "Visão Casa — Todas as cadeiras | Cortaí" },
       { name: "description", content: "Todas as cadeiras em tempo real, com fila e caixa do dia." },
       { property: "og:title", content: "Visão Casa — Cortaí" },
-      { property: "og:description", content: "Quem está na cadeira, quem chegou e quem está livre, ao vivo." },
+      {
+        property: "og:description",
+        content: "Quem está na cadeira, quem chegou e quem está livre, ao vivo.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

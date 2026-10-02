@@ -10,39 +10,69 @@ import { definirRecursoDePlano, getMatrizDeRecursos } from "@/lib/admin.function
 import { PLANOS, ROTULO_DO_PLANO } from "@/lib/planos";
 
 export const Route = createFileRoute("/admin/recursos")({
-  head: () => ({ meta: [
-    { title: "Recursos e planos — Cortaí" },
-    { name: "description", content: "Defina quais recursos do Cortaí cada plano libera para as barbearias." },
-    { property: "og:title", content: "Recursos e planos — Cortaí" },
-    { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
+  head: () => ({
+    meta: [
+      { title: "Recursos e planos — Cortaí" },
+      {
+        name: "description",
+        content: "Defina quais recursos do Cortaí cada plano libera para as barbearias.",
+      },
+      { property: "og:title", content: "Recursos e planos — Cortaí" },
+      { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
-  ] }),
+    ],
+  }),
   component: RecursosPage,
 });
 
 function RecursosPage() {
-  const query = useQuery({ queryKey: ["matriz-recursos"], queryFn: () => getMatrizDeRecursos(), retry: false });
+  const query = useQuery({
+    queryKey: ["matriz-recursos"],
+    queryFn: () => getMatrizDeRecursos(),
+    retry: false,
+  });
   const definir = useServerFn(definirRecursoDePlano);
   const acao = useAcao();
 
-  const alternar = (chave: string, rotulo: string, plano: (typeof PLANOS)[number], valor: boolean) =>
+  const alternar = (
+    chave: string,
+    rotulo: string,
+    plano: (typeof PLANOS)[number],
+    valor: boolean,
+  ) =>
     acao.executar(`${chave}-${plano}`, () => definir({ data: { chave, plano, liberado: valor } }), {
       sucesso: `${rotulo} — ${ROTULO_DO_PLANO[plano]}: ${valor ? "ativo" : "bloqueado"}.`,
-      aoConcluir: async () => { await query.refetch(); },
+      aoConcluir: async () => {
+        await query.refetch();
+      },
     });
 
   if (query.isError) {
-    return <AdminScreen title="Recursos e planos" subtitle="O que cada plano libera."><AdminNotice error={query.error} /></AdminScreen>;
+    return (
+      <AdminScreen title="Recursos e planos" subtitle="O que cada plano libera.">
+        <AdminNotice error={query.error} />
+      </AdminScreen>
+    );
   }
 
   const linhas = query.data ?? [];
   const recursos = Array.from(new Map(linhas.map((l) => [l.chave, l])).values());
 
   return (
-    <AdminScreen title="Recursos dos planos" subtitle="Disponibilidade por plano; bloquear não apaga dados." actions={<Link to="/admin/monetizacao" className="btn-secondary text-xs">Voltar à monetização</Link>}>
-      {!query.data ? <Carregando texto="Carregando matriz…" /> : (
+    <AdminScreen
+      title="Recursos dos planos"
+      subtitle="Disponibilidade por plano; bloquear não apaga dados."
+      actions={
+        <Link to="/admin/monetizacao" className="btn-secondary text-xs">
+          Voltar à monetização
+        </Link>
+      }
+    >
+      {!query.data ? (
+        <Carregando texto="Carregando matriz…" />
+      ) : (
         <>
           <div className="hidden overflow-x-auto sm:block">
             <table className="w-full min-w-[540px] border-collapse text-left">
@@ -50,7 +80,12 @@ function RecursosPage() {
                 <tr className="border-b border-line">
                   <th className="py-3 text-xs font-semibold uppercase text-mute">Recurso</th>
                   {PLANOS.map((plano) => (
-                    <th key={plano} className="w-28 py-3 text-center text-xs font-semibold uppercase text-mute">{ROTULO_DO_PLANO[plano]}</th>
+                    <th
+                      key={plano}
+                      className="w-28 py-3 text-center text-xs font-semibold uppercase text-mute"
+                    >
+                      {ROTULO_DO_PLANO[plano]}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -59,10 +94,16 @@ function RecursosPage() {
                   <tr key={recurso.chave} className="border-b border-line align-top">
                     <td className="py-4 pr-4">
                       <p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>
-                      {recurso.descricao ? <p className="mt-1 max-w-md text-xs leading-relaxed text-mute">{recurso.descricao}</p> : null}
+                      {recurso.descricao ? (
+                        <p className="mt-1 max-w-md text-xs leading-relaxed text-mute">
+                          {recurso.descricao}
+                        </p>
+                      ) : null}
                     </td>
                     {PLANOS.map((plano) => {
-                      const linha = linhas.find((l) => l.chave === recurso.chave && l.plano === plano);
+                      const linha = linhas.find(
+                        (l) => l.chave === recurso.chave && l.plano === plano,
+                      );
                       return (
                         <td key={plano} className="py-4 text-center">
                           <div className="flex flex-col items-center gap-1">
@@ -70,10 +111,16 @@ function RecursosPage() {
                               checked={Boolean(linha?.liberado)}
                               disabled={acao.ocupado}
                               aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`}
-                              onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)}
+                              onCheckedChange={(valor) =>
+                                alternar(recurso.chave, recurso.rotulo, plano, valor)
+                              }
                             />
 
-                            <span className={`text-xs uppercase ${linha?.liberado ? "text-sage" : "text-mute2"}`}>{linha?.liberado ? "Ativo" : "Bloqueado"}</span>
+                            <span
+                              className={`text-xs uppercase ${linha?.liberado ? "text-sage" : "text-mute2"}`}
+                            >
+                              {linha?.liberado ? "Ativo" : "Bloqueado"}
+                            </span>
                           </div>
                         </td>
                       );
@@ -84,10 +131,43 @@ function RecursosPage() {
             </table>
           </div>
           <div className="space-y-3 sm:hidden">
-            {recursos.map((recurso) => <section key={recurso.chave} className="surface-card p-4"><p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>{recurso.descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{recurso.descricao}</p> : null}<div className="mt-4 grid grid-cols-3 gap-2">{PLANOS.map((plano) => { const linha = linhas.find((l) => l.chave === recurso.chave && l.plano === plano); return <label key={plano} className="flex flex-col items-center gap-2 rounded-md bg-ink3 p-2 text-center"><span className="text-xs font-semibold text-mute">{ROTULO_DO_PLANO[plano]}</span><Switch checked={Boolean(linha?.liberado)} disabled={acao.ocupado} aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`} onCheckedChange={(valor) => alternar(recurso.chave, recurso.rotulo, plano, valor)} /></label>; })}</div></section>)}
+            {recursos.map((recurso) => (
+              <section key={recurso.chave} className="surface-card p-4">
+                <p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>
+                {recurso.descricao ? (
+                  <p className="mt-1 text-xs leading-relaxed text-mute">{recurso.descricao}</p>
+                ) : null}
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {PLANOS.map((plano) => {
+                    const linha = linhas.find(
+                      (l) => l.chave === recurso.chave && l.plano === plano,
+                    );
+                    return (
+                      <label
+                        key={plano}
+                        className="flex flex-col items-center gap-2 rounded-md bg-ink3 p-2 text-center"
+                      >
+                        <span className="text-xs font-semibold text-mute">
+                          {ROTULO_DO_PLANO[plano]}
+                        </span>
+                        <Switch
+                          checked={Boolean(linha?.liberado)}
+                          disabled={acao.ocupado}
+                          aria-label={`${recurso.rotulo} no plano ${ROTULO_DO_PLANO[plano]}`}
+                          onCheckedChange={(valor) =>
+                            alternar(recurso.chave, recurso.rotulo, plano, valor)
+                          }
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
           <p className="mt-6 text-xs leading-relaxed text-mute2">
-            A liberação é conferida no servidor sempre que a barbearia abre ou salva o recurso. Bloquear aqui não apaga nenhum dado já cadastrado.
+            A liberação é conferida no servidor sempre que a barbearia abre ou salva o recurso.
+            Bloquear aqui não apaga nenhum dado já cadastrado.
           </p>
         </>
       )}

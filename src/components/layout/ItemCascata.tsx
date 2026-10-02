@@ -21,7 +21,12 @@ export function ItemCascata({
   if (menos) return <li className={className}>{children}</li>;
   const a = cascata(indice);
   return (
-    <motion.li className={className} initial={a.initial} animate={a.animate} transition={a.transition}>
+    <motion.li
+      className={className}
+      initial={a.initial}
+      animate={a.animate}
+      transition={a.transition}
+    >
       {children}
     </motion.li>
   );

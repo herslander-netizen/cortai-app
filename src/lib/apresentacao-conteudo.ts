@@ -51,7 +51,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   agenda: {
     etiqueta: "MENOS FALTAS",
     titulo: "O lembrete vai sozinho pelo WhatsApp.",
-    texto: "Antes de cada horário o cliente recebe um aviso e confirma com um toque. Você não precisa mandar mensagem.",
+    texto:
+      "Antes de cada horário o cliente recebe um aviso e confirma com um toque. Você não precisa mandar mensagem.",
   },
   foco: {
     etiqueta: "MODO FOCO",
@@ -72,7 +73,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   recursos: {
     etiqueta: "RECURSOS",
     titulo: "Tudo o que você precisa para cuidar do seu negócio.",
-    texto: "O principal: lembrete automático por WhatsApp antes de cada horário, para o cliente não esquecer e a agenda não ficar vazia.",
+    texto:
+      "O principal: lembrete automático por WhatsApp antes de cada horário, para o cliente não esquecer e a agenda não ficar vazia.",
   },
   caixa: {
     etiqueta: "COMANDA E CAIXA",
@@ -108,7 +110,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     },
     {
       pergunta: "Preciso de cartão?",
-      resposta: "Não. O teste de 45 dias não pede cartão. Se decidir assinar, você paga por Pix, boleto ou cartão.",
+      resposta:
+        "Não. O teste de 45 dias não pede cartão. Se decidir assinar, você paga por Pix, boleto ou cartão.",
     },
     {
       pergunta: "O que acontece quando o teste acaba?",

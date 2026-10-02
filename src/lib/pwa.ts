@@ -28,7 +28,8 @@ function gravarLocal(chave: string, valor: string) {
 export function detectarPlataforma(): Plataforma {
   if (typeof navigator === "undefined") return "desktop";
   const ua = navigator.userAgent;
-  const iPadOS = /Macintosh/.test(ua) && typeof document !== "undefined" && "ontouchend" in document;
+  const iPadOS =
+    /Macintosh/.test(ua) && typeof document !== "undefined" && "ontouchend" in document;
   if (/iphone|ipad|ipod/i.test(ua) || iPadOS) return "ios";
   if (/android/i.test(ua)) return "android";
   return "desktop";
@@ -37,7 +38,8 @@ export function detectarPlataforma(): Plataforma {
 export function estaInstalado() {
   if (typeof window === "undefined") return false;
   const standalone = window.matchMedia?.("(display-mode: standalone)").matches;
-  const iosStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+  const iosStandalone =
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true;
   return Boolean(standalone || iosStandalone);
 }
 

@@ -72,7 +72,12 @@ export function AlterarSenha() {
           {[
             { rotulo: "Senha atual", valor: atual, set: setAtual, auto: "current-password" },
             { rotulo: "Nova senha", valor: nova, set: setNova, auto: "new-password" },
-            { rotulo: "Repita a nova senha", valor: confirmacao, set: setConfirmacao, auto: "new-password" },
+            {
+              rotulo: "Repita a nova senha",
+              valor: confirmacao,
+              set: setConfirmacao,
+              auto: "new-password",
+            },
           ].map((campo) => (
             <label key={campo.rotulo} className="block text-xs font-medium text-mute">
               {campo.rotulo}
@@ -92,7 +97,9 @@ export function AlterarSenha() {
               {erro}
             </p>
           ) : null}
-          {ok ? <Aviso tom="sucesso">Sua senha foi alterada. Ela já vale no próximo acesso.</Aviso> : null}
+          {ok ? (
+            <Aviso tom="sucesso">Sua senha foi alterada. Ela já vale no próximo acesso.</Aviso>
+          ) : null}
           <button className="btn-primary w-full py-3" disabled={salvando}>
             {salvando ? "Salvando…" : "Salvar nova senha"}
           </button>

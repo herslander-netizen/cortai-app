@@ -16,11 +16,14 @@ export default defineTool({
     const de = new Date(inicio);
     const ate = new Date(fim);
     if (ate <= de) throw new ToolError("O fim precisa ser depois do início.");
-    if (ate.getTime() - de.getTime() > 31 * 86400000) throw new ToolError("Período máximo de 31 dias.");
+    if (ate.getTime() - de.getTime() > 31 * 86400000)
+      throw new ToolError("Período máximo de 31 dias.");
     const { db, tenantId } = await tenantDoUsuario(ctx);
     const { data, error } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)")
+      .select(
+        "id, inicio, fim, status, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)",
+      )
       .eq("tenant_id", tenantId)
       .gte("inicio", de.toISOString())
       .lt("inicio", ate.toISOString())

@@ -168,7 +168,10 @@ export function calcularOportunidades(e: EntradaDoMotor): Oportunidade[] {
       tipo: "ESTOQUE_BAIXO",
       prioridade: "baixa",
       titulo: `${e.estoqueBaixo.length} ${e.estoqueBaixo.length === 1 ? "produto" : "produtos"} com estoque baixo`,
-      descricao: e.estoqueBaixo.slice(0, 3).map((p) => p.nome).join(", "),
+      descricao: e.estoqueBaixo
+        .slice(0, 3)
+        .map((p) => p.nome)
+        .join(", "),
       quantidade: e.estoqueBaixo.length,
       acao: "VER_LOJA",
       destino: "/barbeiro/produtos",

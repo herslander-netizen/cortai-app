@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 
 /** Campanhas publicadas pelo Cortaí para esta barbearia. */
 export function BannersDaPlataforma() {
-  const { data } = useQuery({ queryKey: ["banners-home"], queryFn: () => getBannersDaHome(), retry: false });
+  const { data } = useQuery({
+    queryKey: ["banners-home"],
+    queryFn: () => getBannersDaHome(),
+    retry: false,
+  });
   if (!data?.length) return null;
   return (
     <ul className="mb-4 space-y-3">
@@ -22,7 +26,9 @@ export function BannersDaPlataforma() {
           ) : null}
           <div className="px-4 py-4">
             <p className="text-sm font-semibold text-paper">{b.titulo}</p>
-            {b.subtitulo ? <p className="mt-1 text-xs leading-relaxed text-mute">{b.subtitulo}</p> : null}
+            {b.subtitulo ? (
+              <p className="mt-1 text-xs leading-relaxed text-mute">{b.subtitulo}</p>
+            ) : null}
             {b.ctaRotulo && b.ctaDestino ? (
               <a href={b.ctaDestino} className="mt-3 inline-block text-xs font-semibold text-gold">
                 {b.ctaRotulo}
@@ -37,7 +43,11 @@ export function BannersDaPlataforma() {
 
 /** Plano da barbearia, condição especial em vigor e uso dos limites. */
 export function MeuPlano() {
-  const query = useQuery({ queryKey: ["minha-assinatura"], queryFn: () => getMinhaAssinatura(), retry: false });
+  const query = useQuery({
+    queryKey: ["minha-assinatura"],
+    queryFn: () => getMinhaAssinatura(),
+    retry: false,
+  });
   const aplicar = useServerFn(aplicarCupom);
   const [codigo, setCodigo] = useState("");
   const [aviso, setAviso] = useState("");
@@ -93,7 +103,10 @@ export function MeuPlano() {
                   </span>
                 </div>
                 <div className="mt-1 h-1 overflow-hidden rounded-full bg-ink3">
-                  <div className={`h-full rounded-full ${pct >= 90 ? "bg-brick" : "bg-gold"}`} style={{ width: `${Math.max(3, pct)}%` }} />
+                  <div
+                    className={`h-full rounded-full ${pct >= 90 ? "bg-brick" : "bg-gold"}`}
+                    style={{ width: `${Math.max(3, pct)}%` }}
+                  />
                 </div>
               </li>
             );
@@ -129,12 +142,25 @@ export function MeuPlano() {
             className="w-full bg-transparent py-2.5 text-sm text-paper outline-none placeholder:text-mute2"
           />
         </span>
-        <Button variant="ghost" type="submit" className="btn-secondary px-4 text-xs disabled:opacity-60" disabled={acao.ocupado || codigo.trim().length < 2}>
+        <Button
+          variant="ghost"
+          type="submit"
+          className="btn-secondary px-4 text-xs disabled:opacity-60"
+          disabled={acao.ocupado || codigo.trim().length < 2}
+        >
           {acao.estaEm("cupom") ? "Aplicando…" : "Aplicar"}
         </Button>
       </form>
-      {aviso ? <p className="mt-2 text-xs text-sage" role="status">{aviso}</p> : null}
-      {erro ? <p className="mt-2 text-xs text-brick" role="alert">{erro}</p> : null}
+      {aviso ? (
+        <p className="mt-2 text-xs text-sage" role="status">
+          {aviso}
+        </p>
+      ) : null}
+      {erro ? (
+        <p className="mt-2 text-xs text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
     </section>
   );
 }

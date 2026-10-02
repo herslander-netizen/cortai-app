@@ -8,13 +8,21 @@ import { Switch } from "@/components/ui/switch";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EmptyState } from "@/components/ui/section";
 import { useAcao } from "@/hooks/useAcao";
-import { listarParceirosAdmin, removerParceiro, salvarParceiro, type Parceiro } from "@/lib/parceiros.functions";
+import {
+  listarParceirosAdmin,
+  removerParceiro,
+  salvarParceiro,
+  type Parceiro,
+} from "@/lib/parceiros.functions";
 
 export const Route = createFileRoute("/admin/parceiros")({
   head: () => ({
     meta: [
       { title: "Parceiros — Cortaí" },
-      { name: "description", content: "Cadastre os parceiros exibidos na faixa da página inicial do Cortaí." },
+      {
+        name: "description",
+        content: "Cadastre os parceiros exibidos na faixa da página inicial do Cortaí.",
+      },
       { property: "og:title", content: "Parceiros — Cortaí" },
       { property: "og:description", content: "Gestão da faixa de parceiros da página inicial." },
       { property: "og:type", content: "website" },
@@ -28,7 +36,11 @@ export const Route = createFileRoute("/admin/parceiros")({
 const VAZIO = { nome: "", logo_url: "", link: "", ordem: 0, ativo: true };
 
 function ParceirosAdmin() {
-  const consulta = useQuery({ queryKey: ["parceiros-admin"], queryFn: () => listarParceirosAdmin(), retry: false });
+  const consulta = useQuery({
+    queryKey: ["parceiros-admin"],
+    queryFn: () => listarParceirosAdmin(),
+    retry: false,
+  });
   const salvar = useServerFn(salvarParceiro);
   const remover = useServerFn(removerParceiro);
   const [form, setForm] = useState<typeof VAZIO & { id?: string }>(VAZIO);
@@ -36,11 +48,13 @@ function ParceirosAdmin() {
   const [erro, setErro] = useState<string | null>(null);
   const acao = useAcao();
 
-
   const parceiros = (consulta.data ?? []) as Parceiro[];
 
   return (
-    <AdminScreen title="Parceiros" subtitle="Faixa discreta da página inicial; sem parceiros ativos, ela fica oculta.">
+    <AdminScreen
+      title="Parceiros"
+      subtitle="Faixa discreta da página inicial; sem parceiros ativos, ela fica oculta."
+    >
       {consulta.isError ? <AdminNotice error={consulta.error} /> : null}
 
       <form
@@ -48,7 +62,10 @@ function ParceirosAdmin() {
         onSubmit={(event) => {
           event.preventDefault();
           setErro(null);
-          if (ordem.trim() !== "" && !Number.isFinite(Number(ordem))) { setErro("Informe uma ordem válida."); return; }
+          if (ordem.trim() !== "" && !Number.isFinite(Number(ordem))) {
+            setErro("Informe uma ordem válida.");
+            return;
+          }
           const editando = Boolean(form.id);
           void acao.executar(
             "salvar",
@@ -74,7 +91,9 @@ function ParceirosAdmin() {
           );
         }}
       >
-        <p className="text-sm font-semibold text-paper">{form.id ? "Editar parceiro" : "Novo parceiro"}</p>
+        <p className="text-sm font-semibold text-paper">
+          {form.id ? "Editar parceiro" : "Novo parceiro"}
+        </p>
         <label className="block text-xs text-mute">
           Nome
           <input
@@ -111,16 +130,30 @@ function ParceirosAdmin() {
             onChange={(e) => setOrdem(e.target.value)}
             className="field-control mt-1"
           />
-
         </label>
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm text-paper">Visível na página inicial</span>
-          <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} aria-label="Parceiro visível" />
+          <Switch
+            checked={form.ativo}
+            onCheckedChange={(v) => setForm({ ...form, ativo: v })}
+            aria-label="Parceiro visível"
+          />
         </div>
         <div className="flex gap-2">
-          <Button className="flex-1" disabled={acao.ocupado}>{acao.estaEm("salvar") ? "Salvando…" : form.id ? "Salvar" : "Adicionar"}</Button>
+          <Button className="flex-1" disabled={acao.ocupado}>
+            {acao.estaEm("salvar") ? "Salvando…" : form.id ? "Salvar" : "Adicionar"}
+          </Button>
           {form.id ? (
-            <Button type="button" variant="ghost" onClick={() => { setForm(VAZIO); setOrdem("0"); }}>Cancelar</Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setForm(VAZIO);
+                setOrdem("0");
+              }}
+            >
+              Cancelar
+            </Button>
           ) : null}
         </div>
         {erro ? (
@@ -132,7 +165,10 @@ function ParceirosAdmin() {
 
       <ul className="mt-6">
         {parceiros.map((parceiro) => (
-          <li key={parceiro.id} className="flex items-center justify-between gap-4 border-b border-line py-3">
+          <li
+            key={parceiro.id}
+            className="flex items-center justify-between gap-4 border-b border-line py-3"
+          >
             <span className="min-w-0">
               <span className="block truncate text-sm text-paper">{parceiro.nome}</span>
               <span className="text-xs text-mute2">
@@ -154,7 +190,6 @@ function ParceirosAdmin() {
                     ativo: parceiro.ativo,
                   });
                 }}
-
               >
                 Editar
               </button>
@@ -163,14 +198,22 @@ function ParceirosAdmin() {
                 className="text-xs text-brick disabled:opacity-60"
                 disabled={acao.ocupado}
                 onClick={() => {
-                  if (!window.confirm(`Remover o parceiro ${parceiro.nome} da página inicial?`)) return;
-                  void acao.executar(`remover-${parceiro.id}`, () => remover({ data: { id: parceiro.id } }), {
-                    sucesso: "Parceiro removido.",
-                    aoConcluir: async () => {
-                      if (form.id === parceiro.id) { setForm(VAZIO); setOrdem("0"); }
-                      await consulta.refetch();
+                  if (!window.confirm(`Remover o parceiro ${parceiro.nome} da página inicial?`))
+                    return;
+                  void acao.executar(
+                    `remover-${parceiro.id}`,
+                    () => remover({ data: { id: parceiro.id } }),
+                    {
+                      sucesso: "Parceiro removido.",
+                      aoConcluir: async () => {
+                        if (form.id === parceiro.id) {
+                          setForm(VAZIO);
+                          setOrdem("0");
+                        }
+                        await consulta.refetch();
+                      },
                     },
-                  });
+                  );
                 }}
               >
                 {acao.estaEm(`remover-${parceiro.id}`) ? "Removendo…" : "Remover"}
@@ -179,7 +222,13 @@ function ParceirosAdmin() {
           </li>
         ))}
       </ul>
-      {parceiros.length === 0 ? <EmptyState className="mt-4" title="Nenhum parceiro cadastrado" description="A faixa pública continuará oculta até o primeiro parceiro ativo." /> : null}
+      {parceiros.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          title="Nenhum parceiro cadastrado"
+          description="A faixa pública continuará oculta até o primeiro parceiro ativo."
+        />
+      ) : null}
     </AdminScreen>
   );
 }
