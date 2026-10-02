@@ -54,7 +54,9 @@ describe("entender (casos da conversa padrão)", () => {
   });
 
   it("ruído/risada não abre menu", () => {
-    expect(entender("kkkk", contexto)).toMatchObject({ ruido: true, intencao: undefined });
+    const r = entender("kkkk", contexto);
+    expect(r.ruido).toBe(true);
+    expect(r.intencao).toBeUndefined();
   });
 
   it("menu e voltar", () => {
