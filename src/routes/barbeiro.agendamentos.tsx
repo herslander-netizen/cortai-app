@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { brl, dataHoraLonga, hora } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,7 +85,7 @@ function Cartao({ item }: { item: AgendamentoConfirmado }) {
 
 function AgendamentosPage() {
   const [periodo, setPeriodo] = useState<Periodo>("proximos");
-  const { data, isLoading, isFetching, refetch } = useQuery<AgendamentoConfirmado[]>({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery<AgendamentoConfirmado[]>({
     queryKey: ["agendamentos-confirmados", periodo],
     queryFn: () => listarAgendamentosConfirmados({ data: { periodo } }),
     // A agenda de horários livres se mantém sozinha: recarrega a cada minuto.
@@ -132,7 +132,15 @@ function AgendamentosPage() {
         </Button>
       </div>
 
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoAgenda linhas={5} /> : null}
+      {isError ? (
+        <div className="surface p-5">
+          <p className="text-sm text-paper">Não conseguimos carregar os agendamentos agora.</p>
+          <Button variant="outline" className="mt-4" onClick={() => void refetch()}>
+            Tentar de novo
+          </Button>
+        </div>
+      ) : null}
       {!isLoading && (data?.length ?? 0) === 0 ? (
         <EmptyState text="Nenhum agendamento confirmado neste período." />
       ) : null}

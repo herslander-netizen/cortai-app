@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -6,6 +6,29 @@ type RegiaoProps = { children: ReactNode; className?: string };
 
 /** Uma região de espera anuncia o estado uma vez; os blocos internos são decorativos. */
 export function RegiaoDeEsqueleto({ children, className }: RegiaoProps) {
+  const [demorou, setDemorou] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDemorou(true), 10_000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (demorou) {
+    return (
+      <div role="alert" className={cn("surface p-5", className)}>
+        <p className="text-sm font-semibold text-paper">Não conseguimos carregar agora.</p>
+        <p className="mt-1 text-xs text-mute">Confira sua conexão e tente novamente.</p>
+        <button
+          type="button"
+          className="mt-4 min-h-11 rounded-md border border-line2 px-4 text-sm font-semibold text-paper"
+          onClick={() => window.location.reload()}
+        >
+          Tentar de novo
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       role="status"
@@ -176,7 +199,17 @@ export function EsqueletoComanda() {
   return (
     <RegiaoDeEsqueleto className="space-y-4 py-2">
       <Barra w="48%" h={24} />
-      <EsqueletoLista linhas={3} />
+      <div className="divide-y divide-line">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4"
+          >
+            <Linhas />
+            <Barra w="52px" h={12} />
+          </div>
+        ))}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <BlocoEsqueleto className="h-14" />
         <BlocoEsqueleto className="h-14" />

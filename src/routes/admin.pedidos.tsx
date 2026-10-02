@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import {
   Dialog,
   DialogContent,
@@ -68,6 +69,7 @@ function PedidosPage() {
         </Button>
       }
     >
+      {query.isLoading ? <EsqueletoLista linhas={5} /> : null}
       {query.isError ? (
         <AdminNotice error={query.error} />
       ) : (
