@@ -66,8 +66,8 @@ describe("FaixaOperacao", () => {
     expect(host?.querySelector('[aria-label="Lista"]')).not.toBeNull();
   });
 
-  it("não aparece em 601 px", async () => {
-    await montar(601);
+  it.each([601, 1280])("não aparece em %i px", async (largura) => {
+    await montar(largura);
     expect(host?.querySelector(".agenda-faixa-operacao")).toBeNull();
   });
 
