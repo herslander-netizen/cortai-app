@@ -16,9 +16,15 @@ export const Route = createFileRoute("/barbeiro/agendamentos")({
   head: () => ({
     meta: [
       { title: "Agendamentos confirmados — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Todos os agendamentos confirmados com nome, WhatsApp e horário." },
+      {
+        name: "description",
+        content: "Todos os agendamentos confirmados com nome, WhatsApp e horário.",
+      },
       { property: "og:title", content: "Agendamentos confirmados — Cortaí" },
-      { property: "og:description", content: "Nome, WhatsApp e horário de cada cliente confirmado." },
+      {
+        property: "og:description",
+        content: "Nome, WhatsApp e horário de cada cliente confirmado.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -47,7 +53,8 @@ function Cartao({ item }: { item: AgendamentoConfirmado }) {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-paper">{item.clienteNome}</p>
           <p className="mt-0.5 text-xs text-mute">
-            {[item.servico, item.profissional].filter(Boolean).join(" · ") || "Serviço não informado"}
+            {[item.servico, item.profissional].filter(Boolean).join(" · ") ||
+              "Serviço não informado"}
           </p>
         </div>
         <div className="shrink-0 text-right">
@@ -95,12 +102,15 @@ function AgendamentosPage() {
     >
       <div className="mb-4 grid grid-cols-3 gap-2" role="group" aria-label="Período">
         {PERIODOS.map((p) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={p.chave}
             type="button"
             onClick={() => setPeriodo(p.chave)}
             className={`rounded-lg border px-3 py-2 text-xs ${
-              periodo === p.chave ? "border-gold/45 bg-gold-soft text-paper" : "border-line bg-ink2 text-mute"
+              periodo === p.chave
+                ? "border-gold/45 bg-gold-soft text-paper"
+                : "border-line bg-ink2 text-mute"
             }`}
           >
             {p.rotulo}
@@ -112,7 +122,12 @@ function AgendamentosPage() {
         <p className="text-xs text-mute2">
           {isFetching ? "Atualizando…" : `${data?.length ?? 0} agendamento(s)`}
         </p>
-        <Button variant="ghost" type="button" className="btn-tertiary text-xs" onClick={() => void refetch()}>
+        <Button
+          variant="ghost"
+          type="button"
+          className="btn-tertiary text-xs"
+          onClick={() => void refetch()}
+        >
           Atualizar
         </Button>
       </div>

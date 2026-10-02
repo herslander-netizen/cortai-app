@@ -42,7 +42,8 @@ export const CHANGELOG: ItemDoChangelog[] = [
     data: "2026-09-23",
     tipo: "major",
     titulo: "Cortaí 2.0",
-    descricao: "Novo conceito, nova identidade e nova página inicial: o lugar onde sua barbearia acontece.",
+    descricao:
+      "Novo conceito, nova identidade e nova página inicial: o lugar onde sua barbearia acontece.",
     funcionalidades: [
       "Nova página inicial editorial com os quatro pilares: operar, aparecer, fazer voltar e crescer.",
       "Apresentação da identidade própria de cada barbearia e da experiência do cliente.",
@@ -87,7 +88,6 @@ export const CHANGELOG: ItemDoChangelog[] = [
 
 export const VERSAO_ATUAL_INFO = CHANGELOG[0]!;
 
-
 function partes(versao: string): number[] {
   return versao
     .trim()
@@ -127,7 +127,10 @@ export async function buscarVersaoPublicada(): Promise<InfoDeVersao | null> {
 
 export type SituacaoDaVersao = "em_dia" | "recomendada" | "obrigatoria";
 
-export function situacaoDaVersao(info: InfoDeVersao, instalada = VERSAO_INSTALADA): SituacaoDaVersao {
+export function situacaoDaVersao(
+  info: InfoDeVersao,
+  instalada = VERSAO_INSTALADA,
+): SituacaoDaVersao {
   if (compararVersoes(instalada, info.minima) < 0) return "obrigatoria";
   if (compararVersoes(instalada, info.atual) < 0) return "recomendada";
   return "em_dia";

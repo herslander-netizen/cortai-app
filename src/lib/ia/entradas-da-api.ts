@@ -16,7 +16,9 @@ export function exigirFormaDoAtendente(forma: unknown): FormaDoAtendente {
   if (typeof forma === "string" && (FORMAS_DO_ATENDENTE as readonly string[]).includes(forma)) {
     return forma as FormaDoAtendente;
   }
-  throw new Error("O atendente só agenda com pagamento no balcão ou Pix. Fiado e crédito são liberados pelo dono no painel.");
+  throw new Error(
+    "O atendente só agenda com pagamento no balcão ou Pix. Fiado e crédito são liberados pelo dono no painel.",
+  );
 }
 
 export const ENTRADAS = {

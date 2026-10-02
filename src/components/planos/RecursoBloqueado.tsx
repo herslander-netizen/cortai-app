@@ -11,7 +11,15 @@ export function ehRecursoBloqueado(erro: unknown) {
  * Estado elegante para quando o plano da barbearia não inclui o recurso.
  * Nunca quebra a tela: explica em uma frase e oferece o caminho de saída.
  */
-export function RecursoBloqueado({ titulo, erro, children }: { titulo: string; erro?: unknown; children?: ReactNode }) {
+export function RecursoBloqueado({
+  titulo,
+  erro,
+  children,
+}: {
+  titulo: string;
+  erro?: unknown;
+  children?: ReactNode;
+}) {
   const explicacao =
     erro instanceof Error && ehRecursoBloqueado(erro)
       ? erro.message
@@ -25,7 +33,10 @@ export function RecursoBloqueado({ titulo, erro, children }: { titulo: string; e
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-mute">{explicacao}</p>
       <p className="mt-3 text-xs text-mute2">Seus dados continuam salvos. Nada foi apagado.</p>
       {children ?? (
-        <Link to="/barbeiro/plano" className="btn-primary mt-5 inline-flex min-h-12 items-center px-5 text-sm">
+        <Link
+          to="/barbeiro/plano"
+          className="btn-primary mt-5 inline-flex min-h-12 items-center px-5 text-sm"
+        >
           Assinar agora
         </Link>
       )}

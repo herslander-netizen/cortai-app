@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { LISTA_DE_SEGMENTOS, segmentoParaApresentacao, segmentoValido, termos } from "@/lib/segmentos";
+import {
+  LISTA_DE_SEGMENTOS,
+  segmentoParaApresentacao,
+  segmentoValido,
+  termos,
+} from "@/lib/segmentos";
 
 describe("segmentos", () => {
   it("mantém barbearia como fallback", () => {
@@ -16,7 +21,8 @@ describe("segmentos", () => {
 
   it("possui termos completos em todos os segmentos", () => {
     for (const segmento of LISTA_DE_SEGMENTOS) {
-      for (const valor of Object.values(segmento.termos)) expect(valor.trim().length).toBeGreaterThan(0);
+      for (const valor of Object.values(segmento.termos))
+        expect(valor.trim().length).toBeGreaterThan(0);
     }
   });
 

@@ -37,7 +37,8 @@ export const GUIAS: Guia[] = [
       {
         alvo: "agendar-confirmar",
         titulo: "Confirme e pronto",
-        texto: "Revise o resumo, escolha como vai pagar e confirme. Você recebe tudo no seu histórico.",
+        texto:
+          "Revise o resumo, escolha como vai pagar e confirme. Você recebe tudo no seu histórico.",
       },
     ],
   },
@@ -76,22 +77,26 @@ export const GUIAS: Guia[] = [
       {
         alvo: "dash-oportunidades",
         titulo: "Oportunidades de hoje",
-        texto: "Aqui o CortAI diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
+        texto:
+          "Aqui o CortAI diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
       },
       {
         alvo: "dash-primeiros-passos",
         titulo: "Primeiros passos",
-        texto: "Este cartão mostra o que falta para seu negócio ficar pronto. Ele guarda o progresso.",
+        texto:
+          "Este cartão mostra o que falta para seu negócio ficar pronto. Ele guarda o progresso.",
       },
       {
         alvo: "dash-assistente",
         titulo: "Perguntar ao CortAI",
-        texto: "Escreva como você fala: cadastre serviços, ajuste horários ou pergunte onde fica cada coisa.",
+        texto:
+          "Escreva como você fala: cadastre serviços, ajuste horários ou pergunte onde fica cada coisa.",
       },
       {
         alvo: "dash-acoes-rapidas",
         titulo: "Ações rápidas",
-        texto: "A tesoura dourada abre as ações do dia: colocar cliente na fila, chamar o próximo e agendar.",
+        texto:
+          "A tesoura dourada abre as ações do dia: colocar cliente na fila, chamar o próximo e agendar.",
       },
     ],
   },
@@ -113,7 +118,8 @@ export const GUIAS: Guia[] = [
       {
         alvo: "agenda-repetir",
         titulo: "Repetir agendamento",
-        texto: "Transforme um bom cliente em rotina: repita o mesmo horário por semana, quinzena ou mês.",
+        texto:
+          "Transforme um bom cliente em rotina: repita o mesmo horário por semana, quinzena ou mês.",
       },
     ],
   },
@@ -125,7 +131,8 @@ export const GUIAS: Guia[] = [
       {
         alvo: "clientes-retorno",
         titulo: "Clientes para trazer de volta",
-        texto: "Essas pessoas já costumam voltar neste período, mas estão atrasadas. Você pode chamar pelo WhatsApp.",
+        texto:
+          "Essas pessoas já costumam voltar neste período, mas estão atrasadas. Você pode chamar pelo WhatsApp.",
       },
       {
         alvo: "clientes-lista",
@@ -208,7 +215,8 @@ export const GUIAS: Guia[] = [
       {
         alvo: "mais-lista",
         titulo: "Recursos avançados",
-        texto: "Crescimento, indicações, avaliações, produtos, fidelidade e sua página pública ficam aqui.",
+        texto:
+          "Crescimento, indicações, avaliações, produtos, fidelidade e sua página pública ficam aqui.",
       },
     ],
   },

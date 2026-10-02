@@ -16,7 +16,13 @@ import type { HorarioSugerido } from "@/lib/ia/assistente";
 import { SEGMENTOS, SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 
-export type ServicoDoRascunho = { nome: string; categoria: string; duracaoMin: number; precoCentavos: number; retornoDias?: number | null | undefined };
+export type ServicoDoRascunho = {
+  nome: string;
+  categoria: string;
+  duracaoMin: number;
+  precoCentavos: number;
+  retornoDias?: number | null | undefined;
+};
 
 export type DadosDoRascunho = {
   nome: string;
@@ -65,7 +71,10 @@ const dadosSchema = z.object({
   profissional: z.string().trim().max(60).default(""),
 });
 
-const tokenSchema = z.string().trim().regex(/^[a-f0-9]{64}$/, "Rascunho inválido.");
+const tokenSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-f0-9]{64}$/, "Rascunho inválido.");
 
 export const RASCUNHO_VAZIO: DadosDoRascunho = {
   nome: "",
@@ -102,7 +111,8 @@ function novoToken(): string {
 function origem(): string {
   try {
     const req = getRequest();
-    const cabecalho = req.headers.get("x-forwarded-for") ?? req.headers.get("cf-connecting-ip") ?? "";
+    const cabecalho =
+      req.headers.get("x-forwarded-for") ?? req.headers.get("cf-connecting-ip") ?? "";
     return cabecalho.split(",")[0]?.trim().slice(0, 60) || "desconhecido";
   } catch {
     return "desconhecido";
@@ -113,7 +123,11 @@ function comDefaults(dados: unknown): DadosDoRascunho {
   const base = dadosSchema.parse(dados ?? {});
   return {
     ...base,
-    horarios: base.horarios.length ? base.horarios : SEGMENTOS_CONFIG[segmentoValido(base.segmento)].horariosPadrao.map((horario) => ({ ...horario })),
+    horarios: base.horarios.length
+      ? base.horarios
+      : SEGMENTOS_CONFIG[segmentoValido(base.segmento)].horariosPadrao.map((horario) => ({
+          ...horario,
+        })),
   };
 }
 
@@ -189,7 +203,11 @@ export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
     const { db, linha } = await lerRascunho(data.token);
     let slug: string | null = null;
     if (linha["tenant_id"]) {
-      const { data: tenant } = await db.from("tenants").select("slug").eq("id", linha["tenant_id"]).maybeSingle();
+      const { data: tenant } = await db
+        .from("tenants")
+        .select("slug")
+        .eq("id", linha["tenant_id"])
+        .maybeSingle();
       slug = (tenant?.slug as string) ?? null;
     }
     return {
@@ -201,11 +219,15 @@ export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
   });
 
 export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ token: tokenSchema, dados: dadosSchema }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ token: tokenSchema, dados: dadosSchema }).parse(input),
+  )
   .handler(async ({ data }) => {
     const { db, linha } = await lerRascunho(data.token);
     if (linha["publicado_em"]) {
-      throw new Error("Esta barbearia já foi publicada. Entre com sua conta para continuar editando.");
+      throw new Error(
+        "Esta barbearia já foi publicada. Entre com sua conta para continuar editando.",
+      );
     }
     const { error } = await db
       .from("rascunhos_de_barbearia")
@@ -227,7 +249,11 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     const dados = comDefaults(linha["dados"]);
 
     if (linha["tenant_id"]) {
-      const { data: tenant } = await db.from("tenants").select("slug").eq("id", linha["tenant_id"]).maybeSingle();
+      const { data: tenant } = await db
+        .from("tenants")
+        .select("slug")
+        .eq("id", linha["tenant_id"])
+        .maybeSingle();
       return { slug: (tenant?.slug as string) ?? "" };
     }
 
@@ -288,15 +314,28 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     }
 
     if (limparTexto(dados.profissional).length >= 2) {
-      await db.from("profissionais").insert({ tenant_id: tenantId, nome: limparTexto(dados.profissional), ativo: true });
+      await db
+        .from("profissionais")
+        .insert({ tenant_id: tenantId, nome: limparTexto(dados.profissional), ativo: true });
     }
 
-    await db.from("onboarding_do_tenant").upsert(
-      { tenant_id: tenantId, etapa: "recursos", itens: { servicos: true, configurar: true } },
-      { onConflict: "tenant_id" },
+    await db
+      .from("onboarding_do_tenant")
+      .upsert(
+        { tenant_id: tenantId, etapa: "recursos", itens: { servicos: true, configurar: true } },
+        { onConflict: "tenant_id" },
+      );
+    const pagina = configPadrao(
+      definicao.temaPagina === "rose-creme"
+        ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
+        : undefined,
     );
-    const pagina = configPadrao(definicao.temaPagina === "rose-creme" ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" } : undefined);
-    await db.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } }, { onConflict: "tenant_id" });
+    await db
+      .from("tenant_page_configs")
+      .upsert(
+        { tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } },
+        { onConflict: "tenant_id" },
+      );
 
     await db
       .from("rascunhos_de_barbearia")
@@ -337,17 +376,30 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
 
     const { error } = await db
       .from("tenant_usuarios")
-      .insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono", aceito_em: new Date().toISOString() });
+      .insert({
+        tenant_id: tenantId,
+        user_id: context.userId,
+        papel: "dono",
+        aceito_em: new Date().toISOString(),
+      });
     if (error) throw new Error(error.message);
 
-    await db.from("perfis").upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
+    await db
+      .from("perfis")
+      .upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
     await db
       .from("rascunhos_de_barbearia")
       .update({ reivindicado_por: context.userId, reivindicado_em: new Date().toISOString() })
       .eq("id", linha["id"]);
 
-    const { data: tenant } = await db.from("tenants").select("slug, whatsapp").eq("id", tenantId).maybeSingle();
+    const { data: tenant } = await db
+      .from("tenants")
+      .select("slug, whatsapp")
+      .eq("id", tenantId)
+      .maybeSingle();
     const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
-    await iniciarTesteGratis(tenantId, { telefone: (tenant?.whatsapp as string) ?? null }).catch(() => undefined);
+    await iniciarTesteGratis(tenantId, { telefone: (tenant?.whatsapp as string) ?? null }).catch(
+      () => undefined,
+    );
     return { ok: true, slug: (tenant?.slug as string) ?? "" };
   });

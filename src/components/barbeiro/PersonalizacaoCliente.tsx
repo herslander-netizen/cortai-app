@@ -17,7 +17,8 @@ function Opcao({
   children: string;
 }) {
   return (
-    <Button variant="ghost"
+    <Button
+      variant="ghost"
       type="button"
       aria-pressed={ativo}
       onClick={onClick}
@@ -35,7 +36,13 @@ function Opcao({
  * ajustado só para este cliente. Quem salva é sempre a barbearia — o servidor
  * confere o vínculo do usuário com o tenant antes de gravar.
  */
-export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente; onSalvo: () => void }) {
+export function PersonalizacaoCliente({
+  ficha,
+  onSalvo,
+}: {
+  ficha: FichaCliente;
+  onSalvo: () => void;
+}) {
   const salvar = useServerFn(salvarPersonalizacaoCliente);
   const c = ficha.cliente;
 
@@ -49,7 +56,9 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    setParticipa(c.fidelidade_participa === null ? "padrao" : c.fidelidade_participa ? "sim" : "nao");
+    setParticipa(
+      c.fidelidade_participa === null ? "padrao" : c.fidelidade_participa ? "sim" : "nao",
+    );
     setDesconto(c.desconto_percentual === null ? "" : String(c.desconto_percentual));
     setCondicoes(c.condicoes_especiais ?? "");
     setObservacoes(c.observacoes_internas ?? "");
@@ -67,8 +76,8 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
     <section className="mt-10 border-t border-line pt-6">
       <h2 className="text-sm font-semibold text-paper">Personalizações deste cliente</h2>
       <p className="mt-1 text-xs text-mute">
-        O que estiver como “padrão” segue a configuração da barbearia. O que você mudar aqui vale só para{" "}
-        {c.nome}.
+        O que estiver como “padrão” segue a configuração da barbearia. O que você mudar aqui vale só
+        para {c.nome}.
       </p>
 
       <div className="mt-5 surface px-4 py-4">
@@ -90,8 +99,11 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
           </Opcao>
         </div>
         <p className="mt-2 text-xs text-mute">
-          {participa === "padrao" ? "Herdado do padrão." : "Personalizado manualmente."} Hoje este cliente{" "}
-          {valeFidelidade ? "vê o cartão de fidelidade no app." : "não vê nada de fidelidade no app."}
+          {participa === "padrao" ? "Herdado do padrão." : "Personalizado manualmente."} Hoje este
+          cliente{" "}
+          {valeFidelidade
+            ? "vê o cartão de fidelidade no app."
+            : "não vê nada de fidelidade no app."}
           {ficha.fidelidadeProgresso > 0
             ? ` Ele já tem ${ficha.fidelidadeProgresso} selos guardados — desligar não apaga.`
             : ""}
@@ -108,7 +120,9 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
           className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
         />
         <span className="mt-1 block text-xs text-mute2">
-          {c.desconto_percentual === null ? "Herdado: preço de tabela." : "Personalizado manualmente."}
+          {c.desconto_percentual === null
+            ? "Herdado: preço de tabela."
+            : "Personalizado manualmente."}
         </span>
       </label>
 
@@ -139,7 +153,8 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
           <p className="text-sm text-paper">Pode receber mensagens no WhatsApp</p>
           <p className="mt-0.5 text-xs text-mute2">Avisos de horário, fila e retorno.</p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           role="switch"
           aria-checked={whats}
@@ -168,7 +183,8 @@ export function PersonalizacaoCliente({ ficha, onSalvo }: { ficha: FichaCliente;
         </Aviso>
       ) : null}
 
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         className="btn-primary mt-5 w-full"
         disabled={salvando}

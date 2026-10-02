@@ -127,7 +127,9 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       .gt("fim", inicioJanela);
     const ocupados = [
       ...((ocupadosRaw ?? []) as (Ocupado & { clientes?: { nome?: string } | null })[]),
-      ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+      ...(await (
+        await import("@/lib/ocupacoes-extras.server")
+      ).ocupacoesExtras(db, {
         tenantId,
         fuso: regras.fuso,
         desde: new Date(inicioJanela),

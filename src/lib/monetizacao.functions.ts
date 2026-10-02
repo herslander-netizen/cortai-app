@@ -19,7 +19,10 @@ async function db() {
 
 /** Só o dono da plataforma administra preços, condições, cupons e banners. */
 async function somenteAdmin(context: { supabase: any; userId: string }) {
-  const { data: ok } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+  const { data: ok } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
   if (!ok) throw new Error("Acesso exclusivo do dono da plataforma.");
   return db();
 }
@@ -89,11 +92,25 @@ export const getMinhaAssinatura = createServerFn({ method: "GET" })
     inicioDoMes.setHours(0, 0, 0, 0);
 
     const [tenantRes, planosRes, condRes, profRes, cliRes, agRes] = await Promise.all([
-      client.from("tenants").select("plano, ciclo, assinatura_status, teste_fim").eq("id", tenantId).maybeSingle(),
+      client
+        .from("tenants")
+        .select("plano, ciclo, assinatura_status, teste_fim")
+        .eq("id", tenantId)
+        .maybeSingle(),
       client.from("planos_da_plataforma").select("*"),
-      client.from("condicoes_comerciais").select("*").eq("tenant_id", tenantId).order("inicio", { ascending: false }),
-      client.from("profissionais").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId),
-      client.from("clientes").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId),
+      client
+        .from("condicoes_comerciais")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("inicio", { ascending: false }),
+      client
+        .from("profissionais")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId),
+      client
+        .from("clientes")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId),
       client
         .from("agendamentos")
         .select("id", { count: "exact", head: true })
@@ -122,7 +139,12 @@ export const getMinhaAssinatura = createServerFn({ method: "GET" })
       limites: (["profissionais", "clientes", "agendamentos_mes"] as const).map((tipo) => ({
         tipo,
         limite: limiteVigente(plano, condicao, tipo),
-        uso: tipo === "profissionais" ? (profRes.count ?? 0) : tipo === "clientes" ? (cliRes.count ?? 0) : (agRes.count ?? 0),
+        uso:
+          tipo === "profissionais"
+            ? (profRes.count ?? 0)
+            : tipo === "clientes"
+              ? (cliRes.count ?? 0)
+              : (agRes.count ?? 0),
       })),
     };
   });
@@ -144,7 +166,11 @@ export const getBannersDaHome = createServerFn({ method: "GET" })
     const client = await db();
     const hoje = new Date().toISOString().slice(0, 10);
     const [{ data: tenant }, { data: banners }] = await Promise.all([
-      client.from("tenants").select("plano, assinatura_status, criado_em, teste_fim").eq("id", tenantId).maybeSingle(),
+      client
+        .from("tenants")
+        .select("plano, assinatura_status, criado_em, teste_fim")
+        .eq("id", tenantId)
+        .maybeSingle(),
       client
         .from("banners_da_plataforma")
         .select("*")
@@ -154,7 +180,8 @@ export const getBannersDaHome = createServerFn({ method: "GET" })
     ]);
 
     const novo =
-      tenant?.criado_em != null && Date.now() - new Date(tenant.criado_em).getTime() < 30 * 86400000;
+      tenant?.criado_em != null &&
+      Date.now() - new Date(tenant.criado_em).getTime() < 30 * 86400000;
     const emTeste = tenant?.assinatura_status === "teste";
     const perto =
       tenant?.teste_fim != null && new Date(tenant.teste_fim).getTime() - Date.now() < 7 * 86400000;
@@ -201,8 +228,10 @@ export const aplicarCupom = createServerFn({ method: "POST" })
       .ilike("codigo", data.codigo.trim())
       .maybeSingle();
     if (!cupom || !cupom.ativo) throw new Error("Cupom inválido ou expirado.");
-    if (cupom.inicio > hoje || (cupom.fim && cupom.fim < hoje)) throw new Error("Cupom inválido ou expirado.");
-    if (cupom.usos_max != null && cupom.usos >= cupom.usos_max) throw new Error("Este cupom já atingiu o limite de usos.");
+    if (cupom.inicio > hoje || (cupom.fim && cupom.fim < hoje))
+      throw new Error("Cupom inválido ou expirado.");
+    if (cupom.usos_max != null && cupom.usos >= cupom.usos_max)
+      throw new Error("Este cupom já atingiu o limite de usos.");
 
     const { data: tenant } = await client
       .from("tenants")
@@ -212,15 +241,22 @@ export const aplicarCupom = createServerFn({ method: "POST" })
     if (cupom.planos.length && !cupom.planos.includes(tenant?.plano ?? "")) {
       throw new Error("Este cupom não vale para o seu plano.");
     }
-    const novo = tenant?.criado_em != null && Date.now() - new Date(tenant.criado_em).getTime() < 30 * 86400000;
-    if (cupom.publico === "novos" && !novo) throw new Error("Este cupom é só para barbearias novas.");
-    if (cupom.publico === "existentes" && novo) throw new Error("Este cupom é só para barbearias já clientes.");
+    const novo =
+      tenant?.criado_em != null &&
+      Date.now() - new Date(tenant.criado_em).getTime() < 30 * 86400000;
+    if (cupom.publico === "novos" && !novo)
+      throw new Error("Este cupom é só para barbearias novas.");
+    if (cupom.publico === "existentes" && novo)
+      throw new Error("Este cupom é só para barbearias já clientes.");
 
     const { error: erroUso } = await client
       .from("cupons_usos")
       .insert({ cupom_id: cupom.id, tenant_id: tenantId, aplicado_por: context.userId });
     if (erroUso) throw new Error("Este cupom já foi usado nesta barbearia.");
-    await client.from("cupons").update({ usos: cupom.usos + 1 }).eq("id", cupom.id);
+    await client
+      .from("cupons")
+      .update({ usos: cupom.usos + 1 })
+      .eq("id", cupom.id);
 
     const ciclo = tenant?.ciclo ?? "mensal";
     await client.from("condicoes_comerciais").insert({
@@ -248,7 +284,10 @@ export const listarPlanos = createServerFn({ method: "GET" })
 
 const planoSchema = z.object({
   id: z.string().uuid().optional(),
-  chave: z.string().trim().regex(/^[a-z0-9_]{2,30}$/, "Use letras minúsculas, números ou _"),
+  chave: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9_]{2,30}$/, "Use letras minúsculas, números ou _"),
   nome: z.string().trim().min(2).max(60),
   descricao: z.string().trim().max(300).nullable(),
   precoMensalCentavos: z.number().int().min(0),
@@ -284,7 +323,10 @@ export const salvarPlano = createServerFn({ method: "POST" })
     const { error } = data.id
       ? await client.from("planos_da_plataforma").update(linha).eq("id", data.id)
       : await client.from("planos_da_plataforma").insert(linha);
-    if (error) throw new Error(error.message.includes("duplicate") ? "Já existe um plano com essa chave." : error.message);
+    if (error)
+      throw new Error(
+        error.message.includes("duplicate") ? "Já existe um plano com essa chave." : error.message,
+      );
     return { ok: true };
   });
 
@@ -300,7 +342,11 @@ export type VisaoComercial = {
   condicoes: Condicao[];
   cuponsAplicados: { codigo: string; criadoEm: string }[];
   uso: { profissionais: number; clientes: number; agendamentosMes: number };
-  limites: { profissionais: number | null; clientes: number | null; agendamentos_mes: number | null };
+  limites: {
+    profissionais: number | null;
+    clientes: number | null;
+    agendamentos_mes: number | null;
+  };
 };
 
 export const getVisaoComercialDoTenant = createServerFn({ method: "GET" })
@@ -312,13 +358,31 @@ export const getVisaoComercialDoTenant = createServerFn({ method: "GET" })
     inicioDoMes.setDate(1);
     inicioDoMes.setHours(0, 0, 0, 0);
     const [tenantRes, planosRes, condRes, usosRes, profRes, cliRes, agRes] = await Promise.all([
-      client.from("tenants").select("id, nome, plano, ciclo, assinatura_status, teste_fim").eq("id", data.tenantId).maybeSingle(),
+      client
+        .from("tenants")
+        .select("id, nome, plano, ciclo, assinatura_status, teste_fim")
+        .eq("id", data.tenantId)
+        .maybeSingle(),
       client.from("planos_da_plataforma").select("*"),
-      client.from("condicoes_comerciais").select("*").eq("tenant_id", data.tenantId).order("inicio", { ascending: false }),
+      client
+        .from("condicoes_comerciais")
+        .select("*")
+        .eq("tenant_id", data.tenantId)
+        .order("inicio", { ascending: false }),
       client.from("cupons_usos").select("criado_em, cupons(codigo)").eq("tenant_id", data.tenantId),
-      client.from("profissionais").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenantId),
-      client.from("clientes").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenantId),
-      client.from("agendamentos").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenantId).gte("inicio", inicioDoMes.toISOString()),
+      client
+        .from("profissionais")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenantId),
+      client
+        .from("clientes")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenantId),
+      client
+        .from("agendamentos")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenantId)
+        .gte("inicio", inicioDoMes.toISOString()),
     ]);
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Barbearia não encontrada.");
@@ -404,7 +468,10 @@ export const encerrarCondicao = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
-    const { error } = await client.from("condicoes_comerciais").update({ ativo: false }).eq("id", data.id);
+    const { error } = await client
+      .from("condicoes_comerciais")
+      .update({ ativo: false })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -466,7 +533,10 @@ export const listarCupons = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CupomAdmin[]> => {
     const client = await somenteAdmin(context);
-    const { data } = await client.from("cupons").select("*").order("criado_em", { ascending: false });
+    const { data } = await client
+      .from("cupons")
+      .select("*")
+      .order("criado_em", { ascending: false });
     return (data ?? []).map((c: any) => ({
       id: c.id,
       codigo: c.codigo,
@@ -504,7 +574,8 @@ export const salvarCupom = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const client = await somenteAdmin(context);
-    if (data.tipo === "percentual" && data.valor > 100) throw new Error("Desconto em percentual não pode passar de 100.");
+    if (data.tipo === "percentual" && data.valor > 100)
+      throw new Error("Desconto em percentual não pode passar de 100.");
     const linha = {
       codigo: data.codigo.toUpperCase(),
       descricao: data.descricao,
@@ -521,7 +592,10 @@ export const salvarCupom = createServerFn({ method: "POST" })
     const { error } = data.id
       ? await client.from("cupons").update(linha).eq("id", data.id)
       : await client.from("cupons").insert(linha);
-    if (error) throw new Error(error.message.includes("duplicate") ? "Já existe um cupom com esse código." : error.message);
+    if (error)
+      throw new Error(
+        error.message.includes("duplicate") ? "Já existe um cupom com esse código." : error.message,
+      );
     return { ok: true };
   });
 

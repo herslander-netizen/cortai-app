@@ -33,7 +33,10 @@ export const Route = createFileRoute("/barbeiro/equipe")({
   head: () => ({
     meta: [
       { title: "Equipe e permissões — Cortaí Gestão" },
-      { name: "description", content: "Cada pessoa com o próprio login e só o acesso que precisa." },
+      {
+        name: "description",
+        content: "Cada pessoa com o próprio login e só o acesso que precisa.",
+      },
       { property: "og:title", content: "Equipe e permissões — Cortaí Gestão" },
       { property: "og:description", content: "Gerencie quem tem acesso ao seu negócio." },
       { property: "og:type", content: "website" },
@@ -54,7 +57,10 @@ function EquipePage() {
 
   const recarregar = () => queryClient.invalidateQueries({ queryKey: ["equipe"] });
   const falhar = (e: unknown) =>
-    setMensagem({ tom: "acao", texto: e instanceof Error ? e.message : "Não foi possível concluir." });
+    setMensagem({
+      tom: "acao",
+      texto: e instanceof Error ? e.message : "Não foi possível concluir.",
+    });
 
   const convite = useMutation({
     mutationFn: () =>
@@ -79,8 +85,12 @@ function EquipePage() {
   });
 
   const salvar = useMutation({
-    mutationFn: (dados: { userId: string; papel: PapelDeEquipe; permissoes: string[]; ativo: boolean }) =>
-      salvarAcessoDoMembro({ data: dados }),
+    mutationFn: (dados: {
+      userId: string;
+      papel: PapelDeEquipe;
+      permissoes: string[];
+      ativo: boolean;
+    }) => salvarAcessoDoMembro({ data: dados }),
     onSuccess: async () => {
       setMensagem({ tom: "sucesso", texto: "Acesso atualizado." });
       setEditando(null);
@@ -132,8 +142,9 @@ function EquipePage() {
               <UserPlus size={16} className="text-gold" /> Dar acesso a alguém
             </h2>
             <p className="mt-1 text-xs leading-relaxed text-mute">
-              Digite o e-mail da pessoa. Se ela ainda não tiver conta, enviamos o convite por e-mail para
-              ela criar a senha e confirmar o acesso. Você nunca vê nem cria a senha de ninguém.
+              Digite o e-mail da pessoa. Se ela ainda não tiver conta, enviamos o convite por e-mail
+              para ela criar a senha e confirmar o acesso. Você nunca vê nem cria a senha de
+              ninguém.
             </p>
             <form
               className="mt-4 space-y-3"
@@ -167,9 +178,15 @@ function EquipePage() {
                   <option value="barbeiro">{PAPEIS.barbeiro}</option>
                   <option value="recepcao">{PAPEIS.recepcao}</option>
                 </select>
-                <span className="mt-1 block text-xs text-mute2">{DESCRICAO_DO_PAPEL[papelConvite]}</span>
+                <span className="mt-1 block text-xs text-mute2">
+                  {DESCRICAO_DO_PAPEL[papelConvite]}
+                </span>
               </label>
-              <Button variant="ghost" className="btn-primary w-full py-3" disabled={convite.isPending}>
+              <Button
+                variant="ghost"
+                className="btn-primary w-full py-3"
+                disabled={convite.isPending}
+              >
                 {convite.isPending ? "Enviando…" : "Convidar para a equipe"}
               </Button>
             </form>
@@ -212,8 +229,8 @@ function EquipePage() {
           <RegraDeRecebimento />
 
           <Aviso tom="info" titulo="Segurança">
-            As permissões valem também fora da tela: quem não tem acesso a um módulo não consegue usá-lo
-            nem por atalho. Toda alteração fica registrada na auditoria do negócio.
+            As permissões valem também fora da tela: quem não tem acesso a um módulo não consegue
+            usá-lo nem por atalho. Toda alteração fica registrada na auditoria do negócio.
           </Aviso>
         </div>
       )}
@@ -253,7 +270,9 @@ function CartaoMembro({
     <div>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-paper">{membro.nome ?? membro.email ?? "Conta"}</p>
+          <p className="truncate text-sm font-semibold text-paper">
+            {membro.nome ?? membro.email ?? "Conta"}
+          </p>
           <p className="mt-0.5 truncate text-xs text-mute">{membro.email ?? "sem e-mail"}</p>
           <p className="mt-1.5 flex items-center gap-2 text-xs">
             <span className="rounded-full bg-gold-soft px-2 py-0.5 font-semibold text-gold">
@@ -268,7 +287,8 @@ function CartaoMembro({
         {dono ? (
           <ShieldCheck size={18} className="mt-1 shrink-0 text-gold" aria-label="Proprietário" />
         ) : (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onAbrir}
             className="shrink-0 rounded-lg border border-line2 px-3 py-1.5 text-xs font-semibold text-paper"
@@ -284,24 +304,30 @@ function CartaoMembro({
             <p className="text-xs font-medium text-mute">Função</p>
             <div className="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
               {(["barbeiro", "recepcao", "gerente"] as PapelDeEquipe[]).map((opcao) => (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={opcao}
                   type="button"
                   role="radio"
                   aria-checked={papel === opcao}
                   onClick={() => trocarPapel(opcao)}
                   className={`min-h-12 rounded-lg border px-2 text-xs font-semibold ${
-                    papel === opcao ? "border-paper bg-paper text-ink" : "border-line2 bg-ink text-paper"
+                    papel === opcao
+                      ? "border-paper bg-paper text-ink"
+                      : "border-line2 bg-ink text-paper"
                   }`}
                 >
                   {PAPEIS[opcao].split("/")[0]}
                 </Button>
               ))}
             </div>
-            <p className="mt-2 text-xs text-mute2">{DESCRICAO_DO_PAPEL[papel]} Um toque aplica o pacote da função.</p>
+            <p className="mt-2 text-xs text-mute2">
+              {DESCRICAO_DO_PAPEL[papel]} Um toque aplica o pacote da função.
+            </p>
           </div>
 
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => setAjusteFino((v) => !v)}
             className="text-xs font-semibold text-paper underline underline-offset-4"
@@ -309,41 +335,46 @@ function CartaoMembro({
             {ajusteFino ? "Esconder ajuste fino" : "Ajuste fino (opcional)"}
           </Button>
 
-          {ajusteFino ? (<div className="space-y-3">
-            {MODULOS.map((modulo) => (
-              <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
-                  {modulo.titulo}
-                </legend>
-                <p className="text-xs leading-relaxed text-mute2">{modulo.descricao}</p>
-                <div className="mt-2 space-y-1.5">
-                  {modulo.itens.filter((item) => TETO_DO_PAPEL[papel].includes(item.chave)).map((item) => (
-                    <label key={item.chave} className="flex items-start gap-3 text-sm text-paper">
-                      <input
-                        type="checkbox"
-                        checked={permissoes.includes(item.chave)}
-                        onChange={(e) =>
-                          setPermissoes((atual) =>
-                            e.target.checked
-                              ? [...atual, item.chave]
-                              : atual.filter((c) => c !== item.chave),
-                          )
-                        }
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line2 bg-ink accent-[var(--gold)]"
-                      />
-                      <span className="min-w-0">
-                        <span className="block leading-snug">{item.rotulo}</span>
-                        <span className="text-xs uppercase tracking-wide text-mute2">
-                          {ACOES[item.acao]}
-                        </span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            ))}
-          </div>
-
+          {ajusteFino ? (
+            <div className="space-y-3">
+              {MODULOS.map((modulo) => (
+                <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
+                  <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
+                    {modulo.titulo}
+                  </legend>
+                  <p className="text-xs leading-relaxed text-mute2">{modulo.descricao}</p>
+                  <div className="mt-2 space-y-1.5">
+                    {modulo.itens
+                      .filter((item) => TETO_DO_PAPEL[papel].includes(item.chave))
+                      .map((item) => (
+                        <label
+                          key={item.chave}
+                          className="flex items-start gap-3 text-sm text-paper"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={permissoes.includes(item.chave)}
+                            onChange={(e) =>
+                              setPermissoes((atual) =>
+                                e.target.checked
+                                  ? [...atual, item.chave]
+                                  : atual.filter((c) => c !== item.chave),
+                              )
+                            }
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-line2 bg-ink accent-[var(--gold)]"
+                          />
+                          <span className="min-w-0">
+                            <span className="block leading-snug">{item.rotulo}</span>
+                            <span className="text-xs uppercase tracking-wide text-mute2">
+                              {ACOES[item.acao]}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
           ) : null}
 
           <label className="flex items-center gap-3 text-sm text-paper">
@@ -357,7 +388,8 @@ function CartaoMembro({
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="btn-primary flex-1 py-2.5"
               disabled={ocupado}
@@ -365,7 +397,8 @@ function CartaoMembro({
             >
               Salvar acesso
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-paper"
               disabled={ocupado}
@@ -373,7 +406,8 @@ function CartaoMembro({
             >
               <KeyRound size={14} /> Enviar recuperação
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-brick"
               disabled={ocupado}
@@ -405,7 +439,8 @@ function RegraDeRecebimento() {
         <span className="min-w-0">
           <span className="block text-sm font-semibold text-paper">Barbeiro recebe pagamento</span>
           <span className="mt-1 block text-xs text-mute">
-            Recepção, gerente e dono sempre recebem. Ligue para o barbeiro também fechar a comanda e receber.
+            Recepção, gerente e dono sempre recebem. Ligue para o barbeiro também fechar a comanda e
+            receber.
           </span>
         </span>
         <input
@@ -416,7 +451,9 @@ function RegraDeRecebimento() {
           className="h-6 w-6 shrink-0 accent-[var(--gold)]"
         />
       </label>
-      {mudar.isError ? <p className="mt-2 text-xs text-paper">Não foi possível salvar. Tente de novo.</p> : null}
+      {mudar.isError ? (
+        <p className="mt-2 text-xs text-paper">Não foi possível salvar. Tente de novo.</p>
+      ) : null}
     </section>
   );
 }

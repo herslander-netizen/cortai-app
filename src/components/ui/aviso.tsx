@@ -34,7 +34,6 @@ const TOM = {
   },
 } as const;
 
-
 /**
  * Linguagem única de aviso do Cortaí: faixa lateral sólida + ícone + texto
  * em alto contraste. Nunca parece card de conteúdo nem item de navegação.
@@ -63,9 +62,13 @@ export function Aviso({
       <div className="flex flex-1 items-start gap-3 px-4 py-3.5">
         <Icone size={17} className={`mt-0.5 shrink-0 ${t.icone}`} />
         <div className="min-w-0 flex-1">
-          {titulo ? <p className={`text-sm font-semibold leading-snug ${t.titulo}`}>{titulo}</p> : null}
+          {titulo ? (
+            <p className={`text-sm font-semibold leading-snug ${t.titulo}`}>{titulo}</p>
+          ) : null}
           {children ? (
-            <div className={`text-sm leading-relaxed text-paper ${titulo ? "mt-1" : ""}`}>{children}</div>
+            <div className={`text-sm leading-relaxed text-paper ${titulo ? "mt-1" : ""}`}>
+              {children}
+            </div>
           ) : null}
           {acao ? <div className="mt-2.5 flex flex-wrap gap-3">{acao}</div> : null}
         </div>

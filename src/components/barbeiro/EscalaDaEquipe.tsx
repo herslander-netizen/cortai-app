@@ -50,7 +50,9 @@ export function EscalaDaEquipe() {
     setSalvando(true);
     try {
       const lista: DiaDaEscala[] = dias.flatMap((d, i) =>
-        d.modo === "negocio" ? [] : [{ diaSemana: i, trabalha: d.modo === "proprio", abre: d.abre, fecha: d.fecha }],
+        d.modo === "negocio"
+          ? []
+          : [{ diaSemana: i, trabalha: d.modo === "proprio", abre: d.abre, fecha: d.fecha }],
       );
       await salvarFn({ data: { profissionalId: id, dias: lista } });
       void qc.invalidateQueries({ queryKey: ["escala", id] });
@@ -68,7 +70,9 @@ export function EscalaDaEquipe() {
       <h2 id="titulo-escala" className="text-base font-semibold text-paper">
         Escala por profissional
       </h2>
-      <p className="mt-1 text-sm text-mute">Sem ajuste, o profissional segue o expediente do negócio.</p>
+      <p className="mt-1 text-sm text-mute">
+        Sem ajuste, o profissional segue o expediente do negócio.
+      </p>
       {equipe.data.length > 1 ? (
         <select
           aria-label="Profissional"
@@ -91,7 +95,9 @@ export function EscalaDaEquipe() {
               aria-label={`${DIAS[i]}: como trabalha`}
               value={d.modo}
               onChange={(e) =>
-                setDias((v) => v.map((x, j) => (j === i ? { ...x, modo: e.target.value as Modo } : x)))
+                setDias((v) =>
+                  v.map((x, j) => (j === i ? { ...x, modo: e.target.value as Modo } : x)),
+                )
               }
               className="input-premium min-h-11 flex-1"
             >
@@ -105,7 +111,9 @@ export function EscalaDaEquipe() {
                   type="time"
                   aria-label={`${DIAS[i]}: início`}
                   value={d.abre}
-                  onChange={(e) => setDias((v) => v.map((x, j) => (j === i ? { ...x, abre: e.target.value } : x)))}
+                  onChange={(e) =>
+                    setDias((v) => v.map((x, j) => (j === i ? { ...x, abre: e.target.value } : x)))
+                  }
                   className="input-premium min-h-11 flex-1"
                 />
                 <span className="text-mute">até</span>
@@ -113,7 +121,9 @@ export function EscalaDaEquipe() {
                   type="time"
                   aria-label={`${DIAS[i]}: fim`}
                   value={d.fecha}
-                  onChange={(e) => setDias((v) => v.map((x, j) => (j === i ? { ...x, fecha: e.target.value } : x)))}
+                  onChange={(e) =>
+                    setDias((v) => v.map((x, j) => (j === i ? { ...x, fecha: e.target.value } : x)))
+                  }
                   className="input-premium min-h-11 flex-1"
                 />
               </span>
@@ -121,7 +131,12 @@ export function EscalaDaEquipe() {
           </li>
         ))}
       </ul>
-      <Button className="mt-4 w-full" variant="outline" disabled={salvando || !dias.length} onClick={() => void salvar()}>
+      <Button
+        className="mt-4 w-full"
+        variant="outline"
+        disabled={salvando || !dias.length}
+        onClick={() => void salvar()}
+      >
         {salvando ? "Salvando…" : "Salvar escala"}
       </Button>
     </section>

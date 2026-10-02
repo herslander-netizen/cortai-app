@@ -59,7 +59,10 @@ export const listarAgendamentosConfirmados = createServerFn({ method: "GET" })
     } else if (data.periodo === "proximos") {
       consulta = consulta.gte("inicio", agora.toISOString()).order("inicio").limit(100);
     } else {
-      consulta = consulta.lt("inicio", agora.toISOString()).order("inicio", { ascending: false }).limit(50);
+      consulta = consulta
+        .lt("inicio", agora.toISOString())
+        .order("inicio", { ascending: false })
+        .limit(50);
     }
 
     const { data: linhas, error } = await consulta;

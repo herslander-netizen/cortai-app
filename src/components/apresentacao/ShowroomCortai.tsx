@@ -321,7 +321,8 @@ const RECURSOS = [
   {
     icone: MessageCircle,
     titulo: "Lembrete por WhatsApp",
-    texto: "Aviso automático antes de cada horário. O cliente confirma com um toque e as faltas caem.",
+    texto:
+      "Aviso automático antes de cada horário. O cliente confirma com um toque e as faltas caem.",
   },
   {
     icone: CalendarDays,
@@ -442,7 +443,10 @@ export function ShowroomCortai({
         </div>
       </section>
 
-      <section className="showroom-faixa showroom-segmentos" aria-labelledby="showroom-segmento-titulo">
+      <section
+        className="showroom-faixa showroom-segmentos"
+        aria-labelledby="showroom-segmento-titulo"
+      >
         <Cabecalho b={c.segmentos} centro id="showroom-segmento-titulo" />
         <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
           {OPCOES.map((opcao) => (
@@ -493,7 +497,9 @@ export function ShowroomCortai({
             <div className="showroom-plano-nota">
               <Sparkles />
               <span>
-                <strong>Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.</strong>
+                <strong>
+                  Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.
+                </strong>
                 <small>
                   Inclui Secretária, agendamento pelo cliente, WhatsApp e confirmações automáticas.
                 </small>
@@ -519,7 +525,6 @@ export function ShowroomCortai({
           <Caixa segmento={segmento} />
         </div>
       </section>
-
 
       <section
         id="planos"

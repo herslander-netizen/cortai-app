@@ -13,7 +13,10 @@ import { transicaoBase } from "@/lib/motion";
  */
 export function FaixaPendencias() {
   const [encolhida, setEncolhida] = useState(false);
-  const { data } = useQuery({ queryKey: ["configuracao-inicial"], queryFn: () => getConfiguracaoInicial() });
+  const { data } = useQuery({
+    queryKey: ["configuracao-inicial"],
+    queryFn: () => getConfiguracaoInicial(),
+  });
 
   useEffect(() => {
     const aoRolar = () => setEncolhida(window.scrollY > 40);

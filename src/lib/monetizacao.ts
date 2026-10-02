@@ -48,9 +48,7 @@ export const ROTULO_DO_LIMITE: Record<TipoDeLimite, string> = {
 
 export function condicaoVigente(condicoes: Condicao[], hoje = new Date()): Condicao | null {
   const dia = hoje.toISOString().slice(0, 10);
-  return (
-    condicoes.find((c) => c.ativo && c.inicio <= dia && (!c.fim || c.fim >= dia)) ?? null
-  );
+  return condicoes.find((c) => c.ativo && c.inicio <= dia && (!c.fim || c.fim >= dia)) ?? null;
 }
 
 export function precoPadraoCentavos(plano: Plano | null, ciclo: string): number {
@@ -59,10 +57,15 @@ export function precoPadraoCentavos(plano: Plano | null, ciclo: string): number 
 }
 
 /** Preço realmente cobrado: preço personalizado ou o padrão com o desconto aplicado. */
-export function precoEfetivoCentavos(plano: Plano | null, ciclo: string, condicao: Condicao | null): number {
+export function precoEfetivoCentavos(
+  plano: Plano | null,
+  ciclo: string,
+  condicao: Condicao | null,
+): number {
   const padrao = precoPadraoCentavos(plano, ciclo);
   if (!condicao) return padrao;
-  if (condicao.precoPersonalizadoCentavos != null) return Math.max(0, condicao.precoPersonalizadoCentavos);
+  if (condicao.precoPersonalizadoCentavos != null)
+    return Math.max(0, condicao.precoPersonalizadoCentavos);
   const comPercentual = padrao - Math.round((padrao * condicao.descontoPercentual) / 100);
   return Math.max(0, comPercentual - condicao.descontoCentavos);
 }

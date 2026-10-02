@@ -17,7 +17,10 @@ async function adminContext(context: { supabase: any; userId: string }) {
 
 function phi(feature: boolean[], paid: boolean[]) {
   if (feature.length < 3) return null;
-  let a = 0, b = 0, c = 0, d = 0;
+  let a = 0,
+    b = 0,
+    c = 0,
+    d = 0;
   feature.forEach((on, i) => {
     if (on && paid[i]) a += 1;
     else if (on) b += 1;
@@ -29,10 +32,19 @@ function phi(feature: boolean[], paid: boolean[]) {
 }
 
 export type AdminTenant = {
-  id: string; nome: string; plano: string; ciclo: string; desconto: number;
-  telefone: string | null; whatsapp: string | null; ativo: boolean;
-  ultimoAcesso: string | null; agendamentos: number; regrasAtivas: number;
-  risco: boolean; motivosRisco: string[];
+  id: string;
+  nome: string;
+  plano: string;
+  ciclo: string;
+  desconto: number;
+  telefone: string | null;
+  whatsapp: string | null;
+  ativo: boolean;
+  ultimoAcesso: string | null;
+  agendamentos: number;
+  regrasAtivas: number;
+  risco: boolean;
+  motivosRisco: string[];
 };
 
 export const getAdminOverview = createServerFn({ method: "GET" })
@@ -41,7 +53,10 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const db = await adminContext(context);
     const [tenantsRes, configRes, historyRes, rulesRes, queueRes, movesRes] = await Promise.all([
       db.from("tenants").select("id, plano, ciclo, desconto_percentual, ativo"),
-      db.from("configuracoes_da_plataforma").select("preco_essencial_centavos, preco_pro_centavos, preco_studio_centavos").single(),
+      db
+        .from("configuracoes_da_plataforma")
+        .select("preco_essencial_centavos, preco_pro_centavos, preco_studio_centavos")
+        .single(),
       db.from("historico_de_plano").select("tenant_id, plano_de, plano_para"),
       db.from("regras_de_plano").select("tenant_id, tipo, ativo"),
       db.from("fila_de_espera").select("tenant_id"),
@@ -54,30 +69,52 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       pro: config?.preco_pro_centavos ?? 0,
       studio: config?.preco_studio_centavos ?? 0,
     };
-    const receita = tenants.filter((t) => t.ativo).reduce((sum, t) => {
-      const annualFactor = t.ciclo === "anual" ? 0.8 : 1;
-      const couponFactor = 1 - t.desconto_percentual / 100;
-      return sum + Math.round((prices[t.plano] ?? 0) * annualFactor * couponFactor);
-    }, 0);
+    const receita = tenants
+      .filter((t) => t.ativo)
+      .reduce((sum, t) => {
+        const annualFactor = t.ciclo === "anual" ? 0.8 : 1;
+        const couponFactor = 1 - t.desconto_percentual / 100;
+        return sum + Math.round((prices[t.plano] ?? 0) * annualFactor * couponFactor);
+      }, 0);
     const history = historyRes.data ?? [];
-    const conversions = history.filter((h) => h.plano_de === "essencial" && h.plano_para !== "essencial");
-    const cancellations = history.filter((h) => h.plano_de !== "essencial" && h.plano_para === "essencial");
-    const conversionBase = new Set(history.filter((h) => h.plano_de === "essencial").map((h) => h.tenant_id)).size;
+    const conversions = history.filter(
+      (h) => h.plano_de === "essencial" && h.plano_para !== "essencial",
+    );
+    const cancellations = history.filter(
+      (h) => h.plano_de !== "essencial" && h.plano_para === "essencial",
+    );
+    const conversionBase = new Set(
+      history.filter((h) => h.plano_de === "essencial").map((h) => h.tenant_id),
+    ).size;
     const cancelBase = conversions.length + cancellations.length;
     const paid = tenants.map((t) => t.ativo && t.plano !== "essencial");
     const activeRules = rulesRes.data ?? [];
     const queueTenants = new Set((queueRes.data ?? []).map((q) => q.tenant_id));
-    const packageTenants = new Set((movesRes.data ?? []).map((m: any) => m.carteiras?.tenant_id).filter(Boolean));
+    const packageTenants = new Set(
+      (movesRes.data ?? []).map((m: any) => m.carteiras?.tenant_id).filter(Boolean),
+    );
     const signals = [
-      { label: "Ligou a fidelidade", values: tenants.map((t) => activeRules.some((r) => r.tenant_id === t.id && r.tipo === "fidelidade" && r.ativo)) },
+      {
+        label: "Ligou a fidelidade",
+        values: tenants.map((t) =>
+          activeRules.some((r) => r.tenant_id === t.id && r.tipo === "fidelidade" && r.ativo),
+        ),
+      },
       { label: "Vendeu um pacote", values: tenants.map((t) => packageTenants.has(t.id)) },
       { label: "Usou a fila de espera", values: tenants.map((t) => queueTenants.has(t.id)) },
-    ].map((item) => ({ label: item.label, correlation: phi(item.values, paid), sample: item.values.filter(Boolean).length }))
+    ]
+      .map((item) => ({
+        label: item.label,
+        correlation: phi(item.values, paid),
+        sample: item.values.filter(Boolean).length,
+      }))
       .sort((a, b) => (b.correlation ?? -2) - (a.correlation ?? -2));
     return {
       receitaCentavos: receita,
       totalBarbearias: tenants.length,
-      conversionPct: conversionBase ? Math.round((new Set(conversions.map((h) => h.tenant_id)).size / conversionBase) * 100) : 0,
+      conversionPct: conversionBase
+        ? Math.round((new Set(conversions.map((h) => h.tenant_id)).size / conversionBase) * 100)
+        : 0,
       conversionHasData: conversionBase > 0,
       cancellationPct: cancelBase ? Math.round((cancellations.length / cancelBase) * 100) : 0,
       cancellationHasData: cancelBase > 0,
@@ -91,7 +128,12 @@ export const getAdminTenants = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<AdminTenant[]> => {
     const db = await adminContext(context);
     const [tenantsRes, bookingsRes, rulesRes] = await Promise.all([
-      db.from("tenants").select("id, nome, plano, ciclo, desconto_percentual, telefone, whatsapp, ativo, ultimo_acesso_em").order("nome"),
+      db
+        .from("tenants")
+        .select(
+          "id, nome, plano, ciclo, desconto_percentual, telefone, whatsapp, ativo, ultimo_acesso_em",
+        )
+        .order("nome"),
       db.from("agendamentos").select("tenant_id"),
       db.from("regras_de_plano").select("tenant_id, ativo"),
     ]);
@@ -101,15 +143,24 @@ export const getAdminTenants = createServerFn({ method: "GET" })
     return (tenantsRes.data ?? []).map((tenant) => {
       const motivos: string[] = [];
       if (!tenant.ultimo_acesso_em) motivos.push("Nunca acessou o painel.");
-      else if (new Date(tenant.ultimo_acesso_em).getTime() < cutoff) motivos.push("Sem acesso ao painel há mais de 7 dias.");
+      else if (new Date(tenant.ultimo_acesso_em).getTime() < cutoff)
+        motivos.push("Sem acesso ao painel há mais de 7 dias.");
       const activeRules = rules.filter((r) => r.tenant_id === tenant.id && r.ativo).length;
       if (!activeRules) motivos.push("Nunca ativou uma regra de plano.");
       return {
-        id: tenant.id, nome: tenant.nome, plano: tenant.plano, ciclo: tenant.ciclo,
-        desconto: tenant.desconto_percentual, telefone: tenant.telefone, whatsapp: tenant.whatsapp,
-        ativo: tenant.ativo, ultimoAcesso: tenant.ultimo_acesso_em,
+        id: tenant.id,
+        nome: tenant.nome,
+        plano: tenant.plano,
+        ciclo: tenant.ciclo,
+        desconto: tenant.desconto_percentual,
+        telefone: tenant.telefone,
+        whatsapp: tenant.whatsapp,
+        ativo: tenant.ativo,
+        ultimoAcesso: tenant.ultimo_acesso_em,
         agendamentos: bookings.filter((b) => b.tenant_id === tenant.id).length,
-        regrasAtivas: activeRules, risco: motivos.length > 0, motivosRisco: motivos,
+        regrasAtivas: activeRules,
+        risco: motivos.length > 0,
+        motivosRisco: motivos,
       };
     });
   });
@@ -119,16 +170,37 @@ export const getRetentionContacts = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { data: rows } = await db.from("contatos_de_retencao").select("id, canal, resultado, observacao, criado_em").eq("tenant_id", data.tenantId).order("criado_em", { ascending: false });
+    const { data: rows } = await db
+      .from("contatos_de_retencao")
+      .select("id, canal, resultado, observacao, criado_em")
+      .eq("tenant_id", data.tenantId)
+      .order("criado_em", { ascending: false });
     return rows ?? [];
   });
 
 export const addRetentionContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ tenantId: z.string().uuid(), canal: z.enum(["whatsapp", "telefone"]), resultado: z.enum(["sem_resposta", "conversou", "recuperou", "cancelou"]), observacao: z.string().trim().max(1000).nullable() }).parse(input))
+  .validator((input: unknown) =>
+    z
+      .object({
+        tenantId: z.string().uuid(),
+        canal: z.enum(["whatsapp", "telefone"]),
+        resultado: z.enum(["sem_resposta", "conversou", "recuperou", "cancelou"]),
+        observacao: z.string().trim().max(1000).nullable(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db.from("contatos_de_retencao").insert({ tenant_id: data.tenantId, canal: data.canal, resultado: data.resultado, observacao: data.observacao, criado_por: context.userId });
+    const { error } = await db
+      .from("contatos_de_retencao")
+      .insert({
+        tenant_id: data.tenantId,
+        canal: data.canal,
+        resultado: data.resultado,
+        observacao: data.observacao,
+        criado_por: context.userId,
+      });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -143,22 +215,39 @@ export const getPlatformConfig = createServerFn({ method: "GET" })
   });
 
 const configSchema = z.object({
-  preco_essencial_centavos: z.number().int().min(0), preco_pro_centavos: z.number().int().min(0), preco_studio_centavos: z.number().int().min(0),
-  cor_fundo: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_superficie: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_primaria: z.string().regex(/^#[0-9A-Fa-f]{6}$/), cor_texto: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
-  tipografia: z.enum(["Montserrat", "Work Sans", "Sora"]), raio_px: z.number().int().min(0).max(24),
-  whatsapp_alvo: z.string().trim().max(30).nullable().optional().transform((v) => {
-    const digitos = String(v ?? "").replace(/\D/g, "");
-    if (!digitos) return null;
-    if (digitos.length < 10 || digitos.length > 15) throw new Error("Número de WhatsApp inválido.");
-    return digitos.length <= 11 ? `55${digitos}` : digitos;
-  }),
+  preco_essencial_centavos: z.number().int().min(0),
+  preco_pro_centavos: z.number().int().min(0),
+  preco_studio_centavos: z.number().int().min(0),
+  cor_fundo: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  cor_superficie: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  cor_primaria: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  cor_texto: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  tipografia: z.enum(["Montserrat", "Work Sans", "Sora"]),
+  raio_px: z.number().int().min(0).max(24),
+  whatsapp_alvo: z
+    .string()
+    .trim()
+    .max(30)
+    .nullable()
+    .optional()
+    .transform((v) => {
+      const digitos = String(v ?? "").replace(/\D/g, "");
+      if (!digitos) return null;
+      if (digitos.length < 10 || digitos.length > 15)
+        throw new Error("Número de WhatsApp inválido.");
+      return digitos.length <= 11 ? `55${digitos}` : digitos;
+    }),
 });
 
 export const savePlatformConfig = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth]).validator((input: unknown) => configSchema.parse(input))
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => configSchema.parse(input))
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db.from("configuracoes_da_plataforma").update({ ...data, atualizado_por: context.userId }).eq("id", true);
+    const { error } = await db
+      .from("configuracoes_da_plataforma")
+      .update({ ...data, atualizado_por: context.userId })
+      .eq("id", true);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -169,19 +258,45 @@ export const getSuggestions = createServerFn({ method: "GET" })
     const db = await adminContext(context);
     const [suggestionsRes, tenantsRes, bookingsRes] = await Promise.all([
       db.from("sugestoes_da_plataforma").select("*").order("criado_em", { ascending: false }),
-      db.from("tenants").select("id, nome, plano"), db.from("agendamentos").select("tenant_id"),
+      db.from("tenants").select("id, nome, plano"),
+      db.from("agendamentos").select("tenant_id"),
     ]);
     const tenants = tenantsRes.data ?? [];
     const bookings = bookingsRes.data ?? [];
-    return (suggestionsRes.data ?? []).map((s) => ({ ...s, solicitantes: s.tenants_que_pediram.map((id) => ({ ...tenants.find((t) => t.id === id), id, agendamentos: bookings.filter((b) => b.tenant_id === id).length })) })).sort((a, b) => b.tenants_que_pediram.length - a.tenants_que_pediram.length);
+    return (suggestionsRes.data ?? [])
+      .map((s) => ({
+        ...s,
+        solicitantes: s.tenants_que_pediram.map((id) => ({
+          ...tenants.find((t) => t.id === id),
+          id,
+          agendamentos: bookings.filter((b) => b.tenant_id === id).length,
+        })),
+      }))
+      .sort((a, b) => b.tenants_que_pediram.length - a.tenants_que_pediram.length);
   });
 
-const suggestionSchema = z.object({ pedido: z.string().trim().min(1).max(500), motivo: z.string().trim().min(1).max(1500), canal: z.enum(["whatsapp", "ligacao", "visita", "suporte"]), tenants: z.array(z.string().uuid()), status: z.enum(["em_analise", "no_roteiro", "em_desenvolvimento", "implementada", "recusada"]) });
+const suggestionSchema = z.object({
+  pedido: z.string().trim().min(1).max(500),
+  motivo: z.string().trim().min(1).max(1500),
+  canal: z.enum(["whatsapp", "ligacao", "visita", "suporte"]),
+  tenants: z.array(z.string().uuid()),
+  status: z.enum(["em_analise", "no_roteiro", "em_desenvolvimento", "implementada", "recusada"]),
+});
 export const saveSuggestion = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth]).validator((input: unknown) => suggestionSchema.parse(input))
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => suggestionSchema.parse(input))
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db.from("sugestoes_da_plataforma").insert({ pedido: data.pedido, motivo: data.motivo, canal: data.canal, tenants_que_pediram: data.tenants, status: data.status, criado_por: context.userId });
+    const { error } = await db
+      .from("sugestoes_da_plataforma")
+      .insert({
+        pedido: data.pedido,
+        motivo: data.motivo,
+        canal: data.canal,
+        tenants_que_pediram: data.tenants,
+        status: data.status,
+        criado_por: context.userId,
+      });
     if (error) {
       console.error("[admin] saveSuggestion falhou:", error.message);
       throw new Error("Não foi possível registrar a sugestão agora. Tente novamente.");
@@ -190,28 +305,54 @@ export const saveSuggestion = createServerFn({ method: "POST" })
   });
 
 export const updateSuggestionStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth]).validator((input: unknown) => z.object({ id: z.string().uuid(), status: suggestionSchema.shape.status }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z.object({ id: z.string().uuid(), status: suggestionSchema.shape.status }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db.from("sugestoes_da_plataforma").update({ status: data.status, criado_por: context.userId }).eq("id", data.id);
+    const { error } = await db
+      .from("sugestoes_da_plataforma")
+      .update({ status: data.status, criado_por: context.userId })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 export const getGlobalDesign = createServerFn({ method: "GET" }).handler(async () => {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"]!;
-  const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, { auth: { persistSession: false }, global: { fetch: (input, init) => { const headers = new Headers(init?.headers); if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) headers.delete("Authorization"); headers.set("apikey", key); return fetch(input, { ...init, headers }); } } });
-  const { data } = await client.from("design_da_plataforma").select("cor_fundo, cor_superficie, cor_primaria, cor_texto, tipografia, raio_px").eq("id", true).maybeSingle();
+  const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    auth: { persistSession: false },
+    global: {
+      fetch: (input, init) => {
+        const headers = new Headers(init?.headers);
+        if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`)
+          headers.delete("Authorization");
+        headers.set("apikey", key);
+        return fetch(input, { ...init, headers });
+      },
+    },
+  });
+  const { data } = await client
+    .from("design_da_plataforma")
+    .select("cor_fundo, cor_superficie, cor_primaria, cor_texto, tipografia, raio_px")
+    .eq("id", true)
+    .maybeSingle();
   return data;
 });
 /* ------------------- CICLO DE VIDA DAS BARBEARIAS (ADMIN) ------------------ */
 
 export const definirStatusDaBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ tenantId: z.string().uuid(), ativo: z.boolean() }).parse(input))
+  .validator((input: unknown) =>
+    z.object({ tenantId: z.string().uuid(), ativo: z.boolean() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);
-    const { error } = await db.from("tenants").update({ ativo: data.ativo }).eq("id", data.tenantId);
+    const { error } = await db
+      .from("tenants")
+      .update({ ativo: data.ativo })
+      .eq("id", data.tenantId);
     if (error) {
       console.error("[admin] definirStatusDaBarbearia falhou:", error.message);
       throw new Error("Não foi possível atualizar a situação da barbearia agora. Tente novamente.");
@@ -237,11 +378,16 @@ export const excluirBarbearia = createServerFn({ method: "POST" })
       .from("conexoes_whatsapp")
       .select("sessao_id, status")
       .eq("tenant_id", tenantId);
-    const ativas = (conexoes ?? []).filter((c: { sessao_id: string | null; status: string | null }) => c.sessao_id && c.status !== "desconectado");
+    const ativas = (conexoes ?? []).filter(
+      (c: { sessao_id: string | null; status: string | null }) =>
+        c.sessao_id && c.status !== "desconectado",
+    );
     if (ativas.length) {
-      const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
+      const { gatewayConfigurado, gatewayDeWhatsapp } =
+        await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado()) {
-        aviso = "O WhatsApp não pôde ser desconectado (serviço não configurado). Desconecte o número manualmente.";
+        aviso =
+          "O WhatsApp não pôde ser desconectado (serviço não configurado). Desconecte o número manualmente.";
       } else {
         for (const c of ativas) {
           try {
@@ -253,7 +399,8 @@ export const excluirBarbearia = createServerFn({ method: "POST" })
       }
     }
 
-    const email = typeof context.claims?.["email"] === "string" ? (context.claims["email"] as string) : null;
+    const email =
+      typeof context.claims?.["email"] === "string" ? (context.claims["email"] as string) : null;
     const { error } = await db.rpc("excluir_tenant_completo", {
       _tenant_id: tenantId,
       _ator: context.userId,
@@ -284,7 +431,13 @@ export const getMatrizDeRecursos = createServerFn({ method: "GET" })
 export const definirRecursoDePlano = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ chave: z.string().min(2).max(60), plano: z.enum(["essencial", "pro", "conecta", "studio"]), liberado: z.boolean() }).parse(input),
+    z
+      .object({
+        chave: z.string().min(2).max(60),
+        plano: z.enum(["essencial", "pro", "conecta", "studio"]),
+        liberado: z.boolean(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await adminContext(context);

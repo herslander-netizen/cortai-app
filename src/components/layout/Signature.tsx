@@ -22,7 +22,6 @@ export function useWhatsappAlvo() {
   return data ?? null;
 }
 
-
 export function Signature() {
   const link = useWhatsappAlvo();
 
@@ -46,18 +45,24 @@ export function Signature() {
           ) : (
             <span className="font-semibold">Alvo Digital</span>
           )}
-          <span className="text-mute2" aria-hidden>•</span>
+          <span className="text-mute2" aria-hidden>
+            •
+          </span>
           <p className="leading-relaxed">Simplifica. Conecta. Cresce.</p>
         </div>
         <div className="flex min-h-12 flex-wrap items-center justify-center gap-x-3">
-          <Link to="/privacidade" className="inline-flex min-h-12 items-center transition-colors hover:text-gold">
+          <Link
+            to="/privacidade"
+            className="inline-flex min-h-12 items-center transition-colors hover:text-gold"
+          >
             Privacidade
           </Link>
-          <span className="text-mute2" aria-hidden>•</span>
+          <span className="text-mute2" aria-hidden>
+            •
+          </span>
           <span className="text-mute2">© 2026 Herslander</span>
         </div>
       </div>
     </footer>
   );
 }
-

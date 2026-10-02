@@ -18,7 +18,11 @@ export async function fusoDoTenant(tenantId: string): Promise<string> {
 
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin.from("tenants").select("fuso").eq("id", tenantId).maybeSingle();
+    const { data } = await supabaseAdmin
+      .from("tenants")
+      .select("fuso")
+      .eq("id", tenantId)
+      .maybeSingle();
     const fuso = normalizarFuso((data as { fuso?: string } | null)?.fuso);
     CACHE.set(tenantId, { fuso, ate: agora + VALIDADE_MS });
     return fuso;

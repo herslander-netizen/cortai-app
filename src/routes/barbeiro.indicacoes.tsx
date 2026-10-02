@@ -23,7 +23,10 @@ export const Route = createFileRoute("/barbeiro/indicacoes")({
   head: () => ({
     meta: [
       { title: "Indicações — Cortaí Gestão" },
-      { name: "description", content: "Cliente que traz cliente: código, recompensa e acompanhamento." },
+      {
+        name: "description",
+        content: "Cliente que traz cliente: código, recompensa e acompanhamento.",
+      },
       { property: "og:title", content: "Indicações — Cortaí Gestão" },
       { property: "og:description", content: "Acompanhe quem indicou e quem já virou cliente." },
       { property: "og:type", content: "website" },
@@ -38,7 +41,10 @@ function IndicacoesPage() {
   const salvarConfig = useServerFn(salvarConfigIndicacao);
   const registrar = useServerFn(registrarIndicacao);
   const atualizar = useServerFn(atualizarIndicacao);
-  const { data, isLoading, refetch } = useQuery({ queryKey: ["indicacoes"], queryFn: () => getIndicacoes() });
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["indicacoes"],
+    queryFn: () => getIndicacoes(),
+  });
   const acao = useAcao();
 
   const [ativa, setAtiva] = useState(false);
@@ -65,9 +71,12 @@ function IndicacoesPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-paper">Programa de indicação</p>
-            <p className="mt-0.5 text-xs text-mute2">A recompensa é registrada aqui e entregue no negócio.</p>
+            <p className="mt-0.5 text-xs text-mute2">
+              A recompensa é registrada aqui e entregue no negócio.
+            </p>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             role="switch"
             aria-checked={ativa}
@@ -75,7 +84,9 @@ function IndicacoesPage() {
             onClick={() => setAtiva((v) => !v)}
             className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${ativa ? "border-gold bg-gold" : "border-line2 bg-ink2"}`}
           >
-            <span className={`block h-5 w-5 rounded-full bg-paper transition-transform ${ativa ? "translate-x-6" : "translate-x-1"}`} />
+            <span
+              className={`block h-5 w-5 rounded-full bg-paper transition-transform ${ativa ? "translate-x-6" : "translate-x-1"}`}
+            />
           </Button>
         </div>
 
@@ -98,14 +109,17 @@ function IndicacoesPage() {
           />
         </label>
 
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           className="btn-primary mt-5 w-full disabled:opacity-60"
           disabled={acao.ocupado}
           onClick={() =>
             acao.executar("config", () => salvarConfig({ data: { ativa, codigo, recompensa } }), {
               sucesso: "Programa de indicações salvo.",
-              aoConcluir: async () => { await refetch(); },
+              aoConcluir: async () => {
+                await refetch();
+              },
             })
           }
         >
@@ -114,7 +128,8 @@ function IndicacoesPage() {
 
         <div className="mt-5 border-t border-line pt-4">
           <p className="break-all text-xs text-mute">{link}</p>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             className="btn-tertiary mt-2 flex items-center gap-2 text-xs"
             onClick={async () => {
@@ -128,7 +143,11 @@ function IndicacoesPage() {
         </div>
       </div>
 
-      {aviso ? <Aviso tom="info" className="mt-4">{aviso}</Aviso> : null}
+      {aviso ? (
+        <Aviso tom="info" className="mt-4">
+          {aviso}
+        </Aviso>
+      ) : null}
 
       <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Registrar indicação</h2>
       <div className="flex gap-2">
@@ -138,15 +157,23 @@ function IndicacoesPage() {
           className="input-premium min-w-0 flex-1"
           placeholder="Nome de quem foi indicado"
         />
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           className="btn-primary shrink-0 px-4 disabled:opacity-60"
           disabled={acao.ocupado || novo.trim().length < 2}
           onClick={() =>
-            acao.executar("registrar", () => registrar({ data: { indicadorClienteId: null, indicadoNome: novo.trim() } }), {
-              sucesso: "Indicação registrada.",
-              aoConcluir: async () => { setNovo(""); await refetch(); },
-            })
+            acao.executar(
+              "registrar",
+              () => registrar({ data: { indicadorClienteId: null, indicadoNome: novo.trim() } }),
+              {
+                sucesso: "Indicação registrada.",
+                aoConcluir: async () => {
+                  setNovo("");
+                  await refetch();
+                },
+              },
+            )
           }
         >
           {acao.estaEm("registrar") ? "Salvando…" : "Adicionar"}
@@ -154,7 +181,9 @@ function IndicacoesPage() {
       </div>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Acompanhamento</h2>
-      {data && data.itens.length === 0 ? <EmptyState text="Nenhuma indicação registrada ainda." /> : null}
+      {data && data.itens.length === 0 ? (
+        <EmptyState text="Nenhuma indicação registrada ainda." />
+      ) : null}
       <ul>
         {(data?.itens ?? []).map((i) => (
           <li key={i.id} className="border-b border-line py-4">
@@ -164,7 +193,9 @@ function IndicacoesPage() {
                 <p className="mt-0.5 text-xs text-mute">
                   {i.indicador ? `Indicado por ${i.indicador}` : "Indicação registrada no negócio"}
                 </p>
-                <p className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}>
+                <p
+                  className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}
+                >
                   {i.status === "convertido" ? "Virou cliente" : "Aguardando primeira visita"}
                   {i.recompensa ? ` · ${i.recompensa}` : ""}
                   {i.recompensaEntregue ? " · recompensa entregue" : ""}
@@ -173,30 +204,44 @@ function IndicacoesPage() {
             </div>
             <div className="mt-2 flex gap-4">
               {i.status !== "convertido" ? (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   className="btn-tertiary text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
                   onClick={() =>
-                    acao.executar(`converter-${i.id}`, () => atualizar({ data: { id: i.id, acao: "converter" } }), {
-                      sucesso: `${i.indicado} marcado como cliente.`,
-                      aoConcluir: async () => { await refetch(); },
-                    })
+                    acao.executar(
+                      `converter-${i.id}`,
+                      () => atualizar({ data: { id: i.id, acao: "converter" } }),
+                      {
+                        sucesso: `${i.indicado} marcado como cliente.`,
+                        aoConcluir: async () => {
+                          await refetch();
+                        },
+                      },
+                    )
                   }
                 >
                   {acao.estaEm(`converter-${i.id}`) ? "Salvando…" : "Marcar como cliente"}
                 </Button>
               ) : null}
               {!i.recompensaEntregue ? (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   className="btn-tertiary text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
                   onClick={() =>
-                    acao.executar(`recompensar-${i.id}`, () => atualizar({ data: { id: i.id, acao: "recompensar" } }), {
-                      sucesso: "Recompensa registrada.",
-                      aoConcluir: async () => { await refetch(); },
-                    })
+                    acao.executar(
+                      `recompensar-${i.id}`,
+                      () => atualizar({ data: { id: i.id, acao: "recompensar" } }),
+                      {
+                        sucesso: "Recompensa registrada.",
+                        aoConcluir: async () => {
+                          await refetch();
+                        },
+                      },
+                    )
                   }
                 >
                   {acao.estaEm(`recompensar-${i.id}`) ? "Salvando…" : "Recompensa entregue"}

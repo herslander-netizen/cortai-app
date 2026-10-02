@@ -50,7 +50,9 @@ export function PreferenciasDePrivacidade() {
               />
               <span>
                 <span className="block text-sm font-semibold text-paper">{categoria.titulo}</span>
-                <span className="mt-1 block text-xs leading-relaxed text-mute">{categoria.detalhe}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-mute">
+                  {categoria.detalhe}
+                </span>
               </span>
             </label>
           </li>

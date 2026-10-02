@@ -30,10 +30,14 @@ export const Route = createFileRoute("/configurar-minha-barbearia")({
       { title: "Configurar meu negócio — Cortaí" },
       {
         name: "description",
-        content: "Monte a página do seu negócio em poucos minutos: nome, horários e serviços. Sem login para começar.",
+        content:
+          "Monte a página do seu negócio em poucos minutos: nome, horários e serviços. Sem login para começar.",
       },
       { property: "og:title", content: "Configurar meu negócio — Cortaí" },
-      { property: "og:description", content: "Nome, horários e serviços: seu negócio publicado em minutos." },
+      {
+        property: "og:description",
+        content: "Nome, horários e serviços: seu negócio publicado em minutos.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -123,7 +127,9 @@ function ConfigurarMinhaBarbearia() {
       const r = await publicar({ data: { token } });
       setSlug(r.slug);
       setPasso(PASSOS.length - 1);
-      aviso.ok(`${termos(dados.segmento).possessivo.charAt(0).toUpperCase()}${termos(dados.segmento).possessivo.slice(1)} já está no ar.`);
+      aviso.ok(
+        `${termos(dados.segmento).possessivo.charAt(0).toUpperCase()}${termos(dados.segmento).possessivo.slice(1)} já está no ar.`,
+      );
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não consegui publicar agora.");
     } finally {
@@ -174,15 +180,21 @@ function ConfigurarMinhaBarbearia() {
       </header>
 
       <main className="mx-auto max-w-[720px] px-5 pb-20 pt-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Configurar meu negócio</p>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">
+          Configurar meu negócio
+        </p>
         <h1 className="mt-2 text-3xl font-bold leading-tight">Seu negócio no ar, em minutos.</h1>
         <p className="mt-2 text-sm text-mute">
-          Comece sem login. No fim você publica a página e pode assumir o acesso ao painel com sua conta.
+          Comece sem login. No fim você publica a página e pode assumir o acesso ao painel com sua
+          conta.
         </p>
 
         <div className="mt-6 flex gap-1.5" aria-hidden>
           {PASSOS.map((p, i) => (
-            <span key={p} className={`h-1.5 flex-1 rounded-full ${i <= passo ? "bg-gold" : "bg-ink3"}`} />
+            <span
+              key={p}
+              className={`h-1.5 flex-1 rounded-full ${i <= passo ? "bg-gold" : "bg-ink3"}`}
+            />
           ))}
         </div>
         <p className="mt-2 text-xs text-mute2">
@@ -193,15 +205,52 @@ function ConfigurarMinhaBarbearia() {
           <p className="mt-10 text-sm text-mute">Preparando sua configuração…</p>
         ) : passo === 0 ? (
           <section className="mt-8 space-y-4">
-            <fieldset><legend className="text-xs font-semibold uppercase tracking-wide text-mute">Tipo de negócio</legend><div className="mt-2 grid grid-cols-2 gap-2">{LISTA_DE_SEGMENTOS.map((item) => { const Icon = item.icone; return <Button key={item.id} variant={dados.segmento === item.id ? "default" : "outline"} type="button" className="h-auto min-h-14 justify-start gap-2 px-3 text-left text-xs" onClick={() => atualizar({ segmento: item.id, horarios: SEGMENTOS_CONFIG[item.id].horariosPadrao.map((horario) => ({ ...horario })), servicos: [] })}><Icon size={16} />{item.rotulo}</Button>; })}</div></fieldset>
-            <Campo rotulo={`Nome ${termos(dados.segmento).de}`} valor={dados.nome} onChange={(v) => atualizar({ nome: v })} />
+            <fieldset>
+              <legend className="text-xs font-semibold uppercase tracking-wide text-mute">
+                Tipo de negócio
+              </legend>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {LISTA_DE_SEGMENTOS.map((item) => {
+                  const Icon = item.icone;
+                  return (
+                    <Button
+                      key={item.id}
+                      variant={dados.segmento === item.id ? "default" : "outline"}
+                      type="button"
+                      className="h-auto min-h-14 justify-start gap-2 px-3 text-left text-xs"
+                      onClick={() =>
+                        atualizar({
+                          segmento: item.id,
+                          horarios: SEGMENTOS_CONFIG[item.id].horariosPadrao.map((horario) => ({
+                            ...horario,
+                          })),
+                          servicos: [],
+                        })
+                      }
+                    >
+                      <Icon size={16} />
+                      {item.rotulo}
+                    </Button>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <Campo
+              rotulo={`Nome ${termos(dados.segmento).de}`}
+              valor={dados.nome}
+              onChange={(v) => atualizar({ nome: v })}
+            />
             <Campo
               rotulo="WhatsApp"
               valor={dados.whatsapp}
               onChange={(v) => atualizar({ whatsapp: v })}
               placeholder="(79) 99999-9999"
             />
-            <Campo rotulo="Endereço" valor={dados.endereco} onChange={(v) => atualizar({ endereco: v })} />
+            <Campo
+              rotulo="Endereço"
+              valor={dados.endereco}
+              onChange={(v) => atualizar({ endereco: v })}
+            />
             <Campo
               rotulo="Link da logo (opcional)"
               valor={dados.logoUrl}
@@ -223,7 +272,11 @@ function ConfigurarMinhaBarbearia() {
         ) : passo === 1 ? (
           <section className="mt-8">
             <EditorDeHorarios
-              horarios={dados.horarios.length ? dados.horarios : SEGMENTOS_CONFIG[dados.segmento].horariosPadrao}
+              horarios={
+                dados.horarios.length
+                  ? dados.horarios
+                  : SEGMENTOS_CONFIG[dados.segmento].horariosPadrao
+              }
               onChange={(h: HorarioSugerido[]) => atualizar({ horarios: h })}
               segmento={dados.segmento}
             />
@@ -271,17 +324,24 @@ function ConfigurarMinhaBarbearia() {
                   >
                     {copiado ? <Check size={15} /> : <Copy size={15} />} Copiar link
                   </button>
-                  <a className="btn-secondary px-4 py-2 text-sm" href={link} target="_blank" rel="noreferrer">
+                  <a
+                    className="btn-secondary px-4 py-2 text-sm"
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <ExternalLink size={15} /> Abrir página
                   </a>
                 </div>
                 {reivindicado ? (
-                  <p className="mt-4 text-xs text-mute">O acesso ao painel já foi liberado para uma conta.</p>
+                  <p className="mt-4 text-xs text-mute">
+                    O acesso ao painel já foi liberado para uma conta.
+                  </p>
                 ) : (
                   <>
                     <p className="mt-5 text-xs text-mute">
-                      Para gerenciar agenda, clientes e financeiro, assuma o acesso com sua conta. Ninguém mais
-                      consegue administrar este negócio sem este aparelho.
+                      Para gerenciar agenda, clientes e financeiro, assuma o acesso com sua conta.
+                      Ninguém mais consegue administrar este negócio sem este aparelho.
                     </p>
                     <button
                       type="button"
@@ -296,11 +356,15 @@ function ConfigurarMinhaBarbearia() {
               </div>
             ) : (
               <div className="card p-5">
-                <p className="text-sm text-paper">Tudo pronto para publicar a página do seu negócio.</p>
+                <p className="text-sm text-paper">
+                  Tudo pronto para publicar a página do seu negócio.
+                </p>
                 <ul className="mt-3 space-y-1 text-xs text-mute">
                   <li>Nome: {dados.nome || "—"}</li>
                   <li>Serviços: {dados.servicos.length}</li>
-                  <li>Horários: {dados.horarios.filter((h) => !h.fechado).length} dia(s) aberto(s)</li>
+                  <li>
+                    Horários: {dados.horarios.filter((h) => !h.fechado).length} dia(s) aberto(s)
+                  </li>
                 </ul>
                 <button
                   type="button"
@@ -310,7 +374,11 @@ function ConfigurarMinhaBarbearia() {
                 >
                   {ocupado ? "Publicando…" : "Publicar meu negócio"}
                 </button>
-                <button type="button" className="btn-tertiary mt-3 w-full text-sm" onClick={() => setPasso(2)}>
+                <button
+                  type="button"
+                  className="btn-tertiary mt-3 w-full text-sm"
+                  onClick={() => setPasso(2)}
+                >
                   Voltar
                 </button>
               </div>
@@ -365,7 +433,12 @@ function Rodape({
             Voltar
           </button>
         ) : null}
-        <button type="button" className="btn-primary flex-1 py-3.5" disabled={!podeAvancar} onClick={onAvancar}>
+        <button
+          type="button"
+          className="btn-primary flex-1 py-3.5"
+          disabled={!podeAvancar}
+          onClick={onAvancar}
+        >
           Continuar
         </button>
       </div>

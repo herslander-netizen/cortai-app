@@ -37,8 +37,17 @@ export function passoValido(v: unknown): number {
 
 export async function regrasDaBarbearia(db: any, tenantId: string) {
   const [{ data: t }, { data: h }] = await Promise.all([
-    db.from("tenants").select("fuso, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min").eq("id", tenantId).maybeSingle(),
-    db.from("horarios_de_funcionamento").select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim").eq("tenant_id", tenantId),
+    db
+      .from("tenants")
+      .select(
+        "fuso, antecedencia_min_minutos, intervalo_entre_min, janela_agendamento_dias, passo_horarios_min",
+      )
+      .eq("id", tenantId)
+      .maybeSingle(),
+    db
+      .from("horarios_de_funcionamento")
+      .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
+      .eq("tenant_id", tenantId),
   ]);
   return {
     fuso: normalizarFuso(t?.fuso),
@@ -74,12 +83,15 @@ export async function validarAgendamento(
   const antecedencia = motivoAntecedencia(ini, regras.antecedenciaMin);
   if (antecedencia) throw new Error(antecedencia);
   if (ini > Date.now() + regras.janelaDias * 86_400_000) {
-    throw new Error(`Esta barbearia agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`);
+    throw new Error(
+      `Esta barbearia agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
+    );
   }
   const fora = motivoForaDoHorario(ini, p.servico.duracao_min, regras.horarios, regras.fuso);
   if (fora) throw new Error(fora);
   const ids = p.servico.profissional_ids ?? [];
-  if (ids.length && !ids.includes(p.profissionalId)) throw new Error("Esse profissional não faz esse serviço.");
+  if (ids.length && !ids.includes(p.profissionalId))
+    throw new Error("Esse profissional não faz esse serviço.");
 
   const margem = Math.max(regras.intervaloEntreMin, 0) * 60_000;
   let consultaProf = db
@@ -102,7 +114,15 @@ export async function validarAgendamento(
   if (!profissionalLivre(p.profissionalId, ini, fim, extras, 0)) {
     throw new Error("Esse horário está bloqueado na agenda. Escolha outro.");
   }
-  if (!profissionalLivre(p.profissionalId, ini, fim, (doProf ?? []) as Ocupado[], regras.intervaloEntreMin)) {
+  if (
+    !profissionalLivre(
+      p.profissionalId,
+      ini,
+      fim,
+      (doProf ?? []) as Ocupado[],
+      regras.intervaloEntreMin,
+    )
+  ) {
     throw new Error("Esse horário acabou de ser reservado, escolha outro");
   }
 
@@ -114,9 +134,18 @@ export async function validarAgendamento(
       .in("status", [...STATUS_ATIVOS_DO_CLIENTE])
       .lt("inicio", new Date(fim).toISOString())
       .gt("fim", new Date(ini).toISOString());
-    const c = conflitoDoCliente((doCliente ?? []) as { id: string; inicio: string; fim: string }[], ini, fim, p.ignorarId);
+    const c = conflitoDoCliente(
+      (doCliente ?? []) as { id: string; inicio: string; fim: string }[],
+      ini,
+      fim,
+      p.ignorarId,
+    );
     if (c) {
-      const hora = new Date(c.inicio).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: regras.fuso });
+      const hora = new Date(c.inicio).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: regras.fuso,
+      });
       return { agendamentoId: c.id, hora };
     }
   }

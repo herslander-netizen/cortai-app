@@ -86,7 +86,10 @@ export function FolhaCortai({
           height: `${altura}dvh`,
           maxHeight: "100dvh",
           transform: entrou ? `translateY(${Math.max(0, arrasto)}px)` : "translateY(100%)",
-          transition: inicio.current === null ? "transform 220ms cubic-bezier(.22,1.2,.36,1), height 220ms ease" : "none",
+          transition:
+            inicio.current === null
+              ? "transform 220ms cubic-bezier(.22,1.2,.36,1), height 220ms ease"
+              : "none",
         }}
       >
         <div

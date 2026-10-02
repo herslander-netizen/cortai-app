@@ -23,7 +23,15 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
     const estilos = window.getComputedStyle(document.documentElement);
     void import("qrcode")
       .then((m) =>
-        m.toDataURL(valor, { errorCorrectionLevel: "M", margin: 1, width: 512, color: { dark: estilos.getPropertyValue("--qr-dark").trim(), light: estilos.getPropertyValue("--qr-light").trim() } }),
+        m.toDataURL(valor, {
+          errorCorrectionLevel: "M",
+          margin: 1,
+          width: 512,
+          color: {
+            dark: estilos.getPropertyValue("--qr-dark").trim(),
+            light: estilos.getPropertyValue("--qr-light").trim(),
+          },
+        }),
       )
       .then((url) => {
         if (ativo) setDesenhado(url);
@@ -36,10 +44,16 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
     };
   }, [valor, jaEhImagem, pareceBase64Png]);
 
-  const src = jaEhImagem ? valor : pareceBase64Png ? `data:image/png;base64,${valor.replace(/\s/g, "")}` : desenhado;
+  const src = jaEhImagem
+    ? valor
+    : pareceBase64Png
+      ? `data:image/png;base64,${valor.replace(/\s/g, "")}`
+      : desenhado;
 
   if (falhou) {
-    return <p className="text-xs text-brick">Não foi possível desenhar este QR Code. Gere um novo.</p>;
+    return (
+      <p className="text-xs text-brick">Não foi possível desenhar este QR Code. Gere um novo.</p>
+    );
   }
 
   if (!src) {

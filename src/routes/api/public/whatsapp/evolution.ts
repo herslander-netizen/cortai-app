@@ -52,7 +52,11 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           new URL(request.url).searchParams.get("token") ??
           null;
         if (!(await segredoConfere(recebido, segredo))) {
-          return guard.rejeitar(request, "whatsapp/evolution", recebido ? "token invalido" : "sem token");
+          return guard.rejeitar(
+            request,
+            "whatsapp/evolution",
+            recebido ? "token invalido" : "sem token",
+          );
         }
         const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
         if (limite) return limite;
@@ -60,7 +64,9 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
         if (!corpo) return new Response("Invalid payload", { status: 400 });
 
-        const evento = String(corpo["event"] ?? "").toLowerCase().replace(/_/g, ".");
+        const evento = String(corpo["event"] ?? "")
+          .toLowerCase()
+          .replace(/_/g, ".");
         const sessaoId = String(corpo["instance"] ?? "");
         if (!sessaoId) return new Response("Missing instance", { status: 400 });
         const dados = (corpo["data"] as Record<string, unknown>) ?? {};
@@ -78,7 +84,9 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             nomeExibicao: null,
             erro: null,
           });
-          return atualizou ? Response.json({ ok: true }) : new Response("Unknown session", { status: 404 });
+          return atualizou
+            ? Response.json({ ok: true })
+            : new Response("Unknown session", { status: 404 });
         }
 
         if (evento === "connection.update") {
@@ -88,10 +96,13 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             status: estado,
             ...(conectado ? { qrCode: null, qrExpiraEm: null } : {}),
             numero: typeof dados["number"] === "string" ? (dados["number"] as string) : null,
-            nomeExibicao: typeof dados["profileName"] === "string" ? (dados["profileName"] as string) : null,
+            nomeExibicao:
+              typeof dados["profileName"] === "string" ? (dados["profileName"] as string) : null,
             erro: null,
           });
-          return atualizou ? Response.json({ ok: true }) : new Response("Unknown session", { status: 404 });
+          return atualizou
+            ? Response.json({ ok: true })
+            : new Response("Unknown session", { status: 404 });
         }
 
         if (evento === "messages.upsert") {
@@ -103,7 +114,9 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             return Response.json({ ok: true, ignorada: true });
           }
           const telefone = remoteJid.split("@")[0] ?? "";
-          const { tipo, texto } = textoDaMensagem(dados["message"] as Record<string, unknown> | undefined);
+          const { tipo, texto } = textoDaMensagem(
+            dados["message"] as Record<string, unknown> | undefined,
+          );
           const r = await fluxo.processarMensagemRecebida({
             sessaoId,
             mensagemExternaId: (chave["id"] as string) ?? null,

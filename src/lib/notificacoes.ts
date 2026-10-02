@@ -24,7 +24,10 @@ export async function listarNotificacoes(tenantId: string): Promise<Notificacao[
 }
 
 export async function marcarComoLida(id: string) {
-  const { error } = await supabase.from("notificacoes").update({ lida_em: new Date().toISOString() }).eq("id", id);
+  const { error } = await supabase
+    .from("notificacoes")
+    .update({ lida_em: new Date().toISOString() })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 }
 

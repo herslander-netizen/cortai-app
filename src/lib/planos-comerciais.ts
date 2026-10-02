@@ -52,7 +52,12 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     profissionais: 10,
     agendamentosMes: null,
     herda: "Tudo do Conecta",
-    itens: ["Gestão avançada de equipe", "Permissões", "Visão gerencial", "Recursos administrativos"],
+    itens: [
+      "Gestão avançada de equipe",
+      "Permissões",
+      "Visão gerencial",
+      "Recursos administrativos",
+    ],
   },
 ] as const;
 

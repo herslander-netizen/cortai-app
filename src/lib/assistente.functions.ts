@@ -10,7 +10,11 @@ async function contextoDaBarbearia(context: { supabase: any }, tenantId: string)
   const db = context.supabase;
   const [tenantRes, servicosRes, horariosRes, filaRes] = await Promise.all([
     db.from("tenants").select("nome, slug, whatsapp, segmento").eq("id", tenantId).maybeSingle(),
-    db.from("servicos").select("nome, duracao_min, preco_centavos").eq("tenant_id", tenantId).eq("ativo", true),
+    db
+      .from("servicos")
+      .select("nome, duracao_min, preco_centavos")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true),
     db.from("horarios_de_funcionamento").select("*").eq("tenant_id", tenantId).order("dia_semana"),
     db
       .from("fila_de_espera")
@@ -47,39 +51,48 @@ export type TurnoDaConversa = {
 
 export const getConversaDoAssistente = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ conversaId: string | null; mensagens: TurnoDaConversa[]; disponivel: boolean }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    const db = context.supabase;
-    const { data: conversa } = await db
-      .from("conversas_de_ia")
-      .select("id")
-      .eq("tenant_id", tenantId)
-      .eq("usuario_id", context.userId)
-      .order("atualizado_em", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+  .handler(
+    async ({
+      context,
+    }): Promise<{
+      conversaId: string | null;
+      mensagens: TurnoDaConversa[];
+      disponivel: boolean;
+    }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      const db = context.supabase;
+      const { data: conversa } = await db
+        .from("conversas_de_ia")
+        .select("id")
+        .eq("tenant_id", tenantId)
+        .eq("usuario_id", context.userId)
+        .order("atualizado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    const { assistenteConfigurado } = await import("@/lib/ia/assistente.server");
-    if (!conversa) return { conversaId: null, mensagens: [], disponivel: assistenteConfigurado() };
+      const { assistenteConfigurado } = await import("@/lib/ia/assistente.server");
+      if (!conversa)
+        return { conversaId: null, mensagens: [], disponivel: assistenteConfigurado() };
 
-    const { data: mensagens } = await db
-      .from("mensagens_de_ia")
-      .select("id, autor, conteudo, acao")
-      .eq("conversa_id", conversa.id)
-      .order("criado_em")
-      .limit(60);
+      const { data: mensagens } = await db
+        .from("mensagens_de_ia")
+        .select("id, autor, conteudo, acao")
+        .eq("conversa_id", conversa.id)
+        .order("criado_em")
+        .limit(60);
 
-    return {
-      conversaId: conversa.id as string,
-      mensagens: (mensagens ?? []).map((m: Record<string, any>) => ({
-        id: m["id"] as string,
-        autor: m["autor"] as "barbeiro" | "assistente",
-        conteudo: m["conteudo"] as string,
-        acao: (m["acao"] as RespostaDoAssistente | null) ?? null,
-      })),
-      disponivel: assistenteConfigurado(),
-    };
-  });
+      return {
+        conversaId: conversa.id as string,
+        mensagens: (mensagens ?? []).map((m: Record<string, any>) => ({
+          id: m["id"] as string,
+          autor: m["autor"] as "barbeiro" | "assistente",
+          conteudo: m["conteudo"] as string,
+          acao: (m["acao"] as RespostaDoAssistente | null) ?? null,
+        })),
+        disponivel: assistenteConfigurado(),
+      };
+    },
+  );
 
 export const perguntarAoCortai = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -91,70 +104,84 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }): Promise<{ conversaId: string; resposta: RespostaDoAssistente }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    const db = context.supabase;
+  .handler(
+    async ({ data, context }): Promise<{ conversaId: string; resposta: RespostaDoAssistente }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      const db = context.supabase;
 
-    let conversaId = data.conversaId;
-    if (conversaId) {
-      const { data: dona } = await db
+      let conversaId = data.conversaId;
+      if (conversaId) {
+        const { data: dona } = await db
+          .from("conversas_de_ia")
+          .select("id")
+          .eq("id", conversaId)
+          .eq("tenant_id", tenantId)
+          .eq("usuario_id", context.userId)
+          .maybeSingle();
+        if (!dona) conversaId = null;
+      }
+      if (!conversaId) {
+        const { data: nova, error } = await db
+          .from("conversas_de_ia")
+          .insert({
+            tenant_id: tenantId,
+            usuario_id: context.userId,
+            titulo: data.mensagem.slice(0, 60),
+          })
+          .select("id")
+          .single();
+        if (error) throw new Error(error.message);
+        conversaId = nova.id as string;
+      }
+
+      const { data: anteriores } = await db
+        .from("mensagens_de_ia")
+        .select("autor, conteudo")
+        .eq("conversa_id", conversaId)
+        .order("criado_em", { ascending: false })
+        .limit(10);
+
+      await db.from("mensagens_de_ia").insert({
+        conversa_id: conversaId,
+        tenant_id: tenantId,
+        autor: "barbeiro",
+        conteudo: data.mensagem,
+      });
+
+      const { pensar } = await import("@/lib/ia/assistente.server");
+      const resposta = await pensar({
+        mensagem: data.mensagem,
+        contexto: await contextoDaBarbearia(context, tenantId),
+        historico: ((anteriores ?? []) as Record<string, any>[])
+          .reverse()
+          .map((m) => ({
+            autor: m["autor"] as "barbeiro" | "assistente",
+            conteudo: m["conteudo"] as string,
+          })),
+      });
+
+      await db.from("mensagens_de_ia").insert({
+        conversa_id: conversaId,
+        tenant_id: tenantId,
+        autor: "assistente",
+        conteudo: resposta.resposta,
+        acao: resposta as never,
+      });
+      await db
         .from("conversas_de_ia")
-        .select("id")
-        .eq("id", conversaId)
-        .eq("tenant_id", tenantId)
-        .eq("usuario_id", context.userId)
-        .maybeSingle();
-      if (!dona) conversaId = null;
-    }
-    if (!conversaId) {
-      const { data: nova, error } = await db
-        .from("conversas_de_ia")
-        .insert({ tenant_id: tenantId, usuario_id: context.userId, titulo: data.mensagem.slice(0, 60) })
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      conversaId = nova.id as string;
-    }
+        .update({ atualizado_em: new Date().toISOString() })
+        .eq("id", conversaId);
 
-    const { data: anteriores } = await db
-      .from("mensagens_de_ia")
-      .select("autor, conteudo")
-      .eq("conversa_id", conversaId)
-      .order("criado_em", { ascending: false })
-      .limit(10);
-
-    await db.from("mensagens_de_ia").insert({
-      conversa_id: conversaId,
-      tenant_id: tenantId,
-      autor: "barbeiro",
-      conteudo: data.mensagem,
-    });
-
-    const { pensar } = await import("@/lib/ia/assistente.server");
-    const resposta = await pensar({
-      mensagem: data.mensagem,
-      contexto: await contextoDaBarbearia(context, tenantId),
-      historico: ((anteriores ?? []) as Record<string, any>[])
-        .reverse()
-        .map((m) => ({ autor: m["autor"] as "barbeiro" | "assistente", conteudo: m["conteudo"] as string })),
-    });
-
-    await db.from("mensagens_de_ia").insert({
-      conversa_id: conversaId,
-      tenant_id: tenantId,
-      autor: "assistente",
-      conteudo: resposta.resposta,
-      acao: resposta as never,
-    });
-    await db.from("conversas_de_ia").update({ atualizado_em: new Date().toISOString() }).eq("id", conversaId);
-
-    return { conversaId, resposta };
-  });
+      return { conversaId, resposta };
+    },
+  );
 
 /** Interpreta texto livre e devolve uma PRÉVIA de serviços — nada é gravado aqui. */
 export const interpretarServicos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input),
+  )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
     const tenantId = await tenantIdDoMembro(context);
     const { pensar } = await import("@/lib/ia/assistente.server");
@@ -169,7 +196,9 @@ export const interpretarServicos = createServerFn({ method: "POST" })
 /** Interpreta texto livre e devolve uma PRÉVIA de horários — nada é gravado aqui. */
 export const interpretarHorarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ texto: z.string().trim().min(3).max(1200) }).parse(input),
+  )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
     const tenantId = await tenantIdDoMembro(context);
     const { pensar } = await import("@/lib/ia/assistente.server");

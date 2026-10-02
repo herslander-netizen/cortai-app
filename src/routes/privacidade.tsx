@@ -50,8 +50,8 @@ function PaginaDePrivacidade() {
         Versão {VERSAO_DA_POLITICA} · última atualização em 14 de setembro de 2026
       </p>
       <p className="mt-4 text-sm leading-relaxed text-mute">
-        Esta política explica como o Cortaí trata dados pessoais de responsáveis por negócios, equipes e
-        clientes, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+        Esta política explica como o Cortaí trata dados pessoais de responsáveis por negócios,
+        equipes e clientes, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
       </p>
 
       <Bloco titulo="Quem é responsável">
@@ -64,8 +64,8 @@ function PaginaDePrivacidade() {
           .
         </p>
         <p>
-          Cada negócio é responsável pelos dados dos próprios clientes; o Cortaí atua como
-          operador dessas informações, sempre isoladas por negócio.
+          Cada negócio é responsável pelos dados dos próprios clientes; o Cortaí atua como operador
+          dessas informações, sempre isoladas por negócio.
         </p>
       </Bloco>
 
@@ -115,9 +115,9 @@ function PaginaDePrivacidade() {
 
       <Bloco titulo="Com quem compartilhamos">
         <p>
-          Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem,
-          banco de dados e autenticação, envio de mensagens e, quando o negócio ativa, o
-          atendimento inteligente CortAI. Todos tratam os dados sob instrução do Cortaí.
+          Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem, banco de
+          dados e autenticação, envio de mensagens e, quando o negócio ativa, o atendimento
+          inteligente CortAI. Todos tratam os dados sob instrução do Cortaí.
         </p>
       </Bloco>
 
@@ -156,7 +156,10 @@ function PaginaDePrivacidade() {
       </Bloco>
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-line pt-6 text-xs">
-        <Link to="/apresentacao" className="rounded-lg border border-line px-4 py-2 font-semibold text-paper">
+        <Link
+          to="/apresentacao"
+          className="rounded-lg border border-line px-4 py-2 font-semibold text-paper"
+        >
           Voltar ao início
         </Link>
         <a

@@ -13,7 +13,12 @@ export type Decisao =
 const EMOJIS = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
 
 function normalizar(t: string): string {
-  return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+  return t
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /** Pedido de troca por frases simples. */
@@ -46,7 +51,8 @@ export function decidirBarbearia(input: {
   const { texto, opcoes, contexto } = input;
   const validos = new Set(opcoes.map((o) => o.id));
 
-  if (ehPedidoDeTroca(texto)) return { tipo: "menu", texto: menuDeBarbearias(opcoes), evento: "troca" };
+  if (ehPedidoDeTroca(texto))
+    return { tipo: "menu", texto: menuDeBarbearias(opcoes), evento: "troca" };
 
   if (input.porNotificacao && validos.has(input.porNotificacao)) {
     return { tipo: "usar", tenantId: input.porNotificacao, salvar: true, evento: "selecao" };
@@ -56,7 +62,12 @@ export function decidirBarbearia(input: {
   }
   const n = texto.trim().match(/^(\d{1,2})$/);
   if (n && opcoes[Number(n[1]) - 1]) {
-    return { tipo: "usar", tenantId: opcoes[Number(n[1]) - 1]!.id, salvar: true, evento: "selecao" };
+    return {
+      tipo: "usar",
+      tenantId: opcoes[Number(n[1]) - 1]!.id,
+      salvar: true,
+      evento: "selecao",
+    };
   }
   if (input.porSlug && validos.has(input.porSlug)) {
     return { tipo: "usar", tenantId: input.porSlug, salvar: true, evento: "selecao" };

@@ -30,9 +30,15 @@ export const Route = createFileRoute("/admin/monetizacao")({
   head: () => ({
     meta: [
       { title: "Monetização — Cortaí" },
-      { name: "description", content: "Planos, preços, condições por barbearia, cupons e campanhas do Cortaí." },
+      {
+        name: "description",
+        content: "Planos, preços, condições por barbearia, cupons e campanhas do Cortaí.",
+      },
       { property: "og:title", content: "Monetização — Cortaí" },
-      { property: "og:description", content: "Administre preços, condições especiais, cupons e banners." },
+      {
+        property: "og:description",
+        content: "Administre preços, condições especiais, cupons e banners.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -45,7 +51,8 @@ const ABAS = ["Planos e preços", "Por barbearia", "Cupons", "Campanhas"] as con
 
 const hoje = () => new Date().toISOString().slice(0, 10);
 const emReais = (centavos: number) => (centavos / 100).toFixed(2).replace(".", ",");
-const emCentavos = (texto: string) => Math.round(Number(texto.replace(/\./g, "").replace(",", ".") || 0) * 100);
+const emCentavos = (texto: string) =>
+  Math.round(Number(texto.replace(/\./g, "").replace(",", ".") || 0) * 100);
 
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -56,13 +63,20 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const input = "w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-paper outline-none focus:border-gold/50";
+const input =
+  "w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-paper outline-none focus:border-gold/50";
 
 function MonetizacaoPage() {
   const [aba, setAba] = useState<(typeof ABAS)[number]>("Planos e preços");
   return (
-    <AdminScreen title="Monetização" subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você negocia com uma barbearia.">
-      <nav className="sem-barra mb-6 flex gap-2 overflow-x-auto pb-1" aria-label="Seções de monetização">
+    <AdminScreen
+      title="Monetização"
+      subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você negocia com uma barbearia."
+    >
+      <nav
+        className="sem-barra mb-6 flex gap-2 overflow-x-auto pb-1"
+        aria-label="Seções de monetização"
+      >
         {ABAS.map((a) => (
           <button
             key={a}
@@ -75,7 +89,18 @@ function MonetizacaoPage() {
           </button>
         ))}
       </nav>
-      <Link to="/admin/recursos" className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 surface px-4 py-3 text-sm text-paper"><span><span className="block font-semibold">Recursos e limites dos planos</span><span className="mt-1 block text-xs text-mute">Defina o que cada plano libera, sem alterar preços.</span></span><span className="text-xs text-gold">Abrir</span></Link>
+      <Link
+        to="/admin/recursos"
+        className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 surface px-4 py-3 text-sm text-paper"
+      >
+        <span>
+          <span className="block font-semibold">Recursos e limites dos planos</span>
+          <span className="mt-1 block text-xs text-mute">
+            Defina o que cada plano libera, sem alterar preços.
+          </span>
+        </span>
+        <span className="text-xs text-gold">Abrir</span>
+      </Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
       {aba === "Por barbearia" ? <AbaBarbearia /> : null}
       {aba === "Cupons" ? <AbaCupons /> : null}
@@ -87,7 +112,11 @@ function MonetizacaoPage() {
 /* ---------------------------- PLANOS E PREÇOS ---------------------------- */
 
 function AbaPlanos() {
-  const query = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const query = useQuery({
+    queryKey: ["admin-planos"],
+    queryFn: () => listarPlanos(),
+    retry: false,
+  });
   const salvar = useServerFn(salvarPlano);
   const [editando, setEditando] = useState<Plano | null>(null);
   const [status, setStatus] = useState("");
@@ -114,27 +143,54 @@ function AbaPlanos() {
 
   return (
     <div>
-      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
-      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+      {status ? (
+        <p className="mb-4 text-sm text-sage" role="status">
+          {status}
+        </p>
+      ) : null}
+      {erro ? (
+        <p className="mb-4 text-sm text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
 
       <ul className="space-y-3">
         {query.data.map((p) => (
           <li key={p.id} className="surface px-4 py-4">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-paper">{p.nome} {p.ativo ? null : <span className="text-xs text-mute2">(inativo)</span>}</p>
-                <p className="mt-1 text-xs text-mute">{brl(p.precoMensalCentavos)}/mês · {brl(p.precoAnualCentavos)}/ano · {p.diasTeste} dias de teste</p>
+                <p className="text-sm font-semibold text-paper">
+                  {p.nome} {p.ativo ? null : <span className="text-xs text-mute2">(inativo)</span>}
+                </p>
+                <p className="mt-1 text-xs text-mute">
+                  {brl(p.precoMensalCentavos)}/mês · {brl(p.precoAnualCentavos)}/ano · {p.diasTeste}{" "}
+                  dias de teste
+                </p>
                 <p className="mt-1 text-xs text-mute2">
-                  Limites: {p.limiteProfissionais ?? "sem limite"} profissionais · {p.limiteClientes ?? "sem limite"} clientes · {p.limiteAgendamentosMes ?? "sem limite"} agendamentos/mês
+                  Limites: {p.limiteProfissionais ?? "sem limite"} profissionais ·{" "}
+                  {p.limiteClientes ?? "sem limite"} clientes ·{" "}
+                  {p.limiteAgendamentosMes ?? "sem limite"} agendamentos/mês
                 </p>
               </div>
-              <button type="button" className="btn-secondary px-3 text-xs" onClick={() => setEditando(p)}>Editar</button>
+              <button
+                type="button"
+                className="btn-secondary px-3 text-xs"
+                onClick={() => setEditando(p)}
+              >
+                Editar
+              </button>
             </div>
           </li>
         ))}
       </ul>
 
-      <button type="button" className="btn-secondary mt-4 text-xs" onClick={() => setEditando(novo)}>Novo plano</button>
+      <button
+        type="button"
+        className="btn-secondary mt-4 text-xs"
+        onClick={() => setEditando(novo)}
+      >
+        Novo plano
+      </button>
 
       {editando ? (
         <FormularioPlano
@@ -147,7 +203,9 @@ function AbaPlanos() {
               await salvar({ data: dados });
               setEditando(null);
               await query.refetch();
-              setStatus("Plano salvo. As barbearias com condição especial continuam com o preço delas.");
+              setStatus(
+                "Plano salvo. As barbearias com condição especial continuam com o preço delas.",
+              );
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não deu para salvar.");
             }
@@ -189,44 +247,138 @@ function FormularioPlano({
       className="mt-5 space-y-3 surface p-4"
       onSubmit={(e) => {
         e.preventDefault();
-        void acao.executar("plano", () => onSalvar({
-          ...(plano.id ? { id: plano.id } : {}),
-          chave: f.chave.trim().toLowerCase(),
-          nome: f.nome.trim(),
-          descricao: f.descricao.trim() || null,
-          precoMensalCentavos: emCentavos(f.mensal),
-          precoAnualCentavos: emCentavos(f.anual),
-          diasTeste: Number(f.diasTeste || 0),
-          limiteProfissionais: numeroOuNulo(f.profissionais),
-          limiteClientes: numeroOuNulo(f.clientes),
-          limiteAgendamentosMes: numeroOuNulo(f.agendamentos),
-          limiteUnidades: numeroOuNulo(f.unidades),
-          ordem: Number(f.ordem || 0),
-          ativo: f.ativo,
-        }));
+        void acao.executar("plano", () =>
+          onSalvar({
+            ...(plano.id ? { id: plano.id } : {}),
+            chave: f.chave.trim().toLowerCase(),
+            nome: f.nome.trim(),
+            descricao: f.descricao.trim() || null,
+            precoMensalCentavos: emCentavos(f.mensal),
+            precoAnualCentavos: emCentavos(f.anual),
+            diasTeste: Number(f.diasTeste || 0),
+            limiteProfissionais: numeroOuNulo(f.profissionais),
+            limiteClientes: numeroOuNulo(f.clientes),
+            limiteAgendamentosMes: numeroOuNulo(f.agendamentos),
+            limiteUnidades: numeroOuNulo(f.unidades),
+            ordem: Number(f.ordem || 0),
+            ativo: f.ativo,
+          }),
+        );
       }}
     >
-      <p className="text-sm font-semibold text-paper">{plano.id ? `Editar ${plano.nome}` : "Novo plano"}</p>
+      <p className="text-sm font-semibold text-paper">
+        {plano.id ? `Editar ${plano.nome}` : "Novo plano"}
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Campo label="Nome"><input className={input} value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} required /></Campo>
-        <Campo label="Chave (interna)"><input className={input} value={f.chave} onChange={(e) => setF({ ...f, chave: e.target.value })} required disabled={Boolean(plano.id)} /></Campo>
-        <Campo label="Preço mensal (R$)"><input className={input} inputMode="decimal" value={f.mensal} onChange={(e) => setF({ ...f, mensal: e.target.value })} /></Campo>
-        <Campo label="Preço anual (R$)"><input className={input} inputMode="decimal" value={f.anual} onChange={(e) => setF({ ...f, anual: e.target.value })} /></Campo>
-        <Campo label="Dias de teste grátis"><input className={input} inputMode="numeric" value={f.diasTeste} onChange={(e) => setF({ ...f, diasTeste: e.target.value })} /></Campo>
-        <Campo label="Ordem"><input className={input} inputMode="numeric" value={f.ordem} onChange={(e) => setF({ ...f, ordem: e.target.value })} /></Campo>
-        <Campo label="Limite de profissionais (vazio = sem limite)"><input className={input} inputMode="numeric" value={f.profissionais} onChange={(e) => setF({ ...f, profissionais: e.target.value })} /></Campo>
-        <Campo label="Limite de clientes"><input className={input} inputMode="numeric" value={f.clientes} onChange={(e) => setF({ ...f, clientes: e.target.value })} /></Campo>
-        <Campo label="Agendamentos por mês"><input className={input} inputMode="numeric" value={f.agendamentos} onChange={(e) => setF({ ...f, agendamentos: e.target.value })} /></Campo>
-        <Campo label="Unidades"><input className={input} inputMode="numeric" value={f.unidades} onChange={(e) => setF({ ...f, unidades: e.target.value })} /></Campo>
+        <Campo label="Nome">
+          <input
+            className={input}
+            value={f.nome}
+            onChange={(e) => setF({ ...f, nome: e.target.value })}
+            required
+          />
+        </Campo>
+        <Campo label="Chave (interna)">
+          <input
+            className={input}
+            value={f.chave}
+            onChange={(e) => setF({ ...f, chave: e.target.value })}
+            required
+            disabled={Boolean(plano.id)}
+          />
+        </Campo>
+        <Campo label="Preço mensal (R$)">
+          <input
+            className={input}
+            inputMode="decimal"
+            value={f.mensal}
+            onChange={(e) => setF({ ...f, mensal: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Preço anual (R$)">
+          <input
+            className={input}
+            inputMode="decimal"
+            value={f.anual}
+            onChange={(e) => setF({ ...f, anual: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Dias de teste grátis">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.diasTeste}
+            onChange={(e) => setF({ ...f, diasTeste: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Ordem">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.ordem}
+            onChange={(e) => setF({ ...f, ordem: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Limite de profissionais (vazio = sem limite)">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.profissionais}
+            onChange={(e) => setF({ ...f, profissionais: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Limite de clientes">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.clientes}
+            onChange={(e) => setF({ ...f, clientes: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Agendamentos por mês">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.agendamentos}
+            onChange={(e) => setF({ ...f, agendamentos: e.target.value })}
+          />
+        </Campo>
+        <Campo label="Unidades">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.unidades}
+            onChange={(e) => setF({ ...f, unidades: e.target.value })}
+          />
+        </Campo>
       </div>
-      <Campo label="Descrição"><textarea className={input} rows={2} value={f.descricao} onChange={(e) => setF({ ...f, descricao: e.target.value })} /></Campo>
+      <Campo label="Descrição">
+        <textarea
+          className={input}
+          rows={2}
+          value={f.descricao}
+          onChange={(e) => setF({ ...f, descricao: e.target.value })}
+        />
+      </Campo>
       <div className="flex items-center gap-3">
-        <Switch checked={f.ativo} onCheckedChange={(v) => setF({ ...f, ativo: v })} aria-label="Plano ativo" />
+        <Switch
+          checked={f.ativo}
+          onCheckedChange={(v) => setF({ ...f, ativo: v })}
+          aria-label="Plano ativo"
+        />
         <span className="text-xs text-mute">Plano disponível para contratação</span>
       </div>
       <div className="flex gap-2 pt-1">
-        <button type="submit" className="btn-primary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("plano") ? "Salvando…" : "Salvar"}</button>
-        <button type="button" className="btn-secondary px-5 text-sm" onClick={onCancelar}>Cancelar</button>
+        <button
+          type="submit"
+          className="btn-primary px-5 text-sm disabled:opacity-60"
+          disabled={acao.ocupado}
+        >
+          {acao.estaEm("plano") ? "Salvando…" : "Salvar"}
+        </button>
+        <button type="button" className="btn-secondary px-5 text-sm" onClick={onCancelar}>
+          Cancelar
+        </button>
       </div>
     </form>
   );
@@ -235,8 +387,16 @@ function FormularioPlano({
 /* ----------------------------- POR BARBEARIA ----------------------------- */
 
 function AbaBarbearia() {
-  const tenants = useQuery({ queryKey: ["admin-tenants"], queryFn: () => getAdminTenants(), retry: false });
-  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const tenants = useQuery({
+    queryKey: ["admin-tenants"],
+    queryFn: () => getAdminTenants(),
+    retry: false,
+  });
+  const planos = useQuery({
+    queryKey: ["admin-planos"],
+    queryFn: () => listarPlanos(),
+    retry: false,
+  });
   const [tenantId, setTenantId] = useState("");
   const visao = useQuery({
     queryKey: ["visao-comercial", tenantId],
@@ -249,7 +409,16 @@ function AbaBarbearia() {
   const definirPlano = useServerFn(definirPlanoDoTenant);
   const [status, setStatus] = useState("");
   const [erro, setErro] = useState("");
-  const [form, setForm] = useState({ plano: "", preco: "", percentual: "0", fixo: "0", ciclo: "mensal", inicio: hoje(), fim: "", motivo: "" });
+  const [form, setForm] = useState({
+    plano: "",
+    preco: "",
+    percentual: "0",
+    fixo: "0",
+    ciclo: "mensal",
+    inicio: hoje(),
+    fim: "",
+    motivo: "",
+  });
   const acao = useAcao();
 
   if (tenants.isError) return <AdminNotice error={tenants.error} />;
@@ -268,16 +437,32 @@ function AbaBarbearia() {
         >
           <option value="">Escolha uma barbearia</option>
           {(tenants.data ?? []).map((t) => (
-            <option key={t.id} value={t.id}>{t.nome}</option>
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
           ))}
         </select>
       </Campo>
 
-      {status ? <p className="mt-4 text-sm text-sage" role="status">{status}</p> : null}
-      {erro ? <p className="mt-4 text-sm text-brick" role="alert">{erro}</p> : null}
+      {status ? (
+        <p className="mt-4 text-sm text-sage" role="status">
+          {status}
+        </p>
+      ) : null}
+      {erro ? (
+        <p className="mt-4 text-sm text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
 
-      {tenantId && visao.isError ? <div className="mt-4"><AdminNotice error={visao.error} /></div> : null}
-      {tenantId && !visao.data && !visao.isError ? <Carregando texto="Carregando barbearia…" /> : null}
+      {tenantId && visao.isError ? (
+        <div className="mt-4">
+          <AdminNotice error={visao.error} />
+        </div>
+      ) : null}
+      {tenantId && !visao.data && !visao.isError ? (
+        <Carregando texto="Carregando barbearia…" />
+      ) : null}
 
       {visao.data ? (
         <>
@@ -288,16 +473,19 @@ function AbaBarbearia() {
               {visao.data.testeAte ? ` · teste até ${dataCurta(visao.data.testeAte)}` : ""}
             </p>
             <p className="mt-2 text-xs text-mute2">
-              Preço padrão {brl(visao.data.precoPadraoCentavos)} · cobrando {" "}
+              Preço padrão {brl(visao.data.precoPadraoCentavos)} · cobrando{" "}
               <span className="text-gold">{brl(visao.data.precoEfetivoCentavos)}</span>
             </p>
             <p className="mt-2 text-xs text-mute2">
-              Uso: {visao.data.uso.profissionais}/{visao.data.limites.profissionais ?? "∞"} profissionais ·{" "}
-              {visao.data.uso.clientes}/{visao.data.limites.clientes ?? "∞"} clientes ·{" "}
-              {visao.data.uso.agendamentosMes}/{visao.data.limites.agendamentos_mes ?? "∞"} agendamentos no mês
+              Uso: {visao.data.uso.profissionais}/{visao.data.limites.profissionais ?? "∞"}{" "}
+              profissionais · {visao.data.uso.clientes}/{visao.data.limites.clientes ?? "∞"}{" "}
+              clientes · {visao.data.uso.agendamentosMes}/
+              {visao.data.limites.agendamentos_mes ?? "∞"} agendamentos no mês
             </p>
             {visao.data.cuponsAplicados.length ? (
-              <p className="mt-2 text-xs text-mute2">Cupons usados: {visao.data.cuponsAplicados.map((c) => c.codigo).join(", ")}</p>
+              <p className="mt-2 text-xs text-mute2">
+                Cupons usados: {visao.data.cuponsAplicados.map((c) => c.codigo).join(", ")}
+              </p>
             ) : null}
           </div>
 
@@ -322,10 +510,14 @@ function AbaBarbearia() {
               <li key={c.id} className="flex items-start justify-between gap-4 surface px-4 py-3">
                 <div>
                   <p className="text-xs text-paper">
-                    {c.planoChave} · {c.precoPersonalizadoCentavos != null ? brl(c.precoPersonalizadoCentavos) : `${c.descontoPercentual}% + ${brl(c.descontoCentavos)}`}
+                    {c.planoChave} ·{" "}
+                    {c.precoPersonalizadoCentavos != null
+                      ? brl(c.precoPersonalizadoCentavos)
+                      : `${c.descontoPercentual}% + ${brl(c.descontoCentavos)}`}
                   </p>
                   <p className="mt-1 text-xs text-mute2">
-                    {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.ativo ? "ativa" : "encerrada"}
+                    {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} ·{" "}
+                    {c.ativo ? "ativa" : "encerrada"}
                     {c.motivo ? ` · ${c.motivo}` : ""}
                   </p>
                 </div>
@@ -335,11 +527,22 @@ function AbaBarbearia() {
                     className="btn-secondary px-3 text-xs disabled:opacity-60"
                     disabled={acao.ocupado}
                     onClick={() => {
-                      if (!window.confirm("Encerrar esta condição especial? A barbearia volta ao preço padrão.")) return;
-                      void acao.executar(`encerrar-${c.id}`, () => encerrar({ data: { id: c.id } }), {
-                        sucesso: "Condição encerrada. A barbearia volta ao preço padrão.",
-                        aoConcluir: async () => { await visao.refetch(); },
-                      });
+                      if (
+                        !window.confirm(
+                          "Encerrar esta condição especial? A barbearia volta ao preço padrão.",
+                        )
+                      )
+                        return;
+                      void acao.executar(
+                        `encerrar-${c.id}`,
+                        () => encerrar({ data: { id: c.id } }),
+                        {
+                          sucesso: "Condição encerrada. A barbearia volta ao preço padrão.",
+                          aoConcluir: async () => {
+                            await visao.refetch();
+                          },
+                        },
+                      );
                     }}
                   >
                     {acao.estaEm(`encerrar-${c.id}`) ? "Encerrando…" : "Encerrar"}
@@ -347,7 +550,11 @@ function AbaBarbearia() {
                 ) : null}
               </li>
             ))}
-            {visao.data.condicoes.length === 0 ? <li className="text-xs text-mute">Nenhuma condição especial. A barbearia paga o preço padrão.</li> : null}
+            {visao.data.condicoes.length === 0 ? (
+              <li className="text-xs text-mute">
+                Nenhuma condição especial. A barbearia paga o preço padrão.
+              </li>
+            ) : null}
           </ul>
 
           <form
@@ -356,51 +563,116 @@ function AbaBarbearia() {
               e.preventDefault();
               setErro("");
               setStatus("");
-              void acao.executar("condicao", () => salvar({
-                  data: {
-                    tenantId,
-                    planoChave: form.plano || visao.data!.planoChave,
-                    precoPersonalizadoCentavos: form.preco.trim() ? emCentavos(form.preco) : null,
-                    descontoPercentual: Number(form.percentual || 0),
-                    descontoCentavos: emCentavos(form.fixo),
-                    ciclo: form.ciclo as "mensal" | "anual",
-                    inicio: form.inicio,
-                    fim: form.fim || null,
-                    motivo: form.motivo.trim() || null,
-                    limites: {},
-                    recursos: [],
-                    ativo: true,
+              void acao.executar(
+                "condicao",
+                () =>
+                  salvar({
+                    data: {
+                      tenantId,
+                      planoChave: form.plano || visao.data!.planoChave,
+                      precoPersonalizadoCentavos: form.preco.trim() ? emCentavos(form.preco) : null,
+                      descontoPercentual: Number(form.percentual || 0),
+                      descontoCentavos: emCentavos(form.fixo),
+                      ciclo: form.ciclo as "mensal" | "anual",
+                      inicio: form.inicio,
+                      fim: form.fim || null,
+                      motivo: form.motivo.trim() || null,
+                      limites: {},
+                      recursos: [],
+                      ativo: true,
+                    },
+                  }),
+                {
+                  sucesso:
+                    "Condição criada só para esta barbearia. O preço padrão do plano não mudou.",
+                  aoConcluir: async () => {
+                    setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
+                    await visao.refetch();
                   },
-                }), {
-                sucesso: "Condição criada só para esta barbearia. O preço padrão do plano não mudou.",
-                aoConcluir: async () => {
-                  setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
-                  await visao.refetch();
                 },
-              });
+              );
             }}
           >
             <p className="text-sm font-semibold text-paper">Nova condição especial</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <Campo label="Plano">
-                <select className={input} value={form.plano || visao.data.planoChave} onChange={(e) => setForm({ ...form, plano: e.target.value })}>
-                  {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+                <select
+                  className={input}
+                  value={form.plano || visao.data.planoChave}
+                  onChange={(e) => setForm({ ...form, plano: e.target.value })}
+                >
+                  {(planos.data ?? []).map((p) => (
+                    <option key={p.chave} value={p.chave}>
+                      {p.nome}
+                    </option>
+                  ))}
                 </select>
               </Campo>
               <Campo label="Ciclo">
-                <select className={input} value={form.ciclo} onChange={(e) => setForm({ ...form, ciclo: e.target.value })}>
+                <select
+                  className={input}
+                  value={form.ciclo}
+                  onChange={(e) => setForm({ ...form, ciclo: e.target.value })}
+                >
                   <option value="mensal">Mensal</option>
                   <option value="anual">Anual</option>
                 </select>
               </Campo>
-              <Campo label="Preço fechado (R$, opcional)"><input className={input} inputMode="decimal" value={form.preco} onChange={(e) => setForm({ ...form, preco: e.target.value })} /></Campo>
-              <Campo label="Desconto (%)"><input className={input} inputMode="numeric" value={form.percentual} onChange={(e) => setForm({ ...form, percentual: e.target.value })} /></Campo>
-              <Campo label="Desconto fixo (R$)"><input className={input} inputMode="decimal" value={form.fixo} onChange={(e) => setForm({ ...form, fixo: e.target.value })} /></Campo>
-              <Campo label="Início"><input className={input} type="date" value={form.inicio} onChange={(e) => setForm({ ...form, inicio: e.target.value })} /></Campo>
-              <Campo label="Fim (opcional)"><input className={input} type="date" value={form.fim} onChange={(e) => setForm({ ...form, fim: e.target.value })} /></Campo>
-              <Campo label="Motivo interno"><input className={input} value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} /></Campo>
+              <Campo label="Preço fechado (R$, opcional)">
+                <input
+                  className={input}
+                  inputMode="decimal"
+                  value={form.preco}
+                  onChange={(e) => setForm({ ...form, preco: e.target.value })}
+                />
+              </Campo>
+              <Campo label="Desconto (%)">
+                <input
+                  className={input}
+                  inputMode="numeric"
+                  value={form.percentual}
+                  onChange={(e) => setForm({ ...form, percentual: e.target.value })}
+                />
+              </Campo>
+              <Campo label="Desconto fixo (R$)">
+                <input
+                  className={input}
+                  inputMode="decimal"
+                  value={form.fixo}
+                  onChange={(e) => setForm({ ...form, fixo: e.target.value })}
+                />
+              </Campo>
+              <Campo label="Início">
+                <input
+                  className={input}
+                  type="date"
+                  value={form.inicio}
+                  onChange={(e) => setForm({ ...form, inicio: e.target.value })}
+                />
+              </Campo>
+              <Campo label="Fim (opcional)">
+                <input
+                  className={input}
+                  type="date"
+                  value={form.fim}
+                  onChange={(e) => setForm({ ...form, fim: e.target.value })}
+                />
+              </Campo>
+              <Campo label="Motivo interno">
+                <input
+                  className={input}
+                  value={form.motivo}
+                  onChange={(e) => setForm({ ...form, motivo: e.target.value })}
+                />
+              </Campo>
             </div>
-            <button type="submit" className="btn-primary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("condicao") ? "Aplicando…" : "Aplicar condição"}</button>
+            <button
+              type="submit"
+              className="btn-primary px-5 text-sm disabled:opacity-60"
+              disabled={acao.ocupado}
+            >
+              {acao.estaEm("condicao") ? "Aplicando…" : "Aplicar condição"}
+            </button>
           </form>
         </>
       ) : null}
@@ -415,36 +687,64 @@ function MudarPlano({
 }: {
   planos: Plano[];
   atual: { planoChave: string; ciclo: string; status: string };
-  onSalvar: (dados: { planoChave: string; ciclo: "mensal" | "anual"; status: "teste" | "ativa" | "vencida" | "cancelada"; diasDeTeste: number | null }) => Promise<void>;
+  onSalvar: (dados: {
+    planoChave: string;
+    ciclo: "mensal" | "anual";
+    status: "teste" | "ativa" | "vencida" | "cancelada";
+    diasDeTeste: number | null;
+  }) => Promise<void>;
 }) {
-  const [f, setF] = useState({ plano: atual.planoChave, ciclo: atual.ciclo, status: atual.status, dias: "14" });
+  const [f, setF] = useState({
+    plano: atual.planoChave,
+    ciclo: atual.ciclo,
+    status: atual.status,
+    dias: "14",
+  });
   const acao = useAcao();
   return (
     <form
       className="mt-4 grid gap-3 surface p-4 sm:grid-cols-4"
       onSubmit={(e) => {
         e.preventDefault();
-        void acao.executar("plano", () => onSalvar({
-          planoChave: f.plano,
-          ciclo: f.ciclo as "mensal" | "anual",
-          status: f.status as "teste" | "ativa" | "vencida" | "cancelada",
-          diasDeTeste: f.status === "teste" ? Number(f.dias || 0) : null,
-        }));
+        void acao.executar("plano", () =>
+          onSalvar({
+            planoChave: f.plano,
+            ciclo: f.ciclo as "mensal" | "anual",
+            status: f.status as "teste" | "ativa" | "vencida" | "cancelada",
+            diasDeTeste: f.status === "teste" ? Number(f.dias || 0) : null,
+          }),
+        );
       }}
     >
       <Campo label="Plano">
-        <select className={input} value={f.plano} onChange={(e) => setF({ ...f, plano: e.target.value })}>
-          {planos.map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+        <select
+          className={input}
+          value={f.plano}
+          onChange={(e) => setF({ ...f, plano: e.target.value })}
+        >
+          {planos.map((p) => (
+            <option key={p.chave} value={p.chave}>
+              {p.nome}
+            </option>
+          ))}
         </select>
       </Campo>
       <Campo label="Ciclo">
-        <select className={input} value={f.ciclo} onChange={(e) => setF({ ...f, ciclo: e.target.value })}>
+        <select
+          className={input}
+          value={f.ciclo}
+          onChange={(e) => setF({ ...f, ciclo: e.target.value })}
+        >
           <option value="mensal">Mensal</option>
           <option value="anual">Anual</option>
         </select>
       </Campo>
       <Campo label="Situação">
-        <select className={input} value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>
+        <select
+          className={input}
+          value={f.status}
+          onChange={(e) => setF({ ...f, status: e.target.value })}
+        >
           <option value="ativa">Ativa</option>
           <option value="teste">Teste grátis</option>
           <option value="vencida">Vencida</option>
@@ -452,9 +752,26 @@ function MudarPlano({
         </select>
       </Campo>
       {f.status === "teste" ? (
-        <Campo label="Dias de teste"><input className={input} inputMode="numeric" value={f.dias} onChange={(e) => setF({ ...f, dias: e.target.value })} /></Campo>
-      ) : <div />}
-      <div className="sm:col-span-4"><button type="submit" className="btn-secondary px-5 text-sm disabled:opacity-60" disabled={acao.ocupado}>{acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano da barbearia"}</button></div>
+        <Campo label="Dias de teste">
+          <input
+            className={input}
+            inputMode="numeric"
+            value={f.dias}
+            onChange={(e) => setF({ ...f, dias: e.target.value })}
+          />
+        </Campo>
+      ) : (
+        <div />
+      )}
+      <div className="sm:col-span-4">
+        <button
+          type="submit"
+          className="btn-secondary px-5 text-sm disabled:opacity-60"
+          disabled={acao.ocupado}
+        >
+          {acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano da barbearia"}
+        </button>
+      </div>
     </form>
   );
 }
@@ -462,20 +779,47 @@ function MudarPlano({
 /* -------------------------------- CUPONS -------------------------------- */
 
 function AbaCupons() {
-  const query = useQuery({ queryKey: ["admin-cupons"], queryFn: () => listarCupons(), retry: false });
-  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const query = useQuery({
+    queryKey: ["admin-cupons"],
+    queryFn: () => listarCupons(),
+    retry: false,
+  });
+  const planos = useQuery({
+    queryKey: ["admin-planos"],
+    queryFn: () => listarPlanos(),
+    retry: false,
+  });
   const salvar = useServerFn(salvarCupom);
   const [status, setStatus] = useState("");
   const [erro, setErro] = useState("");
-  const [f, setF] = useState({ codigo: "", descricao: "", tipo: "percentual", valor: "10", inicio: hoje(), fim: "", usosMax: "", publico: "todos", planos: [] as string[] });
+  const [f, setF] = useState({
+    codigo: "",
+    descricao: "",
+    tipo: "percentual",
+    valor: "10",
+    inicio: hoje(),
+    fim: "",
+    usosMax: "",
+    publico: "todos",
+    planos: [] as string[],
+  });
 
   if (query.isError) return <AdminNotice error={query.error} />;
 
   const alternar = async (c: CupomAdmin, ativo: boolean) => {
     await salvar({
       data: {
-        id: c.id, codigo: c.codigo, descricao: c.descricao, tipo: c.tipo, valor: c.valor,
-        inicio: c.inicio, fim: c.fim, usosMax: c.usosMax, publico: c.publico, planos: c.planos, ativo,
+        id: c.id,
+        codigo: c.codigo,
+        descricao: c.descricao,
+        tipo: c.tipo,
+        valor: c.valor,
+        inicio: c.inicio,
+        fim: c.fim,
+        usosMax: c.usosMax,
+        publico: c.publico,
+        planos: c.planos,
+        ativo,
       },
     });
     await query.refetch();
@@ -483,8 +827,16 @@ function AbaCupons() {
 
   return (
     <div>
-      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
-      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+      {status ? (
+        <p className="mb-4 text-sm text-sage" role="status">
+          {status}
+        </p>
+      ) : null}
+      {erro ? (
+        <p className="mb-4 text-sm text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
 
       <ul className="space-y-2">
         {(query.data ?? []).map((c) => (
@@ -492,17 +844,32 @@ function AbaCupons() {
             <div>
               <p className="text-sm font-semibold text-paper">{c.codigo}</p>
               <p className="mt-1 text-xs text-mute">
-                {c.tipo === "percentual" ? `${c.valor}% de desconto` : `${brl(c.valor)} de desconto`} · {c.publico === "todos" ? "todas as barbearias" : c.publico === "novos" ? "barbearias novas" : "barbearias já clientes"}
+                {c.tipo === "percentual"
+                  ? `${c.valor}% de desconto`
+                  : `${brl(c.valor)} de desconto`}{" "}
+                ·{" "}
+                {c.publico === "todos"
+                  ? "todas as barbearias"
+                  : c.publico === "novos"
+                    ? "barbearias novas"
+                    : "barbearias já clientes"}
               </p>
               <p className="mt-1 text-xs text-mute2">
                 {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.usos}
-                {c.usosMax ? `/${c.usosMax}` : ""} usos{c.planos.length ? ` · planos: ${c.planos.join(", ")}` : ""}
+                {c.usosMax ? `/${c.usosMax}` : ""} usos
+                {c.planos.length ? ` · planos: ${c.planos.join(", ")}` : ""}
               </p>
             </div>
-            <Switch checked={c.ativo} aria-label={`Cupom ${c.codigo} ativo`} onCheckedChange={(v) => void alternar(c, v)} />
+            <Switch
+              checked={c.ativo}
+              aria-label={`Cupom ${c.codigo} ativo`}
+              onCheckedChange={(v) => void alternar(c, v)}
+            />
           </li>
         ))}
-        {query.data && query.data.length === 0 ? <li className="text-xs text-mute">Nenhum cupom criado ainda.</li> : null}
+        {query.data && query.data.length === 0 ? (
+          <li className="text-xs text-mute">Nenhum cupom criado ainda.</li>
+        ) : null}
       </ul>
 
       <form
@@ -536,19 +903,62 @@ function AbaCupons() {
       >
         <p className="text-sm font-semibold text-paper">Novo cupom</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Campo label="Código"><input className={input} value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value.toUpperCase() })} required /></Campo>
+          <Campo label="Código">
+            <input
+              className={input}
+              value={f.codigo}
+              onChange={(e) => setF({ ...f, codigo: e.target.value.toUpperCase() })}
+              required
+            />
+          </Campo>
           <Campo label="Tipo">
-            <select className={input} value={f.tipo} onChange={(e) => setF({ ...f, tipo: e.target.value })}>
+            <select
+              className={input}
+              value={f.tipo}
+              onChange={(e) => setF({ ...f, tipo: e.target.value })}
+            >
               <option value="percentual">Percentual (%)</option>
               <option value="fixo">Valor fixo (R$)</option>
             </select>
           </Campo>
-          <Campo label={f.tipo === "percentual" ? "Desconto (%)" : "Desconto (R$)"}><input className={input} inputMode="decimal" value={f.valor} onChange={(e) => setF({ ...f, valor: e.target.value })} /></Campo>
-          <Campo label="Limite de usos (opcional)"><input className={input} inputMode="numeric" value={f.usosMax} onChange={(e) => setF({ ...f, usosMax: e.target.value })} /></Campo>
-          <Campo label="Início"><input className={input} type="date" value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></Campo>
-          <Campo label="Fim (opcional)"><input className={input} type="date" value={f.fim} onChange={(e) => setF({ ...f, fim: e.target.value })} /></Campo>
+          <Campo label={f.tipo === "percentual" ? "Desconto (%)" : "Desconto (R$)"}>
+            <input
+              className={input}
+              inputMode="decimal"
+              value={f.valor}
+              onChange={(e) => setF({ ...f, valor: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Limite de usos (opcional)">
+            <input
+              className={input}
+              inputMode="numeric"
+              value={f.usosMax}
+              onChange={(e) => setF({ ...f, usosMax: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Início">
+            <input
+              className={input}
+              type="date"
+              value={f.inicio}
+              onChange={(e) => setF({ ...f, inicio: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Fim (opcional)">
+            <input
+              className={input}
+              type="date"
+              value={f.fim}
+              onChange={(e) => setF({ ...f, fim: e.target.value })}
+            />
+          </Campo>
           <Campo label="Para quem">
-            <select className={input} value={f.publico} onChange={(e) => setF({ ...f, publico: e.target.value })}>
+            <select
+              className={input}
+              value={f.publico}
+              onChange={(e) => setF({ ...f, publico: e.target.value })}
+            >
               <option value="todos">Todas as barbearias</option>
               <option value="novos">Só barbearias novas</option>
               <option value="existentes">Só barbearias já clientes</option>
@@ -559,14 +969,28 @@ function AbaCupons() {
               className={input}
               multiple
               value={f.planos}
-              onChange={(e) => setF({ ...f, planos: Array.from(e.target.selectedOptions).map((o) => o.value) })}
+              onChange={(e) =>
+                setF({ ...f, planos: Array.from(e.target.selectedOptions).map((o) => o.value) })
+              }
             >
-              {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+              {(planos.data ?? []).map((p) => (
+                <option key={p.chave} value={p.chave}>
+                  {p.nome}
+                </option>
+              ))}
             </select>
           </Campo>
         </div>
-        <Campo label="Descrição"><input className={input} value={f.descricao} onChange={(e) => setF({ ...f, descricao: e.target.value })} /></Campo>
-        <button type="submit" className="btn-primary px-5 text-sm">Criar cupom</button>
+        <Campo label="Descrição">
+          <input
+            className={input}
+            value={f.descricao}
+            onChange={(e) => setF({ ...f, descricao: e.target.value })}
+          />
+        </Campo>
+        <button type="submit" className="btn-primary px-5 text-sm">
+          Criar cupom
+        </button>
       </form>
     </div>
   );
@@ -575,16 +999,37 @@ function AbaCupons() {
 /* ------------------------------- CAMPANHAS ------------------------------- */
 
 function AbaBanners() {
-  const query = useQuery({ queryKey: ["admin-banners"], queryFn: () => listarBanners(), retry: false });
-  const tenants = useQuery({ queryKey: ["admin-tenants"], queryFn: () => getAdminTenants(), retry: false });
-  const planos = useQuery({ queryKey: ["admin-planos"], queryFn: () => listarPlanos(), retry: false });
+  const query = useQuery({
+    queryKey: ["admin-banners"],
+    queryFn: () => listarBanners(),
+    retry: false,
+  });
+  const tenants = useQuery({
+    queryKey: ["admin-tenants"],
+    queryFn: () => getAdminTenants(),
+    retry: false,
+  });
+  const planos = useQuery({
+    queryKey: ["admin-planos"],
+    queryFn: () => listarPlanos(),
+    retry: false,
+  });
   const salvar = useServerFn(salvarBanner);
   const remover = useServerFn(removerBanner);
   const [status, setStatus] = useState("");
   const [erro, setErro] = useState("");
   const [f, setF] = useState({
-    titulo: "", subtitulo: "", imagemUrl: "", ctaRotulo: "", ctaDestino: "",
-    inicio: hoje(), fim: "", prioridade: "0", segmento: "todos", planoAlvo: "", tenantAlvo: "",
+    titulo: "",
+    subtitulo: "",
+    imagemUrl: "",
+    ctaRotulo: "",
+    ctaDestino: "",
+    inicio: hoje(),
+    fim: "",
+    prioridade: "0",
+    segmento: "todos",
+    planoAlvo: "",
+    tenantAlvo: "",
   });
 
   if (query.isError) return <AdminNotice error={query.error} />;
@@ -592,9 +1037,19 @@ function AbaBanners() {
   const alternar = async (b: BannerAdmin, ativo: boolean) => {
     await salvar({
       data: {
-        id: b.id, titulo: b.titulo, subtitulo: b.subtitulo, imagemUrl: b.imagemUrl,
-        ctaRotulo: b.ctaRotulo, ctaDestino: b.ctaDestino, inicio: b.inicio, fim: b.fim,
-        prioridade: b.prioridade, ativo, segmento: b.segmento as any, planoAlvo: b.planoAlvo, tenantAlvo: b.tenantAlvo,
+        id: b.id,
+        titulo: b.titulo,
+        subtitulo: b.subtitulo,
+        imagemUrl: b.imagemUrl,
+        ctaRotulo: b.ctaRotulo,
+        ctaDestino: b.ctaDestino,
+        inicio: b.inicio,
+        fim: b.fim,
+        prioridade: b.prioridade,
+        ativo,
+        segmento: b.segmento as any,
+        planoAlvo: b.planoAlvo,
+        tenantAlvo: b.tenantAlvo,
       },
     });
     await query.refetch();
@@ -602,8 +1057,16 @@ function AbaBanners() {
 
   return (
     <div>
-      {status ? <p className="mb-4 text-sm text-sage" role="status">{status}</p> : null}
-      {erro ? <p className="mb-4 text-sm text-brick" role="alert">{erro}</p> : null}
+      {status ? (
+        <p className="mb-4 text-sm text-sage" role="status">
+          {status}
+        </p>
+      ) : null}
+      {erro ? (
+        <p className="mb-4 text-sm text-brick" role="alert">
+          {erro}
+        </p>
+      ) : null}
 
       <ul className="space-y-2">
         {(query.data ?? []).map((b) => (
@@ -612,11 +1075,16 @@ function AbaBanners() {
               <p className="text-sm font-semibold text-paper">{b.titulo}</p>
               {b.subtitulo ? <p className="mt-1 text-xs text-mute">{b.subtitulo}</p> : null}
               <p className="mt-1 text-xs text-mute2">
-                {dataCurta(b.inicio)} até {b.fim ? dataCurta(b.fim) : "sem prazo"} · público: {b.segmento} · prioridade {b.prioridade}
+                {dataCurta(b.inicio)} até {b.fim ? dataCurta(b.fim) : "sem prazo"} · público:{" "}
+                {b.segmento} · prioridade {b.prioridade}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Switch checked={b.ativo} aria-label={`Campanha ${b.titulo} ativa`} onCheckedChange={(v) => void alternar(b, v)} />
+              <Switch
+                checked={b.ativo}
+                aria-label={`Campanha ${b.titulo} ativa`}
+                onCheckedChange={(v) => void alternar(b, v)}
+              />
               <button
                 type="button"
                 className="text-xs text-brick"
@@ -631,7 +1099,9 @@ function AbaBanners() {
             </div>
           </li>
         ))}
-        {query.data && query.data.length === 0 ? <li className="text-xs text-mute">Nenhuma campanha publicada.</li> : null}
+        {query.data && query.data.length === 0 ? (
+          <li className="text-xs text-mute">Nenhuma campanha publicada.</li>
+        ) : null}
       </ul>
 
       <form
@@ -652,7 +1122,8 @@ function AbaBanners() {
                 fim: f.fim || null,
                 prioridade: Number(f.prioridade || 0),
                 ativo: true,
-                segmento: f.segmento as "todos" | "novos" | "teste" | "plano" | "tenant" | "vencimento",
+                segmento: f.segmento as
+                  "todos" | "novos" | "teste" | "plano" | "tenant" | "vencimento",
                 planoAlvo: f.planoAlvo || null,
                 tenantAlvo: f.tenantAlvo || null,
               },
@@ -667,16 +1138,72 @@ function AbaBanners() {
       >
         <p className="text-sm font-semibold text-paper">Nova campanha</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Campo label="Título"><input className={input} value={f.titulo} onChange={(e) => setF({ ...f, titulo: e.target.value })} required /></Campo>
-          <Campo label="Subtítulo"><input className={input} value={f.subtitulo} onChange={(e) => setF({ ...f, subtitulo: e.target.value })} /></Campo>
-          <Campo label="Imagem (link)"><input className={input} value={f.imagemUrl} onChange={(e) => setF({ ...f, imagemUrl: e.target.value })} /></Campo>
-          <Campo label="Texto do botão"><input className={input} value={f.ctaRotulo} onChange={(e) => setF({ ...f, ctaRotulo: e.target.value })} /></Campo>
-          <Campo label="Destino do botão"><input className={input} value={f.ctaDestino} onChange={(e) => setF({ ...f, ctaDestino: e.target.value })} /></Campo>
-          <Campo label="Prioridade"><input className={input} inputMode="numeric" value={f.prioridade} onChange={(e) => setF({ ...f, prioridade: e.target.value })} /></Campo>
-          <Campo label="Início"><input className={input} type="date" value={f.inicio} onChange={(e) => setF({ ...f, inicio: e.target.value })} /></Campo>
-          <Campo label="Fim (opcional)"><input className={input} type="date" value={f.fim} onChange={(e) => setF({ ...f, fim: e.target.value })} /></Campo>
+          <Campo label="Título">
+            <input
+              className={input}
+              value={f.titulo}
+              onChange={(e) => setF({ ...f, titulo: e.target.value })}
+              required
+            />
+          </Campo>
+          <Campo label="Subtítulo">
+            <input
+              className={input}
+              value={f.subtitulo}
+              onChange={(e) => setF({ ...f, subtitulo: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Imagem (link)">
+            <input
+              className={input}
+              value={f.imagemUrl}
+              onChange={(e) => setF({ ...f, imagemUrl: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Texto do botão">
+            <input
+              className={input}
+              value={f.ctaRotulo}
+              onChange={(e) => setF({ ...f, ctaRotulo: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Destino do botão">
+            <input
+              className={input}
+              value={f.ctaDestino}
+              onChange={(e) => setF({ ...f, ctaDestino: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Prioridade">
+            <input
+              className={input}
+              inputMode="numeric"
+              value={f.prioridade}
+              onChange={(e) => setF({ ...f, prioridade: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Início">
+            <input
+              className={input}
+              type="date"
+              value={f.inicio}
+              onChange={(e) => setF({ ...f, inicio: e.target.value })}
+            />
+          </Campo>
+          <Campo label="Fim (opcional)">
+            <input
+              className={input}
+              type="date"
+              value={f.fim}
+              onChange={(e) => setF({ ...f, fim: e.target.value })}
+            />
+          </Campo>
           <Campo label="Quem vê">
-            <select className={input} value={f.segmento} onChange={(e) => setF({ ...f, segmento: e.target.value })}>
+            <select
+              className={input}
+              value={f.segmento}
+              onChange={(e) => setF({ ...f, segmento: e.target.value })}
+            >
               <option value="todos">Todas as barbearias</option>
               <option value="novos">Barbearias novas</option>
               <option value="teste">Em teste grátis</option>
@@ -687,22 +1214,40 @@ function AbaBanners() {
           </Campo>
           {f.segmento === "plano" ? (
             <Campo label="Plano">
-              <select className={input} value={f.planoAlvo} onChange={(e) => setF({ ...f, planoAlvo: e.target.value })}>
+              <select
+                className={input}
+                value={f.planoAlvo}
+                onChange={(e) => setF({ ...f, planoAlvo: e.target.value })}
+              >
                 <option value="">Escolha</option>
-                {(planos.data ?? []).map((p) => <option key={p.chave} value={p.chave}>{p.nome}</option>)}
+                {(planos.data ?? []).map((p) => (
+                  <option key={p.chave} value={p.chave}>
+                    {p.nome}
+                  </option>
+                ))}
               </select>
             </Campo>
           ) : null}
           {f.segmento === "tenant" ? (
             <Campo label="Barbearia">
-              <select className={input} value={f.tenantAlvo} onChange={(e) => setF({ ...f, tenantAlvo: e.target.value })}>
+              <select
+                className={input}
+                value={f.tenantAlvo}
+                onChange={(e) => setF({ ...f, tenantAlvo: e.target.value })}
+              >
                 <option value="">Escolha</option>
-                {(tenants.data ?? []).map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+                {(tenants.data ?? []).map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.nome}
+                  </option>
+                ))}
               </select>
             </Campo>
           ) : null}
         </div>
-        <button type="submit" className="btn-primary px-5 text-sm">Publicar campanha</button>
+        <button type="submit" className="btn-primary px-5 text-sm">
+          Publicar campanha
+        </button>
       </form>
     </div>
   );

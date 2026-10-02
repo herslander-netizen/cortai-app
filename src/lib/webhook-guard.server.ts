@@ -82,10 +82,15 @@ export async function rejeitar(
 }
 
 /** Depois de autenticar: limite folgado. */
-export async function limiteAutenticado(request: Request, endpoint: string): Promise<Response | null> {
+export async function limiteAutenticado(
+  request: Request,
+  endpoint: string,
+): Promise<Response | null> {
   const ip = ipDaChamada(request) ?? BALDE_SEM_IP;
   try {
-    const { data } = await (await db()).rpc("webhook_consumir", {
+    const { data } = await (
+      await db()
+    ).rpc("webhook_consumir", {
       _chave: `${endpoint}|${ip}`,
       _limite: ip === BALDE_SEM_IP ? LIMITE_SEM_IP_AUTENTICADO : LIMITE_AUTENTICADO,
     });

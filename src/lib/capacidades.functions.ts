@@ -24,10 +24,22 @@ export async function capacidadesDoTenant(db: any, tenantId: string): Promise<Ca
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const [tenantRes, condRes, profRes, servRes, ativosRes] = await Promise.all([
-    db.from("tenants").select("plano, assinatura_status, teste_fim").eq("id", tenantId).maybeSingle(),
-    db.from("condicoes_comerciais").select("*").eq("tenant_id", tenantId).order("inicio", { ascending: false }),
+    db
+      .from("tenants")
+      .select("plano, assinatura_status, teste_fim")
+      .eq("id", tenantId)
+      .maybeSingle(),
+    db
+      .from("condicoes_comerciais")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .order("inicio", { ascending: false }),
     db.from("profissionais").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId),
-    db.from("servicos").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId).eq("ativo", true),
+    db
+      .from("servicos")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true),
     db.from("recursos_do_tenant").select("chave, ativo").eq("tenant_id", tenantId),
   ]);
 
@@ -38,7 +50,9 @@ export async function capacidadesDoTenant(db: any, tenantId: string): Promise<Ca
     plano: (tenantRes.data?.plano as string) ?? null,
   };
   const emTeste = testeAtivo(estado);
-  const chaveDoPlano = emTeste ? planoEfetivo(estado) : (condicao?.planoChave ?? estado.plano ?? "essencial");
+  const chaveDoPlano = emTeste
+    ? planoEfetivo(estado)
+    : (condicao?.planoChave ?? estado.plano ?? "essencial");
 
   const [planoRes, regrasRes] = await Promise.all([
     supabaseAdmin.from("planos_da_plataforma").select("*").eq("chave", chaveDoPlano).maybeSingle(),
@@ -67,6 +81,10 @@ export async function capacidadesDoTenant(db: any, tenantId: string): Promise<Ca
     liberados,
     ativos,
     uso: { profissionais: profRes.count ?? 0, servicos: servRes.count ?? 0 },
-    teste: { ativo: emTeste, diasRestantes: diasRestantesDoTeste(estado.testeFim), fim: estado.testeFim },
+    teste: {
+      ativo: emTeste,
+      diasRestantes: diasRestantesDoTeste(estado.testeFim),
+      fim: estado.testeFim,
+    },
   };
 }

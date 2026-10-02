@@ -49,10 +49,17 @@ function AdminPerfilPage() {
             <span className="text-xs text-mute">Dono da plataforma</span>
           </div>
         </li>
-        <li><ThemeToggle /></li>
-        <li><InstalarCortai /></li>
+        <li>
+          <ThemeToggle />
+        </li>
+        <li>
+          <InstalarCortai />
+        </li>
         <li className="border-b border-line">
-          <Link to="/admin/ajustes" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
+          <Link
+            to="/admin/ajustes"
+            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+          >
             <Palette size={18} className="text-mute" />
             <span className="text-sm text-paper">Configurações da plataforma</span>
             <ChevronRight size={16} className="text-mute2" />

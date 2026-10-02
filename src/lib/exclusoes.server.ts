@@ -7,9 +7,15 @@ export async function gravarExclusao(
   alvoNome: string | null = null,
 ): Promise<void> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const email = typeof context.claims?.["email"] === "string" ? (context.claims["email"] as string) : null;
+  const email =
+    typeof context.claims?.["email"] === "string" ? (context.claims["email"] as string) : null;
   const { error } = await (supabaseAdmin as any).from("exclusoes_permanentes").insert({
-    tipo, alvo_id: alvoId, alvo_nome: alvoNome, tenant_id: tenantId, ator_id: context.userId, ator_email: email,
+    tipo,
+    alvo_id: alvoId,
+    alvo_nome: alvoNome,
+    tenant_id: tenantId,
+    ator_id: context.userId,
+    ator_email: email,
   });
   if (error) console.error("[exclusoes] registro falhou:", error.message);
 }

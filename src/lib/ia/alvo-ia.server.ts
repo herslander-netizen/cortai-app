@@ -47,7 +47,9 @@ async function chamar<T>(caminho: string, corpo: unknown): Promise<T> {
   });
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
-    throw new Error(`ALVO IA respondeu ${resposta.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ""}`);
+    throw new Error(
+      `ALVO IA respondeu ${resposta.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ""}`,
+    );
   }
   return (await resposta.json()) as T;
 }
@@ -70,7 +72,10 @@ class AlvoAIClient implements ProvedorDeIA {
     return chamar<RespostaDeVinculo>("/v1/tenants", input);
   }
 
-  async sincronizarBarbearia(input: { externalTenantId: string; resumo: ResumoDaBarbearia }): Promise<void> {
+  async sincronizarBarbearia(input: {
+    externalTenantId: string;
+    resumo: ResumoDaBarbearia;
+  }): Promise<void> {
     await chamar<{ ok: boolean }>(`/v1/tenants/${input.externalTenantId}/sync`, input.resumo);
   }
 
@@ -83,7 +88,9 @@ class AlvoAIClient implements ProvedorDeIA {
     return chamar<RespostaDeAgente>(`/v1/tenants/${input.externalTenantId}/agents`, input);
   }
 
-  consultarStatus(input: { externalTenantId: string }): Promise<{ status: StatusDaIntegracao; detalhe?: string }> {
+  consultarStatus(input: {
+    externalTenantId: string;
+  }): Promise<{ status: StatusDaIntegracao; detalhe?: string }> {
     return chamar<{ status: StatusDaIntegracao; detalhe?: string }>(
       `/v1/tenants/${input.externalTenantId}/status`,
       {},
@@ -101,7 +108,8 @@ class AlvoAIClient implements ProvedorDeIA {
 
   /** Converte o corpo cru do webhook no formato interno — sem confiar em nada. */
   normalizarEventoRecebido(corpo: unknown): EventoRecebido {
-    if (typeof corpo !== "object" || corpo === null) throw new Error("Evento inválido: corpo vazio.");
+    if (typeof corpo !== "object" || corpo === null)
+      throw new Error("Evento inválido: corpo vazio.");
     const bruto = corpo as Record<string, unknown>;
     const payload = bruto["payload"];
     return {

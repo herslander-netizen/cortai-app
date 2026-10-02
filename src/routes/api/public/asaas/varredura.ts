@@ -9,7 +9,11 @@ export const Route = createFileRoute("/api/public/asaas/varredura")({
         if (abuso) return abuso;
         const chave = request.headers.get("x-cortai-varredura") ?? "";
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data } = await (supabaseAdmin as any).from("chaves_internas").select("valor").eq("nome", "varredura_asaas").maybeSingle();
+        const { data } = await (supabaseAdmin as any)
+          .from("chaves_internas")
+          .select("valor")
+          .eq("nome", "varredura_asaas")
+          .maybeSingle();
         const { safeEqual } = await import("@/lib/asaas.server");
         if (!data?.valor || !safeEqual(chave, data.valor)) {
           await guard.rejeitar(request, "asaas/varredura", "sem chave");

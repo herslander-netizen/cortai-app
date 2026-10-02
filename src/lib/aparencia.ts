@@ -13,11 +13,17 @@ export function modoSalvo(): Modo {
 }
 
 export function modoClaro(modo: Modo) {
-  return modo === "claro" || (modo === "sistema" && window.matchMedia("(prefers-color-scheme: light)").matches);
+  return (
+    modo === "claro" ||
+    (modo === "sistema" && window.matchMedia("(prefers-color-scheme: light)").matches)
+  );
 }
 
 export function sincronizarCorDoNavegador() {
-  const cor = window.getComputedStyle(document.documentElement).getPropertyValue("--background").trim();
+  const cor = window
+    .getComputedStyle(document.documentElement)
+    .getPropertyValue("--background")
+    .trim();
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
   if (meta && cor) meta.content = cor;
 }

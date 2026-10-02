@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 import { Screen } from "@/components/layout/Screen";
 import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
-import { getClientesFidelidade, getConfigFidelidade, salvarFidelidade } from "@/lib/fidelidade.functions";
+import {
+  getClientesFidelidade,
+  getConfigFidelidade,
+  salvarFidelidade,
+} from "@/lib/fidelidade.functions";
 import { Carregando } from "@/components/layout/Carregando";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
@@ -18,10 +22,14 @@ export const Route = createFileRoute("/barbeiro/fidelidade")({
       { title: "Voltaí — Cortaí" },
       {
         name: "description",
-        content: "Defina quantos cortes valem um grátis e veja o desconto real antes de vender no prejuízo.",
+        content:
+          "Defina quantos cortes valem um grátis e veja o desconto real antes de vender no prejuízo.",
       },
       { property: "og:title", content: "Voltaí — Cortaí" },
-      { property: "og:description", content: "Desconto real e ticket efetivo do seu cartão de fidelidade." },
+      {
+        property: "og:description",
+        content: "Desconto real e ticket efetivo do seu cartão de fidelidade.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -31,9 +39,16 @@ export const Route = createFileRoute("/barbeiro/fidelidade")({
 });
 
 function aviso(alvo: number): { texto: string; classe: string } {
-  if (alvo <= 5) return { texto: "o desconto passa de 16%, só vale se sua margem for alta", classe: "text-brick" };
+  if (alvo <= 5)
+    return {
+      texto: "o desconto passa de 16%, só vale se sua margem for alta",
+      classe: "text-brick",
+    };
   if (alvo >= 16)
-    return { texto: "acima de 15 o cliente costuma desistir antes de completar", classe: "text-brick" };
+    return {
+      texto: "acima de 15 o cliente costuma desistir antes de completar",
+      classe: "text-brick",
+    };
   return { texto: "faixa saudável", classe: "text-mute2" };
 }
 
@@ -44,7 +59,10 @@ function FidelidadePage() {
     queryFn: () => getConfigFidelidade(),
   });
 
-  const elegiveis = useQuery({ queryKey: ["fidelidade-clientes"], queryFn: () => getClientesFidelidade() });
+  const elegiveis = useQuery({
+    queryKey: ["fidelidade-clientes"],
+    queryFn: () => getClientesFidelidade(),
+  });
 
   const [alvo, setAlvo] = useState(10);
   const [ativo, setAtivo] = useState(false);
@@ -71,11 +89,12 @@ function FidelidadePage() {
         <div className="pr-4">
           <p className="text-sm text-paper">Voltaí do Cortaí</p>
           <p className="mt-0.5 text-xs text-mute2">
-            Desligado, o cliente não vê cartão, selos nem promessa de corte grátis. Desligar não zera o
-            progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.
+            Desligado, o cliente não vê cartão, selos nem promessa de corte grátis. Desligar não
+            zera o progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.
           </p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           role="switch"
           aria-checked={ativo}
@@ -125,7 +144,11 @@ function FidelidadePage() {
         <div className="flex items-baseline justify-between">
           <span className="text-sm text-mute">Desconto real</span>
           <span className="text-xl font-bold text-paper">
-            {descontoReal.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+            {descontoReal.toLocaleString("pt-BR", {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })}
+            %
           </span>
         </div>
         <div className="mt-4 flex items-baseline justify-between">
@@ -141,19 +164,23 @@ function FidelidadePage() {
       {data && data.clientesComProgresso > 0 ? (
         <p className="mt-4 text-xs text-mute">
           {data.clientesComProgresso}{" "}
-          {data.clientesComProgresso === 1 ? "cliente já tem selos" : "clientes já têm selos"} acumulados. Mudar
-          a meta não apaga o que eles já juntaram.
+          {data.clientesComProgresso === 1 ? "cliente já tem selos" : "clientes já têm selos"}{" "}
+          acumulados. Mudar a meta não apaga o que eles já juntaram.
         </p>
       ) : null}
 
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         className="btn-primary mt-6 w-full"
         disabled={acao.ocupado}
         onClick={() =>
           acao.executar("fidelidade", () => salvar({ data: { ativo, alvo } }), {
             sucesso: "Cartão fidelidade salvo.",
-            aoConcluir: async () => { setOk(true); await refetch(); },
+            aoConcluir: async () => {
+              setOk(true);
+              await refetch();
+            },
           })
         }
       >
@@ -179,13 +206,17 @@ function FidelidadePage() {
                 {c.nome}
               </Link>
               <p className={`shrink-0 text-xs ${c.elegivel ? "text-gold" : "text-mute2"}`}>
-                {c.elegivel ? "Corte grátis liberado" : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
+                {c.elegivel
+                  ? "Corte grátis liberado"
+                  : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
               </p>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink3">
               <div
                 className={`h-full rounded-full ${c.elegivel ? "bg-gold" : "bg-mute2"}`}
-                style={{ width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%` }}
+                style={{
+                  width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%`,
+                }}
               />
             </div>
           </li>

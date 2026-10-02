@@ -8,7 +8,11 @@ import { listarParceiros } from "@/lib/parceiros.functions";
  * para a esquerda, lento, pausável ao toque e escondido quando não há parceiros.
  */
 export function FaixaDeParceiros() {
-  const consulta = useQuery({ queryKey: ["parceiros"], queryFn: () => listarParceiros(), retry: false });
+  const consulta = useQuery({
+    queryKey: ["parceiros"],
+    queryFn: () => listarParceiros(),
+    retry: false,
+  });
   const trilho = useRef<HTMLDivElement>(null);
   const pausado = useRef(false);
 
@@ -41,7 +45,9 @@ export function FaixaDeParceiros() {
 
   return (
     <section className="mt-12" aria-label="Nossos parceiros">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">Nossos parceiros</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">
+        Nossos parceiros
+      </h2>
       <div
         ref={trilho}
         className="sem-barra mt-4 flex gap-3 overflow-x-auto"
@@ -73,8 +79,7 @@ export function FaixaDeParceiros() {
               <span className="truncate text-xs text-mute">{parceiro.nome}</span>
             </>
           );
-          const classe =
-            "flex min-w-[150px] items-center gap-2 surface px-3 py-2.5";
+          const classe = "flex min-w-[150px] items-center gap-2 surface px-3 py-2.5";
           return parceiro.link ? (
             <a
               key={`${parceiro.id}-${indice}`}
@@ -88,7 +93,11 @@ export function FaixaDeParceiros() {
               {conteudo}
             </a>
           ) : (
-            <span key={`${parceiro.id}-${indice}`} className={classe} aria-hidden={indice >= parceiros.length}>
+            <span
+              key={`${parceiro.id}-${indice}`}
+              className={classe}
+              aria-hidden={indice >= parceiros.length}
+            >
               {conteudo}
             </span>
           );

@@ -9,10 +9,24 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CAMPOS_PUBLICOS = [
-  "nome", "descricao", "endereco", "telefone", "whatsapp", "instagram", "facebook",
-  "texto_boas_vindas", "rotulo_carteira", "logo_url", "capa_url",
-  "cor_primaria", "cor_secundaria", "cor_accent", "tema", "modo",
-  "loja_ativa", "plano",
+  "nome",
+  "descricao",
+  "endereco",
+  "telefone",
+  "whatsapp",
+  "instagram",
+  "facebook",
+  "texto_boas_vindas",
+  "rotulo_carteira",
+  "logo_url",
+  "capa_url",
+  "cor_primaria",
+  "cor_secundaria",
+  "cor_accent",
+  "tema",
+  "modo",
+  "loja_ativa",
+  "plano",
 ] as const;
 
 type CampoPublico = (typeof CAMPOS_PUBLICOS)[number];
@@ -33,10 +47,29 @@ export type BarbeariaSuporte = {
   slug: string;
   plano: string;
   campos: Record<string, string | number | boolean | null>;
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number; ativo: boolean }[];
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    ativo: boolean;
+  }[];
   profissionais: { id: string; nome: string; ativo: boolean }[];
-  produtos: { id: string; nome: string; disponivel_venda: boolean; destaque: boolean; ativo: boolean }[];
-  auditoria: { id: string; acao: string; alvo: string; ator_email: string | null; alteracoes: string; criado_em: string }[];
+  produtos: {
+    id: string;
+    nome: string;
+    disponivel_venda: boolean;
+    destaque: boolean;
+    ativo: boolean;
+  }[];
+  auditoria: {
+    id: string;
+    acao: string;
+    alvo: string;
+    ator_email: string | null;
+    alteracoes: string;
+    criado_em: string;
+  }[];
 };
 
 /** Ficha completa da barbearia para a tela de suporte. */
@@ -47,17 +80,37 @@ export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
     const { db } = await comoSuporte(context);
     const [tenantRes, servicosRes, profRes, prodRes, auditoriaRes] = await Promise.all([
       db.from("tenants").select("*").eq("id", data.tenantId).maybeSingle(),
-      db.from("servicos").select("id, nome, duracao_min, preco_centavos, ativo").eq("tenant_id", data.tenantId).order("ordem"),
-      db.from("profissionais").select("id, nome, ativo").eq("tenant_id", data.tenantId).order("nome"),
-      db.from("produtos").select("id, nome, disponivel_venda, destaque, ativo").eq("tenant_id", data.tenantId).order("nome"),
-      db.from("auditoria_de_suporte").select("id, acao, alvo, ator_email, alteracoes, criado_em").eq("tenant_id", data.tenantId).order("criado_em", { ascending: false }).limit(30),
+      db
+        .from("servicos")
+        .select("id, nome, duracao_min, preco_centavos, ativo")
+        .eq("tenant_id", data.tenantId)
+        .order("ordem"),
+      db
+        .from("profissionais")
+        .select("id, nome, ativo")
+        .eq("tenant_id", data.tenantId)
+        .order("nome"),
+      db
+        .from("produtos")
+        .select("id, nome, disponivel_venda, destaque, ativo")
+        .eq("tenant_id", data.tenantId)
+        .order("nome"),
+      db
+        .from("auditoria_de_suporte")
+        .select("id, acao, alvo, ator_email, alteracoes, criado_em")
+        .eq("tenant_id", data.tenantId)
+        .order("criado_em", { ascending: false })
+        .limit(30),
     ]);
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Barbearia não encontrada.");
     const campos: Record<string, string | number | boolean | null> = {};
     for (const campo of CAMPOS_PUBLICOS) {
       const valor = (tenant as Record<string, unknown>)[campo];
-      campos[campo] = typeof valor === "string" || typeof valor === "number" || typeof valor === "boolean" ? valor : null;
+      campos[campo] =
+        typeof valor === "string" || typeof valor === "number" || typeof valor === "boolean"
+          ? valor
+          : null;
     }
     return {
       id: tenant.id,
@@ -68,8 +121,12 @@ export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
       profissionais: profRes.data ?? [],
       produtos: prodRes.data ?? [],
       auditoria: (auditoriaRes.data ?? []).map((r: any) => ({
-        id: r.id, acao: r.acao, alvo: r.alvo, ator_email: r.ator_email,
-        alteracoes: JSON.stringify(r.alteracoes ?? {}), criado_em: r.criado_em,
+        id: r.id,
+        acao: r.acao,
+        alvo: r.alvo,
+        ator_email: r.ator_email,
+        alteracoes: JSON.stringify(r.alteracoes ?? {}),
+        criado_em: r.criado_em,
       })),
     };
   });
@@ -102,11 +159,21 @@ const camposSchema = z.object({
 export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ tenantId: z.string().uuid(), motivo: z.string().trim().min(3).max(200), campos: camposSchema }).parse(input),
+    z
+      .object({
+        tenantId: z.string().uuid(),
+        motivo: z.string().trim().min(3).max(200),
+        campos: camposSchema,
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, email } = await comoSuporte(context);
-    const { data: atual } = await db.from("tenants").select("*").eq("id", data.tenantId).maybeSingle();
+    const { data: atual } = await db
+      .from("tenants")
+      .select("*")
+      .eq("id", data.tenantId)
+      .maybeSingle();
     if (!atual) throw new Error("Barbearia não encontrada.");
 
     const mudancas: Record<string, { de: unknown; para: unknown }> = {};
@@ -121,7 +188,10 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
     }
     if (!Object.keys(patch).length) return { ok: true, alteracoes: 0 };
 
-    const { error } = await db.from("tenants").update(patch as never).eq("id", data.tenantId);
+    const { error } = await db
+      .from("tenants")
+      .update(patch as never)
+      .eq("id", data.tenantId);
     if (error) throw new Error(error.message);
 
     await db.from("auditoria_de_suporte").insert({
@@ -139,14 +209,16 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
 export const alternarItemComoSuporte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      tenantId: z.string().uuid(),
-      tabela: z.enum(["servicos", "profissionais", "produtos"]),
-      id: z.string().uuid(),
-      campo: z.enum(["ativo", "disponivel_venda", "destaque"]),
-      valor: z.boolean(),
-      motivo: z.string().trim().min(3).max(200),
-    }).parse(input),
+    z
+      .object({
+        tenantId: z.string().uuid(),
+        tabela: z.enum(["servicos", "profissionais", "produtos"]),
+        id: z.string().uuid(),
+        campo: z.enum(["ativo", "disponivel_venda", "destaque"]),
+        valor: z.boolean(),
+        motivo: z.string().trim().min(3).max(200),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, email } = await comoSuporte(context);
@@ -162,7 +234,10 @@ export const alternarItemComoSuporte = createServerFn({ method: "POST" })
       ator_email: email,
       acao: `alterou_${data.tabela}`,
       alvo: data.motivo,
-      alteracoes: { id: data.id, campo: data.campo, para: data.valor } as Record<string, string | boolean>,
+      alteracoes: { id: data.id, campo: data.campo, para: data.valor } as Record<
+        string,
+        string | boolean
+      >,
     });
     return { ok: true };
   });

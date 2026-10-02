@@ -13,7 +13,10 @@ export type ContextoClienteAtual = {
   logo_signed_url: string | null;
   capa_signed_url: string | null;
   segmento: Segmento;
-  loja: { ativa: boolean; destaques: { id: string; nome: string; preco_centavos: number; foto_url: string | null }[] };
+  loja: {
+    ativa: boolean;
+    destaques: { id: string; nome: string; preco_centavos: number; foto_url: string | null }[];
+  };
 };
 
 async function assinada(db: any, caminho: string | null) {
@@ -38,7 +41,9 @@ export const getContextoCliente = createServerFn({ method: "GET" })
     const { db, tenant } = resolvido;
     const { data: linha } = await db
       .from("tenants")
-      .select("nome, slug, segmento, plano, loja_ativa, endereco, texto_boas_vindas, logo_url, capa_url")
+      .select(
+        "nome, slug, segmento, plano, loja_ativa, endereco, texto_boas_vindas, logo_url, capa_url",
+      )
       .eq("id", tenant.id)
       .maybeSingle();
     if (!linha) return null;

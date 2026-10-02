@@ -14,7 +14,9 @@ import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 export const Route = createFileRoute("/login")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { proximo?: string; aba?: "criar" } => ({
-    ...(typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {}),
+    ...(typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {}),
     ...(search["aba"] === "criar" ? { aba: "criar" as const } : {}),
   }),
   head: () => ({

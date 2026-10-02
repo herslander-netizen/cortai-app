@@ -22,7 +22,10 @@ import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoValido(segmento);
-  return [s === "barbearia" ? "Tenho corte 35, barba 25 e combo 50" : SEGMENTOS_CONFIG[s].exemploIA, ...ATALHOS_FIXOS];
+  return [
+    s === "barbearia" ? "Tenho corte 35, barba 25 e combo 50" : SEGMENTOS_CONFIG[s].exemploIA,
+    ...ATALHOS_FIXOS,
+  ];
 }
 
 const ATALHOS_FIXOS = [
@@ -55,9 +58,7 @@ function ProgressoDaConfiguracao() {
           style={{ width: `${Math.max(4, pct)}%` }}
         />
       </span>
-      {progresso.feitos > 0 ? (
-        <Check size={12} className="shrink-0 text-sage" aria-hidden />
-      ) : null}
+      {progresso.feitos > 0 ? <Check size={12} className="shrink-0 text-sage" aria-hidden /> : null}
     </div>
   );
 }
@@ -97,7 +98,9 @@ function PreviaDaAcao({
           {acao.horarios!.map((h) => (
             <li key={h.diaSemana} className="flex items-center justify-between gap-3 text-sm">
               <span className="text-paper">{DIAS_DA_SEMANA[h.diaSemana]}</span>
-              <span className="text-xs text-mute">{h.fechado ? "Fechado" : `${h.abre} às ${h.fecha}`}</span>
+              <span className="text-xs text-mute">
+                {h.fechado ? "Fechado" : `${h.abre} às ${h.fecha}`}
+              </span>
             </li>
           ))}
         </ul>
@@ -144,7 +147,13 @@ function PreviaDaAcao({
   );
 }
 
-export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFechar: () => void; segmento?: Segmento | undefined }) {
+export function AssistenteCortai({
+  onFechar,
+  segmento = "barbearia",
+}: {
+  onFechar: () => void;
+  segmento?: Segmento | undefined;
+}) {
   const perguntar = useServerFn(perguntarAoCortai);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -158,7 +167,10 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
   const [novaMensagem, setNovaMensagem] = useState(false);
   const [agendando, setAgendando] = useState(false);
 
-  const { data } = useQuery({ queryKey: ["assistente-conversa"], queryFn: () => getConversaDoAssistente() });
+  const { data } = useQuery({
+    queryKey: ["assistente-conversa"],
+    queryFn: () => getConversaDoAssistente(),
+  });
 
   function irAoFim(suave = true) {
     const el = lista.current;
@@ -199,7 +211,12 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
       setConversaId(r.conversaId);
       setMensagens((atual) => [
         ...atual,
-        { id: `ia-${Date.now()}`, autor: "assistente", conteudo: r.resposta.resposta, acao: r.resposta },
+        {
+          id: `ia-${Date.now()}`,
+          autor: "assistente",
+          conteudo: r.resposta.resposta,
+          acao: r.resposta,
+        },
       ]);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "O assistente não respondeu agora.");
@@ -223,7 +240,9 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
               <IconeDaIA segmento={segmento} size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold tracking-wide text-paper">CortAI</span>
+              <span className="block truncate text-sm font-semibold tracking-wide text-paper">
+                CortAI
+              </span>
               <span className="block truncate text-xs uppercase tracking-[.12em] text-mute2">
                 Alimentada pela Alvo IA
               </span>
@@ -241,202 +260,205 @@ export function AssistenteCortai({ onFechar, segmento = "barbearia" }: { onFecha
         </>
       }
     >
-        <div
-          ref={lista}
-          className="cortai-conversa-lista px-5 py-4"
-          onScroll={(e) => {
-            const el = e.currentTarget;
-            const perto = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
-            noFim.current = perto;
-            if (perto) setNovaMensagem(false);
-          }}
-        >
-          {mensagens.length === 0 ? (
-            <div>
-              <p className="text-sm leading-relaxed text-mute">
-                Escreva como você falaria com um colega. Por exemplo:
-              </p>
-              <button
-                type="button"
-                onClick={() => setAgendando(true)}
-                className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl bg-gold px-4 py-3 text-left text-xs font-semibold text-ink"
-              >
-                <span>Marcar um horário agora</span>
-                <ArrowRight size={13} aria-hidden />
-              </button>
-              <div className="mt-3 space-y-2">
-                {atalhosDo(segmento).map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
-                    onClick={() => void enviar(a)}
-                  >
-                    <span className="min-w-0">{a}</span>
-                    <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
-                  </button>
-                ))}
-              </div>
-              {data && !data.disponivel ? (
-                <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
-                  O assistente ainda não está ligado neste ambiente. As respostas vão indicar isso com clareza.
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-
-          <ul className="space-y-3.5">
-            {mensagens.map((m) => (
-              <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : "flex gap-2.5"}>
-                {m.autor === "barbeiro" ? (
-                  <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border border-gold/25 bg-gold/10 px-4 py-2.5 text-sm leading-relaxed text-paper">
-                    {m.conteudo}
-                  </p>
-                ) : (
-                  <>
-                    <span
-                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
-                      aria-hidden
-                    >
-                      <IconeDaIA segmento={segmento} size={15} />
-                    </span>
-                    <div className="min-w-0 max-w-[88%]">
-                      <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
-                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
-                          {m.conteudo}
-                        </p>
-                        {m.acao ? <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} /> : null}
-                      </div>
-                      {m.acao?.destino ? (
-                        <Link
-                          to={m.acao.destino as "/barbeiro"}
-                          onClick={onFechar}
-                          className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
-                        >
-                          {m.acao.rotuloDoDestino ?? "Abrir"}
-                          <ArrowRight size={13} aria-hidden />
-                        </Link>
-                      ) : null}
-                    </div>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {agendando ? (
-            <div className="mt-3.5 flex gap-2.5">
-              <span
-                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
-                aria-hidden
-              >
-                <IconeDaIA segmento={segmento} size={15} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
-                  <p className="text-sm leading-relaxed text-paper">
-                    Escolha o serviço, o dia e um horário livre. Eu marco e aviso o cliente no WhatsApp.
-                  </p>
-                  <AgendarNoChat />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAgendando(false)}
-                  className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-mute"
-                >
-                  Fechar agenda
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-
-          {enviando ? (
-            <div className="mt-3.5 flex items-center gap-2.5">
-              <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
-                aria-hidden
-              >
-                <IconeDaIA segmento={segmento} size={15} />
-              </span>
-              <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
-                <Digitando />
-              </span>
-            </div>
-          ) : null}
-          {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
-          <div ref={fim} />
-        </div>
-
-        {novaMensagem ? (
-          <div className="relative">
+      <div
+        ref={lista}
+        className="cortai-conversa-lista px-5 py-4"
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          const perto = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+          noFim.current = perto;
+          if (perto) setNovaMensagem(false);
+        }}
+      >
+        {mensagens.length === 0 ? (
+          <div>
+            <p className="text-sm leading-relaxed text-mute">
+              Escreva como você falaria com um colega. Por exemplo:
+            </p>
             <button
               type="button"
-              onClick={() => irAoFim()}
-              className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-lg"
+              onClick={() => setAgendando(true)}
+              className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl bg-gold px-4 py-3 text-left text-xs font-semibold text-ink"
             >
-              Nova mensagem ↓
+              <span>Marcar um horário agora</span>
+              <ArrowRight size={13} aria-hidden />
             </button>
-          </div>
-        ) : null}
-
-        <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
-          {mensagens.length > 0 || agendando ? (
-            <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <button
-                type="button"
-                onClick={() => {
-                  setAgendando(true);
-                  irAoFim();
-                }}
-                className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-ink"
-              >
-                Marcar horário
-              </button>
-              {SUGESTOES.map((s) => (
+            <div className="mt-3 space-y-2">
+              {atalhosDo(segmento).map((a) => (
                 <button
-                  key={s}
+                  key={a}
                   type="button"
-                  disabled={enviando}
-                  onClick={() => void enviar(s)}
-                  className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-xs text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
+                  onClick={() => void enviar(a)}
                 >
-                  {s}
+                  <span className="min-w-0">{a}</span>
+                  <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
                 </button>
               ))}
             </div>
-          ) : null}
-          <form
-            className="flex items-end gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void enviar(texto);
-            }}
-          >
-            <textarea
-              ref={campo}
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void enviar(texto);
-                }
-              }}
-              rows={1}
-              placeholder="Escreva aqui…"
-              className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
-            />
-            <button
-              type="submit"
-              aria-label="Enviar"
-              disabled={enviando || !texto.trim()}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+            {data && !data.disponivel ? (
+              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
+                O assistente ainda não está ligado neste ambiente. As respostas vão indicar isso com
+                clareza.
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        <ul className="space-y-3.5">
+          {mensagens.map((m) => (
+            <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : "flex gap-2.5"}>
+              {m.autor === "barbeiro" ? (
+                <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border border-gold/25 bg-gold/10 px-4 py-2.5 text-sm leading-relaxed text-paper">
+                  {m.conteudo}
+                </p>
+              ) : (
+                <>
+                  <span
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                    aria-hidden
+                  >
+                    <IconeDaIA segmento={segmento} size={15} />
+                  </span>
+                  <div className="min-w-0 max-w-[88%]">
+                    <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
+                        {m.conteudo}
+                      </p>
+                      {m.acao ? (
+                        <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} />
+                      ) : null}
+                    </div>
+                    {m.acao?.destino ? (
+                      <Link
+                        to={m.acao.destino as "/barbeiro"}
+                        onClick={onFechar}
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
+                      >
+                        {m.acao.rotuloDoDestino ?? "Abrir"}
+                        <ArrowRight size={13} aria-hidden />
+                      </Link>
+                    ) : null}
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {agendando ? (
+          <div className="mt-3.5 flex gap-2.5">
+            <span
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+              aria-hidden
             >
-              <Send size={17} aria-hidden />
-            </button>
-          </form>
+              <IconeDaIA segmento={segmento} size={15} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                <p className="text-sm leading-relaxed text-paper">
+                  Escolha o serviço, o dia e um horário livre. Eu marco e aviso o cliente no
+                  WhatsApp.
+                </p>
+                <AgendarNoChat />
+              </div>
+              <button
+                type="button"
+                onClick={() => setAgendando(false)}
+                className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-mute"
+              >
+                Fechar agenda
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {enviando ? (
+          <div className="mt-3.5 flex items-center gap-2.5">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+              aria-hidden
+            >
+              <IconeDaIA segmento={segmento} size={15} />
+            </span>
+            <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
+              <Digitando />
+            </span>
+          </div>
+        ) : null}
+        {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
+        <div ref={fim} />
+      </div>
+
+      {novaMensagem ? (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => irAoFim()}
+            className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-lg"
+          >
+            Nova mensagem ↓
+          </button>
         </div>
+      ) : null}
+
+      <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
+        {mensagens.length > 0 || agendando ? (
+          <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <button
+              type="button"
+              onClick={() => {
+                setAgendando(true);
+                irAoFim();
+              }}
+              className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-ink"
+            >
+              Marcar horário
+            </button>
+            {SUGESTOES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                disabled={enviando}
+                onClick={() => void enviar(s)}
+                className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-xs text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <form
+          className="flex items-end gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void enviar(texto);
+          }}
+        >
+          <textarea
+            ref={campo}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void enviar(texto);
+              }
+            }}
+            rows={1}
+            placeholder="Escreva aqui…"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+          />
+          <button
+            type="submit"
+            aria-label="Enviar"
+            disabled={enviando || !texto.trim()}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+          >
+            <Send size={17} aria-hidden />
+          </button>
+        </form>
+      </div>
     </FolhaCortai>
   );
 }

@@ -39,7 +39,8 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
             return negado;
           }
         }
-        const { processarAutomacoesDeWhatsapp } = await import("@/lib/whatsapp/notificacoes.server");
+        const { processarAutomacoesDeWhatsapp } =
+          await import("@/lib/whatsapp/notificacoes.server");
         const resumo = await processarAutomacoesDeWhatsapp();
         // Teste grátis: rebaixa vencidos e envia a régua (idempotente por dia).
         const teste = await import("@/lib/teste-gratis.server");

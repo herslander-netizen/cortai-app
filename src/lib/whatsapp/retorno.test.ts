@@ -7,12 +7,18 @@ const agora = Date.UTC(2026, 8, 28, 12);
 
 describe("retorno por serviço", () => {
   it("usa o prazo do serviço quando existe; senão o prazo geral de 30 dias", () => {
-    expect(prazoDeRetornoMs([{ id: "a", inicio: 0, status: "finalizado", retornoDias: 15 }])).toBe(15 * DIA);
-    expect(prazoDeRetornoMs([{ id: "a", inicio: 0, status: "finalizado", retornoDias: null }])).toBe(30 * DIA);
+    expect(prazoDeRetornoMs([{ id: "a", inicio: 0, status: "finalizado", retornoDias: 15 }])).toBe(
+      15 * DIA,
+    );
+    expect(
+      prazoDeRetornoMs([{ id: "a", inicio: 0, status: "finalizado", retornoDias: null }]),
+    ).toBe(30 * DIA);
   });
   it("manicure de 15 dias é avisada no dia 15, corte sem prazo não", () => {
     const manicure = [{ id: "m", inicio: agora - 15 * DIA, status: "finalizado", retornoDias: 15 }];
-    const semPrazo = [{ id: "c", inicio: agora - 15 * DIA, status: "finalizado", retornoDias: null }];
+    const semPrazo = [
+      { id: "c", inicio: agora - 15 * DIA, status: "finalizado", retornoDias: null },
+    ];
     expect(selecionarCandidatosAoRetorno([manicure, semPrazo], agora)).toEqual(["m"]);
   });
   it("não envia quando o cliente já tem horário futuro", () => {

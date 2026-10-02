@@ -20,9 +20,15 @@ export const Route = createFileRoute("/barbeiro/comissoes")({
   head: () => ({
     meta: [
       { title: "Comissões — Painel do barbeiro | Cortaí" },
-      { name: "description", content: "Comissão gerada, paga e pendente por profissional, item a item." },
+      {
+        name: "description",
+        content: "Comissão gerada, paga e pendente por profissional, item a item.",
+      },
       { property: "og:title", content: "Comissões — Cortaí" },
-      { property: "og:description", content: "Quanto cada profissional gerou e quanto ainda tem a receber." },
+      {
+        property: "og:description",
+        content: "Quanto cada profissional gerou e quanto ainda tem a receber.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -47,7 +53,11 @@ function ComissoesPage() {
     queryFn: () => getComissoes({ data: intervalo }),
     retry: false,
   });
-  const config = useQuery({ queryKey: ["config-financeira"], queryFn: () => getConfiguracaoFinanceira(), retry: false });
+  const config = useQuery({
+    queryKey: ["config-financeira"],
+    queryFn: () => getConfiguracaoFinanceira(),
+    retry: false,
+  });
   const pagar = useServerFn(pagarComissao);
   const salvarConfig = useServerFn(salvarConfiguracaoFinanceira);
 
@@ -67,19 +77,29 @@ function ComissoesPage() {
   const atual = form ?? {
     pixAtivo: Boolean(dados?.pix_ativo),
     pixChave: dados?.pix_chave ?? "",
-    pixTipo: (dados?.pix_tipo ?? "aleatoria") as "cpf" | "cnpj" | "email" | "telefone" | "aleatoria",
+    pixTipo: (dados?.pix_tipo ?? "aleatoria") as
+      "cpf" | "cnpj" | "email" | "telefone" | "aleatoria",
     pixWhatsapp: dados?.pix_whatsapp ?? "",
     comissaoServico: String(dados?.comissao_servico_percentual ?? 50),
     comissaoProduto: String(dados?.comissao_produto_percentual ?? 10),
   };
 
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Comissões" subtitle="Calculada item a item, nunca sobre o total.">
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Comissões"
+      subtitle="Calculada item a item, nunca sobre o total."
+    >
       {comissoes.isLoading ? <Carregando /> : null}
 
       <div className="flex gap-2">
         {(["hoje", "semana", "mes"] as const).map((chave) => (
-          <Button key={chave} size="sm" variant={filtro === chave ? "default" : "outline"} onClick={() => setFiltro(chave)}>
+          <Button
+            key={chave}
+            size="sm"
+            variant={filtro === chave ? "default" : "outline"}
+            onClick={() => setFiltro(chave)}
+          >
             {chave === "hoje" ? "Hoje" : chave === "semana" ? "Semana" : "Mês"}
           </Button>
         ))}
@@ -150,7 +170,8 @@ function ComissoesPage() {
         <section className="surface-card mt-8 p-4 md:max-w-3xl md:p-5">
           <h2 className="text-sm font-semibold text-paper">Regras de comissão e Pix</h2>
           <p className="mt-1 text-xs text-mute">
-            Serviços e produtos podem ter percentual próprio; estes valores valem para quem não tiver.
+            Serviços e produtos podem ter percentual próprio; estes valores valem para quem não
+            tiver.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <label className="text-xs text-mute">
@@ -182,7 +203,9 @@ function ComissoesPage() {
               <select
                 className="input-premium"
                 value={atual.pixTipo}
-                onChange={(e) => setForm({ ...atual, pixTipo: e.target.value as typeof atual.pixTipo })}
+                onChange={(e) =>
+                  setForm({ ...atual, pixTipo: e.target.value as typeof atual.pixTipo })
+                }
               >
                 <option value="aleatoria">Aleatória</option>
                 <option value="cpf">CPF</option>

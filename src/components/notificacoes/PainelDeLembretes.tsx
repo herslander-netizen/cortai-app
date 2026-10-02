@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Clock, MessageCircle, RotateCcw, XCircle, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  MessageCircle,
+  RotateCcw,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
@@ -24,17 +31,28 @@ const TIPO: Record<string, string> = {
 
 function situacao(e: Envio) {
   if (e.resposta === "confirmado" || e.resposta === "cheguei")
-    return { rotulo: e.resposta === "cheguei" ? "Chegou" : "Confirmou", Icone: CheckCircle2, cor: "text-sage" };
+    return {
+      rotulo: e.resposta === "cheguei" ? "Chegou" : "Confirmou",
+      Icone: CheckCircle2,
+      cor: "text-sage",
+    };
   if (e.resposta === "cancelado") return { rotulo: "Cancelou", Icone: XCircle, cor: "text-brick" };
-  if (e.resposta === "remarcar") return { rotulo: "Quer remarcar", Icone: RotateCcw, cor: "text-gold" };
-  if (e.status === "erro") return { rotulo: "Não enviado", Icone: AlertTriangle, cor: "text-brick" };
-  if (e.status === "enviado") return { rotulo: "Enviado, sem resposta", Icone: MessageCircle, cor: "text-mute" };
+  if (e.resposta === "remarcar")
+    return { rotulo: "Quer remarcar", Icone: RotateCcw, cor: "text-gold" };
+  if (e.status === "erro")
+    return { rotulo: "Não enviado", Icone: AlertTriangle, cor: "text-brick" };
+  if (e.status === "enviado")
+    return { rotulo: "Enviado, sem resposta", Icone: MessageCircle, cor: "text-mute" };
   return { rotulo: "Na fila", Icone: Clock, cor: "text-mute2" };
 }
 
 /** Status dos avisos do WhatsApp enviados aos clientes (gestão). */
 export function PainelDeLembretes() {
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300000 });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300000,
+  });
   const tenantId = sessao?.tenantId ?? null;
   const { data, isLoading } = useQuery({
     queryKey: ["painel-lembretes", tenantId],
@@ -58,7 +76,9 @@ export function PainelDeLembretes() {
     <section className="mt-8">
       <h2 className="mb-1 text-xs font-semibold uppercase text-mute2">Avisos enviados</h2>
       <p className="mb-3 text-xs text-mute">
-        {lista.length ? `${respondidos} de ${lista.length} responderam` : "Os lembretes aparecem aqui quando saírem."}
+        {lista.length
+          ? `${respondidos} de ${lista.length} responderam`
+          : "Os lembretes aparecem aqui quando saírem."}
       </p>
       {isLoading ? null : (
         <ul className="divide-y divide-line border-y border-line">
@@ -71,9 +91,14 @@ export function PainelDeLembretes() {
               minute: "2-digit",
             });
             return (
-              <li key={e.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+              <li
+                key={e.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+              >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm text-paper">{e.clientes?.nome ?? "Cliente"}</span>
+                  <span className="block truncate text-sm text-paper">
+                    {e.clientes?.nome ?? "Cliente"}
+                  </span>
                   <span className="block text-xs text-mute2">
                     {TIPO[e.tipo] ?? e.tipo} · {quando}
                   </span>

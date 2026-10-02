@@ -13,10 +13,18 @@ export const DIAS_DA_REGUA_NO_WHATSAPP = [30, 44] as const;
 
 const DIA = 86_400_000;
 
-export type EstadoDoTeste = { status: string | null; testeFim: string | null; plano: string | null };
+export type EstadoDoTeste = {
+  status: string | null;
+  testeFim: string | null;
+  plano: string | null;
+};
 
 export function testeAtivo(t: EstadoDoTeste, agora = new Date()): boolean {
-  return t.status === "teste" && Boolean(t.testeFim) && new Date(t.testeFim!).getTime() >= agora.getTime();
+  return (
+    t.status === "teste" &&
+    Boolean(t.testeFim) &&
+    new Date(t.testeFim!).getTime() >= agora.getTime()
+  );
 }
 
 /** Plano que vale para liberar recursos agora. */
@@ -36,7 +44,10 @@ export function diaDoTeste(testeInicio: string | null, agora = new Date()): numb
 }
 
 export function datasDoNovoTeste(agora = new Date()) {
-  return { inicio: agora.toISOString(), fim: new Date(agora.getTime() + DIAS_DE_TESTE * DIA).toISOString() };
+  return {
+    inicio: agora.toISOString(),
+    fim: new Date(agora.getTime() + DIAS_DE_TESTE * DIA).toISOString(),
+  };
 }
 
 /** Teste vencido sem pagamento vira o plano gratuito; dados nunca saem. */

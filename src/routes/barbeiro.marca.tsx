@@ -630,7 +630,9 @@ function Editor({
                       />
                     </div>
                     <fieldset>
-                      <legend className="text-xs font-medium text-mute">Quem recebe o cliente</legend>
+                      <legend className="text-xs font-medium text-mute">
+                        Quem recebe o cliente
+                      </legend>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         {(["Lisa", "Davi"] as const).map((nome) => (
                           <Button
@@ -639,7 +641,9 @@ function Editor({
                             variant="ghost"
                             className={`min-h-12 border ${config.chat.nomeRecepcao === nome ? "border-gold bg-gold/10 text-paper" : "border-line text-mute"}`}
                             aria-pressed={config.chat.nomeRecepcao === nome}
-                            onClick={() => setPagina("chat", { ...config.chat, nomeRecepcao: nome })}
+                            onClick={() =>
+                              setPagina("chat", { ...config.chat, nomeRecepcao: nome })
+                            }
                           >
                             <span className="grid size-8 place-items-center rounded-full bg-ink3 text-sm font-extrabold text-paper">
                               {nome[0]}
@@ -650,7 +654,8 @@ function Editor({
                       </div>
                       {!(["Lisa", "Davi"] as string[]).includes(config.chat.nomeRecepcao) ? (
                         <p className="mt-2 text-xs text-mute">
-                          O nome atual “{config.chat.nomeRecepcao}” continua ativo até você escolher outro.
+                          O nome atual “{config.chat.nomeRecepcao}” continua ativo até você escolher
+                          outro.
                         </p>
                       ) : null}
                     </fieldset>

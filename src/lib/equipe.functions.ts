@@ -15,7 +15,6 @@ export type MembroDaEquipe = {
   aceitoEm: string | null;
 };
 
-
 /** Traduz os erros técnicos das funções do banco para o barbeiro. */
 function mensagem(bruta: string): string {
   const m = bruta.toLowerCase();
@@ -25,8 +24,10 @@ function mensagem(bruta: string): string {
   }
   if (m.includes("ja esta ligada")) return "Essa conta já está ligada a um negócio.";
   if (m.includes("somente o dono")) return "Só o proprietário pode alterar esse acesso.";
-  if (m.includes("nao e possivel conceder")) return "Você não pode conceder uma permissão que não tem.";
-  if (m.includes("pelo menos um dono")) return "O negócio precisa de pelo menos um proprietário ativo.";
+  if (m.includes("nao e possivel conceder"))
+    return "Você não pode conceder uma permissão que não tem.";
+  if (m.includes("pelo menos um dono"))
+    return "O negócio precisa de pelo menos um proprietário ativo.";
   if (m.includes("proprio acesso")) return "Você não pode alterar o seu próprio acesso por aqui.";
   if (m.includes("membro nao encontrado")) return "Esse acesso não existe mais.";
   return "Não foi possível concluir agora. Tente de novo.";
@@ -36,7 +37,9 @@ export const listarEquipe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MembroDaEquipe[]> => {
     const tenantId = await tenantIdDoMembro(context);
-    const { data, error } = await context.supabase.rpc("equipe_do_tenant", { _tenant_id: tenantId });
+    const { data, error } = await context.supabase.rpc("equipe_do_tenant", {
+      _tenant_id: tenantId,
+    });
     if (error) throw new Error(mensagem(error.message));
     return (data ?? []).map((linha: Record<string, unknown>) => ({
       userId: linha["user_id"] as string,
@@ -119,7 +122,6 @@ export const confirmarMeuAcesso = createServerFn({ method: "POST" })
     if (error) throw new Error(mensagem(error.message));
     return { ok: true };
   });
-
 
 export const salvarAcessoDoMembro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -214,7 +216,10 @@ export const definirBarbeiroRecebe = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ ativo: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
-    const { error } = await (context.supabase as any).rpc("definir_barbeiro_recebe", { _tenant: tenantId, _valor: data.ativo });
+    const { error } = await (context.supabase as any).rpc("definir_barbeiro_recebe", {
+      _tenant: tenantId,
+      _valor: data.ativo,
+    });
     if (error) throw new Error("Você não tem permissão para mudar essa regra.");
     return { ok: true };
   });

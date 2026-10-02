@@ -16,9 +16,15 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
   head: () => ({
     meta: [
       { title: "Meus negócios — Cortaí Gestão" },
-      { name: "description", content: "Todos os negócios ligados à sua conta, com plano e configuração pendente." },
+      {
+        name: "description",
+        content: "Todos os negócios ligados à sua conta, com plano e configuração pendente.",
+      },
       { property: "og:title", content: "Meus negócios — Cortaí" },
-      { property: "og:description", content: "Troque de negócio e retome a configuração de onde parou." },
+      {
+        property: "og:description",
+        content: "Troque de negócio e retome a configuração de onde parou.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -66,7 +72,10 @@ function MinhasBarbeariasPage() {
   }
 
   return (
-    <Screen title="Meus negócios" subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar.">
+    <Screen
+      title="Meus negócios"
+      subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar."
+    >
       {isLoading || !data ? (
         <EsqueletoLista linhas={2} />
       ) : !data.length ? (
@@ -98,22 +107,31 @@ function MinhasBarbeariasPage() {
                         <span className="text-mute">Configuração concluída</span>
                       </>
                     ) : (
-                      <span className="text-gold">Parou em: {ROTULO_DA_ETAPA[b.etapa] ?? b.etapa}</span>
+                      <span className="text-gold">
+                        Parou em: {ROTULO_DA_ETAPA[b.etapa] ?? b.etapa}
+                      </span>
                     )}
                   </p>
                   {!b.acessoAtivo ? (
-                    <p className="mt-1 text-xs text-brick">Seu acesso a este negócio está desativado.</p>
+                    <p className="mt-1 text-xs text-brick">
+                      Seu acesso a este negócio está desativado.
+                    </p>
                   ) : null}
                 </div>
               </div>
 
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 className={`${b.ehAtiva ? "btn-secondary" : "btn-primary"} mt-4 w-full py-3`}
                 disabled={!b.acessoAtivo || indo !== null}
                 onClick={() => void abrirConfiguracao(b.id, b.ehAtiva)}
               >
-                {indo === b.id ? "Abrindo…" : b.concluida ? "Ver resumo da configuração" : "Voltar à configuração"}
+                {indo === b.id
+                  ? "Abrindo…"
+                  : b.concluida
+                    ? "Ver resumo da configuração"
+                    : "Voltar à configuração"}
               </Button>
             </article>
           ))}

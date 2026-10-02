@@ -77,9 +77,12 @@ function Consentimento() {
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6">
       <MarcaCortai variante="escura" className="mx-auto h-auto w-32" />
-      <h1 className="mt-6 text-center text-lg font-semibold text-paper">{nome} quer acessar sua conta</h1>
+      <h1 className="mt-6 text-center text-lg font-semibold text-paper">
+        {nome} quer acessar sua conta
+      </h1>
       <p className="mt-2 text-center text-sm text-mute">
-        Ele poderá consultar os serviços e a agenda do seu negócio, com as mesmas permissões que você tem. Nada é alterado.
+        Ele poderá consultar os serviços e a agenda do seu negócio, com as mesmas permissões que
+        você tem. Nada é alterado.
       </p>
       {erro ? (
         <p role="alert" className="mt-4 text-center text-sm text-brick">
@@ -87,10 +90,19 @@ function Consentimento() {
         </p>
       ) : null}
       <div className="mt-8 space-y-2">
-        <Button className="h-12 w-full rounded-full font-bold" disabled={ocupado} onClick={() => void decidir(true)}>
+        <Button
+          className="h-12 w-full rounded-full font-bold"
+          disabled={ocupado}
+          onClick={() => void decidir(true)}
+        >
           Autorizar
         </Button>
-        <Button variant="outline" className="h-12 w-full rounded-full" disabled={ocupado} onClick={() => void decidir(false)}>
+        <Button
+          variant="outline"
+          className="h-12 w-full rounded-full"
+          disabled={ocupado}
+          onClick={() => void decidir(false)}
+        >
           Recusar
         </Button>
       </div>
