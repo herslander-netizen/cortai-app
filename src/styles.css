@@ -648,6 +648,7 @@
   --muted: var(--ink3);
   --muted-foreground: var(--chat-texto-auxiliar, var(--muted-foreground));
   --mute: var(--chat-texto-auxiliar, var(--mute));
+  --mute2: var(--chat-texto-auxiliar, var(--mute2));
   --accent: var(--ink3);
   --accent-foreground: var(--paper);
   --border: color-mix(in oklab, var(--chat-page-text, var(--foreground)) 24%, transparent);
