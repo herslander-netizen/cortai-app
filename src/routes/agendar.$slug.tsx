@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { VistoAnimado } from "@/components/ui/VistoAnimado";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
@@ -351,6 +352,14 @@ function AgendamentoPublico() {
             WhatsApp, você recebe a confirmação e o lembrete por lá — é só responder para confirmar
             a chegada.
           </p>
+        ) : null}
+
+        {ativo && confirmado.preferenciasToken ? (
+          <PreferenciasAposAgendamento
+            agendamentoId={confirmado.agendamentoId}
+            token={confirmado.preferenciasToken}
+            slug={slug}
+          />
         ) : null}
 
         {erro ? (
