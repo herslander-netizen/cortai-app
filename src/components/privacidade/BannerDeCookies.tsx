@@ -9,6 +9,7 @@ import {
   type Categorias,
 } from "@/lib/consentimento";
 import { useModoFoco } from "@/lib/modo-foco";
+import { Button } from "@/components/ui/button";
 
 /**
  * Aviso discreto de cookies e privacidade, mostrado apenas no primeiro acesso.
@@ -23,11 +24,11 @@ export function BannerDeCookies() {
   if (!pronto || consentimento || foco) return null;
 
   return (
-    <div className="banner-cookies pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+    <div className="banner-cookies pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:right-auto md:left-4 md:w-[min(420px,calc(100vw-32px))] md:justify-start md:px-0">
       <div
         role="dialog"
         aria-label="Privacidade e cookies"
-        className="pointer-events-auto max-h-[80vh] w-full max-w-[480px] overflow-y-auto rounded-2xl border border-line bg-ink3 p-4 shadow-xl"
+        className="pointer-events-auto max-h-[80vh] w-full max-w-[480px] overflow-y-auto rounded-2xl border border-line bg-ink3 p-4 shadow-xl md:max-w-[420px]"
       >
         <p className="text-sm font-bold text-paper">Sua privacidade importa.</p>
         <p className="mt-1 text-xs leading-relaxed text-mute">
@@ -69,38 +70,42 @@ export function BannerDeCookies() {
 
         <div className="mt-4 flex flex-wrap gap-2">
           {configurando ? (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => registrar(escolhas)}
-              className="h-10 flex-1 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
+              className="min-h-12 min-w-[112px] flex-1 whitespace-normal px-3 text-xs md:min-h-10"
             >
               Salvar escolhas
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => registrar(TODAS_ACEITAS)}
-              className="h-10 flex-1 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
+              className="min-h-12 min-w-[112px] flex-1 whitespace-normal px-3 text-xs md:min-h-10"
             >
               Aceitar
-            </button>
+            </Button>
           )}
           {configurando ? null : (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setConfigurando(true)}
-              className="h-10 flex-1 rounded-lg border border-line px-4 text-xs font-semibold text-paper"
+              className="min-h-12 min-w-[112px] flex-1 whitespace-normal px-3 text-xs md:min-h-10"
             >
               Configurar
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => registrar(SOMENTE_NECESSARIAS)}
-            className="h-10 flex-1 rounded-lg border border-line px-4 text-xs font-semibold text-paper"
+            className="min-h-12 min-w-[112px] flex-1 whitespace-normal px-3 text-xs md:min-h-10"
           >
             Recusar opcionais
-          </button>
+          </Button>
         </div>
       </div>
     </div>
