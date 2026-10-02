@@ -3,7 +3,10 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { AlertasFoco } from "@/components/barbeiro/agenda/AlertasFoco";
 import { CockpitFoco } from "@/components/barbeiro/agenda/CockpitFoco";
-import { alertasDeEmergencia, type AlertaEmergencia } from "@/components/barbeiro/agenda/alertas-foco";
+import {
+  alertasDeEmergencia,
+  type AlertaEmergencia,
+} from "@/components/barbeiro/agenda/alertas-foco";
 import { dadosDoCockpit } from "@/components/barbeiro/agenda/cockpit-foco";
 import { FichaFocoVisual } from "@/components/barbeiro/agenda/FichaFoco";
 import { salvarTelaAcesa, telaAcesaInicial } from "@/components/barbeiro/agenda/preferencias";
@@ -69,7 +72,8 @@ function useAlertasPersistentes(props: Pick<Props, "itens" | "online" | "fuso">,
   }, [props.itens, props.online, props.fuso, agora]);
   return {
     alertas: guardados,
-    dispensar: (id: string) => setGuardados((atuais) => atuais.filter((alerta) => alerta.id !== id)),
+    dispensar: (id: string) =>
+      setGuardados((atuais) => atuais.filter((alerta) => alerta.id !== id)),
   };
 }
 
@@ -97,33 +101,64 @@ export function AgendaFocoMobile(props: Props) {
   const acaoPrincipal = () => {
     if (!item) return props.onNovoAtendimento?.();
     if (dados.estado === "chegou") return props.onComecar(item);
-    if (dados.estado === "na_cadeira" || dados.estado === "passou_do_tempo") return props.onTerminar(item);
+    if (dados.estado === "na_cadeira" || dados.estado === "passou_do_tempo")
+      return props.onTerminar(item);
     if (dados.estado === "receber") return props.onReceber(item);
     return props.onChegou(item);
   };
 
   return (
-    <section className="modo-foco mov-foco-entrada flex min-h-dvh flex-col pb-24" aria-label="Modo Foco da agenda">
+    <section
+      className="modo-foco mov-foco-entrada flex min-h-dvh flex-col pb-24"
+      aria-label="Modo Foco da agenda"
+    >
       <header className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-line px-3 pt-[env(safe-area-inset-top)]">
-        <Button variant="ghost" className="min-h-12 min-w-0 justify-self-start px-1 text-[15px]" onClick={props.onSair}><ArrowLeft /> Agenda</Button>
+        <Button
+          variant="ghost"
+          className="min-h-12 min-w-0 justify-self-start px-1 text-[15px]"
+          onClick={props.onSair}
+        >
+          <ArrowLeft /> Agenda
+        </Button>
         <Relogio agora={agora} fuso={props.fuso} />
-        <div className="justify-self-end"><LampadaDaTela /></div>
-        <p className="col-span-3 truncate pb-2 text-center text-[15px] text-mute">{nomeProfissional} · {dados.concluidos} {dados.concluidos === 1 ? "concluído" : "concluídos"} · {dados.pelaFrente} pela frente</p>
+        <div className="justify-self-end">
+          <LampadaDaTela />
+        </div>
+        <p className="col-span-3 truncate pb-2 text-center text-[15px] text-mute">
+          {nomeProfissional} · {dados.concluidos}{" "}
+          {dados.concluidos === 1 ? "concluído" : "concluídos"} · {dados.pelaFrente} pela frente
+        </p>
       </header>
 
       {props.podeEscolherProfissional && props.profissionais.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-3 py-2" aria-label="Profissional">
           {props.profissionais.map((profissional) => (
-            <Button key={profissional.id} variant="ghost" className="min-h-12 shrink-0 border border-line" aria-pressed={props.profissional === profissional.id} onClick={() => props.onProfissional(profissional.id)}>{profissional.nome}</Button>
+            <Button
+              key={profissional.id}
+              variant="ghost"
+              className="min-h-12 shrink-0 border border-line"
+              aria-pressed={props.profissional === profissional.id}
+              onClick={() => props.onProfissional(profissional.id)}
+            >
+              {profissional.nome}
+            </Button>
           ))}
         </div>
       ) : null}
       <AlertasFoco alertas={alertas} onDispensar={dispensar} />
 
       {props.carregando && !props.itens.length ? (
-        <div className="grid flex-1 place-content-center text-[15px] text-mute">Carregando agenda…</div>
+        <div className="grid flex-1 place-content-center text-[15px] text-mute">
+          Carregando agenda…
+        </div>
       ) : props.erro && !props.itens.length ? (
-        <div className="grid flex-1 place-content-center gap-3 text-center" role="alert"><strong>Não foi possível carregar a agenda</strong><span className="text-[15px] text-mute">{props.erro}</span><Button variant="outline" onClick={props.onTentarNovamente}>Tentar novamente</Button></div>
+        <div className="grid flex-1 place-content-center gap-3 text-center" role="alert">
+          <strong>Não foi possível carregar a agenda</strong>
+          <span className="text-[15px] text-mute">{props.erro}</span>
+          <Button variant="outline" onClick={props.onTentarNovamente}>
+            Tentar novamente
+          </Button>
+        </div>
       ) : (
         <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col p-3">
           <CockpitFoco
@@ -140,10 +175,24 @@ export function AgendaFocoMobile(props: Props) {
             onAvisar={(alvo) => {
               const texto = `Oi, ${alvo.cliente.split(" ")[0]}! Estou terminando um atendimento e devo atrasar uns 10 min. Já te chamo.`;
               const numero = alvo.telefone?.replace(/\D/g, "");
-              if (numero) window.open(`https://wa.me/${numero.length <= 11 ? `55${numero}` : numero}?text=${encodeURIComponent(texto)}`, "_blank", "noopener,noreferrer");
+              if (numero)
+                window.open(
+                  `https://wa.me/${numero.length <= 11 ? `55${numero}` : numero}?text=${encodeURIComponent(texto)}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                );
             }}
             onChamarFila={props.onChamarFila}
-            ficha={item ? <FichaFocoVisual preferencias={item.preferencias ?? {}} observacao={item.ficha} discreto={Boolean(props.discreto)} onAbrir={() => props.onMaisOpcoes(item)} /> : null}
+            ficha={
+              item ? (
+                <FichaFocoVisual
+                  preferencias={item.preferencias ?? {}}
+                  observacao={item.ficha}
+                  discreto={Boolean(props.discreto)}
+                  onAbrir={() => props.onMaisOpcoes(item)}
+                />
+              ) : null
+            }
           />
         </div>
       )}
@@ -152,7 +201,15 @@ export function AgendaFocoMobile(props: Props) {
 }
 
 function Relogio({ agora, fuso }: { agora: number; fuso?: string }) {
-  return <time className="text-2xl font-extrabold tabular-nums text-paper">{new Date(agora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso })}</time>;
+  return (
+    <time className="text-2xl font-extrabold tabular-nums text-paper">
+      {new Date(agora).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: fuso,
+      })}
+    </time>
+  );
 }
 
 function LampadaDaTela() {
@@ -164,5 +221,19 @@ function LampadaDaTela() {
   }, []);
   useTelaAcesa(ligada);
   if (!suporte) return null;
-  return <Button variant="ghost" size="icon" className="size-12 text-mute" aria-label="Manter tela acesa" aria-pressed={ligada} onClick={() => { setLigada(!ligada); salvarTelaAcesa(!ligada); }}>{ligada ? <Lightbulb aria-hidden /> : <LightbulbOff aria-hidden />}</Button>;
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-12 text-mute"
+      aria-label="Manter tela acesa"
+      aria-pressed={ligada}
+      onClick={() => {
+        setLigada(!ligada);
+        salvarTelaAcesa(!ligada);
+      }}
+    >
+      {ligada ? <Lightbulb aria-hidden /> : <LightbulbOff aria-hidden />}
+    </Button>
+  );
 }

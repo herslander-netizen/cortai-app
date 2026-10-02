@@ -144,10 +144,16 @@ function Foco({ segmento }: { segmento: Segmento }) {
   const dados = dadosDoCockpit(itens(segmento), AGORA, FUSO);
   const atual = dados.principal;
   return (
-    <div className="modo-foco showroom-produto flex min-h-[620px] flex-col p-3" aria-label="Demonstração do Modo Foco" data-showroom-cockpit>
+    <div
+      className="modo-foco showroom-produto flex min-h-[620px] flex-col p-3"
+      aria-label="Demonstração do Modo Foco"
+      data-showroom-cockpit
+    >
       <header className="border-b border-line pb-3 text-center">
         <strong className="text-2xl tabular-nums text-paper">10:18</strong>
-        <p className="mt-1 text-[15px] text-mute">Alex · {dados.concluidos} concluído · {dados.pelaFrente} pela frente</p>
+        <p className="mt-1 text-[15px] text-mute">
+          Alex · {dados.concluidos} concluído · {dados.pelaFrente} pela frente
+        </p>
       </header>
       <CockpitFoco
         dados={dados}
@@ -155,7 +161,15 @@ function Foco({ segmento }: { segmento: Segmento }) {
         fuso={FUSO}
         discreto={false}
         somenteLeitura
-        ficha={atual ? <FichaFocoVisual preferencias={atual.preferencias ?? {}} observacao={atual.ficha} discreto={false} /> : null}
+        ficha={
+          atual ? (
+            <FichaFocoVisual
+              preferencias={atual.preferencias ?? {}}
+              observacao={atual.ficha}
+              discreto={false}
+            />
+          ) : null
+        }
       />
     </div>
   );

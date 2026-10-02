@@ -39,28 +39,51 @@ export function CockpitFoco(props: Props) {
             ? "Encaixar cliente"
             : "Cliente chegou";
   return (
-    <main className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,.8fr)]" data-cockpit-foco>
-      <section className="flex min-h-0 flex-col border-y border-line bg-ink2 px-4 py-4 sm:px-6" aria-label="Agora">
+    <main
+      className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,.8fr)]"
+      data-cockpit-foco
+    >
+      <section
+        className="flex min-h-0 flex-col border-y border-line bg-ink2 px-4 py-4 sm:px-6"
+        aria-label="Agora"
+      >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-          <strong className={`text-[15px] font-extrabold ${dados.estado === "passou_do_tempo" || dados.estado === "atrasado" ? "text-status-warning" : "text-status-active"}`}>
+          <strong
+            className={`text-[15px] font-extrabold ${dados.estado === "passou_do_tempo" || dados.estado === "atrasado" ? "text-status-warning" : "text-status-active"}`}
+          >
             {dados.rotulo}
           </strong>
-          {dados.termino ? <span className="text-[15px] font-semibold text-mute">{dados.estado === "passou_do_tempo" ? "era até" : "termina"} {dados.termino}</span> : null}
+          {dados.termino ? (
+            <span className="text-[15px] font-semibold text-mute">
+              {dados.estado === "passou_do_tempo" ? "era até" : "termina"} {dados.termino}
+            </span>
+          ) : null}
         </div>
         {item ? (
           <>
             <h1 className="mt-4 overflow-wrap-anywhere text-4xl font-extrabold leading-none text-paper sm:text-[40px]">
               {nomeDaAgenda(item.cliente, props.discreto)}
             </h1>
-            <p className="mt-2 text-[16px] text-mute">{item.servico} · {item.duracaoMin} min</p>
+            <p className="mt-2 text-[16px] text-mute">
+              {item.servico} · {item.duracaoMin} min
+            </p>
             {item.status === "na_cadeira" ? (
               <div className="mt-5" role="timer">
                 <div className="h-3 overflow-hidden rounded-full bg-ink3">
-                  <span className={`block h-full origin-left rounded-full ${dados.estado === "passou_do_tempo" ? "bg-status-warning" : "bg-status-active"}`} style={{ transform: `scaleX(${dados.progresso})` }} />
+                  <span
+                    className={`block h-full origin-left rounded-full ${dados.estado === "passou_do_tempo" ? "bg-status-warning" : "bg-status-active"}`}
+                    style={{ transform: `scaleX(${dados.progresso})` }}
+                  />
                 </div>
                 <div className="mt-2 grid grid-cols-[1fr_auto] gap-3 text-[15px] font-bold">
                   <span>{dados.decorrido} min</span>
-                  <span className={dados.estado === "passou_do_tempo" ? "text-status-warning" : "text-mute"}>{dados.excedido ?? `faltam ${dados.restante} min`}</span>
+                  <span
+                    className={
+                      dados.estado === "passou_do_tempo" ? "text-status-warning" : "text-mute"
+                    }
+                  >
+                    {dados.excedido ?? `faltam ${dados.restante} min`}
+                  </span>
                 </div>
               </div>
             ) : null}
@@ -74,42 +97,113 @@ export function CockpitFoco(props: Props) {
         )}
       </section>
 
-      <aside className="flex min-h-0 flex-col gap-3 lg:justify-end" aria-label="Próximos atendimentos">
+      <aside
+        className="flex min-h-0 flex-col gap-3 lg:justify-end"
+        aria-label="Próximos atendimentos"
+      >
         {dados.proximo ? (
           <section className="border border-line bg-ink2 p-4">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[15px] font-extrabold text-paper">
               <span>PRÓXIMO · {hora(dados.proximo.inicio, props.fuso)}</span>
-              <span className="text-mute">em {Math.max(0, Math.ceil((+new Date(dados.proximo.inicio) - agora) / 60_000))} min</span>
+              <span className="text-mute">
+                em {Math.max(0, Math.ceil((+new Date(dados.proximo.inicio) - agora) / 60_000))} min
+              </span>
             </div>
-            <strong className="mt-3 block truncate text-xl text-paper">{nomeDaAgenda(dados.proximo.cliente, props.discreto)}</strong>
+            <strong className="mt-3 block truncate text-xl text-paper">
+              {nomeDaAgenda(dados.proximo.cliente, props.discreto)}
+            </strong>
             <p className="mt-1 text-[15px] text-mute">{dados.proximo.servico}</p>
-            <p className="mt-3 text-[15px] font-semibold text-paper">{situacaoDoLembrete(dados.proximo)}</p>
+            <p className="mt-3 text-[15px] font-semibold text-paper">
+              {situacaoDoLembrete(dados.proximo)}
+            </p>
             {dados.estado === "passou_do_tempo" && props.onAvisar ? (
-              <Button variant="outline" className="mt-3 min-h-12 w-full" onClick={() => props.onAvisar?.(dados.proximo as AgendaItem)}>
+              <Button
+                variant="outline"
+                className="mt-3 min-h-12 w-full"
+                onClick={() => props.onAvisar?.(dados.proximo as AgendaItem)}
+              >
                 Avisar {dados.proximo.cliente.split(" ")[0]}: atraso no atendimento
               </Button>
             ) : null}
             {dados.depois.length ? (
               <p className="mt-4 border-t border-line pt-3 text-[15px] text-mute">
-                Depois: {dados.depois.map((x) => `${x.cliente.split(" ")[0]} ${hora(x.inicio, props.fuso)}`).join(" · ")}
+                Depois:{" "}
+                {dados.depois
+                  .map((x) => `${x.cliente.split(" ")[0]} ${hora(x.inicio, props.fuso)}`)
+                  .join(" · ")}
               </p>
             ) : null}
           </section>
         ) : null}
       </aside>
 
-      <footer className={`${props.somenteLeitura ? "col-span-full" : "fixed inset-x-0 bottom-0 z-30 lg:static lg:col-span-2"} grid grid-cols-[64px_minmax(0,1fr)] gap-2 border-t border-line bg-ink px-3 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))] lg:bg-transparent lg:px-0 lg:pb-0`}>
-        <Button variant="outline" size="icon" className="size-16" aria-label="Outras ações" onClick={props.onMais} disabled={props.somenteLeitura}><MoreHorizontal className="size-6" /></Button>
-        <Button size="lg" className="min-h-16 text-base" onClick={props.onPrincipal} disabled={props.somenteLeitura}>{acao}</Button>
+      <footer
+        className={`${props.somenteLeitura ? "col-span-full" : "fixed inset-x-0 bottom-0 z-30 lg:static lg:col-span-2"} grid grid-cols-[64px_minmax(0,1fr)] gap-2 border-t border-line bg-ink px-3 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))] lg:bg-transparent lg:px-0 lg:pb-0`}
+      >
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-16"
+          aria-label="Outras ações"
+          onClick={props.onMais}
+          disabled={props.somenteLeitura}
+        >
+          <MoreHorizontal className="size-6" />
+        </Button>
+        <Button
+          size="lg"
+          className="min-h-16 text-base"
+          onClick={props.onPrincipal}
+          disabled={props.somenteLeitura}
+        >
+          {acao}
+        </Button>
         {dados.estado === "atrasado" ? (
           <div className="col-span-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Button variant="outline" className="min-h-12" onClick={props.onFalta} disabled={props.somenteLeitura}>Não veio</Button>
-            <Button variant="outline" className="min-h-12" onClick={props.onRemarcar} disabled={props.somenteLeitura}>Remarcar</Button>
-            <Button variant="destructive" className="min-h-12" onClick={props.onCancelar} disabled={props.somenteLeitura}>Cancelar</Button>
-            <Button variant="outline" className="min-h-12" onClick={() => item && props.onAvisar?.(item)} disabled={props.somenteLeitura}>Avisar</Button>
+            <Button
+              variant="outline"
+              className="min-h-12"
+              onClick={props.onFalta}
+              disabled={props.somenteLeitura}
+            >
+              Não veio
+            </Button>
+            <Button
+              variant="outline"
+              className="min-h-12"
+              onClick={props.onRemarcar}
+              disabled={props.somenteLeitura}
+            >
+              Remarcar
+            </Button>
+            <Button
+              variant="destructive"
+              className="min-h-12"
+              onClick={props.onCancelar}
+              disabled={props.somenteLeitura}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="outline"
+              className="min-h-12"
+              onClick={() => item && props.onAvisar?.(item)}
+              disabled={props.somenteLeitura}
+            >
+              Avisar
+            </Button>
           </div>
         ) : null}
-        {!item && props.fila ? <Button variant="outline" className="col-span-2 min-h-12" onClick={props.onChamarFila} disabled={props.somenteLeitura}>Chamar da fila</Button> : null}
+        {!item && props.fila ? (
+          <Button
+            variant="outline"
+            className="col-span-2 min-h-12"
+            onClick={props.onChamarFila}
+            disabled={props.somenteLeitura}
+          >
+            Chamar da fila
+          </Button>
+        ) : null}
       </footer>
     </main>
   );

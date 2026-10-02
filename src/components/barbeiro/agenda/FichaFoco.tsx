@@ -163,7 +163,8 @@ export function FichaFocoVisual({
   discreto: boolean;
   onAbrir?: () => void;
 }) {
-  if (discreto) return <p className="mt-4 text-[15px] text-mute">Preferências ocultas no modo discreto.</p>;
+  if (discreto)
+    return <p className="mt-4 text-[15px] text-mute">Preferências ocultas no modo discreto.</p>;
   const etiquetas = [
     preferencias.conversa ? ROTULOS_PREFERENCIAS.conversa[preferencias.conversa] : null,
     preferencias.ar ? ROTULOS_PREFERENCIAS.ar[preferencias.ar] : null,
@@ -175,12 +176,39 @@ export function FichaFocoVisual({
       {preferencias.atencao ? (
         <p className="flex items-start gap-2 bg-brick/20 px-4 py-3 text-[15px] font-bold text-paper">
           <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
-          <span><strong>Atenção</strong><br />{preferencias.atencao}</span>
+          <span>
+            <strong>Atenção</strong>
+            <br />
+            {preferencias.atencao}
+          </span>
         </p>
       ) : null}
-      {etiquetas.length ? <div className="mt-3 flex flex-wrap gap-2">{etiquetas.map((texto) => <span key={texto} className="flex min-h-12 items-center rounded-full border border-line px-4 text-[15px] text-paper">{texto}</span>)}</div> : null}
-      {preferencias.corte_habitual ? <p className="mt-3 text-[15px] text-paper"><strong>Habitual:</strong> {preferencias.corte_habitual}</p> : null}
-      {observacao ? <Button variant="ghost" className="mt-3 h-auto min-h-12 w-full justify-start border-l-2 border-status-arrived px-3 text-left" onClick={onAbrir}><span className="line-clamp-2 text-[15px] text-mute">{observacao}</span></Button> : null}
+      {etiquetas.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {etiquetas.map((texto) => (
+            <span
+              key={texto}
+              className="flex min-h-12 items-center rounded-full border border-line px-4 text-[15px] text-paper"
+            >
+              {texto}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {preferencias.corte_habitual ? (
+        <p className="mt-3 text-[15px] text-paper">
+          <strong>Habitual:</strong> {preferencias.corte_habitual}
+        </p>
+      ) : null}
+      {observacao ? (
+        <Button
+          variant="ghost"
+          className="mt-3 h-auto min-h-12 w-full justify-start border-l-2 border-status-arrived px-3 text-left"
+          onClick={onAbrir}
+        >
+          <span className="line-clamp-2 text-[15px] text-mute">{observacao}</span>
+        </Button>
+      ) : null}
     </section>
   );
 }

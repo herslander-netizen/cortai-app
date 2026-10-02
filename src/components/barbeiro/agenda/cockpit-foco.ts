@@ -41,7 +41,9 @@ export function dadosDoCockpit(
 ): DadosCockpit {
   const ordenados = ordenar(itens);
   const concluidos = ordenados.filter((item) => item.status === "finalizado").length;
-  const abertos = ordenados.filter((item) => !FORA.has(item.status) && item.status !== "finalizado");
+  const abertos = ordenados.filter(
+    (item) => !FORA.has(item.status) && item.status !== "finalizado",
+  );
   const naCadeira = abertos.find((item) => item.status === "na_cadeira");
   const chegou = abertos.find((item) => item.status === "chegou");
   const atrasado = abertos.find((item) => estaAtrasado(item, agora));
