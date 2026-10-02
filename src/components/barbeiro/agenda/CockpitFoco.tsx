@@ -14,15 +14,13 @@ type Props = {
   ficha?: ReactNode;
   somenteLeitura?: boolean;
   fila?: number | undefined;
-  onPrincipal?: () => void;
-  onMais?: () => void;
-  onChegou?: () => void;
-  onFalta?: () => void;
-  onCancelar?: () => void;
-  onRemarcar?: () => void;
-  onAvisar?: (item: AgendaItem) => void;
-  onEncaixar?: () => void;
-  onChamarFila?: () => void;
+  onPrincipal?: (() => void) | undefined;
+  onMais?: (() => void) | undefined;
+  onFalta?: (() => void) | undefined;
+  onCancelar?: (() => void) | undefined;
+  onRemarcar?: (() => void) | undefined;
+  onAvisar?: ((item: AgendaItem) => void) | undefined;
+  onChamarFila?: (() => void) | undefined;
 };
 
 export function CockpitFoco(props: Props) {

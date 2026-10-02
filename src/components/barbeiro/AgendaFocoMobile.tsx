@@ -168,10 +168,18 @@ export function AgendaFocoMobile(props: Props) {
             discreto={Boolean(props.discreto)}
             fila={props.fila}
             onPrincipal={acaoPrincipal}
-            onMais={() => item && props.onMaisOpcoes(item)}
-            onFalta={() => item && props.onFalta(item)}
-            onRemarcar={() => item && props.onRemarcar(item)}
-            onCancelar={() => item && props.onCancelar(item)}
+            onMais={() => {
+              if (item) props.onMaisOpcoes(item);
+            }}
+            onFalta={() => {
+              if (item) props.onFalta(item);
+            }}
+            onRemarcar={() => {
+              if (item) props.onRemarcar(item);
+            }}
+            onCancelar={() => {
+              if (item) props.onCancelar(item);
+            }}
             onAvisar={(alvo) => {
               const texto = `Oi, ${alvo.cliente.split(" ")[0]}! Estou terminando um atendimento e devo atrasar uns 10 min. Já te chamo.`;
               const numero = alvo.telefone?.replace(/\D/g, "");
