@@ -1,4 +1,3 @@
-import iconAsset from "@/assets/cortai-logo-menu.png.asset.json";
 import colorOnLightAsset from "@/assets/cortai-logo-escura-oficial.png.asset.json";
 import colorOnDarkAsset from "@/assets/cortai-logo-clara-oficial.png.asset.json";
 
@@ -9,7 +8,7 @@ const marcas = {
   branca: colorOnDarkAsset.url,
 } as const;
 
-export const iconeCortaiUrl = iconAsset.url;
+export const iconeCortaiUrl = "/icone-cortai-oficial-512-v2.png";
 
 export function IconeCortai({ className = "h-12 w-12" }: { className?: string }) {
   return (

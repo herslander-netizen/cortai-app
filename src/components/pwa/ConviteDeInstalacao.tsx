@@ -31,7 +31,7 @@ export function ConviteDeInstalacao() {
       >
         <div className="flex items-start gap-3">
           <img
-            src="/icone-cortai-192.png"
+            src="/icone-cortai-oficial-192-v2.png"
             alt=""
             width={40}
             height={40}
