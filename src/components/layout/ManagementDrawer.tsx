@@ -4,7 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
@@ -17,9 +23,26 @@ import { CAPACIDADES } from "@/lib/capacidades";
 import { hojeNoFuso, horarioDoDia, normalizarFuso } from "@/lib/horarios";
 import { definirFusoDasTelas } from "@/lib/format";
 import { rotuloDoPapel } from "@/lib/navigation";
-import { alternarGrupo, comGrupoAtual, gruposAbertosSalvos, salvarGruposAbertos } from "@/lib/grupos-do-menu";
-import { GRUPOS_DE_NAVEGACAO, itemDeNavegacaoAtivo, itensDaBarra, itensDoDiaADiaNoMenuMovel, modulosDeNavegacao } from "@/lib/navegacao-barbeiro";
-import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
+import {
+  alternarGrupo,
+  comGrupoAtual,
+  gruposAbertosSalvos,
+  salvarGruposAbertos,
+} from "@/lib/grupos-do-menu";
+import {
+  GRUPOS_DE_NAVEGACAO,
+  itemDeNavegacaoAtivo,
+  itensDaBarra,
+  itensDoDiaADiaNoMenuMovel,
+  modulosDeNavegacao,
+} from "@/lib/navegacao-barbeiro";
+import {
+  APPEARANCE_EVENT,
+  aplicarIdentidade,
+  aplicarModo,
+  identidadeValida,
+  MODE_KEY,
+} from "@/lib/aparencia";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
@@ -32,15 +55,35 @@ export function ManagementHeader() {
   const celular = useMediaQuery("(max-width: 767px)");
   const inicioDaBorda = useRef<{ x: number; y: number } | null>(null);
   const caminho = useRouterState({ select: (state) => state.location.pathname });
-  const { data: sessao } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
-  const { data: capacidades } = useQuery({ queryKey: ["capacidades"], queryFn: () => getCapacidades(), staleTime: 300_000, enabled: aberto });
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300_000,
+  });
+  const { data: capacidades } = useQuery({
+    queryKey: ["capacidades"],
+    queryFn: () => getCapacidades(),
+    staleTime: 300_000,
+    enabled: aberto,
+  });
   const fuso = normalizarFuso(sessao?.tenantFuso);
   const hoje = hojeNoFuso(fuso);
-  const { data: agenda } = useQuery({ queryKey: ["agenda-dia", hoje], queryFn: () => getAgendaDia({ data: { dia: hoje } }), staleTime: 60_000, enabled: aberto });
+  const { data: agenda } = useQuery({
+    queryKey: ["agenda-dia", hoje],
+    queryFn: () => getAgendaDia({ data: { dia: hoje } }),
+    staleTime: 60_000,
+    enabled: aberto,
+  });
   const horarioDeHoje = agenda ? horarioDoDia(hoje, agenda.horarios) : null;
   const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
-  const saudacao = saudacaoDoMenu({ dia: hoje, hora: horaNoFuso(fuso), nome: sessao?.nome ?? null });
-  const atendimentosDeHoje = agenda?.itens.filter((item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status)).length;
+  const saudacao = saudacaoDoMenu({
+    dia: hoje,
+    hora: horaNoFuso(fuso),
+    nome: sessao?.nome ?? null,
+  });
+  const atendimentosDeHoje = agenda?.itens.filter(
+    (item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status),
+  ).length;
   const resumoDaAgenda = agenda
     ? atendimentosDeHoje
       ? `Hoje: ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
@@ -49,7 +92,8 @@ export function ManagementHeader() {
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
-    if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY)) aplicarModo(sessao.tenantModo, true);
+    if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY))
+      aplicarModo(sessao.tenantModo, true);
   }, [sessao?.identidadeApp, sessao?.tenantModo]);
   useEffect(() => {
     const atualizar = () => setModoClaro(document.documentElement.classList.contains("light"));
@@ -67,7 +111,8 @@ export function ManagementHeader() {
     if (!celular || aberto) return;
     const comecar = (evento: TouchEvent) => {
       const toque = evento.touches[0];
-      inicioDaBorda.current = toque && toque.clientX <= 24 ? { x: toque.clientX, y: toque.clientY } : null;
+      inicioDaBorda.current =
+        toque && toque.clientX <= 24 ? { x: toque.clientX, y: toque.clientY } : null;
     };
     const mover = (evento: TouchEvent) => {
       const inicio = inicioDaBorda.current;
@@ -82,7 +127,9 @@ export function ManagementHeader() {
         setAberto(true);
       }
     };
-    const terminar = () => { inicioDaBorda.current = null; };
+    const terminar = () => {
+      inicioDaBorda.current = null;
+    };
     window.addEventListener("touchstart", comecar, { passive: true });
     window.addEventListener("touchmove", mover, { passive: false });
     window.addEventListener("touchend", terminar, { passive: true });
@@ -100,7 +147,10 @@ export function ManagementHeader() {
     const naBarra = itensDaBarra(sessao?.permissoes).map((item) => item.to as string);
     return GRUPOS_DE_NAVEGACAO.map((titulo) => ({
       titulo,
-      itens: (celular && titulo === "Dia a dia" ? itensDoDiaADiaNoMenuMovel(sessao?.permissoes) : modulos.filter((item) => item.grupo === titulo && !naBarra.includes(item.to)))
+      itens: (celular && titulo === "Dia a dia"
+        ? itensDoDiaADiaNoMenuMovel(sessao?.permissoes)
+        : modulos.filter((item) => item.grupo === titulo && !naBarra.includes(item.to))
+      )
         .filter((item) => item.to !== "/barbeiro")
         .filter((item) => {
           if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
@@ -111,7 +161,9 @@ export function ManagementHeader() {
         }),
     }));
   }, [capacidades, celular, sessao?.permissoes, sessao?.segmento]);
-  const grupoAtual = grupos.find((grupo) => grupo.itens.some((item) => itemDeNavegacaoAtivo(caminho, item.to)))?.titulo ?? null;
+  const grupoAtual =
+    grupos.find((grupo) => grupo.itens.some((item) => itemDeNavegacaoAtivo(caminho, item.to)))
+      ?.titulo ?? null;
   useEffect(() => {
     if (aberto) setAbertos(comGrupoAtual(gruposAbertosSalvos(), grupoAtual));
   }, [aberto, grupoAtual]);
@@ -128,56 +180,125 @@ export function ManagementHeader() {
       <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between gap-3 px-4 md:px-8">
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
-            <Button variant="ghost" className="menu-cortai-trigger h-12 w-12 shrink-0 rounded-[8px] p-0 hover:bg-transparent" aria-label="Abrir navegação">
-              <img src={modoClaro ? menuEscuro.url : menuClaro.url} alt="" aria-hidden className="h-11 w-11 rounded-[8px] object-cover" />
+            <Button
+              variant="ghost"
+              className="menu-cortai-trigger h-12 w-12 shrink-0 rounded-[8px] p-0 hover:bg-transparent"
+              aria-label="Abrir navegação"
+            >
+              <img
+                src={modoClaro ? menuEscuro.url : menuClaro.url}
+                alt=""
+                aria-hidden
+                className="h-11 w-11 rounded-[8px] object-cover"
+              />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="management-drawer w-[90vw] max-w-[390px] overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200 [&>button:first-child]:hidden">
+          <SheetContent
+            side="left"
+            className="management-drawer w-[90vw] max-w-[390px] overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200 [&>button:first-child]:hidden"
+          >
             <div className="flex h-full min-h-0 flex-col">
               <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_48px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <LogoBarbearia nome={sessao?.tenantNome ?? "Meu negócio"} url={sessao?.tenantLogoUrl ?? null} size={56} className="rounded-full border-0 bg-drawer-card" />
+                    <LogoBarbearia
+                      nome={sessao?.tenantNome ?? "Meu negócio"}
+                      url={sessao?.tenantLogoUrl ?? null}
+                      size={56}
+                      className="rounded-full border-0 bg-drawer-card"
+                    />
                     <div className="min-w-0">
-                      <SheetTitle className="truncate text-[22px] font-semibold leading-tight text-paper">{sessao?.tenantNome ?? "Meu negócio"}</SheetTitle>
+                      <SheetTitle className="truncate text-[22px] font-semibold leading-tight text-paper">
+                        {sessao?.tenantNome ?? "Meu negócio"}
+                      </SheetTitle>
                       <SheetDescription className="mt-1 truncate text-[15px] text-mute">
-                        {sessao?.nome?.split(" ")[0] ?? "Equipe"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
+                        {sessao?.nome?.split(" ")[0] ?? "Equipe"} ·{" "}
+                        {rotuloDoPapel(sessao?.papelNaEquipe)}
                       </SheetDescription>
                     </div>
                   </div>
-                  <DrawerAjustes identidade={sessao?.identidadeApp} tenantId={sessao?.tenantId ?? undefined} podeAlterarIdentidade={sessao?.papelNaEquipe === "dono"} fecharDrawer={() => setAberto(false)} />
+                  <DrawerAjustes
+                    identidade={sessao?.identidadeApp}
+                    tenantId={sessao?.tenantId ?? undefined}
+                    podeAlterarIdentidade={sessao?.papelNaEquipe === "dono"}
+                    fecharDrawer={() => setAberto(false)}
+                  />
                 </div>
-                <p className="mt-3 line-clamp-2 text-xs leading-5 text-mute"><strong className="font-semibold text-paper">{saudacao.titulo}</strong> · {saudacao.frase}</p>
+                <p className="mt-3 line-clamp-2 text-xs leading-5 text-mute">
+                  <strong className="font-semibold text-paper">{saudacao.titulo}</strong> ·{" "}
+                  {saudacao.frase}
+                </p>
               </div>
 
-              <nav aria-label="Módulos do negócio" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-                <DrawerDestaques slug={sessao?.tenantSlug} resumoDaAgenda={resumoDaAgenda} agendaAtiva={itemDeNavegacaoAtivo(caminho, "/barbeiro")} operacaoAberta={operacaoAberta} horarioFinal={horarioDeHoje?.fecha} fechar={() => setAberto(false)} />
+              <nav
+                aria-label="Módulos do negócio"
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+              >
+                <DrawerDestaques
+                  slug={sessao?.tenantSlug}
+                  resumoDaAgenda={resumoDaAgenda}
+                  agendaAtiva={itemDeNavegacaoAtivo(caminho, "/barbeiro")}
+                  operacaoAberta={operacaoAberta}
+                  horarioFinal={horarioDeHoje?.fecha}
+                  fechar={() => setAberto(false)}
+                />
                 <div className="mt-6 space-y-4">
-                  {grupos.map((grupo) => grupo.itens.length ? (
-                    <section key={grupo.titulo}>
-                      <Button variant="ghost" className="min-h-12 w-full justify-between px-1 text-lg font-bold text-primary hover:bg-transparent" aria-expanded={abertos.includes(grupo.titulo)} aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`} onClick={() => alternar(grupo.titulo)}>
-                        {grupo.titulo}
-                        <ChevronDown className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`} aria-hidden />
-                      </Button>
-                      {abertos.includes(grupo.titulo) ? (
-                        <ul id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`} className="space-y-1.5 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
-                          {grupo.itens.map((item, indice) => {
-                            const Icon = item.icon;
-                            const ativo = itemDeNavegacaoAtivo(caminho, item.to);
-                            const raio = grupo.itens.length === 1 ? "rounded-[24px]" : indice === 0 ? "rounded-t-[24px] rounded-b-[9px]" : indice === grupo.itens.length - 1 ? "rounded-t-[9px] rounded-b-[24px]" : "rounded-[9px]";
-                            return (
-                              <li key={`${grupo.titulo}-${item.label}`}>
-                                <Link to={item.to as never} preload="intent" onClick={() => setAberto(false)} aria-current={ativo ? "page" : undefined} className={`grid min-h-16 grid-cols-[28px_minmax(0,1fr)] items-center gap-3 bg-drawer-card px-5 py-3 text-lg font-medium text-paper ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}>
-                                  <Icon className="size-6 text-primary" strokeWidth={1.75} aria-hidden />
-                                  <span className="truncate">{item.label}</span>
-                                </Link>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      ) : null}
-                    </section>
-                  ) : null)}
+                  {grupos.map((grupo) =>
+                    grupo.itens.length ? (
+                      <section key={grupo.titulo}>
+                        <Button
+                          variant="ghost"
+                          className="min-h-12 w-full justify-between px-1 text-lg font-bold text-primary hover:bg-transparent"
+                          aria-expanded={abertos.includes(grupo.titulo)}
+                          aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
+                          onClick={() => alternar(grupo.titulo)}
+                        >
+                          {grupo.titulo}
+                          <ChevronDown
+                            className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
+                            aria-hidden
+                          />
+                        </Button>
+                        {abertos.includes(grupo.titulo) ? (
+                          <ul
+                            id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
+                            className="space-y-1.5 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
+                          >
+                            {grupo.itens.map((item, indice) => {
+                              const Icon = item.icon;
+                              const ativo = itemDeNavegacaoAtivo(caminho, item.to);
+                              const raio =
+                                grupo.itens.length === 1
+                                  ? "rounded-[24px]"
+                                  : indice === 0
+                                    ? "rounded-t-[24px] rounded-b-[9px]"
+                                    : indice === grupo.itens.length - 1
+                                      ? "rounded-t-[9px] rounded-b-[24px]"
+                                      : "rounded-[9px]";
+                              return (
+                                <li key={`${grupo.titulo}-${item.label}`}>
+                                  <Link
+                                    to={item.to as never}
+                                    preload="intent"
+                                    onClick={() => setAberto(false)}
+                                    aria-current={ativo ? "page" : undefined}
+                                    className={`grid min-h-16 grid-cols-[28px_minmax(0,1fr)] items-center gap-3 bg-drawer-card px-5 py-3 text-lg font-medium text-paper ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}
+                                  >
+                                    <Icon
+                                      className="size-6 text-primary"
+                                      strokeWidth={1.75}
+                                      aria-hidden
+                                    />
+                                    <span className="truncate">{item.label}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        ) : null}
+                      </section>
+                    ) : null,
+                  )}
                 </div>
               </nav>
             </div>

@@ -13,7 +13,14 @@ type Props = {
   fechar: () => void;
 };
 
-export function DrawerDestaques({ slug, resumoDaAgenda, agendaAtiva, operacaoAberta, horarioFinal, fechar }: Props) {
+export function DrawerDestaques({
+  slug,
+  resumoDaAgenda,
+  agendaAtiva,
+  operacaoAberta,
+  horarioFinal,
+  fechar,
+}: Props) {
   async function compartilhar() {
     if (!slug) return;
     const url = `${window.location.origin}/b/${slug}`;
@@ -48,7 +55,13 @@ export function DrawerDestaques({ slug, resumoDaAgenda, agendaAtiva, operacaoAbe
                 </span>
               </span>
             </Link>
-            <Button variant="icon" size="icon" aria-label="Compartilhar sua página" onClick={() => void compartilhar()} className="rounded-full text-primary">
+            <Button
+              variant="icon"
+              size="icon"
+              aria-label="Compartilhar sua página"
+              onClick={() => void compartilhar()}
+              className="rounded-full text-primary"
+            >
               <Share2 className="size-6" aria-hidden />
             </Button>
           </div>
@@ -67,7 +80,9 @@ export function DrawerDestaques({ slug, resumoDaAgenda, agendaAtiva, operacaoAbe
       >
         <CalendarDays className="size-8 text-primary" aria-hidden />
         <span className="min-w-0">
-          <span className="block truncate text-[22px] font-semibold leading-tight text-paper">Agenda</span>
+          <span className="block truncate text-[22px] font-semibold leading-tight text-paper">
+            Agenda
+          </span>
           <span className="mt-0.5 block truncate text-sm text-mute">
             {operacaoAberta === null
               ? "Hoje"
@@ -76,7 +91,10 @@ export function DrawerDestaques({ slug, resumoDaAgenda, agendaAtiva, operacaoAbe
                 : "Hoje · fechado"}
           </span>
         </span>
-        <span className={`size-2.5 rounded-full ${operacaoAberta ? "bg-sage" : "bg-mute2"}`} aria-label={operacaoAberta ? "Aberta" : "Fechada"} />
+        <span
+          className={`size-2.5 rounded-full ${operacaoAberta ? "bg-sage" : "bg-mute2"}`}
+          aria-label={operacaoAberta ? "Aberta" : "Fechada"}
+        />
       </Link>
     </div>
   );

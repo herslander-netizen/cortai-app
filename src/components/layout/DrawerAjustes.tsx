@@ -41,13 +41,33 @@ type Props = {
 };
 
 const ITENS = [
-  { label: "Conta e negócio", detalhe: "Dados pessoais e do negócio", to: "/barbeiro/conta", icon: Settings },
-  { label: "Plano", detalhe: "Assinatura, cobranças e histórico", to: "/barbeiro/plano", icon: CreditCard },
-  { label: "Avisos e notificações", detalhe: "Preferências de cada aviso", to: "/barbeiro/mais", icon: Bell },
+  {
+    label: "Conta e negócio",
+    detalhe: "Dados pessoais e do negócio",
+    to: "/barbeiro/conta",
+    icon: Settings,
+  },
+  {
+    label: "Plano",
+    detalhe: "Assinatura, cobranças e histórico",
+    to: "/barbeiro/plano",
+    icon: CreditCard,
+  },
+  {
+    label: "Avisos e notificações",
+    detalhe: "Preferências de cada aviso",
+    to: "/barbeiro/mais",
+    icon: Bell,
+  },
   { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },
 ] as const;
 
-export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fecharDrawer }: Props) {
+export function DrawerAjustes({
+  identidade,
+  tenantId,
+  podeAlterarIdentidade,
+  fecharDrawer,
+}: Props) {
   const [aberto, setAberto] = useState(false);
   const [aparenciaAberta, setAparenciaAberta] = useState(false);
   const gatilhoRef = useRef<HTMLButtonElement | null>(null);
@@ -87,12 +107,26 @@ export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fec
           {ITENS.slice(0, 2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button key={item.label} asChild variant="ghost" size="bloco" className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card">
-                <Link to={item.to} onClick={navegar} className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3">
+              <Button
+                key={item.label}
+                asChild
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+              >
+                <Link
+                  to={item.to}
+                  onClick={navegar}
+                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                >
                   <Icon className="size-6 text-primary" aria-hidden />
                   <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">{item.label}</span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">{item.detalhe}</span>
+                    <span className="block truncate text-base font-semibold text-paper">
+                      {item.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                      {item.detalhe}
+                    </span>
                   </span>
                   <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
@@ -112,9 +146,14 @@ export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fec
               <Palette className="size-6 text-primary" aria-hidden />
               <span className="min-w-0">
                 <span className="block truncate text-base font-semibold text-paper">Aparência</span>
-                <span className="mt-0.5 block truncate text-xs font-normal text-mute">Claro, escuro, sistema e identidade</span>
+                <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                  Claro, escuro, sistema e identidade
+                </span>
               </span>
-              <ChevronRight className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`} aria-hidden />
+              <ChevronRight
+                className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
+                aria-hidden
+              />
             </span>
           </Button>
           {aparenciaAberta ? (
@@ -130,12 +169,26 @@ export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fec
           {ITENS.slice(2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button key={item.label} asChild variant="ghost" size="bloco" className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card">
-                <Link to={item.to} onClick={navegar} className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3">
+              <Button
+                key={item.label}
+                asChild
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 hover:bg-drawer-card"
+              >
+                <Link
+                  to={item.to}
+                  onClick={navegar}
+                  className="grid grid-cols-[24px_minmax(0,1fr)_20px] items-center gap-3"
+                >
                   <Icon className="size-6 text-primary" aria-hidden />
                   <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">{item.label}</span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">{item.detalhe}</span>
+                    <span className="block truncate text-base font-semibold text-paper">
+                      {item.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                      {item.detalhe}
+                    </span>
                   </span>
                   <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
@@ -145,7 +198,11 @@ export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fec
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="bloco" className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 text-brick hover:bg-brick-soft">
+              <Button
+                variant="ghost"
+                size="bloco"
+                className="min-h-16 w-full rounded-[18px] bg-drawer-card px-4 text-brick hover:bg-brick-soft"
+              >
                 <span className="flex w-full items-center gap-3">
                   <LogOut className="size-6" aria-hidden />
                   <span className="text-base font-semibold">Sair da conta</span>
@@ -155,11 +212,18 @@ export function DrawerAjustes({ identidade, tenantId, podeAlterarIdentidade, fec
             <AlertDialogContent className="w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3">
               <AlertDialogHeader>
                 <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
-                <AlertDialogDescription>Você precisará entrar novamente para acessar o seu negócio.</AlertDialogDescription>
+                <AlertDialogDescription>
+                  Você precisará entrar novamente para acessar o seu negócio.
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Continuar conectado</AlertDialogCancel>
-                <AlertDialogAction onClick={() => void sair()} className="bg-destructive text-destructive-foreground">Sair</AlertDialogAction>
+                <AlertDialogAction
+                  onClick={() => void sair()}
+                  className="bg-destructive text-destructive-foreground"
+                >
+                  Sair
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

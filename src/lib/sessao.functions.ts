@@ -41,7 +41,11 @@ async function admin() {
 /** Cria o perfil na primeira entrada e concede admin se o e-mail estiver autorizado. */
 async function garantirPerfil(userId: string, email: string | null, nome: string | null) {
   const db = await admin();
-  const { data: perfil } = await db.from("perfis").select("tipo, nome").eq("user_id", userId).maybeSingle();
+  const { data: perfil } = await db
+    .from("perfis")
+    .select("tipo, nome")
+    .eq("user_id", userId)
+    .maybeSingle();
   if (!perfil) {
     await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
   }
@@ -84,9 +88,15 @@ export const getSessao = createServerFn({ method: "GET" })
       db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
       db
         .from("tenant_usuarios")
-        .select("tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)")
+        .select(
+          "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
+        )
         .eq("user_id", context.userId),
-      db.from("perfis").select("nome, tipo, tenant_ativo").eq("user_id", context.userId).maybeSingle(),
+      db
+        .from("perfis")
+        .select("nome, tipo, tenant_ativo")
+        .eq("user_id", context.userId)
+        .maybeSingle(),
     ]);
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
@@ -119,12 +129,23 @@ export const getSessao = createServerFn({ method: "GET" })
       return { ...base, papel: "admin" as const };
     }
     if (vinculo && vinculo.ativo) {
-      const t = vinculo.tenants as unknown as { nome: string; slug: string; logo_url: string | null; identidade_app: string; fuso: string | null; segmento: string; modo: string } | null;
+      const t = vinculo.tenants as unknown as {
+        nome: string;
+        slug: string;
+        logo_url: string | null;
+        identidade_app: string;
+        fuso: string | null;
+        segmento: string;
+        modo: string;
+      } | null;
       const tenantLogoUrl = t?.logo_url
-        ? (await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data?.signedUrl ?? null
+        ? ((await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data
+            ?.signedUrl ?? null)
         : null;
       const permissoes =
-        vinculo.papel === "dono" ? PERMISSOES_DE_DONO : ((vinculo.permissoes as string[] | null) ?? []);
+        vinculo.papel === "dono"
+          ? PERMISSOES_DE_DONO
+          : ((vinculo.permissoes as string[] | null) ?? []);
       return {
         ...base,
         papel: "barbeiro" as const,
@@ -133,7 +154,9 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantSlug: t?.slug ?? null,
         tenantLogoUrl,
         tenantFuso: t?.fuso ?? null,
-        identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade) ? t?.identidade_app as Identidade : "moderno",
+        identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade)
+          ? (t?.identidade_app as Identidade)
+          : "moderno",
         segmento: segmentoValido(t?.segmento),
         tenantModo: t?.modo === "claro" || t?.modo === "sistema" ? t.modo : "escuro",
         papelNaEquipe: vinculo.papel,
@@ -142,16 +165,24 @@ export const getSessao = createServerFn({ method: "GET" })
     }
     if (vinculo && !vinculo.ativo) {
       // Acesso desativado por quem gerencia a equipe: continua logado, mas sem barbearia.
-      return { ...base, papel: "pendente" as const, papelNaEquipe: vinculo.papel, acessoSuspenso: true };
+      return {
+        ...base,
+        papel: "pendente" as const,
+        papelNaEquipe: vinculo.papel,
+        acessoSuspenso: true,
+      };
     }
     const escolha = (perfil?.tipo ?? tipo) as string;
-    const papel: Papel = escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
+    const papel: Papel =
+      escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
     return { ...base, papel };
   });
 
 export const salvarIdentidadeApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ identidade: z.enum(IDENTIDADES), tenantId: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ identidade: z.enum(IDENTIDADES), tenantId: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { data: vinculo } = await context.supabase
       .from("tenant_usuarios")
@@ -174,7 +205,9 @@ export const salvarIdentidadeApp = createServerFn({ method: "POST" })
 export const definirTipoDePerfil = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ tipo: z.enum(["cliente", "barbeiro"]), nome: z.string().trim().max(80).optional() }).parse(input),
+    z
+      .object({ tipo: z.enum(["cliente", "barbeiro"]), nome: z.string().trim().max(80).optional() })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await admin();
@@ -190,25 +223,83 @@ export const definirTipoDePerfil = createServerFn({ method: "POST" })
 
 export const criarBarbearia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ nome: z.string().trim().min(2).max(80), segmento: z.enum(["barbearia", "salao", "cabeleireiro", "esmalteria", "sobrancelha_cilios", "estetica", "outro"]) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        nome: z.string().trim().min(2).max(80),
+        segmento: z.enum([
+          "barbearia",
+          "salao",
+          "cabeleireiro",
+          "esmalteria",
+          "sobrancelha_cilios",
+          "estetica",
+          "outro",
+        ]),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const db = await admin();
-    const { data: vinculo } = await db.from("tenant_usuarios").select("tenant_id").eq("user_id", context.userId).limit(1).maybeSingle();
+    const { data: vinculo } = await db
+      .from("tenant_usuarios")
+      .select("tenant_id")
+      .eq("user_id", context.userId)
+      .limit(1)
+      .maybeSingle();
     if (vinculo) throw new Error("Sua conta já está ligada a um negócio.");
     const definicao = SEGMENTOS_CONFIG[data.segmento];
-    const baseSlug = data.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "negocio";
-    const { data: slugExistente } = await db.from("tenants").select("id").eq("slug", baseSlug).maybeSingle();
+    const baseSlug =
+      data.nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "negocio";
+    const { data: slugExistente } = await db
+      .from("tenants")
+      .select("id")
+      .eq("slug", baseSlug)
+      .maybeSingle();
     const slug = slugExistente ? `${baseSlug}-${crypto.randomUUID().slice(0, 4)}` : baseSlug;
-    const { data: tenant, error } = await db.from("tenants").insert({ nome: data.nome, slug, segmento: data.segmento, identidade_app: definicao.identidade, modo: definicao.modoPadrao, chips_ficha: definicao.chipsFicha }).select("id").single();
+    const { data: tenant, error } = await db
+      .from("tenants")
+      .insert({
+        nome: data.nome,
+        slug,
+        segmento: data.segmento,
+        identidade_app: definicao.identidade,
+        modo: definicao.modoPadrao,
+        chips_ficha: definicao.chipsFicha,
+      })
+      .select("id")
+      .single();
     if (error || !tenant) throw new Error("Não foi possível criar seu negócio agora.");
     const tenantId = tenant.id;
-    const pagina = configPadrao(definicao.temaPagina === "rose-creme" ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" } : undefined);
-    const { error: erroVinculo } = await db.from("tenant_usuarios").insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });
+    const pagina = configPadrao(
+      definicao.temaPagina === "rose-creme"
+        ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
+        : undefined,
+    );
+    const { error: erroVinculo } = await db
+      .from("tenant_usuarios")
+      .insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });
     if (erroVinculo) {
       await db.from("tenants").delete().eq("id", tenantId);
       throw new Error("Não foi possível liberar o acesso ao seu negócio.");
     }
-    await db.from("tenant_page_configs").upsert({ tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } }, { onConflict: "tenant_id" });
-    await db.from("perfis").upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
-    return { tenantId: tenantId as string, identidade: definicao.identidade, modo: definicao.modoPadrao };
+    await db
+      .from("tenant_page_configs")
+      .upsert(
+        { tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } },
+        { onConflict: "tenant_id" },
+      );
+    await db
+      .from("perfis")
+      .upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
+    return {
+      tenantId: tenantId as string,
+      identidade: definicao.identidade,
+      modo: definicao.modoPadrao,
+    };
   });
