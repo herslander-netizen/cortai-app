@@ -1,13 +1,15 @@
 import { Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { useInstalacao } from "@/lib/pwa";
+import { useModoFoco } from "@/lib/modo-foco";
+import { instrucaoDeInstalacao, marcarConviteDeInstalacao, useInstalacao } from "@/lib/pwa";
 
 /**
  * Convite discreto para instalar o Cortaí, mostrado dentro do app depois do login.
  * Nunca bloqueia a tela, respeita o "Agora não" e some quando o app já está instalado.
  */
-export function ConviteDeInstalacao() {
+export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "topo" }) {
+  const foco = useModoFoco();
   const {
     pronto,
     plataforma,
@@ -20,18 +22,34 @@ export function ConviteDeInstalacao() {
   } = useInstalacao();
   const [passouTempo, setPassouTempo] = useState(false);
   const [verComoNoIphone, setVerComoNoIphone] = useState(false);
+  const podeOrientar = plataforma === "ios" || plataforma === "android";
+  const visivel =
+    !foco &&
+    pronto &&
+    passouTempo &&
+    !instalado &&
+    !dispensado &&
+    !emIframe &&
+    (podeInstalarAgora || podeOrientar);
+
+  useEffect(() => {
+    marcarConviteDeInstalacao(visivel);
+    return () => marcarConviteDeInstalacao(false);
+  }, [visivel]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setPassouTempo(true), 2500);
     return () => window.clearTimeout(t);
   }, []);
 
-  if (!pronto || !passouTempo || instalado || dispensado || emIframe) return null;
-  const podeOrientar = plataforma === "ios";
-  if (!podeInstalarAgora && !podeOrientar) return null;
+  if (!visivel) return null;
+  const lugar =
+    posicao === "topo"
+      ? "top-[calc(76px+env(safe-area-inset-top))]"
+      : "bottom-[calc(16px+env(safe-area-inset-bottom))] sm:bottom-6";
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(16px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4 sm:bottom-6">
+    <div className={`pointer-events-none fixed inset-x-0 ${lugar} z-40 flex justify-center px-4`}>
       <div
         role="dialog"
         aria-label="Instalar o Cortaí"
@@ -64,9 +82,7 @@ export function ConviteDeInstalacao() {
 
         {verComoNoIphone ? (
           <p className="mt-3 rounded-lg border border-line bg-ink px-3 py-3 text-xs leading-relaxed text-mute">
-            No iPhone ou iPad, abra o Cortaí no Safari, toque em{" "}
-            <span className="text-paper">Compartilhar</span> e depois em{" "}
-            <span className="text-paper">Adicionar à Tela de Início</span>.
+            {instrucaoDeInstalacao(plataforma)}
           </p>
         ) : null}
 

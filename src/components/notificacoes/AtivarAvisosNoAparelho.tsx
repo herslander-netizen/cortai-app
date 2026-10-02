@@ -2,6 +2,8 @@ import { Bell, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
+import { useModoFoco } from "@/lib/modo-foco";
+import { useConviteDeInstalacaoVisivel } from "@/lib/pwa";
 
 /**
  * Convite discreto para ligar os avisos do aparelho.
@@ -10,13 +12,15 @@ import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
 export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
   const { pronto, estado, dispensado, pedir, dispensar } = useAvisosDoAparelho();
   const [passouTempo, setPassouTempo] = useState(false);
+  const conviteNaTela = useConviteDeInstalacaoVisivel();
+  const foco = useModoFoco();
 
   useEffect(() => {
     const t = window.setTimeout(() => setPassouTempo(true), 4000);
     return () => window.clearTimeout(t);
   }, []);
 
-  if (!pronto || !passouTempo || dispensado || estado !== "perguntar") return null;
+  if (foco || conviteNaTela || !pronto || !passouTempo || dispensado || estado !== "perguntar") return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(88px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
