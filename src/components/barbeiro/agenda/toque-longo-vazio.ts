@@ -1,7 +1,7 @@
 export const DURACAO_TOQUE_LONGO_VAZIO = 500;
 export const LIMITE_MOVIMENTO_TOQUE_VAZIO = 8;
 
-type Inicio = { pointerId: number; x: number; y: number; rolagem?: number };
+type Inicio = { pointerId: number; x: number; y: number; rolagem?: number | undefined };
 
 type Opcoes = {
   aoConfirmar: () => void;
