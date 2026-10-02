@@ -31,8 +31,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
     QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQr);
   }, [mostrarQr, qr]);
 
-  if (isLoading)
-    return <EsqueletoPaginaPublica onTentarDeNovo={() => void consulta.refetch()} />;
+  if (isLoading) return <EsqueletoPaginaPublica onTentarDeNovo={() => void consulta.refetch()} />;
   if (consulta.isError)
     return (
       <main className="mx-auto flex min-h-dvh max-w-xl items-center px-5">

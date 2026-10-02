@@ -40,9 +40,7 @@ function PerfilPage() {
 
   return (
     <Screen title="Perfil" subtitle="Sua conta no Cortaí.">
-      {sessao.isLoading ? (
-        <EsqueletoFicha onTentarDeNovo={() => void sessao.refetch()} />
-      ) : null}
+      {sessao.isLoading ? <EsqueletoFicha onTentarDeNovo={() => void sessao.refetch()} /> : null}
       {sessao.isError ? (
         <div className="surface p-5">
           <p className="text-sm text-paper">Não conseguimos carregar seu perfil agora.</p>

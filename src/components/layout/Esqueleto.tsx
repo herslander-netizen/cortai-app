@@ -138,10 +138,7 @@ export function EsqueletoTimeline({
   onTentarDeNovo,
 }: { blocos?: number } & TentativaProps) {
   return (
-    <RegiaoDeEsqueleto
-      className="relative mt-4 h-[420px]"
-      onTentarDeNovo={onTentarDeNovo}
-    >
+    <RegiaoDeEsqueleto className="relative mt-4 h-[420px]" onTentarDeNovo={onTentarDeNovo}>
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
