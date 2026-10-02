@@ -41,7 +41,7 @@ export const componenteIds = [
 
 export const chatConfigSchema = z.object({
   modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
-  nomeRecepcao: z.string().trim().max(40).default("Recepção"),
+  nomeRecepcao: z.string().trim().max(40).default("Lisa"),
   avatarUrl: z.string().max(500).nullable().default(null),
   mensagemInicial: z
     .string()
