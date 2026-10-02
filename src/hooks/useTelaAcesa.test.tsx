@@ -1,36 +1,71 @@
-import { renderHook, waitFor } from "@testing-library/react";
+// @vitest-environment jsdom
+import { act } from "react";
+import { createRoot } from "react-dom/client";
 import { describe, expect, it, vi } from "vitest";
 
 import { useTelaAcesa } from "./useTelaAcesa";
 
-function navFalso() {
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
+
+function navFalso(falha = false) {
   const release = vi.fn(async () => undefined);
-  const request = vi.fn(async () => ({ release, released: false }));
+  const request = vi.fn(async () => {
+    if (falha) throw new Error("negado");
+    return { release, released: false };
+  });
   return { nav: { wakeLock: { request } } as unknown as Navigator, request, release };
 }
 
+function Teste({ ativo, nav }: { ativo: boolean; nav: Navigator }) {
+  useTelaAcesa(ativo, nav);
+  return null;
+}
+
+async function montar(ativo: boolean, nav: Navigator) {
+  const root = createRoot(document.createElement("div"));
+  await act(async () => root.render(<Teste ativo={ativo} nav={nav} />));
+  return root;
+}
+
 describe("useTelaAcesa", () => {
-  it("pede ao ativar e solta ao desativar", async () => {
+  it("pede ao entrar e solta ao sair", async () => {
     const { nav, request, release } = navFalso();
-    const { rerender } = renderHook(({ a }) => useTelaAcesa(a, nav), { initialProps: { a: true } });
-    await waitFor(() => expect(request).toHaveBeenCalledWith("screen"));
-    rerender({ a: false });
-    await waitFor(() => expect(release).toHaveBeenCalled());
+    const root = await montar(true, nav);
+    expect(request).toHaveBeenCalledWith("screen");
+    await act(async () => root.render(<Teste ativo={false} nav={nav} />));
+    expect(release).toHaveBeenCalled();
+    root.unmount();
   });
-  it("não pede quando inativo", () => {
+
+  it("solta em segundo plano e pede de novo ao voltar", async () => {
+    const { nav, request, release } = navFalso();
+    const root = await montar(true, nav);
+    const vis = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    await act(async () => void document.dispatchEvent(new Event("visibilitychange")));
+    expect(release).toHaveBeenCalledTimes(1);
+    vis.mockReturnValue("visible");
+    await act(async () => void document.dispatchEvent(new Event("visibilitychange")));
+    expect(request).toHaveBeenCalledTimes(2);
+    vis.mockRestore();
+    act(() => root.unmount());
+  });
+
+  it("não pede quando inativo", async () => {
     const { nav, request } = navFalso();
-    renderHook(() => useTelaAcesa(false, nav));
+    const root = await montar(false, nav);
     expect(request).not.toHaveBeenCalled();
+    act(() => root.unmount());
   });
-  it("sem suporte não dá erro", () => {
-    expect(() => renderHook(() => useTelaAcesa(true, {} as Navigator))).not.toThrow();
-  });
-  it("engole recusa do aparelho", async () => {
-    const request = vi.fn(async () => {
-      throw new Error("negado");
+
+  it("sem suporte ou recusa, segue sem erro", async () => {
+    const r1 = await montar(true, {} as Navigator);
+    const { nav, request } = navFalso(true);
+    const r2 = await montar(true, nav);
+    expect(request).toHaveBeenCalled();
+    act(() => {
+      r1.unmount();
+      r2.unmount();
     });
-    const nav = { wakeLock: { request } } as unknown as Navigator;
-    renderHook(() => useTelaAcesa(true, nav));
-    await waitFor(() => expect(request).toHaveBeenCalled());
   });
 });
