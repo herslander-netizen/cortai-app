@@ -86,6 +86,7 @@ import {
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
 } from "@/components/barbeiro/agenda/preferencias";
+import { PreviaDiaVizinho } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
 import {
   contextoInicialDaAgenda,
@@ -325,7 +326,7 @@ export function AgendaOperacional() {
   }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
-  const gestoDia = useGestoDia((d) => mudarDia(somarDias(dia, d)));
+  const gestoDia = useGestoDia(dia, mudarDia);
   useLugarDaAgenda({ dia, visualizacao, fuso, foco: modoFoco, pronto: !!agenda.data, restaurado });
 
   useEffect(() => {
@@ -986,7 +987,8 @@ export function AgendaOperacional() {
         key={dia}
         className="agenda-operacional agenda-troca-dia pb-32"
         data-direcao={direcaoDia}
-        {...gestoDia}
+        data-entrada={gestoDia.entradaPeloGesto ? "gesto" : undefined}
+        ref={gestoDia.ref}
       >
         <CabecalhoAgenda
           dia={dia}
@@ -1308,6 +1310,15 @@ export function AgendaOperacional() {
           </section>
         ) : null}
       </div>
+
+      {gestoDia.diaVizinho ? (
+        <PreviaDiaVizinho
+          ref={gestoDia.refPrevia}
+          dia={gestoDia.diaVizinho}
+          profissionalId={profFiltro}
+          discreto={modoDiscreto}
+        />
+      ) : null}
 
       <BotaoAgoraPrincipal
         visualizacao={visualizacao}
