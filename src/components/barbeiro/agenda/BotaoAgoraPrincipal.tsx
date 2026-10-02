@@ -9,6 +9,7 @@ import { DURACAO, SUAVE } from "@/lib/motion";
 
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
 import { solicitarAgora } from "./pilula-agora";
+import { alturaDoTopoDaAgenda } from "./tempo";
 
 /** Controle principal do pé da Agenda no celular e o botão "+" preservado em todas as larguras. */
 export function BotaoAgoraPrincipal({
@@ -39,9 +40,8 @@ export function BotaoAgoraPrincipal({
     const topo = document.getElementById("agenda-painel-visualizacao");
     const alvo = primeiro ?? topo;
     if (!alvo) return;
-    const cabecalho = document.querySelector<HTMLElement>(".agenda-cabecalho-unico");
     window.scrollTo({
-      top: window.scrollY + alvo.getBoundingClientRect().top - (cabecalho?.offsetHeight ?? 0) - 8,
+      top: window.scrollY + alvo.getBoundingClientRect().top - alturaDoTopoDaAgenda() - 8,
       behavior: menosMovimento ? "auto" : "smooth",
     });
   }, [menosMovimento]);
