@@ -87,3 +87,10 @@
 - [ ] Otimizar marca, fontes, capa, toque e segurança visual
 - [ ] Cobrir testes, métricas 4G/CPU, 360/390/1280, tipos, lint e build; não publicar
 - [x] Corrigir rolagem livre da Timeline e trocar horário vazio por toque longo
+## Chat público conversacional — Fase 1
+- [ ] Corrigir contraste da confirmação nos temas
+- [ ] Adicionar recepcionista configurável e cabeçalho contextual
+- [ ] Implementar interpretação determinística, digitação e respostas rápidas
+- [ ] Adicionar memória local, retomada e correção por bolhas
+- [ ] Integrar preferências pós-confirmação em conversa
+- [ ] Validar tamanhos, acessibilidade, testes e build
