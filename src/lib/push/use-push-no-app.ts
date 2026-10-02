@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 
-import {
-  EVENTO_DISCRETO,
-  modoDiscretoInicial,
-} from "@/components/barbeiro/agenda/preferencias";
+import { EVENTO_DISCRETO, modoDiscretoInicial } from "@/components/barbeiro/agenda/preferencias";
 import { aviso } from "@/lib/avisos";
 import { useModoFoco } from "@/lib/modo-foco";
 import { FOCO_EXPIRA_MS } from "./regras";

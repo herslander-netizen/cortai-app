@@ -172,7 +172,8 @@ export async function processarEventoDePush(evento: {
   for (const inscricao of lista) {
     // Foco e modo discreto vêm de cada aparelho; o que não passa nem é enviado.
     const foco = focoAtivo(inscricao.em_foco_ate);
-    if (decidirExibicao({ appVisivel: false, foco, tipo: evento.tipo, proximo }) === "nada") continue;
+    if (decidirExibicao({ appVisivel: false, foco, tipo: evento.tipo, proximo }) === "nada")
+      continue;
     const discreto = inscricao.discreto === true;
     const conteudo = {
       ...base,
