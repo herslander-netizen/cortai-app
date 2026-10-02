@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Check,
   Clock3,
+  MessageCircle,
   Scissors,
   UserRound,
 } from "lucide-react";
@@ -289,7 +290,7 @@ function AgendamentoPublico() {
         <ConfirmacaoAgendamento
           confirmacao={confirmado}
           situacao={situacao}
-          fuso={fuso}
+          fuso={fuso ?? "America/Sao_Paulo"}
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}

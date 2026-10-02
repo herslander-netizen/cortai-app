@@ -118,7 +118,7 @@ export function ConfirmacaoAgendamento({
       <header className="relative overflow-hidden px-5 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
         {capaUrl ? <img src={capaUrl} alt="" className="absolute inset-0 size-full object-cover opacity-25" decoding="async" /> : null}
         <div className="relative mx-auto flex max-w-[520px] items-center gap-3">
-          <LogoBarbearia nome={confirmacao.barbearia} url={logoUrl} size={56} />
+          <LogoBarbearia nome={confirmacao.barbearia} url={logoUrl ?? null} size={56} />
           <div><p className="text-sm font-semibold text-mute">Seu horário em</p><p className="text-lg font-extrabold text-paper">{confirmacao.barbearia}</p></div>
         </div>
       </header>
