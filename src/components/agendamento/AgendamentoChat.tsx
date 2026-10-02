@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatShell";
 import { IngressoAgendamento } from "./IngressoAgendamento";
-import { StatusFuncionamento } from "./StatusFuncionamento";
+import { statusDeFuncionamento } from "@/lib/status-funcionamento";
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
@@ -145,6 +145,7 @@ export function AgendamentoChat({
             ? "horario"
             : "dados";
   const digitando = etapaPronta !== etapa;
+  const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
 
   useEffect(() => {
     const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa, primeiraVisita));
@@ -170,6 +171,10 @@ export function AgendamentoChat({
   useEffect(() => {
     if (etapa === "dados" && !digitando) nomeRef.current?.focus();
   }, [digitando, etapa]);
+  useEffect(() => {
+    if (!servico) setProfissionalEscolhido(false);
+    if (!dia) setDiaEscolhido(false);
+  }, [servico, dia]);
 
   const local = (iso: string) =>
     new Date(iso).toLocaleDateString("pt-BR", {
@@ -193,7 +198,7 @@ export function AgendamentoChat({
           <ChatHeader
             nome={chat.nomeRecepcao}
             avatarUrl={chat.avatarUrl}
-            status={digitando || enviando ? "Digitando..." : "Online"}
+            status={digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")}
             detalhe={data.tenant.nome}
             processando={digitando || enviando}
           />

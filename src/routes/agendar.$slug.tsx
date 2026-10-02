@@ -23,6 +23,7 @@ import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
 import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
+import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
 import {
@@ -128,6 +129,40 @@ function AgendamentoPublico() {
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
   const chaveSalva = `cortai-agendamento-publico:${slug}`;
+  const etapa = confirmado
+    ? "confirmacao"
+    : !servico
+      ? "servico"
+      : !dia
+        ? "dia"
+        : !escolhido
+          ? "horario"
+          : "dados";
+  useHistoricoAgendamento(etapa, (destino) => {
+    if (destino === "servico") setServicoId(null);
+    else if (destino === "profissional") {
+      setDia(null);
+      setHorario(null);
+    } else if (destino === "dia") {
+      setHorario(null);
+    } else if (destino === "horario") {
+      setHorario(null);
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
+      const salvo = bruto ? (JSON.parse(bruto) as { telefone?: string; nome?: string }) : null;
+      if (salvo?.telefone) setTelefone(mascaraTelefone(salvo.telefone));
+      if (salvo?.nome) {
+        setNome(salvo.nome);
+        setSaudacao(salvo.nome.split(/\s+/)[0] ?? salvo.nome);
+      }
+    } catch {
+      /* cache opcional: o fluxo segue sem identificação */
+    }
+  }, [slug]);
 
   // A confirmação sobrevive a recarregar a página — e é conferida no servidor.
   useEffect(() => {
