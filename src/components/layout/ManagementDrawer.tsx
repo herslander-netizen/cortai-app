@@ -28,7 +28,13 @@ import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeMenuItem } from "@/components/layout/ThemeToggle";
-import { APPEARANCE_EVENT, aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
+import {
+  APPEARANCE_EVENT,
+  aplicarIdentidade,
+  aplicarModo,
+  identidadeValida,
+  MODE_KEY,
+} from "@/lib/aparencia";
 import {
   GRUPOS_DE_NAVEGACAO,
   itemDeNavegacaoAtivo,
@@ -114,7 +120,8 @@ export function ManagementHeader() {
     if (!celular || aberto) return;
     const comecar = (evento: TouchEvent) => {
       const toque = evento.touches[0];
-      inicioDaBorda.current = toque && toque.clientX <= 24 ? { x: toque.clientX, y: toque.clientY } : null;
+      inicioDaBorda.current =
+        toque && toque.clientX <= 24 ? { x: toque.clientX, y: toque.clientY } : null;
     };
     const mover = (evento: TouchEvent) => {
       const inicio = inicioDaBorda.current;
@@ -154,14 +161,14 @@ export function ManagementHeader() {
       titulo,
       itens: (celular && titulo === "Dia a dia"
         ? itensDoDiaADiaNoMenuMovel(sessao?.permissoes)
-        : modulos.filter((item) => item.grupo === titulo && !naBarra.includes(item.to)))
-        .filter((item) => {
-          if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
-          const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
-          if (!rotaDaCapacidade || !capacidades) return true;
-          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
-          return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
-        }),
+        : modulos.filter((item) => item.grupo === titulo && !naBarra.includes(item.to))
+      ).filter((item) => {
+        if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
+        const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
+        if (!rotaDaCapacidade || !capacidades) return true;
+        const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
+        return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
+      }),
     }));
     const sistema: { titulo: string; itens: ItemDoMenu[] } = {
       titulo: "Sistema",
@@ -211,13 +218,13 @@ export function ManagementHeader() {
             className="management-drawer w-[88vw] max-w-[360px] border-line bg-ink2 p-0 duration-200"
           >
             <div className="border-b border-line px-5 pb-4 pt-5 pr-12">
-              <SheetTitle className="truncate text-lg text-paper">
-                {saudacao.titulo}
-              </SheetTitle>
+              <SheetTitle className="truncate text-lg text-paper">{saudacao.titulo}</SheetTitle>
               <SheetDescription className="mt-1 text-sm text-mute">
                 {saudacao.frase}
               </SheetDescription>
-              {resumoDaAgenda ? <p className="mt-2 text-xs font-semibold text-paper">{resumoDaAgenda}</p> : null}
+              {resumoDaAgenda ? (
+                <p className="mt-2 text-xs font-semibold text-paper">{resumoDaAgenda}</p>
+              ) : null}
               <p className="mt-4 truncate text-sm font-semibold text-paper">
                 {sessao?.tenantNome ?? "Meu negócio"}
               </p>
