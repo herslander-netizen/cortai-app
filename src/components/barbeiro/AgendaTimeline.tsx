@@ -14,7 +14,7 @@ import {
 } from "@/components/barbeiro/agenda/pilula-agora";
 import { prefereMenosMovimento } from "@/lib/motion";
 
-const CELULAR = "(max-width: 767px)";
+const CELULAR = "(max-width: 600px)";
 const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
 
 /** Área livre do celular: abaixo do cabeçalho que gruda e acima da faixa de baixo. */
@@ -325,7 +325,12 @@ export function AgendaTimeline({
   irAgoraRef.current = () => voltarParaAgora();
   useEffect(() => {
     const linha = linhaAgoraRef.current;
-    if (!ehHoje || !linha || !window.matchMedia(CELULAR).matches || !("IntersectionObserver" in window)) {
+    if (
+      !ehHoje ||
+      !linha ||
+      !window.matchMedia(CELULAR).matches ||
+      !("IntersectionObserver" in window)
+    ) {
       publicarAgora({ lado: null, ir: null });
       return;
     }
@@ -342,7 +347,9 @@ export function AgendaTimeline({
             : ladoDoAgora(entrada.boundingClientRect, entrada.rootBounds ?? area);
           publicarAgora({ lado, ir });
         },
-        { rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px` },
+        {
+          rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px`,
+        },
       );
       observador.observe(linha);
     };

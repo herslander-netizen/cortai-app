@@ -39,7 +39,7 @@ import {
   dataEditorial,
 } from "@/components/barbeiro/agenda/tempo";
 import { useAgendaDia } from "@/components/barbeiro/agenda/useAgendaDia";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile, useMediaQuery } from "@/hooks/use-mobile";
 import { useAgora } from "@/hooks/useAgora";
 import { Screen } from "@/components/layout/Screen";
 import {
@@ -293,6 +293,7 @@ export function AgendaOperacional() {
     preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
   );
   const celular = useIsMobile();
+  const faixaCelular = useMediaQuery("(max-width: 600px)");
   const ehDesktop = useEhDesktop();
   const [profVazio, setProfVazio] = useState<string | null>(null);
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
@@ -1000,6 +1001,7 @@ export function AgendaOperacional() {
           visualizacao={visualizacao}
           onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
+          ocultarSeletor={faixaCelular}
           celular={celular}
           onTeclasVisualizacao={teclasAbas}
           discreto={modoDiscreto}
@@ -1308,7 +1310,7 @@ export function AgendaOperacional() {
       </div>
 
       <FaixaOperacao
-        celular={celular}
+        visivel={faixaCelular}
         visualizacao={visualizacao}
         onVisualizacao={alterarVisualizacao}
         onTeclasVisualizacao={teclasAbas}

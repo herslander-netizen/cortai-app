@@ -52,6 +52,7 @@ export function CabecalhoAgenda({
   visualizacao,
   onVisualizacao,
   mostrarSemana,
+  ocultarSeletor = false,
   celular = false,
   onTeclasVisualizacao,
   discreto,
@@ -71,6 +72,7 @@ export function CabecalhoAgenda({
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
   mostrarSemana: boolean;
+  ocultarSeletor?: boolean;
   /** Celular: data vai para a barra do topo, "⋯" para a linha do resumo e os chips rolam. */
   celular?: boolean;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
@@ -214,7 +216,7 @@ export function CabecalhoAgenda({
             </Button>
           ) : null}
           {celular ? menu : null}
-          {!celular ? (
+          {!ocultarSeletor ? (
             <div
               className="flex shrink-0"
               role="group"
