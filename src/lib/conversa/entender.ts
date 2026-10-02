@@ -122,14 +122,19 @@ export function entender(frase: string, contexto: ContextoEntendimento): Entendi
   else if (/\btarde\b/.test(texto)) resultado.periodo = "tarde";
 
   if (contemFrase(texto, ["mais cedo possivel", "primeiro que tiver", "qualquer horario"])) resultado.primeiroDisponivel = true;
-  const explicito = texto.match(/(?:as\s+)?(\d{1,2})(?:h|:)(\d{2})?\b/) ?? texto.match(/^\s*(\d{1,2})\s*$/);
-  if (explicito) {
+  const explicito =
+    texto.match(/\b(\d{1,2})(?:h|:)(\d{2})?\b/) ??
+    texto.match(/\bas\s+(\d{1,2})\b/) ??
+    texto.match(/^\s*(\d{1,2})\s*$/);
+  if (explicito && !(texto.match(/\bdia\s+\d/) && !/h|:|\bas\b/.test(texto))) {
     let hora = Number(explicito[1]);
     const minuto = Number(explicito[2] ?? 0);
     if (hora <= 7 && resultado.periodo !== "manha") hora += 12;
     const candidato = `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
     const opcoes = contexto.horariosOferecidos ?? [];
-    const equivalente = opcoes.find((opcao) => opcao === candidato || Number(opcao.slice(0, 2)) === Number(explicito[1]));
+    const equivalente = opcoes.find(
+      (opcao) => opcao === candidato || Number(opcao.slice(0, 2)) === hora,
+    );
     if (!opcoes.length || equivalente) resultado.horario = equivalente ?? candidato;
   }
   return resultado;
