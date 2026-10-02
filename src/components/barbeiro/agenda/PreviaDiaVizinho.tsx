@@ -38,7 +38,9 @@ export function PreviaDiaVizinho({
             <li key={i.id} className="surface grid grid-cols-[56px_minmax(0,1fr)] gap-3 p-3">
               <span className="font-bold tabular-nums">{hora(i.inicio, data.fuso)}</span>
               <span className="min-w-0">
-                <span className="block truncate font-semibold">{nomeDaAgenda(i.cliente, discreto)}</span>
+                <span className="block truncate font-semibold">
+                  {nomeDaAgenda(i.cliente, discreto)}
+                </span>
                 <span className="block truncate text-xs text-mute">{i.servico}</span>
               </span>
             </li>

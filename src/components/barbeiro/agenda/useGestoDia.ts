@@ -16,8 +16,7 @@ import {
 } from "./gesto-dia";
 import { somarDias } from "./tempo";
 
-const IGNORAR =
-  ".agenda-timeline-bloco, .agenda-chips, input, select, textarea, [role=dialog]";
+const IGNORAR = ".agenda-timeline-bloco, .agenda-chips, input, select, textarea, [role=dialog]";
 const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
 
 type Estado = {
@@ -191,7 +190,13 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       arrastando: arrastando(),
     };
     estado.current = gestoPodeComecar(inicio)
-      ? { inicio, eixo: null, dx: 0, amostras: [{ x: t.clientX, t: performance.now() }], quadro: null }
+      ? {
+          inicio,
+          eixo: null,
+          dx: 0,
+          amostras: [{ x: t.clientX, t: performance.now() }],
+          quadro: null,
+        }
       : null;
   }, []);
 

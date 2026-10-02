@@ -35,12 +35,7 @@ describe("deveTrocarDia", () => {
   });
 });
 
-import {
-  decidirFimDoGesto,
-  limitarDeslocamento,
-  movimentoRecente,
-  travarEixo,
-} from "./gesto-dia";
+import { decidirFimDoGesto, limitarDeslocamento, movimentoRecente, travarEixo } from "./gesto-dia";
 
 describe("travarEixo", () => {
   it("só decide depois de ~10 px e mantém a decisão", () => {
@@ -78,7 +73,14 @@ describe("decidirFimDoGesto", () => {
     expect(decidirFimDoGesto({ ...f, dx: -300, arrastandoNoFim: true })).toBe(0);
   });
   it("mede o movimento recente", () => {
-    const m = movimentoRecente([{ x: 0, t: 0 }, { x: 100, t: 400 }, { x: 160, t: 500 }], 500);
+    const m = movimentoRecente(
+      [
+        { x: 0, t: 0 },
+        { x: 100, t: 400 },
+        { x: 160, t: 500 },
+      ],
+      500,
+    );
     expect(m.distancia).toBe(60);
     expect(m.velocidade).toBeCloseTo(0.6);
   });
