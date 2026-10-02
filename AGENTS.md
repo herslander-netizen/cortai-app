@@ -42,3 +42,6 @@
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
 - WhatsApp completa pedidos (profissional, horário exato, apelidos) só via `entendimento-whatsapp.ts`, que reaproveita `lib/conversa/entender.ts` — um entendimento só para site e WhatsApp.
+- PWA: um único service worker gerado em `src/lib/pwa/service-worker.ts`, servido por `/sw.js` com no-cache e registrado só por `src/lib/pwa/registro.ts` em cortai.dev/www fora de iframe; só `/assets/*` vai para cache e navegação sem rede mostra a página offline — nunca HTML, server functions, /api ou banco.
+- Manifests: equipe (`manifest-equipe`) sob `/barbeiro`, cliente para o resto, escolhidos por `manifestDaRota` com um único link no documento — evita instalar o app errado.
+- Push só para a equipe: disparado pelo mesmo gatilho que cria o aviso do sino (`notificar_agendamento` → `/api/public/push/evento`), com regras puras em `src/lib/push/regras.ts` (quem recebe, Modo Foco, texto) e envio WebCrypto em `webpush.server.ts`; VAPID privada só em `chaves_internas` — um ponto de decisão, sem varredura nem dependência de Node.
