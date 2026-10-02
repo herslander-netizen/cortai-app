@@ -1,4 +1,5 @@
 - Preferências locais da Agenda (visualização e modo discreto) ficam em `agenda/preferencias.ts`; componentes recebem uma única flag — evita estado visual divergente.
+- Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.
 
 <!-- LOVABLE:BEGIN -->
 

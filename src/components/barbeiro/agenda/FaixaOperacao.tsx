@@ -34,7 +34,7 @@ function PilulaAgora({ fuso }: { fuso: string | undefined }) {
       onClick={() => ir?.()}
     >
       <Seta aria-hidden />
-      Agora {hora}
+      {hora}
     </Button>
   );
 }
