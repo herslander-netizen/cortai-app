@@ -13,3 +13,5 @@
 - O Modo Foco é o cockpit de hoje e de um único profissional: profissional logado é fixo; só dono/recepção escolhe outra pessoa; outros dias ficam na Agenda completa.
 - Estado, ordem, contagens e progresso do cockpit vêm de `cockpit-foco.ts`; a visualização pura `CockpitFoco` também alimenta a demonstração — evita divergência entre produto e apresentação.
 - Alertas detectados no Foco persistem até “Entendi” ou até a condição transitória acabar; no máximo dois e uma vibração por alerta.
+- Preferências locais da Agenda (visualização e modo discreto) ficam em `agenda/preferencias.ts`; componentes recebem uma única flag — evita estado visual divergente.
+- A visualização pura `CockpitFoco` é compartilhada entre o Modo Foco real e a apresentação; dados e ações ficam nos adaptadores — evita duas interfaces divergentes.
