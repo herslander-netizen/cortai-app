@@ -1,79 +1,34 @@
-import { CalendarDays, Check, Clock3, Image as ImageIcon, Pencil, UserRound } from "lucide-react";
-import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
 
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ChatHeader, ChatShell, TypingIndicator } from "@/components/chat/ChatShell";
-import { IngressoAgendamento } from "./IngressoAgendamento";
-import { statusDeFuncionamento } from "@/lib/status-funcionamento";
-import { brl } from "@/lib/format";
-import { mascaraTelefone } from "@/lib/previa";
-import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
-import { agendamentoStyle } from "@/lib/pagina-config";
-import { pausaDaResposta, RESPOSTA_POR_ETAPA } from "@/lib/pausa-chat";
+import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
+import { Button } from "@/components/ui/button";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
+import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
+import { diaPorExtenso, saudacao } from "@/lib/conversa/respostas";
+import { mascaraTelefone } from "@/lib/previa";
+import { agendamentoStyle } from "@/lib/pagina-config";
+import { pausaDaResposta } from "@/lib/pausa-chat";
+import { statusDeFuncionamento } from "@/lib/status-funcionamento";
+import { AberturaDoChat } from "./chat/AberturaDoChat";
+import { BarraDeMensagem } from "./chat/BarraDeMensagem";
+import { BolhaEditavel, Fala, MensagensExtras } from "./chat/BolhasDaConversa";
+import { EtapaDia, EtapaProfissional, EtapaServico } from "./chat/EtapasDoChat";
+import { EtapaDados, EtapaHorario } from "./chat/EtapaHorarioEDados";
+import { linkDaEquipe } from "./chat/respostasRapidas";
+import type { Chip, HorarioFuturo, Selecao } from "./chat/tipos";
+import { useConversaAgendamento } from "./chat/useConversaAgendamento";
 
-type ServicoSelecionavel = {
-  id: string;
-  nome: string;
-  duracao_min: number;
-  preco_centavos: number;
-  profissional_ids?: string[] | null;
-  foto_url?: string | null;
-};
-
-type Selecao = {
-  servicoId: string | null;
-  setServicoId: (id: string | null) => void;
-  servico: ServicoSelecionavel | null;
-  profissionalId: string;
-  setProfissionalId: (id: string) => void;
-  aptos: { id: string; nome: string; avatar_url?: string | null }[];
-  dias: string[];
-  dia: string | null;
-  setDia: (dia: string | null) => void;
-  porDia: Map<
-    string,
-    { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] }
-  >;
-  agenda:
-    { fechado: boolean; opcoes: { iso: string; label: string; profId: string }[] } | undefined;
-  inicio: string | null;
-  setInicio: (inicio: string | null) => void;
-  escolhido: { iso: string; label: string; profId: string } | null;
-};
-
-function Typing() {
-  return <TypingIndicator />;
-}
-
-function cascataLeve(indice: number) {
-  return indice < 6
-    ? { className: "chat-slot", style: { animationDelay: `${indice * 30}ms` } }
-    : { className: "" };
-}
-
-function Fala({ children, cliente = false }: { children: React.ReactNode; cliente?: boolean }) {
-  return (
-    <Message from={cliente ? "user" : "assistant"} className="chat-enter">
-      <MessageContent
-        className={
-          cliente
-            ? "chat-bolha-cliente px-4 py-3 font-semibold"
-            : "chat-bolha-ia px-4 py-3 text-[15px] leading-relaxed"
-        }
-      >
-        {children}
-      </MessageContent>
-    </Message>
-  );
+/** Nome vazio ou o antigo padrão "Recepção" viram Lisa; nomes próprios salvos continuam. */
+function nomeDaRecepcao(nome: string | undefined) {
+  const limpo = nome?.trim() ?? "";
+  return !limpo || /^recep(?:ç|c)[aã]o$/i.test(limpo) ? "Lisa" : limpo;
 }
 
 export function AgendamentoChat({
@@ -88,6 +43,7 @@ export function AgendamentoChat({
   alterarConflito,
   enviando,
   erro,
+  futuro = null,
 }: {
   data: AgendaPublica;
   selecao: Selecao;
@@ -100,54 +56,32 @@ export function AgendamentoChat({
   alterarConflito: () => void;
   enviando: boolean;
   erro: string | null;
+  futuro?: HorarioFuturo | null;
 }) {
-  const [profissionalEscolhido, setProfissionalEscolhido] = useState(false);
-  const [diaEscolhido, setDiaEscolhido] = useState(false);
+  const dadosValidos = nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10;
+  const conversa = useConversaAgendamento({
+    data,
+    selecao,
+    temFuturo: Boolean(futuro),
+    podeConfirmar: dadosValidos && !enviando,
+    confirmar,
+  });
+  const { etapa, abertura, memoria, rascunho } = conversa;
   const [etapaPronta, setEtapaPronta] = useState<string | null>(null);
   const [primeiraVisita, setPrimeiraVisita] = useState(true);
   const nomeRef = useRef<HTMLInputElement>(null);
-  const chat = data.pagina.chat;
-  const {
-    servicoId,
-    setServicoId,
-    servico,
-    profissionalId,
-    setProfissionalId,
-    aptos,
-    dias,
-    dia,
-    setDia,
-    porDia,
-    agenda,
-    inicio,
-    setInicio,
-    escolhido,
-  } = selecao;
-  const etapa = !servico
-    ? "servico"
-    : !profissionalEscolhido
-      ? "profissional"
-      : !diaEscolhido || !dia
-        ? "dia"
-        : !escolhido
-          ? "horario"
-          : "dados";
+  const campoRef = useRef<HTMLInputElement>(null);
+  const usouTeclado = useRef(false);
   const digitando = etapaPronta !== etapa;
   const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
+  const equipe = linkDaEquipe(data);
+  const nomeServico = (id?: string) => data.servicos.find((s) => s.id === id)?.nome;
+  const nomeProf = (id?: string) => data.profissionais.find((p) => p.id === id)?.nome;
+
   useHistoricoAgendamento(etapa, (destino) => {
-    if (destino === "servico") {
-      setServicoId(null);
-      setProfissionalEscolhido(false);
-      setDiaEscolhido(false);
-    } else if (destino === "profissional") {
-      setProfissionalEscolhido(false);
-      setDiaEscolhido(false);
-    } else if (destino === "dia") {
-      setDiaEscolhido(false);
-      setInicio(null);
-    } else if (destino === "horario") {
-      setInicio(null);
-    }
+    if (destino === "servico" || destino === "profissional" || destino === "dia") {
+      conversa.corrigir(destino);
+    } else if (destino === "horario") conversa.corrigir("horario");
   });
 
   useEffect(() => {
@@ -157,42 +91,59 @@ export function AgendamentoChat({
     );
     return () => window.clearTimeout(id);
   }, [etapa, primeiraVisita]);
+
   useEffect(() => {
+    if (memoria?.nome && !nome) setNome(memoria.nome);
+    if (memoria?.telefone && !telefone) setTelefone(mascaraTelefone(memoria.telefone));
     try {
-      const cliente = localStorage.getItem(`cortai-cliente-publico:${data.tenant.slug}`);
-      if (cliente) {
-        const salvo = JSON.parse(cliente) as { nome?: string; telefone?: string };
-        if (salvo.nome && !nome) setNome(salvo.nome);
-        if (salvo.telefone && !telefone) setTelefone(mascaraTelefone(salvo.telefone));
-      }
       const chave = `cortai-chat-visitado:${data.tenant.slug}`;
       setPrimeiraVisita(localStorage.getItem(chave) !== "1");
       localStorage.setItem(chave, "1");
     } catch {
       setPrimeiraVisita(true);
     }
-    // Apenas na primeira montagem: estado posterior continua controlado pelas props.
+    // Só quando a memória local é lida; depois o estado é controlado pelas props.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.tenant.slug]);
-  useEffect(() => {
-    if (etapa === "dados" && !digitando) nomeRef.current?.focus();
-  }, [digitando, etapa]);
-  useEffect(() => {
-    if (!servico) setProfissionalEscolhido(false);
-    if (!dia) setDiaEscolhido(false);
-  }, [servico, dia]);
+  }, [memoria]);
 
-  const local = (iso: string) =>
-    new Date(iso).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      timeZone: data.tenant.fuso,
-    });
-  const proNome = escolhido
-    ? data.profissionais.find((p) => p.id === escolhido.profId)?.nome
-    : null;
-  const dadosValidos = nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10;
-  const primeiroNome = nome.trim().split(/\s+/)[0];
+  useEffect(() => {
+    if (digitando) return;
+    if (etapa === "dados" && !nome) nomeRef.current?.focus();
+    else if (usouTeclado.current) campoRef.current?.focus();
+  }, [digitando, etapa, nome]);
+
+  const chipsPorEtapa: Record<typeof etapa, Chip[]> = {
+    servico: [
+      ...data.servicos.slice(0, 3).map((s) => ({
+        rotulo: s.nome,
+        acao: () => selecao.setServicoId(s.id),
+      })),
+      { rotulo: "Ver serviços e preços", acao: () => conversa.enviarTexto("serviços e preços") },
+    ],
+    profissional: [
+      { rotulo: "Sem preferência", acao: () => conversa.escolherProfissional("qualquer") },
+      ...selecao.aptos.map((p) => ({
+        rotulo: p.nome,
+        acao: () => conversa.escolherProfissional(p.id),
+      })),
+    ],
+    dia: [
+      { rotulo: "Mais cedo possível", acao: conversa.pedirPrimeiro },
+      { rotulo: "Hoje", acao: () => conversa.enviarTexto("hoje") },
+      { rotulo: "Amanhã", acao: () => conversa.enviarTexto("amanhã") },
+    ],
+    horario: [
+      { rotulo: "Mais cedo possível", acao: conversa.pedirPrimeiro },
+      { rotulo: "Manhã", acao: () => conversa.setPeriodo("manha") },
+      { rotulo: "Fim da tarde", acao: () => conversa.setPeriodo("fim_tarde") },
+      { rotulo: "Outro dia", acao: () => conversa.corrigir("dia") },
+    ],
+    dados: [],
+  };
+
+  const s = selecao;
+  const profTexto =
+    s.profissionalId === "qualquer" ? "Não tenho preferência" : (nomeProf(s.profissionalId) ?? "");
 
   return (
     <>
@@ -202,7 +153,7 @@ export function AgendamentoChat({
         style={agendamentoStyle(data.pagina)}
         header={
           <ChatHeader
-            nome={chat.nomeRecepcao}
+            nome={nomeDaRecepcao(data.pagina.chat.nomeRecepcao)}
             status={
               digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
             }
@@ -212,299 +163,87 @@ export function AgendamentoChat({
         }
       >
         <Conversation className="min-h-0">
-          <ConversationContent className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6">
-            {!digitando ? (
-              <Fala>
-                {primeiroNome
-                  ? `Oi, ${primeiroNome}. ${chat.mensagemInicial}`
-                  : chat.mensagemInicial}
-              </Fala>
+          <ConversationContent
+            className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6"
+            role="log"
+            aria-live="polite"
+          >
+            <Fala>
+              {saudacao(memoria?.primeiroNome)} {data.pagina.chat.mensagemInicial}
+            </Fala>
+            {abertura ? (
+              <AberturaDoChat
+                tipo={abertura}
+                futuro={futuro}
+                primeiroNome={memoria?.primeiroNome}
+                servicoNome={nomeServico(
+                  abertura === "retomar" ? rascunho?.servicoId : memoria?.ultimoServicoId,
+                )}
+                profissionalNome={nomeProf(memoria?.ultimoProfissionalId)}
+                diaRascunho={rascunho?.dia}
+                onDeSempre={conversa.oDeSempre}
+                onOutroServico={() => conversa.setAbertura(null)}
+                onOutroProfissional={() => {
+                  if (memoria?.ultimoServicoId) s.setServicoId(memoria.ultimoServicoId);
+                  conversa.setAbertura(null);
+                }}
+                onContinuar={conversa.continuarRascunho}
+                onRecomecar={conversa.recomecar}
+                onNovo={() => conversa.setAbertura(null)}
+              />
             ) : null}
-            {servico ? <Fala cliente>{servico.nome}</Fala> : null}
-            {servico && profissionalEscolhido ? (
-              <Fala cliente>
-                {profissionalId === "qualquer"
-                  ? "Não tenho preferência"
-                  : aptos.find((p) => p.id === profissionalId)?.nome}
-              </Fala>
+            {s.servico ? (
+              <BolhaEditavel
+                texto={s.servico.nome}
+                rotulo="serviço"
+                onEditar={() => conversa.corrigir("servico")}
+              />
             ) : null}
-            {dia ? <Fala cliente>Dia {local(`${dia}T12:00:00Z`)}</Fala> : null}
-            {escolhido ? <Fala cliente>{escolhido.label}</Fala> : null}
+            {s.servico && conversa.profEscolhido ? (
+              <BolhaEditavel
+                texto={profTexto}
+                rotulo="profissional"
+                onEditar={() => conversa.corrigir("profissional")}
+              />
+            ) : null}
+            {s.dia && etapa !== "dia" && conversa.profEscolhido ? (
+              <BolhaEditavel
+                texto={diaPorExtenso(s.dia)}
+                rotulo="dia"
+                onEditar={() => conversa.corrigir("dia")}
+              />
+            ) : null}
+            {s.escolhido ? (
+              <BolhaEditavel
+                texto={s.escolhido.label}
+                rotulo="horário"
+                onEditar={() => conversa.corrigir("horario")}
+              />
+            ) : null}
+            <MensagensExtras itens={conversa.extras} />
             {digitando ? (
               <Fala>
-                <Typing />
+                <TypingIndicator />
               </Fala>
-            ) : null}
-
-            {!digitando && etapa === "servico" ? (
-              <Fala>
-                <p className="mb-3">
-                  Vamos escolher seu atendimento. Qual serviço você quer agendar?
-                </p>
-                <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {data.servicos.map((s, i) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className={`chat-card-servico w-40 shrink-0 snap-start text-left ${cascataLeve(i).className}`}
-                      style={cascataLeve(i).style}
-                      aria-pressed={servicoId === s.id}
-                      onClick={() => setServicoId(s.id)}
-                    >
-                      <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
-                        {s.foto_url ? (
-                          <img
-                            src={s.foto_url}
-                            alt=""
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <ImageIcon className="text-mute2" />
-                        )}
-                      </span>
-                      <span className="block p-3">
-                        <strong className="block truncate text-sm font-extrabold text-paper">
-                          {s.nome}
-                        </strong>
-                        <span className="mt-1 flex items-center justify-between text-xs text-mute">
-                          <span className="flex items-center gap-1">
-                            <Clock3 size={12} />
-                            {s.duracao_min} min
-                          </span>
-                          <span className="font-extrabold text-paper">{brl(s.preco_centavos)}</span>
-                        </span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </Fala>
-            ) : null}
-
-            {!digitando && etapa === "profissional" ? (
-              <Fala>
-                <p className="mb-3">Ótima escolha. Você prefere alguém específico?</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Button
-                    variant="outline"
-                    className="h-14 justify-start"
-                    onClick={() => {
-                      setProfissionalId("qualquer");
-                      setProfissionalEscolhido(true);
-                      setDia(null);
-                      setDiaEscolhido(false);
-                    }}
-                  >
-                    <UserRound />
-                    Não tenho preferência
-                  </Button>
-                  {aptos.map((p, i) => (
-                    <Button
-                      key={p.id}
-                      variant="outline"
-                      className={`h-14 justify-start ${cascataLeve(i + 1).className}`}
-                      style={cascataLeve(i + 1).style}
-                      aria-pressed={profissionalId === p.id}
-                      onClick={() => {
-                        setProfissionalId(p.id);
-                        setProfissionalEscolhido(true);
-                        setDia(null);
-                        setDiaEscolhido(false);
-                      }}
-                    >
-                      {p.avatar_url ? (
-                        <img
-                          src={p.avatar_url}
-                          alt=""
-                          className="size-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="grid size-8 place-items-center rounded-full bg-ink3">
-                          {p.nome[0]}
-                        </span>
-                      )}
-                      {p.nome}
-                    </Button>
-                  ))}
-                </div>
-              </Fala>
-            ) : null}
-
-            {!digitando && etapa === "dia" ? (
-              <Fala>
-                <p className="mb-3">Qual dia fica melhor?</p>
-                <div className="flex max-w-full snap-x gap-2 overflow-x-auto pb-2">
-                  {dias.map((d, i) => {
-                    const livre = (porDia.get(d)?.opcoes.length ?? 0) > 0;
-                    return (
-                      <Button
-                        key={d}
-                        variant="outline"
-                        className={`chat-date-option h-16 min-w-20 shrink-0 snap-start flex-col ${cascataLeve(i).className}`}
-                        style={cascataLeve(i).style}
-                        aria-pressed={dia === d}
-                        disabled={!livre}
-                        onClick={() => {
-                          setDia(d);
-                          setDiaEscolhido(true);
-                        }}
-                      >
-                        <CalendarDays size={15} />
-                        {local(`${d}T12:00:00Z`)}
-                        {!livre ? <small>Lotado</small> : null}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </Fala>
-            ) : null}
-
-            {!digitando && etapa === "horario" ? (
-              <Fala>
-                {agenda?.opcoes.length ? (
-                  <>
-                    <p className="mb-3">Encontrei estes horários:</p>
-                    {(
-                      [
-                        ["Manhã", 0, 12],
-                        ["Tarde", 12, 18],
-                        ["Noite", 18, 24],
-                      ] as const
-                    ).map(([rotulo, de, ate]) => {
-                      const grupo = agenda.opcoes.filter((o) => {
-                        const h = Number(o.label.slice(0, 2));
-                        return h >= de && h < ate;
-                      });
-                      if (!grupo.length) return null;
-                      return (
-                        <div key={rotulo} className="mb-3 last:mb-0">
-                          <p className="mb-2 text-xs font-bold uppercase tracking-[.12em] text-mute">
-                            {rotulo}
-                          </p>
-                          <div className="grid grid-cols-3 gap-2">
-                            {grupo.map((o, i) => (
-                              <Button
-                                key={o.iso}
-                                variant="outline"
-                                className={`h-12 font-bold ${cascataLeve(i).className}`}
-                                style={cascataLeve(i).style}
-                                aria-pressed={inicio === o.iso}
-                                onClick={() => setInicio(o.iso)}
-                              >
-                                {o.label}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </>
-                ) : (
-                  <div>
-                    <p>Este dia ficou lotado. Posso procurar o próximo dia com vaga.</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {dias
-                        .filter((d) => d !== dia && (porDia.get(d)?.opcoes.length ?? 0) > 0)
-                        .slice(0, 3)
-                        .map((d) => (
-                          <Button
-                            key={d}
-                            variant="outline"
-                            className="h-12"
-                            onClick={() => {
-                              setDia(d);
-                              setDiaEscolhido(true);
-                            }}
-                          >
-                            {local(`${d}T12:00:00Z`)}
-                          </Button>
-                        ))}
-                    </div>
-                    {data.tenant.usaListaDeEspera && chat.listaEspera ? (
-                      <Button asChild variant="ghost" className="mt-2 h-12 w-full">
-                        <a
-                          href={`/app/espera?b=${encodeURIComponent(data.tenant.slug)}${servicoId ? `&servico=${servicoId}` : ""}${dia ? `&dia=${dia}` : ""}`}
-                        >
-                          Agenda cheia? Entrar na lista de espera
-                        </a>
-                      </Button>
-                    ) : null}
-                  </div>
-                )}
-              </Fala>
-            ) : null}
-
-            {!digitando && etapa === "dados" && servico && escolhido ? (
-              <Fala>
-                <p className="mb-3 text-base font-extrabold">
-                  Só preciso dos seus dados para confirmar.
-                </p>
-                <div className="grid gap-3">
-                  <Input
-                    ref={nomeRef}
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    autoComplete="name"
-                    enterKeyHint="next"
-                    placeholder="Seu nome"
-                  />
-                  <Input
-                    value={telefone}
-                    onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-                    autoComplete="tel"
-                    enterKeyHint="done"
-                    inputMode="tel"
-                    placeholder="WhatsApp com DDD"
-                  />
-                </div>
-                <div className="mt-4">
-                  <IngressoAgendamento
-                    negocio={data.tenant.nome}
-                    servico={servico.nome}
-                    profissional={proNome ?? "Profissional disponível"}
-                    data={local(escolhido.iso)}
-                    horario={escolhido.label}
-                    duracao={servico.duracao_min}
-                    valorCentavos={servico.preco_centavos}
-                  />
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="h-12"
-                    onClick={() => {
-                      setInicio(null);
-                    }}
-                  >
-                    <Pencil />
-                    Horário
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-12"
-                    onClick={() => {
-                      setInicio(null);
-                      setDia(null);
-                      setDiaEscolhido(false);
-                    }}
-                  >
-                    Dia
-                  </Button>
-                </div>
-                <Button
-                  variant="ghost"
-                  className="mt-2 h-12 w-full"
-                  onClick={() => {
-                    setInicio(null);
-                    setDia(null);
-                    setDiaEscolhido(false);
-                    setProfissionalEscolhido(false);
-                  }}
-                >
-                  Trocar profissional
-                </Button>
-              </Fala>
-            ) : null}
+            ) : abertura ? null : etapa === "servico" ? (
+              <EtapaServico data={data} selecao={s} />
+            ) : etapa === "profissional" ? (
+              <EtapaProfissional selecao={s} conversa={conversa} />
+            ) : etapa === "dia" ? (
+              <EtapaDia selecao={s} conversa={conversa} />
+            ) : etapa === "horario" ? (
+              <EtapaHorario data={data} selecao={s} conversa={conversa} />
+            ) : (
+              <EtapaDados
+                data={data}
+                selecao={s}
+                nome={nome}
+                telefone={telefone}
+                setNome={setNome}
+                setTelefone={setTelefone}
+                nomeRef={nomeRef}
+              />
+            )}
             {erro ? (
               <Fala>
                 <p className="text-brick" role="alert">
@@ -531,14 +270,28 @@ export function AgendamentoChat({
           </ConversationContent>
           <ConversationScrollButton aria-label="Ir para a mensagem mais recente" />
         </Conversation>
-        {etapa === "dados" && !digitando ? (
-          <div className="chat-bandeja agendamento-marca-barra border-t border-line px-4 py-3">
-            <Button className="w-full" disabled={!dadosValidos || enviando} onClick={confirmar}>
-              <Check />
-              {enviando ? "Confirmando…" : "Confirmar horário"}
-            </Button>
-          </div>
-        ) : null}
+        <BarraDeMensagem
+          chips={abertura || digitando ? [] : chipsPorEtapa[etapa]}
+          onEnviar={(texto) => {
+            usouTeclado.current = true;
+            conversa.enviarTexto(texto);
+          }}
+          onRecomecar={conversa.recomecar}
+          linkEquipe={equipe}
+          campoRef={campoRef}
+          acima={
+            etapa === "dados" && !digitando ? (
+              <Button
+                className="h-12 w-full"
+                disabled={!dadosValidos || enviando}
+                onClick={confirmar}
+              >
+                <Check />
+                {enviando ? "Confirmando…" : "Sim, pode confirmar"}
+              </Button>
+            ) : null
+          }
+        />
       </ChatShell>
     </>
   );

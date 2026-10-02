@@ -1,13 +1,69 @@
+/**
+ * Textos da conversa em um só lugar (prontos para virar editáveis por negócio).
+ * Sem React nem DOM: o mesmo motor poderá ser usado em outros canais.
+ */
 export const TEXTOS_CONVERSA = {
   servico: "Qual serviço você quer agendar?",
   profissional: "Você prefere alguém específico?",
   dia: "Qual dia fica melhor?",
   horario: "Separei os primeiros horários livres:",
-  dados: "Só preciso dos seus dados para confirmar.",
-  naoEntendi: "Não entendi bem. Você quer: Agendar / Ver serviços e preços / Falar com a equipe",
+  semHorario: "Esse dia ficou cheio. Posso procurar o próximo com vaga?",
+  dados: "Só preciso do seu nome e WhatsApp para confirmar.",
+  confirmar: "Posso confirmar?",
+  naoEntendi: "Não entendi bem. Você quer:",
+  naoEntendiDeNovo: "Acho melhor alguém da equipe te ajudar por lá.",
   equipe: "Vou confirmar com a equipe.",
   querAgendar: "Quer agendar?",
+  horarioIndisponivel: "Esse horário não está livre. Olha os mais próximos:",
+  agradecimento: "Por nada! Estou por aqui 😊",
+  semEndereco: "Vou confirmar com a equipe o endereço certinho.",
+  semPagamento: "Vou confirmar com a equipe as formas de pagamento.",
 } as const;
+
+export const OPCOES_NAO_ENTENDI = [
+  "Agendar",
+  "Ver serviços e preços",
+  "Falar com a equipe",
+] as const;
+
+const DIAS_SEMANA = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+
+/** "sábado, 03/10" a partir de "2026-10-03". */
+export function diaPorExtenso(dia: string) {
+  const data = new Date(`${dia}T12:00:00Z`);
+  const dd = String(data.getUTCDate()).padStart(2, "0");
+  const mm = String(data.getUTCMonth() + 1).padStart(2, "0");
+  return `${DIAS_SEMANA[data.getUTCDay()]}, ${dd}/${mm}`;
+}
+
+export function saudacao(primeiroNome?: string | null) {
+  return primeiroNome ? `Oi, ${primeiroNome}!` : "Oi!";
+}
+
+export function textoDeSempre(
+  primeiroNome: string | undefined,
+  servico: string,
+  profissional?: string,
+) {
+  const com = profissional ? ` com ${profissional}` : "";
+  return `${saudacao(primeiroNome)} Quer o de sempre (${servico}${com}) ou prefere outra coisa?`;
+}
+
+export function textoRetomar(servico: string, dia?: string) {
+  return `Quer continuar de onde paramos? ${servico}${dia ? `, ${diaPorExtenso(dia)}` : ""}`;
+}
+
+export function textoHorarioFuturo(dia: string, hora: string) {
+  return `Você tem horário ${diaPorExtenso(dia)} às ${hora}.`;
+}
+
+export function textoConfirmarDia(rotulo: string, dia: string) {
+  return `Só pra confirmar: ${rotulo} é ${diaPorExtenso(dia)}?`;
+}
+
+export function textoOferta(profissional: string | null, dia: string) {
+  return `${profissional ? `Com ${profissional}, ` : ""}${diaPorExtenso(dia)}:`;
+}
 
 export function contatoDaEquipe(whatsapp: string | null) {
   const digitos = whatsapp?.replace(/\D/g, "") ?? "";

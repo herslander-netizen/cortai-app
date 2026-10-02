@@ -54,8 +54,12 @@ export function useSelecaoAgendamento({
     return () => window.clearInterval(id);
   }, []);
   const hojeChave = new Date(agora).toISOString().slice(0, 13);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const dias = useMemo(() => proximosDiasNoFuso(quantidadeDias, fuso, agora), [quantidadeDias, fuso, hojeChave]);
+  const dias = useMemo(
+    () => proximosDiasNoFuso(quantidadeDias, fuso, agora),
+    // Recalcula só quando a hora muda, não a cada minuto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [quantidadeDias, fuso, hojeChave],
+  );
 
   useEffect(() => {
     if (profissionalId !== "qualquer" && !aptos.some((item) => item.id === profissionalId)) {
@@ -86,7 +90,18 @@ export function useSelecaoAgendamento({
       );
     }
     return mapa;
-  }, [dias, servico, profissionais, profissionalId, horarios, fuso, ocupados, regras, agora, passoMin]);
+  }, [
+    dias,
+    servico,
+    profissionais,
+    profissionalId,
+    horarios,
+    fuso,
+    ocupados,
+    regras,
+    agora,
+    passoMin,
+  ]);
 
   // Escolhe um dia sozinho só na primeira vez em que um serviço é selecionado;
   // depois disso, o toque do cliente é respeitado mesmo em dia lotado.
@@ -105,7 +120,8 @@ export function useSelecaoAgendamento({
 
   // Horário escolhido que passou enquanto a página estava aberta sai da seleção.
   useEffect(() => {
-    if (inicio && dia && !(porDia.get(dia)?.opcoes ?? []).some((o) => o.iso === inicio)) setInicio(null);
+    if (inicio && dia && !(porDia.get(dia)?.opcoes ?? []).some((o) => o.iso === inicio))
+      setInicio(null);
   }, [inicio, dia, porDia]);
 
   const agenda = dia ? porDia.get(dia) : undefined;

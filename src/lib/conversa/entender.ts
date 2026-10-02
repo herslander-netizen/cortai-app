@@ -47,7 +47,9 @@ export function normalizarTexto(texto: string) {
 }
 
 function contemFrase(texto: string, frases: string[]) {
-  return frases.some((frase) => new RegExp(`(^|\\s)${frase.replace(/ /g, "\\s+")}($|\\s)`).test(texto));
+  return frases.some((frase) =>
+    new RegExp(`(^|\\s)${frase.replace(/ /g, "\\s+")}($|\\s)`).test(texto),
+  );
 }
 
 function proximoDiaDaSemana(hoje: string, alvo: number) {
@@ -76,17 +78,79 @@ export function entender(frase: string, contexto: ContextoEntendimento): Entendi
   const resultado: Entendimento = { textoNormalizado: texto };
   if (!texto || /^(kk+k|rs+s?|haha+)$/.test(texto)) return { ...resultado, ruido: true };
 
-  if (contemFrase(texto, ["atendente", "humano", "pessoa", "falar com alguem", "falar com a equipe", "gerente", "responsavel"])) resultado.intencao = "atendente";
+  if (
+    contemFrase(texto, [
+      "atendente",
+      "humano",
+      "pessoa",
+      "falar com alguem",
+      "falar com a equipe",
+      "gerente",
+      "responsavel",
+    ])
+  )
+    resultado.intencao = "atendente";
   else if (/^(menu|inicio|comecar de novo|0)$/.test(texto)) resultado.intencao = "menu";
   else if (/^voltar$/.test(texto)) resultado.intencao = "voltar";
-  else if (contemFrase(texto, ["servicos", "precos", "preco", "valor", "tabela", "quanto custa", "quanto e"])) resultado.intencao = "servicos";
-  else if (contemFrase(texto, ["onde fica", "endereco", "localizacao", "como chego", "mapa"])) resultado.intencao = "endereco";
-  else if (contemFrase(texto, ["que horas abre", "ta aberto", "horario de funcionamento", "funciona hoje", "fecha que horas"])) resultado.intencao = "funcionamento";
-  else if (contemFrase(texto, ["pix", "cartao", "debito", "credito", "pagamento", "parcela"])) resultado.intencao = "pagamento";
-  else if (contemFrase(texto, ["quem atende", "quem ta atendendo", "profissionais"])) resultado.intencao = "profissionais";
-  else if (contemFrase(texto, ["quero marcar", "queria marcar", "agendar", "tem horario", "tem vaga", "o de sempre", "o mesmo da ultima vez"])) resultado.intencao = "agendar";
-  else if (contemFrase(texto, ["obrigado", "obg", "vlw", "valeu", "tmj"])) resultado.intencao = "agradecimento";
-  else if (contemFrase(texto, ["sim", "ss", "isso", "isso mesmo", "pode ser", "confirmo", "fechou", "beleza", "blz", "ok", "certo", "bora"])) resultado.intencao = "sim";
+  else if (
+    contemFrase(texto, [
+      "servicos",
+      "precos",
+      "preco",
+      "valor",
+      "tabela",
+      "quanto custa",
+      "quanto e",
+    ])
+  )
+    resultado.intencao = "servicos";
+  else if (contemFrase(texto, ["onde fica", "endereco", "localizacao", "como chego", "mapa"]))
+    resultado.intencao = "endereco";
+  else if (
+    contemFrase(texto, [
+      "que horas abre",
+      "ta aberto",
+      "horario de funcionamento",
+      "funciona hoje",
+      "fecha que horas",
+    ])
+  )
+    resultado.intencao = "funcionamento";
+  else if (contemFrase(texto, ["pix", "cartao", "debito", "credito", "pagamento", "parcela"]))
+    resultado.intencao = "pagamento";
+  else if (contemFrase(texto, ["quem atende", "quem ta atendendo", "profissionais"]))
+    resultado.intencao = "profissionais";
+  else if (
+    contemFrase(texto, [
+      "quero marcar",
+      "queria marcar",
+      "agendar",
+      "tem horario",
+      "tem vaga",
+      "o de sempre",
+      "o mesmo da ultima vez",
+    ])
+  )
+    resultado.intencao = "agendar";
+  else if (contemFrase(texto, ["obrigado", "obg", "vlw", "valeu", "tmj"]))
+    resultado.intencao = "agradecimento";
+  else if (
+    contemFrase(texto, [
+      "sim",
+      "ss",
+      "isso",
+      "isso mesmo",
+      "pode ser",
+      "confirmo",
+      "fechou",
+      "beleza",
+      "blz",
+      "ok",
+      "certo",
+      "bora",
+    ])
+  )
+    resultado.intencao = "sim";
   else if (contemFrase(texto, ["nao", "agora nao", "deixa", "esquece"])) resultado.intencao = "nao";
 
   const servico = acharItem(texto, contexto.servicos);
@@ -103,7 +167,10 @@ export function entender(frase: string, contexto: ContextoEntendimento): Entendi
     if (indice >= 0) {
       const proximo = proximoDiaDaSemana(contexto.hoje, indice);
       if (proximo.hoje || texto.includes("que vem"))
-        resultado.confirmarDia = { dia: proximo.dia, rotulo: `${dias[indice]} ${proximo.hoje ? "da semana que vem" : "que vem"}` };
+        resultado.confirmarDia = {
+          dia: proximo.dia,
+          rotulo: `${dias[indice]} ${proximo.hoje ? "da semana que vem" : "que vem"}`,
+        };
       else resultado.dia = proximo.dia;
     }
     const numero = texto.match(/\bdia\s+(\d{1,2})\b/)?.[1];
@@ -121,15 +188,21 @@ export function entender(frase: string, contexto: ContextoEntendimento): Entendi
   else if (/\bmanha\b/.test(texto)) resultado.periodo = "manha";
   else if (/\btarde\b/.test(texto)) resultado.periodo = "tarde";
 
-  if (contemFrase(texto, ["mais cedo possivel", "primeiro que tiver", "qualquer horario"])) resultado.primeiroDisponivel = true;
-  const explicito = texto.match(/(?:as\s+)?(\d{1,2})(?:h|:)(\d{2})?\b/) ?? texto.match(/^\s*(\d{1,2})\s*$/);
-  if (explicito) {
+  if (contemFrase(texto, ["mais cedo possivel", "primeiro que tiver", "qualquer horario"]))
+    resultado.primeiroDisponivel = true;
+  const explicito =
+    texto.match(/\b(\d{1,2})(?:h|:)(\d{2})?\b/) ??
+    texto.match(/\bas\s+(\d{1,2})\b/) ??
+    texto.match(/^\s*(\d{1,2})\s*$/);
+  if (explicito && !(texto.match(/\bdia\s+\d/) && !/h|:|\bas\b/.test(texto))) {
     let hora = Number(explicito[1]);
     const minuto = Number(explicito[2] ?? 0);
     if (hora <= 7 && resultado.periodo !== "manha") hora += 12;
     const candidato = `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
     const opcoes = contexto.horariosOferecidos ?? [];
-    const equivalente = opcoes.find((opcao) => opcao === candidato || Number(opcao.slice(0, 2)) === Number(explicito[1]));
+    const equivalente = opcoes.find(
+      (opcao) => opcao === candidato || Number(opcao.slice(0, 2)) === hora,
+    );
     if (!opcoes.length || equivalente) resultado.horario = equivalente ?? candidato;
   }
   return resultado;
@@ -139,9 +212,24 @@ export function horarioNoPeriodo(horario: string, periodo: Periodo) {
   const [h, m] = horario.split(":").map(Number);
   const total = h! * 60 + m!;
   const faixas: Record<Periodo, [number, number]> = {
-    manha: [0, 720], almoco: [690, 810], depois_almoco: [780, 1440],
-    tarde: [720, 1080], fim_tarde: [960, 1080], noite: [1080, 1440],
+    manha: [0, 720],
+    almoco: [690, 810],
+    depois_almoco: [780, 1440],
+    tarde: [720, 1080],
+    fim_tarde: [960, 1080],
+    noite: [1080, 1440],
   };
   const [inicio, fim] = faixas[periodo];
   return total >= inicio && total < fim;
+}
+
+/** Serviços cujo nome tem alguma palavra da frase (ex.: "corte" → todos os cortes). */
+export function servicosParecidos<T extends ItemReconhecivel>(
+  textoNormalizado: string,
+  itens: T[],
+) {
+  const palavras = textoNormalizado.split(" ").filter((p) => p.length >= 4);
+  return itens.filter((item) =>
+    palavras.some((p) => normalizarTexto(item.nome).split(" ").includes(p)),
+  );
 }

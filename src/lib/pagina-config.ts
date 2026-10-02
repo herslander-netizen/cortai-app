@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { CSSProperties } from "react";
-import { CORES_AGENDAMENTO, contrasteDaMarca } from "@/lib/cor-marca";
+import { CORES_AGENDAMENTO, contrasteDaMarca, tokensDoAgendamento } from "@/lib/cor-marca";
 
 export const temaIds = [
   "cortai",
@@ -318,7 +318,11 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
 /** Tokens da identidade publicada usados pelo agendamento, sem duplicar a configuração da marca. */
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
   const corPrincipal = CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao;
+  const tokens = tokensDoAgendamento(config.cores.secundaria);
   return {
+    "--chat-superficie-1": tokens.superficie1,
+    "--chat-superficie-2": tokens.superficie2,
+    "--chat-texto-auxiliar": tokens.textoAuxiliar,
     "--chat-primary": corPrincipal,
     "--chat-primary-foreground": contrasteDaMarca(corPrincipal),
     "--chat-secondary": config.cores.secundaria,

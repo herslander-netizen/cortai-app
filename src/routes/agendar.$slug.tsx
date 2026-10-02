@@ -13,9 +13,15 @@ import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
+import { PreferenciasEmConversa } from "@/components/agendamento/chat/PreferenciasEmConversa";
+import {
+  armazenamentoLocal,
+  limparRascunho,
+  registrarAgendamentoNaMemoria,
+} from "@/lib/conversa/memoria-cliente";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
+import { hojeNoFuso, normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
@@ -122,6 +128,8 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
+  // Modo conversa: horário salvo no aparelho aparece primeiro como bolha no chat.
+  const [futuroNoChat, setFuturoNoChat] = useState(false);
   const chaveSalva = `cortai-agendamento-publico:${slug}`;
   const etapa = confirmado
     ? "confirmacao"
@@ -173,6 +181,7 @@ function AgendamentoPublico() {
       return;
     }
     setConfirmado(salvo.confirmacao);
+    setFuturoNoChat(true);
     setTelefone(mascaraTelefone(salvo.telefone));
     setNome(salvo.nome);
     const atual = salvo;
@@ -225,15 +234,25 @@ function AgendamentoPublico() {
       setSubstituiId(null);
       setSituacao("confirmado");
       setConfirmado(res.confirmacao);
+      setFuturoNoChat(false);
       try {
         localStorage.setItem(
           chaveSalva,
           JSON.stringify({ confirmacao: res.confirmacao, telefone: digitosTel, nome: nome.trim() }),
         );
-        localStorage.setItem(
-          `cortai-cliente-publico:${slug}`,
-          JSON.stringify({ telefone: digitosTel, nome: nome.trim() }),
+        const storage = armazenamentoLocal();
+        registrarAgendamentoNaMemoria(
+          slug,
+          {
+            servicoId: servicoId!,
+            profissionalId: escolhido!.profId,
+            horario: escolhido!.label,
+            nome: nome.trim(),
+            telefone: digitosTel,
+          },
+          storage,
         );
+        limparRascunho(slug, storage);
       } catch {
         /* cache opcional */
       }
@@ -312,14 +331,15 @@ function AgendamentoPublico() {
     );
   }
 
-  if (confirmado) {
+  const modoConversa = data.pagina.chat.modo === "conversa";
+  if (confirmado && !(modoConversa && futuroNoChat && situacao === "confirmado")) {
     return (
       <div className="agendamento-marca" style={agendamentoStyle(data.pagina)}>
         <FontesDaMarca config={data.pagina} />
         <ConfirmacaoAgendamento
           confirmacao={confirmado}
           situacao={situacao}
-          fuso={fuso ?? "America/Sao_Paulo"}
+          fuso={fuso}
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
@@ -336,7 +356,13 @@ function AgendamentoPublico() {
           onCancelar={() => cancelar.mutate()}
           onNovo={novoAgendamento}
           extras={
-            situacao === "confirmado" && confirmado.preferenciasToken ? (
+            situacao === "confirmado" && confirmado.preferenciasToken && modoConversa ? (
+              <PreferenciasEmConversa
+                agendamentoId={confirmado.agendamentoId}
+                token={confirmado.preferenciasToken}
+                slug={slug}
+              />
+            ) : situacao === "confirmado" && confirmado.preferenciasToken ? (
               <PreferenciasAposAgendamento
                 agendamentoId={confirmado.agendamentoId}
                 token={confirmado.preferenciasToken}
@@ -349,9 +375,31 @@ function AgendamentoPublico() {
     );
   }
 
-  if (data.pagina.chat.modo === "conversa") {
+  if (modoConversa) {
+    const futuro =
+      confirmado && futuroNoChat
+        ? {
+            dia: hojeNoFuso(fuso, new Date(confirmado.inicio)),
+            hora: new Date(confirmado.inicio).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: fuso,
+            }),
+            onVer: () => setFuturoNoChat(false),
+            onRemarcar: () => {
+              setSubstituiId(confirmado.agendamentoId);
+              setHorario(null);
+              setConfirmado(null);
+              setFuturoNoChat(false);
+            },
+            onCancelar: () =>
+              cancelar.mutate(undefined, { onSuccess: () => setFuturoNoChat(false) }),
+            cancelando: cancelar.isPending,
+          }
+        : null;
     return (
       <AgendamentoChat
+        futuro={futuro}
         data={data}
         selecao={selecao}
         nome={nome}
