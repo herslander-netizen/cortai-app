@@ -17,6 +17,7 @@ describe("useHistoricoAgendamento", () => {
     act(() => root.render(<Exemplo etapa="servico" voltar={voltar} />));
     act(() => root.render(<Exemplo etapa="profissional" voltar={voltar} />));
     expect(push).toHaveBeenCalled();
+    expect(history.state.cortaiEtapaAgendamento).toBe("profissional");
     act(() =>
       dispatchEvent(
         new PopStateEvent("popstate", { state: { cortaiEtapaAgendamento: "servico" } }),
