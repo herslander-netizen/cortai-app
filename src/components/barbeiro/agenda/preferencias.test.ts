@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  contextoParaRestaurar,
+  lerContextoAgenda,
   preferenciaAgendaInicial,
+  salvarContextoAgenda,
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
 } from "./preferencias";
@@ -44,5 +47,52 @@ describe("preferências da Agenda", () => {
     };
     expect(preferenciaAgendaInicial(true, storage)).toBe("lista");
     expect(() => salvarPreferenciaAgenda("foco", storage)).not.toThrow();
+  });
+});
+
+describe("voltar ao mesmo lugar", () => {
+  const ctx = {
+    dia: "2026-10-05",
+    visualizacao: "timeline" as const,
+    rolagemJanela: 420,
+    rolagemTimeline: 0,
+    hoje: "2026-10-02",
+    salvoEm: 1_000_000,
+  };
+  it("guarda e lê da sessão", () => {
+    const s = memoria();
+    salvarContextoAgenda(ctx, s);
+    expect(lerContextoAgenda(s)).toEqual(ctx);
+  });
+  it("restaura no mesmo dia com menos de 30 min", () => {
+    expect(
+      contextoParaRestaurar(ctx, {
+        ms: 1_000_000 + 29 * 60_000,
+        hoje: "2026-10-02",
+        temLinkDeAviso: false,
+      }),
+    ).toEqual(ctx);
+  });
+  it("não restaura em outro dia", () => {
+    expect(
+      contextoParaRestaurar(ctx, { ms: 1_000_100, hoje: "2026-10-03", temLinkDeAviso: false }),
+    ).toBeNull();
+  });
+  it("não restaura com 30 min ou mais", () => {
+    expect(
+      contextoParaRestaurar(ctx, {
+        ms: 1_000_000 + 30 * 60_000,
+        hoje: "2026-10-02",
+        temLinkDeAviso: false,
+      }),
+    ).toBeNull();
+  });
+  it("link de aviso tem prioridade", () => {
+    expect(
+      contextoParaRestaurar(ctx, { ms: 1_000_100, hoje: "2026-10-02", temLinkDeAviso: true }),
+    ).toBeNull();
+  });
+  it("sem nada guardado abre em hoje", () => {
+    expect(lerContextoAgenda(memoria())).toBeNull();
   });
 });
