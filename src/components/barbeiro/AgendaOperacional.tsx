@@ -300,6 +300,7 @@ export function AgendaOperacional() {
   const [horaVazia, setHoraVazia] = useState<string | undefined>();
   const [filaAberta, setFilaAberta] = useState(false);
   const [profFiltro, setProfFiltro] = useState<string | null>(null);
+  const [acaoPainel, setAcaoPainel] = useState<"remarcar" | "cancelar" | null>(null);
   const filtroInicial = useRef(false);
   const [modoFoco, setModoFoco] = useState(preferenciaInicial === "foco" && celularInicial);
   const [modoDiscreto, setModoDiscreto] = useState(modoDiscretoInicial);
@@ -360,6 +361,13 @@ export function AgendaOperacional() {
     window.history.pushState({ ...window.history.state, modoFoco: true }, "");
     setModoFoco(true);
   }
+  useEffect(() => {
+    if (!modoFoco) return;
+    const hoje = hojeNoFuso(fuso);
+    if (dia !== hoje) setDia(hoje);
+    if (meuId && profFiltro !== meuId) setProfFiltro(meuId);
+    else if (!meuId && !profFiltro && profissionais[0]) setProfFiltro(profissionais[0].id);
+  }, [modoFoco, dia, fuso, meuId, profFiltro, profissionais]);
   function sairDoModoFoco() {
     if (celular) {
       const anterior = ultimaVisaoCompleta();
@@ -625,8 +633,14 @@ export function AgendaOperacional() {
   }
 
   function abrir(id: string | null) {
+    setAcaoPainel(null);
     setSelecionado(id);
     setPainelAberto(Boolean(id));
+  }
+  function abrirAcao(item: AgendaItem, acao: "remarcar" | "cancelar") {
+    setAcaoPainel(acao);
+    setSelecionado(item.id);
+    setPainelAberto(true);
   }
   function fecharPainel() {
     setPainelAberto(false);
@@ -746,6 +760,7 @@ export function AgendaOperacional() {
         item={itemSelecionado}
         aberto={painelAberto}
         onFechar={fecharPainel}
+        iniciarEm={acaoPainel}
         lateral={ehDesktop && !modoFoco}
         fuso={fuso}
         online={online}
@@ -942,6 +957,8 @@ export function AgendaOperacional() {
           onComecar={iniciar}
           onTerminar={(item) => setFechando(item.id)}
           onFalta={(item) => void transicionar(item, "nao_compareceu")}
+          onRemarcar={(item) => abrirAcao(item, "remarcar")}
+          onCancelar={(item) => abrirAcao(item, "cancelar")}
           onMaisOpcoes={(item) => abrir(item.id)}
           fila={chegada.length}
           onChamarFila={() => void chamarFila()}

@@ -30,6 +30,8 @@ type Props = {
   onComecar: (item: AgendaItem) => void;
   onTerminar: (item: AgendaItem) => void;
   onFalta: (item: AgendaItem) => void;
+  onRemarcar: (item: AgendaItem) => void;
+  onCancelar: (item: AgendaItem) => void;
   onMaisOpcoes: (item: AgendaItem) => void;
   fila?: number;
   onChamarFila?: () => void;
@@ -133,7 +135,8 @@ export function AgendaFocoMobile(props: Props) {
             onPrincipal={acaoPrincipal}
             onMais={() => item && props.onMaisOpcoes(item)}
             onFalta={() => item && props.onFalta(item)}
-            onRemarcar={() => item && props.onMaisOpcoes(item)}
+            onRemarcar={() => item && props.onRemarcar(item)}
+            onCancelar={() => item && props.onCancelar(item)}
             onAvisar={(alvo) => {
               const texto = `Oi, ${alvo.cliente.split(" ")[0]}! Estou terminando um atendimento e devo atrasar uns 10 min. Já te chamo.`;
               const numero = alvo.telefone?.replace(/\D/g, "");

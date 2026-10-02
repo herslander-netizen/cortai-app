@@ -18,6 +18,7 @@ type Props = {
   onMais?: () => void;
   onChegou?: () => void;
   onFalta?: () => void;
+  onCancelar?: () => void;
   onRemarcar?: () => void;
   onAvisar?: (item: AgendaItem) => void;
   onEncaixar?: () => void;
@@ -27,7 +28,6 @@ type Props = {
 export function CockpitFoco(props: Props) {
   const { dados, agora } = props;
   const item = dados.principal;
-  const atrasoPrevisto = item ? Math.max(0, Math.ceil((+new Date(item.fim) - +new Date(item.inicio)) / 60_000) - item.duracaoMin) : 0;
   const acao =
     dados.estado === "chegou"
       ? "Começar"
@@ -84,7 +84,7 @@ export function CockpitFoco(props: Props) {
             <strong className="mt-3 block truncate text-xl text-paper">{nomeDaAgenda(dados.proximo.cliente, props.discreto)}</strong>
             <p className="mt-1 text-[15px] text-mute">{dados.proximo.servico}</p>
             <p className="mt-3 text-[15px] font-semibold text-paper">{situacaoDoLembrete(dados.proximo)}</p>
-            {(dados.estado === "passou_do_tempo" || atrasoPrevisto >= 5) && props.onAvisar ? (
+            {dados.estado === "passou_do_tempo" && props.onAvisar ? (
               <Button variant="outline" className="mt-3 min-h-12 w-full" onClick={() => props.onAvisar?.(dados.proximo as AgendaItem)}>
                 Avisar {dados.proximo.cliente.split(" ")[0]}: atraso no atendimento
               </Button>
@@ -98,13 +98,14 @@ export function CockpitFoco(props: Props) {
         ) : null}
       </aside>
 
-      <footer className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-[64px_minmax(0,1fr)] gap-2 border-t border-line bg-ink px-3 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))] lg:static lg:col-span-2 lg:bg-transparent lg:px-0 lg:pb-0">
+      <footer className={`${props.somenteLeitura ? "col-span-full" : "fixed inset-x-0 bottom-0 z-30 lg:static lg:col-span-2"} grid grid-cols-[64px_minmax(0,1fr)] gap-2 border-t border-line bg-ink px-3 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))] lg:bg-transparent lg:px-0 lg:pb-0`}>
         <Button variant="outline" size="icon" className="size-16" aria-label="Outras ações" onClick={props.onMais} disabled={props.somenteLeitura}><MoreHorizontal className="size-6" /></Button>
         <Button size="lg" className="min-h-16 text-base" onClick={props.onPrincipal} disabled={props.somenteLeitura}>{acao}</Button>
         {dados.estado === "atrasado" ? (
-          <div className="col-span-2 grid grid-cols-3 gap-2">
+          <div className="col-span-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Button variant="outline" className="min-h-12" onClick={props.onFalta} disabled={props.somenteLeitura}>Não veio</Button>
             <Button variant="outline" className="min-h-12" onClick={props.onRemarcar} disabled={props.somenteLeitura}>Remarcar</Button>
+            <Button variant="destructive" className="min-h-12" onClick={props.onCancelar} disabled={props.somenteLeitura}>Cancelar</Button>
             <Button variant="outline" className="min-h-12" onClick={() => item && props.onAvisar?.(item)} disabled={props.somenteLeitura}>Avisar</Button>
           </div>
         ) : null}
