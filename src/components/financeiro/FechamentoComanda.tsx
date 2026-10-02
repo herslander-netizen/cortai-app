@@ -105,7 +105,7 @@ export function FechamentoComanda({
     if (!query.data || itens.length) return;
     setItens(
       query.data.itens.map((i: ItemSalvo) => ({
-        tipo: i.tipo,
+        tipo: i.tipo as Item["tipo"],
         id: (i.servico_id ?? i.produto_id) as string,
         descricao: i.descricao,
         quantidade: i.quantidade,
