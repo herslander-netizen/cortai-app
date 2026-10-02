@@ -25,7 +25,12 @@ export function salvarCacheAgenda(dados: AgendaDia) {
     if (anterior && anterior !== dados.tenant.id) limparCacheAgenda();
     const enxuto: AgendaDia = {
       ...dados,
-      itens: dados.itens.map((item) => ({ ...item, telefone: null, ficha: null })),
+      itens: dados.itens.map((item) => ({
+        ...item,
+        telefone: null,
+        ficha: null,
+        preferencias: {},
+      })),
       fila: [],
     };
     ls.setItem(TENANT_ATUAL, dados.tenant.id);

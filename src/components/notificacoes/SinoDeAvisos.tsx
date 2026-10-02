@@ -97,6 +97,12 @@ export function SinoDeAvisos() {
     };
   }, [aberto]);
 
+  useEffect(() => {
+    const abrir = () => setAberto(true);
+    window.addEventListener("cortai:abrir-avisos", abrir);
+    return () => window.removeEventListener("cortai:abrir-avisos", abrir);
+  }, []);
+
   if (!tenantId) return null;
 
   const lista = avisos ?? [];

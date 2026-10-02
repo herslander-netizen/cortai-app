@@ -17,6 +17,7 @@ import { comDesfazer } from "@/lib/avisos";
 
 export function FichaFoco({
   clienteId,
+  cliente,
   preferencias,
   observacao,
   discreto,
@@ -24,6 +25,7 @@ export function FichaFoco({
   onAbrir,
 }: {
   clienteId: string | null;
+  cliente: string;
   preferencias: PreferenciasCliente;
   observacao: string | null;
   discreto: boolean;
@@ -66,6 +68,29 @@ export function FichaFoco({
       setLocal(anterior);
     }
   }
+  const escolhas = [
+    ...(!local.conversa
+      ? (["papo", "silencio", "tanto_faz"] as const).map((valor) => ({
+          chave: "conversa" as const,
+          valor,
+          texto: ROTULOS_PREFERENCIAS.conversa[valor],
+        }))
+      : []),
+    ...(!local.ar
+      ? (["gelado", "ameno", "sem_ar"] as const).map((valor) => ({
+          chave: "ar" as const,
+          valor,
+          texto: ROTULOS_PREFERENCIAS.ar[valor],
+        }))
+      : []),
+    ...(!local.bebida
+      ? (["cafe", "agua", "refri", "cerveja", "nada"] as const).map((valor) => ({
+          chave: "bebida" as const,
+          valor,
+          texto: ROTULOS_PREFERENCIAS.bebida[valor],
+        }))
+      : []),
+  ];
   return (
     <section className="mt-4" aria-label="Preferências do cliente">
       {local.atencao ? (
@@ -104,23 +129,19 @@ export function FichaFoco({
       ) : null}
       {finalizado && !oculto ? (
         <div className="mt-5 border-t border-line pt-4">
-          <p className="text-sm font-semibold text-paper">Algo novo sobre este cliente?</p>
+          <p className="text-sm font-semibold text-paper">
+            Algo novo sobre {cliente.split(" ")[0] || "este cliente"}?
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {!local.conversa ? (
-              <Button variant="outline" onClick={() => void escolha("conversa", "papo")}>
-                Gosta de papo
+            {escolhas.map((opcao) => (
+              <Button
+                key={`${opcao.chave}:${opcao.valor}`}
+                variant="outline"
+                onClick={() => void escolha(opcao.chave, opcao.valor)}
+              >
+                {opcao.texto}
               </Button>
-            ) : null}
-            {!local.ar ? (
-              <Button variant="outline" onClick={() => void escolha("ar", "ameno")}>
-                Ar ameno
-              </Button>
-            ) : null}
-            {!local.bebida ? (
-              <Button variant="outline" onClick={() => void escolha("bebida", "agua")}>
-                Água
-              </Button>
-            ) : null}
+            ))}
           </div>
           <Button variant="ghost" className="mt-2" onClick={() => setOculto(true)}>
             Pronto

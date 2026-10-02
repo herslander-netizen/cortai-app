@@ -32,7 +32,7 @@ import { AlertasFoco } from "@/components/barbeiro/agenda/AlertasFoco";
 import { FichaFoco } from "@/components/barbeiro/agenda/FichaFoco";
 import { alertasDeEmergencia } from "@/components/barbeiro/agenda/alertas-foco";
 import { consumirAvisosDoFoco, definirModoFoco } from "@/lib/modo-foco";
-import { aviso } from "@/lib/avisos";
+import { avisosGuardados } from "@/lib/avisos";
 
 type Props = {
   dia: string;
@@ -180,10 +180,7 @@ export function AgendaFocoMobile(props: Props) {
     return () => {
       definirModoFoco(false);
       const total = consumirAvisosDoFoco();
-      if (total > 0)
-        aviso.info(
-          `${total} ${total === 1 ? "aviso guardado" : "avisos guardados"} enquanto você atendia`,
-        );
+      if (total > 0) avisosGuardados(total);
     };
   }, []);
 
@@ -310,6 +307,7 @@ export function AgendaFocoMobile(props: Props) {
 
                   <FichaFoco
                     clienteId={principal.clienteId}
+                    cliente={principal.cliente}
                     preferencias={principal.preferencias ?? {}}
                     observacao={principal.ficha}
                     discreto={Boolean(props.discreto)}
