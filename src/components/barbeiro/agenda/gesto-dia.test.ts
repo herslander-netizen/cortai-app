@@ -18,7 +18,6 @@ const base: InicioDoGesto = {
   arrastando: false,
 };
 
-
 describe("travarEixo", () => {
   it("só decide depois de ~10 px e mantém a decisão", () => {
     expect(travarEixo(4, 3)).toBe(null);

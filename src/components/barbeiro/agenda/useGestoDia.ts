@@ -53,7 +53,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
   }, []);
 
-
   const limpar = useCallback(() => {
     const el = palco.current;
     if (el) {
