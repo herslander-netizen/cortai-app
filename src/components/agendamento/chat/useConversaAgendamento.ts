@@ -7,21 +7,13 @@ import {
   servicosParecidos,
   type Periodo,
 } from "@/lib/conversa/entender";
-import {
-  armazenamentoLocal,
-  lerMemoriaCliente,
-  lerRascunho,
-  salvarRascunho,
-  type MemoriaCliente,
-  type PassoEditavel,
-  type RascunhoConversa,
-} from "@/lib/conversa/memoria-cliente";
+import type { PassoEditavel } from "@/lib/conversa/memoria-cliente";
 import { TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
 import { hojeNoFuso } from "@/lib/horarios";
+import { useMemoriaDaConversa } from "./useMemoriaDaConversa";
 import { respostaNaoEntendi, respostaRapida } from "./respostasRapidas";
 import type { Chip, Etapa, MensagemExtra, Selecao } from "./tipos";
 
-type Abertura = "futuro" | "retomar" | "sempre" | null;
 type Pendente = { primeiro?: boolean; horario?: string; iso?: string };
 
 /**
@@ -51,9 +43,6 @@ export function useConversaAgendamento({
   const [periodo, setPeriodo] = useState<Periodo | null>(null);
   const [mostrar, setMostrar] = useState(3);
   const [pendente, setPendente] = useState<Pendente>({});
-  const [abertura, setAbertura] = useState<Abertura>(null);
-  const [memoria, setMemoria] = useState<MemoriaCliente | null>(null);
-  const [rascunho, setRascunho] = useState<RascunhoConversa | null>(null);
   const contador = useRef(0);
 
   const etapa: Etapa = !s.servico
@@ -66,34 +55,19 @@ export function useConversaAgendamento({
           ? "horario"
           : "dados";
 
-  useEffect(() => {
-    const storage = armazenamentoLocal();
-    const mem = lerMemoriaCliente(slug, storage);
-    const ras = lerRascunho(slug, storage);
-    setMemoria(mem);
-    setRascunho(ras);
-    const servicoValido = (id?: string) => Boolean(id && data.servicos.some((x) => x.id === id));
-    if (temFuturo) setAbertura("futuro");
-    else if (ras && servicoValido(ras.servicoId)) setAbertura("retomar");
-    else if (mem && servicoValido(mem.ultimoServicoId)) setAbertura("sempre");
-    // Decidido uma vez na abertura; depois a conversa segue pelo cliente.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
-
-  // Rascunho de 30 min: só o que já foi escolhido.
-  useEffect(() => {
-    if (!s.servicoId) return;
-    salvarRascunho(
-      slug,
-      {
-        servicoId: s.servicoId,
-        ...(profEscolhido ? { profissionalId: s.profissionalId } : {}),
-        ...(diaEscolhido && s.dia ? { dia: s.dia } : {}),
-        ...(s.inicio ? { inicio: s.inicio } : {}),
-      },
-      armazenamentoLocal(),
-    );
-  }, [slug, s.servicoId, s.profissionalId, s.dia, s.inicio, profEscolhido, diaEscolhido]);
+  const { memoria, rascunho, abertura, setAbertura } = useMemoriaDaConversa({
+    slug,
+    servicoIds: data.servicos.map((x) => x.id),
+    temFuturo,
+    rascunhoAtual: s.servicoId
+      ? {
+          servicoId: s.servicoId,
+          ...(profEscolhido ? { profissionalId: s.profissionalId } : {}),
+          ...(diaEscolhido && s.dia ? { dia: s.dia } : {}),
+          ...(s.inicio ? { inicio: s.inicio } : {}),
+        }
+      : null,
+  });
 
   // Mensagens laterais pertencem ao passo atual.
   useEffect(() => {
