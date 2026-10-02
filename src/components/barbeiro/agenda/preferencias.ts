@@ -70,6 +70,7 @@ export type ContextoAgenda = {
   /** Dia de hoje no fuso do negócio quando foi guardado. */
   hoje: string;
   salvoEm: number;
+  fuso?: string;
 };
 
 function sessao(): Armazenamento | undefined {
@@ -98,6 +99,7 @@ export function lerContextoAgenda(armazenamento?: Armazenamento): ContextoAgenda
       visualizacao: v === "timeline" || v === "semana" ? v : "lista",
       rolagemJanela: Number(c.rolagemJanela) || 0,
       rolagemTimeline: Number(c.rolagemTimeline) || 0,
+      ...(typeof c.fuso === "string" ? { fuso: c.fuso } : {}),
     };
   } catch {
     return null;

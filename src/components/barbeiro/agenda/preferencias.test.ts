@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  contextoParaRestaurar,
+  lerContextoAgenda,
   preferenciaAgendaInicial,
+  salvarContextoAgenda,
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
 } from "./preferencias";
@@ -46,8 +49,6 @@ describe("preferências da Agenda", () => {
     expect(() => salvarPreferenciaAgenda("foco", storage)).not.toThrow();
   });
 });
-
-import { contextoParaRestaurar, lerContextoAgenda, salvarContextoAgenda } from "./preferencias";
 
 describe("voltar ao mesmo lugar", () => {
   const ctx = {
