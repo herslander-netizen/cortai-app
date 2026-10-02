@@ -84,7 +84,7 @@ export type AgendaItem = {
   cliente: string;
   telefone: string | null;
   ficha: string | null;
-  preferencias: PreferenciasCliente;
+  preferencias?: PreferenciasCliente;
   servico: string;
   duracaoMin: number;
   profissional: string;

@@ -291,7 +291,7 @@ export function AgendaFocoMobile(props: Props) {
                     </div>
                   </div>
 
-                  <FichaFoco clienteId={principal.clienteId} preferencias={principal.preferencias} observacao={principal.ficha} discreto={Boolean(props.discreto)} finalizado={principal.status === "finalizado"} onAbrir={() => props.onMaisOpcoes(principal)} />
+                  <FichaFoco clienteId={principal.clienteId} preferencias={principal.preferencias ?? {}} observacao={principal.ficha} discreto={Boolean(props.discreto)} finalizado={principal.status === "finalizado"} onAbrir={() => props.onMaisOpcoes(principal)} />
 
                   {estado === "atendimento" ? (
                     <div
