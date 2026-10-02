@@ -26,8 +26,8 @@ export function mostrarAviso(titulo: string, corpo?: string | null, link?: strin
   if (typeof document !== "undefined" && document.visibilityState === "visible") return;
   try {
     const opcoes: NotificationOptions = {
-      icon: "/icone-cortai-192.png",
-      badge: "/icone-cortai-192.png",
+      icon: "/icone-cortai-oficial-192-v2.png",
+      badge: "/icone-cortai-oficial-192-v2.png",
       tag: link ?? titulo,
     };
     if (corpo) opcoes.body = corpo;
