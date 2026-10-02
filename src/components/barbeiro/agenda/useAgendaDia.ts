@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -11,18 +11,14 @@ import {
 } from "@/lib/agenda-cache";
 import { getAgendaDia, type AgendaDia } from "@/lib/barbeiro.functions";
 
+import { somarDias } from "./tempo";
+
 export type AgendaDiaCarregada = AgendaDia & { origem: "rede" | "cache"; salvoEm: number | null };
 
 class ErroDeAcesso extends Error {}
 
-/** Consultas, cache offline e tempo real da Agenda do dia. */
-export function useAgendaDia(dia: string) {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
-  const [aoVivo, setAoVivo] = useState(false);
-
-  const agenda = useQuery<AgendaDiaCarregada>({
+export function opcoesAgendaDia(dia: string) {
+  return queryOptions<AgendaDiaCarregada>({
     queryKey: ["agenda-dia", dia],
     queryFn: async () => {
       let dados: AgendaDia;
@@ -47,12 +43,30 @@ export function useAgendaDia(dia: string) {
     retry: (tentativas, erro) => !(erro instanceof ErroDeAcesso) && tentativas < 2,
     staleTime: 60_000,
     gcTime: 5 * 60_000,
+  });
+}
+
+/** Consultas, cache offline e tempo real da Agenda do dia. */
+export function useAgendaDia(dia: string) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+  const [aoVivo, setAoVivo] = useState(false);
+
+  const agenda = useQuery({
+    ...opcoesAgendaDia(dia),
     refetchOnWindowFocus: true,
     // Polling só como reserva quando o tempo real cair.
     refetchInterval: aoVivo ? false : 15_000,
     refetchIntervalInBackground: false,
     placeholderData: keepPreviousData,
   });
+
+  // Pré-busca do dia anterior e do seguinte: a troca já encontra os dados prontos.
+  useEffect(() => {
+    for (const vizinho of [somarDias(dia, -1), somarDias(dia, 1)])
+      void queryClient.prefetchQuery(opcoesAgendaDia(vizinho));
+  }, [dia, queryClient]);
 
   useEffect(() => {
     if (agenda.error instanceof ErroDeAcesso) void navigate({ to: "/login" });
