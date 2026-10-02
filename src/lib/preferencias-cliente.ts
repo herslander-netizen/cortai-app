@@ -33,21 +33,25 @@ export function validarPreferenciasCliente(valor: unknown): PreferenciasCliente 
   const permitidas = new Set(["conversa", "ar", "bebida", ...Object.keys(LIMITES)]);
   if (Object.keys(entrada).some((chave) => !permitidas.has(chave)))
     throw new Error("Preferência inválida.");
-  if (entrada.conversa !== undefined && !CONVERSA.has(entrada.conversa as ConversaCliente))
+  if (entrada["conversa"] !== undefined && !CONVERSA.has(entrada["conversa"] as ConversaCliente))
     throw new Error("Preferência de conversa inválida.");
-  if (entrada.ar !== undefined && !AR.has(entrada.ar as ArCliente))
+  if (entrada["ar"] !== undefined && !AR.has(entrada["ar"] as ArCliente))
     throw new Error("Preferência de ar inválida.");
-  if (entrada.bebida !== undefined && !BEBIDA.has(entrada.bebida as BebidaCliente))
+  if (entrada["bebida"] !== undefined && !BEBIDA.has(entrada["bebida"] as BebidaCliente))
     throw new Error("Preferência de bebida inválida.");
-  return {
-    ...(entrada.conversa ? { conversa: entrada.conversa as ConversaCliente } : {}),
-    ...(entrada.ar ? { ar: entrada.ar as ArCliente } : {}),
-    ...(entrada.bebida ? { bebida: entrada.bebida as BebidaCliente } : {}),
-    ...(texto(entrada.musica, LIMITES.musica, "Música") ? { musica: texto(entrada.musica, LIMITES.musica, "Música") } : {}),
-    ...(texto(entrada.corte_habitual, LIMITES.corte_habitual, "Corte habitual") ? { corte_habitual: texto(entrada.corte_habitual, LIMITES.corte_habitual, "Corte habitual") } : {}),
-    ...(texto(entrada.atencao, LIMITES.atencao, "Atenção") ? { atencao: texto(entrada.atencao, LIMITES.atencao, "Atenção") } : {}),
-    ...(texto(entrada.assuntos, LIMITES.assuntos, "Assuntos") ? { assuntos: texto(entrada.assuntos, LIMITES.assuntos, "Assuntos") } : {}),
-  };
+  const resultado: PreferenciasCliente = {};
+  if (entrada["conversa"]) resultado.conversa = entrada["conversa"] as ConversaCliente;
+  if (entrada["ar"]) resultado.ar = entrada["ar"] as ArCliente;
+  if (entrada["bebida"]) resultado.bebida = entrada["bebida"] as BebidaCliente;
+  for (const [chave, limite] of Object.entries(LIMITES)) {
+    const limpo = texto(
+      entrada[chave],
+      limite,
+      chave === "corte_habitual" ? "Corte habitual" : chave[0].toUpperCase() + chave.slice(1),
+    );
+    if (limpo) resultado[chave as keyof typeof LIMITES] = limpo;
+  }
+  return resultado;
 }
 
 export const ROTULOS_PREFERENCIAS = {

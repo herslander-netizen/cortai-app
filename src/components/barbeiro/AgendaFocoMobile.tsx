@@ -155,8 +155,17 @@ export function AgendaFocoMobile(props: Props) {
   const proximo = proximos[0];
   const anteriores = useRef(props.itens);
   const [dispensados, setDispensados] = useState(() => new Set<string>());
-  const alertas = alertasDeEmergencia({ itens: props.itens, itensAnteriores: anteriores.current, agora, online: props.online, dispensados });
-  const idsMudanca = alertas.filter((alerta) => alerta.tipo === "proximo_mudou").map((alerta) => alerta.id).join("|");
+  const alertas = alertasDeEmergencia({
+    itens: props.itens,
+    itensAnteriores: anteriores.current,
+    agora,
+    online: props.online,
+    dispensados,
+  });
+  const idsMudanca = alertas
+    .filter((alerta) => alerta.tipo === "proximo_mudou")
+    .map((alerta) => alerta.id)
+    .join("|");
   const vibrou = useRef(new Set<string>());
   useEffect(() => {
     for (const id of idsMudanca.split("|").filter(Boolean)) {
@@ -171,7 +180,10 @@ export function AgendaFocoMobile(props: Props) {
     return () => {
       definirModoFoco(false);
       const total = consumirAvisosDoFoco();
-      if (total > 0) aviso.info(`${total} ${total === 1 ? "aviso guardado" : "avisos guardados"} enquanto você atendia`);
+      if (total > 0)
+        aviso.info(
+          `${total} ${total === 1 ? "aviso guardado" : "avisos guardados"} enquanto você atendia`,
+        );
     };
   }, []);
 
@@ -192,10 +204,15 @@ export function AgendaFocoMobile(props: Props) {
           <ArrowLeft />
           Ver agenda completa
         </Button>
-        <div className="modo-foco-topo-acoes"><LampadaDaTela /></div>
+        <div className="modo-foco-topo-acoes">
+          <LampadaDaTela />
+        </div>
       </header>
 
-      <AlertasFoco alertas={alertas} onDispensar={(id) => setDispensados((atuais) => new Set(atuais).add(id))} />
+      <AlertasFoco
+        alertas={alertas}
+        onDispensar={(id) => setDispensados((atuais) => new Set(atuais).add(id))}
+      />
 
       <div className="modo-foco-corpo">
         <div className="modo-foco-data">
@@ -291,7 +308,14 @@ export function AgendaFocoMobile(props: Props) {
                     </div>
                   </div>
 
-                  <FichaFoco clienteId={principal.clienteId} preferencias={principal.preferencias ?? {}} observacao={principal.ficha} discreto={Boolean(props.discreto)} finalizado={principal.status === "finalizado"} onAbrir={() => props.onMaisOpcoes(principal)} />
+                  <FichaFoco
+                    clienteId={principal.clienteId}
+                    preferencias={principal.preferencias ?? {}}
+                    observacao={principal.ficha}
+                    discreto={Boolean(props.discreto)}
+                    finalizado={principal.status === "finalizado"}
+                    onAbrir={() => props.onMaisOpcoes(principal)}
+                  />
 
                   {estado === "atendimento" ? (
                     <div

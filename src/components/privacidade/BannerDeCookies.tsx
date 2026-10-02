@@ -54,7 +54,9 @@ export function BannerDeCookies() {
                     }
                   />
                   <span>
-                    <span className="block text-xs font-semibold text-paper">{categoria.titulo}</span>
+                    <span className="block text-xs font-semibold text-paper">
+                      {categoria.titulo}
+                    </span>
                     <span className="mt-0.5 block text-xs leading-relaxed text-mute">
                       {categoria.detalhe}
                     </span>

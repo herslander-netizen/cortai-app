@@ -28,8 +28,7 @@ export function NovidadesDaVersao() {
       // Primeiro acesso neste aparelho: não há "novidade" para quem acabou de chegar.
       // Registra a versão em silêncio e deixa só as dicas de boas-vindas.
       const jaUsou =
-        vista !== null ||
-        Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
+        vista !== null || Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
       if (!jaUsou) {
         localStorage.setItem(CHAVE, APP_VERSION);
         return;
@@ -63,13 +62,24 @@ export function NovidadesDaVersao() {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/80 p-4 sm:items-center">
-      <div role="dialog" aria-label="Novidades do Cortaí" className="w-full max-w-md surface p-6 shadow-xl">
+      <div
+        role="dialog"
+        aria-label="Novidades do Cortaí"
+        className="w-full max-w-md surface p-6 shadow-xl"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-rosa">NOVIDADES</p>
-            <h2 className="mt-2 text-2xl font-semibold text-paper">{VERSAO_ATUAL_INFO.titulo} chegou.</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-paper">
+              {VERSAO_ATUAL_INFO.titulo} chegou.
+            </h2>
           </div>
-          <button type="button" onClick={fechar} aria-label="Fechar novidades" className="rounded-full p-2 text-mute hover:text-paper">
+          <button
+            type="button"
+            onClick={fechar}
+            aria-label="Fechar novidades"
+            className="rounded-full p-2 text-mute hover:text-paper"
+          >
             <X size={18} />
           </button>
         </div>

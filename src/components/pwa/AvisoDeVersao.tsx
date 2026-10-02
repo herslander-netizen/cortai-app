@@ -65,8 +65,8 @@ export function AvisoDeVersao() {
             Nova versão disponível
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-mute">
-            Uma nova versão do Cortaí está disponível. Atualize o aplicativo para continuar usando todos os
-            recursos.
+            Uma nova versão do Cortaí está disponível. Atualize o aplicativo para continuar usando
+            todos os recursos.
           </p>
           <button
             type="button"

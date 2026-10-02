@@ -17,7 +17,9 @@ async function contexto(context: any, clienteId: string) {
   const db = await admin();
   const { data: cliente } = await db
     .from("clientes")
-    .select("id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias")
+    .select(
+      "id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
+    )
     .eq("id", clienteId)
     .eq("tenant_id", tenantId)
     .maybeSingle();
@@ -226,10 +228,15 @@ export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { db, tenantId, cliente } = await contexto(context, data.clienteId);
     await exigirPermissao(context, tenantId, "editar_clientes");
-    if (cliente.telefone === "avulso") throw new Error("Identifique o cliente antes de salvar preferências.");
+    if (cliente.telefone === "avulso")
+      throw new Error("Identifique o cliente antes de salvar preferências.");
     const atuais = validarPreferenciasCliente(cliente.preferencias);
     const preferencias = validarPreferenciasCliente({ ...atuais, ...data.preferencias });
-    const { error } = await db.from("clientes").update({ preferencias }).eq("id", cliente.id).eq("tenant_id", tenantId);
+    const { error } = await db
+      .from("clientes")
+      .update({ preferencias })
+      .eq("id", cliente.id)
+      .eq("tenant_id", tenantId);
     if (error) throw new Error("Não foi possível salvar as preferências.");
     return { preferencias };
   });
