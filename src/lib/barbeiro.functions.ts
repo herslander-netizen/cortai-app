@@ -9,6 +9,7 @@ import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
 import { mapearHorarios, passoValido, validarAgendamento } from "@/lib/agenda-regras.server";
+import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -83,6 +84,7 @@ export type AgendaItem = {
   cliente: string;
   telefone: string | null;
   ficha: string | null;
+  preferencias: PreferenciasCliente;
   servico: string;
   duracaoMin: number;
   profissional: string;
@@ -136,7 +138,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -172,6 +174,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       cliente: a.clientes?.nome ?? "Cliente",
       telefone: a.clientes?.telefone ?? null,
       ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
+      preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
       servico: a.servicos?.nome ?? "Serviço",
       duracaoMin:
         a.servicos?.duracao_min ??
@@ -297,7 +300,7 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
     const { data } = await db
       .from("agendamentos")
       .select(
-        "id, inicio, fim, status, cliente_id, arrived_at, started_at, finished_at, confirmado_em, clientes(nome, telefone, ficha_tecnica, condicoes_especiais), servicos(nome, duracao_min), profissionais(nome)",
+        "id, inicio, fim, status, cliente_id, arrived_at, started_at, finished_at, confirmado_em, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
       )
       .eq("tenant_id", tenant.id)
       .not("status", "in", "(cancelado,nao_compareceu,remarcado,finalizado)")
@@ -314,6 +317,7 @@ export const getAgoraProximo = createServerFn({ method: "GET" })
       cliente: a.clientes?.nome ?? "Cliente",
       telefone: a.clientes?.telefone ?? null,
       ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
+      preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
       servico: a.servicos?.nome ?? "Serviço",
       duracaoMin:
         a.servicos?.duracao_min ??

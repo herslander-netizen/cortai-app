@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 import { APP_VERSION, VERSAO_ATUAL_INFO } from "@/lib/versao";
+import { useModoFoco } from "@/lib/modo-foco";
 
 const CHAVE = "cortai-novidades-vistas";
 
@@ -12,6 +13,7 @@ const CHAVE = "cortai-novidades-vistas";
  * interrompe o funcionamento do app — dá para fechar a qualquer momento.
  */
 export function NovidadesDaVersao() {
+  const foco = useModoFoco();
   const caminho = useRouterState({ select: (s) => s.location.pathname });
   const [aberto, setAberto] = useState(false);
 
@@ -19,7 +21,7 @@ export function NovidadesDaVersao() {
   const areaLogada = caminho.startsWith("/app") || caminho.startsWith("/admin");
 
   useEffect(() => {
-    if (!areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
+    if (foco || !areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
     try {
       const vista = localStorage.getItem(CHAVE);
       if (vista === APP_VERSION) return;
@@ -37,7 +39,7 @@ export function NovidadesDaVersao() {
     }
     const timer = window.setTimeout(() => setAberto(true), 600);
     return () => window.clearTimeout(timer);
-  }, [areaLogada]);
+  }, [areaLogada, foco]);
 
   function fechar() {
     setAberto(false);
@@ -55,7 +57,7 @@ export function NovidadesDaVersao() {
     return () => window.removeEventListener("keydown", tecla);
   }, [aberto]);
 
-  if (!aberto) return null;
+  if (!aberto || foco) return null;
 
   const destaques = [...VERSAO_ATUAL_INFO.funcionalidades, ...VERSAO_ATUAL_INFO.visual].slice(0, 5);
 

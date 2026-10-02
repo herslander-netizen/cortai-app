@@ -6,6 +6,7 @@ import {
   URL_DE_ATUALIZACAO,
   type SituacaoDaVersao,
 } from "@/lib/versao";
+import { useModoFoco } from "@/lib/modo-foco";
 
 const CHAVE_ADIADO = "cortai:versao-adiada";
 
@@ -16,6 +17,7 @@ const CHAVE_ADIADO = "cortai:versao-adiada";
  * Nada aparece quando o aplicativo está em dia.
  */
 export function AvisoDeVersao() {
+  const foco = useModoFoco();
   const [situacao, setSituacao] = useState<SituacaoDaVersao>("em_dia");
   const [destino, setDestino] = useState(URL_DE_ATUALIZACAO);
   const [adiado, setAdiado] = useState(true);
@@ -77,6 +79,8 @@ export function AvisoDeVersao() {
       </div>
     );
   }
+
+  if (foco) return null;
 
   if (situacao !== "recomendada" || adiado) return null;
 
