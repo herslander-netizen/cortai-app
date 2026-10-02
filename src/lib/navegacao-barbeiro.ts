@@ -214,7 +214,7 @@ export function itemDeNavegacaoAtivo(caminho: string, to: string) {
   );
 }
 
-/** Itens fixos da barra inferior; o menu não os repete. */
+/** Itens fixos da lateral de telas maiores; o drawer desktop não os repete. */
 export function itensDaBarra(permissoes: ReadonlyArray<string> | undefined) {
   const financeiro = permissoes?.includes("visualizar_financeiro");
   return [
@@ -224,6 +224,14 @@ export function itensDaBarra(permissoes: ReadonlyArray<string> | undefined) {
       ? { to: "/barbeiro/caixa", label: "Financeiro" }
       : { to: "/barbeiro/fila", label: "Espera" },
   ] as const;
+}
+
+/** Dia a dia completo no celular, com a Agenda como primeira porta de entrada. */
+export function itensDoDiaADiaNoMenuMovel(permissoes: ReadonlyArray<string> | undefined) {
+  return [...MODULOS_DE_NAVEGACAO]
+    .filter((item) => item.grupo === "Dia a dia")
+    .filter((item) => !item.permissao || permissoes?.includes(item.permissao))
+    .sort((a, b) => (a.to === "/barbeiro" ? -1 : b.to === "/barbeiro" ? 1 : 0));
 }
 
 export function modulosDeNavegacao(segmento: Segmento) {

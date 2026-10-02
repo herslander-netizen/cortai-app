@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
@@ -18,7 +18,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
-import { IconeCortai } from "@/components/marca/MarcaCortai";
 import { getSessao } from "@/lib/sessao.functions";
 import { hojeNoFuso, horarioDoDia, normalizarFuso } from "@/lib/horarios";
 import { definirFusoDasTelas } from "@/lib/format";
@@ -29,13 +28,24 @@ import { rotuloDoPapel } from "@/lib/navigation";
 import type { ChaveDePermissao } from "@/lib/permissoes";
 import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
 import { ModeMenuItem } from "@/components/layout/ThemeToggle";
-import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
+import {
+  APPEARANCE_EVENT,
+  aplicarIdentidade,
+  aplicarModo,
+  identidadeValida,
+  MODE_KEY,
+} from "@/lib/aparencia";
 import {
   GRUPOS_DE_NAVEGACAO,
   itemDeNavegacaoAtivo,
   itensDaBarra,
+  itensDoDiaADiaNoMenuMovel,
   modulosDeNavegacao,
 } from "@/lib/navegacao-barbeiro";
+import { useMediaQuery } from "@/hooks/use-mobile";
+import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
+import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
+import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
 
 type ItemDoMenu = {
   label: string;
@@ -47,6 +57,9 @@ type ItemDoMenu = {
 
 export function ManagementHeader() {
   const [aberto, setAberto] = useState(false);
+  const [modoClaro, setModoClaro] = useState(false);
+  const celular = useMediaQuery("(max-width: 767px)");
+  const inicioDaBorda = useRef<{ x: number; y: number } | null>(null);
   const caminho = useRouterState({ select: (state) => state.location.pathname });
   const { data: sessao } = useQuery({
     queryKey: ["sessao"],
@@ -69,12 +82,32 @@ export function ManagementHeader() {
   });
   const horarioDeHoje = agenda ? horarioDoDia(hoje, agenda.horarios) : null;
   const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
+  const fuso = normalizarFuso(sessao?.tenantFuso);
+  const saudacao = saudacaoDoMenu({
+    dia: hoje,
+    hora: horaNoFuso(fuso),
+    nome: sessao?.nome ?? null,
+  });
+  const atendimentosDeHoje = agenda?.itens.filter(
+    (item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status),
+  ).length;
+  const resumoDaAgenda = agenda
+    ? atendimentosDeHoje
+      ? `Hoje: ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
+      : "Agenda livre hoje"
+    : null;
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
     if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY))
       aplicarModo(sessao.tenantModo, true);
   }, [sessao?.identidadeApp, sessao?.tenantModo]);
+  useEffect(() => {
+    const atualizar = () => setModoClaro(document.documentElement.classList.contains("light"));
+    atualizar();
+    window.addEventListener(APPEARANCE_EVENT, atualizar);
+    return () => window.removeEventListener(APPEARANCE_EVENT, atualizar);
+  }, []);
   useEffect(() => {
     const abrir = () => setAberto(true);
     window.addEventListener("cortai:abrir-menu", abrir);
@@ -83,21 +116,59 @@ export function ManagementHeader() {
   useEffect(() => {
     definirFusoDasTelas(sessao?.tenantFuso);
   }, [sessao?.tenantFuso]);
+  useEffect(() => {
+    if (!celular || aberto) return;
+    const comecar = (evento: TouchEvent) => {
+      const toque = evento.touches[0];
+      inicioDaBorda.current =
+        toque && toque.clientX <= 24 ? { x: toque.clientX, y: toque.clientY } : null;
+    };
+    const mover = (evento: TouchEvent) => {
+      const inicio = inicioDaBorda.current;
+      const toque = evento.touches[0];
+      if (!inicio || !toque) return;
+      const dx = toque.clientX - inicio.x;
+      const dy = toque.clientY - inicio.y;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        inicioDaBorda.current = null;
+        return;
+      }
+      if (dx > 48) {
+        evento.preventDefault();
+        inicioDaBorda.current = null;
+        setAberto(true);
+      }
+    };
+    const terminar = () => {
+      inicioDaBorda.current = null;
+    };
+    window.addEventListener("touchstart", comecar, { passive: true });
+    window.addEventListener("touchmove", mover, { passive: false });
+    window.addEventListener("touchend", terminar, { passive: true });
+    window.addEventListener("touchcancel", terminar, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", comecar);
+      window.removeEventListener("touchmove", mover);
+      window.removeEventListener("touchend", terminar);
+      window.removeEventListener("touchcancel", terminar);
+    };
+  }, [aberto, celular]);
 
   const grupos = useMemo(() => {
     const modulos = modulosDeNavegacao(sessao?.segmento ?? "outro");
     const naBarra = itensDaBarra(sessao?.permissoes).map((b) => b.to as string);
     const operacionais = GRUPOS_DE_NAVEGACAO.map((titulo) => ({
       titulo,
-      itens: modulos
-        .filter((item) => item.grupo === titulo && !naBarra.includes(item.to))
-        .filter((item) => {
-          if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
-          const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
-          if (!rotaDaCapacidade || !capacidades) return true;
-          const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
-          return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
-        }),
+      itens: (celular && titulo === "Dia a dia"
+        ? itensDoDiaADiaNoMenuMovel(sessao?.permissoes)
+        : modulos.filter((item) => item.grupo === titulo && !naBarra.includes(item.to))
+      ).filter((item) => {
+        if (item.permissao && !sessao?.permissoes.includes(item.permissao)) return false;
+        const rotaDaCapacidade = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
+        if (!rotaDaCapacidade || !capacidades) return true;
+        const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rotaDaCapacidade);
+        return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
+      }),
     }));
     const sistema: { titulo: string; itens: ItemDoMenu[] } = {
       titulo: "Sistema",
@@ -108,7 +179,7 @@ export function ManagementHeader() {
       ],
     };
     return [...operacionais, sistema];
-  }, [capacidades, sessao?.permissoes, sessao?.segmento]);
+  }, [capacidades, celular, sessao?.permissoes, sessao?.segmento]);
 
   const [abertos, setAbertos] = useState<string[]>(["Dia a dia"]);
   const grupoAtual =
@@ -131,10 +202,15 @@ export function ManagementHeader() {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="h-11 w-11 rounded-full p-0 hover:bg-ink3"
+              className="menu-cortai-trigger h-12 w-12 shrink-0 rounded-[8px] p-0 hover:bg-transparent"
               aria-label="Abrir navegação"
             >
-              <IconeCortai className="h-10 w-10 rounded-full" />
+              <img
+                src={modoClaro ? menuClaro.url : menuEscuro.url}
+                alt=""
+                aria-hidden
+                className="h-11 w-11 rounded-[8px] object-cover"
+              />
             </Button>
           </SheetTrigger>
           <SheetContent
@@ -142,12 +218,19 @@ export function ManagementHeader() {
             className="management-drawer w-[88vw] max-w-[360px] border-line bg-ink2 p-0 duration-200"
           >
             <div className="border-b border-line px-5 pb-4 pt-5 pr-12">
-              <SheetTitle className="truncate text-base text-paper">
-                {sessao?.tenantNome ?? "Meu negócio"}
-              </SheetTitle>
-              <SheetDescription className="mt-1 truncate text-xs text-mute">
-                {sessao?.nome ?? "Conta conectada"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
+              <SheetTitle className="truncate text-lg text-paper">{saudacao.titulo}</SheetTitle>
+              <SheetDescription className="mt-1 text-sm text-mute">
+                {saudacao.frase}
               </SheetDescription>
+              {resumoDaAgenda ? (
+                <p className="mt-2 text-xs font-semibold text-paper">{resumoDaAgenda}</p>
+              ) : null}
+              <p className="mt-4 truncate text-sm font-semibold text-paper">
+                {sessao?.tenantNome ?? "Meu negócio"}
+              </p>
+              <p className="mt-0.5 truncate text-xs text-mute">
+                {rotuloDoPapel(sessao?.papelNaEquipe)}
+              </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-mute">
                 <span
                   className={`h-2 w-2 rounded-full ${operacaoAberta === false ? "bg-brick" : "bg-sage"}`}

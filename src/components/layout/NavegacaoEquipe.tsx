@@ -34,7 +34,7 @@ function useItens() {
   }));
 }
 
-/** Barra inferior curta (celular) e lateral recolhível (desktop), com a Agenda primeiro. */
+/** Lateral recolhível de desktop/tablet, com a Agenda primeiro. */
 export function NavegacaoEquipe() {
   const itens = useItens();
   const caminho = useRouterState({ select: (s) => s.location.pathname });
@@ -55,87 +55,52 @@ export function NavegacaoEquipe() {
   }
 
   return (
-    <>
-      <nav className="equipe-barra" aria-label="Navegação principal">
-        <ul>
-          {itens.map((item) => {
-            const Icon = item.icon;
-            const on = itemDeNavegacaoAtivo(caminho, item.to);
-            return (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  preload="intent"
-                  activeOptions={{ exact: true }}
-                  aria-current={on ? "page" : undefined}
-                  className="equipe-barra-link"
-                >
-                  <Icon size={20} strokeWidth={1.75} aria-hidden />
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-          <li>
-            <button
-              type="button"
-              className="equipe-barra-link w-full"
-              onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
-            >
-              <Menu size={20} strokeWidth={1.75} aria-hidden />
-              <span>Menu</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
-
-      <nav className="equipe-lateral" aria-label="Navegação principal">
-        <ul>
-          {itens.map((item) => {
-            const Icon = item.icon;
-            const on = itemDeNavegacaoAtivo(caminho, item.to);
-            return (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  preload="intent"
-                  activeOptions={{ exact: true }}
-                  aria-current={on ? "page" : undefined}
-                  title={item.label}
-                  className="equipe-lateral-link"
-                >
-                  <Icon size={19} strokeWidth={1.75} aria-hidden />
-                  <span className="equipe-lateral-rotulo">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-          <li>
-            <button
-              type="button"
-              title="Menu"
-              className="equipe-lateral-link w-full"
-              onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
-            >
-              <Menu size={19} strokeWidth={1.75} aria-hidden />
-              <span className="equipe-lateral-rotulo">Menu</span>
-            </button>
-          </li>
-        </ul>
-        <button
-          type="button"
-          onClick={alternar}
-          className="equipe-lateral-link equipe-lateral-alternar"
-          aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}
-        >
-          {recolhida ? (
-            <PanelLeftOpen size={19} strokeWidth={1.75} aria-hidden />
-          ) : (
-            <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />
-          )}
-          <span className="equipe-lateral-rotulo">Recolher</span>
-        </button>
-      </nav>
-    </>
+    <nav className="equipe-lateral" aria-label="Navegação principal">
+      <ul>
+        {itens.map((item) => {
+          const Icon = item.icon;
+          const on = itemDeNavegacaoAtivo(caminho, item.to);
+          return (
+            <li key={item.to}>
+              <Link
+                to={item.to}
+                preload="intent"
+                activeOptions={{ exact: true }}
+                aria-current={on ? "page" : undefined}
+                title={item.label}
+                className="equipe-lateral-link"
+              >
+                <Icon size={19} strokeWidth={1.75} aria-hidden />
+                <span className="equipe-lateral-rotulo">{item.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+        <li>
+          <button
+            type="button"
+            title="Menu"
+            className="equipe-lateral-link w-full"
+            onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
+          >
+            <Menu size={19} strokeWidth={1.75} aria-hidden />
+            <span className="equipe-lateral-rotulo">Menu</span>
+          </button>
+        </li>
+      </ul>
+      <button
+        type="button"
+        onClick={alternar}
+        className="equipe-lateral-link equipe-lateral-alternar"
+        aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}
+      >
+        {recolhida ? (
+          <PanelLeftOpen size={19} strokeWidth={1.75} aria-hidden />
+        ) : (
+          <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />
+        )}
+        <span className="equipe-lateral-rotulo">Recolher</span>
+      </button>
+    </nav>
   );
 }

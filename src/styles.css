@@ -734,15 +734,15 @@
   color: var(--paper);
 }
 .drawer-link-active {
-  background: var(--gold-soft);
+  background: color-mix(in oklab, var(--primary) 18%, var(--ink2));
   color: var(--paper);
   font-weight: 700;
 }
 .drawer-link-active {
-  box-shadow: inset 3px 0 0 var(--gold);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 .drawer-link-active svg {
-  color: var(--gold);
+  color: var(--primary);
 }
 
 .management-shell .shadow-xl,
@@ -1348,7 +1348,7 @@ html.light .brand-logo-on-light,
   }
   .agenda-acao-fixa {
     right: 14px;
-    bottom: calc(68px + env(safe-area-inset-bottom));
+    bottom: var(--agenda-controle-pe);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: 50px;
@@ -2612,45 +2612,10 @@ body:has(.auth-screen--claro) {
   border-radius: 0 8px 8px 0;
 }
 
-/* Etapa 3 — navegação da equipe: barra inferior no celular, lateral recolhível no desktop */
-.equipe-barra {
-  position: fixed;
-  inset-inline: 0;
-  bottom: 0;
-  z-index: 30;
-  border-top: 1px solid var(--line);
-  background: color-mix(in oklab, var(--ink2) 96%, transparent);
-  backdrop-filter: blur(14px);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.equipe-barra ul {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: 560px;
-  margin: 0 auto;
-}
-.equipe-barra-link {
-  display: flex;
-  min-height: 56px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  color: var(--mute);
-  font-size: 12px;
-  font-weight: 600;
-  transition: color 150ms ease;
-}
-.equipe-barra-link[aria-current="page"] {
-  color: var(--gold);
-}
-.equipe-barra-link:focus-visible,
+/* Navegação da equipe: drawer no celular e lateral recolhível em telas maiores. */
 .equipe-lateral-link:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--primary);
   outline-offset: -2px;
-}
-.equipe-conteudo {
-  padding-bottom: calc(64px + env(safe-area-inset-bottom));
 }
 .equipe-lateral {
   display: none;
@@ -2663,11 +2628,7 @@ body:has(.auth-screen--claro) {
 }
 
 @media (min-width: 768px) {
-  .equipe-barra {
-    display: none;
-  }
   .equipe-conteudo {
-    padding-bottom: 0;
     padding-left: 208px;
     transition: padding-left 180ms ease;
   }
@@ -2898,7 +2859,7 @@ html.agenda-gesto-ativo body {
 .agenda-previa-vizinho {
   position: fixed;
   top: 3.5rem;
-  bottom: calc(64px + env(safe-area-inset-bottom));
+  bottom: 0;
   left: 0;
   width: 100vw;
   z-index: 5;
@@ -3094,12 +3055,8 @@ html.agenda-gesto-ativo body {
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--paper) 4%, transparent);
 }
 
-/* Aviso de privacidade acima da barra inferior da equipe (celular) */
+/* Modo Foco ocupa toda a altura disponível no celular. */
 @media (max-width: 767px) {
-  body:has(.equipe-barra) .banner-cookies {
-    bottom: calc(56px + env(safe-area-inset-bottom));
-  }
-
   body:has(.agenda-foco-mobile) .management-header,
   body:has(.agenda-foco-mobile) .cortai-fab-area,
   body:has(.agenda-foco-mobile) .screen-shell > footer,
@@ -3115,10 +3072,6 @@ html.agenda-gesto-ativo body {
   }
   body:has(.agenda-foco-mobile) .screen-content {
     padding: 0;
-  }
-
-  body:has(.agenda-foco-mobile.agenda-foco-ativo) .equipe-barra {
-    display: none;
   }
 }
 
@@ -3901,7 +3854,6 @@ html.agenda-gesto-ativo body {
 
 @media (max-width: 767px) {
   body:has(.modo-foco) .management-header,
-  body:has(.modo-foco) .equipe-barra,
   body:has(.modo-foco) .cortai-fab-area,
   body:has(.modo-foco) .screen-shell > footer {
     display: none;
@@ -5474,7 +5426,7 @@ button.agenda-nome:hover {
 /* Botão composto do pé da Agenda (celular): "Agora" e alternância Timeline/Lista */
 :root {
   --agenda-area-segura: env(safe-area-inset-bottom);
-  --agenda-controle-pe: calc(76px + var(--agenda-area-segura));
+  --agenda-controle-pe: calc(14px + var(--agenda-area-segura));
 }
 .agenda-botao-agora-principal {
   position: fixed;
