@@ -74,10 +74,18 @@ export async function tokenDoWebhook(): Promise<string | null> {
   return (await chaveInterna("asaas_webhook_token")) ?? process.env["ASAAS_WEBHOOK_TOKEN"] ?? null;
 }
 
-function mensagemDoErro(status: number, corpo: any): string {
-  const desc = Array.isArray(corpo?.errors)
-    ? corpo.errors
-        .map((e: any) => e?.description)
+function mensagemDoErro(status: number, corpo: unknown): string {
+  const errors =
+    corpo && typeof corpo === "object" && "errors" in corpo
+      ? (corpo as { errors?: unknown }).errors
+      : null;
+  const desc = Array.isArray(errors)
+    ? errors
+        .map((erro: unknown) =>
+          erro && typeof erro === "object" && "description" in erro
+            ? String((erro as { description?: unknown }).description ?? "")
+            : "",
+        )
         .filter(Boolean)
         .join(" ")
     : "";
@@ -92,7 +100,7 @@ export async function asaas() {
   if (!chave || ambienteDaChave(chave) === "invalida")
     throw new AsaasError("Chave do Asaas não configurada.", 0);
   const base = asaasBaseUrl(chave);
-  async function call<T = any>(method: string, path: string, body?: unknown): Promise<T> {
+  async function call<T = unknown>(method: string, path: string, body?: unknown): Promise<T> {
     const r = await fetch(`${base}${path}`, {
       method,
       headers: {
@@ -103,7 +111,7 @@ export async function asaas() {
       body: body === undefined ? null : JSON.stringify(body),
     });
     const texto = await r.text();
-    let json: any = null;
+    let json: unknown = null;
     try {
       json = texto ? JSON.parse(texto) : null;
     } catch {

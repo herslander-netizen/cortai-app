@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-async function adminContext(context: { supabase: any; userId: string }) {
+async function adminContext(context: { supabase: SupabaseClient<Database>; userId: string }) {
   const { data: allowed } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
@@ -151,7 +151,14 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const activeRules = rulesRes.data ?? [];
     const queueTenants = new Set((queueRes.data ?? []).map((q) => q.tenant_id));
     const packageTenants = new Set(
-      (movesRes.data ?? []).map((m: any) => m.carteiras?.tenant_id).filter(Boolean),
+      (movesRes.data ?? [])
+        .map((movimento) => {
+          const carteira = Array.isArray(movimento.carteiras)
+            ? movimento.carteiras[0]
+            : movimento.carteiras;
+          return carteira?.tenant_id;
+        })
+        .filter(Boolean),
     );
     const signals = [
       {
