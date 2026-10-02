@@ -85,6 +85,8 @@ import {
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
 } from "@/components/barbeiro/agenda/preferencias";
+import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
+import { contextoInicialDaAgenda, useLugarDaAgenda } from "@/components/barbeiro/agenda/useLugarDaAgenda";
 
 const AgendamentoManualLazy = lazy(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
@@ -243,7 +245,8 @@ export function AgendaOperacional() {
   const moverAgendamento = useServerFn(moverAgendamentoPainel);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [dia, setDia] = useState(() => hojeNoFuso());
+  const [restaurado] = useState(() => contextoInicialDaAgenda(typeof busca["agendamento"] === "string"));
+  const [dia, setDia] = useState(() => restaurado?.dia ?? hojeNoFuso());
   const [direcaoDia, setDirecaoDia] = useState<"anterior" | "proximo">("proximo");
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
   const fusoAnterior = useRef(fuso);
@@ -271,7 +274,9 @@ export function AgendaOperacional() {
   } | null>(null);
   if (!inicial.current) {
     const celularLido = window.matchMedia("(max-width: 767px)").matches;
-    inicial.current = { celular: celularLido, preferencia: preferenciaAgendaInicial(celularLido) };
+    const salva = preferenciaAgendaInicial(celularLido);
+    const volta = restaurado && salva !== "foco" ? restaurado.visualizacao : salva;
+    inicial.current = { celular: celularLido, preferencia: celularLido && volta === "semana" ? "lista" : volta };
   }
   const celularInicial = inicial.current.celular;
   const preferenciaInicial = inicial.current.preferencia;
@@ -289,7 +294,6 @@ export function AgendaOperacional() {
   const [modoDiscreto, setModoDiscreto] = useState(modoDiscretoInicial);
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
-  const toque = useRef<{ x: number; y: number } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
 
   function alterarVisualizacao(proxima: Visualizacao) {
@@ -311,6 +315,8 @@ export function AgendaOperacional() {
   }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
+  const gestoDia = useGestoDia((d) => mudarDia(somarDias(dia, d)));
+  useLugarDaAgenda({ dia, visualizacao, fuso, foco: modoFoco, pronto: !!agenda.data, restaurado });
 
   useEffect(() => {
     const voltar = () => setModoFoco(false);
@@ -938,25 +944,6 @@ export function AgendaOperacional() {
     );
   }
 
-  function inicioToque(e: React.TouchEvent) {
-    const alvo = e.target as HTMLElement;
-    if (alvo.closest(".agenda-timeline-bloco, .agenda-chips, input, select, [role=dialog]")) {
-      toque.current = null;
-      return;
-    }
-    const t = e.touches[0];
-    toque.current = t ? { x: t.clientX, y: t.clientY } : null;
-  }
-  function fimToque(e: React.TouchEvent) {
-    const ini = toque.current;
-    toque.current = null;
-    const t = e.changedTouches[0];
-    if (!ini || !t) return;
-    const dx = t.clientX - ini.x;
-    const dy = t.clientY - ini.y;
-    if (Math.abs(dx) > 70 && Math.abs(dy) < 40) mudarDia(somarDias(dia, dx < 0 ? 1 : -1));
-  }
-
   const abas: { id: Visualizacao; rotulo: string; soDesktop?: boolean }[] = [
     { id: "timeline", rotulo: "Timeline" },
     { id: "lista", rotulo: "Lista" },
@@ -989,8 +976,7 @@ export function AgendaOperacional() {
         key={dia}
         className="agenda-operacional agenda-troca-dia pb-32"
         data-direcao={direcaoDia}
-        onTouchStart={inicioToque}
-        onTouchEnd={fimToque}
+        {...gestoDia}
       >
         <CabecalhoAgenda
           dia={dia}
