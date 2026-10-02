@@ -6,10 +6,7 @@ import { getSessao } from "@/lib/sessao.functions";
 import { aviso } from "@/lib/avisos";
 import { tipoDePushValido } from "@/lib/push/regras";
 import { pushAtivoNesteAparelho, precisaInstalarParaPush } from "@/lib/push/aparelho";
-import {
-  ativarAvisosDaEquipe,
-  TEXTO_INSTALAR_PRIMEIRO,
-} from "@/components/notificacoes/AtivarAvisosNoAparelho";
+import { ativarAvisosDaEquipe, TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 import { useEffect, useState } from "react";
 
 const TIPOS = [

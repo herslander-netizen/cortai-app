@@ -1,34 +1,12 @@
 import { Bell, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { aviso } from "@/lib/avisos";
 import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
 import { useConsentimento } from "@/lib/consentimento";
 import { useModoFoco } from "@/lib/modo-foco";
 import { useConviteDeInstalacaoVisivel } from "@/lib/pwa";
-import {
-  ativarPushDaEquipe,
-  precisaInstalarParaPush,
-  type ResultadoDoPush,
-} from "@/lib/push/aparelho";
-
-const MENSAGEM: Record<Exclude<ResultadoDoPush, "ativo" | "instalar_primeiro">, string> = {
-  bloqueado: "Os avisos estão bloqueados nas configurações do navegador.",
-  recusado: "Tudo bem. Você pode ativar depois em Ajustes.",
-  so_no_app: "Avisos ativados enquanto o Cortaí estiver aberto.",
-  falhou: "Não deu para ativar agora. Tente de novo em Ajustes.",
-};
-
-/** Mesmo toque de "Ativar avisos" para equipe (push) e cliente (só navegador). */
-export async function ativarAvisosDaEquipe(tenantId: string) {
-  const r = await ativarPushDaEquipe(tenantId);
-  if (r === "ativo") aviso.ok("Avisos no celular ativados.");
-  else if (r !== "instalar_primeiro") aviso.info(MENSAGEM[r]);
-  return r;
-}
-
-export const TEXTO_INSTALAR_PRIMEIRO =
-  "No iPhone, instale o Cortaí primeiro: toque em Compartilhar e depois em Adicionar à Tela de Início. Depois abra pelo ícone e ative os avisos.";
+import { precisaInstalarParaPush } from "@/lib/push/aparelho";
+import { ativarAvisosDaEquipe, TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 
 /**
  * Convite discreto para ligar os avisos do aparelho.
