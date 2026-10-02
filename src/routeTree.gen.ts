@@ -89,6 +89,7 @@ import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
+import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
@@ -496,6 +497,11 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushEventoRoute = ApiPublicPushEventoRouteImport.update({
+  id: '/api/public/push/evento',
+  path: '/api/public/push/evento',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWhatsappAutomacoesRoute =
   ApiPublicWhatsappAutomacoesRouteImport.update({
     id: '/api/public/whatsapp/automacoes',
@@ -602,6 +608,7 @@ export interface FileRoutesByFullPath {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -684,6 +691,7 @@ export interface FileRoutesByTo {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -771,6 +779,7 @@ export interface FileRoutesById {
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
+  '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
@@ -859,6 +868,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -941,6 +951,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -1027,6 +1038,7 @@ export interface FileRouteTypes {
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/cortai/acoes'
+    | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
@@ -1065,6 +1077,7 @@ export interface RootRouteChildren {
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
   ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
+  ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
   ApiPublicWhatsappEvolutionRoute: typeof ApiPublicWhatsappEvolutionRoute
@@ -1633,6 +1646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/evento': {
+      id: '/api/public/push/evento'
+      path: '/api/public/push/evento'
+      fullPath: '/api/public/push/evento'
+      preLoaderRoute: typeof ApiPublicPushEventoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whatsapp/automacoes': {
       id: '/api/public/whatsapp/automacoes'
       path: '/api/public/whatsapp/automacoes'
@@ -1830,6 +1850,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,
   ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
+  ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
   ApiPublicWhatsappEvolutionRoute: ApiPublicWhatsappEvolutionRoute,
