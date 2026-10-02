@@ -18,6 +18,23 @@ import { IngressoAgendamento } from "./IngressoAgendamento";
 import { baixarArquivoIcs, linkGoogleAgenda } from "@/lib/calendario-agendamento";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
 
+function dataLocal(iso: string, fuso: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  }).format(new Date(iso));
+}
+
+function horaLocal(iso: string, fuso: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
 export type SituacaoPublica =
   "confirmado" | "cancelado" | "cancelado_pela_barbearia" | "remarcado" | "nao_compareceu";
 
