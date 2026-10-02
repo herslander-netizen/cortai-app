@@ -7,11 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { estaAtrasado, intervaloDoDia, nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
-import {
-  deslocamentoAteOMeio,
-  ladoDoAgora,
-  publicarAgora,
-} from "@/components/barbeiro/agenda/pilula-agora";
+import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { prefereMenosMovimento } from "@/lib/motion";
 
 const CELULAR = "(max-width: 600px)";
