@@ -17,6 +17,7 @@ import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
+import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   const { data } = await db
@@ -39,6 +40,7 @@ const LIMITES = {
   reconhecer: { ip: 20, telefone: 10 },
   situacao: { ip: 30, telefone: 15 },
   cancelar: { ip: 8, telefone: 5 },
+  preferencias: { ip: 10, telefone: 5 },
 } as const;
 
 /** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
@@ -138,6 +140,21 @@ const telefoneSchema = z
   .transform(digitos)
   .refine((v) => v.length >= 10 && v.length <= 13, "Informe um WhatsApp válido com DDD.");
 
+function bytesParaHex(bytes: Uint8Array) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export function criarTokenDePreferencias() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return bytesParaHex(bytes);
+}
+
+export async function hashDoTokenDePreferencias(token: string) {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return bytesParaHex(new Uint8Array(hash));
+}
+
 export const getAgendaPublica = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
@@ -234,7 +251,9 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       horarios: mapearHorarios(horariosRes.data ?? []),
       ocupados: [
         ...(ocupadosRes.data ?? []),
-        ...(await (await import("@/lib/ocupacoes-extras.server")).ocupacoesExtras(db, {
+        ...(await (
+          await import("@/lib/ocupacoes-extras.server")
+        ).ocupacoesExtras(db, {
           tenantId: tenant.id,
           fuso: normalizarFusoExtra(tenant.fuso),
           desde,
@@ -261,6 +280,7 @@ export const reconhecerCliente = createServerFn({ method: "POST" })
 
 export type ConfirmacaoPublica = {
   agendamentoId: string;
+  preferenciasToken: string;
   inicio: string;
   fim: string;
   cliente: string;
@@ -443,10 +463,16 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       throw new Error("Não foi possível concluir o agendamento agora.");
     }
     const criado = res as any;
-    await db
+    const preferenciasToken = criarTokenDePreferencias();
+    const preferenciasTokenHash = await hashDoTokenDePreferencias(preferenciasToken);
+    const { error: erroToken } = await db
       .from("agendamentos")
-      .update({ origem: "link_publico" })
+      .update({ origem: "link_publico", preferencias_token_hash: preferenciasTokenHash })
       .eq("id", criado.agendamento_id);
+    if (erroToken) {
+      await db.rpc("cancelar_agendamento", { _agendamento_id: criado.agendamento_id });
+      throw new Error("Não foi possível concluir o agendamento agora.");
+    }
 
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
     // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
@@ -476,6 +502,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       tipo: "ok",
       confirmacao: {
         agendamentoId: criado.agendamento_id,
+        preferenciasToken,
         inicio: new Date(criado.inicio).toISOString(),
         fim: new Date(criado.fim).toISOString(),
         cliente: clienteNome,
@@ -487,6 +514,36 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         valor_centavos: servico.preco_centavos,
       },
     };
+  });
+
+/** Preferências opcionais após a confirmação; não lê nem devolve a ficha privada. */
+export const salvarPreferenciasDoAgendamento = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => {
+    const base = z
+      .object({
+        agendamentoId: z.string().uuid(),
+        token: z
+          .string()
+          .length(64)
+          .regex(/^[a-f0-9]+$/),
+        preferencias: z.unknown(),
+      })
+      .strict()
+      .parse(input);
+    return { ...base, preferencias: validarPreferenciasCliente(base.preferencias) };
+  })
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    await limitarPublico("preferencias");
+    if (Object.keys(data.preferencias).length === 0)
+      throw new Error("Não foi possível salvar agora.");
+    const db = await admin();
+    const { error } = await db.rpc("salvar_preferencias_do_agendamento", {
+      _agendamento_id: data.agendamentoId,
+      _token_hash: await hashDoTokenDePreferencias(data.token),
+      _preferencias: data.preferencias as PreferenciasCliente,
+    });
+    if (error) throw new Error("Não foi possível salvar agora.");
+    return { ok: true };
   });
 
 /** Situação atual de um agendamento guardado no aparelho (prova: id + WhatsApp). */
