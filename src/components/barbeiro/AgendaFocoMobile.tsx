@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  ListOrdered,
   MoreHorizontal,
   Plus,
   Scissors,
@@ -15,9 +14,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { Lightbulb, LightbulbOff } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
 import { useTelaAcesa } from "@/hooks/useTelaAcesa";
 import { salvarTelaAcesa, telaAcesaInicial } from "@/components/barbeiro/agenda/preferencias";
 
@@ -26,11 +24,15 @@ import { Button } from "@/components/ui/button";
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
-import { brl } from "@/lib/format";
 import { resumoDoDia } from "@/lib/resumo-dia";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
 import { estaAtrasado, nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
+import { AlertasFoco } from "@/components/barbeiro/agenda/AlertasFoco";
+import { FichaFoco } from "@/components/barbeiro/agenda/FichaFoco";
+import { alertasDeEmergencia } from "@/components/barbeiro/agenda/alertas-foco";
+import { consumirAvisosDoFoco, definirModoFoco } from "@/lib/modo-foco";
+import { aviso } from "@/lib/avisos";
 
 type Props = {
   dia: string;
@@ -151,11 +153,27 @@ export function AgendaFocoMobile(props: Props) {
   const ate = principal ? minutosAte(principal.inicio, agora) : null;
   const desabilitado = !props.online || props.ocupado;
   const proximo = proximos[0];
-  const fimPrincipal = principal ? new Date(principal.fim).getTime() : agora;
-  const inicioProximo = proximo ? new Date(proximo.inicio).getTime() : null;
-  const livreMin = inicioProximo
-    ? Math.floor((inicioProximo - Math.max(agora, fimPrincipal)) / 60_000)
-    : 0;
+  const anteriores = useRef(props.itens);
+  const [dispensados, setDispensados] = useState(() => new Set<string>());
+  const alertas = alertasDeEmergencia({ itens: props.itens, itensAnteriores: anteriores.current, agora, online: props.online, dispensados });
+  const idsMudanca = alertas.filter((alerta) => alerta.tipo === "proximo_mudou").map((alerta) => alerta.id).join("|");
+  const vibrou = useRef(new Set<string>());
+  useEffect(() => {
+    for (const id of idsMudanca.split("|").filter(Boolean)) {
+      if (vibrou.current.has(id)) continue;
+      vibrou.current.add(id);
+      navigator.vibrate?.(20);
+    }
+    anteriores.current = props.itens;
+  }, [props.itens, idsMudanca]);
+  useEffect(() => {
+    definirModoFoco(true);
+    return () => {
+      definirModoFoco(false);
+      const total = consumirAvisosDoFoco();
+      if (total > 0) aviso.info(`${total} ${total === 1 ? "aviso guardado" : "avisos guardados"} enquanto você atendia`);
+    };
+  }, []);
 
   const contexto = principal
     ? estado === "atendimento"
@@ -174,14 +192,10 @@ export function AgendaFocoMobile(props: Props) {
           <ArrowLeft />
           Ver agenda completa
         </Button>
-        <div className="modo-foco-topo-acoes">
-          <span className={props.online ? "modo-foco-ao-vivo" : "text-mute"}>
-            {props.online ? "Ao vivo" : "Somente leitura"}
-          </span>
-          <LampadaDaTela />
-          <SinoDeAvisos />
-        </div>
+        <div className="modo-foco-topo-acoes"><LampadaDaTela /></div>
       </header>
+
+      <AlertasFoco alertas={alertas} onDispensar={(id) => setDispensados((atuais) => new Set(atuais).add(id))} />
 
       <div className="modo-foco-corpo">
         <div className="modo-foco-data">
@@ -234,18 +248,7 @@ export function AgendaFocoMobile(props: Props) {
         <p className="modo-foco-resumo">
           {resumo.restantes}{" "}
           {resumo.restantes === 1 ? "atendimento restante" : "atendimentos restantes"}
-          {resumo.faturado ? ` · ${props.discreto ? "R$ •••" : brl(resumo.faturado)}` : ""}
         </p>
-        {props.fila ? (
-          <div className="modo-foco-alertas" role="status">
-            <span className="text-sm font-bold text-paper">{props.fila} na fila de chegada</span>
-            {props.onChamarFila ? (
-              <Button variant="outline" disabled={desabilitado} onClick={props.onChamarFila}>
-                <ListOrdered /> Chamar fila
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
 
         {props.carregando ? (
           <div className="modo-foco-vazio" aria-label="Carregando agenda">
@@ -288,16 +291,7 @@ export function AgendaFocoMobile(props: Props) {
                     </div>
                   </div>
 
-                  {principal.ficha ? (
-                    <Button
-                      variant="ghost"
-                      className="modo-foco-observacao"
-                      onClick={() => props.onMaisOpcoes(principal)}
-                    >
-                      <strong>Observação</strong>
-                      <span>{principal.ficha}</span>
-                    </Button>
-                  ) : null}
+                  <FichaFoco clienteId={principal.clienteId} preferencias={principal.preferencias} observacao={principal.ficha} discreto={Boolean(props.discreto)} finalizado={principal.status === "finalizado"} onAbrir={() => props.onMaisOpcoes(principal)} />
 
                   {estado === "atendimento" ? (
                     <div
@@ -422,24 +416,6 @@ export function AgendaFocoMobile(props: Props) {
               ) : (
                 <p className="modo-foco-sequencia-vazia">Nenhum outro atendimento neste dia.</p>
               )}
-              {livreMin >= 15 && props.onNovoAtendimento ? (
-                <div className="modo-foco-tempo-livre">
-                  <span className="modo-foco-tempo-livre-textura" aria-hidden />
-                  <div>
-                    <strong>{livreMin} min livres</strong>
-                    <small>
-                      até {proximo ? hora(proximo.inicio, props.fuso) : "o próximo horário"}
-                    </small>
-                  </div>
-                  <Button
-                    variant="outline"
-                    disabled={desabilitado}
-                    onClick={props.onNovoAtendimento}
-                  >
-                    <Plus /> Encaixar cliente
-                  </Button>
-                </div>
-              ) : null}
             </aside>
           </main>
         )}
