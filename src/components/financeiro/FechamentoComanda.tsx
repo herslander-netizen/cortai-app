@@ -40,6 +40,13 @@ type Item = {
   valor_unitario_centavos: number;
   percentual: number;
 };
+type DadosFechamento = Awaited<ReturnType<typeof getFechamentoComanda>>;
+type ItemSalvo = DadosFechamento["itens"][number];
+type ServicoDoCatalogo = DadosFechamento["servicos"][number];
+type ProdutoDoCatalogo = DadosFechamento["produtos"][number];
+type RegistroDoCatalogo = (ServicoDoCatalogo | ProdutoDoCatalogo) & {
+  comissao_percentual?: number | string | null;
+};
 type Forma = "pix" | "dinheiro" | "cartao" | "fiado";
 
 function dataRetorno(iso: string, fuso: string) {
@@ -97,9 +104,9 @@ export function FechamentoComanda({
   useEffect(() => {
     if (!query.data || itens.length) return;
     setItens(
-      query.data.itens.map((i: any) => ({
+      query.data.itens.map((i: ItemSalvo) => ({
         tipo: i.tipo,
-        id: i.servico_id ?? i.produto_id,
+        id: (i.servico_id ?? i.produto_id) as string,
         descricao: i.descricao,
         quantidade: i.quantidade,
         valor_unitario_centavos: i.valor_unitario_centavos,
@@ -127,7 +134,7 @@ export function FechamentoComanda({
   }
   function adicionar(tipo: "servico" | "produto", id: string) {
     const fonte = tipo === "servico" ? d?.servicos : d?.produtos;
-    const registro: any = fonte?.find((x: any) => x.id === id);
+    const registro = (fonte as RegistroDoCatalogo[] | undefined)?.find((x) => x.id === id);
     if (!registro) return;
     setItens((lista) => {
       const idx = lista.findIndex((i) => i.tipo === tipo && i.id === id);
@@ -230,8 +237,8 @@ export function FechamentoComanda({
   );
   const fiadoDisponivel = Boolean(d && d.fiadoDisponivel > 0 && d.fiadoDisponivel >= total);
   const atalhos = (d?.maisVendidos ?? [])
-    .map((id: string) => d?.produtos.find((p: any) => p.id === id))
-    .filter(Boolean) as any[];
+    .map((id: string) => d?.produtos.find((p: ProdutoDoCatalogo) => p.id === id))
+    .filter((p): p is ProdutoDoCatalogo => Boolean(p));
   const mensagem = d
     ? `Olá! Segue o comprovante Pix de ${d.comanda.clientes?.nome ?? "cliente"}, ${itens.map((i) => i.descricao).join(" + ")}, ${d.comanda.agendamentos?.inicio ? `${hora(d.comanda.agendamentos.inicio)}, ` : ""}${brl(total)}, comanda #${d.comanda.numero}.`
     : "";
@@ -359,7 +366,7 @@ export function FechamentoComanda({
                   }}
                 >
                   <option value="">Escolher</option>
-                  {d.servicos.map((s: any) => (
+                  {d.servicos.map((s: ServicoDoCatalogo) => (
                     <option key={s.id} value={s.id}>
                       {s.nome}
                     </option>
@@ -376,7 +383,7 @@ export function FechamentoComanda({
                   }}
                 >
                   <option value="">Escolher</option>
-                  {d.produtos.map((p: any) => (
+                  {d.produtos.map((p: ProdutoDoCatalogo) => (
                     <option
                       key={p.id}
                       value={p.id}
