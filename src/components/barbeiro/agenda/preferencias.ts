@@ -57,3 +57,61 @@ export function modoDiscretoInicial(armazenamento?: Armazenamento) {
 export function salvarModoDiscreto(ativo: boolean, armazenamento?: Armazenamento) {
   salvar(CHAVE_DISCRETO, ativo ? "1" : "0", armazenamento);
 }
+
+// ---- Contexto da sessão da aba: voltar ao mesmo lugar ----
+const CHAVE_CONTEXTO = "cortai-agenda-contexto";
+export const VALIDADE_CONTEXTO_MS = 30 * 60 * 1000;
+
+export type ContextoAgenda = {
+  dia: string;
+  visualizacao: VisaoCompletaAgenda | "semana";
+  rolagemJanela: number;
+  rolagemTimeline: number;
+  /** Dia de hoje no fuso do negócio quando foi guardado. */
+  hoje: string;
+  salvoEm: number;
+};
+
+function sessao(): Armazenamento | undefined {
+  try {
+    return window.sessionStorage as Armazenamento;
+  } catch {
+    return undefined;
+  }
+}
+
+export function salvarContextoAgenda(contexto: ContextoAgenda, armazenamento?: Armazenamento) {
+  salvar(CHAVE_CONTEXTO, JSON.stringify(contexto), armazenamento ?? sessao());
+}
+
+export function lerContextoAgenda(armazenamento?: Armazenamento): ContextoAgenda | null {
+  const bruto = ler(CHAVE_CONTEXTO, armazenamento ?? sessao());
+  if (!bruto) return null;
+  try {
+    const c = JSON.parse(bruto) as Partial<ContextoAgenda>;
+    if (typeof c.dia !== "string" || typeof c.hoje !== "string" || typeof c.salvoEm !== "number") return null;
+    const v = c.visualizacao;
+    return {
+      dia: c.dia,
+      hoje: c.hoje,
+      salvoEm: c.salvoEm,
+      visualizacao: v === "timeline" || v === "semana" ? v : "lista",
+      rolagemJanela: Number(c.rolagemJanela) || 0,
+      rolagemTimeline: Number(c.rolagemTimeline) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Restaura só no mesmo dia (fuso do negócio), há menos de 30 min e sem link de aviso. */
+export function contextoParaRestaurar(
+  contexto: ContextoAgenda | null,
+  agora: { ms: number; hoje: string; temLinkDeAviso: boolean },
+) {
+  if (!contexto || agora.temLinkDeAviso) return null;
+  if (contexto.hoje !== agora.hoje) return null;
+  const idade = agora.ms - contexto.salvoEm;
+  if (idade < 0 || idade >= VALIDADE_CONTEXTO_MS) return null;
+  return contexto;
+}
