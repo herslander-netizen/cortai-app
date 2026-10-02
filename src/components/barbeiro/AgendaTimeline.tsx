@@ -19,7 +19,9 @@ const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CE
 
 /** Área livre do celular: abaixo do cabeçalho que gruda e acima da faixa de baixo. */
 function areaLivre() {
-  const topo = document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0;
+  const topo =
+    (document.querySelector<HTMLElement>(".management-header")?.offsetHeight ?? 0) +
+    (document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0);
   const faixa = document.querySelector<HTMLElement>(".agenda-faixa-operacao");
   const base = faixa ? faixa.getBoundingClientRect().top - 8 : window.innerHeight;
   return { top: topo, bottom: Math.max(topo + 1, base) };

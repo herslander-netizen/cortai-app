@@ -216,6 +216,9 @@ export function ManagementHeader() {
           </SheetContent>
         </Sheet>
 
+        {/* Espaço central: só a Agenda desenha a data aqui, no celular. */}
+        <div id="topo-centro" className="flex min-w-0 flex-1 justify-center md:hidden" />
+
         <div className="flex items-center gap-1">
           {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AcoesRapidas />}
           <SinoDeAvisos />

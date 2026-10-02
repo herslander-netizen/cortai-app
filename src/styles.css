@@ -5499,3 +5499,28 @@ button.agenda-nome:hover {
     display: none;
   }
 }
+
+/* Agenda no celular: data com ‹ › na barra do topo */
+.agenda-topo-data {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+.agenda-topo-data > .agenda-data-botao {
+  order: 2;
+  align-items: center;
+  padding-inline: 6px;
+  text-align: center;
+}
+.agenda-topo-data > [aria-label="Próximo dia"] {
+  order: 3;
+}
+.agenda-topo-data > button[aria-label] {
+  min-width: 48px;
+  min-height: 48px;
+}
+@media (max-width: 767px) {
+  .agenda-cabecalho-unico.agenda-cabecalho-compacto {
+    top: 3.5rem;
+  }
+}
