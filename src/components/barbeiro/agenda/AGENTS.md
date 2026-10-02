@@ -3,3 +3,4 @@
 - Cache offline só em `src/lib/agenda-cache.ts`: sem telefone/ficha, usado só em erro de rede/5xx, limpo no logout e em 401/403.
 - Ações dos cartões passam por `efeitoDaAcaoCard`; finalizar sempre abre a comanda e nunca muda direto para `finalizado`.
 - A faixa Agora/Próximo pertence à Timeline; Lista concentra estado, tempo e ações no próprio cartão.
+- Gesto de troca de dia decidido só por `deveTrocarDia` (`gesto-dia.ts`); lugar da Agenda (dia, visão, rolagem) só via `useLugarDaAgenda` + sessionStorage em `preferencias.ts` — uma regra testável para cada comportamento.
