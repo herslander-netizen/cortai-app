@@ -9,3 +9,4 @@
 - Prévia do dia vizinho usa o mesmo formato da visualização (Timeline com `previa`, só leitura, sem efeitos na cápsula Agora); esqueletos também seguem o formato.
 - Modo Foco mostra só emergências de conexão, mudança do atual/próximo e atraso do próximo; silencia avisos espontâneos e nunca exibe valores financeiros.
 - Preferências do atendimento ficam estruturadas em `clientes.preferencias`, validadas no servidor e visíveis somente à equipe do próprio negócio.
+- No celular a Timeline não é contêiner de rolagem: nada de overflow auto/scroll nem overscroll-behavior contain em .agenda-timeline-scroll ou em ancestrais até a página. A rolagem é da página.

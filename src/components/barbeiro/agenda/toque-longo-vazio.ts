@@ -1,11 +1,13 @@
-export const DURACAO_TOQUE_LONGO_VAZIO = 450;
+export const DURACAO_TOQUE_LONGO_VAZIO = 500;
 export const LIMITE_MOVIMENTO_TOQUE_VAZIO = 8;
 
-type Inicio = { pointerId: number; x: number; y: number };
+type Inicio = { pointerId: number; x: number; y: number; rolagem?: number };
 
 type Opcoes = {
   aoConfirmar: () => void;
   aoCancelar?: () => void;
+  /** Rolagem da página; se mudar desde o início, o toque não conta. */
+  lerRolagem?: () => number;
   agendar?: typeof setTimeout;
   cancelarAgendamento?: typeof clearTimeout;
 };
@@ -14,6 +16,7 @@ type Opcoes = {
 export function criarToqueLongoVazio({
   aoConfirmar,
   aoCancelar,
+  lerRolagem,
   agendar = setTimeout,
   cancelarAgendamento = clearTimeout,
 }: Opcoes) {
@@ -30,9 +33,11 @@ export function criarToqueLongoVazio({
 
   function comecar(proximo: Inicio) {
     if (inicio) limpar(true);
-    inicio = proximo;
+    inicio = { ...proximo, rolagem: proximo.rolagem ?? lerRolagem?.() };
     timer = agendar(() => {
       if (!inicio) return;
+      if (lerRolagem && inicio.rolagem !== undefined && lerRolagem() !== inicio.rolagem)
+        return limpar(true);
       timer = null;
       inicio = null;
       aoConfirmar();
@@ -42,6 +47,10 @@ export function criarToqueLongoVazio({
   function mover(pointerId: number, x: number, y: number) {
     if (!inicio || inicio.pointerId !== pointerId) return;
     if (Math.hypot(x - inicio.x, y - inicio.y) > LIMITE_MOVIMENTO_TOQUE_VAZIO) limpar(true);
+  }
+
+  function rolou(rolagem: number) {
+    if (inicio && inicio.rolagem !== undefined && rolagem !== inicio.rolagem) limpar(true);
   }
 
   function terminar(pointerId: number) {
@@ -57,6 +66,7 @@ export function criarToqueLongoVazio({
     mover,
     terminar,
     novoPonteiro,
+    rolou,
     cancelar: () => limpar(true),
     ativo: () => inicio !== null,
   };

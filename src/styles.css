@@ -2884,6 +2884,20 @@ body:has(.auth-screen--claro) {
 .agenda-operacional {
   touch-action: pan-y pinch-zoom;
 }
+/* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
+   Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
+@media (max-width: 600px) {
+  .agenda-timeline-wrap {
+    overflow: visible;
+    overflow-x: clip;
+  }
+  .agenda-timeline-scroll {
+    max-height: none;
+    overflow: visible;
+    overflow-x: clip;
+    overscroll-behavior: auto;
+  }
+}
 html.agenda-gesto-ativo,
 html.agenda-gesto-ativo body {
   overflow-x: clip;

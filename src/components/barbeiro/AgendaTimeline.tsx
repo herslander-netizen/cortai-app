@@ -148,13 +148,18 @@ export function AgendaTimeline({
   const multitoque = useRef(false);
   const toqueLongoVazio = useRef<ReturnType<typeof criarToqueLongoVazio> | null>(null);
   toqueLongoVazio.current ??= criarToqueLongoVazio({
+    lerRolagem: () => window.scrollY,
     aoConfirmar: () => {
       const minuto = horarioVazioRef.current;
       horarioVazioRef.current = null;
       if (minuto === null) return;
+      // Indicador só aparece confirmado, junto com a vibração, e abre logo depois.
+      setToqueVazio(minuto);
       navigator.vibrate?.(10);
-      onHorarioVazio?.(horaMinuto(minuto));
-      window.setTimeout(() => setToqueVazio(null), 160);
+      window.setTimeout(() => {
+        setToqueVazio(null);
+        onHorarioVazio?.(horaMinuto(minuto));
+      }, 160);
     },
     aoCancelar: () => {
       horarioVazioRef.current = null;
@@ -163,6 +168,10 @@ export function AgendaTimeline({
   });
   useEffect(() => {
     const cancelar = () => toqueLongoVazio.current?.cancelar();
+    const aoRolar = () => toqueLongoVazio.current?.rolou(window.scrollY);
+    const aoEsconder = () => {
+      if (document.visibilityState !== "visible") cancelar();
+    };
     const novoPonteiro = (evento: PointerEvent) => {
       if (evento.pointerType === "mouse") return;
       if (ponteirosDeToque.current.size > 0 && !ponteirosDeToque.current.has(evento.pointerId)) {
@@ -175,13 +184,17 @@ export function AgendaTimeline({
       ponteirosDeToque.current.delete(evento.pointerId);
       if (ponteirosDeToque.current.size === 0) multitoque.current = false;
     };
-    window.addEventListener("scroll", cancelar, { passive: true });
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    window.addEventListener("blur", cancelar);
+    document.addEventListener("visibilitychange", aoEsconder);
     document.addEventListener("pointerdown", novoPonteiro, { capture: true, passive: true });
     document.addEventListener("pointerup", fimDoPonteiro, { capture: true, passive: true });
     document.addEventListener("pointercancel", fimDoPonteiro, { capture: true, passive: true });
     return () => {
       cancelar();
-      window.removeEventListener("scroll", cancelar);
+      window.removeEventListener("scroll", aoRolar);
+      window.removeEventListener("blur", cancelar);
+      document.removeEventListener("visibilitychange", aoEsconder);
       document.removeEventListener("pointerdown", novoPonteiro, { capture: true });
       document.removeEventListener("pointerup", fimDoPonteiro, { capture: true });
       document.removeEventListener("pointercancel", fimDoPonteiro, { capture: true });
@@ -425,7 +438,7 @@ export function AgendaTimeline({
       x0: e.clientX,
       ativo: e.pointerType === "mouse",
       arrastou: false,
-      rolagem0: rolagemRef.current?.scrollTop ?? 0,
+      rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
@@ -451,15 +464,23 @@ export function AgendaTimeline({
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
+    const celular = celularAgora();
     const area = rolagemRef.current;
-    if (g.ativo && area) {
+    const borda = 48;
+    if (g.ativo && celular) {
+      // No celular quem rola é a página: bordas da área livre e window.scrollBy.
+      const r = areaLivre();
+      if (e.clientY < r.top + borda) window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
+      else if (e.clientY > r.bottom - borda)
+        window.scrollBy(0, Math.ceil((e.clientY - (r.bottom - borda)) / 4));
+    } else if (g.ativo && area) {
       const r = area.getBoundingClientRect();
-      const borda = 48;
       if (e.clientY < r.top + borda) area.scrollTop -= Math.ceil((r.top + borda - e.clientY) / 4);
       else if (e.clientY > r.bottom - borda)
         area.scrollTop += Math.ceil((e.clientY - (r.bottom - borda)) / 4);
     }
-    const dy = e.clientY - g.y0 + ((area?.scrollTop ?? 0) - g.rolagem0);
+    const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
+    const dy = e.clientY - g.y0 + (rolagemAtual - g.rolagem0);
     if (!g.ativo) {
       if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
         window.clearTimeout(g.timer);
@@ -587,7 +608,6 @@ export function AgendaTimeline({
                   const minuto = minutoNoVazio(e);
                   if (minuto === null) return;
                   horarioVazioRef.current = minuto;
-                  setToqueVazio(minuto);
                   toqueLongoVazio.current?.comecar({
                     pointerId: e.pointerId,
                     x: e.clientX,
