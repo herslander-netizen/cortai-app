@@ -79,7 +79,13 @@ export function periodoMaisFrequente(periodos: PeriodoMemoria[]) {
 /** Atualiza a memória após uma confirmação, preservando nome e telefone já salvos. */
 export function registrarAgendamentoNaMemoria(
   slug: string,
-  dados: { servicoId: string; profissionalId: string; horario: string; nome?: string; telefone?: string },
+  dados: {
+    servicoId: string;
+    profissionalId: string;
+    horario: string;
+    nome?: string;
+    telefone?: string;
+  },
   storage?: Armazenamento | null,
 ) {
   const atual = lerMemoriaCliente(slug, storage) ?? {};

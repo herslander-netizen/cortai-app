@@ -45,9 +45,21 @@ describe("memória do cliente", () => {
   it("registra serviço, profissional e período preferido sem perder nome/telefone", () => {
     const storage = criarStorage();
     salvarMemoriaCliente("loja", { nome: "Ana Souza", telefone: "11999999999" }, storage);
-    registrarAgendamentoNaMemoria("loja", { servicoId: "s1", profissionalId: "p1", horario: "09:00" }, storage);
-    registrarAgendamentoNaMemoria("loja", { servicoId: "s1", profissionalId: "p1", horario: "18:30" }, storage);
-    registrarAgendamentoNaMemoria("loja", { servicoId: "s2", profissionalId: "p1", horario: "19:00" }, storage);
+    registrarAgendamentoNaMemoria(
+      "loja",
+      { servicoId: "s1", profissionalId: "p1", horario: "09:00" },
+      storage,
+    );
+    registrarAgendamentoNaMemoria(
+      "loja",
+      { servicoId: "s1", profissionalId: "p1", horario: "18:30" },
+      storage,
+    );
+    registrarAgendamentoNaMemoria(
+      "loja",
+      { servicoId: "s2", profissionalId: "p1", horario: "19:00" },
+      storage,
+    );
     const memoria = lerMemoriaCliente("loja", storage);
     expect(memoria).toMatchObject({
       nome: "Ana Souza",

@@ -20,7 +20,11 @@ export const TEXTOS_CONVERSA = {
   semPagamento: "Vou confirmar com a equipe as formas de pagamento.",
 } as const;
 
-export const OPCOES_NAO_ENTENDI = ["Agendar", "Ver serviços e preços", "Falar com a equipe"] as const;
+export const OPCOES_NAO_ENTENDI = [
+  "Agendar",
+  "Ver serviços e preços",
+  "Falar com a equipe",
+] as const;
 
 const DIAS_SEMANA = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 
@@ -36,7 +40,11 @@ export function saudacao(primeiroNome?: string | null) {
   return primeiroNome ? `Oi, ${primeiroNome}!` : "Oi!";
 }
 
-export function textoDeSempre(primeiroNome: string | undefined, servico: string, profissional?: string) {
+export function textoDeSempre(
+  primeiroNome: string | undefined,
+  servico: string,
+  profissional?: string,
+) {
   const com = profissional ? ` com ${profissional}` : "";
   return `${saudacao(primeiroNome)} Quer o de sempre (${servico}${com}) ou prefere outra coisa?`;
 }
