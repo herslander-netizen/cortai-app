@@ -183,6 +183,8 @@ export type CapacidadesDoTenant = {
   /** Interruptores da barbearia, por chave. Ausente = ligado. */
   ativos: Record<string, boolean>;
   uso: { profissionais: number; servicos: number };
+  /** Teste grátis em andamento (recursos do plano mais completo). */
+  teste?: { ativo: boolean; diasRestantes: number; fim: string | null };
 };
 
 /** Estado final de cada capacidade para quem está olhando a tela. */

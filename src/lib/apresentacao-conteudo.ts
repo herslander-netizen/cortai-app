@@ -42,10 +42,10 @@ export type ChaveBloco = Exclude<keyof ConteudoApresentacao, "hero" | "perguntas
 
 export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   hero: {
-    etiqueta: "PARA BARBEARIAS, SALÕES E PROFISSIONAIS",
-    titulo: "Mais organização para o seu negócio.\nMais tempo para atender bem.",
+    etiqueta: "45 DIAS GRÁTIS · SEM CARTÃO",
+    titulo: "Menos faltas na agenda.\nMais tempo para atender bem.",
     texto:
-      "Agenda, clientes, caixa e uma Secretária que ajuda a cuidar dos seus agendamentos. Tudo em um só lugar.",
+      "Lembrete automático por WhatsApp para cada cliente, agenda, clientes e caixa em um só lugar. Teste 45 dias com tudo liberado.",
     cta: "Começar agora",
   },
   agenda: {
@@ -72,7 +72,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   recursos: {
     etiqueta: "RECURSOS",
     titulo: "Tudo o que você precisa para cuidar do seu negócio.",
-    texto: "",
+    texto: "O principal: lembrete automático por WhatsApp antes de cada horário, para o cliente não esquecer e a agenda não ficar vazia.",
   },
   caixa: {
     etiqueta: "COMANDA E CAIXA",
@@ -87,8 +87,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   },
   planos: {
     etiqueta: "PLANOS",
-    titulo: "Escolha como começar.",
-    texto: "Planos mensais por profissional. Secretária e WhatsApp entram a partir do Conecta.",
+    titulo: "45 dias grátis com tudo liberado. Sem cartão. Depois, escolha o plano.",
+    texto: "Preço fixo por plano, sem cobrança por profissional. Pague por Pix, boleto ou cartão.",
   },
   duvidas: { etiqueta: "DÚVIDAS", titulo: "Antes de começar.", texto: "" },
   perguntas: [
@@ -104,7 +104,20 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     {
       pergunta: "O WhatsApp está em todos os planos?",
       resposta:
-        "Não. WhatsApp, Secretária e confirmações automáticas estão disponíveis no Conecta e no Equipe.",
+        "Durante o teste, sim. Depois, WhatsApp, Secretária e lembretes automáticos ficam no Conecta e no Studio.",
+    },
+    {
+      pergunta: "Preciso de cartão?",
+      resposta: "Não. O teste de 45 dias não pede cartão. Se decidir assinar, você paga por Pix, boleto ou cartão.",
+    },
+    {
+      pergunta: "O que acontece quando o teste acaba?",
+      resposta:
+        "Se você não assinar, a conta vira o plano Essencial gratuito. Nada é bloqueado e nenhum dado é apagado.",
+    },
+    {
+      pergunta: "Posso cancelar?",
+      resposta: "Sim, a qualquer momento, sem multa.",
     },
     {
       pergunta: "Serve apenas para barbearias?",
@@ -115,14 +128,14 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   final: {
     etiqueta: "",
     titulo: "Seu negócio pode ser mais simples.",
-    texto: "Organize a rotina e tenha mais tempo para atender bem.",
+    texto: "45 dias grátis com tudo liberado. Sem cartão.",
   },
 };
 
 export const SEO_APRESENTACAO_PADRAO = {
-  titulo: "Cortaí — Mais organização para o seu negócio",
+  titulo: "Cortaí — 45 dias grátis, sem cartão",
   descricao:
-    "Agenda, clientes, caixa e Secretária em um só lugar para organizar negócios e profissionais de Beleza.",
+    "Lembrete automático por WhatsApp que reduz faltas, agenda, clientes e caixa para negócios de Beleza. Preço fixo por plano.",
 };
 
 /** Campos ausentes ou inválidos caem no texto aprovado. */

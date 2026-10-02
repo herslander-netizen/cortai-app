@@ -4712,6 +4712,26 @@ html.agenda-gesto-ativo body {
 }
 
 /* Tabela única de planos: apresentação e painel. */
+.planos-ciclo {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.planos-ciclo button {
+  min-height: 48px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mute);
+}
+.planos-ciclo button[aria-pressed="true"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
 .planos-tabela {
   display: grid;
   gap: 0.75rem;

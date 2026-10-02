@@ -248,6 +248,14 @@ export const criarBarbearia = createServerFn({ method: "POST" })
           "estetica",
           "outro",
         ]),
+        documento: z
+          .string()
+          .trim()
+          .refine((v) => [11, 14].includes(v.replace(/\D/g, "").length), "Informe um CPF ou CNPJ válido."),
+        telefone: z
+          .string()
+          .trim()
+          .refine((v) => v.replace(/\D/g, "").length >= 10, "Informe um telefone com DDD."),
       })
       .parse(input),
   )
@@ -283,11 +291,17 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         identidade_app: definicao.identidade,
         modo: definicao.modoPadrao,
         chips_ficha: definicao.chipsFicha,
+        telefone: data.telefone.replace(/\D/g, ""),
+        whatsapp: data.telefone.replace(/\D/g, ""),
       })
       .select("id")
       .single();
     if (error || !tenant) throw new Error("Não foi possível criar seu negócio agora.");
     const tenantId = tenant.id;
+    const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
+    const teste = await iniciarTesteGratis(tenantId, { documento: data.documento, telefone: data.telefone }).catch(
+      () => ({ emTeste: false, motivo: undefined }),
+    );
     const pagina = configPadrao(
       definicao.temaPagina === "rose-creme"
         ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
@@ -313,5 +327,7 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       tenantId: tenantId as string,
       identidade: definicao.identidade,
       modo: definicao.modoPadrao,
+      emTeste: teste.emTeste,
+      avisoDoTeste: teste.motivo ?? null,
     };
   });

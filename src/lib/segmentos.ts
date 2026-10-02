@@ -192,7 +192,7 @@ export function segmentoValido(valor: unknown): Segmento {
 
 /** Fallback visual neutro; dados legados continuam usando `segmentoValido`. */
 export function segmentoParaApresentacao(valor: unknown): Segmento {
-  return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "outro";
+  return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "barbearia";
 }
 
 export function termos(segmento: unknown): TermosDoSegmento {

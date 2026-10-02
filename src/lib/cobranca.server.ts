@@ -3,6 +3,7 @@
  * criação de assinaturas). Nunca confia em valores do navegador nem no corpo
  * do webhook: sempre recalcula e consulta a API.
  */
+import { DIAS_DE_TESTE } from "@/lib/teste-gratis";
 import { asaas } from "@/lib/asaas.server";
 import {
   dataIso,
@@ -236,8 +237,8 @@ export async function criarAssinatura(input: {
   }
 
   const usaTeste =
-    input.permitirTeste && calc.plano.diasTeste > 0 && !tenant.teste_inicio && !atual;
-  const teste = usaTeste ? datasDoTeste(new Date(), calc.plano.diasTeste) : null;
+    input.permitirTeste && !tenant.teste_inicio && !atual;
+  const teste = usaTeste ? datasDoTeste(new Date(), DIAS_DE_TESTE) : null;
   const vencimento = teste?.primeiroVencimento ?? dataIso(new Date());
 
   const assinaturaAsaas = await api.call<{ id: string }>("POST", "/subscriptions", {
@@ -612,7 +613,7 @@ export async function iniciarTesteDoNovoNegocio(tenantId: string) {
     const plano = await planoPorChave(config.planoInicial);
     if (!plano) return;
     const client = await db();
-    const teste = datasDoTeste(new Date(), Math.max(plano.diasTeste, 0));
+    const teste = datasDoTeste(new Date(), DIAS_DE_TESTE);
     await client
       .from("tenants")
       .update({

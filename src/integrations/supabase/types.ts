@@ -4183,6 +4183,7 @@ export type Database = {
           assinatura_status: string
           assinatura_visivel: boolean
           ativo: boolean
+          avisos_teste_enviados: number[]
           cancelamento_min_horas: number
           capa_url: string | null
           chips_ficha: string[]
@@ -4194,6 +4195,9 @@ export type Database = {
           desconto_percentual: number
           descricao: string | null
           endereco: string | null
+          envios_auto_aviso80: boolean
+          envios_auto_mes: string | null
+          envios_auto_qtd: number
           facebook: string | null
           fotos: Json
           fuso: string
@@ -4213,6 +4217,7 @@ export type Database = {
           nome: string
           passo_horarios_min: number
           plano: string
+          plano_escolhido: string | null
           rotulo_carteira: string | null
           segmento: string
           slug: string
@@ -4220,6 +4225,7 @@ export type Database = {
           tema: string
           teste_fim: string | null
           teste_inicio: string | null
+          teste_negado: boolean
           texto_boas_vindas: string | null
           ultimo_acesso_em: string | null
           whatsapp: string | null
@@ -4230,6 +4236,7 @@ export type Database = {
           assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
+          avisos_teste_enviados?: number[]
           cancelamento_min_horas?: number
           capa_url?: string | null
           chips_ficha?: string[]
@@ -4241,6 +4248,9 @@ export type Database = {
           desconto_percentual?: number
           descricao?: string | null
           endereco?: string | null
+          envios_auto_aviso80?: boolean
+          envios_auto_mes?: string | null
+          envios_auto_qtd?: number
           facebook?: string | null
           fotos?: Json
           fuso?: string
@@ -4260,6 +4270,7 @@ export type Database = {
           nome: string
           passo_horarios_min?: number
           plano?: string
+          plano_escolhido?: string | null
           rotulo_carteira?: string | null
           segmento?: string
           slug: string
@@ -4267,6 +4278,7 @@ export type Database = {
           tema?: string
           teste_fim?: string | null
           teste_inicio?: string | null
+          teste_negado?: boolean
           texto_boas_vindas?: string | null
           ultimo_acesso_em?: string | null
           whatsapp?: string | null
@@ -4277,6 +4289,7 @@ export type Database = {
           assinatura_status?: string
           assinatura_visivel?: boolean
           ativo?: boolean
+          avisos_teste_enviados?: number[]
           cancelamento_min_horas?: number
           capa_url?: string | null
           chips_ficha?: string[]
@@ -4288,6 +4301,9 @@ export type Database = {
           desconto_percentual?: number
           descricao?: string | null
           endereco?: string | null
+          envios_auto_aviso80?: boolean
+          envios_auto_mes?: string | null
+          envios_auto_qtd?: number
           facebook?: string | null
           fotos?: Json
           fuso?: string
@@ -4307,6 +4323,7 @@ export type Database = {
           nome?: string
           passo_horarios_min?: number
           plano?: string
+          plano_escolhido?: string | null
           rotulo_carteira?: string | null
           segmento?: string
           slug?: string
@@ -4314,11 +4331,44 @@ export type Database = {
           tema?: string
           teste_fim?: string | null
           teste_inicio?: string | null
+          teste_negado?: boolean
           texto_boas_vindas?: string | null
           ultimo_acesso_em?: string | null
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      testes_usados: {
+        Row: {
+          criado_em: string
+          hash: string
+          id: string
+          tenant_id: string | null
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          hash: string
+          id?: string
+          tenant_id?: string | null
+          tipo: string
+        }
+        Update: {
+          criado_em?: string
+          hash?: string
+          id?: string
+          tenant_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testes_usados_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

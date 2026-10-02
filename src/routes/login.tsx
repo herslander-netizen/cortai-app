@@ -13,10 +13,10 @@ import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
-    typeof search["proximo"] === "string" && search["proximo"]
-      ? { proximo: search["proximo"] }
-      : {},
+  validateSearch: (search: Record<string, unknown>): { proximo?: string; aba?: "criar" } => ({
+    ...(typeof search["proximo"] === "string" && search["proximo"] ? { proximo: search["proximo"] } : {}),
+    ...(search["aba"] === "criar" ? { aba: "criar" as const } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Entrar — Cortaí" },
@@ -84,8 +84,8 @@ function MarcaApple() {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { proximo } = Route.useSearch();
-  const [modo, setModo] = useState<"entrar" | "criar">("entrar");
+  const { proximo, aba } = Route.useSearch();
+  const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);

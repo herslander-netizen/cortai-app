@@ -28,7 +28,7 @@ export const ROTULO_DO_PLANO: Record<string, string> = {
   essencial: "Essencial",
   pro: "Profissional",
   conecta: "Conecta",
-  studio: "Equipe",
+  studio: "Studio",
 };
 
 /**
@@ -43,10 +43,15 @@ export async function recursoLiberado(
 ): Promise<{ liberado: boolean; plano: string }> {
   const { data: tenant } = await db
     .from("tenants")
-    .select("plano")
+    .select("plano, assinatura_status, teste_fim")
     .eq("id", tenantId)
     .maybeSingle();
-  const plano = (tenant?.plano as string) ?? "essencial";
+  const { planoEfetivo } = await import("@/lib/teste-gratis");
+  const plano = planoEfetivo({
+    status: (tenant?.assinatura_status as string) ?? null,
+    testeFim: (tenant?.teste_fim as string) ?? null,
+    plano: (tenant?.plano as string) ?? null,
+  });
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: regra } = await supabaseAdmin
     .from("recursos_de_plano")
@@ -62,7 +67,7 @@ export async function recursoLiberado(
 export class RecursoBloqueadoError extends Error {
   constructor(chave: ChaveDeRecurso, plano: string) {
     super(
-      `O recurso "${RECURSOS[chave]}" não está incluído no plano ${ROTULO_DO_PLANO[plano] ?? plano}. Faça upgrade para liberar.`,
+      `O recurso "${RECURSOS[chave]}" não está incluído no plano ${ROTULO_DO_PLANO[plano] ?? plano}. Disponível no plano ${chave === "equipe_avancada" ? "Studio" : "Conecta"}.`,
     );
     this.name = "RecursoBloqueadoError";
   }

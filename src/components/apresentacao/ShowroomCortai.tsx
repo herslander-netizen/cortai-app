@@ -32,15 +32,28 @@ import { APRESENTACAO_PADRAO, type ConteudoApresentacao } from "@/lib/apresentac
 export type EtapaShowroom = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const OPCOES: Array<{ id: Segmento; rotulo: string }> = [
-  { id: "barbearia", rotulo: "Barbearias" },
-  { id: "salao", rotulo: "Salões" },
-  { id: "esmalteria", rotulo: "Nail designers" },
+  { id: "barbearia", rotulo: "Barbearia" },
+  { id: "salao", rotulo: "Salão" },
+  { id: "cabeleireiro", rotulo: "Cabeleireiro" },
+  { id: "esmalteria", rotulo: "Esmalteria" },
+  { id: "sobrancelha_cilios", rotulo: "Sobrancelha e cílios" },
   { id: "estetica", rotulo: "Estética" },
-  { id: "outro", rotulo: "Outros profissionais" },
+  { id: "outro", rotulo: "Outro" },
 ];
 
-const DIA = "2026-09-30";
-const AGORA = new Date("2026-09-30T13:18:00.000Z").getTime();
+const FUSO = "America/Sao_Paulo";
+/** Data de hoje no fuso da demonstração (AAAA-MM-DD). */
+const DIA = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO }).format(new Date());
+const DIA_SEMANA = new Date(`${DIA}T12:00:00-03:00`).getUTCDay();
+const ROTULO_DIA = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: FUSO,
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+}).format(new Date(`${DIA}T12:00:00-03:00`));
+/** Horário local de hoje em ISO. Marina é sempre às 10:00 em todas as telas. */
+const h = (hhmm: string) => new Date(`${DIA}T${hhmm}:00-03:00`).toISOString();
+const AGORA = new Date(h("10:18")).getTime();
 
 function itens(segmento: Segmento): AgendaItem[] {
   const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
@@ -71,17 +84,17 @@ function itens(segmento: Segmento): AgendaItem[] {
 
   return [
     {
-      ...base("agora", "2026-09-30T13:00:00.000Z", "2026-09-30T13:45:00.000Z", "Marina Costa", 0),
+      ...base("agora", h("10:00"), h("10:45"), "Marina Costa", 0),
       status: "na_cadeira",
-      arrivedAt: "2026-09-30T12:56:00.000Z",
-      startedAt: "2026-09-30T13:00:00.000Z",
+      arrivedAt: h("09:56"),
+      startedAt: h("10:00"),
       ficha: "Prefere acabamento leve, como no último atendimento.",
     },
     {
-      ...base("proximo", "2026-09-30T14:00:00.000Z", "2026-09-30T14:45:00.000Z", "Rafa Lima", 1),
+      ...base("proximo", h("11:00"), h("11:45"), "Rafa Lima", 1),
       status: "confirmado",
     },
-    base("depois", "2026-09-30T15:15:00.000Z", "2026-09-30T16:00:00.000Z", "Ana Souza", 2),
+    base("depois", h("12:15"), h("13:00"), "Ana Souza", 2),
   ];
 }
 
@@ -92,16 +105,16 @@ function Agenda({ segmento }: { segmento: Segmento }) {
       <div className="showroom-produto-topo">
         <span>
           <small>Agenda</small>
-          <strong>Hoje · qua., 30 de set.</strong>
+          <strong>Hoje · {ROTULO_DIA}</strong>
         </span>
         <em>Ao vivo</em>
       </div>
       <AgendaTimeline
         dia={DIA}
-        fuso="America/Sao_Paulo"
+        fuso={FUSO}
         agora={AGORA}
         itens={agenda}
-        horarios={[{ diaSemana: 3, fechado: false, abre: "09:00", fecha: "18:00" }]}
+        horarios={[{ diaSemana: DIA_SEMANA, fechado: false, abre: "09:00", fecha: "18:00" }]}
         selecionado={null}
         onSelecionar={() => undefined}
         renderStatus={(status) => <StatusBadge status={status} segmento={segmento} />}
@@ -130,7 +143,7 @@ function Foco({ segmento }: { segmento: Segmento }) {
         </small>
       </div>
       <div className="showroom-foco-cliente">
-        <time>13:00</time>
+        <time>10:00</time>
         <UserRound />
         <span>
           <strong>{atual.cliente}</strong>
@@ -144,7 +157,7 @@ function Foco({ segmento }: { segmento: Segmento }) {
         Finalizar atendimento <Check />
       </Button>
       <div className="showroom-proximo">
-        <small>Próximo · 14:00</small>
+        <small>Próximo · 11:00</small>
         <strong>{proximo.cliente}</strong>
         <span>{proximo.servico}</span>
       </div>
@@ -170,7 +183,7 @@ function Cliente({ segmento }: { segmento: Segmento }) {
       <dl>
         <div>
           <dt>Última visita</dt>
-          <dd>18 de set.</dd>
+          <dd>Há 4 semanas</dd>
         </div>
         <div>
           <dt>Profissional</dt>
@@ -185,7 +198,7 @@ function Cliente({ segmento }: { segmento: Segmento }) {
         <small>Preferência registrada</small>
         <p>Acabamento leve, como no último atendimento.</p>
       </div>
-      {["18 set.", "22 ago."].map((data) => (
+      {["Há 4 semanas", "Há 8 semanas"].map((data) => (
         <div className="showroom-historico" key={data}>
           <time>{data}</time>
           <span>
@@ -281,7 +294,35 @@ function Caixa({ segmento }: { segmento: Segmento }) {
   );
 }
 
+function Lembrete({ segmento }: { segmento: Segmento }) {
+  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[1]?.nome ?? "Atendimento";
+  return (
+    <div className="showroom-chat" aria-label="Demonstração do lembrete automático por WhatsApp">
+      <ChatHeader nome="Lembrete automático" detalhe="WhatsApp" status="Enviado sozinho" />
+      <Conversation>
+        <ConversationContent className="gap-4 p-4">
+          <Balao>Oi, Rafa! Lembrete: amanhã às 11:00, {servico} com Alex. Posso confirmar?</Balao>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline">Confirmar</Button>
+            <Button variant="outline">Remarcar</Button>
+          </div>
+          <Balao cliente>Confirmar</Balao>
+          <Balao>Confirmado. Até amanhã!</Balao>
+          <p className="showroom-chat-nota">
+            <Check /> Menos faltas, sem você mandar mensagem.
+          </p>
+        </ConversationContent>
+      </Conversation>
+    </div>
+  );
+}
+
 const RECURSOS = [
+  {
+    icone: MessageCircle,
+    titulo: "Lembrete por WhatsApp",
+    texto: "Aviso automático antes de cada horário. O cliente confirma com um toque e as faltas caem.",
+  },
   {
     icone: CalendarDays,
     titulo: "Agenda",
@@ -305,7 +346,7 @@ const RECURSOS = [
   {
     icone: MessageCircle,
     titulo: "Secretária",
-    texto: "Agendamento e confirmações nos planos compatíveis.",
+    texto: "O cliente agenda sozinho pelo link, a qualquer hora.",
   },
 ];
 
@@ -361,7 +402,7 @@ export function ShowroomCortai({
               <Link to="/login">Entrar</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to="/login" search={{ proximo: "/comecar" }}>
+              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
                 Começar agora
               </Link>
             </Button>
@@ -383,7 +424,7 @@ export function ShowroomCortai({
           <p className="showroom-lead">{c.hero.texto}</p>
           <div className="showroom-hero-actions">
             <Button asChild size="lg">
-              <Link to="/login" search={{ proximo: "/comecar" }}>
+              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
                 {c.hero.cta} <ArrowRight />
               </Link>
             </Button>
@@ -398,27 +439,29 @@ export function ShowroomCortai({
           aria-label="Visão da Agenda e dos Clientes do Cortaí"
         >
           <Agenda segmento={segmento} />
-          <div className="showroom-hero-cliente">
-            <Cliente segmento={segmento} />
-          </div>
+        </div>
+      </section>
+
+      <section className="showroom-faixa showroom-segmentos" aria-labelledby="showroom-segmento-titulo">
+        <Cabecalho b={c.segmentos} centro id="showroom-segmento-titulo" />
+        <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
+          {OPCOES.map((opcao) => (
+            <Button
+              key={opcao.id}
+              variant={segmento === opcao.id ? "default" : "outline"}
+              aria-pressed={segmento === opcao.id}
+              onClick={() => setSegmento(opcao.id)}
+            >
+              {opcao.rotulo}
+            </Button>
+          ))}
         </div>
       </section>
 
       <section id="como-funciona" className="showroom-secao showroom-prova">
         <Cabecalho b={c.agenda} />
         <div className="showroom-prova-layout">
-          <Agenda segmento={segmento} />
-          <div className="showroom-prova-pontos">
-            {RECURSOS.slice(0, 4).map(({ icone: Icon, titulo, texto }) => (
-              <div key={titulo}>
-                <Icon />
-                <span>
-                  <strong>{titulo}</strong>
-                  <small>{texto}</small>
-                </span>
-              </div>
-            ))}
-          </div>
+          <Lembrete segmento={segmento} />
         </div>
       </section>
 
@@ -450,7 +493,7 @@ export function ShowroomCortai({
             <div className="showroom-plano-nota">
               <Sparkles />
               <span>
-                <strong>Disponível no Conecta e no Equipe.</strong>
+                <strong>Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.</strong>
                 <small>
                   Inclui Secretária, agendamento pelo cliente, WhatsApp e confirmações automáticas.
                 </small>
@@ -477,20 +520,6 @@ export function ShowroomCortai({
         </div>
       </section>
 
-      <section className="showroom-faixa showroom-segmentos">
-        <Cabecalho b={c.segmentos} centro />
-        <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
-          {OPCOES.map((opcao) => (
-            <Button
-              key={opcao.id}
-              variant={segmento === opcao.id ? "default" : "outline"}
-              onClick={() => setSegmento(opcao.id)}
-            >
-              {opcao.rotulo}
-            </Button>
-          ))}
-        </div>
-      </section>
 
       <section
         id="planos"
@@ -501,7 +530,7 @@ export function ShowroomCortai({
         <TabelaDePlanos
           acao={() => (
             <Button asChild className="w-full" variant="outline">
-              <Link to="/login" search={{ proximo: "/comecar" }}>
+              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
                 Começar agora
               </Link>
             </Button>
@@ -527,7 +556,7 @@ export function ShowroomCortai({
         {c.final.texto ? <p>{c.final.texto}</p> : null}
         <div>
           <Button asChild size="lg">
-            <Link to="/login" search={{ proximo: "/comecar" }}>
+            <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
               Começar agora <ArrowRight />
             </Link>
           </Button>

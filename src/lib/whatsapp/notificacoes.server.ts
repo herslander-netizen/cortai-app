@@ -447,6 +447,10 @@ export async function notificarAgendamento(
       });
       if (!error && liberado === false)
         return { enviado: false, motivo: "plano_sem_whatsapp" } as Resultado;
+      // Teste grátis: cota mensal de envios automáticos; o app nunca é bloqueado.
+      const { reservarEnvioAutomatico } = await import("@/lib/teste-gratis.server");
+      if (!(await reservarEnvioAutomatico(ag.tenant_id)))
+        return { enviado: false, motivo: "limite_do_teste" } as Resultado;
     }
     return await executar(agendamentoId, tipo);
   } catch (e) {
