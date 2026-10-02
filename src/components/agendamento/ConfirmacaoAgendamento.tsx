@@ -1,5 +1,5 @@
 import { CalendarPlus, CalendarX, MessageCircle, Share2 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { VistoAnimado } from "@/components/ui/VistoAnimado";
 import {
@@ -16,7 +16,6 @@ import {
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { IngressoAgendamento } from "./IngressoAgendamento";
 import { gerarIcs } from "@/lib/previa";
-import { dataLocal, horaLocal } from "@/lib/datas";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
 
 export type SituacaoPublica = "confirmado" | "cancelado" | "cancelado_pela_barbearia" | "remarcado" | "nao_compareceu";
@@ -34,6 +33,22 @@ function calendario(confirmacao: ConfirmacaoPublica) {
 
 function carimboGoogle(iso: string) {
   return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+function horaLocal(iso: string, fuso: string) {
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: fuso,
+  });
+}
+
+function dataLocal(iso: string, fuso: string) {
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: fuso,
+  });
 }
 
 export function linkGoogleAgenda(confirmacao: ConfirmacaoPublica) {
@@ -98,7 +113,6 @@ export function ConfirmacaoAgendamento({
     () => `${confirmacao.servico} com ${confirmacao.profissional}, ${dataLocal(confirmacao.inicio, fuso)} às ${horaLocal(confirmacao.inicio, fuso)}, em ${confirmacao.barbearia}.`,
     [confirmacao, fuso],
   );
-  useEffect(() => () => undefined, []);
   return (
     <main className="agendamento-confirmacao min-h-dvh pb-12">
       <header className="relative overflow-hidden px-5 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
