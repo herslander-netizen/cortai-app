@@ -23,6 +23,7 @@ import {
 } from "@/components/barbeiro/agenda/EstadosAgenda";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
+import { FaixaOperacao } from "@/components/barbeiro/agenda/FaixaOperacao";
 import {
   PainelAtendimento,
   type PedidoRemarcar,
@@ -999,6 +1000,7 @@ export function AgendaOperacional() {
           visualizacao={visualizacao}
           onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
+          mostrarSeletor={!celular}
           onTeclasVisualizacao={teclasAbas}
           discreto={modoDiscreto}
           onDiscreto={alternarModoDiscreto}
@@ -1305,26 +1307,20 @@ export function AgendaOperacional() {
         ) : null}
       </div>
 
-      <div className="agenda-acao-fixa">
-        <Button
-          size="lg"
-          variant="primary"
-          aria-label="Ações da agenda"
-          aria-haspopup="menu"
-          aria-expanded={menuAberto}
-          className={`agenda-acao-redonda agenda-fab-toggle ${menuAberto ? "pointer-events-none invisible" : ""}`}
-          data-aberto={menuAberto}
-          tabIndex={menuAberto ? -1 : undefined}
-          aria-hidden={menuAberto || undefined}
-          onClick={() => {
-            setPainelAberto(false);
-            setSelecionado(null);
-            setMenuAberto((aberto) => !aberto);
-          }}
-        >
-          <Plus aria-hidden className="agenda-fab-icone" />
-        </Button>
-      </div>
+      <FaixaOperacao
+        celular={celular}
+        visualizacao={visualizacao}
+        onVisualizacao={alterarVisualizacao}
+        onTeclasVisualizacao={teclasAbas}
+        mostrarAgora={ehHoje && visualizacao === "timeline" && !diaSemAgenda}
+        fuso={fuso}
+        menuAberto={menuAberto}
+        onAlternarMenu={() => {
+          setPainelAberto(false);
+          setSelecionado(null);
+          setMenuAberto((aberto) => !aberto);
+        }}
+      />
 
       {compartilhados}
     </Screen>

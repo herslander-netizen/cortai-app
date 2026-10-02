@@ -51,6 +51,7 @@ export function CabecalhoAgenda({
   visualizacao,
   onVisualizacao,
   mostrarSemana,
+  mostrarSeletor = true,
   onTeclasVisualizacao,
   discreto,
   onDiscreto,
@@ -69,6 +70,7 @@ export function CabecalhoAgenda({
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
   mostrarSemana: boolean;
+  mostrarSeletor?: boolean;
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
   discreto: boolean;
   onDiscreto: () => void;
@@ -176,7 +178,7 @@ export function CabecalhoAgenda({
             Hoje
           </Button>
         ) : null}
-        <div
+        {mostrarSeletor ? (<div
           className="flex shrink-0"
           role="group"
           aria-label="Visualização da agenda"
@@ -197,7 +199,7 @@ export function CabecalhoAgenda({
               <Icone />
             </Button>
           ))}
-        </div>
+        </div>) : null}
       </div>
       {children}
     </header>
