@@ -8,7 +8,10 @@ type NavegadorComTrava = Navigator & { wakeLock?: { request: (tipo: "screen") =>
  * Solta ao desativar ou ir para segundo plano e pede de novo ao voltar.
  * Sem suporte, não faz nada e não mostra erro.
  */
-export function useTelaAcesa(ativo: boolean, nav: NavegadorComTrava | undefined = globalThis.navigator) {
+export function useTelaAcesa(
+  ativo: boolean,
+  nav: NavegadorComTrava | undefined = globalThis.navigator,
+) {
   useEffect(() => {
     const wakeLock = nav?.wakeLock;
     if (!ativo || !wakeLock) return;
@@ -29,7 +32,8 @@ export function useTelaAcesa(ativo: boolean, nav: NavegadorComTrava | undefined 
       trava = null;
       if (t && !t.released) void t.release().catch(() => undefined);
     };
-    const aoMudarVisibilidade = () => (document.visibilityState === "visible" ? void pedir() : soltar());
+    const aoMudarVisibilidade = () =>
+      document.visibilityState === "visible" ? void pedir() : soltar();
     void pedir();
     document.addEventListener("visibilitychange", aoMudarVisibilidade);
     return () => {

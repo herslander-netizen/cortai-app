@@ -28,7 +28,8 @@ export function deveTrocarDia(f: {
   if (!f.inicio || f.cancelado || f.arrastandoNoFim || !gestoPodeComecar(f.inicio)) return 0;
   const dx = f.fimX - f.inicio.x;
   const dy = f.fimY - f.inicio.y;
-  if (Math.abs(dx) > DESLOCAMENTO_MIN_X && Math.abs(dy) < DESLOCAMENTO_MAX_Y) return dx < 0 ? 1 : -1;
+  if (Math.abs(dx) > DESLOCAMENTO_MIN_X && Math.abs(dy) < DESLOCAMENTO_MAX_Y)
+    return dx < 0 ? 1 : -1;
   return 0;
 }
 

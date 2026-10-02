@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, CreditCard, LifeBuoy, Settings, type LucideIcon } from "lucide-react";
-import { alternarGrupo, comGrupoAtual, gruposAbertosSalvos, salvarGruposAbertos } from "@/lib/grupos-do-menu";
+import {
+  alternarGrupo,
+  comGrupoAtual,
+  gruposAbertosSalvos,
+  salvarGruposAbertos,
+} from "@/lib/grupos-do-menu";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -175,34 +180,34 @@ export function ManagementHeader() {
                       </Button>
                     </h2>
                     {abertos.includes(grupo.titulo) ? (
-                    <ul
-                      id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
-                      className="animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
-                    >
-                      {grupo.itens.map((item) => {
-                        const Icon = item.icon;
-                        const ativo = itemDeNavegacaoAtivo(caminho, item.to);
-                        return (
-                          <li key={`${grupo.titulo}-${item.label}`}>
-                            <Link
-                              to={item.to as never}
-                              preload="intent"
-                              activeOptions={{ exact: true }}
-                              onClick={() => setAberto(false)}
-                              className={`drawer-link ${ativo ? "drawer-link-active" : ""}`}
-                            >
-                              <Icon size={17} strokeWidth={1.8} aria-hidden />
-                              <span>{item.label}</span>
-                            </Link>
+                      <ul
+                        id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
+                        className="animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
+                      >
+                        {grupo.itens.map((item) => {
+                          const Icon = item.icon;
+                          const ativo = itemDeNavegacaoAtivo(caminho, item.to);
+                          return (
+                            <li key={`${grupo.titulo}-${item.label}`}>
+                              <Link
+                                to={item.to as never}
+                                preload="intent"
+                                activeOptions={{ exact: true }}
+                                onClick={() => setAberto(false)}
+                                className={`drawer-link ${ativo ? "drawer-link-active" : ""}`}
+                              >
+                                <Icon size={17} strokeWidth={1.8} aria-hidden />
+                                <span>{item.label}</span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                        {grupo.titulo === "Sistema" ? (
+                          <li>
+                            <ModeMenuItem />
                           </li>
-                        );
-                      })}
-                      {grupo.titulo === "Sistema" ? (
-                        <li>
-                          <ModeMenuItem />
-                        </li>
-                      ) : null}
-                    </ul>
+                        ) : null}
+                      </ul>
                     ) : null}
                   </section>
                 ) : null,

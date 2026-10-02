@@ -16,7 +16,9 @@ export function gruposAbertosSalvos(armazenamento?: Armazenamento): string[] {
     const bruto = (armazenamento ?? padrao())?.getItem(CHAVE);
     if (!bruto) return GRUPOS_ABERTOS_PADRAO;
     const lista = JSON.parse(bruto) as unknown;
-    return Array.isArray(lista) ? lista.filter((g): g is string => typeof g === "string") : GRUPOS_ABERTOS_PADRAO;
+    return Array.isArray(lista)
+      ? lista.filter((g): g is string => typeof g === "string")
+      : GRUPOS_ABERTOS_PADRAO;
   } catch {
     return GRUPOS_ABERTOS_PADRAO;
   }

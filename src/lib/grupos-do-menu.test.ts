@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { alternarGrupo, comGrupoAtual, gruposAbertosSalvos, salvarGruposAbertos } from "./grupos-do-menu";
+import {
+  alternarGrupo,
+  comGrupoAtual,
+  gruposAbertosSalvos,
+  salvarGruposAbertos,
+} from "./grupos-do-menu";
 
 function memoria() {
   const d = new Map<string, string>();
-  return { getItem: (k: string) => d.get(k) ?? null, setItem: (k: string, v: string) => void d.set(k, v) };
+  return {
+    getItem: (k: string) => d.get(k) ?? null,
+    setItem: (k: string, v: string) => void d.set(k, v),
+  };
 }
 
 describe("grupos do menu", () => {

@@ -28,7 +28,12 @@ export function useGestoDia(aoTrocar: (direcao: -1 | 1) => void) {
       const ini = inicio.current;
       inicio.current = null;
       if (!t) return;
-      const d = deveTrocarDia({ inicio: ini, fimX: t.clientX, fimY: t.clientY, arrastandoNoFim: arrastando() });
+      const d = deveTrocarDia({
+        inicio: ini,
+        fimX: t.clientX,
+        fimY: t.clientY,
+        arrastandoNoFim: arrastando(),
+      });
       if (d) aoTrocar(d);
     },
     onTouchCancel() {

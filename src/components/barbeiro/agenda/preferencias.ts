@@ -90,7 +90,8 @@ export function lerContextoAgenda(armazenamento?: Armazenamento): ContextoAgenda
   if (!bruto) return null;
   try {
     const c = JSON.parse(bruto) as Partial<ContextoAgenda>;
-    if (typeof c.dia !== "string" || typeof c.hoje !== "string" || typeof c.salvoEm !== "number") return null;
+    if (typeof c.dia !== "string" || typeof c.hoje !== "string" || typeof c.salvoEm !== "number")
+      return null;
     const v = c.visualizacao;
     return {
       dia: c.dia,

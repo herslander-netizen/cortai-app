@@ -87,7 +87,10 @@ import {
   ultimaVisaoCompleta,
 } from "@/components/barbeiro/agenda/preferencias";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
-import { contextoInicialDaAgenda, useLugarDaAgenda } from "@/components/barbeiro/agenda/useLugarDaAgenda";
+import {
+  contextoInicialDaAgenda,
+  useLugarDaAgenda,
+} from "@/components/barbeiro/agenda/useLugarDaAgenda";
 
 const AgendamentoManualLazy = lazy(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
@@ -246,7 +249,9 @@ export function AgendaOperacional() {
   const moverAgendamento = useServerFn(moverAgendamentoPainel);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [restaurado] = useState(() => contextoInicialDaAgenda(typeof busca["agendamento"] === "string"));
+  const [restaurado] = useState(() =>
+    contextoInicialDaAgenda(typeof busca["agendamento"] === "string"),
+  );
   const [dia, setDia] = useState(() => restaurado?.dia ?? hojeNoFuso());
   const [direcaoDia, setDirecaoDia] = useState<"anterior" | "proximo">("proximo");
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
@@ -277,7 +282,10 @@ export function AgendaOperacional() {
     const celularLido = window.matchMedia("(max-width: 767px)").matches;
     const salva = preferenciaAgendaInicial(celularLido);
     const volta = restaurado && salva !== "foco" ? restaurado.visualizacao : salva;
-    inicial.current = { celular: celularLido, preferencia: celularLido && volta === "semana" ? "lista" : volta };
+    inicial.current = {
+      celular: celularLido,
+      preferencia: celularLido && volta === "semana" ? "lista" : volta,
+    };
   }
   const celularInicial = inicial.current.celular;
   const preferenciaInicial = inicial.current.preferencia;
