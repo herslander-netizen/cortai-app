@@ -148,6 +148,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
         return;
       }
       if (eixo !== "x") return;
+      // Só depois da trava horizontal: impede a página de escorregar na diagonal.
+      if (e.cancelable) e.preventDefault();
       if (!s.eixo) {
         s.eixo = "x";
         if (!prefereMenosMovimento() && palco.current) {
@@ -211,7 +213,9 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       palco.current = el;
       if (!el) return;
       el.addEventListener("touchstart", aoComecar, { passive: true });
-      el.addEventListener("touchmove", aoMover, { passive: true });
+      // Não passivo para poder travar a vertical depois da trava horizontal; antes
+      // dela nunca chama preventDefault, então a rolagem da página segue livre.
+      el.addEventListener("touchmove", aoMover, { passive: false });
       el.addEventListener("touchend", aoSoltar, { passive: true });
       el.addEventListener("touchcancel", aoCancelar, { passive: true });
     },
