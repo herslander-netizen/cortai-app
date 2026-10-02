@@ -229,7 +229,10 @@ export function useConversaAgendamento({
     if (e.profissionalId) {
       escolherProfissional(e.profissionalId);
       entendeu = true;
-    } else if (etapa === "profissional" && /qualquer|sem preferencia|tanto faz/.test(e.textoNormalizado)) {
+    } else if (
+      etapa === "profissional" &&
+      /qualquer|sem preferencia|tanto faz/.test(e.textoNormalizado)
+    ) {
       escolherProfissional("qualquer");
       entendeu = true;
     }
@@ -259,7 +262,9 @@ export function useConversaAgendamento({
     const equipe = chipEquipe(data);
     if (falhas >= 1) {
       falar(
-        equipe ? TEXTOS_CONVERSA.naoEntendiDeNovo : `${TEXTOS_CONVERSA.equipe} ${data.tenant.whatsapp ?? ""}`.trim(),
+        equipe
+          ? TEXTOS_CONVERSA.naoEntendiDeNovo
+          : `${TEXTOS_CONVERSA.equipe} ${data.tenant.whatsapp ?? ""}`.trim(),
         equipe ? [equipe] : [],
       );
     } else {

@@ -63,7 +63,10 @@ export function EtapaHorario({
     selecao.profissionalId === "qualquer" ? null : nomeDoProfissional(data, selecao.profissionalId);
   return (
     <Fala>
-      <p>{foraDoPeriodo && conversa.periodo ? "Nesse período não tem. " : ""}{TEXTOS_CONVERSA.horario}</p>
+      <p>
+        {foraDoPeriodo && conversa.periodo ? "Nesse período não tem. " : ""}
+        {TEXTOS_CONVERSA.horario}
+      </p>
       <p className="mb-3 font-semibold">{textoOferta(prof, dia)}</p>
       <div className="grid grid-cols-3 gap-2">
         {visiveis.map((o) => (

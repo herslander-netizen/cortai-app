@@ -21,7 +21,7 @@ import {
 } from "@/lib/conversa/memoria-cliente";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { brl } from "@/lib/format";
-import { normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
+import { hojeNoFuso, normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
@@ -339,7 +339,7 @@ function AgendamentoPublico() {
         <ConfirmacaoAgendamento
           confirmacao={confirmado}
           situacao={situacao}
-          fuso={fuso ?? "America/Sao_Paulo"}
+          fuso={fuso}
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
@@ -379,11 +379,11 @@ function AgendamentoPublico() {
     const futuro =
       confirmado && futuroNoChat
         ? {
-            dia: hojeNoFuso(fuso ?? "America/Sao_Paulo", new Date(confirmado.inicio)),
+            dia: hojeNoFuso(fuso, new Date(confirmado.inicio)),
             hora: new Date(confirmado.inicio).toLocaleTimeString("pt-BR", {
               hour: "2-digit",
               minute: "2-digit",
-              timeZone: fuso ?? "America/Sao_Paulo",
+              timeZone: fuso,
             }),
             onVer: () => setFuturoNoChat(false),
             onRemarcar: () => {

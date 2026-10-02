@@ -32,7 +32,12 @@ export function EtapaServico({ data, selecao }: { data: AgendaPublica; selecao: 
           >
             <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
               {s.foto_url ? (
-                <img src={s.foto_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={s.foto_url}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <ImageIcon className="text-mute" aria-hidden />
               )}

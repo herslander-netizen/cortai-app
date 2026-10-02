@@ -37,7 +37,10 @@ const PERGUNTAS: Pergunta[] = [
   {
     campo: "bebida",
     texto: "Aceita algo pra beber?",
-    opcoes: Object.entries(ROTULOS_PREFERENCIAS.bebida).map(([valor, rotulo]) => ({ valor, rotulo })),
+    opcoes: Object.entries(ROTULOS_PREFERENCIAS.bebida).map(([valor, rotulo]) => ({
+      valor,
+      rotulo,
+    })),
   },
   {
     campo: "musica",
@@ -102,7 +105,11 @@ export function PreferenciasEmConversa({
                 {o.rotulo}
               </Button>
             ))}
-            <Button variant="ghost" className="h-12 rounded-full px-4" onClick={() => avancar(respostas)}>
+            <Button
+              variant="ghost"
+              className="h-12 rounded-full px-4"
+              onClick={() => avancar(respostas)}
+            >
               Pular
             </Button>
           </div>

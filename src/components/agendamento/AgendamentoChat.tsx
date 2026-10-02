@@ -79,7 +79,10 @@ export function AgendamentoChat({
   });
 
   useEffect(() => {
-    const id = window.setTimeout(() => setEtapaPronta(etapa), pausaDaResposta(etapa, primeiraVisita));
+    const id = window.setTimeout(
+      () => setEtapaPronta(etapa),
+      pausaDaResposta(etapa, primeiraVisita),
+    );
     return () => window.clearTimeout(id);
   }, [etapa, primeiraVisita]);
 
@@ -113,7 +116,10 @@ export function AgendamentoChat({
     ],
     profissional: [
       { rotulo: "Sem preferência", acao: () => conversa.escolherProfissional("qualquer") },
-      ...selecao.aptos.map((p) => ({ rotulo: p.nome, acao: () => conversa.escolherProfissional(p.id) })),
+      ...selecao.aptos.map((p) => ({
+        rotulo: p.nome,
+        acao: () => conversa.escolherProfissional(p.id),
+      })),
     ],
     dia: [
       { rotulo: "Mais cedo possível", acao: conversa.pedirPrimeiro },
@@ -142,7 +148,9 @@ export function AgendamentoChat({
         header={
           <ChatHeader
             nome={data.pagina.chat.nomeRecepcao}
-            status={digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")}
+            status={
+              digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
+            }
             detalhe={data.tenant.nome}
             processando={digitando || enviando}
           />
@@ -162,7 +170,9 @@ export function AgendamentoChat({
                 tipo={abertura}
                 futuro={futuro}
                 primeiroNome={memoria?.primeiroNome}
-                servicoNome={nomeServico(abertura === "retomar" ? rascunho?.servicoId : memoria?.ultimoServicoId)}
+                servicoNome={nomeServico(
+                  abertura === "retomar" ? rascunho?.servicoId : memoria?.ultimoServicoId,
+                )}
                 profissionalNome={nomeProf(memoria?.ultimoProfissionalId)}
                 diaRascunho={rascunho?.dia}
                 onDeSempre={conversa.oDeSempre}
@@ -177,16 +187,32 @@ export function AgendamentoChat({
               />
             ) : null}
             {s.servico ? (
-              <BolhaEditavel texto={s.servico.nome} rotulo="serviço" onEditar={() => conversa.corrigir("servico")} />
+              <BolhaEditavel
+                texto={s.servico.nome}
+                rotulo="serviço"
+                onEditar={() => conversa.corrigir("servico")}
+              />
             ) : null}
             {s.servico && conversa.profEscolhido ? (
-              <BolhaEditavel texto={profTexto} rotulo="profissional" onEditar={() => conversa.corrigir("profissional")} />
+              <BolhaEditavel
+                texto={profTexto}
+                rotulo="profissional"
+                onEditar={() => conversa.corrigir("profissional")}
+              />
             ) : null}
             {s.dia && etapa !== "dia" && conversa.profEscolhido ? (
-              <BolhaEditavel texto={diaPorExtenso(s.dia)} rotulo="dia" onEditar={() => conversa.corrigir("dia")} />
+              <BolhaEditavel
+                texto={diaPorExtenso(s.dia)}
+                rotulo="dia"
+                onEditar={() => conversa.corrigir("dia")}
+              />
             ) : null}
             {s.escolhido ? (
-              <BolhaEditavel texto={s.escolhido.label} rotulo="horário" onEditar={() => conversa.corrigir("horario")} />
+              <BolhaEditavel
+                texto={s.escolhido.label}
+                rotulo="horário"
+                onEditar={() => conversa.corrigir("horario")}
+              />
             ) : null}
             <MensagensExtras itens={conversa.extras} />
             {digitando ? (
@@ -225,7 +251,12 @@ export function AgendamentoChat({
             {conflito ? (
               <Fala>
                 <p role="alert">Você já tem um horário às {conflito.hora} nesse dia.</p>
-                <Button variant="outline" className="mt-3 h-12 w-full" disabled={enviando} onClick={alterarConflito}>
+                <Button
+                  variant="outline"
+                  className="mt-3 h-12 w-full"
+                  disabled={enviando}
+                  onClick={alterarConflito}
+                >
                   Alterar esse horário
                 </Button>
               </Fala>
@@ -244,7 +275,11 @@ export function AgendamentoChat({
           campoRef={campoRef}
           acima={
             etapa === "dados" && !digitando ? (
-              <Button className="h-12 w-full" disabled={!dadosValidos || enviando} onClick={confirmar}>
+              <Button
+                className="h-12 w-full"
+                disabled={!dadosValidos || enviando}
+                onClick={confirmar}
+              >
                 <Check />
                 {enviando ? "Confirmando…" : "Sim, pode confirmar"}
               </Button>
