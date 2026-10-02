@@ -1,6 +1,12 @@
 import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
@@ -74,6 +80,10 @@ export function BotaoAgoraPrincipal({
     onVisualizacao(proxima);
   }
 
+  function soltarFocoDoToque(evento: PointerEvent<HTMLButtonElement>) {
+    if (evento.pointerType !== "") evento.currentTarget.blur();
+  }
+
   function teclasDaVisualizacao(evento: KeyboardEvent<HTMLButtonElement>) {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(evento.key)) return;
     evento.preventDefault();
@@ -91,9 +101,10 @@ export function BotaoAgoraPrincipal({
         >
           <Button
             variant="ghost"
-            className="agenda-botao-agora-ir active:translate-y-0 active:bg-transparent"
+            className="agenda-botao-agora-ir"
             aria-label="Ir para agora"
             onClick={irParaAgora}
+            onPointerUp={soltarFocoDoToque}
           >
             <Crosshair aria-hidden />
             <span>Agora</span>
@@ -103,10 +114,11 @@ export function BotaoAgoraPrincipal({
             id={`agenda-aba-${visualizacao}`}
             variant="ghost"
             size="icon"
-            className="agenda-botao-agora-visualizacao active:translate-y-0"
+            className="agenda-botao-agora-visualizacao"
             aria-label={`Mostrar ${proxima === "timeline" ? "Timeline" : "Lista"}`}
             onKeyDown={teclasDaVisualizacao}
             onClick={alternarVisualizacao}
+            onPointerUp={soltarFocoDoToque}
           >
             <AnimatePresence initial={false} mode="wait">
               <motion.span

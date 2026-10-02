@@ -83,6 +83,27 @@ describe("BotaoAgoraPrincipal", () => {
     expect(botao?.querySelector("svg")).not.toBeNull();
   });
 
+  it("não aplica sobrescritas locais de cor e solta o foco após toque", async () => {
+    await montar(390);
+    const botoes = Array.from(
+      host?.querySelectorAll<HTMLButtonElement>(
+        ".agenda-botao-agora-ir, .agenda-botao-agora-visualizacao",
+      ) ?? [],
+    );
+    expect(botoes).toHaveLength(2);
+    for (const botao of botoes) {
+      expect(botao.className).not.toMatch(/active:bg-|hover:bg-|focus:bg-/);
+      const blur = vi.spyOn(botao, "blur");
+      act(() => {
+        botao.focus();
+        botao.dispatchEvent(
+          new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }),
+        );
+      });
+      expect(blur).toHaveBeenCalledOnce();
+    }
+  });
+
   it("leva ao agora na Timeline", async () => {
     const ir = vi.fn();
     publicarAgora({ lado: "visivel", ir });

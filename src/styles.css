@@ -5469,6 +5469,23 @@ button.agenda-nome:hover {
   border-radius: 0 999px 999px 0;
   color: var(--ink);
 }
+.agenda-botao-agora-principal button,
+.agenda-botao-agora-principal button:hover,
+.agenda-botao-agora-principal button:focus,
+.agenda-botao-agora-principal button:focus-visible,
+.agenda-botao-agora-principal button:active {
+  background: transparent;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+.agenda-botao-agora-principal button:active {
+  transform: scale(0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-botao-agora-principal button:active {
+    transform: none;
+  }
+}
 @media (max-width: 600px) {
   .agenda-botao-agora-principal {
     display: flex;
