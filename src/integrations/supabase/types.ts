@@ -3776,6 +3776,8 @@ export type Database = {
         Row: {
           auth: string
           criado_em: string
+          discreto: boolean
+          em_foco_ate: string | null
           endpoint: string
           falhas: number
           id: string
@@ -3788,6 +3790,8 @@ export type Database = {
         Insert: {
           auth: string
           criado_em?: string
+          discreto?: boolean
+          em_foco_ate?: string | null
           endpoint: string
           falhas?: number
           id?: string
@@ -3800,6 +3804,8 @@ export type Database = {
         Update: {
           auth?: string
           criado_em?: string
+          discreto?: boolean
+          em_foco_ate?: string | null
           endpoint?: string
           falhas?: number
           id?: string
