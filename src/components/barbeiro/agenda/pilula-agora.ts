@@ -24,12 +24,26 @@ export function deslocamentoAteOMeio(linhaTop: number, area: { top: number; bott
 // Ponte entre a Timeline (dentro do deslize de dia) e a faixa de baixo (fora dele).
 type Estado = { lado: LadoDoAgora | null; ir: (() => void) | null };
 let estado: Estado = { lado: null, ir: null };
+let pedidoPendente = false;
 const ouvintes = new Set<() => void>();
 
 export function publicarAgora(proximo: Estado) {
   if (proximo.lado === estado.lado && proximo.ir === estado.ir) return;
   estado = proximo;
   ouvintes.forEach((f) => f());
+  if (pedidoPendente && proximo.ir) {
+    pedidoPendente = false;
+    window.requestAnimationFrame(() => proximo.ir?.());
+  }
+}
+
+/** Leva à linha atual; se a Timeline ainda não está montada, conclui assim que ela aparecer. */
+export function solicitarAgora() {
+  if (estado.ir) {
+    estado.ir();
+    return;
+  }
+  pedidoPendente = true;
 }
 
 function assinar(f: () => void) {

@@ -23,7 +23,7 @@ import {
 } from "@/components/barbeiro/agenda/EstadosAgenda";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
-import { FaixaOperacao } from "@/components/barbeiro/agenda/FaixaOperacao";
+import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
   PainelAtendimento,
   type PedidoRemarcar,
@@ -1309,13 +1309,9 @@ export function AgendaOperacional() {
         ) : null}
       </div>
 
-      <FaixaOperacao
-        visivel={faixaCelular}
+      <BotaoAgoraPrincipal
         visualizacao={visualizacao}
         onVisualizacao={alterarVisualizacao}
-        onTeclasVisualizacao={teclasAbas}
-        mostrarAgora={ehHoje && visualizacao === "timeline" && !diaSemAgenda}
-        fuso={fuso}
         menuAberto={menuAberto}
         onAlternarMenu={() => {
           setPainelAberto(false);
