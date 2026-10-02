@@ -132,7 +132,9 @@ function FilaPage() {
       title="Lista de espera"
       subtitle="Vaga liberada é oferecida automaticamente a quem combina."
     >
-      {isLoading ? <EsqueletoLista linhas={4} /> : null}
+      {isLoading ? (
+        <EsqueletoLista linhas={4} onTentarDeNovo={() => void refetch()} />
+      ) : null}
 
       {data ? (
         <Card>

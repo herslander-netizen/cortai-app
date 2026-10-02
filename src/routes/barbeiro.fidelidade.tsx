@@ -83,7 +83,9 @@ function FidelidadePage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Voltaí" subtitle="Seu cliente corta. Ganha. Volta.">
-      {isLoading ? <EsqueletoFormulario campos={4} /> : null}
+      {isLoading ? (
+        <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
+      ) : null}
 
       <div className="flex items-center justify-between border-b border-line py-4">
         <div className="pr-4">

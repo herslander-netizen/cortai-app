@@ -279,7 +279,9 @@ export function FechamentoComanda({
             <X />
           </Button>
         </div>
-        {query.isLoading ? <EsqueletoComanda /> : null}
+        {query.isLoading ? (
+          <EsqueletoComanda onTentarDeNovo={() => void query.refetch()} />
+        ) : null}
         {query.error ? (
           <p className="py-6 text-sm text-paper" role="alert">
             {(query.error as Error).message}
