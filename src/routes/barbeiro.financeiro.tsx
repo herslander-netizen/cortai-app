@@ -26,14 +26,14 @@ export const Route = createFileRoute("/barbeiro/financeiro")({
 });
 
 function FinanceiroPage() {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["financeiro"],
     queryFn: () => getFinanceiro(),
     retry: false,
   });
   return (
     <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
-      {isLoading ? <EsqueletoPainel /> : null}
+      {isLoading ? <EsqueletoPainel onTentarDeNovo={() => void refetch()} /> : null}
       {isError ? (
         <p className="border-l-2 border-brick pl-4 text-sm text-brick">
           Entre com uma conta vinculada ao negócio para ver o financeiro.

@@ -61,11 +61,12 @@ function PlanoPage() {
   const [editandoCadastro, setEditandoCadastro] = useState(false);
   const [cadastro, setCadastro] = useState({ nome: "", cpfCnpj: "", email: "", telefone: "" });
 
-  const { data, isLoading } = useQuery({
+  const planos = useQuery({
     queryKey: ["planos-da-barbearia"],
     queryFn: () => getPlanosDaBarbearia(),
     staleTime: 300_000,
   });
+  const { data, isLoading } = planos;
   const cobranca = useQuery({
     queryKey: ["minha-cobranca"],
     queryFn: () => getMinhaCobranca(),
@@ -142,7 +143,13 @@ function PlanoPage() {
       subtitle="Plano e cobranças do Cortaí. Os pagamentos dos seus clientes ficam no Financeiro."
     >
       {isLoading || cobranca.isLoading || !data || !cobranca.data ? (
-        <EsqueletoLista linhas={3} />
+        <EsqueletoLista
+          linhas={3}
+          onTentarDeNovo={() => {
+            void planos.refetch();
+            void cobranca.refetch();
+          }}
+        />
       ) : (
         <div className="space-y-8">
           <section className="surface space-y-4 p-5" aria-labelledby="assinatura-atual">

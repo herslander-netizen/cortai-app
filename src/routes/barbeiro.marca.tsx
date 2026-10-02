@@ -123,7 +123,7 @@ function MarcaPage() {
   if (query.isLoading)
     return (
       <Screen voltarPara="/barbeiro/mais" title="Personalizar página">
-        <EsqueletoFormulario campos={6} />
+        <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
   if (!query.data)

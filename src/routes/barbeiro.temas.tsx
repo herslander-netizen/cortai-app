@@ -50,7 +50,7 @@ function TemasPage() {
   if (query.isLoading)
     return (
       <Screen voltarPara="/barbeiro/mais" title="Temas e layouts">
-        <EsqueletoFormulario campos={4} />
+        <EsqueletoFormulario campos={4} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
   if (!query.data)

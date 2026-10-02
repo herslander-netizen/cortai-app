@@ -66,7 +66,7 @@ function DesignSystemPage() {
       subtitle="Alterações aqui definem a base para todos os tenants."
     >
       {!form ? (
-        <EsqueletoFormulario campos={5} />
+        <EsqueletoFormulario campos={5} onTentarDeNovo={() => void query.refetch()} />
       ) : (
         <form
           onSubmit={(e) => {

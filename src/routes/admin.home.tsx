@@ -72,7 +72,7 @@ function EditorDaHome() {
   const descartarFn = useServerFn(descartarRascunhoHome);
   const restaurarFn = useServerFn(restaurarVersaoHome);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin", "home"],
     queryFn: () => getFn(),
   });
@@ -165,7 +165,7 @@ function EditorDaHome() {
     >
       {error ? <AdminNotice error={error} /> : null}
       {isLoading ? (
-        <EsqueletoFormulario campos={6} />
+        <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} />
       ) : data ? (
         <div className="max-w-3xl space-y-6">
           <p className="text-sm text-mute">

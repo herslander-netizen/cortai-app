@@ -123,7 +123,8 @@ function AbaPlanos() {
   const [erro, setErro] = useState("");
 
   if (query.isError) return <AdminNotice error={query.error} />;
-  if (!query.data) return <EsqueletoLista linhas={3} />;
+  if (!query.data)
+    return <EsqueletoLista linhas={3} onTentarDeNovo={() => void query.refetch()} />;
 
   const novo: Plano = {
     id: "",
@@ -460,7 +461,9 @@ function AbaBarbearia() {
           <AdminNotice error={visao.error} />
         </div>
       ) : null}
-      {tenantId && !visao.data && !visao.isError ? <EsqueletoFormulario campos={3} /> : null}
+      {tenantId && !visao.data && !visao.isError ? (
+        <EsqueletoFormulario campos={3} onTentarDeNovo={() => void visao.refetch()} />
+      ) : null}
 
       {visao.data ? (
         <>

@@ -137,7 +137,9 @@ function BarbeariasPage() {
               ))}
             </div>
           </div>
-          {query.isLoading ? <EsqueletoLista linhas={6} /> : null}
+          {query.isLoading ? (
+            <EsqueletoLista linhas={6} onTentarDeNovo={() => void query.refetch()} />
+          ) : null}
           <ul className="mt-6 divide-y divide-line border-y border-line md:hidden">
             {list.map((tenant) => (
               <li key={tenant.id}>
