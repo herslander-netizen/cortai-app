@@ -127,7 +127,7 @@ function AgendarPage() {
   if (dados.isLoading || !dados.data) {
     return (
       <Screen title="Agendar" subtitle="Escolha serviço, profissional e horário.">
-        <EsqueletoFormulario campos={5} />
+        <EsqueletoFormulario campos={5} onTentarDeNovo={() => void dados.refetch()} />
       </Screen>
     );
   }

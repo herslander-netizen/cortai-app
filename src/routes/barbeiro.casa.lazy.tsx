@@ -143,7 +143,7 @@ function CasaPage() {
     <Screen title="Visão Casa" subtitle="Atualiza sozinha." voltarPara="/barbeiro">
       <div className="md:max-w-xl">
         {!d ? (
-          <EsqueletoLista linhas={4} />
+          <EsqueletoLista linhas={4} onTentarDeNovo={() => void q.refetch()} />
         ) : (
           <>
             <h2 className="text-xs font-semibold uppercase tracking-wide text-mute">

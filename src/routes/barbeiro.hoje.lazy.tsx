@@ -211,7 +211,7 @@ function HojePage() {
       </p>
       <section aria-label="Números de hoje" className="md:max-w-xl">
         {q.isLoading ? (
-          <EsqueletoMetricas colunas={2} />
+          <EsqueletoMetricas colunas={2} onTentarDeNovo={() => void q.refetch()} />
         ) : (
           numeros.map((n) => (
             <Numero

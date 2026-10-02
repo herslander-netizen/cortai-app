@@ -60,7 +60,12 @@ export function DescobrirBarbearias({
         {discreto && busca.length < 2 ? (
           <p className="text-xs text-mute2">Digite ao menos duas letras para ver os lugares.</p>
         ) : null}
-        {consulta.isLoading ? <EsqueletoLista linhas={discreto ? 3 : 5} /> : null}
+        {consulta.isLoading ? (
+          <EsqueletoLista
+            linhas={discreto ? 3 : 5}
+            onTentarDeNovo={() => void consulta.refetch()}
+          />
+        ) : null}
         {consulta.isError ? (
           <p className="text-sm text-brick" role="alert">
             Não foi possível carregar os lugares. Tente de novo em instantes.

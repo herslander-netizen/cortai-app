@@ -44,7 +44,7 @@ function ConvitePage() {
 
       {convite.isLoading ? (
         <div className="mt-8">
-          <EsqueletoFormulario campos={3} />
+          <EsqueletoFormulario campos={3} onTentarDeNovo={() => void convite.refetch()} />
         </div>
       ) : !dados ? (
         <div className="mt-8 space-y-5">

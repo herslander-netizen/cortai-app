@@ -93,7 +93,9 @@ function HistoricoPage() {
         </Aviso>
       ) : null}
 
-      {lista.isLoading ? <EsqueletoLista linhas={4} /> : null}
+      {lista.isLoading ? (
+        <EsqueletoLista linhas={4} onTentarDeNovo={() => void lista.refetch()} />
+      ) : null}
 
       {lista.isError ? (
         <div className="surface p-5">

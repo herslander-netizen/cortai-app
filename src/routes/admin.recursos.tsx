@@ -71,7 +71,7 @@ function RecursosPage() {
       }
     >
       {!query.data ? (
-        <EsqueletoLista linhas={6} />
+        <EsqueletoLista linhas={6} onTentarDeNovo={() => void query.refetch()} />
       ) : (
         <>
           <div className="hidden overflow-x-auto sm:block">

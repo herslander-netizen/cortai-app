@@ -219,7 +219,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
       {/* Horários */}
       <div className="mt-3">
         {grade.isLoading ? (
-          <EsqueletoAgenda linhas={2} />
+          <EsqueletoAgenda linhas={2} onTentarDeNovo={() => void grade.refetch()} />
         ) : grade.data?.fechado ? (
           <p className="text-xs text-mute">Barbearia fechada neste dia.</p>
         ) : (

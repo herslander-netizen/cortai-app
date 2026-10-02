@@ -87,7 +87,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
         </div>
 
         {dados.isLoading ? (
-          <EsqueletoAgenda linhas={3} />
+          <EsqueletoAgenda linhas={3} onTentarDeNovo={() => void dados.refetch()} />
         ) : dados.error ? (
           <p className="text-sm text-paper">
             {dados.error instanceof Error ? dados.error.message : "Não foi possível carregar."}
