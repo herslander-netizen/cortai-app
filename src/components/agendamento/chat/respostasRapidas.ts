@@ -1,6 +1,6 @@
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 import type { Intencao } from "@/lib/conversa/entender";
-import { contatoDaEquipe, TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
+import { contatoDaEquipe, OPCOES_NAO_ENTENDI, TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
 import { brl } from "@/lib/format";
 import { statusDeFuncionamento } from "@/lib/status-funcionamento";
 import type { Chip } from "./tipos";
@@ -65,4 +65,26 @@ export function respostaRapida(
     return { texto: TEXTOS_CONVERSA.equipe, chips: [] };
   }
   return null;
+}
+
+/** Sem dado reconhecido: menu curto; na segunda vez seguida, a equipe. */
+export function respostaNaoEntendi(
+  data: AgendaPublica,
+  falhas: number,
+  agendar: Chip,
+  verServicos: () => void,
+): { texto: string; chips: Chip[] } {
+  const equipe = chipEquipe(data);
+  if (falhas >= 1) {
+    return equipe
+      ? { texto: TEXTOS_CONVERSA.naoEntendiDeNovo, chips: [equipe] }
+      : { texto: `${TEXTOS_CONVERSA.equipe} ${data.tenant.whatsapp ?? ""}`.trim(), chips: [] };
+  }
+  const [agendarRotulo, servicosRotulo, equipeRotulo] = OPCOES_NAO_ENTENDI;
+  const chips: Chip[] = [
+    { ...agendar, rotulo: agendarRotulo },
+    { rotulo: servicosRotulo, acao: verServicos },
+  ];
+  if (equipe) chips.push({ ...equipe, rotulo: equipeRotulo });
+  return { texto: TEXTOS_CONVERSA.naoEntendi, chips };
 }

@@ -11,9 +11,9 @@ import {
   type PassoEditavel,
   type RascunhoConversa,
 } from "@/lib/conversa/memoria-cliente";
-import { OPCOES_NAO_ENTENDI, TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
+import { TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
 import { hojeNoFuso } from "@/lib/horarios";
-import { chipEquipe, respostaRapida } from "./respostasRapidas";
+import { respostaNaoEntendi, respostaRapida } from "./respostasRapidas";
 import type { Chip, Etapa, MensagemExtra, Selecao } from "./tipos";
 
 type Abertura = "futuro" | "retomar" | "sempre" | null;
@@ -259,23 +259,8 @@ export function useConversaAgendamento({
       setAbertura(null);
       return setFalhas(0);
     }
-    const equipe = chipEquipe(data);
-    if (falhas >= 1) {
-      falar(
-        equipe
-          ? TEXTOS_CONVERSA.naoEntendiDeNovo
-          : `${TEXTOS_CONVERSA.equipe} ${data.tenant.whatsapp ?? ""}`.trim(),
-        equipe ? [equipe] : [],
-      );
-    } else {
-      const [agendarRotulo, servicosRotulo, equipeRotulo] = OPCOES_NAO_ENTENDI;
-      const chips: Chip[] = [
-        { rotulo: agendarRotulo, acao: () => setAbertura(null) },
-        { rotulo: servicosRotulo, acao: () => enviarTexto("serviços") },
-      ];
-      if (equipe) chips.push({ ...equipe, rotulo: equipeRotulo });
-      falar(TEXTOS_CONVERSA.naoEntendi, chips);
-    }
+    const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
+    falar(resposta.texto, resposta.chips);
     setFalhas((f) => f + 1);
   }
 
