@@ -2,8 +2,13 @@
  * Inscrição de push deste aparelho (só equipe). Sempre a partir de um toque.
  */
 import { supabase } from "@/integrations/supabase/client";
-import { getChavePublicaPush, salvarInscricaoPush } from "@/lib/push.functions";
+import {
+  atualizarEstadoPush,
+  getChavePublicaPush,
+  salvarInscricaoPush,
+} from "@/lib/push.functions";
 import { detectarPlataforma, estaInstalado } from "@/lib/pwa";
+import { modoDiscretoInicial } from "@/components/barbeiro/agenda/preferencias";
 import { deB64urlNavegador } from "./base64";
 
 export const CHAVE_PUSH_ATIVO = "cortai:push-ativo";
@@ -73,6 +78,7 @@ export async function ativarPushDaEquipe(tenantId: string): Promise<ResultadoDoP
     });
     if (!r.ok) return "falhou";
     marcar(true);
+    void informarEstadoDoAparelho({ foco: false, discreto: modoDiscretoInicial() });
     return "ativo";
   } catch {
     return "falhou";
@@ -90,5 +96,18 @@ export async function removerPushDesteAparelho() {
     await inscricao.unsubscribe();
   } catch {
     /* segue o logout */
+  }
+}
+
+/** Informa ao servidor o Foco e o modo discreto deste aparelho. Nunca falha alto. */
+export async function informarEstadoDoAparelho(estado: { foco: boolean; discreto: boolean }) {
+  if (!pushAtivoNesteAparelho()) return;
+  try {
+    const registro = await registroAtivo();
+    const inscricao = await registro?.pushManager.getSubscription();
+    if (!inscricao) return;
+    await atualizarEstadoPush({ data: { endpoint: inscricao.endpoint, ...estado } });
+  } catch {
+    /* sem rede: o Foco expira sozinho no servidor */
   }
 }

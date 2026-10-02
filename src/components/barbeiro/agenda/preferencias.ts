@@ -4,6 +4,7 @@ export type VisaoCompletaAgenda = Exclude<PreferenciaAgenda, "foco" | "semana">;
 const CHAVE_VISAO = "cortai-agenda-visualizacao";
 const CHAVE_VISAO_COMPLETA = "cortai-agenda-visualizacao-completa";
 const CHAVE_DISCRETO = "cortai-agenda-modo-discreto";
+export const EVENTO_DISCRETO = "cortai-modo-discreto";
 
 type Armazenamento = Pick<Storage, "getItem" | "setItem">;
 
@@ -56,6 +57,7 @@ export function modoDiscretoInicial(armazenamento?: Armazenamento) {
 
 export function salvarModoDiscreto(ativo: boolean, armazenamento?: Armazenamento) {
   salvar(CHAVE_DISCRETO, ativo ? "1" : "0", armazenamento);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENTO_DISCRETO));
 }
 
 const CHAVE_TELA_ACESA = "cortai-agenda-tela-acesa";
