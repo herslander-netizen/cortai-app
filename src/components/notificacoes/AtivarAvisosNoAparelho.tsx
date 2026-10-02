@@ -1,18 +1,54 @@
 import { Bell, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { aviso } from "@/lib/avisos";
 import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
+import { useConsentimento } from "@/lib/consentimento";
 import { useModoFoco } from "@/lib/modo-foco";
 import { useConviteDeInstalacaoVisivel } from "@/lib/pwa";
+import {
+  ativarPushDaEquipe,
+  precisaInstalarParaPush,
+  type ResultadoDoPush,
+} from "@/lib/push/aparelho";
+
+const MENSAGEM: Record<Exclude<ResultadoDoPush, "ativo" | "instalar_primeiro">, string> = {
+  bloqueado: "Os avisos estão bloqueados nas configurações do navegador.",
+  recusado: "Tudo bem. Você pode ativar depois em Ajustes.",
+  so_no_app: "Avisos ativados enquanto o Cortaí estiver aberto.",
+  falhou: "Não deu para ativar agora. Tente de novo em Ajustes.",
+};
+
+/** Mesmo toque de "Ativar avisos" para equipe (push) e cliente (só navegador). */
+export async function ativarAvisosDaEquipe(tenantId: string) {
+  const r = await ativarPushDaEquipe(tenantId);
+  if (r === "ativo") aviso.ok("Avisos no celular ativados.");
+  else if (r !== "instalar_primeiro") aviso.info(MENSAGEM[r]);
+  return r;
+}
+
+export const TEXTO_INSTALAR_PRIMEIRO =
+  "No iPhone, instale o Cortaí primeiro: toque em Compartilhar e depois em Adicionar à Tela de Início. Depois abra pelo ícone e ative os avisos.";
 
 /**
  * Convite discreto para ligar os avisos do aparelho.
  * Só aparece depois de entrar na conta e some assim que a pessoa decide.
  */
-export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
+export function AtivarAvisosNoAparelho({
+  texto,
+  equipe,
+  posicao = "base",
+}: {
+  texto?: string;
+  /** Negócio da equipe: com ele, o toque cria a inscrição de push. */
+  equipe?: string | null;
+  posicao?: "base" | "topo";
+}) {
   const { pronto, estado, dispensado, pedir, dispensar } = useAvisosDoAparelho();
   const [passouTempo, setPassouTempo] = useState(false);
+  const [instalarPrimeiro, setInstalarPrimeiro] = useState(false);
   const conviteNaTela = useConviteDeInstalacaoVisivel();
+  const { consentimento } = useConsentimento();
   const foco = useModoFoco();
 
   useEffect(() => {
@@ -20,11 +56,38 @@ export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
     return () => window.clearTimeout(t);
   }, []);
 
-  if (foco || conviteNaTela || !pronto || !passouTempo || dispensado || estado !== "perguntar")
+  if (
+    foco ||
+    conviteNaTela ||
+    !consentimento ||
+    !pronto ||
+    !passouTempo ||
+    dispensado ||
+    estado !== "perguntar"
+  )
     return null;
 
+  const lugar =
+    posicao === "topo"
+      ? "top-[calc(76px+env(safe-area-inset-top))]"
+      : "bottom-[calc(88px+env(safe-area-inset-bottom))]";
+
+  async function ativar() {
+    if (equipe) {
+      if (precisaInstalarParaPush()) {
+        setInstalarPrimeiro(true);
+        return;
+      }
+      const r = await ativarAvisosDaEquipe(equipe);
+      if (r !== "ativo" && r !== "so_no_app") dispensar();
+      return;
+    }
+    const ok = await pedir();
+    if (!ok) dispensar();
+  }
+
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(88px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
+    <div className={`pointer-events-none fixed inset-x-0 ${lugar} z-40 flex justify-center px-4`}>
       <div
         role="dialog"
         aria-label="Ativar avisos"
@@ -37,36 +100,39 @@ export function AtivarAvisosNoAparelho({ texto }: { texto?: string }) {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-paper">Ativar avisos</p>
             <p className="mt-1 text-xs leading-relaxed text-mute">
-              {texto ?? "Receba um aviso no aparelho quando algo importante acontecer."}
+              {instalarPrimeiro
+                ? TEXTO_INSTALAR_PRIMEIRO
+                : (texto ??
+                  (equipe
+                    ? "Saiba na hora quando um cliente agendar, cancelar ou chegar."
+                    : "Receba um aviso no aparelho quando algo importante acontecer."))}
             </p>
           </div>
           <button
             type="button"
             onClick={dispensar}
             aria-label="Fechar convite de avisos"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-mute"
+            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mute"
           >
             <X size={15} strokeWidth={1.75} />
           </button>
         </div>
         <div className="mt-3 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              void pedir().then((ok) => {
-                if (!ok) dispensar();
-              });
-            }}
-            className="h-12 flex-1 rounded-lg bg-gold text-sm font-bold text-ink"
-          >
-            Ativar avisos
-          </button>
+          {instalarPrimeiro ? null : (
+            <button
+              type="button"
+              onClick={() => void ativar()}
+              className="h-12 flex-1 rounded-lg bg-gold text-sm font-bold text-ink"
+            >
+              Ativar avisos
+            </button>
+          )}
           <button
             type="button"
             onClick={dispensar}
             className="h-12 rounded-lg px-4 text-xs font-semibold text-mute"
           >
-            Agora não
+            {instalarPrimeiro ? "Entendi" : "Agora não"}
           </button>
         </div>
       </div>
