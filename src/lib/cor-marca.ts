@@ -44,7 +44,7 @@ export function contraste(a: string, b: string) {
   return ((clara ?? 0) + 0.05) / ((escura ?? 0) + 0.05);
 }
 
-function misturar(cor: string, destino: string, quantidade: number) {
+export function misturar(cor: string, destino: string, quantidade: number) {
   const origem = rgb(cor);
   const alvo = rgb(destino);
   return hex(origem.map((canal, indice) => canal + ((alvo[indice] ?? canal) - canal) * quantidade));
@@ -79,5 +79,23 @@ export function estiloDaMarca(cor: string | null | undefined): {
       "--client-accent-dark": ajustarParaFundo(base, "#17181B", "#FFFFFF"),
       "--client-accent-light": ajustarParaFundo(base, "#F5F4F0", "#000000"),
     } as CSSProperties,
+  };
+}
+
+/**
+ * Tokens de superfície do escopo `.agendamento-marca`, calculados aqui (não no CSS)
+ * para que o teste de contraste verifique exatamente os pares exibidos.
+ */
+export function tokensDoAgendamento(secundaria: string) {
+  const pagina = CORES_AGENDAMENTO.pagina;
+  const texto = CORES_AGENDAMENTO.texto;
+  const base = /^#[0-9A-F]{6}$/i.test(secundaria) ? secundaria.toUpperCase() : pagina;
+  return {
+    pagina,
+    texto,
+    cartao: pagina,
+    superficie1: misturar(pagina, base, 0.12),
+    superficie2: misturar(pagina, base, 0.22),
+    textoAuxiliar: misturar(texto, pagina, 0.28),
   };
 }
