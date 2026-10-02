@@ -1,12 +1,6 @@
 import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  type KeyboardEvent,
-  type PointerEvent,
-} from "react";
+import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
