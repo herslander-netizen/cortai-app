@@ -323,9 +323,9 @@ function AgendamentoPublico() {
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
-          textoFinal={
-            data.pagina.chat.modo === "conversa" ? data.pagina.chat.textoFinal : undefined
-          }
+          {...(data.pagina.chat.modo === "conversa"
+            ? { textoFinal: data.pagina.chat.textoFinal }
+            : {})}
           cancelando={cancelar.isPending}
           erro={erro ?? undefined}
           onAlterar={() => {

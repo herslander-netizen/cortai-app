@@ -21,6 +21,8 @@ export function useHistoricoAgendamento(etapa: string, aoVoltar: (etapa: string)
     };
     addEventListener("popstate", voltar);
     return () => removeEventListener("popstate", voltar);
+    // A montagem define a entrada inicial; avanços são tratados pelo efeito abaixo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
