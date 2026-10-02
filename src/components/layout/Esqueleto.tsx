@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type RegiaoProps = {
   children: ReactNode;
   className?: string;
-  onTentarDeNovo?: () => void;
+  onTentarDeNovo?: (() => void) | undefined;
 };
 
 type TentativaProps = Pick<RegiaoProps, "onTentarDeNovo">;
