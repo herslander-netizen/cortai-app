@@ -470,7 +470,8 @@ export function AgendaTimeline({
     if (g.ativo && celular) {
       // No celular quem rola é a página: bordas da área livre e window.scrollBy.
       const r = areaLivre();
-      if (e.clientY < r.top + borda) window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
+      if (e.clientY < r.top + borda)
+        window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
       else if (e.clientY > r.bottom - borda)
         window.scrollBy(0, Math.ceil((e.clientY - (r.bottom - borda)) / 4));
     } else if (g.ativo && area) {
