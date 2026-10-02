@@ -23,7 +23,7 @@ export function AlertasFoco({
           ) : (
             <TriangleAlert className="size-5 shrink-0" aria-hidden />
           )}
-          <span className="min-w-0 flex-1 text-sm font-semibold">{alerta.texto}</span>
+          <span className="min-w-0 flex-1 text-base font-semibold">{alerta.texto}</span>
           {alerta.dispensavel ? (
             <Button variant="ghost" onClick={() => onDispensar(alerta.id)}>
               Entendi

@@ -27,6 +27,7 @@ export type DadosCockpit = {
   progresso: number;
   rotulo: string;
   termino: string | null;
+  atrasoPrevisto: number;
 };
 
 function ordenar(itens: AgendaItem[]) {
@@ -64,6 +65,7 @@ export function dadosDoCockpit(
     : 0;
   const restante = naCadeira ? Math.max(0, naCadeira.duracaoMin - decorrido) : 0;
   const passou = Boolean(naCadeira && decorrido > naCadeira.duracaoMin);
+  const atrasoPrevisto = naCadeira ? Math.max(0, Math.ceil((agora - +new Date(naCadeira.fim)) / 60_000)) : 0;
   const estado: EstadoCockpit = naCadeira
     ? passou
       ? "passou_do_tempo"
@@ -108,9 +110,11 @@ export function dadosDoCockpit(
     progresso: naCadeira ? Math.min(1, decorrido / Math.max(1, naCadeira.duracaoMin)) : 0,
     rotulo: rotulos[estado],
     termino: principal ? hora(principal.fim, fuso) : null,
+    atrasoPrevisto,
   };
 }
 
 export function situacaoDoLembrete(item: AgendaItem) {
+  if (item.status === "remarcado") return "Pediu para remarcar";
   return item.confirmadoEm ? "Confirmou pelo WhatsApp" : "Sem resposta";
 }

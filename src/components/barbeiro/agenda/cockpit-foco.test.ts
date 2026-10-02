@@ -48,6 +48,7 @@ describe("dadosDoCockpit", () => {
     const excedido = dadosDoCockpit([atual], +new Date("2026-10-02T13:52:00Z"), "UTC");
     expect(excedido.estado).toBe("passou_do_tempo");
     expect(excedido.excedido).toContain("+7 min");
+    expect(excedido.atrasoPrevisto).toBe(7);
   });
 
   it.each([
@@ -73,5 +74,9 @@ describe("dadosDoCockpit", () => {
         confirmadoEm: "2026-10-02T12:00:00Z",
       }),
     ).toBe("Confirmou pelo WhatsApp");
+  });
+
+  it("expõe pedido de remarcação", () => {
+    expect(situacaoDoLembrete(item("x", "2026-10-02T14:00:00Z", "remarcado"))).toBe("Pediu para remarcar");
   });
 });

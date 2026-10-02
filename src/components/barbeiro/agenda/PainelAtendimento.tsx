@@ -78,7 +78,7 @@ export function PainelAtendimento(props: Props) {
     );
     setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
     setErroRemarcar(null);
-  }, [item?.id, props.aberto, props.fuso, props.iniciarEm]);
+  }, [item, props.aberto, props.fuso, props.iniciarEm]);
 
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;

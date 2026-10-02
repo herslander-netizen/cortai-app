@@ -33,7 +33,9 @@ export function CockpitFoco(props: Props) {
         ? "Finalizar e cobrar"
         : dados.estado === "receber"
           ? "Receber"
-          : dados.estado === "livre" || dados.estado === "encerrado"
+          : dados.estado === "encerrado"
+            ? "Dia encerrado"
+            : dados.estado === "livre"
             ? "Encaixar cliente"
             : "Cliente chegou";
   return (
@@ -114,13 +116,13 @@ export function CockpitFoco(props: Props) {
             <p className="mt-3 text-[15px] font-semibold text-paper">
               {situacaoDoLembrete(dados.proximo)}
             </p>
-            {dados.estado === "passou_do_tempo" && props.onAvisar ? (
+            {dados.atrasoPrevisto >= 5 && props.onAvisar ? (
               <Button
                 variant="outline"
                 className="mt-3 min-h-12 w-full"
                 onClick={() => props.onAvisar?.(dados.proximo as AgendaItem)}
               >
-                Avisar {dados.proximo.cliente.split(" ")[0]}: atraso no atendimento
+                Avisar {dados.proximo.cliente.split(" ")[0]}: {dados.atrasoPrevisto} min de atraso
               </Button>
             ) : null}
             {dados.depois.length ? (
@@ -144,7 +146,7 @@ export function CockpitFoco(props: Props) {
           className="size-16"
           aria-label="Outras ações"
           onClick={props.onMais}
-          disabled={props.somenteLeitura}
+          disabled={props.somenteLeitura || dados.estado === "encerrado"}
         >
           <MoreHorizontal className="size-6" />
         </Button>
