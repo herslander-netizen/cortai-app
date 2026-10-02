@@ -81,11 +81,11 @@ export function ManagementHeader() {
   const atendimentosDeHoje = agenda?.itens.filter(
     (item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status),
   ).length;
-  const apoio = agenda
+  const resumoDaAgenda = agenda
     ? atendimentosDeHoje
       ? `Hoje: ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
       : "Agenda livre hoje"
-    : saudacao.frase;
+    : null;
 
   useEffect(() => {
     aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
@@ -211,8 +211,9 @@ export function ManagementHeader() {
                 {saudacao.titulo}
               </SheetTitle>
               <SheetDescription className="mt-1 text-sm text-mute">
-                {apoio}
+                {saudacao.frase}
               </SheetDescription>
+              {resumoDaAgenda ? <p className="mt-2 text-xs font-semibold text-paper">{resumoDaAgenda}</p> : null}
               <p className="mt-4 truncate text-sm font-semibold text-paper">
                 {sessao?.tenantNome ?? "Meu negócio"}
               </p>

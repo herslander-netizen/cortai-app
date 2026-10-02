@@ -228,10 +228,10 @@ export function itensDaBarra(permissoes: ReadonlyArray<string> | undefined) {
 
 /** Dia a dia completo no celular, com a Agenda como primeira porta de entrada. */
 export function itensDoDiaADiaNoMenuMovel(permissoes: ReadonlyArray<string> | undefined) {
-  return MODULOS_DE_NAVEGACAO
+  return [...MODULOS_DE_NAVEGACAO]
     .filter((item) => item.grupo === "Dia a dia")
     .filter((item) => !item.permissao || permissoes?.includes(item.permissao))
-    .toSorted((a, b) => (a.to === "/barbeiro" ? -1 : b.to === "/barbeiro" ? 1 : 0));
+    .sort((a, b) => (a.to === "/barbeiro" ? -1 : b.to === "/barbeiro" ? 1 : 0));
 }
 
 export function modulosDeNavegacao(segmento: Segmento) {
