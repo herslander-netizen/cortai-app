@@ -15,6 +15,7 @@ import {
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
+import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
 
 const CELULAR = "(max-width: 600px)";
@@ -142,7 +143,50 @@ export function AgendaTimeline({
   }
   useEffect(() => soltarRolagemDoToque, []);
   const ignorarClique = useRef(false);
-  const gestoVazio = useRef<{ x: number; y: number; moveu: boolean } | null>(null);
+  const horarioVazioRef = useRef<number | null>(null);
+  const ponteirosDeToque = useRef(new Set<number>());
+  const multitoque = useRef(false);
+  const toqueLongoVazio = useRef<ReturnType<typeof criarToqueLongoVazio> | null>(null);
+  toqueLongoVazio.current ??= criarToqueLongoVazio({
+    aoConfirmar: () => {
+      const minuto = horarioVazioRef.current;
+      horarioVazioRef.current = null;
+      if (minuto === null) return;
+      navigator.vibrate?.(10);
+      onHorarioVazio?.(horaMinuto(minuto));
+      window.setTimeout(() => setToqueVazio(null), 160);
+    },
+    aoCancelar: () => {
+      horarioVazioRef.current = null;
+      setToqueVazio(null);
+    },
+  });
+  useEffect(() => {
+    const cancelar = () => toqueLongoVazio.current?.cancelar();
+    const novoPonteiro = (evento: PointerEvent) => {
+      if (evento.pointerType === "mouse") return;
+      if (ponteirosDeToque.current.size > 0 && !ponteirosDeToque.current.has(evento.pointerId)) {
+        multitoque.current = true;
+        cancelar();
+      }
+      ponteirosDeToque.current.add(evento.pointerId);
+    };
+    const fimDoPonteiro = (evento: PointerEvent) => {
+      ponteirosDeToque.current.delete(evento.pointerId);
+      if (ponteirosDeToque.current.size === 0) multitoque.current = false;
+    };
+    window.addEventListener("scroll", cancelar, { passive: true });
+    document.addEventListener("pointerdown", novoPonteiro, { capture: true, passive: true });
+    document.addEventListener("pointerup", fimDoPonteiro, { capture: true, passive: true });
+    document.addEventListener("pointercancel", fimDoPonteiro, { capture: true, passive: true });
+    return () => {
+      cancelar();
+      window.removeEventListener("scroll", cancelar);
+      document.removeEventListener("pointerdown", novoPonteiro, { capture: true });
+      document.removeEventListener("pointerup", fimDoPonteiro, { capture: true });
+      document.removeEventListener("pointercancel", fimDoPonteiro, { capture: true });
+    };
+  }, []);
   const hoje = new Intl.DateTimeFormat("en-CA", {
     timeZone: fuso,
     year: "numeric",
@@ -452,18 +496,18 @@ export function AgendaTimeline({
       onMover?.(item, delta);
     }
   }
-  function cliqueNoVazio(e: React.MouseEvent<HTMLDivElement>) {
-    if (!onHorarioVazio || e.target !== e.currentTarget) return;
-    if (gestoVazio.current?.moveu) {
-      gestoVazio.current = null;
-      return;
-    }
-    gestoVazio.current = null;
+  function minutoNoVazio(e: { clientY: number; currentTarget: HTMLDivElement }) {
     const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
     let minuto = escala.inicio + y / PX_POR_MINUTO;
     minuto -= deslocamentoAte(minuto) / PX_POR_MINUTO;
     const arredondado = Math.floor(minuto / 15) * 15;
-    if (intervalo && arredondado >= intervalo[0] && arredondado < intervalo[1]) return;
+    if (intervalo && arredondado >= intervalo[0] && arredondado < intervalo[1]) return null;
+    return arredondado;
+  }
+  function cliqueMouseNoVazio(e: React.PointerEvent<HTMLDivElement>) {
+    if (!onHorarioVazio || e.pointerType !== "mouse" || e.target !== e.currentTarget) return;
+    const arredondado = minutoNoVazio(e);
+    if (arredondado === null) return;
     setToqueVazio(arredondado);
     window.setTimeout(() => {
       setToqueVazio(null);
@@ -512,7 +556,14 @@ export function AgendaTimeline({
         ref={rolagemRef}
         className="agenda-timeline-scroll"
         aria-label={previa ? undefined : "Timeline de atendimentos"}
-        onScroll={interativo ? acompanharAgora : undefined}
+        onScroll={
+          interativo
+            ? () => {
+                toqueLongoVazio.current?.cancelar();
+                acompanharAgora();
+              }
+            : undefined
+        }
         style={
           previa
             ? {
@@ -530,18 +581,31 @@ export function AgendaTimeline({
             ? {}
             : {
                 onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
-                  if (e.target !== e.currentTarget) return;
-                  gestoVazio.current = { x: e.clientX, y: e.clientY, moveu: false };
+                  if (!onHorarioVazio || e.target !== e.currentTarget) return;
+                  if (e.pointerType === "mouse") return;
+                  if (multitoque.current) return;
+                  const minuto = minutoNoVazio(e);
+                  if (minuto === null) return;
+                  horarioVazioRef.current = minuto;
+                  setToqueVazio(minuto);
+                  toqueLongoVazio.current?.comecar({
+                    pointerId: e.pointerId,
+                    x: e.clientX,
+                    y: e.clientY,
+                  });
                 },
                 onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
-                  const g = gestoVazio.current;
-                  if (!g) return;
-                  if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6) g.moveu = true;
+                  toqueLongoVazio.current?.mover(e.pointerId, e.clientX, e.clientY);
                 },
-                onPointerCancel: () => {
-                  gestoVazio.current = null;
+                onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => {
+                  if (e.pointerType === "mouse") cliqueMouseNoVazio(e);
+                  else toqueLongoVazio.current?.terminar(e.pointerId);
                 },
-                onClick: cliqueNoVazio,
+                onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) =>
+                  toqueLongoVazio.current?.terminar(e.pointerId),
+                onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => {
+                  if (window.matchMedia("(pointer: coarse)").matches) e.preventDefault();
+                },
               })}
         >
           {faixasFora.map((faixa) => (

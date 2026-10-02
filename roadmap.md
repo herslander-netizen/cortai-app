@@ -86,3 +86,4 @@
 - [ ] Adicionar status de funcionamento e avaliar próximo horário oficial
 - [ ] Otimizar marca, fontes, capa, toque e segurança visual
 - [ ] Cobrir testes, métricas 4G/CPU, 360/390/1280, tipos, lint e build; não publicar
+- [x] Corrigir rolagem livre da Timeline e trocar horário vazio por toque longo

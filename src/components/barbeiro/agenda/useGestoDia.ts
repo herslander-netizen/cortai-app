@@ -155,8 +155,6 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
           document.documentElement.classList.add("agenda-gesto-ativo");
         }
       }
-      // Só depois da trava horizontal a rolagem vertical fica parada.
-      if (e.cancelable) e.preventDefault();
       const agora = performance.now();
       s.amostras.push({ x: t.clientX, t: agora });
       if (s.amostras.length > 12) s.amostras.shift();
@@ -200,7 +198,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const aoSoltar = useCallback(() => terminar(false), [terminar]);
   const aoCancelar = useCallback(() => terminar(true), [terminar]);
 
-  /** Ref do contêiner do dia: liga os ouvintes (touchmove não passivo). */
+  /** Ref do contêiner do dia: o navegador mantém a rolagem vertical nativa. */
   const ref = useCallback(
     (el: HTMLElement | null) => {
       const antigo = palco.current;
@@ -213,7 +211,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       palco.current = el;
       if (!el) return;
       el.addEventListener("touchstart", aoComecar, { passive: true });
-      el.addEventListener("touchmove", aoMover, { passive: false });
+      el.addEventListener("touchmove", aoMover, { passive: true });
       el.addEventListener("touchend", aoSoltar, { passive: true });
       el.addEventListener("touchcancel", aoCancelar, { passive: true });
     },

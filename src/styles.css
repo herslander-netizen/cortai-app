@@ -1076,6 +1076,14 @@ html.light .brand-logo-on-light,
   min-width: 0;
   margin-left: 48px;
   border-left: 1px solid var(--line2);
+  touch-action: pan-y;
+}
+@media (pointer: coarse) {
+  .agenda-timeline {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
 }
 .agenda-timeline-marca {
   position: absolute;
