@@ -123,8 +123,7 @@ function AbaPlanos() {
   const [erro, setErro] = useState("");
 
   if (query.isError) return <AdminNotice error={query.error} />;
-  if (!query.data)
-    return <EsqueletoLista linhas={3} onTentarDeNovo={() => void query.refetch()} />;
+  if (!query.data) return <EsqueletoLista linhas={3} onTentarDeNovo={() => void query.refetch()} />;
 
   const novo: Plano = {
     id: "",

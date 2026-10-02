@@ -93,9 +93,7 @@ function CaixaPage() {
       title="Caixa do dia"
       subtitle="Toda entrada mostra de onde veio."
     >
-      {caixa.isLoading ? (
-        <EsqueletoPainel onTentarDeNovo={() => void caixa.refetch()} />
-      ) : null}
+      {caixa.isLoading ? <EsqueletoPainel onTentarDeNovo={() => void caixa.refetch()} /> : null}
       {caixa.isError ? (
         <p className="text-sm text-mute">Você não tem acesso ao caixa desta barbearia.</p>
       ) : null}
