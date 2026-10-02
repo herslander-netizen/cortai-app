@@ -3,7 +3,8 @@ import type { Ref } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 
-import { dataEditorial, hora, nomeDaAgenda } from "./tempo";
+import { useVizinhoDoGesto } from "./gesto-dia";
+import { dataEditorial, hora, nomeDaAgenda, somarDias } from "./tempo";
 import { opcoesAgendaDia } from "./useAgendaDia";
 
 const ENCERRADOS = new Set(["cancelado", "remarcado"]);
@@ -31,7 +32,7 @@ export function PreviaDiaVizinho({
       {!data ? (
         <EsqueletoAgenda linhas={4} />
       ) : itens.length === 0 ? (
-        <p className="mt-4 text-sm text-mute">Nenhum atendimento</p>
+        <p className="mt-4 text-sm text-mute">Agenda livre</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {itens.map((i) => (
@@ -49,4 +50,18 @@ export function PreviaDiaVizinho({
       )}
     </div>
   );
+}
+
+/** Único ponto que redesenha durante o gesto: lê o vizinho do estado externo. */
+export function PreviaDoGesto({
+  diaAtual,
+  ...props
+}: {
+  diaAtual: string;
+  profissionalId: string | null;
+  discreto: boolean;
+  ref?: Ref<HTMLDivElement>;
+}) {
+  const vizinho = useVizinhoDoGesto();
+  return vizinho ? <PreviaDiaVizinho dia={somarDias(diaAtual, vizinho)} {...props} /> : null;
 }

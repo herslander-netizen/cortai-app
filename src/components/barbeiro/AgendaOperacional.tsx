@@ -86,7 +86,7 @@ import {
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
 } from "@/components/barbeiro/agenda/preferencias";
-import { PreviaDiaVizinho } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
+import { PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
 import {
   contextoInicialDaAgenda,
@@ -1311,14 +1311,12 @@ export function AgendaOperacional() {
         ) : null}
       </div>
 
-      {gestoDia.diaVizinho ? (
-        <PreviaDiaVizinho
-          ref={gestoDia.refPrevia}
-          dia={gestoDia.diaVizinho}
-          profissionalId={profFiltro}
-          discreto={modoDiscreto}
-        />
-      ) : null}
+      <PreviaDoGesto
+        ref={gestoDia.refPrevia}
+        diaAtual={dia}
+        profissionalId={profFiltro}
+        discreto={modoDiscreto}
+      />
 
       <BotaoAgoraPrincipal
         visualizacao={visualizacao}
