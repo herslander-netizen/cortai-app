@@ -51,6 +51,8 @@ type Props = {
   onChegou: (item: AgendaItem) => void;
   onIniciar: (item: AgendaItem) => void;
   onComanda: (item: AgendaItem) => void;
+  /** Abre o ticket trocando de superfície (a ficha fecha antes). */
+  onVerComanda: (item: AgendaItem, comandaId: string) => void;
   onFalta: (item: AgendaItem) => void;
   onCancelar: (item: AgendaItem) => void;
   onPerfil: (clienteId: string) => void;
@@ -220,10 +222,17 @@ export function PainelAtendimento(props: Props) {
                       disabled={!props.online}
                       onClick={executar(props.onComanda)}
                     >
-                      <HandCoins /> Comanda
+                      <HandCoins /> {pendente ? "Cobrar" : "Pagamento"}
                     </Button>
                   ) : null}
-                  <VerTicketDoAgendamento agendamentoId={item.id} desabilitado={!props.online} />
+                  <VerTicketDoAgendamento
+                    agendamentoId={item.id}
+                    desabilitado={!props.online}
+                    onAbrir={(comandaId) => {
+                      props.onFechar();
+                      props.onVerComanda(item, comandaId);
+                    }}
+                  />
                 </div>
 
                 {pendente ? (

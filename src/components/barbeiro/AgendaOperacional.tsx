@@ -280,6 +280,9 @@ export function AgendaOperacional() {
   const [perfil, setPerfil] = useState<string | null>(null);
   const [profChamada, setProfChamada] = useState<string | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
+  // Uma superfície por vez: ao sair da cobrança/ticket sem concluir, a ficha volta.
+  const [voltarParaFicha, setVoltarParaFicha] = useState<string | null>(null);
+  const [ticketAberto, setTicketAberto] = useState<string | null>(null);
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -799,7 +802,14 @@ export function AgendaOperacional() {
         profissionais={profissionais}
         onChegou={(i) => void transicionar(i, "chegou")}
         onIniciar={iniciar}
-        onComanda={(i) => setFechando(i.id)}
+        onComanda={(i) => {
+          setVoltarParaFicha(i.id);
+          setFechando(i.id);
+        }}
+        onVerComanda={(i, comandaId) => {
+          setVoltarParaFicha(i.id);
+          setTicketAberto(comandaId);
+        }}
         onFalta={(i) => void transicionar(i, "nao_compareceu")}
         onCancelar={(i) => void transicionar(i, "cancelado")}
         onPerfil={setPerfil}
@@ -807,6 +817,15 @@ export function AgendaOperacional() {
         onRemarcar={(i, p) =>
           remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId)
         }
+      />
+      <FolhaDoTicket
+        comandaId={ticketAberto}
+        onFechar={() => {
+          setTicketAberto(null);
+          const volta = voltarParaFicha;
+          setVoltarParaFicha(null);
+          if (volta && todosItens.some((item) => item.id === volta)) abrir(volta);
+        }}
       />
       {menuAcoes}
       <BloquearHorarioSheet
@@ -946,11 +965,15 @@ export function AgendaOperacional() {
             onFechar={() => {
               setFechando(null);
               setIniciarDepois(null);
+              const volta = voltarParaFicha;
+              setVoltarParaFicha(null);
+              if (volta && todosItens.some((item) => item.id === volta)) abrir(volta);
             }}
             onConcluido={() => {
               const proximo = todosItens.find((item) => item.id === iniciarDepois);
               setFechando(null);
               setIniciarDepois(null);
+              setVoltarParaFicha(null);
               setSelecionado(null);
               if (proximo) void transicionar(proximo, "na_cadeira");
               void sincronizar();
