@@ -95,7 +95,7 @@ function IndicacoesPage() {
           <input
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase())}
-            className="input-premium mt-1 w-full"
+            className="field-control mt-1 w-full"
             placeholder="meu-negocio"
           />
         </label>
@@ -104,7 +104,7 @@ function IndicacoesPage() {
           <input
             value={recompensa}
             onChange={(e) => setRecompensa(e.target.value)}
-            className="input-premium mt-1 w-full"
+            className="field-control mt-1 w-full"
             placeholder="Ex.: 1 barba grátis"
           />
         </label>
@@ -154,7 +154,7 @@ function IndicacoesPage() {
         <input
           value={novo}
           onChange={(e) => setNovo(e.target.value)}
-          className="input-premium min-w-0 flex-1"
+          className="field-control min-w-0 flex-1"
           placeholder="Nome de quem foi indicado"
         />
         <Button

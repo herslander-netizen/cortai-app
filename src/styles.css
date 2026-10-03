@@ -1552,71 +1552,103 @@ option {
   }
 }
 
-@utility input-premium {
-  width: 100%;
-  min-width: 0;
-  border: 1px solid var(--line2);
-  border-radius: 10px;
-  background: var(--ink2);
-  min-height: 48px;
-  padding: 10px 12px;
+/* Etapa 6 — escala tipográfica e raios compartilhados (formulários e cartões). */
+:root {
+  --texto-titulo-tela: 40px;
+  --altura-titulo-tela: 44px;
+  --texto-subtitulo: 18px;
+  --altura-subtitulo: 26px;
+  --texto-rotulo-secao: 14px;
+  --texto-campo: 17px;
+  --altura-campo: 64px;
+  --raio-grupo: 24px;
+  --raio-grupo-interno: 8px;
+  --raio-campo-topo: 16px;
+  --raio-campo-base: 6px;
+  --raio-folha: 28px;
+  --raio-imagem: 16px;
+  --raio-bloco: 12px;
+}
+
+@utility titulo-tela {
+  font-size: var(--texto-titulo-tela);
+  line-height: var(--altura-titulo-tela);
+  font-weight: 600;
+  letter-spacing: -0.5px;
   color: var(--paper);
-  font-size: 14px;
-  outline: none;
-  &:hover {
-    border-color: color-mix(in oklab, var(--line2) 70%, var(--paper));
-  }
-  &:focus {
-    border-color: var(--gold);
-    background: var(--ink3);
-  }
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@utility subtitulo-tela {
+  font-size: var(--texto-subtitulo);
+  line-height: var(--altura-subtitulo);
+  color: var(--mute);
+}
+
+@utility rotulo-secao {
+  display: block;
+  padding-left: 16px;
+  font-size: var(--texto-rotulo-secao);
+  font-weight: 600;
+  color: var(--mute);
 }
 
 @utility field-control {
   width: 100%;
   min-width: 0;
-  min-height: 48px;
-  border: 1px solid var(--line2);
-  border-radius: var(--radius-md);
-  background-color: var(--ink2);
-  padding: 10px 12px;
+  min-height: var(--altura-campo);
+  border: 0;
+  border-bottom: 2px solid var(--line2);
+  border-radius: var(--raio-campo-topo) var(--raio-campo-topo) var(--raio-campo-base)
+    var(--raio-campo-base);
+  background-color: var(--cartao);
+  padding: 10px 16px;
   color: var(--paper);
-  font-size: 14px;
+  font-size: var(--texto-campo);
   outline: none;
   transition:
     border-color 140ms ease,
-    background-color 140ms ease,
-    box-shadow 140ms ease;
-  &:hover {
-    border-color: color-mix(in oklab, var(--line2) 65%, var(--paper));
+    background-color 140ms ease;
+  &::placeholder {
+    color: var(--mute2);
   }
-  &:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px var(--gold-soft);
+  &:focus,
+  &:focus-within {
+    border-bottom-color: var(--gold);
+  }
+  &[aria-invalid="true"] {
+    border-bottom-color: var(--brick);
   }
 }
 
 @utility field-label {
   display: block;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
+  padding-left: 4px;
   color: var(--mute);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 @utility field-hint {
   display: block;
   margin-top: 6px;
+  padding-left: 16px;
   color: var(--mute2);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
 @utility field-error {
   display: block;
   margin-top: 6px;
+  padding-left: 16px;
   color: var(--brick);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 

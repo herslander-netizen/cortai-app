@@ -123,7 +123,7 @@ function CaixaPage() {
             </div>
             <div className="mt-4 grid gap-2 border-t border-line pt-4 sm:grid-cols-[minmax(0,1fr)_auto]">
               <input
-                className="input-premium"
+                className="field-control"
                 type="number"
                 min="0"
                 step="0.01"
@@ -157,7 +157,7 @@ function CaixaPage() {
             <h2 className="text-sm font-semibold text-paper">Registrar saída</h2>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <select
-                className="input-premium"
+                className="field-control"
                 value={saida.tipo}
                 onChange={(e) => setSaida({ ...saida, tipo: e.target.value as typeof saida.tipo })}
                 aria-label="Tipo de saída"
@@ -167,13 +167,13 @@ function CaixaPage() {
                 <option value="despesa">Despesa</option>
               </select>
               <input
-                className="input-premium"
+                className="field-control"
                 placeholder="Descrição"
                 value={saida.descricao}
                 onChange={(e) => setSaida({ ...saida, descricao: e.target.value })}
               />
               <input
-                className="input-premium"
+                className="field-control"
                 type="number"
                 min="0"
                 step="0.01"

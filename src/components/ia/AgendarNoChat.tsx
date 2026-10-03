@@ -267,13 +267,13 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
             Horário escolhido: <span className="font-semibold text-paper">{escolhido.label}</span>
           </p>
           <input
-            className="input-premium"
+            className="field-control"
             placeholder="Nome do cliente"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
           />
           <input
-            className="input-premium"
+            className="field-control"
             placeholder="WhatsApp com DDD"
             inputMode="tel"
             autoComplete="tel"

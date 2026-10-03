@@ -120,3 +120,9 @@
 - [x] Etapa 3 — botões flutuantes 64 dp e menu "+" em speed dial
 - [x] Etapa 4 — avisos em tela cheia no celular
 - [x] Etapa 5 — versão 3.0.0, novidades.ts, aviso "Cortaí 3.0 disponível", descrição neutra
+
+## Etapa 6 — acabamento e cadastro
+- [x] Parte 1: tokens de tipografia/raios, campo novo global, componentes de formulário, Novo agendamento e Novo cliente
+- [ ] Parte 2: perfil do cliente, telas do cliente final e menu lateral
+- [ ] Parte 3: revisão de textos do app e novidades da 3.0
+- [ ] E-mail no cadastro do cliente: aguarda decisão do dono (não existe na ficha hoje)

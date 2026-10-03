@@ -358,7 +358,7 @@ export function FechamentoComanda({
               <label className="text-xs text-mute">
                 Outro serviço
                 <select
-                  className="input-premium"
+                  className="field-control"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) adicionar("servico", e.target.value);
@@ -375,7 +375,7 @@ export function FechamentoComanda({
               <label className="text-xs text-mute">
                 Outro produto
                 <select
-                  className="input-premium"
+                  className="field-control"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) adicionar("produto", e.target.value);
@@ -398,7 +398,7 @@ export function FechamentoComanda({
               <label className="mt-4 block text-xs text-mute">
                 Desconto (R$)
                 <input
-                  className="input-premium"
+                  className="field-control"
                   type="number"
                   min="0"
                   step="0.01"
@@ -593,7 +593,7 @@ function IdentificarAvulso({
       <label className="mt-2 block text-xs text-mute">
         Nome
         <input
-          className="input-premium"
+          className="field-control"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           onFocus={(e) => e.currentTarget.select()}
@@ -603,7 +603,7 @@ function IdentificarAvulso({
       <label className="mt-3 block text-xs text-mute">
         Telefone / WhatsApp
         <input
-          className="input-premium"
+          className="field-control"
           type="tel"
           inputMode="tel"
           autoComplete="tel"
