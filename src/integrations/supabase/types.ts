@@ -3611,6 +3611,7 @@ export type Database = {
       perfis: {
         Row: {
           atualizado_em: string
+          contexto_ativo: string | null
           criado_em: string
           nome: string | null
           telefone: string | null
@@ -3620,6 +3621,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          contexto_ativo?: string | null
           criado_em?: string
           nome?: string | null
           telefone?: string | null
@@ -3629,6 +3631,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          contexto_ativo?: string | null
           criado_em?: string
           nome?: string | null
           telefone?: string | null
