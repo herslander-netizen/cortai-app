@@ -53,8 +53,8 @@ export function ConviteDeConta({
         Quer facilitar seus próximos agendamentos?
       </p>
       <p className="mt-1 text-xs leading-relaxed text-mute">
-        Crie sua conta Cortaí e tenha agendamentos, comandas, histórico e fidelidade sempre à mão.
-        É opcional — seu horário já está garantido.
+        Crie sua conta Cortaí e tenha agendamentos, comandas, histórico e fidelidade sempre à mão. É
+        opcional — seu horário já está garantido.
       </p>
       <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
         <Button variant="outline" onClick={criarConta}>

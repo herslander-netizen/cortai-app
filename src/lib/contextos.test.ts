@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { decidirContextos, precisaEscolherContexto } from "./contextos";
 
-const base = { temVinculoAtivo: false, tipoDoPerfil: null, fichasDeCliente: 0, contextoAtivo: null };
+const base = {
+  temVinculoAtivo: false,
+  tipoDoPerfil: null,
+  fichasDeCliente: 0,
+  contextoAtivo: null,
+};
 
 describe("contextos da conta", () => {
   it("só cliente: quem agendou e tem ficha", () => {
@@ -13,9 +18,10 @@ describe("contextos da conta", () => {
   });
 
   it("só negócio: vínculo ativo e nenhuma ficha", () => {
-    expect(decidirContextos({ ...base, temVinculoAtivo: true, tipoDoPerfil: "barbeiro" })).toEqual(
-      { cliente: false, negocio: true },
-    );
+    expect(decidirContextos({ ...base, temVinculoAtivo: true, tipoDoPerfil: "barbeiro" })).toEqual({
+      cliente: false,
+      negocio: true,
+    });
   });
 
   it("cliente que cria negócio com o mesmo e-mail: uma conta, dois contextos", () => {
@@ -42,7 +48,11 @@ describe("contextos da conta", () => {
     expect(precisaEscolherContexto({ ...ambos, contextoEscolhido: false })).toBe(true);
     expect(
       precisaEscolherContexto(
-        { papel: "cliente", contextos: { cliente: true, negocio: false }, contextoEscolhido: false },
+        {
+          papel: "cliente",
+          contextos: { cliente: true, negocio: false },
+          contextoEscolhido: false,
+        },
         true,
       ),
     ).toBe(false);
