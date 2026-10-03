@@ -206,6 +206,7 @@ function ConfigurarPage() {
   function recarregar() {
     void queryClient.invalidateQueries({ queryKey: ["implantacao"] });
     void queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] });
+    void queryClient.invalidateQueries({ queryKey: ["sessao"] });
   }
 
   /** Avança na hora e grava em segundo plano; a etapa fica salva para continuar depois. */
