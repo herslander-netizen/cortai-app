@@ -922,6 +922,7 @@ export type Database = {
           condicoes_especiais: string | null
           criado_em: string
           desconto_percentual: number | null
+          email: string | null
           ficha_chips: string[]
           ficha_tecnica: string | null
           fidelidade_participa: boolean | null
@@ -945,6 +946,7 @@ export type Database = {
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
+          email?: string | null
           ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
@@ -968,6 +970,7 @@ export type Database = {
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
+          email?: string | null
           ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
