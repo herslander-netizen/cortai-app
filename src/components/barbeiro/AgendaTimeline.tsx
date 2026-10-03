@@ -123,7 +123,6 @@ export function AgendaTimeline({
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
-  const [mostrarAnteriores, setMostrarAnteriores] = useState(false);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const gesto = useRef<{
     id: string;
@@ -343,16 +342,6 @@ export function AgendaTimeline({
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;
   const posicaoAgora =
     (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
-  // Nunca esconder quem ainda está em andamento (chegou/em atendimento), mesmo que tenha começado cedo.
-  const topoEmAndamento = itens.reduce((menor, item) => {
-    if (item.status !== "na_cadeira" && item.status !== "chegou") return menor;
-    const topo = layout.posicoes.get(item.id)?.topo;
-    return topo === undefined ? menor : Math.min(menor, topo - 8);
-  }, Number.POSITIVE_INFINITY);
-  const corteAnteriores =
-    ehHoje && diaCompleto
-      ? Math.max(0, Math.min(posicaoAgora - 90 * PX_POR_MINUTO, topoEmAndamento))
-      : 0;
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
@@ -605,27 +594,9 @@ export function AgendaTimeline({
           Voltar para agora
         </Button>
       ) : null}
-      {interativo && corteAnteriores > 0 && !mostrarAnteriores ? (
-        <Button
-          type="button"
-          variant="ghost"
-          className="mb-1 min-h-12 w-full text-xs text-mute"
-          aria-expanded={false}
-          aria-controls="agenda-timeline-grade"
-          onClick={() => {
-            setMostrarAnteriores(true);
-            // O botão some; o foco segue para a grade em vez de se perder.
-            requestAnimationFrame(() =>
-              document.getElementById("agenda-timeline-grade")?.focus({ preventScroll: true }),
-            );
-          }}
-        >
-          Mostrar horários anteriores
-        </Button>
-      ) : null}
       <div
         ref={rolagemRef}
-          className="agenda-timeline-scroll"
+        className="agenda-timeline-scroll"
         aria-label={previa ? undefined : "Timeline de atendimentos"}
         onScroll={
           interativo
@@ -642,10 +613,7 @@ export function AgendaTimeline({
                 overflow: "visible",
                 transform: `translateY(${-deslocamentoPrevia}px)`,
               }
-            : interativo && corteAnteriores > 0 && !mostrarAnteriores
-              ? // Recorta os horários escondidos sem virar área de rolagem (a página rola).
-                { clipPath: "inset(0 -100vw -100vh -100vw)" }
-              : undefined
+            : undefined
         }
       >
         <div
@@ -654,9 +622,6 @@ export function AgendaTimeline({
           tabIndex={previa ? undefined : -1}
           style={{
             height: `${altura}px`,
-            ...(interativo && corteAnteriores > 0 && !mostrarAnteriores
-              ? { marginTop: `-${corteAnteriores}px` }
-              : {}),
           }}
           {...(previa
             ? {}
