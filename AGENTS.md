@@ -47,4 +47,4 @@
 - Recuperação automática de vagas decidida só em `ofertarVaga` (interruptor `tenants.lista_espera_automatica`, prazo/ordem em `fila-compatibilidade.ts`); a varredura existente reaproveita o mesmo ponto — um lugar só para ligar/desligar.
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
-- Atualização obrigatória: só subir `minima` em `public/versao.json` no dia do lançamento, depois de publicar; bloqueio só em áreas internas (`rotaBloqueavel`) e nunca com falha de leitura — evita travar quem ainda não recebeu a versão nova.
+- Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
