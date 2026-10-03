@@ -16,7 +16,7 @@ export const RECURSOS = {
   modo_foco: "Modo Foco",
   comanda_caixa: "Comanda e caixa",
   historico_completo: "Histórico completo",
-  secretaria_whatsapp: "Secretária Cortaí, WhatsApp e agendamento pelo cliente",
+  secretaria_whatsapp: "Secretária Cortaí, lembretes e automações do WhatsApp",
   equipe_avancada: "Gestão avançada de equipe e permissões",
 } as const;
 
@@ -81,19 +81,17 @@ export async function exigirRecurso(db: any, tenantId: string, chave: ChaveDeRec
 }
 
 /**
- * Agendamento feito pelo próprio cliente (página pública, app do cliente) só
- * existe a partir do Conecta. Usa a mesma checagem do banco que a Secretária
- * e o WhatsApp (plano + interruptor do negócio).
+ * Agendamento feito pelo próprio cliente (página pública, app do cliente) vale
+ * em todos os planos; só o limite mensal de agendamentos (Essencial) o fecha.
+ * Mensagem sem falar de plano: o cliente final nunca vê limite nem upgrade.
  */
 export async function exigirAgendamentoPeloCliente(tenantId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("recurso_do_tenant_ativo", {
-    _tenant_id: tenantId,
-    _chave: "secretaria_whatsapp",
-  });
-  if (!error && data === false) {
+  const { usoDaAgendaOnline } = await import("@/lib/agenda-online.server");
+  const { estado } = await usoDaAgendaOnline(supabaseAdmin, tenantId);
+  if (estado === "limite_atingido") {
     throw new Error(
-      "Este negócio ainda não recebe agendamentos online. Fale direto com o negócio para marcar.",
+      "A agenda online está indisponível no momento. Fale direto com o negócio para marcar.",
     );
   }
 }
