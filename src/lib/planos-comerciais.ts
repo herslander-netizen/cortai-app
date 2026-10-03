@@ -28,7 +28,13 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     profissionais: 1,
     agendamentosMes: 40,
     herda: null,
-    itens: ["Agenda", "Clientes", "Serviços", "Histórico básico"],
+    itens: [
+      "Agenda",
+      "Clientes",
+      "Serviços",
+      "Histórico básico",
+      "Página do negócio com agendamento pelo cliente (até 40 por mês)",
+    ],
   },
   {
     chave: "conecta",
@@ -40,7 +46,7 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     itens: [
       "Lembrete automático por WhatsApp (menos faltas)",
       "Secretária Cortaí",
-      "Agendamento pelo cliente",
+      "Agendamentos ilimitados pelo cliente",
       "Modo Foco, encaixes, comanda e caixa",
     ],
     destaque: "Mais escolhido",

@@ -97,6 +97,7 @@ export type AgendaPublica = {
   horarios: HorarioDeFuncionamento[];
   ocupados: { profissional_id: string | null; inicio: string; fim: string }[];
   pagina: PaginaConfig;
+  agendaOnline: "aberta" | "limite_atingido";
 };
 
 async function admin() {
@@ -263,6 +264,10 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         })),
       ],
       pagina: { ...pagina, chat: { ...pagina.chat, avatarUrl } },
+      agendaOnline: await (await import("@/lib/agenda-online.server"))
+        .usoDaAgendaOnline(db, tenant.id)
+        .then((r) => r.estado)
+        .catch(() => "aberta" as const),
     };
   });
 
