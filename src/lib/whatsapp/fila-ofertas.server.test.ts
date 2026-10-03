@@ -87,7 +87,8 @@ function builder(tabela: string) {
 
 const db = {
   from: (t: string) => builder(t),
-  rpc: async () => ({ data: true }),
+  rpc: async (nome: string) =>
+    nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true },
 };
 
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: db }));
@@ -118,7 +119,12 @@ beforeEach(() => {
     ranges: [],
     orders: [],
     recusada: null,
+    aceite: { ok: true, agendamento_id: "ag-novo" },
+    ofertaPerdida: null,
+    filaUpdates: [],
   };
+  confirmacao.envios = 0;
+  confirmacao.enviado = true;
 });
 
 describe("recuperação automática de vagas", () => {
