@@ -40,13 +40,9 @@
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
 - WhatsApp completa pedidos (profissional, horário exato, apelidos) só via `entendimento-whatsapp.ts`, que reaproveita `lib/conversa/entender.ts` — um entendimento só para site e WhatsApp.
-- PWA: SW gerado em `lib/pwa/service-worker.ts`, servido em `/sw.js` (no-cache), registrado só por `lib/pwa/registro.ts` em cortai.dev; cache só de `/assets/*` — nunca HTML/API/banco.
 - Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.
-- Push só da equipe, disparado pelo gatilho do sino; regras em `lib/push/regras.ts`, envio WebCrypto, VAPID em `chaves_internas` — um ponto de decisão.
-- Funil público anônimo: só `/api/public/funil` grava em `eventos_funil` (sem dado pessoal), regras puras em `src/lib/funil.ts` — uma fonte para origem/experiência.
 - Recuperação automática de vagas decidida só em `ofertarVaga` (interruptor `tenants.lista_espera_automatica`, prazo/ordem em `fila-compatibilidade.ts`); a varredura existente reaproveita o mesmo ponto — um lugar só para ligar/desligar.
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
 
-- Painel de Funcionalidades (`src/lib/funcionalidades.ts`) só aponta para interruptores já lidos pelo sistema (recursos_do_tenant, colunas do negócio, regras_de_plano, config da Secretária); item sem interruptor real só leva à tela própria — evita matriz paralela e toggle falso.
