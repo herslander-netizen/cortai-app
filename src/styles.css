@@ -5864,3 +5864,112 @@ button.agenda-nome:hover {
     );
   }
 }
+
+/* Agenda 3.0: botões flutuantes maiores e menu "+" em speed dial. */
+:root {
+  --agenda-fab-tamanho: 64px;
+  --agenda-fab-icone: 28px;
+  --agenda-fab-margem: 16px;
+  --agenda-composto-largura: 160px;
+  --agenda-respiro-inferior: 112px;
+}
+.agenda-acao-fixa {
+  z-index: 60;
+}
+.agenda-fab-toggle .agenda-fab-icone {
+  width: var(--agenda-fab-icone);
+  height: var(--agenda-fab-icone);
+}
+@media (max-width: 600px) {
+  .agenda-acao-fixa {
+    right: var(--agenda-fab-margem);
+  }
+  .agenda-acao-fixa .agenda-acao-redonda {
+    width: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-fab-tamanho);
+    height: var(--agenda-fab-tamanho);
+  }
+  .agenda-botao-agora-principal {
+    left: var(--agenda-fab-margem);
+    height: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-composto-largura);
+  }
+  .agenda-botao-agora-ir {
+    height: var(--agenda-fab-tamanho);
+    min-height: var(--agenda-fab-tamanho);
+    flex: 1;
+  }
+  .agenda-botao-agora-visualizacao {
+    height: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-fab-tamanho);
+  }
+  .agenda-botao-agora-separador {
+    height: 32px;
+  }
+  .agenda-operacional {
+    padding-bottom: calc(var(--agenda-respiro-inferior) + env(safe-area-inset-bottom));
+  }
+}
+.agenda-dial {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+}
+.agenda-dial-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in oklab, var(--fundo, var(--ink)) 62%, black 10%);
+  opacity: 0.85;
+}
+.agenda-dial-lista {
+  position: absolute;
+  right: var(--agenda-fab-margem);
+  bottom: calc(var(--agenda-controle-pe) + var(--agenda-fab-tamanho) + 8px);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 4px;
+}
+.agenda-dial-pilula {
+  display: inline-flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--painel, var(--ink3));
+  padding-inline: 24px;
+  color: var(--paper);
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.agenda-dial-pilula svg {
+  width: 24px;
+  height: 24px;
+}
+.agenda-dial-pilula[data-destaque] {
+  min-height: 60px;
+  border-color: transparent;
+  background: color-mix(in oklab, var(--primary) 22%, var(--painel, var(--ink3)));
+  font-weight: 600;
+}
+.agenda-dial-pilula:disabled {
+  opacity: 0.5;
+}
+.agenda-dial-pilula:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.agenda-dial-selo {
+  display: grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
