@@ -79,6 +79,7 @@ export function MenuAcoesAgenda({
       eraAberto.current = false;
       window.setTimeout(focarBotaoMais, 0);
     }
+    return undefined;
   }, [aberto, onAberto]);
 
   function teclas(e: KeyboardEvent<HTMLDivElement>) {
