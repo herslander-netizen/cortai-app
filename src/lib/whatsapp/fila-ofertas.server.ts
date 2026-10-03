@@ -13,13 +13,30 @@ import {
 } from "@/lib/agenda-regras.server";
 import {
   candidatosDaVaga,
+  ofertaViavel,
+  prazoDaOferta,
   servicoDaEntrada,
   type PreferenciaDaFila,
   type ServicoDaVaga,
 } from "@/lib/fila-compatibilidade";
 
-export const PRAZO_DA_OFERTA_MIN = 30;
-const ANTECEDENCIA_MINIMA_MIN = 10;
+export { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
+const LOTE_DA_FILA = 200;
+const TETO_DA_FILA = 2000;
+const TENTATIVAS_POR_VAGA = 20;
+
+/** Interruptor do negócio: desligado = nenhuma oferta automática nova. */
+export async function automacaoDaListaAtiva(
+  db: Awaited<ReturnType<typeof admin>>,
+  tenantId: string,
+) {
+  const { data } = await db
+    .from("tenants")
+    .select("lista_espera_automatica")
+    .eq("id", tenantId)
+    .maybeSingle();
+  return data?.lista_espera_automatica !== false;
+}
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -70,14 +87,15 @@ export async function ofertarVaga(
   if (!profissionalId || !servicoLiberadoId) return { ofertaId: null, motivo: "sem_vaga" };
   const agora = Date.now();
   const inicioMs = new Date(ag.inicio).getTime();
-  if (inicioMs - agora < (ANTECEDENCIA_MINIMA_MIN + 5) * 60_000)
-    return { ofertaId: null, motivo: "muito_perto" };
+  if (!ofertaViavel(agora, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
 
   const { data: ativo } = await db.rpc("recurso_do_tenant_ativo", {
     _tenant_id: ag.tenant_id,
     _chave: "fila_espera",
   });
   if (ativo !== true) return { ofertaId: null, motivo: "recurso_inativo" };
+  if (!(await automacaoDaListaAtiva(db, ag.tenant_id)))
+    return { ofertaId: null, motivo: "automacao_desligada" };
 
   const { data: jaAtiva } = await db
     .from("ofertas_da_fila")
@@ -111,14 +129,32 @@ export async function ofertarVaga(
     ? new Date(proximo.inicio).getTime() - margem
     : inicioMs + 12 * 3600_000;
 
-  const [{ data: fila }, { data: servicos }, { data: anteriores }] = await Promise.all([
-    db
+  // Fila inteira na ordem real (posição, entrada, id), em lotes — nunca corta antes de ordenar.
+  const fila: {
+    id: string;
+    posicao: number | null;
+    criado_em: string;
+    profissional_id: string | null;
+    servico_id: string | null;
+    janela_preferida: unknown;
+    cliente_id: string;
+  }[] = [];
+  for (let de = 0; de < TETO_DA_FILA; de += LOTE_DA_FILA) {
+    const { data: lote } = await db
       .from("fila_de_espera")
       .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
       .eq("tenant_id", ag.tenant_id)
       .eq("status", "aguardando")
       .not("janela_preferida", "is", null)
-      .limit(200),
+      .or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`)
+      .order("posicao", { ascending: true, nullsFirst: false })
+      .order("criado_em", { ascending: true })
+      .order("id", { ascending: true })
+      .range(de, de + LOTE_DA_FILA - 1);
+    fila.push(...((lote ?? []) as typeof fila));
+    if (!lote || lote.length < LOTE_DA_FILA) break;
+  }
+  const [{ data: servicos }, { data: anteriores }] = await Promise.all([
     db.from("servicos").select("id, duracao_min, profissional_ids").eq("tenant_id", ag.tenant_id),
     db.from("ofertas_da_fila").select("fila_id").eq("agendamento_liberado_id", ag.id),
   ]);
@@ -150,7 +186,7 @@ export async function ofertarVaga(
     new Set((anteriores ?? []).map((a) => a.fila_id)),
   );
 
-  for (const c of candidatos) {
+  for (const c of candidatos.slice(0, TENTATIVAS_POR_VAGA)) {
     const cand = prefs.find((x) => x.id === c.id)!;
     const servico = mapa.get(servicoDaEntrada(c, vaga))!;
     // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
@@ -166,10 +202,7 @@ export async function ofertarVaga(
     } catch {
       continue;
     }
-    const expira = Math.min(
-      agora + PRAZO_DA_OFERTA_MIN * 60_000,
-      inicioMs - ANTECEDENCIA_MINIMA_MIN * 60_000,
-    );
+    const expira = prazoDaOferta(Date.now(), inicioMs);
     const { data: oferta, error } = await db
       .from("ofertas_da_fila")
       .insert({
@@ -219,7 +252,7 @@ async function enviarOferta(ofertaId: string) {
     _tenant: o.tenant_id,
     _tipo: "fila",
     _titulo: "Vaga oferecida à lista de espera",
-    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}).`,
+    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}). Responde até ${partes(o.expira_em, fuso).hora}.`,
     _link: LINKS_DE_TELA.espera,
   });
 

@@ -12,6 +12,7 @@ import { getConfiguracaoInicial, salvarHorarios } from "@/lib/onboarding.functio
 import { Button } from "@/components/ui/button";
 import { EscalaDaEquipe } from "@/components/barbeiro/EscalaDaEquipe";
 import { InterruptorFilaDeChegada } from "@/components/barbeiro/InterruptorFilaDeChegada";
+import { InterruptorListaDeEspera } from "@/components/barbeiro/InterruptorListaDeEspera";
 
 export const Route = createFileRoute("/barbeiro/horarios")({
   ssr: false,
@@ -76,6 +77,7 @@ function HorariosPage() {
       </label>
 
       <InterruptorFilaDeChegada />
+      <InterruptorListaDeEspera />
 
       <div className="mt-6" data-guia="horarios-editor">
         <EditorDeHorarios

@@ -72,3 +72,32 @@ describe("lista de espera — compatibilidade da vaga", () => {
     ).toEqual([]);
   });
 });
+
+import { ofertaViavel, ordemDaFila, prazoDaOferta } from "./fila-compatibilidade";
+
+describe("ordem real da fila e prazo da oferta", () => {
+  it("respeita posição em listas grandes embaralhadas, com desempate estável", () => {
+    const fila = Array.from({ length: 450 }, (_, i) =>
+      p({ id: `c${String(i).padStart(3, "0")}`, posicao: 450 - i }),
+    );
+    fila.push(p({ id: "b", posicao: 1, criadoEm: "2026-10-01T00:00:00Z" }));
+    fila.push(p({ id: "a", posicao: 1, criadoEm: "2026-10-01T00:00:00Z" }));
+    const r = candidatosDaVaga(
+      fila.sort(() => 0.5 - Math.random()),
+      vaga,
+      servicos,
+    );
+    expect(r.slice(0, 3).map((x) => x.id)).toEqual(["a", "b", "c449"]);
+    expect([...r].sort(ordemDaFila)).toEqual(r);
+  });
+
+  it("prazo é 30 min quando há folga", () => {
+    expect(prazoDaOferta(inicio - 3 * H, inicio)).toBe(inicio - 3 * H + 30 * 60_000);
+  });
+
+  it("prazo termina 10 min antes do horário quando está perto", () => {
+    expect(prazoDaOferta(inicio - 25 * 60_000, inicio)).toBe(inicio - 10 * 60_000);
+    expect(ofertaViavel(inicio - 25 * 60_000, inicio)).toBe(true);
+    expect(ofertaViavel(inicio - 14 * 60_000, inicio)).toBe(false);
+  });
+});
