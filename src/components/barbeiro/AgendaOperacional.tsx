@@ -1222,7 +1222,6 @@ export function AgendaOperacional() {
               fuso={fuso}
               itens={itens}
               itensEscala={todosItens}
-              alinhado
               horarios={agenda.data?.horarios ?? []}
               selecionado={selecionado}
               onSelecionar={abrir}
