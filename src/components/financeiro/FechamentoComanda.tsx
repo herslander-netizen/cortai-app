@@ -1,3 +1,5 @@
+import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
+import { FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
@@ -101,6 +103,7 @@ export function FechamentoComanda({
     null,
   );
   const [retornoFeito, setRetornoFeito] = useState(false);
+  const [verTicket, setVerTicket] = useState(false);
 
   useEffect(() => {
     if (!query.data || itens.length) return;
@@ -514,6 +517,13 @@ export function FechamentoComanda({
         {etapa === "retorno" ? (
           <div className="py-3">
             <StatusBadge status="pago" label="Pagamento registrado" />
+            {comandaId ? (
+              <Button variant="secondary" className="mt-4 h-12 w-full rounded-full" onClick={() => setVerTicket(true)}>
+                <FileText aria-hidden />
+                Ver comanda
+              </Button>
+            ) : null}
+            <FolhaDoTicket comandaId={verTicket ? (comandaId ?? null) : null} onFechar={() => setVerTicket(false)} />
             {d?.comanda.cliente_id && d.comanda.clientes?.telefone !== "avulso" ? (
               <div className="mt-5 border-y border-line py-3">
                 <FotoDoCorte

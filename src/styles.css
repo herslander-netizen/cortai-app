@@ -6031,7 +6031,6 @@ button.agenda-nome:hover {
   --passo-lado: 22px;
   background: var(--ticket-papel);
   color: var(--ticket-texto);
-  filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.28));
   -webkit-mask:
     radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
     radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
