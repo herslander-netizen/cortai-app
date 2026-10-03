@@ -64,6 +64,7 @@ import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCortaiRouteImport } from './routes/barbeiro.cortai'
 import { Route as BarbeiroCortaiAtividadeRouteImport } from './routes/barbeiro.cortai-atividade'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
+import { Route as BarbeiroDivulgarRouteImport } from './routes/barbeiro.divulgar'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
@@ -375,6 +376,11 @@ const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
   path: '/crescimento',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroDivulgarRoute = BarbeiroDivulgarRouteImport.update({
+  id: '/divulgar',
+  path: '/divulgar',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroEquipeRoute = BarbeiroEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -598,6 +604,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
@@ -684,6 +691,7 @@ export interface FileRoutesByTo {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
@@ -775,6 +783,7 @@ export interface FileRoutesById {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
@@ -867,6 +876,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
@@ -953,6 +963,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
@@ -1043,6 +1054,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
@@ -1510,6 +1522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroCrescimentoRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/divulgar': {
+      id: '/barbeiro/divulgar'
+      path: '/divulgar'
+      fullPath: '/barbeiro/divulgar'
+      preLoaderRoute: typeof BarbeiroDivulgarRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/equipe': {
       id: '/barbeiro/equipe'
       path: '/equipe'
@@ -1825,6 +1844,7 @@ interface BarbeiroRouteChildren {
   BarbeiroCortaiRoute: typeof BarbeiroCortaiRoute
   BarbeiroCortaiAtividadeRoute: typeof BarbeiroCortaiAtividadeRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
+  BarbeiroDivulgarRoute: typeof BarbeiroDivulgarRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
@@ -1856,6 +1876,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroCortaiRoute: BarbeiroCortaiRoute,
   BarbeiroCortaiAtividadeRoute: BarbeiroCortaiAtividadeRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
+  BarbeiroDivulgarRoute: BarbeiroDivulgarRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroFilaRoute: BarbeiroFilaRoute,
