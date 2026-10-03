@@ -75,7 +75,9 @@ function MarcaPage() {
 function Item({ id, titulo, children }: { id: string; titulo: string; children: React.ReactNode }) {
   return (
     <AccordionItem value={id} className="border-line">
-      <AccordionTrigger className="min-h-12 text-paper hover:no-underline">{titulo}</AccordionTrigger>
+      <AccordionTrigger className="min-h-12 text-paper hover:no-underline">
+        {titulo}
+      </AccordionTrigger>
       <AccordionContent className="pb-6 pt-1">{children}</AccordionContent>
     </AccordionItem>
   );

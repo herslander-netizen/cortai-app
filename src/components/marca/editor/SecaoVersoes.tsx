@@ -14,35 +14,28 @@ export function SecaoVersoes({
   restaurar: (id: string) => void;
 }) {
   return (
-            <ul>
-              {versions.length ? (
-                versions.map((version) => (
-                  <li
-                    key={version.id}
-                    className="flex items-center justify-between border-b border-line py-3"
-                  >
-                    <span className="text-xs text-mute">
-                      Versão {version.versao} ·{" "}
-                      {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(
-                        new Date(version.criado_em),
-                      )}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => restaurar(version.id)}
-                    >
-                      <RotateCcw />
-                      Restaurar
-                    </Button>
-                  </li>
-                ))
-              ) : (
-                <li className="text-sm text-mute">
-                  As versões aparecem após a primeira publicação.
-                </li>
+    <ul>
+      {versions.length ? (
+        versions.map((version) => (
+          <li
+            key={version.id}
+            className="flex items-center justify-between border-b border-line py-3"
+          >
+            <span className="text-xs text-mute">
+              Versão {version.versao} ·{" "}
+              {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(
+                new Date(version.criado_em),
               )}
-            </ul>
+            </span>
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => restaurar(version.id)}>
+              <RotateCcw />
+              Restaurar
+            </Button>
+          </li>
+        ))
+      ) : (
+        <li className="text-sm text-mute">As versões aparecem após a primeira publicação.</li>
+      )}
+    </ul>
   );
 }

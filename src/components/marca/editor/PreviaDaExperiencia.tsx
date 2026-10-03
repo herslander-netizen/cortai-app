@@ -19,7 +19,7 @@ export function PreviaDaExperiencia({
   nome,
   avatarUrl,
   capaUrl,
-  altura = "h-[720px]",
+  altura,
 }: {
   data: PaginaPublica | null;
   config: PaginaConfig;
@@ -28,7 +28,7 @@ export function PreviaDaExperiencia({
   nome: string;
   avatarUrl: string | null;
   capaUrl: string | null;
-  altura?: string;
+  altura?: string | undefined;
 }) {
   const conversa = config.experiencia === "conversa";
   return (
@@ -62,7 +62,7 @@ export function PreviaDaExperiencia({
         <ChatPreview ativo config={config} nome={nome} logoUrl={avatarUrl} capaUrl={capaUrl} />
       ) : (
         <div
-          className={`mx-auto max-w-full overflow-y-auto rounded-lg border border-line bg-background shadow-xl ${altura} ${config.experiencia === "vitrine" && device === "desktop" ? "w-full" : "w-[390px]"}`}
+          className={`mx-auto max-w-full overflow-y-auto rounded-lg border border-line bg-background shadow-xl ${altura ?? "h-[720px]"} ${config.experiencia === "vitrine" && device === "desktop" ? "w-full" : "w-[390px]"}`}
         >
           {!data ? (
             <EsqueletoPaginaPublica />

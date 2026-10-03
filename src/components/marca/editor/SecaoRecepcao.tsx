@@ -23,134 +23,119 @@ export function SecaoRecepcao({
   upload: (event: ChangeEvent<HTMLInputElement>, kind: "avatar") => void;
 }) {
   return (
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-medium text-mute">Foto da recepção</p>
-                      <div className="mt-2 flex items-center gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="size-16 overflow-hidden p-0"
-                          onClick={() => avatarRef.current?.click()}
-                        >
-                          {avatarPreview ? (
-                            <img
-                              src={avatarPreview}
-                              alt="Foto atual da recepção"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <ImagePlus />
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => avatarRef.current?.click()}
-                        >
-                          Escolher foto
-                        </Button>
-                        {config.chat.avatarUrl ? (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => {
-                              setPagina("chat", { ...config.chat, avatarUrl: null });
-                              setAvatarPreview(null);
-                            }}
-                          >
-                            Remover
-                          </Button>
-                        ) : null}
-                      </div>
-                      <input
-                        ref={avatarRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(event) => upload(event, "avatar")}
-                      />
-                    </div>
-                    <fieldset>
-                      <legend className="text-xs font-medium text-mute">
-                        Quem recebe o cliente
-                      </legend>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        {(["Lisa", "Davi"] as const).map((nome) => (
-                          <Button
-                            key={nome}
-                            type="button"
-                            variant="ghost"
-                            className={`min-h-12 border ${config.chat.nomeRecepcao === nome ? "border-gold bg-gold/10 text-paper" : "border-line text-mute"}`}
-                            aria-pressed={config.chat.nomeRecepcao === nome}
-                            onClick={() =>
-                              setPagina("chat", { ...config.chat, nomeRecepcao: nome })
-                            }
-                          >
-                            <span className="grid size-8 place-items-center rounded-full bg-ink3 text-sm font-extrabold text-paper">
-                              {nome[0]}
-                            </span>
-                            {nome}
-                          </Button>
-                        ))}
-                      </div>
-                      {!(["Lisa", "Davi"] as string[]).includes(config.chat.nomeRecepcao) ? (
-                        <p className="mt-2 text-xs text-mute">
-                          O nome atual “{config.chat.nomeRecepcao}” continua ativo até você escolher
-                          outro.
-                        </p>
-                      ) : null}
-                    </fieldset>
-                    <label className="block text-xs font-medium text-mute">
-                      Mensagem inicial
-                      <textarea
-                        className={`${fieldClass} min-h-24 resize-y`}
-                        value={config.chat.mensagemInicial}
-                        onChange={(e) =>
-                          setPagina("chat", { ...config.chat, mensagemInicial: e.target.value })
-                        }
-                      />
-                    </label>
-                    <label className="block text-xs font-medium text-mute">
-                      Texto final
-                      <textarea
-                        className={`${fieldClass} min-h-20 resize-y`}
-                        value={config.chat.textoFinal}
-                        onChange={(e) =>
-                          setPagina("chat", { ...config.chat, textoFinal: e.target.value })
-                        }
-                      />
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["azul", "ciano", "rosa"] as const).map((cor) => (
-                        <Button
-                          key={cor}
-                          type="button"
-                          variant={config.chat.corDestaque === cor ? "default" : "outline"}
-                          className="h-12 capitalize"
-                          onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
-                        >
-                          {cor}
-                        </Button>
-                      ))}
-                    </div>
-                    {(
-                      [
-                        { key: "comemoracao", label: "Comemoração discreta" },
-                        { key: "salvarCalendario", label: "Salvar no calendário" },
-                        { key: "listaEspera", label: "Lista de espera" },
-                      ] as const
-                    ).map(({ key, label }) => (
-                      <label key={key} className="flex min-h-12 items-center justify-between gap-4">
-                        <span className="text-sm text-paper">{label}</span>
-                        <Switch
-                          checked={config.chat[key]}
-                          onCheckedChange={(checked) =>
-                            setPagina("chat", { ...config.chat, [key]: checked })
-                          }
-                        />
-                      </label>
-                    ))}
-                  </div>
+    <div className="space-y-4">
+      <div>
+        <p className="text-xs font-medium text-mute">Foto da recepção</p>
+        <div className="mt-2 flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="size-16 overflow-hidden p-0"
+            onClick={() => avatarRef.current?.click()}
+          >
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Foto atual da recepção"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <ImagePlus />
+            )}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => avatarRef.current?.click()}>
+            Escolher foto
+          </Button>
+          {config.chat.avatarUrl ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setPagina("chat", { ...config.chat, avatarUrl: null });
+                setAvatarPreview(null);
+              }}
+            >
+              Remover
+            </Button>
+          ) : null}
+        </div>
+        <input
+          ref={avatarRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(event) => upload(event, "avatar")}
+        />
+      </div>
+      <fieldset>
+        <legend className="text-xs font-medium text-mute">Quem recebe o cliente</legend>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {(["Lisa", "Davi"] as const).map((nome) => (
+            <Button
+              key={nome}
+              type="button"
+              variant="ghost"
+              className={`min-h-12 border ${config.chat.nomeRecepcao === nome ? "border-gold bg-gold/10 text-paper" : "border-line text-mute"}`}
+              aria-pressed={config.chat.nomeRecepcao === nome}
+              onClick={() => setPagina("chat", { ...config.chat, nomeRecepcao: nome })}
+            >
+              <span className="grid size-8 place-items-center rounded-full bg-ink3 text-sm font-extrabold text-paper">
+                {nome[0]}
+              </span>
+              {nome}
+            </Button>
+          ))}
+        </div>
+        {!(["Lisa", "Davi"] as string[]).includes(config.chat.nomeRecepcao) ? (
+          <p className="mt-2 text-xs text-mute">
+            O nome atual “{config.chat.nomeRecepcao}” continua ativo até você escolher outro.
+          </p>
+        ) : null}
+      </fieldset>
+      <label className="block text-xs font-medium text-mute">
+        Mensagem inicial
+        <textarea
+          className={`${fieldClass} min-h-24 resize-y`}
+          value={config.chat.mensagemInicial}
+          onChange={(e) => setPagina("chat", { ...config.chat, mensagemInicial: e.target.value })}
+        />
+      </label>
+      <label className="block text-xs font-medium text-mute">
+        Texto final
+        <textarea
+          className={`${fieldClass} min-h-20 resize-y`}
+          value={config.chat.textoFinal}
+          onChange={(e) => setPagina("chat", { ...config.chat, textoFinal: e.target.value })}
+        />
+      </label>
+      <div className="grid grid-cols-3 gap-2">
+        {(["azul", "ciano", "rosa"] as const).map((cor) => (
+          <Button
+            key={cor}
+            type="button"
+            variant={config.chat.corDestaque === cor ? "default" : "outline"}
+            className="h-12 capitalize"
+            onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
+          >
+            {cor}
+          </Button>
+        ))}
+      </div>
+      {(
+        [
+          { key: "comemoracao", label: "Comemoração discreta" },
+          { key: "salvarCalendario", label: "Salvar no calendário" },
+          { key: "listaEspera", label: "Lista de espera" },
+        ] as const
+      ).map(({ key, label }) => (
+        <label key={key} className="flex min-h-12 items-center justify-between gap-4">
+          <span className="text-sm text-paper">{label}</span>
+          <Switch
+            checked={config.chat[key]}
+            onCheckedChange={(checked) => setPagina("chat", { ...config.chat, [key]: checked })}
+          />
+        </label>
+      ))}
+    </div>
   );
 }
