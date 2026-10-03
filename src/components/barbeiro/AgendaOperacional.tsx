@@ -547,6 +547,8 @@ export function AgendaOperacional() {
   const itemSelecionado = todosItens.find((item) => item.id === selecionado) ?? null;
 
   async function sincronizar() {
+    // Criar, cancelar, remarcar, falta ou pagar mudam também a comanda/ticket.
+    invalidarComandas(queryClient);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
       queryClient.invalidateQueries({ queryKey: ["agenda-fila"] }),
