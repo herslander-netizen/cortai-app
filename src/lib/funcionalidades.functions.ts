@@ -136,15 +136,13 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
         _ativo: data.ativo,
       }));
     } else if (fonte.tipo === "secretaria") {
-      ({ error: erro } = await db
-        .from("config_atendimento_ia")
-        .upsert(
-          { tenant_id: tenantId, [fonte.coluna]: data.ativo } as {
-            tenant_id: string;
-            lembretes: boolean;
-          },
-          { onConflict: "tenant_id" },
-        ));
+      ({ error: erro } = await db.from("config_atendimento_ia").upsert(
+        { tenant_id: tenantId, [fonte.coluna]: data.ativo } as {
+          tenant_id: string;
+          lembretes: boolean;
+        },
+        { onConflict: "tenant_id" },
+      ));
     } else if (fonte.tipo === "regra") {
       const tipo = fonte.regra === "fidelidade" ? "fidelidade" : "fiado";
       const campos =
