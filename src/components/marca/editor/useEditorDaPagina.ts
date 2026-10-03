@@ -139,6 +139,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       } else {
         await publish({ data: { marca: form, pagina: config } });
         await queryClient.invalidateQueries({ queryKey: ["pagina-publica", initial.slug] });
+        await queryClient.invalidateQueries({ queryKey: ["sessao"] });
         setStatus("Página publicada com sucesso.");
       }
       await reload();

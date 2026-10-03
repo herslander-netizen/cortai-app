@@ -31,7 +31,9 @@ export function AgendamentoManual({
   rotulo,
   autoAbrir = false,
   iniciarNovoCliente = false,
+  onFechar,
 }: {
+  onFechar?: () => void;
   dia: string;
   horaInicial?: string;
   profissionalInicial?: string | null;
@@ -59,7 +61,10 @@ export function AgendamentoManual({
           {...(horaInicial ? { horaInicial } : {})}
           profissionalInicial={profissionalInicial ?? null}
           iniciarNovoCliente={iniciarNovoCliente}
-          onFechar={() => setAberto(false)}
+          onFechar={() => {
+            setAberto(false);
+            onFechar?.();
+          }}
           onCriado={(agendamentoId) => {
             setAberto(false);
             onCriado?.(agendamentoId);
