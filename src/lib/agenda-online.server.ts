@@ -1,3 +1,6 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/integrations/supabase/types";
 import { estadoDaAgendaOnline, type EstadoAgendaOnline } from "@/lib/agenda-online";
 import { inicioDoMesNoFuso } from "@/lib/horarios";
 import { condicaoDaLinha, planoDaLinha } from "@/lib/monetizacao.functions";
@@ -6,7 +9,7 @@ import { testeAtivo } from "@/lib/teste-gratis";
 
 /** Uso e limite de agendamentos do mês (fuso do negócio, sem cancelados). */
 export async function usoDaAgendaOnline(
-  db: any,
+  db: SupabaseClient<Database>,
   tenantId: string,
 ): Promise<{ emTeste: boolean; limite: number | null; uso: number; estado: EstadoAgendaOnline }> {
   const { data: t } = await db
@@ -26,7 +29,7 @@ export async function usoDaAgendaOnline(
   ]);
   const condicao = condicaoVigente((conds ?? []).map(condicaoDaLinha));
   const chave = condicao?.planoChave ?? (t?.plano as string) ?? "essencial";
-  const plano = (planos ?? []).map(planoDaLinha).find((p: any) => p.chave === chave) ?? null;
+  const plano = (planos ?? []).map(planoDaLinha).find((p) => p.chave === chave) ?? null;
   const limite = limiteVigente(plano, condicao, "agendamentos_mes");
   if (limite == null) return { emTeste, limite, uso: 0, estado: "aberta" };
   const inicio = inicioDoMesNoFuso((t?.fuso as string) || undefined);
