@@ -10,7 +10,11 @@ import {
   Share2,
   Star,
 } from "lucide-react";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+
+import { useMediaQuery } from "@/hooks/use-mobile";
+import { useConsentimento } from "@/lib/consentimento";
+import { buscaParaAgendar, origemDaVisita, type OrigemFunil } from "@/lib/funil";
 
 import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
@@ -32,22 +36,67 @@ function Secao({ titulo, children, id }: { titulo: string; children: ReactNode; 
   );
 }
 
+function mediaPtBr(media: number | null) {
+  return (media ?? 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
 export function PaginaPublicaConteudo({
   data,
   config,
   preview = false,
+  onBarraVisivel,
 }: {
   data: PaginaPublica;
   config: PaginaConfig;
   preview?: boolean;
+  onBarraVisivel?: (visivel: boolean) => void;
 }) {
+  const [origem, setOrigem] = useState<OrigemFunil>("direto");
+  useEffect(() => {
+    if (!preview) setOrigem(origemDaVisita());
+  }, [preview]);
+  const celular = useMediaQuery("(max-width: 767px)");
+  const { pronto, consentimento } = useConsentimento();
+  const acoesRef = useRef<HTMLDivElement>(null);
+  const finalRef = useRef<HTMLElement>(null);
+  const [capaFora, setCapaFora] = useState(false);
+  const [finalVisivel, setFinalVisivel] = useState(false);
+  useEffect(() => {
+    const acoes = acoesRef.current;
+    if (!acoes || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([e]) => setCapaFora(!e?.isIntersecting));
+    obs.observe(acoes);
+    return () => obs.disconnect();
+  }, []);
+  useEffect(() => {
+    const final = finalRef.current;
+    if (!final || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([e]) => setFinalVisivel(Boolean(e?.isIntersecting)));
+    obs.observe(final);
+    return () => obs.disconnect();
+  }, [config.componentes.cta_final]);
+  const bannerAberto = !preview && pronto && !consentimento;
+  const barraVisivel = (preview || celular) && capaFora && !finalVisivel && !bannerAberto;
+  useEffect(() => {
+    onBarraVisivel?.(barraVisivel);
+  }, [barraVisivel, onBarraVisivel]);
+  const nota = data.avaliacoes;
+  const mostrarSelo = config.componentes.avaliacoes && nota.quantidade >= 5 && nota.media != null;
   const { tenant } = data;
   const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
   const telefone = tenant.telefone?.replace(/\D/g, "") || null;
   const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
   const agendar = (
-    <Link to="/agendar/$slug" params={{ slug: tenant.slug }} className="brand-cta">
+    <Link
+      to="/agendar/$slug"
+      params={{ slug: tenant.slug }}
+      search={buscaParaAgendar(origem)}
+      className="brand-cta"
+    >
       <CalendarDays size={18} />
       {config.cta}
     </Link>
@@ -101,7 +150,14 @@ export function PaginaPublicaConteudo({
               {config.frase || tenant.descricao || tenant.texto_boas_vindas}
             </p>
           ) : null}
-          <div className="brand-actions">
+          {mostrarSelo ? (
+            <p className="brand-hero-rating">
+              <Star size={14} fill="currentColor" aria-hidden />
+              <strong>{mediaPtBr(nota.media)}</strong>
+              <span>· {nota.quantidade} avaliações</span>
+            </p>
+          ) : null}
+          <div className="brand-actions" ref={acoesRef}>
             {agendar}
             {config.componentes.whatsapp && linkContato ? (
               <a
@@ -184,7 +240,7 @@ export function PaginaPublicaConteudo({
           <Secao titulo="Avaliações" id="avaliacoes">
             <div className="brand-rating">
               <Star fill="currentColor" />
-              <strong>{data.avaliacoes.media?.toFixed(1)}</strong>
+              <strong>{mediaPtBr(data.avaliacoes.media)}</strong>
               <span>{data.avaliacoes.quantidade} avaliações verificadas</span>
             </div>
           </Secao>
@@ -254,7 +310,7 @@ export function PaginaPublicaConteudo({
         </div>
 
         {config.componentes.cta_final ? (
-          <section className="brand-final">
+          <section className="brand-final" ref={finalRef}>
             <p>Seu próximo horário começa aqui.</p>
             <h2>Escolha o serviço e reserve em poucos passos.</h2>
             {agendar}
@@ -267,6 +323,25 @@ export function PaginaPublicaConteudo({
           </section>
         ) : null}
       </main>
+      <div
+        className="brand-sticky-bar"
+        data-visivel={barraVisivel || undefined}
+        aria-hidden={!barraVisivel}
+        inert={!barraVisivel}
+      >
+        {config.componentes.whatsapp && linkContato ? (
+          <a
+            className="brand-sticky-icon"
+            href={linkContato}
+            target={whatsapp ? "_blank" : undefined}
+            rel="noreferrer"
+            aria-label={whatsapp ? "Conversar no WhatsApp" : "Ligar"}
+          >
+            {whatsapp ? <MessageCircle size={20} /> : <Phone size={20} />}
+          </a>
+        ) : null}
+        {agendar}
+      </div>
     </div>
   );
 }

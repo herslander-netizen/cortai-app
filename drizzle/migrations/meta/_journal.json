@@ -36,6 +36,13 @@
       "when": 1790969969879,
       "tag": "0004_push_estado_do_aparelho",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790998433422,
+      "tag": "0005_eventos_funil",
+      "breakpoints": true
     }
   ]
 }

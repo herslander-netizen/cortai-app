@@ -3,6 +3,13 @@
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  detectarExperiencia,
+  fluxoDoModo,
+  origemDaVisita,
+  registrarEtapa,
+  type EtapaFunil,
+} from "@/lib/funil";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
@@ -37,6 +44,10 @@ import {
 
 export const Route = createFileRoute("/agendar/$slug")({
   ssr: "data-only",
+  validateSearch: (s: Record<string, unknown>): { origem?: string; de?: string } => ({
+    ...(typeof s["origem"] === "string" ? { origem: s["origem"].slice(0, 30) } : {}),
+    ...(typeof s["de"] === "string" ? { de: s["de"].slice(0, 20) } : {}),
+  }),
   loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
   head: ({ params, loaderData }) =>
     headDaBarbearia(params.slug, loaderData, `/agendar/${params.slug}`, "Agende seu horário"),
@@ -128,6 +139,30 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
+  const modoChat = data?.pagina.chat.modo;
+  const slugFunil = data?.tenant ? slug : null;
+  const marcarEtapa = (e: EtapaFunil) => {
+    if (!slugFunil) return;
+    registrarEtapa({
+      slug: slugFunil,
+      etapa: e,
+      experiencia: detectarExperiencia(window.location.search, modoChat),
+      fluxo: fluxoDoModo(modoChat),
+      origem: origemDaVisita(),
+    });
+  };
+  useEffect(() => {
+    if (slugFunil) marcarEtapa("agendamento_aberto");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slugFunil]);
+  useEffect(() => {
+    if (servicoId) marcarEtapa("servico_escolhido");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servicoId, slugFunil]);
+  useEffect(() => {
+    if (horario) marcarEtapa("horario_escolhido");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [horario, slugFunil]);
   // Modo conversa: horário salvo no aparelho aparece primeiro como bolha no chat.
   const [futuroNoChat, setFuturoNoChat] = useState(false);
   const chaveSalva = `cortai-agendamento-publico:${slug}`;
@@ -224,6 +259,7 @@ function AgendamentoPublico() {
           ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
         },
       }),
+    onMutate: () => marcarEtapa("dados_enviados"),
     onSuccess: (res) => {
       if (res.tipo === "conflito") {
         setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
@@ -234,6 +270,7 @@ function AgendamentoPublico() {
       setSubstituiId(null);
       setSituacao("confirmado");
       setConfirmado(res.confirmacao);
+      marcarEtapa("confirmado");
       setFuturoNoChat(false);
       try {
         localStorage.setItem(

@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 import { Check, Copy, MessageCircle, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import { origemDaVisita, registrarEtapa } from "@/lib/funil";
 
 import { EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Signature } from "@/components/layout/Signature";
@@ -25,10 +27,25 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   const [qr, setQr] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [mostrarQr, setMostrarQr] = useState(false);
+  const [barra, setBarra] = useState(false);
+  const aoMudarBarra = useCallback((v: boolean) => setBarra(v), []);
+  const slugAtual = data?.tenant.slug;
+  const linkCom = (origem: string) => `https://cortai.dev/b/${slugAtual ?? chave}?origem=${origem}`;
+  useEffect(() => {
+    if (!slugAtual) return;
+    registrarEtapa({
+      slug: slugAtual,
+      etapa: "vitrine_visita",
+      experiencia: "vitrine",
+      fluxo: null,
+      origem: origemDaVisita(),
+    });
+  }, [slugAtual]);
 
   useEffect(() => {
     if (!mostrarQr || qr) return;
-    QRCode.toDataURL(window.location.href, { width: 220, margin: 1 }).then(setQr);
+    QRCode.toDataURL(linkCom("qr"), { width: 220, margin: 1 }).then(setQr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mostrarQr, qr]);
 
   if (isLoading) return <EsqueletoPaginaPublica onTentarDeNovo={() => void consulta.refetch()} />;
@@ -47,9 +64,13 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   if (!data) throw notFound();
 
   return (
-    <div className="min-h-screen bg-background">
-      <PaginaPublicaConteudo data={data} config={data.pagina} />
-      <div className="brand-tools" aria-label="Opções da página">
+    <div className="min-h-screen bg-background pb-[calc(80px+env(safe-area-inset-bottom))] md:pb-0">
+      <PaginaPublicaConteudo data={data} config={data.pagina} onBarraVisivel={aoMudarBarra} />
+      <div
+        className="brand-tools"
+        data-acima-da-barra={barra || undefined}
+        aria-label="Opções da página"
+      >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
@@ -60,7 +81,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
             {typeof navigator.share === "function" ? (
               <DropdownMenuItem
                 onSelect={() =>
-                  void navigator.share({ title: data.tenant.nome, url: window.location.href })
+                  void navigator.share({ title: data.tenant.nome, url: linkCom("compartilhar") })
                 }
               >
                 <Share2 /> Compartilhar pelo celular
@@ -69,7 +90,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
             <DropdownMenuItem
               onSelect={() =>
                 window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`${data.tenant.nome} — ${window.location.href}`)}`,
+                  `https://wa.me/?text=${encodeURIComponent(`${data.tenant.nome} — ${linkCom("whatsapp")}`)}`,
                   "_blank",
                   "noopener,noreferrer",
                 )
@@ -79,7 +100,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={async () => {
-                await navigator.clipboard.writeText(window.location.href);
+                await navigator.clipboard.writeText(linkCom("link"));
                 setCopiado(true);
                 window.setTimeout(() => setCopiado(false), 1800);
               }}
@@ -93,7 +114,12 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
         </DropdownMenu>
       </div>
       {mostrarQr ? (
-        <div className="brand-qr" role="dialog" aria-label="Código QR do negócio">
+        <div
+          className="brand-qr"
+          data-acima-da-barra={barra || undefined}
+          role="dialog"
+          aria-label="Código QR do negócio"
+        >
           {qr ? (
             <img src={qr} alt={`Código para abrir a página de ${data.tenant.nome}`} />
           ) : (

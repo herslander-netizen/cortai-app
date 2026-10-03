@@ -5655,3 +5655,85 @@ button.agenda-nome:hover {
     top: 3.5rem;
   }
 }
+
+/* Barra fixa de agendar da página pública (só celular; na prévia, presa ao quadro). */
+.brand-hero-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--brand-background) 72%, transparent);
+  padding: 6px 12px;
+  color: var(--brand-text);
+  font-size: 13px;
+}
+.brand-hero-rating svg {
+  color: var(--brand-button);
+}
+.brand-sticky-bar {
+  position: fixed;
+  z-index: 29;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid color-mix(in oklab, var(--brand-text) 14%, transparent);
+  background: var(--brand-background);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  font-family: inherit;
+  opacity: 0;
+  transform: translateY(110%);
+  visibility: hidden;
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease,
+    visibility 0s linear 200ms;
+}
+.brand-sticky-bar[data-visivel] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+.brand-sticky-bar .brand-cta {
+  min-height: 48px;
+  flex: 1;
+  justify-content: center;
+}
+.brand-sticky-icon {
+  display: inline-flex;
+  width: 48px;
+  min-height: 48px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklab, var(--brand-text) 32%, transparent);
+  border-radius: var(--brand-radius);
+  color: var(--brand-text);
+}
+.is-preview .brand-sticky-bar {
+  position: sticky;
+}
+.is-preview .brand-sticky-bar:not([data-visivel]) {
+  display: none;
+}
+.brand-tools[data-acima-da-barra] {
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+.brand-qr[data-acima-da-barra] {
+  bottom: calc(146px + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .public-brand:not(.is-preview) .brand-sticky-bar {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-sticky-bar,
+  .brand-sticky-bar[data-visivel] {
+    transition: none;
+  }
+}
