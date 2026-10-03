@@ -43,6 +43,13 @@
       "when": 1790998433422,
       "tag": "0005_eventos_funil",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791002340279,
+      "tag": "0006_lista_espera_automatica",
+      "breakpoints": true
     }
   ]
 }
