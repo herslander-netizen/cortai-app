@@ -647,6 +647,7 @@ export type PreviaPublica = {
   instagram: string | null;
   horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
   precos: number[];
+  experiencia: "direta" | "vitrine" | "conversa";
 };
 
 /** Cancelamento sem conta: só vale com o mesmo WhatsApp que marcou. */

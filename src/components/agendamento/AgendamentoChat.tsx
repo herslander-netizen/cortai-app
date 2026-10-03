@@ -44,6 +44,7 @@ export function AgendamentoChat({
   enviando,
   erro,
   futuro = null,
+  linkSobre = null,
 }: {
   data: AgendaPublica;
   selecao: Selecao;
@@ -57,6 +58,7 @@ export function AgendamentoChat({
   enviando: boolean;
   erro: string | null;
   futuro?: HorarioFuturo | null;
+  linkSobre?: string | null;
 }) {
   const dadosValidos = nome.trim().length >= 2 && telefone.replace(/\D/g, "").length >= 10;
   const conversa = useConversaAgendamento({
