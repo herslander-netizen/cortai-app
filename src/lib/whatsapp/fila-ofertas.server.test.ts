@@ -47,6 +47,7 @@ function builder(tabela: string) {
       return { data: { id: "of1", token: "abc" }, error: null };
     }
     if (tabela === "ofertas_da_fila" && ctx.op === "update") return { data: st.recusada };
+    if (tabela === "ofertas_da_fila" && ctx.op === "select") return { data: st.ofertaPerdida };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
@@ -63,7 +64,11 @@ function builder(tabela: string) {
     return b;
   };
   b.insert = (p: Record<string, unknown>) => ((ctx.op = "insert"), (ctx.payload = p), b);
-  b.update = () => ((ctx.op = "update"), b);
+  b.update = (p: Record<string, unknown>) => {
+    ctx.op = "update";
+    if (tabela === "fila_de_espera") st.filaUpdates.push(p);
+    return b;
+  };
   b.maybeSingle = async () => {
     const r = resolver();
     if (tabela === "agendamentos" && Array.isArray(r.data)) return { data: null };
