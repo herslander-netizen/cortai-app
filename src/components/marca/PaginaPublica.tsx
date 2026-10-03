@@ -81,16 +81,6 @@ export function PaginaPublicaConteudo({
     return () => obs.disconnect();
   }, [config.componentes.cta_final]);
   const bannerAberto = !preview && pronto && !consentimento;
-  const barraVisivel =
-    config.botaoFixo &&
-    agendar !== null &&
-    (preview ? previaCelular : celular) &&
-    capaFora &&
-    !finalVisivel &&
-    !bannerAberto;
-  useEffect(() => {
-    onBarraVisivel?.(barraVisivel);
-  }, [barraVisivel, onBarraVisivel]);
   const nota = data.avaliacoes;
   const mostrarSelo = config.componentes.avaliacoes && nota.quantidade >= 5 && nota.media != null;
   const { tenant } = data;
@@ -128,6 +118,16 @@ export function PaginaPublicaConteudo({
   const agendarOuAviso = agendar ?? (
     <p className="brand-lead">Agenda online indisponível no momento</p>
   );
+  const barraVisivel =
+    config.botaoFixo &&
+    agendar !== null &&
+    (preview ? previaCelular : celular) &&
+    capaFora &&
+    !finalVisivel &&
+    !bannerAberto;
+  useEffect(() => {
+    onBarraVisivel?.(barraVisivel);
+  }, [barraVisivel, onBarraVisivel]);
   const layout = config.layout;
   const definicao = SEGMENTOS_CONFIG[tenant.segmento];
   const vocabulario = termos(tenant.segmento);
