@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { ShowroomCortai, type EtapaShowroom } from "@/components/apresentacao/ShowroomCortai";
@@ -13,7 +13,11 @@ const busca = z.object({
 
 export const Route = createFileRoute("/apresentacao")({
   validateSearch: busca,
-  loader: () => getApresentacaoPublicada(),
+  loader: async () => {
+    const dados = await getApresentacaoPublicada();
+    if (!dados.ativa) throw redirect({ to: "/login" });
+    return dados;
+  },
   head: ({ loaderData }) => {
     const seo = loaderData?.seo ?? SEO_APRESENTACAO_PADRAO;
     return {
