@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { PreferenciasEmConversa } from "@/components/agendamento/chat/PreferenciasEmConversa";
