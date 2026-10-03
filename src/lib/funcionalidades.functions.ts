@@ -123,7 +123,7 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
     } else if (fonte.tipo === "tenant") {
       ({ error: erro } = await db
         .from("tenants")
-        .update({ [fonte.coluna]: data.ativo })
+        .update({ [fonte.coluna]: data.ativo } as { listada: boolean })
         .eq("id", tenantId));
     } else if (fonte.tipo === "lista_automatica") {
       ({ error: erro } = await context.supabase.rpc("definir_lista_espera_automatica", {
@@ -133,7 +133,10 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
     } else if (fonte.tipo === "secretaria") {
       ({ error: erro } = await db
         .from("config_atendimento_ia")
-        .upsert({ tenant_id: tenantId, [fonte.coluna]: data.ativo }, { onConflict: "tenant_id" }));
+        .upsert(
+          { tenant_id: tenantId, [fonte.coluna]: data.ativo } as { tenant_id: string; lembretes: boolean },
+          { onConflict: "tenant_id" },
+        ));
     } else if (fonte.tipo === "regra") {
       const tipo = fonte.regra === "fidelidade" ? "fidelidade" : "fiado";
       const campos =
