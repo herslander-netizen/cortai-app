@@ -41,7 +41,7 @@ export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () =
         enterKeyHint="next"
         maxLength={80}
         value={nome}
-        erro={nomeOk ? undefined : "Informe o nome completo"}
+        erro={nomeOk ? null : "Informe o nome completo"}
         onChange={(e) => setNome(e.target.value)}
       />
       <CampoDeFormulario
@@ -53,7 +53,7 @@ export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () =
         enterKeyHint="done"
         maxLength={20}
         value={telefone}
-        erro={telOk ? undefined : "Informe um telefone com DDD"}
+        erro={telOk ? null : "Informe um telefone com DDD"}
         onChange={(e) => setTelefone(e.target.value)}
       />
       <Button
