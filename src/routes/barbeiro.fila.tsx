@@ -21,6 +21,7 @@ import { aviso, comDesfazer } from "@/lib/avisos";
 import { ItemCascata } from "@/components/layout/ItemCascata";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { InterruptorListaDeEspera } from "@/components/barbeiro/InterruptorListaDeEspera";
 import { StatusBadge } from "@/components/ui/badge";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
@@ -132,6 +133,8 @@ function FilaPage() {
       title="Lista de espera"
       subtitle="Vaga liberada é oferecida automaticamente a quem combina."
     >
+      <InterruptorListaDeEspera />
+
       {isLoading ? <EsqueletoLista linhas={4} onTentarDeNovo={() => void refetch()} /> : null}
 
       {data ? (

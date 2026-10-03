@@ -49,9 +49,7 @@ export function entradaCombina(
 
 /** Ordem real da fila: posição definida pela equipe, quem entrou antes, id (estável). */
 export function ordemDaFila(a: PreferenciaDaFila, b: PreferenciaDaFila) {
-  return (
-    a.posicao - b.posicao || a.criadoEm.localeCompare(b.criadoEm) || a.id.localeCompare(b.id)
-  );
+  return a.posicao - b.posicao || a.criadoEm.localeCompare(b.criadoEm) || a.id.localeCompare(b.id);
 }
 
 export function candidatosDaVaga(
