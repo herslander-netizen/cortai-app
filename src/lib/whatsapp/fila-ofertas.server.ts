@@ -186,7 +186,7 @@ export async function ofertarVaga(
     new Set((anteriores ?? []).map((a) => a.fila_id)),
   );
 
-  for (const c of candidatos) {
+  for (const c of candidatos.slice(0, TENTATIVAS_POR_VAGA)) {
     const cand = prefs.find((x) => x.id === c.id)!;
     const servico = mapa.get(servicoDaEntrada(c, vaga))!;
     // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
@@ -202,10 +202,7 @@ export async function ofertarVaga(
     } catch {
       continue;
     }
-    const expira = Math.min(
-      agora + PRAZO_DA_OFERTA_MIN * 60_000,
-      inicioMs - ANTECEDENCIA_MINIMA_MIN * 60_000,
-    );
+    const expira = prazoDaOferta(Date.now(), inicioMs);
     const { data: oferta, error } = await db
       .from("ofertas_da_fila")
       .insert({
@@ -255,7 +252,7 @@ async function enviarOferta(ofertaId: string) {
     _tenant: o.tenant_id,
     _tipo: "fila",
     _titulo: "Vaga oferecida à lista de espera",
-    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}).`,
+    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}). Responde até ${partes(o.expira_em, fuso).hora}.`,
     _link: LINKS_DE_TELA.espera,
   });
 
