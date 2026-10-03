@@ -85,6 +85,13 @@
       "when": 1791046472296,
       "tag": "0011_perfis_contexto_ativo",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791047160342,
+      "tag": "0012_create_postagens_sociais",
+      "breakpoints": true
     }
   ]
 }

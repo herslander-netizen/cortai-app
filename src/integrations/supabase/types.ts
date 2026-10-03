@@ -3703,6 +3703,68 @@ export type Database = {
         }
         Relationships: []
       }
+      postagens_sociais: {
+        Row: {
+          agendado_para: string
+          atualizado_em: string
+          criado_em: string
+          criado_por: string | null
+          erro: string | null
+          id: string
+          id_externo: string | null
+          legenda: string
+          midia_url: string
+          plataforma: string
+          publicado_em: string | null
+          simulada: boolean
+          status: string
+          tenant_id: string
+          tentativas: number
+        }
+        Insert: {
+          agendado_para?: string
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          erro?: string | null
+          id?: string
+          id_externo?: string | null
+          legenda?: string
+          midia_url: string
+          plataforma: string
+          publicado_em?: string | null
+          simulada?: boolean
+          status?: string
+          tenant_id: string
+          tentativas?: number
+        }
+        Update: {
+          agendado_para?: string
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          erro?: string | null
+          id?: string
+          id_externo?: string | null
+          legenda?: string
+          midia_url?: string
+          plataforma?: string
+          publicado_em?: string | null
+          simulada?: boolean
+          status?: string
+          tenant_id?: string
+          tentativas?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "postagens_sociais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       preferencias_do_cliente_avisos: {
         Row: {
           atualizado_em: string
