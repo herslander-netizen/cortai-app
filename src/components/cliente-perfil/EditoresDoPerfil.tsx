@@ -5,10 +5,73 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario";
 import {
+  salvarDetalhesCliente,
   salvarFichaCorte,
   salvarPreferenciasCliente,
   type PerfilCliente,
 } from "@/lib/perfil-cliente.functions";
+
+export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) {
+  const salvar = useServerFn(salvarDetalhesCliente);
+  const [nome, setNome] = useState(p.cliente.nome);
+  const [telefone, setTelefone] = useState(p.cliente.telefone);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const nomeOk = nome.trim().length >= 2;
+  const telOk = telefone.replace(/\D/g, "").length >= 10;
+  async function gravar() {
+    if (!nomeOk || !telOk) return;
+    setSalvando(true);
+    setErro(null);
+    try {
+      await salvar({ data: { clienteId: p.cliente.id, nome, telefone } });
+      onSalvo();
+    } catch (e) {
+      setErro(mensagem(e));
+    } finally {
+      setSalvando(false);
+    }
+  }
+  return (
+    <div className="space-y-3 rounded-[var(--raio-grupo)] bg-ink3 p-4">
+      <CampoDeFormulario
+        rotulo="Nome completo"
+        obrigatorio
+        autoComplete="name"
+        enterKeyHint="next"
+        maxLength={80}
+        value={nome}
+        erro={nomeOk ? null : "Informe o nome completo"}
+        onChange={(e) => setNome(e.target.value)}
+      />
+      <CampoDeFormulario
+        rotulo="Telefone (com DDD)"
+        obrigatorio
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel"
+        enterKeyHint="done"
+        maxLength={20}
+        value={telefone}
+        erro={telOk ? null : "Informe um telefone com DDD"}
+        onChange={(e) => setTelefone(e.target.value)}
+      />
+      <Button
+        variant="secondary"
+        className="h-12 w-full rounded-full"
+        disabled={salvando || !nomeOk || !telOk}
+        onClick={() => void gravar()}
+      >
+        {salvando ? "Salvando…" : "Salvar"}
+      </Button>
+      {erro ? (
+        <p className="field-error" role="alert">
+          {erro}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 const OPCOES = {

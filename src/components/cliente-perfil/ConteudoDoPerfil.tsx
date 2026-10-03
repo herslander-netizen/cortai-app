@@ -9,7 +9,11 @@ import { StatusBadge } from "@/components/ui/badge";
 import { GrupoDeCartoes, LinhaDeCartao } from "@/components/ui/formulario/GrupoDeCartoes";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
-import { EditorFicha, EditorPreferencias } from "@/components/cliente-perfil/EditoresDoPerfil";
+import {
+  EditorDetalhes,
+  EditorFicha,
+  EditorPreferencias,
+} from "@/components/cliente-perfil/EditoresDoPerfil";
 import { brl } from "@/lib/format";
 import {
   apagarFotoCorte,
@@ -71,6 +75,7 @@ export function Conteudo({
   const [verFoto, setVerFoto] = useState<string | null>(null);
   const [editarFicha, setEditarFicha] = useState(false);
   const [editarPref, setEditarPref] = useState(false);
+  const [editarDetalhes, setEditarDetalhes] = useState(false);
   const recarregar = () => qc.invalidateQueries({ queryKey: ["perfil-cliente", p.cliente.id] });
   const pref = Object.entries(p.preferencias ?? {}).filter(([, v]) => typeof v === "string" && v);
   const rotuloPref = (k: string, v: string) =>
@@ -94,7 +99,33 @@ export function Conteudo({
         </p>
       ) : null}
 
-      <SecaoDeFormulario rotulo="Detalhes">
+      <SecaoDeFormulario
+        rotulo="Detalhes"
+        acao={
+          p.cliente.avulso ? undefined : (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="min-h-12 rounded-full"
+              aria-expanded={editarDetalhes}
+              onClick={() => setEditarDetalhes((v) => !v)}
+            >
+              {editarDetalhes ? "Fechar" : "Editar"}
+            </Button>
+          )
+        }
+      >
+        {editarDetalhes ? (
+          <div className="mb-3">
+            <EditorDetalhes
+              p={p}
+              onSalvo={() => {
+                setEditarDetalhes(false);
+                recarregar();
+              }}
+            />
+          </div>
+        ) : null}
         <GrupoDeCartoes>
           <LinhaDeCartao rotulo="Nome" valor={p.cliente.nome} />
           {!p.cliente.avulso ? (
