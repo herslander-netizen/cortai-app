@@ -343,7 +343,16 @@ export function AgendaTimeline({
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;
   const posicaoAgora =
     (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
-  const corteAnteriores = ehHoje && diaCompleto ? Math.max(0, posicaoAgora - 90 * PX_POR_MINUTO) : 0;
+  // Nunca esconder quem ainda está em andamento (chegou/em atendimento), mesmo que tenha começado cedo.
+  const topoEmAndamento = itens.reduce((menor, item) => {
+    if (item.status !== "na_cadeira" && item.status !== "chegou") return menor;
+    const topo = layout.posicoes.get(item.id)?.topo;
+    return topo === undefined ? menor : Math.min(menor, topo - 8);
+  }, Number.POSITIVE_INFINITY);
+  const corteAnteriores =
+    ehHoje && diaCompleto
+      ? Math.max(0, Math.min(posicaoAgora - 90 * PX_POR_MINUTO, topoEmAndamento))
+      : 0;
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
@@ -601,7 +610,15 @@ export function AgendaTimeline({
           type="button"
           variant="ghost"
           className="mb-1 min-h-12 w-full text-xs text-mute"
-          onClick={() => setMostrarAnteriores(true)}
+          aria-expanded={false}
+          aria-controls="agenda-timeline-grade"
+          onClick={() => {
+            setMostrarAnteriores(true);
+            // O botão some; o foco segue para a grade em vez de se perder.
+            requestAnimationFrame(() =>
+              document.getElementById("agenda-timeline-grade")?.focus({ preventScroll: true }),
+            );
+          }}
         >
           Mostrar horários anteriores
         </Button>
@@ -625,11 +642,16 @@ export function AgendaTimeline({
                 overflow: "visible",
                 transform: `translateY(${-deslocamentoPrevia}px)`,
               }
-            : undefined
+            : interativo && corteAnteriores > 0 && !mostrarAnteriores
+              ? // Recorta os horários escondidos sem virar área de rolagem (a página rola).
+                { clipPath: "inset(0 -100vw -100vh -100vw)" }
+              : undefined
         }
       >
         <div
           className="agenda-timeline"
+          id={previa ? undefined : "agenda-timeline-grade"}
+          tabIndex={previa ? undefined : -1}
           style={{
             height: `${altura}px`,
             ...(interativo && corteAnteriores > 0 && !mostrarAnteriores

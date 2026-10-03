@@ -28,13 +28,31 @@ export function SeletorProfissionais({
   return (
     <div
       className="-mx-5 mt-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none]"
-      role="group"
-      aria-label="Agenda da equipe"
+      role="toolbar"
+      aria-label="Filtrar agenda por profissional"
+      aria-orientation="horizontal"
+      onKeyDown={(e) => {
+        const botoes = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>("button"));
+        const atual = botoes.indexOf(document.activeElement as HTMLButtonElement);
+        if (atual < 0) return;
+        const alvo =
+          e.key === "ArrowRight" ? Math.min(atual + 1, botoes.length - 1)
+          : e.key === "ArrowLeft" ? Math.max(atual - 1, 0)
+          : e.key === "Home" ? 0
+          : e.key === "End" ? botoes.length - 1
+          : -1;
+        if (alvo < 0) return;
+        e.preventDefault();
+        botoes[alvo]?.focus();
+        botoes[alvo]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }}
     >
       <div className="flex w-max gap-2">
         <Button
           variant="ghost"
           aria-pressed={selecionado === null}
+          aria-label="Todos, equipe inteira"
+          tabIndex={selecionado === null ? 0 : -1}
           className={`min-h-14 shrink-0 gap-2 rounded-full border px-3 ${
             selecionado === null ? "border-primary bg-primary/10 text-paper" : "border-line text-mute"
           }`}
@@ -57,6 +75,7 @@ export function SeletorProfissionais({
               key={profissional.id}
               variant="ghost"
               aria-pressed={selecionado === profissional.id}
+              tabIndex={selecionado === profissional.id ? 0 : -1}
               aria-label={`${profissional.nome}, ${emAtendimento ? "em atendimento" : "livre"}`}
               className={`min-h-14 shrink-0 gap-2 rounded-full border px-3 ${
                 selecionado === profissional.id
