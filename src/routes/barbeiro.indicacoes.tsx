@@ -196,7 +196,7 @@ function IndicacoesPage() {
                 <p
                   className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}
                 >
-                  {i.status === "convertido" ? "Virou cliente" : "Aguardando primeira visita"}
+                  {i.status === "convertido" ? "Virou cliente" : "Ainda sem histórico"}
                   {i.recompensa ? ` · ${i.recompensa}` : ""}
                   {i.recompensaEntregue ? " · recompensa entregue" : ""}
                 </p>
