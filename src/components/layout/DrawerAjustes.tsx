@@ -137,19 +137,21 @@ export function DrawerAjustes({
             size="bloco"
             aria-expanded={aparenciaAberta}
             onClick={() => setAparenciaAberta((valor) => !valor)}
-            className={`${CARTAO} ${LINHA}`}
+            className={CARTAO}
           >
-            <IconeDoMenu icone={Palette} />
-            <span className="min-w-0">
-              <span className="block truncate text-base font-semibold text-paper">Aparência</span>
-              <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                Claro, escuro, sistema e identidade
+            <span className={LINHA}>
+              <IconeDoMenu icone={Palette} />
+              <span className="min-w-0">
+                <span className="block truncate text-base font-semibold text-paper">Aparência</span>
+                <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                  Claro, escuro, sistema e identidade
+                </span>
               </span>
+              <ChevronRight
+                className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
+                aria-hidden
+              />
             </span>
-            <ChevronRight
-              className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
-              aria-hidden
-            />
           </Button>
           {aparenciaAberta ? (
             <div className="rounded-[18px] border border-drawer-borda bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
