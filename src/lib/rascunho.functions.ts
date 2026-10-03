@@ -323,11 +323,13 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
         { tenant_id: tenantId, etapa: "recursos", itens: { servicos: true, configurar: true } },
         { onConflict: "tenant_id" },
       );
-    const pagina = configPadrao(
-      definicao.temaPagina === "rose-creme"
+    const pagina = configPadrao({
+      ...(definicao.temaPagina === "rose-creme"
         ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
-        : undefined,
-    );
+        : {}),
+      experiencia: definicao.experienciaPadrao,
+      versao: 2,
+    });
     await db
       .from("tenant_page_configs")
       .upsert(

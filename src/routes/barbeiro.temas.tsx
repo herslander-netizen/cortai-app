@@ -270,7 +270,7 @@ function EditorDeTemas({ marca, recarregar }: { marca: MarcaData; recarregar: ()
           >
             <div className="max-h-[70vh] overflow-y-auto">
               {preview ? (
-                <PaginaPublicaConteudo data={preview} config={config} />
+                <PaginaPublicaConteudo data={preview} config={config} preview />
               ) : (
                 <div className="p-6">
                   <EsqueletoPaginaPublica />

@@ -56,6 +56,8 @@ export type DefinicaoDeSegmento = {
   identidade: Identidade;
   modoPadrao: Modo;
   temaPagina: TemaId;
+  /** Experiência do link aplicada só na criação de um negócio novo. */
+  experienciaPadrao: "direta" | "vitrine";
   iconeIA: IconeIA;
   exemploIA: string;
   /** Atalhos da ficha do cliente gravados ao criar o negócio. */
@@ -130,6 +132,7 @@ const BARBEARIA: DefinicaoDeSegmento = {
   identidade: "moderno",
   modoPadrao: "escuro",
   temaPagina: "cortai",
+  experienciaPadrao: "direta",
   iconeIA: "bigode",
   exemploIA: "Cadastre corte por 35 reais e barba por 25, os dois levam 30 minutos",
   chipsFicha: [...CHIPS_FICHA_BARBEARIA],
@@ -139,6 +142,7 @@ const beleza = {
   identidade: "rose" as const,
   modoPadrao: "claro" as const,
   temaPagina: "rose-creme" as const,
+  experienciaPadrao: "vitrine" as const,
   iconeIA: "pingo" as const,
   horariosPadrao: horarioBeleza(),
   exemploIA: "Cadastre manicure por 35 reais em 45 minutos e escova por 50 reais em 45 minutos",
@@ -292,6 +296,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
     identidade: "moderno",
     modoPadrao: "escuro",
     temaPagina: "cortai",
+    experienciaPadrao: "vitrine",
     iconeIA: "pingo",
     exemploIA: "Cadastre o serviço por 50 reais em 45 minutos",
     chipsFicha: ["Pouca conversa"],

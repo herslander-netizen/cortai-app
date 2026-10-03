@@ -283,6 +283,9 @@ function Editor({
     }
   };
 
+  const usaConversa =
+    config.experiencia === "conversa" ||
+    (config.experiencia === "vitrine" && config.chat.modo === "conversa");
   const previewData = publicQuery.data
     ? {
         ...publicQuery.data,
@@ -304,7 +307,7 @@ function Editor({
     >
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" asChild>
-          <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
+          <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
             <Eye />
             Ver publicada
           </a>
@@ -315,7 +318,7 @@ function Editor({
           onClick={() =>
             navigator.share?.({
               title: form.nome,
-              url: `${window.location.origin}/agendar/${slug}`,
+              url: `https://cortai.dev/${slug}`,
             })
           }
         >
@@ -326,7 +329,7 @@ function Editor({
           variant="outline"
           size="sm"
           onClick={async () => {
-            await navigator.clipboard.writeText(`${window.location.origin}/agendar/${slug}`);
+            await navigator.clipboard.writeText(`https://cortai.dev/${slug}`);
             setStatus("Link copiado.");
           }}
         >
@@ -542,36 +545,66 @@ function Editor({
             </TabsContent>
 
             <TabsContent value="conteudo" className="space-y-5 pt-4">
-              <EditorSection title="Como seu cliente agenda?">
-                <div
-                  className="grid grid-cols-2 gap-2"
-                  role="radiogroup"
-                  aria-label="Modo de agendamento"
-                >
+              <EditorSection title="Experiência do link">
+                <div className="grid gap-2" role="group" aria-label="Experiência do link">
                   {(
                     [
-                      ["tradicional", "Tradicional"],
-                      ["conversa", "Conversa"],
+                      ["direta", "Direta", "O cliente marca em poucos toques."],
+                      [
+                        "vitrine",
+                        "Vitrine",
+                        "Sua página completa, com o botão de agendar sempre à mão.",
+                      ],
+                      ["conversa", "Conversa", "Uma recepção que guia o cliente por botões."],
                     ] as const
-                  ).map(([id, label]) => (
+                  ).map(([id, label, ajuda]) => (
                     <Button
                       key={id}
                       type="button"
-                      variant={config.chat.modo === id ? "default" : "outline"}
-                      className="h-12"
-                      aria-pressed={config.chat.modo === id}
-                      onClick={() => setPagina("chat", { ...config.chat, modo: id })}
+                      variant={config.experiencia === id ? "default" : "outline"}
+                      className="h-auto min-h-12 flex-col items-start gap-0.5 whitespace-normal py-2 text-left"
+                      aria-pressed={config.experiencia === id}
+                      onClick={() => setPagina("experiencia", id)}
                     >
-                      {label}
+                      <span className="font-semibold">{label}</span>
+                      <span className="text-xs font-normal opacity-80">{ajuda}</span>
                     </Button>
                   ))}
                 </div>
+                {config.experiencia === "vitrine" ? (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-mute">Ao tocar Agendar</p>
+                    <div
+                      className="mt-2 grid grid-cols-2 gap-2"
+                      role="group"
+                      aria-label="Ao tocar Agendar"
+                    >
+                      {(
+                        [
+                          ["tradicional", "Passo a passo"],
+                          ["conversa", "Conversa"],
+                        ] as const
+                      ).map(([id, label]) => (
+                        <Button
+                          key={id}
+                          type="button"
+                          variant={config.chat.modo === id ? "default" : "outline"}
+                          className="h-12"
+                          aria-pressed={config.chat.modo === id}
+                          onClick={() => setPagina("chat", { ...config.chat, modo: id })}
+                        >
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <p className="mt-2 text-xs text-mute">
-                  Negócios existentes continuam no modo Tradicional até você publicar esta escolha.
+                  Nada muda para seus clientes até você publicar.
                 </p>
                 <div className="mt-4">
                   <ChatPreview
-                    ativo={config.chat.modo === "conversa"}
+                    ativo={usaConversa}
                     config={config}
                     nome={form.nome}
                     logoUrl={avatarPreview || logoPreview}
@@ -579,7 +612,7 @@ function Editor({
                   />
                 </div>
               </EditorSection>
-              {config.chat.modo === "conversa" ? (
+              {usaConversa ? (
                 <EditorSection title="Recepção digital">
                   <div className="space-y-4">
                     <div>
@@ -736,6 +769,13 @@ function Editor({
                 value={config.cta}
                 onChange={(value) => setPagina("cta", value)}
               />
+              <label className="flex min-h-12 items-center justify-between gap-4 rounded-lg border border-line px-4 py-2">
+                <span className="text-sm text-paper">Botão fixo no celular</span>
+                <Switch
+                  checked={config.botaoFixo}
+                  onCheckedChange={(checked) => setPagina("botaoFixo", checked)}
+                />
+              </label>
               <Campo
                 label="Endereço"
                 value={form.endereco}
@@ -768,7 +808,7 @@ function Editor({
                   Endereço personalizado
                   <div className="mt-2 flex items-stretch gap-2">
                     <span className="hidden items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute sm:flex">
-                      cortai.dev/agendar/
+                      cortai.dev/
                     </span>
                     <input
                       className={`${fieldClass} mt-0 min-w-0 flex-1`}
@@ -796,7 +836,7 @@ function Editor({
                   O endereço antigo permanece ativo para não quebrar links já enviados.
                 </p>
                 <Button type="button" variant="outline" className="mt-3" asChild>
-                  <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
+                  <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
                     <ExternalLink />
                     Abrir agendamento
                   </a>
@@ -910,7 +950,12 @@ function Editor({
               className={`mx-auto h-[720px] overflow-y-auto rounded-lg border border-line bg-background shadow-xl transition-[width] ${device === "mobile" ? "w-[390px]" : "w-full"}`}
             >
               {previewData ? (
-                <PaginaPublicaConteudo data={previewData} config={config} preview />
+                <PaginaPublicaConteudo
+                  data={previewData}
+                  config={config}
+                  preview
+                  previaCelular={device === "mobile"}
+                />
               ) : (
                 <EsqueletoPaginaPublica />
               )}

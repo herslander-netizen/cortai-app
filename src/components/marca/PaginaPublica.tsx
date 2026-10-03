@@ -47,11 +47,13 @@ export function PaginaPublicaConteudo({
   data,
   config,
   preview = false,
+  previaCelular = false,
   onBarraVisivel,
 }: {
   data: PaginaPublica;
   config: PaginaConfig;
   preview?: boolean;
+  previaCelular?: boolean;
   onBarraVisivel?: (visivel: boolean) => void;
 }) {
   const [origem, setOrigem] = useState<OrigemFunil>("direto");
@@ -79,10 +81,6 @@ export function PaginaPublicaConteudo({
     return () => obs.disconnect();
   }, [config.componentes.cta_final]);
   const bannerAberto = !preview && pronto && !consentimento;
-  const barraVisivel = (preview || celular) && capaFora && !finalVisivel && !bannerAberto;
-  useEffect(() => {
-    onBarraVisivel?.(barraVisivel);
-  }, [barraVisivel, onBarraVisivel]);
   const nota = data.avaliacoes;
   const mostrarSelo = config.componentes.avaliacoes && nota.quantidade >= 5 && nota.media != null;
   const { tenant } = data;
@@ -90,7 +88,13 @@ export function PaginaPublicaConteudo({
   const telefone = tenant.telefone?.replace(/\D/g, "") || null;
   const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
-  const agendar = (
+  const limiteAtingido = !preview && data.agendaOnline === "limite_atingido";
+  const linkAgendarContato = whatsapp
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Quero agendar um horário.")}`
+    : telefone
+      ? `tel:+${telefone}`
+      : null;
+  const agendar = !limiteAtingido ? (
     <Link
       to="/agendar/$slug"
       params={{ slug: tenant.slug }}
@@ -100,7 +104,30 @@ export function PaginaPublicaConteudo({
       <CalendarDays size={18} />
       {config.cta}
     </Link>
+  ) : linkAgendarContato ? (
+    <a
+      className="brand-cta"
+      href={linkAgendarContato}
+      target={whatsapp ? "_blank" : undefined}
+      rel="noreferrer"
+    >
+      {whatsapp ? <MessageCircle size={18} /> : <Phone size={18} />}
+      {whatsapp ? "Chamar no WhatsApp" : "Ligar para agendar"}
+    </a>
+  ) : null;
+  const agendarOuAviso = agendar ?? (
+    <p className="brand-lead">Agenda online indisponível no momento</p>
   );
+  const barraVisivel =
+    config.botaoFixo &&
+    agendar !== null &&
+    (preview ? previaCelular : celular) &&
+    capaFora &&
+    !finalVisivel &&
+    !bannerAberto;
+  useEffect(() => {
+    onBarraVisivel?.(barraVisivel);
+  }, [barraVisivel, onBarraVisivel]);
   const layout = config.layout;
   const definicao = SEGMENTOS_CONFIG[tenant.segmento];
   const vocabulario = termos(tenant.segmento);
@@ -158,8 +185,8 @@ export function PaginaPublicaConteudo({
             </p>
           ) : null}
           <div className="brand-actions" ref={acoesRef}>
-            {agendar}
-            {config.componentes.whatsapp && linkContato ? (
+            {agendarOuAviso}
+            {config.componentes.whatsapp && linkContato && !limiteAtingido ? (
               <a
                 className="brand-secondary-action"
                 href={linkContato}
@@ -313,7 +340,7 @@ export function PaginaPublicaConteudo({
           <section className="brand-final" ref={finalRef}>
             <p>Seu próximo horário começa aqui.</p>
             <h2>Escolha o serviço e reserve em poucos passos.</h2>
-            {agendar}
+            {agendarOuAviso}
           </section>
         ) : null}
         {!preview ? (
@@ -329,7 +356,7 @@ export function PaginaPublicaConteudo({
         aria-hidden={!barraVisivel}
         inert={!barraVisivel}
       >
-        {config.componentes.whatsapp && linkContato ? (
+        {config.componentes.whatsapp && linkContato && !limiteAtingido ? (
           <a
             className="brand-sticky-icon"
             href={linkContato}

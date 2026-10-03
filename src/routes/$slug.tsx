@@ -1,8 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-/** Link curto da barbearia: cortai.dev/[barbearia]. Mesmo conteúdo de /b/[barbearia]. */
+import { getPreviaDaBarbearia } from "@/lib/agendamento-publico.functions";
+import { destinoDoLinkCurto } from "@/lib/experiencia-link";
+
+/** Link curto: cortai.dev/{slug}. Destino pela experiência publicada (redirecionamento temporário). */
 export const Route = createFileRoute("/$slug")({
-  beforeLoad: ({ params }) => {
-    throw redirect({ to: "/b/$slug", params: { slug: params.slug }, statusCode: 308 });
+  beforeLoad: async ({ params, location }) => {
+    const previa = await getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null);
+    throw redirect({
+      href: destinoDoLinkCurto(params.slug, previa?.experiencia ?? "vitrine", location.searchStr),
+      statusCode: 307,
+    });
   },
 });

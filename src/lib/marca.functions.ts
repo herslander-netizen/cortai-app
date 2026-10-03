@@ -8,6 +8,7 @@ import { exigirRecurso } from "@/lib/planos";
 import {
   normalizarPagina,
   paginaConfigSchema,
+  VERSAO_DA_PAGINA,
   preservarFilaDeChegada,
   type PaginaConfig,
 } from "@/lib/pagina-config";
@@ -263,10 +264,13 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
       {
         tenant_id: tenantId,
         draft_config: {
-          pagina: preservarFilaDeChegada(
-            data.pagina,
-            await containerSalvo(context.supabase, tenantId),
-          ),
+          pagina: {
+            ...preservarFilaDeChegada(
+              data.pagina,
+              await containerSalvo(context.supabase, tenantId),
+            ),
+            versao: VERSAO_DA_PAGINA,
+          },
           marca: data.marca,
         } as unknown as Json,
         draft_by: context.userId,
@@ -319,10 +323,10 @@ export const publicarPagina = createServerFn({ method: "POST" })
       ...data.marca,
       assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,
     };
-    const pagina = preservarFilaDeChegada(
-      data.pagina,
-      await containerSalvo(context.supabase, tenantId),
-    );
+    const pagina = {
+      ...preservarFilaDeChegada(data.pagina, await containerSalvo(context.supabase, tenantId)),
+      versao: VERSAO_DA_PAGINA,
+    };
     const configuracao = { pagina, marca } as unknown as Json;
     const { error } = await context.supabase.rpc("publish_tenant_page", {
       _tenant_id: tenantId,

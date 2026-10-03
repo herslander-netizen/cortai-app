@@ -88,3 +88,15 @@ export async function capacidadesDoTenant(db: any, tenantId: string): Promise<Ca
     },
   };
 }
+
+/** Uso do limite mensal de agendamentos para o aviso do dono (80% e 100%). */
+export const getUsoDaAgendaOnline = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { usoDaAgendaOnline } = await import("@/lib/agenda-online.server");
+    const { avisoDoLimiteMensal } = await import("@/lib/agenda-online");
+    const r = await usoDaAgendaOnline(supabaseAdmin, tenantId);
+    return { limite: r.limite, uso: r.uso, aviso: avisoDoLimiteMensal(r) };
+  });

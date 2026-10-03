@@ -43,6 +43,7 @@ export type PaginaPublica = {
   horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
   avaliacoes: { media: number | null; quantidade: number };
   pagina: PaginaConfig;
+  agendaOnline: "aberta" | "limite_atingido";
 };
 
 async function signedUrl(client: any, path: string | null) {
@@ -172,6 +173,12 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
           : null,
         quantidade: avaliacoes?.length ?? 0,
       },
+      agendaOnline: await (
+        await import("@/lib/agenda-online.server")
+      )
+        .usoDaAgendaOnline(supabaseAdmin, tenant.id)
+        .then((r) => r.estado)
+        .catch(() => "aberta" as const),
       pagina: normalizarPagina(
         (pageConfig?.published_config as { pagina?: unknown } | null)?.pagina,
         {

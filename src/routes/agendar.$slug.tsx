@@ -3,13 +3,10 @@
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  detectarExperiencia,
-  fluxoDoModo,
-  origemDaVisita,
-  registrarEtapa,
-  type EtapaFunil,
-} from "@/lib/funil";
+import { fluxoDoAgendamento } from "@/lib/experiencia-link";
+import { montarSchemaNegocio } from "@/lib/schema-negocio";
+import { termos } from "@/lib/segmentos";
+import { detectarExperiencia, origemDaVisita, registrarEtapa, type EtapaFunil } from "@/lib/funil";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
@@ -49,8 +46,21 @@ export const Route = createFileRoute("/agendar/$slug")({
     ...(typeof s["de"] === "string" ? { de: s["de"].slice(0, 20) } : {}),
   }),
   loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
-  head: ({ params, loaderData }) =>
-    headDaBarbearia(params.slug, loaderData, `/agendar/${params.slug}`, "Agende seu horário"),
+  head: ({ params, loaderData }) => {
+    const base = headDaBarbearia(
+      params.slug,
+      loaderData,
+      `/agendar/${params.slug}`,
+      "Agende seu horário",
+    );
+    if (!loaderData) return base;
+    return {
+      ...base,
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(montarSchemaNegocio(loaderData)) },
+      ],
+    };
+  },
   component: AgendamentoPublico,
 });
 
@@ -139,15 +149,16 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
-  const modoChat = data?.pagina.chat.modo;
+  const fluxo = data ? fluxoDoAgendamento(data.pagina.experiencia, data.pagina.chat.modo) : null;
+  const experienciaPublicada = data?.pagina.experiencia;
   const slugFunil = data?.tenant ? slug : null;
   const marcarEtapa = (e: EtapaFunil) => {
     if (!slugFunil) return;
     registrarEtapa({
       slug: slugFunil,
       etapa: e,
-      experiencia: detectarExperiencia(window.location.search, modoChat),
-      fluxo: fluxoDoModo(modoChat),
+      experiencia: detectarExperiencia(window.location.search, experienciaPublicada),
+      fluxo,
       origem: origemDaVisita(),
     });
   };
@@ -349,13 +360,21 @@ function AgendamentoPublico() {
     );
   }
 
-  if (!data.profissionais.length || !data.servicos.length || semNenhumDiaAberto(data.horarios)) {
+  const limiteAtingido = data.agendaOnline === "limite_atingido" && !confirmado;
+  if (
+    limiteAtingido ||
+    !data.profissionais.length ||
+    !data.servicos.length ||
+    semNenhumDiaAberto(data.horarios)
+  ) {
     const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
     return (
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
         <h1 className="text-xl font-bold text-paper">{data.tenant.nome}</h1>
         <p className="mt-2 text-sm text-mute">
-          A agenda online ainda não está aberta. Fale direto com o negócio para marcar.
+          {limiteAtingido
+            ? `A agenda online está indisponível no momento. Fale direto com ${termos(data.tenant.segmento).comArtigo} para marcar.`
+            : "A agenda online ainda não está aberta. Fale direto com o negócio para marcar."}
         </p>
         {zap ? (
           <Button asChild className="mt-6 h-12 font-bold">
@@ -373,7 +392,8 @@ function AgendamentoPublico() {
     );
   }
 
-  const modoConversa = data.pagina.chat.modo === "conversa";
+  const modoConversa = fluxo === "conversa";
+  const linkSobre = `/b/${slug}?ver=pagina`;
   if (confirmado && !(modoConversa && futuroNoChat && situacao === "confirmado")) {
     return (
       <div className="agendamento-marca" style={agendamentoStyle(data.pagina)}>
@@ -385,9 +405,7 @@ function AgendamentoPublico() {
           logoUrl={data.tenant.logoUrl}
           capaUrl={data.tenant.capaUrl}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
-          {...(data.pagina.chat.modo === "conversa"
-            ? { textoFinal: data.pagina.chat.textoFinal }
-            : {})}
+          {...(modoConversa ? { textoFinal: data.pagina.chat.textoFinal } : {})}
           cancelando={cancelar.isPending}
           {...(erro ? { erro } : {})}
           onAlterar={() => {
@@ -442,6 +460,7 @@ function AgendamentoPublico() {
     return (
       <AgendamentoChat
         futuro={futuro}
+        linkSobre={linkSobre}
         data={data}
         selecao={selecao}
         nome={nome}
@@ -473,7 +492,14 @@ function AgendamentoPublico() {
       style={agendamentoStyle(data.pagina)}
     >
       <FontesDaMarca config={data.pagina} />
-      <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
+        {data.pagina.experiencia === "direta" ? (
+          <a href={linkSobre} className="text-xs text-mute underline-offset-4 hover:underline">
+            Conhecer {termos(data.tenant.segmento).comArtigo}
+          </a>
+        ) : null}
+      </div>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
       <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
       {substituiId ? (

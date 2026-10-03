@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+import { vitrineDeveRedirecionar } from "@/lib/experiencia-link";
 
 import { TelaPublicaBarbearia } from "@/components/marca/TelaPublicaBarbearia";
 import { getPreviaDaBarbearia } from "@/lib/agendamento-publico.functions";
@@ -6,7 +8,12 @@ import { headDaBarbearia } from "@/lib/previa";
 import { montarSchemaNegocio } from "@/lib/schema-negocio";
 
 export const Route = createFileRoute("/b/$slug")({
-  loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
+  loader: async ({ params, location }) => {
+    const previa = await getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null);
+    if (previa && vitrineDeveRedirecionar(previa.experiencia, location.searchStr))
+      throw redirect({ href: `/agendar/${params.slug}${location.searchStr}`, statusCode: 307 });
+    return previa;
+  },
   head: ({ params, loaderData }) => {
     const base = headDaBarbearia(params.slug, loaderData, `/b/${params.slug}`);
     if (!loaderData) return base;

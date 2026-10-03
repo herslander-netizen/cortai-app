@@ -306,11 +306,13 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       documento: data.documento,
       telefone: data.telefone,
     }).catch(() => ({ emTeste: false, motivo: undefined }));
-    const pagina = configPadrao(
-      definicao.temaPagina === "rose-creme"
+    const pagina = configPadrao({
+      ...(definicao.temaPagina === "rose-creme"
         ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
-        : undefined,
-    );
+        : {}),
+      experiencia: definicao.experienciaPadrao,
+      versao: 2,
+    });
     const { error: erroVinculo } = await db
       .from("tenant_usuarios")
       .insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });

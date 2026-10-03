@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { getSessao } from "@/lib/sessao.functions";
-import { getCapacidades } from "@/lib/capacidades.functions";
+import { getCapacidades, getUsoDaAgendaOnline } from "@/lib/capacidades.functions";
 import {
   getConfiguracaoInicial,
   ITENS_DO_CHECKLIST,
@@ -35,10 +35,43 @@ function ContadorDoTeste() {
   );
 }
 
+/** Aviso do limite mensal de agendamentos (só aparece em 80% e 100%). */
+function AvisoDoLimiteMensal() {
+  const { data } = useQuery({
+    queryKey: ["uso-agenda-online"],
+    queryFn: () => getUsoDaAgendaOnline(),
+    staleTime: 300_000,
+  });
+  if (!data?.aviso) return null;
+  const atingido = data.aviso === "atingido";
+  return (
+    <Link
+      to="/barbeiro/plano"
+      role="status"
+      className="mt-4 flex min-h-12 w-full basis-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink2 px-4 py-2 text-left"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-paper">
+          {atingido
+            ? "Limite de agendamentos do mês atingido"
+            : `${data.uso} de ${data.limite} agendamentos do mês`}
+        </span>
+        <span className="block text-xs text-mute">
+          {atingido
+            ? "Seus clientes estão sendo direcionados ao WhatsApp. Faça upgrade para agendamentos ilimitados."
+            : "Perto do limite: depois dele, seus clientes vão para o WhatsApp."}
+        </span>
+      </span>
+      <ChevronRight size={16} className="text-mute" aria-hidden />
+    </Link>
+  );
+}
+
 export function PrimeirosPassos() {
   return (
     <>
       <ContadorDoTeste />
+      <AvisoDoLimiteMensal />
       <ListaDePrimeirosPassos />
     </>
   );
