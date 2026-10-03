@@ -175,7 +175,9 @@ export function useAgendamentoManual({
     salvando,
     confirmado,
     criado,
-    concluir: () => criado && onCriado(criado.agendamentoId),
+    concluir: () => {
+      if (criado) onCriado(criado.agendamentoId);
+    },
     pronto,
     sujo,
     salvar,
