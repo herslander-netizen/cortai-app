@@ -198,16 +198,35 @@ export function CabecalhoAgenda({
   );
   const topoCelular = (
     <>
-      <h2 className="agenda-titulo-mes">{tituloCelular ?? tituloDoMes(dia)}</h2>
       <Button
         variant="ghost"
         size="icon"
-        className="size-12"
+        className="size-12 shrink-0"
+        aria-label="Dia anterior"
+        onClick={() => onDia(somarDias(dia, -1))}
+      >
+        <ChevronLeft />
+      </Button>
+      <Button
+        variant="ghost"
+        className="min-h-12 min-w-0 flex-1 px-2"
         aria-label={calendarioAberto ? "Recolher mês" : "Abrir mês"}
         aria-expanded={calendarioAberto}
         onClick={onCalendario}
       >
-        <CalendarDays />
+        <span className="min-w-0 text-center">
+          <strong className="block truncate text-sm text-paper">{tituloCelular ?? tituloDoMes(dia)}</strong>
+          <span className="block truncate text-xs text-mute">{dataEditorial(dia)}</span>
+        </span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-12 shrink-0"
+        aria-label="Próximo dia"
+        onClick={() => onDia(somarDias(dia, 1))}
+      >
+        <ChevronRight />
       </Button>
     </>
   );
