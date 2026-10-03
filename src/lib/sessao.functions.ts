@@ -6,6 +6,7 @@ import { PERMISSOES } from "@/lib/permissoes";
 import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
+import { decidirContextos } from "@/lib/contextos";
 
 const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
@@ -122,6 +123,7 @@ export const getSessao = createServerFn({ method: "GET" })
       temVinculoAtivo: Boolean(vinculo?.ativo),
       tipoDoPerfil: escolha,
       fichasDeCliente: fichas ?? 0,
+      contextoAtivo: perfil?.contexto_ativo ?? null,
     });
     const contextoAtivo = perfil?.contexto_ativo ?? null;
     const contextoEscolhido = contextoAtivo !== null;
@@ -400,7 +402,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       );
     await db
       .from("perfis")
-      .upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
+      .upsert(
+        { user_id: context.userId, tipo: "barbeiro", contexto_ativo: "negocio" },
+        { onConflict: "user_id" },
+      );
     return {
       tenantId: tenantId as string,
       identidade: definicao.identidade,
