@@ -98,5 +98,3 @@ export function TicketDaConfirmacao({
     </section>
   );
 }
-
-export { SIMBOLO_CORTAI };

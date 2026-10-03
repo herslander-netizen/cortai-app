@@ -417,18 +417,25 @@ function AgendamentoPublico() {
           onCancelar={() => cancelar.mutate()}
           onNovo={novoAgendamento}
           extras={
-            situacao === "confirmado" && confirmado.preferenciasToken && modoConversa ? (
-              <PreferenciasEmConversa
-                agendamentoId={confirmado.agendamentoId}
-                token={confirmado.preferenciasToken}
-                slug={slug}
-              />
-            ) : situacao === "confirmado" && confirmado.preferenciasToken ? (
-              <PreferenciasAposAgendamento
-                agendamentoId={confirmado.agendamentoId}
-                token={confirmado.preferenciasToken}
-                slug={slug}
-              />
+            situacao === "confirmado" ? (
+              <>
+                {confirmado.preferenciasToken ? (
+                  modoConversa ? (
+                    <PreferenciasEmConversa
+                      agendamentoId={confirmado.agendamentoId}
+                      token={confirmado.preferenciasToken}
+                      slug={slug}
+                    />
+                  ) : (
+                    <PreferenciasAposAgendamento
+                      agendamentoId={confirmado.agendamentoId}
+                      token={confirmado.preferenciasToken}
+                      slug={slug}
+                    />
+                  )
+                ) : null}
+                <TicketDaConfirmacao agendamentoId={confirmado.agendamentoId} slug={slug} />
+              </>
             ) : null
           }
         />
