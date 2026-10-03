@@ -46,3 +46,5 @@
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
 
+
+- Conexões sociais (Instagram/TikTok): tela /barbeiro/redes, tabela conexoes_sociais (tokens só via service_role; leitura do membro sem tokens), estado OAuth assinado com o segredo da plataforma; sem chaves de desenvolvedor, iniciarConexaoSocial cria conexão "simulada" — um fluxo só para demonstração e conexão real.

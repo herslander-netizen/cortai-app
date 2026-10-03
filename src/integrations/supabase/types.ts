@@ -1344,6 +1344,62 @@ export type Database = {
           },
         ]
       }
+      conexoes_sociais: {
+        Row: {
+          atualizado_em: string
+          avatar_url: string | null
+          conectado_por: string | null
+          conta_id_externo: string | null
+          conta_nome: string | null
+          criado_em: string
+          expira_em: string | null
+          id: string
+          plataforma: string
+          status: string
+          tenant_id: string
+          token_acesso: string | null
+          token_refresh: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          avatar_url?: string | null
+          conectado_por?: string | null
+          conta_id_externo?: string | null
+          conta_nome?: string | null
+          criado_em?: string
+          expira_em?: string | null
+          id?: string
+          plataforma: string
+          status?: string
+          tenant_id: string
+          token_acesso?: string | null
+          token_refresh?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          avatar_url?: string | null
+          conectado_por?: string | null
+          conta_id_externo?: string | null
+          conta_nome?: string | null
+          criado_em?: string
+          expira_em?: string | null
+          id?: string
+          plataforma?: string
+          status?: string
+          tenant_id?: string
+          token_acesso?: string | null
+          token_refresh?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conexoes_sociais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conexoes_whatsapp: {
         Row: {
           atualizado_em: string
