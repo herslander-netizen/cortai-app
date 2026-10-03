@@ -1,5 +1,5 @@
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
-import { FileText } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invalidarComandas, ROTULO_DA_ETAPA_EQUIPE } from "@/lib/comanda-ticket";
 import {
