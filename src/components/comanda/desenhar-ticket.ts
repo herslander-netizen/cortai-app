@@ -214,14 +214,42 @@ function desenhar(
   tracejado();
 
   // data e horário
-  const col = (x: number, r: string, v: string, icone: string) => {
+  const icone = (tipo: "data" | "hora" | "pessoa", cx: number, cy: number) => {
+    if (soMedir) return;
+    ctx.save();
+    ctx.strokeStyle = C.navy;
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    if (tipo === "data") {
+      ctx.roundRect(cx - 7, cy - 6, 14, 13, 2);
+      ctx.moveTo(cx - 7, cy - 1);
+      ctx.lineTo(cx + 7, cy - 1);
+      ctx.moveTo(cx - 3, cy - 9);
+      ctx.lineTo(cx - 3, cy - 5);
+      ctx.moveTo(cx + 3, cy - 9);
+      ctx.lineTo(cx + 3, cy - 5);
+    } else if (tipo === "hora") {
+      ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+      ctx.moveTo(cx, cy - 4);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx + 3, cy + 2);
+    } else {
+      ctx.arc(cx, cy - 3, 3.5, 0, Math.PI * 2);
+      ctx.moveTo(cx + 6, cy + 7);
+      ctx.arc(cx, cy + 7, 6, 0, Math.PI, true);
+    }
+    ctx.stroke();
+    ctx.restore();
+  };
+  const col = (x: number, r: string, v: string, tipo: "data" | "hora") => {
     caixa(x, y, 36, 36, 18, C.suave);
-    texto(icone, x + 18, y + 10, f(600, 14), C.navy, "center");
+    icone(tipo, x + 18, y + 18);
     rotulo(r, x + 46, y + 2);
     texto(v, x + 46, y + 17, f(600, 15), C.texto);
   };
-  col(PAD, "DATA", d.data, "▦");
-  col(PAD + larg / 2 + 6, "HORÁRIO", d.horario, "◷");
+  col(PAD, "DATA", d.data, "data");
+  col(PAD + larg / 2 + 6, "HORÁRIO", d.horario, "hora");
   y += 52;
 
   // cliente
@@ -231,7 +259,7 @@ function desenhar(
   const hCli = 24 + 16 + nomes.length * 19 + (tel ? 18 : 0);
   caixa(PAD, y, larg, hCli, 12, C.suave);
   caixa(PAD + 12, y + hCli / 2 - 18, 36, 36, 18, C.papel);
-  texto("●", PAD + 30, y + hCli / 2 - 9, f(600, 14), C.navy, "center");
+  icone("pessoa", PAD + 30, y + hCli / 2);
   let yc = y + 12;
   rotulo("CLIENTE", PAD + 60, yc);
   yc += 16;
