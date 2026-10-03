@@ -61,7 +61,8 @@ function builder(tabela: string) {
   b.then = (ok: (v: unknown) => unknown) => {
     const r = resolver();
     if (tabela === "agendamentos") return Promise.resolve({ data: [] }).then(ok);
-    if (tabela === "ofertas_da_fila" && ctx.op === "select") return Promise.resolve({ data: [] }).then(ok);
+    if (tabela === "ofertas_da_fila" && ctx.op === "select")
+      return Promise.resolve({ data: [] }).then(ok);
     return Promise.resolve(r).then(ok);
   };
   return b;
