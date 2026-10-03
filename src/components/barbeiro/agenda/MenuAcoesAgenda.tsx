@@ -1,4 +1,11 @@
-import { CalendarPlus, Clock3, Scissors, UserPlus, UserRoundPlus, type LucideIcon } from "lucide-react";
+import {
+  CalendarPlus,
+  Clock3,
+  Scissors,
+  UserPlus,
+  UserRoundPlus,
+  type LucideIcon,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
