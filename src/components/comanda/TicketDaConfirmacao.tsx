@@ -91,7 +91,7 @@ export function TicketDaConfirmacao({
             </p>
           ) : null}
           <div className="mt-3 grid gap-2">
-            <Button variant="outline" onClick={acoes.copiarPix}>
+            <Button variant="outline" onClick={() => void acoes.copiarPix()}>
               <Copy aria-hidden />
               Copiar chave Pix
             </Button>

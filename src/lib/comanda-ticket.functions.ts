@@ -188,7 +188,7 @@ export const informarPagamentoPix = createServerFn({ method: "POST" })
           : "Esta comanda não está aguardando pagamento.",
       );
     }
-    return { ok: true, status: res.status };
+    return { ok: true, status: res.status ?? "aguardando_confirmacao_pix" };
   });
 
 /** Comanda do agendamento para a equipe; garante a existência (fonte única no banco). */
