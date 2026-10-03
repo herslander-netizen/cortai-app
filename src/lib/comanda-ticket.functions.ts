@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -13,6 +14,19 @@ import {
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
+}
+
+/** Limite por IP para a leitura pública do ticket (mesmos contadores do webhook-guard). */
+async function limitarLeituraPublica() {
+  const { ipDaChamada, consumirLimite, BALDE_SEM_IP } = await import("@/lib/webhook-guard.server");
+  let ip: string | null = null;
+  try {
+    ip = ipDaChamada(getRequest());
+  } catch {
+    ip = null;
+  }
+  const ok = await consumirLimite(`pub:ticket|ip:${ip ?? BALDE_SEM_IP}`, ip ? 30 : 300);
+  if (!ok) throw new Error("Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.");
 }
 
 function dataHora(iso: string, fuso: string) {
