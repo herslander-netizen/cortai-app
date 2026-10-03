@@ -625,7 +625,10 @@ export function AgendaTimeline({
                 overflow: "visible",
                 transform: `translateY(${-deslocamentoPrevia}px)`,
               }
-            : undefined
+            : interativo && corteAnteriores > 0 && !mostrarAnteriores
+              ? // Recorta os horários escondidos sem virar área de rolagem (a página rola).
+                { overflowY: "clip" }
+              : undefined
         }
       >
         <div
