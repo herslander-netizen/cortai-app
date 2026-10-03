@@ -119,7 +119,7 @@ export function ChatHeader({
                   </a>
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem key={a.rotulo} className="min-h-12" onSelect={a.onSelect}>
+                <DropdownMenuItem key={a.rotulo} className="min-h-12" onSelect={() => a.onSelect?.()}>
                   {a.icone}
                   {a.rotulo}
                 </DropdownMenuItem>
