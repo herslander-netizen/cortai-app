@@ -451,6 +451,8 @@ export async function responderOferta(
       texto: `Essa vaga não está mais disponível. Quer marcar outro horário? ${await linkDoCortai(tenantId)}`,
     };
   }
+  // A confirmação do agendamento já avisou o cliente: nada de mensagem dupla.
+  if (r.confirmacaoEnviada) return { texto: "" };
   const fuso = await fusoDoTenant(tenantId);
   const { textoDaVagaMarcada } = await import("./modelos");
   return {
