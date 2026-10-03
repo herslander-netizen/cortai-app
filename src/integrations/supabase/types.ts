@@ -2222,6 +2222,44 @@ export type Database = {
           },
         ]
       }
+      eventos_funil: {
+        Row: {
+          criado_em: string
+          etapa: string
+          experiencia: string
+          fluxo: string | null
+          id: string
+          origem: string
+          tenant_id: string
+        }
+        Insert: {
+          criado_em?: string
+          etapa: string
+          experiencia: string
+          fluxo?: string | null
+          id?: string
+          origem?: string
+          tenant_id: string
+        }
+        Update: {
+          criado_em?: string
+          etapa?: string
+          experiencia?: string
+          fluxo?: string | null
+          id?: string
+          origem?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eventos_funil_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eventos_recebidos_de_ia: {
         Row: {
           criado_em: string

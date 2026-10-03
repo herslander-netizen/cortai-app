@@ -84,11 +84,13 @@ import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
+import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
 import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
+import { Route as ApiPublicCapaSlugRouteImport } from './routes/api/public/capa.$slug'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
@@ -473,6 +475,11 @@ const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
   path: '/api/public/alvo-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFunilRoute = ApiPublicFunilRouteImport.update({
+  id: '/api/public/funil',
+  path: '/api/public/funil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarbeiroClientesIndexRoute = BarbeiroClientesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -496,6 +503,11 @@ const ApiPublicAsaasVarreduraRoute = ApiPublicAsaasVarreduraRouteImport.update({
 const ApiPublicAsaasWebhookRoute = ApiPublicAsaasWebhookRouteImport.update({
   id: '/api/public/asaas/webhook',
   path: '/api/public/asaas/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCapaSlugRoute = ApiPublicCapaSlugRouteImport.update({
+  id: '/api/public/capa/$slug',
+  path: '/api/public/capa/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
@@ -609,11 +621,13 @@ export interface FileRoutesByFullPath {
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
+  '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
@@ -693,11 +707,13 @@ export interface FileRoutesByTo {
   '/barbeiro': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
+  '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
@@ -782,11 +798,13 @@ export interface FileRoutesById {
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
+  '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
@@ -872,11 +890,13 @@ export interface FileRouteTypes {
     | '/barbeiro/'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
+    | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
+    | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
@@ -956,11 +976,13 @@ export interface FileRouteTypes {
     | '/barbeiro'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
+    | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
+    | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
@@ -1044,11 +1066,13 @@ export interface FileRouteTypes {
     | '/barbeiro/'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
+    | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
+    | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
@@ -1086,9 +1110,11 @@ export interface RootRouteChildren {
   VagaTokenRoute: typeof VagaTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
+  ApiPublicFunilRoute: typeof ApiPublicFunilRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
   ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
+  ApiPublicCapaSlugRoute: typeof ApiPublicCapaSlugRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
@@ -1624,6 +1650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAlvoIaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/funil': {
+      id: '/api/public/funil'
+      path: '/api/public/funil'
+      fullPath: '/api/public/funil'
+      preLoaderRoute: typeof ApiPublicFunilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barbeiro/clientes/': {
       id: '/barbeiro/clientes/'
       path: '/'
@@ -1657,6 +1690,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/asaas/webhook'
       fullPath: '/api/public/asaas/webhook'
       preLoaderRoute: typeof ApiPublicAsaasWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/capa/$slug': {
+      id: '/api/public/capa/$slug'
+      path: '/api/public/capa/$slug'
+      fullPath: '/api/public/capa/$slug'
+      preLoaderRoute: typeof ApiPublicCapaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cortai/acoes': {
@@ -1867,9 +1907,11 @@ const rootRouteChildren: RootRouteChildren = {
   VagaTokenRoute: VagaTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
+  ApiPublicFunilRoute: ApiPublicFunilRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,
   ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
+  ApiPublicCapaSlugRoute: ApiPublicCapaSlugRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,

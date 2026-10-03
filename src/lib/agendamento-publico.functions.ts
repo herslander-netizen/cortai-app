@@ -575,42 +575,74 @@ export const situacaoComoConvidado = createServerFn({ method: "POST" })
 /** Nome, descrição e capa da barbearia para a prévia do link (WhatsApp, Instagram). */
 export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
-  .handler(
-    async ({
-      data,
-    }): Promise<{ nome: string; descricao: string | null; imagem: string | null } | null> => {
-      try {
-        const db = await admin();
-        const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
-        const resolvido = await resolverTenantPorSlug(db, data.slug);
-        if (!resolvido) return null;
-        const { data: t } = await db
-          .from("tenants")
-          .select("nome, descricao, texto_boas_vindas, capa_url, logo_url")
-          .eq("id", resolvido.tenant_id)
-          .eq("ativo", true)
-          .maybeSingle();
-        if (!t) return null;
-        const caminho = (t.capa_url || t.logo_url) as string | null;
-        let imagem: string | null = null;
-        if (caminho?.startsWith("https://")) imagem = caminho;
-        else if (caminho) {
-          const { data: url } = await db.storage
-            .from("tenant-logos")
-            .createSignedUrl(caminho, 60 * 60 * 24 * 30);
-          imagem = url?.signedUrl ?? null;
-        }
-        return {
-          nome: t.nome as string,
-          descricao: (t.descricao || t.texto_boas_vindas || null) as string | null,
-          imagem,
-        };
-      } catch (erro) {
-        console.error("[getPreviaDaBarbearia] falha ao montar a prévia", data.slug, erro);
-        return null;
-      }
-    },
-  );
+  .handler(async ({ data }): Promise<PreviaPublica | null> => {
+    try {
+      const db = await admin();
+      const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
+      const resolvido = await resolverTenantPorSlug(db, data.slug);
+      if (!resolvido) return null;
+      const { data: t } = await db
+        .from("tenants")
+        .select(
+          "slug, nome, descricao, texto_boas_vindas, capa_url, logo_url, segmento, endereco, telefone, whatsapp, instagram",
+        )
+        .eq("id", resolvido.tenant_id)
+        .eq("ativo", true)
+        .maybeSingle();
+      if (!t) return null;
+      const [{ data: horarios }, { data: servicos }] = await Promise.all([
+        db
+          .from("horarios_de_funcionamento")
+          .select("dia_semana, fechado, abre, fecha")
+          .eq("tenant_id", resolvido.tenant_id)
+          .order("dia_semana"),
+        db
+          .from("servicos")
+          .select("preco_centavos")
+          .eq("tenant_id", resolvido.tenant_id)
+          .eq("ativo", true),
+      ]);
+      const slugAtual = (t.slug as string) || data.slug;
+      const temImagem = Boolean(t.capa_url || t.logo_url);
+      const logo =
+        typeof t.logo_url === "string" && t.logo_url.startsWith("https://") ? t.logo_url : null;
+      return {
+        slug: slugAtual,
+        nome: t.nome as string,
+        descricao: (t.descricao || t.texto_boas_vindas || null) as string | null,
+        // Endereço estável: redireciona para uma URL assinada nova a cada acesso.
+        imagem: temImagem
+          ? `https://cortai.dev/api/public/capa/${slugAtual}`
+          : "https://cortai.dev/capa-social-cortai.jpg",
+        logo,
+        segmento: (t.segmento as string | null) ?? null,
+        endereco: (t.endereco as string | null) ?? null,
+        telefone: (t.telefone as string | null) ?? null,
+        whatsapp: (t.whatsapp as string | null) ?? null,
+        instagram: (t.instagram as string | null) ?? null,
+        horarios: horarios ?? [],
+        precos: (servicos ?? []).map((s) => s.preco_centavos),
+      };
+    } catch (erro) {
+      console.error("[getPreviaDaBarbearia] falha ao montar a prévia", data.slug, erro);
+      return null;
+    }
+  });
+
+export type PreviaPublica = {
+  slug: string;
+  nome: string;
+  descricao: string | null;
+  imagem: string | null;
+  logo: string | null;
+  segmento: string | null;
+  endereco: string | null;
+  telefone: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
+  precos: number[];
+};
 
 /** Cancelamento sem conta: só vale com o mesmo WhatsApp que marcou. */
 export const cancelarComoConvidado = createServerFn({ method: "POST" })
