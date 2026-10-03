@@ -6,7 +6,7 @@ export function renderErrorPage(): string {
     <title>This page didn't load</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      :root { --background: #021a46; --foreground: #f7faff; --primary: #087cf0; --primary-foreground: #ffffff; --surface: #08275a; --border: #174478; --muted: #a9bad3; }
+      :root { --background: #1a1f1c; --foreground: #e3eae6; --primary: #087cf0; --primary-foreground: #ffffff; --surface: #3f4543; --border: #3a413e; --muted: #a9b3ae; }
       body { font: 15px/1.5 Manrope, system-ui, sans-serif; background: var(--background); color: var(--foreground); display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
       .card { max-width: 28rem; width: 100%; text-align: center; padding: 2rem; }
       h1 { font-family: Manrope, system-ui, sans-serif; font-size: 1.5rem; font-weight: 800; margin: 0 0 0.5rem; }

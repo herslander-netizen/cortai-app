@@ -14,6 +14,8 @@ import { AgoraProximos } from "@/components/barbeiro/agenda/AgoraProximos";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
+import { FaixaCalendario } from "@/components/barbeiro/agenda/FaixaCalendario";
+import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
 import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
 import {
   AgendaCarregando,
@@ -85,6 +87,8 @@ import {
   salvarModoDiscreto,
   salvarPreferenciaAgenda,
   ultimaVisaoCompleta,
+  dicaDaAgendaVista,
+  marcarDicaDaAgendaVista,
 } from "@/components/barbeiro/agenda/preferencias";
 import { PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
@@ -526,6 +530,14 @@ export function AgendaOperacional() {
     return Array.from({ length: 7 }, (_, i) => somarDias(dia, i - dow));
   }, [dia]);
 
+  const [calAberto, setCalAberto] = useState(false);
+  const [mesCal, setMesCal] = useState(() => mesDoDia(dia));
+  const [mostrarDica, setMostrarDica] = useState(false);
+  useEffect(() => {
+    if (dicaDaAgendaVista()) return;
+    setMostrarDica(true);
+    marcarDicaDaAgendaVista();
+  }, []);
   const ativos = itens.filter((item) => item.status === "na_cadeira");
   const itemSelecionado = todosItens.find((item) => item.id === selecionado) ?? null;
 
@@ -952,7 +964,7 @@ export function AgendaOperacional() {
   const focoAtivo = modoFoco;
   if (focoAtivo) {
     return (
-      <Screen title="Agenda" hideHeader wide>
+      <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
         {faixa}
         <AgendaFocoMobile
           fuso={fuso}
@@ -1015,7 +1027,7 @@ export function AgendaOperacional() {
   const diaSemAgenda = !carregandoInicial && !erroInicial && itens.length === 0 && !colunas;
 
   return (
-    <Screen title="Agenda" hideHeader wide>
+    <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
       <div
         key={dia}
         className="agenda-operacional agenda-troca-dia pb-32"
@@ -1041,6 +1053,12 @@ export function AgendaOperacional() {
           onTeclasVisualizacao={teclasAbas}
           discreto={modoDiscreto}
           onDiscreto={alternarModoDiscreto}
+          tituloCelular={tituloDoMes(calAberto ? mesCal : dia)}
+          calendarioAberto={calAberto}
+          onCalendario={() => {
+            setMesCal(mesDoDia(dia));
+            setCalAberto((v) => !v);
+          }}
           resumo={
             agenda.data ? (
               <ResumoDia
@@ -1059,6 +1077,18 @@ export function AgendaOperacional() {
             )
           }
         >
+          {celular ? (
+            <FaixaCalendario
+              dia={dia}
+              hoje={hojeNoFuso(fuso)}
+              onDia={mudarDia}
+              profissionalId={profFiltro}
+              expandido={calAberto}
+              onExpandido={setCalAberto}
+              mesVisivel={mesCal}
+              onMesVisivel={setMesCal}
+            />
+          ) : null}
           {profissionais.length > 1 ? (
             <div className="agenda-chips mt-2" role="group" aria-label="Profissional">
               <Button
@@ -1139,6 +1169,12 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
+        {celular && ehHoje && diaSemAgenda ? (
+          <div className="mb-3">
+            <PrimeirosPassos />
+          </div>
+        ) : null}
+
         <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
             <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
@@ -1155,7 +1191,7 @@ export function AgendaOperacional() {
                 alterarVisualizacao("timeline");
               }}
             />
-          ) : diaSemAgenda ? (
+          ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
             <AgendaVazia
               titulo="Agenda livre"
               texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
@@ -1223,6 +1259,7 @@ export function AgendaOperacional() {
               destaques={novos}
               mostrarProfissional={!profFiltro && profissionais.length > 1}
               discreto={modoDiscreto}
+              diaCompleto={celular}
             />
           ) : (
             <ListaAgenda
@@ -1246,9 +1283,9 @@ export function AgendaOperacional() {
           )}
         </div>
 
-        {visualizacao === "timeline" && agenda.data ? (
-          <p className="mt-2 border-t border-line pt-2 text-center text-xs text-mute" role="note">
-            Toque em um horário livre para agendar · Segure e arraste um atendimento para remarcar
+        {visualizacao === "timeline" && agenda.data && mostrarDica ? (
+          <p className="mt-2 text-center text-xs text-mute" role="note">
+            Segure para agendar · Segure e arraste para mover
           </p>
         ) : null}
 

@@ -27,6 +27,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { dataEditorial, somarDias } from "./tempo";
+import { tituloDoMes } from "./calendario";
 
 export type VisualizacaoAgenda = "lista" | "timeline" | "semana";
 
@@ -57,6 +58,9 @@ export function CabecalhoAgenda({
   onTeclasVisualizacao,
   discreto,
   onDiscreto,
+  tituloCelular,
+  calendarioAberto = false,
+  onCalendario,
   children,
 }: {
   dia: string;
@@ -78,6 +82,10 @@ export function CabecalhoAgenda({
   onTeclasVisualizacao: (e: KeyboardEvent<HTMLDivElement>) => void;
   discreto: boolean;
   onDiscreto: () => void;
+  /** Celular: título "Mês Ano" (acompanha o mês aberto). */
+  tituloCelular?: string;
+  calendarioAberto?: boolean;
+  onCalendario?: () => void;
   children?: ReactNode;
 }) {
   const [calendario, setCalendario] = useState(false);
@@ -188,6 +196,21 @@ export function CabecalhoAgenda({
       </DropdownMenu>
     </>
   );
+  const topoCelular = (
+    <>
+      <h2 className="agenda-titulo-mes">{tituloCelular ?? tituloDoMes(dia)}</h2>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-12"
+        aria-label={calendarioAberto ? "Recolher mês" : "Abrir mês"}
+        aria-expanded={calendarioAberto}
+        onClick={onCalendario}
+      >
+        <CalendarDays />
+      </Button>
+    </>
+  );
   const parar = (e: { stopPropagation: () => void }) => e.stopPropagation();
   return (
     <>
@@ -201,7 +224,7 @@ export function CabecalhoAgenda({
               onTouchEnd={parar}
               onTouchCancel={parar}
             >
-              {data}
+              {topoCelular}
             </div>,
             topo,
           )

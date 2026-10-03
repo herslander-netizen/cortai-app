@@ -45,3 +45,5 @@
 - Push só da equipe, disparado pelo gatilho do sino; regras em `lib/push/regras.ts`, envio WebCrypto, VAPID em `chaves_internas` — um ponto de decisão.
 - Funil público anônimo: só `/api/public/funil` grava em `eventos_funil` (sem dado pessoal), regras puras em `src/lib/funil.ts` — uma fonte para origem/experiência.
 - Recuperação automática de vagas decidida só em `ofertarVaga` (interruptor `tenants.lista_espera_automatica`, prazo/ordem em `fila-compatibilidade.ts`); a varredura existente reaproveita o mesmo ponto — um lugar só para ligar/desligar.
+
+- Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.

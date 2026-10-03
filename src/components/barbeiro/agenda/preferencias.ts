@@ -131,3 +131,14 @@ export function contextoParaRestaurar(
   if (idade < 0 || idade >= VALIDADE_CONTEXTO_MS) return null;
   return contexto;
 }
+
+const CHAVE_DICA = "cortai-agenda-dica-vista";
+
+/** Dica "Segure para agendar" aparece uma única vez por aparelho. */
+export function dicaDaAgendaVista(armazenamento?: Armazenamento) {
+  return ler(CHAVE_DICA, armazenamento) === "1";
+}
+
+export function marcarDicaDaAgendaVista(armazenamento?: Armazenamento) {
+  salvar(CHAVE_DICA, "1", armazenamento);
+}

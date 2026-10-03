@@ -113,7 +113,8 @@ const deltaL = (a: Rgb, b: Rgb) => Math.abs(oklab(a)[0] - oklab(b)[0]);
 describe.each(IDENTIDADES)("identidade %s", (identidade) => {
   describe.each(["escuro", "claro"] as const)("tema %s", (tema) => {
     const t = tokens(identidade, tema);
-    const minimoL = tema === "escuro" ? 0.07 : 0.05;
+    // Claro 3.0: paleta suave definida pelo dono; a borda (--linha) completa a separação.
+    const minimoL = tema === "escuro" ? 0.07 : 0.03;
 
     it("cartão se separa do fundo (app e menu)", () => {
       expect(deltaL(t.ink2, t.ink)).toBeGreaterThanOrEqual(minimoL);

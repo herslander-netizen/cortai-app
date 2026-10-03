@@ -1,52 +1,62 @@
 import { useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
 
-import { APP_VERSION, VERSAO_ATUAL_INFO } from "@/lib/versao";
+import { Button } from "@/components/ui/button";
 import { useModoFoco } from "@/lib/modo-foco";
+import {
+  lerNovidadesVista,
+  marcarNovidadesVista,
+  NOVIDADES,
+  TITULO_DAS_NOVIDADES,
+  VERSAO_DAS_NOVIDADES,
+} from "@/lib/novidades";
 
-const CHAVE = "cortai-novidades-vistas";
+/** Abre a folha de novidades de qualquer lugar (ex.: aviso de versão). */
+export const EVENTO_ABRIR_NOVIDADES = "cortai:abrir-novidades";
 
-/**
- * Apresentação curta das novidades de uma versão importante.
- * Aparece uma única vez por versão, só dentro das áreas logadas, e nunca
- * interrompe o funcionamento do app — dá para fechar a qualquer momento.
- */
+function instalacaoNova() {
+  try {
+    const ls = window.localStorage;
+    return (
+      ls.getItem("cortai-novidades-vistas") === null &&
+      !Object.keys(ls).some((k) => k.startsWith("cortai:guia:v1:"))
+    );
+  } catch {
+    return true;
+  }
+}
+
+/** Folha "Novidades do Cortaí 3.0": uma vez por versão, nunca no Modo Foco nem sobre outra janela. */
 export function NovidadesDaVersao() {
   const foco = useModoFoco();
   const caminho = useRouterState({ select: (s) => s.location.pathname });
   const [aberto, setAberto] = useState(false);
-
-  // Sem popup na operação da equipe: a agenda nunca é interrompida.
-  const areaLogada = caminho.startsWith("/app") || caminho.startsWith("/admin");
+  const areaLogada = ["/app", "/admin", "/barbeiro", "/painel"].some((p) => caminho.startsWith(p));
 
   useEffect(() => {
-    if (foco || !areaLogada || VERSAO_ATUAL_INFO.tipo !== "major") return;
-    try {
-      const vista = localStorage.getItem(CHAVE);
-      if (vista === APP_VERSION) return;
-      // Primeiro acesso neste aparelho: não há "novidade" para quem acabou de chegar.
-      // Registra a versão em silêncio e deixa só as dicas de boas-vindas.
-      const jaUsou =
-        vista !== null || Object.keys(localStorage).some((k) => k.startsWith("cortai:guia:v1:"));
-      if (!jaUsou) {
-        localStorage.setItem(CHAVE, APP_VERSION);
-        return;
-      }
-    } catch {
+    const abrir = () => setAberto(true);
+    window.addEventListener(EVENTO_ABRIR_NOVIDADES, abrir);
+    return () => window.removeEventListener(EVENTO_ABRIR_NOVIDADES, abrir);
+  }, []);
+
+  useEffect(() => {
+    if (foco || !areaLogada) return;
+    if (lerNovidadesVista() === VERSAO_DAS_NOVIDADES) return;
+    if (instalacaoNova()) {
+      marcarNovidadesVista();
       return;
     }
-    const timer = window.setTimeout(() => setAberto(true), 600);
+    const timer = window.setTimeout(() => {
+      // Nunca por cima de um agendamento ou outra janela em andamento.
+      if (document.querySelector('[role="dialog"],[role="alertdialog"]')) return;
+      setAberto(true);
+    }, 800);
     return () => window.clearTimeout(timer);
   }, [areaLogada, foco]);
 
   function fechar() {
     setAberto(false);
-    try {
-      localStorage.setItem(CHAVE, APP_VERSION);
-    } catch {
-      /* navegador sem armazenamento: só não registra a leitura */
-    }
+    marcarNovidadesVista();
   }
 
   useEffect(() => {
@@ -58,46 +68,27 @@ export function NovidadesDaVersao() {
 
   if (!aberto || foco) return null;
 
-  const destaques = [...VERSAO_ATUAL_INFO.funcionalidades, ...VERSAO_ATUAL_INFO.visual].slice(0, 5);
-
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/80 p-4 sm:items-center">
       <div
         role="dialog"
-        aria-label="Novidades do Cortaí"
-        className="w-full max-w-md surface p-6 shadow-xl"
+        aria-modal="true"
+        aria-labelledby="titulo-novidades"
+        className="w-full max-w-md rounded-[20px] border border-line bg-popover p-6"
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.2em] text-rosa">NOVIDADES</p>
-            <h2 className="mt-2 text-2xl font-semibold text-paper">
-              {VERSAO_ATUAL_INFO.titulo} chegou.
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={fechar}
-            aria-label="Fechar novidades"
-            className="rounded-full p-2 text-mute hover:text-paper"
-          >
-            <X size={18} />
-          </button>
-        </div>
-        <p className="mt-3 text-sm leading-6 text-mute">{VERSAO_ATUAL_INFO.descricao}</p>
+        <h2 id="titulo-novidades" className="text-xl font-semibold text-paper">
+          {TITULO_DAS_NOVIDADES}
+        </h2>
         <ul className="mt-4 space-y-2">
-          {destaques.map((linha) => (
+          {NOVIDADES.map((linha) => (
             <li key={linha} className="text-sm leading-6 text-mute">
               • {linha}
             </li>
           ))}
         </ul>
-        <button
-          type="button"
-          onClick={fechar}
-          className="mt-6 h-11 w-full rounded-xl bg-gold text-sm font-semibold text-ink"
-        >
-          Explorar o Cortaí {APP_VERSION.split(".").slice(0, 2).join(".")}
-        </button>
+        <Button type="button" onClick={fechar} className="mt-6 min-h-12 w-full">
+          Entendi
+        </Button>
       </div>
     </div>
   );
