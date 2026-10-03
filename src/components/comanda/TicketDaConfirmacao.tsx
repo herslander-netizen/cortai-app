@@ -7,16 +7,10 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-} from "@/components/ui/sheet";
-import {
   getTicketPublicoDoAgendamento,
   informarPagamentoPix,
 } from "@/lib/comanda-ticket.functions";
-import {
-  invalidarComandas,
-  ROTULO_DA_ETAPA_CLIENTE,
-  ROTULO_DO_ESTADO,
-} from "@/lib/comanda-ticket";
+import { invalidarComandas, ROTULO_DA_ETAPA_CLIENTE, ROTULO_DO_ESTADO } from "@/lib/comanda-ticket";
 import { brl } from "@/lib/format";
 import { useAcoesDoTicket, IconeWhatsApp } from "./FolhaDoTicket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
@@ -69,9 +63,7 @@ export function TicketDaConfirmacao({
       <p className="flex items-center gap-2 text-sm font-semibold text-paper">
         <ReceiptText size={16} className="text-gold" aria-hidden />
         Comanda #{ticket.codigo}
-        <span className="ml-auto text-xs font-normal text-mute">
-          {rotuloEstado}
-        </span>
+        <span className="ml-auto text-xs font-normal text-mute">{rotuloEstado}</span>
       </p>
       {mostrarPix ? (
         <div className="mt-3 rounded-[var(--raio-bloco)] border border-line p-3">
@@ -136,10 +128,7 @@ export function TicketDaConfirmacao({
 
       {aberto ? (
         <div className="mt-4 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-4 py-6">
-          <TicketComanda
-            ticket={ticket}
-            onCopiarCodigo={acoes.copiarCodigo}
-          />
+          <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
           <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
             <Button
               size="lg"

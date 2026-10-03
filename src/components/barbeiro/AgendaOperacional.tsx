@@ -1057,7 +1057,8 @@ export function AgendaOperacional() {
   }
 
   // Celular: uma timeline só; trocar profissional apenas filtra. Colunas só em telas largas.
-  const colunas = !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
+  const colunas =
+    !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
   const diaSemAgenda =
     !carregandoInicial &&
     !erroInicial &&
@@ -1143,7 +1144,9 @@ export function AgendaOperacional() {
         {faixa}
 
         {ehHoje && visualizacao === "timeline" && ativos.length === 0 ? (
-          <p className="mb-2 text-xs font-semibold text-mute" role="status">Agora · Livre</p>
+          <p className="mb-2 text-xs font-semibold text-mute" role="status">
+            Agora · Livre
+          </p>
         ) : null}
 
         {sugestaoFila && chegada.length > 0 ? (
@@ -1211,10 +1214,19 @@ export function AgendaOperacional() {
               {ehHoje ? <PrimeirosPassos /> : null}
             </AgendaVazia>
           ) : colunas ? (
-            <div className="agenda-colunas" style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))` }}>
+            <div
+              className="agenda-colunas"
+              style={{
+                gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))`,
+              }}
+            >
               {profissionais.map((p) => (
                 <section key={p.id} className="min-w-0" aria-label={p.nome}>
-                  <Button variant="ghost" className="agenda-coluna-titulo" onClick={() => setProfFiltro(p.id)}>
+                  <Button
+                    variant="ghost"
+                    className="agenda-coluna-titulo"
+                    onClick={() => setProfFiltro(p.id)}
+                  >
                     {p.nome}
                   </Button>
                   <AgendaTimeline

@@ -135,7 +135,11 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
                 <Download aria-hidden />
                 {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
               </Button>
-              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}>
+              <Button
+                variant="secondary"
+                className="h-12 rounded-full"
+                onClick={acoes.copiarCodigo}
+              >
                 <Copy aria-hidden />
                 Copiar código
               </Button>

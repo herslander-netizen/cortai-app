@@ -512,7 +512,9 @@ export function FechamentoComanda({
             <StatusBadge
               status={pixInformado ? "pendente" : "aguardando_pagamento"}
               label={
-                ROTULO_DA_ETAPA_EQUIPE[pixInformado ? "pagamento_informado" : "aguardando_pagamento"]
+                ROTULO_DA_ETAPA_EQUIPE[
+                  pixInformado ? "pagamento_informado" : "aguardando_pagamento"
+                ]
               }
             />
             <h3 className="mt-2 text-lg font-bold text-paper">
@@ -577,8 +579,8 @@ export function FechamentoComanda({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Confirmar recebimento?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará
-                    a comanda.
+                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará a
+                    comanda.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

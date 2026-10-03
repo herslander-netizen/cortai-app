@@ -32,8 +32,7 @@ export function VerTicketDoAgendamento({
       if (r.comandaId) {
         if (onAbrir) onAbrir(r.comandaId);
         else setComandaId(r.comandaId);
-      }
-      else aviso.info("Esse agendamento já foi encerrado sem comanda.");
+      } else aviso.info("Esse agendamento já foi encerrado sem comanda.");
     } catch {
       aviso.erro("Não foi possível abrir a comanda. Tente de novo.");
     } finally {
