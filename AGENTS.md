@@ -30,7 +30,7 @@
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
-- Movimento: escala única de 120/200/280 ms; só transform/opacity, cascata até 6 itens e redução de movimento global — evita peso e inconsistência.
+- Movimento: escala 120/200/280 ms, só transform/opacity, cascata até 6 itens, redução de movimento global.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
 - WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
@@ -47,3 +47,4 @@
 - Recuperação automática de vagas decidida só em `ofertarVaga` (interruptor `tenants.lista_espera_automatica`, prazo/ordem em `fila-compatibilidade.ts`); a varredura existente reaproveita o mesmo ponto — um lugar só para ligar/desligar.
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
+- Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
