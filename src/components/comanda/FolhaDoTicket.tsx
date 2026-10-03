@@ -65,8 +65,10 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
         baixarArquivo(f);
         if (tipo === "whatsapp") {
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
+          const dig = (ticket.cliente.telefone ?? "").replace(/\D/g, "");
+          const numero = dig.length === 10 || dig.length === 11 ? `55${dig}` : dig;
           window.open(
-            `https://wa.me/?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
+            `https://wa.me/${numero}?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
             "_blank",
             "noopener",
           );

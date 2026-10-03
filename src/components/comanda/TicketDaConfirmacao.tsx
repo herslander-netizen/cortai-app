@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Copy, Home, ReceiptText } from "lucide-react";
+import { Copy, Download, Home, ReceiptText } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -92,6 +92,21 @@ export function TicketDaConfirmacao({
               <IconeWhatsApp />
               {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
             </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                className="h-12 rounded-full"
+                onClick={acoes.baixar}
+                disabled={Boolean(acoes.gerando)}
+              >
+                <Download aria-hidden />
+                {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
+              </Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}>
+                <Copy aria-hidden />
+                Copiar código
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
