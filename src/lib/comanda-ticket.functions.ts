@@ -46,7 +46,12 @@ export const getTicketComanda = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     const db = await admin();
     const [{ data: c }, { data: itens }, { data: tenant }, { data: config }] = await Promise.all([
-      db.from("comandas").select(SELECAO).eq("id", data.comandaId).eq("tenant_id", tenantId).maybeSingle(),
+      db
+        .from("comandas")
+        .select(SELECAO)
+        .eq("id", data.comandaId)
+        .eq("tenant_id", tenantId)
+        .maybeSingle(),
       db
         .from("comanda_itens")
         .select("tipo, descricao, quantidade, valor_total_centavos")
@@ -119,7 +124,11 @@ export const buscarComandas = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const db = await admin();
-    const { data: tenant } = await db.from("tenants").select("fuso").eq("id", tenantId).maybeSingle();
+    const { data: tenant } = await db
+      .from("tenants")
+      .select("fuso")
+      .eq("id", tenantId)
+      .maybeSingle();
     const fuso = tenant?.fuso || "America/Sao_Paulo";
     let q = db.from("comandas").select(SELECAO).eq("tenant_id", tenantId);
     const termo = data.termo;
@@ -129,7 +138,9 @@ export const buscarComandas = createServerFn({ method: "GET" })
       const digitos = termo.replace(/\D/g, "");
       const seguro = termo.replace(/[%,()]/g, " ");
       const filtro =
-        digitos.length >= 4 ? `nome.ilike.%${seguro}%,telefone.ilike.%${digitos}%` : `nome.ilike.%${seguro}%`;
+        digitos.length >= 4
+          ? `nome.ilike.%${seguro}%,telefone.ilike.%${digitos}%`
+          : `nome.ilike.%${seguro}%`;
       const { data: clientes } = await db
         .from("clientes")
         .select("id")

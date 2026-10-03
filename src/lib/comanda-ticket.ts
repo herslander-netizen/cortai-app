@@ -100,7 +100,9 @@ export function barrasDoCodigo(codigo: string): Barra[] {
   if (d.length % 2) d = `0${d}`;
   const out: Barra[] = [];
   const add = (padrao: string, inicioBarra = true) =>
-    [...padrao].forEach((c, i) => out.push({ barra: inicioBarra ? i % 2 === 0 : i % 2 === 1, larga: c === "w" }));
+    [...padrao].forEach((c, i) =>
+      out.push({ barra: inicioBarra ? i % 2 === 0 : i % 2 === 1, larga: c === "w" }),
+    );
   add("nnnn");
   for (let i = 0; i < d.length; i += 2) {
     const a = ITF[d[i]!]!;

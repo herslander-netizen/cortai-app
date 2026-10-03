@@ -44,7 +44,10 @@ export function BuscaDeComandas() {
       <h2 className="text-sm font-semibold text-paper">Comandas</h2>
       <label className="relative mt-3 block">
         <span className="sr-only">Pesquisar comanda</span>
-        <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-mute" aria-hidden />
+        <Search
+          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-mute"
+          aria-hidden
+        />
         <input
           className="field-control pl-11"
           type="search"
@@ -69,7 +72,9 @@ export function BuscaDeComandas() {
       </div>
       <ul className="mt-3 grid gap-1">
         {q.isLoading ? <li className="py-4 text-sm text-mute">Buscando…</li> : null}
-        {q.isError ? <li className="py-4 text-sm text-mute">Não foi possível buscar agora.</li> : null}
+        {q.isError ? (
+          <li className="py-4 text-sm text-mute">Não foi possível buscar agora.</li>
+        ) : null}
         {q.data && !q.data.length ? (
           <li className="py-6 text-center text-sm text-mute">Nenhuma comanda encontrada.</li>
         ) : null}
@@ -86,10 +91,13 @@ export function BuscaDeComandas() {
                   #{c.codigo} · {c.quando}
                 </span>
                 <span className="block text-xs text-mute">
-                  {rotuloDaForma(c.forma)} · <span className={COR[c.estado]}>{ROTULO_DO_ESTADO[c.estado]}</span>
+                  {rotuloDaForma(c.forma)} ·{" "}
+                  <span className={COR[c.estado]}>{ROTULO_DO_ESTADO[c.estado]}</span>
                 </span>
               </span>
-              <span className="text-sm font-semibold tabular-nums text-paper">{brl(c.totalCentavos)}</span>
+              <span className="text-sm font-semibold tabular-nums text-paper">
+                {brl(c.totalCentavos)}
+              </span>
               <ChevronRight className="size-4 text-mute" aria-hidden />
             </button>
           </li>

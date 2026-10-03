@@ -44,8 +44,11 @@ function quebrar(ctx: CanvasRenderingContext2D, texto: string, largura: number) 
   return linhas;
 }
 
-export async function desenharTicket(d: DadosDoTicket, simboloUrl: string): Promise<HTMLCanvasElement> {
-  const C = {
+export async function desenharTicket(
+  d: DadosDoTicket,
+  simboloUrl: string,
+): Promise<HTMLCanvasElement> {
+  const C: Cores = {
     fundo: cor("--ticket-fundo", "#06172b"),
     papel: cor("--ticket-papel", "#fffdf9"),
     texto: cor("--ticket-texto", "#0a1830"),
@@ -107,7 +110,21 @@ export async function desenharTicket(d: DadosDoTicket, simboloUrl: string): Prom
   return canvas;
 }
 
-type Cores = Record<string, string>;
+type Cores = {
+  fundo: string;
+  papel: string;
+  texto: string;
+  mute: string;
+  suave: string;
+  linha: string;
+  total: string;
+  navy: string;
+  rosa: string;
+  pix: string;
+  pago: string;
+  pendente: string;
+  cancelado: string;
+};
 
 function desenhar(
   ctx: CanvasRenderingContext2D,
@@ -122,7 +139,14 @@ function desenhar(
   const larg = W - PAD * 2;
   let y = 36;
   ctx.textBaseline = "top";
-  const texto = (t: string, x: number, yy: number, font: string, c: string, align: CanvasTextAlign = "left") => {
+  const texto = (
+    t: string,
+    x: number,
+    yy: number,
+    font: string,
+    c: string,
+    align: CanvasTextAlign = "left",
+  ) => {
     if (soMedir) return;
     ctx.font = font;
     ctx.fillStyle = c;
@@ -139,7 +163,7 @@ function desenhar(
   const tracejado = () => {
     y += 16;
     if (!soMedir) {
-      ctx.strokeStyle = C.linha!;
+      ctx.strokeStyle = C.linha;
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
@@ -151,7 +175,7 @@ function desenhar(
     y += 18;
   };
   const rotulo = (t: string, x: number, yy: number, align: CanvasTextAlign = "left") =>
-    texto(t.split("").join(String.fromCharCode(8202)), x, yy, f(600, 11), C.mute!, align);
+    texto(t.split("").join(String.fromCharCode(8202)), x, yy, f(600, 11), C.mute, align);
 
   // cabeçalho
   if (logo) {
@@ -161,7 +185,13 @@ function desenhar(
       ctx.roundRect(W / 2 - 32, y, 64, 64, 16);
       ctx.clip();
       const e = Math.max(64 / logo.width, 64 / logo.height);
-      ctx.drawImage(logo, W / 2 - (logo.width * e) / 2, y + 32 - (logo.height * e) / 2, logo.width * e, logo.height * e);
+      ctx.drawImage(
+        logo,
+        W / 2 - (logo.width * e) / 2,
+        y + 32 - (logo.height * e) / 2,
+        logo.width * e,
+        logo.height * e,
+      );
       ctx.restore();
     }
     y += 72;
@@ -169,26 +199,26 @@ function desenhar(
   if (d.negocio.nome) {
     ctx.font = f(700, logo ? 18 : 22);
     for (const l of quebrar(ctx, d.negocio.nome, larg).slice(0, 2)) {
-      texto(l, W / 2, y, f(700, logo ? 18 : 22), C.navy!, "center");
+      texto(l, W / 2, y, f(700, logo ? 18 : 22), C.navy, "center");
       y += logo ? 22 : 27;
     }
   }
   if (!logo && !d.negocio.nome) {
     if (simbolo && !soMedir) ctx.drawImage(simbolo, W / 2 - 60, y, 40, 40);
-    texto("Cortaí", W / 2 + 22, y + 8, f(700, 22), C.navy!, "center");
+    texto("Cortaí", W / 2 + 22, y + 8, f(700, 22), C.navy, "center");
     y += 44;
   }
   y += 10;
-  texto("C  O  M  A  N  D  A", W / 2, y, f(600, 13), C.mute!, "center");
+  texto("C  O  M  A  N  D  A", W / 2, y, f(600, 13), C.mute, "center");
   y += 16;
   tracejado();
 
   // data e horário
   const col = (x: number, r: string, v: string, icone: string) => {
-    caixa(x, y, 36, 36, 18, C.suave!);
-    texto(icone, x + 18, y + 10, f(600, 14), C.navy!, "center");
+    caixa(x, y, 36, 36, 18, C.suave);
+    texto(icone, x + 18, y + 10, f(600, 14), C.navy, "center");
     rotulo(r, x + 46, y + 2);
-    texto(v, x + 46, y + 17, f(600, 15), C.texto!);
+    texto(v, x + 46, y + 17, f(600, 15), C.texto);
   };
   col(PAD, "DATA", d.data, "▦");
   col(PAD + larg / 2 + 6, "HORÁRIO", d.horario, "◷");
@@ -199,17 +229,17 @@ function desenhar(
   ctx.font = f(600, 15);
   const nomes = quebrar(ctx, d.cliente.nome, larg - 70).slice(0, 2);
   const hCli = 24 + 16 + nomes.length * 19 + (tel ? 18 : 0);
-  caixa(PAD, y, larg, hCli, 12, C.suave!);
-  caixa(PAD + 12, y + hCli / 2 - 18, 36, 36, 18, C.papel!);
-  texto("●", PAD + 30, y + hCli / 2 - 9, f(600, 14), C.navy!, "center");
+  caixa(PAD, y, larg, hCli, 12, C.suave);
+  caixa(PAD + 12, y + hCli / 2 - 18, 36, 36, 18, C.papel);
+  texto("●", PAD + 30, y + hCli / 2 - 9, f(600, 14), C.navy, "center");
   let yc = y + 12;
   rotulo("CLIENTE", PAD + 60, yc);
   yc += 16;
   for (const n of nomes) {
-    texto(n, PAD + 60, yc, f(600, 15), C.texto!);
+    texto(n, PAD + 60, yc, f(600, 15), C.texto);
     yc += 19;
   }
-  if (tel) texto(tel, PAD + 60, yc, f(400, 13), C.mute!);
+  if (tel) texto(tel, PAD + 60, yc, f(400, 13), C.mute);
   y += hCli;
 
   const lista = (titulo: string, itens: ItemDoTicket[]) => {
@@ -221,9 +251,9 @@ function desenhar(
       ctx.font = f(400, 15);
       const valor = brl(i.totalCentavos);
       const ls = quebrar(ctx, i.descricao, larg - 36 - 90);
-      texto(`${i.quantidade}x`, PAD, y, f(400, 15), C.mute!);
-      ls.forEach((l, k) => texto(l, PAD + 36, y + k * 19, f(400, 15), C.texto!));
-      texto(valor, W - PAD, y, f(600, 15), C.texto!, "right");
+      texto(`${i.quantidade}x`, PAD, y, f(400, 15), C.mute);
+      ls.forEach((l, k) => texto(l, PAD + 36, y + k * 19, f(400, 15), C.texto));
+      texto(valor, W - PAD, y, f(600, 15), C.texto, "right");
       y += ls.length * 19 + 6;
     }
   };
@@ -231,25 +261,25 @@ function desenhar(
   lista("PRODUTO(S)", d.produtos);
 
   tracejado();
-  texto("SUBTOTAL", PAD, y, f(400, 14), C.mute!);
-  texto(brl(d.subtotalCentavos), W - PAD, y, f(400, 14), C.texto!, "right");
+  texto("SUBTOTAL", PAD, y, f(400, 14), C.mute);
+  texto(brl(d.subtotalCentavos), W - PAD, y, f(400, 14), C.texto, "right");
   y += 20;
   if (d.descontoCentavos > 0) {
-    texto("DESCONTO", PAD, y, f(400, 14), C.rosa!);
-    texto(`- ${brl(d.descontoCentavos)}`, W - PAD, y, f(400, 14), C.rosa!, "right");
+    texto("DESCONTO", PAD, y, f(400, 14), C.rosa);
+    texto(`- ${brl(d.descontoCentavos)}`, W - PAD, y, f(400, 14), C.rosa, "right");
     y += 20;
   }
   y += 6;
-  caixa(PAD, y, larg, 82, 12, C.total!);
+  caixa(PAD, y, larg, 82, 12, C.total);
   rotulo("TOTAL", W / 2, y + 12, "center");
-  texto(brl(d.totalCentavos), W / 2, y + 30, f(800, 34), C.navy!, "center");
+  texto(brl(d.totalCentavos), W / 2, y + 30, f(800, 34), C.navy, "center");
   y += 98;
 
   // pagamento
   rotulo("PAGAMENTO", PAD, y);
   y += 20;
   if (!soMedir) {
-    ctx.strokeStyle = C.linha!;
+    ctx.strokeStyle = C.linha;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.roundRect(PAD, y, larg, 52, 12);
@@ -260,15 +290,15 @@ function desenhar(
     ctx.save();
     ctx.translate(PAD + 22, y + 26);
     ctx.rotate(Math.PI / 4);
-    ctx.fillStyle = C.pix!;
+    ctx.fillStyle = C.pix;
     ctx.beginPath();
     ctx.roundRect(-8, -8, 16, 16, 3);
     ctx.fill();
-    ctx.fillStyle = C.papel!;
+    ctx.fillStyle = C.papel;
     ctx.fillRect(-3, -3, 6, 6);
     ctx.restore();
   }
-  texto(rotuloDaForma(d.forma), PAD + (pix ? 44 : 14), y + 17, f(600, 15), C.texto!);
+  texto(rotuloDaForma(d.forma), PAD + (pix ? 44 : 14), y + 17, f(600, 15), C.texto);
   y += 68;
 
   // status
@@ -286,9 +316,9 @@ function desenhar(
   y += 42;
 
   // código
-  caixa(PAD, y, larg, 60, 12, C.suave!);
+  caixa(PAD, y, larg, 60, 12, C.suave);
   rotulo("CÓDIGO DA COMANDA", PAD + 14, y + 12);
-  texto(`#${d.codigo}`, PAD + 14, y + 29, f(700, 17), C.texto!);
+  texto(`#${d.codigo}`, PAD + 14, y + 29, f(700, 17), C.texto);
   y += 76;
 
   // barras
@@ -298,19 +328,19 @@ function desenhar(
   for (const b of barras) {
     const w = b.larga ? 3 : 1.2;
     if (b.barra && !soMedir) {
-      ctx.fillStyle = C.texto!;
+      ctx.fillStyle = C.texto;
       ctx.fillRect(x, y, w, 56);
     }
     x += w;
   }
   y += 62;
-  texto(codigoLegivel(d.codigo).split("").join(" "), W / 2, y, f(400, 12), C.texto!, "center");
+  texto(codigoLegivel(d.codigo).split("").join(" "), W / 2, y, f(400, 12), C.texto, "center");
   y += 18;
 
   tracejado();
-  texto("Obrigado pela preferência!", W / 2, y, f(600, 15), C.texto!, "center");
+  texto("Obrigado pela preferência!", W / 2, y, f(600, 15), C.texto, "center");
   y += 22;
-  texto("By Alvo Digital • Cortaí", W / 2, y, f(400, 11), C.mute!, "center");
+  texto("By Alvo Digital • Cortaí", W / 2, y, f(400, 11), C.mute, "center");
   y += 18;
   if (simbolo && !soMedir) ctx.drawImage(simbolo, W - PAD - 24, y - 20, 24, 24);
   return y + 30;

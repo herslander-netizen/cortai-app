@@ -4,7 +4,13 @@ import { Copy, Download } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { aviso } from "@/lib/avisos";
 import { getTicketComanda } from "@/lib/comanda-ticket.functions";
 import type { DadosDoTicket } from "@/lib/comanda-ticket";
@@ -59,7 +65,11 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
         baixarArquivo(f);
         if (tipo === "whatsapp") {
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
-          window.open(`https://wa.me/?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`, "_blank", "noopener");
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
+            "_blank",
+            "noopener",
+          );
         } else aviso.ok("Imagem da comanda baixada.");
       }
     } catch {
@@ -112,18 +122,36 @@ export function FolhaDoTicket({
         ) : null}
         {q.data ? (
           <>
-            <TicketComanda ticket={q.data} onCopiarPix={acoes.copiarPix} onCopiarCodigo={acoes.copiarCodigo} />
+            <TicketComanda
+              ticket={q.data}
+              onCopiarPix={acoes.copiarPix}
+              onCopiarCodigo={acoes.copiarCodigo}
+            />
             <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
-              <Button size="lg" className="h-14 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}>
+              <Button
+                size="lg"
+                className="h-14 rounded-full"
+                onClick={acoes.enviarWhatsApp}
+                disabled={Boolean(acoes.gerando)}
+              >
                 <IconeWhatsApp />
                 {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
               </Button>
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}>
+                <Button
+                  variant="secondary"
+                  className="h-12 rounded-full"
+                  onClick={acoes.baixar}
+                  disabled={Boolean(acoes.gerando)}
+                >
                   <Download aria-hidden />
                   {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
                 </Button>
-                <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}>
+                <Button
+                  variant="secondary"
+                  className="h-12 rounded-full"
+                  onClick={acoes.copiarCodigo}
+                >
                   <Copy aria-hidden />
                   Copiar código
                 </Button>

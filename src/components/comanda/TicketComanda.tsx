@@ -21,7 +21,9 @@ function Tracejado() {
 
 function Rotulo({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[11px] font-semibold tracking-[0.12em] text-[var(--ticket-mute)]">{children}</p>
+    <p className="text-[11px] font-semibold tracking-[0.12em] text-[var(--ticket-mute)]">
+      {children}
+    </p>
   );
 }
 
@@ -31,15 +33,46 @@ export function SimboloPix({ className = "size-5" }: { className?: string }) {
       <g fill="var(--ticket-pix)">
         <rect x="7.5" y="1.5" width="9" height="9" rx="2" transform="rotate(45 12 6)" />
         <rect x="7.5" y="13.5" width="9" height="9" rx="2" transform="rotate(45 12 18)" />
-        <rect x="1.5" y="7.5" width="9" height="9" rx="2" transform="rotate(45 6 12)" opacity=".85" />
-        <rect x="13.5" y="7.5" width="9" height="9" rx="2" transform="rotate(45 18 12)" opacity=".85" />
+        <rect
+          x="1.5"
+          y="7.5"
+          width="9"
+          height="9"
+          rx="2"
+          transform="rotate(45 6 12)"
+          opacity=".85"
+        />
+        <rect
+          x="13.5"
+          y="7.5"
+          width="9"
+          height="9"
+          rx="2"
+          transform="rotate(45 18 12)"
+          opacity=".85"
+        />
       </g>
-      <rect x="9" y="9" width="6" height="6" transform="rotate(45 12 12)" fill="var(--ticket-papel)" />
+      <rect
+        x="9"
+        y="9"
+        width="6"
+        height="6"
+        transform="rotate(45 12 12)"
+        fill="var(--ticket-papel)"
+      />
     </svg>
   );
 }
 
-function Lista({ titulo, icone, itens }: { titulo: string; icone: ReactNode; itens: ItemDoTicket[] }) {
+function Lista({
+  titulo,
+  icone,
+  itens,
+}: {
+  titulo: string;
+  icone: ReactNode;
+  itens: ItemDoTicket[];
+}) {
   if (!itens.length) return null;
   return (
     <section className="mt-4">
@@ -62,8 +95,10 @@ function Lista({ titulo, icone, itens }: { titulo: string; icone: ReactNode; ite
 
 const COR_ESTADO = {
   pago: "text-[var(--ticket-pago)] bg-[color-mix(in_oklab,var(--ticket-pago)_12%,transparent)]",
-  pendente: "text-[var(--ticket-pendente)] bg-[color-mix(in_oklab,var(--ticket-pendente)_14%,transparent)]",
-  cancelado: "text-[var(--ticket-cancelado)] bg-[color-mix(in_oklab,var(--ticket-cancelado)_12%,transparent)]",
+  pendente:
+    "text-[var(--ticket-pendente)] bg-[color-mix(in_oklab,var(--ticket-pendente)_14%,transparent)]",
+  cancelado:
+    "text-[var(--ticket-cancelado)] bg-[color-mix(in_oklab,var(--ticket-cancelado)_12%,transparent)]",
 } as const;
 
 export function TicketComanda({
@@ -78,12 +113,16 @@ export function TicketComanda({
   const { negocio } = ticket;
   const telefone = telefoneDoTicket(ticket.cliente.telefone);
   const barras = barrasDoCodigo(ticket.codigo);
-  const IconeEstado = ticket.estado === "pago" ? Check : ticket.estado === "cancelado" ? X : Hourglass;
+  const IconeEstado =
+    ticket.estado === "pago" ? Check : ticket.estado === "cancelado" ? X : Hourglass;
   const ehPix = ticket.forma === "pix";
 
   return (
     <div className="mx-auto w-full max-w-[360px] drop-shadow-[0_18px_30px_rgb(0_0_0/0.3)]">
-      <article className="papel-ticket relative px-6 pb-8 pt-9" aria-label={`Comanda ${ticket.codigo}`}>
+      <article
+        className="papel-ticket relative px-6 pb-8 pt-9"
+        aria-label={`Comanda ${ticket.codigo}`}
+      >
         <header className="flex flex-col items-center text-center">
           {negocio.logoUrl ? (
             <img
@@ -93,7 +132,9 @@ export function TicketComanda({
             />
           ) : null}
           {negocio.nome ? (
-            <p className={`${negocio.logoUrl ? "mt-2 text-lg" : "text-[22px]"} font-bold leading-tight text-[var(--ticket-navy)]`}>
+            <p
+              className={`${negocio.logoUrl ? "mt-2 text-lg" : "text-[22px]"} font-bold leading-tight text-[var(--ticket-navy)]`}
+            >
               {negocio.nome}
             </p>
           ) : null}
@@ -103,7 +144,9 @@ export function TicketComanda({
               <span className="text-[22px] font-bold text-[var(--ticket-navy)]">Cortaí</span>
             </div>
           ) : null}
-          <p className="mt-3 text-[13px] font-semibold tracking-[0.5em] text-[var(--ticket-mute)]">COMANDA</p>
+          <p className="mt-3 text-[13px] font-semibold tracking-[0.5em] text-[var(--ticket-mute)]">
+            COMANDA
+          </p>
         </header>
         <Tracejado />
 
@@ -131,7 +174,9 @@ export function TicketComanda({
           <div className="min-w-0">
             <Rotulo>CLIENTE</Rotulo>
             <p className="break-words text-[15px] font-semibold">{ticket.cliente.nome}</p>
-            {telefone ? <p className="text-[13px] text-[var(--ticket-mute)] tabular-nums">{telefone}</p> : null}
+            {telefone ? (
+              <p className="text-[13px] text-[var(--ticket-mute)] tabular-nums">{telefone}</p>
+            ) : null}
           </div>
         </div>
 
@@ -177,7 +222,9 @@ export function TicketComanda({
               <SimboloPix />
               <span className="min-w-0 flex-1">
                 <span className="block text-[15px] font-semibold">Pix</span>
-                <span className="block text-[12px] text-[var(--ticket-mute)]">Clique para copiar a chave Pix</span>
+                <span className="block text-[12px] text-[var(--ticket-mute)]">
+                  Clique para copiar a chave Pix
+                </span>
               </span>
               <Copy className="size-4 text-[var(--ticket-navy)]" aria-hidden />
             </button>
@@ -202,7 +249,9 @@ export function TicketComanda({
         <div className="mt-4 flex items-center gap-3 rounded-[var(--raio-bloco)] bg-[var(--ticket-suave)] px-3 py-3">
           <div className="min-w-0 flex-1">
             <Rotulo>CÓDIGO DA COMANDA</Rotulo>
-            <p className="break-all text-[17px] font-bold tabular-nums tracking-wide">#{ticket.codigo}</p>
+            <p className="break-all text-[17px] font-bold tabular-nums tracking-wide">
+              #{ticket.codigo}
+            </p>
           </div>
           {onCopiarCodigo ? (
             <button
@@ -233,7 +282,9 @@ export function TicketComanda({
 
         <Tracejado />
         <p className="text-center text-[15px] font-semibold">Obrigado pela preferência!</p>
-        <p className="mt-1 text-center text-[11px] text-[var(--ticket-mute)]">By Alvo Digital • Cortaí</p>
+        <p className="mt-1 text-center text-[11px] text-[var(--ticket-mute)]">
+          By Alvo Digital • Cortaí
+        </p>
         <img src={SIMBOLO_CORTAI} alt="" className="absolute bottom-6 right-6 size-6 opacity-90" />
       </article>
     </div>
