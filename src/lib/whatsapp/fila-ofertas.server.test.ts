@@ -25,7 +25,10 @@ const INICIO = AGORA + 3 * 3600_000;
 let st: Estado;
 
 function builder(tabela: string) {
-  const ctx: { op: string; payload?: Record<string, unknown> } = { op: "select" };
+  const ctx: { op: string; payload?: Record<string, unknown>; filtros: Record<string, unknown> } = {
+    op: "select",
+    filtros: {},
+  };
   const resolver = () => {
     if (tabela === "agendamentos" && ctx.op === "select")
       return {
@@ -47,7 +50,8 @@ function builder(tabela: string) {
       return { data: { id: "of1", token: "abc" }, error: null };
     }
     if (tabela === "ofertas_da_fila" && ctx.op === "update") return { data: st.recusada };
-    if (tabela === "ofertas_da_fila" && ctx.op === "select") return { data: st.ofertaPerdida };
+    if (tabela === "ofertas_da_fila" && ctx.op === "select")
+      return { data: ctx.filtros["token"] ? st.ofertaPerdida : null };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
