@@ -11,7 +11,6 @@ import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
 import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
-import { AgoraProximos } from "@/components/barbeiro/agenda/AgoraProximos";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
@@ -32,6 +31,7 @@ import {
   type PedidoRemarcar,
 } from "@/components/barbeiro/agenda/PainelAtendimento";
 import { ResumoDia } from "@/components/barbeiro/agenda/ResumoDia";
+import { SeletorProfissionais } from "@/components/barbeiro/agenda/SeletorProfissionais";
 import {
   ROTULO_ESTADO,
   hora,
@@ -336,6 +336,7 @@ export function AgendaOperacional() {
     setNovoCliente(false);
     setHoraVazia(undefined);
     setProfVazio(null);
+    setCalAberto(false);
     setDia(proximo);
   }
 
@@ -1031,7 +1032,7 @@ export function AgendaOperacional() {
     document.getElementById(`agenda-aba-${alvo.id}`)?.focus();
   }
 
-  const colunas = visualizacao !== "lista" && !celular && !profFiltro && profissionais.length > 1;
+  const colunas = visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
   const diaSemAgenda = !carregandoInicial && !erroInicial && itens.length === 0 && !colunas;
 
   return (
@@ -1098,56 +1099,22 @@ export function AgendaOperacional() {
             />
           ) : null}
           {profissionais.length > 1 ? (
-            <div className="agenda-chips mt-2" role="group" aria-label="Profissional">
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-pressed={profFiltro === null}
-                className={`agenda-chip ${profFiltro === null ? "agenda-chip-ativo" : ""}`}
-                onClick={() => setProfFiltro(null)}
-              >
-                Todos
-              </Button>
-              {profissionais.map((p) => {
-                const qtd = todosItens.filter(
-                  (i) =>
-                    i.profissionalId === p.id &&
-                    ["agendado", "chegou", "na_cadeira"].includes(i.status),
-                ).length;
-                return (
-                  <Button
-                    key={p.id}
-                    variant="ghost"
-                    size="sm"
-                    aria-pressed={profFiltro === p.id}
-                    aria-label={`${p.nome}, ${qtd} restantes`}
-                    className={`agenda-chip ${profFiltro === p.id ? "agenda-chip-ativo" : ""}`}
-                    onClick={() => setProfFiltro(p.id)}
-                  >
-                    {p.nome}
-                    {qtd ? <span className="agenda-chip-qtd">{qtd}</span> : null}
-                  </Button>
-                );
-              })}
-            </div>
+            <SeletorProfissionais
+              profissionais={profissionais}
+              itens={todosItens}
+              selecionado={profFiltro}
+              onSelecionar={(id) => {
+                setProfFiltro(id);
+                setCalAberto(false);
+              }}
+            />
           ) : null}
         </CabecalhoAgenda>
 
         {faixa}
 
-        {ehHoje && agenda.data && visualizacao === "timeline" ? (
-          <AgoraProximos
-            itens={itens}
-            fuso={fuso}
-            selecionado={selecionado}
-            onAbrir={abrir}
-            mostrarProfissional={!profFiltro && profissionais.length > 1}
-            onComanda={(i) => setFechando(i.id)}
-            onChegou={(i) => void transicionar(i, "chegou")}
-            onFalta={(i) => void transicionar(i, "nao_compareceu")}
-            onLista={() => alterarVisualizacao("lista")}
-            discreto={modoDiscreto}
-          />
+        {ehHoje && visualizacao === "timeline" && ativos.length === 0 ? (
+          <p className="mb-2 text-xs font-semibold text-mute" role="status">Agora · Livre</p>
         ) : null}
 
         {sugestaoFila && chegada.length > 0 ? (
@@ -1215,19 +1182,12 @@ export function AgendaOperacional() {
               {ehHoje ? <PrimeirosPassos /> : null}
             </AgendaVazia>
           ) : colunas ? (
-            <div
-              className="agenda-colunas"
-              style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(220px, 1fr))` }}
-            >
+            <div className="agenda-colunas" style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))` }}>
               {profissionais.map((p) => (
                 <section key={p.id} className="min-w-0" aria-label={p.nome}>
-                  <button
-                    type="button"
-                    className="agenda-coluna-titulo"
-                    onClick={() => setProfFiltro(p.id)}
-                  >
+                  <Button variant="ghost" className="agenda-coluna-titulo" onClick={() => setProfFiltro(p.id)}>
                     {p.nome}
-                  </button>
+                  </Button>
                   <AgendaTimeline
                     dia={dia}
                     fuso={fuso}
@@ -1246,6 +1206,7 @@ export function AgendaOperacional() {
                     destaques={novos}
                     mostrarProfissional={false}
                     discreto={modoDiscreto}
+                    diaCompleto={celular}
                   />
                 </section>
               ))}

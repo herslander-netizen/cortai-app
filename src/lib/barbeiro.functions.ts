@@ -121,7 +121,7 @@ export type AgendaDia = {
   /** Passo de horários configurado pelo negócio (minutos). */
   passoMin?: number;
   /** Profissionais ativos do negócio, mesmo sem atendimento no dia. */
-  profissionais?: { id: string; nome: string }[];
+  profissionais?: { id: string; nome: string; avatarUrl?: string | null }[];
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
@@ -156,7 +156,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .order("dia_semana"),
       db
         .from("profissionais")
-        .select("id, nome")
+        .select("id, nome, avatar_url")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("nome"),
@@ -213,7 +213,11 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     }));
     const passo = Number(tenantRes.data?.passo_horarios_min);
     const passoMin = [15, 20, 30, 40].includes(passo) ? passo : 30;
-    const profissionais = (profsRes.data ?? []).map((p) => ({ id: p.id, nome: p.nome }));
+    const profissionais = (profsRes.data ?? []).map((p) => ({
+      id: p.id,
+      nome: p.nome,
+      avatarUrl: p.avatar_url,
+    }));
     return { tenant, dia: iso, itens, fila, horarios, fuso, passoMin, profissionais };
   });
 
