@@ -1032,8 +1032,13 @@ export function AgendaOperacional() {
     document.getElementById(`agenda-aba-${alvo.id}`)?.focus();
   }
 
-  const colunas = visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
-  const diaSemAgenda = !carregandoInicial && !erroInicial && itens.length === 0 && !colunas;
+  // Celular: uma timeline só; trocar profissional apenas filtra. Colunas só em telas largas.
+  const colunas = !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
+  const diaSemAgenda =
+    !carregandoInicial &&
+    !erroInicial &&
+    !colunas &&
+    (visualizacao === "timeline" ? todosItens.length === 0 : itens.length === 0);
 
   return (
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
@@ -1216,6 +1221,8 @@ export function AgendaOperacional() {
               dia={dia}
               fuso={fuso}
               itens={itens}
+              itensEscala={todosItens}
+              alinhado
               horarios={agenda.data?.horarios ?? []}
               selecionado={selecionado}
               onSelecionar={abrir}
