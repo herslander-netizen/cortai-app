@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Palette,
+  Repeat,
   Settings,
   Share2,
   SlidersHorizontal,
@@ -197,6 +198,23 @@ export function DrawerAjustes({
               </Button>
             );
           })}
+
+          <Button asChild variant="ghost" size="bloco" className={CARTAO}>
+            <Link to="/escolher" onClick={navegar}>
+              <span className={LINHA}>
+                <IconeDoMenu icone={Repeat} />
+                <span className="min-w-0">
+                  <span className="block truncate text-base font-semibold text-paper">
+                    Trocar de perfil
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                    Cliente ou negócio, sem sair da conta
+                  </span>
+                </span>
+                <ChevronRight className="size-5 text-mute2" aria-hidden />
+              </span>
+            </Link>
+          </Button>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
