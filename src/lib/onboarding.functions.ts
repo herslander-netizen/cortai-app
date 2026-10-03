@@ -837,3 +837,30 @@ export const getAvisoDeHorarios = createServerFn({ method: "GET" })
       .limit(1);
     return { semHorarioAberto: (data ?? []).length === 0 };
   });
+
+/** Interruptor da recuperação automática de vagas (separado da Fila de chegada). */
+export const getListaEsperaAutomatica = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    const { data } = await context.supabase
+      .from("tenants")
+      .select("lista_espera_automatica")
+      .eq("id", tenantId)
+      .maybeSingle();
+    return { ativa: data?.lista_espera_automatica !== false };
+  });
+
+export const salvarListaEsperaAutomatica = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { error } = await context.supabase.rpc("definir_lista_espera_automatica", {
+      _tenant_id: tenantId,
+      _ativo: data.ativa,
+    });
+    if (error) throw new Error("Não consegui salvar agora.");
+    return { ativa: data.ativa };
+  });
