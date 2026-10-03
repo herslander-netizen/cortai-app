@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -13,6 +14,19 @@ import {
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
+}
+
+/** Limite por IP para a leitura pública do ticket (mesmos contadores do webhook-guard). */
+async function limitarLeituraPublica() {
+  const { ipDaChamada, consumirLimite, BALDE_SEM_IP } = await import("@/lib/webhook-guard.server");
+  let ip: string | null = null;
+  try {
+    ip = ipDaChamada(getRequest());
+  } catch {
+    ip = null;
+  }
+  const ok = await consumirLimite(`pub:ticket|ip:${ip ?? BALDE_SEM_IP}`, ip ? 30 : 300);
+  if (!ok) throw new Error("Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.");
 }
 
 function dataHora(iso: string, fuso: string) {
@@ -38,65 +52,90 @@ function ultimoPagamento(lista: any[] | null | undefined) {
   return [...(lista ?? [])].sort((a, b) => (a.criado_em < b.criado_em ? 1 : -1))[0] ?? null;
 }
 
+/** Monta o ticket a partir da comanda já carregada (mesma regra para painel e público). */
+function montarTicket(comanda: any, itens: any[] | null, tenant: any, config: any): DadosDoTicket {
+  const fuso = tenant?.fuso || "America/Sao_Paulo";
+  const quando = dataHora(comanda.agendamentos?.inicio ?? comanda.criado_em, fuso);
+  const pagamento = ultimoPagamento(comanda.pagamentos);
+  const forma = pagamento?.forma_pagamento ?? comanda.agendamentos?.forma_pagamento ?? null;
+  const mapa = (tipo: string) =>
+    ((itens ?? []) as any[])
+      .filter((i) => i.tipo === tipo)
+      .map((i) => ({
+        quantidade: i.quantidade,
+        descricao: i.descricao,
+        totalCentavos: i.valor_total_centavos,
+      }));
+  return {
+    id: comanda.id,
+    codigo: comanda.codigo ?? comanda.id.slice(0, 8).toUpperCase(),
+    negocio: { nome: tenant?.nome?.trim() || null, logoUrl: tenant?.logo_url || null },
+    data: quando.data,
+    horario: quando.horario,
+    cliente: {
+      nome: comanda.clientes?.nome ?? "Cliente",
+      telefone: comanda.clientes?.telefone ?? null,
+    },
+    servicos: mapa("servico"),
+    produtos: mapa("produto"),
+    subtotalCentavos: comanda.subtotal_centavos,
+    descontoCentavos: comanda.desconto_centavos,
+    totalCentavos: comanda.total_centavos,
+    forma,
+    estado: estadoDoTicket(comanda.status, pagamento),
+    pixChave: config?.pix_ativo && config.pix_chave ? config.pix_chave : null,
+  };
+}
+
+async function carregarTicket(db: any, comandaId: string, tenantId: string) {
+  const [{ data: c }, { data: itens }, { data: tenant }, { data: config }] = await Promise.all([
+    db.from("comandas").select(SELECAO).eq("id", comandaId).eq("tenant_id", tenantId).maybeSingle(),
+    db
+      .from("comanda_itens")
+      .select("tipo, descricao, quantidade, valor_total_centavos")
+      .eq("comanda_id", comandaId)
+      .order("criado_em"),
+    db.from("tenants").select("nome, logo_url, fuso").eq("id", tenantId).maybeSingle(),
+    db
+      .from("configuracoes_financeiras")
+      .select("pix_ativo, pix_chave")
+      .eq("tenant_id", tenantId)
+      .maybeSingle(),
+  ]);
+  if (!c) return null;
+  return montarTicket(c, itens, tenant, config);
+}
+
 /** Comanda pronta para o ticket. Só membros do próprio negócio; nunca cruza negócios. */
 export const getTicketComanda = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ comandaId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<DadosDoTicket> => {
     const tenantId = await tenantIdDoMembro(context);
+    const ticket = await carregarTicket(await admin(), data.comandaId, tenantId);
+    if (!ticket) throw new Error("Comanda não encontrada.");
+    return ticket;
+  });
+
+/**
+ * Ticket pelo agendamento, para a tela pública de confirmação.
+ * Sem login: quem tem o link da confirmação já vê serviço, profissional e valor;
+ * o ticket só aparece quando a comanda existe (fechamento feito pelo negócio).
+ */
+export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
+  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }): Promise<DadosDoTicket | null> => {
+    await limitarLeituraPublica();
     const db = await admin();
-    const [{ data: c }, { data: itens }, { data: tenant }, { data: config }] = await Promise.all([
-      db
-        .from("comandas")
-        .select(SELECAO)
-        .eq("id", data.comandaId)
-        .eq("tenant_id", tenantId)
-        .maybeSingle(),
-      db
-        .from("comanda_itens")
-        .select("tipo, descricao, quantidade, valor_total_centavos")
-        .eq("comanda_id", data.comandaId)
-        .order("criado_em"),
-      db.from("tenants").select("nome, logo_url, fuso").eq("id", tenantId).maybeSingle(),
-      db
-        .from("configuracoes_financeiras")
-        .select("pix_ativo, pix_chave")
-        .eq("tenant_id", tenantId)
-        .maybeSingle(),
-    ]);
-    if (!c) throw new Error("Comanda não encontrada.");
-    const comanda: any = c;
-    const fuso = tenant?.fuso || "America/Sao_Paulo";
-    const quando = dataHora(comanda.agendamentos?.inicio ?? comanda.criado_em, fuso);
-    const pagamento = ultimoPagamento(comanda.pagamentos);
-    const forma = pagamento?.forma_pagamento ?? comanda.agendamentos?.forma_pagamento ?? null;
-    const mapa = (tipo: string) =>
-      ((itens ?? []) as any[])
-        .filter((i) => i.tipo === tipo)
-        .map((i) => ({
-          quantidade: i.quantidade,
-          descricao: i.descricao,
-          totalCentavos: i.valor_total_centavos,
-        }));
-    return {
-      id: comanda.id,
-      codigo: comanda.codigo ?? comanda.id.slice(0, 8).toUpperCase(),
-      negocio: { nome: tenant?.nome?.trim() || null, logoUrl: tenant?.logo_url || null },
-      data: quando.data,
-      horario: quando.horario,
-      cliente: {
-        nome: comanda.clientes?.nome ?? "Cliente",
-        telefone: comanda.clientes?.telefone ?? null,
-      },
-      servicos: mapa("servico"),
-      produtos: mapa("produto"),
-      subtotalCentavos: comanda.subtotal_centavos,
-      descontoCentavos: comanda.desconto_centavos,
-      totalCentavos: comanda.total_centavos,
-      forma,
-      estado: estadoDoTicket(comanda.status, pagamento),
-      pixChave: config?.pix_ativo && config.pix_chave ? config.pix_chave : null,
-    };
+    const { data: comanda } = await db
+      .from("comandas")
+      .select("id, tenant_id")
+      .eq("agendamento_id", data.agendamentoId)
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!comanda) return null;
+    return carregarTicket(db, comanda.id, comanda.tenant_id);
   });
 
 export type ResultadoDaBusca = {

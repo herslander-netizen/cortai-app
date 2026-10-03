@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { PreferenciasEmConversa } from "@/components/agendamento/chat/PreferenciasEmConversa";
@@ -417,18 +418,25 @@ function AgendamentoPublico() {
           onCancelar={() => cancelar.mutate()}
           onNovo={novoAgendamento}
           extras={
-            situacao === "confirmado" && confirmado.preferenciasToken && modoConversa ? (
-              <PreferenciasEmConversa
-                agendamentoId={confirmado.agendamentoId}
-                token={confirmado.preferenciasToken}
-                slug={slug}
-              />
-            ) : situacao === "confirmado" && confirmado.preferenciasToken ? (
-              <PreferenciasAposAgendamento
-                agendamentoId={confirmado.agendamentoId}
-                token={confirmado.preferenciasToken}
-                slug={slug}
-              />
+            situacao === "confirmado" ? (
+              <>
+                {confirmado.preferenciasToken ? (
+                  modoConversa ? (
+                    <PreferenciasEmConversa
+                      agendamentoId={confirmado.agendamentoId}
+                      token={confirmado.preferenciasToken}
+                      slug={slug}
+                    />
+                  ) : (
+                    <PreferenciasAposAgendamento
+                      agendamentoId={confirmado.agendamentoId}
+                      token={confirmado.preferenciasToken}
+                      slug={slug}
+                    />
+                  )
+                ) : null}
+                <TicketDaConfirmacao agendamentoId={confirmado.agendamentoId} slug={slug} />
+              </>
             ) : null
           }
         />
