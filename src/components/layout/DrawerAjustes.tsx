@@ -55,6 +55,12 @@ const ITENS = [
     icon: SlidersHorizontal,
   },
   {
+    label: "Redes sociais",
+    detalhe: "Instagram e TikTok conectados",
+    to: "/barbeiro/redes",
+    icon: Share2,
+  },
+  {
     label: "Plano",
     detalhe: "Assinatura, cobranças e histórico",
     to: "/barbeiro/plano",
