@@ -1,5 +1,5 @@
 -- Teste transacional do fluxo Pix (sempre ROLLBACK; não altera dados).
--- Rodar: psql -X -v ON_ERROR_STOP=1 -f tests/sql/comanda-pix-informado.sql
+-- Rodar com permissão de escrita; termina com TESTE_OK proposital, que desfaz tudo.
 BEGIN;
 DO $$
 DECLARE
@@ -49,6 +49,6 @@ BEGIN
   r := confirmar_pagamento_comanda_segura(dono, din_c, 'dinheiro', false);
   SELECT status INTO st FROM comandas WHERE id=din_c; ASSERT st='paga';
   SELECT count(*) INTO n FROM pagamentos WHERE comanda_id=din_c AND forma_pagamento='dinheiro'; ASSERT n=1;
-  RAISE NOTICE 'OK: fluxo Pix/dinheiro validado';
+  RAISE EXCEPTION 'TESTE_OK (rollback proposital)';
 END $$;
 ROLLBACK;
