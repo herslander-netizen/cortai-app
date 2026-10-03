@@ -123,6 +123,7 @@ export function AgendaTimeline({
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
+  const [mostrarAnteriores, setMostrarAnteriores] = useState(false);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const gesto = useRef<{
     id: string;
@@ -342,6 +343,7 @@ export function AgendaTimeline({
   const altura = (escala.fim - escala.inicio) * PX_POR_MINUTO + layout.pixelsAcrescidos;
   const posicaoAgora =
     (escala.minutoAtual - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(escala.minutoAtual);
+  const corteAnteriores = ehHoje && diaCompleto ? Math.max(0, posicaoAgora - 90 * PX_POR_MINUTO) : 0;
 
   function voltarParaAgora(comportamento: ScrollBehavior = "smooth") {
     const area = rolagemRef.current;
@@ -594,9 +596,19 @@ export function AgendaTimeline({
           Voltar para agora
         </Button>
       ) : null}
+      {interativo && corteAnteriores > 0 && !mostrarAnteriores ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="mb-1 min-h-12 w-full text-xs text-mute"
+          onClick={() => setMostrarAnteriores(true)}
+        >
+          Mostrar horários anteriores
+        </Button>
+      ) : null}
       <div
         ref={rolagemRef}
-        className="agenda-timeline-scroll"
+          className="agenda-timeline-scroll"
         aria-label={previa ? undefined : "Timeline de atendimentos"}
         onScroll={
           interativo
@@ -618,7 +630,12 @@ export function AgendaTimeline({
       >
         <div
           className="agenda-timeline"
-          style={{ height: `${altura}px` }}
+          style={{
+            height: `${altura}px`,
+            ...(interativo && corteAnteriores > 0 && !mostrarAnteriores
+              ? { marginTop: `-${corteAnteriores}px` }
+              : {}),
+          }}
           {...(previa
             ? {}
             : {
