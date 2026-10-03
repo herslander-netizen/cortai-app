@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const confirmacao = vi.hoisted(() => ({ envios: 0, enviado: true }));
+vi.mock("./confirmacao.server", () => ({
+  enviarConfirmacaoDeAgendamento: async () => {
+    confirmacao.envios += 1;
+    return { enviado: confirmacao.enviado };
+  },
+}));
+
 /** Banco simulado: nenhuma chamada sai para o banco real. */
 type Estado = {
   automatica: boolean;
@@ -8,6 +16,9 @@ type Estado = {
   ranges: [number, number][];
   orders: string[];
   recusada: Record<string, unknown> | null;
+  aceite: Record<string, unknown>;
+  ofertaPerdida: Record<string, unknown> | null;
+  filaUpdates: Record<string, unknown>[];
 };
 const AGORA = Date.UTC(2026, 9, 5, 12, 0);
 const INICIO = AGORA + 3 * 3600_000;
