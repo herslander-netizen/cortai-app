@@ -4,7 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { AlertTriangle, CalendarPlus, FileWarning, Loader2, MessageCircle, ShieldCheck, Smartphone, X } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarPlus,
+  FileWarning,
+  Loader2,
+  MessageCircle,
+  ShieldCheck,
+  Smartphone,
+  X,
+} from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
@@ -262,16 +271,18 @@ function useEnviosDaSecretaria() {
 /** Aviso geral: problemas recentes que a Meta está apontando. Não promete correção. */
 function AvisosDaMeta() {
   const envios = useEnviosDaSecretaria();
-  const recentes = (envios.data ?? []).filter((e) => Date.now() - new Date(e.criadoEm).getTime() < SEMANA);
+  const recentes = (envios.data ?? []).filter(
+    (e) => Date.now() - new Date(e.criadoEm).getTime() < SEMANA,
+  );
   const classes = new Set(recentes.map((e) => diagnosticoDoEnvio(e).tom));
   if (!classes.has("conta") && !classes.has("sem_modelo")) return null;
   return (
     <div className="mb-4 space-y-2" role="status">
       {classes.has("conta") ? (
         <p className="rounded-lg border border-brick/50 p-3 text-sm leading-relaxed text-paper">
-          <AlertTriangle className="mr-1.5 inline size-4 text-brick" aria-hidden />
-          A Meta está recusando os envios por um problema de elegibilidade/pagamento da conta oficial.
-          A conexão técnica está ativa, mas a conta precisa ser regularizada na Meta.
+          <AlertTriangle className="mr-1.5 inline size-4 text-brick" aria-hidden />A Meta está
+          recusando os envios por um problema de elegibilidade/pagamento da conta oficial. A conexão
+          técnica está ativa, mas a conta precisa ser regularizada na Meta.
         </p>
       ) : null}
       {classes.has("sem_modelo") ? (
@@ -300,15 +311,24 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
           {envios.data.map((envio) => {
             const d = diagnosticoDoEnvio(envio);
             return (
-              <li key={envio.id} className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+              <li
+                key={envio.id}
+                className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-paper">{envio.tipo.replaceAll("_", " ")}</p>
+                  <p className="text-sm font-medium text-paper">
+                    {envio.tipo.replaceAll("_", " ")}
+                  </p>
                   {d.titulo ? (
                     <div className="mt-1">
                       <p className="text-sm font-semibold text-paper">{d.titulo}</p>
                       <p className="text-xs leading-relaxed text-mute">{d.detalhe}</p>
                       {d.acao === "conexao" ? (
-                        <Button variant="secondary" className="mt-2 min-h-11" onClick={irParaConexao}>
+                        <Button
+                          variant="secondary"
+                          className="mt-2 min-h-11"
+                          onClick={irParaConexao}
+                        >
                           Verificar conta Meta
                         </Button>
                       ) : null}
@@ -319,7 +339,8 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
                     </p>
                   )}
                   <p className="mt-2 text-xs text-mute2">
-                    Final {envio.telefone.slice(-4)} · {new Date(envio.criadoEm).toLocaleString("pt-BR")}
+                    Final {envio.telefone.slice(-4)} ·{" "}
+                    {new Date(envio.criadoEm).toLocaleString("pt-BR")}
                   </p>
                   {d.tecnico ? (
                     <details className="mt-1 text-xs text-mute2">
@@ -328,7 +349,9 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
                     </details>
                   ) : null}
                 </div>
-                <span className={`w-fit rounded-full border px-2.5 py-1 text-xs ${COR_DO_TOM[d.tom]}`}>
+                <span
+                  className={`w-fit rounded-full border px-2.5 py-1 text-xs ${COR_DO_TOM[d.tom]}`}
+                >
                   {envio.respondidoEm ? "Respondido" : d.rotulo}
                 </span>
               </li>

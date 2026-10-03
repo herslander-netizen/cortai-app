@@ -19,18 +19,28 @@ describe("erros da Meta", () => {
 
 describe("diagnóstico do histórico", () => {
   it("131042 orienta a verificar a conta Meta", () => {
-    const d = diagnosticoDoEnvio({ status: "falhou", erroCodigo: 131042, erro: "Business eligibility payment issue" });
+    const d = diagnosticoDoEnvio({
+      status: "falhou",
+      erroCodigo: 131042,
+      erro: "Business eligibility payment issue",
+    });
     expect(d.titulo).toBe("Conta WhatsApp/Meta precisa de atenção");
     expect(d.acao).toBe("conexao");
     expect(d.tecnico).toContain("131042");
   });
   it("janela de 24h sem código vira modelo necessário, sem botão", () => {
-    const d = diagnosticoDoEnvio({ status: "sem_modelo", erro: "Fora da janela de 24h: sem modelo aprovado para este aviso." });
+    const d = diagnosticoDoEnvio({
+      status: "sem_modelo",
+      erro: "Fora da janela de 24h: sem modelo aprovado para este aviso.",
+    });
     expect(d.titulo).toBe("Modelo de mensagem necessário");
     expect(d.acao).toBe("orientacao");
   });
   it("outros erros mostram o motivo sanitizado", () => {
-    const d = diagnosticoDoEnvio({ status: "falhou", erro: 'Falha (400): {"error":{"message":"Invalid parameter","code":100}}' });
+    const d = diagnosticoDoEnvio({
+      status: "falhou",
+      erro: 'Falha (400): {"error":{"message":"Invalid parameter","code":100}}',
+    });
     expect(d.titulo).toBe("Não enviado");
     expect(d.detalhe).toBe("Invalid parameter");
   });

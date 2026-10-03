@@ -78,7 +78,10 @@ export function lembretePerdeuOMomento(
 /** Classe do problema, para quem lê o histórico (não para a regra de retry). */
 export type ClasseDoErro = "conta_meta" | "sem_modelo" | "temporario" | "outro";
 
-export function classeDoErroMeta(codigo: number | null | undefined, status?: string | null): ClasseDoErro {
+export function classeDoErroMeta(
+  codigo: number | null | undefined,
+  status?: string | null,
+): ClasseDoErro {
   if (codigo === 131042) return "conta_meta";
   if (codigo === 131047 || status === "sem_modelo") return "sem_modelo";
   if (status === "erro") return "temporario";
@@ -89,11 +92,19 @@ export function classeDoErroMeta(codigo: number | null | undefined, status?: str
 export function sanitizarMotivo(motivo: string | null | undefined): string {
   if (!motivo) return "";
   const msg = motivo.match(/"message"\s*:\s*"([^"]{3,200})"/)?.[1];
-  const base = (msg ?? motivo.replace(/\{[\s\S]*\}/g, "")).replace(/\b(?:EAA|sk_|Bearer\s)[\w.-]+/g, "•••");
-  return base.replace(/\d{10,}/g, "•••").replace(/\s+/g, " ").trim().slice(0, 160);
+  const base = (msg ?? motivo.replace(/\{[\s\S]*\}/g, "")).replace(
+    /\b(?:EAA|sk_|Bearer\s)[\w.-]+/g,
+    "•••",
+  );
+  return base
+    .replace(/\d{10,}/g, "•••")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
 }
 
-export type TomDoEnvio = "enviado" | "entregue" | "lida" | "aguardando" | "sem_modelo" | "falhou" | "conta";
+export type TomDoEnvio =
+  "enviado" | "entregue" | "lida" | "aguardando" | "sem_modelo" | "falhou" | "conta";
 
 export type DiagnosticoDoEnvio = {
   tom: TomDoEnvio;
@@ -111,19 +122,61 @@ export function diagnosticoDoEnvio(envio: {
   erroCodigo?: number | null;
   erro?: string | null;
 }): DiagnosticoDoEnvio {
-  const codigo = envio.erroCodigo ?? lerErroMeta(envio.erro ?? "").codigo ?? (/janela de 24h/i.test(envio.erro ?? "") ? 131047 : null);
-  const tecnico = envio.erro ? `${codigo ? `Código ${codigo} · ` : ""}${sanitizarMotivo(envio.erro)}` : null;
-  const ok = (tom: TomDoEnvio, rotulo: string): DiagnosticoDoEnvio => ({ tom, rotulo, titulo: null, detalhe: null, acao: null, tecnico: null });
+  const codigo =
+    envio.erroCodigo ??
+    lerErroMeta(envio.erro ?? "").codigo ??
+    (/janela de 24h/i.test(envio.erro ?? "") ? 131047 : null);
+  const tecnico = envio.erro
+    ? `${codigo ? `Código ${codigo} · ` : ""}${sanitizarMotivo(envio.erro)}`
+    : null;
+  const ok = (tom: TomDoEnvio, rotulo: string): DiagnosticoDoEnvio => ({
+    tom,
+    rotulo,
+    titulo: null,
+    detalhe: null,
+    acao: null,
+    tecnico: null,
+  });
   if (envio.status === "lida") return ok("lida", "Lida");
   if (envio.status === "entregue") return ok("entregue", "Entregue");
   if (envio.status === "enviado") return ok("enviado", "Enviado");
-  if (envio.status === "pendente" || envio.status === "enviando") return ok("aguardando", "Aguardando");
+  if (envio.status === "pendente" || envio.status === "enviando")
+    return ok("aguardando", "Aguardando");
   const classe = classeDoErroMeta(codigo, envio.status);
   if (classe === "conta_meta")
-    return { tom: "conta", rotulo: "Conta Meta", titulo: "Conta WhatsApp/Meta precisa de atenção", detalhe: "Problema de elegibilidade/pagamento da conta oficial.", acao: "conexao", tecnico };
+    return {
+      tom: "conta",
+      rotulo: "Conta Meta",
+      titulo: "Conta WhatsApp/Meta precisa de atenção",
+      detalhe: "Problema de elegibilidade/pagamento da conta oficial.",
+      acao: "conexao",
+      tecnico,
+    };
   if (classe === "sem_modelo")
-    return { tom: "sem_modelo", rotulo: "Sem modelo", titulo: "Modelo de mensagem necessário", detalhe: "Fora da janela de 24h e sem template aprovado. Aprovar template na Meta e depois testar novamente.", acao: "orientacao", tecnico };
+    return {
+      tom: "sem_modelo",
+      rotulo: "Sem modelo",
+      titulo: "Modelo de mensagem necessário",
+      detalhe:
+        "Fora da janela de 24h e sem template aprovado. Aprovar template na Meta e depois testar novamente.",
+      acao: "orientacao",
+      tecnico,
+    };
   if (classe === "temporario")
-    return { tom: "aguardando", rotulo: "Nova tentativa", titulo: "Não enviado ainda", detalhe: "Falha temporária; o Cortaí tenta de novo automaticamente.", acao: null, tecnico };
-  return { tom: "falhou", rotulo: "Falhou", titulo: "Não enviado", detalhe: sanitizarMotivo(envio.erro) || "Motivo não informado.", acao: null, tecnico };
+    return {
+      tom: "aguardando",
+      rotulo: "Nova tentativa",
+      titulo: "Não enviado ainda",
+      detalhe: "Falha temporária; o Cortaí tenta de novo automaticamente.",
+      acao: null,
+      tecnico,
+    };
+  return {
+    tom: "falhou",
+    rotulo: "Falhou",
+    titulo: "Não enviado",
+    detalhe: sanitizarMotivo(envio.erro) || "Motivo não informado.",
+    acao: null,
+    tecnico,
+  };
 }
