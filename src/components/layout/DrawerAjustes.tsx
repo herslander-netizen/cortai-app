@@ -97,7 +97,7 @@ export function DrawerAjustes({
           evento.preventDefault();
           gatilhoRef.current?.focus();
         }}
-        className="z-[70] rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
+        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
       >
         <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
         <SheetDescription className="mt-1 text-sm text-mute">
@@ -108,18 +108,8 @@ export function DrawerAjustes({
           {ITENS.slice(0, 2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button
-                key={item.label}
-                asChild
-                variant="ghost"
-                size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
-              >
-                <Link
-                  to={item.to}
-                  onClick={navegar}
-                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
-                >
+              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                <Link to={item.to} onClick={navegar} className={LINHA}>
                   <IconeDoMenu icone={Icon} />
                   <span className="min-w-0">
                     <span className="block truncate text-base font-semibold text-paper">
