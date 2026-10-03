@@ -19,7 +19,7 @@ import {
 import { ROTULOS_PREFERENCIAS } from "@/lib/preferencias-cliente";
 import { termos as termosPara, type Segmento } from "@/lib/segmentos";
 
-export function data(iso: string, fuso: string) {
+function data(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     timeZone: fuso,
     day: "2-digit",
