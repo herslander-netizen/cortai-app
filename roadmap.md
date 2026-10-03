@@ -145,3 +145,6 @@
 - [ ] Implementar visão Todos compacta e visão individual ampla na Timeline
 - [ ] Posicionar a Agenda perto do horário atual e recolher horários anteriores
 - [ ] Validar ações, estados, 390px, 1280px, tipos, testes e build; deixar o preview pronto sem publicar
+
+- [ ] Agenda: validar 390px/desktop (cortes, sobreposição, overflow)
+- [ ] Agenda: teclado + ARIA nos filtros de profissional e controles da timeline
