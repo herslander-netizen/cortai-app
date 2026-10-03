@@ -47,7 +47,13 @@ export function entradaCombina(
   return vaga.inicioMs + s.duracao_min * 60_000 <= vaga.livreAteMs;
 }
 
-/** Ordem da fila: posição definida pelo barbeiro, depois quem entrou antes. */
+/** Ordem real da fila: posição definida pela equipe, quem entrou antes, id (estável). */
+export function ordemDaFila(a: PreferenciaDaFila, b: PreferenciaDaFila) {
+  return (
+    a.posicao - b.posicao || a.criadoEm.localeCompare(b.criadoEm) || a.id.localeCompare(b.id)
+  );
+}
+
 export function candidatosDaVaga(
   fila: PreferenciaDaFila[],
   vaga: Vaga,
@@ -55,6 +61,23 @@ export function candidatosDaVaga(
   jaOfertados: Set<string> = new Set(),
 ): PreferenciaDaFila[] {
   return [...fila]
-    .sort((a, b) => a.posicao - b.posicao || a.criadoEm.localeCompare(b.criadoEm))
+    .sort(ordemDaFila)
     .filter((p) => !jaOfertados.has(p.id) && entradaCombina(p, vaga, servicos));
+}
+
+export const PRAZO_DA_OFERTA_MIN = 30;
+export const ANTECEDENCIA_MINIMA_MIN = 10;
+export const PRAZO_MINIMO_PARA_RESPONDER_MIN = 5;
+
+/** Prazo real da oferta: 30 min, mas nunca depois de 10 min antes do horário. */
+export function prazoDaOferta(agoraMs: number, inicioMs: number) {
+  return Math.min(
+    agoraMs + PRAZO_DA_OFERTA_MIN * 60_000,
+    inicioMs - ANTECEDENCIA_MINIMA_MIN * 60_000,
+  );
+}
+
+/** Só oferta se o cliente tiver pelo menos 5 min para responder. */
+export function ofertaViavel(agoraMs: number, inicioMs: number) {
+  return prazoDaOferta(agoraMs, inicioMs) - agoraMs >= PRAZO_MINIMO_PARA_RESPONDER_MIN * 60_000;
 }

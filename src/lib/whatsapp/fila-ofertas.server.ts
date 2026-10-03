@@ -13,13 +13,30 @@ import {
 } from "@/lib/agenda-regras.server";
 import {
   candidatosDaVaga,
+  ofertaViavel,
+  prazoDaOferta,
   servicoDaEntrada,
   type PreferenciaDaFila,
   type ServicoDaVaga,
 } from "@/lib/fila-compatibilidade";
 
-export const PRAZO_DA_OFERTA_MIN = 30;
-const ANTECEDENCIA_MINIMA_MIN = 10;
+export { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
+const LOTE_DA_FILA = 200;
+const TETO_DA_FILA = 2000;
+const TENTATIVAS_POR_VAGA = 20;
+
+/** Interruptor do negócio: desligado = nenhuma oferta automática nova. */
+export async function automacaoDaListaAtiva(
+  db: Awaited<ReturnType<typeof admin>>,
+  tenantId: string,
+) {
+  const { data } = await db
+    .from("tenants")
+    .select("lista_espera_automatica")
+    .eq("id", tenantId)
+    .maybeSingle();
+  return data?.lista_espera_automatica !== false;
+}
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
