@@ -27,3 +27,6 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## Cortaí 3.0
+Paleta neutra única, Agenda mobile redesenhada (calendário semanal/mensal, dia completo 00–23), menu "+" em speed dial, Notificações em tela cheia no celular e diálogo de novidades da versão.

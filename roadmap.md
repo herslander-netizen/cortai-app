@@ -116,7 +116,7 @@
 
 ## Cortaí 3.0 (versão 3.0.0)
 - [x] Etapa 1 — fundo neutro único, theme-color e manifests
-- [ ] Etapa 2 — Agenda no celular (cabeçalho Mês Ano, faixa da semana, pontinhos, mês expansível, timeline 00–23, sem rodapé, dica única)
-- [ ] Etapa 3 — botões flutuantes 64 dp e menu "+" em speed dial
-- [ ] Etapa 4 — avisos em tela cheia no celular
+- [x] Etapa 2 — Agenda no celular (cabeçalho Mês Ano, faixa da semana, pontinhos, mês expansível, timeline 00–23, sem rodapé, dica única)
+- [x] Etapa 3 — botões flutuantes 64 dp e menu "+" em speed dial
+- [x] Etapa 4 — avisos em tela cheia no celular
 - [x] Etapa 5 — versão 3.0.0, novidades.ts, aviso "Cortaí 3.0 disponível", descrição neutra
