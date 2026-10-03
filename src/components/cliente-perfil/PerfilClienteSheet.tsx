@@ -535,7 +535,7 @@ function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) 
       <label className="mt-3 flex items-center gap-2 text-xs text-mute">
         <Plus aria-hidden className="size-4" />
         <input
-          className="input-premium mt-0"
+          className="field-control mt-0"
           placeholder="Novo chip (ex.: Tesoura em cima)"
           value={novo}
           maxLength={30}
@@ -548,7 +548,7 @@ function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) 
       <label className="mt-3 block text-xs text-mute">
         Alergias
         <input
-          className="input-premium"
+          className="field-control"
           placeholder="Ex.: pomada com álcool"
           value={alergias}
           onChange={(e) => {
@@ -561,7 +561,7 @@ function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) 
         Anotações
         <textarea
           rows={3}
-          className="input-premium"
+          className="field-control"
           placeholder="Máquina, tesoura, preferências…"
           value={texto}
           onChange={(e) => {

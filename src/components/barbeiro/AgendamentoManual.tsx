@@ -250,13 +250,13 @@ function Formulario({
         ) : novo ? (
           <div className="mt-2 space-y-2">
             <input
-              className="input-premium"
+              className="field-control"
               placeholder="Nome do cliente"
               value={novoNome}
               onChange={(e) => setNovoNome(e.target.value)}
             />
             <input
-              className="input-premium"
+              className="field-control"
               placeholder="Telefone com DDD"
               inputMode="tel"
               autoComplete="tel"
@@ -280,7 +280,7 @@ function Formulario({
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute2"
               />
               <input
-                className="input-premium pl-9"
+                className="field-control pl-9"
                 placeholder="Buscar por nome ou telefone"
                 value={termo}
                 onChange={(e) => setTermo(e.target.value)}
@@ -327,7 +327,7 @@ function Formulario({
         {/* 2. Serviço e profissional */}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-mute2">2. Serviço</p>
         <select
-          className="input-premium mt-2"
+          className="field-control mt-2"
           value={servicoId}
           onChange={(e) => setServicoId(e.target.value)}
           aria-label="Serviço"
@@ -340,7 +340,7 @@ function Formulario({
         </select>
         {(base?.profissionais ?? []).length > 1 ? (
           <select
-            className="input-premium mt-2"
+            className="field-control mt-2"
             value={profissionalId}
             onChange={(e) => setProfissionalId(e.target.value)}
             aria-label="Profissional"
@@ -377,13 +377,13 @@ function Formulario({
         <div className="mt-2 grid grid-cols-2 gap-2">
           <input
             type="date"
-            className="input-premium"
+            className="field-control"
             value={data}
             onChange={(e) => setData(e.target.value)}
             aria-label="Data"
           />
           <select
-            className="input-premium"
+            className="field-control"
             value={horaMin}
             onChange={(e) => setHoraMin(e.target.value)}
             aria-label="Hora"

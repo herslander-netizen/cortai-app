@@ -228,20 +228,20 @@ function ProdutosPage() {
             placeholder="Nome do produto"
             value={form.nome}
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
-            className="input-premium"
+            className="field-control"
           />
           <input
             placeholder="URL da foto"
             value={form.foto_url ?? ""}
             onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })}
-            className="input-premium"
+            className="field-control"
           />
           <input
             required
             placeholder="Categoria"
             value={form.categoria}
             onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-            className="input-premium"
+            className="field-control"
           />
           <div className="grid grid-cols-2 gap-3">
             <label className="text-xs text-mute">
@@ -251,7 +251,7 @@ function ProdutosPage() {
                 min="0"
                 step="0.01"
                 inputMode="decimal"
-                className="input-premium"
+                className="field-control"
                 value={numeros.custo}
                 onChange={(e) => setNumeros({ ...numeros, custo: e.target.value })}
               />
@@ -263,7 +263,7 @@ function ProdutosPage() {
                 min="0"
                 step="0.01"
                 inputMode="decimal"
-                className="input-premium"
+                className="field-control"
                 value={numeros.preco}
                 onChange={(e) => setNumeros({ ...numeros, preco: e.target.value })}
               />
@@ -276,7 +276,7 @@ function ProdutosPage() {
                 type="number"
                 min="0"
                 inputMode="numeric"
-                className="input-premium"
+                className="field-control"
                 value={numeros.quantidade}
                 onChange={(e) => setNumeros({ ...numeros, quantidade: e.target.value })}
               />
@@ -287,7 +287,7 @@ function ProdutosPage() {
                 type="number"
                 min="0"
                 inputMode="numeric"
-                className="input-premium"
+                className="field-control"
                 value={numeros.estoque_minimo}
                 onChange={(e) => setNumeros({ ...numeros, estoque_minimo: e.target.value })}
               />
