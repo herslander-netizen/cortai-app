@@ -67,6 +67,9 @@ export function ManagementHeader() {
     staleTime: 300_000,
     enabled: aberto,
   });
+  const [logoFalhou, setLogoFalhou] = useState<string | null>(null);
+  const logoDoNegocio = sessao?.tenantLogoUrl ?? null;
+  const logoUsavel = logoDoNegocio && logoDoNegocio !== logoFalhou ? logoDoNegocio : null;
   const fuso = normalizarFuso(sessao?.tenantFuso);
   const hoje = hojeNoFuso(fuso);
   const { data: agenda } = useQuery({
@@ -187,7 +190,9 @@ export function ManagementHeader() {
               aria-label="Abrir navegação"
             >
               <img
-                src={modoClaro ? menuEscuro.url : menuClaro.url}
+                key={logoUsavel ?? "cortai"}
+                src={logoUsavel ?? (modoClaro ? menuEscuro.url : menuClaro.url)}
+                onError={() => logoUsavel && setLogoFalhou(logoUsavel)}
                 alt=""
                 aria-hidden
                 className="h-11 w-11 rounded-[8px] object-cover"

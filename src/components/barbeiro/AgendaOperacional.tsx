@@ -323,6 +323,11 @@ export function AgendaOperacional() {
 
   function mudarDia(proximo: string) {
     setDirecaoDia(proximo < dia ? "anterior" : "proximo");
+    // Trocar de dia nunca abre (nem reabre) o novo agendamento.
+    setManualAberto(false);
+    setNovoCliente(false);
+    setHoraVazia(undefined);
+    setProfVazio(null);
     setDia(proximo);
   }
 
@@ -815,6 +820,12 @@ export function AgendaOperacional() {
               iniciarNovoCliente={novoCliente}
               autoAbrir
               rotulo="Novo agendamento"
+              onFechar={() => {
+                setManualAberto(false);
+                setNovoCliente(false);
+                setHoraVazia(undefined);
+                setProfVazio(null);
+              }}
               onCriado={(agendamentoId) => {
                 setManualAberto(false);
                 setNovoCliente(false);

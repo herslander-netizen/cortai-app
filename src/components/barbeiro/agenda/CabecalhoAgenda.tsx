@@ -120,7 +120,11 @@ export function CabecalhoAgenda({
         variant="ghost"
         size="icon"
         aria-label="Dia anterior"
-        onClick={() => onDia(somarDias(dia, -1))}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDia(somarDias(dia, -1));
+        }}
       >
         <ChevronLeft />
       </Button>
@@ -128,7 +132,11 @@ export function CabecalhoAgenda({
         variant="ghost"
         size="icon"
         aria-label="Próximo dia"
-        onClick={() => onDia(somarDias(dia, 1))}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDia(somarDias(dia, 1));
+        }}
       >
         <ChevronRight />
       </Button>
