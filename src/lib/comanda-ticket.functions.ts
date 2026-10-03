@@ -51,7 +51,6 @@ export const getTicketComanda = createServerFn({ method: "GET" })
         .from("comanda_itens")
         .select("tipo, descricao, quantidade, valor_total_centavos")
         .eq("comanda_id", data.comandaId)
-        .eq("tenant_id", tenantId)
         .order("criado_em"),
       db.from("tenants").select("nome, logo_url, fuso").eq("id", tenantId).maybeSingle(),
       db

@@ -6005,3 +6005,43 @@ button.agenda-nome:hover {
   font-size: 12px;
   font-weight: 600;
 }
+
+/* Comanda em ticket — papel térmico único para todos os negócios e formas de pagamento. */
+:root {
+  --ticket-fundo: #06172b;
+  --ticket-papel: #fffdf9;
+  --ticket-texto: #0a1830;
+  --ticket-mute: #5b6b80;
+  --ticket-suave: #f1f4f7;
+  --ticket-linha: #c9d2dd;
+  --ticket-total: #e6f6ff;
+  --ticket-navy: #06245a;
+  --ticket-ciano: #00b4ff;
+  --ticket-rosa: #ff2d78;
+  --ticket-pix: #32bcad;
+  --ticket-pago: #15803d;
+  --ticket-pendente: #c2610c;
+  --ticket-cancelado: #dc2626;
+}
+
+.papel-ticket {
+  --furo: 6px;
+  --passo: 18px;
+  --furo-lado: 4px;
+  --passo-lado: 22px;
+  background: var(--ticket-papel);
+  color: var(--ticket-texto);
+  filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.28));
+  -webkit-mask:
+    radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
+    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
+    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
+    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
+    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
+    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
+    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
+  mask-composite: intersect;
+}
