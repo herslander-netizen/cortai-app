@@ -135,21 +135,19 @@ export function DrawerAjustes({
             size="bloco"
             aria-expanded={aparenciaAberta}
             onClick={() => setAparenciaAberta((valor) => !valor)}
-            className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
+            className={`${CARTAO} ${LINHA}`}
           >
-            <span className="grid w-full grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3">
-              <IconeDoMenu icone={Palette} />
-              <span className="min-w-0">
-                <span className="block truncate text-base font-semibold text-paper">Aparência</span>
-                <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                  Claro, escuro, sistema e identidade
-                </span>
+            <IconeDoMenu icone={Palette} />
+            <span className="min-w-0">
+              <span className="block truncate text-base font-semibold text-paper">Aparência</span>
+              <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                Claro, escuro, sistema e identidade
               </span>
-              <ChevronRight
-                className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
-                aria-hidden
-              />
             </span>
+            <ChevronRight
+              className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
+              aria-hidden
+            />
           </Button>
           {aparenciaAberta ? (
             <div className="rounded-[18px] border border-drawer-borda bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
