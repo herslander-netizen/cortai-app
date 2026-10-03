@@ -412,7 +412,7 @@ async function linkDoCortai(tenantId: string) {
 }
 
 /** Quero / Não posso da vaga da lista de espera. Reserva atômica: toque duplo não repete. */
-async function responderOferta(
+export async function responderOferta(
   envioId: string,
   ofertaId: string | null,
   acao: string,
@@ -451,6 +451,8 @@ async function responderOferta(
       texto: `Essa vaga não está mais disponível. Quer marcar outro horário? ${await linkDoCortai(tenantId)}`,
     };
   }
+  // A confirmação do agendamento já avisou o cliente: nada de mensagem dupla.
+  if (r.confirmacaoEnviada) return { texto: "" };
   const fuso = await fusoDoTenant(tenantId);
   const { textoDaVagaMarcada } = await import("./modelos");
   return {
