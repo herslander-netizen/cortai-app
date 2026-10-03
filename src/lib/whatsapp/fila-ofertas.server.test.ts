@@ -58,7 +58,8 @@ function builder(tabela: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const b: any = {};
   const chain = () => b;
-  for (const m of ["select", "eq", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
+  for (const m of ["select", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
+  b.eq = (col: string, val: unknown) => ((ctx.filtros[col] = val), b);
   b.order = (col: string) => {
     if (tabela === "fila_de_espera") st.orders.push(col);
     return b;
