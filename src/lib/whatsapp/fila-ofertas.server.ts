@@ -146,9 +146,10 @@ export async function ofertarVaga(
     servicoLiberadoId,
   };
 
-  // Ordem real (posição, entrada, id) em lotes de 200; para no primeiro compatível válido.
+  // Ordem real (posição, entrada, id) em lotes de 200, até o fim da fila;
+  // para no primeiro compatível válido ou após 20 candidatos compatíveis.
   let tentativas = 0;
-  for (let de = 0; de < TETO_DA_FILA && tentativas < TENTATIVAS_POR_VAGA; de += LOTE_DA_FILA) {
+  for (let de = 0; tentativas < TENTATIVAS_POR_VAGA; de += LOTE_DA_FILA) {
     const { data: lote } = await db
       .from("fila_de_espera")
       .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
