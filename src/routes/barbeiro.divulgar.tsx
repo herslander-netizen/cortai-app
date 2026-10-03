@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { PainelPublicacao } from "@/components/divulgacao/PainelPublicacao";
 import { canvasParaArquivo, desenharArte } from "@/components/divulgacao/arte";
 import { getDadosDivulgacao } from "@/lib/divulgacao.functions";
 import { REDES, legenda, linkRastreado, textoPadrao, type Modelo, type Rede } from "@/lib/divulgacao";
@@ -165,7 +166,7 @@ function DivulgarPage() {
 
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" className="min-h-12 rounded-full" onClick={() => void compartilhar()}>
-              <Share2 className="size-4" /> Publicar
+              <Share2 className="size-4" /> Compartilhar
             </Button>
             <Button variant="ghost" className="min-h-12 rounded-full" onClick={baixar}>
               <Download className="size-4" /> Baixar
@@ -178,6 +179,11 @@ function DivulgarPage() {
               <Copy className="size-4" /> Copiar legenda
             </Button>
           </div>
+
+          <PainelPublicacao
+            legenda={textoLegenda}
+            gerarImagem={() => canvas.current?.toDataURL("image/jpeg", 0.85) ?? null}
+          />
         </div>
       </div>
     </Screen>
