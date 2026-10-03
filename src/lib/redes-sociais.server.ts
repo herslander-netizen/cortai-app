@@ -9,7 +9,9 @@ import type { PlataformaSocial } from "@/lib/redes-sociais";
 export type CredenciaisDaPlataforma = { clientId: string; clientSecret: string };
 
 /** Devolve as chaves da plataforma, ou null quando ainda não foram configuradas. */
-export function credenciaisDaPlataforma(plataforma: PlataformaSocial): CredenciaisDaPlataforma | null {
+export function credenciaisDaPlataforma(
+  plataforma: PlataformaSocial,
+): CredenciaisDaPlataforma | null {
   const clientId =
     plataforma === "instagram" ? process.env["META_APP_ID"] : process.env["TIKTOK_CLIENT_KEY"];
   const clientSecret =

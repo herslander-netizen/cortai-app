@@ -47,9 +47,7 @@ export const iniciarConexaoSocial = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
 
-      const { credenciaisDaPlataforma, assinarEstado } = await import(
-        "@/lib/redes-sociais.server"
-      );
+      const { credenciaisDaPlataforma, assinarEstado } = await import("@/lib/redes-sociais.server");
       const creds = credenciaisDaPlataforma(data.plataforma);
 
       if (!creds) {

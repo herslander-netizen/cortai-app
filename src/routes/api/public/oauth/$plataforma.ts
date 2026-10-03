@@ -22,9 +22,8 @@ export const Route = createFileRoute("/api/public/oauth/$plataforma")({
         const state = url.searchParams.get("state");
         const volta = `${url.origin}/barbeiro/redes`;
 
-        const { credenciaisDaPlataforma, verificarEstado, trocarCodigoPorToken } = await import(
-          "@/lib/redes-sociais.server"
-        );
+        const { credenciaisDaPlataforma, verificarEstado, trocarCodigoPorToken } =
+          await import("@/lib/redes-sociais.server");
         const creds = credenciaisDaPlataforma(plataforma);
         if (!creds) return redirecionar(`${volta}?erro=configuracao`);
         if (!code || !state) return redirecionar(`${volta}?erro=cancelado`);

@@ -108,7 +108,9 @@ function RedesPage() {
         window.location.href = r.url;
       }
     } catch (e) {
-      aviso.erro(e instanceof Error ? e.message : "Não foi possível conectar agora. Tente de novo.");
+      aviso.erro(
+        e instanceof Error ? e.message : "Não foi possível conectar agora. Tente de novo.",
+      );
     } finally {
       setOcupado(null);
     }
@@ -202,9 +204,9 @@ function RedesPage() {
       ) : null}
 
       <p className="mt-6 flex items-start gap-2 text-[13px] text-mute">
-        <Share2 className="mt-0.5 size-4 shrink-0" aria-hidden />
-        A publicação automática de fotos e vídeos chega na próxima etapa. Por enquanto, esta tela
-        guarda a conexão das suas contas com segurança.
+        <Share2 className="mt-0.5 size-4 shrink-0" aria-hidden />A publicação automática de fotos e
+        vídeos chega na próxima etapa. Por enquanto, esta tela guarda a conexão das suas contas com
+        segurança.
       </p>
 
       <AlertDialog
