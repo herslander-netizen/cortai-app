@@ -21,7 +21,6 @@ import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configura
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
-import { Route as PreviewAjustesTempRouteImport } from './routes/preview-ajustes-temp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
@@ -158,11 +157,6 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PreviewAjustesTempRoute = PreviewAjustesTempRouteImport.update({
-  id: '/preview-ajustes-temp',
-  path: '/preview-ajustes-temp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -564,7 +558,6 @@ export interface FileRoutesByFullPath {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
-  '/preview-ajustes-temp': typeof PreviewAjustesTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -652,7 +645,6 @@ export interface FileRoutesByTo {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
-  '/preview-ajustes-temp': typeof PreviewAjustesTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -743,7 +735,6 @@ export interface FileRoutesById {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
-  '/preview-ajustes-temp': typeof PreviewAjustesTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -836,7 +827,6 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
-    | '/preview-ajustes-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -924,7 +914,6 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
-    | '/preview-ajustes-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -1014,7 +1003,6 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
-    | '/preview-ajustes-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -1106,7 +1094,6 @@ export interface RootRouteChildren {
   ConviteRoute: typeof ConviteRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
-  PreviewAjustesTempRoute: typeof PreviewAjustesTempRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
@@ -1220,13 +1207,6 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/preview-ajustes-temp': {
-      id: '/preview-ajustes-temp'
-      path: '/preview-ajustes-temp'
-      fullPath: '/preview-ajustes-temp'
-      preLoaderRoute: typeof PreviewAjustesTempRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -1910,7 +1890,6 @@ const rootRouteChildren: RootRouteChildren = {
   ConviteRoute: ConviteRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
-  PreviewAjustesTempRoute: PreviewAjustesTempRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
