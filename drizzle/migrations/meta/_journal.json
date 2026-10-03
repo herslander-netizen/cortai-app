@@ -64,6 +64,13 @@
       "when": 1791041538076,
       "tag": "0008_create_conexoes_sociais",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791044093358,
+      "tag": "0009_clientes_email",
+      "breakpoints": true
     }
   ]
 }
