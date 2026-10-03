@@ -396,7 +396,7 @@ export async function aceitarOferta(token: string) {
         await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
     }
   }
-  return r;
+  return { ...r, confirmacaoEnviada };
 }
 
 export async function recusarOferta(token: string) {

@@ -412,7 +412,7 @@ async function linkDoCortai(tenantId: string) {
 }
 
 /** Quero / Não posso da vaga da lista de espera. Reserva atômica: toque duplo não repete. */
-async function responderOferta(
+export async function responderOferta(
   envioId: string,
   ofertaId: string | null,
   acao: string,
