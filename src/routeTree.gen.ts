@@ -21,6 +21,7 @@ import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configura
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PreviaTicketTempRouteImport } from './routes/previa-ticket-temp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
@@ -161,6 +162,11 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviaTicketTempRoute = PreviaTicketTempRouteImport.update({
+  id: '/previa-ticket-temp',
+  path: '/previa-ticket-temp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -583,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/previa-ticket-temp': typeof PreviaTicketTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -674,6 +681,7 @@ export interface FileRoutesByTo {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/previa-ticket-temp': typeof PreviaTicketTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -768,6 +776,7 @@ export interface FileRoutesById {
   '/convite': typeof ConviteRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/previa-ticket-temp': typeof PreviaTicketTempRoute
   '/privacidade': typeof PrivacidadeRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -864,6 +873,7 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
+    | '/previa-ticket-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -955,6 +965,7 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
+    | '/previa-ticket-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -1048,6 +1059,7 @@ export interface FileRouteTypes {
     | '/convite'
     | '/login'
     | '/mcp'
+    | '/previa-ticket-temp'
     | '/privacidade'
     | '/recuperar-senha'
     | '/redefinir-senha'
@@ -1143,6 +1155,7 @@ export interface RootRouteChildren {
   ConviteRoute: typeof ConviteRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  PreviaTicketTempRoute: typeof PreviaTicketTempRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
@@ -1257,6 +1270,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/previa-ticket-temp': {
+      id: '/previa-ticket-temp'
+      path: '/previa-ticket-temp'
+      fullPath: '/previa-ticket-temp'
+      preLoaderRoute: typeof PreviaTicketTempRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -1974,6 +1994,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConviteRoute: ConviteRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  PreviaTicketTempRoute: PreviaTicketTempRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
