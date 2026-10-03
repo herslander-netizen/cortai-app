@@ -84,7 +84,6 @@ import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
-import { Route as PreviaTicketTempRouteImport } from './routes/previa.ticket-temp'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
@@ -480,11 +479,6 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PreviaTicketTempRoute = PreviaTicketTempRouteImport.update({
-  id: '/previa/ticket-temp',
-  path: '/previa/ticket-temp',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const VagaTokenRoute = VagaTokenRouteImport.update({
   id: '/vaga/$token',
   path: '/vaga/$token',
@@ -649,7 +643,6 @@ export interface FileRoutesByFullPath {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
-  '/previa/ticket-temp': typeof PreviaTicketTempRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -740,7 +733,6 @@ export interface FileRoutesByTo {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
-  '/previa/ticket-temp': typeof PreviaTicketTempRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -836,7 +828,6 @@ export interface FileRoutesById {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
-  '/previa/ticket-temp': typeof PreviaTicketTempRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -933,7 +924,6 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
-    | '/previa/ticket-temp'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
@@ -1024,7 +1014,6 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
-    | '/previa/ticket-temp'
     | '/vaga/$token'
     | '/admin'
     | '/app'
@@ -1119,7 +1108,6 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
-    | '/previa/ticket-temp'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
@@ -1168,7 +1156,6 @@ export interface RootRouteChildren {
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
-  PreviaTicketTempRoute: typeof PreviaTicketTempRoute
   VagaTokenRoute: typeof VagaTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
@@ -1713,13 +1700,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/previa/ticket-temp': {
-      id: '/previa/ticket-temp'
-      path: '/previa/ticket-temp'
-      fullPath: '/previa/ticket-temp'
-      preLoaderRoute: typeof PreviaTicketTempRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/vaga/$token': {
       id: '/vaga/$token'
       path: '/vaga/$token'
@@ -2008,7 +1988,6 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
-  PreviaTicketTempRoute: PreviaTicketTempRoute,
   VagaTokenRoute: VagaTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
