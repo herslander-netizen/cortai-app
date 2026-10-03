@@ -9,6 +9,7 @@ import {
   prefixoDeCodigo,
   type DadosDoTicket,
   type EstadoDoTicket,
+  type MotivoDeEncerramento,
 } from "@/lib/comanda-ticket";
 
 async function admin() {
@@ -46,7 +47,7 @@ function dataHora(iso: string, fuso: string) {
 }
 
 const SELECAO =
-  "id, codigo, status, subtotal_centavos, desconto_centavos, total_centavos, criado_em, clientes(nome, telefone), agendamentos(inicio, forma_pagamento), pagamentos(forma_pagamento, status, estornado_em, criado_em)";
+  "id, codigo, status, motivo_encerramento, subtotal_centavos, desconto_centavos, total_centavos, criado_em, clientes(nome, telefone), agendamentos(inicio, forma_pagamento), pagamentos(forma_pagamento, status, estornado_em, criado_em)";
 
 function ultimoPagamento(lista: any[] | null | undefined) {
   return [...(lista ?? [])].sort((a, b) => (a.criado_em < b.criado_em ? 1 : -1))[0] ?? null;
@@ -120,7 +121,7 @@ export const getTicketComanda = createServerFn({ method: "GET" })
 /**
  * Ticket pelo agendamento, para a tela pública de confirmação.
  * Sem login: quem tem o link da confirmação já vê serviço, profissional e valor;
- * o ticket só aparece quando a comanda existe (fechamento feito pelo negócio).
+ * a comanda nasce com o agendamento; antigos sem comanda são completados aqui.
  */
 export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
@@ -134,8 +135,46 @@ export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
       .order("criado_em", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (!comanda) return null;
-    return carregarTicket(db, comanda.id, comanda.tenant_id);
+    if (comanda) return carregarTicket(db, comanda.id, comanda.tenant_id);
+    // Agendamento antigo sem comanda: a mesma função do banco cria (só se ainda estiver ativo).
+    const { data: criada } = await db.rpc("garantir_comanda" as never, {
+      _agendamento_id: data.agendamentoId,
+    } as never);
+    if (!criada) return null;
+    const { data: nova } = await db
+      .from("comandas")
+      .select("id, tenant_id")
+      .eq("id", criada as unknown as string)
+      .maybeSingle();
+    return nova ? carregarTicket(db, nova.id, nova.tenant_id) : null;
+  });
+
+/** Comanda do agendamento para a equipe; garante a existência (fonte única no banco). */
+export const getComandaDoAgendamento = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ comandaId: string | null }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    const db = await admin();
+    const { data: ag } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (!ag) throw new Error("Agendamento não encontrado.");
+    const { data: existente } = await db
+      .from("comandas")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("agendamento_id", ag.id)
+      .maybeSingle();
+    if (existente) return { comandaId: existente.id };
+    const { data: criada } = await db.rpc("garantir_comanda" as never, {
+      _agendamento_id: ag.id,
+      _ator: context.userId,
+    } as never);
+    return { comandaId: (criada as unknown as string | null) ?? null };
   });
 
 export type ResultadoDaBusca = {
@@ -146,6 +185,7 @@ export type ResultadoDaBusca = {
   totalCentavos: number;
   forma: string | null;
   estado: EstadoDoTicket;
+  motivo: MotivoDeEncerramento | null;
 };
 
 /** Busca por código (ou parte), data dd/mm/aaaa, nome ou telefone do cliente. */
@@ -203,6 +243,7 @@ export const buscarComandas = createServerFn({ method: "GET" })
           totalCentavos: c.total_centavos,
           forma: pagamento?.forma_pagamento ?? c.agendamentos?.forma_pagamento ?? null,
           estado: estadoDoTicket(c.status, pagamento),
+          motivo: (c.motivo_encerramento ?? null) as MotivoDeEncerramento | null,
         };
       })
       .filter((r) => data.estado === "todos" || r.estado === data.estado);

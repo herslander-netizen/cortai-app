@@ -44,6 +44,31 @@ export const ROTULO_DO_ESTADO: Record<EstadoDoTicket, string> = {
   cancelado: "Cancelado",
 };
 
+export type MotivoDeEncerramento = "cancelamento" | "remarcacao" | "falta";
+
+/** Rótulo curto do estado, com o motivo quando a comanda foi encerrada pelo agendamento. */
+export function rotuloDoEstado(estado: EstadoDoTicket, motivo?: MotivoDeEncerramento | null) {
+  if (estado !== "cancelado" || !motivo) return ROTULO_DO_ESTADO[estado];
+  if (motivo === "remarcacao") return "Cancelado · Remarcado";
+  if (motivo === "falta") return "Não compareceu";
+  return "Cancelado";
+}
+
+/** Chaves de cache ligadas à comanda/ticket: invalidar todas depois de qualquer mudança. */
+export const CHAVES_DA_COMANDA = [
+  ["busca-comandas"],
+  ["ticket-comanda"],
+  ["ticket-publico"],
+  ["comanda-do-agendamento"],
+  ["fechamento-comanda"],
+] as const;
+
+export function invalidarComandas(qc: {
+  invalidateQueries: (f: { queryKey: readonly unknown[] }) => unknown;
+}) {
+  for (const queryKey of CHAVES_DA_COMANDA) void qc.invalidateQueries({ queryKey });
+}
+
 /** Estado do ticket separado da identificação: vem da comanda e do pagamento, nunca do código. */
 export function estadoDoTicket(
   statusComanda: string,
