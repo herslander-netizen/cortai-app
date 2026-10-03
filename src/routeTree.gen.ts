@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AgendaAuditTempRouteImport } from './routes/agenda-audit-temp'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
@@ -117,11 +116,6 @@ const SlugRoute = SlugRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AgendaAuditTempRoute = AgendaAuditTempRouteImport.update({
-  id: '/agenda-audit-temp',
-  path: '/agenda-audit-temp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -586,7 +580,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRouteWithChildren
-  '/agenda-audit-temp': typeof AgendaAuditTempRoute
   '/app': typeof AppRouteWithChildren
   '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
@@ -681,7 +674,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$slug': typeof SlugRoute
-  '/agenda-audit-temp': typeof AgendaAuditTempRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
   '/comecar': typeof ComecarRoute
@@ -775,7 +767,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRouteWithChildren
-  '/agenda-audit-temp': typeof AgendaAuditTempRoute
   '/app': typeof AppRouteWithChildren
   '/apresentacao': typeof ApresentacaoRoute
   '/barbearias': typeof BarbeariasRoute
@@ -873,7 +864,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$slug'
     | '/admin'
-    | '/agenda-audit-temp'
     | '/app'
     | '/apresentacao'
     | '/barbearias'
@@ -968,7 +958,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$slug'
-    | '/agenda-audit-temp'
     | '/apresentacao'
     | '/barbearias'
     | '/comecar'
@@ -1061,7 +1050,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$slug'
     | '/admin'
-    | '/agenda-audit-temp'
     | '/app'
     | '/apresentacao'
     | '/barbearias'
@@ -1158,7 +1146,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SlugRoute: typeof SlugRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AgendaAuditTempRoute: typeof AgendaAuditTempRoute
   AppRoute: typeof AppRouteWithChildren
   ApresentacaoRoute: typeof ApresentacaoRoute
   BarbeariasRoute: typeof BarbeariasRoute
@@ -1220,13 +1207,6 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/agenda-audit-temp': {
-      id: '/agenda-audit-temp'
-      path: '/agenda-audit-temp'
-      fullPath: '/agenda-audit-temp'
-      preLoaderRoute: typeof AgendaAuditTempRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -2005,7 +1985,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SlugRoute: SlugRoute,
   AdminRoute: AdminRouteWithChildren,
-  AgendaAuditTempRoute: AgendaAuditTempRoute,
   AppRoute: AppRouteWithChildren,
   ApresentacaoRoute: ApresentacaoRoute,
   BarbeariasRoute: BarbeariasRoute,
