@@ -574,7 +574,11 @@ function Editor({
                 {config.experiencia === "vitrine" ? (
                   <div className="mt-4">
                     <p className="text-xs font-medium text-mute">Ao tocar Agendar</p>
-                    <div className="mt-2 grid grid-cols-2 gap-2" role="group" aria-label="Ao tocar Agendar">
+                    <div
+                      className="mt-2 grid grid-cols-2 gap-2"
+                      role="group"
+                      aria-label="Ao tocar Agendar"
+                    >
                       {(
                         [
                           ["tradicional", "Passo a passo"],
@@ -595,7 +599,9 @@ function Editor({
                     </div>
                   </div>
                 ) : null}
-                <p className="mt-2 text-xs text-mute">Nada muda para seus clientes até você publicar.</p>
+                <p className="mt-2 text-xs text-mute">
+                  Nada muda para seus clientes até você publicar.
+                </p>
                 <div className="mt-4">
                   <ChatPreview
                     ativo={usaConversa}

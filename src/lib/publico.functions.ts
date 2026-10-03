@@ -173,7 +173,9 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
           : null,
         quantidade: avaliacoes?.length ?? 0,
       },
-      agendaOnline: await (await import("@/lib/agenda-online.server"))
+      agendaOnline: await (
+        await import("@/lib/agenda-online.server")
+      )
         .usoDaAgendaOnline(supabaseAdmin, tenant.id)
         .then((r) => r.estado)
         .catch(() => "aberta" as const),

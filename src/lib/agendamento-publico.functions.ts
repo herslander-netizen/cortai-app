@@ -264,7 +264,9 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         })),
       ],
       pagina: { ...pagina, chat: { ...pagina.chat, avatarUrl } },
-      agendaOnline: await (await import("@/lib/agenda-online.server"))
+      agendaOnline: await (
+        await import("@/lib/agenda-online.server")
+      )
         .usoDaAgendaOnline(db, tenant.id)
         .then((r) => r.estado)
         .catch(() => "aberta" as const),
