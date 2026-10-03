@@ -56,17 +56,13 @@ export function detectarOrigem(search: string, referrer: string, hostAtual = "")
   return "outro";
 }
 
-/** /agendar vindo dos botões da vitrine → vitrine; direto → conversa ou direta pelo modo. */
+/** /agendar vindo dos botões da vitrine → vitrine; senão, a experiência publicada. */
 export function detectarExperiencia(
   search: string,
-  modoChat: string | null | undefined,
+  experienciaPublicada: ExperienciaFunil | null | undefined,
 ): ExperienciaFunil {
   if (new URLSearchParams(search).get("de") === "vitrine") return "vitrine";
-  return modoChat === "conversa" ? "conversa" : "direta";
-}
-
-export function fluxoDoModo(modoChat: string | null | undefined): Exclude<FluxoFunil, null> {
-  return modoChat === "conversa" ? "conversa" : "passo_a_passo";
+  return experienciaPublicada ?? "vitrine";
 }
 
 /** Busca para os botões de agendar da vitrine (mantém a origem da visita). */
