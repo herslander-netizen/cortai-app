@@ -353,12 +353,15 @@ export function AgendaOperacional() {
     queryFn: () => getCapacidades(),
     staleTime: 300_000,
   });
-  const focoNoPlano =
-    capacidadesQ.data?.liberados["modo_foco"] !== false &&
-    capacidadesQ.data?.ativos["modo_foco"] !== false;
+  const focoNoPlano = capacidadesQ.data?.liberados["modo_foco"] !== false;
+  // Desligado pelo dono em Funcionalidades: vale também no celular.
+  const focoDesligado = capacidadesQ.data?.ativos["modo_foco"] === false;
+  useEffect(() => {
+    if (focoDesligado && modoFoco) setModoFoco(false);
+  }, [focoDesligado, modoFoco]);
 
   function entrarNoModoFoco() {
-    if (modoFoco) return;
+    if (modoFoco || focoDesligado) return;
     const hoje = hojeNoFuso(fuso);
     if (dia !== hoje) setDia(hoje);
     if (meuId) setProfFiltro(meuId);
@@ -1046,7 +1049,7 @@ export function AgendaOperacional() {
           onFila={() => setFilaAberta(true)}
           mostrarFila={mostrarFila}
           onModoFoco={entrarNoModoFoco}
-          focoNoPlano={celular || focoNoPlano}
+          focoNoPlano={(celular || focoNoPlano) && !focoDesligado}
           visualizacao={visualizacao}
           onVisualizacao={alterarVisualizacao}
           mostrarSemana={!celular}
