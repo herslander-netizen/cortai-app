@@ -500,7 +500,7 @@ export function FechamentoComanda({
         {d && etapa === "pix" ? (
           <div className="py-3">
             <StatusBadge
-              status={pixInformado ? "aguardando_confirmacao" : "aguardando_pagamento"}
+              status={pixInformado ? "pendente" : "aguardando_pagamento"}
               label={
                 ROTULO_DA_ETAPA_EQUIPE[pixInformado ? "pagamento_informado" : "aguardando_pagamento"]
               }
