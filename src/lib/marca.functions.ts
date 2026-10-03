@@ -172,7 +172,10 @@ export const getMarca = createServerFn({ method: "GET" })
         id: tenant.id,
         plano: tenant.plano,
         ...(marcaRascunho.success ? marcaRascunho.data : atual),
-        logo_signed_url: await signedLogo(context.supabase, atual.logo_url),
+        logo_signed_url: await signedLogo(
+          context.supabase,
+          marcaRascunho.success ? marcaRascunho.data.logo_url : atual.logo_url,
+        ),
         capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
         avatar_signed_url: await signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
         slug: tenant.slug,
@@ -437,3 +440,29 @@ export const getMarcaCliente = createServerFn({ method: "GET" }).handler(async (
     capa_signed_url: await signedLogo(supabaseAdmin, data.capa_url),
   };
 });
+
+export type LogoDisponivel = { path: string; url: string; criado_em: string | null };
+
+/** Logos já enviadas pelo próprio negócio (pasta do negócio no armazenamento). */
+export const listarLogosDoNegocio = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<LogoDisponivel[]> => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId).catch(() => null);
+    if (!tenantId) return [];
+    const { data: arquivos } = await context.supabase.storage
+      .from("tenant-logos")
+      .list(tenantId, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+    const logos = (arquivos ?? []).filter((a) => a.name.startsWith("logo-")).slice(0, 12);
+    if (!logos.length) return [];
+    const paths = logos.map((a) => `${tenantId}/${a.name}`);
+    const { data: assinadas } = await context.supabase.storage
+      .from("tenant-logos")
+      .createSignedUrls(paths, 60 * 60);
+    return logos
+      .map((a, i) => ({
+        path: paths[i]!,
+        url: assinadas?.[i]?.signedUrl ?? "",
+        criado_em: a.created_at ?? null,
+      }))
+      .filter((l) => l.url);
+  });

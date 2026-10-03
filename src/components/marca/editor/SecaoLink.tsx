@@ -63,25 +63,9 @@ export function SecaoLink({
         </Button>
       </div>
       <Campo
-        label="WhatsApp"
-        value={form.whatsapp}
-        onChange={(value) => setMarca("whatsapp", value || null)}
-      />
-      <Campo
         label="Telefone"
         value={form.telefone}
         onChange={(value) => setMarca("telefone", value || null)}
-      />
-      <Campo
-        label="Instagram"
-        value={form.instagram}
-        onChange={(value) => setMarca("instagram", value || null)}
-        placeholder="@seu_negocio"
-      />
-      <Campo
-        label="Facebook"
-        value={form.facebook}
-        onChange={(value) => setMarca("facebook", value || null)}
       />
     </div>
   );

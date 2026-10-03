@@ -11,6 +11,7 @@ import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
 import { SecaoLink } from "@/components/marca/editor/SecaoLink";
+import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
 import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
 import { SecaoTema } from "@/components/marca/editor/SecaoTema";
 import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
@@ -183,14 +184,21 @@ function Editor({
                 vocabulario={e.vocabulario}
               />
             </Item>
-            <Item id="imagens" titulo="Imagens">
+            <Item id="imagens" titulo="Logo e imagens">
               <SecaoImagens
                 coverRef={e.coverRef}
                 fileRef={e.fileRef}
                 coverPreview={e.coverPreview}
                 logoPreview={e.logoPreview}
+                logoAtual={e.form.logo_url}
+                busy={e.busy}
                 upload={e.upload}
+                usarLogo={e.usarLogo}
+                removerLogo={e.removerLogo}
               />
+            </Item>
+            <Item id="redes" titulo="Redes sociais">
+              <SecaoRedes form={e.form} setMarca={e.setMarca} config={e.config} setPagina={e.setPagina} />
             </Item>
             <Item id="ajustes" titulo="Ajustes finos">
               <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />

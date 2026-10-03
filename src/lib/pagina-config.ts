@@ -85,6 +85,14 @@ export const paginaConfigSchema = z.object({
   experiencia: z.enum(["direta", "vitrine", "conversa"]).default("vitrine"),
   /** Botão "Agendar" fixo no celular. Ausente = ligado. */
   botaoFixo: z.boolean().default(true),
+  /** Redes extras (Instagram, Facebook e WhatsApp ficam nos campos do negócio). */
+  redes: z
+    .object({
+      tiktok: z.string().trim().max(200).default(""),
+      youtube: z.string().trim().max(300).default(""),
+      site: z.string().trim().max(300).default(""),
+    })
+    .default({}),
 });
 
 export type ExperienciaDoLink = "direta" | "vitrine" | "conversa";
