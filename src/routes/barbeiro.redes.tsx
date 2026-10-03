@@ -80,10 +80,18 @@ function RedesPage() {
         `${ROTULO_PLATAFORMA[busca.conectada as PlataformaSocial] ?? "Conta"} conectada com sucesso.`,
       );
       void qc.invalidateQueries({ queryKey: ["conexoes-sociais"] });
-      void navigate({ to: "/barbeiro/redes", search: {}, replace: true });
+      void navigate({
+        to: "/barbeiro/redes",
+        search: { conectada: undefined, erro: undefined },
+        replace: true,
+      });
     } else if (busca.erro) {
       aviso.erro(ERROS_DE_RETORNO[busca.erro] ?? "Não foi possível conectar. Tente de novo.");
-      void navigate({ to: "/barbeiro/redes", search: {}, replace: true });
+      void navigate({
+        to: "/barbeiro/redes",
+        search: { conectada: undefined, erro: undefined },
+        replace: true,
+      });
     }
   }, [busca.conectada, busca.erro, navigate, qc]);
 
