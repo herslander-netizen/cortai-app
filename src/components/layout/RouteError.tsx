@@ -27,7 +27,7 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {semAcesso
-            ? "Seu acesso continua protegido pelas permissões da barbearia."
+            ? "Seu acesso continua protegido pelas permissões do seu negócio."
             : "Algo não saiu como esperado. Você pode tentar novamente ou voltar."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">

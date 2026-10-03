@@ -221,7 +221,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
         {grade.isLoading ? (
           <EsqueletoAgenda linhas={2} onTentarDeNovo={() => void grade.refetch()} />
         ) : grade.data?.fechado ? (
-          <p className="text-xs text-mute">Barbearia fechada neste dia.</p>
+          <p className="text-xs text-mute">Fechado neste dia.</p>
         ) : (
           <>
             <div className="grid grid-cols-4 gap-1.5">

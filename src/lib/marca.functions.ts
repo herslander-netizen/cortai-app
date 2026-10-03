@@ -155,7 +155,7 @@ export const getMarca = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .maybeSingle(),
     ]);
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
     const atual = snapshot(tenant);
     const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
     const publishedContainer = pagina?.published_config as {
@@ -230,7 +230,7 @@ export const salvarMarca = createServerFn({ method: "POST" })
       .select("*")
       .eq("id", tenantId)
       .single();
-    if (!atual) throw new Error("Barbearia não encontrada.");
+    if (!atual) throw new Error("Negócio não encontrado.");
 
     const assinatura = atual.plano === "essencial" ? true : data.assinatura_visivel;
     const { data: ultima } = await context.supabase
@@ -321,7 +321,7 @@ export const publicarPagina = createServerFn({ method: "POST" })
       .select("plano")
       .eq("id", tenantId)
       .single();
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
     const marca = {
       ...data.marca,
       assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,

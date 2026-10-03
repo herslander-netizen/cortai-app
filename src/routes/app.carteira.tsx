@@ -16,7 +16,7 @@ export const Route = createFileRoute("/app/carteira")({
       { title: "Minha carteira — Cortaí" },
       {
         name: "description",
-        content: "Saldo, créditos, cartão de fidelidade e extrato da sua barbearia.",
+        content: "Saldo, créditos, cartão de fidelidade e extrato do seu negócio de beleza favorito.",
       },
       { property: "og:title", content: "Minha carteira — Cortaí" },
       {
@@ -38,7 +38,7 @@ function dataCurta(iso: string) {
 function rotuloMovimento(m: Movimento) {
   if (m.descricao) return m.descricao;
   const mapa: Record<string, string> = {
-    debito: "Corte usando crédito",
+    debito: "Atendimento usando crédito",
     credito: "Créditos adicionados",
     fiado: "Lançado no fiado",
     pagamento: "Pagamento recebido",
@@ -104,8 +104,8 @@ function CartaoFidelidade({ progresso, alvo }: { progresso: number; alvo: number
       </div>
       <p className="mt-3 text-xs text-mute">
         {feitos >= alvo
-          ? "Cartão completo: seu próximo corte é por conta da casa."
-          : `Faltam ${alvo - feitos} ${alvo - feitos === 1 ? "corte" : "cortes"} para o corte grátis.`}
+          ? "Cartão completo: seu próximo atendimento é por conta da casa."
+          : `Faltam ${alvo - feitos} ${alvo - feitos === 1 ? "atendimento" : "atendimentos"} para o atendimento grátis.`}
       </p>
     </div>
   );
@@ -148,7 +148,7 @@ function CarteiraPage() {
                   ? `${data.carteira.saldo_creditos} ${
                       data.carteira.saldo_creditos === 1 ? "crédito" : "créditos"
                     } de corte na carteira`
-                  : "Nenhum crédito de corte na carteira"}
+                  : "Nenhum crédito de atendimento na carteira"}
               </p>
               {negativo ? (
                 <p className="mt-1 text-xs text-brick">
