@@ -72,7 +72,7 @@ export function PainelPublicacao({ gerarImagem, legenda }: { gerarImagem: () => 
       {ativas.length === 0 ? (
         <p className="text-sm text-mute">
           Nenhuma conta conectada.{" "}
-          <Link to="/barbeiro/redes" className="font-medium text-gold underline">Conectar Instagram ou TikTok</Link>
+          <Link to="/barbeiro/redes" search={{ conectada: undefined, erro: undefined }} className="font-medium text-gold underline">Conectar Instagram ou TikTok</Link>
         </p>
       ) : (
         <>
