@@ -1079,6 +1079,7 @@ function soDigitos(v: string) {
 export type ResultadoManual = {
   ok: boolean;
   agendamentoId?: string;
+  comandaId?: string | null;
   inicio?: string;
   clienteNome?: string;
   conflito?: {
@@ -1287,7 +1288,21 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       /* o agendamento já está salvo; a falha fica registrada no envio */
     }
 
-    return { ok: true, agendamentoId: criado.agendamento_id, inicio: criado.inicio, clienteNome };
+    // A comanda nasce junto (gatilho do banco); só lemos o id para abrir o ticket.
+    const { data: comanda } = await db
+      .from("comandas")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .eq("agendamento_id", criado.agendamento_id)
+      .maybeSingle();
+
+    return {
+      ok: true,
+      agendamentoId: criado.agendamento_id,
+      comandaId: comanda?.id ?? null,
+      inicio: criado.inicio,
+      clienteNome,
+    };
   });
 
 /** Próximo horário realmente livre (hoje, dentro do funcionamento) para "atender agora". */
