@@ -1,7 +1,17 @@
 import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { FileText } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { invalidarComandas } from "@/lib/comanda-ticket";
+import { invalidarComandas, ROTULO_DA_ETAPA_EQUIPE } from "@/lib/comanda-ticket";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -89,15 +99,18 @@ export function FechamentoComanda({
   const pagarPlano = useServerFn(pagarComPlano);
   const sugerir = useServerFn(getSugestaoRetorno);
   const marcar = useServerFn(criarRetorno);
+  const [etapa, setEtapa] = useState<"itens" | "pix" | "retorno">("itens");
   const query = useQuery({
     queryKey: ["fechamento-comanda", agendamentoId],
     queryFn: () => buscar({ data: { agendamentoId } }),
     staleTime: 0,
+    // Enquanto aguarda o Pix, acompanha o "Já paguei" do cliente na mesma comanda.
+    refetchInterval: etapa === "pix" ? 15_000 : false,
   });
+  const [confirmarAberto, setConfirmarAberto] = useState(false);
   const [itens, setItens] = useState<Item[]>([]);
   const [desconto, setDesconto] = useState("");
   const [verDesconto, setVerDesconto] = useState(false);
-  const [etapa, setEtapa] = useState<"itens" | "pix" | "retorno">("itens");
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
@@ -128,6 +141,16 @@ export function FechamentoComanda({
   const total = subtotal - descontoCentavos;
   const d = query.data;
   const comandaId = d?.comanda.id;
+  const statusComanda = (d?.comanda as { status?: string } | undefined)?.status ?? "";
+  const formaEscolhida = (d?.comanda as { forma_escolhida?: string | null } | undefined)
+    ?.forma_escolhida;
+  const pixInformado = statusComanda === "aguardando_confirmacao_pix";
+  // Comanda reaberta já aguardando Pix: volta direto para a conferência, sem refazer a escolha.
+  useEffect(() => {
+    if (etapa !== "itens") return;
+    if (pixInformado || (statusComanda === "aguardando_pagamento" && formaEscolhida === "pix"))
+      setEtapa("pix");
+  }, [etapa, pixInformado, statusComanda, formaEscolhida]);
 
   function alterar(index: number, delta: number) {
     setItens((lista) =>
@@ -476,8 +499,20 @@ export function FechamentoComanda({
 
         {d && etapa === "pix" ? (
           <div className="py-3">
-            <h3 className="text-lg font-bold text-paper">Aguardando Pix</h3>
-            <p className="mt-1 text-sm text-mute">Confirme depois de conferir o recebimento.</p>
+            <StatusBadge
+              status={pixInformado ? "aguardando_confirmacao" : "aguardando_pagamento"}
+              label={
+                ROTULO_DA_ETAPA_EQUIPE[pixInformado ? "pagamento_informado" : "aguardando_pagamento"]
+              }
+            />
+            <h3 className="mt-2 text-lg font-bold text-paper">
+              {pixInformado ? "Pagamento informado pelo cliente" : "Aguardando pagamento via Pix"}
+            </h3>
+            <p className="mt-1 text-sm text-mute">
+              {pixInformado
+                ? "O cliente avisou que pagou. Confira no banco antes de confirmar."
+                : "Confirme só depois de conferir o valor no banco."}
+            </p>
             <div className="mt-5 border-y border-line py-4">
               <p className="text-xs text-mute">Valor</p>
               <p className="mt-1 text-2xl font-bold text-paper">{brl(total)}</p>
@@ -506,15 +541,49 @@ export function FechamentoComanda({
                 </Button>
               ) : null}
               <Button
-                size="lg"
-                className="h-14"
+                variant={pixInformado ? "default" : "secondary"}
+                className="h-12"
                 disabled={Boolean(ocupado)}
-                onClick={() => void confirmarPix()}
+                onClick={() => setConfirmarAberto(true)}
               >
                 <Check />
-                {ocupado === "confirmar" ? "Confirmando…" : "Pix recebido"}
+                {ocupado === "confirmar"
+                  ? "Confirmando…"
+                  : pixInformado
+                    ? "Verificar e confirmar recebimento"
+                    : "Verificar pagamento"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-12"
+                disabled={Boolean(ocupado)}
+                onClick={() => setEtapa("itens")}
+              >
+                Receber de outra forma
               </Button>
             </div>
+            <AlertDialog open={confirmarAberto} onOpenChange={setConfirmarAberto}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar recebimento?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará
+                    a comanda.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      setConfirmarAberto(false);
+                      void confirmarPix();
+                    }}
+                  >
+                    Confirmar recebimento
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ) : null}
 
