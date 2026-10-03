@@ -142,16 +142,18 @@ export function BotaoAgoraPrincipal({
         <Button
           size="lg"
           variant="primary"
-          aria-label="Ações da agenda"
+          aria-label={menuAberto ? "Fechar ações da agenda" : "Ações da agenda"}
           aria-haspopup="menu"
           aria-expanded={menuAberto}
-          className={`agenda-acao-redonda agenda-fab-toggle ${menuAberto ? "pointer-events-none invisible" : ""}`}
+          data-acoes-agenda
+          className="agenda-acao-redonda agenda-fab-toggle"
           data-aberto={menuAberto}
-          tabIndex={menuAberto ? -1 : undefined}
-          aria-hidden={menuAberto || undefined}
           onClick={onAlternarMenu}
         >
-          <Plus aria-hidden className="agenda-fab-icone" />
+          <Plus
+            aria-hidden
+            className={`agenda-fab-icone ${menuAberto ? "agenda-fab-icone-aberto" : ""}`}
+          />
         </Button>
       </div>
     </>
