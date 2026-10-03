@@ -2,6 +2,27 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import {
+  Banknote,
+  CalendarClock,
+  HeartHandshake,
+  MessageCircle,
+  Palette,
+  Store,
+  TrendingUp,
+  UsersRound,
+} from "lucide-react";
+
+const ICONE_DO_GRUPO: Record<string, typeof Banknote> = {
+  Atendimento: CalendarClock,
+  Comunicação: MessageCircle,
+  Relacionamento: HeartHandshake,
+  Financeiro: Banknote,
+  Vendas: Store,
+  Crescimento: TrendingUp,
+  Aparência: Palette,
+  Equipe: UsersRound,
+};
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -102,7 +123,13 @@ function FuncionalidadesPage() {
           <div className="space-y-6">
             {GRUPOS_DE_FUNCIONALIDADES.map((grupo) => (
               <section key={grupo.titulo} className="space-y-2">
-                <h2 className="rotulo-secao">{grupo.titulo}</h2>
+                <h2 className="rotulo-secao flex items-center gap-2">
+                  {(() => {
+                    const Icone = ICONE_DO_GRUPO[grupo.titulo] ?? CalendarClock;
+                    return <Icone className="size-4" aria-hidden />;
+                  })()}
+                  {grupo.titulo}
+                </h2>
                 <ul className="divide-y divide-line overflow-hidden rounded-3xl bg-ink2">
                   {grupo.itens.map((item) => {
                     const estado = estadoDe(item, leitura);

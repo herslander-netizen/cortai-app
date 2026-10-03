@@ -85,7 +85,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
       }),
       f({
         chave: "fila_chegada",
-        rotulo: "Fila e lista de espera",
+        rotulo: "Fila de chegada",
         detalhe: "Clientes aguardando vaga, pelo link e pelo WhatsApp",
         fonte: { tipo: "recurso", chave: "fila_espera" },
         plano: "fila_espera",
