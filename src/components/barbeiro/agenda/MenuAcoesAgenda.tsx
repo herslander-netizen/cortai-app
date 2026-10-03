@@ -2,8 +2,6 @@ import {
   CalendarPlus,
   Clock3,
   Scissors,
-  UserPlus,
-  UserRoundPlus,
   type LucideIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -33,16 +31,16 @@ function focarBotaoMais() {
 export function MenuAcoesAgenda({
   aberto,
   onAberto,
-  fila,
-  proximoDaFila,
-  mostrarFila = true,
+  fila: _fila,
+  proximoDaFila: _proximoDaFila,
+  mostrarFila: _mostrarFila = true,
   online,
-  ocupado,
+  ocupado: _ocupado,
   onNovoAgendamento,
   onEncaixe,
-  onChamarFila,
+  onChamarFila: _onChamarFila,
   onBloquear,
-  onNovoCliente,
+  onNovoCliente: _onNovoCliente,
 }: {
   aberto: boolean;
   onAberto: (v: boolean) => void;
@@ -111,7 +109,7 @@ export function MenuAcoesAgenda({
     f();
   };
 
-  // De cima para baixo na tela; "Agendar horário" fica colado ao "+".
+  // Três ações operacionais principais, com "Agendar horário" colado ao "+".
   const acoes: Acao[] = [
     {
       id: "bloquear",
@@ -120,30 +118,10 @@ export function MenuAcoesAgenda({
       Icone: Clock3,
       onSelect: onBloquear,
     },
-    ...(mostrarFila && fila > 0
-      ? [
-          {
-            id: "fila",
-            rotulo: "Chamar próximo da fila",
-            descricao: `${proximoDaFila ?? "Cliente"} é o próximo da fila`,
-            Icone: UserRoundPlus,
-            onSelect: onChamarFila,
-            disabled: ocupado || !online,
-            selo: fila,
-          },
-        ]
-      : []),
-    {
-      id: "cliente",
-      rotulo: "Novo cliente",
-      descricao: "Cadastrar e marcar um horário",
-      Icone: UserPlus,
-      onSelect: onNovoCliente,
-    },
     {
       id: "encaixe",
-      rotulo: "Encaixar cliente",
-      descricao: "Atender quem chegou sem horário",
+      rotulo: "Atendimento avulso",
+      descricao: "Iniciar sem agendamento",
       Icone: Scissors,
       onSelect: onEncaixe,
       disabled: !online,
