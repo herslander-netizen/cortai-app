@@ -627,7 +627,7 @@ export function AgendaTimeline({
               }
             : interativo && corteAnteriores > 0 && !mostrarAnteriores
               ? // Recorta os horários escondidos sem virar área de rolagem (a página rola).
-                { overflowY: "clip" }
+                { clipPath: "inset(0 -100vw -100vh -100vw)" }
               : undefined
         }
       >
