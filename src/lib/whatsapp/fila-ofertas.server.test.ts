@@ -170,3 +170,49 @@ describe("recuperação automática de vagas", () => {
     expect(st.inserts).toHaveLength(0);
   });
 });
+
+describe("aceite da oferta", () => {
+  it("aceite com sucesso envia a confirmação uma única vez", async () => {
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(true);
+    expect(r.confirmacaoEnviada).toBe(true);
+    expect(confirmacao.envios).toBe(1);
+  });
+
+  it("aceite repetido não reenvia a confirmação", async () => {
+    st.aceite = { ok: true, agendamento_id: "ag-novo", repetida: true };
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.confirmacaoEnviada).toBe(false);
+    expect(confirmacao.envios).toBe(0);
+  });
+
+  it("sem envio da confirmação, confirmacaoEnviada é falso", async () => {
+    confirmacao.enviado = false;
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(true);
+    expect(r.confirmacaoEnviada).toBe(false);
+  });
+
+  it("vaga perdida (ocupado) devolve o cliente à fila como aguardando", async () => {
+    st.aceite = { ok: false, motivo: "ocupado" };
+    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(false);
+    expect(st.filaUpdates).toContainEqual({ status: "aguardando" });
+    expect(st.inserts).toHaveLength(0);
+  });
+
+  it("oferta expirada reoferta a vaga", async () => {
+    st.aceite = { ok: false, motivo: "expirada" };
+    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(false);
+    expect(st.inserts).toHaveLength(1);
+    expect(st.inserts[0]?.["fila_id"]).toBe("primeiro");
+  });
+});
