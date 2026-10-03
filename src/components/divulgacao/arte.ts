@@ -1,8 +1,8 @@
 /** Desenha a arte 9:16 (1080x1920) no navegador, com as cores do tema. */
 export type DadosArte = {
   titulo: string;
-  subtitulo?: string;
-  itens?: string[];
+  subtitulo?: string | undefined;
+  itens?: string[] | undefined;
   rodape: string;
   foto?: HTMLImageElement | null;
 };
