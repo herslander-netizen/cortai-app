@@ -128,3 +128,6 @@
 - [ ] E-mail no cadastro do cliente: aguarda decisão do dono (não existe na ficha hoje)
 
 - [x] Painel de Funcionalidades (/barbeiro/funcionalidades)
+
+- [ ] Secretária Cortaí completa no WhatsApp (documento de 741 linhas): analisar e planejar; atenção à regra de não usar IA paga no WhatsApp
+- [x] Conta única com cliente + negócio, seletor e troca de perfil
