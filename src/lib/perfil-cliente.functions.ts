@@ -243,13 +243,17 @@ export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
 
 export const salvarDetalhesCliente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { clienteId: string; nome: string; telefone: string }) => {
-    const nome = String(d.nome ?? "").trim().replace(/\s+/g, " ");
-    const telefone = String(d.telefone ?? "").replace(/\D/g, "").slice(0, 15);
-    if (nome.length < 2 || nome.length > 80) throw new Error("Informe o nome completo.");
-    if (telefone.length < 10) throw new Error("Informe um telefone com DDD.");
-    return { clienteId: String(d.clienteId), nome, telefone };
-  })
+  .validator(
+    (d: { clienteId: string; nome: string; telefone: string; email?: string | null }) => {
+      const nome = String(d.nome ?? "").trim().replace(/\s+/g, " ");
+      const telefone = String(d.telefone ?? "").replace(/\D/g, "").slice(0, 15);
+      if (nome.length < 2 || nome.length > 80) throw new Error("Informe o nome completo.");
+      if (telefone.length < 10) throw new Error("Informe um telefone com DDD.");
+      const e = normalizarEmailCliente(d.email);
+      if (!e.ok) throw new Error(e.erro);
+      return { clienteId: String(d.clienteId), nome, telefone, email: e.email };
+    },
+  )
   .handler(async ({ data, context }) => {
     const { db, tenantId, cliente } = await contexto(context, data.clienteId);
     await exigirPermissao(context, tenantId, "editar_clientes");
@@ -267,11 +271,11 @@ export const salvarDetalhesCliente = createServerFn({ method: "POST" })
     if (outro) throw new Error("Já existe outro cliente com esse telefone.");
     const { error } = await db
       .from("clientes")
-      .update({ nome: data.nome, telefone: data.telefone })
+      .update({ nome: data.nome, telefone: data.telefone, email: data.email })
       .eq("id", cliente.id)
       .eq("tenant_id", tenantId);
     if (error) throw new Error("Não foi possível salvar. Tente de novo.");
-    return { nome: data.nome, telefone: data.telefone };
+    return { nome: data.nome, telefone: data.telefone, email: data.email };
   });
 
 export const enviarFotoCorte = createServerFn({ method: "POST" })
