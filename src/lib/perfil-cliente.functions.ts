@@ -241,6 +241,39 @@ export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
     return { preferencias };
   });
 
+export const salvarDetalhesCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { clienteId: string; nome: string; telefone: string }) => {
+    const nome = String(d.nome ?? "").trim().replace(/\s+/g, " ");
+    const telefone = String(d.telefone ?? "").replace(/\D/g, "").slice(0, 15);
+    if (nome.length < 2 || nome.length > 80) throw new Error("Informe o nome completo.");
+    if (telefone.length < 10) throw new Error("Informe um telefone com DDD.");
+    return { clienteId: String(d.clienteId), nome, telefone };
+  })
+  .handler(async ({ data, context }) => {
+    const { db, tenantId, cliente } = await contexto(context, data.clienteId);
+    await exigirPermissao(context, tenantId, "editar_clientes");
+    if (cliente.telefone === "avulso")
+      throw new Error("Identifique o cliente avulso na comanda antes de editar.");
+    const { variantesDoTelefone } = await import("@/lib/telefone");
+    const { data: outro } = await db
+      .from("clientes")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .in("telefone", variantesDoTelefone(data.telefone))
+      .neq("id", cliente.id)
+      .limit(1)
+      .maybeSingle();
+    if (outro) throw new Error("Já existe outro cliente com esse telefone.");
+    const { error } = await db
+      .from("clientes")
+      .update({ nome: data.nome, telefone: data.telefone })
+      .eq("id", cliente.id)
+      .eq("tenant_id", tenantId);
+    if (error) throw new Error("Não foi possível salvar. Tente de novo.");
+    return { nome: data.nome, telefone: data.telefone };
+  });
+
 export const enviarFotoCorte = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
