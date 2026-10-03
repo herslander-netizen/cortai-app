@@ -133,8 +133,9 @@
 - [x] Conta única com cliente + negócio, seletor e troca de perfil
 
 ## Redes sociais — Fase 3
-- [ ] Tela de publicar agora / agendar, fila e histórico em Divulgar
+- [x] Tela de publicar agora / agendar, fila e histórico em Divulgar
 
 ## Chat público — cabeçalho e fluxo (pedido 03/10)
-- [ ] Cabeçalho de mensageria (voltar, avatar, nome, status dinâmico, menu ⋮ com ações da barra inferior)
-- [ ] Barra de mensagem única, prévia/admin herdando sem ações inválidas; validar 390px
+- [x] Cabeçalho de mensageria (voltar, avatar, nome, status dinâmico, menu ⋮ com ações da barra inferior)
+- [x] Barra de mensagem única e prévia herdando
+- [ ] Conferir o chat na tela em 390px (negócios de teste usam o formato lista)
