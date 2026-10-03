@@ -1,3 +1,4 @@
+import { invalidarComandas } from "@/lib/comanda-ticket";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -547,6 +548,8 @@ export function AgendaOperacional() {
   const itemSelecionado = todosItens.find((item) => item.id === selecionado) ?? null;
 
   async function sincronizar() {
+    // Criar, cancelar, remarcar, falta ou pagar mudam também a comanda/ticket.
+    invalidarComandas(queryClient);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
       queryClient.invalidateQueries({ queryKey: ["agenda-fila"] }),

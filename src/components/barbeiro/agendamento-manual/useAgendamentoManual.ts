@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
+import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 import {
   buscarClientesDaBarbearia,
@@ -55,6 +56,10 @@ export function useAgendamentoManual({
   const [conflito, setConflito] = useState<Conflito | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+  const [criado, setCriado] = useState<{ agendamentoId: string; comandaId: string | null } | null>(
+    null,
+  );
+  const queryClient = useQueryClient();
 
   const proximo = useQuery({
     queryKey: ["proximo-livre", profissionalId, servicoId],
@@ -118,10 +123,13 @@ export function useAgendamentoManual({
         setSalvando(false);
         return;
       }
-      setConfirmado(true);
       const agendamentoId = r.agendamentoId;
       if (!agendamentoId) throw new Error("O agendamento foi salvo sem identificação.");
-      setTimeout(() => onCriado(agendamentoId), 700);
+      invalidarComandas(queryClient);
+      setCriado({ agendamentoId, comandaId: r.comandaId ?? null });
+      setConfirmado(true);
+      // Sem comanda para mostrar, segue direto como antes; com comanda, espera "Concluir".
+      if (!r.comandaId) setTimeout(() => onCriado(agendamentoId), 700);
     } catch (e) {
       setErro(
         e instanceof Error && e.message
@@ -166,6 +174,10 @@ export function useAgendamentoManual({
     conflito,
     salvando,
     confirmado,
+    criado,
+    concluir: () => {
+      if (criado) onCriado(criado.agendamentoId);
+    },
     pronto,
     sujo,
     salvar,

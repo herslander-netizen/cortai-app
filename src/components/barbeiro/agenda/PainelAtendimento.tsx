@@ -31,6 +31,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendamento";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
 import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
@@ -222,6 +223,7 @@ export function PainelAtendimento(props: Props) {
                       <HandCoins /> Comanda
                     </Button>
                   ) : null}
+                  <VerTicketDoAgendamento agendamentoId={item.id} desabilitado={!props.online} />
                 </div>
 
                 {pendente ? (

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { brl } from "@/lib/format";
 import { buscarComandas } from "@/lib/comanda-ticket.functions";
-import { rotuloDaForma, ROTULO_DO_ESTADO, type EstadoDoTicket } from "@/lib/comanda-ticket";
+import { rotuloDaForma, rotuloDoEstado, type EstadoDoTicket } from "@/lib/comanda-ticket";
 import { FolhaDoTicket } from "./FolhaDoTicket";
 
 const FILTROS: Array<{ v: "todos" | EstadoDoTicket; r: string }> = [
@@ -35,7 +35,8 @@ export function BuscaDeComandas() {
   const q = useQuery({
     queryKey: ["busca-comandas", atrasado, estado],
     queryFn: () => buscar({ data: { termo: atrasado, estado } }),
-    staleTime: 30_000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     retry: false,
   });
 
@@ -92,7 +93,7 @@ export function BuscaDeComandas() {
                 </span>
                 <span className="block text-xs text-mute">
                   {rotuloDaForma(c.forma)} ·{" "}
-                  <span className={COR[c.estado]}>{ROTULO_DO_ESTADO[c.estado]}</span>
+                  <span className={COR[c.estado]}>{rotuloDoEstado(c.estado, c.motivo)}</span>
                 </span>
               </span>
               <span className="text-sm font-semibold tabular-nums text-paper">

@@ -1,6 +1,7 @@
 import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { FileText } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidarComandas } from "@/lib/comanda-ticket";
 import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -79,6 +80,7 @@ export function FechamentoComanda({
   onFechar: () => void;
   onConcluido: () => void;
 }) {
+  const queryClient = useQueryClient();
   const buscar = useServerFn(getFechamentoComanda);
   const salvar = useServerFn(salvarComanda);
   const pagar = useServerFn(pagarComanda);
@@ -183,6 +185,8 @@ export function FechamentoComanda({
       setErro(e instanceof Error ? e.message : "Não foi possível concluir.");
     } finally {
       setOcupado(null);
+      // Salvar/pagar mudam o mesmo ticket: lista e ticket abertos se atualizam sozinhos.
+      invalidarComandas(queryClient);
     }
   }
   async function aposPagar() {
@@ -514,16 +518,33 @@ export function FechamentoComanda({
           </div>
         ) : null}
 
+        {comandaId && etapa !== "retorno" ? (
+          <Button
+            variant="ghost"
+            className="mt-4 h-12 w-full rounded-full"
+            onClick={() => setVerTicket(true)}
+          >
+            <FileText aria-hidden />
+            Ver comanda
+          </Button>
+        ) : null}
+        <FolhaDoTicket
+          comandaId={verTicket ? (comandaId ?? null) : null}
+          onFechar={() => setVerTicket(false)}
+        />
         {etapa === "retorno" ? (
           <div className="py-3">
             <StatusBadge status="pago" label="Pagamento registrado" />
             {comandaId ? (
-              <Button variant="secondary" className="mt-4 h-12 w-full rounded-full" onClick={() => setVerTicket(true)}>
+              <Button
+                variant="secondary"
+                className="mt-4 h-12 w-full rounded-full"
+                onClick={() => setVerTicket(true)}
+              >
                 <FileText aria-hidden />
                 Ver comanda
               </Button>
             ) : null}
-            <FolhaDoTicket comandaId={verTicket ? (comandaId ?? null) : null} onFechar={() => setVerTicket(false)} />
             {d?.comanda.cliente_id && d.comanda.clientes?.telefone !== "avulso" ? (
               <div className="mt-5 border-y border-line py-3">
                 <FotoDoCorte
