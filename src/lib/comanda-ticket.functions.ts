@@ -137,9 +137,12 @@ export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
       .maybeSingle();
     if (comanda) return carregarTicket(db, comanda.id, comanda.tenant_id);
     // Agendamento antigo sem comanda: a mesma função do banco cria (só se ainda estiver ativo).
-    const { data: criada } = await db.rpc("garantir_comanda" as never, {
-      _agendamento_id: data.agendamentoId,
-    } as never);
+    const { data: criada } = await db.rpc(
+      "garantir_comanda" as never,
+      {
+        _agendamento_id: data.agendamentoId,
+      } as never,
+    );
     if (!criada) return null;
     const { data: nova } = await db
       .from("comandas")
@@ -170,10 +173,13 @@ export const getComandaDoAgendamento = createServerFn({ method: "GET" })
       .eq("agendamento_id", ag.id)
       .maybeSingle();
     if (existente) return { comandaId: existente.id };
-    const { data: criada } = await db.rpc("garantir_comanda" as never, {
-      _agendamento_id: ag.id,
-      _ator: context.userId,
-    } as never);
+    const { data: criada } = await db.rpc(
+      "garantir_comanda" as never,
+      {
+        _agendamento_id: ag.id,
+        _ator: context.userId,
+      } as never,
+    );
     return { comandaId: (criada as unknown as string | null) ?? null };
   });
 

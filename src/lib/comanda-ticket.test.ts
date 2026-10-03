@@ -15,7 +15,9 @@ describe("comanda em ticket", () => {
     expect(estadoDoTicket("aguardando_confirmacao_pix", null)).toBe("pendente");
     expect(estadoDoTicket("aberta", null)).toBe("pendente");
     expect(estadoDoTicket("cancelada", null)).toBe("cancelado");
-    expect(estadoDoTicket("paga", { status: "confirmado", estornado_em: "2026-10-03" })).toBe("cancelado");
+    expect(estadoDoTicket("paga", { status: "confirmado", estornado_em: "2026-10-03" })).toBe(
+      "cancelado",
+    );
   });
 
   it("código legível e pesquisável por código, parte ou data", () => {
