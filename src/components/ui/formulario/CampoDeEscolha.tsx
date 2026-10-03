@@ -62,7 +62,9 @@ export function CampoDeEscolha({
                   <span className="flex min-w-0 flex-col">
                     <span className="truncate text-base font-medium text-paper">{o.rotulo}</span>
                     {o.detalhe ? (
-                      <span className="truncate text-[13px] font-normal text-mute">{o.detalhe}</span>
+                      <span className="truncate text-[13px] font-normal text-mute">
+                        {o.detalhe}
+                      </span>
                     ) : null}
                   </span>
                   {o.id === valor ? <Check size={18} className="shrink-0 text-gold" /> : null}

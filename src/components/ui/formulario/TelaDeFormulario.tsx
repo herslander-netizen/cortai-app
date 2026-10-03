@@ -113,13 +113,17 @@ export function TelaDeFormulario({
             </Button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
-            <DialogPrimitive.Title className="titulo-tela mt-4 px-1">{titulo}</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="titulo-tela mt-4 px-1">
+              {titulo}
+            </DialogPrimitive.Title>
             {subtitulo ? (
               <DialogPrimitive.Description className="subtitulo-tela mt-2 px-1">
                 {subtitulo}
               </DialogPrimitive.Description>
             ) : (
-              <DialogPrimitive.Description className="sr-only">{titulo}</DialogPrimitive.Description>
+              <DialogPrimitive.Description className="sr-only">
+                {titulo}
+              </DialogPrimitive.Description>
             )}
             <div className="mt-8 space-y-8">{children}</div>
           </div>
