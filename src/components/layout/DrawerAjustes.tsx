@@ -63,6 +63,10 @@ const ITENS = [
   { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },
 ] as const;
 
+const CARTAO =
+  "min-h-14 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 py-3 hover:bg-drawer-card";
+const LINHA = "grid w-full grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3";
+
 export function DrawerAjustes({
   identidade,
   tenantId,
@@ -97,7 +101,7 @@ export function DrawerAjustes({
           evento.preventDefault();
           gatilhoRef.current?.focus();
         }}
-        className="z-[70] rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
+        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
       >
         <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
         <SheetDescription className="mt-1 text-sm text-mute">
@@ -108,28 +112,20 @@ export function DrawerAjustes({
           {ITENS.slice(0, 2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button
-                key={item.label}
-                asChild
-                variant="ghost"
-                size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
-              >
-                <Link
-                  to={item.to}
-                  onClick={navegar}
-                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
-                >
-                  <IconeDoMenu icone={Icon} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">
-                      {item.label}
+              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                <Link to={item.to} onClick={navegar}>
+                  <span className={LINHA}>
+                    <IconeDoMenu icone={Icon} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-base font-semibold text-paper">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                        {item.detalhe}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                      {item.detalhe}
-                    </span>
+                    <ChevronRight className="size-5 text-mute2" aria-hidden />
                   </span>
-                  <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
               </Button>
             );
@@ -141,9 +137,9 @@ export function DrawerAjustes({
             size="bloco"
             aria-expanded={aparenciaAberta}
             onClick={() => setAparenciaAberta((valor) => !valor)}
-            className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
+            className={CARTAO}
           >
-            <span className="grid w-full grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3">
+            <span className={LINHA}>
               <IconeDoMenu icone={Palette} />
               <span className="min-w-0">
                 <span className="block truncate text-base font-semibold text-paper">Aparência</span>
@@ -170,28 +166,20 @@ export function DrawerAjustes({
           {ITENS.slice(2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button
-                key={item.label}
-                asChild
-                variant="ghost"
-                size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
-              >
-                <Link
-                  to={item.to}
-                  onClick={navegar}
-                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
-                >
-                  <IconeDoMenu icone={Icon} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">
-                      {item.label}
+              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                <Link to={item.to} onClick={navegar}>
+                  <span className={LINHA}>
+                    <IconeDoMenu icone={Icon} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-base font-semibold text-paper">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                        {item.detalhe}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                      {item.detalhe}
-                    </span>
+                    <ChevronRight className="size-5 text-mute2" aria-hidden />
                   </span>
-                  <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
               </Button>
             );
@@ -202,7 +190,7 @@ export function DrawerAjustes({
               <Button
                 variant="ghost"
                 size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 text-brick hover:bg-brick-soft"
+                className={`${CARTAO} text-brick hover:bg-brick-soft`}
               >
                 <span className="flex w-full items-center gap-3">
                   <LogOut className="size-6" aria-hidden />
