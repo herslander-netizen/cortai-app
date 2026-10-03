@@ -4,11 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { CalendarPlus, Loader2, MessageCircle, ShieldCheck, Smartphone, X } from "lucide-react";
+import { AlertTriangle, CalendarPlus, FileWarning, Loader2, MessageCircle, ShieldCheck, Smartphone, X } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
+import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
 import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
@@ -169,13 +170,14 @@ function CortaiPage() {
           <div className="mt-5">
             {aba === "whatsapp" ? (
               <>
+                <AvisosDaMeta />
                 <BlocoRemetenteOficial />
                 {painel.data.podeGerenciarWhatsapp && painel.data.provedor !== "meta" ? (
                   <BlocoDiagnostico />
                 ) : null}
               </>
             ) : null}
-            {aba === "envios" ? <BlocoEnvios /> : null}
+            {aba === "envios" ? <BlocoEnvios irParaConexao={() => setAba("whatsapp")} /> : null}
             {aba === "ajustes" ? <BlocoSecretaria painel={painel.data} /> : null}
             {aba === "experiencia" ? <BlocoExperiencia /> : null}
           </div>
@@ -237,12 +239,53 @@ function BlocoExperiencia() {
   );
 }
 
-function BlocoEnvios() {
-  const envios = useQuery({
+const COR_DO_TOM: Record<TomDoEnvio, string> = {
+  enviado: "border-sage/50 text-sage",
+  entregue: "border-sage/60 text-sage",
+  lida: "border-cyan-400/60 text-cyan-400",
+  aguardando: "border-line2 text-mute",
+  sem_modelo: "border-gold/60 text-gold",
+  falhou: "border-brick/50 text-brick",
+  conta: "border-brick/60 text-brick",
+};
+
+const SEMANA = 7 * 24 * 3600_000;
+
+function useEnviosDaSecretaria() {
+  return useQuery({
     queryKey: ["secretaria-envios"],
     queryFn: () => listarEnviosDaSecretaria(),
     refetchInterval: 30000,
   });
+}
+
+/** Aviso geral: problemas recentes que a Meta está apontando. Não promete correção. */
+function AvisosDaMeta() {
+  const envios = useEnviosDaSecretaria();
+  const recentes = (envios.data ?? []).filter((e) => Date.now() - new Date(e.criadoEm).getTime() < SEMANA);
+  const classes = new Set(recentes.map((e) => diagnosticoDoEnvio(e).tom));
+  if (!classes.has("conta") && !classes.has("sem_modelo")) return null;
+  return (
+    <div className="mb-4 space-y-2" role="status">
+      {classes.has("conta") ? (
+        <p className="rounded-lg border border-brick/50 p-3 text-sm leading-relaxed text-paper">
+          <AlertTriangle className="mr-1.5 inline size-4 text-brick" aria-hidden />
+          A Meta está recusando os envios por um problema de elegibilidade/pagamento da conta oficial.
+          A conexão técnica está ativa, mas a conta precisa ser regularizada na Meta.
+        </p>
+      ) : null}
+      {classes.has("sem_modelo") ? (
+        <p className="rounded-lg border border-gold/50 p-3 text-sm leading-relaxed text-paper">
+          <FileWarning className="mr-1.5 inline size-4 text-gold" aria-hidden />
+          Algumas mensagens estão fora da janela de 24h e precisam de template aprovado.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
+  const envios = useEnviosDaSecretaria();
   if (envios.isLoading) return <Carregando />;
   if (envios.isError)
     return (
@@ -250,32 +293,50 @@ function BlocoEnvios() {
     );
   if (!envios.data?.length) return <EmptyState text="Nenhuma notificação enviada ainda." />;
   return (
-    <section className="surface overflow-hidden" aria-label="Histórico de envios">
-      <ul className="divide-y divide-line">
-        {envios.data.map((envio) => (
-          <li
-            key={envio.id}
-            className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
-          >
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-paper">{envio.tipo.replaceAll("_", " ")}</p>
-              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-mute">
-                {envio.conteudo ?? envio.erro ?? "Envio aguardando processamento."}
-              </p>
-              <p className="mt-2 text-xs text-mute2">
-                Final {envio.telefone.slice(-4)} ·{" "}
-                {new Date(envio.criadoEm).toLocaleString("pt-BR")}
-              </p>
-            </div>
-            <span
-              className={`w-fit rounded-full border px-2.5 py-1 text-xs ${envio.status === "enviado" ? "border-sage/50 text-sage" : envio.status === "erro" ? "border-brick/50 text-brick" : "border-line2 text-mute"}`}
-            >
-              {envio.respondidoEm ? "respondido" : envio.status}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <>
+      <AvisosDaMeta />
+      <section className="surface overflow-hidden" aria-label="Histórico de envios">
+        <ul className="divide-y divide-line">
+          {envios.data.map((envio) => {
+            const d = diagnosticoDoEnvio(envio);
+            return (
+              <li key={envio.id} className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-paper">{envio.tipo.replaceAll("_", " ")}</p>
+                  {d.titulo ? (
+                    <div className="mt-1">
+                      <p className="text-sm font-semibold text-paper">{d.titulo}</p>
+                      <p className="text-xs leading-relaxed text-mute">{d.detalhe}</p>
+                      {d.acao === "conexao" ? (
+                        <Button variant="secondary" className="mt-2 min-h-11" onClick={irParaConexao}>
+                          Verificar conta Meta
+                        </Button>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-mute">
+                      {envio.conteudo ?? "Envio aguardando processamento."}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs text-mute2">
+                    Final {envio.telefone.slice(-4)} · {new Date(envio.criadoEm).toLocaleString("pt-BR")}
+                  </p>
+                  {d.tecnico ? (
+                    <details className="mt-1 text-xs text-mute2">
+                      <summary className="cursor-pointer py-1">Detalhe técnico</summary>
+                      <p className="break-words">{d.tecnico}</p>
+                    </details>
+                  ) : null}
+                </div>
+                <span className={`w-fit rounded-full border px-2.5 py-1 text-xs ${COR_DO_TOM[d.tom]}`}>
+                  {envio.respondidoEm ? "Respondido" : d.rotulo}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </>
   );
 }
 
