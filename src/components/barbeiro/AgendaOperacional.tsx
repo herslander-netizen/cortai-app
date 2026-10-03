@@ -23,6 +23,7 @@ import {
   AgendaVazia,
   FaixaConexao,
 } from "@/components/barbeiro/agenda/EstadosAgenda";
+import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
@@ -280,6 +281,9 @@ export function AgendaOperacional() {
   const [perfil, setPerfil] = useState<string | null>(null);
   const [profChamada, setProfChamada] = useState<string | null>(null);
   const [fechando, setFechando] = useState<string | null>(null);
+  // Uma superfície por vez: ao sair da cobrança/ticket sem concluir, a ficha volta.
+  const [voltarParaFicha, setVoltarParaFicha] = useState<string | null>(null);
+  const [ticketAberto, setTicketAberto] = useState<string | null>(null);
   const [iniciarDepois, setIniciarDepois] = useState<string | null>(null);
   const [conflito, setConflito] = useState<{ atual: AgendaItem; novo: AgendaItem } | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -799,7 +803,14 @@ export function AgendaOperacional() {
         profissionais={profissionais}
         onChegou={(i) => void transicionar(i, "chegou")}
         onIniciar={iniciar}
-        onComanda={(i) => setFechando(i.id)}
+        onComanda={(i) => {
+          setVoltarParaFicha(i.id);
+          setFechando(i.id);
+        }}
+        onVerComanda={(i, comandaId) => {
+          setVoltarParaFicha(i.id);
+          setTicketAberto(comandaId);
+        }}
         onFalta={(i) => void transicionar(i, "nao_compareceu")}
         onCancelar={(i) => void transicionar(i, "cancelado")}
         onPerfil={setPerfil}
@@ -807,6 +818,15 @@ export function AgendaOperacional() {
         onRemarcar={(i, p) =>
           remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId)
         }
+      />
+      <FolhaDoTicket
+        comandaId={ticketAberto}
+        onFechar={() => {
+          setTicketAberto(null);
+          const volta = voltarParaFicha;
+          setVoltarParaFicha(null);
+          if (volta && todosItens.some((item) => item.id === volta)) abrir(volta);
+        }}
       />
       {menuAcoes}
       <BloquearHorarioSheet
@@ -946,11 +966,15 @@ export function AgendaOperacional() {
             onFechar={() => {
               setFechando(null);
               setIniciarDepois(null);
+              const volta = voltarParaFicha;
+              setVoltarParaFicha(null);
+              if (volta && todosItens.some((item) => item.id === volta)) abrir(volta);
             }}
             onConcluido={() => {
               const proximo = todosItens.find((item) => item.id === iniciarDepois);
               setFechando(null);
               setIniciarDepois(null);
+              setVoltarParaFicha(null);
               setSelecionado(null);
               if (proximo) void transicionar(proximo, "na_cadeira");
               void sincronizar();
@@ -1033,7 +1057,8 @@ export function AgendaOperacional() {
   }
 
   // Celular: uma timeline só; trocar profissional apenas filtra. Colunas só em telas largas.
-  const colunas = !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
+  const colunas =
+    !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
   const diaSemAgenda =
     !carregandoInicial &&
     !erroInicial &&
@@ -1119,7 +1144,9 @@ export function AgendaOperacional() {
         {faixa}
 
         {ehHoje && visualizacao === "timeline" && ativos.length === 0 ? (
-          <p className="mb-2 text-xs font-semibold text-mute" role="status">Agora · Livre</p>
+          <p className="mb-2 text-xs font-semibold text-mute" role="status">
+            Agora · Livre
+          </p>
         ) : null}
 
         {sugestaoFila && chegada.length > 0 ? (
@@ -1187,10 +1214,19 @@ export function AgendaOperacional() {
               {ehHoje ? <PrimeirosPassos /> : null}
             </AgendaVazia>
           ) : colunas ? (
-            <div className="agenda-colunas" style={{ gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))` }}>
+            <div
+              className="agenda-colunas"
+              style={{
+                gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))`,
+              }}
+            >
               {profissionais.map((p) => (
                 <section key={p.id} className="min-w-0" aria-label={p.nome}>
-                  <Button variant="ghost" className="agenda-coluna-titulo" onClick={() => setProfFiltro(p.id)}>
+                  <Button
+                    variant="ghost"
+                    className="agenda-coluna-titulo"
+                    onClick={() => setProfFiltro(p.id)}
+                  >
                     {p.nome}
                   </Button>
                   <AgendaTimeline

@@ -1,5 +1,5 @@
-import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
-import { FileText } from "lucide-react";
+import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
+import { ArrowLeft, FileText } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invalidarComandas, ROTULO_DA_ETAPA_EQUIPE } from "@/lib/comanda-ticket";
 import {
@@ -289,14 +289,24 @@ export function FechamentoComanda({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end bg-overlay/70 md:items-center md:justify-center"
+      className="fixed inset-0 z-50 flex items-end bg-overlay/70 pt-[env(safe-area-inset-top)] md:items-center md:justify-center"
       role="dialog"
       aria-modal="true"
       aria-label="Fechar comanda"
     >
-      <div className="max-h-[94vh] w-full overflow-y-auto rounded-t-2xl border border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 md:max-w-xl md:rounded-xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 bg-ink pb-4">
-          <div className="min-w-0">
+      <div className="max-h-[94dvh] w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 md:max-w-xl md:rounded-xl">
+        <div className="sticky -top-5 z-10 -mx-5 flex items-start justify-between gap-4 bg-ink px-5 pb-4 pt-5 -mt-5">
+          {verTicket ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Voltar para o pagamento"
+              onClick={() => setVerTicket(false)}
+            >
+              <ArrowLeft />
+            </Button>
+          ) : null}
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase text-mute">
               Comanda{d ? ` #${d.comanda.numero}` : ""}
             </p>
@@ -316,7 +326,7 @@ export function FechamentoComanda({
           </p>
         ) : null}
 
-        {d && etapa === "itens" ? (
+        {d && etapa === "itens" && !verTicket ? (
           <>
             {d.comanda.clientes?.telefone === "avulso" ? (
               <IdentificarAvulso
@@ -497,12 +507,14 @@ export function FechamentoComanda({
           </>
         ) : null}
 
-        {d && etapa === "pix" ? (
+        {d && etapa === "pix" && !verTicket ? (
           <div className="py-3">
             <StatusBadge
               status={pixInformado ? "pendente" : "aguardando_pagamento"}
               label={
-                ROTULO_DA_ETAPA_EQUIPE[pixInformado ? "pagamento_informado" : "aguardando_pagamento"]
+                ROTULO_DA_ETAPA_EQUIPE[
+                  pixInformado ? "pagamento_informado" : "aguardando_pagamento"
+                ]
               }
             />
             <h3 className="mt-2 text-lg font-bold text-paper">
@@ -567,8 +579,8 @@ export function FechamentoComanda({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Confirmar recebimento?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará
-                    a comanda.
+                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará a
+                    comanda.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -587,7 +599,7 @@ export function FechamentoComanda({
           </div>
         ) : null}
 
-        {comandaId && etapa !== "retorno" ? (
+        {comandaId && etapa !== "retorno" && !verTicket ? (
           <Button
             variant="ghost"
             className="mt-4 h-12 w-full rounded-full"
@@ -597,11 +609,20 @@ export function FechamentoComanda({
             Ver comanda
           </Button>
         ) : null}
-        <FolhaDoTicket
-          comandaId={verTicket ? (comandaId ?? null) : null}
-          onFechar={() => setVerTicket(false)}
-        />
-        {etapa === "retorno" ? (
+        {verTicket && comandaId ? (
+          <div className="pb-2">
+            <ConteudoDoTicket comandaId={comandaId} />
+            <Button
+              variant="ghost"
+              className="mt-4 h-12 w-full rounded-full"
+              onClick={() => setVerTicket(false)}
+            >
+              <ArrowLeft aria-hidden />
+              Voltar para o pagamento
+            </Button>
+          </div>
+        ) : null}
+        {etapa === "retorno" && !verTicket ? (
           <div className="py-3">
             <StatusBadge status="pago" label="Pagamento registrado" />
             {comandaId ? (

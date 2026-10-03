@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import { useState } from "react";
 
-import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
+import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { Button } from "@/components/ui/button";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
@@ -120,7 +120,19 @@ function Formulario({
       {s.confirmado ? (
         <>
           <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
-          {s.criado?.comandaId ? (
+          {s.criado?.comandaId && verTicket ? (
+            <div className="mt-6">
+              <ConteudoDoTicket comandaId={s.criado.comandaId} />
+              <Button
+                variant="ghost"
+                className="mx-auto mt-3 flex h-12 w-full max-w-[360px] rounded-full"
+                onClick={() => setVerTicket(false)}
+              >
+                Voltar
+              </Button>
+            </div>
+          ) : null}
+          {s.criado?.comandaId && !verTicket ? (
             <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
               <Button size="lg" className="h-14 rounded-full" onClick={() => setVerTicket(true)}>
                 <FileText aria-hidden /> Ver comanda
@@ -128,10 +140,6 @@ function Formulario({
               <Button variant="secondary" className="h-12 rounded-full" onClick={s.concluir}>
                 Concluir
               </Button>
-              <FolhaDoTicket
-                comandaId={verTicket ? s.criado.comandaId : null}
-                onFechar={() => setVerTicket(false)}
-              />
             </div>
           ) : null}
         </>

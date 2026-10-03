@@ -7,21 +7,10 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
   getTicketPublicoDoAgendamento,
   informarPagamentoPix,
 } from "@/lib/comanda-ticket.functions";
-import {
-  invalidarComandas,
-  ROTULO_DA_ETAPA_CLIENTE,
-  ROTULO_DO_ESTADO,
-} from "@/lib/comanda-ticket";
+import { invalidarComandas, ROTULO_DA_ETAPA_CLIENTE, ROTULO_DO_ESTADO } from "@/lib/comanda-ticket";
 import { brl } from "@/lib/format";
 import { useAcoesDoTicket, IconeWhatsApp } from "./FolhaDoTicket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
@@ -74,9 +63,7 @@ export function TicketDaConfirmacao({
       <p className="flex items-center gap-2 text-sm font-semibold text-paper">
         <ReceiptText size={16} className="text-gold" aria-hidden />
         Comanda #{ticket.codigo}
-        <span className="ml-auto text-xs font-normal text-mute">
-          {rotuloEstado}
-        </span>
+        <span className="ml-auto text-xs font-normal text-mute">{rotuloEstado}</span>
       </p>
       {mostrarPix ? (
         <div className="mt-3 rounded-[var(--raio-bloco)] border border-line p-3">
@@ -123,9 +110,9 @@ export function TicketDaConfirmacao({
         </div>
       ) : null}
       <div className="mt-3 grid gap-2">
-        <Button variant="outline" onClick={() => setAberto(true)}>
+        <Button variant="outline" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
           <ReceiptText aria-hidden />
-          Ver comanda
+          {aberto ? "Ocultar comanda" : "Ver comanda"}
         </Button>
         <Button variant="outline" onClick={acoes.copiarCodigo}>
           <Copy aria-hidden />
@@ -139,20 +126,9 @@ export function TicketDaConfirmacao({
         </Button>
       </div>
 
-      <Sheet open={aberto} onOpenChange={setAberto}>
-        <SheetContent
-          side="bottom"
-          className="max-h-[94dvh] overflow-y-auto rounded-t-[var(--raio-folha)] border-0 bg-[var(--ticket-fundo)] px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6"
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Comanda #{ticket.codigo}</SheetTitle>
-            <SheetDescription>Detalhes da comanda deste atendimento.</SheetDescription>
-          </SheetHeader>
-          <TicketComanda
-            ticket={ticket}
-            onCopiarPix={acoes.copiarPix}
-            onCopiarCodigo={acoes.copiarCodigo}
-          />
+      {aberto ? (
+        <div className="mt-4 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-4 py-6">
+          <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
           <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
             <Button
               size="lg"
@@ -183,8 +159,8 @@ export function TicketDaConfirmacao({
               </Button>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      ) : null}
     </section>
   );
 }
