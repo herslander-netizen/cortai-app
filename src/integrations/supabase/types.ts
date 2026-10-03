@@ -1071,6 +1071,7 @@ export type Database = {
           agendamento_id: string | null
           atualizado_em: string
           cliente_id: string
+          codigo: string | null
           comissao_total_centavos: number
           criado_em: string
           desconto_aplicado_por: string | null
@@ -1090,6 +1091,7 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id: string
+          codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
           desconto_aplicado_por?: string | null
@@ -1109,6 +1111,7 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id?: string
+          codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
           desconto_aplicado_por?: string | null
@@ -4994,6 +4997,10 @@ export type Database = {
       financeiro_tem_permissao: {
         Args: { _ator: string; _permissao: string; _tenant: string }
         Returns: boolean
+      }
+      gerar_codigo_comanda: {
+        Args: { _em: string; _tenant: string }
+        Returns: string
       }
       has_role: {
         Args: {
