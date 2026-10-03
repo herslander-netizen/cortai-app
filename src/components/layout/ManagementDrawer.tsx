@@ -215,7 +215,9 @@ export function ManagementHeader() {
                       className="rounded-full border-0 bg-drawer-card"
                     />
                     <div className="min-w-0">
-                      <SheetTitle className="truncate text-[22px] font-semibold leading-tight text-paper">
+                      <SheetTitle
+                        className={`line-clamp-2 break-words font-semibold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-xl leading-6" : "text-2xl leading-7"}`}
+                      >
                         {sessao?.tenantNome ?? "Meu negócio"}
                       </SheetTitle>
                       <SheetDescription className="mt-1 truncate text-[15px] text-mute">

@@ -2,6 +2,7 @@
  * Agendamento público do cliente — sem conta, sem senha, sem login.
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
+import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario";
 import { createFileRoute } from "@tanstack/react-router";
 import { fluxoDoAgendamento } from "@/lib/experiencia-link";
 import { montarSchemaNegocio } from "@/lib/schema-negocio";
@@ -670,60 +671,45 @@ function AgendamentoPublico() {
       {escolhido ? (
         <Bloco titulo="Seus dados">
           <div className="grid gap-3">
-            <label className="block text-xs font-medium text-mute">
-              WhatsApp
-              <input
-                value={telefone}
-                onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-                onBlur={async () => {
-                  setTocouTelefone(true);
-                  if (digitosTel.length < 10) return;
-                  try {
-                    // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
-                    const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
-                    const local = bruto
-                      ? (JSON.parse(bruto) as { telefone: string; nome: string })
-                      : null;
-                    if (local && local.telefone === digitosTel && local.nome) {
-                      const primeiro = local.nome.split(" ")[0] ?? local.nome;
-                      setSaudacao(primeiro);
-                      if (!nome.trim()) setNome(local.nome);
-                    }
-                  } catch {
-                    /* identificação é um extra: nunca bloqueia o agendamento */
+            <CampoDeFormulario
+              rotulo="WhatsApp (com DDD)"
+              obrigatorio
+              value={telefone}
+              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+              onBlur={async () => {
+                setTocouTelefone(true);
+                if (digitosTel.length < 10) return;
+                try {
+                  // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
+                  const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
+                  const local = bruto
+                    ? (JSON.parse(bruto) as { telefone: string; nome: string })
+                    : null;
+                  if (local && local.telefone === digitosTel && local.nome) {
+                    const primeiro = local.nome.split(" ")[0] ?? local.nome;
+                    setSaudacao(primeiro);
+                    if (!nome.trim()) setNome(local.nome);
                   }
-                }}
-                inputMode="tel"
-                autoComplete="tel"
-                enterKeyHint="next"
-                placeholder="(00) 00000-0000"
-                aria-invalid={tocouTelefone && Boolean(erroTelefone)}
-                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
-                  tocouTelefone && erroTelefone ? "border-brick" : "border-line2"
-                }`}
-              />
-              {tocouTelefone && erroTelefone ? (
-                <span className="mt-1 block text-xs text-brick">{erroTelefone}</span>
-              ) : null}
-            </label>
-            <label className="block text-xs font-medium text-mute">
-              Nome
-              <input
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                onBlur={() => setTocouNome(true)}
-                autoComplete="name"
-                enterKeyHint="done"
-                placeholder="Como quer ser chamado"
-                aria-invalid={tocouNome && Boolean(erroNome)}
-                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
-                  tocouNome && erroNome ? "border-brick" : "border-line2"
-                }`}
-              />
-              {tocouNome && erroNome ? (
-                <span className="mt-1 block text-xs text-brick">{erroNome}</span>
-              ) : null}
-            </label>
+                } catch {
+                  /* identificação é um extra: nunca bloqueia o agendamento */
+                }
+              }}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              enterKeyHint="next"
+              erro={tocouTelefone ? erroTelefone : null}
+            />
+            <CampoDeFormulario
+              rotulo="Nome"
+              obrigatorio
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              onBlur={() => setTocouNome(true)}
+              autoComplete="name"
+              enterKeyHint="done"
+              erro={tocouNome ? erroNome : null}
+            />
           </div>
         </Bloco>
       ) : null}
