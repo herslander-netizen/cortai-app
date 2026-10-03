@@ -160,7 +160,7 @@ export const CAPACIDADES: readonly Capacidade[] = [
     grupo: "avancado",
     recurso: "personalizacao_cliente",
     permissao: "alterar_dados_barbearia",
-    rota: "/barbeiro/temas",
+    rota: "/barbeiro/marca",
   },
 ] as const;
 

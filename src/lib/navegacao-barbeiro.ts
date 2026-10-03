@@ -192,8 +192,7 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
   {
     titulo: "Aparência",
     abas: [
-      { to: "/barbeiro/marca", label: "Página e marca", permissao: "alterar_dados_barbearia" },
-      { to: "/barbeiro/temas", label: "Temas", permissao: "alterar_dados_barbearia" },
+      { to: "/barbeiro/marca", label: "Personalizar página", permissao: "alterar_dados_barbearia" },
     ],
   },
 ];

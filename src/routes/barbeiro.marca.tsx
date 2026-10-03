@@ -1,63 +1,32 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import {
-  Check,
-  Copy,
-  ExternalLink,
-  Eye,
-  ImagePlus,
-  Monitor,
-  RotateCcw,
-  Save,
-  Send,
-  Share2,
-  Smartphone,
-} from "lucide-react";
-import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { Copy, Eye, Save, Send, Share2 } from "lucide-react";
+import { useState } from "react";
 
-import { EsqueletoFormulario, EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
-import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
+import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
+import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
+import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
+import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
+import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
+import { SecaoLink } from "@/components/marca/editor/SecaoLink";
+import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
+import { SecaoTema } from "@/components/marca/editor/SecaoTema";
+import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
+import { SecaoVersoes } from "@/components/marca/editor/SecaoVersoes";
+import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  getMarca,
-  alterarLinkPublico,
-  publicarPagina,
-  restaurarMarca,
-  salvarRascunhoPagina,
-  type MarcaData,
-  type MarcaForm,
-} from "@/lib/marca.functions";
-import {
-  componenteIds,
-  FONTES,
-  LAYOUTS,
-  TEMAS,
-  type PaginaConfig,
-  type TemaId,
-} from "@/lib/pagina-config";
-import { getPaginaPublica } from "@/lib/publico.functions";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { getMarca, type MarcaData } from "@/lib/marca.functions";
+import { TEMAS } from "@/lib/pagina-config";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { termos } from "@/lib/segmentos";
-import { comprimirImagem } from "@/lib/imagem";
-import { ChatPreview } from "@/components/agendamento/ChatPreview";
-
-/** Atalhos de cor (valores escolhidos pelo dono, não tokens de interface). */
-const PALETA_RAPIDA = [
-  "#1B2A4A",
-  "#2F5BEA",
-  "#E85A8A",
-  "#111110",
-  "#F4F5F2",
-  "#FFFFFF",
-  "#C9A96A",
-  "#19C37D",
-  "#B4533C",
-];
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -68,7 +37,7 @@ export const Route = createFileRoute("/barbeiro/marca")({
       { property: "og:title", content: "Personalizar página — Cortaí" },
       {
         property: "og:description",
-        content: "Visual, conteúdo, seções e links da página do negócio.",
+        content: "Experiência, tema, conteúdo e links da página do negócio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -77,46 +46,6 @@ export const Route = createFileRoute("/barbeiro/marca")({
   }),
   component: MarcaPage,
 });
-
-const fieldClass =
-  "mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none placeholder:text-mute2 focus:border-gold";
-const componentes: Record<(typeof componenteIds)[number], string> = {
-  apresentacao: "Apresentação",
-  servicos: "Serviços",
-  profissionais: "Profissionais",
-  galeria: "Galeria",
-  avaliacoes: "Avaliações",
-  produtos: "Produtos",
-  instagram: "Instagram",
-  localizacao: "Localização",
-  horarios: "Horários",
-  whatsapp: "WhatsApp",
-  cta_final: "Chamada final",
-};
-
-function Campo({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  value: string | null;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block text-xs font-medium text-mute">
-      {label}
-      <input
-        className={fieldClass}
-        value={value ?? ""}
-        placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
-  );
-}
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
@@ -143,6 +72,17 @@ function MarcaPage() {
   );
 }
 
+function Item({ id, titulo, children }: { id: string; titulo: string; children: React.ReactNode }) {
+  return (
+    <AccordionItem value={id} className="border-line">
+      <AccordionTrigger className="min-h-12 text-paper hover:no-underline">
+        {titulo}
+      </AccordionTrigger>
+      <AccordionContent className="pb-6 pt-1">{children}</AccordionContent>
+    </AccordionItem>
+  );
+}
+
 function Editor({
   initial,
   versions,
@@ -152,162 +92,32 @@ function Editor({
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
   reload: () => void;
 }) {
-  const queryClient = useQueryClient();
-  const saveDraft = useServerFn(salvarRascunhoPagina);
-  const publish = useServerFn(publicarPagina);
-  const restore = useServerFn(restaurarMarca);
-  const changePublicLink = useServerFn(alterarLinkPublico);
-  const publicQuery = useQuery({
-    queryKey: ["pagina-publica", initial.slug],
-    queryFn: () => getPaginaPublica({ data: { slug: initial.slug } }),
-  });
-  const fileRef = useRef<HTMLInputElement>(null);
-  const coverRef = useRef<HTMLInputElement>(null);
-  const avatarRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<MarcaForm>(initial);
-  const [config, setConfig] = useState<PaginaConfig>(initial.pagina);
-  const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
-  const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
-  const [avatarPreview, setAvatarPreview] = useState(initial.avatar_signed_url);
-  const [slug, setSlug] = useState(initial.slug);
-  const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
-  const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(
-    initial.alteracoes_pendentes ? "Há alterações salvas que ainda não foram publicadas." : null,
+  const e = useEditorDaPagina(initial, reload);
+  const [previaAberta, setPreviaAberta] = useState(false);
+  const link = `https://cortai.dev/${e.slug}`;
+  const previa = (altura?: string) => (
+    <PreviaDaExperiencia
+      data={e.previewData}
+      config={e.config}
+      device={e.device}
+      setDevice={e.setDevice}
+      nome={e.form.nome}
+      avatarUrl={e.avatarPreview || e.logoPreview}
+      capaUrl={e.coverPreview}
+      altura={altura}
+    />
   );
-  const vocabulario = termos(initial.segmento);
-
-  useEffect(() => {
-    setForm(initial);
-    setConfig(initial.pagina);
-    setLogoPreview(initial.logo_signed_url);
-    setCoverPreview(initial.capa_signed_url);
-    setAvatarPreview(initial.avatar_signed_url);
-    setSlug(initial.slug);
-  }, [initial]);
-  const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) =>
-    setForm((old) => ({ ...old, [key]: value }));
-  const setPagina = <K extends keyof PaginaConfig>(key: K, value: PaginaConfig[K]) =>
-    setConfig((old) => ({ ...old, [key]: value }));
-
-  // Libera URLs locais de prévia para não vazar memória.
-  const previasLocais = useRef<string[]>([]);
-  useEffect(() => () => previasLocais.current.forEach((u) => URL.revokeObjectURL(u)), []);
-
-  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar") => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
-      return;
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      setStatus("Essa imagem é grande demais. Use uma de até 20 MB.");
-      return;
-    }
-    setBusy(true);
-    setStatus(kind === "capa" ? "Enviando capa…" : "Enviando imagem…");
-    try {
-      const blob = await comprimirImagem(file, {
-        maxLado: kind === "capa" ? 1920 : 800,
-        transparente: kind === "logo",
-      });
-      if (blob.size > 2 * 1024 * 1024) {
-        setStatus("Mesmo reduzida, a imagem passou de 2 MB. Tente outra foto.");
-        return;
-      }
-      const tipo = blob.type || file.type;
-      const extension =
-        tipo.split("/")[1]?.replace("jpeg", "jpg").replace("svg+xml", "svg") ?? "jpg";
-      const path = `${initial.id}/${kind}-${Date.now()}.${extension}`;
-      const { error } = await supabase.storage
-        .from("tenant-logos")
-        .upload(path, blob, { contentType: tipo });
-      if (error) {
-        setStatus("Não foi possível enviar a imagem. Tente de novo.");
-        return;
-      }
-      const preview = URL.createObjectURL(blob);
-      previasLocais.current.push(preview);
-      if (kind === "logo") {
-        setMarca("logo_url", path);
-        setLogoPreview(preview);
-      } else if (kind === "capa") {
-        setMarca("capa_url", path);
-        setCoverPreview(preview);
-      } else {
-        setPagina("chat", { ...config.chat, avatarUrl: path });
-        setAvatarPreview(preview);
-      }
-      setStatus("Imagem pronta. Salve o rascunho para continuar depois.");
-    } catch {
-      setStatus("Não foi possível enviar a imagem. Tente de novo.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const salvarSlug = async () => {
-    setBusy(true);
-    setStatus(null);
-    try {
-      const resultado = await changePublicLink({ data: { slug } });
-      setSlug(resultado.slug);
-      await reload();
-      setStatus("Link atualizado. O endereço anterior continua funcionando.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Não foi possível atualizar o link.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const executar = async (mode: "draft" | "publish") => {
-    setBusy(true);
-    setStatus(null);
-    try {
-      if (mode === "draft") {
-        await saveDraft({ data: { marca: form, pagina: config } });
-        setStatus("Rascunho salvo. Sua página pública não mudou.");
-      } else {
-        await publish({ data: { marca: form, pagina: config } });
-        await queryClient.invalidateQueries({ queryKey: ["pagina-publica", initial.slug] });
-        setStatus("Página publicada com sucesso.");
-      }
-      await reload();
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Não foi possível concluir.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const usaConversa =
-    config.experiencia === "conversa" ||
-    (config.experiencia === "vitrine" && config.chat.modo === "conversa");
-  const previewData = publicQuery.data
-    ? {
-        ...publicQuery.data,
-        tenant: {
-          ...publicQuery.data.tenant,
-          ...form,
-          logo_signed_url: logoPreview,
-          capa_signed_url: coverPreview,
-        },
-      }
-    : null;
 
   return (
     <Screen
       wide
       voltarPara="/barbeiro/mais"
       title="Personalizar página"
-      subtitle={`Seu mini-site para apresentar ${vocabulario.comArtigo} e transformar visitas em agendamentos.`}
+      subtitle={`Escolha como seu cliente chega até ${e.vocabulario.comArtigo} e veja a mudança na hora.`}
     >
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" asChild>
-          <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
+          <a href={link} target="_blank" rel="noreferrer">
             <Eye />
             Ver publicada
           </a>
@@ -315,12 +125,7 @@ function Editor({
         <Button
           variant="outline"
           size="sm"
-          onClick={() =>
-            navigator.share?.({
-              title: form.nome,
-              url: `https://cortai.dev/${slug}`,
-            })
-          }
+          onClick={() => navigator.share?.({ title: e.form.nome, url: link })}
         >
           <Share2 />
           Compartilhar
@@ -329,8 +134,8 @@ function Editor({
           variant="outline"
           size="sm"
           onClick={async () => {
-            await navigator.clipboard.writeText(`https://cortai.dev/${slug}`);
-            setStatus("Link copiado.");
+            await navigator.clipboard.writeText(link);
+            e.setStatus("Link copiado.");
           }}
         >
           <Copy />
@@ -340,666 +145,118 @@ function Editor({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-          <Tabs defaultValue="visual">
-            <TabsList className="grid h-auto w-full grid-cols-4 [&>button]:min-h-10">
-              <TabsTrigger value="visual">Identidade</TabsTrigger>
-              <TabsTrigger value="conteudo">Marca</TabsTrigger>
-              <TabsTrigger value="secoes">Conteúdo</TabsTrigger>
-              <TabsTrigger value="links">Avançado</TabsTrigger>
-            </TabsList>
-            <TabsContent value="visual" className="space-y-7 pt-4">
-              <EditorSection title="Imagens">
-                <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
-                  <Button
-                    variant="ghost"
-                    size="bloco"
-                    type="button"
-                    onClick={() => coverRef.current?.click()}
-                    className="relative aspect-video overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2 p-0"
-                  >
-                    {coverPreview ? (
-                      <img
-                        src={coverPreview}
-                        alt="Capa atual"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-full items-center justify-center gap-2 text-sm text-mute">
-                        <ImagePlus size={17} />
-                        Foto de capa
-                      </span>
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="bloco"
-                    type="button"
-                    onClick={() => fileRef.current?.click()}
-                    className="aspect-square items-center justify-center overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2 p-0"
-                  >
-                    {logoPreview ? (
-                      <img
-                        src={logoPreview}
-                        alt="Logo atual"
-                        className="h-full w-full object-contain p-2"
-                      />
-                    ) : (
-                      <ImagePlus className="text-mute" />
-                    )}
-                  </Button>
-                </div>
-                <input
-                  ref={coverRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(event) => upload(event, "capa")}
-                />
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(event) => upload(event, "logo")}
-                />
-              </EditorSection>
-              <EditorSection title="Tema">
-                <div className="grid grid-cols-2 gap-3">
-                  {Object.entries(TEMAS).map(([id, theme]) => (
-                    <Button
-                      variant="ghost"
-                      size="bloco"
-                      type="button"
-                      key={id}
-                      onClick={() => {
-                        setPagina("tema", id as TemaId);
-                        setPagina("cores", theme.cores);
-                      }}
-                      className={`rounded-lg border p-3 text-left ${config.tema === id ? "border-gold" : "border-line"}`}
-                    >
-                      <span className="mb-3 flex gap-1">
-                        {Object.values(theme.cores)
-                          .slice(0, 4)
-                          .map((color, indice) => (
-                            <i
-                              key={`${id}-${indice}`}
-                              className="h-5 flex-1 rounded-sm"
-                              style={{ backgroundColor: color }}
-                            />
-                          ))}
-                      </span>
-
-                      <span className="flex items-center justify-between text-xs font-semibold text-paper">
-                        {theme.nome}
-                        {config.tema === id ? <Check size={14} className="text-gold" /> : null}
-                      </span>
-                      <small className="mt-1 block text-xs text-mute">{theme.descricao}</small>
-                    </Button>
-                  ))}
-                </div>
-              </EditorSection>
-              <EditorSection title="Composição">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <SelectNative
-                    label="Layout"
-                    value={config.layout}
-                    options={LAYOUTS}
-                    onChange={(value) => setPagina("layout", value as PaginaConfig["layout"])}
-                  />
-                  <SelectNative
-                    label="Fonte dos títulos"
-                    value={config.fonteTitulo}
-                    options={FONTES}
-                    onChange={(value) =>
-                      setPagina("fonteTitulo", value as PaginaConfig["fonteTitulo"])
-                    }
-                  />
-                  <SelectNative
-                    label="Fonte do texto"
-                    value={config.fonteTexto}
-                    options={FONTES}
-                    onChange={(value) =>
-                      setPagina("fonteTexto", value as PaginaConfig["fonteTexto"])
-                    }
-                  />
-                  <SelectNative
-                    label="Espaçamento"
-                    value={config.densidade}
-                    options={{
-                      compacta: "Compacto",
-                      equilibrada: "Equilibrado",
-                      espacosa: "Espaçoso",
-                    }}
-                    onChange={(value) => setPagina("densidade", value as PaginaConfig["densidade"])}
-                  />
-                  <SelectNative
-                    label="Cantos"
-                    value={config.bordas}
-                    options={{
-                      quadrado: "Quadrados",
-                      suave: "Suaves",
-                      moderno: "Modernos",
-                      arredondado: "Arredondados",
-                    }}
-                    onChange={(value) => setPagina("bordas", value as PaginaConfig["bordas"])}
-                  />
-                  <SelectNative
-                    label="Botões"
-                    value={config.botoes}
-                    options={{
-                      solido: "Sólidos",
-                      contorno: "Contorno",
-                      minimalista: "Minimalistas",
-                    }}
-                    onChange={(value) => setPagina("botoes", value as PaginaConfig["botoes"])}
+          <Accordion type="multiple" defaultValue={["experiencia"]}>
+            <Item id="experiencia" titulo="Experiência">
+              <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
+              {e.usaConversa ? (
+                <div className="mt-6 border-t border-line pt-6">
+                  <h3 className="mb-4 text-sm font-semibold text-paper">Recepção</h3>
+                  <SecaoRecepcao
+                    config={e.config}
+                    setPagina={e.setPagina}
+                    avatarRef={e.avatarRef}
+                    avatarPreview={e.avatarPreview}
+                    setAvatarPreview={e.setAvatarPreview}
+                    upload={e.upload}
                   />
                 </div>
-              </EditorSection>
-              <EditorSection title="Cores">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  {Object.entries(config.cores).map(([key, value]) => {
-                    const trocar = (cor: string) =>
-                      setPagina("cores", { ...config.cores, [key]: cor.toUpperCase() });
-                    return (
-                      <div key={key} className="text-xs capitalize text-mute">
-                        {key}
-                        <div className="mt-2 flex items-center gap-2">
-                          <input
-                            type="color"
-                            aria-label={`Escolher cor ${key}`}
-                            className="h-12 w-12 shrink-0 rounded-md border border-line bg-ink2 p-1"
-                            value={value}
-                            onChange={(event) => trocar(event.target.value)}
-                          />
-                          <input
-                            aria-label={`Código da cor ${key}`}
-                            className={`${fieldClass} h-12 uppercase`}
-                            defaultValue={value}
-                            key={value}
-                            maxLength={7}
-                            onBlur={(event) => {
-                              const v = event.target.value.trim();
-                              const hex = v.startsWith("#") ? v : `#${v}`;
-                              if (/^#[0-9a-fA-F]{6}$/.test(hex)) trocar(hex);
-                              else event.target.value = value;
-                            }}
-                          />
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {PALETA_RAPIDA.map((cor, indice) => (
-                            <button
-                              key={`${key}-${cor}-${indice}`}
-                              type="button"
-                              aria-label={`Usar ${cor}`}
-                              onClick={() => trocar(cor)}
-                              className={`h-9 w-9 rounded-full border ${value.toUpperCase() === cor ? "border-paper ring-2 ring-gold" : "border-line"}`}
-                              style={{ backgroundColor: cor }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </EditorSection>
-            </TabsContent>
-
-            <TabsContent value="conteudo" className="space-y-5 pt-4">
-              <EditorSection title="Experiência do link">
-                <div className="grid gap-2" role="group" aria-label="Experiência do link">
-                  {(
-                    [
-                      ["direta", "Direta", "O cliente marca em poucos toques."],
-                      [
-                        "vitrine",
-                        "Vitrine",
-                        "Sua página completa, com o botão de agendar sempre à mão.",
-                      ],
-                      ["conversa", "Conversa", "Uma recepção que guia o cliente por botões."],
-                    ] as const
-                  ).map(([id, label, ajuda]) => (
-                    <Button
-                      key={id}
-                      type="button"
-                      variant={config.experiencia === id ? "default" : "outline"}
-                      className="h-auto min-h-12 flex-col items-start gap-0.5 whitespace-normal py-2 text-left"
-                      aria-pressed={config.experiencia === id}
-                      onClick={() => setPagina("experiencia", id)}
-                    >
-                      <span className="font-semibold">{label}</span>
-                      <span className="text-xs font-normal opacity-80">{ajuda}</span>
-                    </Button>
-                  ))}
-                </div>
-                {config.experiencia === "vitrine" ? (
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-mute">Ao tocar Agendar</p>
-                    <div
-                      className="mt-2 grid grid-cols-2 gap-2"
-                      role="group"
-                      aria-label="Ao tocar Agendar"
-                    >
-                      {(
-                        [
-                          ["tradicional", "Passo a passo"],
-                          ["conversa", "Conversa"],
-                        ] as const
-                      ).map(([id, label]) => (
-                        <Button
-                          key={id}
-                          type="button"
-                          variant={config.chat.modo === id ? "default" : "outline"}
-                          className="h-12"
-                          aria-pressed={config.chat.modo === id}
-                          onClick={() => setPagina("chat", { ...config.chat, modo: id })}
-                        >
-                          {label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                <p className="mt-2 text-xs text-mute">
-                  Nada muda para seus clientes até você publicar.
-                </p>
-                <div className="mt-4">
-                  <ChatPreview
-                    ativo={usaConversa}
-                    config={config}
-                    nome={form.nome}
-                    logoUrl={avatarPreview || logoPreview}
-                    capaUrl={coverPreview}
-                  />
-                </div>
-              </EditorSection>
-              {usaConversa ? (
-                <EditorSection title="Recepção digital">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-medium text-mute">Foto da recepção</p>
-                      <div className="mt-2 flex items-center gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="size-16 overflow-hidden p-0"
-                          onClick={() => avatarRef.current?.click()}
-                        >
-                          {avatarPreview ? (
-                            <img
-                              src={avatarPreview}
-                              alt="Foto atual da recepção"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <ImagePlus />
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => avatarRef.current?.click()}
-                        >
-                          Escolher foto
-                        </Button>
-                        {config.chat.avatarUrl ? (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => {
-                              setPagina("chat", { ...config.chat, avatarUrl: null });
-                              setAvatarPreview(null);
-                            }}
-                          >
-                            Remover
-                          </Button>
-                        ) : null}
-                      </div>
-                      <input
-                        ref={avatarRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(event) => upload(event, "avatar")}
-                      />
-                    </div>
-                    <fieldset>
-                      <legend className="text-xs font-medium text-mute">
-                        Quem recebe o cliente
-                      </legend>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        {(["Lisa", "Davi"] as const).map((nome) => (
-                          <Button
-                            key={nome}
-                            type="button"
-                            variant="ghost"
-                            className={`min-h-12 border ${config.chat.nomeRecepcao === nome ? "border-gold bg-gold/10 text-paper" : "border-line text-mute"}`}
-                            aria-pressed={config.chat.nomeRecepcao === nome}
-                            onClick={() =>
-                              setPagina("chat", { ...config.chat, nomeRecepcao: nome })
-                            }
-                          >
-                            <span className="grid size-8 place-items-center rounded-full bg-ink3 text-sm font-extrabold text-paper">
-                              {nome[0]}
-                            </span>
-                            {nome}
-                          </Button>
-                        ))}
-                      </div>
-                      {!(["Lisa", "Davi"] as string[]).includes(config.chat.nomeRecepcao) ? (
-                        <p className="mt-2 text-xs text-mute">
-                          O nome atual “{config.chat.nomeRecepcao}” continua ativo até você escolher
-                          outro.
-                        </p>
-                      ) : null}
-                    </fieldset>
-                    <label className="block text-xs font-medium text-mute">
-                      Mensagem inicial
-                      <textarea
-                        className={`${fieldClass} min-h-24 resize-y`}
-                        value={config.chat.mensagemInicial}
-                        onChange={(e) =>
-                          setPagina("chat", { ...config.chat, mensagemInicial: e.target.value })
-                        }
-                      />
-                    </label>
-                    <label className="block text-xs font-medium text-mute">
-                      Texto final
-                      <textarea
-                        className={`${fieldClass} min-h-20 resize-y`}
-                        value={config.chat.textoFinal}
-                        onChange={(e) =>
-                          setPagina("chat", { ...config.chat, textoFinal: e.target.value })
-                        }
-                      />
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["azul", "ciano", "rosa"] as const).map((cor) => (
-                        <Button
-                          key={cor}
-                          type="button"
-                          variant={config.chat.corDestaque === cor ? "default" : "outline"}
-                          className="h-12 capitalize"
-                          onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
-                        >
-                          {cor}
-                        </Button>
-                      ))}
-                    </div>
-                    {(
-                      [
-                        { key: "comemoracao", label: "Comemoração discreta" },
-                        { key: "salvarCalendario", label: "Salvar no calendário" },
-                        { key: "listaEspera", label: "Lista de espera" },
-                      ] as const
-                    ).map(({ key, label }) => (
-                      <label key={key} className="flex min-h-12 items-center justify-between gap-4">
-                        <span className="text-sm text-paper">{label}</span>
-                        <Switch
-                          checked={config.chat[key]}
-                          onCheckedChange={(checked) =>
-                            setPagina("chat", { ...config.chat, [key]: checked })
-                          }
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </EditorSection>
               ) : null}
-              <Campo
-                label={`Nome ${vocabulario.de}`}
-                value={form.nome}
-                onChange={(value) => setMarca("nome", value)}
+            </Item>
+            <Item id="tema" titulo="Tema">
+              <SecaoTema
+                config={e.config}
+                segmento={initial.segmento}
+                escolher={(tema) =>
+                  e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))
+                }
               />
-              <Campo
-                label="Frase principal"
-                value={config.frase}
-                onChange={(value) => setPagina("frase", value)}
+            </Item>
+            <Item id="conteudo" titulo="Conteúdo">
+              <SecaoConteudo config={e.config} setPagina={e.setPagina} />
+            </Item>
+            <Item id="textos" titulo="Textos e botão">
+              <SecaoTextos
+                config={e.config}
+                setPagina={e.setPagina}
+                form={e.form}
+                setMarca={e.setMarca}
+                vocabulario={e.vocabulario}
               />
-              <label className="block text-xs font-medium text-mute">
-                Sobre {vocabulario.comArtigo}
-                <textarea
-                  className={`${fieldClass} min-h-32 resize-y`}
-                  maxLength={1200}
-                  value={config.sobre}
-                  onChange={(event) => setPagina("sobre", event.target.value)}
-                />
-              </label>
-              <Campo
-                label="Texto do botão principal"
-                value={config.cta}
-                onChange={(value) => setPagina("cta", value)}
+            </Item>
+            <Item id="imagens" titulo="Imagens">
+              <SecaoImagens
+                coverRef={e.coverRef}
+                fileRef={e.fileRef}
+                coverPreview={e.coverPreview}
+                logoPreview={e.logoPreview}
+                upload={e.upload}
               />
-              <label className="flex min-h-12 items-center justify-between gap-4 rounded-lg border border-line px-4 py-2">
-                <span className="text-sm text-paper">Botão fixo no celular</span>
-                <Switch
-                  checked={config.botaoFixo}
-                  onCheckedChange={(checked) => setPagina("botaoFixo", checked)}
-                />
-              </label>
-              <Campo
-                label="Endereço"
-                value={form.endereco}
-                onChange={(value) => setMarca("endereco", value || null)}
+            </Item>
+            <Item id="ajustes" titulo="Ajustes finos">
+              <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />
+            </Item>
+            <Item id="link" titulo="Link e contato">
+              <SecaoLink
+                slug={e.slug}
+                setSlug={e.setSlug}
+                slugInicial={initial.slug}
+                busy={e.busy}
+                salvarSlug={e.salvarSlug}
+                form={e.form}
+                setMarca={e.setMarca}
               />
-            </TabsContent>
+            </Item>
+            <Item id="versoes" titulo="Versões anteriores">
+              <SecaoVersoes versions={versions} busy={e.busy} restaurar={e.restaurar} />
+            </Item>
+          </Accordion>
 
-            <TabsContent value="secoes" className="pt-4">
-              <div className="divide-y divide-line rounded-lg border border-line">
-                {componenteIds.map((id) => (
-                  <label key={id} className="flex items-center justify-between gap-4 px-4 py-3">
-                    <span className="text-sm text-paper">{componentes[id]}</span>
-                    <Switch
-                      checked={config.componentes[id] ?? false}
-                      onCheckedChange={(checked) =>
-                        setPagina("componentes", { ...config.componentes, [id]: checked })
-                      }
-                    />
-                  </label>
-                ))}
-              </div>
-              <p className="mt-3 text-xs leading-relaxed text-mute">
-                Uma seção só aparece quando estiver ativa e houver informações reais cadastradas.
-              </p>
-            </TabsContent>
-
-            <TabsContent value="links" className="space-y-5 pt-4">
-              <EditorSection title="Link de agendamento">
-                <label className="block text-xs font-medium text-mute">
-                  Endereço personalizado
-                  <div className="mt-2 flex items-stretch gap-2">
-                    <span className="hidden items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute sm:flex">
-                      cortai.dev/
-                    </span>
-                    <input
-                      className={`${fieldClass} mt-0 min-w-0 flex-1`}
-                      value={slug}
-                      maxLength={60}
-                      onChange={(event) =>
-                        setSlug(
-                          event.target.value
-                            .toLowerCase()
-                            .replace(/[^a-z0-9-]/g, "")
-                            .replace(/-+/g, "-"),
-                        )
-                      }
-                    />
-                    <Button
-                      type="button"
-                      disabled={busy || slug === initial.slug || slug.length < 3}
-                      onClick={salvarSlug}
-                    >
-                      Salvar
-                    </Button>
-                  </div>
-                </label>
-                <p className="mt-2 text-xs text-mute">
-                  O endereço antigo permanece ativo para não quebrar links já enviados.
-                </p>
-                <Button type="button" variant="outline" className="mt-3" asChild>
-                  <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
-                    <ExternalLink />
-                    Abrir agendamento
-                  </a>
-                </Button>
-              </EditorSection>
-              <Campo
-                label="WhatsApp"
-                value={form.whatsapp}
-                onChange={(value) => setMarca("whatsapp", value || null)}
-              />
-              <Campo
-                label="Telefone"
-                value={form.telefone}
-                onChange={(value) => setMarca("telefone", value || null)}
-              />
-              <Campo
-                label="Instagram"
-                value={form.instagram}
-                onChange={(value) => setMarca("instagram", value || null)}
-                placeholder="@seu_negocio"
-              />
-              <Campo
-                label="Facebook"
-                value={form.facebook}
-                onChange={(value) => setMarca("facebook", value || null)}
-              />
-            </TabsContent>
-          </Tabs>
-
-          <div className="sticky bottom-20 z-20 mt-6 grid grid-cols-2 gap-2 rounded-lg border border-line bg-ink p-2 shadow-xl">
-            <Button variant="outline" disabled={busy} onClick={() => executar("draft")}>
-              <Save />
-              {busy ? "Salvando…" : "Salvar rascunho"}
-            </Button>
-            <Button disabled={busy} onClick={() => executar("publish")}>
-              <Send />
-              {busy ? "Publicando…" : "Publicar"}
-            </Button>
-          </div>
-          {status ? (
+          {e.status ? (
             <p role="status" className="mt-3 text-sm text-sage">
-              {status}
+              {e.status}
             </p>
           ) : null}
-          <EditorSection title="Versões anteriores">
-            <ul>
-              {versions.length ? (
-                versions.map((version) => (
-                  <li
-                    key={version.id}
-                    className="flex items-center justify-between border-b border-line py-3"
-                  >
-                    <span className="text-xs text-mute">
-                      Versão {version.versao} ·{" "}
-                      {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(
-                        new Date(version.criado_em),
-                      )}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={async () => {
-                        setBusy(true);
-                        await restore({ data: { versaoId: version.id } });
-                        await reload();
-                        setStatus("Versão restaurada como rascunho.");
-                        setBusy(false);
-                      }}
-                    >
-                      <RotateCcw />
-                      Restaurar
-                    </Button>
-                  </li>
-                ))
-              ) : (
-                <li className="text-sm text-mute">
-                  As versões aparecem após a primeira publicação.
-                </li>
-              )}
-            </ul>
-          </EditorSection>
+
+          <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
+            <Button
+              variant="ghost"
+              className="mb-2 h-12 w-full xl:hidden"
+              onClick={() => setPreviaAberta(true)}
+            >
+              <Eye />
+              Ver prévia
+            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                className="h-12"
+                disabled={e.busy}
+                onClick={() => e.executar("draft")}
+              >
+                <Save />
+                {e.busy ? "Salvando…" : "Salvar rascunho"}
+              </Button>
+              <Button className="h-12" disabled={e.busy} onClick={() => e.executar("publish")}>
+                <Send />
+                {e.busy ? "Publicando…" : "Publicar"}
+              </Button>
+            </div>
+          </div>
         </div>
 
         <aside className="hidden xl:block">
-          <div className="sticky top-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase text-mute">Prévia ao vivo</p>
-              <div className="flex rounded-md border border-line p-1">
-                <Button
-                  variant={device === "mobile" ? "secondary" : "ghost"}
-                  size="icon"
-                  aria-label="Prévia no celular"
-                  title="Celular"
-                  onClick={() => setDevice("mobile")}
-                >
-                  <Smartphone />
-                </Button>
-                <Button
-                  variant={device === "desktop" ? "secondary" : "ghost"}
-                  size="icon"
-                  aria-label="Prévia no computador"
-                  title="Computador"
-                  onClick={() => setDevice("desktop")}
-                >
-                  <Monitor />
-                </Button>
-              </div>
-            </div>
-            <div
-              className={`mx-auto h-[720px] overflow-y-auto rounded-lg border border-line bg-background shadow-xl transition-[width] ${device === "mobile" ? "w-[390px]" : "w-full"}`}
-            >
-              {previewData ? (
-                <PaginaPublicaConteudo
-                  data={previewData}
-                  config={config}
-                  preview
-                  previaCelular={device === "mobile"}
-                />
-              ) : (
-                <EsqueletoPaginaPublica />
-              )}
-            </div>
-          </div>
+          <div className="sticky top-5">{previa()}</div>
         </aside>
       </div>
-    </Screen>
-  );
-}
 
-function EditorSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="border-t border-line pt-6 first:border-0 first:pt-0">
-      <h2 className="mb-4 text-sm font-semibold text-paper">{title}</h2>
-      {children}
-    </section>
-  );
-}
-function SelectNative({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: Record<string, string>;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="text-xs font-medium text-mute">
-      {label}
-      <select
-        className={fieldClass}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        {Object.entries(options).map(([id, name]) => (
-          <option key={id} value={id}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </label>
+      <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
+        <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4">
+          <SheetHeader>
+            <SheetTitle>Prévia</SheetTitle>
+          </SheetHeader>
+          <div className="mt-2">{previa("h-[calc(100dvh-140px)]")}</div>
+        </SheetContent>
+      </Sheet>
+    </Screen>
   );
 }
