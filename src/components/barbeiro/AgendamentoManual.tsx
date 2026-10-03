@@ -1,5 +1,7 @@
+import { FileText } from "lucide-react";
 import { useState } from "react";
 
+import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { Button } from "@/components/ui/button";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
@@ -92,6 +94,7 @@ function Formulario({
     iniciarNovoCliente,
     onCriado,
   });
+  const [verTicket, setVerTicket] = useState(false);
 
   return (
     <TelaDeFormulario
@@ -115,7 +118,23 @@ function Formulario({
           })}
     >
       {s.confirmado ? (
-        <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
+        <>
+          <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
+          {s.criado?.comandaId ? (
+            <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
+              <Button size="lg" className="h-14 rounded-full" onClick={() => setVerTicket(true)}>
+                <FileText aria-hidden /> Ver comanda
+              </Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={s.concluir}>
+                Concluir
+              </Button>
+              <FolhaDoTicket
+                comandaId={verTicket ? s.criado.comandaId : null}
+                onFechar={() => setVerTicket(false)}
+              />
+            </div>
+          ) : null}
+        </>
       ) : (
         <>
           <SecaoCliente s={s} />

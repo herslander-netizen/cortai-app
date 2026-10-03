@@ -1,1 +1,2 @@
 - Comanda em ticket: código em `comandas.codigo` (gatilho no banco, único por negócio); estado vem de comanda+pagamento; layout único em `TicketComanda` e a imagem em `desenhar-ticket.ts` usa as mesmas cores `--ticket-*` — evita dois modelos divergentes.
+- Comanda nasce com o agendamento: gatilho chama `garantir_comanda` (única criadora); `preparar_comanda_segura` só reaproveita e muda aberta→em_atendimento; cancelado/remarcado/falta cancelam a comanda não paga com `motivo_encerramento` — um motor só, histórico preservado.
