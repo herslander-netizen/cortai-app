@@ -488,9 +488,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 4.5rem;
-  padding: 0.75rem 1rem;
-  padding-top: max(0.75rem, env(safe-area-inset-top));
+  gap: 0.5rem;
+  min-height: 4rem;
+  padding: 0.5rem 0.75rem;
+  padding-top: calc(0.5rem + env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
   background: color-mix(in oklab, var(--chat-surface) 90%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -6043,4 +6046,25 @@ button.agenda-nome:hover {
     radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
     radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
   mask-composite: intersect;
+}
+
+.chat-header-botao {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  color: inherit;
+  transition: background-color 120ms ease;
+}
+.chat-header-botao:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
+.chat-header-botao:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.chat-header-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--chat-borda) 80%, transparent);
 }

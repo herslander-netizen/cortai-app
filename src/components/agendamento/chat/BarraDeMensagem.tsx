@@ -1,32 +1,20 @@
 import { useState, type ReactNode, type RefObject } from "react";
-import { Info, Menu, RotateCcw, SendHorizontal, MessageCircle } from "lucide-react";
+import { SendHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ChipsDeSugestao } from "./ChipsDeSugestao";
 import type { Chip } from "./tipos";
 
-/** Bandeja fixa: chips acima do teclado, menu, campo e enviar. */
+/** Bandeja fixa: chips acima do teclado, campo e enviar. Ações ficam no menu do cabeçalho. */
 export function BarraDeMensagem({
   chips,
   onEnviar,
-  onRecomecar,
-  linkEquipe,
-  linkSobre = null,
   campoRef,
   acima,
 }: {
   chips: Chip[];
   onEnviar: (texto: string) => void;
-  onRecomecar: () => void;
-  linkEquipe: string | null;
-  linkSobre?: string | null;
   campoRef: RefObject<HTMLInputElement | null>;
   acima?: ReactNode;
 }) {
@@ -36,7 +24,7 @@ export function BarraDeMensagem({
       {acima ? <div className="px-4 pb-2">{acima}</div> : null}
       <ChipsDeSugestao chips={chips} />
       <form
-        className="flex items-center gap-2 px-3"
+        className="flex items-center gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
         onSubmit={(e) => {
           e.preventDefault();
           if (!texto.trim()) return;
@@ -44,35 +32,6 @@ export function BarraDeMensagem({
           setTexto("");
         }}
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="icon" className="size-12 shrink-0" aria-label="Menu">
-              <Menu />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="top">
-            <DropdownMenuItem className="min-h-12" onSelect={onRecomecar}>
-              <RotateCcw />
-              Recomeçar
-            </DropdownMenuItem>
-            {linkSobre ? (
-              <DropdownMenuItem asChild className="min-h-12">
-                <a href={linkSobre}>
-                  <Info />
-                  Sobre nós
-                </a>
-              </DropdownMenuItem>
-            ) : null}
-            {linkEquipe ? (
-              <DropdownMenuItem asChild className="min-h-12">
-                <a href={linkEquipe} target="_blank" rel="noreferrer">
-                  <MessageCircle />
-                  Falar com a equipe
-                </a>
-              </DropdownMenuItem>
-            ) : null}
-          </DropdownMenuContent>
-        </DropdownMenu>
         <Input
           ref={campoRef}
           value={texto}
@@ -81,11 +40,11 @@ export function BarraDeMensagem({
           aria-label="Escreva sua mensagem"
           enterKeyHint="send"
           autoComplete="off"
-          className="h-12 min-w-0 flex-1 text-base"
+          className="h-12 min-w-0 flex-1 rounded-full px-4 text-base"
         />
         <Button
           type="submit"
-          className="size-12 shrink-0 p-0"
+          className="size-12 shrink-0 rounded-full p-0"
           aria-label="Enviar"
           disabled={!texto.trim()}
         >

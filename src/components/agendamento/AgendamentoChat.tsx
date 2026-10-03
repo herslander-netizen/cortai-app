@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Info, MessageCircle, RotateCcw, Store } from "lucide-react";
 
 import {
   Conversation,
@@ -29,6 +29,16 @@ import { useConversaAgendamento } from "./chat/useConversaAgendamento";
 function nomeDaRecepcao(nome: string | undefined) {
   const limpo = nome?.trim() ?? "";
   return !limpo || /^recep(?:ç|c)[aã]o$/i.test(limpo) ? "Lisa" : limpo;
+}
+
+/** Um único status: respondendo, fora do horário (texto curto) ou online. */
+export function statusDoCabecalho(
+  respondendo: boolean,
+  funcionamento: { aberto: boolean; texto: string } | null,
+) {
+  if (respondendo) return "Respondendo…";
+  if (!funcionamento) return "Agenda online";
+  return funcionamento.aberto ? "Online agora" : funcionamento.texto;
 }
 
 export function AgendamentoChat({
@@ -77,6 +87,7 @@ export function AgendamentoChat({
   const digitando = etapaPronta !== etapa;
   const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso);
   const equipe = linkDaEquipe(data);
+  const paginaDoNegocio = `/b/${data.tenant.slug}`;
   const nomeServico = (id?: string) => data.servicos.find((s) => s.id === id)?.nome;
   const nomeProf = (id?: string) => data.profissionais.find((p) => p.id === id)?.nome;
 
@@ -156,11 +167,16 @@ export function AgendamentoChat({
         header={
           <ChatHeader
             nome={nomeDaRecepcao(data.pagina.chat.nomeRecepcao)}
-            status={
-              digitando || enviando ? "Digitando..." : (funcionamento?.texto ?? "Agenda online")
-            }
-            detalhe={data.tenant.nome}
+            avatarUrl={data.pagina.chat.avatarUrl ?? data.tenant.logoUrl}
+            status={statusDoCabecalho(digitando || enviando, funcionamento)}
             processando={digitando || enviando}
+            voltar={{ href: paginaDoNegocio, rotulo: `Voltar para ${data.tenant.nome}` }}
+            acoes={[
+              { rotulo: "Recomeçar conversa", icone: <RotateCcw />, onSelect: conversa.recomecar },
+              { rotulo: "Página do negócio", icone: <Store />, href: paginaDoNegocio },
+              ...(equipe ? [{ rotulo: "Falar com a equipe", icone: <MessageCircle />, href: equipe, externo: true }] : []),
+              ...(linkSobre ? [{ rotulo: "Sobre nós", icone: <Info />, href: linkSobre }] : []),
+            ]}
           />
         }
       >
@@ -278,9 +294,6 @@ export function AgendamentoChat({
             usouTeclado.current = true;
             conversa.enviarTexto(texto);
           }}
-          onRecomecar={conversa.recomecar}
-          linkEquipe={equipe}
-          linkSobre={linkSobre ?? null}
           campoRef={campoRef}
           acima={
             etapa === "dados" && !digitando ? (
