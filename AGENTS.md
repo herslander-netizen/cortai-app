@@ -48,4 +48,3 @@
 
 
 - Conexões sociais (Instagram/TikTok): tela /barbeiro/redes, tabela conexoes_sociais (tokens só via service_role; leitura do membro sem tokens), estado OAuth assinado com o segredo da plataforma; sem chaves de desenvolvedor, iniciarConexaoSocial cria conexão "simulada" — um fluxo só para demonstração e conexão real.
-- Comanda em ticket: código legível em `comandas.codigo` (gatilho no banco, único por negócio); estado vem de comanda+pagamento; layout único em `components/comanda/TicketComanda` e a imagem em `desenhar-ticket.ts` lê as mesmas cores `--ticket-*` — evita dois modelos divergentes.

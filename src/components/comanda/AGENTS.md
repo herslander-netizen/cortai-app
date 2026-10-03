@@ -1,0 +1,1 @@
+- Comanda em ticket: código em `comandas.codigo` (gatilho no banco, único por negócio); estado vem de comanda+pagamento; layout único em `TicketComanda` e a imagem em `desenhar-ticket.ts` usa as mesmas cores `--ticket-*` — evita dois modelos divergentes.
