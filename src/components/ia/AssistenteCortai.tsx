@@ -18,12 +18,12 @@ import {
   perguntarAoCortai,
   type TurnoDaConversa,
 } from "@/lib/assistente.functions";
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 function atalhosDo(segmento: Segmento | undefined) {
-  const s = segmentoValido(segmento);
+  const s = segmentoParaApresentacao(segmento);
   return [
-    s === "barbearia" ? "Tenho corte 35, barba 25 e combo 50" : SEGMENTOS_CONFIG[s].exemploIA,
+    SEGMENTOS_CONFIG[s].exemploIA,
     ...ATALHOS_FIXOS,
   ];
 }
@@ -149,7 +149,7 @@ function PreviaDaAcao({
 
 export function AssistenteCortai({
   onFechar,
-  segmento = "barbearia",
+  segmento,
 }: {
   onFechar: () => void;
   segmento?: Segmento | undefined;
