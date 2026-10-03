@@ -92,7 +92,7 @@ export function calcularOportunidades(e: EntradaDoMotor): Oportunidade[] {
       tipo: "AGUARDANDO_HUMANO",
       prioridade: "alta",
       titulo: `${e.aguardandoHumano} ${e.aguardandoHumano === 1 ? "conversa espera" : "conversas esperam"} atendimento`,
-      descricao: "Alguém pediu para falar com a barbearia.",
+      descricao: "Alguém pediu para falar com o negócio.",
       quantidade: e.aguardandoHumano,
       acao: "VER_CONVERSAS",
       destino: "/barbeiro/cortai",

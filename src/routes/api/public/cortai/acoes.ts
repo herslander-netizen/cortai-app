@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/cortai/acoes")({
         const ctx = await contextoDoToken(tokenDaRequisicao(request));
         if (!ctx) {
           await guard.rejeitar(request, "cortai/acoes", "token invalido");
-          return json({ erro: "Token inválido ou barbearia sem conexão ativa." }, 401);
+          return json({ erro: "Token inválido ou negócio sem conexão ativa." }, 401);
         }
 
         let corpo: unknown;

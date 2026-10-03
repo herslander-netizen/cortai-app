@@ -279,7 +279,7 @@ export const salvarIdentidadeApp = createServerFn({ method: "POST" })
       .eq("tenant_id", data.tenantId)
       .limit(1)
       .maybeSingle();
-    if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade da barbearia.");
+    if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade do negócio.");
     const { error } = await context.supabase
       .from("tenants")
       .update({ identidade_app: data.identidade })

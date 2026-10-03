@@ -84,7 +84,7 @@ export async function validarAgendamento(
   if (antecedencia) throw new Error(antecedencia);
   if (ini > Date.now() + regras.janelaDias * 86_400_000) {
     throw new Error(
-      `Esta barbearia agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
+      `Este local agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
     );
   }
   const fora = motivoForaDoHorario(ini, p.servico.duracao_min, regras.horarios, regras.fuso);
