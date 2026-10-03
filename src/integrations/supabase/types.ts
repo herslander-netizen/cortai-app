@@ -1079,6 +1079,7 @@ export type Database = {
           finalizada_em: string | null
           finalizada_por: string | null
           id: string
+          motivo_encerramento: string | null
           numero: number
           profissional_id: string | null
           status: string
@@ -1099,6 +1100,7 @@ export type Database = {
           finalizada_em?: string | null
           finalizada_por?: string | null
           id?: string
+          motivo_encerramento?: string | null
           numero?: number
           profissional_id?: string | null
           status?: string
@@ -1119,6 +1121,7 @@ export type Database = {
           finalizada_em?: string | null
           finalizada_por?: string | null
           id?: string
+          motivo_encerramento?: string | null
           numero?: number
           profissional_id?: string | null
           status?: string
@@ -5062,6 +5065,10 @@ export type Database = {
       financeiro_tem_permissao: {
         Args: { _ator: string; _permissao: string; _tenant: string }
         Returns: boolean
+      }
+      garantir_comanda: {
+        Args: { _agendamento_id: string; _ator?: string }
+        Returns: string
       }
       gerar_codigo_comanda: {
         Args: { _em: string; _tenant: string }
