@@ -113,17 +113,19 @@ export function DrawerAjustes({
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} onClick={navegar} className={LINHA}>
-                  <IconeDoMenu icone={Icon} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">
-                      {item.label}
+                <Link to={item.to} onClick={navegar}>
+                  <span className={LINHA}>
+                    <IconeDoMenu icone={Icon} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-base font-semibold text-paper">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                        {item.detalhe}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                      {item.detalhe}
-                    </span>
+                    <ChevronRight className="size-5 text-mute2" aria-hidden />
                   </span>
-                  <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
               </Button>
             );
@@ -163,17 +165,19 @@ export function DrawerAjustes({
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} onClick={navegar} className={LINHA}>
-                  <IconeDoMenu icone={Icon} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-paper">
-                      {item.label}
+                <Link to={item.to} onClick={navegar}>
+                  <span className={LINHA}>
+                    <IconeDoMenu icone={Icon} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-base font-semibold text-paper">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                        {item.detalhe}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                      {item.detalhe}
-                    </span>
+                    <ChevronRight className="size-5 text-mute2" aria-hidden />
                   </span>
-                  <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </Link>
               </Button>
             );
