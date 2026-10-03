@@ -612,7 +612,13 @@ export function AgendaTimeline({
           className="mb-1 min-h-12 w-full text-xs text-mute"
           aria-expanded={false}
           aria-controls="agenda-timeline-grade"
-          onClick={() => setMostrarAnteriores(true)}
+          onClick={() => {
+            setMostrarAnteriores(true);
+            // O botão some; o foco segue para a grade em vez de se perder.
+            requestAnimationFrame(() =>
+              document.getElementById("agenda-timeline-grade")?.focus({ preventScroll: true }),
+            );
+          }}
         >
           Mostrar horários anteriores
         </Button>
@@ -645,6 +651,7 @@ export function AgendaTimeline({
         <div
           className="agenda-timeline"
           id={previa ? undefined : "agenda-timeline-grade"}
+          tabIndex={previa ? undefined : -1}
           style={{
             height: `${altura}px`,
             ...(interativo && corteAnteriores > 0 && !mostrarAnteriores
