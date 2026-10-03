@@ -5,6 +5,7 @@ import { Eye, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { InterruptorApresentacao } from "@/components/admin/InterruptorApresentacao";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
@@ -173,6 +174,7 @@ function EditorDaHome() {
             publicação: {DATA(data.publicadoEm)}.
           </p>
 
+          <InterruptorApresentacao />
           <Tabs defaultValue="topo">
             <TabsList className="w-full justify-start overflow-x-auto">
               <TabsTrigger value="topo">Topo</TabsTrigger>
