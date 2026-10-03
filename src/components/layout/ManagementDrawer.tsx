@@ -44,6 +44,7 @@ import {
   identidadeValida,
   MODE_KEY,
 } from "@/lib/aparencia";
+import { termos } from "@/lib/segmentos";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
@@ -90,8 +91,8 @@ export function ManagementHeader() {
   ).length;
   const resumoDaAgenda = agenda
     ? atendimentosDeHoje
-      ? `Hoje: ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
-      : "Agenda livre hoje"
+      ? `Hoje · ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
+      : "Hoje · livre"
     : null;
 
   useEffect(() => {
@@ -246,7 +247,9 @@ export function ManagementHeader() {
                   resumoDaAgenda={resumoDaAgenda}
                   agendaAtiva={itemDeNavegacaoAtivo(caminho, "/barbeiro")}
                   operacaoAberta={operacaoAberta}
-                  horarioFinal={horarioDeHoje?.fecha}
+                  tenantId={sessao?.tenantId ?? null}
+                  verDesempenho={celular && !!sessao?.permissoes.includes("relatorios")}
+                  menuAberto={aberto}
                   fechar={() => setAberto(false)}
                 />
                 <div className="mt-6 space-y-4">
@@ -260,7 +263,9 @@ export function ManagementHeader() {
                           aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
                           onClick={() => alternar(grupo.titulo)}
                         >
-                          {grupo.titulo}
+                          {grupo.titulo === "Negócio"
+                            ? capitalizar(termos(sessao?.segmento).possessivo)
+                            : grupo.titulo}
                           <ChevronDown
                             className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
                             aria-hidden
@@ -315,4 +320,8 @@ export function ManagementHeader() {
       </div>
     </header>
   );
+}
+
+function capitalizar(texto: string) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }

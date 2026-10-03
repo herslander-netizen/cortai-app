@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Link2, Share2, TrendingUp } from "lucide-react";
+import { CalendarDays, Link2, Share2 } from "lucide-react";
+import { CartaoAvisosDoMenu, FaixaDesempenho } from "@/components/layout/DrawerMenuExtras";
 
 import { Button } from "@/components/ui/button";
 import { aviso } from "@/lib/avisos";
@@ -11,7 +12,9 @@ type Props = {
   resumoDaAgenda: string | null;
   agendaAtiva: boolean;
   operacaoAberta: boolean | null;
-  horarioFinal: string | undefined;
+  tenantId: string | null;
+  verDesempenho: boolean;
+  menuAberto: boolean;
   fechar: () => void;
 };
 
@@ -21,7 +24,9 @@ export function DrawerDestaques({
   resumoDaAgenda,
   agendaAtiva,
   operacaoAberta,
-  horarioFinal,
+  tenantId,
+  verDesempenho,
+  menuAberto,
   fechar,
 }: Props) {
   async function compartilhar() {
@@ -70,12 +75,13 @@ export function DrawerDestaques({
               <Share2 className="size-[22px]" aria-hidden />
             </Button>
           </div>
-          <div className="flex min-h-10 items-center gap-2 bg-drawer-band px-5 py-2 text-sm text-mute">
-            <TrendingUp className="size-4 shrink-0" aria-hidden />
-            <span className="truncate">{resumoDaAgenda ?? "O desempenho aparecerá aqui"}</span>
-          </div>
+          {tenantId && verDesempenho ? (
+            <FaixaDesempenho tenantId={tenantId} ativo={menuAberto} />
+          ) : null}
         </div>
       ) : null}
+
+      <CartaoAvisosDoMenu tenantId={tenantId} />
 
       <Link
         to="/barbeiro"
@@ -89,11 +95,7 @@ export function DrawerDestaques({
             Agenda
           </span>
           <span className="mt-0.5 block truncate text-sm text-mute">
-            {operacaoAberta === null
-              ? "Hoje"
-              : operacaoAberta
-                ? `Hoje · aberta até ${horarioFinal ?? "—"}`
-                : "Hoje · fechado"}
+            {operacaoAberta === false ? "Hoje · fechado" : (resumoDaAgenda ?? "Hoje")}
           </span>
         </span>
         <span
