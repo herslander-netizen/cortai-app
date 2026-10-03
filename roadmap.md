@@ -150,3 +150,6 @@
 - [x] Agenda: teclado + ARIA nos filtros de profissional e controles da timeline
 
 - [x] Multi-segmento (só beleza): auditar e trocar textos fixos de barbearia por termos(segmento)
+
+- [x] Comanda: uma superfície ativa por vez (ficha → cobrança → ticket interno; cliente com ticket na página)
+- [ ] Validar na tela com conta de negócio (390px, painel lateral, Foco, Caixa); bloqueado: conta de teste do negócio
