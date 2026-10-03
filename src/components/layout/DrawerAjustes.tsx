@@ -49,6 +49,12 @@ const ITENS = [
     icon: Settings,
   },
   {
+    label: "Funcionalidades",
+    detalhe: "Ligue só o que você usa",
+    to: "/barbeiro/funcionalidades",
+    icon: SlidersHorizontal,
+  },
+  {
     label: "Plano",
     detalhe: "Assinatura, cobranças e histórico",
     to: "/barbeiro/plano",

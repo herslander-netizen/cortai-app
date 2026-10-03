@@ -353,7 +353,9 @@ export function AgendaOperacional() {
     queryFn: () => getCapacidades(),
     staleTime: 300_000,
   });
-  const focoNoPlano = capacidadesQ.data?.liberados["modo_foco"] !== false;
+  const focoNoPlano =
+    capacidadesQ.data?.liberados["modo_foco"] !== false &&
+    capacidadesQ.data?.ativos["modo_foco"] !== false;
 
   function entrarNoModoFoco() {
     if (modoFoco) return;

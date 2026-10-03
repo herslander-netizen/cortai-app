@@ -68,7 +68,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
   {
     titulo: "Atendimento",
     itens: [
-      f({ chave: "encaixes", rotulo: "Encaixes", detalhe: "Marcar cliente no balcão, mesmo em cima da hora", fonte: { tipo: "recurso", chave: "agendamento_manual" }, plano: "agendamento_manual" }),
+      f({ chave: "encaixes", rotulo: "Encaixes", detalhe: "Ajuste nas regras da agenda", fonte: { tipo: "sem_interruptor" }, plano: "agendamento_manual", configurar: "/barbeiro/configurar" }),
       f({ chave: "modo_foco", rotulo: "Modo Foco", detalhe: "Tela de hoje só com o atendimento atual e o próximo", fonte: { tipo: "recurso", chave: "modo_foco" }, plano: "modo_foco" }),
       f({ chave: "fila_chegada", rotulo: "Fila e lista de espera", detalhe: "Clientes aguardando vaga, pelo link e pelo WhatsApp", fonte: { tipo: "recurso", chave: "fila_espera" }, plano: "fila_espera", configurar: "/barbeiro/fila" }),
       f({ chave: "lista_automatica", rotulo: "Lista de espera automática", detalhe: "Oferece a vaga livre ao próximo da lista sozinha", fonte: { tipo: "lista_automatica" }, plano: "fila_espera", depende: "fila_chegada", configurar: "/barbeiro/fila" }),

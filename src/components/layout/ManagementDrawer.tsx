@@ -162,7 +162,11 @@ export function ManagementHeader() {
           const rota = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
           if (!rota || !capacidades) return true;
           const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rota);
-          return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
+          if (!capacidade?.recurso) return true;
+          return (
+            capacidades.liberados[capacidade.recurso] !== false &&
+            capacidades.ativos[capacidade.recurso] !== false
+          );
         }),
     }));
   }, [capacidades, celular, sessao?.permissoes, sessao?.segmento]);
