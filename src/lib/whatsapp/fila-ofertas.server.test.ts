@@ -39,7 +39,8 @@ function builder(tabela: string) {
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
-  const b: Record<string, unknown> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const b: any = {};
   const chain = () => b;
   for (const m of ["select", "eq", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
   b.order = (col: string) => {
@@ -117,8 +118,8 @@ describe("recuperação automática de vagas", () => {
     const { ofertarVaga } = await import("./fila-ofertas.server");
     const r = await ofertarVaga("ag1");
     expect(r.ofertaId).toBe("of1");
-    expect(st.inserts[0]?.fila_id).toBe("primeiro");
-    expect(st.inserts[0]?.expira_em).toBe(new Date(AGORA + 30 * 60_000).toISOString());
+    expect(st.inserts[0]?.["fila_id"]).toBe("primeiro");
+    expect(st.inserts[0]?.["expira_em"]).toBe(new Date(AGORA + 30 * 60_000).toISOString());
     expect(st.orders).toEqual(["posicao", "criado_em", "id"]);
     expect(st.ranges[0]).toEqual([0, 199]);
   });
@@ -127,7 +128,7 @@ describe("recuperação automática de vagas", () => {
     vi.setSystemTime(INICIO - 20 * 60_000);
     const { ofertarVaga } = await import("./fila-ofertas.server");
     await ofertarVaga("ag1");
-    expect(st.inserts[0]?.expira_em).toBe(new Date(INICIO - 10 * 60_000).toISOString());
+    expect(st.inserts[0]?.["expira_em"]).toBe(new Date(INICIO - 10 * 60_000).toISOString());
   });
 
   it("recusa passa ao próximo quando ligada", async () => {
