@@ -48,3 +48,5 @@
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
+
+- Painel de Funcionalidades (`src/lib/funcionalidades.ts`) só aponta para interruptores já lidos pelo sistema (recursos_do_tenant, colunas do negócio, regras_de_plano, config da Secretária); item sem interruptor real só leva à tela própria — evita matriz paralela e toggle falso.
