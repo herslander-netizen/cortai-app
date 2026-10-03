@@ -22,7 +22,6 @@ import {
 
 export { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
 const LOTE_DA_FILA = 200;
-const TETO_DA_FILA = 2000;
 const TENTATIVAS_POR_VAGA = 20;
 
 /** Interruptor do negócio: desligado = nenhuma oferta automática nova. */

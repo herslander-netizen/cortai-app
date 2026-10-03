@@ -83,7 +83,8 @@ describe("ordem real da fila e prazo da oferta", () => {
     fila.push(p({ id: "b", posicao: 1, criadoEm: "2026-10-01T00:00:00Z" }));
     fila.push(p({ id: "a", posicao: 1, criadoEm: "2026-10-01T00:00:00Z" }));
     const r = candidatosDaVaga(
-      fila.sort(() => 0.5 - Math.random()),
+      // Embaralhamento determinístico: ordem decrescente de id, fora da ordem da fila.
+      [...fila].sort((x, y) => (x.id < y.id ? 1 : -1)),
       vaga,
       servicos,
     );
