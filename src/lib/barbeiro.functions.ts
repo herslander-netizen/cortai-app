@@ -1582,3 +1582,36 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       profissionalAnterior: (atual.profissional_id as string | null) ?? null,
     };
   });
+
+/** Quantidade de atendimentos ativos por dia do mês (uma consulta), para os pontinhos da Agenda. */
+export const getContagemDoMes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { mes: string; profissionalId?: string | null }) => {
+    if (!/^\d{4}-\d{2}$/.test(data?.mes ?? "")) throw new Error("Mês inválido.");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<Record<string, number>> => {
+    const { db, tenant } = await tenantPadrao(context);
+    const fuso = await fusoDoTenant(tenant.id);
+    const [a = 1970, m = 1] = data.mes.split("-").map(Number);
+    const proximo = m === 12 ? `${a + 1}-01` : `${a}-${String(m + 1).padStart(2, "0")}`;
+    const de = isoNoFusoDaBarbearia(`${data.mes}-01`, "00:00", fuso);
+    const ate = isoNoFusoDaBarbearia(`${proximo}-01`, "00:00", fuso);
+    let q = db
+      .from("agendamentos")
+      .select("inicio")
+      .eq("tenant_id", tenant.id)
+      .in("status", ["agendado", "chegou", "na_cadeira", "finalizado"])
+      .gte("inicio", de)
+      .lt("inicio", ate)
+      .limit(5000);
+    if (data.profissionalId) q = q.eq("profissional_id", data.profissionalId);
+    const { data: linhas } = await q;
+    const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: fuso });
+    const contagem: Record<string, number> = {};
+    for (const l of linhas ?? []) {
+      const d = fmt.format(new Date(l.inicio));
+      contagem[d] = (contagem[d] ?? 0) + 1;
+    }
+    return contagem;
+  });

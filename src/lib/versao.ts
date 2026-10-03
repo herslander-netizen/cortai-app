@@ -1,3 +1,4 @@
+import { NOVIDADES } from "./novidades";
 /**
  * Controle de versão do aplicativo.
  *
@@ -8,7 +9,7 @@
  */
 
 /** Versão embutida nesta build. Fonte única de verdade. */
-export const VERSAO_INSTALADA = "2.0.0";
+export const VERSAO_INSTALADA = "3.0.0";
 
 /** Alias público da versão do aplicativo. */
 export const APP_VERSION = VERSAO_INSTALADA;
@@ -37,6 +38,17 @@ export type ItemDoChangelog = {
 
 /** Histórico oficial de versões do Cortaí (do mais novo para o mais antigo). */
 export const CHANGELOG: ItemDoChangelog[] = [
+  {
+    versao: "3.0.0",
+    data: "2026-10-03",
+    tipo: "major",
+    titulo: "Cortaí 3.0",
+    descricao: "Agenda nova, visual mais leve e um Cortaí para todo negócio de beleza.",
+    funcionalidades: [...NOVIDADES],
+    visual: ["Novo fundo neutro no modo claro e escuro."],
+    tecnico: ["Novidades centralizadas em src/lib/novidades.ts."],
+    correcoes: [],
+  },
   {
     versao: "2.0.0",
     data: "2026-09-23",

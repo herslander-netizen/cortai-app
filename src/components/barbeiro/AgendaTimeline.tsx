@@ -57,6 +57,8 @@ type AgendaTimelineProps = {
   discreto?: boolean;
   /** Prévia só de leitura (dia vizinho no gesto): sem efeitos, ponteiros nem cápsula. */
   previa?: boolean;
+  /** Celular 3.0: sempre de 00:00 a 23:00, rola até o agora (hoje) ou à abertura. */
+  diaCompleto?: boolean;
 };
 
 const PX_POR_MINUTO = 1.6;
@@ -112,6 +114,7 @@ export function AgendaTimeline({
   mostrarProfissional = false,
   discreto = false,
   previa = false,
+  diaCompleto = false,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -228,16 +231,18 @@ export function AgendaTimeline({
       referenciasInicio.push(minutoAtual - MARGEM_AGORA_MIN);
       referenciasFim.push(minutoAtual + MARGEM_AGORA_MIN);
     }
+    if (diaCompleto) return { inicio: 0, fim: 24 * 60, minutoAtual };
     const inicio = Math.max(0, Math.floor(Math.min(...referenciasInicio) / 30) * 30);
     const fim = Math.min(24 * 60, Math.ceil(Math.max(...referenciasFim) / 30) * 30);
     return { inicio, fim: Math.max(inicio + 60, fim), minutoAtual };
-  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala]);
+  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, diaCompleto]);
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
-    for (let minuto = escala.inicio; minuto <= escala.fim; minuto += 30) resultado.push(minuto);
+    const ultimo = diaCompleto ? escala.fim - 30 : escala.fim;
+    for (let minuto = escala.inicio; minuto <= ultimo; minuto += 30) resultado.push(minuto);
     return resultado;
-  }, [escala.fim, escala.inicio]);
+  }, [escala.fim, escala.inicio, diaCompleto]);
 
   const layout = useMemo(() => {
     const resultado = new Map<
@@ -363,6 +368,21 @@ export function AgendaTimeline({
     });
     return () => window.cancelAnimationFrame(quadro);
   }, [dia, ehHoje, altura, previa]);
+
+  // Dia completo fora de hoje: começa na abertura do expediente, não à meia-noite.
+  useEffect(() => {
+    if (previa || ehHoje || !diaCompleto || posicionouRef.current === dia) return;
+    const area = rolagemRef.current;
+    const func = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
+    if (!area) return;
+    const quadro = window.requestAnimationFrame(() => {
+      const alvo = func ? minutosDoHorario(func.abre) : 8 * 60;
+      const topo = area.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, topo + alvo * PX_POR_MINUTO - 120), behavior: "auto" });
+      posicionouRef.current = dia;
+    });
+    return () => window.cancelAnimationFrame(quadro);
+  }, [dia, ehHoje, diaCompleto, previa, horarios]);
 
   function acompanharAgora() {
     const area = rolagemRef.current;

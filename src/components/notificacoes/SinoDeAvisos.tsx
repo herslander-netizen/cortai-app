@@ -20,6 +20,8 @@ import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { guardarAvisoDoFoco, modoFocoAtivo } from "@/lib/modo-foco";
+import { useMediaQuery } from "@/hooks/use-mobile";
+import { TelaDeAvisos } from "@/components/notificacoes/TelaDeAvisos";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -33,6 +35,8 @@ export function SinoDeAvisos() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const montado = useRef(false);
+  const celular = useMediaQuery("(max-width: 767px)");
+  const [naoLidasAoAbrir, setNaoLidasAoAbrir] = useState<ReadonlySet<string>>(new Set());
 
   const { data: sessao } = useQuery({
     queryKey: ["sessao"],
@@ -85,9 +89,10 @@ export function SinoDeAvisos() {
     };
   }, [tenantId, queryClient]);
 
+  const fecharRef = useRef<() => void>(() => {});
   useEffect(() => {
     if (!aberto) return;
-    const fechar = (e: KeyboardEvent) => e.key === "Escape" && setAberto(false);
+    const fechar = (e: KeyboardEvent) => e.key === "Escape" && fecharRef.current();
     window.addEventListener("keydown", fechar);
     const anterior = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -98,10 +103,31 @@ export function SinoDeAvisos() {
   }, [aberto]);
 
   useEffect(() => {
-    const abrir = () => setAberto(true);
+    const abrir = () => abrirCentralRef.current();
     window.addEventListener("cortai:abrir-avisos", abrir);
     return () => window.removeEventListener("cortai:abrir-avisos", abrir);
   }, []);
+
+  // Celular: tela cheia com entrada no histórico (voltar do Android fecha e volta ao mesmo ponto).
+  useEffect(() => {
+    if (!aberto || !celular) return;
+    const voltar = () => setAberto(false);
+    window.addEventListener("popstate", voltar);
+    return () => window.removeEventListener("popstate", voltar);
+  }, [aberto, celular]);
+
+  const abrirCentralRef = useRef<() => void>(() => {});
+  abrirCentralRef.current = () => {
+    if (aberto) return;
+    setNaoLidasAoAbrir(new Set((avisos ?? []).filter((a) => !a.lida_em).map((a) => a.id)));
+    if (celular) window.history.pushState({ ...window.history.state, avisos: true }, "");
+    setAberto(true);
+  };
+  function fecharCentral() {
+    if (celular && window.history.state?.avisos) window.history.back();
+    else setAberto(false);
+  }
+  fecharRef.current = fecharCentral;
 
   if (!tenantId) return null;
 
@@ -109,7 +135,7 @@ export function SinoDeAvisos() {
   const naoLidas = lista.filter((a) => !a.lida_em).length;
 
   async function abrirAviso(aviso: Notificacao) {
-    setAberto(false);
+    fecharCentral();
     if (!aviso.lida_em) {
       try {
         await marcarComoLida(aviso.id);
@@ -203,7 +229,7 @@ export function SinoDeAvisos() {
         type="button"
         variant="ghost"
         size="icon"
-        onClick={() => setAberto(true)}
+        onClick={() => abrirCentralRef.current()}
         aria-label={naoLidas ? `Avisos, ${naoLidas} não lidos` : "Avisos"}
         className={`relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold ${
           pulsar && !menosMovimento ? "animate-pulse text-gold" : ""
@@ -220,7 +246,19 @@ export function SinoDeAvisos() {
       {typeof document !== "undefined"
         ? createPortal(
             <AnimatePresence>
-              {aberto ? (
+              {aberto && celular ? (
+                <TelaDeAvisos
+                  key="tela"
+                  lista={lista}
+                  naoLidasAoAbrir={naoLidasAoAbrir}
+                  onVoltar={fecharCentral}
+                  onAbrir={(a) => void abrirAviso(a)}
+                  onMarcarTodas={async () => {
+                    await marcarTodasComoLidas(tenantId!);
+                    void queryClient.invalidateQueries({ queryKey: ["notificacoes", tenantId] });
+                  }}
+                />
+              ) : aberto ? (
                 <motion.div
                   className="fixed inset-0 z-50"
                   initial={{ opacity: 0 }}

@@ -7,6 +7,7 @@ import {
   type SituacaoDaVersao,
 } from "@/lib/versao";
 import { useModoFoco } from "@/lib/modo-foco";
+import { EVENTO_ABRIR_NOVIDADES } from "@/components/sistema/NovidadesDaVersao";
 
 const CHAVE_ADIADO = "cortai:versao-adiada";
 
@@ -87,7 +88,13 @@ export function AvisoDeVersao() {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
       <div className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 py-3">
-        <p className="min-w-0 flex-1 text-xs text-paper">Uma nova versão está disponível.</p>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent(EVENTO_ABRIR_NOVIDADES))}
+          className="min-w-0 flex-1 text-left text-xs text-paper underline-offset-2 hover:underline"
+        >
+          Cortaí 3.0 disponível
+        </button>
         <button
           type="button"
           onClick={atualizar}

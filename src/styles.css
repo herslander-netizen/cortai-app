@@ -95,14 +95,21 @@
   --identity-off-white: #f7faff;
   --identity-white: #ffffff;
   --identity-border: #d9e3f0;
-  --grafite-ink: #021a46;
-  --grafite-surface: #102f63;
-  --grafite-raised: #193c75;
-  --grafite-paper: #f7faff;
-  --grafite-muted: #a9bad3;
-  --grafite-muted-2: #98acc9;
-  --grafite-line: #224977;
-  --grafite-line-2: #2d598f;
+  /* Base neutra única (3.0): todos os temas só mudam o destaque. */
+  --fundo: #1a1f1c;
+  --painel: #212724;
+  --cartao: #3f4543;
+  --linha: #3a413e;
+  --texto: #e3eae6;
+  --texto-suave: #a9b3ae;
+  --grafite-ink: var(--fundo);
+  --grafite-surface: var(--cartao);
+  --grafite-raised: var(--painel);
+  --grafite-paper: var(--texto);
+  --grafite-muted: var(--texto-suave);
+  --grafite-muted-2: var(--texto-suave);
+  --grafite-line: var(--linha);
+  --grafite-line-2: #4a524e;
   --grafite-primary: #087cf0;
   --grafite-accent: #00b7f4;
   --whatsapp: #25d366;
@@ -173,7 +180,7 @@
   --foreground: var(--paper);
   --card: var(--ink2);
   --card-foreground: var(--paper);
-  --popover: var(--ink3);
+  --popover: var(--painel);
   --popover-foreground: var(--paper);
   --primary: var(--identity-primary);
   --primary-foreground: #ffffff;
@@ -188,30 +195,36 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: var(--ink);
-  --drawer-card: var(--ink2);
+  --drawer-surface: var(--painel);
+  --drawer-card: var(--cartao);
   --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
-  --menu-icone: var(--gold);
+  --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
 }
 
 .light,
 :root[data-identidade="moderno"].light {
-  --ink: #e7ecf3;
-  --ink2: var(--identity-white);
-  --ink3: #dde5ef;
-  --paper: #021a46;
-  --mute: #53657e;
-  --mute2: #5a6b84;
-  --line: #c8d2df;
-  --line2: #afb8c5;
+  --fundo: #e9f1eb;
+  --painel: #f0f5f1;
+  --cartao: #dee6df;
+  --linha: #c9d3cc;
+  --texto: #1b2b27;
+  --texto-suave: #5f6b66;
+  --ink: var(--fundo);
+  --ink2: var(--cartao);
+  --ink3: var(--painel);
+  --paper: var(--texto);
+  --mute: color-mix(in oklab, var(--texto-suave) 80%, var(--texto));
+  --mute2: color-mix(in oklab, var(--texto-suave) 80%, var(--texto));
+  --line: var(--linha);
+  --line2: #a9b5ad;
 
   --background: var(--ink);
   --foreground: var(--paper);
   --card: var(--ink2);
   --card-foreground: var(--paper);
-  --popover: var(--ink3);
+  --popover: var(--painel);
   --popover-foreground: var(--paper);
   --secondary: var(--ink3);
   --secondary-foreground: var(--paper);
@@ -236,8 +249,8 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: var(--ink);
-  --drawer-card: var(--ink2);
+  --drawer-surface: var(--painel);
+  --drawer-card: var(--cartao);
   --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
@@ -5736,4 +5749,227 @@ button.agenda-nome:hover {
   .brand-sticky-bar[data-visivel] {
     transition: none;
   }
+}
+
+/* Agenda 3.0 no celular: título Mês Ano, faixa da semana e mês expansível. */
+.agenda-titulo-mes {
+  margin: 0;
+  padding-inline: 4px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--paper);
+  white-space: nowrap;
+}
+.agenda-cal {
+  margin-inline: calc(-1 * var(--space-4));
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3) 0;
+  border-radius: 0 0 20px 20px;
+  background: var(--painel, var(--ink3));
+  box-shadow: 0 6px 14px color-mix(in oklab, var(--paper) 6%, transparent);
+  touch-action: pan-y;
+}
+.agenda-cal-letras,
+.agenda-cal-grade {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+}
+.agenda-cal-letras span {
+  font-size: 12px;
+  color: var(--mute);
+}
+.agenda-cal-mes {
+  margin: 4px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--paper);
+}
+.agenda-cal-dia {
+  display: flex;
+  min-height: 48px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: 0;
+  color: var(--paper);
+}
+.agenda-cal-numero {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.agenda-cal-dia[data-hoje] .agenda-cal-numero {
+  border-color: var(--primary);
+}
+.agenda-cal-dia[data-selecionado] .agenda-cal-numero {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.agenda-cal-dia[data-fora] {
+  opacity: 0.4;
+}
+.agenda-cal-ponto {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: transparent;
+}
+.agenda-cal-ponto[data-visivel] {
+  background: var(--primary);
+}
+.agenda-cal-ponto[data-visivel][data-passado] {
+  opacity: 0.45;
+}
+.agenda-cal-alca {
+  display: flex;
+  width: 100%;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+}
+.agenda-cal-alca i {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line2);
+}
+
+/* Celular 3.0: fora do expediente com listras bem sutis; dentro, liso. */
+@media (max-width: 767px) {
+  .agenda-timeline-fora-expediente {
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--paper) 8%, transparent) 6px 7px
+    );
+  }
+  .light .agenda-timeline-fora-expediente {
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--paper) 6%, transparent) 6px 7px
+    );
+  }
+}
+
+/* Agenda 3.0: botões flutuantes maiores e menu "+" em speed dial. */
+:root {
+  --agenda-fab-tamanho: 64px;
+  --agenda-fab-icone: 28px;
+  --agenda-fab-margem: 16px;
+  --agenda-composto-largura: 160px;
+  --agenda-respiro-inferior: 112px;
+}
+.agenda-acao-fixa {
+  z-index: 60;
+}
+.agenda-fab-toggle .agenda-fab-icone {
+  width: var(--agenda-fab-icone);
+  height: var(--agenda-fab-icone);
+}
+@media (max-width: 600px) {
+  .agenda-acao-fixa {
+    right: var(--agenda-fab-margem);
+  }
+  .agenda-acao-fixa .agenda-acao-redonda {
+    width: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-fab-tamanho);
+    height: var(--agenda-fab-tamanho);
+  }
+  .agenda-botao-agora-principal {
+    left: var(--agenda-fab-margem);
+    height: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-composto-largura);
+  }
+  .agenda-botao-agora-ir {
+    height: var(--agenda-fab-tamanho);
+    min-height: var(--agenda-fab-tamanho);
+    flex: 1;
+  }
+  .agenda-botao-agora-visualizacao {
+    height: var(--agenda-fab-tamanho);
+    min-width: var(--agenda-fab-tamanho);
+  }
+  .agenda-botao-agora-separador {
+    height: 32px;
+  }
+  .agenda-operacional {
+    padding-bottom: calc(var(--agenda-respiro-inferior) + env(safe-area-inset-bottom));
+  }
+}
+.agenda-dial {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+}
+.agenda-dial-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in oklab, var(--fundo, var(--ink)) 62%, black 10%);
+  opacity: 0.85;
+}
+.agenda-dial-lista {
+  position: absolute;
+  right: var(--agenda-fab-margem);
+  bottom: calc(var(--agenda-controle-pe) + var(--agenda-fab-tamanho) + 8px);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 4px;
+}
+.agenda-dial-pilula {
+  display: inline-flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--painel, var(--ink3));
+  padding-inline: 24px;
+  color: var(--paper);
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.agenda-dial-pilula svg {
+  width: 24px;
+  height: 24px;
+}
+.agenda-dial-pilula[data-destaque] {
+  min-height: 60px;
+  border-color: transparent;
+  background: color-mix(in oklab, var(--primary) 22%, var(--painel, var(--ink3)));
+  font-weight: 600;
+}
+.agenda-dial-pilula:disabled {
+  opacity: 0.5;
+}
+.agenda-dial-pilula:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.agenda-dial-selo {
+  display: grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 12px;
+  font-weight: 600;
 }

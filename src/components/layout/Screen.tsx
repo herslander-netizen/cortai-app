@@ -11,6 +11,7 @@ export function Screen({
   voltarRotulo = "Voltar",
   wide = false,
   hideHeader = false,
+  assinaturaSoComputador = false,
   children,
 }: {
   title: string;
@@ -19,6 +20,8 @@ export function Screen({
   voltarRotulo?: string;
   wide?: boolean;
   hideHeader?: boolean;
+  /** Agenda 3.0: sem rodapé no celular. */
+  assinaturaSoComputador?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -49,7 +52,13 @@ export function Screen({
         </header>
       ) : null}
       <main className="screen-content min-w-0 flex-1 px-5 md:px-8">{children}</main>
-      <Signature />
+      {assinaturaSoComputador ? (
+        <div className="hidden md:block">
+          <Signature />
+        </div>
+      ) : (
+        <Signature />
+      )}
     </div>
   );
 }
