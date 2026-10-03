@@ -87,14 +87,15 @@ export async function ofertarVaga(
   if (!profissionalId || !servicoLiberadoId) return { ofertaId: null, motivo: "sem_vaga" };
   const agora = Date.now();
   const inicioMs = new Date(ag.inicio).getTime();
-  if (inicioMs - agora < (ANTECEDENCIA_MINIMA_MIN + 5) * 60_000)
-    return { ofertaId: null, motivo: "muito_perto" };
+  if (!ofertaViavel(agora, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
 
   const { data: ativo } = await db.rpc("recurso_do_tenant_ativo", {
     _tenant_id: ag.tenant_id,
     _chave: "fila_espera",
   });
   if (ativo !== true) return { ofertaId: null, motivo: "recurso_inativo" };
+  if (!(await automacaoDaListaAtiva(db, ag.tenant_id)))
+    return { ofertaId: null, motivo: "automacao_desligada" };
 
   const { data: jaAtiva } = await db
     .from("ofertas_da_fila")
@@ -128,14 +129,32 @@ export async function ofertarVaga(
     ? new Date(proximo.inicio).getTime() - margem
     : inicioMs + 12 * 3600_000;
 
-  const [{ data: fila }, { data: servicos }, { data: anteriores }] = await Promise.all([
-    db
+  // Fila inteira na ordem real (posição, entrada, id), em lotes — nunca corta antes de ordenar.
+  const fila: {
+    id: string;
+    posicao: number | null;
+    criado_em: string;
+    profissional_id: string | null;
+    servico_id: string | null;
+    janela_preferida: unknown;
+    cliente_id: string;
+  }[] = [];
+  for (let de = 0; de < TETO_DA_FILA; de += LOTE_DA_FILA) {
+    const { data: lote } = await db
       .from("fila_de_espera")
       .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
       .eq("tenant_id", ag.tenant_id)
       .eq("status", "aguardando")
       .not("janela_preferida", "is", null)
-      .limit(200),
+      .or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`)
+      .order("posicao", { ascending: true, nullsFirst: false })
+      .order("criado_em", { ascending: true })
+      .order("id", { ascending: true })
+      .range(de, de + LOTE_DA_FILA - 1);
+    fila.push(...((lote ?? []) as typeof fila));
+    if (!lote || lote.length < LOTE_DA_FILA) break;
+  }
+  const [{ data: servicos }, { data: anteriores }] = await Promise.all([
     db.from("servicos").select("id, duracao_min, profissional_ids").eq("tenant_id", ag.tenant_id),
     db.from("ofertas_da_fila").select("fila_id").eq("agendamento_liberado_id", ag.id),
   ]);
