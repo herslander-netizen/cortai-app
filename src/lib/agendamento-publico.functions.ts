@@ -597,7 +597,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         .eq("ativo", true)
         .maybeSingle();
       if (!t) return null;
-      const [{ data: horarios }, { data: servicos }] = await Promise.all([
+      const [{ data: horarios }, { data: servicos }, { data: cfg }] = await Promise.all([
         db
           .from("horarios_de_funcionamento")
           .select("dia_semana, fechado, abre, fecha")
@@ -608,7 +608,15 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
           .select("preco_centavos")
           .eq("tenant_id", resolvido.tenant_id)
           .eq("ativo", true),
+        db
+          .from("tenant_page_configs")
+          .select("published_config")
+          .eq("tenant_id", resolvido.tenant_id)
+          .maybeSingle(),
       ]);
+      const publicada = normalizarPagina(
+        (cfg?.published_config as { pagina?: unknown } | null)?.pagina,
+      );
       const slugAtual = (t.slug as string) || data.slug;
       const temImagem = Boolean(t.capa_url || t.logo_url);
       const logo =
@@ -629,6 +637,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         instagram: (t.instagram as string | null) ?? null,
         horarios: horarios ?? [],
         precos: (servicos ?? []).map((s) => s.preco_centavos),
+        experiencia: publicada.experiencia,
       };
     } catch (erro) {
       console.error("[getPreviaDaBarbearia] falha ao montar a prévia", data.slug, erro);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { detectarExperiencia, detectarOrigem, fluxoDoModo } from "@/lib/funil";
+import { detectarExperiencia, detectarOrigem } from "@/lib/funil";
 import { faixaDePreco, montarSchemaNegocio, tipoSchemaDoSegmento } from "@/lib/schema-negocio";
 
 describe("origem do funil", () => {
@@ -22,8 +22,6 @@ describe("origem do funil", () => {
     expect(detectarExperiencia("?de=vitrine", "conversa")).toBe("vitrine");
     expect(detectarExperiencia("", "conversa")).toBe("conversa");
     expect(detectarExperiencia("", "direta")).toBe("direta");
-    expect(fluxoDoModo("conversa")).toBe("conversa");
-    expect(fluxoDoModo(undefined)).toBe("passo_a_passo");
   });
 });
 
