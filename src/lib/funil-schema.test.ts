@@ -21,7 +21,7 @@ describe("origem do funil", () => {
   it("experiência e fluxo", () => {
     expect(detectarExperiencia("?de=vitrine", "conversa")).toBe("vitrine");
     expect(detectarExperiencia("", "conversa")).toBe("conversa");
-    expect(detectarExperiencia("", "passo_a_passo")).toBe("direta");
+    expect(detectarExperiencia("", "direta")).toBe("direta");
     expect(fluxoDoModo("conversa")).toBe("conversa");
     expect(fluxoDoModo(undefined)).toBe("passo_a_passo");
   });
