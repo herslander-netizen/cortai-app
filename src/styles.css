@@ -195,9 +195,9 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: var(--painel);
-  --drawer-card: var(--cartao);
-  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
+  --drawer-surface: #1a1f1c;
+  --drawer-card: #3f4543;
+  --drawer-band: #212724;
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
   --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
@@ -249,9 +249,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: var(--painel);
-  --drawer-card: var(--cartao);
-  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
+  --drawer-surface: #e9f1eb;
+  --drawer-card: #ffffff;
+  --drawer-band: #f0f5f1;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
