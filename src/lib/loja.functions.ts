@@ -48,6 +48,12 @@ export const getLojaPublica = createServerFn({ method: "GET" })
       .eq("ativo", true)
       .maybeSingle();
     if (!tenant || !tenant.loja_ativa) return null;
+    // A loja depende de Produtos e estoque ligado em Funcionalidades.
+    const { data: produtosAtivos } = await supabaseAdmin.rpc("recurso_do_tenant_ativo", {
+      _tenant_id: tenant.id,
+      _chave: "produtos_estoque",
+    });
+    if (produtosAtivos === false) return null;
 
     const { data: regra } = await supabaseAdmin
       .from("recursos_de_plano")

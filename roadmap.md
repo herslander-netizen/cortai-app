@@ -126,3 +126,5 @@
 - [ ] Parte 2: perfil do cliente, telas do cliente final e menu lateral
 - [ ] Parte 3: revisão de textos do app e novidades da 3.0
 - [ ] E-mail no cadastro do cliente: aguarda decisão do dono (não existe na ficha hoje)
+
+- [x] Painel de Funcionalidades (/barbeiro/funcionalidades)
