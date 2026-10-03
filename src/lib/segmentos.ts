@@ -1,3 +1,4 @@
+import type { FamiliaId } from "@/lib/familias-tema";
 import {
   BriefcaseBusiness,
   Eye,
@@ -58,6 +59,8 @@ export type DefinicaoDeSegmento = {
   temaPagina: TemaId;
   /** Experiência do link aplicada só na criação de um negócio novo. */
   experienciaPadrao: "direta" | "vitrine";
+  /** Famílias de tema com selo "Recomendado" no editor. */
+  familiasRecomendadas: FamiliaId[];
   iconeIA: IconeIA;
   exemploIA: string;
   /** Atalhos da ficha do cliente gravados ao criar o negócio. */
@@ -133,6 +136,7 @@ const BARBEARIA: DefinicaoDeSegmento = {
   modoPadrao: "escuro",
   temaPagina: "cortai",
   experienciaPadrao: "direta",
+  familiasRecomendadas: ["cortai", "urbano", "noturno", "classico", "premium"],
   iconeIA: "bigode",
   exemploIA: "Cadastre corte por 35 reais e barba por 25, os dois levam 30 minutos",
   chipsFicha: [...CHIPS_FICHA_BARBEARIA],
@@ -152,6 +156,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   barbearia: BARBEARIA,
   salao: {
     ...beleza,
+    familiasRecomendadas: ["rose", "nude", "editorial", "clean"],
     chipsFicha: [...CHIPS_CABELO],
     id: "salao",
     rotulo: "Salão de beleza",
@@ -178,6 +183,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   },
   cabeleireiro: {
     ...beleza,
+    familiasRecomendadas: ["editorial", "rose", "classico", "noturno"],
     chipsFicha: [...CHIPS_CABELO],
     id: "cabeleireiro",
     rotulo: "Cabeleireiro(a)",
@@ -204,6 +210,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   },
   esmalteria: {
     ...beleza,
+    familiasRecomendadas: ["rose", "nude", "clean"],
     chipsFicha: [
       ...[
         "Unha quadrada",
@@ -237,6 +244,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   },
   sobrancelha_cilios: {
     ...beleza,
+    familiasRecomendadas: ["nude", "rose", "clean"],
     chipsFicha: [
       ...["Olhos sensíveis", "Alergia a cola", "Curvatura C", "Curvatura D", "Pouca conversa"],
     ],
@@ -263,6 +271,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   },
   estetica: {
     ...beleza,
+    familiasRecomendadas: ["clean", "nude", "premium"],
     chipsFicha: [...["Pele sensível", "Pele oleosa", "Alergia a cosméticos", "Pouca conversa"]],
     id: "estetica",
     rotulo: "Estética e spa",
@@ -297,6 +306,7 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
     modoPadrao: "escuro",
     temaPagina: "cortai",
     experienciaPadrao: "vitrine",
+    familiasRecomendadas: ["cortai", "clean"],
     iconeIA: "pingo",
     exemploIA: "Cadastre o serviço por 50 reais em 45 minutos",
     chipsFicha: ["Pouca conversa"],
