@@ -63,6 +63,10 @@ const ITENS = [
   { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },
 ] as const;
 
+const CARTAO =
+  "min-h-14 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 py-3 hover:bg-drawer-card";
+const LINHA = "grid w-full grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3";
+
 export function DrawerAjustes({
   identidade,
   tenantId,
