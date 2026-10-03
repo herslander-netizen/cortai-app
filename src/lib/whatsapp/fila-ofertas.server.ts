@@ -129,17 +129,27 @@ export async function ofertarVaga(
     ? new Date(proximo.inicio).getTime() - margem
     : inicioMs + 12 * 3600_000;
 
-  // Fila inteira na ordem real (posição, entrada, id), em lotes — nunca corta antes de ordenar.
-  const fila: {
-    id: string;
-    posicao: number | null;
-    criado_em: string;
-    profissional_id: string | null;
-    servico_id: string | null;
-    janela_preferida: unknown;
-    cliente_id: string;
-  }[] = [];
-  for (let de = 0; de < TETO_DA_FILA; de += LOTE_DA_FILA) {
+  const [{ data: servicos }, { data: anteriores }] = await Promise.all([
+    db.from("servicos").select("id, duracao_min, profissional_ids").eq("tenant_id", ag.tenant_id),
+    db.from("ofertas_da_fila").select("fila_id").eq("agendamento_liberado_id", ag.id),
+  ]);
+  const mapa = new Map<string, ServicoDaVaga>(
+    (servicos ?? []).map((s) => [s.id, s as ServicoDaVaga]),
+  );
+  const jaOfertados = new Set((anteriores ?? []).map((a) => a.fila_id));
+  const p = partes(ag.inicio, regras.fuso);
+  const vaga = {
+    inicioMs,
+    livreAteMs,
+    profissionalId,
+    diaLocal: p.diaLocal,
+    horaLocal: p.horaLocal,
+    servicoLiberadoId,
+  };
+
+  // Ordem real (posição, entrada, id) em lotes de 200; para no primeiro compatível válido.
+  let tentativas = 0;
+  for (let de = 0; de < TETO_DA_FILA && tentativas < TENTATIVAS_POR_VAGA; de += LOTE_DA_FILA) {
     const { data: lote } = await db
       .from("fila_de_espera")
       .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
@@ -151,81 +161,59 @@ export async function ofertarVaga(
       .order("criado_em", { ascending: true })
       .order("id", { ascending: true })
       .range(de, de + LOTE_DA_FILA - 1);
-    fila.push(...((lote ?? []) as typeof fila));
-    if (!lote || lote.length < LOTE_DA_FILA) break;
-  }
-  const [{ data: servicos }, { data: anteriores }] = await Promise.all([
-    db.from("servicos").select("id, duracao_min, profissional_ids").eq("tenant_id", ag.tenant_id),
-    db.from("ofertas_da_fila").select("fila_id").eq("agendamento_liberado_id", ag.id),
-  ]);
-  const mapa = new Map<string, ServicoDaVaga>(
-    (servicos ?? []).map((s) => [s.id, s as ServicoDaVaga]),
-  );
-  const p = partes(ag.inicio, regras.fuso);
-  const vaga = {
-    inicioMs,
-    livreAteMs,
-    profissionalId,
-    diaLocal: p.diaLocal,
-    horaLocal: p.horaLocal,
-    servicoLiberadoId,
-  };
-  const prefs: (PreferenciaDaFila & { clienteId: string })[] = (fila ?? []).map((f) => ({
-    id: f.id,
-    posicao: f.posicao ?? 0,
-    criadoEm: f.criado_em,
-    profissionalId: f.profissional_id,
-    servicoId: f.servico_id,
-    janela: (f.janela_preferida ?? null) as PreferenciaDaFila["janela"],
-    clienteId: f.cliente_id,
-  }));
-  const candidatos = candidatosDaVaga(
-    prefs,
-    vaga,
-    mapa,
-    new Set((anteriores ?? []).map((a) => a.fila_id)),
-  );
-
-  for (const c of candidatos.slice(0, TENTATIVAS_POR_VAGA)) {
-    const cand = prefs.find((x) => x.id === c.id)!;
-    const servico = mapa.get(servicoDaEntrada(c, vaga))!;
-    // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
-    try {
-      const conflito = await validarAgendamento(db, {
-        tenantId: ag.tenant_id,
-        servico,
-        profissionalId,
-        inicio: new Date(inicioMs),
-        clienteId: cand.clienteId,
-      });
-      if (conflito) continue;
-    } catch {
-      continue;
+    const prefs: (PreferenciaDaFila & { clienteId: string })[] = (lote ?? []).map((f) => ({
+      id: f.id,
+      posicao: f.posicao ?? 0,
+      criadoEm: f.criado_em,
+      profissionalId: f.profissional_id,
+      servicoId: f.servico_id,
+      janela: (f.janela_preferida ?? null) as PreferenciaDaFila["janela"],
+      clienteId: f.cliente_id,
+    }));
+    for (const c of candidatosDaVaga(prefs, vaga, mapa, jaOfertados)) {
+      if (tentativas++ >= TENTATIVAS_POR_VAGA) break;
+      const cand = prefs.find((x) => x.id === c.id)!;
+      const servico = mapa.get(servicoDaEntrada(c, vaga))!;
+      // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
+      try {
+        const conflito = await validarAgendamento(db, {
+          tenantId: ag.tenant_id,
+          servico,
+          profissionalId,
+          inicio: new Date(inicioMs),
+          clienteId: cand.clienteId,
+        });
+        if (conflito) continue;
+      } catch {
+        continue;
+      }
+      const agoraOferta = Date.now();
+      if (!ofertaViavel(agoraOferta, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
+      const { data: oferta, error } = await db
+        .from("ofertas_da_fila")
+        .insert({
+          tenant_id: ag.tenant_id,
+          fila_id: c.id,
+          agendamento_liberado_id: ag.id,
+          profissional_id: profissionalId,
+          servico_id: servico.id,
+          inicio: ag.inicio,
+          fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
+          expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs)).toISOString(),
+        })
+        .select("id, token")
+        .maybeSingle();
+      // Índice único: outra execução já ofertou esta vaga.
+      if (error || !oferta) return { ofertaId: null, motivo: "concorrente" };
+      await db
+        .from("fila_de_espera")
+        .update({ status: "avisado", avisado_em: new Date().toISOString() })
+        .eq("id", c.id)
+        .eq("status", "aguardando");
+      await enviarOferta(oferta.id).catch(() => undefined);
+      return { ofertaId: oferta.id };
     }
-    const expira = prazoDaOferta(Date.now(), inicioMs);
-    const { data: oferta, error } = await db
-      .from("ofertas_da_fila")
-      .insert({
-        tenant_id: ag.tenant_id,
-        fila_id: c.id,
-        agendamento_liberado_id: ag.id,
-        profissional_id: profissionalId,
-        servico_id: servico.id,
-        inicio: ag.inicio,
-        fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
-        expira_em: new Date(expira).toISOString(),
-      })
-      .select("id, token")
-      .maybeSingle();
-    // Índice único: outra execução já ofertou esta vaga.
-    if (error || !oferta) return { ofertaId: null, motivo: "concorrente" };
-    await db
-      .from("fila_de_espera")
-      .update({ status: "avisado", avisado_em: new Date().toISOString() })
-      .eq("id", c.id)
-      .eq("status", "aguardando");
-    await enviarOferta(oferta.id).catch(() => undefined);
-    return { ofertaId: oferta.id };
+    if (!lote || lote.length < LOTE_DA_FILA) break;
   }
   return { ofertaId: null, motivo: "sem_compativel" };
 }
