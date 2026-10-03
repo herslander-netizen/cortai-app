@@ -71,6 +71,13 @@
       "when": 1791044093358,
       "tag": "0009_clientes_email",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791045153054,
+      "tag": "0010_comandas_codigo",
+      "breakpoints": true
     }
   ]
 }

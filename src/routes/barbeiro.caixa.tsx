@@ -7,6 +7,7 @@ import { ChevronRight, Undo2 } from "lucide-react";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { BuscaDeComandas } from "@/components/comanda/BuscaDeComandas";
 import { brl, dataCurta, hora } from "@/lib/format";
 import {
   abrirOuFecharCaixa,
@@ -152,6 +153,8 @@ function CaixaPage() {
               </Button>
             </div>
           </section>
+
+          <BuscaDeComandas />
 
           <section className="surface-card mt-5 p-4 md:max-w-3xl md:p-5">
             <h2 className="text-sm font-semibold text-paper">Registrar saída</h2>
