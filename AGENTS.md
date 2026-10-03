@@ -43,3 +43,4 @@
 - PWA: SW gerado em `lib/pwa/service-worker.ts`, servido em `/sw.js` (no-cache), registrado só por `lib/pwa/registro.ts` em cortai.dev; cache só de `/assets/*` — nunca HTML/API/banco.
 - Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.
 - Push só da equipe, disparado pelo gatilho do sino; regras em `lib/push/regras.ts`, envio WebCrypto, VAPID em `chaves_internas` — um ponto de decisão.
+- Funil público anônimo: só `/api/public/funil` grava em `eventos_funil` (sem dado pessoal), regras puras em `src/lib/funil.ts` — uma fonte para origem/experiência.
