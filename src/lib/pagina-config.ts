@@ -79,7 +79,16 @@ export const paginaConfigSchema = z.object({
   chat: chatConfigSchema.default({}),
   /** Fila de chegada (clientes sem horário). Configurações antigas sem o campo = ligada. */
   filaDeChegada: z.boolean().default(true),
+  /** Versão do formato. Ausente = 1; salvar grava 2. */
+  versao: z.number().int().min(1).max(99).default(1),
+  /** Experiência do link. Ausente = "vitrine" (comportamento anterior). */
+  experiencia: z.enum(["direta", "vitrine", "conversa"]).default("vitrine"),
+  /** Botão "Agendar" fixo no celular. Ausente = ligado. */
+  botaoFixo: z.boolean().default(true),
 });
+
+export type ExperienciaDoLink = "direta" | "vitrine" | "conversa";
+export const VERSAO_DA_PAGINA = 2;
 
 export type PaginaConfig = z.infer<typeof paginaConfigSchema>;
 export type TemaId = (typeof temaIds)[number];
@@ -283,10 +292,45 @@ export function configPadrao(overrides?: Partial<PaginaConfig>): PaginaConfig {
   });
 }
 
-export function normalizarPagina(value: unknown, fallback?: Partial<PaginaConfig>) {
-  const bruto = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
-  const parsed = paginaConfigSchema.safeParse({ ...bruto, chat: bruto["chat"] ?? {} });
-  return parsed.success ? parsed.data : configPadrao(fallback);
+function objeto(v: unknown): Record<string, unknown> {
+  return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+}
+
+/** Campo a campo: só o campo inválido volta ao padrão; campos desconhecidos são preservados. */
+function porCampo(
+  shape: Record<string, z.ZodTypeAny>,
+  bruto: Record<string, unknown>,
+  base: Record<string, unknown>,
+) {
+  const saida: Record<string, unknown> = { ...bruto };
+  for (const [chave, campo] of Object.entries(shape)) {
+    const r = campo.safeParse(bruto[chave]);
+    saida[chave] = r.success ? r.data : base[chave];
+  }
+  return saida;
+}
+
+export function normalizarPagina(value: unknown, fallback?: Partial<PaginaConfig>): PaginaConfig {
+  const bruto = objeto(value);
+  const base = configPadrao(fallback) as unknown as Record<string, unknown>;
+  const shape = paginaConfigSchema.shape as unknown as Record<string, z.ZodTypeAny>;
+  const saida = porCampo(shape, bruto, base);
+  saida["cores"] = porCampo(
+    paginaConfigSchema.shape.cores.shape as unknown as Record<string, z.ZodTypeAny>,
+    objeto(bruto["cores"]),
+    objeto(base["cores"]),
+  );
+  saida["chat"] = porCampo(
+    chatConfigSchema.shape as unknown as Record<string, z.ZodTypeAny>,
+    objeto(bruto["chat"]),
+    objeto(base["chat"]),
+  );
+  const comps = objeto(bruto["componentes"]);
+  const compsBase = objeto(base["componentes"]);
+  saida["componentes"] = Object.fromEntries(
+    componenteIds.map((id) => [id, typeof comps[id] === "boolean" ? comps[id] : compsBase[id]]),
+  );
+  return saida as PaginaConfig;
 }
 
 const fontes: Record<FonteId, string> = {
