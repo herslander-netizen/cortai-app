@@ -162,18 +162,8 @@ export function DrawerAjustes({
           {ITENS.slice(2).map((item) => {
             const Icon = item.icon;
             return (
-              <Button
-                key={item.label}
-                asChild
-                variant="ghost"
-                size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 hover:bg-drawer-card"
-              >
-                <Link
-                  to={item.to}
-                  onClick={navegar}
-                  className="grid grid-cols-[40px_minmax(0,1fr)_20px] items-center gap-3"
-                >
+              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                <Link to={item.to} onClick={navegar} className={LINHA}>
                   <IconeDoMenu icone={Icon} />
                   <span className="min-w-0">
                     <span className="block truncate text-base font-semibold text-paper">
@@ -194,7 +184,7 @@ export function DrawerAjustes({
               <Button
                 variant="ghost"
                 size="bloco"
-                className="min-h-16 w-full rounded-[18px] border border-drawer-borda bg-drawer-card px-4 text-brick hover:bg-brick-soft"
+                className={`${CARTAO} text-brick hover:bg-brick-soft`}
               >
                 <span className="flex w-full items-center gap-3">
                   <LogOut className="size-6" aria-hidden />
