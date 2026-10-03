@@ -144,4 +144,4 @@
 - [ ] Refatorar calendário, seletor de profissionais e resumo operacional sem alterar regras
 - [ ] Implementar visão Todos compacta e visão individual ampla na Timeline
 - [ ] Posicionar a Agenda perto do horário atual e recolher horários anteriores
-- [ ] Validar ações, estados, 390px, 1280px, tipos, testes e build; não publicar
+- [ ] Validar ações, estados, 390px, 1280px, tipos, testes e build; deixar o preview pronto sem publicar
