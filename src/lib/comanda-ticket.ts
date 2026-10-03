@@ -19,6 +19,43 @@ export type DadosDoTicket = {
   forma: string | null;
   estado: EstadoDoTicket;
   pixChave: string | null;
+  /** Etapa do pagamento enquanto pendente (mesma comanda nas duas visões). */
+  etapaPagamento?: EtapaDoPagamento | null;
+  /** Cliente pode tocar em "Já paguei" (só Pix aguardando pagamento). */
+  podeInformarPix?: boolean;
+  /** WhatsApp para o comprovante do Pix, quando o negócio configurou. */
+  pixWhatsapp?: string | null;
+};
+
+/** Hierarquia: aguardando pagamento → pagamento informado → recebimento confirmado. */
+export type EtapaDoPagamento = "aguardando_pagamento" | "pagamento_informado" | "confirmado";
+
+export function etapaDoPagamento(statusComanda: string): EtapaDoPagamento | null {
+  if (statusComanda === "aguardando_pagamento") return "aguardando_pagamento";
+  if (statusComanda === "aguardando_confirmacao_pix") return "pagamento_informado";
+  if (statusComanda === "paga") return "confirmado";
+  return null;
+}
+
+/** "Já paguei" só aparece com Pix configurado e a comanda ainda aguardando pagamento. */
+export function clientePodeInformarPix(
+  statusComanda: string,
+  forma: string | null | undefined,
+  pixChave: string | null | undefined,
+): boolean {
+  return statusComanda === "aguardando_pagamento" && forma === "pix" && Boolean(pixChave);
+}
+
+export const ROTULO_DA_ETAPA_CLIENTE: Record<EtapaDoPagamento, string> = {
+  aguardando_pagamento: "Aguardando pagamento",
+  pagamento_informado: "Aguardando confirmação",
+  confirmado: "Pagamento confirmado",
+};
+
+export const ROTULO_DA_ETAPA_EQUIPE: Record<EtapaDoPagamento, string> = {
+  aguardando_pagamento: "Aguardando pagamento",
+  pagamento_informado: "Pagamento informado pelo cliente",
+  confirmado: "Recebimento confirmado",
 };
 
 const ROTULOS_FORMA: Record<string, string> = {

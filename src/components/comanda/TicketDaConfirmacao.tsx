@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Copy, Download, Home, ReceiptText } from "lucide-react";
+import { CheckCircle2, Clock, Copy, Download, Home, ReceiptText } from "lucide-react";
+import { toast } from "sonner";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { getTicketPublicoDoAgendamento } from "@/lib/comanda-ticket.functions";
-import { ROTULO_DO_ESTADO } from "@/lib/comanda-ticket";
+import {
+  getTicketPublicoDoAgendamento,
+  informarPagamentoPix,
+} from "@/lib/comanda-ticket.functions";
+import {
+  invalidarComandas,
+  ROTULO_DA_ETAPA_CLIENTE,
+  ROTULO_DO_ESTADO,
+} from "@/lib/comanda-ticket";
+import { brl } from "@/lib/format";
 import { useAcoesDoTicket, IconeWhatsApp } from "./FolhaDoTicket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
 
@@ -38,9 +47,27 @@ export function TicketDaConfirmacao({
     retry: false,
   });
   const acoes = useAcoesDoTicket(q.data ?? undefined);
+  const qc = useQueryClient();
+  const informar = useServerFn(informarPagamentoPix);
+  const jaPaguei = useMutation({
+    mutationFn: () => informar({ data: { agendamentoId } }),
+    onSuccess: () => toast.success("Pagamento informado. O negócio vai conferir e confirmar."),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível registrar."),
+    onSettled: () => invalidarComandas(qc),
+  });
 
   if (!q.data) return null;
   const ticket = q.data;
+  const etapa = ticket.etapaPagamento;
+  const mostrarPix =
+    ticket.forma === "pix" &&
+    Boolean(ticket.pixChave) &&
+    (etapa === "aguardando_pagamento" || etapa === "pagamento_informado");
+  const rotuloEstado =
+    etapa && ticket.estado === "pendente" && ticket.forma === "pix"
+      ? ROTULO_DA_ETAPA_CLIENTE[etapa]
+      : ROTULO_DO_ESTADO[ticket.estado];
+  const textoComprovante = `Olá! Segue o comprovante do Pix da comanda #${ticket.codigo}, ${brl(ticket.totalCentavos)}.`;
 
   return (
     <section className="mt-6 rounded-[var(--raio-bloco)] border border-line p-4">
@@ -48,9 +75,53 @@ export function TicketDaConfirmacao({
         <ReceiptText size={16} className="text-gold" aria-hidden />
         Comanda #{ticket.codigo}
         <span className="ml-auto text-xs font-normal text-mute">
-          {ROTULO_DO_ESTADO[ticket.estado]}
+          {rotuloEstado}
         </span>
       </p>
+      {mostrarPix ? (
+        <div className="mt-3 rounded-[var(--raio-bloco)] border border-line p-3">
+          <p className="text-xs text-mute">Valor</p>
+          <p className="text-2xl font-bold text-paper">{brl(ticket.totalCentavos)}</p>
+          <p className="mt-2 text-xs text-mute">Chave Pix</p>
+          <p className="break-all text-sm text-paper">{ticket.pixChave}</p>
+          {etapa === "pagamento_informado" ? (
+            <p className="mt-3 flex items-start gap-2 text-sm text-paper" role="status">
+              <Clock size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden />
+              Aguardando confirmação. O negócio vai conferir o recebimento.
+            </p>
+          ) : null}
+          <div className="mt-3 grid gap-2">
+            <Button variant="outline" onClick={() => void acoes.copiarPix()}>
+              <Copy aria-hidden />
+              Copiar chave Pix
+            </Button>
+            {ticket.pixWhatsapp ? (
+              <Button variant="outline" asChild>
+                <a
+                  href={`https://wa.me/${ticket.pixWhatsapp}?text=${encodeURIComponent(textoComprovante)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconeWhatsApp />
+                  Enviar comprovante pelo WhatsApp
+                </a>
+              </Button>
+            ) : null}
+            {ticket.podeInformarPix ? (
+              <Button
+                size="lg"
+                className="h-12"
+                loading={jaPaguei.isPending}
+                disabled={jaPaguei.isPending}
+                onClick={() => jaPaguei.mutate()}
+              >
+                <CheckCircle2 aria-hidden />
+                Já paguei
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
       <div className="mt-3 grid gap-2">
         <Button variant="outline" onClick={() => setAberto(true)}>
           <ReceiptText aria-hidden />

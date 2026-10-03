@@ -1071,6 +1071,7 @@ export type Database = {
           agendamento_id: string | null
           atualizado_em: string
           cliente_id: string
+          cliente_informou_pagamento_em: string | null
           codigo: string | null
           comissao_total_centavos: number
           criado_em: string
@@ -1078,6 +1079,7 @@ export type Database = {
           desconto_centavos: number
           finalizada_em: string | null
           finalizada_por: string | null
+          forma_escolhida: string | null
           id: string
           motivo_encerramento: string | null
           numero: number
@@ -1092,6 +1094,7 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id: string
+          cliente_informou_pagamento_em?: string | null
           codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
@@ -1099,6 +1102,7 @@ export type Database = {
           desconto_centavos?: number
           finalizada_em?: string | null
           finalizada_por?: string | null
+          forma_escolhida?: string | null
           id?: string
           motivo_encerramento?: string | null
           numero?: number
@@ -1113,6 +1117,7 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id?: string
+          cliente_informou_pagamento_em?: string | null
           codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
@@ -1120,6 +1125,7 @@ export type Database = {
           desconto_centavos?: number
           finalizada_em?: string | null
           finalizada_por?: string | null
+          forma_escolhida?: string | null
           id?: string
           motivo_encerramento?: string | null
           numero?: number
@@ -5086,6 +5092,10 @@ export type Database = {
         Returns: boolean
       }
       home_publicada: { Args: never; Returns: Json }
+      informar_pagamento_pix_cliente: {
+        Args: { _agendamento_id: string }
+        Returns: Json
+      }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       link_de_tela: { Args: { _chave: string }; Returns: string }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }

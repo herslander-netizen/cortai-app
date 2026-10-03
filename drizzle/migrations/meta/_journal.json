@@ -99,6 +99,13 @@
       "when": 1791053317281,
       "tag": "0013_comanda_nasce_com_agendamento",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791059893077,
+      "tag": "0014_pix_informado_pelo_cliente",
+      "breakpoints": true
     }
   ]
 }

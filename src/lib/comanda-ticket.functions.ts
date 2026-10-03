@@ -5,6 +5,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import {
+  clientePodeInformarPix,
+  etapaDoPagamento,
   estadoDoTicket,
   prefixoDeCodigo,
   type DadosDoTicket,
@@ -47,7 +49,7 @@ function dataHora(iso: string, fuso: string) {
 }
 
 const SELECAO =
-  "id, codigo, status, motivo_encerramento, subtotal_centavos, desconto_centavos, total_centavos, criado_em, clientes(nome, telefone), agendamentos(inicio, forma_pagamento), pagamentos(forma_pagamento, status, estornado_em, criado_em)";
+  "id, codigo, status, forma_escolhida, motivo_encerramento, subtotal_centavos, desconto_centavos, total_centavos, criado_em, clientes(nome, telefone), agendamentos(inicio, forma_pagamento), pagamentos(forma_pagamento, status, estornado_em, criado_em)";
 
 function ultimoPagamento(lista: any[] | null | undefined) {
   return [...(lista ?? [])].sort((a, b) => (a.criado_em < b.criado_em ? 1 : -1))[0] ?? null;
@@ -58,7 +60,14 @@ function montarTicket(comanda: any, itens: any[] | null, tenant: any, config: an
   const fuso = tenant?.fuso || "America/Sao_Paulo";
   const quando = dataHora(comanda.agendamentos?.inicio ?? comanda.criado_em, fuso);
   const pagamento = ultimoPagamento(comanda.pagamentos);
-  const forma = pagamento?.forma_pagamento ?? comanda.agendamentos?.forma_pagamento ?? null;
+  const confirmado = pagamento?.status === "confirmado" ? pagamento : null;
+  const forma =
+    confirmado?.forma_pagamento ??
+    comanda.forma_escolhida ??
+    pagamento?.forma_pagamento ??
+    comanda.agendamentos?.forma_pagamento ??
+    null;
+  const pixChave = config?.pix_ativo && config.pix_chave ? config.pix_chave : null;
   const mapa = (tipo: string) =>
     ((itens ?? []) as any[])
       .filter((i) => i.tipo === tipo)
@@ -84,7 +93,10 @@ function montarTicket(comanda: any, itens: any[] | null, tenant: any, config: an
     totalCentavos: comanda.total_centavos,
     forma,
     estado: estadoDoTicket(comanda.status, pagamento),
-    pixChave: config?.pix_ativo && config.pix_chave ? config.pix_chave : null,
+    pixChave,
+    etapaPagamento: etapaDoPagamento(comanda.status),
+    podeInformarPix: clientePodeInformarPix(comanda.status, forma, pixChave),
+    pixWhatsapp: config?.pix_whatsapp || null,
   };
 }
 
@@ -99,7 +111,7 @@ async function carregarTicket(db: any, comandaId: string, tenantId: string) {
     db.from("tenants").select("nome, logo_url, fuso").eq("id", tenantId).maybeSingle(),
     db
       .from("configuracoes_financeiras")
-      .select("pix_ativo, pix_chave")
+      .select("pix_ativo, pix_chave, pix_whatsapp")
       .eq("tenant_id", tenantId)
       .maybeSingle(),
   ]);
@@ -150,6 +162,33 @@ export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
       .eq("id", criada as unknown as string)
       .maybeSingle();
     return nova ? carregarTicket(db, nova.id, nova.tenant_id) : null;
+  });
+
+/**
+ * Cliente informa que pagou o Pix na confirmação pública.
+ * Nunca confirma pagamento: só move a MESMA comanda para "aguardando confirmação"
+ * (idempotente, validado no banco: comanda do agendamento, Pix, status). A equipe confirma depois.
+ */
+export const informarPagamentoPix = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }): Promise<{ ok: boolean; status?: string; motivo?: string }> => {
+    await limitarLeituraPublica();
+    const db = await admin();
+    const { data: r, error } = await db.rpc(
+      "informar_pagamento_pix_cliente" as never,
+      { _agendamento_id: data.agendamentoId } as never,
+    );
+    if (error) throw new Error("Não foi possível registrar agora. Tente de novo.");
+    const res = (r ?? {}) as { ok?: boolean; status?: string; motivo?: string };
+    if (!res.ok) {
+      const motivo = res.motivo ?? "";
+      throw new Error(
+        motivo === "nao_pix" || motivo === "sem_pix"
+          ? "Esta comanda não está aguardando Pix."
+          : "Esta comanda não está aguardando pagamento.",
+      );
+    }
+    return { ok: true, status: res.status ?? "aguardando_confirmacao_pix" };
   });
 
 /** Comanda do agendamento para a equipe; garante a existência (fonte única no banco). */
