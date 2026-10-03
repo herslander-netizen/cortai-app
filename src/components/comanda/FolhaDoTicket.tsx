@@ -89,6 +89,65 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
   };
 }
 
+/** Conteúdo do ticket (sem moldura): usado como etapa dentro da superfície atual. */
+export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
+  const buscar = useServerFn(getTicketComanda);
+  const q = useQuery({
+    queryKey: ["ticket-comanda", comandaId],
+    queryFn: () => buscar({ data: { comandaId } }),
+    staleTime: 30_000,
+  });
+  const acoes = useAcoesDoTicket(q.data);
+  return (
+    <>
+      {q.isLoading ? (
+        <div className="papel-ticket mx-auto h-[560px] w-full max-w-[360px] animate-pulse opacity-60" />
+      ) : null}
+      {q.isError ? (
+        <p className="py-10 text-center text-sm text-[var(--ticket-papel)]">
+          Não foi possível abrir a comanda. Verifique a internet e tente de novo.
+        </p>
+      ) : null}
+      {q.data ? (
+        <>
+          <TicketComanda
+            ticket={q.data}
+            onCopiarPix={acoes.copiarPix}
+            onCopiarCodigo={acoes.copiarCodigo}
+          />
+          <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
+            <Button
+              size="lg"
+              className="h-14 rounded-full"
+              onClick={acoes.enviarWhatsApp}
+              disabled={Boolean(acoes.gerando)}
+            >
+              <IconeWhatsApp />
+              {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
+            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                className="h-12 rounded-full"
+                onClick={acoes.baixar}
+                disabled={Boolean(acoes.gerando)}
+              >
+                <Download aria-hidden />
+                {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
+              </Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}>
+                <Copy aria-hidden />
+                Copiar código
+              </Button>
+            </div>
+          </div>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+/** Folha do ticket: só para abrir a partir de uma tela sem outra superfície aberta. */
 export function FolhaDoTicket({
   comandaId,
   onFechar,
@@ -96,71 +155,17 @@ export function FolhaDoTicket({
   comandaId: string | null;
   onFechar: () => void;
 }) {
-  const buscar = useServerFn(getTicketComanda);
-  const q = useQuery({
-    queryKey: ["ticket-comanda", comandaId],
-    queryFn: () => buscar({ data: { comandaId: comandaId! } }),
-    enabled: Boolean(comandaId),
-    staleTime: 30_000,
-  });
-  const acoes = useAcoesDoTicket(q.data);
   return (
     <Sheet open={Boolean(comandaId)} onOpenChange={(v) => !v && onFechar()}>
       <SheetContent
         side="bottom"
-        className="max-h-[94dvh] overflow-y-auto rounded-t-[var(--raio-folha)] border-0 bg-[var(--ticket-fundo)] px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6"
+        className="max-h-[94dvh] overflow-y-auto rounded-t-[var(--raio-folha)] border-0 bg-[var(--ticket-fundo)] px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Comanda</SheetTitle>
           <SheetDescription>Detalhes da comanda, com envio pelo WhatsApp.</SheetDescription>
         </SheetHeader>
-        {q.isLoading ? (
-          <div className="papel-ticket mx-auto h-[560px] w-full max-w-[360px] animate-pulse opacity-60" />
-        ) : null}
-        {q.isError ? (
-          <p className="py-10 text-center text-sm text-[var(--ticket-papel)]">
-            Não foi possível abrir a comanda. Verifique a internet e tente de novo.
-          </p>
-        ) : null}
-        {q.data ? (
-          <>
-            <TicketComanda
-              ticket={q.data}
-              onCopiarPix={acoes.copiarPix}
-              onCopiarCodigo={acoes.copiarCodigo}
-            />
-            <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
-              <Button
-                size="lg"
-                className="h-14 rounded-full"
-                onClick={acoes.enviarWhatsApp}
-                disabled={Boolean(acoes.gerando)}
-              >
-                <IconeWhatsApp />
-                {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
-              </Button>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="secondary"
-                  className="h-12 rounded-full"
-                  onClick={acoes.baixar}
-                  disabled={Boolean(acoes.gerando)}
-                >
-                  <Download aria-hidden />
-                  {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="h-12 rounded-full"
-                  onClick={acoes.copiarCodigo}
-                >
-                  <Copy aria-hidden />
-                  Copiar código
-                </Button>
-              </div>
-            </div>
-          </>
-        ) : null}
+        {comandaId ? <ConteudoDoTicket comandaId={comandaId} /> : null}
       </SheetContent>
     </Sheet>
   );

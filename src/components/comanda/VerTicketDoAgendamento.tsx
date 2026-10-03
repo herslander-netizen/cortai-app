@@ -12,8 +12,11 @@ export function VerTicketDoAgendamento({
   agendamentoId,
   desabilitado = false,
   className = "min-h-12",
+  onAbrir,
 }: {
   agendamentoId: string;
+  /** Quando informado, quem chamou troca de superfície em vez de empilhar uma folha. */
+  onAbrir?: (comandaId: string) => void;
   desabilitado?: boolean;
   className?: string;
 }) {
@@ -26,7 +29,10 @@ export function VerTicketDoAgendamento({
     setAbrindo(true);
     try {
       const r = await buscar({ data: { agendamentoId } });
-      if (r.comandaId) setComandaId(r.comandaId);
+      if (r.comandaId) {
+        if (onAbrir) onAbrir(r.comandaId);
+        else setComandaId(r.comandaId);
+      }
       else aviso.info("Esse agendamento já foi encerrado sem comanda.");
     } catch {
       aviso.erro("Não foi possível abrir a comanda. Tente de novo.");
@@ -45,7 +51,7 @@ export function VerTicketDoAgendamento({
       >
         <FileText aria-hidden /> {abrindo ? "Abrindo…" : "Ver comanda"}
       </Button>
-      <FolhaDoTicket comandaId={comandaId} onFechar={() => setComandaId(null)} />
+      {onAbrir ? null : <FolhaDoTicket comandaId={comandaId} onFechar={() => setComandaId(null)} />}
     </>
   );
 }
