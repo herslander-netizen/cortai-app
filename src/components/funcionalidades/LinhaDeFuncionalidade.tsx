@@ -20,7 +20,14 @@ type Props = {
   onAlternar: (ativo: boolean) => void;
 };
 
-export function LinhaDeFuncionalidade({ item, estado, planoMinimo, editavel, salvando, onAlternar }: Props) {
+export function LinhaDeFuncionalidade({
+  item,
+  estado,
+  planoMinimo,
+  editavel,
+  salvando,
+  onAlternar,
+}: Props) {
   const selo = SELO[estado];
   const comInterruptor = estado === "ativo" || estado === "desativado";
   return (

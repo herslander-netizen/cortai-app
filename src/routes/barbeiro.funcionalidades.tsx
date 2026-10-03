@@ -84,7 +84,9 @@ function FuncionalidadesPage() {
       title="Funcionalidades"
       subtitle="Ligue só o que você usa. Desligar não apaga nenhum dado."
     >
-      {q.isLoading ? <EsqueletoFormulario campos={6} onTentarDeNovo={() => void q.refetch()} /> : null}
+      {q.isLoading ? (
+        <EsqueletoFormulario campos={6} onTentarDeNovo={() => void q.refetch()} />
+      ) : null}
       {q.isError ? (
         <p className="rounded-3xl bg-ink2 p-4 text-sm text-mute">
           Não foi possível carregar agora. Verifique a internet e tente de novo.

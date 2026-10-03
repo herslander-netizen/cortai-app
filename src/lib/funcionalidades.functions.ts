@@ -81,7 +81,12 @@ export const getFuncionalidades = createServerFn({ method: "GET" })
     }
 
     const acesso = (acessoRes.data as { permissoes: string[] }[] | null)?.[0];
-    return { valores, liberados: caps.liberados, planoMinimo, permissoes: acesso?.permissoes ?? [] };
+    return {
+      valores,
+      liberados: caps.liberados,
+      planoMinimo,
+      permissoes: acesso?.permissoes ?? [],
+    };
   });
 
 /** Liga ou desliga um interruptor existente. Nunca apaga dados. */
@@ -134,7 +139,10 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
       ({ error: erro } = await db
         .from("config_atendimento_ia")
         .upsert(
-          { tenant_id: tenantId, [fonte.coluna]: data.ativo } as { tenant_id: string; lembretes: boolean },
+          { tenant_id: tenantId, [fonte.coluna]: data.ativo } as {
+            tenant_id: string;
+            lembretes: boolean;
+          },
           { onConflict: "tenant_id" },
         ));
     } else if (fonte.tipo === "regra") {
