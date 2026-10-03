@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao } from "@/lib/tenant";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { normalizarEmailCliente } from "@/lib/email-cliente";
 
 const BUCKET = "fotos-corte";
 
@@ -18,7 +19,7 @@ async function contexto(context: any, clienteId: string) {
   const { data: cliente } = await db
     .from("clientes")
     .select(
-      "id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
+      "id, nome, telefone, email, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
     )
     .eq("id", clienteId)
     .eq("tenant_id", tenantId)
@@ -28,7 +29,7 @@ async function contexto(context: any, clienteId: string) {
 }
 
 export type PerfilCliente = {
-  cliente: { id: string; nome: string; telefone: string; avulso: boolean };
+  cliente: { id: string; nome: string; telefone: string; email: string | null; avulso: boolean };
   ficha: { chips: string[]; alergias: string | null; texto: string | null };
   preferencias: PreferenciasCliente;
   catalogo: string[];
@@ -138,6 +139,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
         id: cliente.id,
         nome: cliente.nome,
         telefone: cliente.telefone,
+        email: cliente.email ?? null,
         avulso: cliente.telefone === "avulso",
       },
       ficha: {

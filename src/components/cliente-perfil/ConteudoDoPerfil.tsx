@@ -129,7 +129,13 @@ export function Conteudo({
         <GrupoDeCartoes>
           <LinhaDeCartao rotulo="Nome" valor={p.cliente.nome} />
           {!p.cliente.avulso ? (
-            <LinhaDeCartao rotulo="Telefone" valor={p.cliente.telefone || "—"} />
+            <>
+              <LinhaDeCartao rotulo="Telefone" valor={p.cliente.telefone || "—"} />
+              <LinhaDeCartao
+                rotulo="E-mail"
+                valor={<span className="break-all">{p.cliente.email || "—"}</span>}
+              />
+            </>
           ) : null}
           <LinhaDeCartao
             rotulo="Último atendimento"

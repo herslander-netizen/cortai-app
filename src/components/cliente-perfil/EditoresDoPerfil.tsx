@@ -10,21 +10,24 @@ import {
   salvarPreferenciasCliente,
   type PerfilCliente,
 } from "@/lib/perfil-cliente.functions";
+import { normalizarEmailCliente } from "@/lib/email-cliente";
 
 export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => void }) {
   const salvar = useServerFn(salvarDetalhesCliente);
   const [nome, setNome] = useState(p.cliente.nome);
   const [telefone, setTelefone] = useState(p.cliente.telefone);
+  const [email, setEmail] = useState(p.cliente.email ?? "");
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const nomeOk = nome.trim().length >= 2;
   const telOk = telefone.replace(/\D/g, "").length >= 10;
+  const emailVal = normalizarEmailCliente(email);
   async function gravar() {
-    if (!nomeOk || !telOk) return;
+    if (!nomeOk || !telOk || !emailVal.ok) return;
     setSalvando(true);
     setErro(null);
     try {
-      await salvar({ data: { clienteId: p.cliente.id, nome, telefone } });
+      await salvar({ data: { clienteId: p.cliente.id, nome, telefone, email } });
       onSalvo();
     } catch (e) {
       setErro(mensagem(e));
@@ -50,16 +53,27 @@ export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () =
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        enterKeyHint="done"
+        enterKeyHint="next"
         maxLength={20}
         value={telefone}
         erro={telOk ? null : "Informe um telefone com DDD"}
         onChange={(e) => setTelefone(e.target.value)}
       />
+      <CampoDeFormulario
+        rotulo="E-mail"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        enterKeyHint="done"
+        maxLength={254}
+        value={email}
+        erro={emailVal.ok ? null : emailVal.erro}
+        onChange={(e) => setEmail(e.target.value)}
+      />
       <Button
         variant="secondary"
         className="h-12 w-full rounded-full"
-        disabled={salvando || !nomeOk || !telOk}
+        disabled={salvando || !nomeOk || !telOk || !emailVal.ok}
         onClick={() => void gravar()}
       >
         {salvando ? "Salvando…" : "Salvar"}
