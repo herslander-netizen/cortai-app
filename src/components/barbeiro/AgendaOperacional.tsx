@@ -250,9 +250,12 @@ export function AgendaOperacional() {
   const moverAgendamento = useServerFn(moverAgendamentoPainel);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [restaurado] = useState(() =>
-    contextoInicialDaAgenda(typeof busca["agendamento"] === "string"),
-  );
+  // Abrir a Agenda sempre começa em "hoje" (fuso do negócio); o lugar salvo
+  // só é restaurado (visualização/rolagem) quando era o próprio dia de hoje.
+  const [restaurado] = useState(() => {
+    const c = contextoInicialDaAgenda(typeof busca["agendamento"] === "string");
+    return c && c.dia === hojeNoFuso(c.fuso) ? c : null;
+  });
   const [dia, setDia] = useState(() => restaurado?.dia ?? hojeNoFuso());
   const [direcaoDia, setDirecaoDia] = useState<"anterior" | "proximo">("proximo");
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
