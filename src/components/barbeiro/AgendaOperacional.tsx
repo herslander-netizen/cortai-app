@@ -23,6 +23,7 @@ import {
   AgendaVazia,
   FaixaConexao,
 } from "@/components/barbeiro/agenda/EstadosAgenda";
+import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
