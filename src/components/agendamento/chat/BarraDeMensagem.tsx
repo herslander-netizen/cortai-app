@@ -1,5 +1,5 @@
 import { useState, type ReactNode, type RefObject } from "react";
-import { Menu, RotateCcw, SendHorizontal, MessageCircle } from "lucide-react";
+import { Info, Menu, RotateCcw, SendHorizontal, MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ export function BarraDeMensagem({
   onEnviar,
   onRecomecar,
   linkEquipe,
+  linkSobre = null,
   campoRef,
   acima,
 }: {
@@ -25,6 +26,7 @@ export function BarraDeMensagem({
   onEnviar: (texto: string) => void;
   onRecomecar: () => void;
   linkEquipe: string | null;
+  linkSobre?: string | null;
   campoRef: RefObject<HTMLInputElement | null>;
   acima?: ReactNode;
 }) {
@@ -53,6 +55,14 @@ export function BarraDeMensagem({
               <RotateCcw />
               Recomeçar
             </DropdownMenuItem>
+            {linkSobre ? (
+              <DropdownMenuItem asChild className="min-h-12">
+                <a href={linkSobre}>
+                  <Info />
+                  Sobre nós
+                </a>
+              </DropdownMenuItem>
+            ) : null}
             {linkEquipe ? (
               <DropdownMenuItem asChild className="min-h-12">
                 <a href={linkEquipe} target="_blank" rel="noreferrer">

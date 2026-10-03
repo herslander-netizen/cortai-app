@@ -278,6 +278,7 @@ export function AgendamentoChat({
           }}
           onRecomecar={conversa.recomecar}
           linkEquipe={equipe}
+          linkSobre={linkSobre ?? null}
           campoRef={campoRef}
           acima={
             etapa === "dados" && !digitando ? (
