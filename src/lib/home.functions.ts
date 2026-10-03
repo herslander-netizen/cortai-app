@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { apresentacaoAtiva } from "@/lib/apresentacao-ativa";
 import { esquemaHome, normalizarHome, type ConfigHome } from "@/lib/home-publica";
 
 const BUCKET = "home-publica";
@@ -222,13 +223,58 @@ export const getApresentacaoPublicada = createServerFn({ method: "GET" }).handle
     const { data } = await supabaseAdmin.rpc("home_publicada");
     const bruto = (data ?? {}) as { apresentacao?: unknown; seoApresentacao?: unknown };
     const home = normalizarHome(data);
+    const { data: estado } = await supabaseAdmin
+      .from("home_publica")
+      .select("apresentacao_ativa")
+      .eq("id", true)
+      .maybeSingle();
     return {
+      ativa: apresentacaoAtiva(estado?.apresentacao_ativa),
       conteudo: normalizarApresentacao(bruto.apresentacao),
       seo: home.apresentacao
         ? { titulo: home.seo.titulo, descricao: home.seo.descricao }
         : SEO_APRESENTACAO_PADRAO,
     };
   } catch {
-    return { conteudo: normalizarApresentacao(null), seo: SEO_APRESENTACAO_PADRAO };
+    return {
+      ativa: true,
+      conteudo: normalizarApresentacao(null),
+      seo: SEO_APRESENTACAO_PADRAO,
+    };
   }
 });
+
+/** Estado do interruptor da apresentação, para o admin. */
+export const getEstadoApresentacao = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await exigirAdmin(context);
+    const { data } = await db
+      .from("home_publica")
+      .select("apresentacao_ativa, apresentacao_alterada_em")
+      .eq("id", true)
+      .maybeSingle();
+    return {
+      ativa: apresentacaoAtiva(data?.apresentacao_ativa),
+      alteradaEm: data?.apresentacao_alterada_em ?? null,
+    };
+  });
+
+/** Liga/desliga a apresentação pública na hora, sem depender de publicar. */
+export const definirApresentacaoAtiva = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ ativa: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const db = await exigirAdmin(context);
+    const alteradaEm = new Date().toISOString();
+    const { error } = await db
+      .from("home_publica")
+      .update({
+        apresentacao_ativa: data.ativa,
+        apresentacao_alterada_em: alteradaEm,
+        apresentacao_alterada_por: context.userId,
+      })
+      .eq("id", true);
+    if (error) throw new Error(error.message);
+    return { ativa: data.ativa, alteradaEm };
+  });

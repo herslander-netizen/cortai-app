@@ -2640,6 +2640,9 @@ export type Database = {
       }
       home_publica: {
         Row: {
+          apresentacao_alterada_em: string | null
+          apresentacao_alterada_por: string | null
+          apresentacao_ativa: boolean
           atualizado_em: string
           atualizado_por: string | null
           criado_em: string
@@ -2649,6 +2652,9 @@ export type Database = {
           rascunho: Json
         }
         Insert: {
+          apresentacao_alterada_em?: string | null
+          apresentacao_alterada_por?: string | null
+          apresentacao_ativa?: boolean
           atualizado_em?: string
           atualizado_por?: string | null
           criado_em?: string
@@ -2658,6 +2664,9 @@ export type Database = {
           rascunho?: Json
         }
         Update: {
+          apresentacao_alterada_em?: string | null
+          apresentacao_alterada_por?: string | null
+          apresentacao_ativa?: boolean
           atualizado_em?: string
           atualizado_por?: string | null
           criado_em?: string
