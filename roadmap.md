@@ -139,3 +139,9 @@
 - [x] Cabeçalho de mensageria (voltar, avatar, nome, status dinâmico, menu ⋮ com ações da barra inferior)
 - [x] Barra de mensagem única e prévia herdando
 - [ ] Conferir o chat na tela em 390px (negócios de teste usam o formato lista)
+
+## Agenda — visão de equipe e individual
+- [ ] Refatorar calendário, seletor de profissionais e resumo operacional sem alterar regras
+- [ ] Implementar visão Todos compacta e visão individual ampla na Timeline
+- [ ] Posicionar a Agenda perto do horário atual e recolher horários anteriores
+- [ ] Validar ações, estados, 390px, 1280px, tipos, testes e build; não publicar
