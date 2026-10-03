@@ -149,4 +149,4 @@
 - [x] Agenda: validar 390px/desktop (cortes, sobreposição, overflow)
 - [x] Agenda: teclado + ARIA nos filtros de profissional e controles da timeline
 
-- [ ] Multi-segmento (só beleza): auditar e trocar textos fixos de barbearia por termos(segmento)
+- [x] Multi-segmento (só beleza): auditar e trocar textos fixos de barbearia por termos(segmento)
