@@ -109,3 +109,20 @@ describe("canaisDaEquipe", () => {
     expect(destinatarioDoPapel("recepcao")).toBe("gestor");
   });
 });
+
+import { EVENTO_DO_CLIENTE } from "./catalogo";
+
+describe("avisos ao cliente", () => {
+  it("todo aviso do cliente aponta para evento com destino cliente por WhatsApp", () => {
+    for (const evento of Object.values(EVENTO_DO_CLIENTE)) {
+      expect(EVENTOS[evento].destinos).toHaveProperty("cliente");
+    }
+  });
+  it("confirmação e cancelamento saem sem consentimento; pós-atendimento não", () => {
+    const ctx = { temWhatsapp: true, planoComWhatsapp: true, consentimento: false };
+    for (const tipo of ["confirmacao_agendamento", "cancelamento", "lembrete_24h"]) {
+      expect(decidirCanais(EVENTO_DO_CLIENTE[tipo]!, "cliente", ctx)[0]?.enviar).toBe(true);
+    }
+    expect(decidirCanais(EVENTO_DO_CLIENTE["pos_atendimento"]!, "cliente", ctx)[0]?.enviar).toBe(false);
+  });
+});
