@@ -251,3 +251,23 @@ export const EVENTO_DO_CLIENTE: Record<string, Evento> = {
   recuperacao_experiencia: "relacionamento",
   retorno: "relacionamento",
 };
+
+/** Intervalo mínimo entre dois avisos de equipe pelo WhatsApp para a mesma pessoa. */
+export const COOLDOWN_WHATSAPP_MIN = 15;
+
+/**
+ * Trava por pessoa e canal: devolve a chave que reserva a janela de cooldown
+ * (gravada uma vez só no banco) ou `null` quando o aviso passa sem trava —
+ * avisos críticos e o canal de push (que já substitui pela `tag`).
+ */
+export function chaveDeBloqueio(input: {
+  canal: Exclude<Canal, "in_app">;
+  evento: Evento;
+  userId: string;
+  agora?: Date;
+}): string | null {
+  if (input.canal !== "whatsapp") return null;
+  if (EVENTOS[input.evento].prioridade === "critica") return null;
+  const janela = Math.floor((input.agora ?? new Date()).getTime() / (COOLDOWN_WHATSAPP_MIN * 60_000));
+  return `bloq:wa:${input.userId}:${janela}`;
+}

@@ -1,58 +1,66 @@
 /**
- * Avisos operacionais da equipe também pelo WhatsApp, para quem ligou a opção
- * "WhatsApp" nas preferências e confirmou o número. O sininho continua sendo a
- * fonte da verdade; aqui é só mais um canal do mesmo evento.
+ * Avisos operacionais da equipe pelo WhatsApp. Este entregador NÃO decide quem
+ * recebe: obedece à lista liberada por `canaisDaEquipe` (preferência, número
+ * verificado, plano). Aqui só aplica a trava por pessoa (cooldown, dedupe) e
+ * devolve o resultado de cada pessoa para o registro do aviso.
  *
- * Fora da janela de 24h a Meta exige modelo aprovado: sem ele, o envio falha
- * em silêncio e o aviso segue no sininho/push. Nunca lança.
+ * Fora da janela de 24h a Meta exige modelo aprovado: sem ele, a falha fica
+ * registrada e o aviso segue no sininho/push. Nunca lança.
  */
+import { chaveDeBloqueio, type Evento } from "@/lib/avisos/catalogo";
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
+export type ResultadoPorPessoa = Record<string, { enviar: boolean; motivo: string }>;
+
 export async function avisarEquipePorWhatsapp(input: {
   tenantId: string;
   agendamentoId: string;
   tipo: string;
+  evento: Evento;
   inicio: string;
-  userIds: string[];
+  destinatarios: { userId: string; telefone: string }[];
   texto: string;
-}): Promise<number> {
-  if (!input.userIds.length || !input.texto) return 0;
+}): Promise<ResultadoPorPessoa> {
+  const resultado: ResultadoPorPessoa = {};
+  if (!input.destinatarios.length || !input.texto) return resultado;
   try {
     const db = await admin();
-    const [{ data: prefs }, { data: tels }] = await Promise.all([
-      db
-        .from("notificacoes_preferencias")
-        .select("user_id")
-        .eq("tenant_id", input.tenantId)
-        .eq("tipo", input.tipo)
-        .eq("no_whatsapp", true)
-        .in("user_id", input.userIds),
-      db
-        .from("telefones_da_equipe")
-        .select("user_id, telefone")
-        .in("user_id", input.userIds)
-        .not("verificado_em", "is", null),
-    ]);
-    const querem = new Set((prefs ?? []).map((p) => p.user_id));
-    const alvos = (tels ?? []).filter((t) => querem.has(t.user_id) && t.telefone);
-    if (!alvos.length) return 0;
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
     const conexao = await conexaoDeEnvio(input.tenantId);
-    if (!conexao) return 0;
+    if (!conexao) {
+      for (const d of input.destinatarios) resultado[d.userId] = { enviar: false, motivo: "sem_conexao" };
+      return resultado;
+    }
     const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
-    let enviados = 0;
-    for (const alvo of alvos) {
-      const chave = `wa:${input.agendamentoId}:${input.tipo}:${input.inicio}:${alvo.user_id}`;
+    const vistos = new Set<string>();
+    for (const alvo of input.destinatarios) {
+      if (vistos.has(alvo.userId) || !alvo.telefone) continue;
+      vistos.add(alvo.userId);
+      // Dedupe: o mesmo acontecimento nunca sai duas vezes para a mesma pessoa.
+      const chave = `wa:${input.agendamentoId}:${input.tipo}:${input.inicio}:${alvo.userId}`;
       const { error: repetido } = await db.from("push_entregas").insert({ chave });
-      if (repetido) continue;
+      if (repetido) {
+        resultado[alvo.userId] = { enviar: false, motivo: "repetido" };
+        continue;
+      }
+      // Trava por pessoa: um aviso não crítico por janela de cooldown.
+      const bloqueio = chaveDeBloqueio({ canal: "whatsapp", evento: input.evento, userId: alvo.userId });
+      if (bloqueio) {
+        const { error: travado } = await db.from("push_entregas").insert({ chave: bloqueio });
+        if (travado) {
+          resultado[alvo.userId] = { enviar: false, motivo: "cooldown" };
+          continue;
+        }
+      }
       try {
         const conversa = await conversaDoTelefone({
           tenantId: input.tenantId,
           conexaoId: conexao.id,
-          telefone: alvo.telefone!,
+          telefone: alvo.telefone,
           nomeContato: null,
         });
         await enviarPelaBarbearia({
@@ -60,18 +68,18 @@ export async function avisarEquipePorWhatsapp(input: {
           conversaId: conversa.id,
           conexaoId: conexao.id,
           sessaoId: conexao.sessao_id,
-          telefone: alvo.telefone!,
+          telefone: alvo.telefone,
           texto: input.texto,
           porIa: false,
           iniciadaPelaBarbearia: true,
         });
-        enviados += 1;
+        resultado[alvo.userId] = { enviar: true, motivo: "enviado" };
       } catch {
-        /* janela fechada ou falha de canal: o aviso segue no sininho/push */
+        resultado[alvo.userId] = { enviar: false, motivo: "falha_envio" };
       }
     }
-    return enviados;
   } catch {
-    return 0;
+    /* falha de canal nunca bloqueia: o aviso segue no sininho/push */
   }
+  return resultado;
 }

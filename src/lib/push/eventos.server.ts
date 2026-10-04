@@ -122,7 +122,7 @@ export async function processarEventoDePush(evento: {
       .in("user_id", elegiveis),
     db
       .from("telefones_da_equipe")
-      .select("user_id")
+      .select("user_id, telefone")
       .in("user_id", elegiveis)
       .not("verificado_em", "is", null),
   ]);
@@ -137,7 +137,12 @@ export async function processarEventoDePush(evento: {
     discreto: boolean | null;
   }[];
   const comPush = new Set(todasInscricoes.map((i) => i.user_id));
-  const comWhatsapp = new Set(((tels ?? []) as { user_id: string }[]).map((t) => t.user_id));
+  const telefoneDe = new Map(
+    ((tels ?? []) as { user_id: string; telefone: string | null }[])
+      .filter((t) => t.telefone)
+      .map((t) => [t.user_id, t.telefone as string]),
+  );
+  const comWhatsapp = new Set(telefoneDe.keys());
   const prefDe = new Map(
     ((prefs ?? []) as { user_id: string; no_push: boolean; no_whatsapp: boolean }[]).map((p) => [
       p.user_id,
@@ -158,15 +163,6 @@ export async function processarEventoDePush(evento: {
     })),
     { planoComWhatsapp: plano !== false },
   );
-  // A decisão fica registrada no aviso do sininho do mesmo evento.
-  await db
-    .from("notificacoes")
-    .update({ canais: canais.registro })
-    .eq("tenant_id", a.tenant_id)
-    .eq("agendamento_id", a.id)
-    .eq("evento", evento.tipo)
-    .like("chave_dedupe", `${evento.tipo}:${a.id}:%`)
-    .then(undefined, () => undefined);
   const pessoas = canais.push;
 
   const fuso = (tenant as { fuso?: string | null } | null)?.fuso || "America/Sao_Paulo";
@@ -195,23 +191,39 @@ export async function processarEventoDePush(evento: {
     .eq("tenant_id", a.tenant_id)
     .is("lida_em", null);
 
-  // WhatsApp da equipe: só quem a decisão liberou (ligado, verificado, plano com WhatsApp).
+  // WhatsApp da equipe: a decisão define para quem sai; o entregador só aplica a trava por pessoa.
   if (canais.whatsapp.length) {
     const { avisarEquipePorWhatsapp } = await import("@/lib/whatsapp/aviso-equipe-whatsapp.server");
-    await avisarEquipePorWhatsapp({
+    const porPessoa = await avisarEquipePorWhatsapp({
       tenantId: a.tenant_id,
       agendamentoId: a.id,
       tipo: evento.tipo,
+      evento: eventoDoCatalogo,
       inicio: a.inicio,
-      userIds: canais.whatsapp,
+      destinatarios: canais.whatsapp
+        .filter((id) => telefoneDe.has(id))
+        .map((userId) => ({ userId, telefone: telefoneDe.get(userId)! })),
       texto: textoDoPush({
         tipo: evento.tipo,
         nome: a.clientes?.nome ?? "",
         quando: formatarQuando(a.inicio, fuso),
         discreto: false,
       }),
-    }).catch(() => undefined);
+    }).catch(() => ({}) as Record<string, { enviar: boolean; motivo: string }>);
+    for (const [userId, r] of Object.entries(porPessoa)) {
+      if (canais.registro[userId]) canais.registro[userId]!.whatsapp = r;
+    }
   }
+
+  // A decisão fica registrada no aviso do sininho do mesmo evento.
+  await db
+    .from("notificacoes")
+    .update({ canais: canais.registro })
+    .eq("tenant_id", a.tenant_id)
+    .eq("agendamento_id", a.id)
+    .eq("evento", evento.tipo)
+    .like("chave_dedupe", `${evento.tipo}:${a.id}:%`)
+    .then(undefined, () => undefined);
 
   const querPush = new Set(pessoas);
   const lista = todasInscricoes.filter((i) => querPush.has(i.user_id));
