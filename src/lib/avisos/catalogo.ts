@@ -201,7 +201,7 @@ export function canaisDaEquipe(
   for (const p of pessoas) {
     if (registro[p.userId]) continue;
     const decisao = decidirCanais(evento, destinatarioDoPapel(p.papel), {
-      preferencias: p.preferencias,
+      preferencias: p.preferencias ?? null,
       temPush: p.temPush,
       temWhatsapp: p.temWhatsapp,
       planoComWhatsapp: geral.planoComWhatsapp,
