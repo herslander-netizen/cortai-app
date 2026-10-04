@@ -10,7 +10,7 @@
  * - nunca diz "agendado" sem o backend devolver sucesso;
  * - não existe ação de pagamento: recebimento é sempre conferido pela equipe.
  */
-import { ACOES, acaoPermitida, ferramentasDoContexto, type ContextoDoCerebro } from "./acoes.server";
+import { ACOES, acaoPermitida, ehEquipeNoWhatsapp, ferramentasDoContexto, type ContextoDoCerebro } from "./acoes.server";
 import {
   criarSessaoDoGateway,
   ErroDoGateway,
@@ -152,7 +152,7 @@ export async function pensarCortai(input: {
   let pedirHumano = false;
 
   if (pedidoNocivo(input.mensagem)) {
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: true, erro: "bloqueado" });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true, erro: "bloqueado" });
     return { texto: RESPOSTA_RECUSA, pendente: null, pedirHumano: false, acoes, indisponivel: null };
   }
 
@@ -193,7 +193,7 @@ export async function pensarCortai(input: {
       if (!chamadas.length) {
         const texto = textoDaSaida(saida);
         await retomarIa(ctx.tenantId);
-        await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: true });
+        await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true });
         return {
           texto: texto || (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
           pendente,
@@ -252,7 +252,7 @@ export async function pensarCortai(input: {
         });
       }
     }
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: false, erro: "passos_esgotados" });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: "passos_esgotados" });
     return {
       texto: pendente ? `${(pendente as Pendente).resumo} Posso confirmar?` : "Não consegui concluir agora. Pode reformular?",
       pendente,
@@ -264,7 +264,7 @@ export async function pensarCortai(input: {
     const status = erro instanceof ErroDoGateway ? erro.status : 500;
     const msg = erro instanceof Error ? erro.message : "IA indisponível.";
     if (erro instanceof ErroDoGateway && erro.semCredito) await pausarIa(ctx.tenantId, `gateway_${status}`);
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: false, erro: msg });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: msg });
     // Se a ação confirmada já rodou, a pessoa precisa saber o resultado real.
     const executada = acoes.find((a) => a.sucesso && anterior && a.nome === anterior.acao);
     return {
