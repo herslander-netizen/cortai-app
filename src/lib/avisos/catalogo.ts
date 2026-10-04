@@ -28,7 +28,7 @@ export const EVENTOS = {
     destinos: {
       cliente: ["whatsapp"],
       profissional: ["in_app", "push", "whatsapp"],
-      gestor: ["in_app"],
+      gestor: ["in_app", "push", "whatsapp"],
     },
     push: "agendamento_novo",
     whatsappCliente: "confirmacao_agendamento",
@@ -39,7 +39,7 @@ export const EVENTOS = {
     destinos: {
       cliente: ["whatsapp"],
       profissional: ["in_app", "push", "whatsapp"],
-      gestor: ["in_app"],
+      gestor: ["in_app", "push", "whatsapp"],
     },
     push: "agendamento_remarcado",
     whatsappCliente: "alteracao_agendamento",
@@ -50,7 +50,7 @@ export const EVENTOS = {
     destinos: {
       cliente: ["whatsapp"],
       profissional: ["in_app", "push", "whatsapp"],
-      gestor: ["in_app"],
+      gestor: ["in_app", "push", "whatsapp"],
     },
     push: "agendamento_cancelado",
     whatsappCliente: "cancelamento_agendamento",
@@ -63,7 +63,10 @@ export const EVENTOS = {
   cliente_chegou: {
     titulo: "Cliente chegou",
     prioridade: "critica",
-    destinos: { profissional: ["in_app", "push", "whatsapp"], gestor: ["in_app"] },
+    destinos: {
+      profissional: ["in_app", "push", "whatsapp"],
+      gestor: ["in_app", "push", "whatsapp"],
+    },
     push: "cliente_chegou",
   },
   atraso_avisado: {
@@ -160,4 +163,57 @@ export function decidirCanais(
     // Janela de 24h / modelo aprovado é decidida depois por `decidirFormato`.
     return { canal, enviar: true, motivo: "ok" };
   });
+}
+
+/** Evento do catálogo correspondente a cada tipo de push existente. */
+export const EVENTO_DO_PUSH: Record<TipoDePush, Evento> = {
+  agendamento_novo: "agendamento_criado",
+  agendamento_remarcado: "agendamento_remarcado",
+  agendamento_cancelado: "agendamento_cancelado",
+  cliente_chegou: "cliente_chegou",
+};
+
+/** Profissional vê a própria agenda; os demais papéis de equipe veem o negócio. */
+export function destinatarioDoPapel(papel: string): Destinatario {
+  return papel === "barbeiro" || papel === "profissional" ? "profissional" : "gestor";
+}
+
+export type PessoaDaEquipe = {
+  userId: string;
+  papel: string;
+  preferencias?: Contexto["preferencias"];
+  temPush: boolean;
+  temWhatsapp: boolean;
+};
+
+/**
+ * Decide, pessoa a pessoa, quem recebe push e quem recebe WhatsApp para um
+ * evento. Cada pessoa aparece no máximo uma vez em cada canal.
+ */
+export function canaisDaEquipe(
+  evento: Evento,
+  pessoas: PessoaDaEquipe[],
+  geral: { planoComWhatsapp: boolean },
+) {
+  const push = new Set<string>();
+  const whatsapp = new Set<string>();
+  const registro: Record<string, Record<string, { enviar: boolean; motivo: string }>> = {};
+  for (const p of pessoas) {
+    if (registro[p.userId]) continue;
+    const decisao = decidirCanais(evento, destinatarioDoPapel(p.papel), {
+      preferencias: p.preferencias,
+      temPush: p.temPush,
+      temWhatsapp: p.temWhatsapp,
+      planoComWhatsapp: geral.planoComWhatsapp,
+    });
+    registro[p.userId] = {};
+    for (const d of decisao) {
+      if (d.canal === "in_app") continue;
+      registro[p.userId]![d.canal] = { enviar: d.enviar, motivo: d.motivo };
+      if (!d.enviar) continue;
+      if (d.canal === "push") push.add(p.userId);
+      if (d.canal === "whatsapp") whatsapp.add(p.userId);
+    }
+  }
+  return { push: [...push], whatsapp: [...whatsapp], registro };
 }
