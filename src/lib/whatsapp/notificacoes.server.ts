@@ -550,6 +550,47 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo: "Automação desligada para este negócio." };
   }
 
+  // Regra única de avisos: registra o evento do cliente e obedece à decisão do canal.
+  const { EVENTO_DO_CLIENTE } = await import("@/lib/avisos/catalogo");
+  const eventoDoCliente = EVENTO_DO_CLIENTE[tipo];
+  if (eventoDoCliente) {
+    const { emitirAviso } = await import("@/lib/avisos/emitir.server");
+    const versao = `${tipo}:${ag.inicio}`;
+    const emitido = await emitirAviso({
+      tenantId: ag.tenant_id,
+      evento: eventoDoCliente,
+      agendamentoId: ag.id,
+      corpo: null,
+      link: null,
+      versao,
+      alvos: [
+        {
+          destinatario: "cliente",
+          clienteId: ag.cliente_id,
+          contexto: {
+            // Plano, telefone, preferência e silêncio já conferidos acima.
+            temWhatsapp: true,
+            planoComWhatsapp: true,
+            consentimento: cliente?.opt_in_whatsapp === true,
+          },
+        },
+      ],
+    });
+    const wa = emitido.decisoes[0]?.find((d) => d.canal === "whatsapp");
+    if (wa && !wa.enviar) return { enviado: false, motivo: `Regra de avisos: ${wa.motivo}.` };
+    // Mudança no horário torna obsoletos os avisos anteriores do cliente.
+    if (eventoDoCliente === "agendamento_remarcado" || eventoDoCliente === "agendamento_cancelado") {
+      await db
+        .from("notificacoes")
+        .update({ obsoleta_em: new Date().toISOString() })
+        .eq("agendamento_id", ag.id)
+        .eq("destinatario_tipo", "cliente")
+        .is("obsoleta_em", null)
+        .not("chave_dedupe", "like", `%:${versao}`)
+        .then(undefined, () => undefined);
+    }
+  }
+
   // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.
   const { data: existente } = await db
     .from("envios_de_whatsapp")
