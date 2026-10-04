@@ -101,8 +101,8 @@ describe("canaisDaEquipe", () => {
     );
     expect(r.push).toEqual(["prof"]);
     expect(r.whatsapp).toEqual([]);
-    expect(r.registro.dono?.whatsapp?.motivo).toBe("plano_sem_whatsapp");
-    expect(r.registro.prof?.whatsapp?.motivo).toBe("plano_sem_whatsapp");
+    expect(r.registro["dono"]?.["whatsapp"]?.motivo).toBe("plano_sem_whatsapp");
+    expect(r.registro["prof"]?.["whatsapp"]?.motivo).toBe("plano_sem_whatsapp");
   });
   it("papéis viram destinatários", () => {
     expect(destinatarioDoPapel("barbeiro")).toBe("profissional");
