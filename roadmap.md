@@ -155,5 +155,6 @@
 - [ ] Validar na tela com conta de negócio (390px, painel lateral, Foco, Caixa); bloqueado: conta de teste do negócio
 
 ## Pendentes (03/10/2026)
-- [ ] WhatsApp do negócio no chat de agendamento para Pix — aguarda decisão: quem confirma o recebimento (equipe ou banco).
-- [ ] Consolidação CortAI (absorver o cérebro da ALVO IA, ações seguras, persona Secretária) — aguarda decisão: IA paga no WhatsApp contraria regra fixada; definir escopo dos canais.
+- [x] Pix pelo WhatsApp: decidido manter conferência pela equipe (fluxo "Já paguei" atual preservado).
+- [x] Consolidação CortAI: cérebro único em src/lib/brain para painel, site e WhatsApp.
+- [ ] Validar a Secretária no WhatsApp com número real conectado (depende do número Meta ativo).
