@@ -5060,6 +5060,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      criar_notificacao_evento: {
+        Args: {
+          _agendamento: string
+          _chave: string
+          _corpo: string
+          _evento: string
+          _link: string
+          _prioridade: string
+          _tenant: string
+          _titulo: string
+        }
+        Returns: undefined
+      }
       definir_acesso_membro: {
         Args: {
           _ativo: boolean
