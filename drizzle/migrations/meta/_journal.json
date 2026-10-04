@@ -134,6 +134,13 @@
       "when": 1791079193558,
       "tag": "0018_notificacoes_esconder_trilha_do_cliente",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791079580912,
+      "tag": "0019_notificar_agendamento_com_evento",
+      "breakpoints": true
     }
   ]
 }

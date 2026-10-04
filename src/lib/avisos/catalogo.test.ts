@@ -73,3 +73,39 @@ describe("decidirCanais", () => {
     ).toBe("plano_sem_whatsapp");
   });
 });
+
+import { canaisDaEquipe, destinatarioDoPapel } from "./catalogo";
+
+describe("canaisDaEquipe", () => {
+  const base = { temPush: true, temWhatsapp: true };
+  it("cada pessoa aparece no máximo uma vez por canal", () => {
+    const r = canaisDaEquipe(
+      "cliente_chegou",
+      [
+        { userId: "u1", papel: "barbeiro", ...base, preferencias: { no_whatsapp: true } },
+        { userId: "u1", papel: "barbeiro", ...base, preferencias: { no_whatsapp: true } },
+      ],
+      { planoComWhatsapp: true },
+    );
+    expect(r.push).toEqual(["u1"]);
+    expect(r.whatsapp).toEqual(["u1"]);
+  });
+  it("respeita preferências e plano de cada pessoa", () => {
+    const r = canaisDaEquipe(
+      "agendamento_criado",
+      [
+        { userId: "dono", papel: "dono", ...base, preferencias: { no_push: false, no_whatsapp: true } },
+        { userId: "prof", papel: "barbeiro", ...base },
+      ],
+      { planoComWhatsapp: false },
+    );
+    expect(r.push).toEqual(["prof"]);
+    expect(r.whatsapp).toEqual([]);
+    expect(r.registro["dono"]?.["whatsapp"]?.motivo).toBe("plano_sem_whatsapp");
+    expect(r.registro["prof"]?.["whatsapp"]?.motivo).toBe("plano_sem_whatsapp");
+  });
+  it("papéis viram destinatários", () => {
+    expect(destinatarioDoPapel("barbeiro")).toBe("profissional");
+    expect(destinatarioDoPapel("recepcao")).toBe("gestor");
+  });
+});
