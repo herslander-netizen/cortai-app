@@ -35,16 +35,15 @@
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
 - WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
 - Links de tela do painel ficam em `src/lib/links-de-tela.ts` (espelho SQL `link_de_tela`) — a troca de rota acontece num lugar só.
-- WhatsApp: formato do aviso decidido só por `decidirFormato` (`whatsapp/modelos.ts`) — interativo dentro da janela de 24h, modelo APROVADO do catálogo `modelos_whatsapp` fora dela, senão `sem_modelo`; botões sempre `ACAO:{id do envio}` — uma regra só para formato, custo e respostas.
 - Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app.
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
-- WhatsApp completa pedidos (profissional, horário exato, apelidos) só via `entendimento-whatsapp.ts`, que reaproveita `lib/conversa/entender.ts` — um entendimento só para site e WhatsApp.
 - Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.
 - Recuperação automática de vagas decidida só em `ofertarVaga` (interruptor `tenants.lista_espera_automatica`, prazo/ordem em `fila-compatibilidade.ts`); a varredura existente reaproveita o mesmo ponto — um lugar só para ligar/desligar.
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
-
-
 - Conta Cortaí = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
+- Integração externa ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado; o cérebro em `src/lib/brain` (regras no AGENTS.md de lá) nunca a chama.
+
+- Regras do formato de aviso e do entendimento no WhatsApp: `src/lib/whatsapp/AGENTS.md`.

@@ -1,0 +1,3 @@
+- Cérebro CortAI único aqui (gateway, guardas, catálogo de ações, agente, uso): painel, site e WhatsApp usam o mesmo núcleo; o modelo só escolhe ações e escritas executam apenas após confirmação — evita inteligências paralelas e escrita sem confirmação.
+- Uso da IA contado em `acoes_de_ia_log` (`cerebro.<canal>`); 402/403 pausam em `config_atendimento_ia.ia_pausada_em` e canais automáticos voltam às regras fixas — custo controlado sem travar a operação.
+- Não existe ação de pagamento: recebimento é sempre conferido pela equipe.

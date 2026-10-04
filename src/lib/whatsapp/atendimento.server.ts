@@ -331,6 +331,7 @@ export type RespostaDoCortai = {
 };
 
 /**
+ * @deprecated Substituído pelo cérebro CortAI (`src/lib/brain/agente.server.ts`).
  * Gera a resposta do CortAI para uma conversa. Devolve `null` quando a IA não
  * está disponível — nesse caso nada é enviado e a conversa espera um humano.
  */

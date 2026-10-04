@@ -244,7 +244,7 @@ export function AssistenteCortai({
                 CortAI
               </span>
               <span className="block truncate text-xs uppercase tracking-[.12em] text-mute2">
-                Alimentada pela Alvo IA
+                Agenda, clientes e atendimento
               </span>
             </span>
             <button
