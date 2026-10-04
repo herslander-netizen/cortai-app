@@ -177,6 +177,7 @@ export type Database = {
           status_alterado_por: string | null
           tenant_id: string
           valor_centavos: number
+          versao_horario: number
         }
         Insert: {
           arrived_at?: string | null
@@ -208,6 +209,7 @@ export type Database = {
           status_alterado_por?: string | null
           tenant_id: string
           valor_centavos?: number
+          versao_horario?: number
         }
         Update: {
           arrived_at?: string | null
@@ -239,6 +241,7 @@ export type Database = {
           status_alterado_por?: string | null
           tenant_id?: string
           valor_centavos?: number
+          versao_horario?: number
         }
         Relationships: [
           {
@@ -2080,6 +2083,7 @@ export type Database = {
           tentativas: number
           tipo: string
           valido_ate: string | null
+          versao: string
         }
         Insert: {
           acoes?: string[]
@@ -2108,6 +2112,7 @@ export type Database = {
           tentativas?: number
           tipo?: string
           valido_ate?: string | null
+          versao?: string
         }
         Update: {
           acoes?: string[]
@@ -2136,6 +2141,7 @@ export type Database = {
           tentativas?: number
           tipo?: string
           valido_ate?: string | null
+          versao?: string
         }
         Relationships: [
           {
