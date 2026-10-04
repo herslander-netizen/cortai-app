@@ -1,0 +1,75 @@
+import { describe, expect, it } from "vitest";
+
+import { EVENTOS, chaveDeDedupe, decidirCanais, eventoValido } from "./catalogo";
+
+const pega = (r: ReturnType<typeof decidirCanais>, c: string) => r.find((d) => d.canal === c);
+
+describe("catálogo de avisos", () => {
+  it("todo evento tem prioridade e ao menos um destino", () => {
+    for (const def of Object.values(EVENTOS)) {
+      expect(def.prioridade).toBeTruthy();
+      expect(Object.keys(def.destinos).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("dinheiro nunca vai ao profissional nem ao cliente", () => {
+    expect("profissional" in EVENTOS.pix_informado.destinos).toBe(false);
+    expect("cliente" in EVENTOS.pix_informado.destinos).toBe(false);
+  });
+
+  it("valida eventos", () => {
+    expect(eventoValido("cliente_chegou")).toBe(true);
+    expect(eventoValido("qualquer")).toBe(false);
+  });
+
+  it("dedupe muda com a versão (duas remarcações avisam as duas)", () => {
+    const base = { evento: "agendamento_remarcado", destinatario: "cliente", alvo: "c1", referencia: "a1" } as const;
+    expect(chaveDeDedupe({ ...base, versao: "v1" })).not.toBe(chaveDeDedupe({ ...base, versao: "v2" }));
+    expect(chaveDeDedupe(base)).toBe(chaveDeDedupe(base));
+  });
+});
+
+describe("decidirCanais", () => {
+  it("sininho sempre registra para a equipe", () => {
+    expect(pega(decidirCanais("agendamento_criado", "gestor", {}), "in_app")?.enviar).toBe(true);
+  });
+
+  it("destinatário fora do evento não recebe nada", () => {
+    expect(decidirCanais("pix_informado", "profissional", {})).toEqual([]);
+  });
+
+  it("WhatsApp da equipe só quando ligado e verificado", () => {
+    const sem = decidirCanais("cliente_chegou", "profissional", { temWhatsapp: true });
+    expect(pega(sem, "whatsapp")).toMatchObject({ enviar: false, motivo: "whatsapp_nao_ligado" });
+    const com = decidirCanais("cliente_chegou", "profissional", {
+      temWhatsapp: true,
+      preferencias: { no_whatsapp: true },
+    });
+    expect(pega(com, "whatsapp")?.enviar).toBe(true);
+  });
+
+  it("push respeita desligamento e inscrição", () => {
+    expect(pega(decidirCanais("cliente_chegou", "profissional", {}), "push")?.motivo).toBe("sem_inscricao");
+    expect(
+      pega(decidirCanais("cliente_chegou", "profissional", { temPush: true, preferencias: { no_push: false } }), "push")
+        ?.motivo,
+    ).toBe("push_desligado");
+  });
+
+  it("silêncio segura o normal, mas não o crítico", () => {
+    expect(pega(decidirCanais("lembrete", "cliente", { temWhatsapp: true, emSilencio: true }), "whatsapp")?.enviar).toBe(false);
+    expect(
+      pega(decidirCanais("atraso_avisado", "cliente", { temWhatsapp: true, emSilencio: true }), "whatsapp")?.enviar,
+    ).toBe(true);
+  });
+
+  it("relacionamento exige consentimento e plano", () => {
+    expect(pega(decidirCanais("relacionamento", "cliente", { temWhatsapp: true }), "whatsapp")?.motivo).toBe(
+      "sem_consentimento",
+    );
+    expect(
+      pega(decidirCanais("agendamento_criado", "cliente", { temWhatsapp: true, planoComWhatsapp: false }), "whatsapp")
+        ?.motivo,
+    ).toBe("plano_sem_whatsapp");
+  });
+});
