@@ -1,0 +1,2 @@
+- WhatsApp: formato do aviso decidido só por `decidirFormato` (`whatsapp/modelos.ts`) — interativo dentro da janela de 24h, modelo APROVADO do catálogo `modelos_whatsapp` fora dela, senão `sem_modelo`; botões sempre `ACAO:{id do envio}` — uma regra só para formato, custo e respostas.
+- WhatsApp completa pedidos (profissional, horário exato, apelidos) só via `entendimento-whatsapp.ts`, que reaproveita `lib/conversa/entender.ts` — um entendimento só para site e WhatsApp.
