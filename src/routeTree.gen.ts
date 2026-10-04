@@ -97,6 +97,7 @@ import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/a
 import { Route as ApiPublicCapaSlugRouteImport } from './routes/api/public/capa.$slug'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicOauthPlataformaRouteImport } from './routes/api/public/oauth/$plataforma'
+import { Route as ApiPublicPushAvisoRouteImport } from './routes/api/public/push/aviso'
 import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
@@ -546,6 +547,11 @@ const ApiPublicOauthPlataformaRoute =
     path: '/api/public/oauth/$plataforma',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPushAvisoRoute = ApiPublicPushAvisoRouteImport.update({
+  id: '/api/public/push/aviso',
+  path: '/api/public/push/aviso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPushEventoRoute = ApiPublicPushEventoRouteImport.update({
   id: '/api/public/push/evento',
   path: '/api/public/push/evento',
@@ -665,6 +671,7 @@ export interface FileRoutesByFullPath {
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
+  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -756,6 +763,7 @@ export interface FileRoutesByTo {
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
+  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -852,6 +860,7 @@ export interface FileRoutesById {
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
+  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -949,6 +958,7 @@ export interface FileRouteTypes {
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
+    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -1040,6 +1050,7 @@ export interface FileRouteTypes {
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
+    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -1135,6 +1146,7 @@ export interface FileRouteTypes {
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
+    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -1179,6 +1191,7 @@ export interface RootRouteChildren {
   ApiPublicCapaSlugRoute: typeof ApiPublicCapaSlugRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicOauthPlataformaRoute: typeof ApiPublicOauthPlataformaRoute
+  ApiPublicPushAvisoRoute: typeof ApiPublicPushAvisoRoute
   ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
@@ -1804,6 +1817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOauthPlataformaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/aviso': {
+      id: '/api/public/push/aviso'
+      path: '/api/public/push/aviso'
+      fullPath: '/api/public/push/aviso'
+      preLoaderRoute: typeof ApiPublicPushAvisoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/push/evento': {
       id: '/api/public/push/evento'
       path: '/api/public/push/evento'
@@ -2019,6 +2039,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCapaSlugRoute: ApiPublicCapaSlugRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicOauthPlataformaRoute: ApiPublicOauthPlataformaRoute,
+  ApiPublicPushAvisoRoute: ApiPublicPushAvisoRoute,
   ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,
