@@ -556,7 +556,7 @@ export async function processarMensagemRecebida(input: {
       sessaoId: conexao.sessao_id,
       telefone,
       texto: input.conteudo,
-    }).catch((e) => {
+    }).catch((e: unknown) => {
       console.error("[cerebro] whatsapp", e);
       return false;
     });
@@ -630,6 +630,109 @@ export async function atualizarEstadoDaConexao(
     acao: `whatsapp.${status}`,
     alvo: sessaoId,
     detalhes: { numero: estado.numero ?? null },
+  });
+  return true;
+}
+
+/**
+ * Entrega a mensagem livre ao cérebro CortAI (persona Secretária) e envia a
+ * resposta pelo provedor do negócio. Devolve false quando não respondeu
+ * (atendimento humano, plano, IA desligada/pausada, limite) para o chamador
+ * seguir a orientação fixa — o canal nunca trava.
+ */
+async function responderComCerebro(input: {
+  tenantId: string;
+  conversaId: string;
+  conexaoId: string;
+  sessaoId: string;
+  telefone: string;
+  texto: string;
+}): Promise<boolean> {
+  const db = await admin();
+  const { iaDisponivel } = await import("@/lib/brain/gateway.server");
+  if (!iaDisponivel()) return false;
+  const { data: conversa } = await db
+    .from("conversas_whatsapp")
+    .select("modo_humano, ia_ativa, contexto")
+    .eq("id", input.conversaId)
+    .maybeSingle();
+  if (!conversa || conversa.modo_humano || conversa.ia_ativa === false) return false;
+  const config = await configuracaoDoTenant(input.tenantId);
+  if (!config.responderWhatsapp) return false;
+  if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
+  const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
+  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone)) return false;
+
+  const [{ data: tenant }, { data: historico }] = await Promise.all([
+    db.from("tenants").select("nome, segmento").eq("id", input.tenantId).maybeSingle(),
+    db
+      .from("mensagens_whatsapp")
+      .select("direcao, conteudo")
+      .eq("conversa_id", input.conversaId)
+      .order("criado_em", { ascending: false })
+      .limit(17),
+  ]);
+  // A mensagem atual já foi gravada; o restante é o histórico.
+  const linhas = (historico ?? []).reverse();
+  if (linhas.length && linhas[linhas.length - 1]?.direcao === "entrada") linhas.pop();
+  const contexto = (conversa.contexto ?? {}) as Record<string, any>;
+  const { pensarCortai } = await import("@/lib/brain/agente.server");
+  const r = await pensarCortai({
+    ctx: {
+      tenantId: input.tenantId,
+      canal: "whatsapp",
+      ator: input.telefone,
+      telefoneCliente: input.telefone,
+    },
+    persona: {
+      nome: `a secretária de ${tenant?.nome ?? "o negócio"}`,
+      negocio: tenant?.nome ?? "o negócio",
+      segmento: tenant?.segmento ?? null,
+      tom: config.tom ?? null,
+      instrucoesExtras: config.instrucoesExtras || null,
+    },
+    historico: linhas
+      .filter((l) => l.conteudo)
+      .map((l) => ({
+        autor: l.direcao === "entrada" ? ("usuario" as const) : ("assistente" as const),
+        texto: String(l.conteudo),
+      })),
+    mensagem: input.texto,
+    pendente: contexto["cerebro"]?.pendente ?? null,
+    conversaId: input.conversaId,
+  });
+  if (r.indisponivel && !r.acoes.some((a) => a.sucesso)) return false;
+
+  await db
+    .from("conversas_whatsapp")
+    .update({
+      contexto: { ...contexto, cerebro: { pendente: r.pendente } } as never,
+      ...(r.pedirHumano ? { modo_humano: true } : {}),
+    })
+    .eq("id", input.conversaId);
+  if (r.pedirHumano) {
+    await db
+      .rpc("criar_notificacao", {
+        _tenant: input.tenantId,
+        _tipo: "whatsapp_humano",
+        _titulo: "Cliente pediu atendimento",
+        _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
+        _link: "/painel",
+      })
+      .then(
+        () => undefined,
+        () => undefined,
+      );
+  }
+  if (!r.texto) return false;
+  await enviarPelaBarbearia({
+    tenantId: input.tenantId,
+    conversaId: input.conversaId,
+    conexaoId: input.conexaoId,
+    sessaoId: input.sessaoId,
+    telefone: input.telefone,
+    texto: r.texto,
+    porIa: true,
   });
   return true;
 }
