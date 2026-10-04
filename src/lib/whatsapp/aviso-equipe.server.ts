@@ -69,12 +69,15 @@ export async function avisarEquipeDaConfirmacao(agendamentoId: string): Promise<
       .filter(Boolean)
       .join(" · ");
 
-    await db.from("notificacoes").insert({
-      tenant_id: ag.tenant_id,
-      tipo: "agendamento_confirmado",
-      titulo: "Horário confirmado pelo cliente",
+    const { emitirAviso } = await import("@/lib/avisos/emitir.server");
+    await emitirAviso({
+      tenantId: ag.tenant_id,
+      evento: "agendamento_confirmado",
+      agendamentoId: ag.id,
       corpo: resumo,
       link,
+      // Sem pessoa definida: visível a toda a equipe, como antes.
+      alvos: [{ destinatario: "gestor", userId: null }],
     });
   } catch (e) {
     console.error("[whatsapp] aviso de confirmação falhou:", e instanceof Error ? e.message : e);
