@@ -547,6 +547,21 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "acao_contextual" };
     }
   }
+  // Secretária CortAI: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
+  if (input.tipo === "text" && input.conteudo.trim()) {
+    const respondida = await responderComCerebro({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: conexao.sessao_id,
+      telefone,
+      texto: input.conteudo,
+    }).catch((e) => {
+      console.error("[cerebro] whatsapp", e);
+      return false;
+    });
+    if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
+  }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
   const fallback = `Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: ${link}`;
