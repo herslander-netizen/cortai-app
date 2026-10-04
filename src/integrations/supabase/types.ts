@@ -3295,33 +3295,66 @@ export type Database = {
       }
       notificacoes: {
         Row: {
+          agendamento_id: string | null
+          agrupar_em: string | null
+          canais: Json
+          chave_dedupe: string | null
+          cliente_id: string | null
           corpo: string | null
           criado_em: string
+          destinatario_tipo: string
+          evento: string | null
           id: string
           lida_em: string | null
           link: string | null
+          obsoleta_em: string | null
+          prioridade: string
+          respondida_em: string | null
+          resposta: string | null
           tenant_id: string
           tipo: string
           titulo: string
           user_id: string | null
         }
         Insert: {
+          agendamento_id?: string | null
+          agrupar_em?: string | null
+          canais?: Json
+          chave_dedupe?: string | null
+          cliente_id?: string | null
           corpo?: string | null
           criado_em?: string
+          destinatario_tipo?: string
+          evento?: string | null
           id?: string
           lida_em?: string | null
           link?: string | null
+          obsoleta_em?: string | null
+          prioridade?: string
+          respondida_em?: string | null
+          resposta?: string | null
           tenant_id: string
           tipo: string
           titulo: string
           user_id?: string | null
         }
         Update: {
+          agendamento_id?: string | null
+          agrupar_em?: string | null
+          canais?: Json
+          chave_dedupe?: string | null
+          cliente_id?: string | null
           corpo?: string | null
           criado_em?: string
+          destinatario_tipo?: string
+          evento?: string | null
           id?: string
           lida_em?: string | null
           link?: string | null
+          obsoleta_em?: string | null
+          prioridade?: string
+          respondida_em?: string | null
+          resposta?: string | null
           tenant_id?: string
           tipo?: string
           titulo?: string

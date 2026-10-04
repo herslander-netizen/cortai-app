@@ -120,6 +120,13 @@
       "when": 1791078584420,
       "tag": "0016_telefones_da_equipe",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791079171104,
+      "tag": "0017_notificacoes_eventos_destinatario_prioridade",
+      "breakpoints": true
     }
   ]
 }
