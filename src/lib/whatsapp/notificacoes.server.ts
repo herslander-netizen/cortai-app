@@ -1,9 +1,10 @@
 /**
- * WhatsApp operacional do Cortaí — mensagens transacionais, sem nenhuma IA.
+ * Avisos do CortAI ao cliente pelo WhatsApp — entrega determinística.
  *
- * Tudo aqui é determinístico: evento do Cortaí → regra → template → envio pela
- * MESMA infraestrutura de WhatsApp já existente (`conexoes_whatsapp`,
- * `conversas_whatsapp`, `mensagens_whatsapp`, gateway Evolution).
+ * Evento do Cortaí → regra → texto/modelo aprovado → envio pela conexão oficial
+ * (`conexoes_whatsapp`, `conversas_whatsapp`, `mensagens_whatsapp`). O aviso pode
+ * abrir ou continuar uma conversa: respostas livres seguem para o cérebro CortAI
+ * em `fluxo.server.ts`; botões são tratados no servidor.
  *
  * Garantias:
  * - nunca bloqueia o agendamento: qualquer falha vira registro em
