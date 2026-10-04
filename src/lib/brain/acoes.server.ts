@@ -31,8 +31,8 @@ type Definicao = {
   parametros: Record<string, unknown>;
   risco: Risco;
   canais: Canal[];
-  executar: (ctx: ContextoDoCerebro, dados: Record<string, any>) => Promise<unknown>;
-  resumir?: (ctx: ContextoDoCerebro, dados: Record<string, any>) => Promise<string>;
+  executar: (ctx: ContextoDoCerebro, dados: any) => Promise<unknown>;
+  resumir?: (ctx: ContextoDoCerebro, dados: any) => Promise<string>;
 };
 
 async function admin() {
@@ -102,7 +102,7 @@ async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId:
   return data;
 }
 
-async function nomes(ctx: ContextoDoCerebro, ids: { servicoId?: string; profissionalId?: string }) {
+async function nomes(ctx: ContextoDoCerebro, ids: { servicoId?: string | undefined; profissionalId?: string | undefined }) {
   const db = await admin();
   const [s, p] = await Promise.all([
     ids.servicoId
