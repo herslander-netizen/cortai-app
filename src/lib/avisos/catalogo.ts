@@ -105,7 +105,7 @@ export function chaveDeDedupe(input: {
   destinatario: Destinatario;
   alvo: string;
   referencia: string;
-  versao?: string | null;
+  versao?: string | null | undefined;
 }) {
   return [input.evento, input.destinatario, input.alvo, input.referencia, input.versao ?? "1"].join(
     ":",
