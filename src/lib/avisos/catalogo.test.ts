@@ -126,3 +126,19 @@ describe("avisos ao cliente", () => {
     expect(decidirCanais(EVENTO_DO_CLIENTE["pos_atendimento"]!, "cliente", ctx)[0]?.enviar).toBe(false);
   });
 });
+
+import { chaveDeBloqueio as _bloq } from "./catalogo";
+describe("trava por pessoa", () => {
+  const agora = new Date("2026-10-04T12:00:00Z");
+  it("WhatsApp não crítico trava por pessoa na janela", () => {
+    const a = _bloq({ canal: "whatsapp", evento: "agendamento_criado", userId: "u1", agora });
+    const b = _bloq({ canal: "whatsapp", evento: "agendamento_remarcado", userId: "u1", agora: new Date(agora.getTime() + 60_000) });
+    const c = _bloq({ canal: "whatsapp", evento: "agendamento_criado", userId: "u2", agora });
+    expect(a).toBe(b);
+    expect(a).not.toBe(c);
+  });
+  it("crítico e push não travam", () => {
+    expect(_bloq({ canal: "whatsapp", evento: "cliente_chegou", userId: "u1", agora })).toBeNull();
+    expect(_bloq({ canal: "push", evento: "agendamento_criado", userId: "u1", agora })).toBeNull();
+  });
+});
