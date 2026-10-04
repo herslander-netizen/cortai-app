@@ -153,3 +153,7 @@
 
 - [x] Comanda: uma superfície ativa por vez (ficha → cobrança → ticket interno; cliente com ticket na página)
 - [ ] Validar na tela com conta de negócio (390px, painel lateral, Foco, Caixa); bloqueado: conta de teste do negócio
+
+## Pendentes (03/10/2026)
+- [ ] WhatsApp do negócio no chat de agendamento para Pix — aguarda decisão: quem confirma o recebimento (equipe ou banco).
+- [ ] Consolidação CortAI (absorver o cérebro da ALVO IA, ações seguras, persona Secretária) — aguarda decisão: IA paga no WhatsApp contraria regra fixada; definir escopo dos canais.
