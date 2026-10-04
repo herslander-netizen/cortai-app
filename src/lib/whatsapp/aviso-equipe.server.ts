@@ -1,9 +1,9 @@
 /**
  * Aviso para a equipe quando o cliente confirma o horário.
  *
- * Só o sininho (`notificacoes`): equipe não recebe aviso operacional por
- * WhatsApp (mensagem iniciada pela empresa falha fora da janela e gera custo).
- * O push da equipe vem em outra fase, a partir deste mesmo registro.
+ * O sininho (`notificacoes`) é a fonte da verdade; push e WhatsApp da equipe
+ * (`aviso-equipe-whatsapp.server.ts`, só para quem ligou e confirmou o número)
+ * saem do mesmo evento.
  *
  * Nunca lança: falha aqui jamais desfaz a confirmação do cliente.
  */
