@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+
+import { perguntarSecretariaPublica } from "@/lib/brain/secretaria-publica.functions";
 
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
 import {
@@ -35,6 +38,7 @@ export function useConversaAgendamento({
 }) {
   const slug = data.tenant.slug;
   const s = selecao;
+  const perguntarIa = useServerFn(perguntarSecretariaPublica);
   const [profEscolhido, setProfEscolhido] = useState(false);
   const [diaEscolhido, setDiaEscolhido] = useState(false);
   const [extras, setExtras] = useState<MensagemExtra[]>([]);
@@ -264,9 +268,26 @@ export function useConversaAgendamento({
       setAbertura(null);
       return setFalhas(0);
     }
-    const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
-    falar(resposta.texto, resposta.chips);
-    setFalhas((f) => f + 1);
+    // Dúvida fora do roteiro: a Secretária CortAI responde com os dados reais
+    // (só leitura). Sem IA disponível, segue a resposta fixa de sempre.
+    const historico = extras
+      .slice(-8)
+      .map((m) => ({
+        autor: m.autor === "cliente" ? ("usuario" as const) : ("assistente" as const),
+        texto: m.texto.slice(0, 600),
+      }));
+    void perguntarIa({ data: { slug, mensagem: texto, historico } })
+      .then((r) => r.texto)
+      .catch(() => null)
+      .then((textoIa) => {
+        if (textoIa) {
+          setFalhas(0);
+          return falar(textoIa, [agendar]);
+        }
+        const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
+        falar(resposta.texto, resposta.chips);
+        setFalhas((f) => f + 1);
+      });
   }
 
   return {
