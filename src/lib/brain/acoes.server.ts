@@ -173,7 +173,7 @@ async function proximoDoProfissional(ctx: ContextoDoCerebro) {
     .select("id, inicio, clientes(nome)")
     .eq("tenant_id", ctx.tenantId)
     .eq("profissional_id", ctx.profissionalId)
-    .in("status", ["agendado", "confirmado"])
+    .in("status", ["agendado", "chegou"])
     .gte("inicio", new Date(Date.now() - 30 * 60_000).toISOString())
     .lte("inicio", new Date(Date.now() + 12 * 60 * 60_000).toISOString())
     .order("inicio")
@@ -464,7 +464,7 @@ export const ACOES: Record<string, Definicao> = {
       const { inicioDoDiaNoFuso, hojeNoFuso } = await import("@/lib/horarios");
       const fuso = await fusoDoTenant(ctx.tenantId);
       const dia = /^\d{4}-\d{2}-\d{2}$/.test(String(d.dia ?? "")) ? String(d.dia) : hojeNoFuso(fuso);
-      const inicio = inicioDoDiaNoFuso(fuso, dia);
+      const inicio = inicioDoDiaNoFuso(fuso, new Date(`${dia}T12:00:00Z`));
       const fim = new Date(inicio.getTime() + 24 * 60 * 60_000);
       const db = await admin();
       let q = db
@@ -473,7 +473,7 @@ export const ACOES: Record<string, Definicao> = {
         .eq("tenant_id", ctx.tenantId)
         .gte("inicio", inicio.toISOString())
         .lt("inicio", fim.toISOString())
-        .not("status", "in", "(cancelado,falta)")
+        .not("status", "in", "(cancelado,nao_compareceu)")
         .order("inicio");
       if (ctx.papel === "profissional") {
         if (!ctx.profissionalId) return { dia, aviso: "Seu usuário não está ligado a um profissional.", itens: [] };
@@ -505,7 +505,7 @@ export const ACOES: Record<string, Definicao> = {
         .from("fila_de_espera")
         .select("id, posicao, criado_em, status, clientes(nome), servicos(nome), profissional_id")
         .eq("tenant_id", ctx.tenantId)
-        .eq("status", "aguardando")
+        .in("status", ["aguardando", "avisado"])
         .order("posicao");
       if (ctx.papel === "profissional" && ctx.profissionalId)
         q = q.or(`profissional_id.is.null,profissional_id.eq.${ctx.profissionalId}`);
