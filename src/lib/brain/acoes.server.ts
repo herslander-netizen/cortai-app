@@ -244,16 +244,18 @@ export const ACOES: Record<string, Definicao> = {
     canais: ["painel"],
     executar: async (ctx) => {
       const { fusoDoTenant } = await import("@/lib/fuso.server");
-      const { inicioDoDiaNoFuso, hojeNoFuso, somarDias } = await import("@/lib/horarios");
+      const { inicioDoDiaNoFuso, hojeNoFuso } = await import("@/lib/horarios");
       const fuso = await fusoDoTenant(ctx.tenantId);
       const hoje = hojeNoFuso(fuso);
+      const inicio = inicioDoDiaNoFuso(fuso);
+      const fim = new Date(inicio.getTime() + 24 * 60 * 60_000);
       const db = await admin();
       const { data } = await db
         .from("agendamentos")
         .select("status")
         .eq("tenant_id", ctx.tenantId)
-        .gte("inicio", inicioDoDiaNoFuso(hoje, fuso).toISOString())
-        .lt("inicio", inicioDoDiaNoFuso(somarDias(hoje, 1), fuso).toISOString());
+        .gte("inicio", inicio.toISOString())
+        .lt("inicio", fim.toISOString());
       const porStatus: Record<string, number> = {};
       for (const a of data ?? []) porStatus[a.status] = (porStatus[a.status] ?? 0) + 1;
       return { dia: hoje, total: data?.length ?? 0, porStatus };
