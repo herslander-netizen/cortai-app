@@ -4283,6 +4283,39 @@ export type Database = {
         }
         Relationships: []
       }
+      telefones_da_equipe: {
+        Row: {
+          atualizado_em: string
+          codigo_expira_em: string | null
+          codigo_hash: string | null
+          criado_em: string
+          telefone: string | null
+          tentativas: number
+          user_id: string
+          verificado_em: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          codigo_expira_em?: string | null
+          codigo_hash?: string | null
+          criado_em?: string
+          telefone?: string | null
+          tentativas?: number
+          user_id: string
+          verificado_em?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          codigo_expira_em?: string | null
+          codigo_hash?: string | null
+          criado_em?: string
+          telefone?: string | null
+          tentativas?: number
+          user_id?: string
+          verificado_em?: string | null
+        }
+        Relationships: []
+      }
       tenant_branding_versions: {
         Row: {
           criado_em: string
