@@ -4,7 +4,7 @@
  * Fica ANTES do motor determinístico e não altera a lógica dele: quando a
  * mensagem é a resposta a um lembrete (botão da API oficial, número da lista
  * ou palavra exata), a ação é feita aqui. Remarcação e novo agendamento
- * seguem pelo link oficial do Cortaí; nunca abrem conversa livre.
+ * continuam na própria conversa com o CortAI (o link oficial fica como opção).
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 
@@ -277,7 +277,7 @@ export async function tratarRespostaDeLembrete(input: {
     .maybeSingle();
   if (!respondido)
     return {
-      texto: "Essa ação não está mais disponível. Abra o Cortaí para ver seu horário atualizado.",
+      texto: "Essa opção não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
     };
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
   await db
@@ -322,7 +322,7 @@ export async function tratarRespostaDeLembrete(input: {
         ? {
             texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.`,
           }
-        : { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
+        : { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CHEGUEI": {
       const { data } = await db.rpc(
@@ -344,7 +344,7 @@ export async function tratarRespostaDeLembrete(input: {
             "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor.",
         };
       }
-      return { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
+      return { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CANCELAR": {
       const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: ag.id });
@@ -354,7 +354,7 @@ export async function tratarRespostaDeLembrete(input: {
           ? { texto: "Esse horário já estava cancelado." }
           : {
               texto:
-                "Não foi possível cancelar por aqui. Abra o Cortaí para gerenciar seu horário.",
+                "Não consegui cancelar agora. Me escreva aqui o que precisa que eu verifico com você.",
             };
       }
       // Libera o horário (já livre no banco), avisa a lista de espera e envia a confirmação.
@@ -363,18 +363,22 @@ export async function tratarRespostaDeLembrete(input: {
       return {
         texto: aviso.enviado
           ? ""
-          : "Cancelado ✅ Quando quiser voltar, abra o Cortaí para agendar.",
+          : "Cancelado ✅ Quando quiser voltar, é só me chamar aqui.",
       };
     }
     case "CORTAI_REMARCAR": {
       await registrar("lembrete_remarcar", true);
       const link = await linkDoCortai(input.tenantId);
-      return { texto: `Para escolher um novo horário com segurança, use o Cortaí: ${link}` };
+      return {
+        texto: `Claro! Para qual dia e horário você quer remarcar? Me diga aqui que eu vejo os horários livres.\nSe preferir, escolha pelo link: ${link}`,
+      };
     }
     case "CORTAI_AGENDAR": {
       await registrar("retorno_agendar", true);
       const link = await linkDoCortai(input.tenantId);
-      return { texto: `Escolha seu próximo horário no Cortaí: ${link}` };
+      return {
+        texto: `Ótimo! Qual serviço e qual dia você prefere? Me conte aqui que eu vejo os horários livres.\nSe preferir, escolha pelo link: ${link}`,
+      };
     }
     case "CORTAI_ABRIR": {
       await registrar("abrir_cortai", true);

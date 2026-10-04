@@ -15,6 +15,12 @@ async function admin() {
 }
 
 const LIMITE_POR_PESSOA_HORA: Record<Canal, number> = { painel: 120, whatsapp: 20, site: 15 };
+const LIMITE_EQUIPE = { dia: 200, hora: 60 };
+
+function chaveDoUso(canal: Canal, equipe: boolean) {
+  return equipe ? `cerebro.${canal}.equipe` : `cerebro.${canal}`;
+}
+
 const LIMITE_DIARIO_PADRAO: Record<Canal, number> = { painel: 1000, whatsapp: 400, site: 300 };
 /** Pausa por crédito: só uma nova tentativa a cada 6 h, até o dono reativar. */
 const PAUSA_MS = 6 * 60 * 60_000;
@@ -25,6 +31,8 @@ export async function bloqueioDeUso(
   tenantId: string,
   canal: Canal,
   ator: string,
+  /** Equipe no WhatsApp tem cota própria: não consome a do atendimento ao cliente. */
+  equipe = false,
 ): Promise<Bloqueio> {
   try {
     const db = await admin();
@@ -38,8 +46,10 @@ export async function bloqueioDeUso(
 
     const umDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const umaHora = new Date(Date.now() - 60 * 60_000).toISOString();
-    const limiteDia =
-      canal === "whatsapp"
+    const chave = chaveDoUso(canal, equipe);
+    const limiteDia = equipe
+      ? LIMITE_EQUIPE.dia
+      : canal === "whatsapp"
         ? (cfg?.ia_limite_diario_whatsapp ?? LIMITE_DIARIO_PADRAO.whatsapp)
         : LIMITE_DIARIO_PADRAO[canal];
     const [{ count: dia }, { count: hora }] = await Promise.all([
@@ -47,18 +57,18 @@ export async function bloqueioDeUso(
         .from("acoes_de_ia_log")
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
-        .eq("acao", `cerebro.${canal}`)
+        .eq("acao", chave)
         .gte("criado_em", umDia),
       db
         .from("acoes_de_ia_log")
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
-        .eq("acao", `cerebro.${canal}`)
+        .eq("acao", chave)
         .eq("intencao", ator.slice(0, 120))
         .gte("criado_em", umaHora),
     ]);
     if ((dia ?? 0) >= limiteDia) return "limite_diario";
-    if ((hora ?? 0) >= LIMITE_POR_PESSOA_HORA[canal]) return "limite_pessoa";
+    if ((hora ?? 0) >= (equipe ? LIMITE_EQUIPE.hora : LIMITE_POR_PESSOA_HORA[canal])) return "limite_pessoa";
     return null;
   } catch {
     // Falha de leitura nunca libera custo sem controle no canal automático.
@@ -75,13 +85,14 @@ export async function registrarTurno(entrada: {
   acoes: { nome: string; sucesso: boolean; erro?: string | null }[];
   sucesso: boolean;
   erro?: string | null;
+  equipe?: boolean;
 }) {
   try {
     const db = await admin();
     await db.from("acoes_de_ia_log").insert({
       tenant_id: entrada.tenantId,
       conversa_id: entrada.canal === "whatsapp" ? (entrada.conversaId ?? null) : null,
-      acao: `cerebro.${entrada.canal}`,
+      acao: chaveDoUso(entrada.canal, entrada.equipe === true),
       intencao: entrada.ator.slice(0, 120),
       entrada: { acoes: entrada.acoes } as never,
       sucesso: entrada.sucesso,
@@ -102,6 +113,7 @@ export async function registrarAcao(entrada: {
   resultado: unknown;
   sucesso: boolean;
   erro?: string | null;
+  equipe?: boolean;
 }) {
   try {
     const db = await admin();

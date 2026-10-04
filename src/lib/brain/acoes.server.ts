@@ -22,7 +22,23 @@ export type ContextoDoCerebro = {
   ator: string;
   /** Telefone do cliente quando o canal é o próprio cliente (WhatsApp). */
   telefoneCliente?: string | null;
+  /** Quem fala no WhatsApp: cliente (padrão) ou equipe com telefone verificado. */
+  papel?: Papel;
+  /** Profissional da pessoa da equipe (limita a agenda dela). */
+  profissionalId?: string | null;
 };
+
+export type Papel = "cliente" | "profissional" | "dono";
+
+/** Cliente falando pelo próprio telefone (WhatsApp) — só vê o que é dele. */
+export function ehCliente(ctx: ContextoDoCerebro) {
+  return ctx.canal === "whatsapp" && (ctx.papel ?? "cliente") === "cliente";
+}
+
+/** Equipe falando pelo WhatsApp (telefone verificado). */
+export function ehEquipeNoWhatsapp(ctx: ContextoDoCerebro) {
+  return ctx.canal === "whatsapp" && (ctx.papel === "profissional" || ctx.papel === "dono");
+}
 
 type Risco = "leitura" | "escrita" | "controle";
 
@@ -31,6 +47,8 @@ type Definicao = {
   parametros: Record<string, unknown>;
   risco: Risco;
   canais: Canal[];
+  /** Papéis no WhatsApp; sem isso: cliente, se o canal incluir whatsapp. */
+  papeis?: Papel[];
   executar: (ctx: ContextoDoCerebro, dados: any) => Promise<unknown>;
   resumir?: (ctx: ContextoDoCerebro, dados: any) => Promise<string>;
 };
@@ -67,7 +85,7 @@ async function clienteDoTelefone(ctx: ContextoDoCerebro) {
 }
 
 async function clienteAlvo(ctx: ContextoDoCerebro, clienteId?: string | null) {
-  if (ctx.canal === "whatsapp") {
+  if (ehCliente(ctx)) {
     const proprio = await clienteDoTelefone(ctx);
     if (!proprio) throw new Error("Ainda não há cadastro para este telefone.");
     return proprio.id as string;
@@ -94,11 +112,13 @@ async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId:
     .eq("tenant_id", ctx.tenantId)
     .maybeSingle();
   if (!data) throw new Error("Agendamento não encontrado neste negócio.");
-  if (ctx.canal === "whatsapp") {
+  if (ehCliente(ctx)) {
     const proprio = await clienteDoTelefone(ctx);
     if (!proprio || proprio.id !== data.cliente_id)
       throw new Error("Esse agendamento não pertence a este telefone.");
   }
+  if (ctx.canal === "whatsapp" && ctx.papel === "profissional" && data.profissional_id !== ctx.profissionalId)
+    throw new Error("Esse atendimento é de outro profissional.");
   return data;
 }
 
@@ -137,6 +157,30 @@ async function quando(ctx: ContextoDoCerebro, iso: string) {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(iso));
+}
+
+function minutosValidos(v: unknown) {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) ? Math.min(Math.max(n, 1), 120) : 10;
+}
+
+/** Próximo atendimento (ainda não iniciado) do profissional hoje. */
+async function proximoDoProfissional(ctx: ContextoDoCerebro) {
+  if (!ctx.profissionalId) return null;
+  const db = await admin();
+  const { data } = await db
+    .from("agendamentos")
+    .select("id, inicio, clientes(nome)")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("profissional_id", ctx.profissionalId)
+    .in("status", ["agendado", "chegou"])
+    .gte("inicio", new Date(Date.now() - 30 * 60_000).toISOString())
+    .lte("inicio", new Date(Date.now() + 12 * 60 * 60_000).toISOString())
+    .order("inicio")
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return { id: data.id as string, inicio: data.inicio as string, cliente: (data as any).clientes?.nome ?? null };
 }
 
 function reais(centavos: number) {
@@ -207,7 +251,7 @@ export const ACOES: Record<string, Definicao> = {
     risco: "leitura",
     canais: ATENDIMENTO,
     executar: async (ctx, d) => {
-      if (ctx.canal === "whatsapp") return clienteDoTelefone(ctx);
+      if (ehCliente(ctx)) return clienteDoTelefone(ctx);
       const db = await admin();
       const { data } = await db
         .from("clientes")
@@ -276,9 +320,9 @@ export const ACOES: Record<string, Definicao> = {
       dominio.registrarCliente(agenteDe(ctx), {
         nome: String(d.nome).trim().slice(0, 80),
         telefone: normalizarTelefone(
-          ctx.canal === "whatsapp" ? ctx.telefoneCliente : String(d.telefone ?? ""),
+          ehCliente(ctx) ? ctx.telefoneCliente : String(d.telefone ?? ""),
         ),
-        optInWhatsapp: ctx.canal === "whatsapp",
+        optInWhatsapp: ehCliente(ctx),
       }),
   },
   atualizar_dados_cliente: {
@@ -342,7 +386,7 @@ export const ACOES: Record<string, Definicao> = {
     },
     executar: async (ctx, d) => {
       let clienteId: string;
-      if (ctx.canal === "whatsapp") {
+      if (ehCliente(ctx)) {
         const proprio = await clienteDoTelefone(ctx);
         if (proprio) clienteId = proprio.id;
         else {
@@ -359,7 +403,8 @@ export const ACOES: Record<string, Definicao> = {
       return dominio.ACOES_DO_AGENTE.criar_agendamento(agenteDe(ctx), {
         clienteId,
         servicoId: String(d.servicoId),
-        profissionalId: String(d.profissionalId),
+        profissionalId:
+          ctx.papel === "profissional" && ctx.profissionalId ? ctx.profissionalId : String(d.profissionalId),
         inicio: String(d.inicio),
         formaPagamento: "balcao",
       });
@@ -406,6 +451,97 @@ export const ACOES: Record<string, Definicao> = {
     },
   },
 
+  /* --------------------------- Equipe (WhatsApp) --------------------------- */
+  minha_agenda: {
+    descricao:
+      "Agenda de um dia (AAAA-MM-DD; padrão hoje) com horário, cliente, serviço e situação. Profissional vê só a própria; dono vê a do negócio.",
+    parametros: obj({ dia: { type: ["string", "null"] } }, ["dia"]),
+    risco: "leitura",
+    canais: [],
+    papeis: ["profissional", "dono"],
+    executar: async (ctx, d) => {
+      const { fusoDoTenant } = await import("@/lib/fuso.server");
+      const { inicioDoDiaNoFuso, hojeNoFuso } = await import("@/lib/horarios");
+      const fuso = await fusoDoTenant(ctx.tenantId);
+      const dia = /^\d{4}-\d{2}-\d{2}$/.test(String(d.dia ?? "")) ? String(d.dia) : hojeNoFuso(fuso);
+      const inicio = inicioDoDiaNoFuso(fuso, new Date(`${dia}T12:00:00Z`));
+      const fim = new Date(inicio.getTime() + 24 * 60 * 60_000);
+      const db = await admin();
+      let q = db
+        .from("agendamentos")
+        .select("id, inicio, fim, status, clientes(nome), servicos(nome), profissionais(nome)")
+        .eq("tenant_id", ctx.tenantId)
+        .gte("inicio", inicio.toISOString())
+        .lt("inicio", fim.toISOString())
+        .not("status", "in", "(cancelado,nao_compareceu)")
+        .order("inicio");
+      if (ctx.papel === "profissional") {
+        if (!ctx.profissionalId) return { dia, aviso: "Seu usuário não está ligado a um profissional.", itens: [] };
+        q = q.eq("profissional_id", ctx.profissionalId);
+      }
+      const { data } = await q;
+      const agora = Date.now();
+      const itens = (data ?? []).map((a: any) => ({
+        id: a.id,
+        inicio: a.inicio,
+        status: a.status,
+        cliente: a.clientes?.nome ?? null,
+        servico: a.servicos?.nome ?? null,
+        profissional: a.profissionais?.nome ?? null,
+        jaPassou: new Date(a.inicio).getTime() < agora,
+      }));
+      return { dia, total: itens.length, itens };
+    },
+  },
+  consultar_fila: {
+    descricao: "Quem está na lista de espera agora (nome, serviço, desde quando).",
+    parametros: obj({}),
+    risco: "leitura",
+    canais: [],
+    papeis: ["profissional", "dono"],
+    executar: async (ctx) => {
+      const db = await admin();
+      let q = db
+        .from("fila_de_espera")
+        .select("id, posicao, criado_em, status, clientes(nome), servicos(nome), profissional_id")
+        .eq("tenant_id", ctx.tenantId)
+        .in("status", ["aguardando", "avisado"])
+        .order("posicao");
+      if (ctx.papel === "profissional" && ctx.profissionalId)
+        q = q.or(`profissional_id.is.null,profissional_id.eq.${ctx.profissionalId}`);
+      const { data } = await q;
+      return (data ?? []).map((f: any) => ({
+        posicao: f.posicao,
+        cliente: f.clientes?.nome ?? null,
+        servico: f.servicos?.nome ?? null,
+        desde: f.criado_em,
+      }));
+    },
+  },
+  avisar_atraso: {
+    descricao:
+      "Avisa o próximo cliente do profissional que o atendimento vai atrasar alguns minutos. Não muda o horário na agenda.",
+    parametros: obj({ minutos: { type: "integer" } }, ["minutos"]),
+    risco: "escrita",
+    canais: [],
+    papeis: ["profissional"],
+    resumir: async (ctx, d) => {
+      const prox = await proximoDoProfissional(ctx);
+      if (!prox) throw new Error("Você não tem próximo atendimento hoje.");
+      return `Avisar ${prox.cliente ?? "o cliente"} (${await quando(ctx, prox.inicio)}) de um atraso de ${minutosValidos(d.minutos)} min.`;
+    },
+    executar: async (ctx, d) => {
+      const prox = await proximoDoProfissional(ctx);
+      if (!prox) throw new Error("Você não tem próximo atendimento hoje.");
+      const { avisarClienteDoAtraso } = await import("@/lib/whatsapp/aviso-atraso.server");
+      return avisarClienteDoAtraso({
+        tenantId: ctx.tenantId,
+        agendamentoId: prox.id,
+        minutos: minutosValidos(d.minutos),
+      });
+    },
+  },
+
   /* ------------------------------ Controle ------------------------------ */
   encaminhar_humano: {
     descricao:
@@ -417,12 +553,29 @@ export const ACOES: Record<string, Definicao> = {
   },
 };
 
-export function acoesDoCanal(canal: Canal) {
-  return Object.entries(ACOES).filter(([, a]) => a.canais.includes(canal));
+/** Equipe no WhatsApp: ações do painel + as dela; profissional sem indicadores do negócio. */
+const SO_DONO = new Set(["consultar_movimento"]);
+
+export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
+  const a = ACOES[nome];
+  if (!a) return false;
+  if (ehEquipeNoWhatsapp(ctx)) {
+    const papel = ctx.papel as Papel;
+    if (a.papeis) return a.papeis.includes(papel);
+    if (nome === "encaminhar_humano") return false;
+    if (papel === "profissional" && SO_DONO.has(nome)) return false;
+    return a.canais.includes("painel");
+  }
+  if (a.papeis && !a.canais.length) return false;
+  return a.canais.includes(ctx.canal);
 }
 
-export function ferramentasDoCanal(canal: Canal): FerramentaDoModelo[] {
-  return acoesDoCanal(canal).map(([nome, a]) => ({
+export function acoesDoContexto(ctx: ContextoDoCerebro) {
+  return Object.entries(ACOES).filter(([nome]) => acaoPermitida(nome, ctx));
+}
+
+export function ferramentasDoContexto(ctx: ContextoDoCerebro): FerramentaDoModelo[] {
+  return acoesDoContexto(ctx).map(([nome, a]) => ({
     type: "function",
     name: nome,
     description:

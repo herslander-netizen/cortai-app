@@ -142,6 +142,25 @@ export async function processarEventoDePush(evento: {
     .eq("tenant_id", a.tenant_id)
     .is("lida_em", null);
 
+  // WhatsApp da equipe (opção "WhatsApp" nos avisos + telefone verificado), mesmo evento.
+  {
+    const quandoWa = formatarQuando(a.inicio, fuso);
+    const paraWhatsapp = destinatariosDoPush(
+      { tipo: evento.tipo, ator: evento.ator, profissionalUserId: a.profissionais?.user_id ?? null },
+      equipe,
+      new Set<string>(),
+    );
+    const { avisarEquipePorWhatsapp } = await import("@/lib/whatsapp/aviso-equipe-whatsapp.server");
+    await avisarEquipePorWhatsapp({
+      tenantId: a.tenant_id,
+      agendamentoId: a.id,
+      tipo: evento.tipo,
+      inicio: a.inicio,
+      userIds: paraWhatsapp,
+      texto: textoDoPush({ tipo: evento.tipo, nome: a.clientes?.nome ?? "", quando: quandoWa, discreto: false }),
+    }).catch(() => undefined);
+  }
+
   const { data: inscricoes } = await db
     .from("push_inscricoes")
     .select("id, user_id, endpoint, p256dh, auth, falhas, em_foco_ate, discreto")

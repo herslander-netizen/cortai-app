@@ -433,6 +433,16 @@ export async function processarMensagemRecebida(input: {
   }
 
   const telefone = somenteDigitos(input.telefone);
+  // Equipe confirmando o próprio WhatsApp ("CODIGO 123456"): antes de qualquer menu.
+  if (input.tipo === "text") {
+    const { tentarVerificarPorMensagem } = await import("./identidade.server");
+    const resposta = await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null);
+    if (resposta) {
+      const { gatewayDeWhatsapp } = await import("./gateway.server");
+      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, resposta).catch(() => undefined);
+      return { tratada: true, motivo: "verificacao_equipe" };
+    }
+  }
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
     const r = await negocioDoNumeroCompartilhado(
@@ -465,7 +475,7 @@ export async function processarMensagemRecebida(input: {
           input.sessaoId,
           telefone,
           r.menu ??
-            "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
+            "Olá! Aqui é o CortAI. Me diga o nome do lugar onde você quer ser atendido e eu continuo por aqui.",
         )
         .catch(() => undefined);
       return { tratada: true, motivo: "sem_contexto_transacional" };
@@ -564,7 +574,7 @@ export async function processarMensagemRecebida(input: {
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
-  const fallback = `Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: ${link}`;
+  const fallback = `Recebi sua mensagem! Agora não consigo responder tudo por aqui. Para agendar ou ver seu horário, use: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")
@@ -656,12 +666,16 @@ async function responderComCerebro(input: {
     .select("modo_humano, ia_ativa, contexto")
     .eq("id", input.conversaId)
     .maybeSingle();
-  if (!conversa || conversa.modo_humano || conversa.ia_ativa === false) return false;
+  // Quem fala: equipe com telefone verificado deste negócio, ou cliente.
+  const { identificarEquipe } = await import("./identidade.server");
+  const equipe = await identificarEquipe(input.tenantId, input.telefone).catch(() => null);
+  if (!conversa || conversa.ia_ativa === false) return false;
+  if (!equipe && conversa.modo_humano) return false;
   const config = await configuracaoDoTenant(input.tenantId);
-  if (!config.responderWhatsapp) return false;
+  if (!equipe && !config.responderWhatsapp) return false;
   if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
   const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
-  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone)) return false;
+  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone, !!equipe)) return false;
 
   const [{ data: tenant }, { data: historico }] = await Promise.all([
     db.from("tenants").select("nome, segmento").eq("id", input.tenantId).maybeSingle(),
@@ -682,10 +696,14 @@ async function responderComCerebro(input: {
       tenantId: input.tenantId,
       canal: "whatsapp",
       ator: input.telefone,
-      telefoneCliente: input.telefone,
+      telefoneCliente: equipe ? null : input.telefone,
+      papel: equipe?.papel ?? "cliente",
+      profissionalId: equipe?.profissionalId ?? null,
     },
     persona: {
-      nome: `a secretária de ${tenant?.nome ?? "o negócio"}`,
+      nome: equipe
+        ? `o CortAI${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
+        : `a secretária de ${tenant?.nome ?? "o negócio"}`,
       negocio: tenant?.nome ?? "o negócio",
       segmento: tenant?.segmento ?? null,
       tom: config.tom ?? null,
@@ -707,10 +725,10 @@ async function responderComCerebro(input: {
     .from("conversas_whatsapp")
     .update({
       contexto: { ...contexto, cerebro: { pendente: r.pendente } } as never,
-      ...(r.pedirHumano ? { modo_humano: true } : {}),
+      ...(r.pedirHumano && !equipe ? { modo_humano: true } : {}),
     })
     .eq("id", input.conversaId);
-  if (r.pedirHumano) {
+  if (r.pedirHumano && !equipe) {
     await db
       .rpc("criar_notificacao", {
         _tenant: input.tenantId,

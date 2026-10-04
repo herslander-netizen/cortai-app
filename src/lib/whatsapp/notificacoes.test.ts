@@ -52,9 +52,9 @@ describe("matriz transacional da Secretária Cortaí", () => {
     expect(textos).not.toContain("barbeiro");
     expect(montarMensagem("retorno", dados)).toContain("próximo atendimento");
   });
-  it("mantém o fallback curto, neutro e direcionado ao Cortaí", () => {
+  it("mantém o fallback curto, neutro e convidando a conversar", () => {
     const texto = montarMensagem("fallback_informativo_whatsapp", dados);
-    expect(texto).toContain("usado pelo Cortaí para avisos");
+    expect(texto).toContain("por aqui mesmo");
     expect(texto).toContain(dados.linkAgendamento);
     expect(texto).not.toContain("menu");
   });

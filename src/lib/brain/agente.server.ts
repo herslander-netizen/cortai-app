@@ -10,7 +10,7 @@
  * - nunca diz "agendado" sem o backend devolver sucesso;
  * - não existe ação de pagamento: recebimento é sempre conferido pela equipe.
  */
-import { ACOES, ferramentasDoCanal, type Canal, type ContextoDoCerebro } from "./acoes.server";
+import { ACOES, acaoPermitida, ehEquipeNoWhatsapp, ferramentasDoContexto, type ContextoDoCerebro } from "./acoes.server";
 import {
   criarSessaoDoGateway,
   ErroDoGateway,
@@ -56,11 +56,16 @@ export type ResultadoDoCerebro = {
 
 const MAX_PASSOS = 6;
 
-function regrasDoCanal(canal: Canal): string {
+function regrasDoCanal(ctx: ContextoDoCerebro): string {
+  const canal = ctx.canal;
+  if (canal === "whatsapp" && ctx.papel === "dono")
+    return `Você conversa pelo WhatsApp com o DONO do negócio (telefone verificado). Ele pode consultar a agenda do negócio, a lista de espera, clientes e os indicadores do dia, e pedir agendamentos, remarcações e cancelamentos (sempre com resumo e confirmação). Seja direto: até 6 linhas, listas curtas com horário e nome.`;
+  if (canal === "whatsapp" && ctx.papel === "profissional")
+    return `Você conversa pelo WhatsApp com um PROFISSIONAL do negócio (telefone verificado). Ele vê só a própria agenda (minha_agenda), a lista de espera, e pode avisar atraso ao próximo cliente, pedir encaixe para si e remarcar ou cancelar os próprios atendimentos — sempre com resumo e confirmação. Nunca mostre faturamento nem dados de outros profissionais. Seja direto: até 6 linhas.`;
   if (canal === "painel")
     return `Você conversa com a EQUIPE do negócio dentro do painel. Pode consultar agenda, clientes e indicadores, e preparar agendamentos, remarcações, cancelamentos e cadastros. Nunca mostre dados financeiros além dos indicadores da ação consultar_movimento.`;
   if (canal === "whatsapp")
-    return `Você é a secretária do negócio atendendo um CLIENTE pelo WhatsApp. O telefone da conversa já identifica o cliente: nunca peça o telefone e nunca fale de outros clientes. Para agendar, siga: serviço → profissional (ou qualquer um) → dia → horários reais → resumo → confirmação. Se o cliente pedir uma pessoa ou o assunto fugir do atendimento, use encaminhar_humano. Mensagens curtas (até 4 linhas), opções numeradas quando oferecer horários.`;
+    return `Você é a secretária do negócio atendendo um CLIENTE pelo WhatsApp, que é um canal completo de atendimento: tire dúvidas, consulte serviços, preços e horários, e agende, remarque, cancele ou confirme aqui mesmo na conversa — nunca mande o cliente para o site para fazer isso. O telefone da conversa já identifica o cliente: nunca peça o telefone e nunca fale de outros clientes. Para agendar, siga: serviço → profissional (ou qualquer um) → dia → horários reais → resumo → confirmação. Se o cliente pedir uma pessoa ou o assunto fugir do atendimento, use encaminhar_humano. Mensagens curtas (até 4 linhas), opções numeradas quando oferecer horários.`;
   return `Você atende um VISITANTE no site de agendamento. Responda dúvidas sobre serviços, preços, profissionais, horários e informações do negócio. Você não agenda por aqui: oriente a pessoa a escolher na própria tela de agendamento. Mensagens curtas.`;
 }
 
@@ -80,7 +85,7 @@ async function instrucoes(ctx: ContextoDoCerebro, persona: Persona) {
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date());
   return `Você é ${persona.nome}, a inteligência do CortAI, atendendo pelo negócio "${persona.negocio}".
 Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. Texto puro: sem markdown (nada de ** ou #).
-${regrasDoCanal(ctx.canal)}
+${regrasDoCanal(ctx)}
 
 Regras obrigatórias:
 - NUNCA invente preço, serviço, profissional, cliente, horário ou disponibilidade: use só o que as ações devolvem.
@@ -101,7 +106,7 @@ async function executarAcao(
   conversaId: string | null,
 ) {
   const def = ACOES[nome];
-  if (!def || !def.canais.includes(ctx.canal)) throw new Error("Ação não disponível.");
+  if (!def || !acaoPermitida(nome, ctx)) throw new Error("Ação não disponível.");
   try {
     const resultado = await def.executar(ctx, dados as Record<string, any>);
     if (def.risco !== "leitura")
@@ -147,7 +152,7 @@ export async function pensarCortai(input: {
   let pedirHumano = false;
 
   if (pedidoNocivo(input.mensagem)) {
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: true, erro: "bloqueado" });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true, erro: "bloqueado" });
     return { texto: RESPOSTA_RECUSA, pendente: null, pedirHumano: false, acoes, indisponivel: null };
   }
 
@@ -178,7 +183,7 @@ export async function pensarCortai(input: {
   ];
 
   const gateway = criarSessaoDoGateway();
-  const ferramentas = ferramentasDoCanal(ctx.canal);
+  const ferramentas = ferramentasDoContexto(ctx);
   const texto0 = await instrucoes(ctx, input.persona);
 
   try {
@@ -188,7 +193,7 @@ export async function pensarCortai(input: {
       if (!chamadas.length) {
         const texto = textoDaSaida(saida);
         await retomarIa(ctx.tenantId);
-        await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: true });
+        await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true });
         return {
           texto: texto || (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
           pendente,
@@ -208,7 +213,7 @@ export async function pensarCortai(input: {
         }
         const def = ACOES[nome];
         let saidaDaAcao: unknown;
-        if (!def || !def.canais.includes(ctx.canal)) {
+        if (!def || !acaoPermitida(nome, ctx)) {
           saidaDaAcao = { ok: false, erro: "Ação não disponível." };
         } else if (def.risco === "escrita") {
           if (pendente) {
@@ -247,7 +252,7 @@ export async function pensarCortai(input: {
         });
       }
     }
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: false, erro: "passos_esgotados" });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: "passos_esgotados" });
     return {
       texto: pendente ? `${(pendente as Pendente).resumo} Posso confirmar?` : "Não consegui concluir agora. Pode reformular?",
       pendente,
@@ -259,7 +264,7 @@ export async function pensarCortai(input: {
     const status = erro instanceof ErroDoGateway ? erro.status : 500;
     const msg = erro instanceof Error ? erro.message : "IA indisponível.";
     if (erro instanceof ErroDoGateway && erro.semCredito) await pausarIa(ctx.tenantId, `gateway_${status}`);
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, ator: ctx.ator, conversaId, acoes, sucesso: false, erro: msg });
+    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: msg });
     // Se a ação confirmada já rodou, a pessoa precisa saber o resultado real.
     const executada = acoes.find((a) => a.sucesso && anterior && a.nome === anterior.acao);
     return {
