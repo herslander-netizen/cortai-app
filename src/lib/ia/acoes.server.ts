@@ -1,7 +1,7 @@
 /**
  * Camada de AÇÕES DE DOMÍNIO para a IA.
  *
- * A ALVO IA nunca fala com o banco: fala com estas funções. Cada ação:
+ * O cérebro CortAI (`src/lib/brain`) nunca fala com o banco: usa estas funções. Cada ação:
  * - recebe um `tenantId` já verificado pelo servidor (nunca vindo do corpo da
  *   requisição do agente);
  * - filtra tudo por `tenant_id`, de forma que um agente jamais opere em outra
@@ -35,7 +35,7 @@ async function registrarAuditoria(
   await db.from("auditoria_da_barbearia").insert({
     tenant_id: ctx.tenantId,
     ator_user_id: null,
-    acao: `alvo_ia.${acao}`,
+    acao: `cortai.${acao}`,
     alvo,
     detalhes: { ...detalhes, agente: ctx.externalAgentId },
   });
@@ -591,7 +591,7 @@ export async function confirmarAgendamento(
   return { agendamentoId: atual.id, status: "agendado" };
 }
 
-/** Catálogo de ações que a ALVO IA / CortAI pode solicitar. */
+/** Ações de domínio usadas pelo cérebro CortAI e pela API legada. */
 export const ACOES_DO_AGENTE = {
   consultar_barbearia: consultarBarbearia,
   consultar_disponibilidade: consultarDisponibilidade,

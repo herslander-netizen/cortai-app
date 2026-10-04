@@ -1,4 +1,7 @@
 /**
+ * @deprecated Integração externa com a ALVO IA. O caminho canônico é o cérebro
+ * interno em `src/lib/brain`; nada do fluxo novo chama este adaptador.
+ *
  * Adaptador da ALVO IA.
  *
  * Nada aqui chama um endpoint inventado: enquanto as variáveis de ambiente

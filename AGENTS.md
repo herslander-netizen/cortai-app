@@ -48,3 +48,6 @@
 
 
 - Conta Cortaí = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
+- Cérebro CortAI único em `src/lib/brain` (gateway, guardas, catálogo de ações, agente, uso): painel, site e WhatsApp usam o mesmo núcleo; o modelo só escolhe ações e escritas executam apenas após confirmação — evita inteligências paralelas e escrita sem confirmação.
+- Integração externa ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado; fluxo novo nunca a chama.
+- Uso da IA contado em `acoes_de_ia_log` (`cerebro.<canal>`); 402/403 pausam em `config_atendimento_ia.ia_pausada_em` e canais automáticos voltam às regras fixas — custo controlado sem travar a operação.
