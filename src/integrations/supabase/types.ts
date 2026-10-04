@@ -1494,6 +1494,9 @@ export type Database = {
           horario_fim: string
           horario_inicio: string
           horario_proprio: boolean
+          ia_limite_diario_whatsapp: number
+          ia_pausa_motivo: string | null
+          ia_pausada_em: string | null
           instrucoes_extras: string
           lembretes: boolean
           link_pagamento: string
@@ -1522,6 +1525,9 @@ export type Database = {
           horario_fim?: string
           horario_inicio?: string
           horario_proprio?: boolean
+          ia_limite_diario_whatsapp?: number
+          ia_pausa_motivo?: string | null
+          ia_pausada_em?: string | null
           instrucoes_extras?: string
           lembretes?: boolean
           link_pagamento?: string
@@ -1550,6 +1556,9 @@ export type Database = {
           horario_fim?: string
           horario_inicio?: string
           horario_proprio?: boolean
+          ia_limite_diario_whatsapp?: number
+          ia_pausa_motivo?: string | null
+          ia_pausada_em?: string | null
           instrucoes_extras?: string
           lembretes?: boolean
           link_pagamento?: string
