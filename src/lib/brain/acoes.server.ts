@@ -22,7 +22,23 @@ export type ContextoDoCerebro = {
   ator: string;
   /** Telefone do cliente quando o canal é o próprio cliente (WhatsApp). */
   telefoneCliente?: string | null;
+  /** Quem fala no WhatsApp: cliente (padrão) ou equipe com telefone verificado. */
+  papel?: Papel;
+  /** Profissional da pessoa da equipe (limita a agenda dela). */
+  profissionalId?: string | null;
 };
+
+export type Papel = "cliente" | "profissional" | "dono";
+
+/** Cliente falando pelo próprio telefone (WhatsApp) — só vê o que é dele. */
+export function ehCliente(ctx: ContextoDoCerebro) {
+  return ctx.canal === "whatsapp" && (ctx.papel ?? "cliente") === "cliente";
+}
+
+/** Equipe falando pelo WhatsApp (telefone verificado). */
+export function ehEquipeNoWhatsapp(ctx: ContextoDoCerebro) {
+  return ctx.canal === "whatsapp" && (ctx.papel === "profissional" || ctx.papel === "dono");
+}
 
 type Risco = "leitura" | "escrita" | "controle";
 
@@ -31,6 +47,8 @@ type Definicao = {
   parametros: Record<string, unknown>;
   risco: Risco;
   canais: Canal[];
+  /** Papéis no WhatsApp; sem isso: cliente, se o canal incluir whatsapp. */
+  papeis?: Papel[];
   executar: (ctx: ContextoDoCerebro, dados: any) => Promise<unknown>;
   resumir?: (ctx: ContextoDoCerebro, dados: any) => Promise<string>;
 };
@@ -67,7 +85,7 @@ async function clienteDoTelefone(ctx: ContextoDoCerebro) {
 }
 
 async function clienteAlvo(ctx: ContextoDoCerebro, clienteId?: string | null) {
-  if (ctx.canal === "whatsapp") {
+  if (ehCliente(ctx)) {
     const proprio = await clienteDoTelefone(ctx);
     if (!proprio) throw new Error("Ainda não há cadastro para este telefone.");
     return proprio.id as string;
@@ -94,11 +112,13 @@ async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId:
     .eq("tenant_id", ctx.tenantId)
     .maybeSingle();
   if (!data) throw new Error("Agendamento não encontrado neste negócio.");
-  if (ctx.canal === "whatsapp") {
+  if (ehCliente(ctx)) {
     const proprio = await clienteDoTelefone(ctx);
     if (!proprio || proprio.id !== data.cliente_id)
       throw new Error("Esse agendamento não pertence a este telefone.");
   }
+  if (ctx.canal === "whatsapp" && ctx.papel === "profissional" && data.profissional_id !== ctx.profissionalId)
+    throw new Error("Esse atendimento é de outro profissional.");
   return data;
 }
 
@@ -207,7 +227,7 @@ export const ACOES: Record<string, Definicao> = {
     risco: "leitura",
     canais: ATENDIMENTO,
     executar: async (ctx, d) => {
-      if (ctx.canal === "whatsapp") return clienteDoTelefone(ctx);
+      if (ehCliente(ctx)) return clienteDoTelefone(ctx);
       const db = await admin();
       const { data } = await db
         .from("clientes")
@@ -276,9 +296,9 @@ export const ACOES: Record<string, Definicao> = {
       dominio.registrarCliente(agenteDe(ctx), {
         nome: String(d.nome).trim().slice(0, 80),
         telefone: normalizarTelefone(
-          ctx.canal === "whatsapp" ? ctx.telefoneCliente : String(d.telefone ?? ""),
+          ehCliente(ctx) ? ctx.telefoneCliente : String(d.telefone ?? ""),
         ),
-        optInWhatsapp: ctx.canal === "whatsapp",
+        optInWhatsapp: ehCliente(ctx),
       }),
   },
   atualizar_dados_cliente: {
@@ -342,7 +362,7 @@ export const ACOES: Record<string, Definicao> = {
     },
     executar: async (ctx, d) => {
       let clienteId: string;
-      if (ctx.canal === "whatsapp") {
+      if (ehCliente(ctx)) {
         const proprio = await clienteDoTelefone(ctx);
         if (proprio) clienteId = proprio.id;
         else {
