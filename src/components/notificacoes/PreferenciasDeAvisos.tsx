@@ -8,6 +8,8 @@ import { tipoDePushValido } from "@/lib/push/regras";
 import { pushAtivoNesteAparelho, precisaInstalarParaPush } from "@/lib/push/aparelho";
 import { ativarAvisosDaEquipe, TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { gerarCodigoDoMeuWhatsapp, meuWhatsappNoCortai } from "@/lib/whatsapp-equipe.functions";
 
 const TIPOS = [
   { chave: "agendamento_novo", rotulo: "Novo agendamento" },
@@ -114,6 +116,7 @@ export function PreferenciasDeAvisos() {
         Escolha onde quer receber cada aviso. Você pode ativar mais de um canal.
       </p>
       <AvisosNoCelular tenantId={tenantId} />
+      <MeuWhatsappNoCortai />
       <ul className="divide-y divide-line border-y border-line">
         {TIPOS.map((t) => {
           const linha = linhaDe(prefs, t.chave);
@@ -198,6 +201,78 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
           {TEXTO_INSTALAR_PRIMEIRO}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/** Confirma o WhatsApp da pessoa da equipe: libera conversar com o CortAI e receber avisos por lá. */
+function MeuWhatsappNoCortai() {
+  const consultar = useServerFn(meuWhatsappNoCortai);
+  const gerar = useServerFn(gerarCodigoDoMeuWhatsapp);
+  const { data, refetch } = useQuery({
+    queryKey: ["meu-whatsapp-cortai"],
+    queryFn: () => consultar(),
+    staleTime: 30000,
+  });
+  const [codigo, setCodigo] = useState<{ codigo: string; numero: string | null } | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+
+  if (data?.verificadoEm && !codigo) {
+    return (
+      <p className="mb-3 flex min-h-11 items-center gap-2 text-sm text-paper">
+        <Check className="h-4 w-4 text-gold" aria-hidden /> WhatsApp confirmado: converse com o CortAI e receba avisos por lá
+      </p>
+    );
+  }
+  return (
+    <div className="mb-3 rounded-lg border border-line px-3 py-3">
+      <p className="text-sm text-paper">Conversar com o CortAI pelo WhatsApp</p>
+      <p className="mt-1 text-xs leading-relaxed text-mute">
+        Confirme seu número para perguntar sua agenda, avisar atrasos e receber avisos por lá.
+      </p>
+      {codigo ? (
+        <div className="mt-3 space-y-2 text-xs leading-relaxed text-mute">
+          <p>
+            Do seu WhatsApp, envie para {codigo.numero ? <strong className="text-paper">+{codigo.numero}</strong> : "o número do Cortaí"}:
+          </p>
+          <p className="rounded-md bg-ink px-3 py-2 text-center font-mono text-base tracking-widest text-gold">
+            CODIGO {codigo.codigo}
+          </p>
+          <p>Vale por 15 minutos.</p>
+          <button
+            type="button"
+            onClick={async () => {
+              const r = await refetch();
+              if (r.data?.verificadoEm) {
+                setCodigo(null);
+                aviso.sucesso("WhatsApp confirmado.");
+              } else aviso.erro("Ainda não recebemos o código. Envie e tente de novo.");
+            }}
+            className="min-h-11 w-full rounded-lg border border-line text-sm text-paper"
+          >
+            Já enviei
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          disabled={ocupado}
+          onClick={async () => {
+            setOcupado(true);
+            try {
+              const r = await gerar();
+              setCodigo({ codigo: r.codigo, numero: r.numero });
+            } catch (e) {
+              aviso.erro(e instanceof Error ? e.message : "Não deu certo gerar o código.");
+            } finally {
+              setOcupado(false);
+            }
+          }}
+          className="mt-3 min-h-11 w-full rounded-lg border border-gold/45 bg-gold-soft text-sm font-semibold text-gold disabled:opacity-60"
+        >
+          Confirmar meu WhatsApp
+        </button>
+      )}
     </div>
   );
 }
