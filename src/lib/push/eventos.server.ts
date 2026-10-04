@@ -211,7 +211,7 @@ export async function processarEventoDePush(evento: {
       }),
     }).catch(() => ({}) as Record<string, { enviar: boolean; motivo: string }>);
     for (const [userId, r] of Object.entries(porPessoa)) {
-      if (canais.registro[userId]) canais.registro[userId]!.whatsapp = r;
+      if (canais.registro[userId]) canais.registro[userId]!["whatsapp"] = r;
     }
   }
 
