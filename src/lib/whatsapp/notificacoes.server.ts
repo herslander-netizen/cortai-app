@@ -278,8 +278,8 @@ export function montarMensagem(
     );
   } else if (tipo === "fallback_informativo_whatsapp") {
     blocos.push(
-      "Este número é usado pelo Cortaí para avisos do seu atendimento.",
-      linha(d.linkAgendamento, "Para agendar ou gerenciar seu horário, use o Cortaí: "),
+      "Olá! Aqui é o CortAI. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
+      linha(d.linkAgendamento, "Se preferir, use o link: "),
     );
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
@@ -300,7 +300,7 @@ export function montarMensagem(
       linha(d.servico, "Serviço: "),
     );
     if (d.linkAgendamento) {
-      blocos.push("", "Se quiser realizar um novo agendamento:", d.linkAgendamento);
+      blocos.push("", "Quer marcar outro horário? É só responder aqui.", `Ou pelo link: ${d.linkAgendamento}`);
     }
   }
 
