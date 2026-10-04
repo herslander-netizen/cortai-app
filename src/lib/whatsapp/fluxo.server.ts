@@ -574,7 +574,7 @@ export async function processarMensagemRecebida(input: {
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
-  const fallback = `Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: ${link}`;
+  const fallback = `Recebi sua mensagem! Agora não consigo responder tudo por aqui. Para agendar ou ver seu horário, use: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")

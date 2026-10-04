@@ -277,7 +277,7 @@ export async function tratarRespostaDeLembrete(input: {
     .maybeSingle();
   if (!respondido)
     return {
-      texto: "Essa ação não está mais disponível. Abra o Cortaí para ver seu horário atualizado.",
+      texto: "Essa opção não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
     };
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
   await db
@@ -322,7 +322,7 @@ export async function tratarRespostaDeLembrete(input: {
         ? {
             texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.`,
           }
-        : { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
+        : { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CHEGUEI": {
       const { data } = await db.rpc(
@@ -344,7 +344,7 @@ export async function tratarRespostaDeLembrete(input: {
             "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor.",
         };
       }
-      return { texto: "Esse horário não está mais ativo. Abra o Cortaí para ver seus horários." };
+      return { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CANCELAR": {
       const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: ag.id });
