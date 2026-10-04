@@ -1,100 +1,88 @@
-# Auditoria: ficha do atendimento, comanda e pagamento (sem alterações)
+# WhatsApp como canal completo do CortAI — análise e plano
 
-## 1. Diagnóstico atual
+Nada foi alterado. Este documento é a análise pedida, para você aprovar antes de qualquer mudança.
 
-O problema vem de superfícies abertas por cima de outras sem fechar a anterior. Há três camadas diferentes, e elas não respeitam a mesma ordem de sobreposição.
+## 1. O que já existe (e será reaproveitado)
 
-| Superfície | Componente | Tipo | Camada |
-|---|---|---|---|
-| Ficha rápida (cliente, horário, "Finalizar e cobrar", "Notas", "Comanda", "Ver comanda") | `PainelAtendimento` | Sheet padrão | z-50 |
-| Tela de cobrança "Comanda #23" (Pix, "Verificar e confirmar recebimento", "Receber de outra forma") | `FechamentoComanda` | div fixa própria | **z-80** |
-| Ticket "Ver comanda" | `FolhaDoTicket` (aberto via `VerTicketDoAgendamento` ou pelo fechamento) | Sheet padrão | z-50 |
-| Confirmação "Confirmar recebimento?" | AlertDialog dentro de `FechamentoComanda` | AlertDialog padrão | z-50 |
-| Botão "+" da Agenda | `.agenda-acao-fixa` | fixo | z-25 (sobe em regras posteriores do CSS) |
+- **Um cérebro só** em `src/lib/brain/`: gateway da IA, catálogo de ações reais (serviços, profissionais, disponibilidade, clientes, agendar/remarcar/cancelar, nota, encaminhar para humano), confirmação obrigatória antes de qualquer escrita, auditoria e limites de uso.
+- **WhatsApp já chama esse cérebro**: `fluxo.server.ts → responderComCerebro → pensarCortai`, com o histórico da própria conversa, a pausa por falta de crédito e o modo humano.
+- **Número compartilhado**: o número oficial atende vários negócios e pergunta ao cliente qual deles quer (`multi-barbearia.ts` + `whatsapp_contexto_numero`).
+- **Avisos ao cliente**: `notificacoes.server.ts`, `lembretes.server.ts`, `modelos.ts` (formato dentro/fora da janela de 24h), `confirmacao.server.ts`.
 
-## 2. Fluxo atual resumido
+Conclusão: não é preciso criar nenhuma IA, tabela de conversa ou agenda nova. A mudança é de **contexto (quem fala)**, **permissões** e **textos/regras que limitam o canal**.
 
-**Equipe**
+## 2. Regras que limitam o canal (encontradas)
+
+| Onde | O que diz hoje | Proposta |
+|---|---|---|
+| Instruções permanentes do projeto (texto de "WhatsApp — Secretária Cortaí") | WhatsApp não é canal de atendimento; CortAI não atende por padrão; mensagem livre deve ir para o site | **Só você pode editar.** Substituir pela nova definição deste documento |
+| `brain/agente.server.ts` (canal site) | "Você não agenda por aqui: oriente a pessoa a escolher na tela" | Mantido no site (o site tem tela própria); fora do escopo do WhatsApp |
+| `whatsapp/notificacoes.server.ts` | Avisos terminam com "Para agendar ou gerenciar seu horário, use o Cortaí: link" | Trocar por "Responda aqui para remarcar ou cancelar"; o link fica como opção secundária |
+| `whatsapp/lembretes.server.ts` (comentário) | Lembretes "nunca abrem conversa livre" | Resposta ao lembrete passa a cair no mesmo cérebro |
+| `whatsapp/aviso-equipe.server.ts` | Equipe nunca recebe aviso por WhatsApp | Liberar como opção da equipe (ver conflito 3) |
+| `whatsapp/atendimento.server.ts` | Respostas fixas antigas (legado) | Seguem só como reserva quando a IA está pausada |
+
+Segurança, confirmação, isolamento entre negócios e "nunca confirmar pagamento" **continuam iguais**.
+
+## 3. Arquitetura proposta
+
 ```text
-Agenda -> toque no atendimento -> Ficha (Sheet z-50)
-  "Finalizar e cobrar" -> setFechando(id) -> FechamentoComanda (z-80)
-                          a ficha NAO fecha: continua montada por baixo
-     "Ver comanda" -> FolhaDoTicket (Sheet z-50) -> abre ATRAS do fechamento
-     "Verificar e confirmar" -> AlertDialog (z-50) -> tambem ATRAS do fechamento
-  "Ver comanda" (na ficha) -> FolhaDoTicket por cima da ficha (2 Sheets ao mesmo tempo)
-  "Comanda" (na ficha) -> mesma ação de "Finalizar e cobrar" (duplicada)
-  "Notas" -> fecha a ficha e abre o perfil (correto, uma superfície)
+Mensagem no WhatsApp
+   -> identifica o negócio (número próprio ou escolha no número compartilhado)
+   -> identifica QUEM fala pelo telefone:
+        membro da equipe ativo desse negócio  -> PROFISSIONAL ou DONO
+        qualquer outro                          -> CLIENTE
+   -> cérebro CortAI único (mesmas ações, permissões por papel)
+   -> resposta na mesma conversa (avisos, ações e resultados no mesmo histórico)
 ```
 
-**Cliente (confirmação pública)**
-```text
-TicketDaConfirmacao (página) -> bloco Pix inline (valor, copiar chave, WhatsApp, "Já paguei")
-  "Ver comanda" -> Sheet com o ticket por cima da página
-```
-O lado do cliente tem só uma camada sobre a página. Não há empilhamento real, mas o Pix aparece duas vezes: no bloco da página e dentro do ticket.
+### Permissões por papel
+- **Cliente**: igual a hoje — só vê e altera o que é do próprio telefone.
+- **Profissional**: própria agenda (hoje/próximo/último), quem está na fila, avisar atraso ao próximo cliente, pedir encaixe — sempre com confirmação e usando as mesmas regras e permissões já existentes no painel. Sem valores financeiros.
+- **Dono**: agenda do negócio inteiro e movimento do dia (ação já existente `consultar_movimento`), respeitando as permissões já cadastradas na equipe.
 
-## 3. Problemas encontrados
+### Novas ações no catálogo (pequenas, sobre o motor atual)
+- `minha_agenda` (profissional: hoje/próximo/último atendimento)
+- `consultar_fila` (lista de espera do dia)
+- `avisar_atraso` (registra o atraso e manda aviso ao próximo cliente pelo fluxo de avisos que já existe; escrita, pede confirmação)
+- Encaixe usa o `criar_agendamento` existente com a regra de encaixe atual (só membros).
 
-1. **Causa exata da comanda "por baixo":** `FechamentoComanda` usa z-80, enquanto tudo que ele abre (o ticket e o AlertDialog de confirmação) usa a camada padrão z-50 e vai para o fim da página. Por isso essas superfícies ficam atrás dele. Na prática, a janela "Confirmar recebimento" pode ficar escondida atrás da cobrança. Isso é o mais grave, porque trava a baixa do Pix.
-2. **Ficha não fecha ao cobrar:** `onComanda` só chama `setFechando`. A ficha continua aberta, ficam dois overlays e dois controles de foco, e o texto "Cliente avulso 28" aparece duplicado.
-3. **Ficha + ticket:** "Ver comanda" na ficha monta um segundo Sheet por cima do primeiro.
-4. **Ações duplicadas:** "Finalizar e cobrar" e "Comanda" chamam a mesma função. "Ver comanda" aparece na ficha e no fechamento. No cliente, o bloco Pix se repete no ticket.
-5. **Altura e safe-area do fechamento:** usa 94vh em vez de 94dvh e não reserva espaço no topo (corte no Android). O cabeçalho fixo fica no mesmo container que rola.
+### Avisos para a equipe pelo WhatsApp
+Novos avisos (novo atendimento, cancelamento, remarcação, atraso) gravados primeiro no sininho, como hoje, e então enviados também por WhatsApp a quem ativou essa opção. A resposta do profissional ao aviso volta ao mesmo cérebro.
 
-## 4. "Finalizar e cobrar" depende da comanda?
+## 4. Conflitos e decisões necessárias
 
-Não depende da tela de ticket. A comanda já nasce com o agendamento (`garantir_comanda`). `FechamentoComanda` já faz tudo sozinho: carrega com `getFechamentoComanda`, edita itens e desconto, cobra com `pagarComanda` (cartão, dinheiro, fiado, plano, Pix escolhido), envia para a recepção, confirma o Pix com o AlertDialog e conclui com `onConcluido` (finaliza, invalida e chama o próximo). O ticket (`FolhaDoTicket`) é só visualização e compartilhamento. Não é preciso abri-lo para cobrar.
+1. **Instruções permanentes do projeto** contradizem o pedido. Você precisa atualizar esse texto nas configurações; eu atualizo os arquivos de regras do código (AGENTS.md) e a memória.
+2. **Identificar a equipe pelo telefone**: hoje o telefone da equipe só existe no perfil da conta (`perfis.telefone`), sem verificação. Proposta: usar esse telefone, válido só se a pessoa estiver ativa na equipe daquele negócio. Risco: quem cadastrar o telefone de outra pessoa ganharia acesso — por isso, mitigação proposta é confirmar o número uma vez (código enviado pelo próprio WhatsApp) antes de liberar o papel de equipe.
+3. **Regra da Meta (24 h)**: avisos iniciados pelo negócio fora da janela de 24 h só podem sair com modelo aprovado de utilidade, e cada um tem custo. Para a equipe será preciso cadastrar e aprovar modelos novos na Meta (não posso inventar). Até lá, o aviso só sai pelo WhatsApp se a janela estiver aberta; senão fica no sininho/push.
+4. **Número compartilhado**: um profissional que trabalha em dois negócios no mesmo número vê o menu de escolha, como o cliente.
+5. **Custo**: o limite diário atual (400 respostas por negócio) passa a contar também mensagens da equipe; proponho limite separado para a equipe (ex.: 200/dia), sem travar o painel.
 
-## 5. Impacto em dados
+## 5. Arquivos a alterar
 
-Nenhuma mudança de banco, status ou pagamento é necessária. É um problema de apresentação. Os estados da comanda (aberta → em_atendimento → aguardando_pagamento → aguardando_confirmacao_pix → paga/cancelada), o histórico só de inclusão, a idempotência e a confirmação só pela equipe continuam como estão.
+- `src/lib/brain/acoes.server.ts` — papel no contexto (`cliente | profissional | dono`), 3 ações novas, filtro de ações por papel.
+- `src/lib/brain/agente.server.ts` — instruções por papel no canal WhatsApp.
+- `src/lib/brain/uso.server.ts` — limite separado para equipe.
+- `src/lib/whatsapp/fluxo.server.ts` — identificar papel antes de chamar o cérebro.
+- Novo `src/lib/whatsapp/identidade.server.ts` — telefone → papel + negócio (+ verificação do número).
+- `src/lib/whatsapp/notificacoes.server.ts`, `lembretes.server.ts` — textos convidando a responder na conversa.
+- `src/lib/whatsapp/aviso-equipe.server.ts` — envio opcional à equipe pela mesma regra de formato (`decidirFormato`).
+- Tela de preferências de avisos da equipe (opção "receber pelo WhatsApp" + confirmar número).
+- Migração aditiva mínima: data de verificação do telefone da equipe e preferência de canal (nada removido).
+- `AGENTS.md` (raiz, brain, whatsapp) e memória: nova definição do canal.
+- Testes: identificação de papel, permissões por papel, isolamento entre negócios, confirmação antes de escrita.
 
-## 6. Casos especiais que precisam continuar
+## 6. Ordem de implementação
 
-Pix pendente, Pix informado pelo cliente (com atualização a cada 15 s), comprovante pelo WhatsApp, "Receber de outra forma", edição de itens e desconto, fiado/plano, envio para a recepção, notas (perfil), falta/cancelar/remarcar na ficha, reabrir uma comanda que aguarda Pix e ver ou compartilhar o ticket.
+1. Regras e textos (remover limitações, sem mudar comportamento de segurança).
+2. Identificação de papel + verificação do número da equipe.
+3. Ações do profissional/dono e permissões.
+4. Avisos para a equipe pelo WhatsApp (dependem dos modelos aprovados na Meta para fora da janela).
+5. Testes, verificação em 390px/1280px, build. Sem publicar.
 
-## 7. Avaliação das arquiteturas
-
-- **A) Uma superfície com etapas internas:** é a melhor experiência, mas fundir a ficha e o fechamento num componente só exige uma refatoração grande e arriscada (o fechamento tem cerca de 600 linhas).
-- **B) Ficha → pagamento → conclusão na mesma superfície:** é o mesmo resultado de A.
-- **C) Comanda só por ação explícita:** está correto, mas sozinho não resolve o empilhamento.
-- **D) Recomendada: troca de superfície com uma ativa por vez + ticket como etapa interna.**
-  - A ficha fecha quando a cobrança abre e volta a abrir se a cobrança for cancelada sem concluir.
-  - Dentro da cobrança, "Ver comanda" vira uma etapa interna (troca o conteúdo, com botão "Voltar"), não outra folha.
-  - Na ficha, "Ver comanda" fecha a ficha e abre o ticket. Ao fechar o ticket, a ficha volta.
-  - A cobrança passa para a mesma camada padrão dos outros modais, para que a confirmação de recebimento sempre fique por cima.
-  - O botão "Comanda" sai da ficha durante o atendimento (fica "Finalizar e cobrar"). Depois de finalizado ou com pagamento pendente, o botão vira "Cobrar" ou "Ver pagamento".
-
-Isso entrega "uma ação = uma superfície ativa" sem reescrever a lógica financeira.
-
-## 8. O que precisaria mudar
-
-- `AgendaOperacional`: ao cobrar, fechar o painel e guardar o item para devolver a ficha se o usuário sair sem concluir.
-- `PainelAtendimento`: tirar a duplicação "Comanda"/"Finalizar e cobrar". "Ver comanda" passa a pedir a troca para o pai em vez de montar um Sheet próprio.
-- `FechamentoComanda`: o ticket vira etapa interna (reaproveitando `TicketComanda` + `useAcoesDoTicket`), sem `FolhaDoTicket` aninhado. Passar para a camada padrão (ou subir a camada do AlertDialog só nesse contexto), usar 94dvh, safe-area no topo e cabeçalho separado da rolagem.
-- `VerTicketDoAgendamento`: aceitar um modo controlado pelo pai (abrir sem empilhar).
-- `styles.css`: garantir que `.agenda-acao-fixa` fique sempre abaixo de qualquer modal.
-- `TicketDaConfirmacao` (cliente): no ticket aberto pela página, esconder o bloco Pix repetido (o Pix fica só na página). Sem mudança de lógica.
-
-## 9. Riscos
-
-- Voltar à ficha depois de cancelar a cobrança pode reabrir um item já alterado. É preciso usar os dados atualizados da agenda.
-- O Modo Foco e o desktop (painel lateral) usam o mesmo `PainelAtendimento`, então é preciso testar os dois.
-- O fechamento também é usado no Caixa e na busca de comandas. A mudança de camada precisa ser validada lá.
-- A atualização a cada 15 s não pode reiniciar a etapa interna do ticket.
-
-## 10. Recomendação final
-
-Seguir a opção D em uma entrega pequena, só na interface, sem banco e sem mudança nas funções do servidor. A primeira prioridade é a camada do AlertDialog de confirmação, porque ela pode impedir a baixa do Pix.
-
-## 11. Critérios de aceitação
-
-1. Em nenhum momento há duas folhas ou modais visíveis ao mesmo tempo, exceto a confirmação de recebimento, que aparece sempre por cima e com foco.
-2. "Finalizar e cobrar" fecha a ficha e abre a cobrança. Ao fechar sem concluir, a ficha volta. Ao concluir, volta para a Agenda.
-3. "Ver comanda" dentro da cobrança troca o conteúdo, e "Voltar" retorna à mesma etapa de pagamento.
-4. "Confirmar recebimento?" fica visível e clicável em 390px e no desktop. Uma confirmação gera 1 pagamento e 1 movimento de caixa, e repetir não duplica.
-5. Não há mais o botão "Comanda" duplicado durante o atendimento. "Notas", contato, falta, cancelar e remarcar continuam funcionando.
-6. Pix informado pelo cliente aparece na cobrança sem fechar a etapa aberta. "Receber de outra forma", fiado, plano, cartão e dinheiro funcionam como antes.
-7. Lado do cliente: o Pix aparece uma vez só, "Já paguei" continua idempotente e o ticket abre como uma única camada.
-8. Em 390px e Android: sem corte no topo, cabeçalho fixo sem texto passando por baixo e botão "+" nunca acima de um modal.
-9. Funciona também no Modo Foco, no desktop (painel lateral), no Caixa e na busca de comandas. Os testes, a checagem de código e o build passam.
+## Critérios de aceitação
+- Cliente agenda, remarca e cancela conversando, com horários reais e confirmação.
+- Profissional pergunta "quem é meu próximo cliente?" e recebe só a própria agenda.
+- Telefone desconhecido nunca recebe dados da equipe; nenhum dado cruza negócios.
+- Pagamento continua confirmado só pela equipe.
+- Falha do WhatsApp nunca trava agenda, comanda ou financeiro.
