@@ -245,7 +245,7 @@ function MeuWhatsappNoCortai() {
               const r = await refetch();
               if (r.data?.verificadoEm) {
                 setCodigo(null);
-                aviso.sucesso("WhatsApp confirmado.");
+                aviso.ok("WhatsApp confirmado.");
               } else aviso.erro("Ainda não recebemos o código. Envie e tente de novo.");
             }}
             className="min-h-11 w-full rounded-lg border border-line text-sm text-paper"
