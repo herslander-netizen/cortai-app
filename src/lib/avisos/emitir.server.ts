@@ -8,6 +8,7 @@
  */
 import {
   EVENTOS,
+  type DecisaoDeCanal,
   chaveDeDedupe,
   decidirCanais,
   type Contexto,
@@ -36,14 +37,16 @@ export type EmissaoDeAviso = {
   alvos: AlvoDoAviso[];
 };
 
-export async function emitirAviso(input: EmissaoDeAviso): Promise<{ gravados: number }> {
+export async function emitirAviso(input: EmissaoDeAviso): Promise<{ gravados: number; decisoes: DecisaoDeCanal[][] }> {
   let gravados = 0;
+  const decisoes: DecisaoDeCanal[][] = [];
   try {
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     const def = EVENTOS[input.evento];
     const referencia = input.referencia ?? input.agendamentoId ?? input.link ?? "geral";
     for (const alvo of input.alvos) {
       const decisao = decidirCanais(input.evento, alvo.destinatario, alvo.contexto ?? {});
+      decisoes.push(decisao);
       if (decisao.length === 0) continue;
       const chave = chaveDeDedupe({
         evento: input.evento,
@@ -74,5 +77,5 @@ export async function emitirAviso(input: EmissaoDeAviso): Promise<{ gravados: nu
   } catch (e) {
     console.error("[avisos] emitir falhou:", e instanceof Error ? e.message : e);
   }
-  return { gravados };
+  return { gravados, decisoes };
 }

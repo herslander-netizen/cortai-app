@@ -84,6 +84,21 @@ export const EVENTOS = {
     prioridade: "importante",
     destinos: { gestor: ["in_app"] },
   },
+  vaga_aberta: {
+    titulo: "Vaga aberta",
+    prioridade: "importante",
+    destinos: { cliente: ["whatsapp"] },
+  },
+  mudanca_operacional: {
+    titulo: "Mudança no horário",
+    prioridade: "importante",
+    destinos: { cliente: ["whatsapp"] },
+  },
+  pagamento_conferido: {
+    titulo: "Pagamento conferido",
+    prioridade: "normal",
+    destinos: { cliente: ["whatsapp"] },
+  },
   lembrete: {
     titulo: "Lembrete do horário",
     prioridade: "normal",
@@ -217,3 +232,22 @@ export function canaisDaEquipe(
   }
   return { push: [...push], whatsapp: [...whatsapp], registro };
 }
+
+/** Evento do catálogo para cada aviso de WhatsApp ao cliente. */
+export const EVENTO_DO_CLIENTE: Record<string, Evento> = {
+  confirmacao_agendamento: "agendamento_criado",
+  alteracao_agendamento: "agendamento_remarcado",
+  remarcacao: "agendamento_remarcado",
+  cancelamento: "agendamento_cancelado",
+  cancelamento_agendamento: "agendamento_cancelado",
+  lembrete_24h: "lembrete",
+  lembrete_2h: "lembrete",
+  aviso_proximo: "lembrete",
+  mudanca_operacional: "mudanca_operacional",
+  vaga_lista_espera: "vaga_aberta",
+  pagamento_confirmado: "pagamento_conferido",
+  pos_atendimento: "relacionamento",
+  convite_avaliacao: "relacionamento",
+  recuperacao_experiencia: "relacionamento",
+  retorno: "relacionamento",
+};
