@@ -291,11 +291,11 @@ async function enviarOferta(ofertaId: string) {
         `Responda até ${prazo}. Se preferir: ${linkDaOferta(o.token)}`,
       ].join("\n")
     : [
-    `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera em ${negocio}.`,
-    `${servico}${profissional ? ` com ${profissional}` : ""} · ${p.dia} às ${p.hora}.`,
-    "",
-    `Responda até ${prazo}. Se preferir: ${linkDaOferta(o.token)}`,
-  ].join("\n");
+        `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera em ${negocio}.`,
+        `${servico}${profissional ? ` com ${profissional}` : ""} · ${p.dia} às ${p.hora}.`,
+        "",
+        `Responda até ${prazo}. Se preferir: ${linkDaOferta(o.token)}`,
+      ].join("\n");
   if (!conexao) {
     await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
     await aplicarFalhaDeEnvio({ envioId, codigo: null, motivo: SEM_WHATSAPP_DISPONIVEL });

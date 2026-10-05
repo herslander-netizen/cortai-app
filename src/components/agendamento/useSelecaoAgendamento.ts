@@ -143,7 +143,18 @@ export function useSelecaoAgendamento({
             passoMin,
           }).horarios.filter((h) => h.estado === "ocupado")
         : [],
-    [dia, servico, profissionais, profissionalId, horarios, fuso, ocupados, regras, agora, passoMin],
+    [
+      dia,
+      servico,
+      profissionais,
+      profissionalId,
+      horarios,
+      fuso,
+      ocupados,
+      regras,
+      agora,
+      passoMin,
+    ],
   );
   const escolhido = agenda?.opcoes.find((opcao) => opcao.iso === inicio) ?? null;
 

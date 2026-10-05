@@ -658,7 +658,6 @@ function AgendamentoPublico() {
             />
           ) : null}
           {agenda.fechado || agenda.opcoes.length ? null : (
-
             <div className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
               <p>Dia lotado. Veja os próximos dias com vaga:</p>
               <div className="mt-3 flex flex-wrap gap-2">

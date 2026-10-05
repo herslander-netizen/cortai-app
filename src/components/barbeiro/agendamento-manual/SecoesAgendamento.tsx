@@ -90,7 +90,7 @@ function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
     .filter((i) => (STATUS_QUE_OCUPAM as readonly string[]).includes(i.status))
     .map((i) => ({
       id: i.id,
-      profissional_id: i.profissionalId,
+      profissional_id: i.profissionalId ?? null,
       inicio: i.inicio,
       fim: i.fim,
       cliente: i.cliente,
@@ -214,9 +214,13 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
           ))}
           {confirmarEncaixe ? (
             <>
-              <p className="mt-2">Este horário já possui um atendimento. Deseja realmente criar um encaixe?</p>
+              <p className="mt-2">
+                Este horário já possui um atendimento. Deseja realmente criar um encaixe?
+              </p>
               {!s.pronto ? (
-                <p className="mt-1 text-sm text-mute">Escolha o cliente e o serviço antes de encaixar.</p>
+                <p className="mt-1 text-sm text-mute">
+                  Escolha o cliente e o serviço antes de encaixar.
+                </p>
               ) : null}
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Button

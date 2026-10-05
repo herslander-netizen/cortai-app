@@ -51,12 +51,17 @@ export function HorariosOcupados({
         <div className="mt-3 rounded-xl border border-line px-4 py-3 text-sm">
           <p className="text-paper">{escolhido.label} está ocupado.</p>
           <p className="mt-1 text-mute">
-            Entre na lista de espera desse horário. Se vagar, avisamos — sem reservar nada antes
-            de você confirmar.
+            Entre na lista de espera desse horário. Se vagar, avisamos — sem reservar nada antes de
+            você confirmar.
           </p>
           <Link
             to="/app/espera"
-            search={{ ...(slug ? { b: slug } : {}), servico: servicoId, dia, horario: escolhido.label }}
+            search={{
+              ...(slug ? { b: slug } : {}),
+              servico: servicoId,
+              dia,
+              horario: escolhido.label,
+            }}
             className="btn-primary mt-3 inline-flex w-full justify-center px-5 py-3"
           >
             Quero esse horário
