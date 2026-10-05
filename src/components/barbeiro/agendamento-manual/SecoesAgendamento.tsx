@@ -1,8 +1,13 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { opcoesAgendaDia } from "@/components/barbeiro/agenda/useAgendaDia";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { CampoDeEscolha } from "@/components/ui/formulario/CampoDeEscolha";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { brl } from "@/lib/format";
+import { estadosDoDia, STATUS_QUE_OCUPAM, type HorarioComEstado } from "@/lib/disponibilidade";
 import { hojeNoFuso, slotsDoDia } from "@/lib/horarios";
 import { cn } from "@/lib/utils";
 
@@ -66,12 +71,56 @@ export function SecaoServico({ s }: { s: EstadoAgendamentoManual }) {
   );
 }
 
+type OcupadoDaEquipe = {
+  profissional_id: string | null;
+  inicio: string;
+  fim: string;
+  cliente: string;
+  servico: string;
+  duracaoMin: number;
+  id: string;
+};
+
+/** Estados reais dos horários do dia para a equipe (mesmo motor da página pública). */
+function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
+  const agenda = useQuery({ ...opcoesAgendaDia(s.data), enabled: Boolean(s.base && s.data) });
+  const servico = s.base?.servicos.find((sv) => sv.id === s.servicoId);
+  if (!s.base || !servico || !s.profissionalId || !agenda.data) return null;
+  const ocupados: OcupadoDaEquipe[] = agenda.data.itens
+    .filter((i) => (STATUS_QUE_OCUPAM as readonly string[]).includes(i.status))
+    .map((i) => ({
+      id: i.id,
+      profissional_id: i.profissionalId,
+      inicio: i.inicio,
+      fim: i.fim,
+      cliente: i.cliente,
+      servico: i.servico,
+      duracaoMin: i.duracaoMin,
+    }));
+  return estadosDoDia({
+    dia: s.data,
+    servico: { id: servico.id, duracao_min: servico.duracao_min },
+    profissionais: s.base.profissionais,
+    escolhido: s.profissionalId,
+    horarios: s.base.horarios,
+    fuso: s.base.fuso,
+    ocupados,
+    // A equipe agenda sem antecedência mínima; a validação final segue no servidor.
+    regras: { antecedenciaMin: 0, intervaloEntreMin: 0 },
+    passoMin: s.base.passoMin ?? 30,
+  });
+}
+
 export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
+  const estados = useEstadosDaEquipe(s);
+  const [detalhe, setDetalhe] = useState<HorarioComEstado<OcupadoDaEquipe> | null>(null);
+  const [confirmarEncaixe, setConfirmarEncaixe] = useState(false);
   const slots = s.base
     ? slotsDoDia(s.data, s.base.horarios, s.base.passoMin ?? 30, s.base.fuso).slots.map(
         (slot) => slot.label,
       )
     : [];
+  const porLabel = new Map((estados?.horarios ?? []).map((h) => [h.label, h]));
   const livre = s.proximo.data?.label;
   return (
     <SecaoDeFormulario rotulo="Horário">
@@ -96,19 +145,124 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
         type="date"
         className="field-control"
         value={s.data}
-        onChange={(e) => s.setData(e.target.value)}
+        onChange={(e) => {
+          setDetalhe(null);
+          s.setData(e.target.value);
+        }}
         aria-label="Data"
       />
       <div className="flex flex-wrap gap-2" role="group" aria-label="Horários">
-        {slots.map((h) => (
-          <Chip key={h} ativo={s.horaMin === h} onClick={() => s.setHoraMin(h)}>
-            {h}
-          </Chip>
-        ))}
+        {slots.map((h) => {
+          const info = porLabel.get(h);
+          if (info?.estado === "ocupado") {
+            const quem = info.ocupantes[0];
+            return (
+              <Button
+                key={h}
+                variant="ghost"
+                type="button"
+                aria-pressed={detalhe?.label === h}
+                aria-label={`${h}, ocupado${quem ? ` por ${quem.cliente}, ${quem.servico}` : ""}`}
+                onClick={() => {
+                  setConfirmarEncaixe(false);
+                  setDetalhe(info);
+                }}
+                className={cn(
+                  "h-auto min-h-11 flex-col gap-0 rounded-2xl border border-dashed px-3 py-1 text-sm",
+                  detalhe?.label === h ? "border-brick text-paper" : "border-brick/50 text-mute",
+                )}
+              >
+                <span className="font-semibold">{h}</span>
+                <span className="text-xs text-brick">Ocupado</span>
+              </Button>
+            );
+          }
+          if (info?.estado === "bloqueado") {
+            return (
+              <span
+                key={h}
+                aria-label={`${h}, bloqueado`}
+                className="inline-flex min-h-11 items-center rounded-full border border-line px-4 text-sm text-mute2 line-through opacity-60"
+              >
+                {h}
+              </span>
+            );
+          }
+          return (
+            <Chip
+              key={h}
+              ativo={s.horaMin === h}
+              onClick={() => {
+                setDetalhe(null);
+                s.setHoraMin(h);
+              }}
+            >
+              {h}
+            </Chip>
+          );
+        })}
         {s.base && slots.length === 0 ? (
           <p className="px-4 text-sm text-mute">Sem horários neste dia. Escolha outra data.</p>
         ) : null}
       </div>
+      {detalhe ? (
+        <Aviso tom="acao" titulo={`${detalhe.label} · Ocupado`}>
+          {detalhe.ocupantes.map((o) => (
+            <p key={o.id}>
+              {o.cliente} · {o.servico} · {o.duracaoMin} min
+            </p>
+          ))}
+          {confirmarEncaixe ? (
+            <>
+              <p className="mt-2">Este horário já possui um atendimento. Deseja realmente criar um encaixe?</p>
+              {!s.pronto ? (
+                <p className="mt-1 text-sm text-mute">Escolha o cliente e o serviço antes de encaixar.</p>
+              ) : null}
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="rounded-full"
+                  onClick={() => setConfirmarEncaixe(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="rounded-full"
+                  disabled={!s.pronto || s.salvando}
+                  onClick={() => {
+                    s.setHoraMin(detalhe.label);
+                    void s.salvar(detalhe.iso, true);
+                  }}
+                >
+                  Confirmar encaixe
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-full"
+                onClick={() => setDetalhe(null)}
+              >
+                Fechar
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => setConfirmarEncaixe(true)}
+              >
+                Encaixar
+              </Button>
+            </div>
+          )}
+        </Aviso>
+      ) : null}
     </SecaoDeFormulario>
   );
 }
