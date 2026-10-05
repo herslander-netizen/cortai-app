@@ -1,5 +1,153 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790951979163,
+      "tag": "0000_add_client_service_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790955385353,
+      "tag": "0001_secure_public_appointment_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790964336335,
+      "tag": "0002_teste_gratis_45_dias",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790968954394,
+      "tag": "0003_push_equipe",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790969969879,
+      "tag": "0004_push_estado_do_aparelho",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790998433422,
+      "tag": "0005_eventos_funil",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791002340279,
+      "tag": "0006_lista_espera_automatica",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791030969754,
+      "tag": "0007_apresentacao_ativa",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791041538076,
+      "tag": "0008_create_conexoes_sociais",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791044093358,
+      "tag": "0009_clientes_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791045153054,
+      "tag": "0010_comandas_codigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791046472296,
+      "tag": "0011_perfis_contexto_ativo",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791047160342,
+      "tag": "0012_create_postagens_sociais",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791053317281,
+      "tag": "0013_comanda_nasce_com_agendamento",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791059893077,
+      "tag": "0014_pix_informado_pelo_cliente",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791077380479,
+      "tag": "0015_cerebro_cortai_pausa_ia",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791078584420,
+      "tag": "0016_telefones_da_equipe",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791079171104,
+      "tag": "0017_notificacoes_eventos_destinatario_prioridade",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791079193558,
+      "tag": "0018_notificacoes_esconder_trilha_do_cliente",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791079580912,
+      "tag": "0019_notificar_agendamento_com_evento",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791080330969,
+      "tag": "0020_push_sininho_e_versao_remarcacao",
+      "breakpoints": true
+    }
+  ]
 }
