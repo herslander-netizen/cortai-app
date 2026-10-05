@@ -149,73 +149,82 @@ export async function ofertarVaga(
 
   // Ordem real (posição, entrada, id) em lotes de 200, até o fim da fila;
   // para no primeiro compatível válido ou após 20 candidatos compatíveis.
+  // Duas passadas pela fila inteira: primeiro só quem pediu exatamente este dia e
+  // horário (em toda a fila, não por lote), depois todos os demais na ordem real.
   let tentativas = 0;
-  for (let de = 0; tentativas < TENTATIVAS_POR_VAGA; de += LOTE_DA_FILA) {
-    const { data: lote } = await db
-      .from("fila_de_espera")
-      .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
-      .eq("tenant_id", ag.tenant_id)
-      .eq("status", "aguardando")
-      .not("janela_preferida", "is", null)
-      .or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`)
-      .order("posicao", { ascending: true, nullsFirst: false })
-      .order("criado_em", { ascending: true })
-      .order("id", { ascending: true })
-      .range(de, de + LOTE_DA_FILA - 1);
-    const prefs: (PreferenciaDaFila & { clienteId: string })[] = (lote ?? []).map((f) => ({
-      id: f.id,
-      posicao: f.posicao ?? 0,
-      criadoEm: f.criado_em,
-      profissionalId: f.profissional_id,
-      servicoId: f.servico_id,
-      janela: (f.janela_preferida ?? null) as PreferenciaDaFila["janela"],
-      clienteId: f.cliente_id,
-    }));
-    for (const c of candidatosDaVaga(prefs, vaga, mapa, jaOfertados)) {
-      if (tentativas++ >= TENTATIVAS_POR_VAGA) break;
-      const cand = prefs.find((x) => x.id === c.id)!;
-      const servico = mapa.get(servicoDaEntrada(c, vaga))!;
-      // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
-      try {
-        const conflito = await validarAgendamento(db, {
-          tenantId: ag.tenant_id,
-          servico,
-          profissionalId,
-          inicio: new Date(inicioMs),
-          clienteId: cand.clienteId,
-        });
-        if (conflito) continue;
-      } catch {
-        continue;
-      }
-      const agoraOferta = Date.now();
-      if (!ofertaViavel(agoraOferta, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
-      const { data: oferta, error } = await db
-        .from("ofertas_da_fila")
-        .insert({
-          tenant_id: ag.tenant_id,
-          fila_id: c.id,
-          agendamento_liberado_id: ag.id,
-          profissional_id: profissionalId,
-          servico_id: servico.id,
-          inicio: ag.inicio,
-          fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
-          expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs)).toISOString(),
-        })
-        .select("id, token")
-        .maybeSingle();
-      // Índice único: outra execução já ofertou esta vaga.
-      if (error || !oferta) return { ofertaId: null, motivo: "concorrente" };
-      await db
+  for (const soExatos of [true, false])
+    for (let de = 0; tentativas < TENTATIVAS_POR_VAGA; de += LOTE_DA_FILA) {
+      let consulta = db
         .from("fila_de_espera")
-        .update({ status: "avisado", avisado_em: new Date().toISOString() })
-        .eq("id", c.id)
-        .eq("status", "aguardando");
-      await enviarOferta(oferta.id).catch(() => undefined);
-      return { ofertaId: oferta.id };
+        .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
+        .eq("tenant_id", ag.tenant_id)
+        .eq("status", "aguardando")
+        .not("janela_preferida", "is", null)
+        .or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`)
+        .order("posicao", { ascending: true, nullsFirst: false })
+        .order("criado_em", { ascending: true })
+        .order("id", { ascending: true })
+        .range(de, de + LOTE_DA_FILA - 1);
+      if (soExatos)
+        consulta = consulta
+          .eq("janela_preferida->>horario", p.hora)
+          .eq("janela_preferida->>dia", p.diaLocal);
+      const { data: lote } = await consulta;
+      const prefs: (PreferenciaDaFila & { clienteId: string })[] = (lote ?? []).map((f) => ({
+        id: f.id,
+        posicao: f.posicao ?? 0,
+        criadoEm: f.criado_em,
+        profissionalId: f.profissional_id,
+        servicoId: f.servico_id,
+        janela: (f.janela_preferida ?? null) as PreferenciaDaFila["janela"],
+        clienteId: f.cliente_id,
+      }));
+      for (const c of candidatosDaVaga(prefs, vaga, mapa, jaOfertados)) {
+        if (tentativas++ >= TENTATIVAS_POR_VAGA) break;
+        jaOfertados.add(c.id); // não reavaliar na segunda passada
+        const cand = prefs.find((x) => x.id === c.id)!;
+        const servico = mapa.get(servicoDaEntrada(c, vaga))!;
+        // Motor oficial: horário de funcionamento, antecedência, janela, folga e conflito do cliente.
+        try {
+          const conflito = await validarAgendamento(db, {
+            tenantId: ag.tenant_id,
+            servico,
+            profissionalId,
+            inicio: new Date(inicioMs),
+            clienteId: cand.clienteId,
+          });
+          if (conflito) continue;
+        } catch {
+          continue;
+        }
+        const agoraOferta = Date.now();
+        if (!ofertaViavel(agoraOferta, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
+        const { data: oferta, error } = await db
+          .from("ofertas_da_fila")
+          .insert({
+            tenant_id: ag.tenant_id,
+            fila_id: c.id,
+            agendamento_liberado_id: ag.id,
+            profissional_id: profissionalId,
+            servico_id: servico.id,
+            inicio: ag.inicio,
+            fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
+            expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs)).toISOString(),
+          })
+          .select("id, token")
+          .maybeSingle();
+        // Índice único: outra execução já ofertou esta vaga.
+        if (error || !oferta) return { ofertaId: null, motivo: "concorrente" };
+        await db
+          .from("fila_de_espera")
+          .update({ status: "avisado", avisado_em: new Date().toISOString() })
+          .eq("id", c.id)
+          .eq("status", "aguardando");
+        await enviarOferta(oferta.id).catch(() => undefined);
+        return { ofertaId: oferta.id };
+      }
+      if (!lote || lote.length < LOTE_DA_FILA) break;
     }
-    if (!lote || lote.length < LOTE_DA_FILA) break;
-  }
   return { ofertaId: null, motivo: "sem_compativel" };
 }
 

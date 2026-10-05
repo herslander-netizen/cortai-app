@@ -75,6 +75,7 @@ type OcupadoDaEquipe = {
   profissional_id: string | null;
   inicio: string;
   fim: string;
+  bloqueio?: boolean;
   cliente: string;
   servico: string;
   duracaoMin: number;
@@ -97,6 +98,17 @@ function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
       servico: i.servico,
       duracaoMin: i.duracaoMin,
     }));
+  const bloqueios: OcupadoDaEquipe[] = (agenda.data.bloqueios ?? []).map((b, i) => ({
+    id: `bloqueio-${i}`,
+    profissional_id: b.profissional_id,
+    inicio: b.inicio,
+    fim: b.fim,
+    bloqueio: true,
+    cliente: "",
+    servico: "",
+    duracaoMin: 0,
+  }));
+  ocupados.push(...bloqueios);
   return estadosDoDia({
     dia: s.data,
     servico: { id: servico.id, duracao_min: servico.duracao_min },

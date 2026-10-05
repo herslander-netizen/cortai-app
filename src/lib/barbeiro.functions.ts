@@ -108,6 +108,8 @@ export type AgendaDia = {
   tenant: { id: string; nome: string; segmento: Segmento };
   dia: string;
   itens: AgendaItem[];
+  /** Bloqueios por data e fora da escala (mesma fonte do motor). Pode faltar em cache antigo. */
+  bloqueios?: { profissional_id: string | null; inicio: string; fim: string }[];
   fila: FilaJanela[];
   horarios: {
     diaSemana: number;
@@ -218,7 +220,17 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       nome: p.nome,
       avatarUrl: p.avatar_url,
     }));
-    return { tenant, dia: iso, itens, fila, horarios, fuso, passoMin, profissionais };
+    const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+    const bloqueios = (
+      await ocupacoesExtras(db, {
+        tenantId: tenant.id,
+        fuso,
+        desde: de,
+        ate,
+        profissionalIds: profissionais.map((p) => p.id),
+      }).catch(() => [])
+    ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
+    return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
   });
 
 export const ESTADOS_ATENDIMENTO = [
