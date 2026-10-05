@@ -5867,15 +5867,16 @@ button.agenda-nome:hover {
   --agenda-fab-tamanho: 64px;
   --agenda-fab-icone: 28px;
   --agenda-fab-margem: 16px;
-  --agenda-fab-pe: var(--agenda-controle-pe);
+  --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
+  --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
   --agenda-composto-largura: 160px;
   --agenda-respiro-inferior: 112px;
 }
 .agenda-acao-fixa {
   position: fixed;
   z-index: 60;
-  right: max(20px, calc((100vw - 760px) / 2 + 32px));
-  bottom: calc(24px + env(safe-area-inset-bottom));
+  right: var(--agenda-fab-direita);
+  bottom: var(--agenda-fab-pe);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -5894,9 +5895,12 @@ button.agenda-nome:hover {
   height: var(--agenda-fab-icone);
 }
 @media (max-width: 600px) {
+  :root {
+    --agenda-fab-direita: var(--agenda-fab-margem);
+    --agenda-fab-pe: var(--agenda-controle-pe);
+  }
   .agenda-acao-fixa {
-    right: var(--agenda-fab-margem);
-    bottom: var(--agenda-fab-pe);
+    right: var(--agenda-fab-direita);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);
@@ -5938,8 +5942,8 @@ button.agenda-nome:hover {
 }
 .agenda-dial-lista {
   position: absolute;
-  right: max(20px, calc((100vw - 760px) / 2 + 32px));
-  bottom: calc(24px + env(safe-area-inset-bottom) + 56px + 8px);
+  right: var(--agenda-fab-direita);
+  bottom: calc(var(--agenda-fab-pe) + 56px + 8px);
   display: flex;
   max-height: calc(100dvh - 24px - env(safe-area-inset-bottom) - 56px - 24px);
   flex-direction: column-reverse;
@@ -5950,7 +5954,7 @@ button.agenda-nome:hover {
 }
 @media (max-width: 600px) {
   .agenda-dial-lista {
-    right: var(--agenda-fab-margem);
+    right: var(--agenda-fab-direita);
     bottom: calc(var(--agenda-fab-pe) + var(--agenda-fab-tamanho) + 8px);
     max-height: calc(100dvh - var(--agenda-fab-pe) - var(--agenda-fab-tamanho) - 24px);
   }
