@@ -143,6 +143,7 @@ export async function ofertarVaga(
     profissionalId,
     diaLocal: p.diaLocal,
     horaLocal: p.horaLocal,
+    horaMinLocal: p.hora,
     servicoLiberadoId,
   };
 
@@ -224,7 +225,7 @@ async function enviarOferta(ofertaId: string) {
   const { data: o } = await db
     .from("ofertas_da_fila")
     .select(
-      "id, token, tenant_id, inicio, expira_em, servicos(nome), profissionais(nome), fila_de_espera(cliente_id, clientes(nome, telefone))",
+      "id, token, tenant_id, inicio, expira_em, servicos(nome), profissionais(nome), fila_de_espera(cliente_id, janela_preferida, clientes(nome, telefone))",
     )
     .eq("id", ofertaId)
     .maybeSingle();
@@ -276,7 +277,20 @@ async function enviarOferta(ofertaId: string) {
     .eq("id", o.tenant_id)
     .maybeSingle();
   const negocio = tenant?.nome ?? "Negócio";
-  const texto = [
+  const janelaPedida = (
+    o.fila_de_espera as { janela_preferida?: { horario?: string } | null } | null
+  )?.janela_preferida;
+  const pediuEsteHorario = janelaPedida?.horario === p.hora;
+  const texto = pediuEsteHorario
+    ? [
+        `🔔 ${nome ? `${nome}, s` : "S"}eu horário ficou disponível em ${negocio}!`,
+        `${p.dia} às ${p.hora} está disponível para você.`,
+        `Serviço: ${servico}${profissional ? `\nProfissional: ${profissional}` : ""}`,
+        "Você entrou na lista de espera para esse horário.",
+        "",
+        `Responda até ${prazo}. Se preferir: ${linkDaOferta(o.token)}`,
+      ].join("\n")
+    : [
     `${nome ? `${nome}, a` : "A"}briu uma vaga da sua lista de espera em ${negocio}.`,
     `${servico}${profissional ? ` com ${profissional}` : ""} · ${p.dia} às ${p.hora}.`,
     "",

@@ -9,7 +9,7 @@ export type PreferenciaDaFila = {
   criadoEm: string;
   profissionalId: string | null;
   servicoId: string | null;
-  janela: { inicio?: number; fim?: number; dia?: string } | null;
+  janela: { inicio?: number; fim?: number; dia?: string; horario?: string } | null;
 };
 
 export type ServicoDaVaga = { id: string; duracao_min: number; profissional_ids?: string[] | null };
@@ -22,6 +22,8 @@ export type Vaga = {
   /** Dia (YYYY-MM-DD) e hora local no fuso do negócio. */
   diaLocal: string;
   horaLocal: number;
+  /** "HH:MM" local, para quem pediu um horário específico. */
+  horaMinLocal?: string;
   servicoLiberadoId: string;
 };
 
@@ -37,6 +39,7 @@ export function entradaCombina(
   if (p.profissionalId && p.profissionalId !== vaga.profissionalId) return false;
   const j = p.janela ?? {};
   if (j.dia && j.dia !== vaga.diaLocal) return false;
+  if (j.horario && vaga.horaMinLocal && j.horario !== vaga.horaMinLocal) return false;
   if (typeof j.inicio === "number" && typeof j.fim === "number") {
     if (vaga.horaLocal < j.inicio || vaga.horaLocal >= j.fim) return false;
   }
@@ -58,8 +61,11 @@ export function candidatosDaVaga(
   servicos: Map<string, ServicoDaVaga>,
   jaOfertados: Set<string> = new Set(),
 ): PreferenciaDaFila[] {
+  const exato = (p: PreferenciaDaFila) =>
+    p.janela?.horario && p.janela.horario === vaga.horaMinLocal ? 0 : 1;
+  // Quem pediu exatamente este horário vem antes; dentro de cada grupo vale a ordem da fila.
   return [...fila]
-    .sort(ordemDaFila)
+    .sort((a, b) => exato(a) - exato(b) || ordemDaFila(a, b))
     .filter((p) => !jaOfertados.has(p.id) && entradaCombina(p, vaga, servicos));
 }
 
