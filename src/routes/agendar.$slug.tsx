@@ -30,6 +30,7 @@ import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { brl } from "@/lib/format";
 import { hojeNoFuso, normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
+import { HorariosOcupados } from "@/components/agendamento/HorariosOcupados";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
@@ -137,6 +138,7 @@ function AgendamentoPublico() {
     setDia,
     porDia,
     agenda,
+    ocupadosDoDia,
     inicio: horario,
     setInicio: setHorario,
     escolhido,
@@ -645,7 +647,18 @@ function AgendamentoPublico() {
                 </button>
               ))}
             </div>
-          ) : (
+          ) : null}
+          {servicoId && dia && !agenda.fechado ? (
+            <HorariosOcupados
+              ocupados={ocupadosDoDia}
+              dia={dia}
+              servicoId={servicoId}
+              slug={data.tenant.slug}
+              listaDeEspera={Boolean(data.tenant.usaListaDeEspera)}
+            />
+          ) : null}
+          {agenda.fechado || agenda.opcoes.length ? null : (
+
             <div className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
               <p>Dia lotado. Veja os próximos dias com vaga:</p>
               <div className="mt-3 flex flex-wrap gap-2">
