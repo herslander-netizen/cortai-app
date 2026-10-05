@@ -31,6 +31,7 @@
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
 - Elementos flutuantes da Agenda dependem da rota ativa e do contexto de sobreposição compartilhado pelo layout — evita portais persistirem entre telas.
+- Ações rápidas do cabeçalho aparecem só em rotas operacionais explicitamente permitidas; a Agenda mantém seu FAB próprio — evita ações globais fora de contexto.
 - Movimento: escala 120/200/280 ms, só transform/opacity, cascata até 6 itens, redução de movimento global.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.

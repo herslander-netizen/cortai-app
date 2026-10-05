@@ -12,7 +12,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SinoDeAvisos } from "@/components/notificacoes/SinoDeAvisos";
-import { AcoesRapidas } from "@/components/barbeiro/AcoesRapidas";
+import {
+  AcoesRapidas,
+  deveMostrarAcoesRapidasNoCabecalho,
+} from "@/components/barbeiro/AcoesRapidas";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { DrawerAjustes } from "@/components/layout/DrawerAjustes";
 import { DrawerDestaques } from "@/components/layout/DrawerDestaques";
@@ -61,6 +64,7 @@ export function ManagementHeader() {
   const celular = useMediaQuery("(max-width: 767px)");
   const inicioDaBorda = useRef<{ x: number; y: number } | null>(null);
   const caminho = useRouterState({ select: (state) => state.location.pathname });
+  const mostrarAcoesRapidas = deveMostrarAcoesRapidasNoCabecalho(caminho) && !aberto;
   const { data: sessao } = useQuery({
     queryKey: ["sessao"],
     queryFn: () => getSessao(),
@@ -324,7 +328,7 @@ export function ManagementHeader() {
         </Sheet>
         <div id="topo-centro" className="flex min-w-0 flex-1 justify-center md:hidden" />
         <div className="flex items-center gap-1">
-          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AcoesRapidas />}
+          {mostrarAcoesRapidas ? <AcoesRapidas /> : null}
           <SinoDeAvisos />
         </div>
       </div>
