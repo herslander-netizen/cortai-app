@@ -78,7 +78,7 @@ function EsperaPage() {
               autoComplete="name"
               enterKeyHint="next"
               onChange={(e) => setNome(e.target.value)}
-              className="input-premium mt-1 w-full"
+              className="field-control mt-1 w-full"
             />
           </label>
           <label className="mt-4 block">
@@ -89,7 +89,7 @@ function EsperaPage() {
               autoComplete="tel"
               enterKeyHint="done"
               onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-              className="input-premium mt-1 w-full"
+              className="field-control mt-1 w-full"
               placeholder="(00) 00000-0000"
             />
           </label>

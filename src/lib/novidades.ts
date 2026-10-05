@@ -10,7 +10,9 @@ export const NOVIDADES: readonly string[] = [
   'Notificações em tela cheia, com abas "Não lidas" e "Todas".',
   "Visual mais limpo e leve, com novo fundo no modo claro e escuro.",
   "Agenda sem rodapé, com dica de uso que aparece só uma vez.",
+  "Menu lateral com o desempenho da sua página (visitas, agendamentos e conversão) e convite para ativar notificações.",
   "Para barbearias, salões e outros negócios de beleza: o Cortaí se adapta ao seu tipo de negócio.",
+  "Telas de cadastro e perfil do cliente redesenhadas, com textos revisados.",
 ];
 
 export function lerNovidadesVista(): string | null {

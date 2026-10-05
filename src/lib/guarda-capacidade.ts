@@ -22,6 +22,10 @@ export async function exigirCapacidade(queryClient: QueryClient, recurso: ChaveD
     if (capacidades.liberados[recurso] === false) {
       throw redirect({ to: "/barbeiro/plano" });
     }
+    // Desligado pelo dono em Funcionalidades: os dados ficam guardados.
+    if (capacidades.ativos[recurso] === false) {
+      throw redirect({ to: "/barbeiro/funcionalidades" });
+    }
   } catch (erro) {
     if (isRedirect(erro)) throw erro;
     // Falha de leitura não pode trancar a barbearia fora do próprio painel.

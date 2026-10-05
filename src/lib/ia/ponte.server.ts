@@ -1,4 +1,7 @@
 /**
+ * @deprecated Integração externa com a ALVO IA. O caminho canônico é o cérebro
+ * interno em `src/lib/brain`; nada do fluxo novo chama este adaptador.
+ *
  * Ponte de ENTRADA: ALVO IA / CortAI → Cortaí.
  *
  * O atendente inteligente nunca fala com o banco e nunca recebe um `tenant_id`

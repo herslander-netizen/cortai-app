@@ -433,6 +433,16 @@ export async function processarMensagemRecebida(input: {
   }
 
   const telefone = somenteDigitos(input.telefone);
+  // Equipe confirmando o próprio WhatsApp ("CODIGO 123456"): antes de qualquer menu.
+  if (input.tipo === "text") {
+    const { tentarVerificarPorMensagem } = await import("./identidade.server");
+    const resposta = await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null);
+    if (resposta) {
+      const { gatewayDeWhatsapp } = await import("./gateway.server");
+      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, resposta).catch(() => undefined);
+      return { tratada: true, motivo: "verificacao_equipe" };
+    }
+  }
   let tenantId = conexao.tenant_id;
   if ((conexao as { compartilhada?: boolean }).compartilhada) {
     const r = await negocioDoNumeroCompartilhado(
@@ -465,7 +475,7 @@ export async function processarMensagemRecebida(input: {
           input.sessaoId,
           telefone,
           r.menu ??
-            "Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: https://cortai.dev",
+            "Olá! Aqui é o CortAI. Me diga o nome do lugar onde você quer ser atendido e eu continuo por aqui.",
         )
         .catch(() => undefined);
       return { tratada: true, motivo: "sem_contexto_transacional" };
@@ -547,9 +557,24 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "acao_contextual" };
     }
   }
+  // Secretária CortAI: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
+  if (input.tipo === "text" && input.conteudo.trim()) {
+    const respondida = await responderComCerebro({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: conexao.sessao_id,
+      telefone,
+      texto: input.conteudo,
+    }).catch((e: unknown) => {
+      console.error("[cerebro] whatsapp", e);
+      return false;
+    });
+    if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
+  }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
-  const fallback = `Este número é usado pelo Cortaí para avisos do seu atendimento. Para agendar ou gerenciar seu horário, use o Cortaí: ${link}`;
+  const fallback = `Recebi sua mensagem! Estou com instabilidade agora — pode me escrever de novo daqui a pouco, que eu continuo por aqui. Se preferir, também dá para agendar pelo link: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")
@@ -615,6 +640,117 @@ export async function atualizarEstadoDaConexao(
     acao: `whatsapp.${status}`,
     alvo: sessaoId,
     detalhes: { numero: estado.numero ?? null },
+  });
+  return true;
+}
+
+/**
+ * Entrega a mensagem livre ao cérebro CortAI (persona Secretária) e envia a
+ * resposta pelo provedor do negócio. Devolve false quando não respondeu
+ * (atendimento humano, plano, IA desligada/pausada, limite) para o chamador
+ * seguir a orientação fixa — o canal nunca trava.
+ */
+async function responderComCerebro(input: {
+  tenantId: string;
+  conversaId: string;
+  conexaoId: string;
+  sessaoId: string;
+  telefone: string;
+  texto: string;
+}): Promise<boolean> {
+  const db = await admin();
+  const { iaDisponivel } = await import("@/lib/brain/gateway.server");
+  if (!iaDisponivel()) return false;
+  const { data: conversa } = await db
+    .from("conversas_whatsapp")
+    .select("modo_humano, ia_ativa, contexto")
+    .eq("id", input.conversaId)
+    .maybeSingle();
+  // Quem fala: equipe com telefone verificado deste negócio, ou cliente.
+  const { identificarEquipe } = await import("./identidade.server");
+  const equipe = await identificarEquipe(input.tenantId, input.telefone).catch(() => null);
+  if (!conversa || conversa.ia_ativa === false) return false;
+  if (!equipe && conversa.modo_humano) return false;
+  const config = await configuracaoDoTenant(input.tenantId);
+  if (!equipe && !config.responderWhatsapp) return false;
+  if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
+  const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
+  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone, !!equipe)) return false;
+
+  const [{ data: tenant }, { data: historico }] = await Promise.all([
+    db.from("tenants").select("nome, segmento").eq("id", input.tenantId).maybeSingle(),
+    db
+      .from("mensagens_whatsapp")
+      .select("direcao, conteudo")
+      .eq("conversa_id", input.conversaId)
+      .order("criado_em", { ascending: false })
+      .limit(17),
+  ]);
+  // A mensagem atual já foi gravada; o restante é o histórico.
+  const linhas = (historico ?? []).reverse();
+  if (linhas.length && linhas[linhas.length - 1]?.direcao === "entrada") linhas.pop();
+  const contexto = (conversa.contexto ?? {}) as Record<string, any>;
+  const { pensarCortai } = await import("@/lib/brain/agente.server");
+  const r = await pensarCortai({
+    ctx: {
+      tenantId: input.tenantId,
+      canal: "whatsapp",
+      ator: input.telefone,
+      telefoneCliente: equipe ? null : input.telefone,
+      papel: equipe?.papel ?? "cliente",
+      profissionalId: equipe?.profissionalId ?? null,
+    },
+    persona: {
+      nome: equipe
+        ? `o CortAI${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
+        : `a secretária de ${tenant?.nome ?? "o negócio"}`,
+      negocio: tenant?.nome ?? "o negócio",
+      segmento: tenant?.segmento ?? null,
+      tom: config.tom ?? null,
+      instrucoesExtras: config.instrucoesExtras || null,
+    },
+    historico: linhas
+      .filter((l) => l.conteudo)
+      .map((l) => ({
+        autor: l.direcao === "entrada" ? ("usuario" as const) : ("assistente" as const),
+        texto: String(l.conteudo),
+      })),
+    mensagem: input.texto,
+    pendente: contexto["cerebro"]?.pendente ?? null,
+    conversaId: input.conversaId,
+  });
+  if (r.indisponivel && !r.acoes.some((a) => a.sucesso)) return false;
+
+  await db
+    .from("conversas_whatsapp")
+    .update({
+      contexto: { ...contexto, cerebro: { pendente: r.pendente } } as never,
+      ...(r.pedirHumano && !equipe ? { modo_humano: true } : {}),
+    })
+    .eq("id", input.conversaId);
+  if (r.pedirHumano && !equipe) {
+    await db
+      .rpc("criar_notificacao", {
+        _tenant: input.tenantId,
+        _tipo: "whatsapp_humano",
+        _titulo: "Cliente pediu atendimento",
+        _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
+        _link: "/painel",
+      })
+      .then(
+        () => undefined,
+        () => undefined,
+      );
+  }
+  if (!r.texto) return false;
+  await enviarPelaBarbearia({
+    tenantId: input.tenantId,
+    conversaId: input.conversaId,
+    conexaoId: input.conexaoId,
+    sessaoId: input.sessaoId,
+    telefone: input.telefone,
+    texto: r.texto,
+    porIa: true,
   });
   return true;
 }

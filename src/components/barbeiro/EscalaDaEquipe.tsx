@@ -78,7 +78,7 @@ export function EscalaDaEquipe() {
           aria-label="Profissional"
           value={id}
           onChange={(e) => setProf(e.target.value)}
-          className="input-premium mt-3 min-h-11 w-full"
+          className="field-control mt-3 min-h-11 w-full"
         >
           {equipe.data.map((p) => (
             <option key={p.id} value={p.id}>
@@ -99,7 +99,7 @@ export function EscalaDaEquipe() {
                   v.map((x, j) => (j === i ? { ...x, modo: e.target.value as Modo } : x)),
                 )
               }
-              className="input-premium min-h-11 flex-1"
+              className="field-control min-h-11 flex-1"
             >
               <option value="negocio">Expediente do negócio</option>
               <option value="folga">Folga</option>
@@ -114,7 +114,7 @@ export function EscalaDaEquipe() {
                   onChange={(e) =>
                     setDias((v) => v.map((x, j) => (j === i ? { ...x, abre: e.target.value } : x)))
                   }
-                  className="input-premium min-h-11 flex-1"
+                  className="field-control min-h-11 flex-1"
                 />
                 <span className="text-mute">até</span>
                 <input
@@ -124,7 +124,7 @@ export function EscalaDaEquipe() {
                   onChange={(e) =>
                     setDias((v) => v.map((x, j) => (j === i ? { ...x, fecha: e.target.value } : x)))
                   }
-                  className="input-premium min-h-11 flex-1"
+                  className="field-control min-h-11 flex-1"
                 />
               </span>
             ) : null}

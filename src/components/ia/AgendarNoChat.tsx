@@ -221,7 +221,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
         {grade.isLoading ? (
           <EsqueletoAgenda linhas={2} onTentarDeNovo={() => void grade.refetch()} />
         ) : grade.data?.fechado ? (
-          <p className="text-xs text-mute">Barbearia fechada neste dia.</p>
+          <p className="text-xs text-mute">Fechado neste dia.</p>
         ) : (
           <>
             <div className="grid grid-cols-4 gap-1.5">
@@ -267,13 +267,13 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
             Horário escolhido: <span className="font-semibold text-paper">{escolhido.label}</span>
           </p>
           <input
-            className="input-premium"
+            className="field-control"
             placeholder="Nome do cliente"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
           />
           <input
-            className="input-premium"
+            className="field-control"
             placeholder="WhatsApp com DDD"
             inputMode="tel"
             autoComplete="tel"

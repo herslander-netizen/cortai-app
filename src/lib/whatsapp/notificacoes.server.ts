@@ -1,9 +1,10 @@
 /**
- * WhatsApp operacional do Cortaí — mensagens transacionais, sem nenhuma IA.
+ * Avisos do CortAI ao cliente pelo WhatsApp — entrega determinística.
  *
- * Tudo aqui é determinístico: evento do Cortaí → regra → template → envio pela
- * MESMA infraestrutura de WhatsApp já existente (`conexoes_whatsapp`,
- * `conversas_whatsapp`, `mensagens_whatsapp`, gateway Evolution).
+ * Evento do Cortaí → regra → texto/modelo aprovado → envio pela conexão oficial
+ * (`conexoes_whatsapp`, `conversas_whatsapp`, `mensagens_whatsapp`). O aviso pode
+ * abrir ou continuar uma conversa: respostas livres seguem para o cérebro CortAI
+ * em `fluxo.server.ts`; botões são tratados no servidor.
  *
  * Garantias:
  * - nunca bloqueia o agendamento: qualquer falha vira registro em
@@ -278,8 +279,8 @@ export function montarMensagem(
     );
   } else if (tipo === "fallback_informativo_whatsapp") {
     blocos.push(
-      "Este número é usado pelo Cortaí para avisos do seu atendimento.",
-      linha(d.linkAgendamento, "Para agendar ou gerenciar seu horário, use o Cortaí: "),
+      "Olá! Aqui é o CortAI. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
+      linha(d.linkAgendamento, "Se preferir, use o link: "),
     );
   } else if (tipo === "retorno" && d.textoRetorno) {
     blocos.push(d.textoRetorno);
@@ -300,7 +301,7 @@ export function montarMensagem(
       linha(d.servico, "Serviço: "),
     );
     if (d.linkAgendamento) {
-      blocos.push("", "Se quiser realizar um novo agendamento:", d.linkAgendamento);
+      blocos.push("", "Quer marcar outro horário? É só responder aqui.", `Ou pelo link: ${d.linkAgendamento}`);
     }
   }
 
@@ -547,6 +548,47 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         : true;
   if (!(await automacaoAtiva(ag.tenant_id, tipo, padrao))) {
     return { enviado: false, motivo: "Automação desligada para este negócio." };
+  }
+
+  // Regra única de avisos: registra o evento do cliente e obedece à decisão do canal.
+  const { EVENTO_DO_CLIENTE } = await import("@/lib/avisos/catalogo");
+  const eventoDoCliente = EVENTO_DO_CLIENTE[tipo];
+  if (eventoDoCliente) {
+    const { emitirAviso } = await import("@/lib/avisos/emitir.server");
+    const versao = `${tipo}:${ag.inicio}`;
+    const emitido = await emitirAviso({
+      tenantId: ag.tenant_id,
+      evento: eventoDoCliente,
+      agendamentoId: ag.id,
+      corpo: null,
+      link: null,
+      versao,
+      alvos: [
+        {
+          destinatario: "cliente",
+          clienteId: ag.cliente_id,
+          contexto: {
+            // Plano, telefone, preferência e silêncio já conferidos acima.
+            temWhatsapp: true,
+            planoComWhatsapp: true,
+            consentimento: cliente?.opt_in_whatsapp === true,
+          },
+        },
+      ],
+    });
+    const wa = emitido.decisoes[0]?.find((d) => d.canal === "whatsapp");
+    if (wa && !wa.enviar) return { enviado: false, motivo: `Regra de avisos: ${wa.motivo}.` };
+    // Mudança no horário torna obsoletos os avisos anteriores do cliente.
+    if (eventoDoCliente === "agendamento_remarcado" || eventoDoCliente === "agendamento_cancelado") {
+      await db
+        .from("notificacoes")
+        .update({ obsoleta_em: new Date().toISOString() })
+        .eq("agendamento_id", ag.id)
+        .eq("destinatario_tipo", "cliente")
+        .is("obsoleta_em", null)
+        .not("chave_dedupe", "like", `%:${versao}`)
+        .then(undefined, () => undefined);
+    }
   }
 
   // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.

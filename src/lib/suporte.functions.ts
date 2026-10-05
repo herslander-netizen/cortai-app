@@ -103,7 +103,7 @@ export const getBarbeariaParaSuporte = createServerFn({ method: "GET" })
         .limit(30),
     ]);
     const tenant = tenantRes.data;
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
     const campos: Record<string, string | number | boolean | null> = {};
     for (const campo of CAMPOS_PUBLICOS) {
       const valor = (tenant as Record<string, unknown>)[campo];
@@ -174,7 +174,7 @@ export const salvarBarbeariaComoSuporte = createServerFn({ method: "POST" })
       .select("*")
       .eq("id", data.tenantId)
       .maybeSingle();
-    if (!atual) throw new Error("Barbearia não encontrada.");
+    if (!atual) throw new Error("Negócio não encontrado.");
 
     const mudancas: Record<string, { de: unknown; para: unknown }> = {};
     const patch: Record<string, unknown> = {};

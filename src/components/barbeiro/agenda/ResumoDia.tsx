@@ -1,10 +1,8 @@
-import type { ReactElement } from "react";
-
 import { ValorAnimado } from "@/components/painel/ValorAnimado";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 
-import { contarLivres, disponibilidadeHoje, resumoOperacional } from "./tempo";
+import { contarLivres, resumoOperacional } from "./tempo";
 
 export function ResumoDia({
   itens,
@@ -14,8 +12,8 @@ export function ResumoDia({
   passoMin,
   profissionalIds,
   ehHoje,
-  fila,
-  rotuloAtendimento,
+  fila: _fila,
+  rotuloAtendimento: _rotuloAtendimento,
 }: {
   itens: AgendaItem[];
   horarios: AgendaDia["horarios"];
@@ -29,42 +27,18 @@ export function ResumoDia({
 }) {
   const agora = useAgora();
   const r = resumoOperacional(itens);
-  const livresHoje = ehHoje
-    ? disponibilidadeHoje({ itens, horarios, dia, fuso, profissionalIds, agora })
-    : null;
-  const livres = ehHoje
-    ? 0
-    : contarLivres({ horarios, dia, fuso, itens, profissionalIds, passoMin, agora, ehHoje });
+  const livres = contarLivres({ horarios, dia, fuso, itens, profissionalIds, passoMin, agora, ehHoje });
   const partes = [
-    <span key="fazer">
-      <ValorAnimado valor={r.aFazer} formatar={String} primeiraCarga />{" "}
-      {r.aFazer === 1 ? "restante" : "restantes"}
+    <span key="atendimento">
+      <ValorAnimado valor={r.emAtendimento} formatar={String} primeiraCarga /> em atendimento
     </span>,
-    r.emAtendimento ? (
-      <span key="atendimento">
-        <ValorAnimado valor={r.emAtendimento} formatar={String} primeiraCarga />{" "}
-        {rotuloAtendimento.toLocaleLowerCase("pt-BR")}
-      </span>
-    ) : null,
-    r.finalizados ? (
-      <span key="feitos">
-        <ValorAnimado valor={r.finalizados} formatar={String} primeiraCarga />{" "}
-        {r.finalizados === 1 ? "feito" : "feitos"}
-      </span>
-    ) : null,
-    livresHoje ? <span key="livres-hoje">{livresHoje}</span> : null,
-    !ehHoje ? (
-      <span key="livres">
-        <ValorAnimado valor={livres} formatar={String} primeiraCarga />{" "}
-        {livres === 1 ? "horário livre" : "horários livres"}
-      </span>
-    ) : null,
-    fila ? (
-      <span key="fila">
-        <ValorAnimado valor={fila} formatar={String} primeiraCarga /> na fila
-      </span>
-    ) : null,
-  ].filter((parte): parte is ReactElement => Boolean(parte));
+    <span key="feitos">
+      <ValorAnimado valor={r.finalizados} formatar={String} primeiraCarga /> concluídos
+    </span>,
+    <span key="livres">
+      <ValorAnimado valor={livres} formatar={String} primeiraCarga /> horários livres
+    </span>,
+  ];
   return (
     <>
       {partes.map((parte, indice) => (

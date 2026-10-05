@@ -66,7 +66,7 @@ export function PreferenciasDePrivacidade() {
         }}
         className="mt-4 h-10 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
       >
-        Salvar preferências
+        Salvar
       </button>
       {aviso ? <p className="mt-3 text-xs text-mute2">{aviso}</p> : null}
       {consentimento ? (

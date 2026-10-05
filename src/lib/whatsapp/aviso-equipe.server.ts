@@ -1,9 +1,9 @@
 /**
  * Aviso para a equipe quando o cliente confirma o horário.
  *
- * Só o sininho (`notificacoes`): equipe não recebe aviso operacional por
- * WhatsApp (mensagem iniciada pela empresa falha fora da janela e gera custo).
- * O push da equipe vem em outra fase, a partir deste mesmo registro.
+ * O sininho (`notificacoes`) é a fonte da verdade; push e WhatsApp da equipe
+ * (`aviso-equipe-whatsapp.server.ts`, só para quem ligou e confirmou o número)
+ * saem do mesmo evento.
  *
  * Nunca lança: falha aqui jamais desfaz a confirmação do cliente.
  */
@@ -69,12 +69,15 @@ export async function avisarEquipeDaConfirmacao(agendamentoId: string): Promise<
       .filter(Boolean)
       .join(" · ");
 
-    await db.from("notificacoes").insert({
-      tenant_id: ag.tenant_id,
-      tipo: "agendamento_confirmado",
-      titulo: "Horário confirmado pelo cliente",
+    const { emitirAviso } = await import("@/lib/avisos/emitir.server");
+    await emitirAviso({
+      tenantId: ag.tenant_id,
+      evento: "agendamento_confirmado",
+      agendamentoId: ag.id,
       corpo: resumo,
       link,
+      // Sem pessoa definida: visível a toda a equipe, como antes.
+      alvos: [{ destinatario: "gestor", userId: null }],
     });
   } catch (e) {
     console.error("[whatsapp] aviso de confirmação falhou:", e instanceof Error ? e.message : e);

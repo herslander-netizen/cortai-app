@@ -1,4 +1,7 @@
 /**
+ * @deprecated Integração externa com a ALVO IA. O caminho canônico é o cérebro
+ * interno em `src/lib/brain`; nada do fluxo novo chama este adaptador.
+ *
  * Entrada de eventos da futura ALVO IA.
  *
  * Enquanto `ALVO_IA_WEBHOOK_SECRET` não existir, o endpoint responde 503 — não
