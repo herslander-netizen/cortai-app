@@ -84,15 +84,20 @@ function Passo({
   n,
   titulo,
   guia,
+  className,
   children,
 }: {
   n: number;
   titulo: string;
   guia?: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section data-guia={guia} className="border-t border-line py-6 first:border-t-0 first:pt-0">
+    <section
+      data-guia={guia}
+      className={`border-t border-line py-6 first:border-t-0 first:pt-0 ${className ?? ""}`}
+    >
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-xs text-mute">
           {n}
@@ -519,7 +524,12 @@ function Fluxo({
         )}
       </Passo>
 
-      <Passo n={6} titulo="Confirmação" guia="agendar-confirmar">
+      <Passo
+        n={6}
+        titulo="Confirmação"
+        guia="agendar-confirmar"
+        className="pb-[calc(6rem+env(safe-area-inset-bottom))]"
+      >
         {forma === "credito" ? (
           <p className="text-sm text-mute">
             Se cancelar até 4 horas antes, o crédito volta para a sua carteira. Depois disso ele é
