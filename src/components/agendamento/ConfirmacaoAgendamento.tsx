@@ -83,7 +83,7 @@ export function ConfirmacaoAgendamento({
     [confirmacao, fuso],
   );
   return (
-    <main className="agendamento-confirmacao min-h-dvh pb-12">
+    <main className="agendamento-confirmacao min-h-dvh pb-[calc(3rem+env(safe-area-inset-bottom))]">
       <header className="relative overflow-hidden px-5 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
         {capaUrl ? (
           <img

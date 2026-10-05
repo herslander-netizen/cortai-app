@@ -246,10 +246,10 @@ export function TicketComanda({
           </span>
         </section>
 
-        <div className="mt-4 flex items-center gap-3 rounded-[var(--raio-bloco)] bg-[var(--ticket-suave)] px-3 py-3">
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[var(--raio-bloco)] bg-[var(--ticket-suave)] px-3 py-3">
           <div className="min-w-0 flex-1">
             <Rotulo>CÓDIGO DA COMANDA</Rotulo>
-            <p className="break-all text-[17px] font-bold tabular-nums tracking-wide">
+            <p className="max-w-full overflow-x-auto whitespace-nowrap pb-1 text-[17px] font-bold tabular-nums tracking-wide">
               #{ticket.codigo}
             </p>
           </div>

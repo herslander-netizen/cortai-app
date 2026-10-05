@@ -499,7 +499,7 @@ function AgendamentoPublico() {
 
   return (
     <main
-      className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-5 pb-36 pt-10"
+      className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-5 pb-[calc(10rem+env(safe-area-inset-bottom))] pt-10"
       style={agendamentoStyle(data.pagina)}
     >
       <FontesDaMarca config={data.pagina} />
@@ -748,7 +748,7 @@ function AgendamentoPublico() {
         </p>
       ) : null}
 
-      <div className="agendamento-marca-barra fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink px-5 py-4">
+      <div className="agendamento-marca-barra fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
         <div className="mx-auto max-w-[520px]">
           {servico && escolhido ? (
             <p className="mb-2 truncate text-xs text-mute">

@@ -160,3 +160,4 @@
 - [ ] Validar a Secretária no WhatsApp com número real conectado (depende do número Meta ativo).
 - [ ] Push para todo aviso do sininho da equipe (sem depender do WhatsApp)
 - [ ] Remarcação sempre gera aviso novo ao cliente (trava de repetição por versão)
+
