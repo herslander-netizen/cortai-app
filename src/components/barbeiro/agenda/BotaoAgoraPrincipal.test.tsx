@@ -44,6 +44,8 @@ async function montar(
   onVisualizacao = vi.fn(),
   ehHoje = true,
   onHoje = vi.fn(),
+  menuAberto = false,
+  onAlternarMenu = vi.fn(),
 ) {
   prepararLargura(largura);
   host = document.createElement("div");
@@ -56,8 +58,8 @@ async function montar(
         onVisualizacao={onVisualizacao}
         ehHoje={ehHoje}
         onHoje={onHoje}
-        menuAberto={false}
-        onAlternarMenu={vi.fn()}
+        menuAberto={menuAberto}
+        onAlternarMenu={onAlternarMenu}
       />,
     ),
   );
@@ -82,6 +84,34 @@ describe("BotaoAgoraPrincipal", () => {
     act(() => botao?.click());
     expect(onVisualizacao).toHaveBeenCalledWith("lista");
     expect(botao?.querySelector("svg")).not.toBeNull();
+  });
+
+  it("mantém um único FAB e representa os estados fechado e aberto", async () => {
+    const onAlternarMenu = vi.fn();
+    await montar(390, "timeline", vi.fn(), true, vi.fn(), false, onAlternarMenu);
+    const fab = host?.querySelector<HTMLButtonElement>("[data-acoes-agenda]");
+    expect(host?.querySelectorAll("[data-acoes-agenda]")).toHaveLength(1);
+    expect(fab?.getAttribute("aria-expanded")).toBe("false");
+    expect(fab?.querySelector(".agenda-fab-icone-aberto")).toBeNull();
+    act(() => fab?.click());
+    expect(onAlternarMenu).toHaveBeenCalledOnce();
+
+    await act(async () =>
+      raiz?.render(
+        <BotaoAgoraPrincipal
+          visualizacao="timeline"
+          onVisualizacao={vi.fn()}
+          ehHoje
+          onHoje={vi.fn()}
+          menuAberto
+          onAlternarMenu={onAlternarMenu}
+        />,
+      ),
+    );
+    const aberto = host?.querySelector<HTMLButtonElement>("[data-acoes-agenda]");
+    expect(aberto?.getAttribute("aria-expanded")).toBe("true");
+    expect(aberto?.getAttribute("aria-label")).toBe("Fechar ações da agenda");
+    expect(aberto?.querySelector(".agenda-fab-icone-aberto")).not.toBeNull();
   });
 
   it("mantém cor e fundo da cápsula em todos os estados e solta o foco após toque", async () => {
