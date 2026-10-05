@@ -34,7 +34,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function montar(onAberto = vi.fn()) {
+function montar(onAberto = vi.fn(), visivel = true) {
   const acoes = {
     onNovoAgendamento: vi.fn(),
     onEncaixe: vi.fn(),
@@ -54,6 +54,7 @@ function montar(onAberto = vi.fn()) {
         mostrarFila={false}
         online
         ocupado={false}
+        visivel={visivel}
         {...acoes}
       />,
     );
@@ -89,5 +90,12 @@ describe("MenuAcoesAgenda", () => {
     act(() => botao?.click());
     expect(controles.onAberto).toHaveBeenCalledWith(false);
     expect(controles[callback]).toHaveBeenCalledOnce();
+  });
+
+  it("fecha e desmonta o menu quando o contexto deixa de estar visível", () => {
+    const onAberto = vi.fn();
+    montar(onAberto, false);
+    expect(document.querySelector(".agenda-dial")).toBeNull();
+    expect(onAberto).toHaveBeenCalledWith(false);
   });
 });

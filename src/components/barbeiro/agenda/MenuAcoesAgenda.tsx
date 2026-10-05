@@ -41,6 +41,7 @@ export function MenuAcoesAgenda({
   onChamarFila: _onChamarFila,
   onBloquear,
   onNovoCliente: _onNovoCliente,
+  visivel = true,
 }: {
   aberto: boolean;
   onAberto: (v: boolean) => void;
@@ -55,12 +56,17 @@ export function MenuAcoesAgenda({
   onChamarFila: () => void;
   onBloquear: () => void;
   onNovoCliente: () => void;
+  visivel?: boolean;
   /** Mantido por compatibilidade: o próprio "+" vira "X". */
   comBotaoFechar?: boolean;
 }) {
   const lista = useRef<HTMLDivElement>(null);
   const menos = useMenosMovimento();
   const eraAberto = useRef(false);
+
+  useEffect(() => {
+    if (!visivel && aberto) onAberto(false);
+  }, [aberto, onAberto, visivel]);
 
   useEffect(() => {
     if (aberto) {
@@ -138,7 +144,7 @@ export function MenuAcoesAgenda({
   // Foco/teclado começam em "Agendar horário": ordem do DOM invertida via flex-col-reverse.
   const ordemDom = [...acoes].reverse();
 
-  if (typeof document === "undefined") return null;
+  if (typeof document === "undefined" || !visivel) return null;
   return createPortal(
     <AnimatePresence>
       {aberto ? (

@@ -11,6 +11,7 @@ import { usePushNoApp } from "@/lib/push/use-push-no-app";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 import { EsqueletoCascoEquipe } from "@/components/layout/Esqueleto";
+import { ProvedorLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
@@ -30,22 +31,24 @@ function BarberLayout() {
   });
   return (
     <SegmentoProvider segmento={sessao?.segmento}>
-      <div className="management-shell equipe-shell">
-        <ManagementHeader />
-        {sessao?.tenantSlug === "demonstracao" ? (
-          <div className="selo-demo" role="status">
-            Ambiente de demonstração · dados fictícios
+      <ProvedorLayoutEquipe>
+        <div className="management-shell equipe-shell">
+          <ManagementHeader />
+          {sessao?.tenantSlug === "demonstracao" ? (
+            <div className="selo-demo" role="status">
+              Ambiente de demonstração · dados fictícios
+            </div>
+          ) : null}
+          <NavegacaoEquipe />
+          <div className="equipe-conteudo">
+            <AbasDaSecao />
+            <Outlet />
           </div>
-        ) : null}
-        <NavegacaoEquipe />
-        <div className="equipe-conteudo">
-          <AbasDaSecao />
-          <Outlet />
+          {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
+          <ConviteDeInstalacao posicao="topo" />
+          <AtivarAvisosNoAparelho equipe={sessao?.tenantId ?? null} posicao="topo" />
         </div>
-        {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
-        <ConviteDeInstalacao posicao="topo" />
-        <AtivarAvisosNoAparelho equipe={sessao?.tenantId ?? null} posicao="topo" />
-      </div>
+      </ProvedorLayoutEquipe>
     </SegmentoProvider>
   );
 }
