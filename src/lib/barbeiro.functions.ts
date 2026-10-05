@@ -121,7 +121,7 @@ export type AgendaDia = {
   /** Passo de horários configurado pelo negócio (minutos). */
   passoMin?: number;
   /** Profissionais ativos do negócio, mesmo sem atendimento no dia. */
-  profissionais?: { id: string; nome: string; avatarUrl?: string | null }[];
+  profissionais?: { id: string; nome: string }[];
 };
 
 export const getAgendaDia = createServerFn({ method: "GET" })
@@ -156,7 +156,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .order("dia_semana"),
       db
         .from("profissionais")
-        .select("id, nome, avatar_url")
+        .select("id, nome")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("nome"),
@@ -213,11 +213,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     }));
     const passo = Number(tenantRes.data?.passo_horarios_min);
     const passoMin = [15, 20, 30, 40].includes(passo) ? passo : 30;
-    const profissionais = (profsRes.data ?? []).map((p) => ({
-      id: p.id,
-      nome: p.nome,
-      avatarUrl: p.avatar_url,
-    }));
+    const profissionais = (profsRes.data ?? []).map((p) => ({ id: p.id, nome: p.nome }));
     return { tenant, dia: iso, itens, fila, horarios, fuso, passoMin, profissionais };
   });
 
@@ -1083,7 +1079,6 @@ function soDigitos(v: string) {
 export type ResultadoManual = {
   ok: boolean;
   agendamentoId?: string;
-  comandaId?: string | null;
   inicio?: string;
   clienteNome?: string;
   conflito?: {
@@ -1292,21 +1287,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       /* o agendamento já está salvo; a falha fica registrada no envio */
     }
 
-    // A comanda nasce junto (gatilho do banco); só lemos o id para abrir o ticket.
-    const { data: comanda } = await db
-      .from("comandas")
-      .select("id")
-      .eq("tenant_id", tenant.id)
-      .eq("agendamento_id", criado.agendamento_id)
-      .maybeSingle();
-
-    return {
-      ok: true,
-      agendamentoId: criado.agendamento_id,
-      comandaId: comanda?.id ?? null,
-      inicio: criado.inicio,
-      clienteNome,
-    };
+    return { ok: true, agendamentoId: criado.agendamento_id, inicio: criado.inicio, clienteNome };
   });
 
 /** Próximo horário realmente livre (hoje, dentro do funcionamento) para "atender agora". */

@@ -62,7 +62,6 @@ export type EnvioDaSecretaria = {
   enviadoEm: string | null;
   respondidoEm: string | null;
   erro: string | null;
-  erroCodigo: number | null;
 };
 
 export const listarEnviosDaSecretaria = createServerFn({ method: "GET" })
@@ -74,7 +73,7 @@ export const listarEnviosDaSecretaria = createServerFn({ method: "GET" })
     const { data, error } = await db
       .from("envios_de_whatsapp")
       .select(
-        "id, tipo, status, telefone, conteudo, tentativas, criado_em, enviado_em, respondido_em, erro, erro_codigo",
+        "id, tipo, status, telefone, conteudo, tentativas, criado_em, enviado_em, respondido_em, erro",
       )
       .eq("tenant_id", tenantId)
       .order("criado_em", { ascending: false })
@@ -91,7 +90,6 @@ export const listarEnviosDaSecretaria = createServerFn({ method: "GET" })
       enviadoEm: envio.enviado_em,
       respondidoEm: envio.respondido_em,
       erro: envio.erro,
-      erroCodigo: (envio as { erro_codigo?: number | null }).erro_codigo ?? null,
     }));
   });
 

@@ -1,6 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { IconeDaRede } from "@/components/marca/editor/IconesDasRedes";
-import { linkDaRede } from "@/lib/redes-do-negocio";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import {
   CalendarDays,
@@ -309,23 +307,6 @@ export function PaginaPublicaConteudo({
               </a>
             </Secao>
           ) : null}
-          {(() => {
-            const extras = (["tiktok", "youtube", "site"] as const)
-              .map((r) => ({ r, href: linkDaRede(r, config.redes?.[r]) }))
-              .filter((x) => x.href);
-            if (!extras.length) return null;
-            const nomes = { tiktok: "TikTok", youtube: "YouTube", site: "Site" };
-            return (
-              <Secao titulo="Redes sociais">
-                {extras.map(({ r, href }) => (
-                  <a key={r} className="brand-info-link" href={href!} target="_blank" rel="noreferrer">
-                    <IconeDaRede rede={r} />
-                    {nomes[r]}
-                  </a>
-                ))}
-              </Secao>
-            );
-          })()}
           {config.componentes.localizacao && tenant.endereco ? (
             <Secao titulo="Localização">
               <a

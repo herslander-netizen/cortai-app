@@ -13,7 +13,7 @@ async function tenantDoMembro(supabase: any, userId: string) {
     .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
-  if (!data) throw new Error("Você ainda não está vinculado a um negócio.");
+  if (!data) throw new Error("Você ainda não está vinculado a uma barbearia.");
   return data.tenant_id as string;
 }
 

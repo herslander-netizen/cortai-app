@@ -125,7 +125,7 @@ function HistoricoPage() {
       {proximos.length ? (
         <section>
           <p className="text-xs font-semibold uppercase text-mute">
-            {proximos.length === 1 ? "Seu próximo horário" : "Seus próximos horários"}
+            {proximos.length === 1 ? "Seu próximo corte" : "Seus próximos cortes"}
           </p>
           <div className="space-y-3">
             {proximos.map((p, indice) => (

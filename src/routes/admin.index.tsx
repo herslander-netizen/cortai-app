@@ -1,4 +1,3 @@
-import { InterruptorApresentacao } from "@/components/admin/InterruptorApresentacao";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
@@ -43,9 +42,6 @@ function AdminOverview() {
   });
   return (
     <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">
-      <div className="mb-6">
-        <InterruptorApresentacao />
-      </div>
       {query.isLoading ? <EsqueletoPainel onTentarDeNovo={() => void query.refetch()} /> : null}
       {query.isError ? <AdminNotice error={query.error} /> : null}
       {query.data ? (

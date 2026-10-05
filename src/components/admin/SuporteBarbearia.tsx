@@ -190,7 +190,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
               {loja ? "Ativada" : "Desativada"}
             </span>
           </span>
-          <Switch checked={loja} onCheckedChange={setLoja} aria-label="Loja online do negócio" />
+          <Switch checked={loja} onCheckedChange={setLoja} aria-label="Loja online da barbearia" />
         </div>
 
         <label className="block text-xs text-mute">

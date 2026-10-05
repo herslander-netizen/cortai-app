@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import appCss from "../styles.css?url";
 import { manifestDaRota } from "@/lib/manifest";
 import { iniciarServiceWorker } from "@/lib/pwa/registro";
-import { instalarRecuperacaoDeChunk } from "@/lib/pwa/recuperar-chunk";
 import { RouteError } from "@/components/layout/RouteError";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
 import { GuiaProvider } from "@/components/guia/GuiaProvider";
@@ -111,7 +110,6 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    instalarRecuperacaoDeChunk();
     void iniciarServiceWorker();
   }, []);
 

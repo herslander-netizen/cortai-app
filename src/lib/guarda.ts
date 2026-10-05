@@ -3,17 +3,9 @@ import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao, type Papel, type Sessao } from "@/lib/sessao.functions";
 
-import { precisaEscolherContexto } from "@/lib/contextos";
-
-export type Destino = "/admin" | "/barbeiro" | "/app" | "/comecar" | "/escolher";
-
-/** Logo após entrar: conta com cliente + negócio vê o seletor; com um só, entra direto. */
-export function destinoAposEntrar(sessao: Sessao): Destino {
-  return precisaEscolherContexto(sessao, true) ? "/escolher" : destinoDoPapel(sessao);
-}
+export type Destino = "/admin" | "/barbeiro" | "/app" | "/comecar";
 
 export function destinoDoPapel(sessao: Sessao): Destino {
-  if (precisaEscolherContexto(sessao)) return "/escolher";
   if (sessao.papel === "admin") return "/admin";
   if (sessao.papel === "barbeiro") return sessao.tenantId ? "/barbeiro" : "/comecar";
   if (sessao.papel === "cliente") return "/app";

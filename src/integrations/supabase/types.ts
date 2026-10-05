@@ -177,7 +177,6 @@ export type Database = {
           status_alterado_por: string | null
           tenant_id: string
           valor_centavos: number
-          versao_horario: number
         }
         Insert: {
           arrived_at?: string | null
@@ -209,7 +208,6 @@ export type Database = {
           status_alterado_por?: string | null
           tenant_id: string
           valor_centavos?: number
-          versao_horario?: number
         }
         Update: {
           arrived_at?: string | null
@@ -241,7 +239,6 @@ export type Database = {
           status_alterado_por?: string | null
           tenant_id?: string
           valor_centavos?: number
-          versao_horario?: number
         }
         Relationships: [
           {
@@ -925,7 +922,6 @@ export type Database = {
           condicoes_especiais: string | null
           criado_em: string
           desconto_percentual: number | null
-          email: string | null
           ficha_chips: string[]
           ficha_tecnica: string | null
           fidelidade_participa: boolean | null
@@ -949,7 +945,6 @@ export type Database = {
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
-          email?: string | null
           ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
@@ -973,7 +968,6 @@ export type Database = {
           condicoes_especiais?: string | null
           criado_em?: string
           desconto_percentual?: number | null
-          email?: string | null
           ficha_chips?: string[]
           ficha_tecnica?: string | null
           fidelidade_participa?: boolean | null
@@ -1074,17 +1068,13 @@ export type Database = {
           agendamento_id: string | null
           atualizado_em: string
           cliente_id: string
-          cliente_informou_pagamento_em: string | null
-          codigo: string | null
           comissao_total_centavos: number
           criado_em: string
           desconto_aplicado_por: string | null
           desconto_centavos: number
           finalizada_em: string | null
           finalizada_por: string | null
-          forma_escolhida: string | null
           id: string
-          motivo_encerramento: string | null
           numero: number
           profissional_id: string | null
           status: string
@@ -1097,17 +1087,13 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id: string
-          cliente_informou_pagamento_em?: string | null
-          codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
           desconto_aplicado_por?: string | null
           desconto_centavos?: number
           finalizada_em?: string | null
           finalizada_por?: string | null
-          forma_escolhida?: string | null
           id?: string
-          motivo_encerramento?: string | null
           numero?: number
           profissional_id?: string | null
           status?: string
@@ -1120,17 +1106,13 @@ export type Database = {
           agendamento_id?: string | null
           atualizado_em?: string
           cliente_id?: string
-          cliente_informou_pagamento_em?: string | null
-          codigo?: string | null
           comissao_total_centavos?: number
           criado_em?: string
           desconto_aplicado_por?: string | null
           desconto_centavos?: number
           finalizada_em?: string | null
           finalizada_por?: string | null
-          forma_escolhida?: string | null
           id?: string
-          motivo_encerramento?: string | null
           numero?: number
           profissional_id?: string | null
           status?: string
@@ -1362,62 +1344,6 @@ export type Database = {
           },
         ]
       }
-      conexoes_sociais: {
-        Row: {
-          atualizado_em: string
-          avatar_url: string | null
-          conectado_por: string | null
-          conta_id_externo: string | null
-          conta_nome: string | null
-          criado_em: string
-          expira_em: string | null
-          id: string
-          plataforma: string
-          status: string
-          tenant_id: string
-          token_acesso: string | null
-          token_refresh: string | null
-        }
-        Insert: {
-          atualizado_em?: string
-          avatar_url?: string | null
-          conectado_por?: string | null
-          conta_id_externo?: string | null
-          conta_nome?: string | null
-          criado_em?: string
-          expira_em?: string | null
-          id?: string
-          plataforma: string
-          status?: string
-          tenant_id: string
-          token_acesso?: string | null
-          token_refresh?: string | null
-        }
-        Update: {
-          atualizado_em?: string
-          avatar_url?: string | null
-          conectado_por?: string | null
-          conta_id_externo?: string | null
-          conta_nome?: string | null
-          criado_em?: string
-          expira_em?: string | null
-          id?: string
-          plataforma?: string
-          status?: string
-          tenant_id?: string
-          token_acesso?: string | null
-          token_refresh?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conexoes_sociais_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       conexoes_whatsapp: {
         Row: {
           atualizado_em: string
@@ -1497,9 +1423,6 @@ export type Database = {
           horario_fim: string
           horario_inicio: string
           horario_proprio: boolean
-          ia_limite_diario_whatsapp: number
-          ia_pausa_motivo: string | null
-          ia_pausada_em: string | null
           instrucoes_extras: string
           lembretes: boolean
           link_pagamento: string
@@ -1528,9 +1451,6 @@ export type Database = {
           horario_fim?: string
           horario_inicio?: string
           horario_proprio?: boolean
-          ia_limite_diario_whatsapp?: number
-          ia_pausa_motivo?: string | null
-          ia_pausada_em?: string | null
           instrucoes_extras?: string
           lembretes?: boolean
           link_pagamento?: string
@@ -1559,9 +1479,6 @@ export type Database = {
           horario_fim?: string
           horario_inicio?: string
           horario_proprio?: boolean
-          ia_limite_diario_whatsapp?: number
-          ia_pausa_motivo?: string | null
-          ia_pausada_em?: string | null
           instrucoes_extras?: string
           lembretes?: boolean
           link_pagamento?: string
@@ -2083,7 +2000,6 @@ export type Database = {
           tentativas: number
           tipo: string
           valido_ate: string | null
-          versao: string
         }
         Insert: {
           acoes?: string[]
@@ -2112,7 +2028,6 @@ export type Database = {
           tentativas?: number
           tipo?: string
           valido_ate?: string | null
-          versao?: string
         }
         Update: {
           acoes?: string[]
@@ -2141,7 +2056,6 @@ export type Database = {
           tentativas?: number
           tipo?: string
           valido_ate?: string | null
-          versao?: string
         }
         Relationships: [
           {
@@ -2726,9 +2640,6 @@ export type Database = {
       }
       home_publica: {
         Row: {
-          apresentacao_alterada_em: string | null
-          apresentacao_alterada_por: string | null
-          apresentacao_ativa: boolean
           atualizado_em: string
           atualizado_por: string | null
           criado_em: string
@@ -2738,9 +2649,6 @@ export type Database = {
           rascunho: Json
         }
         Insert: {
-          apresentacao_alterada_em?: string | null
-          apresentacao_alterada_por?: string | null
-          apresentacao_ativa?: boolean
           atualizado_em?: string
           atualizado_por?: string | null
           criado_em?: string
@@ -2750,9 +2658,6 @@ export type Database = {
           rascunho?: Json
         }
         Update: {
-          apresentacao_alterada_em?: string | null
-          apresentacao_alterada_por?: string | null
-          apresentacao_ativa?: boolean
           atualizado_em?: string
           atualizado_por?: string | null
           criado_em?: string
@@ -3301,66 +3206,33 @@ export type Database = {
       }
       notificacoes: {
         Row: {
-          agendamento_id: string | null
-          agrupar_em: string | null
-          canais: Json
-          chave_dedupe: string | null
-          cliente_id: string | null
           corpo: string | null
           criado_em: string
-          destinatario_tipo: string
-          evento: string | null
           id: string
           lida_em: string | null
           link: string | null
-          obsoleta_em: string | null
-          prioridade: string
-          respondida_em: string | null
-          resposta: string | null
           tenant_id: string
           tipo: string
           titulo: string
           user_id: string | null
         }
         Insert: {
-          agendamento_id?: string | null
-          agrupar_em?: string | null
-          canais?: Json
-          chave_dedupe?: string | null
-          cliente_id?: string | null
           corpo?: string | null
           criado_em?: string
-          destinatario_tipo?: string
-          evento?: string | null
           id?: string
           lida_em?: string | null
           link?: string | null
-          obsoleta_em?: string | null
-          prioridade?: string
-          respondida_em?: string | null
-          resposta?: string | null
           tenant_id: string
           tipo: string
           titulo: string
           user_id?: string | null
         }
         Update: {
-          agendamento_id?: string | null
-          agrupar_em?: string | null
-          canais?: Json
-          chave_dedupe?: string | null
-          cliente_id?: string | null
           corpo?: string | null
           criado_em?: string
-          destinatario_tipo?: string
-          evento?: string | null
           id?: string
           lida_em?: string | null
           link?: string | null
-          obsoleta_em?: string | null
-          prioridade?: string
-          respondida_em?: string | null
-          resposta?: string | null
           tenant_id?: string
           tipo?: string
           titulo?: string
@@ -3668,7 +3540,6 @@ export type Database = {
       perfis: {
         Row: {
           atualizado_em: string
-          contexto_ativo: string | null
           criado_em: string
           nome: string | null
           telefone: string | null
@@ -3678,7 +3549,6 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
-          contexto_ativo?: string | null
           criado_em?: string
           nome?: string | null
           telefone?: string | null
@@ -3688,7 +3558,6 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
-          contexto_ativo?: string | null
           criado_em?: string
           nome?: string | null
           telefone?: string | null
@@ -3759,68 +3628,6 @@ export type Database = {
           preco_mensal_centavos?: number
         }
         Relationships: []
-      }
-      postagens_sociais: {
-        Row: {
-          agendado_para: string
-          atualizado_em: string
-          criado_em: string
-          criado_por: string | null
-          erro: string | null
-          id: string
-          id_externo: string | null
-          legenda: string
-          midia_url: string
-          plataforma: string
-          publicado_em: string | null
-          simulada: boolean
-          status: string
-          tenant_id: string
-          tentativas: number
-        }
-        Insert: {
-          agendado_para?: string
-          atualizado_em?: string
-          criado_em?: string
-          criado_por?: string | null
-          erro?: string | null
-          id?: string
-          id_externo?: string | null
-          legenda?: string
-          midia_url: string
-          plataforma: string
-          publicado_em?: string | null
-          simulada?: boolean
-          status?: string
-          tenant_id: string
-          tentativas?: number
-        }
-        Update: {
-          agendado_para?: string
-          atualizado_em?: string
-          criado_em?: string
-          criado_por?: string | null
-          erro?: string | null
-          id?: string
-          id_externo?: string | null
-          legenda?: string
-          midia_url?: string
-          plataforma?: string
-          publicado_em?: string | null
-          simulada?: boolean
-          status?: string
-          tenant_id?: string
-          tentativas?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "postagens_sociais_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       preferencias_do_cliente_avisos: {
         Row: {
@@ -4319,39 +4126,6 @@ export type Database = {
           pedido?: string
           status?: string
           tenants_que_pediram?: string[]
-        }
-        Relationships: []
-      }
-      telefones_da_equipe: {
-        Row: {
-          atualizado_em: string
-          codigo_expira_em: string | null
-          codigo_hash: string | null
-          criado_em: string
-          telefone: string | null
-          tentativas: number
-          user_id: string
-          verificado_em: string | null
-        }
-        Insert: {
-          atualizado_em?: string
-          codigo_expira_em?: string | null
-          codigo_hash?: string | null
-          criado_em?: string
-          telefone?: string | null
-          tentativas?: number
-          user_id: string
-          verificado_em?: string | null
-        }
-        Update: {
-          atualizado_em?: string
-          codigo_expira_em?: string | null
-          codigo_hash?: string | null
-          criado_em?: string
-          telefone?: string | null
-          tentativas?: number
-          user_id?: string
-          verificado_em?: string | null
         }
         Relationships: []
       }
@@ -5066,19 +4840,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      criar_notificacao_evento: {
-        Args: {
-          _agendamento: string
-          _chave: string
-          _corpo: string
-          _evento: string
-          _link: string
-          _prioridade: string
-          _tenant: string
-          _titulo: string
-        }
-        Returns: undefined
-      }
       definir_acesso_membro: {
         Args: {
           _ativo: boolean
@@ -5166,14 +4927,6 @@ export type Database = {
         Args: { _ator: string; _permissao: string; _tenant: string }
         Returns: boolean
       }
-      garantir_comanda: {
-        Args: { _agendamento_id: string; _ator?: string }
-        Returns: string
-      }
-      gerar_codigo_comanda: {
-        Args: { _em: string; _tenant: string }
-        Returns: string
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -5186,10 +4939,6 @@ export type Database = {
         Returns: boolean
       }
       home_publicada: { Args: never; Returns: Json }
-      informar_pagamento_pix_cliente: {
-        Args: { _agendamento_id: string }
-        Returns: Json
-      }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       link_de_tela: { Args: { _chave: string }; Returns: string }
       marcar_falta: { Args: { _agendamento_id: string }; Returns: Json }

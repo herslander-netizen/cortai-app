@@ -136,10 +136,10 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
 
       const { data: anteriores } = await db
         .from("mensagens_de_ia")
-        .select("autor, conteudo, acao")
+        .select("autor, conteudo")
         .eq("conversa_id", conversaId)
         .order("criado_em", { ascending: false })
-        .limit(16);
+        .limit(10);
 
       await db.from("mensagens_de_ia").insert({
         conversa_id: conversaId,
@@ -148,66 +148,22 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         conteudo: data.mensagem,
       });
 
-      const historicoBruto = ((anteriores ?? []) as Record<string, any>[]).reverse();
-      const contexto = await contextoDaBarbearia(context, tenantId);
-      let resposta: RespostaDoAssistente;
-      let pendenteNova: unknown = null;
-
-      // Cadastro em lote de serviços/horários segue no fluxo estruturado já existente.
-      const cadastroEstruturado =
-        /\b(cadastr\w*|adicion\w*|cri\w*)\b.*\bservi[cç]os?\b|\bhor[aá]rios? de funcionamento\b|\b(abr\w*|fech\w*) (de|às|as) \d/i.test(
-          data.mensagem,
-        );
-      if (cadastroEstruturado) {
-        const { pensar } = await import("@/lib/ia/assistente.server");
-        resposta = await pensar({
-          mensagem: data.mensagem,
-          contexto,
-          historico: historicoBruto.map((m) => ({
-            autor: m["autor"] as "barbeiro" | "assistente",
-            conteudo: m["conteudo"] as string,
-          })),
-        });
-      } else {
-        // Caminho canônico: cérebro CortAI com ações reais do negócio.
-        const { pensarCortai } = await import("@/lib/brain/agente.server");
-        const { iaDisponivel } = await import("@/lib/brain/gateway.server");
-        const { respostaIndisponivel } = await import("@/lib/ia/assistente");
-        const ultima = [...historicoBruto].reverse().find((m) => m["autor"] === "assistente");
-        const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
-        if (!iaDisponivel()) resposta = respostaIndisponivel();
-        else {
-          const r = await pensarCortai({
-            ctx: { tenantId, canal: "painel", ator: context.userId },
-            persona: { nome: "CortAI", negocio: contexto.nome, segmento: contexto.segmento },
-            historico: historicoBruto.map((m) => ({
-              autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
-              texto: String(m["conteudo"] ?? ""),
-            })),
-            mensagem: data.mensagem,
-            pendente: pendente as never,
-          });
-          pendenteNova = r.pendente;
-          resposta = {
-            resposta: r.texto,
-            intencao: r.acoes.length ? "consultar" : "conversa",
-            precisaConfirmar: false,
-            perguntaDeConfirmacao: null,
-            destino: null,
-            rotuloDoDestino: null,
-            servicos: null,
-            horarios: null,
-            disponivel: !r.indisponivel,
-          };
-        }
-      }
+      const { pensar } = await import("@/lib/ia/assistente.server");
+      const resposta = await pensar({
+        mensagem: data.mensagem,
+        contexto: await contextoDaBarbearia(context, tenantId),
+        historico: ((anteriores ?? []) as Record<string, any>[]).reverse().map((m) => ({
+          autor: m["autor"] as "barbeiro" | "assistente",
+          conteudo: m["conteudo"] as string,
+        })),
+      });
 
       await db.from("mensagens_de_ia").insert({
         conversa_id: conversaId,
         tenant_id: tenantId,
         autor: "assistente",
         conteudo: resposta.resposta,
-        acao: { ...resposta, pendente: pendenteNova } as never,
+        acao: resposta as never,
       });
       await db
         .from("conversas_de_ia")

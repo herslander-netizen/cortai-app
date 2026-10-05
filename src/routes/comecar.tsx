@@ -4,16 +4,7 @@ import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
-import { criarBarbearia, definirTipoDePerfil, escolherContexto } from "@/lib/sessao.functions";
-import { CHAVE_VINCULO } from "@/lib/vinculo";
-
-function temVinculoPendente() {
-  try {
-    return Boolean(localStorage.getItem(CHAVE_VINCULO));
-  } catch {
-    return false;
-  }
-}
+import { criarBarbearia, definirTipoDePerfil } from "@/lib/sessao.functions";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Button } from "@/components/ui/button";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
@@ -40,19 +31,7 @@ export const Route = createFileRoute("/comecar")({
     const usuario = data.session?.user;
     if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
     const sessao = await sessaoDoUsuario(usuario.id);
-    // Conta nova criada a partir de um agendamento: já é cliente, sem pergunta extra.
-    if (sessao.papel === "pendente" && !sessao.acessoSuspenso && temVinculoPendente()) {
-      await escolherContexto({ data: { contexto: "cliente" } });
-      esquecerSessao();
-      throw redirect({ to: "/app" });
-    }
-    // Cliente sem negócio pode criar um na MESMA conta (sem duplicar o e-mail).
-    const clienteCriandoNegocio = sessao.papel === "cliente" && !sessao.contextos.negocio;
-    if (
-      sessao.papel !== "pendente" &&
-      !clienteCriandoNegocio &&
-      !(sessao.papel === "barbeiro" && !sessao.tenantId)
-    ) {
+    if (sessao.papel !== "pendente" && !(sessao.papel === "barbeiro" && !sessao.tenantId)) {
       throw redirect({ to: destinoDoPapel(sessao) });
     }
     return { sessao };
@@ -64,7 +43,7 @@ function ComecarPage() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
-    sessao.papel === "barbeiro" || sessao.papel === "cliente" ? "segmento" : "escolha",
+    sessao.papel === "barbeiro" ? "segmento" : "escolha",
   );
   const [segmento, setSegmento] = useState<Segmento>("barbearia");
   const [nome, setNome] = useState("");
@@ -235,9 +214,7 @@ function ComecarPage() {
               variant="ghost"
               type="button"
               className="mt-3 w-full"
-              onClick={() =>
-                sessao.papel === "cliente" ? void navigate({ to: "/escolher" }) : setModo("escolha")
-              }
+              onClick={() => setModo("escolha")}
             >
               <ArrowLeft /> Voltar
             </Button>

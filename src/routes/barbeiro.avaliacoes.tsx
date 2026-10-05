@@ -99,7 +99,7 @@ function AvaliacoesPage() {
         <input
           value={link}
           onChange={(e) => setLink(e.target.value)}
-          className="field-control mt-1 w-full"
+          className="input-premium mt-1 w-full"
           placeholder="https://"
         />
       </label>
@@ -143,7 +143,7 @@ function AvaliacoesPage() {
                     onChange={(e) => setComentarios((s) => ({ ...s, [p.id]: e.target.value }))}
                     rows={2}
                     placeholder="Comentário (opcional)"
-                    className="field-control mt-3 w-full resize-none"
+                    className="input-premium mt-3 w-full resize-none"
                   />
                   <Button
                     variant="ghost"

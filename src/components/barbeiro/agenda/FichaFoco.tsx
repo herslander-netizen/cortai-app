@@ -97,7 +97,7 @@ export function FichaFoco({
         <p className="flex items-start gap-2 rounded-md bg-brick/20 px-3 py-3 text-sm font-semibold text-paper">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>
-            <strong>Cuidados</strong>
+            <strong>Atenção</strong>
             <br />
             {local.atencao}
           </span>
@@ -177,7 +177,7 @@ export function FichaFocoVisual({
         <p className="flex items-start gap-2 bg-brick/20 px-4 py-3 text-[15px] font-bold text-paper">
           <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
           <span>
-            <strong>Cuidados</strong>
+            <strong>Atenção</strong>
             <br />
             {preferencias.atencao}
           </span>
@@ -197,7 +197,7 @@ export function FichaFocoVisual({
       ) : null}
       {preferencias.corte_habitual ? (
         <p className="mt-3 text-[15px] text-paper">
-          <strong>Atendimento de sempre:</strong> {preferencias.corte_habitual}
+          <strong>Habitual:</strong> {preferencias.corte_habitual}
         </p>
       ) : null}
       {observacao ? (

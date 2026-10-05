@@ -195,9 +195,9 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: #1a1f1c;
-  --drawer-card: #3f4543;
-  --drawer-band: #212724;
+  --drawer-surface: var(--painel);
+  --drawer-card: var(--cartao);
+  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
   --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
@@ -249,9 +249,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: #e9f1eb;
-  --drawer-card: #ffffff;
-  --drawer-band: #f0f5f1;
+  --drawer-surface: var(--painel);
+  --drawer-card: var(--cartao);
+  --drawer-band: color-mix(in oklab, var(--primary) 5%, var(--ink3));
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
@@ -488,12 +488,9 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  gap: 0.5rem;
-  min-height: 4rem;
-  padding: 0.5rem 0.75rem;
-  padding-top: calc(0.5rem + env(safe-area-inset-top));
-  padding-left: max(0.75rem, env(safe-area-inset-left));
-  padding-right: max(0.75rem, env(safe-area-inset-right));
+  min-height: 4.5rem;
+  padding: 0.75rem 1rem;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
   background: color-mix(in oklab, var(--chat-surface) 90%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -1555,103 +1552,71 @@ option {
   }
 }
 
-/* Etapa 6 — escala tipográfica e raios compartilhados (formulários e cartões). */
-:root {
-  --texto-titulo-tela: 40px;
-  --altura-titulo-tela: 44px;
-  --texto-subtitulo: 18px;
-  --altura-subtitulo: 26px;
-  --texto-rotulo-secao: 14px;
-  --texto-campo: 17px;
-  --altura-campo: 64px;
-  --raio-grupo: 24px;
-  --raio-grupo-interno: 8px;
-  --raio-campo-topo: 16px;
-  --raio-campo-base: 6px;
-  --raio-folha: 28px;
-  --raio-imagem: 16px;
-  --raio-bloco: 12px;
-}
-
-@utility titulo-tela {
-  font-size: var(--texto-titulo-tela);
-  line-height: var(--altura-titulo-tela);
-  font-weight: 600;
-  letter-spacing: -0.5px;
+@utility input-premium {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  background: var(--ink2);
+  min-height: 48px;
+  padding: 10px 12px;
   color: var(--paper);
-  overflow-wrap: anywhere;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-@utility subtitulo-tela {
-  font-size: var(--texto-subtitulo);
-  line-height: var(--altura-subtitulo);
-  color: var(--mute);
-}
-
-@utility rotulo-secao {
-  display: block;
-  padding-left: 16px;
-  font-size: var(--texto-rotulo-secao);
-  font-weight: 600;
-  color: var(--mute);
+  font-size: 14px;
+  outline: none;
+  &:hover {
+    border-color: color-mix(in oklab, var(--line2) 70%, var(--paper));
+  }
+  &:focus {
+    border-color: var(--gold);
+    background: var(--ink3);
+  }
 }
 
 @utility field-control {
   width: 100%;
   min-width: 0;
-  min-height: var(--altura-campo);
-  border: 0;
-  border-bottom: 2px solid var(--line2);
-  border-radius: var(--raio-campo-topo) var(--raio-campo-topo) var(--raio-campo-base)
-    var(--raio-campo-base);
-  background-color: var(--cartao);
-  padding: 10px 16px;
+  min-height: 48px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-md);
+  background-color: var(--ink2);
+  padding: 10px 12px;
   color: var(--paper);
-  font-size: var(--texto-campo);
+  font-size: 14px;
   outline: none;
   transition:
     border-color 140ms ease,
-    background-color 140ms ease;
-  &::placeholder {
-    color: var(--mute2);
+    background-color 140ms ease,
+    box-shadow 140ms ease;
+  &:hover {
+    border-color: color-mix(in oklab, var(--line2) 65%, var(--paper));
   }
-  &:focus,
-  &:focus-within {
-    border-bottom-color: var(--gold);
-  }
-  &[aria-invalid="true"] {
-    border-bottom-color: var(--brick);
+  &:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-soft);
   }
 }
 
 @utility field-label {
   display: block;
-  margin-bottom: 6px;
-  padding-left: 4px;
+  margin-bottom: 7px;
   color: var(--mute);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 @utility field-hint {
   display: block;
   margin-top: 6px;
-  padding-left: 16px;
   color: var(--mute2);
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
 @utility field-error {
   display: block;
   margin-top: 6px;
-  padding-left: 16px;
   color: var(--brick);
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -6007,64 +5972,4 @@ button.agenda-nome:hover {
   color: var(--primary-foreground);
   font-size: 12px;
   font-weight: 600;
-}
-
-/* Comanda em ticket — papel térmico único para todos os negócios e formas de pagamento. */
-:root {
-  --ticket-fundo: #06172b;
-  --ticket-papel: #fffdf9;
-  --ticket-texto: #0a1830;
-  --ticket-mute: #5b6b80;
-  --ticket-suave: #f1f4f7;
-  --ticket-linha: #c9d2dd;
-  --ticket-total: #e6f6ff;
-  --ticket-navy: #06245a;
-  --ticket-ciano: #00b4ff;
-  --ticket-rosa: #ff2d78;
-  --ticket-pix: #32bcad;
-  --ticket-pago: #15803d;
-  --ticket-pendente: #c2610c;
-  --ticket-cancelado: #dc2626;
-}
-
-.papel-ticket {
-  --furo: 6px;
-  --passo: 18px;
-  --furo-lado: 4px;
-  --passo-lado: 22px;
-  background: var(--ticket-papel);
-  color: var(--ticket-texto);
-  -webkit-mask:
-    radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
-    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
-  -webkit-mask-composite: source-in;
-  mask:
-    radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
-    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
-  mask-composite: intersect;
-}
-
-.chat-header-botao {
-  display: inline-grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  flex-shrink: 0;
-  border-radius: 9999px;
-  color: inherit;
-  transition: background-color 120ms ease;
-}
-.chat-header-botao:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
-.chat-header-botao:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-.chat-header-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  flex-shrink: 0;
-  border-radius: 9999px;
-  object-fit: cover;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--chat-borda) 80%, transparent);
 }

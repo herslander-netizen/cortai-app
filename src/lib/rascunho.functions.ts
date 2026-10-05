@@ -224,7 +224,7 @@ export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     const { db, linha } = await lerRascunho(data.token);
     if (linha["publicado_em"]) {
       throw new Error(
-        "Este negócio já foi publicado. Entre com sua conta para continuar editando.",
+        "Esta barbearia já foi publicada. Entre com sua conta para continuar editando.",
       );
     }
     const { error } = await db
@@ -256,7 +256,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     }
 
     const nome = limparTexto(dados.nome);
-    if (nome.length < 2) throw new Error("Informe o nome do negócio.");
+    if (nome.length < 2) throw new Error("Informe o nome da barbearia.");
     if (!dados.servicos.filter((s) => limparTexto(s.nome).length >= 2).length) {
       throw new Error("Cadastre pelo menos um serviço antes de publicar.");
     }
@@ -355,8 +355,8 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ ok: true; slug: string }> => {
     const { db, linha } = await lerRascunho(data.token);
     const tenantId = linha["tenant_id"] as string | null;
-    if (!tenantId) throw new Error("Publique o negócio antes de assumir o acesso.");
-    if (linha["reivindicado_por"]) throw new Error("Este negócio já tem responsável.");
+    if (!tenantId) throw new Error("Publique a barbearia antes de assumir o acesso.");
+    if (linha["reivindicado_por"]) throw new Error("Esta barbearia já tem responsável.");
 
     const { data: jaTemDono } = await db
       .from("tenant_usuarios")
@@ -364,7 +364,7 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
       .eq("tenant_id", tenantId)
       .limit(1)
       .maybeSingle();
-    if (jaTemDono) throw new Error("Este negócio já tem responsável.");
+    if (jaTemDono) throw new Error("Esta barbearia já tem responsável.");
 
     const { data: outroVinculo } = await db
       .from("tenant_usuarios")
@@ -372,7 +372,7 @@ export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .limit(1)
       .maybeSingle();
-    if (outroVinculo) throw new Error("Sua conta já está ligada a um negócio.");
+    if (outroVinculo) throw new Error("Sua conta já está ligada a uma barbearia.");
 
     const { error } = await db.from("tenant_usuarios").insert({
       tenant_id: tenantId,

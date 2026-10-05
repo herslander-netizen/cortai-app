@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useRouterState } from "@tanstack/react-router";
 
 import {
   buscarVersaoPublicada,
@@ -9,8 +8,6 @@ import {
 } from "@/lib/versao";
 import { useModoFoco } from "@/lib/modo-foco";
 import { EVENTO_ABRIR_NOVIDADES } from "@/components/sistema/NovidadesDaVersao";
-import { AtualizacaoObrigatoria } from "@/components/pwa/AtualizacaoObrigatoria";
-import { deveBloquear, INTERVALO_DE_CHECAGEM_MS } from "@/lib/pwa/atualizacao-obrigatoria";
 
 const CHAVE_ADIADO = "cortai:versao-adiada";
 
@@ -22,7 +19,6 @@ const CHAVE_ADIADO = "cortai:versao-adiada";
  */
 export function AvisoDeVersao() {
   const foco = useModoFoco();
-  const caminho = useRouterState({ select: (s) => s.location.pathname });
   const [situacao, setSituacao] = useState<SituacaoDaVersao>("em_dia");
   const [destino, setDestino] = useState(URL_DE_ATUALIZACAO);
   const [adiado, setAdiado] = useState(true);
@@ -31,9 +27,7 @@ export function AvisoDeVersao() {
     let vivo = true;
     const verificar = async () => {
       const info = await buscarVersaoPublicada();
-      if (!vivo) return;
-      // Sem internet ou leitura falha: nunca bloquear.
-      if (!info) return setSituacao("em_dia");
+      if (!vivo || !info) return;
       const estado = situacaoDaVersao(info);
       setSituacao(estado);
       setDestino(info.url);
@@ -47,11 +41,9 @@ export function AvisoDeVersao() {
     const aoVoltar = () => {
       if (document.visibilityState === "visible") void verificar();
     };
-    const relogio = window.setInterval(() => void verificar(), INTERVALO_DE_CHECAGEM_MS);
     document.addEventListener("visibilitychange", aoVoltar);
     return () => {
       vivo = false;
-      window.clearInterval(relogio);
       document.removeEventListener("visibilitychange", aoVoltar);
     };
   }, []);
@@ -60,9 +52,36 @@ export function AvisoDeVersao() {
     window.location.replace(destino);
   }
 
-  if (deveBloquear({ situacao, caminho, modoFoco: foco })) return <AtualizacaoObrigatoria />;
+  if (situacao === "obrigatoria") {
+    return (
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="titulo-nova-versao"
+        className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+        style={{ background: "rgba(11,11,11,.82)", backdropFilter: "blur(6px)" }}
+      >
+        <div className="w-full max-w-sm rounded-2xl border border-line2 bg-ink2 p-6 text-center">
+          <h2 id="titulo-nova-versao" className="text-base text-paper">
+            Nova versão disponível
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-mute">
+            Uma nova versão do Cortaí está disponível. Atualize o aplicativo para continuar usando
+            todos os recursos.
+          </p>
+          <button
+            type="button"
+            onClick={atualizar}
+            className="mt-5 w-full rounded-lg bg-gold px-4 py-3 text-sm font-medium text-ink"
+          >
+            Atualizar agora
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  if (foco || situacao === "obrigatoria") return null;
+  if (foco) return null;
 
   if (situacao !== "recomendada" || adiado) return null;
 

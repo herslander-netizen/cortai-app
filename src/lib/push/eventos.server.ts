@@ -4,7 +4,6 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { canaisDaEquipe, EVENTO_DO_PUSH } from "@/lib/avisos/catalogo";
 import { linkDoAgendamento } from "@/lib/links-de-tela";
 import {
   decidirExibicao,
@@ -93,77 +92,29 @@ export async function processarEventoDePush(evento: {
     profissionais: { user_id: string | null } | null;
   };
 
-  const [{ data: equipeBruta }, { data: tenant }, { data: prefs }, { data: plano }] =
-    await Promise.all([
-      db.from("tenant_usuarios").select("user_id, papel, ativo").eq("tenant_id", a.tenant_id),
-      db.from("tenants").select("fuso").eq("id", a.tenant_id).maybeSingle(),
-      db
-        .from("notificacoes_preferencias")
-        .select("user_id, no_push, no_whatsapp")
-        .eq("tenant_id", a.tenant_id)
-        .eq("tipo", evento.tipo),
-      db.rpc("recurso_do_tenant_ativo", { _tenant_id: a.tenant_id, _chave: "cortai_whatsapp" }),
-    ]);
+  const [{ data: equipeBruta }, { data: tenant }, { data: prefs }] = await Promise.all([
+    db.from("tenant_usuarios").select("user_id, papel, ativo").eq("tenant_id", a.tenant_id),
+    db.from("tenants").select("fuso").eq("id", a.tenant_id).maybeSingle(),
+    db
+      .from("notificacoes_preferencias")
+      .select("user_id, no_push")
+      .eq("tenant_id", a.tenant_id)
+      .eq("tipo", evento.tipo),
+  ]);
   const equipe: MembroDaEquipe[] = (
     (equipeBruta ?? []) as { user_id: string; papel: string; ativo: boolean | null }[]
   ).map((m) => ({ userId: m.user_id, papel: m.papel, ativo: m.ativo !== false }));
-  // Público pelo papel (profissional só a própria agenda) e sem avisar quem fez.
-  const elegiveis = destinatariosDoPush(
+  const desligados = new Set(
+    ((prefs ?? []) as { user_id: string; no_push: boolean }[])
+      .filter((p) => p.no_push === false)
+      .map((p) => p.user_id),
+  );
+  const pessoas = destinatariosDoPush(
     { tipo: evento.tipo, ator: evento.ator, profissionalUserId: a.profissionais?.user_id ?? null },
     equipe,
+    desligados,
   );
-  if (!elegiveis.length) return { enviados: 0 };
-
-  const [{ data: inscricoes }, { data: tels }] = await Promise.all([
-    db
-      .from("push_inscricoes")
-      .select("id, user_id, endpoint, p256dh, auth, falhas, em_foco_ate, discreto")
-      .eq("tenant_id", a.tenant_id)
-      .in("user_id", elegiveis),
-    db
-      .from("telefones_da_equipe")
-      .select("user_id, telefone")
-      .in("user_id", elegiveis)
-      .not("verificado_em", "is", null),
-  ]);
-  const todasInscricoes = (inscricoes ?? []) as {
-    id: string;
-    user_id: string;
-    endpoint: string;
-    p256dh: string;
-    auth: string;
-    falhas: number;
-    em_foco_ate: string | null;
-    discreto: boolean | null;
-  }[];
-  const comPush = new Set(todasInscricoes.map((i) => i.user_id));
-  const telefoneDe = new Map(
-    ((tels ?? []) as { user_id: string; telefone: string | null }[])
-      .filter((t) => t.telefone)
-      .map((t) => [t.user_id, t.telefone as string]),
-  );
-  const comWhatsapp = new Set(telefoneDe.keys());
-  const prefDe = new Map(
-    ((prefs ?? []) as { user_id: string; no_push: boolean; no_whatsapp: boolean }[]).map((p) => [
-      p.user_id,
-      p,
-    ]),
-  );
-  const papelDe = new Map(equipe.map((m) => [m.userId, m.papel]));
-  const eventoDoCatalogo = EVENTO_DO_PUSH[evento.tipo];
-  // Uma decisão por pessoa e canal, conforme plano e preferências.
-  const canais = canaisDaEquipe(
-    eventoDoCatalogo,
-    elegiveis.map((userId) => ({
-      userId,
-      papel: papelDe.get(userId) ?? "",
-      preferencias: prefDe.get(userId) ?? null,
-      temPush: comPush.has(userId),
-      temWhatsapp: comWhatsapp.has(userId),
-    })),
-    { planoComWhatsapp: plano !== false },
-  );
-  const pessoas = canais.push;
+  if (!pessoas.length) return { enviados: 0 };
 
   const fuso = (tenant as { fuso?: string | null } | null)?.fuso || "America/Sao_Paulo";
   let proximo = false;
@@ -191,42 +142,21 @@ export async function processarEventoDePush(evento: {
     .eq("tenant_id", a.tenant_id)
     .is("lida_em", null);
 
-  // WhatsApp da equipe: a decisão define para quem sai; o entregador só aplica a trava por pessoa.
-  if (canais.whatsapp.length) {
-    const { avisarEquipePorWhatsapp } = await import("@/lib/whatsapp/aviso-equipe-whatsapp.server");
-    const porPessoa = await avisarEquipePorWhatsapp({
-      tenantId: a.tenant_id,
-      agendamentoId: a.id,
-      tipo: evento.tipo,
-      evento: eventoDoCatalogo,
-      inicio: a.inicio,
-      destinatarios: canais.whatsapp
-        .filter((id) => telefoneDe.has(id))
-        .map((userId) => ({ userId, telefone: telefoneDe.get(userId)! })),
-      texto: textoDoPush({
-        tipo: evento.tipo,
-        nome: a.clientes?.nome ?? "",
-        quando: formatarQuando(a.inicio, fuso),
-        discreto: false,
-      }),
-    }).catch(() => ({}) as Record<string, { enviar: boolean; motivo: string }>);
-    for (const [userId, r] of Object.entries(porPessoa)) {
-      if (canais.registro[userId]) canais.registro[userId]!["whatsapp"] = r;
-    }
-  }
-
-  // A decisão fica registrada no aviso do sininho do mesmo evento.
-  await db
-    .from("notificacoes")
-    .update({ canais: canais.registro })
+  const { data: inscricoes } = await db
+    .from("push_inscricoes")
+    .select("id, user_id, endpoint, p256dh, auth, falhas, em_foco_ate, discreto")
     .eq("tenant_id", a.tenant_id)
-    .eq("agendamento_id", a.id)
-    .eq("evento", evento.tipo)
-    .like("chave_dedupe", `${evento.tipo}:${a.id}:%`)
-    .then(undefined, () => undefined);
-
-  const querPush = new Set(pessoas);
-  const lista = todasInscricoes.filter((i) => querPush.has(i.user_id));
+    .in("user_id", pessoas);
+  const lista = (inscricoes ?? []) as {
+    id: string;
+    user_id: string;
+    endpoint: string;
+    p256dh: string;
+    auth: string;
+    falhas: number;
+    em_foco_ate: string | null;
+    discreto: boolean | null;
+  }[];
   if (!lista.length) return { enviados: 0 };
 
   const chaves = await chavesVapid(db);

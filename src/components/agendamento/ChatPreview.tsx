@@ -9,6 +9,7 @@ export function ChatPreview({
   ativo = false,
   onExperimentar,
   config,
+  nome = "Seu negócio",
   logoUrl,
   capaUrl,
 }: {
@@ -34,9 +35,10 @@ export function ChatPreview({
       <div className="chat-preview-veil absolute inset-0" />
       <div className="relative">
         <ChatHeader
-          nome={/^\s*(recep(ç|c)[aã]o)?\s*$/i.test(config?.chat.nomeRecepcao ?? "") ? "Lisa" : config!.chat.nomeRecepcao}
-          avatarUrl={config?.chat.avatarUrl ?? logoUrl ?? null}
-          status="Online agora"
+          nome={config?.chat.nomeRecepcao ?? "Recepção"}
+          avatarUrl={config?.chat.avatarUrl ?? null}
+          status="Online"
+          detalhe={nome}
         />
       </div>
       <div className="relative space-y-4 p-4 text-sm">

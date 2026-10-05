@@ -428,7 +428,7 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
         chave: "humano",
         nivel: "urgente",
         titulo: `${atendimento.aguardandoHumano} ${atendimento.aguardandoHumano === 1 ? "conversa aguarda" : "conversas aguardam"} você`,
-        detalhe: "O cliente pediu para falar com a equipe.",
+        detalhe: "O cliente pediu para falar com a barbearia.",
         destino: "/barbeiro/cortai",
       });
     }
@@ -457,7 +457,7 @@ export const getPainelDeControle = createServerFn({ method: "GET" })
       saudacao: {
         nome: (perfilRes.data?.nome as string) ?? null,
         periodo: horaLocal < 12 ? "manha" : horaLocal < 18 ? "tarde" : "noite",
-        barbearia: (tenantRes.data?.nome as string) ?? "Seu negócio",
+        barbearia: (tenantRes.data?.nome as string) ?? "Sua barbearia",
       },
       permissoes: {
         financeiro: podeFinanceiro,

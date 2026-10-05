@@ -9,7 +9,7 @@ export function temPermissao(sessao: Sessao | null | undefined, permissao?: Chav
 export function rotuloDoPapel(papel: string | null | undefined) {
   if (papel === "dono") return "Proprietário";
   if (papel === "gerente") return "Admin/Gerente";
-  if (papel === "barbeiro") return "Profissional";
+  if (papel === "barbeiro") return "Profissional/Barbeiro";
   if (papel === "recepcao") return "Recepção/Atendimento";
   return "Equipe do negócio";
 }

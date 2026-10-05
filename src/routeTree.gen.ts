@@ -19,7 +19,6 @@ import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
-import { Route as EscolherRouteImport } from './routes/escolher'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -65,12 +64,10 @@ import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCortaiRouteImport } from './routes/barbeiro.cortai'
 import { Route as BarbeiroCortaiAtividadeRouteImport } from './routes/barbeiro.cortai-atividade'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
-import { Route as BarbeiroDivulgarRouteImport } from './routes/barbeiro.divulgar'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
-import { Route as BarbeiroFuncionalidadesRouteImport } from './routes/barbeiro.funcionalidades'
 import { Route as BarbeiroHojeRouteImport } from './routes/barbeiro.hoje'
 import { Route as BarbeiroHorariosRouteImport } from './routes/barbeiro.horarios'
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
@@ -79,7 +76,6 @@ import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
 import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
-import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
@@ -96,8 +92,6 @@ import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
 import { Route as ApiPublicCapaSlugRouteImport } from './routes/api/public/capa.$slug'
 import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
-import { Route as ApiPublicOauthPlataformaRouteImport } from './routes/api/public/oauth/$plataforma'
-import { Route as ApiPublicPushAvisoRouteImport } from './routes/api/public/push/aviso'
 import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
 import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/public/whatsapp/automacoes'
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
@@ -153,11 +147,6 @@ const ConfigurarMinhaBarbeariaRoute =
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscolherRoute = EscolherRouteImport.update({
-  id: '/escolher',
-  path: '/escolher',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -386,11 +375,6 @@ const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
   path: '/crescimento',
   getParentRoute: () => BarbeiroRoute,
 } as any)
-const BarbeiroDivulgarRoute = BarbeiroDivulgarRouteImport.update({
-  id: '/divulgar',
-  path: '/divulgar',
-  getParentRoute: () => BarbeiroRoute,
-} as any)
 const BarbeiroEquipeRoute = BarbeiroEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -409,11 +393,6 @@ const BarbeiroFilaRoute = BarbeiroFilaRouteImport.update({
 const BarbeiroFinanceiroRoute = BarbeiroFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
-  getParentRoute: () => BarbeiroRoute,
-} as any)
-const BarbeiroFuncionalidadesRoute = BarbeiroFuncionalidadesRouteImport.update({
-  id: '/funcionalidades',
-  path: '/funcionalidades',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroHojeRoute = BarbeiroHojeRouteImport.update({
@@ -454,11 +433,6 @@ const BarbeiroProdutosRoute = BarbeiroProdutosRouteImport.update({
 const BarbeiroProfissionaisRoute = BarbeiroProfissionaisRouteImport.update({
   id: '/profissionais',
   path: '/profissionais',
-  getParentRoute: () => BarbeiroRoute,
-} as any)
-const BarbeiroRedesRoute = BarbeiroRedesRouteImport.update({
-  id: '/redes',
-  path: '/redes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
@@ -541,17 +515,6 @@ const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
   path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicOauthPlataformaRoute =
-  ApiPublicOauthPlataformaRouteImport.update({
-    id: '/api/public/oauth/$plataforma',
-    path: '/api/public/oauth/$plataforma',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicPushAvisoRoute = ApiPublicPushAvisoRouteImport.update({
-  id: '/api/public/push/aviso',
-  path: '/api/public/push/aviso',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicPushEventoRoute = ApiPublicPushEventoRouteImport.update({
   id: '/api/public/push/evento',
   path: '/api/public/push/evento',
@@ -593,7 +556,6 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -636,12 +598,10 @@ export interface FileRoutesByFullPath {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
-  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
-  '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -650,7 +610,6 @@ export interface FileRoutesByFullPath {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
-  '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -670,8 +629,6 @@ export interface FileRoutesByFullPath {
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
-  '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
-  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -686,7 +643,6 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -728,12 +684,10 @@ export interface FileRoutesByTo {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
-  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
-  '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -742,7 +696,6 @@ export interface FileRoutesByTo {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
-  '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -762,8 +715,6 @@ export interface FileRoutesByTo {
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
-  '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
-  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -782,7 +733,6 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
-  '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -825,12 +775,10 @@ export interface FileRoutesById {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
-  '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
-  '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -839,7 +787,6 @@ export interface FileRoutesById {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
-  '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -859,8 +806,6 @@ export interface FileRoutesById {
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
   '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
-  '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
-  '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
   '/api/public/whatsapp/automacoes': typeof ApiPublicWhatsappAutomacoesRoute
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
@@ -880,7 +825,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/escolher'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -923,12 +867,10 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
-    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
-    | '/barbeiro/funcionalidades'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -937,7 +879,6 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
-    | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -957,8 +898,6 @@ export interface FileRouteTypes {
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
-    | '/api/public/oauth/$plataforma'
-    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -973,7 +912,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/escolher'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -1015,12 +953,10 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
-    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
-    | '/barbeiro/funcionalidades'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -1029,7 +965,6 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
-    | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -1049,8 +984,6 @@ export interface FileRouteTypes {
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
-    | '/api/public/oauth/$plataforma'
-    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -1068,7 +1001,6 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
-    | '/escolher'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -1111,12 +1043,10 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
-    | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
-    | '/barbeiro/funcionalidades'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -1125,7 +1055,6 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
-    | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -1145,8 +1074,6 @@ export interface FileRouteTypes {
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
     | '/api/public/cortai/acoes'
-    | '/api/public/oauth/$plataforma'
-    | '/api/public/push/aviso'
     | '/api/public/push/evento'
     | '/api/public/whatsapp/automacoes'
     | '/api/public/whatsapp/eventos'
@@ -1165,7 +1092,6 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
-  EscolherRoute: typeof EscolherRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -1190,8 +1116,6 @@ export interface RootRouteChildren {
   ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
   ApiPublicCapaSlugRoute: typeof ApiPublicCapaSlugRoute
   ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
-  ApiPublicOauthPlataformaRoute: typeof ApiPublicOauthPlataformaRoute
-  ApiPublicPushAvisoRoute: typeof ApiPublicPushAvisoRoute
   ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
   ApiPublicWhatsappAutomacoesRoute: typeof ApiPublicWhatsappAutomacoesRoute
   ApiPublicWhatsappEventosRoute: typeof ApiPublicWhatsappEventosRoute
@@ -1269,13 +1193,6 @@ declare module '@tanstack/react-router' {
       path: '/convite'
       fullPath: '/convite'
       preLoaderRoute: typeof ConviteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escolher': {
-      id: '/escolher'
-      path: '/escolher'
-      fullPath: '/escolher'
-      preLoaderRoute: typeof EscolherRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1593,13 +1510,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroCrescimentoRouteImport
       parentRoute: typeof BarbeiroRoute
     }
-    '/barbeiro/divulgar': {
-      id: '/barbeiro/divulgar'
-      path: '/divulgar'
-      fullPath: '/barbeiro/divulgar'
-      preLoaderRoute: typeof BarbeiroDivulgarRouteImport
-      parentRoute: typeof BarbeiroRoute
-    }
     '/barbeiro/equipe': {
       id: '/barbeiro/equipe'
       path: '/equipe'
@@ -1626,13 +1536,6 @@ declare module '@tanstack/react-router' {
       path: '/financeiro'
       fullPath: '/barbeiro/financeiro'
       preLoaderRoute: typeof BarbeiroFinanceiroRouteImport
-      parentRoute: typeof BarbeiroRoute
-    }
-    '/barbeiro/funcionalidades': {
-      id: '/barbeiro/funcionalidades'
-      path: '/funcionalidades'
-      fullPath: '/barbeiro/funcionalidades'
-      preLoaderRoute: typeof BarbeiroFuncionalidadesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/hoje': {
@@ -1689,13 +1592,6 @@ declare module '@tanstack/react-router' {
       path: '/profissionais'
       fullPath: '/barbeiro/profissionais'
       preLoaderRoute: typeof BarbeiroProfissionaisRouteImport
-      parentRoute: typeof BarbeiroRoute
-    }
-    '/barbeiro/redes': {
-      id: '/barbeiro/redes'
-      path: '/redes'
-      fullPath: '/barbeiro/redes'
-      preLoaderRoute: typeof BarbeiroRedesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/servicos': {
@@ -1808,20 +1704,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cortai/acoes'
       fullPath: '/api/public/cortai/acoes'
       preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/oauth/$plataforma': {
-      id: '/api/public/oauth/$plataforma'
-      path: '/api/public/oauth/$plataforma'
-      fullPath: '/api/public/oauth/$plataforma'
-      preLoaderRoute: typeof ApiPublicOauthPlataformaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/push/aviso': {
-      id: '/api/public/push/aviso'
-      path: '/api/public/push/aviso'
-      fullPath: '/api/public/push/aviso'
-      preLoaderRoute: typeof ApiPublicPushAvisoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/push/evento': {
@@ -1943,12 +1825,10 @@ interface BarbeiroRouteChildren {
   BarbeiroCortaiRoute: typeof BarbeiroCortaiRoute
   BarbeiroCortaiAtividadeRoute: typeof BarbeiroCortaiAtividadeRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
-  BarbeiroDivulgarRoute: typeof BarbeiroDivulgarRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
-  BarbeiroFuncionalidadesRoute: typeof BarbeiroFuncionalidadesRoute
   BarbeiroHojeRoute: typeof BarbeiroHojeRoute
   BarbeiroHorariosRoute: typeof BarbeiroHorariosRoute
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
@@ -1957,7 +1837,6 @@ interface BarbeiroRouteChildren {
   BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
-  BarbeiroRedesRoute: typeof BarbeiroRedesRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
   BarbeiroTemasRoute: typeof BarbeiroTemasRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
@@ -1977,12 +1856,10 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroCortaiRoute: BarbeiroCortaiRoute,
   BarbeiroCortaiAtividadeRoute: BarbeiroCortaiAtividadeRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
-  BarbeiroDivulgarRoute: BarbeiroDivulgarRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
-  BarbeiroFuncionalidadesRoute: BarbeiroFuncionalidadesRoute,
   BarbeiroHojeRoute: BarbeiroHojeRoute,
   BarbeiroHorariosRoute: BarbeiroHorariosRoute,
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
@@ -1991,7 +1868,6 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
-  BarbeiroRedesRoute: BarbeiroRedesRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
   BarbeiroTemasRoute: BarbeiroTemasRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
@@ -2012,7 +1888,6 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
-  EscolherRoute: EscolherRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   PrivacidadeRoute: PrivacidadeRoute,
@@ -2038,8 +1913,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
   ApiPublicCapaSlugRoute: ApiPublicCapaSlugRoute,
   ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
-  ApiPublicOauthPlataformaRoute: ApiPublicOauthPlataformaRoute,
-  ApiPublicPushAvisoRoute: ApiPublicPushAvisoRoute,
   ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,
   ApiPublicWhatsappAutomacoesRoute: ApiPublicWhatsappAutomacoesRoute,
   ApiPublicWhatsappEventosRoute: ApiPublicWhatsappEventosRoute,

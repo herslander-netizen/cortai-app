@@ -187,7 +187,6 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
       { to: "/barbeiro/fidelidade", label: "Voltaí", permissao: "gerenciar_voltai" },
       { to: "/barbeiro/indicacoes", label: "Indicações", permissao: "relatorios" },
       { to: "/barbeiro/crescimento", label: "Crescimento", permissao: "relatorios" },
-      { to: "/barbeiro/divulgar", label: "Divulgar nas redes", permissao: "relatorios" },
     ],
   },
   {

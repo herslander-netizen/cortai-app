@@ -46,7 +46,7 @@ export function validarPreferenciasCliente(valor: unknown): PreferenciasCliente 
   for (const [chave, limite] of Object.entries(LIMITES)) {
     const titulo =
       chave === "corte_habitual"
-        ? "Serviço habitual"
+        ? "Corte habitual"
         : `${chave.charAt(0).toUpperCase()}${chave.slice(1)}`;
     const limpo = texto(entrada[chave], limite, titulo);
     if (limpo) resultado[chave as keyof typeof LIMITES] = limpo;

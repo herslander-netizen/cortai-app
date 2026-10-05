@@ -135,7 +135,7 @@ function ClientesPage() {
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
         placeholder="Buscar cliente"
-        className="field-control mt-6 w-full"
+        className="input-premium mt-6 w-full"
       />
       <div className="mt-3 flex flex-wrap gap-2">
         <Button

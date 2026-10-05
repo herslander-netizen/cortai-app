@@ -1,17 +1,4 @@
-import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
-import { ArrowLeft, FileText } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { invalidarComandas, ROTULO_DA_ETAPA_EQUIPE } from "@/lib/comanda-ticket";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useQuery } from "@tanstack/react-query";
 import { mascaraTelefone } from "@/lib/previa";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -90,7 +77,6 @@ export function FechamentoComanda({
   onFechar: () => void;
   onConcluido: () => void;
 }) {
-  const queryClient = useQueryClient();
   const buscar = useServerFn(getFechamentoComanda);
   const salvar = useServerFn(salvarComanda);
   const pagar = useServerFn(pagarComanda);
@@ -99,18 +85,15 @@ export function FechamentoComanda({
   const pagarPlano = useServerFn(pagarComPlano);
   const sugerir = useServerFn(getSugestaoRetorno);
   const marcar = useServerFn(criarRetorno);
-  const [etapa, setEtapa] = useState<"itens" | "pix" | "retorno">("itens");
   const query = useQuery({
     queryKey: ["fechamento-comanda", agendamentoId],
     queryFn: () => buscar({ data: { agendamentoId } }),
     staleTime: 0,
-    // Enquanto aguarda o Pix, acompanha o "Já paguei" do cliente na mesma comanda.
-    refetchInterval: etapa === "pix" ? 15_000 : false,
   });
-  const [confirmarAberto, setConfirmarAberto] = useState(false);
   const [itens, setItens] = useState<Item[]>([]);
   const [desconto, setDesconto] = useState("");
   const [verDesconto, setVerDesconto] = useState(false);
+  const [etapa, setEtapa] = useState<"itens" | "pix" | "retorno">("itens");
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
@@ -118,7 +101,6 @@ export function FechamentoComanda({
     null,
   );
   const [retornoFeito, setRetornoFeito] = useState(false);
-  const [verTicket, setVerTicket] = useState(false);
 
   useEffect(() => {
     if (!query.data || itens.length) return;
@@ -141,16 +123,6 @@ export function FechamentoComanda({
   const total = subtotal - descontoCentavos;
   const d = query.data;
   const comandaId = d?.comanda.id;
-  const statusComanda = (d?.comanda as { status?: string } | undefined)?.status ?? "";
-  const formaEscolhida = (d?.comanda as { forma_escolhida?: string | null } | undefined)
-    ?.forma_escolhida;
-  const pixInformado = statusComanda === "aguardando_confirmacao_pix";
-  // Comanda reaberta já aguardando Pix: volta direto para a conferência, sem refazer a escolha.
-  useEffect(() => {
-    if (etapa !== "itens") return;
-    if (pixInformado || (statusComanda === "aguardando_pagamento" && formaEscolhida === "pix"))
-      setEtapa("pix");
-  }, [etapa, pixInformado, statusComanda, formaEscolhida]);
 
   function alterar(index: number, delta: number) {
     setItens((lista) =>
@@ -208,8 +180,6 @@ export function FechamentoComanda({
       setErro(e instanceof Error ? e.message : "Não foi possível concluir.");
     } finally {
       setOcupado(null);
-      // Salvar/pagar mudam o mesmo ticket: lista e ticket abertos se atualizam sozinhos.
-      invalidarComandas(queryClient);
     }
   }
   async function aposPagar() {
@@ -289,24 +259,14 @@ export function FechamentoComanda({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end bg-overlay/70 pt-[env(safe-area-inset-top)] md:items-center md:justify-center"
+      className="fixed inset-0 z-[80] flex items-end bg-overlay/70 md:items-center md:justify-center"
       role="dialog"
       aria-modal="true"
       aria-label="Fechar comanda"
     >
-      <div className="max-h-[94dvh] w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 md:max-w-xl md:rounded-xl">
-        <div className="sticky -top-5 z-10 -mx-5 flex items-start justify-between gap-4 bg-ink px-5 pb-4 pt-5 -mt-5">
-          {verTicket ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Voltar para o pagamento"
-              onClick={() => setVerTicket(false)}
-            >
-              <ArrowLeft />
-            </Button>
-          ) : null}
-          <div className="min-w-0 flex-1">
+      <div className="max-h-[94vh] w-full overflow-y-auto rounded-t-2xl border border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 md:max-w-xl md:rounded-xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 bg-ink pb-4">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase text-mute">
               Comanda{d ? ` #${d.comanda.numero}` : ""}
             </p>
@@ -326,7 +286,7 @@ export function FechamentoComanda({
           </p>
         ) : null}
 
-        {d && etapa === "itens" && !verTicket ? (
+        {d && etapa === "itens" ? (
           <>
             {d.comanda.clientes?.telefone === "avulso" ? (
               <IdentificarAvulso
@@ -398,7 +358,7 @@ export function FechamentoComanda({
               <label className="text-xs text-mute">
                 Outro serviço
                 <select
-                  className="field-control"
+                  className="input-premium"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) adicionar("servico", e.target.value);
@@ -415,7 +375,7 @@ export function FechamentoComanda({
               <label className="text-xs text-mute">
                 Outro produto
                 <select
-                  className="field-control"
+                  className="input-premium"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) adicionar("produto", e.target.value);
@@ -438,7 +398,7 @@ export function FechamentoComanda({
               <label className="mt-4 block text-xs text-mute">
                 Desconto (R$)
                 <input
-                  className="field-control"
+                  className="input-premium"
                   type="number"
                   min="0"
                   step="0.01"
@@ -507,24 +467,10 @@ export function FechamentoComanda({
           </>
         ) : null}
 
-        {d && etapa === "pix" && !verTicket ? (
+        {d && etapa === "pix" ? (
           <div className="py-3">
-            <StatusBadge
-              status={pixInformado ? "pendente" : "aguardando_pagamento"}
-              label={
-                ROTULO_DA_ETAPA_EQUIPE[
-                  pixInformado ? "pagamento_informado" : "aguardando_pagamento"
-                ]
-              }
-            />
-            <h3 className="mt-2 text-lg font-bold text-paper">
-              {pixInformado ? "Pagamento informado pelo cliente" : "Aguardando pagamento via Pix"}
-            </h3>
-            <p className="mt-1 text-sm text-mute">
-              {pixInformado
-                ? "O cliente avisou que pagou. Confira no banco antes de confirmar."
-                : "Confirme só depois de conferir o valor no banco."}
-            </p>
+            <h3 className="text-lg font-bold text-paper">Aguardando Pix</h3>
+            <p className="mt-1 text-sm text-mute">Confirme depois de conferir o recebimento.</p>
             <div className="mt-5 border-y border-line py-4">
               <p className="text-xs text-mute">Valor</p>
               <p className="mt-1 text-2xl font-bold text-paper">{brl(total)}</p>
@@ -553,88 +499,21 @@ export function FechamentoComanda({
                 </Button>
               ) : null}
               <Button
-                variant={pixInformado ? "default" : "secondary"}
-                className="h-12"
+                size="lg"
+                className="h-14"
                 disabled={Boolean(ocupado)}
-                onClick={() => setConfirmarAberto(true)}
+                onClick={() => void confirmarPix()}
               >
                 <Check />
-                {ocupado === "confirmar"
-                  ? "Confirmando…"
-                  : pixInformado
-                    ? "Verificar e confirmar recebimento"
-                    : "Verificar pagamento"}
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-12"
-                disabled={Boolean(ocupado)}
-                onClick={() => setEtapa("itens")}
-              >
-                Receber de outra forma
+                {ocupado === "confirmar" ? "Confirmando…" : "Pix recebido"}
               </Button>
             </div>
-            <AlertDialog open={confirmarAberto} onOpenChange={setConfirmarAberto}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmar recebimento?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Confirme que o valor de {brl(total)} foi recebido no banco. Esta ação fechará a
-                    comanda.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      setConfirmarAberto(false);
-                      void confirmarPix();
-                    }}
-                  >
-                    Confirmar recebimento
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </div>
         ) : null}
 
-        {comandaId && etapa !== "retorno" && !verTicket ? (
-          <Button
-            variant="ghost"
-            className="mt-4 h-12 w-full rounded-full"
-            onClick={() => setVerTicket(true)}
-          >
-            <FileText aria-hidden />
-            Ver comanda
-          </Button>
-        ) : null}
-        {verTicket && comandaId ? (
-          <div className="pb-2">
-            <ConteudoDoTicket comandaId={comandaId} />
-            <Button
-              variant="ghost"
-              className="mt-4 h-12 w-full rounded-full"
-              onClick={() => setVerTicket(false)}
-            >
-              <ArrowLeft aria-hidden />
-              Voltar para o pagamento
-            </Button>
-          </div>
-        ) : null}
-        {etapa === "retorno" && !verTicket ? (
+        {etapa === "retorno" ? (
           <div className="py-3">
             <StatusBadge status="pago" label="Pagamento registrado" />
-            {comandaId ? (
-              <Button
-                variant="secondary"
-                className="mt-4 h-12 w-full rounded-full"
-                onClick={() => setVerTicket(true)}
-              >
-                <FileText aria-hidden />
-                Ver comanda
-              </Button>
-            ) : null}
             {d?.comanda.cliente_id && d.comanda.clientes?.telefone !== "avulso" ? (
               <div className="mt-5 border-y border-line py-3">
                 <FotoDoCorte
@@ -714,7 +593,7 @@ function IdentificarAvulso({
       <label className="mt-2 block text-xs text-mute">
         Nome
         <input
-          className="field-control"
+          className="input-premium"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           onFocus={(e) => e.currentTarget.select()}
@@ -724,7 +603,7 @@ function IdentificarAvulso({
       <label className="mt-3 block text-xs text-mute">
         Telefone / WhatsApp
         <input
-          className="field-control"
+          className="input-premium"
           type="tel"
           inputMode="tel"
           autoComplete="tel"

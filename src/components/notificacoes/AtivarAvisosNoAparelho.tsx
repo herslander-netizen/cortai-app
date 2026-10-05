@@ -1,9 +1,12 @@
 import { Bell, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
+import { useConsentimento } from "@/lib/consentimento";
+import { useModoFoco } from "@/lib/modo-foco";
 import { useConviteDeInstalacaoVisivel } from "@/lib/pwa";
-import { TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
-import { useCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convite-avisos";
+import { precisaInstalarParaPush } from "@/lib/push/aparelho";
+import { ativarAvisosDaEquipe, TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 
 /**
  * Convite discreto para ligar os avisos do aparelho.
@@ -19,22 +22,47 @@ export function AtivarAvisosNoAparelho({
   equipe?: string | null;
   posicao?: "base" | "topo";
 }) {
-  const { elegivel, instalarPrimeiro, ativar, dispensar } = useConviteDeAvisos(equipe);
+  const { pronto, estado, dispensado, pedir, dispensar } = useAvisosDoAparelho();
   const [passouTempo, setPassouTempo] = useState(false);
+  const [instalarPrimeiro, setInstalarPrimeiro] = useState(false);
   const conviteNaTela = useConviteDeInstalacaoVisivel();
-  const cartaoNoMenu = useCartaoDeAvisosNoMenu();
+  const { consentimento } = useConsentimento();
+  const foco = useModoFoco();
 
   useEffect(() => {
     const t = window.setTimeout(() => setPassouTempo(true), 4000);
     return () => window.clearTimeout(t);
   }, []);
 
-  if (!elegivel || conviteNaTela || cartaoNoMenu || !passouTempo) return null;
+  if (
+    foco ||
+    conviteNaTela ||
+    !consentimento ||
+    !pronto ||
+    !passouTempo ||
+    dispensado ||
+    estado !== "perguntar"
+  )
+    return null;
 
   const lugar =
     posicao === "topo"
       ? "top-[calc(76px+env(safe-area-inset-top))]"
       : "bottom-[calc(88px+env(safe-area-inset-bottom))]";
+
+  async function ativar() {
+    if (equipe) {
+      if (precisaInstalarParaPush()) {
+        setInstalarPrimeiro(true);
+        return;
+      }
+      const r = await ativarAvisosDaEquipe(equipe);
+      if (r !== "ativo" && r !== "so_no_app") dispensar();
+      return;
+    }
+    const ok = await pedir();
+    if (!ok) dispensar();
+  }
 
   return (
     <div className={`pointer-events-none fixed inset-x-0 ${lugar} z-40 flex justify-center px-4`}>

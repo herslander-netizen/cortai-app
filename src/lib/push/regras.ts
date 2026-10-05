@@ -115,33 +115,3 @@ export function inscricaoVencida(status: number) {
 export function plataformaValida(valor: unknown): valor is "android" | "ios" | "desktop" {
   return valor === "android" || valor === "ios" || valor === "desktop";
 }
-
-/** Tipos do sininho que já têm caminho próprio de push (gatilho da agenda). */
-export const TIPOS_COM_PUSH_PROPRIO = new Set<string>([...TIPOS_DE_PUSH]);
-
-export type AvisoDoSininho = {
-  tipo: string;
-  userId: string | null;
-  destinatarioTipo: string | null;
-};
-
-/**
- * Para cada aviso do sininho da equipe: quem recebe no celular.
- * Aviso pessoal (user_id) vai só para a pessoa; aviso do negócio vai para
- * dono, gerente e recepção. Registros do cliente nunca viram push da equipe.
- */
-export function destinatariosDoAviso(aviso: AvisoDoSininho, equipe: MembroDaEquipe[]): string[] {
-  if (aviso.destinatarioTipo === "cliente") return [];
-  if (TIPOS_COM_PUSH_PROPRIO.has(aviso.tipo)) return [];
-  const ativos = equipe.filter((m) => m.ativo && PAPEIS_COM_PUSH.has(m.papel));
-  if (aviso.userId) return ativos.some((m) => m.userId === aviso.userId) ? [aviso.userId] : [];
-  return [...new Set(ativos.filter((m) => PAPEIS_DO_NEGOCIO.has(m.papel)).map((m) => m.userId))];
-}
-
-/** Texto curto do push a partir do aviso do sininho (máx. 2 linhas). */
-export function textoDoAviso(titulo: string | null, corpo: string | null) {
-  const t = (titulo ?? "").trim();
-  const c = (corpo ?? "").trim();
-  const junto = t && c ? `${t} · ${c}` : t || c || "Novo aviso no Cortaí";
-  return junto.length > 140 ? `${junto.slice(0, 137)}…` : junto;
-}

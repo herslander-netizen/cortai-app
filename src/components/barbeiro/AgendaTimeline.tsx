@@ -618,11 +618,7 @@ export function AgendaTimeline({
       >
         <div
           className="agenda-timeline"
-          id={previa ? undefined : "agenda-timeline-grade"}
-          tabIndex={previa ? undefined : -1}
-          style={{
-            height: `${altura}px`,
-          }}
+          style={{ height: `${altura}px` }}
           {...(previa
             ? {}
             : {
@@ -797,12 +793,8 @@ export function AgendaTimeline({
                   <span className="flex min-w-0 items-center gap-1">
                     <span className="agenda-timeline-servico min-w-0 flex-1">
                       {item.servico}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
                     </span>
-                    {mostrarProfissional ? (
-                      <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
-                        {item.profissional}
-                      </span>
-                    ) : null}
                     <span className="flex shrink-0 gap-1">
                       {item.status === "finalizado" ? (
                         <Check className="agenda-check-finalizado" aria-label="Finalizado" />

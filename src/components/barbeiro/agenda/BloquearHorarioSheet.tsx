@@ -115,7 +115,7 @@ export function BloquearHorarioSheet({
               type="time"
               value={de}
               onChange={(e) => setDe(e.target.value)}
-              className="field-control mt-1 min-h-11 w-full"
+              className="input-premium mt-1 min-h-11 w-full"
             />
           </label>
           <label className="block text-sm text-mute">
@@ -124,7 +124,7 @@ export function BloquearHorarioSheet({
               type="time"
               value={ate}
               onChange={(e) => setAte(e.target.value)}
-              className="field-control mt-1 min-h-11 w-full"
+              className="input-premium mt-1 min-h-11 w-full"
             />
           </label>
         </div>
@@ -134,7 +134,7 @@ export function BloquearHorarioSheet({
             <select
               value={prof}
               onChange={(e) => setProf(e.target.value)}
-              className="field-control mt-1 min-h-11 w-full"
+              className="input-premium mt-1 min-h-11 w-full"
             >
               <option value="">Equipe toda</option>
               {profissionais.map((p) => (
@@ -153,7 +153,7 @@ export function BloquearHorarioSheet({
             enterKeyHint="done"
             onChange={(e) => setMotivo(e.target.value)}
             placeholder="Ex.: consulta médica"
-            className="field-control mt-1 min-h-11 w-full"
+            className="input-premium mt-1 min-h-11 w-full"
           />
         </label>
         {invalido ? (

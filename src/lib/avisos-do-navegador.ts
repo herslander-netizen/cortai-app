@@ -6,7 +6,6 @@
 import { useCallback, useEffect, useState } from "react";
 
 const CHAVE_DISPENSADO = "cortai:avisos-aparelho:dispensado";
-const EVENTO_DISPENSADO = "cortai:avisos-aparelho:dispensado";
 
 export type EstadoDeAvisos = "indisponivel" | "perguntar" | "ativo" | "bloqueado";
 
@@ -62,9 +61,6 @@ export function useAvisosDoAparelho() {
       setDispensado(false);
     }
     setPronto(true);
-    const sincronizar = () => setDispensado(true);
-    window.addEventListener(EVENTO_DISPENSADO, sincronizar);
-    return () => window.removeEventListener(EVENTO_DISPENSADO, sincronizar);
   }, []);
 
   const pedir = useCallback(async () => {
@@ -87,7 +83,6 @@ export function useAvisosDoAparelho() {
       /* preferência local é opcional */
     }
     setDispensado(true);
-    window.dispatchEvent(new Event(EVENTO_DISPENSADO));
   }, []);
 
   return { pronto, estado, dispensado, pedir, dispensar };

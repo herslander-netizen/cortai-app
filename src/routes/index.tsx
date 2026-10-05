@@ -3,7 +3,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
-import { destinoDaApresentacao } from "@/lib/apresentacao-ativa";
 import { getApresentacaoPublicada } from "@/lib/home.functions";
 import { SEO_APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { ShowroomCortai } from "@/components/apresentacao/ShowroomCortai";
@@ -27,12 +26,7 @@ export const Route = createFileRoute("/")({
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      const { ativa } = await getApresentacaoPublicada();
-      const destino = destinoDaApresentacao(ativa, false);
-      if (destino) throw redirect({ to: destino });
-      return;
-    }
+    if (!data.user) return;
     const sessao = await getSessao();
     throw redirect({ to: destinoDoPapel(sessao) });
   },

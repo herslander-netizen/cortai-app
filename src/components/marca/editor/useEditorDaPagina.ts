@@ -64,7 +64,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    if (!file.type.startsWith("image/")) {
       setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
       return;
     }
@@ -99,7 +99,6 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       if (kind === "logo") {
         setMarca("logo_url", path);
         setLogoPreview(preview);
-        void queryClient.invalidateQueries({ queryKey: ["logos-do-negocio"] });
       } else if (kind === "capa") {
         setMarca("capa_url", path);
         setCoverPreview(preview);
@@ -113,17 +112,6 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     } finally {
       setBusy(false);
     }
-  };
-
-  const usarLogo = (path: string, url: string) => {
-    setMarca("logo_url", path);
-    setLogoPreview(url);
-    setStatus("Logo escolhida. Salve ou publique para aplicar.");
-  };
-  const removerLogo = () => {
-    setMarca("logo_url", null);
-    setLogoPreview(null);
-    setStatus("Logo removida. Salve ou publique para aplicar.");
   };
 
   const salvarSlug = async () => {
@@ -210,8 +198,6 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     avatarPreview,
     setAvatarPreview,
     upload,
-    usarLogo,
-    removerLogo,
     salvarSlug,
     executar,
     restaurar,

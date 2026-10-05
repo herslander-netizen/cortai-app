@@ -1,13 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const confirmacao = vi.hoisted(() => ({ envios: 0, enviado: true }));
-vi.mock("./confirmacao.server", () => ({
-  enviarConfirmacaoDeAgendamento: async () => {
-    confirmacao.envios += 1;
-    return { enviado: confirmacao.enviado };
-  },
-}));
-
 /** Banco simulado: nenhuma chamada sai para o banco real. */
 type Estado = {
   automatica: boolean;
@@ -16,19 +8,13 @@ type Estado = {
   ranges: [number, number][];
   orders: string[];
   recusada: Record<string, unknown> | null;
-  aceite: Record<string, unknown>;
-  ofertaPerdida: Record<string, unknown> | null;
-  filaUpdates: Record<string, unknown>[];
 };
 const AGORA = Date.UTC(2026, 9, 5, 12, 0);
 const INICIO = AGORA + 3 * 3600_000;
 let st: Estado;
 
 function builder(tabela: string) {
-  const ctx: { op: string; payload?: Record<string, unknown>; filtros: Record<string, unknown> } = {
-    op: "select",
-    filtros: {},
-  };
+  const ctx: { op: string; payload?: Record<string, unknown> } = { op: "select" };
   const resolver = () => {
     if (tabela === "agendamentos" && ctx.op === "select")
       return {
@@ -50,16 +36,13 @@ function builder(tabela: string) {
       return { data: { id: "of1", token: "abc" }, error: null };
     }
     if (tabela === "ofertas_da_fila" && ctx.op === "update") return { data: st.recusada };
-    if (tabela === "ofertas_da_fila" && ctx.op === "select")
-      return { data: ctx.filtros["token"] ? st.ofertaPerdida : null };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const b: any = {};
   const chain = () => b;
-  for (const m of ["select", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
-  b.eq = (col: string, val: unknown) => ((ctx.filtros[col] = val), b);
+  for (const m of ["select", "eq", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
   b.order = (col: string) => {
     if (tabela === "fila_de_espera") st.orders.push(col);
     return b;
@@ -69,11 +52,7 @@ function builder(tabela: string) {
     return b;
   };
   b.insert = (p: Record<string, unknown>) => ((ctx.op = "insert"), (ctx.payload = p), b);
-  b.update = (p: Record<string, unknown>) => {
-    ctx.op = "update";
-    if (tabela === "fila_de_espera") st.filaUpdates.push(p);
-    return b;
-  };
+  b.update = () => ((ctx.op = "update"), b);
   b.maybeSingle = async () => {
     const r = resolver();
     if (tabela === "agendamentos" && Array.isArray(r.data)) return { data: null };
@@ -92,8 +71,7 @@ function builder(tabela: string) {
 
 const db = {
   from: (t: string) => builder(t),
-  rpc: async (nome: string) =>
-    nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true },
+  rpc: async () => ({ data: true }),
 };
 
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: db }));
@@ -124,12 +102,7 @@ beforeEach(() => {
     ranges: [],
     orders: [],
     recusada: null,
-    aceite: { ok: true, agendamento_id: "ag-novo" },
-    ofertaPerdida: null,
-    filaUpdates: [],
   };
-  confirmacao.envios = 0;
-  confirmacao.enviado = true;
 });
 
 describe("recuperação automática de vagas", () => {
@@ -173,51 +146,5 @@ describe("recuperação automática de vagas", () => {
     const r = await recusarOferta("abc");
     expect(r.ok).toBe(true);
     expect(st.inserts).toHaveLength(0);
-  });
-});
-
-describe("aceite da oferta", () => {
-  it("aceite com sucesso envia a confirmação uma única vez", async () => {
-    const { aceitarOferta } = await import("./fila-ofertas.server");
-    const r = await aceitarOferta("abc");
-    expect(r.ok).toBe(true);
-    expect(r.confirmacaoEnviada).toBe(true);
-    expect(confirmacao.envios).toBe(1);
-  });
-
-  it("aceite repetido não reenvia a confirmação", async () => {
-    st.aceite = { ok: true, agendamento_id: "ag-novo", repetida: true };
-    const { aceitarOferta } = await import("./fila-ofertas.server");
-    const r = await aceitarOferta("abc");
-    expect(r.confirmacaoEnviada).toBe(false);
-    expect(confirmacao.envios).toBe(0);
-  });
-
-  it("sem envio da confirmação, confirmacaoEnviada é falso", async () => {
-    confirmacao.enviado = false;
-    const { aceitarOferta } = await import("./fila-ofertas.server");
-    const r = await aceitarOferta("abc");
-    expect(r.ok).toBe(true);
-    expect(r.confirmacaoEnviada).toBe(false);
-  });
-
-  it("vaga perdida (ocupado) devolve o cliente à fila como aguardando", async () => {
-    st.aceite = { ok: false, motivo: "ocupado" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
-    const { aceitarOferta } = await import("./fila-ofertas.server");
-    const r = await aceitarOferta("abc");
-    expect(r.ok).toBe(false);
-    expect(st.filaUpdates).toContainEqual({ status: "aguardando" });
-    expect(st.inserts).toHaveLength(0);
-  });
-
-  it("oferta expirada reoferta a vaga", async () => {
-    st.aceite = { ok: false, motivo: "expirada" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
-    const { aceitarOferta } = await import("./fila-ofertas.server");
-    const r = await aceitarOferta("abc");
-    expect(r.ok).toBe(false);
-    expect(st.inserts).toHaveLength(1);
-    expect(st.inserts[0]?.["fila_id"]).toBe("primeiro");
   });
 });

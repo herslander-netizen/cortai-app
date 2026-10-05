@@ -6,7 +6,6 @@ import { PERMISSOES } from "@/lib/permissoes";
 import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
-import { decidirContextos } from "@/lib/contextos";
 
 const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
@@ -33,10 +32,6 @@ export type Sessao = {
   permissoes: string[];
   /** Vínculo existe, mas o acesso foi desativado por quem gerencia a equipe. */
   acessoSuspenso: boolean;
-  /** Contextos da mesma conta: cliente e/ou negócio. Uma conta por e-mail. */
-  contextos: { cliente: boolean; negocio: boolean };
-  /** A pessoa já escolheu em qual contexto quer estar. */
-  contextoEscolhido: boolean;
 };
 
 async function admin() {
@@ -90,25 +85,20 @@ export const getSessao = createServerFn({ method: "GET" })
     const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
 
-    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }, { count: fichas }] =
-      await Promise.all([
-        db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
-        db
-          .from("tenant_usuarios")
-          .select(
-            "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
-          )
-          .eq("user_id", context.userId),
-        db
-          .from("perfis")
-          .select("nome, tipo, tenant_ativo, contexto_ativo")
-          .eq("user_id", context.userId)
-          .maybeSingle(),
-        db
-          .from("clientes")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", context.userId),
-      ]);
+    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }] = await Promise.all([
+      db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+      db
+        .from("tenant_usuarios")
+        .select(
+          "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
+        )
+        .eq("user_id", context.userId),
+      db
+        .from("perfis")
+        .select("nome, tipo, tenant_ativo")
+        .eq("user_id", context.userId)
+        .maybeSingle(),
+    ]);
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
     // primeiro vínculo ativo como padrão seguro.
@@ -117,16 +107,6 @@ export const getSessao = createServerFn({ method: "GET" })
       ? lista.find((v) => v.tenant_id === perfil.tenant_ativo && v.ativo)
       : undefined;
     const vinculo = escolhida ?? lista.find((v) => v.ativo) ?? lista[0] ?? null;
-
-    const escolha = (perfil?.tipo ?? tipo) as string;
-    const contextos = decidirContextos({
-      temVinculoAtivo: Boolean(vinculo?.ativo),
-      tipoDoPerfil: escolha,
-      fichasDeCliente: fichas ?? 0,
-      contextoAtivo: perfil?.contexto_ativo ?? null,
-    });
-    const contextoAtivo = perfil?.contexto_ativo ?? null;
-    const contextoEscolhido = contextoAtivo !== null;
 
     const nome = perfil?.nome ?? nomeMeta ?? null;
     const base = {
@@ -145,17 +125,10 @@ export const getSessao = createServerFn({ method: "GET" })
       papelNaEquipe: null,
       permissoes: [] as string[],
       acessoSuspenso: false,
-      contextos,
-      contextoEscolhido,
     };
 
     if (papelAdmin) {
       return { ...base, papel: "admin" as const };
-    }
-    // Conta com os dois contextos que escolheu "cliente": entra como cliente,
-    // sem perder o negócio (troca sem sair da conta).
-    if (contextos.negocio && contextos.cliente && contextoAtivo === "cliente") {
-      return { ...base, papel: "cliente" as const };
     }
     if (vinculo && vinculo.ativo) {
       const t = vinculo.tenants as unknown as {
@@ -204,9 +177,6 @@ export const getSessao = createServerFn({ method: "GET" })
     }
     if (vinculo && !vinculo.ativo) {
       // Acesso desativado por quem gerencia a equipe: continua logado, mas sem barbearia.
-      if (contextos.cliente && contextoAtivo === "cliente") {
-        return { ...base, papel: "cliente" as const, papelNaEquipe: vinculo.papel };
-      }
       return {
         ...base,
         papel: "pendente" as const,
@@ -214,54 +184,10 @@ export const getSessao = createServerFn({ method: "GET" })
         acessoSuspenso: true,
       };
     }
-    const papel: Papel = contextos.cliente
-      ? "cliente"
-      : escolha === "barbeiro"
-        ? "barbeiro"
-        : "pendente";
+    const escolha = (perfil?.tipo ?? tipo) as string;
+    const papel: Papel =
+      escolha === "cliente" ? "cliente" : escolha === "barbeiro" ? "barbeiro" : "pendente";
     return { ...base, papel };
-  });
-
-/**
- * Troca de contexto sem sair da conta. "cliente" sempre pode ser ativado na
- * mesma conta (sem criar outra); "negocio" exige um vínculo ativo — o e-mail
- * nunca concede acesso administrativo sozinho.
- */
-export const escolherContexto = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z.object({ contexto: z.enum(["cliente", "negocio"]) }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const db = await admin();
-    if (data.contexto === "negocio") {
-      const { data: vinculo } = await db
-        .from("tenant_usuarios")
-        .select("tenant_id")
-        .eq("user_id", context.userId)
-        .eq("ativo", true)
-        .limit(1)
-        .maybeSingle();
-      if (!vinculo) throw new Error("Esta conta ainda não tem um negócio.");
-    }
-    const { data: perfil } = await db
-      .from("perfis")
-      .select("tipo")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    const { error } = await db.from("perfis").upsert(
-      {
-        user_id: context.userId,
-        contexto_ativo: data.contexto,
-        // Ativar "cliente" pela primeira vez numa conta pendente registra o contexto.
-        ...(data.contexto === "cliente" && (!perfil?.tipo || perfil.tipo === "pendente")
-          ? { tipo: "cliente" }
-          : {}),
-      },
-      { onConflict: "user_id" },
-    );
-    if (error) throw new Error("Não foi possível trocar de perfil agora.");
-    return { ok: true };
   });
 
 export const salvarIdentidadeApp = createServerFn({ method: "POST" })
@@ -279,7 +205,7 @@ export const salvarIdentidadeApp = createServerFn({ method: "POST" })
       .eq("tenant_id", data.tenantId)
       .limit(1)
       .maybeSingle();
-    if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade do negócio.");
+    if (!vinculo) throw new Error("Apenas o dono pode alterar a identidade da barbearia.");
     const { error } = await context.supabase
       .from("tenants")
       .update({ identidade_app: data.identidade })
@@ -402,10 +328,7 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       );
     await db
       .from("perfis")
-      .upsert(
-        { user_id: context.userId, tipo: "barbeiro", contexto_ativo: "negocio" },
-        { onConflict: "user_id" },
-      );
+      .upsert({ user_id: context.userId, tipo: "barbeiro" }, { onConflict: "user_id" });
     return {
       tenantId: tenantId as string,
       identidade: definicao.identidade,

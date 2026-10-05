@@ -383,7 +383,7 @@ function FormularioFila({
       <label className="block text-xs text-mute2">
         Serviço
         <select
-          className="field-control mt-1 w-full"
+          className="input-premium mt-1 w-full"
           value={v.servicoId ?? ""}
           onChange={(e) => setV({ ...v, servicoId: e.target.value || null })}
         >
@@ -398,7 +398,7 @@ function FormularioFila({
       <label className="block text-xs text-mute2">
         Profissional
         <select
-          className="field-control mt-1 w-full"
+          className="input-premium mt-1 w-full"
           value={v.profissionalId ?? ""}
           onChange={(e) => setV({ ...v, profissionalId: e.target.value || null })}
         >
@@ -415,7 +415,7 @@ function FormularioFila({
           Data
           <input
             type="date"
-            className="field-control mt-1 w-full"
+            className="input-premium mt-1 w-full"
             value={v.dia ?? ""}
             onChange={(e) => setV({ ...v, dia: e.target.value || null })}
           />
@@ -425,7 +425,7 @@ function FormularioFila({
             Horário
             <input
               type="time"
-              className="field-control mt-1 w-full"
+              className="input-premium mt-1 w-full"
               value={v.hora ?? ""}
               onChange={(e) => setV({ ...v, hora: e.target.value || null })}
             />
@@ -434,7 +434,7 @@ function FormularioFila({
           <label className="block text-xs text-mute2">
             Período
             <select
-              className="field-control mt-1 w-full"
+              className="input-premium mt-1 w-full"
               value={PERIODOS.findIndex(
                 (p) => p.inicio === v.janelaInicio && p.fim === v.janelaFim,
               )}

@@ -104,11 +104,3 @@ export function origemDaVisita(): OrigemFunil {
   if (typeof window === "undefined") return "direto";
   return detectarOrigem(window.location.search, document.referrer, window.location.hostname);
 }
-
-/** Visitas = entrada do funil (vitrine, ou 1º evento nas experiências direta/conversa); sem contar duas vezes. */
-export function resumoDoFunil(c: { vitrine: number; entradaDireta: number; confirmados: number }) {
-  const visitas = c.vitrine + c.entradaDireta;
-  const agendamentos = c.confirmados;
-  const conversao = visitas > 0 ? Math.round((agendamentos / visitas) * 100) : 0;
-  return { visitas, agendamentos, conversao };
-}

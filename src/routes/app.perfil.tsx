@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, LogOut, Repeat, UserRound, Wallet } from "lucide-react";
+import { ChevronRight, LogOut, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { AlterarSenha } from "@/components/acesso/AlterarSenha";
@@ -80,16 +80,6 @@ function PerfilPage() {
             </li>
             <li>
               <InstalarCortai />
-            </li>
-            <li className="border-b border-line">
-              <Link
-                to="/escolher"
-                className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
-              >
-                <Repeat size={18} className="text-mute" />
-                <span className="text-sm text-paper">Trocar de perfil</span>
-                <ChevronRight size={16} className="text-mute2" />
-              </Link>
             </li>
             <li className="border-b border-line">
               <button

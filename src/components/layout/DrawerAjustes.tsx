@@ -7,9 +7,7 @@ import {
   CreditCard,
   LogOut,
   Palette,
-  Repeat,
   Settings,
-  Share2,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -49,18 +47,6 @@ const ITENS = [
     detalhe: "Dados pessoais e do negócio",
     to: "/barbeiro/conta",
     icon: Settings,
-  },
-  {
-    label: "Funcionalidades",
-    detalhe: "Ligue só o que você usa",
-    to: "/barbeiro/funcionalidades",
-    icon: SlidersHorizontal,
-  },
-  {
-    label: "Redes sociais",
-    detalhe: "Instagram e TikTok conectados",
-    to: "/barbeiro/redes",
-    icon: Share2,
   },
   {
     label: "Plano",
@@ -123,7 +109,7 @@ export function DrawerAjustes({
         </SheetDescription>
 
         <div className="mt-5 space-y-1.5">
-          {ITENS.slice(0, 3).map((item) => {
+          {ITENS.slice(0, 2).map((item) => {
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
@@ -177,7 +163,7 @@ export function DrawerAjustes({
             </div>
           ) : null}
 
-          {ITENS.slice(3).map((item) => {
+          {ITENS.slice(2).map((item) => {
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
@@ -198,23 +184,6 @@ export function DrawerAjustes({
               </Button>
             );
           })}
-
-          <Button asChild variant="ghost" size="bloco" className={CARTAO}>
-            <Link to="/escolher" onClick={navegar}>
-              <span className={LINHA}>
-                <IconeDoMenu icone={Repeat} />
-                <span className="min-w-0">
-                  <span className="block truncate text-base font-semibold text-paper">
-                    Trocar de perfil
-                  </span>
-                  <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                    Cliente ou negócio, sem sair da conta
-                  </span>
-                </span>
-                <ChevronRight className="size-5 text-mute2" aria-hidden />
-              </span>
-            </Link>
-          </Button>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>

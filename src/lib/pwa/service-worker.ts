@@ -24,10 +24,6 @@ self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE_OFFLINE).then((c) => c.add(ICONE)).catch(() => undefined));
 });
 
-self.addEventListener("message", (e) => {
-  if (e.data && e.data.tipo === "cortai-ativar") self.skipWaiting();
-});
-
 self.addEventListener("activate", (e) => {
   e.waitUntil((async () => {
     const nomes = await caches.keys();

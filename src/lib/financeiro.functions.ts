@@ -93,7 +93,7 @@ export const getFechamentoComanda = createServerFn({ method: "GET" })
       db
         .from("comandas")
         .select(
-          "id, numero, status, forma_escolhida, cliente_informou_pagamento_em, subtotal_centavos, desconto_centavos, total_centavos, comissao_total_centavos, cliente_id, profissional_id, agendamento_id, clientes(nome, telefone, limite_fiado_centavos), profissionais(nome), agendamentos(inicio, forma_pagamento)",
+          "id, numero, status, subtotal_centavos, desconto_centavos, total_centavos, comissao_total_centavos, cliente_id, profissional_id, agendamento_id, clientes(nome, telefone, limite_fiado_centavos), profissionais(nome), agendamentos(inicio, forma_pagamento)",
         )
         .eq("id", comandaId)
         .eq("tenant_id", tenantId)

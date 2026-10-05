@@ -1,11 +1,10 @@
-import { Suspense } from "react";
-import { lazyComRecuperacao } from "@/lib/pwa/recuperar-chunk";
+import { lazy, Suspense } from "react";
 
 import { AvisoSemHorarios } from "@/components/barbeiro/AvisoSemHorarios";
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 
 // Único ponto de entrada da Agenda: um só chunk compartilhado por "/barbeiro" e "/barbeiro/agenda".
-const AgendaOperacional = lazyComRecuperacao(() =>
+const AgendaOperacional = lazy(() =>
   import("@/components/barbeiro/AgendaOperacional").then((m) => ({ default: m.AgendaOperacional })),
 );
 

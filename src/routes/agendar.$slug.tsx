@@ -2,7 +2,6 @@
  * Agendamento público do cliente — sem conta, sem senha, sem login.
  * Abriu → escolheu → informou nome e WhatsApp → confirmou.
  */
-import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario";
 import { createFileRoute } from "@tanstack/react-router";
 import { fluxoDoAgendamento } from "@/lib/experiencia-link";
 import { montarSchemaNegocio } from "@/lib/schema-negocio";
@@ -16,8 +15,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
-import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
-import { ConviteDeConta } from "@/components/agendamento/ConviteDeConta";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { PreferenciasAposAgendamento } from "@/components/agendamento/PreferenciasAposAgendamento";
 import { PreferenciasEmConversa } from "@/components/agendamento/chat/PreferenciasEmConversa";
@@ -419,26 +416,18 @@ function AgendamentoPublico() {
           onCancelar={() => cancelar.mutate()}
           onNovo={novoAgendamento}
           extras={
-            situacao === "confirmado" ? (
-              <>
-                {confirmado.preferenciasToken ? (
-                  modoConversa ? (
-                    <PreferenciasEmConversa
-                      agendamentoId={confirmado.agendamentoId}
-                      token={confirmado.preferenciasToken}
-                      slug={slug}
-                    />
-                  ) : (
-                    <PreferenciasAposAgendamento
-                      agendamentoId={confirmado.agendamentoId}
-                      token={confirmado.preferenciasToken}
-                      slug={slug}
-                    />
-                  )
-                ) : null}
-                <TicketDaConfirmacao agendamentoId={confirmado.agendamentoId} slug={slug} />
-                <ConviteDeConta agendamentoId={confirmado.agendamentoId} telefone={telefone} />
-              </>
+            situacao === "confirmado" && confirmado.preferenciasToken && modoConversa ? (
+              <PreferenciasEmConversa
+                agendamentoId={confirmado.agendamentoId}
+                token={confirmado.preferenciasToken}
+                slug={slug}
+              />
+            ) : situacao === "confirmado" && confirmado.preferenciasToken ? (
+              <PreferenciasAposAgendamento
+                agendamentoId={confirmado.agendamentoId}
+                token={confirmado.preferenciasToken}
+                slug={slug}
+              />
             ) : null
           }
         />
@@ -681,45 +670,60 @@ function AgendamentoPublico() {
       {escolhido ? (
         <Bloco titulo="Seus dados">
           <div className="grid gap-3">
-            <CampoDeFormulario
-              rotulo="WhatsApp (com DDD)"
-              obrigatorio
-              value={telefone}
-              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-              onBlur={async () => {
-                setTocouTelefone(true);
-                if (digitosTel.length < 10) return;
-                try {
-                  // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
-                  const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
-                  const local = bruto
-                    ? (JSON.parse(bruto) as { telefone: string; nome: string })
-                    : null;
-                  if (local && local.telefone === digitosTel && local.nome) {
-                    const primeiro = local.nome.split(" ")[0] ?? local.nome;
-                    setSaudacao(primeiro);
-                    if (!nome.trim()) setNome(local.nome);
+            <label className="block text-xs font-medium text-mute">
+              WhatsApp
+              <input
+                value={telefone}
+                onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+                onBlur={async () => {
+                  setTocouTelefone(true);
+                  if (digitosTel.length < 10) return;
+                  try {
+                    // O nome só vem do próprio aparelho de quem já agendou aqui; o servidor não revela.
+                    const bruto = localStorage.getItem(`cortai-cliente-publico:${slug}`);
+                    const local = bruto
+                      ? (JSON.parse(bruto) as { telefone: string; nome: string })
+                      : null;
+                    if (local && local.telefone === digitosTel && local.nome) {
+                      const primeiro = local.nome.split(" ")[0] ?? local.nome;
+                      setSaudacao(primeiro);
+                      if (!nome.trim()) setNome(local.nome);
+                    }
+                  } catch {
+                    /* identificação é um extra: nunca bloqueia o agendamento */
                   }
-                } catch {
-                  /* identificação é um extra: nunca bloqueia o agendamento */
-                }
-              }}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              enterKeyHint="next"
-              erro={tocouTelefone ? erroTelefone : null}
-            />
-            <CampoDeFormulario
-              rotulo="Nome"
-              obrigatorio
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              onBlur={() => setTocouNome(true)}
-              autoComplete="name"
-              enterKeyHint="done"
-              erro={tocouNome ? erroNome : null}
-            />
+                }}
+                inputMode="tel"
+                autoComplete="tel"
+                enterKeyHint="next"
+                placeholder="(00) 00000-0000"
+                aria-invalid={tocouTelefone && Boolean(erroTelefone)}
+                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
+                  tocouTelefone && erroTelefone ? "border-brick" : "border-line2"
+                }`}
+              />
+              {tocouTelefone && erroTelefone ? (
+                <span className="mt-1 block text-xs text-brick">{erroTelefone}</span>
+              ) : null}
+            </label>
+            <label className="block text-xs font-medium text-mute">
+              Nome
+              <input
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                onBlur={() => setTocouNome(true)}
+                autoComplete="name"
+                enterKeyHint="done"
+                placeholder="Como quer ser chamado"
+                aria-invalid={tocouNome && Boolean(erroNome)}
+                className={`mt-2 h-12 w-full rounded-lg border bg-ink2 px-4 text-sm text-paper outline-none ${
+                  tocouNome && erroNome ? "border-brick" : "border-line2"
+                }`}
+              />
+              {tocouNome && erroNome ? (
+                <span className="mt-1 block text-xs text-brick">{erroNome}</span>
+              ) : null}
+            </label>
           </div>
         </Bloco>
       ) : null}

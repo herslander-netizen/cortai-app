@@ -72,26 +72,13 @@ export async function aplicarFalhaDeEnvio(input: {
         .eq("id", envio.cliente_id);
     }
 
-    // Um alerta aberto por negócio e tipo em 24h: a mesma pendência da conta não vira enxurrada.
-    const { data: alertaAberto } = acao.alerta
-      ? await db
-          .from("alertas_da_plataforma")
-          .select("id")
-          .eq("origem", "whatsapp")
-          .eq("nivel", acao.alerta)
-          .eq("tenant_id", envio.tenant_id)
-          .is("resolvido_em", null)
-          .gte("criado_em", new Date(agora.getTime() - 24 * 3600_000).toISOString())
-          .limit(1)
-          .maybeSingle()
-      : { data: null };
-    if (acao.alerta && !alertaAberto) {
+    if (acao.alerta) {
       await db.from("alertas_da_plataforma").insert({
         nivel: acao.alerta,
         origem: "whatsapp",
         titulo:
           acao.alerta === "critico"
-            ? "Conta oficial do WhatsApp/Meta com problema de elegibilidade/pagamento"
+            ? "Conta oficial do WhatsApp com problema de pagamento"
             : "Modelo de mensagem do WhatsApp com problema",
         detalhes: { codigo: input.codigo, motivo: input.motivo.slice(0, 500), envio_id: envio.id },
         tenant_id: envio.tenant_id,

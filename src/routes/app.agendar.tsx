@@ -421,7 +421,7 @@ function Fluxo({
         {!servico || !dia ? (
           <p className="text-sm text-mute">Escolha serviço e dia para ver os horários.</p>
         ) : agenda?.fechado ? (
-          <p className="text-sm text-mute">O local não abre neste dia. Escolha outro dia.</p>
+          <p className="text-sm text-mute">A barbearia não abre neste dia. Escolha outro dia.</p>
         ) : agenda?.opcoes.length ? (
           <div className="flex flex-wrap gap-2">
             {agenda.opcoes.map((h) => (
@@ -456,7 +456,7 @@ function Fluxo({
           <ul>
             <li>
               <LinhaPagamento
-                titulo="Pagar no local"
+                titulo="Pagar na barbearia"
                 detalhe="Dinheiro, cartão ou Pix no balcão"
                 valor={brl(preco)}
                 selecionado={forma === "balcao"}

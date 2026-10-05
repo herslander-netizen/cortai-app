@@ -44,7 +44,6 @@ import {
   identidadeValida,
   MODE_KEY,
 } from "@/lib/aparencia";
-import { termos } from "@/lib/segmentos";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
@@ -91,8 +90,8 @@ export function ManagementHeader() {
   ).length;
   const resumoDaAgenda = agenda
     ? atendimentosDeHoje
-      ? `Hoje · ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
-      : "Hoje · livre"
+      ? `Hoje: ${atendimentosDeHoje} ${atendimentosDeHoje === 1 ? "atendimento" : "atendimentos"}`
+      : "Agenda livre hoje"
     : null;
 
   useEffect(() => {
@@ -162,11 +161,7 @@ export function ManagementHeader() {
           const rota = "rotaDaCapacidade" in item ? item.rotaDaCapacidade : undefined;
           if (!rota || !capacidades) return true;
           const capacidade = CAPACIDADES.find((entrada) => entrada.rota === rota);
-          if (!capacidade?.recurso) return true;
-          return (
-            capacidades.liberados[capacidade.recurso] !== false &&
-            capacidades.ativos[capacidade.recurso] !== false
-          );
+          return !capacidade?.recurso || capacidades.liberados[capacidade.recurso] !== false;
         }),
     }));
   }, [capacidades, celular, sessao?.permissoes, sessao?.segmento]);
@@ -219,9 +214,7 @@ export function ManagementHeader() {
                       className="rounded-full border-0 bg-drawer-card"
                     />
                     <div className="min-w-0">
-                      <SheetTitle
-                        className={`line-clamp-2 break-words font-semibold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-xl leading-6" : "text-2xl leading-7"}`}
-                      >
+                      <SheetTitle className="truncate text-[22px] font-semibold leading-tight text-paper">
                         {sessao?.tenantNome ?? "Meu negócio"}
                       </SheetTitle>
                       <SheetDescription className="mt-1 truncate text-[15px] text-mute">
@@ -253,9 +246,7 @@ export function ManagementHeader() {
                   resumoDaAgenda={resumoDaAgenda}
                   agendaAtiva={itemDeNavegacaoAtivo(caminho, "/barbeiro")}
                   operacaoAberta={operacaoAberta}
-                  tenantId={sessao?.tenantId ?? null}
-                  verDesempenho={celular && !!sessao?.permissoes.includes("relatorios")}
-                  menuAberto={aberto}
+                  horarioFinal={horarioDeHoje?.fecha}
                   fechar={() => setAberto(false)}
                 />
                 <div className="mt-6 space-y-4">
@@ -269,9 +260,7 @@ export function ManagementHeader() {
                           aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
                           onClick={() => alternar(grupo.titulo)}
                         >
-                          {grupo.titulo === "Negócio"
-                            ? capitalizar(termos(sessao?.segmento).possessivo)
-                            : grupo.titulo}
+                          {grupo.titulo}
                           <ChevronDown
                             className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
                             aria-hidden
@@ -326,8 +315,4 @@ export function ManagementHeader() {
       </div>
     </header>
   );
-}
-
-function capitalizar(texto: string) {
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
