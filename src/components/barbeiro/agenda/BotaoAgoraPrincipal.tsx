@@ -19,6 +19,7 @@ export function BotaoAgoraPrincipal({
   onHoje,
   menuAberto,
   onAlternarMenu,
+  visivel = true,
 }: {
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
@@ -26,6 +27,7 @@ export function BotaoAgoraPrincipal({
   onHoje: () => void;
   menuAberto: boolean;
   onAlternarMenu: () => void;
+  visivel?: boolean;
 }) {
   const celular = useMediaQuery("(max-width: 600px)");
   const menosMovimento = useMenosMovimento();
@@ -84,6 +86,8 @@ export function BotaoAgoraPrincipal({
     const destino = evento.key === "Home" ? "timeline" : evento.key === "End" ? "lista" : proxima;
     onVisualizacao(destino);
   }
+
+  if (!visivel) return null;
 
   return (
     <>

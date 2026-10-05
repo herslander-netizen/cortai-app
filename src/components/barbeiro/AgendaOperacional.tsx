@@ -1,6 +1,6 @@
 import { lazyComRecuperacao } from "@/lib/pwa/recuperar-chunk";
 import { invalidarComandas } from "@/lib/comanda-ticket";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -95,6 +95,7 @@ import {
 } from "@/components/barbeiro/agenda/preferencias";
 import { PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
+import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 import {
   contextoInicialDaAgenda,
   useLugarDaAgenda,
@@ -247,6 +248,8 @@ function FolhaFila(props: {
 
 export function AgendaOperacional() {
   const busca = useSearch({ strict: false });
+  const caminho = useRouterState({ select: (estado) => estado.location.pathname });
+  const layoutEquipe = useLayoutEquipe();
   const acaoInicial =
     busca["acao"] === "agendamento" ||
     busca["acao"] === "atendimento" ||
@@ -320,6 +323,25 @@ export function AgendaOperacional() {
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
+  const rotaDaAgenda = caminho === "/barbeiro" || caminho === "/barbeiro/agenda";
+  const temSobreposicao = Boolean(
+    painelAberto ||
+      bloquearAberto ||
+      focoTrancado ||
+      manualAberto ||
+      rapidoAberto ||
+      perfil ||
+      fechando ||
+      ticketAberto ||
+      conflito ||
+      filaAberta ||
+      layoutEquipe?.menuAberto,
+  );
+  const acoesFlutuantesVisiveis = rotaDaAgenda && !temSobreposicao;
+
+  useEffect(() => {
+    if (!acoesFlutuantesVisiveis && menuAberto) setMenuAberto(false);
+  }, [acoesFlutuantesVisiveis, menuAberto]);
 
   function alterarVisualizacao(proxima: Visualizacao) {
     const segura = celular && proxima === "semana" ? "lista" : proxima;
@@ -785,6 +807,7 @@ export function AgendaOperacional() {
         setManualAberto(true);
       }}
       comBotaoFechar={!modoFoco}
+      visivel={acoesFlutuantesVisiveis}
     />
   );
 
@@ -1407,6 +1430,7 @@ export function AgendaOperacional() {
         ehHoje={ehHoje}
         onHoje={() => mudarDia(hojeNoFuso(fuso))}
         menuAberto={menuAberto}
+        visivel={acoesFlutuantesVisiveis}
         onAlternarMenu={() => {
           setPainelAberto(false);
           setSelecionado(null);

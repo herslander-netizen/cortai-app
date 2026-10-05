@@ -114,6 +114,28 @@ describe("BotaoAgoraPrincipal", () => {
     expect(aberto?.querySelector(".agenda-fab-icone-aberto")).not.toBeNull();
   });
 
+  it("não monta controles quando o contexto da Agenda está oculto", async () => {
+    prepararLargura(390);
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    raiz = createRoot(host);
+    await act(async () =>
+      raiz?.render(
+        <BotaoAgoraPrincipal
+          visualizacao="timeline"
+          onVisualizacao={vi.fn()}
+          ehHoje
+          onHoje={vi.fn()}
+          menuAberto={false}
+          onAlternarMenu={vi.fn()}
+          visivel={false}
+        />,
+      ),
+    );
+    expect(host?.querySelector("[data-acoes-agenda]")).toBeNull();
+    expect(host?.querySelector(".agenda-botao-agora-principal")).toBeNull();
+  });
+
   it("mantém cor e fundo da cápsula em todos os estados e solta o foco após toque", async () => {
     await montar(390);
     const estilos = readFileSync("src/styles.css", "utf8");

@@ -49,9 +49,13 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
 import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
+import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
 export function ManagementHeader() {
-  const [aberto, setAberto] = useState(false);
+  const layoutEquipe = useLayoutEquipe();
+  const [abertoLocal, setAbertoLocal] = useState(false);
+  const aberto = layoutEquipe?.menuAberto ?? abertoLocal;
+  const setAberto = layoutEquipe?.setMenuAberto ?? setAbertoLocal;
   const [modoClaro, setModoClaro] = useState(false);
   const [abertos, setAbertos] = useState<string[]>(["Dia a dia"]);
   const celular = useMediaQuery("(max-width: 767px)");
