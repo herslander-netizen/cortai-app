@@ -1297,24 +1297,6 @@ html.light .brand-logo-on-light,
   box-shadow: none;
   animation: mov-fade var(--mov-base) var(--ease-saida) both;
 }
-.agenda-acao-fixa {
-  position: fixed;
-  z-index: 25;
-  right: max(20px, calc((100vw - 760px) / 2 + 32px));
-  bottom: calc(16px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-.agenda-acao-redonda {
-  width: 56px;
-  min-width: 56px;
-  height: 56px;
-  padding: 0;
-  border-radius: 999px;
-  box-shadow: var(--shadow-md);
-}
 .agenda-acao-fechar {
   position: fixed;
   z-index: 60;
@@ -1412,19 +1394,6 @@ html.light .brand-logo-on-light,
   }
   .agenda-cabecalho-unico .agenda-chips {
     margin-top: 6px;
-  }
-  .agenda-acao-fixa {
-    right: 14px;
-    bottom: var(--agenda-controle-pe);
-  }
-  .agenda-acao-fixa .agenda-acao-redonda {
-    width: 50px;
-    min-width: 50px;
-    height: 50px;
-    box-shadow: var(--shadow-sm);
-  }
-  .agenda-operacional {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
   }
   .agenda-timeline-scroll {
     max-height: none;
@@ -2719,9 +2688,6 @@ body:has(.auth-screen--claro) {
 .equipe-lateral {
   display: none;
 }
-.agenda-acao-fixa {
-  bottom: var(--agenda-controle-pe);
-}
 .agenda-acao-fechar {
   bottom: calc(76px + env(safe-area-inset-bottom));
 }
@@ -2798,7 +2764,6 @@ body:has(.auth-screen--claro) {
   .equipe-lateral-link[aria-current="page"] svg {
     color: var(--gold);
   }
-  .agenda-acao-fixa,
   .agenda-acao-fechar {
     bottom: calc(24px + env(safe-area-inset-bottom));
   }
@@ -5670,9 +5635,6 @@ button.agenda-nome:hover {
   .agenda-botao-agora-principal {
     display: flex;
   }
-  .agenda-operacional {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom));
-  }
   .agenda-operacional :focus-visible {
     scroll-margin-top: 120px;
     scroll-margin-bottom: calc(140px + env(safe-area-inset-bottom));
@@ -5900,16 +5862,32 @@ button.agenda-nome:hover {
   }
 }
 
-/* Agenda 3.0: botões flutuantes maiores e menu "+" em speed dial. */
+/* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
   --agenda-fab-tamanho: 64px;
   --agenda-fab-icone: 28px;
   --agenda-fab-margem: 16px;
+  --agenda-fab-pe: var(--agenda-controle-pe);
   --agenda-composto-largura: 160px;
   --agenda-respiro-inferior: 112px;
 }
 .agenda-acao-fixa {
+  position: fixed;
   z-index: 60;
+  right: max(20px, calc((100vw - 760px) / 2 + 32px));
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.agenda-acao-redonda {
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 999px;
+  box-shadow: var(--shadow-md);
 }
 .agenda-fab-toggle .agenda-fab-icone {
   width: var(--agenda-fab-icone);
@@ -5918,6 +5896,7 @@ button.agenda-nome:hover {
 @media (max-width: 600px) {
   .agenda-acao-fixa {
     right: var(--agenda-fab-margem);
+    bottom: var(--agenda-fab-pe);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);
@@ -5959,12 +5938,22 @@ button.agenda-nome:hover {
 }
 .agenda-dial-lista {
   position: absolute;
-  right: var(--agenda-fab-margem);
-  bottom: calc(var(--agenda-controle-pe) + var(--agenda-fab-tamanho) + 8px);
+  right: max(20px, calc((100vw - 760px) / 2 + 32px));
+  bottom: calc(24px + env(safe-area-inset-bottom) + 56px + 8px);
   display: flex;
+  max-height: calc(100dvh - 24px - env(safe-area-inset-bottom) - 56px - 24px);
   flex-direction: column-reverse;
   align-items: flex-end;
   gap: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 600px) {
+  .agenda-dial-lista {
+    right: var(--agenda-fab-margem);
+    bottom: calc(var(--agenda-fab-pe) + var(--agenda-fab-tamanho) + 8px);
+    max-height: calc(100dvh - var(--agenda-fab-pe) - var(--agenda-fab-tamanho) - 24px);
+  }
 }
 .agenda-dial-pilula {
   display: inline-flex;
