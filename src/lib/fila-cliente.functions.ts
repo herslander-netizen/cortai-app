@@ -15,6 +15,7 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       servicoId?: string;
       profissionalId?: string;
       dia?: string;
+      horario?: string;
     }) => {
       if (!data.nome.trim()) throw new Error("Informe seu nome.");
       if (data.telefone.replace(/\D/g, "").length < 10)
@@ -60,6 +61,9 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       janela["fim"] = data.janelaFim;
     }
     if (dia) janela["dia"] = dia;
+    // Horário específico (ex.: "15:00") só vale junto com um dia; não reserva nada.
+    if (dia && data.horario && /^([01]\d|2[0-3]):[0-5]\d$/.test(data.horario))
+      janela["horario"] = data.horario;
     let profissionalId: string | null = null;
     if (data.profissionalId) {
       const { data: pr } = await db

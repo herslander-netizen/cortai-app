@@ -11,12 +11,15 @@ import { useContextoCliente } from "@/lib/contexto-cliente";
 export const Route = createFileRoute("/app/espera")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { b?: string; servico?: string; dia?: string } => ({
+  ): { b?: string; servico?: string; dia?: string; horario?: string } => ({
     ...(typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {}),
     ...(typeof search["servico"] === "string" && search["servico"]
       ? { servico: search["servico"] }
       : {}),
     ...(typeof search["dia"] === "string" && search["dia"] ? { dia: search["dia"] } : {}),
+    ...(typeof search["horario"] === "string" && /^\d{2}:\d{2}$/.test(search["horario"])
+      ? { horario: search["horario"] }
+      : {}),
   }),
   head: () => ({
     meta: [
@@ -44,7 +47,7 @@ const JANELAS = [
 
 function EsperaPage() {
   const entrar = useServerFn(entrarNaFila);
-  const { b, servico, dia } = Route.useSearch();
+  const { b, servico, dia, horario } = Route.useSearch();
   const slug = useContextoCliente(b);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -60,7 +63,7 @@ function EsperaPage() {
       title="Lista de espera"
       subtitle={
         dia
-          ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")} — avisamos assim que vagar.`
+          ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")}${horario ? ` às ${horario}` : ""} — avisamos assim que vagar.`
           : "Avisamos assim que um horário vagar."
       }
     >
@@ -94,8 +97,8 @@ function EsperaPage() {
             />
           </label>
 
-          <p className="mt-6 text-xs text-mute2">Melhor período</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          {horario ? null : <p className="mt-6 text-xs text-mute2">Melhor período</p>}
+          <div className={`mt-2 grid grid-cols-2 gap-2 ${horario ? "hidden" : ""}`}>
             {JANELAS.map((j, i) => (
               <button
                 key={j.rotulo}
@@ -127,6 +130,7 @@ function EsperaPage() {
                         ...(slug ? { slug } : {}),
                         ...(servico ? { servicoId: servico } : {}),
                         ...(dia ? { dia } : {}),
+                        ...(dia && horario ? { horario } : {}),
                       },
                     }),
                   {
