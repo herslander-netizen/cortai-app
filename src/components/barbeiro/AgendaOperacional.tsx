@@ -1,3 +1,4 @@
+import { lazyComRecuperacao } from "@/lib/pwa/recuperar-chunk";
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -5,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
@@ -99,18 +100,18 @@ import {
   useLugarDaAgenda,
 } from "@/components/barbeiro/agenda/useLugarDaAgenda";
 
-const AgendamentoManualLazy = lazy(() =>
+const AgendamentoManualLazy = lazyComRecuperacao(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
 );
-const AtendimentoRapidoLazy = lazy(() =>
+const AtendimentoRapidoLazy = lazyComRecuperacao(() =>
   import("@/components/barbeiro/AtendimentoRapido").then((m) => ({ default: m.AtendimentoRapido })),
 );
-const FechamentoComandaLazy = lazy(() =>
+const FechamentoComandaLazy = lazyComRecuperacao(() =>
   import("@/components/financeiro/FechamentoComanda").then((m) => ({
     default: m.FechamentoComanda,
   })),
 );
-const PerfilClienteLazy = lazy(() =>
+const PerfilClienteLazy = lazyComRecuperacao(() =>
   import("@/components/cliente-perfil/PerfilClienteSheet").then((m) => ({
     default: m.PerfilClienteSheet,
   })),
