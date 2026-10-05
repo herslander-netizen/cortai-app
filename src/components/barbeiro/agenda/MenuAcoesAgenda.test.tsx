@@ -11,6 +11,20 @@ import { MenuAcoesAgenda } from "./MenuAcoesAgenda";
 let raiz: Root | null = null;
 let host: HTMLDivElement | null = null;
 
+Object.defineProperty(window, "matchMedia", {
+  configurable: true,
+  value: vi.fn((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 afterEach(() => {
   act(() => raiz?.unmount());
   host?.remove();
