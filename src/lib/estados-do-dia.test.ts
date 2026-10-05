@@ -88,7 +88,7 @@ describe("estadosDoDia", () => {
   it("folga entre atendimentos conta como ocupado", () => {
     const r = estadosDoDia({
       ...base,
-      regras: { antecedenciaMin: 0, intervaloEntreMin: 15 },
+      regras: { antecedenciaMin: 0, intervaloEntreMin: 20 },
       profissionais: [{ id: "a" }],
       escolhido: "a",
       ocupados: [joao],
