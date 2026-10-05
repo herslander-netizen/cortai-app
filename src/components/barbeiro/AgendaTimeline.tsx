@@ -416,18 +416,23 @@ export function AgendaTimeline({
     const montar = () => {
       observador?.disconnect();
       const area = areaLivre();
-      observador = new IntersectionObserver(
-        ([entrada]) => {
-          if (!entrada) return;
-          const lado = entrada.isIntersecting
-            ? "visivel"
-            : ladoDoAgora(entrada.boundingClientRect, entrada.rootBounds ?? area);
-          publicarAgora({ lado, ir });
-        },
-        {
-          rootMargin: `-${Math.round(area.top)}px 0px -${Math.round(window.innerHeight - area.bottom)}px 0px`,
-        },
-      );
+      // Margens nunca negativas: no celular a área pode passar da janela e gerar "--Xpx" inválido.
+      const topo = Math.max(0, Math.round(area.top));
+      const base = Math.max(0, Math.round(window.innerHeight - area.bottom));
+      const aoCruzar = ([entrada]: IntersectionObserverEntry[]) => {
+        if (!entrada) return;
+        const lado = entrada.isIntersecting
+          ? "visivel"
+          : ladoDoAgora(entrada.boundingClientRect, entrada.rootBounds ?? area);
+        publicarAgora({ lado, ir });
+      };
+      try {
+        observador = new IntersectionObserver(aoCruzar, {
+          rootMargin: `-${topo}px 0px -${base}px 0px`,
+        });
+      } catch {
+        observador = new IntersectionObserver(aoCruzar);
+      }
       observador.observe(linha);
     };
     montar();
