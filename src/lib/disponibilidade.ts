@@ -11,6 +11,9 @@ import {
   type HorarioDeFuncionamento,
 } from "@/lib/horarios";
 
+/** Status que ocupam a agenda — fonte única (o servidor reexporta). */
+export const STATUS_QUE_OCUPAM = ["agendado", "chegou", "na_cadeira", "finalizado"] as const;
+
 export type Ocupado = {
   profissional_id: string | null;
   inicio: string;
