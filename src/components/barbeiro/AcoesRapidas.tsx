@@ -48,6 +48,18 @@ const acoes = [
   },
 ] as const;
 
+const ROTAS_COM_ACOES_RAPIDAS_NO_CABECALHO = new Set(["/barbeiro/hoje", "/barbeiro/casa"]);
+
+/**
+ * O atalho do cabeçalho pertence apenas ao acompanhamento operacional.
+ * A Agenda usa seu próprio FAB contextual e as demais telas mantêm somente
+ * as ações específicas do próprio conteúdo.
+ */
+export function deveMostrarAcoesRapidasNoCabecalho(caminho: string) {
+  const caminhoNormalizado = caminho.replace(/\/$/, "") || "/";
+  return ROTAS_COM_ACOES_RAPIDAS_NO_CABECALHO.has(caminhoNormalizado);
+}
+
 export function AcoesRapidas() {
   const [aberto, setAberto] = useState(false);
   const navigate = useNavigate();
