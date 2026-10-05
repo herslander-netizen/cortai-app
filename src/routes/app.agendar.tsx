@@ -7,6 +7,7 @@ import { Screen } from "@/components/layout/Screen";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { brl, dataHoraLonga, diaCurto } from "@/lib/format";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
+import { HorariosOcupados } from "@/components/agendamento/HorariosOcupados";
 import {
   criarAgendamento,
   getDadosAgendar,
@@ -438,7 +439,17 @@ function Fluxo({
               />
             ))}
           </div>
-        ) : (
+        ) : null}
+        {servico && dia && !agenda?.fechado ? (
+          <HorariosOcupados
+            ocupados={selecao.ocupadosDoDia}
+            dia={dia}
+            servicoId={servico.id}
+            slug={slug}
+            listaDeEspera
+          />
+        ) : null}
+        {!servico || !dia || agenda?.fechado || agenda?.opcoes.length ? null : (
           <div>
             <p className="text-sm text-mute">
               Agenda cheia? Entre na lista de espera e avisaremos quando surgir uma vaga.

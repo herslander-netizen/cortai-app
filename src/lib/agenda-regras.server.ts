@@ -11,7 +11,8 @@ import {
 } from "@/lib/disponibilidade";
 import { normalizarFuso, type HorarioDeFuncionamento } from "@/lib/horarios";
 
-export const STATUS_QUE_OCUPAM = ["agendado", "chegou", "na_cadeira", "finalizado"] as const;
+import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
+export { STATUS_QUE_OCUPAM };
 export const STATUS_ATIVOS_DO_CLIENTE = ["agendado", "chegou", "na_cadeira"] as const;
 
 export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFuncionamento[] {

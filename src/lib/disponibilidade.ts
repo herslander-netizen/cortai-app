@@ -11,6 +11,9 @@ import {
   type HorarioDeFuncionamento,
 } from "@/lib/horarios";
 
+/** Status que ocupam a agenda — fonte única (o servidor reexporta). */
+export const STATUS_QUE_OCUPAM = ["agendado", "chegou", "na_cadeira", "finalizado"] as const;
+
 export type Ocupado = {
   profissional_id: string | null;
   inicio: string;
@@ -196,6 +199,95 @@ export function horariosDisponiveis(p: {
     if (prof) opcoes.push({ iso, label, profId: prof });
   }
   return { fechado: false, opcoes };
+}
+
+export type EstadoDoHorario = "livre" | "ocupado" | "bloqueado" | "passado";
+export type HorarioComEstado<O extends Ocupado = Ocupado> = {
+  iso: string;
+  label: string;
+  estado: EstadoDoHorario;
+  /** Profissional sugerido quando livre. */
+  profId: string | null;
+  /** Quem ocupa (só atendimentos, nunca bloqueios), quando ocupado. */
+  ocupantes: O[];
+};
+
+/**
+ * Todos os horários do dia com seu estado real, usando as mesmas regras de
+ * `horariosDisponiveis` (duração, folga, funcionamento, antecedência,
+ * profissional). "Ocupado" só quando nenhum candidato está livre por causa de
+ * atendimento; bloqueio/escala/intervalo vira "bloqueado". Só para a tela —
+ * a validação final continua no servidor.
+ */
+export function estadosDoDia<O extends Ocupado>(p: {
+  dia: string;
+  servico: ServicoDoMotor;
+  profissionais: { id: string }[];
+  escolhido: string;
+  horarios: HorarioDeFuncionamento[];
+  fuso: string;
+  ocupados: O[];
+  regras: RegrasDaAgenda;
+  agora?: number;
+  passoMin?: number;
+}): { fechado: boolean; horarios: HorarioComEstado<O>[] } {
+  const info = horarioDoDia(p.dia, p.horarios);
+  if (info.fechado) return { fechado: true, horarios: [] };
+  const agora = p.agora ?? Date.now();
+  const passo = p.passoMin ?? 30;
+  const aptos = profissionaisDoServico(p.servico, p.profissionais).map((x) => x.id);
+  const candidatos = p.escolhido === "qualquer" ? aptos : aptos.filter((id) => id === p.escolhido);
+  const atendimentos = p.ocupados.filter((o) => !o.bloqueio);
+  const bloqueios = p.ocupados.filter((o) => o.bloqueio);
+  const folga = p.regras.intervaloEntreMin;
+  const saida: HorarioComEstado<O>[] = [];
+  for (
+    let t = min(info.abre);
+    t + p.servico.duracao_min <= fimEmMinutos(info.abre, info.fecha);
+    t += passo
+  ) {
+    const tt = t % 1440;
+    const label = `${String(Math.floor(tt / 60)).padStart(2, "0")}:${String(tt % 60).padStart(2, "0")}`;
+    const iso = isoNoFusoDaBarbearia(t >= 1440 ? somarDias(p.dia, 1) : p.dia, label, p.fuso);
+    const inicio = new Date(iso).getTime();
+    const fim = inicio + p.servico.duracao_min * 60_000;
+    const base = { iso, label, profId: null, ocupantes: [] as O[] };
+    if (inicio < agora - 60_000) {
+      saida.push({ ...base, estado: "passado" });
+      continue;
+    }
+    if (
+      motivoForaDoHorario(inicio, p.servico.duracao_min, p.horarios, p.fuso) ||
+      motivoAntecedencia(inicio, p.regras.antecedenciaMin, agora) ||
+      !candidatos.length
+    ) {
+      saida.push({ ...base, estado: "bloqueado" });
+      continue;
+    }
+    const semBloqueio = candidatos.filter((id) => profissionalLivre(id, inicio, fim, bloqueios, 0));
+    if (!semBloqueio.length) {
+      saida.push({ ...base, estado: "bloqueado" });
+      continue;
+    }
+    const livres = semBloqueio.filter((id) =>
+      profissionalLivre(id, inicio, fim, atendimentos, folga),
+    );
+    const prof = escolherProfissional(livres, p.dia, p.ocupados, p.fuso);
+    if (prof) {
+      saida.push({ ...base, estado: "livre", profId: prof });
+      continue;
+    }
+    const f = folga * 60_000;
+    const ocupantes = atendimentos.filter(
+      (o) =>
+        o.profissional_id !== null &&
+        semBloqueio.includes(o.profissional_id) &&
+        new Date(o.inicio).getTime() < fim + f &&
+        new Date(o.fim).getTime() > inicio - f,
+    );
+    saida.push({ ...base, estado: "ocupado", ocupantes });
+  }
+  return { fechado: false, horarios: saida };
 }
 
 /** Próximos dias (AAAA-MM-DD) a partir de hoje no fuso da barbearia. */

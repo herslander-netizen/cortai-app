@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  estadosDoDia,
   horariosDisponiveis,
   profissionaisDoServico,
   proximosDiasNoFuso,
@@ -125,6 +126,36 @@ export function useSelecaoAgendamento({
   }, [inicio, dia, porDia]);
 
   const agenda = dia ? porDia.get(dia) : undefined;
+  // Mesmo motor: horários do dia com estado, para mostrar "Ocupado" sem permitir escolher.
+  const ocupadosDoDia = useMemo(
+    () =>
+      dia && servico
+        ? estadosDoDia({
+            dia,
+            servico,
+            profissionais,
+            escolhido: profissionalId,
+            horarios,
+            fuso,
+            ocupados,
+            regras,
+            agora,
+            passoMin,
+          }).horarios.filter((h) => h.estado === "ocupado")
+        : [],
+    [
+      dia,
+      servico,
+      profissionais,
+      profissionalId,
+      horarios,
+      fuso,
+      ocupados,
+      regras,
+      agora,
+      passoMin,
+    ],
+  );
   const escolhido = agenda?.opcoes.find((opcao) => opcao.iso === inicio) ?? null;
 
   return {
@@ -144,6 +175,7 @@ export function useSelecaoAgendamento({
     dia,
     porDia,
     agenda,
+    ocupadosDoDia,
     inicio,
     escolhido,
     setDia: (data: string | null) => {
