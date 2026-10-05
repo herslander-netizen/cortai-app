@@ -245,14 +245,14 @@ export const aplicarCupom = createServerFn({ method: "POST" })
       tenant?.criado_em != null &&
       Date.now() - new Date(tenant.criado_em).getTime() < 30 * 86400000;
     if (cupom.publico === "novos" && !novo)
-      throw new Error("Este cupom é só para barbearias novas.");
+      throw new Error("Este cupom é só para negócios novos.");
     if (cupom.publico === "existentes" && novo)
-      throw new Error("Este cupom é só para barbearias já clientes.");
+      throw new Error("Este cupom é só para negócios já clientes.");
 
     const { error: erroUso } = await client
       .from("cupons_usos")
       .insert({ cupom_id: cupom.id, tenant_id: tenantId, aplicado_por: context.userId });
-    if (erroUso) throw new Error("Este cupom já foi usado nesta barbearia.");
+    if (erroUso) throw new Error("Este cupom já foi usado neste negócio.");
     await client
       .from("cupons")
       .update({ usos: cupom.usos + 1 })
@@ -385,7 +385,7 @@ export const getVisaoComercialDoTenant = createServerFn({ method: "GET" })
         .gte("inicio", inicioDoMes.toISOString()),
     ]);
     const tenant = tenantRes.data;
-    if (!tenant) throw new Error("Barbearia não encontrada.");
+    if (!tenant) throw new Error("Negócio não encontrado.");
     const planos = (planosRes.data ?? []).map(planoDaLinha);
     const condicoes = (condRes.data ?? []).map(condicaoDaLinha);
     const condicao = condicaoVigente(condicoes);

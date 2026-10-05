@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
+import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
@@ -102,9 +102,9 @@ function LoginPage() {
 
   async function seguirParaMinhaArea() {
     const sessao = await getSessao();
-    const destino = destinoDoPapel(sessao);
     // Só aceita caminho interno da área autorizada para o papel da pessoa.
-    const pedido = destinoSolicitadoPermitido(proximo, destino);
+    const pedido = destinoSolicitadoPermitido(proximo, destinoDoPapel(sessao));
+    const destino = destinoAposEntrar(sessao);
     if (pedido) {
       window.location.assign(pedido);
       return;

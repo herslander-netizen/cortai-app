@@ -41,4 +41,18 @@ describe("rolagem da Timeline no celular", () => {
     );
     expect(confirmar).toContain("setToqueVazio(minuto)");
   });
+
+  it("mantém a timeline completa sem controle ou recorte de horários anteriores", () => {
+    expect(timeline).not.toContain("Mostrar horários anteriores");
+    expect(timeline).not.toContain("mostrarAnteriores");
+    expect(timeline).not.toContain("corteAnteriores");
+    expect(timeline).not.toContain('clipPath: "inset(0 -100vw -100vh -100vw)"');
+  });
+
+  it("mantém horários passados visíveis, apenas com tratamento visual discreto", () => {
+    expect(timeline).toContain('"agenda-timeline-passado"');
+    expect(css).toContain(
+      ".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)",
+    );
+  });
 });

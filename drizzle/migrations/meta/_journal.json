@@ -1,55 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1790951979163,
-      "tag": "0000_add_client_service_preferences",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1790955385353,
-      "tag": "0001_secure_public_appointment_preferences",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1790964336335,
-      "tag": "0002_teste_gratis_45_dias",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1790968954394,
-      "tag": "0003_push_equipe",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1790969969879,
-      "tag": "0004_push_estado_do_aparelho",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1790998433422,
-      "tag": "0005_eventos_funil",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1791002340279,
-      "tag": "0006_lista_espera_automatica",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

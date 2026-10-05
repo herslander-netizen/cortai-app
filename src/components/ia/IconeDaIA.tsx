@@ -2,11 +2,11 @@ import { Sparkles } from "lucide-react";
 
 import { BigodeCortai } from "./BigodeCortai";
 
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 /** Ícone da CortAI: bigode na barbearia, acento do "í" nos demais segmentos. */
 export function IconeDaIA({
-  segmento = "barbearia",
+  segmento,
   size = 24,
   className,
 }: {
@@ -14,7 +14,7 @@ export function IconeDaIA({
   size?: number;
   className?: string | undefined;
 }) {
-  if (SEGMENTOS_CONFIG[segmentoValido(segmento)].iconeIA === "bigode") {
+  if (SEGMENTOS_CONFIG[segmentoParaApresentacao(segmento)].iconeIA === "bigode") {
     return <BigodeCortai size={size} {...(className ? { className } : {})} />;
   }
   // Abaixo de 15px o acento perde a leitura: usa o Sparkles.

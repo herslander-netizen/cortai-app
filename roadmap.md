@@ -120,3 +120,43 @@
 - [x] Etapa 3 — botões flutuantes 64 dp e menu "+" em speed dial
 - [x] Etapa 4 — avisos em tela cheia no celular
 - [x] Etapa 5 — versão 3.0.0, novidades.ts, aviso "Cortaí 3.0 disponível", descrição neutra
+
+## Etapa 6 — acabamento e cadastro
+- [x] Parte 1: tokens de tipografia/raios, campo novo global, componentes de formulário, Novo agendamento e Novo cliente
+- [ ] Parte 2: perfil do cliente, telas do cliente final e menu lateral
+- [ ] Parte 3: revisão de textos do app e novidades da 3.0
+- [ ] E-mail no cadastro do cliente: aguarda decisão do dono (não existe na ficha hoje)
+
+- [x] Painel de Funcionalidades (/barbeiro/funcionalidades)
+
+- [ ] Secretária Cortaí completa no WhatsApp (documento de 741 linhas): analisar e planejar; atenção à regra de não usar IA paga no WhatsApp
+- [x] Conta única com cliente + negócio, seletor e troca de perfil
+
+## Redes sociais — Fase 3
+- [x] Tela de publicar agora / agendar, fila e histórico em Divulgar
+
+## Chat público — cabeçalho e fluxo (pedido 03/10)
+- [x] Cabeçalho de mensageria (voltar, avatar, nome, status dinâmico, menu ⋮ com ações da barra inferior)
+- [x] Barra de mensagem única e prévia herdando
+- [ ] Conferir o chat na tela em 390px (negócios de teste usam o formato lista)
+
+## Agenda — visão de equipe e individual
+- [ ] Refatorar calendário, seletor de profissionais e resumo operacional sem alterar regras
+- [ ] Implementar visão Todos compacta e visão individual ampla na Timeline
+- [ ] Posicionar a Agenda perto do horário atual e recolher horários anteriores
+- [ ] Validar ações, estados, 390px, 1280px, tipos, testes e build; deixar o preview pronto sem publicar
+
+- [x] Agenda: validar 390px/desktop (cortes, sobreposição, overflow)
+- [x] Agenda: teclado + ARIA nos filtros de profissional e controles da timeline
+
+- [x] Multi-segmento (só beleza): auditar e trocar textos fixos de barbearia por termos(segmento)
+
+- [x] Comanda: uma superfície ativa por vez (ficha → cobrança → ticket interno; cliente com ticket na página)
+- [ ] Validar na tela com conta de negócio (390px, painel lateral, Foco, Caixa); bloqueado: conta de teste do negócio
+
+## Pendentes (03/10/2026)
+- [x] Pix pelo WhatsApp: decidido manter conferência pela equipe (fluxo "Já paguei" atual preservado).
+- [x] Consolidação CortAI: cérebro único em src/lib/brain para painel, site e WhatsApp.
+- [ ] Validar a Secretária no WhatsApp com número real conectado (depende do número Meta ativo).
+- [ ] Push para todo aviso do sininho da equipe (sem depender do WhatsApp)
+- [ ] Remarcação sempre gera aviso novo ao cliente (trava de repetição por versão)

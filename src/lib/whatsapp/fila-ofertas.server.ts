@@ -369,10 +369,12 @@ export async function aceitarOferta(token: string) {
   const { data, error } = await db.rpc("aceitar_oferta_da_fila", { _token: token });
   if (error) throw new Error("Não foi possível confirmar agora. Tente de novo.");
   const r = data as { ok: boolean; motivo?: string; agendamento_id?: string; repetida?: boolean };
+  let confirmacaoEnviada = false;
   if (r.ok && r.agendamento_id && !r.repetida) {
     try {
       const { enviarConfirmacaoDeAgendamento } = await import("./confirmacao.server");
-      await enviarConfirmacaoDeAgendamento(r.agendamento_id);
+      const envio = await enviarConfirmacaoDeAgendamento(r.agendamento_id);
+      confirmacaoEnviada = envio?.enviado === true;
     } catch {
       /* agendamento salvo; falha fica registrada no envio */
     }
@@ -394,7 +396,7 @@ export async function aceitarOferta(token: string) {
         await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
     }
   }
-  return r;
+  return { ...r, confirmacaoEnviada };
 }
 
 export async function recusarOferta(token: string) {

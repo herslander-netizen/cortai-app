@@ -70,7 +70,7 @@ function ProfissionaisPage() {
                   onChange={(e) =>
                     setForm((s) => ({ ...s, [p.id]: { ...atual, descricao: e.target.value } }))
                   }
-                  className="input-premium mt-1 w-full resize-none"
+                  className="field-control mt-1 w-full resize-none"
                   placeholder="Especialista nos serviços que oferece."
                 />
               </label>
@@ -84,7 +84,7 @@ function ProfissionaisPage() {
                   onChange={(e) =>
                     setForm((s) => ({ ...s, [p.id]: { ...atual, fotos: e.target.value } }))
                   }
-                  className="input-premium mt-1 w-full resize-none"
+                  className="field-control mt-1 w-full resize-none"
                   placeholder="https://"
                 />
               </label>

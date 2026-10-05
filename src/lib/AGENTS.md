@@ -1,0 +1,5 @@
+- PWA: SW gerado em `lib/pwa/service-worker.ts`, servido em `/sw.js` (no-cache), registrado só por `lib/pwa/registro.ts` em cortai.dev; cache só de `/assets/*` — nunca HTML/API/banco.
+- Push só da equipe, disparado pelo gatilho do sino; regras em `lib/push/regras.ts`, envio WebCrypto, VAPID em `chaves_internas` — um ponto de decisão.
+- Funil público anônimo: só `/api/public/funil` grava em `eventos_funil` (sem dado pessoal), regras puras em `src/lib/funil.ts` — uma fonte para origem/experiência.
+- Painel de Funcionalidades (`src/lib/funcionalidades.ts`) só aponta para interruptores já lidos pelo sistema (recursos_do_tenant, colunas do negócio, regras_de_plano, config da Secretária); item sem interruptor real só leva à tela própria — evita matriz paralela e toggle falso.
+- Conexões sociais (Instagram/TikTok): tela /barbeiro/redes, tabela conexoes_sociais (tokens só via service_role; leitura do membro sem tokens), estado OAuth assinado com o segredo da plataforma; sem chaves de desenvolvedor, iniciarConexaoSocial cria conexão "simulada" — um fluxo só para demonstração e conexão real.

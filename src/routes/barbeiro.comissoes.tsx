@@ -177,7 +177,7 @@ function ComissoesPage() {
             <label className="text-xs text-mute">
               Comissão de serviços (%)
               <input
-                className="input-premium"
+                className="field-control"
                 type="number"
                 min="0"
                 max="100"
@@ -189,7 +189,7 @@ function ComissoesPage() {
             <label className="text-xs text-mute">
               Comissão de produtos (%)
               <input
-                className="input-premium"
+                className="field-control"
                 type="number"
                 min="0"
                 max="100"
@@ -201,7 +201,7 @@ function ComissoesPage() {
             <label className="text-xs text-mute">
               Tipo da chave Pix
               <select
-                className="input-premium"
+                className="field-control"
                 value={atual.pixTipo}
                 onChange={(e) =>
                   setForm({ ...atual, pixTipo: e.target.value as typeof atual.pixTipo })
@@ -217,7 +217,7 @@ function ComissoesPage() {
             <label className="text-xs text-mute">
               Chave Pix
               <input
-                className="input-premium"
+                className="field-control"
                 value={atual.pixChave}
                 onChange={(e) => setForm({ ...atual, pixChave: e.target.value })}
                 placeholder="Sua chave"
@@ -226,7 +226,7 @@ function ComissoesPage() {
             <label className="text-xs text-mute">
               WhatsApp para comprovantes
               <input
-                className="input-premium"
+                className="field-control"
                 inputMode="tel"
                 value={atual.pixWhatsapp}
                 onChange={(e) => setForm({ ...atual, pixWhatsapp: e.target.value })}

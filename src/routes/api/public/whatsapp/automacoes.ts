@@ -46,7 +46,10 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
         const teste = await import("@/lib/teste-gratis.server");
         const testesRebaixados = await teste.rebaixarTestesVencidos().catch(() => 0);
         const avisosDoTeste = await teste.processarReguaDoTeste().catch(() => 0);
-        return Response.json({ ok: true, ...resumo, testesRebaixados, avisosDoTeste });
+        // Postagens agendadas nas redes: mesma varredura, sem agendador paralelo.
+        const redes = await import("@/lib/postagens-sociais.server");
+        const postagensPublicadas = await redes.processarPostagensVencidas().catch(() => 0);
+        return Response.json({ ok: true, ...resumo, testesRebaixados, avisosDoTeste, postagensPublicadas });
       },
     },
   },

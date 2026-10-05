@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao } from "@/lib/tenant";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { normalizarEmailCliente } from "@/lib/email-cliente";
 
 const BUCKET = "fotos-corte";
 
@@ -18,7 +19,7 @@ async function contexto(context: any, clienteId: string) {
   const { data: cliente } = await db
     .from("clientes")
     .select(
-      "id, nome, telefone, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
+      "id, nome, telefone, email, ficha_tecnica, ficha_chips, alergias, opt_in_whatsapp, preferencias",
     )
     .eq("id", clienteId)
     .eq("tenant_id", tenantId)
@@ -28,7 +29,7 @@ async function contexto(context: any, clienteId: string) {
 }
 
 export type PerfilCliente = {
-  cliente: { id: string; nome: string; telefone: string; avulso: boolean };
+  cliente: { id: string; nome: string; telefone: string; email: string | null; avulso: boolean };
   ficha: { chips: string[]; alergias: string | null; texto: string | null };
   preferencias: PreferenciasCliente;
   catalogo: string[];
@@ -138,6 +139,7 @@ export const getPerfilCliente = createServerFn({ method: "GET" })
         id: cliente.id,
         nome: cliente.nome,
         telefone: cliente.telefone,
+        email: cliente.email ?? null,
         avulso: cliente.telefone === "avulso",
       },
       ficha: {
@@ -239,6 +241,43 @@ export const salvarPreferenciasCliente = createServerFn({ method: "POST" })
       .eq("tenant_id", tenantId);
     if (error) throw new Error("Não foi possível salvar as preferências.");
     return { preferencias };
+  });
+
+export const salvarDetalhesCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(
+    (d: { clienteId: string; nome: string; telefone: string; email?: string | null }) => {
+      const nome = String(d.nome ?? "").trim().replace(/\s+/g, " ");
+      const telefone = String(d.telefone ?? "").replace(/\D/g, "").slice(0, 15);
+      if (nome.length < 2 || nome.length > 80) throw new Error("Informe o nome completo.");
+      if (telefone.length < 10) throw new Error("Informe um telefone com DDD.");
+      const e = normalizarEmailCliente(d.email);
+      if (!e.ok) throw new Error(e.erro);
+      return { clienteId: String(d.clienteId), nome, telefone, email: e.email };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { db, tenantId, cliente } = await contexto(context, data.clienteId);
+    await exigirPermissao(context, tenantId, "editar_clientes");
+    if (cliente.telefone === "avulso")
+      throw new Error("Identifique o cliente avulso na comanda antes de editar.");
+    const { variantesDoTelefone } = await import("@/lib/telefone");
+    const { data: outro } = await db
+      .from("clientes")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .in("telefone", variantesDoTelefone(data.telefone))
+      .neq("id", cliente.id)
+      .limit(1)
+      .maybeSingle();
+    if (outro) throw new Error("Já existe outro cliente com esse telefone.");
+    const { error } = await db
+      .from("clientes")
+      .update({ nome: data.nome, telefone: data.telefone, email: data.email })
+      .eq("id", cliente.id)
+      .eq("tenant_id", tenantId);
+    if (error) throw new Error("Não foi possível salvar. Tente de novo.");
+    return { nome: data.nome, telefone: data.telefone, email: data.email };
   });
 
 export const enviarFotoCorte = createServerFn({ method: "POST" })

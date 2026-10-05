@@ -32,7 +32,7 @@ async function titular(tenantId: string, clienteId: string, telefone: string) {
 }
 
 const NAO_IDENTIFICADO_BARBEARIA =
-  "Para falar de saldo ou valores, este número precisa estar cadastrado aqui na barbearia. Quer que eu chame alguém da equipe?";
+  "Para falar de saldo ou valores, este número precisa estar cadastrado aqui no negócio. Quer que eu chame alguém da equipe?";
 const naoIdentificado = (segmento?: string | null) =>
   !segmento || segmento === "barbearia"
     ? NAO_IDENTIFICADO_BARBEARIA
