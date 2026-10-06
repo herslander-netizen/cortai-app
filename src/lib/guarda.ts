@@ -111,9 +111,18 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
 }
 
 export async function sair() {
-  const { removerPushDesteAparelho } = await import("@/lib/push/aparelho");
-  await removerPushDesteAparelho();
+  // O logout é prioritário: a limpeza do Push (Service Worker/rede) roda em
+  // segundo plano e nunca pode bloquear ou atrasar a saída da conta.
+  void import("@/lib/push/aparelho")
+    .then(({ removerPushDesteAparelho }) => removerPushDesteAparelho())
+    .catch(() => {
+      /* melhor esforço: segue o logout */
+    });
   esquecerSessao();
-  await supabase.auth.signOut();
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    /* mesmo com erro no signOut, a pessoa precisa sair da tela */
+  }
   if (typeof window !== "undefined") window.location.assign("/");
 }
