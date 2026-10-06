@@ -114,7 +114,7 @@ describe.each(IDENTIDADES)("identidade %s", (identidade) => {
   describe.each(["escuro", "claro"] as const)("tema %s", (tema) => {
     const t = tokens(identidade, tema);
     // Claro 3.0: paleta suave definida pelo dono; a borda (--linha) completa a separação.
-    const minimoL = tema === "escuro" ? 0.07 : 0.03;
+    const minimoL = tema === "escuro" ? 0.06 : 0.03; // paleta aprovada pelo dono; a borda completa a separação
 
     it("cartão se separa do fundo (app e menu)", () => {
       expect(deltaL(t.ink2, t.ink)).toBeGreaterThanOrEqual(minimoL);
