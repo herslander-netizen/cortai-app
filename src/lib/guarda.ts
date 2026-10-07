@@ -99,8 +99,8 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   try {
     sessao = await sessaoDoUsuario(usuario.id);
   } catch {
-    esquecerSessao();
-    await supabase.auth.signOut();
+    // Sessão expirada/inválida: encerra com prazo para a rota nunca ficar pendurada.
+    await encerrarSessaoComSeguranca();
     throw redirect({ to: "/login", search: { proximo: "" } });
   }
   const destino = destinoDoPapel(sessao);
@@ -110,19 +110,77 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   return sessao;
 }
 
-export async function sair() {
-  // O logout é prioritário: a limpeza do Push (Service Worker/rede) roda em
-  // segundo plano e nunca pode bloquear ou atrasar a saída da conta.
-  void import("@/lib/push/aparelho")
-    .then(({ removerPushDesteAparelho }) => removerPushDesteAparelho())
-    .catch(() => {
-      /* melhor esforço: segue o logout */
-    });
+/** Resolve em até `ms`; nunca rejeita (passos de saída são melhor esforço). */
+function comPrazo(tarefa: Promise<unknown>, ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    tarefa.then(
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+    );
+  });
+}
+
+/**
+ * Encerra a sessão sem nunca travar: `signOut()` pode ficar pendente para
+ * sempre (renovação de token expirado sem rede, ou trava interna de sessão
+ * ocupada). Se não concluir no prazo, apaga a sessão local à força para que
+ * nenhuma tela a reencontre e devolva a pessoa para dentro do painel.
+ */
+async function encerrarSessaoComSeguranca() {
   esquecerSessao();
+  let concluiu = false;
+  await comPrazo(
+    supabase.auth.signOut().then(({ error }) => {
+      if (!error) concluiu = true;
+    }),
+    3000,
+  );
+  if (concluiu || typeof window === "undefined") return;
   try {
-    await supabase.auth.signOut();
+    const auth = supabase.auth as unknown as {
+      storageKey?: string;
+      storage?: { removeItem: (k: string) => unknown };
+    };
+    const chaves = new Set<string>();
+    if (auth.storageKey) chaves.add(auth.storageKey);
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith("sb-") && k.includes("-auth-token")) chaves.add(k);
+    }
+    for (const k of chaves) {
+      window.localStorage.removeItem(k);
+      void Promise.resolve(auth.storage?.removeItem(k)).catch(() => undefined);
+    }
   } catch {
-    /* mesmo com erro no signOut, a pessoa precisa sair da tela */
+    /* armazenamento indisponível: segue para a tela de entrada */
   }
-  if (typeof window !== "undefined") window.location.assign("/");
+}
+
+let saindoDaConta = false;
+
+export async function sair() {
+  // Toques repetidos em "Sair" não disparam saídas concorrentes.
+  if (saindoDaConta) return;
+  saindoDaConta = true;
+  try {
+    // A limpeza do Push usa a sessão ainda válida; tem prazo curto e nunca bloqueia a saída.
+    await comPrazo(
+      import("@/lib/push/aparelho").then(({ removerPushDesteAparelho }) =>
+        removerPushDesteAparelho(),
+      ),
+      1500,
+    );
+    await encerrarSessaoComSeguranca();
+  } finally {
+    // `replace`: o Voltar não reabre a tela protegida.
+    if (typeof window !== "undefined") window.location.replace("/login");
+    else saindoDaConta = false;
+  }
 }
