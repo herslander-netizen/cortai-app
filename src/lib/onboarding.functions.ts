@@ -802,7 +802,9 @@ export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
         intervaloEntreMin: z.number().int().min(0).max(120),
         aceitaEncaixe: z.boolean(),
         janelaDias: z.number().int().min(7).max(90).default(30),
-        passoMin: z.union([z.literal(15), z.literal(20), z.literal(30), z.literal(40)]).default(30),
+        passoMin: z
+          .union([z.literal(15), z.literal(20), z.literal(30), z.literal(40), z.literal(50)])
+          .default(30),
       })
       .parse(input),
   )

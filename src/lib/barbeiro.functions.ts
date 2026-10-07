@@ -214,7 +214,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
     const passo = Number(tenantRes.data?.passo_horarios_min);
-    const passoMin = [15, 20, 30, 40].includes(passo) ? passo : 30;
+    const passoMin = [15, 20, 30, 40, 50].includes(passo) ? passo : 30;
     const profissionais = (profsRes.data ?? []).map((p) => ({
       id: p.id,
       nome: p.nome,
