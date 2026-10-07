@@ -26,7 +26,7 @@ export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFunciona
   }));
 }
 
-export const PASSOS_PERMITIDOS = [15, 20, 30, 40] as const;
+export const PASSOS_PERMITIDOS = [15, 20, 30, 40, 50] as const;
 export function janelaValida(v: unknown): number {
   const n = Number(v);
   return Number.isFinite(n) && n >= 7 && n <= 90 ? Math.round(n) : 30;

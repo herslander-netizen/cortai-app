@@ -111,6 +111,7 @@ const PASSOS = [
   { valor: 20, rotulo: "20 min" },
   { valor: 30, rotulo: "30 min" },
   { valor: 40, rotulo: "40 min" },
+  { valor: 50, rotulo: "50 min" },
 ];
 const INTERVALOS = [
   { valor: 0, rotulo: "Nenhum" },
