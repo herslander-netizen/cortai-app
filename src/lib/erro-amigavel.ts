@@ -7,7 +7,9 @@ const TECNICO =
 export function mensagemDeErro(e: unknown, padrao = MENSAGEM_PADRAO): string {
   const texto = e instanceof Error ? e.message : typeof e === "string" ? e : "";
   if (texto) console.error("[configurar]", texto);
-  if (!texto || TECNICO.test(texto) || /^[\x20-\x7e]+$/.test(texto) && !/[ãõçéíóúâê]/i.test(texto)) {
+  const pareceIngles =
+    /^[\x20-\x7e]+$/.test(texto) && !/\b(n[aã]o|voc[eê]|tente|hor[aá]rio)\b/i.test(texto);
+  if (!texto || TECNICO.test(texto) || pareceIngles) {
     return padrao;
   }
   return texto.length > 140 ? padrao : texto;

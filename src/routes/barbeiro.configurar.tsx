@@ -493,7 +493,9 @@ function ConfigurarPage() {
               >
                 <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block break-words text-sm font-semibold text-paper">Trabalho sozinho</span>
+                  <span className="block break-words text-sm font-semibold text-paper">
+                    Trabalho sozinho
+                  </span>
                   <span className="block break-words text-xs text-mute">
                     Você aparece como o profissional. Pula este passo.
                   </span>
