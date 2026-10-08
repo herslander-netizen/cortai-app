@@ -130,11 +130,8 @@ export const operarCentral = createServerFn({ method: "POST" })
       aviso = e instanceof Error ? e.message : "Falha ao falar com o serviço.";
       await db.from("conexoes_whatsapp").update({ ultimo_erro: aviso }).eq("id", central.id);
     }
-    await db.from("auditoria_de_suporte").insert({
-      ator_user_id: context.userId,
-      acao: `central.${data.acao}`,
-      detalhes: { aviso },
-    } as never);
+    const { logConexao } = await import("@/lib/whatsapp/saude-conexao");
+    logConexao("central_operada", { acao: data.acao, ator: context.userId, falhou: !!aviso });
     return { ...(await estado(db)), aviso };
   });
 
@@ -181,7 +178,8 @@ export const definirCentralDoTenant = createServerFn({ method: "POST" })
       ator_user_id: context.userId,
       tenant_id: data.tenantId,
       acao: data.habilitada ? "central.habilitada" : "central.desabilitada",
-      detalhes: {},
-    } as never);
+      alvo: "notificacoes_central_habilitada",
+      alteracoes: { habilitada: data.habilitada },
+    });
     return { ok: true as const };
   });
