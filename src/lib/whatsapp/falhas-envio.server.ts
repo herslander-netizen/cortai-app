@@ -111,7 +111,7 @@ export async function aplicarFalhaDeEnvio(input: {
   }
 }
 
-async function avisarNegocioDaFalha(envio: {
+export async function avisarNegocioDaFalha(envio: {
   id: string;
   tenant_id: string;
   cliente_id: string | null;

@@ -861,7 +861,19 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
  */
 export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   const db = await admin();
-  const resumo = { lembrete24h: 0, lembrete2h: 0, retorno: 0, retentativas: 0, listaDeEspera: 0 };
+  const resumo = {
+    lembrete24h: 0,
+    lembrete2h: 0,
+    retorno: 0,
+    retentativas: 0,
+    listaDeEspera: 0,
+    presosRecuperados: 0,
+  };
+  // Primeiro: envios parados em "enviando" (nunca reenviados).
+  resumo.presosRecuperados = await recuperarEnviosPresos(agora).catch((e) => {
+    console.error("[whatsapp] recuperação de envios presos falhou:", e instanceof Error ? e.message : e);
+    return 0;
+  });
   try {
     const { processarListaDeEspera } = await import("./fila-ofertas.server");
     resumo.listaDeEspera = (await processarListaDeEspera(agora)).ofertas;
@@ -929,4 +941,51 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   }
 
   return resumo;
+}
+
+/**
+ * Envios parados em "enviando": com id externo viram "enviado"; sem ele, há mais
+ * de 5 min, viram "erro" (envio interrompido) sem reenvio e o dono é avisado.
+ * A troca só vale se o status ainda for "enviando" (sem corrida com o envio real).
+ */
+export async function recuperarEnviosPresos(agora = new Date()): Promise<number> {
+  const db = await admin();
+  const { decidirEnvioPreso, MOTIVO_INTERROMPIDO } = await import("./envios-presos");
+  const { data } = await db
+    .from("envios_de_whatsapp")
+    .select("id, status, atualizado_em, criado_em, mensagem_externa_id")
+    .eq("status", "enviando")
+    .limit(100);
+  let tratados = 0;
+  for (const envio of data ?? []) {
+    const decisao = decidirEnvioPreso(envio, agora.getTime());
+    if (decisao === "aguardar") continue;
+    const agoraIso = agora.toISOString();
+    const mudanca =
+      decisao === "enviado"
+        ? { status: "enviado", enviado_em: agoraIso, erro: null }
+        : {
+            status: "erro",
+            erro: MOTIVO_INTERROMPIDO,
+            falhou_em: agoraIso,
+            proxima_tentativa_em: null,
+            // Limite atingido: a retentativa automática nunca pega este envio.
+            tentativas: MAX_TENTATIVAS,
+          };
+    const { data: alterado } = await db
+      .from("envios_de_whatsapp")
+      .update(mudanca as never)
+      .eq("id", envio.id)
+      .eq("status", "enviando")
+      .select("id, tenant_id, cliente_id, telefone, tipo, conteudo")
+      .maybeSingle();
+    if (!alterado) continue;
+    tratados += 1;
+    console.warn(`[whatsapp] envio preso ${envio.id} -> ${decisao}`);
+    if (decisao === "interrompido") {
+      const { avisarNegocioDaFalha } = await import("./falhas-envio.server");
+      await avisarNegocioDaFalha(alterado as never).catch(() => undefined);
+    }
+  }
+  return tratados;
 }
