@@ -109,6 +109,11 @@ export const EVENTOS = {
     prioridade: "relacionamento",
     destinos: { cliente: ["whatsapp"] },
   },
+  whatsapp_conexao: {
+    titulo: "WhatsApp desconectado",
+    prioridade: "importante",
+    destinos: { gestor: ["in_app", "push"] },
+  },
 } as const satisfies Record<string, DefinicaoDeEvento>;
 
 export type Evento = keyof typeof EVENTOS;

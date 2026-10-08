@@ -4,8 +4,18 @@
  * (b) senão, o número oficial do Cortaí (conexão compartilhada) — criada
  *     automaticamente para o negócio que ainda não tem linha;
  * (c) senão, nenhuma: quem chama registra "Nenhum WhatsApp disponível".
+ *
+ * Cada conexão carrega o próprio `provedor` (evolution/meta): o envio usa o
+ * serviço da conexão escolhida, nunca o de outro negócio.
  */
-export type ConexaoDeEnvio = { id: string; sessao_id: string; compartilhada: boolean };
+import { logConexao, podeEnviarPelaConexao } from "./saude-conexao";
+
+export type ConexaoDeEnvio = {
+  id: string;
+  sessao_id: string;
+  compartilhada: boolean;
+  provedor: string | null;
+};
 
 export const SEM_WHATSAPP_DISPONIVEL = "Nenhum WhatsApp disponível.";
 
@@ -18,7 +28,7 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
   const db = await admin();
   const { data: propria } = await db
     .from("conexoes_whatsapp")
-    .select("id, sessao_id, status, compartilhada")
+    .select("id, sessao_id, status, compartilhada, provedor")
     .eq("tenant_id", tenantId)
     .maybeSingle();
   if (propria && propria.status === "conectado") {
@@ -26,6 +36,7 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
       id: propria.id,
       sessao_id: propria.sessao_id,
       compartilhada: propria.compartilhada === true,
+      provedor: propria.provedor ?? null,
     };
   }
 
@@ -38,9 +49,13 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
     .limit(1)
     .maybeSingle();
   if (!oficial) return null;
+  const doOficial = { compartilhada: true, provedor: oficial.provedor ?? null };
 
   // Já tem linha própria (desconectada): não sobrescreve; usa o número oficial.
-  if (propria) return { id: oficial.id, sessao_id: oficial.sessao_id, compartilhada: true };
+  if (propria) {
+    logConexao("envio_pela_reserva", { tenantId, motivo: `propria_${propria.status}` });
+    return { id: oficial.id, sessao_id: oficial.sessao_id, ...doOficial };
+  }
 
   const { data: criada, error } = await db
     .from("conexoes_whatsapp")
@@ -65,8 +80,28 @@ export async function conexaoDeEnvio(tenantId: string): Promise<ConexaoDeEnvio |
       .eq("tenant_id", tenantId)
       .maybeSingle();
     if (relida?.status === "conectado")
-      return { id: relida.id, sessao_id: relida.sessao_id, compartilhada: true };
-    return { id: oficial.id, sessao_id: oficial.sessao_id, compartilhada: true };
+      return { id: relida.id, sessao_id: relida.sessao_id, ...doOficial };
+    return { id: oficial.id, sessao_id: oficial.sessao_id, ...doOficial };
   }
-  return { id: criada.id, sessao_id: criada.sessao_id, compartilhada: true };
+  return { id: criada.id, sessao_id: criada.sessao_id, ...doOficial };
+}
+
+/**
+ * Gateway da sessão, com trava de isolamento: um negócio nunca envia pela
+ * sessão de outro (exceto o número oficial compartilhado). Lança se a sessão
+ * não existe ou pertence a outro negócio.
+ */
+export async function gatewayDaSessao(sessaoId: string, tenantId: string) {
+  const db = await admin();
+  const { data } = await db
+    .from("conexoes_whatsapp")
+    .select("tenant_id, compartilhada, provedor")
+    .eq("sessao_id", sessaoId)
+    .maybeSingle();
+  if (!podeEnviarPelaConexao(data, tenantId)) {
+    logConexao("envio_bloqueado_isolamento", { tenantId, sessaoId });
+    throw new Error("Sessão de WhatsApp não pertence a este negócio.");
+  }
+  const { gatewayDoProvedor } = await import("./gateway.server");
+  return gatewayDoProvedor(data?.provedor ?? null);
 }

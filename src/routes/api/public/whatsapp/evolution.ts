@@ -61,6 +61,9 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         // segredo para o teste ponta a ponta com a Evolution. Qualquer outra
         // instância continua exigindo o segredo configurado. Em produção,
         // remova esta exceção e configure EVOLUTION_WEBHOOK_SECRET na Evolution.
+        // TODO(segurança): o segredo já existe no ambiente, mas a instância
+        // "cortai" na Evolution ainda não envia o cabeçalho x-webhook-secret.
+        // Assim que a Evolution enviar o segredo, apague esta exceção.
         const instanciaDeTesteSemSegredo = sessaoId === "cortai";
         if (segredo && !instanciaDeTesteSemSegredo) {
           const recebido =
@@ -100,9 +103,15 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         }
 
         if (evento === "connection.update") {
-          const estado = String(dados["state"] ?? dados["connection"] ?? "");
+          const estado = String(dados["state"] ?? dados["connection"] ?? "").trim();
           const conectado = estado === "open";
+          // Horário do evento na Evolution: evento atrasado não sobrescreve estado mais novo.
+          const bruto = corpo["date_time"] ?? dados["date_time"];
+          const data = typeof bruto === "string" ? new Date(bruto) : null;
+          const eventoEm = data && !Number.isNaN(data.getTime()) ? data.toISOString() : null;
           const atualizou = await fluxo.atualizarEstadoDaConexao(sessaoId, {
+            origem: "webhook_evolution",
+            eventoEm,
             status: estado,
             ...(conectado ? { qrCode: null, qrExpiraEm: null } : {}),
             numero: typeof dados["number"] === "string" ? (dados["number"] as string) : null,

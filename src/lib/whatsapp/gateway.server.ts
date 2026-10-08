@@ -26,19 +26,21 @@ type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
 
 const URL_GATEWAY_META = "https://connector-gateway.lovable.dev/whatsapp";
 
-function lerConfig(): Config | null {
+function configEvolution(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
   const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
-  if (baseUrl && apiKey) {
-    const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
-    return {
-      baseUrl: baseUrl.replace(/\/+$/, ""),
-      apiKey,
-      provedor: bruto === "generico" ? "generico" : "evolution",
-    };
-  }
-  // WhatsApp Business oficial (Meta), conectado em Connectors → WhatsApp.
-  // Não existe QR Code: a conexão é da conta, verificada em /phone_number.
+  if (!baseUrl || !apiKey) return null;
+  const bruto = (process.env["WHATSAPP_GATEWAY_PROVIDER"] ?? "evolution").toLowerCase();
+  return {
+    baseUrl: baseUrl.replace(/\/+$/, ""),
+    apiKey,
+    provedor: bruto === "generico" ? "generico" : "evolution",
+  };
+}
+
+// WhatsApp Business oficial (Meta), conectado em Connectors → WhatsApp.
+// Não existe QR Code: a conexão é da conta, verificada em /phone_number.
+function configMeta(): Config | null {
   const chaveMeta = process.env["WHATSAPP_API_KEY"];
   if (chaveMeta && process.env["LOVABLE_API_KEY"]) {
     return { baseUrl: URL_GATEWAY_META, apiKey: chaveMeta, provedor: "meta" };
@@ -46,8 +48,20 @@ function lerConfig(): Config | null {
   return null;
 }
 
-export function gatewayConfigurado(): boolean {
-  return lerConfig() !== null;
+/**
+ * Configuração do provedor. Com `preferido` (o `provedor` gravado na conexão do
+ * negócio), Evolution e Meta coexistem: cada conexão usa o próprio serviço.
+ * Sem preferência conhecida ("gateway"/vazio), vale a regra global antiga.
+ */
+function lerConfig(preferido?: string | null): Config | null {
+  const p = (preferido ?? "").toLowerCase();
+  if (p === "meta") return configMeta();
+  if (p === "evolution" || p === "generico") return configEvolution();
+  return configEvolution() ?? configMeta();
+}
+
+export function gatewayConfigurado(preferido?: string | null): boolean {
+  return lerConfig(preferido) !== null;
 }
 
 export function provedorDoGateway(): string {
@@ -75,11 +89,11 @@ export function segredoDoWebhookDeWhatsapp(): string | null {
 }
 
 async function chamar<T>(
+  config: Config | null,
   caminho: string,
   metodo: "GET" | "POST" | "DELETE" | "PUT",
   corpo?: unknown,
 ): Promise<T> {
-  const config = lerConfig();
   if (!config) throw new GatewayNaoConfiguradoError();
   const cabecalhos: Record<string, string> = { "content-type": "application/json" };
   if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
@@ -158,11 +172,12 @@ function numeroDoDono(bruto: Record<string, unknown>): string | null {
   return dono.split("@")[0] ?? null;
 }
 
+function criarEvolution(cfg: Config | null) {
 const evolution = {
   async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
     const segredo = segredoDoWebhookDeWhatsapp();
     try {
-      const criado = await chamar<Record<string, unknown>>("/instance/create", "POST", {
+      const criado = await chamar<Record<string, unknown>>(cfg, "/instance/create", "POST", {
         instanceName: sessaoId,
         qrcode: true,
         integration: "WHATSAPP-BAILEYS",
@@ -193,6 +208,7 @@ const evolution = {
 
   async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
     const r = await chamar<Record<string, unknown>>(
+      cfg,
       `/instance/connect/${encodeURIComponent(sessaoId)}`,
       "GET",
     );
@@ -210,6 +226,7 @@ const evolution = {
 
   async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
     const r = await chamar<Record<string, unknown>>(
+      cfg,
       `/instance/connectionState/${encodeURIComponent(sessaoId)}`,
       "GET",
     );
@@ -226,6 +243,7 @@ const evolution = {
 
   async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
     const r = await chamar<Record<string, unknown>>(
+      cfg,
       `/message/sendText/${encodeURIComponent(sessaoId)}`,
       "POST",
       { number: telefone.replace(/\D/g, ""), text: texto },
@@ -235,23 +253,26 @@ const evolution = {
   },
 
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    await chamar(`/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
+    await chamar(cfg, `/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
       () => undefined,
     );
     return evolution.obterQrCode(sessaoId);
   },
 
   async desconectar(sessaoId: string): Promise<void> {
-    await chamar(`/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE");
+    await chamar(cfg, `/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE");
   },
 };
+  return evolution;
+}
 
 /* ---------------------------------------------------------------- Genérico */
 
+function criarGenerico(cfg: Config | null) {
 const generico = {
   async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
-      await chamar<Record<string, unknown>>("/sessions", "POST", {
+      await chamar<Record<string, unknown>>(cfg, "/sessions", "POST", {
         session_id: sessaoId,
         webhook_url: webhookUrl,
       }),
@@ -259,16 +280,17 @@ const generico = {
   },
   async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
-      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}/qr`, "GET"),
+      await chamar<Record<string, unknown>>(cfg, `/sessions/${encodeURIComponent(sessaoId)}/qr`, "GET"),
     );
   },
   async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
-      await chamar<Record<string, unknown>>(`/sessions/${encodeURIComponent(sessaoId)}`, "GET"),
+      await chamar<Record<string, unknown>>(cfg, `/sessions/${encodeURIComponent(sessaoId)}`, "GET"),
     );
   },
   async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
     const r = await chamar<Record<string, unknown>>(
+      cfg,
       `/sessions/${encodeURIComponent(sessaoId)}/messages`,
       "POST",
       { to: telefone, type: "text", text: texto },
@@ -278,6 +300,7 @@ const generico = {
   async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
     return normalizarEstado(
       await chamar<Record<string, unknown>>(
+      cfg,
         `/sessions/${encodeURIComponent(sessaoId)}/restart`,
         "POST",
         {},
@@ -285,9 +308,11 @@ const generico = {
     );
   },
   async desconectar(sessaoId: string): Promise<void> {
-    await chamar(`/sessions/${encodeURIComponent(sessaoId)}/disconnect`, "POST", {});
+    await chamar(cfg, `/sessions/${encodeURIComponent(sessaoId)}/disconnect`, "POST", {});
   },
 };
+  return generico;
+}
 
 /* -------------------------------------------------------------------- Meta */
 
@@ -296,10 +321,12 @@ const generico = {
  * conta: não há QR para escanear nem logout pelo app. O estado consultado em
  * /phone_number é real — se a chamada falha, a tela mostra o erro.
  */
+function criarMeta(cfg: Config | null) {
 const meta = {
   async consultarStatus(): Promise<EstadoDaSessao> {
     try {
       const r = await chamar<Record<string, unknown>>(
+      cfg,
         "/phone_number?fields=display_phone_number,quality_rating",
         "GET",
       );
@@ -329,7 +356,7 @@ const meta = {
     return meta.consultarStatus();
   },
   async enviarMensagem(_sessaoId: string, telefone: string, texto: string) {
-    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
       messaging_product: "whatsapp",
       to: telefone.replace(/\D/g, ""),
       type: "text",
@@ -340,7 +367,7 @@ const meta = {
   },
   /** Modelo aprovado com botões de resposta rápida (payload fixo por botão). */
   async enviarTemplate(telefone: string, t: ModeloComBotoes) {
-    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
       messaging_product: "whatsapp",
       to: telefone.replace(/\D/g, ""),
       type: "template",
@@ -363,7 +390,7 @@ const meta = {
   },
   /** Mensagem interativa com até 3 botões (só dentro da janela de 24h). */
   async enviarInterativo(telefone: string, i: MensagemInterativa) {
-    const r = await chamar<Record<string, unknown>>("/messages", "POST", {
+    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
       messaging_product: "whatsapp",
       to: telefone.replace(/\D/g, ""),
       type: "interactive",
@@ -389,13 +416,9 @@ const meta = {
     // O desvínculo da conta oficial é feito em Connectors → WhatsApp, não pelo app.
   },
 };
-
-function provedor() {
-  const config = lerConfig();
-  if (!config) throw new GatewayNaoConfiguradoError();
-  if (config.provedor === "meta") return meta;
-  return config.provedor === "generico" ? generico : evolution;
+  return meta;
 }
+
 
 export type ModeloComBotoes = {
   nome: string;
@@ -409,27 +432,42 @@ export type MensagemInterativa = {
   botoes: { id: string; titulo: string }[];
 };
 
-/** Interface única do provedor. Trocar de serviço é reimplementar isto. */
-export const gatewayDeWhatsapp = {
-  criarSessao: (sessaoId: string, webhookUrl: string) =>
-    provedor().criarSessao(sessaoId, webhookUrl),
-  obterQrCode: (sessaoId: string) => provedor().obterQrCode(sessaoId),
-  consultarStatus: (sessaoId: string) => provedor().consultarStatus(sessaoId),
-  enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
-    provedor().enviarMensagem(sessaoId, telefone, texto),
-  /** Só a API oficial garante botões; nos demais provedores devolve null. */
-  enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
-    lerConfig()?.provedor === "meta" ? meta.enviarTemplate(telefone, t) : Promise.resolve(null),
-  enviarInterativo: (telefone: string, i: MensagemInterativa) =>
-    lerConfig()?.provedor === "meta" ? meta.enviarInterativo(telefone, i) : Promise.resolve(null),
-  /**
-   * O que o canal atual suporta. Oficial: botões via template e janela de 24h
-   * para mensagens iniciadas pela barbearia. Demais: opções numeradas, sem janela.
-   */
-  capacidades: () => {
-    const oficial = lerConfig()?.provedor === "meta";
-    return { botoes: oficial, exigeTemplateForaDaJanela: oficial };
-  },
-  reiniciarSessao: (sessaoId: string) => provedor().reiniciarSessao(sessaoId),
-  desconectar: (sessaoId: string) => provedor().desconectar(sessaoId),
-};
+/**
+ * Interface única do provedor para uma conexão. `preferido` é o `provedor`
+ * gravado em `conexoes_whatsapp`: Evolution e Meta coexistem por negócio.
+ * Sem preferência, vale a configuração global (comportamento anterior).
+ */
+export function gatewayDoProvedor(preferido?: string | null) {
+  // Lido a cada chamada: as credenciais só existem dentro do handler.
+  const config = () => lerConfig(preferido);
+  const oficial = () => config()?.provedor === "meta";
+  const impl = () => {
+    const c = config();
+    if (!c) throw new GatewayNaoConfiguradoError();
+    if (c.provedor === "meta") return criarMeta(c);
+    return c.provedor === "generico" ? criarGenerico(c) : criarEvolution(c);
+  };
+  return {
+    provedor: () => config()?.provedor ?? null,
+    criarSessao: (sessaoId: string, webhookUrl: string) => impl().criarSessao(sessaoId, webhookUrl),
+    obterQrCode: (sessaoId: string) => impl().obterQrCode(sessaoId),
+    consultarStatus: (sessaoId: string) => impl().consultarStatus(sessaoId),
+    enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
+      impl().enviarMensagem(sessaoId, telefone, texto),
+    /** Só a API oficial garante botões; nos demais provedores devolve null. */
+    enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
+      oficial() ? criarMeta(config()).enviarTemplate(telefone, t) : Promise.resolve(null),
+    enviarInterativo: (telefone: string, i: MensagemInterativa) =>
+      oficial() ? criarMeta(config()).enviarInterativo(telefone, i) : Promise.resolve(null),
+    /**
+     * O que o canal suporta. Oficial: botões via template e janela de 24h
+     * para mensagens iniciadas pelo negócio. Demais: opções numeradas, sem janela.
+     */
+    capacidades: () => ({ botoes: oficial(), exigeTemplateForaDaJanela: oficial() }),
+    reiniciarSessao: (sessaoId: string) => impl().reiniciarSessao(sessaoId),
+    desconectar: (sessaoId: string) => impl().desconectar(sessaoId),
+  };
+}
+
+/** Provedor global (compatibilidade). Prefira `gatewayDoProvedor(conexao.provedor)`. */
+export const gatewayDeWhatsapp = gatewayDoProvedor(null);
