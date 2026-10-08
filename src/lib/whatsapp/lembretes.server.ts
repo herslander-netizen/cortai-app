@@ -271,6 +271,7 @@ export async function tratarRespostaDeLembrete(input: {
       };
     }
   }
+  if (!envio) return null;
   if (acao === "CORTAI_QUERO" || acao === "CORTAI_NAO_POSSO") {
     const { data: comOferta } = await db
       .from("envios_de_whatsapp")

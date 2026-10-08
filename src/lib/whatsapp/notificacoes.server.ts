@@ -1,4 +1,5 @@
 /**
+import { linhasNumeradas } from "./opcoes-numeradas";
  * Avisos do CortAI ao cliente pelo WhatsApp — entrega determinística.
  *
  * Evento do Cortaí → regra → texto/modelo aprovado → envio pela conexão oficial
@@ -307,7 +308,7 @@ export function montarMensagem(
 
   const opcoes = OPCOES_DO_LEMBRETE[tipo];
   if (opcoes && numerar) {
-    blocos.push("", "Responda com o número:", ...opcoes.map((o, i) => `${i + 1} - ${o.rotulo}`));
+    blocos.push("", "Responda com o número:", ...linhasNumeradas(opcoes));
     if (tipo === "retorno")
       blocos.push("", "Para não receber mais esses lembretes, responda SAIR.");
   }
