@@ -46,9 +46,12 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
           return null;
         });
         const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
-        if (emSegundoPlano(trabalho)) return Response.json({ ok: true, aceito: true }, { status: 202 });
+        if (emSegundoPlano(trabalho))
+          return Response.json({ ok: true, aceito: true }, { status: 202 });
         const resumo = await trabalho;
-        return resumo ? Response.json({ ok: true, ...resumo }) : Response.json({ ok: false }, { status: 500 });
+        return resumo
+          ? Response.json({ ok: true, ...resumo })
+          : Response.json({ ok: false }, { status: 500 });
       },
     },
   },

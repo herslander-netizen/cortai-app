@@ -10,7 +10,8 @@ type Contexto = { waitUntil?: (p: Promise<unknown>) => void };
 const armazenamento = new AsyncLocalStorage<Contexto | undefined>();
 
 export function comContextoDaRequisicao<T>(ctx: unknown, fn: () => T): T {
-  const c = ctx && typeof (ctx as Contexto).waitUntil === "function" ? (ctx as Contexto) : undefined;
+  const c =
+    ctx && typeof (ctx as Contexto).waitUntil === "function" ? (ctx as Contexto) : undefined;
   return armazenamento.run(c, fn);
 }
 

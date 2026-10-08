@@ -26,6 +26,7 @@ export function autorizarWebhook(headers: Headers, segredo: string | null): Auto
   if (!segredo) return { ok: false, status: 503, motivo: "sem segredo no ambiente" };
   const recebido = segredoDoCabecalho(headers);
   if (!recebido) return { ok: false, status: 401, motivo: "sem token" };
-  if (!segredoConfere(recebido, segredo)) return { ok: false, status: 401, motivo: "token invalido" };
+  if (!segredoConfere(recebido, segredo))
+    return { ok: false, status: 401, motivo: "token invalido" };
   return { ok: true };
 }

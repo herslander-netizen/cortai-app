@@ -50,18 +50,23 @@ export function ehNumeroSolto(texto: string): boolean {
 export const TEXTO_PEDIR_SIM_OU_NAO =
   "Para eu continuar, responda SIM para confirmar ou NÃO para desistir.";
 
-const PARTICIPIO = "(confirmad|agendad|marcad|desmarcad|cancelad|remarcad|reagendad|reservad)[oa]s?";
+const PARTICIPIO =
+  "(confirmad|agendad|marcad|desmarcad|cancelad|remarcad|reagendad|reservad)[oa]s?";
 const AFIRMA_CONCLUSAO = [
   /\bobrigad[oa] por (confirmar|remarcar|cancelar|agendar)/,
   /\b(confirmei|agendei|marquei|desmarquei|cancelei|remarquei|reagendei|registrei|reservei)\b/,
   /\b(acabei|acabamos) de (confirmar|agendar|marcar|cancelar|remarcar|reagendar)\b/,
   /\b(confirmamos|agendamos|cancelamos|remarcamos|reagendamos)\b/,
   /\bfiz (o|a|seu|sua) (agendamento|cancelamento|reagendamento|remarcacao|reserva|confirmacao)\b/,
-  new RegExp(`\\b(foi|foram|ficou|ficaram|esta|estao|ta|tao|ja|segue|seguem)\\s+(devidamente\\s+|tudo\\s+)?${PARTICIPIO}\\b`),
+  new RegExp(
+    `\\b(foi|foram|ficou|ficaram|esta|estao|ta|tao|ja|segue|seguem)\\s+(devidamente\\s+|tudo\\s+)?${PARTICIPIO}\\b`,
+  ),
   new RegExp(`\\b${PARTICIPIO} com sucesso\\b`),
   new RegExp(`^(pronto|feito|perfeito|certo|tudo certo|ok|beleza)\\b.{0,40}\\b${PARTICIPIO}\\b`),
   new RegExp(`^${PARTICIPIO}\\b`),
-  new RegExp(`^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\s*$`),
+  new RegExp(
+    `^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\s*$`,
+  ),
 ];
 
 /** Frase negada logo antes da afirmação ("ainda não foi confirmado"). */

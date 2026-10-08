@@ -57,7 +57,9 @@ describe("webhook da Evolution fail-closed", () => {
   });
   it("não aceita segredo por Authorization nem pela URL", async () => {
     const { autorizarWebhook } = await import("./segredo-webhook");
-    expect(autorizarWebhook(new Headers({ authorization: "Bearer certo" }), "certo").ok).toBe(false);
+    expect(autorizarWebhook(new Headers({ authorization: "Bearer certo" }), "certo").ok).toBe(
+      false,
+    );
   });
   it("a rota não tem mais exceção para a sessão cortai nem ?token=", async () => {
     const { readFileSync } = await import("node:fs");
@@ -74,12 +76,17 @@ describe("envios presos em 'enviando'", () => {
   it("decisão: com id externo → enviado; sem id e >5 min → interrompido; recente → aguarda", async () => {
     const { decidirEnvioPreso } = await import("./envios-presos");
     expect(
-      decidirEnvioPreso({ ...base, atualizado_em: "2026-10-08T17:59:00Z", mensagem_externa_id: "w1" }, agora),
+      decidirEnvioPreso(
+        { ...base, atualizado_em: "2026-10-08T17:59:00Z", mensagem_externa_id: "w1" },
+        agora,
+      ),
     ).toBe("enviado");
     expect(decidirEnvioPreso({ ...base, atualizado_em: "2026-10-08T17:50:00Z" }, agora)).toBe(
       "interrompido",
     );
-    expect(decidirEnvioPreso({ ...base, atualizado_em: "2026-10-08T17:58:00Z" }, agora)).toBe("aguardar");
+    expect(decidirEnvioPreso({ ...base, atualizado_em: "2026-10-08T17:58:00Z" }, agora)).toBe(
+      "aguardar",
+    );
   });
   it("recuperação marca erro sem reenvio (tentativas no limite) e enviado com id externo", async () => {
     const { recuperarEnviosPresos } = await import("./notificacoes.server");
@@ -91,13 +98,27 @@ describe("envios presos em 'enviando'", () => {
         ],
         error: null,
       },
-      { data: { id: "a", tenant_id: "t", cliente_id: null, telefone: "5511", tipo: "lembrete_24h", conteudo: null }, error: null },
+      {
+        data: {
+          id: "a",
+          tenant_id: "t",
+          cliente_id: null,
+          telefone: "5511",
+          tipo: "lembrete_24h",
+          conteudo: null,
+        },
+        error: null,
+      },
       { data: { id: "x" }, error: null }, // aviso ao dono: já existe
       { data: { id: "b" }, error: null },
     );
     const n = await recuperarEnviosPresos(new Date(agora));
     expect(n).toBe(2);
-    expect(atualizacoes[0]).toMatchObject({ status: "erro", erro: "envio interrompido", tentativas: 3 });
+    expect(atualizacoes[0]).toMatchObject({
+      status: "erro",
+      erro: "envio interrompido",
+      tentativas: 3,
+    });
     expect(atualizacoes[1]).toMatchObject({ status: "enviado" });
   });
 });
@@ -113,11 +134,17 @@ describe("timeout do gateway", () => {
       "fetch",
       (_u: string, init: RequestInit) =>
         new Promise((_ok, falha) =>
-          init.signal?.addEventListener("abort", () => falha(new DOMException("abort", "AbortError"))),
+          init.signal?.addEventListener("abort", () =>
+            falha(new DOMException("abort", "AbortError")),
+          ),
         ),
     );
     const { chamar, TEMPO_LIMITE_MS } = await import("./gateway.server");
-    const p = chamar({ provedor: "evolution", baseUrl: "https://x", apiKey: "k" } as never, "/a", "GET");
+    const p = chamar(
+      { provedor: "evolution", baseUrl: "https://x", apiKey: "k" } as never,
+      "/a",
+      "GET",
+    );
     const verificacao = expect(p).rejects.toThrow(/tempo esgotado/);
     await vi.advanceTimersByTimeAsync(TEMPO_LIMITE_MS + 1);
     await verificacao;
@@ -126,7 +153,8 @@ describe("timeout do gateway", () => {
 
 describe("SAIR sem cadastro", () => {
   it("nenhuma linha afetada não responde 'Pronto' e encaminha para a equipe", async () => {
-    const { tratarRespostaDeLembrete, TEXTO_SAIR_SEM_CADASTRO } = await import("./lembretes.server");
+    const { tratarRespostaDeLembrete, TEXTO_SAIR_SEM_CADASTRO } =
+      await import("./lembretes.server");
     fila.push({ data: [], error: null });
     const r = await tratarRespostaDeLembrete({
       tenantId: "t",
@@ -141,7 +169,12 @@ describe("SAIR sem cadastro", () => {
   it("com linha afetada confirma a saída", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
     fila.push({ data: [{ id: "cli" }], error: null });
-    const r = await tratarRespostaDeLembrete({ tenantId: "t", conversaId: "c", telefone: "5511999990000", texto: "sair" });
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "sair",
+    });
     expect(r?.texto).toMatch(/^Pronto/);
   });
 });
@@ -150,24 +183,38 @@ describe("erro no tratamento de aviso com número solto", () => {
   it("o fluxo responde texto fixo e nunca segue para a IA", async () => {
     const { readFileSync } = await import("node:fs");
     const fonte = readFileSync("src/lib/whatsapp/fluxo.server.ts", "utf8");
-    const trecho = fonte.slice(fonte.indexOf("tratarRespostaDeLembrete({"), fonte.indexOf("if (lembrete) {"));
+    const trecho = fonte.slice(
+      fonte.indexOf("tratarRespostaDeLembrete({"),
+      fonte.indexOf("if (lembrete) {"),
+    );
     expect(trecho).not.toMatch(/\.catch\(\(\) => null\)/);
     expect(trecho).toMatch(/ehNumeroSolto/);
     expect(trecho).toMatch(/TEXTO_FALHA_TRANSITORIA/);
     const { TEXTO_FALHA_TRANSITORIA } = await import("./lembretes.server");
-    expect(TEXTO_FALHA_TRANSITORIA).toBe("Não consegui processar agora. Tente novamente em instantes.");
+    expect(TEXTO_FALHA_TRANSITORIA).toBe(
+      "Não consegui processar agora. Tente novamente em instantes.",
+    );
   });
 });
 
 describe("avisar_atraso", () => {
   it("enviado:false vira falha da ação", async () => {
     vi.doMock("@/lib/whatsapp/aviso-atraso.server", () => ({
-      avisarClienteDoAtraso: async () => ({ enviado: false, motivo: "Nenhum WhatsApp disponível.", cliente: "Ana" }),
+      avisarClienteDoAtraso: async () => ({
+        enviado: false,
+        motivo: "Nenhum WhatsApp disponível.",
+        cliente: "Ana",
+      }),
     }));
     const { ACOES } = await import("@/lib/brain/acoes.server");
-    fila.push({ data: { id: "ag", inicio: new Date().toISOString(), clientes: { nome: "Ana" } }, error: null });
+    fila.push({
+      data: { id: "ag", inicio: new Date().toISOString(), clientes: { nome: "Ana" } },
+      error: null,
+    });
     await expect(
-      ACOES["avisar_atraso"]!.executar({ tenantId: "t", profissionalId: "p" } as never, { minutos: 10 }),
+      ACOES["avisar_atraso"]!.executar({ tenantId: "t", profissionalId: "p" } as never, {
+        minutos: 10,
+      }),
     ).rejects.toThrow(/não recebeu o aviso/);
   });
 });

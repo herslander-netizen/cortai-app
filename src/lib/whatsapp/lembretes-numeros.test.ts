@@ -186,7 +186,7 @@ describe("ações pelo número fixo", () => {
     };
     const r = await responder("3");
     expect(r?.texto).not.toMatch(/Cancelado ✅/);
-    expect(r?.texto).toContain("Não consegui cancelar");
+    expect(r?.texto).toBe("Não consegui processar agora. Tente novamente em instantes.");
   });
 
   it("outro negócio não enxerga o aviso", async () => {
