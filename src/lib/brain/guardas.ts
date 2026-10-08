@@ -60,11 +60,12 @@ const AFIRMA_CONCLUSAO = [
   new RegExp(`\\b(foi|foram|ficou|ficaram|esta|estao|ta|tao|ja|segue|seguem)\\s+(devidamente\\s+|tudo\\s+)?${PARTICIPIO}\\b`),
   new RegExp(`\\b${PARTICIPIO} com sucesso\\b`),
   new RegExp(`^(pronto|feito|perfeito|certo|tudo certo|ok|beleza)\\b.{0,40}\\b${PARTICIPIO}\\b`),
+  new RegExp(`^${PARTICIPIO}\\b`),
   new RegExp(`^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\s*$`),
 ];
 
 /** Frase negada logo antes da afirmação ("ainda não foi confirmado"). */
-const NEGACAO_ANTES = /\b(nao|nunca|nem)\b(\s+\S+){0,3}\s*$/;
+const NEGACAO_ANTES = /\b(nao|nunca|nem|nada|nenhum|nenhuma)\b(\s+\S+){0,3}\s*$/;
 
 /**
  * O texto afirma que uma ação de agenda foi concluída?
