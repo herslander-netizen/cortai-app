@@ -173,144 +173,152 @@ function numeroDoDono(bruto: Record<string, unknown>): string | null {
 }
 
 function criarEvolution(cfg: Config | null) {
-const evolution = {
-  async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
-    const segredo = segredoDoWebhookDeWhatsapp();
-    try {
-      const criado = await chamar<Record<string, unknown>>(cfg, "/instance/create", "POST", {
-        instanceName: sessaoId,
-        qrcode: true,
-        integration: "WHATSAPP-BAILEYS",
-        webhook: {
-          url: webhookUrl,
-          byEvents: false,
-          base64: true,
-          headers: segredo ? { "x-webhook-secret": segredo } : undefined,
-          events: ["QRCODE_UPDATED", "CONNECTION_UPDATE", "MESSAGES_UPSERT"],
-        },
-      });
-      const { qrCode, expiraEm } = qrDaEvolution(criado);
-      const instancia = (criado["instance"] as Record<string, unknown>) ?? {};
+  const evolution = {
+    async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
+      const segredo = segredoDoWebhookDeWhatsapp();
+      try {
+        const criado = await chamar<Record<string, unknown>>(cfg, "/instance/create", "POST", {
+          instanceName: sessaoId,
+          qrcode: true,
+          integration: "WHATSAPP-BAILEYS",
+          webhook: {
+            url: webhookUrl,
+            byEvents: false,
+            base64: true,
+            headers: segredo ? { "x-webhook-secret": segredo } : undefined,
+            events: ["QRCODE_UPDATED", "CONNECTION_UPDATE", "MESSAGES_UPSERT"],
+          },
+        });
+        const { qrCode, expiraEm } = qrDaEvolution(criado);
+        const instancia = (criado["instance"] as Record<string, unknown>) ?? {};
+        return {
+          status: qrCode ? "qr_pronto" : normalizarStatus(instancia["status"] ?? "pending"),
+          qrCode,
+          qrExpiraEm: expiraEm,
+          numero: numeroDoDono(instancia),
+          nomeExibicao: (instancia["profileName"] as string) ?? null,
+          erro: null,
+        };
+      } catch (erro) {
+        if (erro instanceof GatewayNaoConfiguradoError) throw erro;
+        // A instância já existe: seguimos direto para a conexão.
+        return evolution.obterQrCode(sessaoId);
+      }
+    },
+
+    async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/instance/connect/${encodeURIComponent(sessaoId)}`,
+        "GET",
+      );
+      const { qrCode, expiraEm } = qrDaEvolution(r);
+      if (!qrCode) return evolution.consultarStatus(sessaoId);
       return {
-        status: qrCode ? "qr_pronto" : normalizarStatus(instancia["status"] ?? "pending"),
+        status: "qr_pronto",
         qrCode,
         qrExpiraEm: expiraEm,
+        numero: null,
+        nomeExibicao: null,
+        erro: null,
+      };
+    },
+
+    async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/instance/connectionState/${encodeURIComponent(sessaoId)}`,
+        "GET",
+      );
+      const instancia = (r["instance"] as Record<string, unknown>) ?? r;
+      return {
+        status: normalizarStatus(instancia["state"] ?? instancia["status"]),
+        qrCode: null,
+        qrExpiraEm: null,
         numero: numeroDoDono(instancia),
         nomeExibicao: (instancia["profileName"] as string) ?? null,
         erro: null,
       };
-    } catch (erro) {
-      if (erro instanceof GatewayNaoConfiguradoError) throw erro;
-      // A instância já existe: seguimos direto para a conexão.
+    },
+
+    async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/message/sendText/${encodeURIComponent(sessaoId)}`,
+        "POST",
+        { number: telefone.replace(/\D/g, ""), text: texto },
+      );
+      const chave = (r["key"] as Record<string, unknown>) ?? {};
+      return { id: (chave["id"] as string) ?? (r["id"] as string) ?? null };
+    },
+
+    async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
+      await chamar(cfg, `/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
+        () => undefined,
+      );
       return evolution.obterQrCode(sessaoId);
-    }
-  },
+    },
 
-  async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>(
-      cfg,
-      `/instance/connect/${encodeURIComponent(sessaoId)}`,
-      "GET",
-    );
-    const { qrCode, expiraEm } = qrDaEvolution(r);
-    if (!qrCode) return evolution.consultarStatus(sessaoId);
-    return {
-      status: "qr_pronto",
-      qrCode,
-      qrExpiraEm: expiraEm,
-      numero: null,
-      nomeExibicao: null,
-      erro: null,
-    };
-  },
-
-  async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
-    const r = await chamar<Record<string, unknown>>(
-      cfg,
-      `/instance/connectionState/${encodeURIComponent(sessaoId)}`,
-      "GET",
-    );
-    const instancia = (r["instance"] as Record<string, unknown>) ?? r;
-    return {
-      status: normalizarStatus(instancia["state"] ?? instancia["status"]),
-      qrCode: null,
-      qrExpiraEm: null,
-      numero: numeroDoDono(instancia),
-      nomeExibicao: (instancia["profileName"] as string) ?? null,
-      erro: null,
-    };
-  },
-
-  async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
-    const r = await chamar<Record<string, unknown>>(
-      cfg,
-      `/message/sendText/${encodeURIComponent(sessaoId)}`,
-      "POST",
-      { number: telefone.replace(/\D/g, ""), text: texto },
-    );
-    const chave = (r["key"] as Record<string, unknown>) ?? {};
-    return { id: (chave["id"] as string) ?? (r["id"] as string) ?? null };
-  },
-
-  async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    await chamar(cfg, `/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
-      () => undefined,
-    );
-    return evolution.obterQrCode(sessaoId);
-  },
-
-  async desconectar(sessaoId: string): Promise<void> {
-    await chamar(cfg, `/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE");
-  },
-};
+    async desconectar(sessaoId: string): Promise<void> {
+      await chamar(cfg, `/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE");
+    },
+  };
   return evolution;
 }
 
 /* ---------------------------------------------------------------- Genérico */
 
 function criarGenerico(cfg: Config | null) {
-const generico = {
-  async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
-    return normalizarEstado(
-      await chamar<Record<string, unknown>>(cfg, "/sessions", "POST", {
-        session_id: sessaoId,
-        webhook_url: webhookUrl,
-      }),
-    );
-  },
-  async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
-    return normalizarEstado(
-      await chamar<Record<string, unknown>>(cfg, `/sessions/${encodeURIComponent(sessaoId)}/qr`, "GET"),
-    );
-  },
-  async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
-    return normalizarEstado(
-      await chamar<Record<string, unknown>>(cfg, `/sessions/${encodeURIComponent(sessaoId)}`, "GET"),
-    );
-  },
-  async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
-    const r = await chamar<Record<string, unknown>>(
-      cfg,
-      `/sessions/${encodeURIComponent(sessaoId)}/messages`,
-      "POST",
-      { to: telefone, type: "text", text: texto },
-    );
-    return { id: (r["message_id"] as string) ?? (r["id"] as string) ?? null };
-  },
-  async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
-    return normalizarEstado(
-      await chamar<Record<string, unknown>>(
-      cfg,
-        `/sessions/${encodeURIComponent(sessaoId)}/restart`,
+  const generico = {
+    async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
+      return normalizarEstado(
+        await chamar<Record<string, unknown>>(cfg, "/sessions", "POST", {
+          session_id: sessaoId,
+          webhook_url: webhookUrl,
+        }),
+      );
+    },
+    async obterQrCode(sessaoId: string): Promise<EstadoDaSessao> {
+      return normalizarEstado(
+        await chamar<Record<string, unknown>>(
+          cfg,
+          `/sessions/${encodeURIComponent(sessaoId)}/qr`,
+          "GET",
+        ),
+      );
+    },
+    async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
+      return normalizarEstado(
+        await chamar<Record<string, unknown>>(
+          cfg,
+          `/sessions/${encodeURIComponent(sessaoId)}`,
+          "GET",
+        ),
+      );
+    },
+    async enviarMensagem(sessaoId: string, telefone: string, texto: string) {
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/sessions/${encodeURIComponent(sessaoId)}/messages`,
         "POST",
-        {},
-      ),
-    );
-  },
-  async desconectar(sessaoId: string): Promise<void> {
-    await chamar(cfg, `/sessions/${encodeURIComponent(sessaoId)}/disconnect`, "POST", {});
-  },
-};
+        { to: telefone, type: "text", text: texto },
+      );
+      return { id: (r["message_id"] as string) ?? (r["id"] as string) ?? null };
+    },
+    async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
+      return normalizarEstado(
+        await chamar<Record<string, unknown>>(
+          cfg,
+          `/sessions/${encodeURIComponent(sessaoId)}/restart`,
+          "POST",
+          {},
+        ),
+      );
+    },
+    async desconectar(sessaoId: string): Promise<void> {
+      await chamar(cfg, `/sessions/${encodeURIComponent(sessaoId)}/disconnect`, "POST", {});
+    },
+  };
   return generico;
 }
 
@@ -322,103 +330,102 @@ const generico = {
  * /phone_number é real — se a chamada falha, a tela mostra o erro.
  */
 function criarMeta(cfg: Config | null) {
-const meta = {
-  async consultarStatus(): Promise<EstadoDaSessao> {
-    try {
-      const r = await chamar<Record<string, unknown>>(
-      cfg,
-        "/phone_number?fields=display_phone_number,quality_rating",
-        "GET",
-      );
-      return {
-        status: "conectado",
-        qrCode: null,
-        qrExpiraEm: null,
-        numero: (r["display_phone_number"] as string) ?? null,
-        nomeExibicao: null,
-        erro: null,
-      };
-    } catch (erro) {
-      return {
-        status: "erro",
-        qrCode: null,
-        qrExpiraEm: null,
-        numero: null,
-        nomeExibicao: null,
-        erro: erro instanceof Error ? erro.message : "Falha ao consultar o número.",
-      };
-    }
-  },
-  criarSessao(): Promise<EstadoDaSessao> {
-    return meta.consultarStatus();
-  },
-  obterQrCode(): Promise<EstadoDaSessao> {
-    return meta.consultarStatus();
-  },
-  async enviarMensagem(_sessaoId: string, telefone: string, texto: string) {
-    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
-      messaging_product: "whatsapp",
-      to: telefone.replace(/\D/g, ""),
-      type: "text",
-      text: { body: texto },
-    });
-    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
-    return { id: (lista[0]?.["id"] as string) ?? null };
-  },
-  /** Modelo aprovado com botões de resposta rápida (payload fixo por botão). */
-  async enviarTemplate(telefone: string, t: ModeloComBotoes) {
-    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
-      messaging_product: "whatsapp",
-      to: telefone.replace(/\D/g, ""),
-      type: "template",
-      template: {
-        name: t.nome,
-        language: { code: t.idioma },
-        components: [
-          { type: "body", parameters: t.parametros.map((text) => ({ type: "text", text })) },
-          ...t.botoes.map((payload, index) => ({
-            type: "button",
-            sub_type: "quick_reply",
-            index: String(index),
-            parameters: [{ type: "payload", payload }],
-          })),
-        ],
-      },
-    });
-    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
-    return { id: (lista[0]?.["id"] as string) ?? null };
-  },
-  /** Mensagem interativa com até 3 botões (só dentro da janela de 24h). */
-  async enviarInterativo(telefone: string, i: MensagemInterativa) {
-    const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
-      messaging_product: "whatsapp",
-      to: telefone.replace(/\D/g, ""),
-      type: "interactive",
-      interactive: {
-        type: "button",
-        body: { text: i.texto.slice(0, 1024) },
-        ...(i.rodape ? { footer: { text: i.rodape.slice(0, 60) } } : {}),
-        action: {
-          buttons: i.botoes.slice(0, 3).map((b) => ({
-            type: "reply",
-            reply: { id: b.id.slice(0, 256), title: b.titulo.slice(0, 20) },
-          })),
+  const meta = {
+    async consultarStatus(): Promise<EstadoDaSessao> {
+      try {
+        const r = await chamar<Record<string, unknown>>(
+          cfg,
+          "/phone_number?fields=display_phone_number,quality_rating",
+          "GET",
+        );
+        return {
+          status: "conectado",
+          qrCode: null,
+          qrExpiraEm: null,
+          numero: (r["display_phone_number"] as string) ?? null,
+          nomeExibicao: null,
+          erro: null,
+        };
+      } catch (erro) {
+        return {
+          status: "erro",
+          qrCode: null,
+          qrExpiraEm: null,
+          numero: null,
+          nomeExibicao: null,
+          erro: erro instanceof Error ? erro.message : "Falha ao consultar o número.",
+        };
+      }
+    },
+    criarSessao(): Promise<EstadoDaSessao> {
+      return meta.consultarStatus();
+    },
+    obterQrCode(): Promise<EstadoDaSessao> {
+      return meta.consultarStatus();
+    },
+    async enviarMensagem(_sessaoId: string, telefone: string, texto: string) {
+      const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
+        messaging_product: "whatsapp",
+        to: telefone.replace(/\D/g, ""),
+        type: "text",
+        text: { body: texto },
+      });
+      const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+      return { id: (lista[0]?.["id"] as string) ?? null };
+    },
+    /** Modelo aprovado com botões de resposta rápida (payload fixo por botão). */
+    async enviarTemplate(telefone: string, t: ModeloComBotoes) {
+      const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
+        messaging_product: "whatsapp",
+        to: telefone.replace(/\D/g, ""),
+        type: "template",
+        template: {
+          name: t.nome,
+          language: { code: t.idioma },
+          components: [
+            { type: "body", parameters: t.parametros.map((text) => ({ type: "text", text })) },
+            ...t.botoes.map((payload, index) => ({
+              type: "button",
+              sub_type: "quick_reply",
+              index: String(index),
+              parameters: [{ type: "payload", payload }],
+            })),
+          ],
         },
-      },
-    });
-    const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
-    return { id: (lista[0]?.["id"] as string) ?? null };
-  },
-  reiniciarSessao(): Promise<EstadoDaSessao> {
-    return meta.consultarStatus();
-  },
-  async desconectar(): Promise<void> {
-    // O desvínculo da conta oficial é feito em Connectors → WhatsApp, não pelo app.
-  },
-};
+      });
+      const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+      return { id: (lista[0]?.["id"] as string) ?? null };
+    },
+    /** Mensagem interativa com até 3 botões (só dentro da janela de 24h). */
+    async enviarInterativo(telefone: string, i: MensagemInterativa) {
+      const r = await chamar<Record<string, unknown>>(cfg, "/messages", "POST", {
+        messaging_product: "whatsapp",
+        to: telefone.replace(/\D/g, ""),
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: i.texto.slice(0, 1024) },
+          ...(i.rodape ? { footer: { text: i.rodape.slice(0, 60) } } : {}),
+          action: {
+            buttons: i.botoes.slice(0, 3).map((b) => ({
+              type: "reply",
+              reply: { id: b.id.slice(0, 256), title: b.titulo.slice(0, 20) },
+            })),
+          },
+        },
+      });
+      const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
+      return { id: (lista[0]?.["id"] as string) ?? null };
+    },
+    reiniciarSessao(): Promise<EstadoDaSessao> {
+      return meta.consultarStatus();
+    },
+    async desconectar(): Promise<void> {
+      // O desvínculo da conta oficial é feito em Connectors → WhatsApp, não pelo app.
+    },
+  };
   return meta;
 }
-
 
 export type ModeloComBotoes = {
   nome: string;

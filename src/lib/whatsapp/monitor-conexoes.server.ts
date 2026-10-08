@@ -66,7 +66,10 @@ async function verificarUma(linha: Linha, agora: Date) {
   } catch (e) {
     // Serviço sem resposta não prova queda: registra e tenta na próxima varredura.
     logConexao("monitor_sem_resposta", { ...base, erro: e instanceof Error ? e.message : "" });
-    await db.from("conexoes_whatsapp").update({ verificado_em: agora.toISOString() }).eq("id", linha.id);
+    await db
+      .from("conexoes_whatsapp")
+      .update({ verificado_em: agora.toISOString() })
+      .eq("id", linha.id);
     return "sem_resposta" as const;
   }
 
@@ -77,7 +80,10 @@ async function verificarUma(linha: Linha, agora: Date) {
     tentadaEm: linha.reconexao_tentada_em,
     agora,
   });
-  await db.from("conexoes_whatsapp").update({ verificado_em: agora.toISOString() }).eq("id", linha.id);
+  await db
+    .from("conexoes_whatsapp")
+    .update({ verificado_em: agora.toISOString() })
+    .eq("id", linha.id);
 
   if (acao.tipo === "nada") return "ok" as const;
   if (acao.tipo === "conectado") {
@@ -139,7 +145,11 @@ async function verificarUma(linha: Linha, agora: Date) {
       return "qr" as const;
     }
   } catch (e) {
-    logConexao("reconexao_falhou", { ...base, tentativas, erro: e instanceof Error ? e.message : "" });
+    logConexao("reconexao_falhou", {
+      ...base,
+      tentativas,
+      erro: e instanceof Error ? e.message : "",
+    });
   }
   return "queda" as const;
 }
@@ -158,7 +168,9 @@ export async function monitorarConexoesWhatsapp(agora = new Date()) {
     )
     .eq("provedor", "evolution")
     .eq("compartilhada", false)
-    .or("status.in.(conectado,conectando,erro),and(status.eq.desconectado,reconexao_tentativas.gt.0)")
+    .or(
+      "status.in.(conectado,conectando,erro),and(status.eq.desconectado,reconexao_tentativas.gt.0)",
+    )
     .order("verificado_em", { ascending: true, nullsFirst: true })
     .limit(LIMITE_POR_EXECUCAO);
   const linhas = (data ?? []) as Linha[];

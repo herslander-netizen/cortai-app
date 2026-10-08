@@ -17,16 +17,34 @@ const minutosAtras = (m: number) => new Date(agora.getTime() - m * 60_000).toISO
 describe("monitor de conexões", () => {
   it("conexão continua conectada: nada a fazer", () => {
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "conectado", statusReal: "conectado", tentativas: 0, tentadaEm: null, agora }),
+      decidirAcaoDoMonitor({
+        statusBanco: "conectado",
+        statusReal: "conectado",
+        tentativas: 0,
+        tentadaEm: null,
+        agora,
+      }),
     ).toEqual({ tipo: "nada" });
   });
 
   it("queda silenciosa: banco conectado, serviço desconectado → queda com reconexão", () => {
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "conectado", statusReal: "desconectado", tentativas: 0, tentadaEm: null, agora }),
+      decidirAcaoDoMonitor({
+        statusBanco: "conectado",
+        statusReal: "desconectado",
+        tentativas: 0,
+        tentadaEm: null,
+        agora,
+      }),
     ).toEqual({ tipo: "queda", reconectar: true });
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "conectado", statusReal: "erro", tentativas: 0, tentadaEm: null, agora }).tipo,
+      decidirAcaoDoMonitor({
+        statusBanco: "conectado",
+        statusReal: "erro",
+        tentativas: 0,
+        tentadaEm: null,
+        agora,
+      }).tipo,
     ).toBe("queda");
   });
 
@@ -37,21 +55,41 @@ describe("monitor de conexões", () => {
     expect(podeTentarReconectar(2, minutosAtras(30), agora)).toBe(true);
     expect(esperaDaTentativa(1)).toBe(JANELA_RECONEXAO_MS);
     expect(esperaDaTentativa(20)).toBe(6 * 3600_000);
-    expect(podeTentarReconectar(MAX_TENTATIVAS_AUTOMATICAS, minutosAtras(10_000), agora)).toBe(false);
+    expect(podeTentarReconectar(MAX_TENTATIVAS_AUTOMATICAS, minutosAtras(10_000), agora)).toBe(
+      false,
+    );
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "desconectado", statusReal: "desconectado", tentativas: 1, tentadaEm: minutosAtras(3), agora }),
+      decidirAcaoDoMonitor({
+        statusBanco: "desconectado",
+        statusReal: "desconectado",
+        tentativas: 1,
+        tentadaEm: minutosAtras(3),
+        agora,
+      }),
     ).toEqual({ tipo: "queda", reconectar: false });
   });
 
   it("QR necessário: nunca reconecta sozinho, só aguarda a pessoa", () => {
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "conectado", statusReal: "qr_pronto", tentativas: 0, tentadaEm: null, agora }),
+      decidirAcaoDoMonitor({
+        statusBanco: "conectado",
+        statusReal: "qr_pronto",
+        tentativas: 0,
+        tentadaEm: null,
+        agora,
+      }),
     ).toEqual({ tipo: "aguardando_qr" });
   });
 
   it("voltou a conectar depois de tentativas: zera o ciclo", () => {
     expect(
-      decidirAcaoDoMonitor({ statusBanco: "desconectado", statusReal: "conectado", tentativas: 2, tentadaEm: minutosAtras(1), agora }),
+      decidirAcaoDoMonitor({
+        statusBanco: "desconectado",
+        statusReal: "conectado",
+        tentativas: 2,
+        tentadaEm: minutosAtras(1),
+        agora,
+      }),
     ).toEqual({ tipo: "conectado" });
   });
 });
@@ -87,6 +125,8 @@ describe("isolamento entre negócios", () => {
     expect(podeEnviarPelaConexao(null, "tenant-a")).toBe(false);
   });
   it("número oficial compartilhado é a única exceção", () => {
-    expect(podeEnviarPelaConexao({ tenant_id: "plataforma", compartilhada: true }, "tenant-a")).toBe(true);
+    expect(
+      podeEnviarPelaConexao({ tenant_id: "plataforma", compartilhada: true }, "tenant-a"),
+    ).toBe(true);
   });
 });

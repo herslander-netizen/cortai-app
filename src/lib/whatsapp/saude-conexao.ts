@@ -28,8 +28,8 @@ export type EstadoAtual = {
 
 export type EstadoRecebido = {
   status: StatusDaConexao;
-  numero?: string | null;
-  nomeExibicao?: string | null;
+  numero?: string | null | undefined;
+  nomeExibicao?: string | null | undefined;
 };
 
 /** Campos a gravar: número/nome só entram quando vieram preenchidos. */
