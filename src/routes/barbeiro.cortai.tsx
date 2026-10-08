@@ -852,6 +852,16 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </Button>
       ) : null}
 
+      {qrPronto && !qrExpirado && restante !== null ? (
+        <p
+          className={`mt-3 text-center text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
+          role="timer"
+          aria-live="polite"
+        >
+          Este código expira em {formatarRestante(restante)}.
+        </p>
+      ) : null}
+
       <div className="mt-6 space-y-3">
         {status === "conectado" ? (
           <>
