@@ -145,30 +145,10 @@ async function sinalizarFalhaDaFinalidade(tenantId: string, finalidade: TipoDeCo
   });
 }
 
-/** Central de Notificações indisponível: alerta único por hora no Admin. */
-async function alertarPlataformaCentral(tenantId: string) {
-  const db = await admin();
-  const hora = new Date().toISOString().slice(0, 13);
-  const { data: existente } = await db
-    .from("alertas_da_plataforma")
-    .select("id")
-    .eq("origem", "whatsapp_central")
-    .is("resolvido_em", null)
-    .gte("criado_em", `${hora}:00:00Z`)
-    .limit(1)
-    .maybeSingle();
-  if (existente) return;
-  await db.from("alertas_da_plataforma").insert({
-    origem: "whatsapp_central",
-    nivel: "critico",
-    titulo: "Central de Notificações indisponível",
-    detalhes: { primeiro_tenant: tenantId },
-  });
-}
-
 /**
  * Gateway da sessão, com trava de isolamento: um negócio nunca envia pela
- * sessão de outro (exceto o número oficial compartilhado). Lança se a sessão
+ * sessão de outro (exceto o número oficial compartilhado). A linha legada da
+ * plataforma (`escopo='central'`) nunca envia por negócio. Lança se a sessão
  * não existe ou pertence a outro negócio.
  */
 export async function gatewayDaSessao(sessaoId: string, tenantId: string) {
@@ -178,16 +158,7 @@ export async function gatewayDaSessao(sessaoId: string, tenantId: string) {
     .select("tenant_id, compartilhada, provedor, escopo")
     .eq("sessao_id", sessaoId)
     .maybeSingle();
-  let permitido = podeEnviarPelaConexao(data, tenantId);
-  if (!permitido && data?.escopo === "central") {
-    // Central: só para negócio incluído no rollout pelo Admin.
-    const { data: t } = await db
-      .from("tenants")
-      .select("notificacoes_central_habilitada")
-      .eq("id", tenantId)
-      .maybeSingle();
-    permitido = t?.notificacoes_central_habilitada === true;
-  }
+  const permitido = data?.escopo !== "central" && podeEnviarPelaConexao(data, tenantId);
   if (!permitido) {
     logConexao("envio_bloqueado_isolamento", { tenantId, sessaoId });
     throw new Error("Sessão de WhatsApp não pertence a este negócio.");
