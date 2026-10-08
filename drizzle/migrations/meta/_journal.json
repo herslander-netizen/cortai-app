@@ -176,6 +176,13 @@
       "when": 1791481272834,
       "tag": "0024_pix_informado_exige_token",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791483270941,
+      "tag": "0025_encerrar_avisos_ao_fechar_agendamento",
+      "breakpoints": true
     }
   ]
 }
