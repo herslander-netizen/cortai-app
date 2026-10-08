@@ -7,6 +7,7 @@ import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { InstalarCortai } from "@/components/pwa/InstalarCortai";
 import { PreferenciasDePrivacidade } from "@/components/privacidade/PreferenciasDePrivacidade";
+import { SegurancaDaConta } from "@/components/seguranca/SegurancaDaConta";
 import { getSessao } from "@/lib/sessao.functions";
 import { PreferenciasDoCliente } from "@/components/notificacoes/PreferenciasDoCliente";
 import { sair } from "@/lib/guarda";
@@ -103,6 +104,7 @@ function PerfilPage() {
               </button>
             </li>
           </ul>
+          <SegurancaDaConta />
           <PreferenciasDoCliente />
           <PreferenciasDicas />
           <PreferenciasDePrivacidade />
