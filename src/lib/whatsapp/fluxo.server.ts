@@ -149,7 +149,7 @@ export async function conexaoPorSessao(sessaoId: string) {
   const { data } = await db
     .from("conexoes_whatsapp")
     .select(
-      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em",
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo",
     )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
@@ -573,7 +573,45 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "acao_contextual" };
     }
   }
-  // Secretária CortAI: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
+  // Número de NOTIFICAÇÕES com número de ATENDIMENTO próprio: só comandos simples
+  // (tratados acima); conversa livre é orientada uma vez ao número de atendimento.
+  if ((conexao as { tipo?: string | null }).tipo === "notificacoes" && !(conexao as { compartilhada?: boolean }).compartilhada) {
+    const { data: atendimento } = await db
+      .from("conexoes_whatsapp")
+      .select("numero")
+      .eq("tenant_id", tenantId)
+      .eq("tipo", "atendimento")
+      .eq("compartilhada", false)
+      .maybeSingle();
+    if (atendimento) {
+      const orientacao = atendimento.numero
+        ? `Este número envia apenas avisos. Para conversar, fale com o CortAI — Assistente Virtual no WhatsApp ${atendimento.numero}.`
+        : "Este número envia apenas avisos. Para conversar, use o WhatsApp de atendimento do estabelecimento.";
+      const desdeAviso = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+      const { data: jaAvisado } = await db
+        .from("mensagens_whatsapp")
+        .select("id")
+        .eq("conversa_id", conversa.id)
+        .eq("direcao", "saida")
+        .eq("conteudo", orientacao)
+        .gte("criado_em", desdeAviso)
+        .limit(1)
+        .maybeSingle();
+      if (!jaAvisado) {
+        await enviarPelaBarbearia({
+          tenantId,
+          conversaId: conversa.id,
+          conexaoId: conexao.id,
+          sessaoId: conexao.sessao_id,
+          telefone,
+          texto: orientacao,
+          porIa: false,
+        }).catch(() => undefined);
+      }
+      return { tratada: true, motivo: "canal_de_notificacoes" };
+    }
+  }
+  // CortAI — Assistente Virtual: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
   if (input.tipo === "text" && input.conteudo.trim()) {
     const respondida = await responderComCerebro({
       tenantId,
