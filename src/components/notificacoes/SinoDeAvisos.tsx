@@ -22,6 +22,14 @@ import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { guardarAvisoDoFoco, modoFocoAtivo } from "@/lib/modo-foco";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { TelaDeAvisos } from "@/components/notificacoes/TelaDeAvisos";
+import {
+  chaveVisto,
+  contarNaoVistos,
+  criarControleDeToque,
+  gravarVisto,
+  lerVisto,
+  rotuloDoSino,
+} from "@/lib/sino-avisos";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -30,7 +38,9 @@ function quando(iso: string) {
 
 export function SinoDeAvisos() {
   const [aberto, setAberto] = useState(false);
-  const [pulsar, setPulsar] = useState(false);
+  const [toque, setToque] = useState(0);
+  const [ultimoVistoEm, setUltimoVistoEm] = useState<number | null>(null);
+  const tituloOriginal = useRef<string | null>(null);
   const menosMovimento = useMenosMovimento();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -59,6 +69,52 @@ export function SinoDeAvisos() {
     };
   }, []);
 
+  // "Visto" por negócio + usuário. Primeiro acesso: tudo que já existe conta como visto.
+  const chave = tenantId && sessao?.userId ? chaveVisto(tenantId, sessao.userId) : null;
+  useEffect(() => {
+    if (!chave) return;
+    const gravado = lerVisto(chave);
+    if (gravado != null) setUltimoVistoEm(gravado);
+    else {
+      const agora = Date.now();
+      gravarVisto(chave, agora);
+      setUltimoVistoEm(agora);
+    }
+  }, [chave]);
+
+  // Toque único: só por INSERT em tempo real; rajada = uma animação.
+  const controleToque = useRef(criarControleDeToque());
+  const toquePendente = useRef(false);
+  const estadoRef = useRef({ aberto, menosMovimento });
+  estadoRef.current = { aberto, menosMovimento };
+  const tocarRef = useRef<() => void>(() => {});
+  tocarRef.current = () => {
+    const abaOculta = typeof document !== "undefined" && document.hidden;
+    if (abaOculta) {
+      toquePendente.current = true;
+      return;
+    }
+    if (
+      controleToque.current.pedir({
+        centralAberta: estadoRef.current.aberto,
+        menosMovimento: estadoRef.current.menosMovimento,
+        abaOculta: false,
+      })
+    ) {
+      setToque((t) => t + 1);
+    }
+  };
+  useEffect(() => {
+    const visivel = () => {
+      if (!document.hidden && toquePendente.current) {
+        toquePendente.current = false;
+        tocarRef.current();
+      }
+    };
+    document.addEventListener("visibilitychange", visivel);
+    return () => document.removeEventListener("visibilitychange", visivel);
+  }, []);
+
   useEffect(() => {
     if (!tenantId) return;
     const canal = supabase
@@ -79,8 +135,7 @@ export function SinoDeAvisos() {
             return;
           }
           if (novo?.titulo) mostrarAviso(novo.titulo, novo.corpo ?? null, novo.link ?? null);
-          setPulsar(true);
-          setTimeout(() => montado.current && setPulsar(false), 1200);
+          tocarRef.current();
         },
       )
       .subscribe();
@@ -120,6 +175,11 @@ export function SinoDeAvisos() {
   abrirCentralRef.current = () => {
     if (aberto) return;
     setNaoLidasAoAbrir(new Set((avisos ?? []).filter((a) => !a.lida_em).map((a) => a.id)));
+    if (chave) {
+      const agora = Date.now();
+      gravarVisto(chave, agora);
+      setUltimoVistoEm(agora);
+    }
     if (celular) window.history.pushState({ ...window.history.state, avisos: true }, "");
     setAberto(true);
   };
@@ -129,10 +189,35 @@ export function SinoDeAvisos() {
   }
   fecharRef.current = fecharCentral;
 
-  if (!tenantId) return null;
-
   const lista = avisos ?? [];
   const naoLidas = lista.filter((a) => !a.lida_em).length;
+  const naoVistos = contarNaoVistos(lista, ultimoVistoEm);
+
+  // Título da aba e badge do app instalado seguem a mesma contagem do sino.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (tituloOriginal.current == null) tituloOriginal.current = document.title.replace(/^\(\d+\+?\) /, "");
+    const base = tituloOriginal.current;
+    document.title = naoVistos > 0 ? `(${naoVistos > 9 ? "9+" : naoVistos}) ${base}` : base;
+    const nav = navigator as Navigator & {
+      setAppBadge?: (n: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+    try {
+      if (naoVistos > 0) void nav.setAppBadge?.(naoVistos)?.catch(() => {});
+      else void nav.clearAppBadge?.()?.catch(() => {});
+    } catch {
+      /* sem suporte */
+    }
+  }, [naoVistos]);
+  useEffect(
+    () => () => {
+      if (tituloOriginal.current != null) document.title = tituloOriginal.current;
+    },
+    [],
+  );
+
+  if (!tenantId) return null;
 
   async function abrirAviso(aviso: Notificacao) {
     fecharCentral();
