@@ -112,11 +112,14 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
       {n.ultimoErro ? <p className="text-xs text-mute2">Último erro: {n.ultimoErro}</p> : null}
       {n.verificadoEm ? (
         <p className="text-xs text-mute2">
-          Verificado em {new Date(n.verificadoEm).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+          Verificado em{" "}
+          {new Date(n.verificadoEm).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
         </p>
       ) : null}
       {n.temNumeroAntigoDeAvisos ? (
-        <p className="mt-1 text-xs text-mute2">Tem um número antigo de avisos que não é mais usado.</p>
+        <p className="mt-1 text-xs text-mute2">
+          Tem um número antigo de avisos que não é mais usado.
+        </p>
       ) : null}
       {acao.data?.aviso ? (
         <p className="mt-2 text-sm text-brick" role="alert">
@@ -136,7 +139,12 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
         ) : null}
         {temPropria ? (
           <>
-            <Button size="sm" variant="secondary" disabled={acao.isPending} onClick={() => acao.mutate("qr")}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("qr")}
+            >
               Gerar QR Code
             </Button>
             <Button

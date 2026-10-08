@@ -115,15 +115,22 @@ export const operarWhatsappDoNegocio = createServerFn({ method: "POST" })
       .eq("escopo", "tenant");
     let principal = conexaoPrincipal((linhas ?? []) as Linha[]);
     if (!principal) {
-      if (data.acao !== "conectar") return { aviso: "Este negócio ainda não tem WhatsApp próprio." };
+      if (data.acao !== "conectar")
+        return { aviso: "Este negócio ainda não tem WhatsApp próprio." };
       const { randomBytes } = await import("node:crypto");
       const sessaoId = `cortai_${data.tenantId.replace(/-/g, "").slice(0, 12)}_${randomBytes(6).toString("hex")}`;
       const { data: criada, error } = await db
         .from("conexoes_whatsapp")
-        .insert({ tenant_id: data.tenantId, sessao_id: sessaoId, status: "desconectado", tipo: "atendimento" })
+        .insert({
+          tenant_id: data.tenantId,
+          sessao_id: sessaoId,
+          status: "desconectado",
+          tipo: "atendimento",
+        })
         .select(COLUNAS)
         .single();
-      if (error || !criada) return { aviso: error?.message ?? "Não foi possível preparar a conexão." };
+      if (error || !criada)
+        return { aviso: error?.message ?? "Não foi possível preparar a conexão." };
       principal = criada as Linha;
     }
     const provedor = principal.provedor ?? provedorDoGateway();
@@ -133,7 +140,10 @@ export const operarWhatsappDoNegocio = createServerFn({ method: "POST" })
     try {
       const r =
         data.acao === "conectar"
-          ? await gw.criarSessao(principal.sessao_id, provedor === "evolution" ? URL_EVOLUTION : URL_META)
+          ? await gw.criarSessao(
+              principal.sessao_id,
+              provedor === "evolution" ? URL_EVOLUTION : URL_META,
+            )
           : data.acao === "qr"
             ? await gw.obterQrCode(principal.sessao_id)
             : data.acao === "reconectar"

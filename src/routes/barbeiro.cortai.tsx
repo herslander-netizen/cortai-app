@@ -562,8 +562,8 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
             <Selo estado={selo.estado} texto={selo.texto} />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-mute">
-            Confirmações, lembretes e avisos saem pelo WhatsApp do seu negócio, para clientes e
-            para a equipe que ativou avisos.
+            Confirmações, lembretes e avisos saem pelo WhatsApp do seu negócio, para clientes e para
+            a equipe que ativou avisos.
           </p>
           {ativas && !painel.envioDeNotificacoesDisponivel ? (
             <p className="mt-2 text-sm text-mute" role="status">

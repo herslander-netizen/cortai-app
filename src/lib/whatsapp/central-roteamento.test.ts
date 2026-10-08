@@ -18,13 +18,31 @@ type L = {
 };
 
 const principal = (status = "conectado"): L => ({
-  id: "a", sessao_id: "s_a", status, tipo: "atendimento", compartilhada: false, escopo: "tenant", tenant_id: "t1",
+  id: "a",
+  sessao_id: "s_a",
+  status,
+  tipo: "atendimento",
+  compartilhada: false,
+  escopo: "tenant",
+  tenant_id: "t1",
 });
 const legadoNotif = (status = "conectado"): L => ({
-  id: "n", sessao_id: "s_n", status, tipo: "notificacoes", compartilhada: false, escopo: "tenant", tenant_id: "t1",
+  id: "n",
+  sessao_id: "s_n",
+  status,
+  tipo: "notificacoes",
+  compartilhada: false,
+  escopo: "tenant",
+  tenant_id: "t1",
 });
 const central = (): L => ({
-  id: "c", sessao_id: "cortai_central_x", status: "conectado", tipo: "notificacoes", compartilhada: false, escopo: "central", tenant_id: null,
+  id: "c",
+  sessao_id: "cortai_central_x",
+  status: "conectado",
+  tipo: "notificacoes",
+  compartilhada: false,
+  escopo: "central",
+  tenant_id: null,
 });
 
 describe("Central de Notificações = interruptor", () => {
@@ -49,7 +67,10 @@ describe("uma conexão por negócio", () => {
     expect(escolherConexaoPorFinalidade([legadoNotif()], "notificacoes").tipo).toBe("reserva");
   });
   it("principal desconectada → reserva, nunca a linha legada", () => {
-    const r = escolherConexaoPorFinalidade([principal("desconectado"), legadoNotif()], "notificacoes");
+    const r = escolherConexaoPorFinalidade(
+      [principal("desconectado"), legadoNotif()],
+      "notificacoes",
+    );
     expect(r.tipo).toBe("reserva");
   });
   it("linha da plataforma nunca conta como conexão do negócio", () => {
