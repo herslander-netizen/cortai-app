@@ -148,7 +148,9 @@ export async function conexaoPorSessao(sessaoId: string) {
   const db = await admin();
   const { data } = await db
     .from("conexoes_whatsapp")
-    .select("id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em")
+    .select(
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em",
+    )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
   return data ?? null;
@@ -503,7 +505,7 @@ export async function processarMensagemRecebida(input: {
         id: doNegocio.id,
         sessao_id: doNegocio.sessao_id,
         tenant_id: tenantId,
-        provedor: doNegocio.provedor,
+        provedor: doNegocio.provedor ?? conexao.provedor,
       };
     }
   }

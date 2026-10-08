@@ -173,7 +173,8 @@ export function decidirCanais(
       return { canal, enviar: true, motivo: "ok" };
     }
     // WhatsApp
-    if (ctx.planoComWhatsapp === false) return { canal, enviar: false, motivo: "plano_sem_whatsapp" };
+    if (ctx.planoComWhatsapp === false)
+      return { canal, enviar: false, motivo: "plano_sem_whatsapp" };
     if (!ctx.temWhatsapp) return { canal, enviar: false, motivo: "sem_whatsapp" };
     if (destinatario !== "cliente" && p.no_whatsapp !== true)
       return { canal, enviar: false, motivo: "whatsapp_nao_ligado" };
@@ -273,6 +274,8 @@ export function chaveDeBloqueio(input: {
 }): string | null {
   if (input.canal !== "whatsapp") return null;
   if (EVENTOS[input.evento].prioridade === "critica") return null;
-  const janela = Math.floor((input.agora ?? new Date()).getTime() / (COOLDOWN_WHATSAPP_MIN * 60_000));
+  const janela = Math.floor(
+    (input.agora ?? new Date()).getTime() / (COOLDOWN_WHATSAPP_MIN * 60_000),
+  );
   return `bloq:wa:${input.userId}:${janela}`;
 }
