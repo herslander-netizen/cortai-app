@@ -17,6 +17,7 @@ import {
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
 import { Button } from "@/components/ui/button";
+import { EquipeWhatsapp } from "@/components/barbeiro/EquipeWhatsapp";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import {
   ACOES,
@@ -226,6 +227,8 @@ function EquipePage() {
               </ul>
             )}
           </section>
+
+          <EquipeWhatsapp />
 
           <RegraDeRecebimento />
 

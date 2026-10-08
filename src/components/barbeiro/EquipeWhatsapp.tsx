@@ -89,7 +89,7 @@ export function EquipeWhatsapp() {
         })}
       </ul>
       {alternar.error ? (
-        <Aviso tom="erro" titulo="Não foi possível salvar">
+        <Aviso tom="atencao" titulo="Não foi possível salvar">
           {(alternar.error as Error).message}
         </Aviso>
       ) : null}
