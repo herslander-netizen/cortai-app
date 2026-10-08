@@ -45,14 +45,22 @@ async function avisarDono(linha: Linha, tipo: "queda" | "qr") {
       .select("id")
       .eq("origem", "whatsapp_central")
       .is("resolvido_em", null)
-      .eq("titulo", tipo === "qr" ? "Central de Notificações pede QR Code" : "Central de Notificações desconectada")
+      .eq(
+        "titulo",
+        tipo === "qr"
+          ? "Central de Notificações pede QR Code"
+          : "Central de Notificações desconectada",
+      )
       .limit(1)
       .maybeSingle();
     if (!aberto)
       await db.from("alertas_da_plataforma").insert({
         origem: "whatsapp_central",
         nivel: "critico",
-        titulo: tipo === "qr" ? "Central de Notificações pede QR Code" : "Central de Notificações desconectada",
+        titulo:
+          tipo === "qr"
+            ? "Central de Notificações pede QR Code"
+            : "Central de Notificações desconectada",
         detalhes: { sessao: linha.sessao_id },
       });
     return;

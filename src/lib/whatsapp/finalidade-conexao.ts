@@ -40,7 +40,10 @@ export type EscolhaDeConexao<T extends ConexaoPropria> =
   | { tipo: "reserva"; motivo: string; propriaExistente: boolean };
 
 /** Conexão Central da plataforma: nunca conta como conexão de um negócio. */
-export function ehConexaoCentral(l: { escopo?: string | null; tenant_id?: string | null }): boolean {
+export function ehConexaoCentral(l: {
+  escopo?: string | null;
+  tenant_id?: string | null;
+}): boolean {
   return l.escopo === "central" || ("tenant_id" in l && l.tenant_id === null);
 }
 
@@ -111,7 +114,11 @@ export function escolherConexaoDeNotificacao<T extends ConexaoPropria>(input: {
     };
   }
   if (input.centralHabilitada) {
-    if (input.central && ehConexaoCentral(input.central as never) && input.central.status === "conectado")
+    if (
+      input.central &&
+      ehConexaoCentral(input.central as never) &&
+      input.central.status === "conectado"
+    )
       return { tipo: "central", conexao: input.central };
     return { tipo: "falha", motivo: "central_indisponivel", avisar: "plataforma" };
   }

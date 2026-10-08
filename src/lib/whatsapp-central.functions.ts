@@ -90,7 +90,9 @@ export const obterCentral = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => estado(await exigirAdminDaPlataforma(context)));
 
-const acaoSchema = z.object({ acao: z.enum(["conectar", "qr", "reconectar", "desconectar", "sincronizar"]) });
+const acaoSchema = z.object({
+  acao: z.enum(["conectar", "qr", "reconectar", "desconectar", "sincronizar"]),
+});
 
 export const operarCentral = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

@@ -79,7 +79,10 @@ describe("roteamento de notificações", () => {
 
 describe("atendimento nunca usa a Central", () => {
   it("atendimento desconectado com Central presente → falha/reserva, nunca Central", () => {
-    const r = escolherConexaoPorFinalidade([atend("desconectado"), notif(), central()], "atendimento");
+    const r = escolherConexaoPorFinalidade(
+      [atend("desconectado"), notif(), central()],
+      "atendimento",
+    );
     expect(r.tipo).toBe("falha");
     const r2 = escolherConexaoPorFinalidade([central()], "atendimento");
     expect(r2.tipo).toBe("reserva");

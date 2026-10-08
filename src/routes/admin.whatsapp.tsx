@@ -18,7 +18,10 @@ export const Route = createFileRoute("/admin/whatsapp")({
   head: () => ({
     meta: [
       { title: "WhatsApp Central — Administração Cortaí" },
-      { name: "description", content: "Número oficial de notificações do Cortaí e liberação por estabelecimento." },
+      {
+        name: "description",
+        content: "Número oficial de notificações do Cortaí e liberação por estabelecimento.",
+      },
       { property: "og:title", content: "WhatsApp Central — Administração Cortaí" },
       { property: "og:description", content: "Controle do número central de notificações." },
       { property: "og:type", content: "website" },
@@ -44,7 +47,11 @@ function AdminWhatsappPage() {
   const operar = useServerFn(operarCentral);
   const listar = useServerFn(listarTenantsDaCentral);
   const definir = useServerFn(definirCentralDoTenant);
-  const central = useQuery({ queryKey: ["admin-central"], queryFn: () => ler(), refetchInterval: 15_000 });
+  const central = useQuery({
+    queryKey: ["admin-central"],
+    queryFn: () => ler(),
+    refetchInterval: 15_000,
+  });
   const tenants = useQuery({ queryKey: ["admin-central-tenants"], queryFn: () => listar() });
   const acao = useMutation({
     mutationFn: (a: "conectar" | "qr" | "reconectar" | "desconectar" | "sincronizar") =>
@@ -64,7 +71,9 @@ function AdminWhatsappPage() {
       subtitle="Número oficial que envia as notificações dos estabelecimentos liberados."
     >
       {central.isLoading ? <Carregando /> : null}
-      {central.isError ? <p className="text-sm text-brick">Acesso negado ou indisponível.</p> : null}
+      {central.isError ? (
+        <p className="text-sm text-brick">Acesso negado ou indisponível.</p>
+      ) : null}
       {c ? (
         <section className="surface p-5">
           <p className="text-sm font-semibold text-paper">{ROTULO[c.status] ?? c.status}</p>
@@ -72,8 +81,14 @@ function AdminWhatsappPage() {
           {!c.gatewayConfigurado ? (
             <p className="mt-2 text-sm text-brick">Serviço de WhatsApp não configurado.</p>
           ) : null}
-          {c.ultimoErro ? <p className="mt-2 text-xs text-mute2">Último erro: {c.ultimoErro}</p> : null}
-          {aviso ? <p className="mt-2 text-sm text-brick" role="alert">{aviso}</p> : null}
+          {c.ultimoErro ? (
+            <p className="mt-2 text-xs text-mute2">Último erro: {c.ultimoErro}</p>
+          ) : null}
+          {aviso ? (
+            <p className="mt-2 text-sm text-brick" role="alert">
+              {aviso}
+            </p>
+          ) : null}
           {c.qrCode ? (
             <div className="mx-auto mt-4 w-64 max-w-full rounded-xl bg-paper p-3">
               <QrCodeReal valor={c.qrCode} alt="QR Code da Central" />
@@ -81,21 +96,45 @@ function AdminWhatsappPage() {
           ) : null}
           <div className="mt-5 flex flex-wrap gap-2">
             {c.status !== "conectado" ? (
-              <Button disabled={acao.isPending} onClick={() => acao.mutate("conectar")}>Conectar</Button>
+              <Button disabled={acao.isPending} onClick={() => acao.mutate("conectar")}>
+                Conectar
+              </Button>
             ) : null}
-            <Button variant="secondary" disabled={acao.isPending} onClick={() => acao.mutate("qr")}>Gerar QR Code</Button>
-            <Button variant="secondary" disabled={acao.isPending} onClick={() => acao.mutate("sincronizar")}>Atualizar estado</Button>
-            <Button variant="secondary" disabled={acao.isPending} onClick={() => acao.mutate("reconectar")}>Reconectar</Button>
-            <Button variant="ghost" disabled={acao.isPending} onClick={() => acao.mutate("desconectar")}>Desconectar</Button>
+            <Button variant="secondary" disabled={acao.isPending} onClick={() => acao.mutate("qr")}>
+              Gerar QR Code
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("sincronizar")}
+            >
+              Atualizar estado
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("reconectar")}
+            >
+              Reconectar
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={acao.isPending}
+              onClick={() => acao.mutate("desconectar")}
+            >
+              Desconectar
+            </Button>
           </div>
         </section>
       ) : null}
 
       <section className="mt-8">
-        <h2 className="mb-1 text-xs font-semibold uppercase text-mute2">Liberação por estabelecimento</h2>
+        <h2 className="mb-1 text-xs font-semibold uppercase text-mute2">
+          Liberação por estabelecimento
+        </h2>
         <p className="mb-3 text-xs text-mute">
-          Só estabelecimentos liberados e sem número próprio de notificações usam a Central. Desligar volta ao
-          comportamento anterior, sem apagar nada.
+          Só estabelecimentos liberados e sem número próprio de notificações usam a Central.
+          Desligar volta ao comportamento anterior, sem apagar nada.
         </p>
         <ul className="divide-y divide-line border-y border-line">
           {(tenants.data ?? []).map((t) => (

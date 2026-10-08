@@ -141,7 +141,11 @@ function CortaiPage() {
             <div className="surface px-3 py-3">
               <p className="text-xs text-mute2">Envio de avisos</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.notificacoesAtivas && painel.data.envioDeNotificacoesDisponivel} />
+                <Ponto
+                  ligado={
+                    painel.data.notificacoesAtivas && painel.data.envioDeNotificacoesDisponivel
+                  }
+                />
                 {!painel.data.notificacoesAtivas
                   ? "Desligado"
                   : painel.data.envioDeNotificacoesDisponivel
@@ -592,7 +596,10 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
 
 const CABECALHO_DO_TIPO: Record<TipoDeConexao, { titulo: string; subtitulo: string }> = {
   atendimento: { titulo: "CortAI — Assistente Virtual", subtitulo: "WhatsApp de Atendimento" },
-  notificacoes: { titulo: "WhatsApp de Notificações", subtitulo: "Número próprio do estabelecimento" },
+  notificacoes: {
+    titulo: "WhatsApp de Notificações",
+    subtitulo: "Número próprio do estabelecimento",
+  },
 };
 
 function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoDeConexao }) {
