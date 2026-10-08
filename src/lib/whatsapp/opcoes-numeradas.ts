@@ -91,3 +91,39 @@ export function escolherAvisoParaAcao<T extends AvisoAberto>(
   });
   return { tipo: "perguntar", candidatos: unicos };
 }
+
+const STATUS_ENCERRADOS = new Set(["cancelado", "finalizado", "nao_compareceu"]);
+
+/**
+ * Aviso de agendamento ainda acionável? Avisos de cancelamento (Remarcar sem
+ * Confirmar) e de retorno (Agendar) continuam valendo; os demais caem se o
+ * agendamento estiver encerrado ou já no passado.
+ */
+export function avisoAindaValido(
+  aviso: AvisoAberto,
+  agendamento: { status: string | null; inicio: string | null } | null | undefined,
+  agora: Date = new Date(),
+): boolean {
+  const acoes = aviso.acoes ?? [];
+  const deCancelamentoOuRetorno =
+    acoes.includes("CORTAI_AGENDAR") ||
+    (acoes.includes("CORTAI_REMARCAR") && !acoes.includes("CORTAI_CONFIRMAR"));
+  if (deCancelamentoOuRetorno || !aviso.agendamento_id) return true;
+  if (!agendamento) return false;
+  if (agendamento.status && STATUS_ENCERRADOS.has(agendamento.status)) return false;
+  if (agendamento.inicio && new Date(agendamento.inicio).getTime() < agora.getTime()) return false;
+  return true;
+}
+
+/**
+ * Número solto é resposta ao aviso? Não, quando depois do aviso mais recente a
+ * IA enviou outra mensagem (ex.: lista de horários) — aí o número é da IA.
+ */
+export function numeroEhDoAviso(
+  avisoEnviadoEm: string | null | undefined,
+  ultimaSaida: { criado_em: string; gerada_por_ia: boolean | null } | null | undefined,
+): boolean {
+  if (!ultimaSaida || !ultimaSaida.gerada_por_ia) return true;
+  if (!avisoEnviadoEm) return false;
+  return new Date(ultimaSaida.criado_em).getTime() <= new Date(avisoEnviadoEm).getTime();
+}
