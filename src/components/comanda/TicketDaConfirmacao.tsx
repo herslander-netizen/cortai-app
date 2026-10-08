@@ -22,16 +22,19 @@ import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
  */
 export function TicketDaConfirmacao({
   agendamentoId,
+  token,
   slug,
 }: {
   agendamentoId: string;
+  /** Prova de posse entregue na confirmação; fica só em memória. */
+  token: string;
   slug: string;
 }) {
   const buscar = useServerFn(getTicketPublicoDoAgendamento);
   const [aberto, setAberto] = useState(false);
   const q = useQuery({
     queryKey: ["ticket-publico", agendamentoId],
-    queryFn: () => buscar({ data: { agendamentoId } }),
+    queryFn: () => buscar({ data: { agendamentoId, token } }),
     staleTime: 30_000,
     retry: false,
   });
@@ -39,7 +42,7 @@ export function TicketDaConfirmacao({
   const qc = useQueryClient();
   const informar = useServerFn(informarPagamentoPix);
   const jaPaguei = useMutation({
-    mutationFn: () => informar({ data: { agendamentoId } }),
+    mutationFn: () => informar({ data: { agendamentoId, token } }),
     onSuccess: () => toast.success("Pagamento informado. O negócio vai conferir e confirmar."),
     onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível registrar."),
     onSettled: () => invalidarComandas(qc),

@@ -5211,7 +5211,7 @@ export type Database = {
       }
       home_publicada: { Args: never; Returns: Json }
       informar_pagamento_pix_cliente: {
-        Args: { _agendamento_id: string }
+        Args: { _agendamento_id: string; _token_hash: string }
         Returns: Json
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }

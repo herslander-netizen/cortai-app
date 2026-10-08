@@ -130,16 +130,48 @@ export const getTicketComanda = createServerFn({ method: "GET" })
     return ticket;
   });
 
+/** Entrada pública: UUID + prova de posse (token de 32 bytes em hex minúsculo). */
+export const entradaPublicaDoTicket = z
+  .object({
+    agendamentoId: z.string().uuid(),
+    token: z.string().regex(/^[a-f0-9]{64}$/),
+  })
+  .strict();
+
+/** Só o hash do token chega ao banco; nunca o token em claro. */
+async function hashDoToken(token: string) {
+  const { hashDoTokenDePreferencias } = await import("@/lib/agendamento-publico.functions");
+  return hashDoTokenDePreferencias(token);
+}
+
+/**
+ * Valida a posse do agendamento (id + preferencias_token_hash).
+ * Sem correspondência (inclusive agendamentos antigos sem token) → false, sem revelar se o UUID existe.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- mesmo cliente admin usado em carregarTicket
+export async function agendamentoComPosse(db: any, agendamentoId: string, tokenHash: string) {
+  const { data } = await db
+    .from("agendamentos")
+    .select("id")
+    .eq("id", agendamentoId)
+    .eq("preferencias_token_hash", tokenHash)
+    .not("preferencias_token_hash", "is", null)
+    .maybeSingle();
+  return Boolean(data?.id);
+}
+
 /**
  * Ticket pelo agendamento, para a tela pública de confirmação.
- * Sem login: quem tem o link da confirmação já vê serviço, profissional e valor;
- * a comanda nasce com o agendamento; antigos sem comanda são completados aqui.
+ * Exige o token entregue na confirmação; UUID sozinho nunca basta.
  */
-export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
-  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+export const getTicketPublicoDoAgendamento = createServerFn({ method: "POST" })
+  .validator((input: unknown) => entradaPublicaDoTicket.parse(input))
   .handler(async ({ data }): Promise<DadosDoTicket | null> => {
     await limitarLeituraPublica();
     const db = await admin();
+    if (!(await agendamentoComPosse(db, data.agendamentoId, await hashDoToken(data.token)))) {
+      return null;
+    }
     const { data: comanda } = await db
       .from("comandas")
       .select("id, tenant_id")
@@ -148,7 +180,7 @@ export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
     if (comanda) return carregarTicket(db, comanda.id, comanda.tenant_id);
-    // Agendamento antigo sem comanda: a mesma função do banco cria (só se ainda estiver ativo).
+    // Posse já validada: a mesma função do banco completa (só se ainda estiver ativo).
     const { data: criada } = await db.rpc(
       "garantir_comanda" as never,
       {
@@ -166,26 +198,27 @@ export const getTicketPublicoDoAgendamento = createServerFn({ method: "GET" })
 
 /**
  * Cliente informa que pagou o Pix na confirmação pública.
- * Nunca confirma pagamento: só move a MESMA comanda para "aguardando confirmação"
- * (idempotente, validado no banco: comanda do agendamento, Pix, status). A equipe confirma depois.
+ * Nunca confirma pagamento. A RPC valida o hash do token antes de qualquer alteração.
  */
 export const informarPagamentoPix = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ agendamentoId: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => entradaPublicaDoTicket.parse(input))
   .handler(async ({ data }): Promise<{ ok: boolean; status?: string; motivo?: string }> => {
     await limitarLeituraPublica();
     const db = await admin();
     const { data: r, error } = await db.rpc(
       "informar_pagamento_pix_cliente" as never,
-      { _agendamento_id: data.agendamentoId } as never,
+      { _agendamento_id: data.agendamentoId, _token_hash: await hashDoToken(data.token) } as never,
     );
     if (error) throw new Error("Não foi possível registrar agora. Tente de novo.");
     const res = (r ?? {}) as { ok?: boolean; status?: string; motivo?: string };
     if (!res.ok) {
       const motivo = res.motivo ?? "";
       throw new Error(
-        motivo === "nao_pix" || motivo === "sem_pix"
-          ? "Esta comanda não está aguardando Pix."
-          : "Esta comanda não está aguardando pagamento.",
+        motivo === "indisponivel"
+          ? "Não foi possível registrar agora."
+          : motivo === "nao_pix" || motivo === "sem_pix"
+            ? "Esta comanda não está aguardando Pix."
+            : "Esta comanda não está aguardando pagamento.",
       );
     }
     return { ok: true, status: res.status ?? "aguardando_confirmacao_pix" };
