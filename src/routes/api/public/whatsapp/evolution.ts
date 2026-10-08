@@ -44,13 +44,25 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
       POST: async ({ request }) => {
         const { segredoDoWebhookDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
         const segredo = segredoDoWebhookDeWhatsapp();
-        // TEMPORÁRIO (integração/teste): sem segredo configurado, a chamada é
-        // aceita sem autenticação. Com segredo configurado, a validação segue.
         const guard = await import("@/lib/webhook-guard.server");
         const abuso = await guard.barrarAbusivo(request, "whatsapp/evolution");
         if (abuso) return abuso;
 
-        if (segredo) {
+        const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+        if (!corpo) return new Response("Invalid payload", { status: 400 });
+
+        const evento = String(corpo["event"] ?? "")
+          .toLowerCase()
+          .replace(/_/g, ".");
+        const sessaoId = String(corpo["instance"] ?? "");
+        if (!sessaoId) return new Response("Missing instance", { status: 400 });
+
+        // TEMPORÁRIO (integração/teste): a instância "cortai" é aceita sem
+        // segredo para o teste ponta a ponta com a Evolution. Qualquer outra
+        // instância continua exigindo o segredo configurado. Em produção,
+        // remova esta exceção e configure EVOLUTION_WEBHOOK_SECRET na Evolution.
+        const instanciaDeTesteSemSegredo = sessaoId === "cortai";
+        if (segredo && !instanciaDeTesteSemSegredo) {
           const recebido =
             request.headers.get("x-webhook-secret") ??
             request.headers.get("apikey") ??
@@ -67,15 +79,6 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         }
         const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
         if (limite) return limite;
-
-        const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-        if (!corpo) return new Response("Invalid payload", { status: 400 });
-
-        const evento = String(corpo["event"] ?? "")
-          .toLowerCase()
-          .replace(/_/g, ".");
-        const sessaoId = String(corpo["instance"] ?? "");
-        if (!sessaoId) return new Response("Missing instance", { status: 400 });
         const dados = (corpo["data"] as Record<string, unknown>) ?? {};
 
         const fluxo = await import("@/lib/whatsapp/fluxo.server");
