@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { calcularContaVerificada, mascararTelefone, type PapelDaConta } from "@/lib/seguranca-conta";
+import {
+  calcularContaVerificada,
+  mascararTelefone,
+  type PapelDaConta,
+} from "@/lib/seguranca-conta";
 
 /**
  * Estado de verificação da conta autenticada. Fontes de verdade:

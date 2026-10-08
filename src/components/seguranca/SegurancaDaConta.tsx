@@ -5,12 +5,26 @@ import { AlertTriangle, Check, ShieldCheck } from "lucide-react";
 
 import { statusDaConta } from "@/lib/seguranca-conta.functions";
 
-function Linha({ rotulo, ok, textoOk, textoPendente }: { rotulo: string; ok: boolean; textoOk: string; textoPendente: string }) {
+function Linha({
+  rotulo,
+  ok,
+  textoOk,
+  textoPendente,
+}: {
+  rotulo: string;
+  ok: boolean;
+  textoOk: string;
+  textoPendente: string;
+}) {
   return (
     <div className="flex min-h-11 items-center justify-between gap-3">
       <span className="text-sm text-mute">{rotulo}</span>
       <span className={`flex items-center gap-1.5 text-sm ${ok ? "text-paper" : "text-mute"}`}>
-        {ok ? <Check className="h-4 w-4 text-gold" aria-hidden /> : <AlertTriangle className="h-4 w-4 text-mute" aria-hidden />}
+        {ok ? (
+          <Check className="h-4 w-4 text-gold" aria-hidden />
+        ) : (
+          <AlertTriangle className="h-4 w-4 text-mute" aria-hidden />
+        )}
         {ok ? textoOk : textoPendente}
       </span>
     </div>
@@ -20,7 +34,11 @@ function Linha({ rotulo, ok, textoOk, textoPendente }: { rotulo: string; ok: boo
 /** Bloco somente de leitura: o estado é calculado no servidor. */
 export function SegurancaDaConta() {
   const consultar = useServerFn(statusDaConta);
-  const { data } = useQuery({ queryKey: ["seguranca-conta"], queryFn: () => consultar(), staleTime: 30000 });
+  const { data } = useQuery({
+    queryKey: ["seguranca-conta"],
+    queryFn: () => consultar(),
+    staleTime: 30000,
+  });
   if (!data) return null;
   const equipe = data.papel !== "cliente";
 
@@ -30,7 +48,12 @@ export function SegurancaDaConta() {
         <ShieldCheck className="h-4 w-4 text-gold" aria-hidden /> Segurança da conta
       </h2>
       <div className="mt-2">
-        <Linha rotulo="E-mail" ok={data.emailVerificado} textoOk="Confirmado" textoPendente="Pendente" />
+        <Linha
+          rotulo="E-mail"
+          ok={data.emailVerificado}
+          textoOk="Confirmado"
+          textoPendente="Pendente"
+        />
         {equipe ? (
           <Linha
             rotulo={data.telefoneMascarado ? `WhatsApp ${data.telefoneMascarado}` : "WhatsApp"}
