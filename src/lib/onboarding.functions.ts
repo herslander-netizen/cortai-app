@@ -801,11 +801,7 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
 /** Regras de agendamento da barbearia (antecedência, cancelamento, intervalo e encaixe). */
 export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z
-      esquemaRegrasDeAgendamento
-      .parse(input),
-  )
+  .validator((input: unknown) => esquemaRegrasDeAgendamento.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
