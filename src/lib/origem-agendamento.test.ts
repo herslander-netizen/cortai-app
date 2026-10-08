@@ -3,12 +3,12 @@ import { ORIGENS_AGENDAMENTO, descreverOrigem, origemDoCortai } from "./origem-a
 
 describe("descreverOrigem", () => {
   it("rótulos e ícones de todas as origens", () => {
-    const r = Object.fromEntries(ORIGENS_AGENDAMENTO.map((o) => [o, descreverOrigem(o, false)]));
-    expect(r.whatsapp).toMatchObject({ rotulo: "WhatsApp", icone: "whatsapp" });
-    expect(r.link_publico).toMatchObject({ rotulo: "Link", icone: "link" });
-    expect(r.manual).toMatchObject({ rotulo: "Manual", icone: "manual" });
-    expect(r.app).toMatchObject({ rotulo: "Manual", icone: "manual" });
-    expect(r.instagram).toMatchObject({ rotulo: "Instagram", icone: "instagram" });
+    const r = (o: string) => descreverOrigem(o, false);
+    expect(r("whatsapp")).toMatchObject({ rotulo: "WhatsApp", icone: "whatsapp" });
+    expect(r("link_publico")).toMatchObject({ rotulo: "Link", icone: "link" });
+    expect(r("manual")).toMatchObject({ rotulo: "Manual", icone: "manual" });
+    expect(r("app")).toMatchObject({ rotulo: "Manual", icone: "manual" });
+    expect(r("instagram")).toMatchObject({ rotulo: "Instagram", icone: "instagram" });
   });
   it("CortAI nunca é origem; só selo quando assistido", () => {
     expect(descreverOrigem("whatsapp", true).cortai).toBe(true);
