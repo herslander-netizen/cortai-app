@@ -120,14 +120,14 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
     const [
-      { data: conexao },
+      { data: conexoes },
       configuracao,
       { data: automacoes },
       ativas,
       humanas,
       { data: podeGerenciarWhatsapp },
     ] = await Promise.all([
-      db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId).maybeSingle(),
+      db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId),
       configuracaoDoTenant(tenantId),
       db.from("automacoes_de_ia").select("chave, ativa, mensagem").eq("tenant_id", tenantId),
       db
@@ -152,7 +152,8 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       provedor: provedorDoGateway(),
       credenciaisFaltantes: credenciaisFaltantes(),
       iaDisponivel: iaConfigurada(),
-      conexao: conexaoDaLinha(conexao),
+      conexao: conexaoDaLinha(linhaDoTipo(conexoes, "atendimento")),
+      conexaoNotificacoes: conexaoDaLinha(linhaDoTipo(conexoes, "notificacoes")),
       configuracao,
       automacoes: (Object.keys(AUTOMACOES) as ChaveDeAutomacao[]).map((chave) => ({
         chave,
@@ -199,6 +200,7 @@ export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
       .from("conexoes_whatsapp")
       .select("*")
       .eq("tenant_id", tenantId)
+      .eq("tipo", "atendimento")
       .maybeSingle();
 
     const oficial = (linha?.provedor ?? provedor) === "meta";
@@ -298,19 +300,34 @@ export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
 
 /* ------------------------------- Conexão --------------------------------- */
 
-async function sessaoDoTenant(tenantId: string) {
+/** Linha da finalidade; cada cartão do painel opera só a própria sessão. */
+function linhaDoTipo<T extends { tipo?: string | null }>(
+  linhas: T[] | null | undefined,
+  tipo: TipoDeConexao,
+): T | null {
+  return (linhas ?? []).find((l) => tipoValido(l.tipo) === tipo) ?? null;
+}
+
+const tipoSchema = z
+  .object({ tipo: z.enum(TIPOS_DE_CONEXAO).optional() })
+  .optional()
+  .transform((v) => tipoValido(v?.tipo));
+
+async function sessaoDoTenant(tenantId: string, tipo: TipoDeConexao) {
   const db = await admin();
   const { data } = await db
     .from("conexoes_whatsapp")
     .select("id, sessao_id")
     .eq("tenant_id", tenantId)
+    .eq("tipo", tipo)
     .maybeSingle();
   if (data) return data;
   const { randomBytes } = await import("node:crypto");
-  const sessaoId = `cortai_${tenantId.replace(/-/g, "").slice(0, 12)}_${randomBytes(6).toString("hex")}`;
+  const prefixo = tipo === "notificacoes" ? "cortai_n_" : "cortai_";
+  const sessaoId = `${prefixo}${tenantId.replace(/-/g, "").slice(0, 12)}_${randomBytes(6).toString("hex")}`;
   const { data: criada, error } = await db
     .from("conexoes_whatsapp")
-    .insert({ tenant_id: tenantId, sessao_id: sessaoId, status: "desconectado" })
+    .insert({ tenant_id: tenantId, sessao_id: sessaoId, status: "desconectado", tipo })
     .select("id, sessao_id")
     .single();
   if (error) throw new Error(error.message);
@@ -320,7 +337,8 @@ async function sessaoDoTenant(tenantId: string) {
 /** Pede a conexão ao serviço de WhatsApp e devolve o estado real da sessão. */
 export const conectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
+  .inputValidator((d: unknown) => tipoSchema.parse(d))
+  .handler(async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
@@ -333,7 +351,7 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
           "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Cortaí para liberar.",
       };
     }
-    const sessao = await sessaoDoTenant(tenantId);
+    const sessao = await sessaoDoTenant(tenantId, tipo);
     const db = await admin();
     try {
       const estado = await gatewayDeWhatsapp.criarSessao(
@@ -364,8 +382,9 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
 /** Busca o QR atual direto no serviço (usado pelo botão "Gerar novo QR Code"). */
 export const atualizarQrCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => tipoSchema.parse(d))
   .handler(
-    async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+    async ({ context, data: tipo }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
@@ -373,7 +392,7 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
         return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
-      const sessao = await sessaoDoTenant(tenantId);
+      const sessao = await sessaoDoTenant(tenantId, tipo);
       const db = await admin();
       try {
         const estado = await gatewayDeWhatsapp.obterQrCode(sessao.sessao_id);
@@ -402,14 +421,15 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
 
 export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
+  .inputValidator((d: unknown) => tipoSchema.parse(d))
+  .handler(async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
     if (!gatewayConfigurado())
       return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
-    const sessao = await sessaoDoTenant(tenantId);
+    const sessao = await sessaoDoTenant(tenantId, tipo);
     const db = await admin();
     try {
       const estado = await gatewayDeWhatsapp.reiniciarSessao(sessao.sessao_id);
@@ -429,12 +449,13 @@ export const reconectarWhatsapp = createServerFn({ method: "POST" })
 /** Desconecta a sessão. Não apaga clientes, histórico, agendamentos ou serviços. */
 export const desconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ ok: true; aviso: string | null }> => {
+  .inputValidator((d: unknown) => tipoSchema.parse(d))
+  .handler(async ({ context, data: tipo }): Promise<{ ok: true; aviso: string | null }> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
-    const sessao = await sessaoDoTenant(tenantId);
+    const sessao = await sessaoDoTenant(tenantId, tipo);
     let aviso: string | null = null;
     const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
     if (gatewayConfigurado()) {
@@ -458,7 +479,7 @@ export const desconectarWhatsapp = createServerFn({ method: "POST" })
       ator_user_id: context.userId,
       acao: "whatsapp.desconectado_pelo_painel",
       alvo: sessao.sessao_id,
-      detalhes: {},
+      detalhes: { tipo },
     });
     return { ok: true, aviso };
   });
@@ -470,8 +491,9 @@ export const desconectarWhatsapp = createServerFn({ method: "POST" })
  */
 export const sincronizarConexao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => tipoSchema.parse(d))
   .handler(
-    async ({ context }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+    async ({ context, data: tipo }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
@@ -484,6 +506,7 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
         .from("conexoes_whatsapp")
         .select("*")
         .eq("tenant_id", tenantId)
+        .eq("tipo", tipo)
         .maybeSingle();
       // Sem sessão criada ainda não há nada para consultar — evita chamada inútil.
       if (!atual) return { conexao: null, aviso: null };

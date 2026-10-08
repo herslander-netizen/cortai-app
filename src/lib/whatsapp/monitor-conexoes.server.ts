@@ -23,6 +23,7 @@ type Linha = {
   conectado_em: string | null;
   reconexao_tentativas: number;
   reconexao_tentada_em: string | null;
+  tipo?: string | null;
 };
 
 function comPrazo<T>(p: Promise<T>, ms = PRAZO_MS): Promise<T> {
@@ -37,14 +38,16 @@ function comPrazo<T>(p: Promise<T>, ms = PRAZO_MS): Promise<T> {
 
 async function avisarDono(linha: Linha, tipo: "queda" | "qr") {
   const { emitirAviso } = await import("@/lib/avisos/emitir.server");
+  const { ROTULO_DO_TIPO, tipoValido } = await import("./finalidade-conexao");
+  const rotulo = ROTULO_DO_TIPO[tipoValido(linha.tipo)];
   await emitirAviso({
     tenantId: linha.tenant_id,
     evento: "whatsapp_conexao",
-    titulo: tipo === "qr" ? "WhatsApp pede novo QR Code" : "WhatsApp desconectado",
+    titulo: tipo === "qr" ? `${rotulo} pede novo QR Code` : `${rotulo} desconectado`,
     corpo:
       tipo === "qr"
-        ? "Abra a tela do WhatsApp no Cortaí e escaneie o QR Code para voltar a enviar avisos."
-        : "A conexão do WhatsApp caiu. Já tentamos reconectar; se continuar, toque em Reconectar.",
+        ? `Abra CortAI — Assistente Virtual e escaneie o QR Code do ${rotulo}.`
+        : `A conexão do ${rotulo} caiu. Já tentamos reconectar; se continuar, toque em Reconectar.`,
     link: "/barbeiro/cortai",
     referencia: linha.id,
     // Um aviso por episódio: a versão muda só quando a conexão volta e cai de novo.
@@ -164,7 +167,7 @@ export async function monitorarConexoesWhatsapp(agora = new Date()) {
   const { data } = await db
     .from("conexoes_whatsapp")
     .select(
-      "id, tenant_id, sessao_id, provedor, status, conectado_em, reconexao_tentativas, reconexao_tentada_em",
+      "id, tenant_id, sessao_id, provedor, status, conectado_em, reconexao_tentativas, reconexao_tentada_em, tipo",
     )
     .eq("provedor", "evolution")
     .eq("compartilhada", false)

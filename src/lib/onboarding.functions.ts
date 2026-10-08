@@ -498,7 +498,13 @@ export const getImplantacao = createServerFn({ method: "GET" })
       db.from("servicos").select("*").eq("tenant_id", tenantId).order("ordem").order("nome"),
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
       db.from("profissionais").select("id, nome, ativo").eq("tenant_id", tenantId).order("nome"),
-      db.from("conexoes_whatsapp").select("status").eq("tenant_id", tenantId).maybeSingle(),
+      db
+        .from("conexoes_whatsapp")
+        .select("status")
+        .eq("tenant_id", tenantId)
+        .order("tipo", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
       db.rpc("meu_acesso_no_tenant", { _tenant_id: tenantId }),
       db
         .from("tenant_page_configs")
