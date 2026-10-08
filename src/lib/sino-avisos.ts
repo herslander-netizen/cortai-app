@@ -3,8 +3,7 @@ export type AvisoDoSino = { criado_em: string; lida_em: string | null };
 
 export function contarNaoVistos(avisos: readonly AvisoDoSino[], ultimoVistoEm: number | null) {
   if (ultimoVistoEm == null) return 0;
-  return avisos.filter((a) => !a.lida_em && new Date(a.criado_em).getTime() > ultimoVistoEm)
-    .length;
+  return avisos.filter((a) => !a.lida_em && new Date(a.criado_em).getTime() > ultimoVistoEm).length;
 }
 
 export function rotuloDoSino(naoLidas: number, naoVistos: number) {

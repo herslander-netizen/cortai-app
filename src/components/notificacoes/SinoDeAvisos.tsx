@@ -196,7 +196,8 @@ export function SinoDeAvisos() {
   // Título da aba e badge do app instalado seguem a mesma contagem do sino.
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (tituloOriginal.current == null) tituloOriginal.current = document.title.replace(/^\(\d+\+?\) /, "");
+    if (tituloOriginal.current == null)
+      tituloOriginal.current = document.title.replace(/^\(\d+\+?\) /, "");
     const base = tituloOriginal.current;
     document.title = naoVistos > 0 ? `(${naoVistos > 9 ? "9+" : naoVistos}) ${base}` : base;
     const nav = navigator as Navigator & {

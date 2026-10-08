@@ -4,7 +4,11 @@ import { contarNaoVistos, criarControleDeToque, deveTocar, rotuloDoSino } from "
 const a = (iso: string, lida: string | null = null) => ({ criado_em: iso, lida_em: lida });
 
 describe("contarNaoVistos", () => {
-  const lista = [a("2026-10-08T10:00:00Z"), a("2026-10-08T11:00:00Z"), a("2026-10-08T12:00:00Z", "x")];
+  const lista = [
+    a("2026-10-08T10:00:00Z"),
+    a("2026-10-08T11:00:00Z"),
+    a("2026-10-08T12:00:00Z", "x"),
+  ];
   it("sem valor gravado não acende nada", () => expect(contarNaoVistos(lista, null)).toBe(0));
   it("conta só não lidos posteriores", () =>
     expect(contarNaoVistos(lista, Date.parse("2026-10-08T10:30:00Z"))).toBe(1));
@@ -20,7 +24,8 @@ describe("toque do sino", () => {
     const r = [c.pedir(base), ((t = 400), c.pedir(base)), ((t = 800), c.pedir(base))];
     expect(r.filter(Boolean)).toHaveLength(1);
   });
-  it("central aberta não anima", () => expect(deveTocar({ ...base, animando: false, centralAberta: true })).toBe(false));
+  it("central aberta não anima", () =>
+    expect(deveTocar({ ...base, animando: false, centralAberta: true })).toBe(false));
   it("redução de movimento não anima", () =>
     expect(deveTocar({ ...base, animando: false, menosMovimento: true })).toBe(false));
   it("rótulos", () => {
