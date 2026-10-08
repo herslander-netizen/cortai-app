@@ -148,7 +148,9 @@ export async function conexaoPorSessao(sessaoId: string) {
   const db = await admin();
   const { data } = await db
     .from("conexoes_whatsapp")
-    .select("id, tenant_id, sessao_id, status, compartilhada")
+    .select(
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em",
+    )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
   return data ?? null;
@@ -286,7 +288,9 @@ export async function enviarPelaBarbearia(input: {
   iniciadaPelaBarbearia?: boolean;
 }) {
   const db = await admin();
-  const { gatewayDeWhatsapp } = await import("./gateway.server");
+  // Provedor da própria conexão (Evolution/Meta) + trava de isolamento por negócio.
+  const { gatewayDaSessao } = await import("./conexao-envio.server");
+  const gatewayDeWhatsapp = await gatewayDaSessao(input.sessaoId, input.tenantId);
   const { decidirFormato } = await import("./modelos");
   const oficial = gatewayDeWhatsapp.capacidades().botoes;
 
@@ -339,6 +343,14 @@ export async function enviarPelaBarbearia(input: {
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";
+    const { logConexao } = await import("./saude-conexao");
+    logConexao("envio_falhou", {
+      tenantId: input.tenantId,
+      sessaoId: input.sessaoId,
+      provedor: gatewayDeWhatsapp.provedor(),
+      formato,
+      erro,
+    });
   }
 
   await db.from("mensagens_whatsapp").insert({
@@ -438,8 +450,11 @@ export async function processarMensagemRecebida(input: {
     const { tentarVerificarPorMensagem } = await import("./identidade.server");
     const resposta = await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null);
     if (resposta) {
-      const { gatewayDeWhatsapp } = await import("./gateway.server");
-      await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, telefone, resposta).catch(() => undefined);
+      const { gatewayDoProvedor } = await import("./gateway.server");
+      const provedorDaSessao = (conexao as { provedor?: string | null }).provedor ?? null;
+      await gatewayDoProvedor(provedorDaSessao)
+        .enviarMensagem(input.sessaoId, telefone, resposta)
+        .catch(() => undefined);
       return { tratada: true, motivo: "verificacao_equipe" };
     }
   }
@@ -490,6 +505,7 @@ export async function processarMensagemRecebida(input: {
         id: doNegocio.id,
         sessao_id: doNegocio.sessao_id,
         tenant_id: tenantId,
+        provedor: doNegocio.provedor ?? conexao.provedor,
       };
     }
   }
@@ -612,35 +628,76 @@ export async function atualizarEstadoDaConexao(
     numero?: string | null;
     nomeExibicao?: string | null;
     erro?: string | null;
+    /** Horário do evento no serviço; evento mais antigo que o último aplicado é ignorado. */
+    eventoEm?: string | null;
+    origem?: string;
   },
 ) {
   const db = await admin();
   const { normalizarStatus } = await import("./gateway.server");
+  const { eventoEhMaisNovo, mesclarEstado, logConexao } = await import("./saude-conexao");
   const conexao = await conexaoPorSessao(sessaoId);
   if (!conexao) return false;
+  // Estado vazio não significa "desconectado": ignora sem tocar no banco.
+  if (!String(estado.status ?? "").trim()) {
+    logConexao("evento_ignorado_vazio", { sessaoId, origem: estado.origem });
+    return true;
+  }
+  const agoraIso = new Date().toISOString();
+  const eventoEm = estado.eventoEm ?? agoraIso;
+  if (!eventoEhMaisNovo(conexao.ultimo_evento_em, eventoEm)) {
+    logConexao("evento_ignorado_atrasado", {
+      sessaoId,
+      eventoEm,
+      ultimoEventoEm: conexao.ultimo_evento_em,
+      origem: estado.origem,
+    });
+    return true;
+  }
   const status = normalizarStatus(estado.status);
+  const novo = mesclarEstado(
+    { status: conexao.status, numero: conexao.numero, nome_exibicao: conexao.nome_exibicao },
+    { status, numero: estado.numero, nomeExibicao: estado.nomeExibicao },
+  );
+  // Atualização condicional: outra execução com evento mais novo vence a corrida.
   await db
     .from("conexoes_whatsapp")
     .update({
       status,
       qr_code: status === "qr_pronto" ? (estado.qrCode ?? null) : null,
       qr_expira_em: status === "qr_pronto" ? (estado.qrExpiraEm ?? null) : null,
-      ...(estado.numero ? { numero: estado.numero } : {}),
-      ...(estado.nomeExibicao ? { nome_exibicao: estado.nomeExibicao } : {}),
+      numero: novo.numero,
+      nome_exibicao: novo.nome_exibicao,
       ultimo_erro: estado.erro ?? null,
-      visto_em: new Date().toISOString(),
-      ...(status === "conectado" ? { conectado_em: new Date().toISOString() } : {}),
-      ...(status === "desconectado" ? { desconectado_em: new Date().toISOString() } : {}),
+      visto_em: agoraIso,
+      ultimo_evento_em: eventoEm,
+      ...(status === "conectado"
+        ? {
+            reconexao_tentativas: 0,
+            ...(novo.mudou || !conexao.conectado_em ? { conectado_em: agoraIso } : {}),
+          }
+        : {}),
+      ...(status === "desconectado" && novo.mudou ? { desconectado_em: agoraIso } : {}),
     })
-    .eq("id", conexao.id);
+    .eq("id", conexao.id)
+    .or(`ultimo_evento_em.is.null,ultimo_evento_em.lte.${eventoEm}`);
 
-  await db.from("auditoria_da_barbearia").insert({
-    tenant_id: conexao.tenant_id,
-    ator_user_id: null,
-    acao: `whatsapp.${status}`,
-    alvo: sessaoId,
-    detalhes: { numero: estado.numero ?? null },
-  });
+  if (novo.mudou) {
+    logConexao("estado_mudou", {
+      sessaoId,
+      tenantId: conexao.tenant_id,
+      de: conexao.status,
+      para: status,
+      origem: estado.origem,
+    });
+    await db.from("auditoria_da_barbearia").insert({
+      tenant_id: conexao.tenant_id,
+      ator_user_id: null,
+      acao: `whatsapp.${status}`,
+      alvo: sessaoId,
+      detalhes: { numero: novo.numero ?? null, origem: estado.origem ?? null },
+    });
+  }
   return true;
 }
 

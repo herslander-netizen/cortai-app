@@ -1432,10 +1432,14 @@ export type Database = {
           provedor: string
           qr_code: string | null
           qr_expira_em: string | null
+          reconexao_tentada_em: string | null
+          reconexao_tentativas: number
           sessao_id: string
           status: string
           tenant_id: string
           ultimo_erro: string | null
+          ultimo_evento_em: string | null
+          verificado_em: string | null
           visto_em: string | null
         }
         Insert: {
@@ -1451,10 +1455,14 @@ export type Database = {
           provedor?: string
           qr_code?: string | null
           qr_expira_em?: string | null
+          reconexao_tentada_em?: string | null
+          reconexao_tentativas?: number
           sessao_id: string
           status?: string
           tenant_id: string
           ultimo_erro?: string | null
+          ultimo_evento_em?: string | null
+          verificado_em?: string | null
           visto_em?: string | null
         }
         Update: {
@@ -1470,10 +1478,14 @@ export type Database = {
           provedor?: string
           qr_code?: string | null
           qr_expira_em?: string | null
+          reconexao_tentada_em?: string | null
+          reconexao_tentativas?: number
           sessao_id?: string
           status?: string
           tenant_id?: string
           ultimo_erro?: string | null
+          ultimo_evento_em?: string | null
+          verificado_em?: string | null
           visto_em?: string | null
         }
         Relationships: [

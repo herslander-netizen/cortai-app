@@ -708,8 +708,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
   }
 
-  const { gatewayDeWhatsapp } = await import("./gateway.server");
-  const oficial = gatewayDeWhatsapp.capacidades().botoes;
+  const { gatewayDoProvedor } = await import("./gateway.server");
+  const oficial = gatewayDoProvedor(conexao?.provedor ?? null).capacidades().botoes;
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
   const texto = montarMensagem(
     tipo,

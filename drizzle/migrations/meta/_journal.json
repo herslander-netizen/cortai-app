@@ -148,6 +148,13 @@
       "when": 1791080330969,
       "tag": "0020_push_sininho_e_versao_remarcacao",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791454533062,
+      "tag": "0021_conexoes_whatsapp_saude",
+      "breakpoints": true
     }
   ]
 }
