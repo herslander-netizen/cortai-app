@@ -231,13 +231,38 @@ export function SinoDeAvisos() {
         size="icon"
         onClick={() => abrirCentralRef.current()}
         aria-label={naoLidas ? `Avisos, ${naoLidas} não lidos` : "Avisos"}
-        className={`relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold ${
-          pulsar && !menosMovimento ? "animate-pulse text-gold" : ""
+        className={`relative h-12 w-12 shrink-0 rounded-none border-0 ${
+          naoLidas ? "text-rosa hover:text-rosa" : "text-mute hover:text-gold"
         }`}
       >
-        <Bell size={17} strokeWidth={1.7} aria-hidden />
+        <motion.span
+          className="relative inline-flex"
+          animate={pulsar && !menosMovimento ? { rotate: [0, -18, 14, -10, 6, 0] } : { rotate: 0 }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
+          style={{ transformOrigin: "top center" }}
+        >
+          <Bell size={17} strokeWidth={1.7} aria-hidden />
+          {pulsar && !menosMovimento ? (
+            <>
+              <motion.span
+                aria-hidden
+                className="absolute -left-1.5 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
+                initial={{ opacity: 0, x: 2 }}
+                animate={{ opacity: [0, 1, 0], x: [-1, -3, -4] }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              />
+              <motion.span
+                aria-hidden
+                className="absolute -right-1.5 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
+                initial={{ opacity: 0, x: -2 }}
+                animate={{ opacity: [0, 1, 0], x: [1, 3, 4] }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              />
+            </>
+          ) : null}
+        </motion.span>
         {naoLidas ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-xs font-bold text-ink">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rosa px-1 text-xs font-bold text-sobre-rosa">
             {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}
