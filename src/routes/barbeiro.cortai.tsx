@@ -750,10 +750,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "Conectado"
       : status === "erro"
         ? "Erro"
-        : qrPronto
-          ? qrExpirado
-            ? "QR Code expirado"
-            : "Aguardando leitura"
+        : qrVisivel
+          ? "Aguardando leitura"
           : conectando
             ? "Conectando"
             : "Desconectado";
