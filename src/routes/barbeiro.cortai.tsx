@@ -941,7 +941,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         reais do seu negócio e nunca acessa dados de outro.
       </p>
 
-      {qrAberto && conexao?.qrCode && !qrExpirado ? (
+      {qrAberto && conexao?.qrCode && qrVisivel ? (
         <ModalQr
           valor={conexao.qrCode}
           restante={restante}
