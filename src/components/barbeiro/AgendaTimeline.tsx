@@ -822,6 +822,7 @@ export function AgendaTimeline({
                       ) : null}
                     </span>
                   </span>
+                  <OrigemDoAgendamento origem={item.origem} assistido={item.assistidoPorCortai} />
                   {item.daListaDeEspera ? (
                     <span className="agenda-timeline-fila">
                       Vaga preenchida pela lista de espera
