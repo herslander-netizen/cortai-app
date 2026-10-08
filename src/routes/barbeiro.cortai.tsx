@@ -844,7 +844,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </div>
       ) : null}
 
-      {qrPronto && conexao?.qrCode && !qrExpirado && !qrAberto ? (
+      {qrVisivel && conexao?.qrCode && !qrAberto ? (
         <Button
           variant="ghost"
           type="button"
@@ -855,7 +855,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </Button>
       ) : null}
 
-      {qrPronto && !qrExpirado && restante !== null ? (
+      {qrVisivel && restante !== null ? (
         <p
           className={`mt-3 text-center text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
           role="timer"
