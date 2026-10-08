@@ -60,12 +60,12 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   }),
   head: () => ({
     meta: [
-      { title: "CortAI — Assistente Virtual · Cortaí Gestão" },
+      { title: "WhatsApp · Cortaí Gestão" },
       {
         name: "description",
         content: "Conecte o WhatsApp do negócio e acompanhe notificações transacionais.",
       },
-      { property: "og:title", content: "CortAI — Assistente Virtual · Cortaí Gestão" },
+      { property: "og:title", content: "WhatsApp · Cortaí Gestão" },
       {
         property: "og:description",
         content: "Avisos e acompanhamento dos atendimentos pelo WhatsApp.",
@@ -101,8 +101,8 @@ function CortaiPage() {
   return (
     <Screen
       voltarPara="/barbeiro/mais"
-      title="CortAI — Assistente Virtual"
-      subtitle="Seu WhatsApp informa seus clientes e acompanha cada atendimento."
+      title="WhatsApp"
+      subtitle="O WhatsApp do seu negócio conversa com clientes e envia os avisos."
     >
       {painel.isLoading ? <Carregando /> : null}
       {painel.isError ? (
