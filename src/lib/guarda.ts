@@ -181,7 +181,16 @@ export async function sair() {
     await encerrarSessaoComSeguranca();
   } finally {
     // `replace`: o Voltar não reabre a tela protegida.
-    if (typeof window !== "undefined") window.location.replace("/login");
-    else saindoDaConta = false;
+    if (typeof window !== "undefined") {
+      window.location.replace("/login");
+      // Se a navegação for bloqueada (iframe/mobile), destrava o botão:
+      // sem isso, todo toque seguinte em "Sair" era ignorado e a tela
+      // ficava presa nas Configurações com a sessão já apagada.
+      window.setTimeout(() => {
+        saindoDaConta = false;
+      }, 1500);
+    } else {
+      saindoDaConta = false;
+    }
   }
 }
