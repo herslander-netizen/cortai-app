@@ -912,7 +912,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             >
               {rotuloPrincipal}
             </Button>
-            {status === "qr_pronto" || qrExpirado ? (
+            {qrPronto || qrExpirado ? (
               <Button
                 variant="ghost"
                 type="button"
@@ -958,6 +958,14 @@ function Linha({ rotulo, valor, alerta }: { rotulo: string; valor: ReactNode; al
       </dd>
     </div>
   );
+}
+
+/** Formata o tempo restante do QR Code: mm:ss a partir de 60 s, senão segundos. */
+function formatarRestante(segundos: number) {
+  if (segundos < 60) return `${segundos} segundo${segundos === 1 ? "" : "s"}`;
+  const min = Math.floor(segundos / 60);
+  const seg = segundos % 60;
+  return `${min}:${String(seg).padStart(2, "0")} min`;
 }
 
 function quando(valor: string | null | undefined) {
