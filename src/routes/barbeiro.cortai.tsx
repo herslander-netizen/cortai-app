@@ -729,8 +729,11 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
   }
 
   // "connecting" com QR válido = aguardando leitura (não esconder o QR).
+  // Expirou: o QR some da tela e o painel volta a "Conectando seu WhatsApp…",
+  // sem botões — evita gerar QRs inválidos.
   const qrPronto = status === "qr_pronto" || (status === "conectando" && !!conexao?.qrCode);
   const qrExpirado = qrPronto && restante !== null && restante <= 0;
+  const qrVisivel = qrPronto && !qrExpirado;
   const conectando = acao.isPending || status === "pendente" || status === "conectando";
 
   const visual: keyof typeof CORES_DO_ESTADO =
