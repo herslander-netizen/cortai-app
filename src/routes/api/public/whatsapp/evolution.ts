@@ -2,8 +2,12 @@
  * Entrada dos avisos da Evolution API para o Cortaí.
  *
  * Segurança:
- * - sem segredo configurado o endpoint responde 503 (não existe caminho aberto);
- * - o cabeçalho `x-webhook-secret` é conferido em tempo constante;
+ * - se `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`) estiver
+ *   configurado, o cabeçalho `x-webhook-secret` é conferido em tempo constante;
+ * - TEMPORÁRIO (integração/teste): sem segredo configurado, o endpoint aceita
+ *   a chamada sem autenticação para permitir o teste ponta a ponta. Em
+ *   produção, configure `EVOLUTION_WEBHOOK_SECRET` na Evolution e no ambiente
+ *   para restaurar a validação;
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
  * - mensagens enviadas pela própria barbearia (fromMe) são ignoradas.
