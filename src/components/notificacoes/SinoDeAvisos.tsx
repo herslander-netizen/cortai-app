@@ -15,7 +15,7 @@ import {
   type Notificacao,
 } from "@/lib/notificacoes";
 import { mostrarAviso } from "@/lib/avisos-do-navegador";
-import { molaFolha, transicaoBase } from "@/lib/motion";
+import { molaFolha, transicaoBase, transicaoRapida } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
@@ -235,10 +235,29 @@ export function SinoDeAvisos() {
           naoLidas ? "text-rosa hover:text-rosa" : "text-mute hover:text-gold"
         }`}
       >
+        {/* Halo suave atrás do sino: presente sempre que há não lidas; pulsa 2x na chegada. */}
+        {naoLidas ? (
+          <motion.span
+            aria-hidden
+            className="absolute inset-1.5 rounded-full bg-rosa/30 blur-[6px]"
+            animate={
+              pulsar && !menosMovimento
+                ? { scale: [1, 1.45, 1.1, 1.5, 1.1], opacity: [0.6, 1, 0.7, 1, 0.7] }
+                : { scale: 1, opacity: 0.6 }
+            }
+            transition={
+              pulsar && !menosMovimento ? { duration: 0.9, ease: "easeInOut" } : transicaoRapida
+            }
+          />
+        ) : null}
         <motion.span
           className="relative inline-flex"
-          animate={pulsar && !menosMovimento ? { rotate: [0, -18, 14, -10, 6, 0] } : { rotate: 0 }}
-          transition={{ duration: 0.7, ease: "easeInOut" }}
+          animate={
+            pulsar && !menosMovimento ? { rotate: [0, -30, 24, -16, 10, -5, 0] } : { rotate: 0 }
+          }
+          transition={
+            pulsar && !menosMovimento ? { duration: 0.9, ease: "easeInOut" } : transicaoRapida
+          }
           style={{ transformOrigin: "top center" }}
         >
           <Bell size={17} strokeWidth={1.7} aria-hidden />
@@ -246,23 +265,23 @@ export function SinoDeAvisos() {
             <>
               <motion.span
                 aria-hidden
-                className="absolute -left-1.5 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
+                className="absolute -left-2 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
                 initial={{ opacity: 0, x: 2 }}
-                animate={{ opacity: [0, 1, 0], x: [-1, -3, -4] }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                animate={{ opacity: [0, 1, 0], x: [-1, -4, -6] }}
+                transition={{ duration: 0.9, ease: "easeOut" }}
               />
               <motion.span
                 aria-hidden
-                className="absolute -right-1.5 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
+                className="absolute -right-2 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
                 initial={{ opacity: 0, x: -2 }}
-                animate={{ opacity: [0, 1, 0], x: [1, 3, 4] }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                animate={{ opacity: [0, 1, 0], x: [1, 4, 6] }}
+                transition={{ duration: 0.9, ease: "easeOut" }}
               />
             </>
           ) : null}
         </motion.span>
         {naoLidas ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rosa px-1 text-xs font-bold text-sobre-rosa">
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rosa px-1 text-[11px] font-bold text-sobre-rosa shadow-md">
             {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}
