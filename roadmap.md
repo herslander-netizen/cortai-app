@@ -162,3 +162,8 @@
 - [ ] Remarcação sempre gera aviso novo ao cliente (trava de repetição por versão)
 
 - [x] Central de Notificações implementada (aguarda autorização para publicar)
+
+## Ajustes — confirmação de saída
+- [x] Elevar conteúdo e fundo da confirmação acima do painel Ajustes
+- [ ] Testar continuar conectado e sair em 390px com os dois painéis abertos
+- [ ] Auditar outras confirmações dentro de painéis sem alterá-las
