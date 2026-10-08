@@ -136,11 +136,12 @@ function comPrazo(tarefa: Promise<unknown>, ms: number): Promise<void> {
 async function encerrarSessaoComSeguranca() {
   esquecerSessao();
   let concluiu = false;
+  // `scope: "local"` apaga a sessão do aparelho sem esperar a rede.
   await comPrazo(
-    supabase.auth.signOut().then(({ error }) => {
+    supabase.auth.signOut({ scope: "local" }).then(({ error }) => {
       if (!error) concluiu = true;
     }),
-    3000,
+    1000,
   );
   if (concluiu || typeof window === "undefined") return;
   try {
@@ -175,7 +176,7 @@ export async function sair() {
       import("@/lib/push/aparelho").then(({ removerPushDesteAparelho }) =>
         removerPushDesteAparelho(),
       ),
-      1500,
+      800,
     );
     await encerrarSessaoComSeguranca();
   } finally {
