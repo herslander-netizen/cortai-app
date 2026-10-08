@@ -10,6 +10,7 @@
  * - não existe ação de pagamento: o recebimento é sempre conferido pela equipe.
  */
 import * as dominio from "@/lib/ia/acoes.server";
+import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import type { FerramentaDoModelo } from "./gateway.server";
 
@@ -59,7 +60,11 @@ async function admin() {
 }
 
 function agenteDe(ctx: ContextoDoCerebro): dominio.ContextoDoAgente {
-  return { tenantId: ctx.tenantId, externalAgentId: `cortai:${ctx.canal}:${ctx.ator}` };
+  return {
+    tenantId: ctx.tenantId,
+    externalAgentId: `cortai:${ctx.canal}:${ctx.ator}`,
+    origemCortai: origemDoCortai(ctx.canal, ctx.papel),
+  };
 }
 
 function obj(props: Record<string, unknown>, required: string[] = []) {

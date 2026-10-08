@@ -23,7 +23,27 @@ export type ContextoDoAgente = {
   tenantId: string;
   /** Identificador do agente na plataforma de IA, usado em auditoria. */
   externalAgentId: string | null;
+  /** Definido só quando a ação vem do CortAI: origem a gravar em novos agendamentos. */
+  origemCortai?: "whatsapp" | "manual";
 };
+
+/** Marca a participação do CortAI; `origem` só é escrita em agendamentos criados. */
+async function marcarAssistencia(
+  ctx: ContextoDoAgente,
+  agendamentoId: string | undefined,
+  origem?: string | null,
+) {
+  if (!ctx.origemCortai || !agendamentoId) return;
+  const db = await admin();
+  const patch: { assistido_por_cortai: true; origem?: string } = { assistido_por_cortai: true };
+  if (origem) patch.origem = origem;
+  const { error } = await db
+    .from("agendamentos")
+    .update(patch as never)
+    .eq("id", agendamentoId)
+    .eq("tenant_id", ctx.tenantId);
+  if (error) console.error("[cortai] falha ao marcar assistência", agendamentoId, error.message);
+}
 
 async function registrarAuditoria(
   ctx: ContextoDoAgente,
@@ -237,7 +257,7 @@ async function exigirAgendamentoDoTenant(ctx: ContextoDoAgente, agendamentoId: s
   const db = await admin();
   const { data } = await db
     .from("agendamentos")
-    .select("id, tenant_id, servico_id, profissional_id, cliente_id, forma_pagamento")
+    .select("id, tenant_id, servico_id, profissional_id, cliente_id, forma_pagamento, origem")
     .eq("id", agendamentoId)
     .eq("tenant_id", ctx.tenantId)
     .maybeSingle();
@@ -270,6 +290,8 @@ export async function criarAgendamento(
     /** Quando `false`, o aviso fica por conta de quem chamou (ex.: remarcação). */
     avisarCliente?: boolean;
     ignorarId?: string | null;
+    /** Remarcação: o novo agendamento herda a origem do original. */
+    origemHerdada?: string | null;
   },
 ) {
   const db = await admin();
@@ -331,6 +353,7 @@ export async function criarAgendamento(
         : error.message,
     );
   const resultado = data as { agendamento_id?: string };
+  await marcarAssistencia(ctx, resultado.agendamento_id, input.origemHerdada ?? ctx.origemCortai);
   await registrarAuditoria(ctx, "agendamento_criado", resultado.agendamento_id ?? "-", {
     inicio: input.inicio,
   });
@@ -357,6 +380,7 @@ export async function remarcarAgendamento(
     servicoId: atual.servico_id as string,
     formaPagamento: (atual.forma_pagamento ?? "balcao") as "credito" | "pix" | "balcao" | "fiado",
     avisarCliente: false,
+    origemHerdada: (atual as { origem?: string | null }).origem ?? null,
   };
 
   let novo: unknown;
@@ -388,6 +412,7 @@ export async function remarcarAgendamento(
     }
   }
 
+  await marcarAssistencia(ctx, atual.id);
   await registrarAuditoria(ctx, "agendamento_remarcado", atual.id, {
     novo_inicio: input.novoInicio,
   });
@@ -400,6 +425,7 @@ export async function cancelarAgendamento(ctx: ContextoDoAgente, input: { agenda
   const db = await admin();
   const { data, error } = await db.rpc("cancelar_agendamento", { _agendamento_id: atual.id });
   if (error) throw new Error(error.message);
+  await marcarAssistencia(ctx, atual.id);
   await registrarAuditoria(ctx, "agendamento_cancelado", atual.id, {});
   await avisar(atual.id, "cancelamento");
   return data;

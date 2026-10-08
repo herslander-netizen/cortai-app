@@ -93,6 +93,8 @@ export type AgendaItem = {
   finishedAt: string | null;
   encaixe?: boolean;
   daListaDeEspera?: boolean;
+  origem?: string | null;
+  assistidoPorCortai?: boolean;
   profissionalId?: string | null;
   confirmadoEm?: string | null;
 };
@@ -140,7 +142,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       db
         .from("agendamentos")
         .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
+          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
         )
         .eq("tenant_id", tenant.id)
         .gte("inicio", de.toISOString())
@@ -192,6 +194,8 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
       encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
       daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
+      origem: (a as { origem?: string | null }).origem ?? null,
+      assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
     }));
 
     const fila = (filaRes.data ?? []).map((f) => {
@@ -1465,7 +1469,7 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { data: atual } = await db
       .from("agendamentos")
-      .select("id, cliente_id, servico_id, profissional_id, forma_pagamento")
+      .select("id, cliente_id, servico_id, profissional_id, forma_pagamento, origem")
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
@@ -1485,6 +1489,12 @@ export const remarcarAgendamentoPainel = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const criadoId = (novo as { agendamento_id?: string } | null)?.agendamento_id;
     if (!criadoId) throw new Error("Não foi possível confirmar o novo horário.");
+    // Remarcação herda a origem do agendamento original.
+    await db
+      .from("agendamentos")
+      .update({ origem: atual.origem ?? "manual" })
+      .eq("id", criadoId)
+      .eq("tenant_id", tenant.id);
     const { concluirSubstituicao } = await import("@/lib/substituicao.server");
     await concluirSubstituicao(db, { novoId: criadoId, antigoId: atual.id });
     // Aviso de remarcação: nunca bloqueia o novo horário.
