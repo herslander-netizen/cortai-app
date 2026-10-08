@@ -833,11 +833,13 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </dl>
       ) : null}
 
-      {conectando && status !== "qr_pronto" ? (
+      {conectando && !qrVisivel ? (
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
           <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
           <p className="text-xs text-mute">
-            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando conexão…"}
+            {status === "conectando" || qrExpirado
+              ? "Conectando seu WhatsApp…"
+              : "Preparando conexão…"}
           </p>
         </div>
       ) : null}
