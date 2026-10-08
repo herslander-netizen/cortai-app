@@ -46,8 +46,8 @@ export function EquipeWhatsapp() {
         </h2>
       </div>
       <p className="text-xs text-mute">
-        Avisos da agenda, fila, Pix e fiado pelo WhatsApp da empresa. Só chegam para quem
-        verificou o próprio número.
+        Avisos da agenda, fila, Pix e fiado pelo WhatsApp da empresa. Só chegam para quem verificou
+        o próprio número.
       </p>
       {lista.isLoading ? <p className="text-xs text-mute">Carregando…</p> : null}
       <ul className="space-y-2">
@@ -58,7 +58,9 @@ export function EquipeWhatsapp() {
             <li key={m.userId} className="surface p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-paper">{m.nome ?? "Sem nome"}</p>
+                  <p className="truncate text-sm font-semibold text-paper">
+                    {m.nome ?? "Sem nome"}
+                  </p>
                   <p className="text-xs text-mute">
                     {PAPEL[m.papel] ?? m.papel} ·{" "}
                     {m.profissional ? "Ligado à agenda" : "Sem agenda vinculada"}
