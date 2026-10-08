@@ -161,4 +161,4 @@
 - [ ] Push para todo aviso do sininho da equipe (sem depender do WhatsApp)
 - [ ] Remarcação sempre gera aviso novo ao cliente (trava de repetição por versão)
 
-- [ ] Central de Notificações: validação final antes da migration (aguardando aprovação)
+- [x] Central de Notificações implementada (aguarda autorização para publicar)
