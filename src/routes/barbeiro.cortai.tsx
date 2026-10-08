@@ -906,16 +906,18 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           </>
         ) : (
           <>
-            <Button
-              variant="ghost"
-              type="button"
-              className="btn-primary w-full"
-              disabled={acao.isPending}
-              onClick={() => acao.mutate(status === "qr_pronto" && !qrExpirado ? "qr" : "conectar")}
-            >
-              {rotuloPrincipal}
-            </Button>
-            {qrPronto || qrExpirado ? (
+            {!qrExpirado ? (
+              <Button
+                variant="ghost"
+                type="button"
+                className="btn-primary w-full"
+                disabled={acao.isPending}
+                onClick={() => acao.mutate(status === "qr_pronto" ? "qr" : "conectar")}
+              >
+                {rotuloPrincipal}
+              </Button>
+            ) : null}
+            {qrVisivel ? (
               <Button
                 variant="ghost"
                 type="button"
