@@ -149,7 +149,7 @@ export async function conexaoPorSessao(sessaoId: string) {
   const { data } = await db
     .from("conexoes_whatsapp")
     .select(
-      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo, escopo",
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo, escopo, qr_code, qr_expira_em",
     )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
