@@ -49,7 +49,17 @@ export const Route = createFileRoute("/api/public/whatsapp/automacoes")({
         // Postagens agendadas nas redes: mesma varredura, sem agendador paralelo.
         const redes = await import("@/lib/postagens-sociais.server");
         const postagensPublicadas = await redes.processarPostagensVencidas().catch(() => 0);
-        return Response.json({ ok: true, ...resumo, testesRebaixados, avisosDoTeste, postagensPublicadas });
+        // Saúde das conexões próprias (Evolution): mesma varredura, sem agendador novo.
+        const monitor = await import("@/lib/whatsapp/monitor-conexoes.server");
+        const conexoes = await monitor.monitorarConexoesWhatsapp().catch(() => null);
+        return Response.json({
+          ok: true,
+          ...resumo,
+          testesRebaixados,
+          avisosDoTeste,
+          postagensPublicadas,
+          conexoes,
+        });
       },
     },
   },
