@@ -1,5 +1,4 @@
 /**
-import { linhasNumeradas } from "./opcoes-numeradas";
  * Avisos do CortAI ao cliente pelo WhatsApp — entrega determinística.
  *
  * Evento do Cortaí → regra → texto/modelo aprovado → envio pela conexão oficial
@@ -14,6 +13,7 @@ import { linhasNumeradas } from "./opcoes-numeradas";
  * - isolamento por negócio: a conexão usada é sempre a do tenant do
  *   agendamento, nunca outra.
  */
+import { linhasNumeradas } from "./opcoes-numeradas";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido } from "@/lib/segmentos";
 
