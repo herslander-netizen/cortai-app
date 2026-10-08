@@ -150,6 +150,7 @@ export type Database = {
         Row: {
           arrived_at: string | null
           arrived_inferido: boolean
+          assistido_por_cortai: boolean
           cancelado_em: string | null
           cliente_id: string
           confirmado_em: string | null
@@ -182,6 +183,7 @@ export type Database = {
         Insert: {
           arrived_at?: string | null
           arrived_inferido?: boolean
+          assistido_por_cortai?: boolean
           cancelado_em?: string | null
           cliente_id: string
           confirmado_em?: string | null
@@ -214,6 +216,7 @@ export type Database = {
         Update: {
           arrived_at?: string | null
           arrived_inferido?: boolean
+          assistido_por_cortai?: boolean
           cancelado_em?: string | null
           cliente_id?: string
           confirmado_em?: string | null

@@ -183,6 +183,13 @@
       "when": 1791483270941,
       "tag": "0025_encerrar_avisos_ao_fechar_agendamento",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791486766547,
+      "tag": "0026_agendamentos_origem_instagram_assistido",
+      "breakpoints": true
     }
   ]
 }

@@ -361,11 +361,12 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
 
     // Só pode substituir um horário ativo do próprio WhatsApp; senão, erro (nunca cria um segundo em silêncio).
     let substituiId: string | null = null;
+    let origemHerdada: string | null = null;
     if (data.substituiId) {
       const { data: antigo } = existente
         ? await db
             .from("agendamentos")
-            .select("id")
+            .select("id, origem")
             .eq("id", data.substituiId)
             .eq("tenant_id", tenant.id)
             .eq("cliente_id", existente.id)
@@ -377,6 +378,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
           "Não encontramos o horário que você quer alterar. Confira o WhatsApp informado.",
         );
       substituiId = antigo.id as string;
+      origemHerdada = (antigo as { origem?: string | null }).origem ?? null;
     }
 
     // Anti-abuso: poucos horários futuros ativos por WhatsApp em cada barbearia.
@@ -476,7 +478,10 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     const preferenciasTokenHash = await hashDoTokenDePreferencias(preferenciasToken);
     const { error: erroToken } = await db
       .from("agendamentos")
-      .update({ origem: "link_publico", preferencias_token_hash: preferenciasTokenHash })
+      .update({
+        origem: (origemHerdada ?? "link_publico") as "link_publico",
+        preferencias_token_hash: preferenciasTokenHash,
+      })
       .eq("id", criado.agendamento_id);
     if (erroToken) {
       await db.rpc("cancelar_agendamento", { _agendamento_id: criado.agendamento_id });

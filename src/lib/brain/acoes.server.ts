@@ -10,6 +10,7 @@
  * - não existe ação de pagamento: o recebimento é sempre conferido pela equipe.
  */
 import * as dominio from "@/lib/ia/acoes.server";
+import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import type { FerramentaDoModelo } from "./gateway.server";
 
@@ -59,7 +60,11 @@ async function admin() {
 }
 
 function agenteDe(ctx: ContextoDoCerebro): dominio.ContextoDoAgente {
-  return { tenantId: ctx.tenantId, externalAgentId: `cortai:${ctx.canal}:${ctx.ator}` };
+  return {
+    tenantId: ctx.tenantId,
+    externalAgentId: `cortai:${ctx.canal}:${ctx.ator}`,
+    origemCortai: origemDoCortai(ctx.canal, ctx.papel),
+  };
 }
 
 function obj(props: Record<string, unknown>, required: string[] = []) {
@@ -117,12 +122,19 @@ async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId:
     if (!proprio || proprio.id !== data.cliente_id)
       throw new Error("Esse agendamento não pertence a este telefone.");
   }
-  if (ctx.canal === "whatsapp" && ctx.papel === "profissional" && data.profissional_id !== ctx.profissionalId)
+  if (
+    ctx.canal === "whatsapp" &&
+    ctx.papel === "profissional" &&
+    data.profissional_id !== ctx.profissionalId
+  )
     throw new Error("Esse atendimento é de outro profissional.");
   return data;
 }
 
-async function nomes(ctx: ContextoDoCerebro, ids: { servicoId?: string | undefined; profissionalId?: string | undefined }) {
+async function nomes(
+  ctx: ContextoDoCerebro,
+  ids: { servicoId?: string | undefined; profissionalId?: string | undefined },
+) {
   const db = await admin();
   const [s, p] = await Promise.all([
     ids.servicoId
@@ -180,7 +192,11 @@ async function proximoDoProfissional(ctx: ContextoDoCerebro) {
     .limit(1)
     .maybeSingle();
   if (!data) return null;
-  return { id: data.id as string, inicio: data.inicio as string, cliente: (data as any).clientes?.nome ?? null };
+  return {
+    id: data.id as string,
+    inicio: data.inicio as string,
+    cliente: (data as any).clientes?.nome ?? null,
+  };
 }
 
 function reais(centavos: number) {
@@ -201,7 +217,8 @@ export const ACOES: Record<string, Definicao> = {
     parametros: obj({ servicoId: { type: "string" } }, ["servicoId"]),
     risco: "leitura",
     canais: TODOS,
-    executar: (ctx, d) => dominio.consultarServico(agenteDe(ctx), { servicoId: String(d.servicoId) }),
+    executar: (ctx, d) =>
+      dominio.consultarServico(agenteDe(ctx), { servicoId: String(d.servicoId) }),
   },
   listar_profissionais: {
     descricao: "Lista os profissionais ativos (id e nome).",
@@ -404,7 +421,9 @@ export const ACOES: Record<string, Definicao> = {
         clienteId,
         servicoId: String(d.servicoId),
         profissionalId:
-          ctx.papel === "profissional" && ctx.profissionalId ? ctx.profissionalId : String(d.profissionalId),
+          ctx.papel === "profissional" && ctx.profissionalId
+            ? ctx.profissionalId
+            : String(d.profissionalId),
         inicio: String(d.inicio),
         formaPagamento: "balcao",
       });
@@ -463,7 +482,9 @@ export const ACOES: Record<string, Definicao> = {
       const { fusoDoTenant } = await import("@/lib/fuso.server");
       const { inicioDoDiaNoFuso, hojeNoFuso } = await import("@/lib/horarios");
       const fuso = await fusoDoTenant(ctx.tenantId);
-      const dia = /^\d{4}-\d{2}-\d{2}$/.test(String(d.dia ?? "")) ? String(d.dia) : hojeNoFuso(fuso);
+      const dia = /^\d{4}-\d{2}-\d{2}$/.test(String(d.dia ?? ""))
+        ? String(d.dia)
+        : hojeNoFuso(fuso);
       const inicio = inicioDoDiaNoFuso(fuso, new Date(`${dia}T12:00:00Z`));
       const fim = new Date(inicio.getTime() + 24 * 60 * 60_000);
       const db = await admin();
@@ -476,7 +497,8 @@ export const ACOES: Record<string, Definicao> = {
         .not("status", "in", "(cancelado,nao_compareceu)")
         .order("inicio");
       if (ctx.papel === "profissional") {
-        if (!ctx.profissionalId) return { dia, aviso: "Seu usuário não está ligado a um profissional.", itens: [] };
+        if (!ctx.profissionalId)
+          return { dia, aviso: "Seu usuário não está ligado a um profissional.", itens: [] };
         q = q.eq("profissional_id", ctx.profissionalId);
       }
       const { data } = await q;
