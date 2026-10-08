@@ -760,8 +760,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     status === "conectado"
       ? "WhatsApp conectado"
       : qrExpirado
-        ? "Este QR Code expirou"
-        : qrPronto
+        ? "Conectando seu WhatsApp…"
+        : qrVisivel
           ? "Escaneie o QR Code usando o WhatsApp"
           : status === "conectando"
             ? "Conectando seu WhatsApp…"
