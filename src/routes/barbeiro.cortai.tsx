@@ -23,6 +23,7 @@ import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
 import { getAvaliacoes } from "@/lib/crescimento.functions";
+import { type TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 import {
   atualizarQrCode,
   conectarWhatsapp,
@@ -58,12 +59,12 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   }),
   head: () => ({
     meta: [
-      { title: "Secretária Cortaí — Cortaí Gestão" },
+      { title: "CortAI — Assistente Virtual · Cortaí Gestão" },
       {
         name: "description",
         content: "Conecte o WhatsApp do negócio e acompanhe notificações transacionais.",
       },
-      { property: "og:title", content: "Secretária Cortaí — Cortaí Gestão" },
+      { property: "og:title", content: "CortAI — Assistente Virtual · Cortaí Gestão" },
       {
         property: "og:description",
         content: "Avisos e acompanhamento dos atendimentos pelo WhatsApp.",
@@ -99,7 +100,7 @@ function CortaiPage() {
   return (
     <Screen
       voltarPara="/barbeiro/mais"
-      title="Secretária Cortaí"
+      title="CortAI — Assistente Virtual"
       subtitle="Seu WhatsApp informa seus clientes e acompanha cada atendimento."
     >
       {painel.isLoading ? <Carregando /> : null}
@@ -107,7 +108,7 @@ function CortaiPage() {
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
-            : "Não conseguimos carregar a Secretária agora. Tente de novo em instantes."}
+            : "Não conseguimos carregar o CortAI agora. Tente de novo em instantes."}
         </p>
       ) : null}
 
@@ -153,7 +154,7 @@ function CortaiPage() {
             </div>
           </section>
 
-          <nav className="mt-5 flex gap-2" aria-label="Seções da Secretária Cortaí">
+          <nav className="mt-5 flex gap-2" aria-label="Seções do CortAI — Assistente Virtual">
             {(
               [
                 ["whatsapp", "Conexão"],
@@ -180,7 +181,10 @@ function CortaiPage() {
             {aba === "whatsapp" ? (
               <>
                 <AvisosDaMeta />
-                <BlocoRemetenteOficial />
+                {painel.data.podeGerenciarWhatsapp ? <BlocoConexao painel={painel.data} /> : null}
+                <div className={painel.data.podeGerenciarWhatsapp ? "mt-4" : undefined}>
+                  <BlocoRemetenteOficial />
+                </div>
                 {painel.data.podeGerenciarWhatsapp && painel.data.provedor !== "meta" ? (
                   <BlocoDiagnostico />
                 ) : null}
@@ -442,7 +446,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
         ) : null}
       </div>
       <p className="text-xs leading-relaxed text-mute">
-        Mensagens livres recebem somente uma orientação para o Cortaí. A Secretária não abre
+        Mensagens livres recebem somente uma orientação para o Cortaí. O CortAI não abre
         atendimento, FAQ ou transferência humana.
       </p>
     </section>
@@ -516,18 +520,32 @@ function BlocoRemetenteOficial() {
           ) : null}
         </div>
       </div>
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
-        <p className="text-sm text-paper">Número próprio do negócio</p>
-        <span className="rounded-full border border-line2 px-2.5 py-1 text-xs text-mute">
-          Em breve
-        </span>
-      </div>
+      <p className="mt-5 border-t border-line pt-4 text-xs text-mute2">
+        Usado como reserva apenas quando o negócio não tem número próprio conectado.
+      </p>
     </section>
   );
 }
 
+/** Dois cartões independentes: cada um opera só a própria sessão. */
 export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
+  return (
+    <div className="space-y-4">
+      <CartaoDeConexao painel={painel} tipo="atendimento" />
+      <CartaoDeConexao painel={painel} tipo="notificacoes" />
+    </div>
+  );
+}
+
+const CABECALHO_DO_TIPO: Record<TipoDeConexao, { titulo: string; subtitulo: string }> = {
+  atendimento: { titulo: "CortAI — Assistente Virtual", subtitulo: "WhatsApp de Atendimento" },
+  notificacoes: { titulo: "WhatsApp de Notificações", subtitulo: "Notificações transacionais" },
+};
+
+function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoDeConexao }) {
   const cliente = useQueryClient();
+  const daLinha = tipo === "atendimento" ? painel.conexao : painel.conexaoNotificacoes;
+  const cabecalho = CABECALHO_DO_TIPO[tipo];
   const conectar = useServerFn(conectarWhatsapp);
   const novoQr = useServerFn(atualizarQrCode);
   const reconectar = useServerFn(reconectarWhatsapp);
@@ -541,21 +559,21 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
 
   const acao = useMutation({
     mutationFn: async (qual: "conectar" | "qr" | "reconectar" | "desconectar") => {
-      if (qual === "conectar") return conectar({ data: undefined });
-      if (qual === "qr") return novoQr({ data: undefined });
-      if (qual === "reconectar") return reconectar({ data: undefined });
-      return desconectar({ data: undefined });
+      if (qual === "conectar") return conectar({ data: { tipo } });
+      if (qual === "qr") return novoQr({ data: { tipo } });
+      if (qual === "reconectar") return reconectar({ data: { tipo } });
+      return desconectar({ data: { tipo } });
     },
     onSuccess: (r: unknown) => {
       setAviso((r as { aviso?: string | null })?.aviso ?? null);
       void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
-      void cliente.invalidateQueries({ queryKey: ["cortai-conexao"] });
+      void cliente.invalidateQueries({ queryKey: ["cortai-conexao", tipo] });
     },
     onError: (e: unknown) =>
       setAviso(e instanceof Error ? e.message : "Não foi possível concluir agora."),
   });
 
-  const statusBase = painel.conexao?.status ?? "desconectado";
+  const statusBase = daLinha?.status ?? "desconectado";
   // Enquanto não estiver conectado, perguntamos o estado real ao serviço.
   const acompanhar =
     painel.podeGerenciarWhatsapp &&
@@ -564,14 +582,14 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     agora - desde < 10 * 60 * 1000;
 
   const estado = useQuery({
-    queryKey: ["cortai-conexao"],
-    queryFn: () => sincronizar({ data: undefined }),
+    queryKey: ["cortai-conexao", tipo],
+    queryFn: () => sincronizar({ data: { tipo } }),
     enabled: acompanhar,
     refetchInterval: acompanhar ? 5000 : false,
     refetchIntervalInBackground: false,
   });
 
-  const conexao = estado.data?.conexao ?? painel.conexao;
+  const conexao = estado.data?.conexao ?? daLinha;
   const status = conexao?.status ?? "desconectado";
   const expira = conexao?.qrExpiraEm ?? null;
 
@@ -694,9 +712,15 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
                   : "Seu WhatsApp ainda não está conectado";
 
   const descricao =
-    status === "conectado"
-      ? "Seu WhatsApp está conectado e pronto para enviar avisos aos clientes."
-      : "Conecte o WhatsApp do seu negócio para enviar notificações dos atendimentos.";
+    tipo === "atendimento"
+      ? status === "conectado"
+        ? "O CortAI — Assistente Virtual conversa com seus clientes por este número."
+        : "Conecte o WhatsApp público do negócio para o CortAI conversar com os clientes."
+      : status === "conectado"
+        ? "Confirmações, lembretes e avisos automáticos saem por este número."
+        : painel.conexao && !daLinha
+          ? "Opcional. Enquanto não houver, os avisos saem pelo WhatsApp de Atendimento."
+          : "Conecte um número exclusivo para confirmações, lembretes e avisos.";
 
   const rotuloPrincipal = acao.isPending
     ? "Preparando conexão…"
@@ -714,10 +738,13 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
     <section className="surface p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
-          <MessageCircle size={18} />
+          {tipo === "atendimento" ? <MessageCircle size={18} /> : <Smartphone size={18} />}
         </span>
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+            {cabecalho.titulo} · {cabecalho.subtitulo}
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
             <Selo estado={visual} texto={rotuloDoEstado} />
           </div>
@@ -793,7 +820,7 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
               onClick={() => {
                 if (
                   window.confirm(
-                    "Desconectar o WhatsApp do negócio? Clientes, histórico e agendamentos continuam salvos.",
+                    `Desconectar o ${cabecalho.subtitulo}? Clientes, histórico e agendamentos continuam salvos.`,
                   )
                 ) {
                   acao.mutate("desconectar");
@@ -834,8 +861,8 @@ export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
       </div>
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
-        <ShieldCheck size={14} className="mt-0.5 shrink-0" />A Secretária usa somente eventos e
-        dados reais do seu negócio e nunca acessa dados de outro.
+        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O CortAI usa somente eventos e dados
+        reais do seu negócio e nunca acessa dados de outro.
       </p>
 
       {qrAberto && conexao?.qrCode && !qrExpirado ? (

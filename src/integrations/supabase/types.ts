@@ -1437,6 +1437,7 @@ export type Database = {
           sessao_id: string
           status: string
           tenant_id: string
+          tipo: string
           ultimo_erro: string | null
           ultimo_evento_em: string | null
           verificado_em: string | null
@@ -1460,6 +1461,7 @@ export type Database = {
           sessao_id: string
           status?: string
           tenant_id: string
+          tipo?: string
           ultimo_erro?: string | null
           ultimo_evento_em?: string | null
           verificado_em?: string | null
@@ -1483,6 +1485,7 @@ export type Database = {
           sessao_id?: string
           status?: string
           tenant_id?: string
+          tipo?: string
           ultimo_erro?: string | null
           ultimo_evento_em?: string | null
           verificado_em?: string | null
@@ -1492,7 +1495,7 @@ export type Database = {
           {
             foreignKeyName: "conexoes_whatsapp_tenant_id_fkey"
             columns: ["tenant_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },

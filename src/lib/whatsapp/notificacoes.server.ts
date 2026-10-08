@@ -672,7 +672,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
 
   // Remetente: conexão própria do negócio ou, na falta, o número oficial do Cortaí.
   const { conexaoDeEnvio, SEM_WHATSAPP_DISPONIVEL } = await import("./conexao-envio.server");
-  const conexao = await conexaoDeEnvio(ag.tenant_id);
+  const conexao = await conexaoDeEnvio(ag.tenant_id, "notificacoes");
 
   const { data: tenant } = await db
     .from("tenants")

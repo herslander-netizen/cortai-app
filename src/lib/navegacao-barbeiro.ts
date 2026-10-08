@@ -176,7 +176,7 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
   {
     titulo: "Secretária",
     abas: [
-      { to: "/barbeiro/cortai", label: "Secretária", permissao: "ver_cortai" },
+      { to: "/barbeiro/cortai", label: "CortAI — Assistente Virtual", permissao: "ver_cortai" },
       { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },
     ],
   },

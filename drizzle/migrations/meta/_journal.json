@@ -155,6 +155,13 @@
       "when": 1791454533062,
       "tag": "0021_conexoes_whatsapp_saude",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791460879933,
+      "tag": "0022_conexoes_whatsapp_tipo",
+      "breakpoints": true
     }
   ]
 }
