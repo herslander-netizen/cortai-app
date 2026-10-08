@@ -21,6 +21,8 @@ import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/
 import { supabase } from "@/integrations/supabase/client";
 import { horariosPadrao, type HorarioSugerido } from "@/lib/ia/assistente";
 import { aviso } from "@/lib/avisos";
+import { toast } from "sonner";
+import { avancarSeSalvar } from "@/lib/erro-amigavel";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
 import { Button } from "@/components/ui/button";
@@ -111,7 +113,6 @@ const PASSOS = [
   { valor: 20, rotulo: "20 min" },
   { valor: 30, rotulo: "30 min" },
   { valor: 40, rotulo: "40 min" },
-  { valor: 50, rotulo: "50 min" },
 ];
 const INTERVALOS = [
   { valor: 0, rotulo: "Nenhum" },
@@ -153,6 +154,7 @@ function ConfigurarPage() {
   });
 
   const [etapaEscolhida, setEtapaEscolhida] = useState<Etapa | null>(null);
+  const [salvando, setSalvando] = useState(false);
   const etapa: Etapa =
     etapaEscolhida ?? (data ? (data.concluidoEm ? "pronto" : etapaSalva(data.etapa)) : "dados");
   const indice = ETAPAS_DO_ONBOARDING.indexOf(etapa);
@@ -210,17 +212,21 @@ function ConfigurarPage() {
     void queryClient.invalidateQueries({ queryKey: ["sessao"] });
   }
 
-  /** Avança na hora e grava em segundo plano; a etapa fica salva para continuar depois. */
+  /** Grava primeiro e só então avança; se falhar, a pessoa continua na mesma etapa. */
   function irPara(destino: Etapa, gravar?: () => Promise<unknown>) {
-    setEtapaEscolhida(destino);
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-    const antes = gravar ? gravar() : Promise.resolve();
-    void antes
-      .then(() => gravarEtapa({ data: { etapa: destino } }))
-      .then(() => recarregar())
-      .catch((e) =>
-        aviso.erro(e instanceof Error ? e.message : "Não consegui salvar agora. Tente de novo."),
-      );
+    if (salvando) return;
+    setSalvando(true);
+    void avancarSeSalvar({
+      ...(gravar ? { gravar } : {}),
+      gravarEtapa: () => gravarEtapa({ data: { etapa: destino } }),
+      avancar: () => {
+        setEtapaEscolhida(destino);
+        if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+        recarregar();
+      },
+      // No topo, para nunca cobrir o botão Continuar.
+      aoErro: (m) => toast.error(m, { position: "top-center" }),
+    }).finally(() => setSalvando(false));
   }
   const proxima = (gravar?: () => Promise<unknown>) =>
     irPara(
@@ -318,7 +324,7 @@ function ConfigurarPage() {
     desabilitado = false,
     pular?: () => void,
   ) => (
-    <div className="sticky bottom-0 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
+    <div className="sticky bottom-0 z-10 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
       <div className="flex items-center gap-3">
         {indice > 0 ? (
           <Button
@@ -334,10 +340,10 @@ function ConfigurarPage() {
           variant="ghost"
           type="button"
           className="btn-primary min-h-14 flex-1 text-sm"
-          disabled={desabilitado}
+          disabled={desabilitado || salvando}
           onClick={aoContinuar}
         >
-          {rotulo}
+          {salvando ? "Salvando…" : rotulo}
         </Button>
       </div>
       {pular ? (
@@ -482,12 +488,15 @@ function ConfigurarPage() {
                     await marcar({ data: { chave: "sozinho", feito: true } });
                   })
                 }
-                className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 text-left"
+                disabled={salvando}
+                className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
               >
                 <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-paper">Trabalho sozinho</span>
-                  <span className="block text-xs text-mute">
+                  <span className="block break-words text-sm font-semibold text-paper">
+                    Trabalho sozinho
+                  </span>
+                  <span className="block break-words text-xs text-mute">
                     Você aparece como o profissional. Pula este passo.
                   </span>
                 </span>
@@ -611,14 +620,15 @@ function ConfigurarPage() {
                   setRegras(REGRAS_RECOMENDADAS);
                   proxima(() => gravarRegras({ data: REGRAS_RECOMENDADAS }));
                 }}
-                className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 text-left"
+                disabled={salvando}
+                className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
               >
                 <Check size={18} className="shrink-0 text-paper" aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-paper">
+                  <span className="block break-words text-sm font-semibold text-paper">
                     Usar padrão recomendado
                   </span>
-                  <span className="block text-xs text-mute">
+                  <span className="block break-words text-xs text-mute">
                     1 h de antecedência, cancelar até 2 h antes, aceita encaixe.
                   </span>
                 </span>
@@ -746,7 +756,7 @@ function ConfigurarPage() {
                   Tradicional
                 </Button>
               </div>
-              <div className="mt-5">
+              <div className="mt-5 pb-4">
                 <ChatPreview ativo={valorModo === "conversa"} />
               </div>
               {rodape(

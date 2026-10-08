@@ -1,3 +1,4 @@
+import { esquemaRegrasDeAgendamento, passoValido } from "@/lib/onboarding-regras";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -570,7 +571,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
         ),
         aceitaEncaixe: t["aceita_encaixe"] == null ? true : Boolean(t["aceita_encaixe"]),
         janelaDias: Number(t["janela_agendamento_dias"] ?? 30),
-        passoMin: Number(t["passo_horarios_min"] ?? 30),
+        passoMin: passoValido(t["passo_horarios_min"] ?? 30),
       },
       trabalhaSozinho: Boolean(itens["sozinho"]),
       horarios,
@@ -800,20 +801,7 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
 /** Regras de agendamento da barbearia (antecedência, cancelamento, intervalo e encaixe). */
 export const salvarRegrasDeAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z
-      .object({
-        antecedenciaMinMinutos: z.number().int().min(0).max(10080),
-        cancelamentoMinHoras: z.number().int().min(0).max(168),
-        intervaloEntreMin: z.number().int().min(0).max(120),
-        aceitaEncaixe: z.boolean(),
-        janelaDias: z.number().int().min(7).max(90).default(30),
-        passoMin: z
-          .union([z.literal(15), z.literal(20), z.literal(30), z.literal(40), z.literal(50)])
-          .default(30),
-      })
-      .parse(input),
-  )
+  .validator((input: unknown) => esquemaRegrasDeAgendamento.parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
