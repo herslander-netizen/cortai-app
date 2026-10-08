@@ -11,6 +11,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import {
+  TIPOS_DE_CONEXAO,
+  tipoValido,
+  type TipoDeConexao,
+} from "@/lib/whatsapp/finalidade-conexao";
+import {
   AUTOMACOES,
   type InformacaoDaBarbearia,
   CONFIGURACAO_PADRAO,
@@ -43,6 +48,8 @@ export type PainelDoCortai = {
   /** A IA do CortAI está disponível? */
   iaDisponivel: boolean;
   conexao: ConexaoDeWhatsapp | null;
+  /** Segunda conexão (avisos transacionais); null enquanto não existir. */
+  conexaoNotificacoes: ConexaoDeWhatsapp | null;
   configuracao: ConfiguracaoDoAtendimento;
   automacoes: { chave: ChaveDeAutomacao; ativa: boolean; mensagem: string }[];
   conversasAtivas: number;
