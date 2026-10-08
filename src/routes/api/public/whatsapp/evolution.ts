@@ -2,8 +2,12 @@
  * Entrada dos avisos da Evolution API para o Cortaí.
  *
  * Segurança:
- * - sem segredo configurado o endpoint responde 503 (não existe caminho aberto);
- * - o cabeçalho `x-webhook-secret` é conferido em tempo constante;
+ * - se `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`) estiver
+ *   configurado, o cabeçalho `x-webhook-secret` é conferido em tempo constante;
+ * - TEMPORÁRIO (integração/teste): sem segredo configurado, o endpoint aceita
+ *   a chamada sem autenticação para permitir o teste ponta a ponta. Em
+ *   produção, configure `EVOLUTION_WEBHOOK_SECRET` na Evolution e no ambiente
+ *   para restaurar a validação;
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
  * - mensagens enviadas pela própria barbearia (fromMe) são ignoradas.
@@ -40,23 +44,26 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
       POST: async ({ request }) => {
         const { segredoDoWebhookDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
         const segredo = segredoDoWebhookDeWhatsapp();
-        if (!segredo) return new Response("Integration not enabled", { status: 503 });
+        // TEMPORÁRIO (integração/teste): sem segredo configurado, a chamada é
+        // aceita sem autenticação. Com segredo configurado, a validação segue.
         const guard = await import("@/lib/webhook-guard.server");
         const abuso = await guard.barrarAbusivo(request, "whatsapp/evolution");
         if (abuso) return abuso;
 
-        const recebido =
-          request.headers.get("x-webhook-secret") ??
-          request.headers.get("apikey") ??
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-          new URL(request.url).searchParams.get("token") ??
-          null;
-        if (!(await segredoConfere(recebido, segredo))) {
-          return guard.rejeitar(
-            request,
-            "whatsapp/evolution",
-            recebido ? "token invalido" : "sem token",
-          );
+        if (segredo) {
+          const recebido =
+            request.headers.get("x-webhook-secret") ??
+            request.headers.get("apikey") ??
+            request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+            new URL(request.url).searchParams.get("token") ??
+            null;
+          if (!(await segredoConfere(recebido, segredo))) {
+            return guard.rejeitar(
+              request,
+              "whatsapp/evolution",
+              recebido ? "token invalido" : "sem token",
+            );
+          }
         }
         const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
         if (limite) return limite;
