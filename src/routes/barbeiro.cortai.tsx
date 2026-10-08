@@ -1144,7 +1144,13 @@ function ModalQr({
           QR Code.
         </p>
         {restante !== null ? (
-          <p className="mt-2 text-xs text-mute2">Este código expira em {restante} segundos.</p>
+          <p
+            className={`mt-2 text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
+            role="timer"
+            aria-live="polite"
+          >
+            Este código expira em {formatarRestante(restante)}.
+          </p>
         ) : null}
 
         <Button
