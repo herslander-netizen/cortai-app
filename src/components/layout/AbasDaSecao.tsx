@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getSessao } from "@/lib/sessao.functions";
 import { secaoDoCaminho } from "@/lib/navegacao-barbeiro";
 
-/** Abas de uma área consolidada (Financeiro, Equipe, Secretária…). Some com uma aba só. */
+/** Abas de uma área consolidada (Financeiro, Equipe, WhatsApp…). Some com uma aba só. */
 export function AbasDaSecao() {
   const caminho = useRouterState({ select: (s) => s.location.pathname });
   const { data: sessao } = useQuery({
