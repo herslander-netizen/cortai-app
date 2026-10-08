@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- banco falso dos testes */
 /**
  * Correção P0 — confiabilidade do WhatsApp: webhook fail-closed, envios presos,
  * timeout do gateway, SAIR sem cadastro, aviso de atraso sem envio e barreira.
