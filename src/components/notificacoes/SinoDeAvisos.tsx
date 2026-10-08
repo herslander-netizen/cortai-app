@@ -22,6 +22,14 @@ import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { guardarAvisoDoFoco, modoFocoAtivo } from "@/lib/modo-foco";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { TelaDeAvisos } from "@/components/notificacoes/TelaDeAvisos";
+import {
+  chaveVisto,
+  contarNaoVistos,
+  criarControleDeToque,
+  gravarVisto,
+  lerVisto,
+  rotuloDoSino,
+} from "@/lib/sino-avisos";
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -30,7 +38,9 @@ function quando(iso: string) {
 
 export function SinoDeAvisos() {
   const [aberto, setAberto] = useState(false);
-  const [pulsar, setPulsar] = useState(false);
+  const [toque, setToque] = useState(0);
+  const [ultimoVistoEm, setUltimoVistoEm] = useState<number | null>(null);
+  const tituloOriginal = useRef<string | null>(null);
   const menosMovimento = useMenosMovimento();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -59,6 +69,52 @@ export function SinoDeAvisos() {
     };
   }, []);
 
+  // "Visto" por negócio + usuário. Primeiro acesso: tudo que já existe conta como visto.
+  const chave = tenantId && sessao?.userId ? chaveVisto(tenantId, sessao.userId) : null;
+  useEffect(() => {
+    if (!chave) return;
+    const gravado = lerVisto(chave);
+    if (gravado != null) setUltimoVistoEm(gravado);
+    else {
+      const agora = Date.now();
+      gravarVisto(chave, agora);
+      setUltimoVistoEm(agora);
+    }
+  }, [chave]);
+
+  // Toque único: só por INSERT em tempo real; rajada = uma animação.
+  const controleToque = useRef(criarControleDeToque());
+  const toquePendente = useRef(false);
+  const estadoRef = useRef({ aberto, menosMovimento });
+  estadoRef.current = { aberto, menosMovimento };
+  const tocarRef = useRef<() => void>(() => {});
+  tocarRef.current = () => {
+    const abaOculta = typeof document !== "undefined" && document.hidden;
+    if (abaOculta) {
+      toquePendente.current = true;
+      return;
+    }
+    if (
+      controleToque.current.pedir({
+        centralAberta: estadoRef.current.aberto,
+        menosMovimento: estadoRef.current.menosMovimento,
+        abaOculta: false,
+      })
+    ) {
+      setToque((t) => t + 1);
+    }
+  };
+  useEffect(() => {
+    const visivel = () => {
+      if (!document.hidden && toquePendente.current) {
+        toquePendente.current = false;
+        tocarRef.current();
+      }
+    };
+    document.addEventListener("visibilitychange", visivel);
+    return () => document.removeEventListener("visibilitychange", visivel);
+  }, []);
+
   useEffect(() => {
     if (!tenantId) return;
     const canal = supabase
@@ -79,8 +135,7 @@ export function SinoDeAvisos() {
             return;
           }
           if (novo?.titulo) mostrarAviso(novo.titulo, novo.corpo ?? null, novo.link ?? null);
-          setPulsar(true);
-          setTimeout(() => montado.current && setPulsar(false), 1200);
+          tocarRef.current();
         },
       )
       .subscribe();
@@ -120,6 +175,11 @@ export function SinoDeAvisos() {
   abrirCentralRef.current = () => {
     if (aberto) return;
     setNaoLidasAoAbrir(new Set((avisos ?? []).filter((a) => !a.lida_em).map((a) => a.id)));
+    if (chave) {
+      const agora = Date.now();
+      gravarVisto(chave, agora);
+      setUltimoVistoEm(agora);
+    }
     if (celular) window.history.pushState({ ...window.history.state, avisos: true }, "");
     setAberto(true);
   };
@@ -129,10 +189,36 @@ export function SinoDeAvisos() {
   }
   fecharRef.current = fecharCentral;
 
-  if (!tenantId) return null;
-
   const lista = avisos ?? [];
   const naoLidas = lista.filter((a) => !a.lida_em).length;
+  const naoVistos = contarNaoVistos(lista, ultimoVistoEm);
+
+  // Título da aba e badge do app instalado seguem a mesma contagem do sino.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (tituloOriginal.current == null)
+      tituloOriginal.current = document.title.replace(/^\(\d+\+?\) /, "");
+    const base = tituloOriginal.current;
+    document.title = naoVistos > 0 ? `(${naoVistos > 9 ? "9+" : naoVistos}) ${base}` : base;
+    const nav = navigator as Navigator & {
+      setAppBadge?: (n: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+    try {
+      if (naoVistos > 0) void nav.setAppBadge?.(naoVistos)?.catch(() => {});
+      else void nav.clearAppBadge?.()?.catch(() => {});
+    } catch {
+      /* sem suporte */
+    }
+  }, [naoVistos]);
+  useEffect(
+    () => () => {
+      if (tituloOriginal.current != null) document.title = tituloOriginal.current;
+    },
+    [],
+  );
+
+  if (!tenantId) return null;
 
   async function abrirAviso(aviso: Notificacao) {
     fecharCentral();
@@ -223,6 +309,30 @@ export function SinoDeAvisos() {
     </div>
   );
 
+  const forte = naoVistos > 0;
+  const animar = toque > 0 && !menosMovimento;
+  const cor = "var(--sino-atencao)";
+  const arco = (lado: 1 | -1, k: number) => (
+    <motion.svg
+      key={`${lado}-${k}`}
+      aria-hidden
+      width="8"
+      height="12"
+      viewBox="0 0 8 12"
+      fill="none"
+      className="pointer-events-none absolute top-1/2 -mt-1.5"
+      style={{
+        [lado < 0 ? "right" : "left"]: `calc(50% + ${11 + k * 4}px)`,
+        transform: lado < 0 ? undefined : "scaleX(-1)",
+      }}
+      initial={{ opacity: 0, x: 0 }}
+      animate={{ opacity: [0, 1, 0], x: lado * -3.5 }}
+      transition={{ delay: 0.15, duration: 0.65, ease: "easeOut" }}
+    >
+      <path d="M6 1.5C3 3.5 3 8.5 6 10.5" stroke={cor} strokeWidth="1.5" strokeLinecap="round" />
+    </motion.svg>
+  );
+
   return (
     <>
       <Button
@@ -230,58 +340,72 @@ export function SinoDeAvisos() {
         variant="ghost"
         size="icon"
         onClick={() => abrirCentralRef.current()}
-        aria-label={naoLidas ? `Avisos, ${naoLidas} não lidos` : "Avisos"}
-        className={`relative h-12 w-12 shrink-0 rounded-none border-0 ${
-          naoLidas ? "text-rosa hover:text-rosa" : "text-mute hover:text-gold"
+        aria-label={rotuloDoSino(naoLidas, naoVistos)}
+        className={`relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 ${
+          forte ? "" : "text-mute hover:text-gold"
         }`}
+        style={forte ? { color: cor } : undefined}
       >
-        {/* Halo suave atrás do sino: presente sempre que há não lidas; pulsa 2x na chegada. */}
-        {naoLidas ? (
+        {forte ? (
           <motion.span
+            key={`halo-${toque}`}
             aria-hidden
-            className="absolute inset-1.5 rounded-full bg-rosa/30 blur-[6px]"
-            animate={
-              pulsar && !menosMovimento
-                ? { scale: [1, 1.45, 1.1, 1.5, 1.1], opacity: [0.6, 1, 0.7, 1, 0.7] }
-                : { scale: 1, opacity: 0.6 }
-            }
-            transition={
-              pulsar && !menosMovimento ? { duration: 0.9, ease: "easeInOut" } : transicaoRapida
-            }
+            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full"
+            style={{
+              background: `color-mix(in srgb, ${cor} 20%, transparent)`,
+              boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${cor} 38%, transparent)`,
+            }}
+            initial={animar ? { scale: 0.85, opacity: 0 } : false}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.15 }}
           />
         ) : null}
+        {animar ? (
+          <motion.span
+            key={`anel-${toque}`}
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full border-2"
+            style={{ borderColor: cor }}
+            initial={{ scale: 1, opacity: 0.45 }}
+            animate={{ scale: 1.7, opacity: 0 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+          />
+        ) : null}
+        {animar ? (
+          <span key={`arcos-${toque}`} aria-hidden className="pointer-events-none absolute inset-0">
+            {arco(-1, 0)}
+            {arco(-1, 1)}
+            {arco(1, 0)}
+            {arco(1, 1)}
+          </span>
+        ) : null}
         <motion.span
+          key={`sino-${toque}`}
           className="relative inline-flex"
-          animate={
-            pulsar && !menosMovimento ? { rotate: [0, -30, 24, -16, 10, -5, 0] } : { rotate: 0 }
-          }
-          transition={
-            pulsar && !menosMovimento ? { duration: 0.9, ease: "easeInOut" } : transicaoRapida
-          }
+          initial={false}
+          animate={animar ? { rotate: [0, -18, 14, -9, 5, 0] } : { rotate: 0 }}
+          transition={animar ? { duration: 0.7, ease: "easeInOut" } : transicaoRapida}
           style={{ transformOrigin: "top center" }}
         >
-          <Bell size={17} strokeWidth={1.7} aria-hidden />
-          {pulsar && !menosMovimento ? (
-            <>
-              <motion.span
-                aria-hidden
-                className="absolute -left-2 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
-                initial={{ opacity: 0, x: 2 }}
-                animate={{ opacity: [0, 1, 0], x: [-1, -4, -6] }}
-                transition={{ duration: 0.9, ease: "easeOut" }}
-              />
-              <motion.span
-                aria-hidden
-                className="absolute -right-2 top-0.5 h-2 w-0.5 rounded-full bg-rosa"
-                initial={{ opacity: 0, x: -2 }}
-                animate={{ opacity: [0, 1, 0], x: [1, 4, 6] }}
-                transition={{ duration: 0.9, ease: "easeOut" }}
-              />
-            </>
-          ) : null}
+          <Bell
+            size={20}
+            strokeWidth={1.8}
+            className={forte ? "fill-current" : undefined}
+            aria-hidden
+          />
         </motion.span>
         {naoLidas ? (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rosa px-1 text-[11px] font-bold text-sobre-rosa shadow-md">
+          <span
+            aria-hidden
+            className={`pointer-events-none absolute right-0.5 top-0.5 flex min-w-5 items-center justify-center rounded-full px-1 font-bold leading-none ring-2 ring-background ${
+              forte ? "h-5 text-[12px]" : "h-4 min-w-4 bg-mute text-[10px] text-background"
+            }`}
+            style={
+              forte
+                ? { background: "var(--sino-badge)", color: "var(--sino-badge-texto)" }
+                : undefined
+            }
+          >
             {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}
