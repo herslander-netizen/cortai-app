@@ -729,8 +729,11 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
   }
 
   // "connecting" com QR válido = aguardando leitura (não esconder o QR).
+  // Expirou: o QR some da tela e o painel volta a "Conectando seu WhatsApp…",
+  // sem botões — evita gerar QRs inválidos.
   const qrPronto = status === "qr_pronto" || (status === "conectando" && !!conexao?.qrCode);
   const qrExpirado = qrPronto && restante !== null && restante <= 0;
+  const qrVisivel = qrPronto && !qrExpirado;
   const conectando = acao.isPending || status === "pendente" || status === "conectando";
 
   const visual: keyof typeof CORES_DO_ESTADO =
@@ -747,10 +750,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "Conectado"
       : status === "erro"
         ? "Erro"
-        : qrPronto
-          ? qrExpirado
-            ? "QR Code expirado"
-            : "Aguardando leitura"
+        : qrVisivel
+          ? "Aguardando leitura"
           : conectando
             ? "Conectando"
             : "Desconectado";
@@ -759,8 +760,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     status === "conectado"
       ? "WhatsApp conectado"
       : qrExpirado
-        ? "Este QR Code expirou"
-        : qrPronto
+        ? "Conectando seu WhatsApp…"
+        : qrVisivel
           ? "Escaneie o QR Code usando o WhatsApp"
           : status === "conectando"
             ? "Conectando seu WhatsApp…"
@@ -832,16 +833,18 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </dl>
       ) : null}
 
-      {conectando && status !== "qr_pronto" ? (
+      {conectando && !qrVisivel ? (
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
           <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
           <p className="text-xs text-mute">
-            {status === "conectando" ? "Conectando seu WhatsApp…" : "Preparando conexão…"}
+            {status === "conectando" || qrExpirado
+              ? "Conectando seu WhatsApp…"
+              : "Preparando conexão…"}
           </p>
         </div>
       ) : null}
 
-      {qrPronto && conexao?.qrCode && !qrExpirado && !qrAberto ? (
+      {qrVisivel && conexao?.qrCode && !qrAberto ? (
         <Button
           variant="ghost"
           type="button"
@@ -852,7 +855,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </Button>
       ) : null}
 
-      {qrPronto && !qrExpirado && restante !== null ? (
+      {qrVisivel && restante !== null ? (
         <p
           className={`mt-3 text-center text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
           role="timer"
@@ -903,16 +906,18 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           </>
         ) : (
           <>
-            <Button
-              variant="ghost"
-              type="button"
-              className="btn-primary w-full"
-              disabled={acao.isPending}
-              onClick={() => acao.mutate(status === "qr_pronto" && !qrExpirado ? "qr" : "conectar")}
-            >
-              {rotuloPrincipal}
-            </Button>
-            {qrPronto || qrExpirado ? (
+            {!qrExpirado ? (
+              <Button
+                variant="ghost"
+                type="button"
+                className="btn-primary w-full"
+                disabled={acao.isPending}
+                onClick={() => acao.mutate(status === "qr_pronto" ? "qr" : "conectar")}
+              >
+                {rotuloPrincipal}
+              </Button>
+            ) : null}
+            {qrVisivel ? (
               <Button
                 variant="ghost"
                 type="button"
@@ -936,7 +941,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         reais do seu negócio e nunca acessa dados de outro.
       </p>
 
-      {qrAberto && conexao?.qrCode && !qrExpirado ? (
+      {qrAberto && conexao?.qrCode && qrVisivel ? (
         <ModalQr
           valor={conexao.qrCode}
           restante={restante}
