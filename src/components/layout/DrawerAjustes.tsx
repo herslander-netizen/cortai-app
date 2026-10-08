@@ -229,7 +229,10 @@ export function DrawerAjustes({
                 </span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3">
+            <AlertDialogContent
+              overlayClassName="z-[80]"
+              className="z-[80] w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3"
+            >
               <AlertDialogHeader>
                 <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
                 <AlertDialogDescription>
