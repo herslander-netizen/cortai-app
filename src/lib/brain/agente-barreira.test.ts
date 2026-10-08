@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- simulações de banco e IA nos testes */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   afirmaConclusao,
