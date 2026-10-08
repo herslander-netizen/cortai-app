@@ -10,11 +10,29 @@ DECLARE
 BEGIN
   UPDATE comandas SET status='aguardando_pagamento' WHERE id IN (pix_c, din_c);
   SELECT agendamento_id INTO ag FROM comandas WHERE id=pix_c;
+  UPDATE agendamentos SET preferencias_token_hash=repeat('a',64) WHERE id=ag;
+  UPDATE agendamentos SET preferencias_token_hash=repeat('b',64) WHERE id=(SELECT agendamento_id FROM comandas WHERE id=din_c);
 
   -- equipe escolhe Pix: continua aguardando pagamento, sem pagamento criado
   r := confirmar_pagamento_comanda_segura(dono, pix_c, 'pix', true);
   SELECT status INTO st FROM comandas WHERE id=pix_c;
   ASSERT st='aguardando_pagamento', 'preparar Pix não pode mudar status: '||st;
+
+  -- prova de posse: sem token, token errado ou de outro agendamento não altera nada
+  r := informar_pagamento_pix_cliente(ag, NULL);
+  ASSERT r->>'motivo'='indisponivel', 'sem token: '||r::text;
+  r := informar_pagamento_pix_cliente(ag, repeat('c',64));
+  ASSERT r->>'motivo'='indisponivel', 'token errado: '||r::text;
+  r := informar_pagamento_pix_cliente(ag, repeat('b',64));
+  ASSERT r->>'motivo'='indisponivel', 'token de outro agendamento: '||r::text;
+  SELECT status INTO st FROM comandas WHERE id=pix_c;
+  ASSERT st='aguardando_pagamento', 'token inválido não pode alterar: '||st;
+  SELECT count(*) INTO n FROM auditoria_da_barbearia WHERE alvo=pix_c::text AND acao='financeiro.pix_informado_pelo_cliente' AND criado_em>=now();
+  ASSERT n=0, 'token inválido não pode auditar';
+  -- assinatura antiga não existe mais; a nova não é executável por anon/authenticated
+  ASSERT to_regprocedure('public.informar_pagamento_pix_cliente(uuid)') IS NULL, 'assinatura antiga ainda existe';
+  ASSERT NOT has_function_privilege('anon','public.informar_pagamento_pix_cliente(uuid,text)','EXECUTE'), 'anon executa';
+  ASSERT NOT has_function_privilege('authenticated','public.informar_pagamento_pix_cliente(uuid,text)','EXECUTE'), 'authenticated executa';
 
   -- a) cliente informa => não vira paga
   r := informar_pagamento_pix_cliente(ag, (SELECT preferencias_token_hash FROM agendamentos WHERE id=ag));
