@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- banco falso mínimo para o teste */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
@@ -13,8 +14,16 @@ const TOKEN_B = "b".repeat(64);
 /** Banco falso: agendamentos de dois negócios distintos, cada um com seu hash. */
 async function bancoFalso() {
   const linhas = [
-    { id: ID_A, tenant_id: "t1", preferencias_token_hash: await hashDoTokenDePreferencias(TOKEN_A) },
-    { id: ID_B, tenant_id: "t2", preferencias_token_hash: await hashDoTokenDePreferencias(TOKEN_B) },
+    {
+      id: ID_A,
+      tenant_id: "t1",
+      preferencias_token_hash: await hashDoTokenDePreferencias(TOKEN_A),
+    },
+    {
+      id: ID_B,
+      tenant_id: "t2",
+      preferencias_token_hash: await hashDoTokenDePreferencias(TOKEN_B),
+    },
     { id: "33333333-3333-4333-8333-333333333333", tenant_id: "t1", preferencias_token_hash: null },
   ];
   return {
@@ -39,33 +48,49 @@ async function bancoFalso() {
 describe("ticket público exige prova de posse", () => {
   it("token correto libera", async () => {
     const db = await bancoFalso();
-    expect(await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias(TOKEN_A))).toBe(true);
+    expect(await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias(TOKEN_A))).toBe(
+      true,
+    );
   });
   it("UUID sem token é rejeitado na entrada", () => {
     expect(() => entradaPublicaDoTicket.parse({ agendamentoId: ID_A })).toThrow();
     expect(() => entradaPublicaDoTicket.parse({ agendamentoId: ID_A, token: "" })).toThrow();
-    expect(() => entradaPublicaDoTicket.parse({ agendamentoId: ID_A, token: "A".repeat(64) })).toThrow();
+    expect(() =>
+      entradaPublicaDoTicket.parse({ agendamentoId: ID_A, token: "A".repeat(64) }),
+    ).toThrow();
     expect(() =>
       entradaPublicaDoTicket.parse({ agendamentoId: ID_A, token: TOKEN_A, extra: 1 }),
     ).toThrow();
   });
   it("token errado, de outro agendamento ou de outro negócio é bloqueado", async () => {
     const db = await bancoFalso();
-    expect(await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias("c".repeat(64)))).toBe(false);
-    expect(await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias(TOKEN_B))).toBe(false);
-    expect(await agendamentoComPosse(db, ID_B, await hashDoTokenDePreferencias(TOKEN_A))).toBe(false);
+    expect(
+      await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias("c".repeat(64))),
+    ).toBe(false);
+    expect(await agendamentoComPosse(db, ID_A, await hashDoTokenDePreferencias(TOKEN_B))).toBe(
+      false,
+    );
+    expect(await agendamentoComPosse(db, ID_B, await hashDoTokenDePreferencias(TOKEN_A))).toBe(
+      false,
+    );
   });
   it("agendamento antigo sem token nunca fica disponível", async () => {
     const db = await bancoFalso();
     expect(
-      await agendamentoComPosse(db, "33333333-3333-4333-8333-333333333333", null as unknown as string),
+      await agendamentoComPosse(
+        db,
+        "33333333-3333-4333-8333-333333333333",
+        null as unknown as string,
+      ),
     ).toBe(false);
   });
 });
 
 describe("RPC “Já paguei” valida o hash dentro do banco", () => {
   it("remove a assinatura antiga e só libera a nova ao service_role", () => {
-    expect(migracao).toContain("DROP FUNCTION IF EXISTS public.informar_pagamento_pix_cliente(uuid);");
+    expect(migracao).toContain(
+      "DROP FUNCTION IF EXISTS public.informar_pagamento_pix_cliente(uuid);",
+    );
     expect(migracao).toContain(
       "REVOKE ALL ON FUNCTION public.informar_pagamento_pix_cliente(uuid, text) FROM PUBLIC, anon, authenticated",
     );

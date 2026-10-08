@@ -148,6 +148,7 @@ async function hashDoToken(token: string) {
  * Valida a posse do agendamento (id + preferencias_token_hash).
  * Sem correspondência (inclusive agendamentos antigos sem token) → false, sem revelar se o UUID existe.
  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mesmo cliente admin usado em carregarTicket
 export async function agendamentoComPosse(db: any, agendamentoId: string, tokenHash: string) {
   const { data } = await db
     .from("agendamentos")
