@@ -42,8 +42,53 @@ export async function conexaoDeEnvio(
   const db = await admin();
   const { data: linhas } = await db
     .from("conexoes_whatsapp")
-    .select("id, sessao_id, status, compartilhada, provedor, tipo")
-    .eq("tenant_id", tenantId);
+    .select("id, sessao_id, status, compartilhada, provedor, tipo, escopo, tenant_id")
+    .eq("tenant_id", tenantId)
+    .eq("escopo", "tenant");
+  if (finalidade === "notificacoes") {
+    const { data: tenant } = await db
+      .from("tenants")
+      .select("notificacoes_whatsapp_ativas, notificacoes_central_habilitada")
+      .eq("id", tenantId)
+      .maybeSingle();
+    const centralHabilitada = tenant?.notificacoes_central_habilitada === true;
+    const { data: central } = centralHabilitada
+      ? await db
+          .from("conexoes_whatsapp")
+          .select("id, sessao_id, status, compartilhada, provedor, tipo, escopo, tenant_id")
+          .eq("escopo", "central")
+          .maybeSingle()
+      : { data: null };
+    const decisao = escolherConexaoDeNotificacao({
+      linhasDoTenant: linhas ?? [],
+      central: central ?? null,
+      ativas: tenant?.notificacoes_whatsapp_ativas !== false,
+      centralHabilitada,
+    });
+    if (decisao.tipo === "desativado") {
+      logConexao("envio_notificacoes_desativadas", { tenantId });
+      return null;
+    }
+    if (decisao.tipo === "propria" || decisao.tipo === "central") {
+      const c = decisao.conexao;
+      if (decisao.tipo === "central") logConexao("envio_pela_central", { tenantId });
+      return {
+        id: c.id,
+        sessao_id: c.sessao_id,
+        compartilhada: false,
+        provedor: c.provedor ?? null,
+        central: decisao.tipo === "central",
+      };
+    }
+    if (decisao.tipo === "falha") {
+      logConexao("envio_notificacoes_indisponivel", { tenantId, motivo: decisao.motivo });
+      if (decisao.avisar === "dono")
+        await sinalizarFalhaDaFinalidade(tenantId, "notificacoes").catch(() => undefined);
+      else await alertarPlataformaCentral(tenantId).catch(() => undefined);
+      return null;
+    }
+    // legado: segue a regra anterior abaixo.
+  }
   const escolha = escolherConexaoPorFinalidade(linhas ?? [], finalidade);
   if (escolha.tipo === "propria") {
     const c = escolha.conexao;
