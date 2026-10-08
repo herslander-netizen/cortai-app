@@ -1425,6 +1425,7 @@ export type Database = {
           conectado_em: string | null
           criado_em: string
           desconectado_em: string | null
+          escopo: string
           id: string
           meta_phone_number_id: string | null
           nome_exibicao: string | null
@@ -1436,7 +1437,7 @@ export type Database = {
           reconexao_tentativas: number
           sessao_id: string
           status: string
-          tenant_id: string
+          tenant_id: string | null
           tipo: string
           ultimo_erro: string | null
           ultimo_evento_em: string | null
@@ -1449,6 +1450,7 @@ export type Database = {
           conectado_em?: string | null
           criado_em?: string
           desconectado_em?: string | null
+          escopo?: string
           id?: string
           meta_phone_number_id?: string | null
           nome_exibicao?: string | null
@@ -1460,7 +1462,7 @@ export type Database = {
           reconexao_tentativas?: number
           sessao_id: string
           status?: string
-          tenant_id: string
+          tenant_id?: string | null
           tipo?: string
           ultimo_erro?: string | null
           ultimo_evento_em?: string | null
@@ -1473,6 +1475,7 @@ export type Database = {
           conectado_em?: string | null
           criado_em?: string
           desconectado_em?: string | null
+          escopo?: string
           id?: string
           meta_phone_number_id?: string | null
           nome_exibicao?: string | null
@@ -1484,7 +1487,7 @@ export type Database = {
           reconexao_tentativas?: number
           sessao_id?: string
           status?: string
-          tenant_id?: string
+          tenant_id?: string | null
           tipo?: string
           ultimo_erro?: string | null
           ultimo_evento_em?: string | null
@@ -4566,6 +4569,8 @@ export type Database = {
           loja_ativa: boolean
           modo: string
           nome: string
+          notificacoes_central_habilitada: boolean
+          notificacoes_whatsapp_ativas: boolean
           passo_horarios_min: number
           plano: string
           plano_escolhido: string | null
@@ -4620,6 +4625,8 @@ export type Database = {
           loja_ativa?: boolean
           modo?: string
           nome: string
+          notificacoes_central_habilitada?: boolean
+          notificacoes_whatsapp_ativas?: boolean
           passo_horarios_min?: number
           plano?: string
           plano_escolhido?: string | null
@@ -4674,6 +4681,8 @@ export type Database = {
           loja_ativa?: boolean
           modo?: string
           nome?: string
+          notificacoes_central_habilitada?: boolean
+          notificacoes_whatsapp_ativas?: boolean
           passo_horarios_min?: number
           plano?: string
           plano_escolhido?: string | null
