@@ -133,17 +133,8 @@ function comPrazo(tarefa: Promise<unknown>, ms: number): Promise<void> {
  * ocupada). Se não concluir no prazo, apaga a sessão local à força para que
  * nenhuma tela a reencontre e devolva a pessoa para dentro do painel.
  */
-async function encerrarSessaoComSeguranca() {
-  esquecerSessao();
-  let concluiu = false;
-  // `scope: "local"` apaga a sessão do aparelho sem esperar a rede.
-  await comPrazo(
-    supabase.auth.signOut({ scope: "local" }).then(({ error }) => {
-      if (!error) concluiu = true;
-    }),
-    1000,
-  );
-  if (concluiu || typeof window === "undefined") return;
+function apagarSessaoLocal() {
+  if (typeof window === "undefined") return;
   try {
     const auth = supabase.auth as unknown as {
       storageKey?: string;
@@ -164,28 +155,34 @@ async function encerrarSessaoComSeguranca() {
   }
 }
 
+/** Apaga a sessão do aparelho na hora; o encerramento formal segue em segundo plano. */
+async function encerrarSessaoComSeguranca() {
+  esquecerSessao();
+  const formal = comPrazo(supabase.auth.signOut({ scope: "local" }), 1000);
+  apagarSessaoLocal();
+  void formal;
+}
+
 let saindoDaConta = false;
 
 export async function sair() {
   // Toques repetidos em "Sair" não disparam saídas concorrentes.
   if (saindoDaConta) return;
   saindoDaConta = true;
+  // Push em segundo plano (melhor esforço), sem segurar a saída.
+  void comPrazo(
+    import("@/lib/push/aparelho").then(({ removerPushDesteAparelho }) =>
+      removerPushDesteAparelho(),
+    ),
+    800,
+  );
   try {
-    // A limpeza do Push usa a sessão ainda válida; tem prazo curto e nunca bloqueia a saída.
-    await comPrazo(
-      import("@/lib/push/aparelho").then(({ removerPushDesteAparelho }) =>
-        removerPushDesteAparelho(),
-      ),
-      800,
-    );
     await encerrarSessaoComSeguranca();
   } finally {
     // `replace`: o Voltar não reabre a tela protegida.
     if (typeof window !== "undefined") {
       window.location.replace("/login");
-      // Se a navegação for bloqueada (iframe/mobile), destrava o botão:
-      // sem isso, todo toque seguinte em "Sair" era ignorado e a tela
-      // ficava presa nas Configurações com a sessão já apagada.
+      // Se a navegação for bloqueada (iframe/mobile), destrava o botão.
       window.setTimeout(() => {
         saindoDaConta = false;
       }, 1500);
