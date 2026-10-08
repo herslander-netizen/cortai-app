@@ -93,10 +93,10 @@ export function decidirAcaoDoMonitor(input: {
 
 /** Uma sessão só envia pelo próprio negócio; o número oficial compartilhado é a única exceção. */
 export function podeEnviarPelaConexao(
-  conexao: { tenant_id: string; compartilhada: boolean | null } | null,
+  conexao: { tenant_id: string | null; compartilhada: boolean | null } | null,
   tenantId: string,
 ) {
-  if (!conexao) return false;
+  if (!conexao || !conexao.tenant_id) return false;
   return conexao.tenant_id === tenantId || conexao.compartilhada === true;
 }
 

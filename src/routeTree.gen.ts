@@ -41,6 +41,7 @@ import { Route as AdminParceirosRouteImport } from './routes/admin.parceiros'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminPerfilRouteImport } from './routes/admin.perfil'
 import { Route as AdminRecursosRouteImport } from './routes/admin.recursos'
+import { Route as AdminWhatsappRouteImport } from './routes/admin.whatsapp'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAgendarRouteImport } from './routes/app.agendar'
@@ -264,6 +265,11 @@ const AdminPerfilRoute = AdminPerfilRouteImport.update({
 const AdminRecursosRoute = AdminRecursosRouteImport.update({
   id: '/recursos',
   path: '/recursos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminWhatsappRoute = AdminWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
   getParentRoute: () => AdminRoute,
 } as any)
 const AgendarSlugRoute = AgendarSlugRouteImport.update({
@@ -614,6 +620,7 @@ export interface FileRoutesByFullPath {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/admin/whatsapp': typeof AdminWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
@@ -707,6 +714,7 @@ export interface FileRoutesByTo {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/admin/whatsapp': typeof AdminWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
@@ -803,6 +811,7 @@ export interface FileRoutesById {
   '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/perfil': typeof AdminPerfilRoute
   '/admin/recursos': typeof AdminRecursosRoute
+  '/admin/whatsapp': typeof AdminWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/app/agendar': typeof AppAgendarRoute
   '/app/carteira': typeof AppCarteiraRoute
@@ -901,6 +910,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/admin/whatsapp'
     | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
@@ -994,6 +1004,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/admin/whatsapp'
     | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
@@ -1089,6 +1100,7 @@ export interface FileRouteTypes {
     | '/admin/pedidos'
     | '/admin/perfil'
     | '/admin/recursos'
+    | '/admin/whatsapp'
     | '/agendar/$slug'
     | '/app/agendar'
     | '/app/carteira'
@@ -1423,6 +1435,13 @@ declare module '@tanstack/react-router' {
       path: '/recursos'
       fullPath: '/admin/recursos'
       preLoaderRoute: typeof AdminRecursosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/whatsapp': {
+      id: '/admin/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/admin/whatsapp'
+      preLoaderRoute: typeof AdminWhatsappRouteImport
       parentRoute: typeof AdminRoute
     }
     '/agendar/$slug': {
@@ -1875,6 +1894,7 @@ interface AdminRouteChildren {
   AdminPedidosRoute: typeof AdminPedidosRoute
   AdminPerfilRoute: typeof AdminPerfilRoute
   AdminRecursosRoute: typeof AdminRecursosRoute
+  AdminWhatsappRoute: typeof AdminWhatsappRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -1891,6 +1911,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPedidosRoute: AdminPedidosRoute,
   AdminPerfilRoute: AdminPerfilRoute,
   AdminRecursosRoute: AdminRecursosRoute,
+  AdminWhatsappRoute: AdminWhatsappRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

@@ -149,7 +149,7 @@ export async function conexaoPorSessao(sessaoId: string) {
   const { data } = await db
     .from("conexoes_whatsapp")
     .select(
-      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo",
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo, escopo",
     )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
@@ -461,8 +461,29 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "verificacao_equipe" };
     }
   }
-  let tenantId = conexao.tenant_id;
-  if ((conexao as { compartilhada?: boolean }).compartilhada) {
+  // Central de Notificações da plataforma: sem negócio próprio; o negócio vem do
+  // aviso enviado ao telefone (mesma regra do número compartilhado). Nunca conversa com IA.
+  const ehCentral = conexao.escopo === "central" || !conexao.tenant_id;
+  let tenantId: string = conexao.tenant_id ?? "";
+  if (ehCentral) {
+    const r = await negocioDoNumeroCompartilhado(
+      telefone,
+      input.tipo === "text" ? input.conteudo : "",
+      input.citadaId ?? null,
+    );
+    if ("semContexto" in r) {
+      const { gatewayDoProvedor } = await import("./gateway.server");
+      await gatewayDoProvedor(conexao.provedor ?? null)
+        .enviarMensagem(
+          input.sessaoId,
+          telefone,
+          r.menu ?? "Este número envia apenas avisos dos estabelecimentos atendidos pelo Cortaí.",
+        )
+        .catch(() => undefined);
+      return { tratada: true, motivo: "central_sem_contexto" };
+    }
+    tenantId = r.tenantId;
+  } else if ((conexao as { compartilhada?: boolean }).compartilhada && conexao.tenant_id) {
     const r = await negocioDoNumeroCompartilhado(
       telefone,
       input.tipo === "text" ? input.conteudo : "",
@@ -589,10 +610,11 @@ export async function processarMensagemRecebida(input: {
       .eq("tipo", "atendimento")
       .eq("compartilhada", false)
       .maybeSingle();
-    if (atendimento) {
-      const orientacao = atendimento.numero
+    if (atendimento || ehCentral) {
+      const orientacao = atendimento?.numero
         ? `Este número envia apenas avisos. Para conversar, fale com o CortAI — Assistente Virtual no WhatsApp ${atendimento.numero}.`
         : "Este número envia apenas avisos. Para conversar, use o WhatsApp de atendimento do estabelecimento.";
+      // Central: além da orientação, nada vai para a IA (só comandos 1/2/3 acima).
       const desdeAviso = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
       const { data: jaAvisado } = await db
         .from("mensagens_whatsapp")
@@ -747,6 +769,15 @@ export async function atualizarEstadoDaConexao(
       para: status,
       origem: estado.origem,
     });
+    if (!conexao.tenant_id) {
+      await db.from("alertas_da_plataforma").insert({
+        origem: "whatsapp_central",
+        nivel: status === "conectado" ? "info" : "critico",
+        titulo: `Central de Notificações: ${status}`,
+        detalhes: { origem: estado.origem ?? null },
+      });
+      return true;
+    }
     await db.from("auditoria_da_barbearia").insert({
       tenant_id: conexao.tenant_id,
       ator_user_id: null,

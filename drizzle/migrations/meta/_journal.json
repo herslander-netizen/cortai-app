@@ -162,6 +162,13 @@
       "when": 1791460879933,
       "tag": "0022_conexoes_whatsapp_tipo",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791470826293,
+      "tag": "0023_conexao_central_notificacoes",
+      "breakpoints": true
     }
   ]
 }

@@ -56,6 +56,12 @@ export type PainelDoCortai = {
   conversasComHumano: number;
   /** O usuário atual pode administrar a conexão do WhatsApp? */
   podeGerenciarWhatsapp: boolean;
+  /** Interruptor "Notificações pelo WhatsApp" (fonte única: tenants). */
+  notificacoesAtivas: boolean;
+  /** Notificações saem pelo número central do Cortaí (sem dados técnicos dele). */
+  notificacoesPelaCentral: boolean;
+  /** Existe hoje um número pronto para enviar as notificações deste negócio? */
+  envioDeNotificacoesDisponivel: boolean;
 };
 
 export type EnvioDaSecretaria = {
@@ -133,8 +139,9 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       ativas,
       humanas,
       { data: podeGerenciarWhatsapp },
+      { data: tenantFlags },
     ] = await Promise.all([
-      db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId),
+      db.from("conexoes_whatsapp").select("*").eq("tenant_id", tenantId).eq("escopo", "tenant"),
       configuracaoDoTenant(tenantId),
       db.from("automacoes_de_ia").select("chave, ativa, mensagem").eq("tenant_id", tenantId),
       db
@@ -151,7 +158,26 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
         _tenant_id: tenantId,
         _permission: "gerenciar_whatsapp",
       }),
+      db
+        .from("tenants")
+        .select("notificacoes_whatsapp_ativas, notificacoes_central_habilitada")
+        .eq("id", tenantId)
+        .maybeSingle(),
     ]);
+    const propriaNotif = linhaDoTipo(conexoes, "notificacoes");
+    const pelaCentral = !propriaNotif && tenantFlags?.notificacoes_central_habilitada === true;
+    let envioDisponivel = false;
+    if (propriaNotif) envioDisponivel = propriaNotif.status === "conectado";
+    else if (pelaCentral) {
+      const { data: central } = await db
+        .from("conexoes_whatsapp")
+        .select("status")
+        .eq("escopo", "central")
+        .maybeSingle();
+      envioDisponivel = central?.status === "conectado";
+    } else {
+      envioDisponivel = (conexoes ?? []).some((c) => c.status === "conectado");
+    }
 
     const salvas = new Map((automacoes ?? []).map((a) => [a.chave, a]));
     return {
@@ -170,6 +196,9 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       conversasAtivas: ativas.count ?? 0,
       conversasComHumano: humanas.count ?? 0,
       podeGerenciarWhatsapp: podeGerenciarWhatsapp === true,
+      notificacoesAtivas: tenantFlags?.notificacoes_whatsapp_ativas !== false,
+      notificacoesPelaCentral: pelaCentral,
+      envioDeNotificacoesDisponivel: envioDisponivel,
     };
   });
 
@@ -861,4 +890,27 @@ export const getRemetenteOficial = createServerFn({ method: "GET" })
       numero: estado.numero ?? null,
       erro: estado.status === "erro" ? "Não foi possível confirmar o número agora." : null,
     };
+  });
+
+/** Liga/desliga "Notificações pelo WhatsApp" do negócio. Não mexe no rollout da Central. */
+export const definirNotificacoesWhatsapp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ ativas: z.boolean() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    const db = await admin();
+    const { error } = await db
+      .from("tenants")
+      .update({ notificacoes_whatsapp_ativas: data.ativas })
+      .eq("id", tenantId);
+    if (error) throw new Error(error.message);
+    await db.from("auditoria_da_barbearia").insert({
+      tenant_id: tenantId,
+      ator_user_id: context.userId,
+      acao: data.ativas ? "notificacoes_whatsapp.ativadas" : "notificacoes_whatsapp.desativadas",
+      alvo: tenantId,
+      detalhes: {},
+    });
+    return { ok: true as const };
   });
