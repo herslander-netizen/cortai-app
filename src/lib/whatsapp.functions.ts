@@ -552,8 +552,11 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
           .from("conexoes_whatsapp")
           .update({
             status: estado.status,
-            qr_code: conectou ? null : (estado.qrCode ?? atual.qr_code),
-            qr_expira_em: conectou ? null : (estado.qrExpiraEm ?? atual.qr_expira_em),
+            ...(await import("@/lib/whatsapp/qr-conexao")).qrAposEstado(
+              estado.status,
+              estado,
+              atual,
+            ),
             numero: estado.numero ?? atual.numero,
             nome_exibicao: estado.nomeExibicao ?? atual.nome_exibicao,
             conectado_em: conectou

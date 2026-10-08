@@ -743,8 +743,7 @@ export async function atualizarEstadoDaConexao(
     .from("conexoes_whatsapp")
     .update({
       status,
-      qr_code: status === "qr_pronto" ? (estado.qrCode ?? null) : null,
-      qr_expira_em: status === "qr_pronto" ? (estado.qrExpiraEm ?? null) : null,
+      ...(await import("./qr-conexao")).qrAposEstado(status, estado, conexao),
       numero: novo.numero,
       nome_exibicao: novo.nome_exibicao,
       ultimo_erro: estado.erro ?? null,
