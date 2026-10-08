@@ -47,8 +47,8 @@ const grupos = [
       },
       {
         to: "/admin/whatsapp",
-        label: "WhatsApp Central",
-        detail: "Número oficial de notificações e liberação por estabelecimento",
+        label: "WhatsApp",
+        detail: "Conexão, QR Code e notificações de cada estabelecimento",
         icon: MessageCircle,
       },
     ],
