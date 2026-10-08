@@ -17,10 +17,14 @@ describe("qrAposEstado", () => {
     expect(qrAposEstado("conectado", { qrCode: "X" }, atual, agora).qr_code).toBeNull();
   });
   it("D: QR expirado é removido", () => {
-    expect(qrAposEstado("conectando", {}, { qr_code: "Q", qr_expira_em: passado }, agora).qr_code).toBeNull();
+    expect(
+      qrAposEstado("conectando", {}, { qr_code: "Q", qr_expira_em: passado }, agora).qr_code,
+    ).toBeNull();
   });
   it("QR novo substitui o anterior", () => {
-    expect(qrAposEstado("qr_pronto", { qrCode: "QR2", qrExpiraEm: futuro }, atual, agora).qr_code).toBe("QR2");
+    expect(
+      qrAposEstado("qr_pronto", { qrCode: "QR2", qrExpiraEm: futuro }, atual, agora).qr_code,
+    ).toBe("QR2");
   });
   it("desconectado limpa", () => {
     expect(qrAposEstado("desconectado", {}, atual, agora).qr_code).toBeNull();
