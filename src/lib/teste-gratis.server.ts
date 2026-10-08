@@ -235,7 +235,7 @@ function textoDaRegua(dia: number, restam: number, n?: { lembretes: number; onli
   if (dia === 40)
     return {
       titulo: `Restam ${restam} dias de teste`,
-      corpo: "Escolha seu plano para não perder o WhatsApp automático e a Secretária.",
+      corpo: "Escolha seu plano para não perder o WhatsApp automático.",
     };
   return {
     titulo: "Seu teste termina amanhã",

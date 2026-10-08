@@ -848,7 +848,7 @@ async function responderComCerebro(input: {
     persona: {
       nome: equipe
         ? `o CortAI${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
-        : `a secretária de ${tenant?.nome ?? "o negócio"}`,
+        : `o atendimento de ${tenant?.nome ?? "o negócio"}`,
       negocio: tenant?.nome ?? "o negócio",
       segmento: tenant?.segmento ?? null,
       tom: config.tom ?? null,

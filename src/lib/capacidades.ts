@@ -110,7 +110,7 @@ export const CAPACIDADES: readonly Capacidade[] = [
   },
   {
     chave: "cortai_whatsapp",
-    rotulo: "Secretária Cortaí e WhatsApp",
+    rotulo: "WhatsApp do Cortaí",
     detalhe: "Confirmações e avisos automáticos",
     grupo: "operacao",
     recurso: "secretaria_whatsapp",

@@ -109,7 +109,7 @@ export const MODULOS_DE_NAVEGACAO = [
   {
     grupo: "Clientes e marca",
     to: "/barbeiro/cortai",
-    label: "Secretária",
+    label: "WhatsApp",
     detail: "Conexão, notificações e experiência",
     icon: MessageCircle,
     permissao: "ver_cortai",
@@ -174,7 +174,7 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
     ],
   },
   {
-    titulo: "Secretária",
+    titulo: "WhatsApp",
     abas: [
       { to: "/barbeiro/cortai", label: "CortAI — Assistente Virtual", permissao: "ver_cortai" },
       { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },

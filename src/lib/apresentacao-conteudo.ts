@@ -65,8 +65,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     texto: "Histórico, preferências e frequência ficam organizados para o próximo encontro.",
   },
   secretaria: {
-    etiqueta: "SECRETÁRIA CORTAÍ",
-    titulo: "Enquanto você atende, sua Secretária cuida dos agendamentos.",
+    etiqueta: "WHATSAPP CORTAÍ",
+    titulo: "Enquanto você atende, seu WhatsApp cuida dos agendamentos.",
     texto:
       "Uma experiência clara para o cliente escolher atendimento, profissional, dia e horário.",
   },
@@ -101,12 +101,12 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     },
     {
       pergunta: "Meus clientes podem agendar sozinhos?",
-      resposta: "Sim, a partir do plano Conecta, usando a página e a Secretária Cortaí.",
+      resposta: "Sim, a partir do plano Conecta, usando a página e o WhatsApp do Cortaí.",
     },
     {
       pergunta: "O WhatsApp está em todos os planos?",
       resposta:
-        "Durante o teste, sim. Depois, WhatsApp, Secretária e lembretes automáticos ficam no Conecta e no Studio.",
+        "Durante o teste, sim. Depois, WhatsApp e lembretes automáticos ficam no Conecta e no Studio.",
     },
     {
       pergunta: "Preciso de cartão?",
