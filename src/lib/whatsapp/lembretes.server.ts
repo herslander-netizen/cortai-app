@@ -44,6 +44,10 @@ export type RespostaDeLembrete = {
   texto: string;
 };
 
+export const TEXTO_SAIR_SEM_CADASTRO =
+  "Não consegui localizar seu cadastro para parar os lembretes. Vou passar seu pedido para a equipe do estabelecimento.";
+export const TEXTO_FALHA_TRANSITORIA = "Não consegui processar agora. Tente novamente em instantes.";
+
 const SAIR = new Set(["sair", "parar", "cortai_sair", "descadastrar", "nao quero mais receber"]);
 
 /** Identifica e executa a resposta a um lembrete. `null` = não é resposta a lembrete. */
@@ -62,11 +66,17 @@ export async function tratarRespostaDeLembrete(input: {
 
   // Pedido de saída vale sempre, com ou sem lembrete recente.
   if (SAIR.has(t)) {
-    await db
+    const { variantesDoTelefone } = await import("@/lib/telefone");
+    const { data: alterados, error } = await db
       .from("clientes")
       .update({ opt_in_whatsapp: false })
       .eq("tenant_id", input.tenantId)
-      .eq("telefone", input.telefone);
+      .in("telefone", variantesDoTelefone(input.telefone))
+      .select("id");
+    if (error || !alterados || alterados.length === 0) {
+      if (error) console.error("[lembretes] SAIR falhou:", error.message);
+      return { texto: TEXTO_SAIR_SEM_CADASTRO, encaminharHumano: true };
+    }
     return {
       texto:
         "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
