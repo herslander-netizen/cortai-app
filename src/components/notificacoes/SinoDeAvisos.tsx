@@ -397,7 +397,7 @@ export function SinoDeAvisos() {
           <span
             aria-hidden
             className={`pointer-events-none absolute right-0.5 top-0.5 flex min-w-5 items-center justify-center rounded-full px-1 font-bold leading-none ring-2 ring-background ${
-              forte ? "h-5 text-[12px]" : "h-4 min-w-4 text-[10px]"
+              forte ? "h-5 text-[12px]" : "h-4 min-w-4 bg-mute text-[10px] text-background"
             }`}
             style={
               forte
@@ -405,9 +405,7 @@ export function SinoDeAvisos() {
                 : undefined
             }
           >
-            <span className={forte ? "" : "rounded-full bg-mute px-1 text-background"}>
-              {naoLidas > 9 ? "9+" : naoLidas}
-            </span>
+            {naoLidas > 9 ? "9+" : naoLidas}
           </span>
         ) : null}
       </Button>
