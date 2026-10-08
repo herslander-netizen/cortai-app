@@ -11,6 +11,8 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
+import { segredoDoCabecalho } from "@/lib/whatsapp/segredo-webhook";
+
 async function segredoConfere(recebido: string | null, segredo: string) {
   if (!recebido) return false;
   const { timingSafeEqual } = await import("node:crypto");
@@ -60,12 +62,8 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           return new Response("Webhook secret not configured", { status: 503 });
         }
         {
-          const recebido =
-            request.headers.get("x-webhook-secret") ??
-            request.headers.get("apikey") ??
-            request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-            new URL(request.url).searchParams.get("token") ??
-            null;
+          // Só por cabeçalho: segredo na URL aparece em log.
+          const recebido = segredoDoCabecalho(request.headers);
           if (!(await segredoConfere(recebido, segredo))) {
             return guard.rejeitar(
               request,

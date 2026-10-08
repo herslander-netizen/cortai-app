@@ -78,7 +78,7 @@ async function registrarFalhaDaVarredura(erro: unknown) {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("alertas_da_plataforma").insert({
       origem: "whatsapp",
-      nivel: "atencao",
+      nivel: "critico",
       titulo: "Varredura de automações do WhatsApp falhou",
       detalhes: { motivo },
     });
