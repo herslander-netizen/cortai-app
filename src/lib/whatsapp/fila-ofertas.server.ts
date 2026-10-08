@@ -277,7 +277,7 @@ async function enviarOferta(ofertaId: string) {
   const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
 
   const { conexaoDeEnvio, SEM_WHATSAPP_DISPONIVEL } = await import("./conexao-envio.server");
-  const conexao = await conexaoDeEnvio(o.tenant_id);
+  const conexao = await conexaoDeEnvio(o.tenant_id, "notificacoes");
   const nome = (cli?.nome ?? "").split(/\s+/)[0];
   const prazo = partes(o.expira_em, fuso).hora;
   const { data: tenant } = await db

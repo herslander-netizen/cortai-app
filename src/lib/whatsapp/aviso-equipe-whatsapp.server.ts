@@ -30,7 +30,7 @@ export async function avisarEquipePorWhatsapp(input: {
   try {
     const db = await admin();
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
-    const conexao = await conexaoDeEnvio(input.tenantId);
+    const conexao = await conexaoDeEnvio(input.tenantId, "notificacoes");
     if (!conexao) {
       for (const d of input.destinatarios) resultado[d.userId] = { enviar: false, motivo: "sem_conexao" };
       return resultado;

@@ -58,7 +58,7 @@ export async function avisarClienteDoAtraso(input: {
   if (!telefone) return { enviado: false, motivo: "Cliente sem telefone.", cliente };
   try {
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
-    const conexao = await conexaoDeEnvio(input.tenantId);
+    const conexao = await conexaoDeEnvio(input.tenantId, "notificacoes");
     if (!conexao) return { enviado: false, motivo: "Nenhum WhatsApp disponível.", cliente };
     const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
     const conversa = await conversaDoTelefone({

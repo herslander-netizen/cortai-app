@@ -498,7 +498,7 @@ export async function processarMensagemRecebida(input: {
     tenantId = r.tenantId;
     // Uma conversa, um remetente: responde pela conexão do negócio escolhido.
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
-    const doNegocio = await conexaoDeEnvio(tenantId);
+    const doNegocio = await conexaoDeEnvio(tenantId, "atendimento");
     if (doNegocio) {
       conexao = {
         ...conexao,
