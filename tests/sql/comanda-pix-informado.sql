@@ -17,11 +17,11 @@ BEGIN
   ASSERT st='aguardando_pagamento', 'preparar Pix não pode mudar status: '||st;
 
   -- a) cliente informa => não vira paga
-  r := informar_pagamento_pix_cliente(ag);
+  r := informar_pagamento_pix_cliente(ag, (SELECT preferencias_token_hash FROM agendamentos WHERE id=ag));
   SELECT status INTO st FROM comandas WHERE id=pix_c;
   ASSERT st='aguardando_confirmacao_pix', 'cliente informou: '||st;
   -- c) repetido => idempotente, nenhum pagamento
-  r := informar_pagamento_pix_cliente(ag);
+  r := informar_pagamento_pix_cliente(ag, (SELECT preferencias_token_hash FROM agendamentos WHERE id=ag));
   ASSERT (r->>'idempotente')::boolean, 'segunda chamada deve ser idempotente';
   SELECT count(*) INTO n FROM pagamentos WHERE comanda_id=pix_c AND status='confirmado';
   ASSERT n=0, 'cliente não pode gerar pagamento confirmado';
@@ -39,12 +39,12 @@ BEGIN
   SELECT count(*) INTO n FROM pagamentos WHERE comanda_id=pix_c AND status='confirmado'; ASSERT n=1, 'pagamentos: '||n;
   SELECT count(*) INTO n FROM caixa_movimentos WHERE comanda_id=pix_c; ASSERT n=1, 'caixa: '||n;
   -- cliente depois de paga: nada muda
-  r := informar_pagamento_pix_cliente(ag);
+  r := informar_pagamento_pix_cliente(ag, (SELECT preferencias_token_hash FROM agendamentos WHERE id=ag));
   SELECT status INTO st FROM comandas WHERE id=pix_c; ASSERT st='paga';
 
   -- f) dinheiro continua direto; cliente não consegue "Já paguei" em comanda que não é Pix
   UPDATE agendamentos SET forma_pagamento='balcao' WHERE id=(SELECT agendamento_id FROM comandas WHERE id=din_c);
-  r := informar_pagamento_pix_cliente((SELECT agendamento_id FROM comandas WHERE id=din_c));
+  r := informar_pagamento_pix_cliente((SELECT agendamento_id FROM comandas WHERE id=din_c), (SELECT preferencias_token_hash FROM agendamentos WHERE id=(SELECT agendamento_id FROM comandas WHERE id=din_c)));
   ASSERT r->>'motivo'='nao_pix', 'dinheiro: '||r::text;
   r := confirmar_pagamento_comanda_segura(dono, din_c, 'dinheiro', false);
   SELECT status INTO st FROM comandas WHERE id=din_c; ASSERT st='paga';

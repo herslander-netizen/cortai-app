@@ -438,7 +438,13 @@ function AgendamentoPublico() {
                     />
                   )
                 ) : null}
-                <TicketDaConfirmacao agendamentoId={confirmado.agendamentoId} slug={slug} />
+                {confirmado.preferenciasToken ? (
+                  <TicketDaConfirmacao
+                    agendamentoId={confirmado.agendamentoId}
+                    token={confirmado.preferenciasToken}
+                    slug={slug}
+                  />
+                ) : null}
                 <ConviteDeConta agendamentoId={confirmado.agendamentoId} telefone={telefone} />
               </>
             ) : null
