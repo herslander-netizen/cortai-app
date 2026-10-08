@@ -332,6 +332,17 @@
   --identity-deep: #332b1f;
 }
 
+/* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
+:root {
+  --sino-atencao: #ff1670;
+  --sino-badge: #d90b58; /* texto branco >= 4.5:1 */
+  --sino-badge-texto: #ffffff;
+}
+:root.light {
+  --sino-atencao: #d90b58;
+  --sino-badge: #d90b58;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
