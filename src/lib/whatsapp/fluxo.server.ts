@@ -418,6 +418,9 @@ async function vincularCliente(
 }
 
 /** Trata uma mensagem recebida do gateway. */
+export const TEXTO_PEDIR_ESCRITA =
+  "Ainda não consigo ouvir áudios por aqui. Pode me escrever sua mensagem, por favor?";
+
 export async function processarMensagemRecebida(input: {
   sessaoId: string;
   mensagemExternaId: string | null;
@@ -613,6 +616,19 @@ export async function processarMensagemRecebida(input: {
       }
       return { tratada: true, motivo: "canal_de_notificacoes" };
     }
+  }
+  // Áudio: ainda sem transcrição automática — pede para escrever (texto fixo).
+  if (input.tipo === "audio") {
+    await enviarPelaBarbearia({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: conexao.sessao_id,
+      telefone,
+      texto: TEXTO_PEDIR_ESCRITA,
+      porIa: false,
+    }).catch(() => undefined);
+    return { tratada: true, motivo: "audio_pedir_texto" };
   }
   // CortAI — Assistente Virtual: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
   if (input.tipo === "text" && input.conteudo.trim()) {

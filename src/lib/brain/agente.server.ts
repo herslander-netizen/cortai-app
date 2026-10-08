@@ -10,7 +10,13 @@
  * - nunca diz "agendado" sem o backend devolver sucesso;
  * - não existe ação de pagamento: recebimento é sempre conferido pela equipe.
  */
-import { ACOES, acaoPermitida, ehEquipeNoWhatsapp, ferramentasDoContexto, type ContextoDoCerebro } from "./acoes.server";
+import {
+  ACOES,
+  acaoPermitida,
+  ehEquipeNoWhatsapp,
+  ferramentasDoContexto,
+  type ContextoDoCerebro,
+} from "./acoes.server";
 import {
   criarSessaoDoGateway,
   ErroDoGateway,
@@ -18,8 +24,13 @@ import {
   type ItemDeEntrada,
 } from "./gateway.server";
 import {
+  barrarAfirmacaoSemAcao,
   confirmacaoInequivoca,
+  ehNumeroSolto,
   pedidoNocivo,
+  TEXTO_PEDIR_SIM_OU_NAO,
+  TEXTO_RECUSA_DA_PENDENTE,
+  textoDoResultado,
   pendenteValida,
   recusaInequivoca,
   RESPOSTA_RECUSA,
@@ -152,25 +163,62 @@ export async function pensarCortai(input: {
   let pedirHumano = false;
 
   if (pedidoNocivo(input.mensagem)) {
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true, erro: "bloqueado" });
-    return { texto: RESPOSTA_RECUSA, pendente: null, pedirHumano: false, acoes, indisponivel: null };
+    await registrarTurno({
+      tenantId: ctx.tenantId,
+      canal: ctx.canal,
+      equipe: ehEquipeNoWhatsapp(ctx),
+      ator: ctx.ator,
+      conversaId,
+      acoes,
+      sucesso: true,
+      erro: "bloqueado",
+    });
+    return {
+      texto: RESPOSTA_RECUSA,
+      pendente: null,
+      pedirHumano: false,
+      acoes,
+      indisponivel: null,
+    };
   }
 
   // 1) Ação pendente: só executa com confirmação inequívoca, uma única vez.
-  let notaDoSistema: string | null = null;
-  const anterior = input.pendente && pendenteValida(input.pendente.criadaEm) ? input.pendente : null;
+  // O resultado é comunicado por texto FIXO do sistema, nunca escrito pela IA.
+  const anterior =
+    input.pendente && pendenteValida(input.pendente.criadaEm) ? input.pendente : null;
+  const fim = async (texto: string, novaPendente: Pendente | null, erro?: string) => {
+    await registrarTurno({
+      tenantId: ctx.tenantId,
+      canal: ctx.canal,
+      equipe: ehEquipeNoWhatsapp(ctx),
+      ator: ctx.ator,
+      conversaId,
+      acoes,
+      sucesso: !erro,
+      ...(erro ? { erro } : {}),
+    });
+    return { texto, pendente: novaPendente, pedirHumano: false, acoes, indisponivel: null };
+  };
+  if (anterior && ehNumeroSolto(input.mensagem)) {
+    // Número solto nunca confirma ação da IA: mantém a pendente e pede SIM/NÃO.
+    return fim(TEXTO_PEDIR_SIM_OU_NAO, anterior);
+  }
   if (anterior && confirmacaoInequivoca(input.mensagem)) {
     try {
-      const resultado = await executarAcao(ctx, anterior.acao, anterior.dados, conversaId);
+      await executarAcao(ctx, anterior.acao, anterior.dados, conversaId);
       acoes.push({ nome: anterior.acao, sucesso: true });
-      notaDoSistema = `O sistema EXECUTOU com sucesso: ${anterior.resumo} Resultado: ${JSON.stringify(resultado).slice(0, 600)}. Informe a pessoa de forma curta.`;
+      return fim(textoDoResultado({ sucesso: true, resumo: anterior.resumo }), null);
     } catch (erro) {
       const msg = erro instanceof Error ? erro.message : "Falha.";
       acoes.push({ nome: anterior.acao, sucesso: false, erro: msg });
-      notaDoSistema = `A ação NÃO foi executada (${anterior.resumo}). Motivo: ${msg}. Explique e ofereça alternativas reais (consulte a disponibilidade se for horário).`;
+      return fim(
+        textoDoResultado({ sucesso: false, resumo: anterior.resumo, motivo: msg }),
+        null,
+        msg,
+      );
     }
   } else if (anterior && recusaInequivoca(input.mensagem)) {
-    notaDoSistema = `A pessoa NÃO confirmou: ${anterior.resumo} Nada foi alterado. Pergunte como prefere seguir.`;
+    return fim(TEXTO_RECUSA_DA_PENDENTE, null);
   }
 
   const entrada: ItemDeEntrada[] = [
@@ -179,7 +227,6 @@ export async function pensarCortai(input: {
       content: t.texto,
     })),
     { role: "user", content: input.mensagem },
-    ...(notaDoSistema ? [{ role: "developer", content: notaDoSistema }] : []),
   ];
 
   const gateway = criarSessaoDoGateway();
@@ -191,11 +238,26 @@ export async function pensarCortai(input: {
       const saida = await gateway.responder({ instrucoes: texto0, entrada, ferramentas });
       const chamadas = saida.filter((i) => i["type"] === "function_call");
       if (!chamadas.length) {
-        const texto = textoDaSaida(saida);
+        // Barreira: escritas nunca rodam dentro deste ciclo, então qualquer
+        // "confirmado/agendado/cancelado" escrito pela IA aqui é falso.
+        const texto = barrarAfirmacaoSemAcao(
+          textoDaSaida(saida),
+          (pendente as Pendente | null)?.resumo ?? null,
+        );
         await retomarIa(ctx.tenantId);
-        await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: true });
+        await registrarTurno({
+          tenantId: ctx.tenantId,
+          canal: ctx.canal,
+          equipe: ehEquipeNoWhatsapp(ctx),
+          ator: ctx.ator,
+          conversaId,
+          acoes,
+          sucesso: true,
+        });
         return {
-          texto: texto || (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
+          texto:
+            texto ||
+            (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
           pendente,
           pedirHumano,
           acoes,
@@ -220,15 +282,27 @@ export async function pensarCortai(input: {
             saidaDaAcao = { ok: false, erro: "Já existe uma ação aguardando confirmação." };
           } else {
             try {
-              const resumo = def.resumir ? await def.resumir(ctx, dados as Record<string, any>) : nome;
-              pendente = { id: crypto.randomUUID(), acao: nome, dados, resumo, criadaEm: new Date().toISOString() };
+              const resumo = def.resumir
+                ? await def.resumir(ctx, dados as Record<string, any>)
+                : nome;
+              pendente = {
+                id: crypto.randomUUID(),
+                acao: nome,
+                dados,
+                resumo,
+                criadaEm: new Date().toISOString(),
+              };
               saidaDaAcao = {
                 status: "aguardando_confirmacao",
                 resumo,
-                instrucao: "Mostre o resumo e pergunte se pode confirmar. Nada foi executado ainda.",
+                instrucao:
+                  "Mostre o resumo e pergunte se pode confirmar. Nada foi executado ainda.",
               };
             } catch (erro) {
-              saidaDaAcao = { ok: false, erro: erro instanceof Error ? erro.message : "Dados inválidos." };
+              saidaDaAcao = {
+                ok: false,
+                erro: erro instanceof Error ? erro.message : "Dados inválidos.",
+              };
             }
           }
         } else if (def.risco === "controle") {
@@ -252,9 +326,20 @@ export async function pensarCortai(input: {
         });
       }
     }
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: "passos_esgotados" });
+    await registrarTurno({
+      tenantId: ctx.tenantId,
+      canal: ctx.canal,
+      equipe: ehEquipeNoWhatsapp(ctx),
+      ator: ctx.ator,
+      conversaId,
+      acoes,
+      sucesso: false,
+      erro: "passos_esgotados",
+    });
     return {
-      texto: pendente ? `${(pendente as Pendente).resumo} Posso confirmar?` : "Não consegui concluir agora. Pode reformular?",
+      texto: pendente
+        ? `${(pendente as Pendente).resumo} Posso confirmar?`
+        : "Não consegui concluir agora. Pode reformular?",
       pendente,
       pedirHumano,
       acoes,
@@ -263,12 +348,21 @@ export async function pensarCortai(input: {
   } catch (erro) {
     const status = erro instanceof ErroDoGateway ? erro.status : 500;
     const msg = erro instanceof Error ? erro.message : "IA indisponível.";
-    if (erro instanceof ErroDoGateway && erro.semCredito) await pausarIa(ctx.tenantId, `gateway_${status}`);
-    await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: false, erro: msg });
+    if (erro instanceof ErroDoGateway && erro.semCredito)
+      await pausarIa(ctx.tenantId, `gateway_${status}`);
+    await registrarTurno({
+      tenantId: ctx.tenantId,
+      canal: ctx.canal,
+      equipe: ehEquipeNoWhatsapp(ctx),
+      ator: ctx.ator,
+      conversaId,
+      acoes,
+      sucesso: false,
+      erro: msg,
+    });
     // Se a ação confirmada já rodou, a pessoa precisa saber o resultado real.
-    const executada = acoes.find((a) => a.sucesso && anterior && a.nome === anterior.acao);
     return {
-      texto: executada && anterior ? `Pronto, feito: ${anterior.resumo}` : msg,
+      texto: msg,
       pendente: null,
       pedirHumano: false,
       acoes,
