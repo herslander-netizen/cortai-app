@@ -52,7 +52,7 @@ export function escolherConexaoPorFinalidade<T extends ConexaoPropria>(
     return { tipo: "propria", conexao: daFinalidade, legado: false };
   }
   if (proprias.length === 1) {
-    const unica = proprias[0];
+    const unica = proprias[0] as T;
     if (unica.status === "conectado") {
       return { tipo: "propria", conexao: unica, legado: tipoValido(unica.tipo) !== finalidade };
     }
