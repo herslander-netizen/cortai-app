@@ -169,6 +169,13 @@
       "when": 1791470826293,
       "tag": "0023_conexao_central_notificacoes",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791481272834,
+      "tag": "0024_pix_informado_exige_token",
+      "breakpoints": true
     }
   ]
 }
