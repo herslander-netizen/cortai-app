@@ -16,7 +16,7 @@ const LIMITE_POR_EXECUCAO = 300;
 
 type Linha = {
   id: string;
-  tenant_id: string;
+  tenant_id: string | null;
   sessao_id: string;
   provedor: string | null;
   status: string;
@@ -37,11 +37,31 @@ function comPrazo<T>(p: Promise<T>, ms = PRAZO_MS): Promise<T> {
 }
 
 async function avisarDono(linha: Linha, tipo: "queda" | "qr") {
+  if (!linha.tenant_id) {
+    // Central da plataforma: o alerta vai para o Admin, nunca para um negócio.
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { data: aberto } = await db
+      .from("alertas_da_plataforma")
+      .select("id")
+      .eq("origem", "whatsapp_central")
+      .is("resolvido_em", null)
+      .eq("titulo", tipo === "qr" ? "Central de Notificações pede QR Code" : "Central de Notificações desconectada")
+      .limit(1)
+      .maybeSingle();
+    if (!aberto)
+      await db.from("alertas_da_plataforma").insert({
+        origem: "whatsapp_central",
+        nivel: "critico",
+        titulo: tipo === "qr" ? "Central de Notificações pede QR Code" : "Central de Notificações desconectada",
+        detalhes: { sessao: linha.sessao_id },
+      });
+    return;
+  }
   const { emitirAviso } = await import("@/lib/avisos/emitir.server");
   const { ROTULO_DO_TIPO, tipoValido } = await import("./finalidade-conexao");
   const rotulo = ROTULO_DO_TIPO[tipoValido(linha.tipo)];
   await emitirAviso({
-    tenantId: linha.tenant_id,
+    tenantId: linha.tenant_id as string,
     evento: "whatsapp_conexao",
     titulo: tipo === "qr" ? `${rotulo} pede novo QR Code` : `${rotulo} desconectado`,
     corpo:
