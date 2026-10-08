@@ -1,3 +1,4 @@
+import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
 import { Check, Clock3 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
