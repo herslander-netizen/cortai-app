@@ -60,7 +60,7 @@ const AFIRMA_CONCLUSAO = [
   new RegExp(`\\b(foi|foram|ficou|ficaram|esta|estao|ta|tao|ja|segue|seguem)\\s+(devidamente\\s+|tudo\\s+)?${PARTICIPIO}\\b`),
   new RegExp(`\\b${PARTICIPIO} com sucesso\\b`),
   new RegExp(`^(pronto|feito|perfeito|certo|tudo certo|ok|beleza)\\b.{0,40}\\b${PARTICIPIO}\\b`),
-  new RegExp(`^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\b`),
+  new RegExp(`^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\s*$`),
 ];
 
 /** Frase negada logo antes da afirmação ("ainda não foi confirmado"). */
