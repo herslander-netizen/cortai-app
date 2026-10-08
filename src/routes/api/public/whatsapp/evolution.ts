@@ -2,12 +2,9 @@
  * Entrada dos avisos da Evolution API para o Cortaí.
  *
  * Segurança:
- * - se `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`) estiver
- *   configurado, o cabeçalho `x-webhook-secret` é conferido em tempo constante;
- * - TEMPORÁRIO (integração/teste): a instância `cortai` é aceita sem segredo
- *   para o teste ponta a ponta com a Evolution; qualquer outra instância
- *   continua exigindo o segredo. Em produção, remova a exceção e configure
- *   `EVOLUTION_WEBHOOK_SECRET` na Evolution e no ambiente;
+ * - toda instância exige `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`),
+ *   conferido em tempo constante no cabeçalho `x-webhook-secret`; sem segredo
+ *   configurado, o webhook recusa tudo (503);
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
  * - mensagens enviadas pela própria barbearia (fromMe) são ignoradas.
@@ -57,15 +54,12 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const sessaoId = String(corpo["instance"] ?? "");
         if (!sessaoId) return new Response("Missing instance", { status: 400 });
 
-        // TEMPORÁRIO (integração/teste): a instância "cortai" é aceita sem
-        // segredo para o teste ponta a ponta com a Evolution. Qualquer outra
-        // instância continua exigindo o segredo configurado. Em produção,
-        // remova esta exceção e configure EVOLUTION_WEBHOOK_SECRET na Evolution.
-        // TODO(segurança): o segredo já existe no ambiente, mas a instância
-        // "cortai" na Evolution ainda não envia o cabeçalho x-webhook-secret.
-        // Assim que a Evolution enviar o segredo, apague esta exceção.
-        const instanciaDeTesteSemSegredo = sessaoId === "cortai";
-        if (segredo && !instanciaDeTesteSemSegredo) {
+        // Toda instância exige o segredo (cabeçalho x-webhook-secret enviado pela Evolution).
+        if (!segredo) {
+          console.error("[evolution] webhook recusado: EVOLUTION_WEBHOOK_SECRET ausente");
+          return new Response("Webhook secret not configured", { status: 503 });
+        }
+        {
           const recebido =
             request.headers.get("x-webhook-secret") ??
             request.headers.get("apikey") ??
