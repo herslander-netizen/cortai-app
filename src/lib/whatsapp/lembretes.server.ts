@@ -120,15 +120,32 @@ export async function tratarRespostaDeLembrete(input: {
     }
   }
 
+  // Número solto: sentido FIXO (1 Confirmar, 2 Remarcar, 3 Cancelar...). Com
+  // aviso aberto, um número nunca segue para a IA.
+  const { numeroSolto, acaoDoNumero, escolherAvisoParaAcao, textoDeOpcaoInvalida } =
+    await import("./opcoes-numeradas");
+  const numero = numeroSolto(bruto);
+
   // 2) Resposta citando a notificação: usa o ID da mensagem citada.
   if (!envio && input.citadaId) {
     const { data } = await db
       .from("envios_de_whatsapp")
-      .select(campos)
+      .select(`${campos}, aguarda_resposta, respondido_em, valido_ate`)
       .eq("mensagem_externa_id", input.citadaId)
       .eq("tenant_id", input.tenantId)
       .maybeSingle();
-    if (data && telefoneCorresponde(data.telefone, input.telefone)) envio = data as Envio;
+    const citado = data as
+      | (Envio & { aguarda_resposta: boolean | null; respondido_em: string | null; valido_ate: string | null })
+      | null;
+    // Só vale se ainda aguarda resposta dentro do prazo; senão, segue o fluxo normal.
+    if (
+      citado &&
+      telefoneCorresponde(citado.telefone, input.telefone) &&
+      citado.aguarda_resposta &&
+      !citado.respondido_em &&
+      (!citado.valido_ate || citado.valido_ate > agoraIso)
+    )
+      envio = citado;
   }
 
   // Escolha pendente ("a qual horário você se refere?").
@@ -142,31 +159,38 @@ export async function tratarRespostaDeLembrete(input: {
     { ids: string[]; acao: string | null; validoAte?: string } | undefined;
   const escolhaValida =
     escolha && (!escolha.validoAte || escolha.validoAte > agoraIso) ? escolha : undefined;
-  if (!envio && escolhaValida && /^\d$/.test(t)) {
-    const id = escolhaValida.ids[Number(t) - 1];
-    if (id) {
-      const { data } = await db
-        .from("envios_de_whatsapp")
-        .select(campos)
-        .eq("id", id)
-        .eq("tenant_id", input.tenantId)
-        .eq("aguarda_resposta", true)
-        .is("respondido_em", null)
-        .gt("valido_ate", agoraIso)
-        .maybeSingle();
-      if (
-        data &&
-        telefoneCorresponde(data.telefone, input.telefone) &&
-        escolhaValida.acao &&
-        data.acoes?.includes(escolhaValida.acao)
-      ) {
-        envio = data as Envio;
-        acao = escolhaValida.acao;
-      }
+  if (!envio && escolhaValida && numero !== null) {
+    const id = escolhaValida.ids[numero - 1];
+    if (!id) {
+      return {
+        texto: `Responda com o número de um dos horários (de 1 a ${escolhaValida.ids.length}).`,
+      };
+    }
+    const { data } = await db
+      .from("envios_de_whatsapp")
+      .select(campos)
+      .eq("id", id)
+      .eq("tenant_id", input.tenantId)
+      .eq("aguarda_resposta", true)
+      .is("respondido_em", null)
+      .gt("valido_ate", agoraIso)
+      .maybeSingle();
+    if (
+      data &&
+      telefoneCorresponde(data.telefone, input.telefone) &&
+      escolhaValida.acao &&
+      data.acoes?.includes(escolhaValida.acao)
+    ) {
+      envio = data as Envio;
+      acao = escolhaValida.acao;
+    } else {
+      return {
+        texto: "Esse aviso não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
+      };
     }
   }
 
-  // 3) Notificações abertas dentro do prazo, para este número nesta barbearia.
+  // 3) Notificações abertas dentro do prazo, para este número neste negócio.
   let abertas: Envio[] = [];
   if (!envio) {
     const { variantesDoTelefone } = await import("@/lib/telefone");
@@ -184,62 +208,68 @@ export async function tratarRespostaDeLembrete(input: {
     if (abertas.length === 1) envio = abertas[0] ?? null;
   }
 
-  // Ação pelo texto: botão sem ID, número da lista ou palavra exata.
+  // Ação pelo texto: botão sem ID, número fixo ou palavra exata.
   const acoesPossiveis = new Set((envio ? [envio] : abertas).flatMap((e) => e.acoes ?? []));
   if (!acao && acoesPossiveis.has(bruto2)) acao = bruto2;
-  if (!acao && envio && /^\d$/.test(t)) {
-    const { data: ultima } = await db
-      .from("mensagens_whatsapp")
-      .select("conteudo")
-      .eq("conversa_id", input.conversaId)
-      .eq("direcao", "saida")
-      .order("criado_em", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (ultima?.conteudo && ultima.conteudo === envio.conteudo)
-      acao = envio.acoes?.[Number(t) - 1] ?? null;
+  if (!acao && numero !== null) {
+    const doNumero = acaoDoNumero(numero);
+    // Número que não é opção dos avisos abertos: responde aqui, nunca vai para a IA.
+    if (!doNumero || !acoesPossiveis.has(doNumero))
+      return { texto: textoDeOpcaoInvalida(acoesPossiveis) };
+    acao = doNumero;
   }
   if (!acao) {
     if (["confirmar", "confirmo", "confirmado", "confirma"].includes(t)) acao = "CORTAI_CONFIRMAR";
     else if (/^(cheguei|to aqui|estou aqui|ja cheguei|cheguei aqui)$/.test(t))
       acao = "CORTAI_CHEGUEI";
     else if (/^(cancelar|cancela|quero cancelar)$/.test(t)) acao = "CORTAI_CANCELAR";
+    else if (/^(remarcar|remarca|quero remarcar)$/.test(t)) acao = "CORTAI_REMARCAR";
     else if (/^(quero|quero sim|sim quero)$/.test(t)) acao = "CORTAI_QUERO";
     else if (/^(nao posso|nao da|nao quero)$/.test(t)) acao = "CORTAI_NAO_POSSO";
     if (acao && !acoesPossiveis.has(acao)) acao = null;
   }
   if (!acao) return null;
 
-  // Mais de uma notificação aberta: pergunta, nunca adivinha.
+  // Mais de uma notificação aberta: mesmo horário usa a mais recente; horários diferentes, pergunta.
   if (!envio) {
-    const fusoP = await fusoDoTenant(input.tenantId);
-    const ids = abertas.map((e) => e.agendamento_id).filter(Boolean) as string[];
-    const { data: ags } = await db.from("agendamentos").select("id, inicio").in("id", ids);
-    const inicioDe = new Map((ags ?? []).map((a) => [a.id, a.inicio as string]));
-    await db
-      .from("conversas_whatsapp")
-      .update({
-        contexto: {
-          ...ctx,
-          escolherNotificacao: {
-            ids: abertas.map((e) => e.id),
-            acao,
-            validoAte: new Date(Date.now() + 15 * 60_000).toISOString(),
-          },
-        } as never,
-      })
-      .eq("id", input.conversaId);
-    return {
-      texto: [
-        "Você tem mais de um horário. A qual deles se refere?",
-        ...abertas.map((e, i) => {
-          const ini = e.agendamento_id ? inicioDe.get(e.agendamento_id) : null;
-          return `${i + 1} - ${ini ? `${dia(ini, fusoP)} às ${hora(ini, fusoP)}` : "Retorno"}`;
-        }),
-        "",
-        "Responda com o número.",
-      ].join("\n"),
-    };
+    const decisao = escolherAvisoParaAcao(abertas, acao);
+    if (decisao.tipo === "nenhum") return { texto: textoDeOpcaoInvalida(acoesPossiveis) };
+    if (decisao.tipo === "executar") envio = decisao.envio;
+    else {
+      const candidatos = decisao.candidatos;
+      const fusoP = await fusoDoTenant(input.tenantId);
+      const ids = candidatos.map((e) => e.agendamento_id).filter(Boolean) as string[];
+      const { data: ags } = await db
+        .from("agendamentos")
+        .select("id, inicio")
+        .eq("tenant_id", input.tenantId)
+        .in("id", ids);
+      const inicioDe = new Map((ags ?? []).map((a) => [a.id, a.inicio as string]));
+      await db
+        .from("conversas_whatsapp")
+        .update({
+          contexto: {
+            ...ctx,
+            escolherNotificacao: {
+              ids: candidatos.map((e) => e.id),
+              acao,
+              validoAte: new Date(Date.now() + 15 * 60_000).toISOString(),
+            },
+          } as never,
+        })
+        .eq("id", input.conversaId);
+      return {
+        texto: [
+          "Você tem mais de um horário. A qual deles se refere?",
+          ...candidatos.map((e, i) => {
+            const ini = e.agendamento_id ? inicioDe.get(e.agendamento_id) : null;
+            return `${i + 1} - ${ini ? `${dia(ini, fusoP)} às ${hora(ini, fusoP)}` : "Retorno"}`;
+          }),
+          "",
+          "Responda com o número do horário.",
+        ].join("\n"),
+      };
+    }
   }
   if (acao === "CORTAI_QUERO" || acao === "CORTAI_NAO_POSSO") {
     const { data: comOferta } = await db
