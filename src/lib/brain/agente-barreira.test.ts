@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { afirmaConclusao, barrarAfirmacaoSemAcao, confirmacaoInequivoca, recusaInequivoca } from "./guardas";
+import {
+  afirmaConclusao,
+  barrarAfirmacaoSemAcao,
+  confirmacaoInequivoca,
+  recusaInequivoca,
+} from "./guardas";
 
 /** Cérebro com IA e ações simuladas: nada sai para a rede. */
 const estado = vi.hoisted(() => ({
@@ -42,7 +47,13 @@ vi.mock("./acoes.server", () => ({
   ferramentasDoContexto: () => [],
 }));
 
-const ctx = { tenantId: "t1", canal: "whatsapp", ator: "551199", telefoneCliente: "551199", papel: "cliente" } as any;
+const ctx = {
+  tenantId: "t1",
+  canal: "whatsapp",
+  ator: "551199",
+  telefoneCliente: "551199",
+  papel: "cliente",
+} as any;
 const persona = { nome: "CortAI", negocio: "Aurora" };
 const pendente = {
   id: "p1",
@@ -54,7 +65,13 @@ const pendente = {
 
 async function pensar(mensagem: string, comPendente = true) {
   const { pensarCortai } = await import("./agente.server");
-  return pensarCortai({ ctx, persona, historico: [], mensagem, pendente: comPendente ? pendente : null });
+  return pensarCortai({
+    ctx,
+    persona,
+    historico: [],
+    mensagem,
+    pendente: comPendente ? pendente : null,
+  });
 }
 
 beforeEach(() => {

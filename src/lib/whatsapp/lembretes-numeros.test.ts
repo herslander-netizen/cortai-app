@@ -14,7 +14,9 @@ const banco = vi.hoisted(() => ({
 vi.mock("@/lib/fuso.server", () => ({ fusoDoTenant: async () => "America/Sao_Paulo" }));
 vi.mock("@/lib/telefone", () => ({ variantesDoTelefone: (t: string) => [t] }));
 vi.mock("./aviso-equipe.server", () => ({ avisarEquipeDaConfirmacao: async () => undefined }));
-vi.mock("./notificacoes.server", () => ({ notificarAgendamento: async () => ({ enviado: false }) }));
+vi.mock("./notificacoes.server", () => ({
+  notificarAgendamento: async () => ({ enviado: false }),
+}));
 
 function consulta(tabela: string) {
   const filtros: ((l: Linha) => boolean)[] = [];
@@ -38,7 +40,8 @@ function consulta(tabela: string) {
     return linhas;
   };
   q.maybeSingle = async () => ({ data: executar()[0] ?? null });
-  q.then = (ok: any, erro: any) => Promise.resolve({ data: executar(), error: null }).then(ok, erro);
+  q.then = (ok: any, erro: any) =>
+    Promise.resolve({ data: executar(), error: null }).then(ok, erro);
   return q;
 }
 
@@ -56,8 +59,17 @@ const futuro = new Date(Date.now() + 3600_000).toISOString();
 const TEL = "5511999990000";
 function aviso(id: string, ag: string, acoes: string[], enviadoEm: string) {
   return {
-    id, tenant_id: "t1", agendamento_id: ag, tipo: "x", telefone: TEL, conteudo: id, acoes,
-    aguarda_resposta: true, respondido_em: null, valido_ate: futuro, enviado_em: enviadoEm,
+    id,
+    tenant_id: "t1",
+    agendamento_id: ag,
+    tipo: "x",
+    telefone: TEL,
+    conteudo: id,
+    acoes,
+    aguarda_resposta: true,
+    respondido_em: null,
+    valido_ate: futuro,
+    enviado_em: enviadoEm,
   };
 }
 
@@ -84,8 +96,13 @@ async function responder(texto: string, tenantId = "t1") {
 
 describe("bug do '1' — dois avisos abertos", () => {
   it("confirmação (Remarcar/Cancelar) + lembrete (Confirmar) do MESMO horário: '1' confirma de verdade", async () => {
-    banco.tabelas.envios_de_whatsapp = [
-      aviso("lembrete", "ag1", ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:24:00Z"),
+    banco.tabelas["envios_de_whatsapp"] = [
+      aviso(
+        "lembrete",
+        "ag1",
+        ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR", "CORTAI_CANCELAR"],
+        "2026-10-08T12:24:00Z",
+      ),
       aviso("confirmacao", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:00:00Z"),
     ];
     const r = await responder("1");
@@ -94,7 +111,7 @@ describe("bug do '1' — dois avisos abertos", () => {
   });
 
   it("horários diferentes: pergunta qual, sem executar nada e sem ir para a IA", async () => {
-    banco.tabelas.envios_de_whatsapp = [
+    banco.tabelas["envios_de_whatsapp"] = [
       aviso("e2", "ag2", ["CORTAI_CONFIRMAR"], "2026-10-08T12:24:00Z"),
       aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], "2026-10-08T12:00:00Z"),
     ];
@@ -104,12 +121,16 @@ describe("bug do '1' — dois avisos abertos", () => {
     expect(banco.rpcs).toEqual([]);
     // Escolhe o segundo horário: agora sim executa, no horário certo.
     const r2 = await responder("2");
-    expect(banco.rpcs).toEqual([{ nome: "confirmar_presenca_whatsapp", args: { _agendamento_id: "ag1" } }]);
+    expect(banco.rpcs).toEqual([
+      { nome: "confirmar_presenca_whatsapp", args: { _agendamento_id: "ag1" } },
+    ]);
     expect(r2?.texto).toMatch(/^Confirmado ✅/);
   });
 
   it("número que não é opção: responde as opções reais, nunca cai na IA", async () => {
-    banco.tabelas.envios_de_whatsapp = [aviso("e1", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:00:00Z")];
+    banco.tabelas["envios_de_whatsapp"] = [
+      aviso("e1", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:00:00Z"),
+    ];
     const r = await responder("1");
     expect(r?.texto).toContain("Não encontrei essa opção");
     expect(r?.texto).toContain("2 - Remarcar");
@@ -117,7 +138,9 @@ describe("bug do '1' — dois avisos abertos", () => {
   });
 
   it("número aceito mesmo se outra mensagem saiu depois do aviso (dentro do prazo)", async () => {
-    banco.tabelas.envios_de_whatsapp = [aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], "2026-10-08T12:00:00Z")];
+    banco.tabelas["envios_de_whatsapp"] = [
+      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], "2026-10-08T12:00:00Z"),
+    ];
     const r = await responder("1");
     expect(r?.texto).toMatch(/^Confirmado ✅/);
   });
@@ -126,7 +149,7 @@ describe("bug do '1' — dois avisos abertos", () => {
 describe("ações pelo número fixo", () => {
   const todas = ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR", "CORTAI_CANCELAR"];
   beforeEach(() => {
-    banco.tabelas.envios_de_whatsapp = [aviso("e1", "ag1", todas, "2026-10-08T12:00:00Z")];
+    banco.tabelas["envios_de_whatsapp"] = [aviso("e1", "ag1", todas, "2026-10-08T12:00:00Z")];
   });
 
   it("2 = Remarcar: pergunta o novo horário, sem alterar a agenda", async () => {
@@ -149,14 +172,17 @@ describe("ações pelo número fixo", () => {
   });
 
   it("falha ao confirmar: nunca afirma sucesso", async () => {
-    banco.rpcResultado.confirmar_presenca_whatsapp = { data: { ok: false }, error: null };
+    banco.rpcResultado["confirmar_presenca_whatsapp"] = { data: { ok: false }, error: null };
     const r = await responder("1");
     expect(r?.texto).not.toMatch(/Confirmado/);
     expect(r?.texto).toContain("não está mais ativo");
   });
 
   it("falha ao cancelar: nunca afirma sucesso", async () => {
-    banco.rpcResultado.cancelar_agendamento = { data: null, error: { message: "erro qualquer" } };
+    banco.rpcResultado["cancelar_agendamento"] = {
+      data: null,
+      error: { message: "erro qualquer" },
+    };
     const r = await responder("3");
     expect(r?.texto).not.toMatch(/Cancelado ✅/);
     expect(r?.texto).toContain("Não consegui cancelar");

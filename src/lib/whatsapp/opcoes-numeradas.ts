@@ -65,9 +65,7 @@ export function textoDeOpcaoInvalida(acoes: Iterable<string>): string {
 export type AvisoAberto = { id: string; agendamento_id: string | null; acoes: string[] | null };
 
 export type DecisaoDoAviso<T extends AvisoAberto> =
-  | { tipo: "executar"; envio: T }
-  | { tipo: "perguntar"; candidatos: T[] }
-  | { tipo: "nenhum" };
+  { tipo: "executar"; envio: T } | { tipo: "perguntar"; candidatos: T[] } | { tipo: "nenhum" };
 
 /**
  * Qual aviso recebe a ação. `abertas` vem do mais recente para o mais antigo.

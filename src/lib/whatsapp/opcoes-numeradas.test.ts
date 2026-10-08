@@ -40,7 +40,9 @@ describe("números fixos dos avisos", () => {
   });
 
   it("opção inválida lista só as opções reais", () => {
-    expect(textoDeOpcaoInvalida(["CORTAI_CANCELAR", "CORTAI_CONFIRMAR"])).toContain("1 - Confirmar\n3 - Cancelar");
+    expect(textoDeOpcaoInvalida(["CORTAI_CANCELAR", "CORTAI_CONFIRMAR"])).toContain(
+      "1 - Confirmar\n3 - Cancelar",
+    );
   });
 });
 
@@ -55,12 +57,17 @@ describe("dois avisos abertos", () => {
   });
   it("mesmo horário (confirmação + lembrete): usa o que aceita a ação", () => {
     const r = escolherAvisoParaAcao(
-      [a("lembrete", "ag1", ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR"]), a("confirmacao", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"])],
+      [
+        a("lembrete", "ag1", ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR"]),
+        a("confirmacao", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"]),
+      ],
       "CORTAI_CONFIRMAR",
     );
     expect(r).toEqual({ tipo: "executar", envio: expect.objectContaining({ id: "lembrete" }) });
   });
   it("ação que nenhum aviso aceita: nenhum", () => {
-    expect(escolherAvisoParaAcao([a("e1", "ag1", ["CORTAI_REMARCAR"])], "CORTAI_CONFIRMAR").tipo).toBe("nenhum");
+    expect(
+      escolherAvisoParaAcao([a("e1", "ag1", ["CORTAI_REMARCAR"])], "CORTAI_CONFIRMAR").tipo,
+    ).toBe("nenhum");
   });
 });
