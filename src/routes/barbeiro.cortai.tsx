@@ -27,6 +27,7 @@ import { type TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 import {
   atualizarQrCode,
   conectarWhatsapp,
+  definirNotificacoesWhatsapp,
   desconectarWhatsapp,
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
@@ -133,23 +134,19 @@ function CortaiPage() {
             <div className="surface px-3 py-3">
               <p className="text-xs text-mute2">Notificações</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto
-                  ligado={
-                    painel.data.configuracao.confirmacaoAutomatica ||
-                    painel.data.configuracao.lembretes
-                  }
-                />
-                {painel.data.configuracao.confirmacaoAutomatica ||
-                painel.data.configuracao.lembretes
-                  ? "Ativas"
-                  : "Pausadas"}
+                <Ponto ligado={painel.data.notificacoesAtivas} />
+                {painel.data.notificacoesAtivas ? "Ativas" : "Desativadas"}
               </p>
             </div>
             <div className="surface px-3 py-3">
-              <p className="text-xs text-mute2">Canal</p>
+              <p className="text-xs text-mute2">Envio de avisos</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.conexao?.status === "conectado"} />
-                {painel.data.conexao?.status === "conectado" ? "Operacional" : "Sem conexão"}
+                <Ponto ligado={painel.data.notificacoesAtivas && painel.data.envioDeNotificacoesDisponivel} />
+                {!painel.data.notificacoesAtivas
+                  ? "Desligado"
+                  : painel.data.envioDeNotificacoesDisponivel
+                    ? "Disponível"
+                    : "Restabelecendo"}
               </p>
             </div>
           </section>
@@ -181,13 +178,7 @@ function CortaiPage() {
             {aba === "whatsapp" ? (
               <>
                 <AvisosDaMeta />
-                {painel.data.podeGerenciarWhatsapp ? <BlocoConexao painel={painel.data} /> : null}
-                <div className={painel.data.podeGerenciarWhatsapp ? "mt-4" : undefined}>
-                  <BlocoRemetenteOficial />
-                </div>
-                {painel.data.podeGerenciarWhatsapp && painel.data.provedor !== "meta" ? (
-                  <BlocoDiagnostico />
-                ) : null}
+                <BlocoConexao painel={painel.data} />
               </>
             ) : null}
             {aba === "envios" ? <BlocoEnvios irParaConexao={() => setAba("whatsapp")} /> : null}
@@ -531,15 +522,77 @@ function BlocoRemetenteOficial() {
 export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   return (
     <div className="space-y-4">
-      <CartaoDeConexao painel={painel} tipo="atendimento" />
-      <CartaoDeConexao painel={painel} tipo="notificacoes" />
+      {painel.podeGerenciarWhatsapp ? <CartaoDeConexao painel={painel} tipo="atendimento" /> : null}
+      {/* Conexão própria de notificações (legado) continua gerenciável até migrar. */}
+      {painel.podeGerenciarWhatsapp && painel.conexaoNotificacoes ? (
+        <CartaoDeConexao painel={painel} tipo="notificacoes" />
+      ) : (
+        <CartaoNotificacoes painel={painel} />
+      )}
     </div>
+  );
+}
+
+/** Notificações pelo WhatsApp: o negócio só liga ou desliga; o número é do Cortaí. */
+function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
+  const cliente = useQueryClient();
+  const definir = useServerFn(definirNotificacoesWhatsapp);
+  const alterar = useMutation({
+    mutationFn: (ativas: boolean) => definir({ data: { ativas } }),
+    onSettled: () => cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
+  });
+  const ativas = alterar.isPending ? !!alterar.variables : painel.notificacoesAtivas;
+  const selo = !ativas
+    ? { estado: "desconectado" as const, texto: "Desativadas" }
+    : painel.envioDeNotificacoesDisponivel
+      ? { estado: "conectado" as const, texto: "Envio disponível" }
+      : { estado: "conectando" as const, texto: "Restabelecendo envio" };
+  return (
+    <section className="surface p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+          <MessageCircle size={18} aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-paper">Notificações pelo WhatsApp</h2>
+            <Selo estado={selo.estado} texto={selo.texto} />
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-mute">
+            Confirmações, lembretes e avisos de vaga chegam aos seus clientes com o nome do seu
+            negócio.
+          </p>
+          {ativas && !painel.envioDeNotificacoesDisponivel ? (
+            <p className="mt-2 text-sm text-mute" role="status">
+              Estamos restabelecendo o envio. Enquanto isso, os avisos ficam no sininho.
+            </p>
+          ) : null}
+          {alterar.isError ? (
+            <p className="mt-2 text-sm text-brick" role="alert">
+              Não foi possível salvar agora. Tente de novo.
+            </p>
+          ) : null}
+        </div>
+      </div>
+      {painel.podeGerenciarWhatsapp ? (
+        <div className="mt-5 border-t border-line pt-4">
+          <Button
+            type="button"
+            variant={ativas ? "secondary" : "default"}
+            disabled={alterar.isPending}
+            onClick={() => alterar.mutate(!ativas)}
+          >
+            {ativas ? "Desativar notificações" : "Ativar notificações"}
+          </Button>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
 const CABECALHO_DO_TIPO: Record<TipoDeConexao, { titulo: string; subtitulo: string }> = {
   atendimento: { titulo: "CortAI — Assistente Virtual", subtitulo: "WhatsApp de Atendimento" },
-  notificacoes: { titulo: "WhatsApp de Notificações", subtitulo: "Notificações transacionais" },
+  notificacoes: { titulo: "WhatsApp de Notificações", subtitulo: "Número próprio do estabelecimento" },
 };
 
 function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoDeConexao }) {
