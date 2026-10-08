@@ -3,7 +3,7 @@
  *
  * Segurança:
  * - toda instância exige `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`),
- *   conferido em tempo constante no cabeçalho `x-webhook-secret`; sem segredo
+ *   conferido em tempo constante no cabeçalho `x-webhook-secret` ou `apikey` (nunca na URL); sem segredo
  *   configurado, o webhook recusa tudo (503);
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
@@ -11,15 +11,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
-import { segredoDoCabecalho } from "@/lib/whatsapp/segredo-webhook";
-
-async function segredoConfere(recebido: string | null, segredo: string) {
-  if (!recebido) return false;
-  const { timingSafeEqual } = await import("node:crypto");
-  const a = Buffer.from(recebido, "utf8");
-  const b = Buffer.from(segredo, "utf8");
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+import { autorizarWebhook } from "@/lib/whatsapp/segredo-webhook";
 
 function textoDaMensagem(mensagem: Record<string, unknown> | undefined) {
   if (!mensagem) return { tipo: "unknown" as const, texto: "" };
@@ -47,6 +39,18 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const abuso = await guard.barrarAbusivo(request, "whatsapp/evolution");
         if (abuso) return abuso;
 
+        // Fail-closed, antes de ler o corpo: sem segredo no ambiente → 503;
+        // segredo ausente/errado → 401. Vale para todas as sessões.
+        const auth = autorizarWebhook(request.headers, segredo);
+        if (!auth.ok) {
+          if (auth.status === 503) {
+            console.error("[evolution] webhook recusado: EVOLUTION_WEBHOOK_SECRET ausente");
+            return new Response("Service unavailable", { status: 503 });
+          }
+          await guard.rejeitar(request, "whatsapp/evolution", auth.motivo);
+          return new Response(null, { status: 401 });
+        }
+
         const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
         if (!corpo) return new Response("Invalid payload", { status: 400 });
 
@@ -56,22 +60,6 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const sessaoId = String(corpo["instance"] ?? "");
         if (!sessaoId) return new Response("Missing instance", { status: 400 });
 
-        // Toda instância exige o segredo (cabeçalho x-webhook-secret enviado pela Evolution).
-        if (!segredo) {
-          console.error("[evolution] webhook recusado: EVOLUTION_WEBHOOK_SECRET ausente");
-          return new Response("Webhook secret not configured", { status: 503 });
-        }
-        {
-          // Só por cabeçalho: segredo na URL aparece em log.
-          const recebido = segredoDoCabecalho(request.headers);
-          if (!(await segredoConfere(recebido, segredo))) {
-            return guard.rejeitar(
-              request,
-              "whatsapp/evolution",
-              recebido ? "token invalido" : "sem token",
-            );
-          }
-        }
         const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
         if (limite) return limite;
         const dados = (corpo["data"] as Record<string, unknown>) ?? {};
