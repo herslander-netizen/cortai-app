@@ -122,8 +122,14 @@ export async function tratarRespostaDeLembrete(input: {
 
   // Número solto: sentido FIXO (1 Confirmar, 2 Remarcar, 3 Cancelar...). Com
   // aviso aberto, um número nunca segue para a IA.
-  const { numeroSolto, acaoDoNumero, escolherAvisoParaAcao, textoDeOpcaoInvalida } =
-    await import("./opcoes-numeradas");
+  const {
+    numeroSolto,
+    acaoDoNumero,
+    escolherAvisoParaAcao,
+    textoDeOpcaoInvalida,
+    avisoAindaValido,
+    numeroEhDoAviso,
+  } = await import("./opcoes-numeradas");
   const numero = numeroSolto(bruto);
 
   // 2) Resposta citando a notificação: usa o ID da mensagem citada.
@@ -196,15 +202,43 @@ export async function tratarRespostaDeLembrete(input: {
     const { variantesDoTelefone } = await import("@/lib/telefone");
     const { data } = await db
       .from("envios_de_whatsapp")
-      .select(campos)
+      .select(`${campos}, enviado_em`)
       .eq("tenant_id", input.tenantId)
       .in("telefone", variantesDoTelefone(input.telefone))
       .eq("aguarda_resposta", true)
       .is("respondido_em", null)
       .gt("valido_ate", agoraIso)
       .order("enviado_em", { ascending: false });
-    abertas = (data ?? []) as Envio[];
-    if (!abertas.length) return null; // prazo vencido: volta ao fluxo normal
+    const brutas = (data ?? []) as (Envio & { enviado_em: string | null })[];
+    // Ignora avisos de agendamentos encerrados ou já passados.
+    const idsAg = [...new Set(brutas.map((e) => e.agendamento_id).filter(Boolean))] as string[];
+    const agMap = new Map<string, { status: string | null; inicio: string | null }>();
+    if (idsAg.length) {
+      const { data: ags } = await db
+        .from("agendamentos")
+        .select("id, status, inicio")
+        .eq("tenant_id", input.tenantId)
+        .in("id", idsAg);
+      for (const a of ags ?? []) agMap.set(a.id, { status: a.status, inicio: a.inicio });
+    }
+    const agora = new Date();
+    const validas = brutas.filter((e) =>
+      avisoAindaValido(e, e.agendamento_id ? agMap.get(e.agendamento_id) : null, agora),
+    );
+    if (!validas.length) return null; // nada acionável: segue para a IA
+    // Número solto depois de uma mensagem da IA (ex.: lista de horários) é da IA.
+    if (numero !== null && !escolhaValida) {
+      const { data: saida } = await db
+        .from("mensagens_whatsapp")
+        .select("criado_em, gerada_por_ia")
+        .eq("conversa_id", input.conversaId)
+        .eq("direcao", "saida")
+        .order("criado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!numeroEhDoAviso(validas[0]?.enviado_em, saida)) return null;
+    }
+    abertas = validas;
     if (abertas.length === 1) envio = abertas[0] ?? null;
   }
 
