@@ -581,8 +581,25 @@ export async function processarMensagemRecebida(input: {
       telefone,
       texto: input.conteudo,
       citadaId: input.citadaId ?? null,
-    }).catch(() => null);
+    }).catch(async (erro) => {
+      console.error(
+        "[whatsapp] falha ao tratar resposta de aviso:",
+        erro instanceof Error ? erro.message.slice(0, 300) : erro,
+      );
+      // Número solto nunca vai para a IA: na dúvida, mensagem fixa de falha.
+      const { ehNumeroSolto } = await import("@/lib/brain/guardas");
+      if (!ehNumeroSolto(input.conteudo)) return null;
+      const { TEXTO_FALHA_TRANSITORIA } = await import("./lembretes.server");
+      return { texto: TEXTO_FALHA_TRANSITORIA } as { texto: string; encaminharHumano?: boolean };
+    });
     if (lembrete) {
+      if (lembrete.encaminharHumano) {
+        await db
+          .from("conversas_whatsapp")
+          .update({ modo_humano: true })
+          .eq("id", conversa.id)
+          .then(undefined, () => undefined);
+      }
       if (lembrete.texto) {
         await enviarPelaBarbearia({
           tenantId,

@@ -534,11 +534,18 @@ export const ACOES: Record<string, Definicao> = {
       const prox = await proximoDoProfissional(ctx);
       if (!prox) throw new Error("Você não tem próximo atendimento hoje.");
       const { avisarClienteDoAtraso } = await import("@/lib/whatsapp/aviso-atraso.server");
-      return avisarClienteDoAtraso({
+      const r = await avisarClienteDoAtraso({
         tenantId: ctx.tenantId,
         agendamentoId: prox.id,
         minutos: minutosValidos(d.minutos),
       });
+      // Sem envio real não há sucesso: a ação falha e o texto não diz que o cliente foi avisado.
+      if (!r.enviado) {
+        throw new Error(
+          `O cliente não recebeu o aviso pelo WhatsApp (${r.motivo ?? "falha no envio"}). O atraso ficou registrado só no sininho.`,
+        );
+      }
+      return r;
     },
   },
 

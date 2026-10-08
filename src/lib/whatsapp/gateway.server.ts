@@ -88,7 +88,10 @@ export function segredoDoWebhookDeWhatsapp(): string | null {
   return process.env["EVOLUTION_WEBHOOK_SECRET"] ?? process.env["WHATSAPP_WEBHOOK_SECRET"] ?? null;
 }
 
-async function chamar<T>(
+/** Tempo máximo de cada chamada ao serviço de WhatsApp. */
+export const TEMPO_LIMITE_MS = 10_000;
+
+export async function chamar<T>(
   config: Config | null,
   caminho: string,
   metodo: "GET" | "POST" | "DELETE" | "PUT",
@@ -102,11 +105,24 @@ async function chamar<T>(
     cabecalhos["x-connection-api-key"] = config.apiKey;
   } else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
 
-  const resposta = await fetch(`${config.baseUrl}${caminho}`, {
-    method: metodo,
-    headers: cabecalhos,
-    ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
-  });
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${config.baseUrl}${caminho}`, {
+      method: metodo,
+      headers: cabecalhos,
+      signal: controle.signal,
+      ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
+    });
+  } catch (erro) {
+    if (controle.signal.aborted) {
+      throw new Error("O serviço de WhatsApp não respondeu: tempo esgotado.");
+    }
+    throw erro;
+  } finally {
+    clearTimeout(relogio);
+  }
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
     throw new Error(
@@ -172,6 +188,17 @@ function numeroDoDono(bruto: Record<string, unknown>): string | null {
   return dono.split("@")[0] ?? null;
 }
 
+/** Webhook da Evolution sempre com o segredo no cabeçalho (nunca na URL). */
+export function webhookDaEvolution(url: string, segredo: string | null) {
+  return {
+    url,
+    byEvents: false,
+    base64: true,
+    headers: segredo ? { "x-webhook-secret": segredo } : undefined,
+    events: ["QRCODE_UPDATED", "CONNECTION_UPDATE", "MESSAGES_UPSERT"],
+  };
+}
+
 function criarEvolution(cfg: Config | null) {
   const evolution = {
     async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
@@ -181,13 +208,7 @@ function criarEvolution(cfg: Config | null) {
           instanceName: sessaoId,
           qrcode: true,
           integration: "WHATSAPP-BAILEYS",
-          webhook: {
-            url: webhookUrl,
-            byEvents: false,
-            base64: true,
-            headers: segredo ? { "x-webhook-secret": segredo } : undefined,
-            events: ["QRCODE_UPDATED", "CONNECTION_UPDATE", "MESSAGES_UPSERT"],
-          },
+          webhook: webhookDaEvolution(webhookUrl, segredo),
         });
         const { qrCode, expiraEm } = qrDaEvolution(criado);
         const instancia = (criado["instance"] as Record<string, unknown>) ?? {};
@@ -201,7 +222,16 @@ function criarEvolution(cfg: Config | null) {
         };
       } catch (erro) {
         if (erro instanceof GatewayNaoConfiguradoError) throw erro;
-        // A instância já existe: seguimos direto para a conexão.
+        // A instância já existe (reconexão): reaplica o webhook com o segredo
+        // no cabeçalho antes de seguir para a conexão.
+        await chamar(cfg, `/webhook/set/${encodeURIComponent(sessaoId)}`, "POST", {
+          webhook: { enabled: true, ...webhookDaEvolution(webhookUrl, segredo) },
+        }).catch((e) =>
+          console.error(
+            "[evolution] não foi possível reaplicar o webhook:",
+            e instanceof Error ? e.message.slice(0, 200) : "erro",
+          ),
+        );
         return evolution.obterQrCode(sessaoId);
       }
     },

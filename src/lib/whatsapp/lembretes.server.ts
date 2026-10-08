@@ -42,7 +42,13 @@ function dia(iso: string, fuso: string) {
 export type RespostaDeLembrete = {
   /** Texto a enviar ao cliente (vazio = a própria ação já enviou o aviso). */
   texto: string;
+  /** Pedido que o sistema não conseguiu atender: a conversa vai para a equipe. */
+  encaminharHumano?: boolean;
 };
+
+export const TEXTO_SAIR_SEM_CADASTRO =
+  "Não consegui localizar seu cadastro para parar os lembretes. Vou passar seu pedido para a equipe do estabelecimento.";
+export const TEXTO_FALHA_TRANSITORIA = "Não consegui processar agora. Tente novamente em instantes.";
 
 const SAIR = new Set(["sair", "parar", "cortai_sair", "descadastrar", "nao quero mais receber"]);
 
@@ -62,11 +68,17 @@ export async function tratarRespostaDeLembrete(input: {
 
   // Pedido de saída vale sempre, com ou sem lembrete recente.
   if (SAIR.has(t)) {
-    await db
+    const { variantesDoTelefone } = await import("@/lib/telefone");
+    const { data: alterados, error } = await db
       .from("clientes")
       .update({ opt_in_whatsapp: false })
       .eq("tenant_id", input.tenantId)
-      .eq("telefone", input.telefone);
+      .in("telefone", variantesDoTelefone(input.telefone))
+      .select("id");
+    if (error || !alterados || alterados.length === 0) {
+      if (error) console.error("[lembretes] SAIR falhou:", error.message);
+      return { texto: TEXTO_SAIR_SEM_CADASTRO, encaminharHumano: true };
+    }
     return {
       texto:
         "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
@@ -350,6 +362,18 @@ export async function tratarRespostaDeLembrete(input: {
     .update({ contexto: resto as never })
     .eq("id", input.conversaId);
 
+  // A reserva acima evita resposta duplicada. Se a ação não rodar por falha
+  // transitória, o aviso volta a ficar aberto e o cliente pode tentar de novo.
+  const reabrir = async (motivo: string) => {
+    console.error(`[lembretes] ação ${acao} falhou, aviso ${envio.id} reaberto: ${motivo.slice(0, 200)}`);
+    await db
+      .from("envios_de_whatsapp")
+      .update({ respondido_em: null, resposta: null } as never)
+      .eq("id", envio.id)
+      .eq("tenant_id", input.tenantId);
+    return { texto: TEXTO_FALHA_TRANSITORIA };
+  };
+
   const agendamentoId = envio.agendamento_id;
   const { data: ag } = await db
     .from("agendamentos")
@@ -372,10 +396,14 @@ export async function tratarRespostaDeLembrete(input: {
 
   switch (acao) {
     case "CORTAI_CONFIRMAR": {
-      const { data } = await db.rpc(
+      const { data, error } = await db.rpc(
         "confirmar_presenca_whatsapp" as never,
         { _agendamento_id: ag.id } as never,
       );
+      if (error) {
+        await registrar("lembrete_confirmar", false, error.message);
+        return reabrir(error.message);
+      }
       const r = (data ?? {}) as { ok?: boolean };
       await registrar("lembrete_confirmar", Boolean(r.ok));
       if (r.ok) {
@@ -390,10 +418,14 @@ export async function tratarRespostaDeLembrete(input: {
         : { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CHEGUEI": {
-      const { data } = await db.rpc(
+      const { data, error } = await db.rpc(
         "checkin_whatsapp" as never,
         { _agendamento_id: ag.id } as never,
       );
+      if (error) {
+        await registrar("lembrete_cheguei", false, error.message);
+        return reabrir(error.message);
+      }
       const r = (data ?? {}) as { ok?: boolean; motivo?: string };
       await registrar("lembrete_cheguei", Boolean(r.ok), r.ok ? undefined : r.motivo);
       if (r.ok) return { texto: "Check-in feito ✅ Já avisamos que você chegou." };
@@ -417,10 +449,7 @@ export async function tratarRespostaDeLembrete(input: {
       if (error) {
         return error.message.includes("encerrado")
           ? { texto: "Esse horário já estava cancelado." }
-          : {
-              texto:
-                "Não consegui cancelar agora. Me escreva aqui o que precisa que eu verifico com você.",
-            };
+          : await reabrir(error.message);
       }
       // Libera o horário (já livre no banco), avisa a lista de espera e envia a confirmação.
       const { notificarAgendamento } = await import("./notificacoes.server");

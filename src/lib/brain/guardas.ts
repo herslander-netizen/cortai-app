@@ -50,19 +50,42 @@ export function ehNumeroSolto(texto: string): boolean {
 export const TEXTO_PEDIR_SIM_OU_NAO =
   "Para eu continuar, responda SIM para confirmar ou NÃO para desistir.";
 
+const PARTICIPIO =
+  "(confirmad|agendad|marcad|desmarcad|cancelad|remarcad|reagendad|reservad)[oa]s?";
 const AFIRMA_CONCLUSAO = [
-  /\bobrigad[oa] por (confirmar|remarcar|cancelar)/,
-  /\b(confirmei|agendei|marquei|cancelei|remarquei|reagendei|registrei)\b/,
-  /\b(presenca|horario|agendamento|atendimento|reserva|vaga)\b[^.!?\n]{0,30}\b(foi|ficou|esta|está)\s+(confirmad|agendad|marcad|cancelad|remarcad|reagendad)/,
-  /\b(confirmad|agendad|marcad|cancelad|remarcad|reagendad)[oa]s? com sucesso\b/,
-  /^(pronto|feito|perfeito|certo|tudo certo)\b[^\n]{0,40}\b(confirmad|agendad|marcad|cancelad|remarcad|reagendad)/,
-  /\b(ja|já) (esta|está|foi|ficou) (confirmad|agendad|marcad|cancelad|remarcad)/,
+  /\bobrigad[oa] por (confirmar|remarcar|cancelar|agendar)/,
+  /\b(confirmei|agendei|marquei|desmarquei|cancelei|remarquei|reagendei|registrei|reservei)\b/,
+  /\b(acabei|acabamos) de (confirmar|agendar|marcar|cancelar|remarcar|reagendar)\b/,
+  /\b(confirmamos|agendamos|cancelamos|remarcamos|reagendamos)\b/,
+  /\bfiz (o|a|seu|sua) (agendamento|cancelamento|reagendamento|remarcacao|reserva|confirmacao)\b/,
+  new RegExp(
+    `\\b(foi|foram|ficou|ficaram|esta|estao|ta|tao|ja|segue|seguem)\\s+(devidamente\\s+|tudo\\s+)?${PARTICIPIO}\\b`,
+  ),
+  new RegExp(`\\b${PARTICIPIO} com sucesso\\b`),
+  new RegExp(`^(pronto|feito|perfeito|certo|tudo certo|ok|beleza)\\b.{0,40}\\b${PARTICIPIO}\\b`),
+  new RegExp(`^${PARTICIPIO}\\b`),
+  new RegExp(
+    `^(seu |sua |o |a )?(horario|agendamento|atendimento|reserva|presenca|vaga|corte)s? ${PARTICIPIO}\\s*$`,
+  ),
 ];
 
-/** O texto afirma que uma ação de agenda foi concluída? */
+/** Frase negada logo antes da afirmação ("ainda não foi confirmado"). */
+const NEGACAO_ANTES = /\b(nao|nunca|nem|nada|nenhum|nenhuma)\b(\s+\S+){0,3}\s*$/;
+
+/**
+ * O texto afirma que uma ação de agenda foi concluída?
+ * Perguntas ("quer que eu confirme?") e negações não contam.
+ */
 export function afirmaConclusao(texto: string): boolean {
-  const t = normalizarTexto(texto);
-  return AFIRMA_CONCLUSAO.some((r) => r.test(t));
+  const frases = texto.split(/(?<=[.!?\n])/);
+  return frases.some((frase) => {
+    if (frase.trim().endsWith("?")) return false;
+    const t = normalizarTexto(frase);
+    return AFIRMA_CONCLUSAO.some((r) => {
+      const m = r.exec(t);
+      return Boolean(m && !NEGACAO_ANTES.test(t.slice(0, m.index)));
+    });
+  });
 }
 
 export const TEXTO_SEM_ACAO_CONCLUIDA =
