@@ -13,7 +13,8 @@ describe("descreverOrigem", () => {
   it("CortAI nunca é origem; só selo quando assistido", () => {
     expect(descreverOrigem("whatsapp", true).cortai).toBe(true);
     expect(descreverOrigem("manual", false).cortai).toBe(false);
-    for (const o of ORIGENS_AGENDAMENTO) expect(descreverOrigem(o, true).rotulo).not.toMatch(/cortai/i);
+    for (const o of ORIGENS_AGENDAMENTO)
+      expect(descreverOrigem(o, true).rotulo).not.toMatch(/cortai/i);
   });
   it("valor desconhecido ou nulo cai em Manual", () => {
     expect(descreverOrigem(null, false).rotulo).toBe("Manual");

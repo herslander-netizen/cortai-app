@@ -480,7 +480,8 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       .from("agendamentos")
       .update({
         origem: (origemHerdada ?? "link_publico") as "link_publico",
-        preferencias_token_hash: preferenciasTokenHash })
+        preferencias_token_hash: preferenciasTokenHash,
+      })
       .eq("id", criado.agendamento_id);
     if (erroToken) {
       await db.rpc("cancelar_agendamento", { _agendamento_id: criado.agendamento_id });

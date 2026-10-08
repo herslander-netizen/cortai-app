@@ -801,9 +801,7 @@ export function AgendaTimeline({
                     </strong>
                   </span>
                   <span className="flex min-w-0 items-center gap-1">
-                    <span className="agenda-timeline-servico min-w-0 flex-1">
-                      {item.servico}
-                    </span>
+                    <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
                     {mostrarProfissional ? (
                       <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
                         {item.profissional}
