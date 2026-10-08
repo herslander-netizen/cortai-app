@@ -181,7 +181,10 @@ function CortaiPage() {
             {aba === "whatsapp" ? (
               <>
                 <AvisosDaMeta />
-                <BlocoRemetenteOficial />
+                {painel.data.podeGerenciarWhatsapp ? <BlocoConexao painel={painel.data} /> : null}
+                <div className={painel.data.podeGerenciarWhatsapp ? "mt-4" : undefined}>
+                  <BlocoRemetenteOficial />
+                </div>
                 {painel.data.podeGerenciarWhatsapp && painel.data.provedor !== "meta" ? (
                   <BlocoDiagnostico />
                 ) : null}
@@ -517,12 +520,9 @@ function BlocoRemetenteOficial() {
           ) : null}
         </div>
       </div>
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
-        <p className="text-sm text-paper">Número próprio do negócio</p>
-        <span className="rounded-full border border-line2 px-2.5 py-1 text-xs text-mute">
-          Em breve
-        </span>
-      </div>
+      <p className="mt-5 border-t border-line pt-4 text-xs text-mute2">
+        Usado como reserva apenas quando o negócio não tem número próprio conectado.
+      </p>
     </section>
   );
 }
