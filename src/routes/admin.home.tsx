@@ -51,7 +51,7 @@ const BLOCOS: Array<{ chave: ChaveBloco; rotulo: string }> = [
   { chave: "agenda", rotulo: "Agenda" },
   { chave: "foco", rotulo: "Modo Foco" },
   { chave: "clientes", rotulo: "Clientes" },
-  { chave: "secretaria", rotulo: "Secretária" },
+  { chave: "secretaria", rotulo: "WhatsApp" },
   { chave: "recursos", rotulo: "Recursos" },
   { chave: "caixa", rotulo: "Comanda e Caixa" },
   { chave: "segmentos", rotulo: "Segmentos" },

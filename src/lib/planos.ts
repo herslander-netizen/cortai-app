@@ -16,7 +16,7 @@ export const RECURSOS = {
   modo_foco: "Modo Foco",
   comanda_caixa: "Comanda e caixa",
   historico_completo: "Histórico completo",
-  secretaria_whatsapp: "Secretária Cortaí, lembretes e automações do WhatsApp",
+  secretaria_whatsapp: "WhatsApp, lembretes e automações do WhatsApp",
   equipe_avancada: "Gestão avançada de equipe e permissões",
 } as const;
 

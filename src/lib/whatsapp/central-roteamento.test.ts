@@ -1,115 +1,84 @@
 import { describe, expect, it } from "vitest";
+
 import {
-  ehConexaoCentral,
   escolherConexaoDeNotificacao,
   escolherConexaoPorFinalidade,
+  ehConexaoCentral,
 } from "./finalidade-conexao";
 import { podeEnviarPelaConexao } from "./saude-conexao";
 
 type L = {
   id: string;
   sessao_id: string;
-  status: string;
-  tipo: string;
-  compartilhada: boolean;
-  escopo: string;
-  tenant_id: string | null;
+  status: string | null;
+  tipo: string | null;
+  compartilhada?: boolean | null;
+  escopo?: string | null;
+  tenant_id?: string | null;
 };
-const linha = (p: Partial<L>): L => ({
-  id: "x",
-  sessao_id: "s",
-  status: "conectado",
+
+const principal = (status = "conectado"): L => ({
+  id: "a",
+  sessao_id: "s_a",
+  status,
   tipo: "atendimento",
   compartilhada: false,
   escopo: "tenant",
   tenant_id: "t1",
-  ...p,
 });
-const atend = (status = "conectado") => linha({ id: "a", status });
-const notif = (status = "conectado") => linha({ id: "n", tipo: "notificacoes", status });
-const central = (status = "conectado") =>
-  linha({ id: "c", tipo: "notificacoes", escopo: "central", tenant_id: null, status });
+const legadoNotif = (status = "conectado"): L => ({
+  id: "n",
+  sessao_id: "s_n",
+  status,
+  tipo: "notificacoes",
+  compartilhada: false,
+  escopo: "tenant",
+  tenant_id: "t1",
+});
+const central = (): L => ({
+  id: "c",
+  sessao_id: "cortai_central_x",
+  status: "conectado",
+  tipo: "notificacoes",
+  compartilhada: false,
+  escopo: "central",
+  tenant_id: null,
+});
 
-const decidir = (o: Partial<Parameters<typeof escolherConexaoDeNotificacao<L>>[0]>) =>
-  escolherConexaoDeNotificacao<L>({
-    linhasDoTenant: [],
-    central: central(),
-    ativas: true,
-    centralHabilitada: true,
-    ...o,
+describe("Central de Notificações = interruptor", () => {
+  it("ligada → segue pela conexão principal", () => {
+    expect(escolherConexaoDeNotificacao({ ativas: true })).toEqual({ tipo: "principal" });
   });
-
-describe("roteamento de notificações", () => {
-  it("própria conectada → própria", () => {
-    expect(decidir({ linhasDoTenant: [atend(), notif()] })).toMatchObject({
-      tipo: "propria",
-      conexao: { id: "n" },
-    });
-  });
-  it("própria desconectada → falha, nunca Central (mesmo habilitada)", () => {
-    for (const st of ["desconectado", "pendente", "qr_pronto", "erro"]) {
-      const d = decidir({ linhasDoTenant: [notif(st)] });
-      expect(d).toMatchObject({ tipo: "falha", avisar: "dono" });
-    }
-  });
-  it("sem própria + Central habilitada e conectada → Central", () => {
-    expect(decidir({ linhasDoTenant: [atend()] })).toMatchObject({ tipo: "central" });
-  });
-  it("sem própria + habilitada + Central fora → falha para a plataforma", () => {
-    expect(decidir({ central: central("desconectado") })).toMatchObject({
-      tipo: "falha",
-      avisar: "plataforma",
-    });
-    expect(decidir({ central: null })).toMatchObject({ tipo: "falha" });
-  });
-  it("Central desabilitada → legado (comportamento anterior)", () => {
-    expect(decidir({ centralHabilitada: false, linhasDoTenant: [atend()] })).toEqual({
-      tipo: "legado",
-    });
-  });
-  it("serviço desligado → nada sai pelo WhatsApp", () => {
-    expect(decidir({ ativas: false, linhasDoTenant: [notif()] })).toEqual({ tipo: "desativado" });
-  });
-  it("linha central dentro da lista do tenant nunca vira 'própria'", () => {
-    expect(decidir({ centralHabilitada: false, linhasDoTenant: [central()] })).toEqual({
-      tipo: "legado",
-    });
+  it("desligada → nada sai pelo WhatsApp", () => {
+    expect(escolherConexaoDeNotificacao({ ativas: false })).toEqual({ tipo: "desativado" });
   });
 });
 
-describe("atendimento nunca usa a Central", () => {
-  it("atendimento desconectado com Central presente → falha/reserva, nunca Central", () => {
+describe("uma conexão por negócio", () => {
+  it("avisos e atendimento saem pelo mesmo número", () => {
+    const a = escolherConexaoPorFinalidade([principal()], "atendimento");
+    const n = escolherConexaoPorFinalidade([principal()], "notificacoes");
+    expect(a).toMatchObject({ tipo: "propria", conexao: { id: "a" } });
+    expect(n).toMatchObject({ tipo: "propria", conexao: { id: "a" } });
+  });
+  it("linha legada de notificações nunca envia", () => {
+    const r = escolherConexaoPorFinalidade([principal(), legadoNotif()], "notificacoes");
+    expect(r).toMatchObject({ tipo: "propria", conexao: { id: "a" } });
+    expect(escolherConexaoPorFinalidade([legadoNotif()], "notificacoes").tipo).toBe("reserva");
+  });
+  it("principal desconectada → reserva, nunca a linha legada", () => {
     const r = escolherConexaoPorFinalidade(
-      [atend("desconectado"), notif(), central()],
-      "atendimento",
+      [principal("desconectado"), legadoNotif()],
+      "notificacoes",
     );
-    expect(r.tipo).toBe("falha");
-    const r2 = escolherConexaoPorFinalidade([central()], "atendimento");
-    expect(r2.tipo).toBe("reserva");
+    expect(r.tipo).toBe("reserva");
   });
-});
-
-describe("compatibilidade e rollback", () => {
-  it("regra antiga não interpreta a Central como conexão do tenant", () => {
+  it("linha da plataforma nunca conta como conexão do negócio", () => {
+    expect(ehConexaoCentral(central())).toBe(true);
     expect(escolherConexaoPorFinalidade([central()], "notificacoes").tipo).toBe("reserva");
+    expect(escolherConexaoPorFinalidade([central()], "atendimento").tipo).toBe("reserva");
   });
-  it("busca do tenant ignora tenant_id nulo (simulação do filtro eq)", () => {
-    const banco = [atend(), central()];
-    const doTenant = banco.filter((l) => l.tenant_id === "t1");
-    expect(doTenant.some(ehConexaoCentral)).toBe(false);
-  });
-  it("busca antiga do número oficial (compartilhada=true) não retorna a Central", () => {
-    const banco = [central(), linha({ id: "o", compartilhada: true })];
-    expect(banco.filter((l) => l.compartilhada).map((l) => l.id)).toEqual(["o"]);
-  });
-  it("trava de envio bloqueia a Central para qualquer tenant", () => {
+  it("trava de envio bloqueia a linha da plataforma para qualquer negócio", () => {
     expect(podeEnviarPelaConexao({ tenant_id: null, compartilhada: false }, "t1")).toBe(false);
-    expect(podeEnviarPelaConexao({ tenant_id: "t1", compartilhada: false }, "t1")).toBe(true);
-  });
-  it("conexão única legada segue atendendo os dois papéis", () => {
-    expect(escolherConexaoPorFinalidade([atend()], "notificacoes")).toMatchObject({
-      tipo: "propria",
-      legado: true,
-    });
   });
 });

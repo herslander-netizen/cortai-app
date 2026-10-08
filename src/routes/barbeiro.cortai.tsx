@@ -60,12 +60,12 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   }),
   head: () => ({
     meta: [
-      { title: "CortAI — Assistente Virtual · Cortaí Gestão" },
+      { title: "WhatsApp · Cortaí Gestão" },
       {
         name: "description",
         content: "Conecte o WhatsApp do negócio e acompanhe notificações transacionais.",
       },
-      { property: "og:title", content: "CortAI — Assistente Virtual · Cortaí Gestão" },
+      { property: "og:title", content: "WhatsApp · Cortaí Gestão" },
       {
         property: "og:description",
         content: "Avisos e acompanhamento dos atendimentos pelo WhatsApp.",
@@ -101,8 +101,8 @@ function CortaiPage() {
   return (
     <Screen
       voltarPara="/barbeiro/mais"
-      title="CortAI — Assistente Virtual"
-      subtitle="Seu WhatsApp informa seus clientes e acompanha cada atendimento."
+      title="WhatsApp"
+      subtitle="O WhatsApp do seu negócio conversa com clientes e envia os avisos."
     >
       {painel.isLoading ? <Carregando /> : null}
       {painel.isError ? (
@@ -522,22 +522,21 @@ function BlocoRemetenteOficial() {
   );
 }
 
-/** Dois cartões independentes: cada um opera só a própria sessão. */
+/** Uma conexão por negócio + interruptor de notificações sobre ela. */
 export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   return (
     <div className="space-y-4">
       {painel.podeGerenciarWhatsapp ? <CartaoDeConexao painel={painel} tipo="atendimento" /> : null}
-      {/* Conexão própria de notificações (legado) continua gerenciável até migrar. */}
+      <CartaoNotificacoes painel={painel} />
+      {/* Número antigo de avisos (legado): não envia mais; só pode ser desconectado. */}
       {painel.podeGerenciarWhatsapp && painel.conexaoNotificacoes ? (
         <CartaoDeConexao painel={painel} tipo="notificacoes" />
-      ) : (
-        <CartaoNotificacoes painel={painel} />
-      )}
+      ) : null}
     </div>
   );
 }
 
-/** Notificações pelo WhatsApp: o negócio só liga ou desliga; o número é do Cortaí. */
+/** Notificações pelo WhatsApp: liga ou desliga os avisos enviados pelo número da empresa. */
 function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
   const cliente = useQueryClient();
   const definir = useServerFn(definirNotificacoesWhatsapp);
@@ -550,7 +549,7 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
     ? { estado: "desconectado" as const, texto: "Desativadas" }
     : painel.envioDeNotificacoesDisponivel
       ? { estado: "conectado" as const, texto: "Envio disponível" }
-      : { estado: "conectando" as const, texto: "Restabelecendo envio" };
+      : { estado: "conectando" as const, texto: "WhatsApp desconectado" };
   return (
     <section className="surface p-5">
       <div className="flex items-start gap-3">
@@ -559,16 +558,16 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-paper">Notificações pelo WhatsApp</h2>
+            <h2 className="text-sm font-semibold text-paper">Notificações</h2>
             <Selo estado={selo.estado} texto={selo.texto} />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-mute">
-            Confirmações, lembretes e avisos de vaga chegam aos seus clientes com o nome do seu
-            negócio.
+            Confirmações, lembretes e avisos saem pelo WhatsApp do seu negócio, para clientes e para
+            a equipe que ativou avisos.
           </p>
           {ativas && !painel.envioDeNotificacoesDisponivel ? (
             <p className="mt-2 text-sm text-mute" role="status">
-              Estamos restabelecendo o envio. Enquanto isso, os avisos ficam no sininho.
+              Conecte o WhatsApp acima. Enquanto isso, os avisos ficam no sininho.
             </p>
           ) : null}
           {alterar.isError ? (
@@ -595,10 +594,10 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
 }
 
 const CABECALHO_DO_TIPO: Record<TipoDeConexao, { titulo: string; subtitulo: string }> = {
-  atendimento: { titulo: "CortAI — Assistente Virtual", subtitulo: "WhatsApp de Atendimento" },
+  atendimento: { titulo: "WhatsApp", subtitulo: "Número da empresa" },
   notificacoes: {
-    titulo: "WhatsApp de Notificações",
-    subtitulo: "Número próprio do estabelecimento",
+    titulo: "Número antigo de avisos",
+    subtitulo: "Não é mais usado — os avisos saem pelo número da empresa",
   },
 };
 

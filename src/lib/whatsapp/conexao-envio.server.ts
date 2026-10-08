@@ -49,48 +49,19 @@ export async function conexaoDeEnvio(
     .eq("tenant_id", tenantId)
     .eq("escopo", "tenant");
   if (finalidade === "notificacoes") {
+    // Central de Notificações = interruptor do negócio sobre a conexão principal.
     const { data: tenant } = await db
       .from("tenants")
-      .select("notificacoes_whatsapp_ativas, notificacoes_central_habilitada")
+      .select("notificacoes_whatsapp_ativas")
       .eq("id", tenantId)
       .maybeSingle();
-    const centralHabilitada = tenant?.notificacoes_central_habilitada === true;
-    const { data: central } = centralHabilitada
-      ? await db
-          .from("conexoes_whatsapp")
-          .select("id, sessao_id, status, compartilhada, provedor, tipo, escopo, tenant_id")
-          .eq("escopo", "central")
-          .maybeSingle()
-      : { data: null };
     const decisao = escolherConexaoDeNotificacao({
-      linhasDoTenant: linhas ?? [],
-      central: central ?? null,
       ativas: tenant?.notificacoes_whatsapp_ativas !== false,
-      centralHabilitada,
     });
     if (decisao.tipo === "desativado") {
       logConexao("envio_notificacoes_desativadas", { tenantId });
       return null;
     }
-    if (decisao.tipo === "propria" || decisao.tipo === "central") {
-      const c = decisao.conexao;
-      if (decisao.tipo === "central") logConexao("envio_pela_central", { tenantId });
-      return {
-        id: c.id,
-        sessao_id: c.sessao_id,
-        compartilhada: false,
-        provedor: c.provedor ?? null,
-        central: decisao.tipo === "central",
-      };
-    }
-    if (decisao.tipo === "falha") {
-      logConexao("envio_notificacoes_indisponivel", { tenantId, motivo: decisao.motivo });
-      if (decisao.avisar === "dono")
-        await sinalizarFalhaDaFinalidade(tenantId, "notificacoes").catch(() => undefined);
-      else await alertarPlataformaCentral(tenantId).catch(() => undefined);
-      return null;
-    }
-    // legado: segue a regra anterior abaixo.
   }
   const escolha = escolherConexaoPorFinalidade(linhas ?? [], finalidade);
   if (escolha.tipo === "propria") {
@@ -174,30 +145,10 @@ async function sinalizarFalhaDaFinalidade(tenantId: string, finalidade: TipoDeCo
   });
 }
 
-/** Central de Notificações indisponível: alerta único por hora no Admin. */
-async function alertarPlataformaCentral(tenantId: string) {
-  const db = await admin();
-  const hora = new Date().toISOString().slice(0, 13);
-  const { data: existente } = await db
-    .from("alertas_da_plataforma")
-    .select("id")
-    .eq("origem", "whatsapp_central")
-    .is("resolvido_em", null)
-    .gte("criado_em", `${hora}:00:00Z`)
-    .limit(1)
-    .maybeSingle();
-  if (existente) return;
-  await db.from("alertas_da_plataforma").insert({
-    origem: "whatsapp_central",
-    nivel: "critico",
-    titulo: "Central de Notificações indisponível",
-    detalhes: { primeiro_tenant: tenantId },
-  });
-}
-
 /**
  * Gateway da sessão, com trava de isolamento: um negócio nunca envia pela
- * sessão de outro (exceto o número oficial compartilhado). Lança se a sessão
+ * sessão de outro (exceto o número oficial compartilhado). A linha legada da
+ * plataforma (`escopo='central'`) nunca envia por negócio. Lança se a sessão
  * não existe ou pertence a outro negócio.
  */
 export async function gatewayDaSessao(sessaoId: string, tenantId: string) {
@@ -207,16 +158,7 @@ export async function gatewayDaSessao(sessaoId: string, tenantId: string) {
     .select("tenant_id, compartilhada, provedor, escopo")
     .eq("sessao_id", sessaoId)
     .maybeSingle();
-  let permitido = podeEnviarPelaConexao(data, tenantId);
-  if (!permitido && data?.escopo === "central") {
-    // Central: só para negócio incluído no rollout pelo Admin.
-    const { data: t } = await db
-      .from("tenants")
-      .select("notificacoes_central_habilitada")
-      .eq("id", tenantId)
-      .maybeSingle();
-    permitido = t?.notificacoes_central_habilitada === true;
-  }
+  const permitido = data?.escopo !== "central" && podeEnviarPelaConexao(data, tenantId);
   if (!permitido) {
     logConexao("envio_bloqueado_isolamento", { tenantId, sessaoId });
     throw new Error("Sessão de WhatsApp não pertence a este negócio.");

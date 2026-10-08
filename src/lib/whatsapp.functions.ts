@@ -158,26 +158,11 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
         _tenant_id: tenantId,
         _permission: "gerenciar_whatsapp",
       }),
-      db
-        .from("tenants")
-        .select("notificacoes_whatsapp_ativas, notificacoes_central_habilitada")
-        .eq("id", tenantId)
-        .maybeSingle(),
+      db.from("tenants").select("notificacoes_whatsapp_ativas").eq("id", tenantId).maybeSingle(),
     ]);
-    const propriaNotif = linhaDoTipo(conexoes, "notificacoes");
-    const pelaCentral = !propriaNotif && tenantFlags?.notificacoes_central_habilitada === true;
-    let envioDisponivel = false;
-    if (propriaNotif) envioDisponivel = propriaNotif.status === "conectado";
-    else if (pelaCentral) {
-      const { data: central } = await db
-        .from("conexoes_whatsapp")
-        .select("status")
-        .eq("escopo", "central")
-        .maybeSingle();
-      envioDisponivel = central?.status === "conectado";
-    } else {
-      envioDisponivel = (conexoes ?? []).some((c) => c.status === "conectado");
-    }
+    // Modelo de conexão única: os avisos saem pela conexão principal.
+    const pelaCentral = false;
+    const envioDisponivel = linhaDoTipo(conexoes, "atendimento")?.status === "conectado";
 
     const salvas = new Map((automacoes ?? []).map((a) => [a.chave, a]));
     return {

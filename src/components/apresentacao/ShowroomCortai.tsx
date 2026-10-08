@@ -236,7 +236,7 @@ function Balao({ cliente, children }: { cliente?: boolean; children: ReactNode }
 function Secretaria({ segmento }: { segmento: Segmento }) {
   const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0]?.nome ?? "Atendimento";
   return (
-    <div className="showroom-chat" aria-label="Demonstração da Secretária Cortaí">
+    <div className="showroom-chat" aria-label="Demonstração do WhatsApp Cortaí">
       <ChatHeader nome="Cortaí" detalhe="Seu negócio" status="Online" />
       <Conversation>
         <ConversationContent className="gap-4 p-4">
@@ -357,7 +357,7 @@ const RECURSOS = [
   },
   {
     icone: MessageCircle,
-    titulo: "Secretária",
+    titulo: "WhatsApp",
     texto: "O cliente agenda sozinho pelo link, a qualquer hora.",
   },
 ];
@@ -512,7 +512,7 @@ export function ShowroomCortai({
                   Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.
                 </strong>
                 <small>
-                  Inclui Secretária, agendamento pelo cliente, WhatsApp e confirmações automáticas.
+                  Inclui WhatsApp, agendamento pelo cliente, WhatsApp e confirmações automáticas.
                 </small>
               </span>
             </div>

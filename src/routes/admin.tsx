@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
-import { Building2, CreditCard, LineChart, Menu } from "lucide-react";
+import { Building2, CreditCard, LineChart, Menu, MessageCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
@@ -16,7 +16,10 @@ const tabs = [
 const desktopGroups = [
   { label: "Principal", items: tabs.slice(0, 2) },
   { label: "Comercial", items: tabs.slice(2, 3) },
-  { label: "Administração", items: tabs.slice(3) },
+  {
+    label: "Administração",
+    items: [{ to: "/admin/whatsapp", label: "WhatsApp", icon: MessageCircle }, ...tabs.slice(3)],
+  },
 ] as const;
 
 export const Route = createFileRoute("/admin")({

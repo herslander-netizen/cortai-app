@@ -45,7 +45,7 @@ export const PLANOS_COMERCIAIS: readonly PlanoComercial[] = [
     herda: "Tudo do Essencial",
     itens: [
       "Lembrete automático por WhatsApp (menos faltas)",
-      "Secretária Cortaí",
+      "WhatsApp com atendimento automático",
       "Agendamentos ilimitados pelo cliente",
       "Modo Foco, encaixes, comanda e caixa",
     ],

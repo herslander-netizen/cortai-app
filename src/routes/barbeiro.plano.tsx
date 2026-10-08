@@ -299,7 +299,7 @@ function PlanoPage() {
               Planos disponíveis
             </h2>
             <p className="mb-3 mt-1 text-sm text-mute">
-              WhatsApp, Secretária e agendamento pelo cliente começam no Conecta.
+              WhatsApp e agendamento pelo cliente começam no Conecta.
             </p>
             <TabelaDePlanos
               atual={data.atual}

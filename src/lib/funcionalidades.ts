@@ -107,7 +107,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
     itens: [
       f({
         chave: "secretaria",
-        rotulo: "Secretária Cortaí",
+        rotulo: "WhatsApp",
         detalhe: "Avisos e respostas automáticas no WhatsApp",
         fonte: { tipo: "recurso", chave: "secretaria_whatsapp" },
         plano: "secretaria_whatsapp",
@@ -143,7 +143,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
       f({
         chave: "pos_atendimento",
         rotulo: "Mensagem pós-atendimento",
-        detalhe: "Ajuste na tela da Secretária",
+        detalhe: "Ajuste na tela do WhatsApp",
         fonte: { tipo: "sem_interruptor" },
         plano: "secretaria_whatsapp",
         configurar: "/barbeiro/cortai",

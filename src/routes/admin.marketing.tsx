@@ -55,7 +55,7 @@ function MarketingPage() {
         <p className="text-xs font-semibold uppercase text-gold">Apresentação pública</p>
         <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Cortaí</h2>
         <p className="mt-2 text-sm leading-relaxed text-mute">
-          Uma página pronta para apresentar Agenda, Clientes, Modo Foco, Secretária, Caixa e planos.
+          Uma página pronta para apresentar Agenda, Clientes, Modo Foco, WhatsApp, Caixa e planos.
         </p>
         <div
           className="mt-5 rounded-xl border border-line2 bg-ink px-4 py-3 text-sm text-mute"
