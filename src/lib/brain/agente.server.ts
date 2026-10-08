@@ -163,7 +163,6 @@ export async function pensarCortai(input: {
 
   // 1) Ação pendente: só executa com confirmação inequívoca, uma única vez.
   // O resultado é comunicado por texto FIXO do sistema, nunca escrito pela IA.
-  const notaDoSistema: string | null = null;
   const anterior = input.pendente && pendenteValida(input.pendente.criadaEm) ? input.pendente : null;
   const fim = async (texto: string, novaPendente: Pendente | null, erro?: string) => {
     await registrarTurno({ tenantId: ctx.tenantId, canal: ctx.canal, equipe: ehEquipeNoWhatsapp(ctx), ator: ctx.ator, conversaId, acoes, sucesso: !erro, ...(erro ? { erro } : {}) });
@@ -193,7 +192,6 @@ export async function pensarCortai(input: {
       content: t.texto,
     })),
     { role: "user", content: input.mensagem },
-    ...(notaDoSistema ? [{ role: "developer", content: notaDoSistema }] : []),
   ];
 
   const gateway = criarSessaoDoGateway();
