@@ -575,7 +575,10 @@ export async function processarMensagemRecebida(input: {
   }
   // Número de NOTIFICAÇÕES com número de ATENDIMENTO próprio: só comandos simples
   // (tratados acima); conversa livre é orientada uma vez ao número de atendimento.
-  if ((conexao as { tipo?: string | null }).tipo === "notificacoes" && !(conexao as { compartilhada?: boolean }).compartilhada) {
+  if (
+    (conexao as { tipo?: string | null }).tipo === "notificacoes" &&
+    !(conexao as { compartilhada?: boolean }).compartilhada
+  ) {
     const { data: atendimento } = await db
       .from("conexoes_whatsapp")
       .select("numero")

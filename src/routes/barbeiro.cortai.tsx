@@ -861,8 +861,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       </div>
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
-        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O CortAI usa somente eventos e
-        dados reais do seu negócio e nunca acessa dados de outro.
+        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O CortAI usa somente eventos e dados
+        reais do seu negócio e nunca acessa dados de outro.
       </p>
 
       {qrAberto && conexao?.qrCode && !qrExpirado ? (

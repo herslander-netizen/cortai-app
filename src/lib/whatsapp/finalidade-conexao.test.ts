@@ -2,9 +2,27 @@ import { describe, expect, it } from "vitest";
 import { escolherConexaoPorFinalidade, tipoValido } from "./finalidade-conexao";
 import { podeEnviarPelaConexao } from "./saude-conexao";
 
-const atend = (status = "conectado") => ({ id: "a", sessao_id: "s-a", status, tipo: "atendimento", compartilhada: false });
-const notif = (status = "conectado") => ({ id: "n", sessao_id: "s-n", status, tipo: "notificacoes", compartilhada: false });
-const oficial = { id: "o", sessao_id: "s-o", status: "conectado", tipo: "atendimento", compartilhada: true };
+const atend = (status = "conectado") => ({
+  id: "a",
+  sessao_id: "s-a",
+  status,
+  tipo: "atendimento",
+  compartilhada: false,
+});
+const notif = (status = "conectado") => ({
+  id: "n",
+  sessao_id: "s-n",
+  status,
+  tipo: "notificacoes",
+  compartilhada: false,
+});
+const oficial = {
+  id: "o",
+  sessao_id: "s-o",
+  status: "conectado",
+  tipo: "atendimento",
+  compartilhada: true,
+};
 
 describe("roteamento por finalidade", () => {
   it("duas conexões: conversa sai pelo atendimento", () => {
@@ -46,7 +64,9 @@ describe("roteamento por finalidade", () => {
       conexao: { id: "a" },
       legado: true,
     });
-    expect(escolherConexaoPorFinalidade([oficial], "atendimento")).toMatchObject({ tipo: "reserva" });
+    expect(escolherConexaoPorFinalidade([oficial], "atendimento")).toMatchObject({
+      tipo: "reserva",
+    });
   });
   it("tipo desconhecido vira atendimento", () => {
     expect(tipoValido(null)).toBe("atendimento");
@@ -56,7 +76,17 @@ describe("roteamento por finalidade", () => {
 
 describe("isolamento entre negócios", () => {
   it("sessão de outro negócio nunca é usada", () => {
-    expect(podeEnviarPelaConexao({ tenant_id: "t2", compartilhada: false, provedor: "evolution" } as never, "t1")).toBe(false);
-    expect(podeEnviarPelaConexao({ tenant_id: "t1", compartilhada: false, provedor: "evolution" } as never, "t1")).toBe(true);
+    expect(
+      podeEnviarPelaConexao(
+        { tenant_id: "t2", compartilhada: false, provedor: "evolution" } as never,
+        "t1",
+      ),
+    ).toBe(false);
+    expect(
+      podeEnviarPelaConexao(
+        { tenant_id: "t1", compartilhada: false, provedor: "evolution" } as never,
+        "t1",
+      ),
+    ).toBe(true);
   });
 });

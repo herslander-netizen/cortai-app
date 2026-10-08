@@ -345,53 +345,61 @@ async function sessaoDoTenant(tenantId: string, tipo: TipoDeConexao) {
 export const conectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))
-  .handler(async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
-    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
-    const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
-      await import("@/lib/whatsapp/gateway.server");
-    if (!gatewayConfigurado()) {
-      return {
-        status: "desconectado",
-        aviso:
-          "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Cortaí para liberar.",
-      };
-    }
-    const sessao = await sessaoDoTenant(tenantId, tipo);
-    const db = await admin();
-    try {
-      const estado = await gatewayDeWhatsapp.criarSessao(
-        sessao.sessao_id,
-        provedorDoGateway() === "evolution" ? URL_DE_EVENTOS_EVOLUTION : URL_DE_EVENTOS,
-      );
-      await db
-        .from("conexoes_whatsapp")
-        .update({
-          provedor: provedorDoGateway(),
+  .handler(
+    async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+      await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
+        await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado()) {
+        return {
+          status: "desconectado",
+          aviso:
+            "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Cortaí para liberar.",
+        };
+      }
+      const sessao = await sessaoDoTenant(tenantId, tipo);
+      const db = await admin();
+      try {
+        const estado = await gatewayDeWhatsapp.criarSessao(
+          sessao.sessao_id,
+          provedorDoGateway() === "evolution" ? URL_DE_EVENTOS_EVOLUTION : URL_DE_EVENTOS,
+        );
+        await db
+          .from("conexoes_whatsapp")
+          .update({
+            provedor: provedorDoGateway(),
+            status: estado.status === "desconectado" ? "pendente" : estado.status,
+            qr_code: estado.qrCode ?? null,
+            qr_expira_em: estado.qrExpiraEm ?? null,
+            ultimo_erro: null,
+          })
+          .eq("id", sessao.id);
+        return {
           status: estado.status === "desconectado" ? "pendente" : estado.status,
-          qr_code: estado.qrCode ?? null,
-          qr_expira_em: estado.qrExpiraEm ?? null,
-          ultimo_erro: null,
-        })
-        .eq("id", sessao.id);
-      return { status: estado.status === "desconectado" ? "pendente" : estado.status, aviso: null };
-    } catch (erro) {
-      const mensagem = erro instanceof Error ? erro.message : "Falha ao conectar.";
-      await db
-        .from("conexoes_whatsapp")
-        .update({ status: "erro", ultimo_erro: mensagem })
-        .eq("id", sessao.id);
-      return { status: "erro", aviso: mensagem };
-    }
-  });
+          aviso: null,
+        };
+      } catch (erro) {
+        const mensagem = erro instanceof Error ? erro.message : "Falha ao conectar.";
+        await db
+          .from("conexoes_whatsapp")
+          .update({ status: "erro", ultimo_erro: mensagem })
+          .eq("id", sessao.id);
+        return { status: "erro", aviso: mensagem };
+      }
+    },
+  );
 
 /** Busca o QR atual direto no serviço (usado pelo botão "Gerar novo QR Code"). */
 export const atualizarQrCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))
   .handler(
-    async ({ context, data: tipo }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+    async ({
+      context,
+      data: tipo,
+    }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
@@ -429,29 +437,32 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
 export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))
-  .handler(async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
-    const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
-    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
-    const { gatewayConfigurado, gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
-    if (!gatewayConfigurado())
-      return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
-    const sessao = await sessaoDoTenant(tenantId, tipo);
-    const db = await admin();
-    try {
-      const estado = await gatewayDeWhatsapp.reiniciarSessao(sessao.sessao_id);
-      await db
-        .from("conexoes_whatsapp")
-        .update({ status: estado.status, qr_code: estado.qrCode ?? null, ultimo_erro: null })
-        .eq("id", sessao.id);
-      return { status: estado.status, aviso: null };
-    } catch (erro) {
-      return {
-        status: "erro",
-        aviso: erro instanceof Error ? erro.message : "Não foi possível reconectar.",
-      };
-    }
-  });
+  .handler(
+    async ({ context, data: tipo }): Promise<{ status: StatusDaConexao; aviso: string | null }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+      await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      const { gatewayConfigurado, gatewayDeWhatsapp } =
+        await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado())
+        return { status: "desconectado", aviso: "Serviço de WhatsApp não configurado." };
+      const sessao = await sessaoDoTenant(tenantId, tipo);
+      const db = await admin();
+      try {
+        const estado = await gatewayDeWhatsapp.reiniciarSessao(sessao.sessao_id);
+        await db
+          .from("conexoes_whatsapp")
+          .update({ status: estado.status, qr_code: estado.qrCode ?? null, ultimo_erro: null })
+          .eq("id", sessao.id);
+        return { status: estado.status, aviso: null };
+      } catch (erro) {
+        return {
+          status: "erro",
+          aviso: erro instanceof Error ? erro.message : "Não foi possível reconectar.",
+        };
+      }
+    },
+  );
 
 /** Desconecta a sessão. Não apaga clientes, histórico, agendamentos ou serviços. */
 export const desconectarWhatsapp = createServerFn({ method: "POST" })
@@ -500,7 +511,10 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))
   .handler(
-    async ({ context, data: tipo }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
+    async ({
+      context,
+      data: tipo,
+    }): Promise<{ conexao: ConexaoDeWhatsapp | null; aviso: string | null }> => {
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
