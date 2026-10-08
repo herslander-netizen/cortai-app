@@ -149,7 +149,7 @@ export async function conexaoPorSessao(sessaoId: string) {
   const { data } = await db
     .from("conexoes_whatsapp")
     .select(
-      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo, escopo",
+      "id, tenant_id, sessao_id, status, compartilhada, provedor, numero, nome_exibicao, ultimo_evento_em, conectado_em, tipo, escopo, qr_code, qr_expira_em",
     )
     .eq("sessao_id", sessaoId)
     .maybeSingle();
@@ -743,8 +743,7 @@ export async function atualizarEstadoDaConexao(
     .from("conexoes_whatsapp")
     .update({
       status,
-      qr_code: status === "qr_pronto" ? (estado.qrCode ?? null) : null,
-      qr_expira_em: status === "qr_pronto" ? (estado.qrExpiraEm ?? null) : null,
+      ...(await import("./qr-conexao")).qrAposEstado(status, estado, conexao),
       numero: novo.numero,
       nome_exibicao: novo.nome_exibicao,
       ultimo_erro: estado.erro ?? null,

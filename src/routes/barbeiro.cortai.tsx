@@ -679,7 +679,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
   // O QR aparece sozinho assim que o serviço entrega um código válido.
   useEffect(() => {
-    if (status === "qr_pronto" && conexao?.qrCode) setQrAberto(true);
+    if ((status === "qr_pronto" || status === "conectando") && conexao?.qrCode) setQrAberto(true);
   }, [status, conexao?.qrCode]);
 
   if (!painel.gatewayConfigurado) {
@@ -728,7 +728,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     );
   }
 
-  const qrExpirado = status === "qr_pronto" && restante !== null && restante <= 0;
+  // "connecting" com QR válido = aguardando leitura (não esconder o QR).
+  const qrPronto = status === "qr_pronto" || (status === "conectando" && !!conexao?.qrCode);
+  const qrExpirado = qrPronto && restante !== null && restante <= 0;
   const conectando = acao.isPending || status === "pendente" || status === "conectando";
 
   const visual: keyof typeof CORES_DO_ESTADO =
@@ -736,7 +738,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "conectado"
       : status === "erro"
         ? "erro"
-        : conectando || status === "qr_pronto"
+        : conectando || qrPronto
           ? "conectando"
           : "desconectado";
 
@@ -745,7 +747,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "Conectado"
       : status === "erro"
         ? "Erro"
-        : status === "qr_pronto"
+        : qrPronto
           ? qrExpirado
             ? "QR Code expirado"
             : "Aguardando leitura"
@@ -758,7 +760,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "WhatsApp conectado"
       : qrExpirado
         ? "Este QR Code expirou"
-        : status === "qr_pronto"
+        : qrPronto
           ? "Escaneie o QR Code usando o WhatsApp"
           : status === "conectando"
             ? "Conectando seu WhatsApp…"
@@ -787,7 +789,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ? "Conectando…"
       : status === "erro"
         ? "Tentar novamente"
-        : status === "qr_pronto"
+        : qrPronto
           ? "Ativar conexão"
           : conexao?.conectadoEm
             ? "Reconectar WhatsApp"
@@ -839,7 +841,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </div>
       ) : null}
 
-      {status === "qr_pronto" && conexao?.qrCode && !qrExpirado && !qrAberto ? (
+      {qrPronto && conexao?.qrCode && !qrExpirado && !qrAberto ? (
         <Button
           variant="ghost"
           type="button"
