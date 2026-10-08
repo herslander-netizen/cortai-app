@@ -4,10 +4,10 @@
  * Segurança:
  * - se `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`) estiver
  *   configurado, o cabeçalho `x-webhook-secret` é conferido em tempo constante;
- * - TEMPORÁRIO (integração/teste): sem segredo configurado, o endpoint aceita
- *   a chamada sem autenticação para permitir o teste ponta a ponta. Em
- *   produção, configure `EVOLUTION_WEBHOOK_SECRET` na Evolution e no ambiente
- *   para restaurar a validação;
+ * - TEMPORÁRIO (integração/teste): a instância `cortai` é aceita sem segredo
+ *   para o teste ponta a ponta com a Evolution; qualquer outra instância
+ *   continua exigindo o segredo. Em produção, remova a exceção e configure
+ *   `EVOLUTION_WEBHOOK_SECRET` na Evolution e no ambiente;
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
  * - mensagens enviadas pela própria barbearia (fromMe) são ignoradas.
