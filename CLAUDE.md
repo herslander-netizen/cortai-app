@@ -110,8 +110,7 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 
 ## Auditoria
 
-Última auditoria: `docs/auditoria-2026-10-09.md`. Achados abertos mais graves:
-- O papel de admin da plataforma é concedido por `ilike` no e-mail, onde `_` e `%` funcionam como curinga.
+Última auditoria: `docs/auditoria-2026-10-09.md`. Achados abertos mais graves (o do admin por curinga no e-mail e o do cupom foram corrigidos em `022e748`):
 - O RLS deixa qualquer membro ativo alterar o saldo de crédito e fiado (`movimentos`), marcar pagamento como confirmado em `agendamentos` e mudar preços e avaliações, sem conferir `permissao_efetiva`.
 - O chat da CortAI no painel ignora o papel da pessoa.
 - `tenantIdDoMembro` ignora o negócio escolhido.

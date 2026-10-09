@@ -59,13 +59,13 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 
 | # | Severidade | Tema |
 |---|---|---|
-| 1 | **Crítica** (condicional) | Admin da plataforma concedido por `ilike` no e-mail: `_` e `%` funcionam como curinga |
+| 1 | ~~Crítica~~ **Corrigido** em `022e748` | Admin da plataforma concedido por `ilike` no e-mail: `_` e `%` funcionam como curinga |
 | 2 | **Alta** | Qualquer membro altera saldo de crédito e fiado de clientes (`movimentos`), inclusive sem autoria |
 | 3 | **Alta** | Qualquer membro marca pagamento como confirmado, finaliza, cancela e muda o valor direto em `agendamentos` |
 | 4 | **Alta** | CortAI no painel ignora papel e permissões (chave de serviço passa por cima de `cancelar_agendamento`) |
 | 5 | **Alta** | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
 | 6 | Média | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
-| 7 | Média | Cupom aceita curinga (`%`, `_`) no código digitado |
+| 7 | ~~Média~~ **Corrigido** em `022e748` | Cupom aceita curinga (`%`, `_`) no código digitado |
 | 8 | Média | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
 | 9 | Média | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
 | 10 | Baixa | Dois sistemas de migração e 63 casts `as never` desnecessários |
@@ -81,6 +81,8 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 ## Achados
 
 ### 1. Crítica (condicional) — Admin da plataforma por curinga no e-mail
+
+> **Corrigido em 09/10/2026 (`022e748`).** O e-mail agora é comparado de forma exata, sem diferenciar maiúsculas (`mesmoEmail` em `src/lib/comparacao-exata.ts`). Conferido no banco: a única conta admin tem e-mail autorizado exato, ou seja, nenhum acesso indevido ocorreu por esse caminho.
 
 **Onde:** `src/lib/sessao.functions.ts`, função `garantirPerfil`.
 
@@ -192,6 +194,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 **Correção:** exigir a permissão correspondente nas políticas de escrita, por exemplo `has_tenant_permission(tenant_id, 'alterar_dados_barbearia')`. Para `avaliacoes`, deixar só leitura para a equipe; a gravação já é feita pela RPC pública.
 
 ### 7. Média — Cupom aceita curinga
+
+> **Corrigido em 09/10/2026 (`022e748`).** O código só aceita letras, números e hífen (`codigoDeCupomValido`), tanto ao usar o cupom (`cobranca.server.ts`, `aplicarCupom`) quanto ao cadastrá-lo no admin (`salvarCupom`).
 
 **Onde:** `src/lib/cobranca.server.ts`, função `cupomPorCodigo`.
 
