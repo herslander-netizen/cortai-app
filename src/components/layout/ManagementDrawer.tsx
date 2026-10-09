@@ -214,6 +214,7 @@ export function ManagementHeader() {
           </SheetTrigger>
           <SheetContent
             side="left"
+            arrastarParaFechar
             className="management-drawer w-[90vw] max-w-[390px] overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200 [&>button:first-child]:hidden"
           >
             <div className="flex h-full min-h-0 flex-col">
