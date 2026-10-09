@@ -9,7 +9,7 @@ DECLARE
   u_dono uuid := gen_random_uuid(); u_ger uuid := gen_random_uuid();
   u_barb uuid := gen_random_uuid(); u_rec uuid := gen_random_uuid(); u_fora uuid := gen_random_uuid();
   p_meu uuid := gen_random_uuid(); p_col uuid := gen_random_uuid(); cli uuid := gen_random_uuid();
-  c1 uuid := gen_random_uuid(); c2 uuid := gen_random_uuid(); i1 uuid := gen_random_uuid(); i2 uuid := gen_random_uuid(); sv uuid := gen_random_uuid();
+  c1 uuid := gen_random_uuid(); c2 uuid := gen_random_uuid(); i1 uuid := gen_random_uuid(); i2 uuid := gen_random_uuid(); sv uuid := gen_random_uuid(); sv2 uuid := gen_random_uuid();
   falhas text[] := '{}'; total int := 0; n int; ok boolean;
 BEGIN
   -- Cenário
@@ -30,9 +30,10 @@ BEGIN
     (t,'entrada','servico','hoje meu',1000,u_dono,p_meu,now()),
     (t,'entrada','servico','hoje colega',2000,u_dono,p_col,now()),
     (t,'entrada','servico','anteontem colega',3000,u_dono,p_col,now() - interval '2 days');
-  INSERT INTO public.servicos (id, tenant_id, nome) VALUES (sv, t, 'Corte');
+  -- Preço do catálogo igual ao do item: a comanda recusa preço diferente sem permissão (exigir_preco_autorizado).
+  INSERT INTO public.servicos (id, tenant_id, nome, preco_centavos) VALUES (sv, t, 'Corte', 1000), (sv2, t, 'Corte longo', 2000);
   INSERT INTO public.comanda_itens (id, comanda_id, servico_id, tipo, descricao, quantidade, valor_unitario_centavos, valor_total_centavos, comissao_percentual, comissao_centavos) VALUES
-    (i1,c1,sv,'servico','Corte',1,1000,1000,50,500), (i2,c2,sv,'servico','Corte',1,2000,2000,50,1000);
+    (i1,c1,sv,'servico','Corte',1,1000,1000,50,500), (i2,c2,sv2,'servico','Corte longo',1,2000,2000,50,1000);
   INSERT INTO public.comissoes (tenant_id, comanda_id, item_comanda_id, profissional_id, tipo_item, base_centavos, percentual, valor_centavos) VALUES
     (t,c1,i1,p_meu,'servico',1000,50,500), (t,c2,i2,p_col,'servico',2000,50,1000);
 

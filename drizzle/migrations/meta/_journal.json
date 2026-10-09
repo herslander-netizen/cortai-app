@@ -190,6 +190,13 @@
       "when": 1791486766547,
       "tag": "0026_agendamentos_origem_instagram_assistido",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791572445167,
+      "tag": "0027_equipe_escreve_com_permissao",
+      "breakpoints": true
     }
   ]
 }
