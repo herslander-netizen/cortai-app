@@ -5367,6 +5367,10 @@ export type Database = {
         }
         Returns: Json
       }
+      tem_alguma_permissao: {
+        Args: { _permissoes: string[]; _tenant_id: string }
+        Returns: boolean
+      }
       teto_do_papel: { Args: { _papel: string }; Returns: string[] }
       unaccent_placeholder: { Args: { _texto: string }; Returns: string }
       webhook_consumir: {
