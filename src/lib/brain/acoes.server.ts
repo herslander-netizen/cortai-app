@@ -27,6 +27,11 @@ export type ContextoDoCerebro = {
   papel?: Papel;
   /** Profissional da pessoa da equipe (limita a agenda dela). */
   profissionalId?: string | null;
+  /**
+   * Painel: permissões efetivas da pessoa no negócio (resolvidas no servidor por
+   * `has_tenant_permission`). Ausente = nenhuma: ação que exige permissão fica barrada.
+   */
+  permissoes?: readonly string[];
 };
 
 export type Papel = "cliente" | "profissional" | "dono";
@@ -50,6 +55,8 @@ type Definicao = {
   canais: Canal[];
   /** Papéis no WhatsApp; sem isso: cliente, se o canal incluir whatsapp. */
   papeis?: Papel[];
+  /** No painel, a pessoa precisa ter TODAS estas permissões (as mesmas que as telas exigem). */
+  permissoes?: readonly string[];
   executar: (ctx: ContextoDoCerebro, dados: any) => Promise<unknown>;
   resumir?: (ctx: ContextoDoCerebro, dados: any) => Promise<string>;
 };
@@ -107,6 +114,26 @@ async function clienteAlvo(ctx: ContextoDoCerebro, clienteId?: string | null) {
   return data.id as string;
 }
 
+/**
+ * Profissional (WhatsApp ou painel) só mexe nos atendimentos dele; sem profissional
+ * ligado ao usuário, em nenhum. Pura, para testar sem banco.
+ */
+export function atendimentoDeOutroProfissional(
+  ctx: Pick<ContextoDoCerebro, "canal" | "papel" | "profissionalId">,
+  profissionalDoAtendimento: string | null | undefined,
+): boolean {
+  if (ctx.papel !== "profissional" || (ctx.canal !== "whatsapp" && ctx.canal !== "painel"))
+    return false;
+  return !ctx.profissionalId || profissionalDoAtendimento !== ctx.profissionalId;
+}
+
+/** Profissional agenda sempre para si; os demais escolhem. */
+function profissionalEfetivo(ctx: ContextoDoCerebro, escolhido: unknown): string {
+  return ctx.papel === "profissional" && ctx.profissionalId
+    ? ctx.profissionalId
+    : String(escolhido);
+}
+
 /** No canal do cliente, o agendamento precisa ser dele. */
 async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId: string) {
   const db = await admin();
@@ -122,11 +149,7 @@ async function exigirAgendamentoPermitido(ctx: ContextoDoCerebro, agendamentoId:
     if (!proprio || proprio.id !== data.cliente_id)
       throw new Error("Esse agendamento não pertence a este telefone.");
   }
-  if (
-    ctx.canal === "whatsapp" &&
-    ctx.papel === "profissional" &&
-    data.profissional_id !== ctx.profissionalId
-  )
+  if (atendimentoDeOutroProfissional(ctx, data.profissional_id))
     throw new Error("Esse atendimento é de outro profissional.");
   return data;
 }
@@ -267,6 +290,7 @@ export const ACOES: Record<string, Definicao> = {
     parametros: obj({ telefone: { type: ["string", "null"] } }, ["telefone"]),
     risco: "leitura",
     canais: ATENDIMENTO,
+    permissoes: ["visualizar_clientes"],
     executar: async (ctx, d) => {
       if (ehCliente(ctx)) return clienteDoTelefone(ctx);
       const db = await admin();
@@ -288,7 +312,11 @@ export const ACOES: Record<string, Definicao> = {
     canais: ATENDIMENTO,
     executar: async (ctx, d) => {
       const clienteId = await clienteAlvo(ctx, d.clienteId);
-      return dominio.listarAgendamentosDoCliente(agenteDe(ctx), { clienteId });
+      const lista = await dominio.listarAgendamentosDoCliente(agenteDe(ctx), { clienteId });
+      // Profissional só enxerga os atendimentos dele, mesmo do cliente que atende.
+      return ctx.papel === "profissional"
+        ? lista.filter((a) => !atendimentoDeOutroProfissional(ctx, a.profissional_id))
+        : lista;
     },
   },
   consultar_agendamento: {
@@ -332,6 +360,7 @@ export const ACOES: Record<string, Definicao> = {
     ]),
     risco: "escrita",
     canais: ATENDIMENTO,
+    permissoes: ["editar_clientes"],
     resumir: async (ctx, d) => `Cadastrar ${String(d.nome).trim()} como cliente.`,
     executar: (ctx, d) =>
       dominio.registrarCliente(agenteDe(ctx), {
@@ -350,6 +379,7 @@ export const ACOES: Record<string, Definicao> = {
     ]),
     risco: "escrita",
     canais: ATENDIMENTO,
+    permissoes: ["editar_clientes"],
     resumir: async (_ctx, d) => `Atualizar o nome do cliente para ${String(d.nome).trim()}.`,
     executar: async (ctx, d) => {
       const clienteId = await clienteAlvo(ctx, d.clienteId);
@@ -373,6 +403,7 @@ export const ACOES: Record<string, Definicao> = {
     ),
     risco: "escrita",
     canais: ["painel"],
+    permissoes: ["editar_clientes"],
     resumir: async (_ctx, d) => `Anotar na ficha: ${d.chave} = ${d.valor}.`,
     executar: (ctx, d) =>
       dominio.salvarPreferenciaDoCliente(agenteDe(ctx), {
@@ -396,12 +427,20 @@ export const ACOES: Record<string, Definicao> = {
     ),
     risco: "escrita",
     canais: ATENDIMENTO,
+    permissoes: ["agendamento_manual"],
     resumir: async (ctx, d) => {
-      const { servico, profissional } = await nomes(ctx, d);
+      if (ctx.papel === "profissional" && !ctx.profissionalId)
+        throw new Error("Seu usuário não está ligado a um profissional.");
+      const { servico, profissional } = await nomes(ctx, {
+        servicoId: d.servicoId,
+        profissionalId: profissionalEfetivo(ctx, d.profissionalId),
+      });
       if (!servico || !profissional) throw new Error("Serviço ou profissional não encontrado.");
       return `Agendar ${servico.nome} (${reais(servico.preco_centavos)}, ${servico.duracao_min} min) com ${profissional.nome} em ${await quando(ctx, String(d.inicio))}.`;
     },
     executar: async (ctx, d) => {
+      if (ctx.papel === "profissional" && !ctx.profissionalId)
+        throw new Error("Seu usuário não está ligado a um profissional.");
       let clienteId: string;
       if (ehCliente(ctx)) {
         const proprio = await clienteDoTelefone(ctx);
@@ -420,10 +459,7 @@ export const ACOES: Record<string, Definicao> = {
       return dominio.ACOES_DO_AGENTE.criar_agendamento(agenteDe(ctx), {
         clienteId,
         servicoId: String(d.servicoId),
-        profissionalId:
-          ctx.papel === "profissional" && ctx.profissionalId
-            ? ctx.profissionalId
-            : String(d.profissionalId),
+        profissionalId: profissionalEfetivo(ctx, d.profissionalId),
         inicio: String(d.inicio),
         formaPagamento: "balcao",
       });
@@ -434,6 +470,7 @@ export const ACOES: Record<string, Definicao> = {
     parametros: obj({ agendamentoId: { type: "string" } }, ["agendamentoId"]),
     risco: "escrita",
     canais: ATENDIMENTO,
+    permissoes: ["cancelar_agendamento"],
     resumir: async (ctx, d) => {
       const a = await exigirAgendamentoPermitido(ctx, String(d.agendamentoId));
       const { servico } = await nomes(ctx, { servicoId: a.servico_id ?? undefined });
@@ -456,6 +493,7 @@ export const ACOES: Record<string, Definicao> = {
     ),
     risco: "escrita",
     canais: ATENDIMENTO,
+    permissoes: ["agendamento_manual", "cancelar_agendamento"],
     resumir: async (ctx, d) => {
       const a = await exigirAgendamentoPermitido(ctx, String(d.agendamentoId));
       return `Remarcar o atendimento de ${await quando(ctx, a.inicio)} para ${await quando(ctx, String(d.novoInicio))}.`;
@@ -465,7 +503,9 @@ export const ACOES: Record<string, Definicao> = {
       return dominio.remarcarAgendamento(agenteDe(ctx), {
         agendamentoId: String(d.agendamentoId),
         novoInicio: String(d.novoInicio),
-        profissionalId: d.profissionalId ?? null,
+        // Profissional remarca só na própria agenda; os demais podem trocar de profissional.
+        profissionalId:
+          ctx.papel === "profissional" ? (ctx.profissionalId ?? null) : (d.profissionalId ?? null),
       });
     },
   },
@@ -596,7 +636,25 @@ export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
     return a.canais.includes("painel");
   }
   if (a.papeis && !a.canais.length) return false;
-  return a.canais.includes(ctx.canal);
+  return a.canais.includes(ctx.canal) && permitidoNoPainel(nome, a, ctx);
+}
+
+/**
+ * Painel: a CortAI age com a chave de serviço (ignora o RLS), então o papel e as permissões
+ * da pessoa precisam ser conferidos AQUI — as mesmas que as telas exigem. Profissional não vê
+ * indicadores; sem a permissão (ou sem permissões resolvidas) a ação nem é oferecida ao modelo
+ * e é recusada também na hora de executar uma ação pendente confirmada.
+ */
+function permitidoNoPainel(nome: string, a: Definicao, ctx: ContextoDoCerebro): boolean {
+  if (ctx.canal !== "painel") return true;
+  if (ctx.papel === "profissional" && SO_DONO.has(nome)) return false;
+  if (!a.permissoes?.length) return true;
+  return a.permissoes.every((p) => ctx.permissoes?.includes(p));
+}
+
+/** Permissões que o painel precisa resolver para a pessoa (todas as exigidas pelas ações). */
+export function permissoesUsadasNoPainel(): string[] {
+  return [...new Set(Object.values(ACOES).flatMap((a) => a.permissoes ?? []))];
 }
 
 export function acoesDoContexto(ctx: ContextoDoCerebro) {

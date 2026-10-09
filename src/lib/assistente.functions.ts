@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { exigirPermissao, tenantIdDoMembro, vinculoDoMembro } from "@/lib/tenant";
 import type { RespostaDoAssistente } from "@/lib/ia/assistente";
 
 /** Monta o contexto real da barbearia — a IA só enxerga o que existe de verdade. */
@@ -106,7 +106,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
   )
   .handler(
     async ({ data, context }): Promise<{ conversaId: string; resposta: RespostaDoAssistente }> => {
-      const tenantId = await tenantIdDoMembro(context);
+      const { tenantId, papel: papelNaEquipe } = await vinculoDoMembro(context);
       const db = context.supabase;
 
       let conversaId = data.conversaId;
@@ -177,8 +177,19 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
         if (!iaDisponivel()) resposta = respostaIndisponivel();
         else {
+          // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
+          // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
+          const { acessoDoPainel } = await import("@/lib/brain/acesso-painel.server");
+          const acesso = await acessoDoPainel(context, tenantId, papelNaEquipe);
           const r = await pensarCortai({
-            ctx: { tenantId, canal: "painel", ator: context.userId },
+            ctx: {
+              tenantId,
+              canal: "painel",
+              ator: context.userId,
+              papel: acesso.papel,
+              profissionalId: acesso.profissionalId,
+              permissoes: acesso.permissoes,
+            },
             persona: { nome: "CortAI", negocio: contexto.nome, segmento: contexto.segmento },
             historico: historicoBruto.map((m) => ({
               autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",

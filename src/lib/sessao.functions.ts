@@ -8,6 +8,7 @@ import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
 import { mesmoEmail } from "@/lib/comparacao-exata";
+import { escolherVinculo } from "@/lib/vinculo-ativo";
 
 const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
@@ -100,7 +101,8 @@ export const getSessao = createServerFn({ method: "GET" })
           .select(
             "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
           )
-          .eq("user_id", context.userId),
+          .eq("user_id", context.userId)
+          .order("criado_em", { ascending: true }),
         db
           .from("perfis")
           .select("nome, tipo, tenant_ativo, contexto_ativo")
@@ -113,12 +115,9 @@ export const getSessao = createServerFn({ method: "GET" })
       ]);
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
-    // primeiro vínculo ativo como padrão seguro.
+    // primeiro vínculo ativo como padrão seguro — a mesma regra do servidor (`vinculoDoMembro`).
     const lista = vinculos ?? [];
-    const escolhida = perfil?.tenant_ativo
-      ? lista.find((v) => v.tenant_id === perfil.tenant_ativo && v.ativo)
-      : undefined;
-    const vinculo = escolhida ?? lista.find((v) => v.ativo) ?? lista[0] ?? null;
+    const vinculo = escolherVinculo(lista, perfil?.tenant_ativo);
 
     const escolha = (perfil?.tipo ?? tipo) as string;
     const contextos = decidirContextos({

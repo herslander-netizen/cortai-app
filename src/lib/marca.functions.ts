@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
+import { escolherVinculo } from "@/lib/vinculo-ativo";
 import {
   normalizarPagina,
   paginaConfigSchema,
@@ -93,15 +94,19 @@ async function containerSalvo(db: SupabaseClient<Database>, tenantId: string) {
 }
 
 async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
-  const { data: vinculo } = await supabase
-    .from("tenant_usuarios")
-    .select("tenant_id, papel")
-    .eq("user_id", userId)
-    .in("papel", ["dono"])
-    .limit(1)
-    .maybeSingle();
+  const [{ data: vinculos }, { data: perfil }] = await Promise.all([
+    supabase
+      .from("tenant_usuarios")
+      .select("tenant_id, papel, ativo")
+      .eq("user_id", userId)
+      .eq("papel", "dono")
+      .order("criado_em", { ascending: true }),
+    supabase.from("perfis").select("tenant_ativo").eq("user_id", userId).maybeSingle(),
+  ]);
+  // Dono de mais de um negócio: vale o que está em uso, como no resto do servidor.
+  const vinculo = escolherVinculo(vinculos ?? [], perfil?.tenant_ativo);
 
-  if (!vinculo) throw new Error("Apenas o dono pode configurar a marca.");
+  if (!vinculo?.ativo) throw new Error("Apenas o dono pode configurar a marca.");
   return vinculo.tenant_id as string;
 }
 

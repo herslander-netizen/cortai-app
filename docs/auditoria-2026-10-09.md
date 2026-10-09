@@ -62,8 +62,8 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 1 | ~~Crítica~~ **Corrigido** em `022e748` | Admin da plataforma concedido por `ilike` no e-mail: `_` e `%` funcionam como curinga |
 | 2 | ~~**Alta**~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera saldo de crédito e fiado de clientes (`movimentos`), inclusive sem autoria |
 | 3 | ~~**Alta**~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro marca pagamento como confirmado, finaliza, cancela e muda o valor direto em `agendamentos` |
-| 4 | **Alta** | CortAI no painel ignora papel e permissões (chave de serviço passa por cima de `cancelar_agendamento`) |
-| 5 | **Alta** | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
+| 4 | ~~**Alta**~~ **Corrigido no código** (aguarda publicar) | CortAI no painel ignora papel e permissões (chave de serviço passa por cima de `cancelar_agendamento`) |
+| 5 | ~~**Alta**~~ **Corrigido no código** (aguarda publicar) | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
 | 6 | ~~Média~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
 | 7 | ~~Média~~ **Corrigido** em `022e748` | Cupom aceita curinga (`%`, `_`) no código digitado |
 | 8 | Média | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
@@ -157,6 +157,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 
 ### 4. Alta — CortAI no painel ignora papel e permissões
 
+> **Corrigido no código em 09/10/2026.** No painel, o cérebro agora recebe o papel, o profissional ligado e as permissões efetivas da pessoa (`acesso-painel.server.ts`, via `has_tenant_permission`). Cada ação de escrita exige as mesmas permissões das telas (`agendamento_manual`, `cancelar_agendamento`, `editar_clientes`, `visualizar_clientes`); sem permissão a ação nem é oferecida ao modelo e é recusada também ao executar uma ação pendente confirmada. Barbeiro não vê indicadores do negócio e só mexe nos próprios atendimentos (também no WhatsApp); sem permissões resolvidas o painel falha fechado. Testes em `src/lib/brain/papeis.test.ts`. **Resíduo:** no WhatsApp, a equipe verificada (gerente e recepção entram como "profissional") ainda não passa pela checagem de permissão por ação, só pela de papel.
+
 **Onde:**
 - `src/lib/assistente.functions.ts` (`perguntarAoCortai`)
 - `src/lib/brain/acoes.server.ts` (`acaoPermitida`)
@@ -177,6 +179,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 - Conferir `permissao_efetiva` antes de executar a pendente.
 
 ### 5. Alta — `tenantIdDoMembro` ignora o negócio escolhido
+
+> **Corrigido no código em 09/10/2026.** Uma regra única, `escolherVinculo` (`src/lib/vinculo-ativo.ts`): o negócio escolhido em `perfis.tenant_ativo` se o acesso está ativo, senão o primeiro acesso ativo em ordem estável (`criado_em`). Usada por `getSessao`, `tenantIdDoMembro`/`vinculoDoMembro`, o MCP, a cópia que havia em `gestao.functions.ts` e a escolha do dono em `marca.functions.ts`. Conferido no banco real: o login do usuário vê só os vínculos ativos e lê o próprio `tenant_ativo`.
 
 **Onde:** `src/lib/tenant.ts`. O mesmo padrão aparece em `src/lib/mcp/supabase.ts`.
 

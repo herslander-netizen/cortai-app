@@ -4,17 +4,11 @@ import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirRecurso, recursoLiberado } from "@/lib/planos";
-import { exigirPermissao } from "@/lib/tenant";
+import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 
+/** Mesma regra de negócio em uso do resto do servidor (antes esta cópia pegava um vínculo qualquer). */
 async function tenantDoMembro(supabase: any, userId: string) {
-  const { data } = await supabase
-    .from("tenant_usuarios")
-    .select("tenant_id")
-    .eq("user_id", userId)
-    .limit(1)
-    .maybeSingle();
-  if (!data) throw new Error("Você ainda não está vinculado a um negócio.");
-  return data.tenant_id as string;
+  return tenantIdDoMembro({ supabase, userId });
 }
 
 export const getFinanceiro = createServerFn({ method: "GET" })
