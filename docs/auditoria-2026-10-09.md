@@ -60,11 +60,11 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | # | Severidade | Tema |
 |---|---|---|
 | 1 | ~~Crítica~~ **Corrigido** em `022e748` | Admin da plataforma concedido por `ilike` no e-mail: `_` e `%` funcionam como curinga |
-| 2 | **Alta** | Qualquer membro altera saldo de crédito e fiado de clientes (`movimentos`), inclusive sem autoria |
-| 3 | **Alta** | Qualquer membro marca pagamento como confirmado, finaliza, cancela e muda o valor direto em `agendamentos` |
+| 2 | ~~**Alta**~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera saldo de crédito e fiado de clientes (`movimentos`), inclusive sem autoria |
+| 3 | ~~**Alta**~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro marca pagamento como confirmado, finaliza, cancela e muda o valor direto em `agendamentos` |
 | 4 | **Alta** | CortAI no painel ignora papel e permissões (chave de serviço passa por cima de `cancelar_agendamento`) |
 | 5 | **Alta** | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
-| 6 | Média | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
+| 6 | ~~Média~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
 | 7 | ~~Média~~ **Corrigido** em `022e748` | Cupom aceita curinga (`%`, `_`) no código digitado |
 | 8 | Média | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
 | 9 | Média | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
@@ -111,6 +111,8 @@ Vale conferir no painel do Supabase se "Confirm email" está ligado. Mesmo ligad
 
 ### 2. Alta — Qualquer membro altera saldo de crédito e fiado
 
+> **Corrigido em 09/10/2026 (migração `0027_equipe_escreve_com_permissao`, aplicada no banco de produção).** Escrita direta só com a permissão do papel (`tem_alguma_permissao`); `movimentos` sem INSERT direto; gatilho `trg_agendamento_proteger_colunas_sensiveis` em `agendamentos`; equipe só lê `avaliacoes`. Verificado no banco real: `tests/sql/rbac-escrita-equipe.sql` passou de 35 brechas para 76 de 76 OK; o `supabase/tests/rbac.sql` ficou igual (a única falha, "dono trocar plano", é antiga e é do teste).
+
 **Onde:** RLS da tabela `movimentos`.
 
 **O que acontece:**
@@ -130,6 +132,8 @@ Com `criado_por = NULL`, o lançamento **fica sem autoria**. A tabela é só de 
 - No mínimo, exigir a permissão na política e proibir `criado_por` nulo.
 
 ### 3. Alta — Pagamento confirmado e mudanças de status direto em `agendamentos`
+
+> **Corrigido em 09/10/2026 (migração `0027_equipe_escreve_com_permissao`, aplicada no banco de produção).** Escrita direta só com a permissão do papel (`tem_alguma_permissao`); `movimentos` sem INSERT direto; gatilho `trg_agendamento_proteger_colunas_sensiveis` em `agendamentos`; equipe só lê `avaliacoes`. Verificado no banco real: `tests/sql/rbac-escrita-equipe.sql` passou de 35 brechas para 76 de 76 OK; o `supabase/tests/rbac.sql` ficou igual (a única falha, "dono trocar plano", é antiga e é do teste).
 
 **Onde:** RLS de `agendamentos` e os gatilhos de estado.
 
@@ -185,6 +189,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 **Correção:** um resolvedor único de vínculo (ativo, preferindo `tenant_ativo`), usado por `getSessao`, `tenantIdDoMembro` e o MCP.
 
 ### 6. Média — Catálogo, horários e avaliações alteráveis por qualquer membro
+
+> **Corrigido em 09/10/2026 (migração `0027_equipe_escreve_com_permissao`, aplicada no banco de produção).** Escrita direta só com a permissão do papel (`tem_alguma_permissao`); `movimentos` sem INSERT direto; gatilho `trg_agendamento_proteger_colunas_sensiveis` em `agendamentos`; equipe só lê `avaliacoes`. Verificado no banco real: `tests/sql/rbac-escrita-equipe.sql` passou de 35 brechas para 76 de 76 OK; o `supabase/tests/rbac.sql` ficou igual (a única falha, "dono trocar plano", é antiga e é do teste).
 
 **Onde:** RLS de `servicos`, `profissionais`, `horarios_de_funcionamento`, `produtos`, `escalas_de_profissional`, `bloqueios_de_agenda`, `avaliacoes`, `indicacoes`, `fila_de_espera`, `preferencias_do_cliente_avisos` e `onboarding_do_tenant`. Todas usam só `is_tenant_member`.
 
