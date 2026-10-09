@@ -445,7 +445,6 @@ export async function processarMensagemRecebida(input: {
   // Áudio → texto: depois disso segue exatamente o caminho do texto digitado.
   // `tipoGravado` mantém o marcador interno de origem ("audio") no histórico.
   let tipoGravado = input.tipo;
-  let audioNaoEntendido = false;
   if (input.tipo === "audio" && input.audio) {
     if (input.mensagemExternaId) {
       const { data: ja } = await db
@@ -476,7 +475,6 @@ export async function processarMensagemRecebida(input: {
         sessao: input.sessaoId,
         mensagem: input.mensagemExternaId,
       });
-      audioNaoEntendido = true;
     }
   }
   let conexao = await conexaoPorSessao(input.sessaoId);
@@ -710,7 +708,7 @@ export async function processarMensagemRecebida(input: {
       conexaoId: conexao.id,
       sessaoId: conexao.sessao_id,
       telefone,
-      texto: audioNaoEntendido || input.audio === null ? TEXTO_AUDIO_NAO_ENTENDIDO : TEXTO_AUDIO_NAO_ENTENDIDO,
+      texto: TEXTO_AUDIO_NAO_ENTENDIDO,
       porIa: false,
     }).catch(() => undefined);
     return { tratada: true, motivo: "audio_nao_entendido" };

@@ -113,9 +113,36 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             return Response.json({ ok: true, ignorada: true });
           }
           const telefone = remoteJid.split("@")[0] ?? "";
-          const { tipo, texto } = textoDaMensagem(
-            dados["message"] as Record<string, unknown> | undefined,
-          );
+          const mensagem = dados["message"] as Record<string, unknown> | undefined;
+          const { tipo, texto } = textoDaMensagem(mensagem);
+          if (tipo === "audio") {
+            // Áudio: transcrição em segundo plano para responder 200 rápido à Evolution.
+            const audioMsg = (mensagem?.["audioMessage"] as Record<string, unknown>) ?? {};
+            const b64 =
+              (typeof mensagem?.["base64"] === "string" && (mensagem["base64"] as string)) ||
+              (typeof dados["base64"] === "string" && (dados["base64"] as string)) ||
+              null;
+            const trabalho = fluxo
+              .processarMensagemRecebida({
+                sessaoId,
+                mensagemExternaId: (chave["id"] as string) ?? null,
+                telefone,
+                nomeContato: (dados["pushName"] as string) ?? null,
+                tipo,
+                conteudo: "",
+                midiaUrl: null,
+                audio: {
+                  base64: b64,
+                  mensagemBruta: { key: chave, message: { audioMessage: audioMsg } },
+                  mimetype: typeof audioMsg["mimetype"] === "string" ? audioMsg["mimetype"] : null,
+                  duracaoS: Number(audioMsg["seconds"]) || null,
+                },
+              })
+              .catch(() => console.error("[evolution] falha ao processar áudio"));
+            const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
+            if (!emSegundoPlano(trabalho)) await trabalho;
+            return Response.json({ ok: true, motivo: "audio_recebido" });
+          }
           const r = await fluxo.processarMensagemRecebida({
             sessaoId,
             mensagemExternaId: (chave["id"] as string) ?? null,
