@@ -7,6 +7,7 @@ import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
+import { mesmoEmail } from "@/lib/comparacao-exata";
 
 const PERMISSOES_DE_DONO = Object.keys(PERMISSOES);
 
@@ -56,11 +57,12 @@ async function garantirPerfil(userId: string, email: string | null, nome: string
     await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
   }
   if (email) {
-    const { data: autorizado } = await db
+    // Comparação exata: o e-mail de quem entra nunca vira padrão de busca (`_`/`%` seriam curingas).
+    const { data: autorizados } = await db
       .from("emails_admin_autorizados")
       .select("email")
-      .ilike("email", email)
-      .maybeSingle();
+      .limit(500);
+    const autorizado = (autorizados ?? []).some((linha) => mesmoEmail(linha.email, email));
     if (autorizado) {
       const { data: jaTem } = await db
         .from("user_roles")

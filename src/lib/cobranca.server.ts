@@ -24,6 +24,7 @@ import {
   type StatusAssinatura,
 } from "@/lib/cobranca";
 import { condicaoVigente } from "@/lib/monetizacao";
+import { codigoDeCupomValido } from "@/lib/comparacao-exata";
 import { condicaoDaLinha, planoDaLinha } from "@/lib/monetizacao.functions";
 
 async function db(): Promise<any> {
@@ -134,6 +135,8 @@ async function planoPorChave(chave: string) {
 }
 
 async function cupomPorCodigo(codigo: string): Promise<Cupom | null> {
+  // Sem curingas no código digitado: o ilike abaixo vira comparação exata sem maiúsculas.
+  if (!codigoDeCupomValido(codigo)) return null;
   const { data } = await (
     await db()
   )

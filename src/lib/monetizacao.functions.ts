@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { codigoDeCupomValido } from "@/lib/comparacao-exata";
 import {
   condicaoVigente,
   limiteVigente,
@@ -222,6 +223,8 @@ export const aplicarCupom = createServerFn({ method: "POST" })
     const client = await db();
     const hoje = new Date().toISOString().slice(0, 10);
 
+    // Sem curingas no código digitado: o ilike abaixo vira comparação exata sem maiúsculas.
+    if (!codigoDeCupomValido(data.codigo)) throw new Error("Cupom inválido ou expirado.");
     const { data: cupom } = await client
       .from("cupons")
       .select("*")
@@ -559,7 +562,10 @@ export const salvarCupom = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid().optional(),
-        codigo: z.string().trim().min(2).max(40),
+        codigo: z
+          .string()
+          .trim()
+          .refine(codigoDeCupomValido, "Use só letras, números e hífen (2 a 40)."),
         descricao: z.string().trim().max(200).nullable(),
         tipo: z.enum(["percentual", "fixo"]),
         valor: z.number().int().min(0),
