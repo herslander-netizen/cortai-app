@@ -420,6 +420,8 @@ async function vincularCliente(
 /** Trata uma mensagem recebida do gateway. */
 export const TEXTO_PEDIR_ESCRITA =
   "Ainda não consigo ouvir áudios por aqui. Pode me escrever sua mensagem, por favor?";
+/** Áudio que não deu para entender: tom natural, sem pedir para digitar. */
+export const TEXTO_AUDIO_NAO_ENTENDIDO = "Não consegui ouvir direito esse áudio, pode repetir?";
 
 export async function processarMensagemRecebida(input: {
   sessaoId: string;
@@ -431,8 +433,50 @@ export async function processarMensagemRecebida(input: {
   midiaUrl?: string | null;
   /** ID externo da mensagem citada (resposta a uma notificação). */
   citadaId?: string | null;
+  /** Áudio recebido (só memória; nunca gravado nem logado). */
+  audio?: {
+    base64: string | null;
+    mensagemBruta: Record<string, unknown>;
+    mimetype?: string | null;
+    duracaoS?: number | null;
+  } | null;
 }): Promise<{ tratada: boolean; motivo?: string }> {
   const db = await admin();
+  // Áudio → texto: depois disso segue exatamente o caminho do texto digitado.
+  // `tipoGravado` mantém o marcador interno de origem ("audio") no histórico.
+  let tipoGravado = input.tipo;
+  if (input.tipo === "audio" && input.audio) {
+    if (input.mensagemExternaId) {
+      const { data: ja } = await db
+        .from("mensagens_whatsapp")
+        .select("id")
+        .eq("mensagem_externa_id", input.mensagemExternaId)
+        .eq("direcao", "entrada")
+        .limit(1)
+        .maybeSingle();
+      if (ja) return { tratada: true, motivo: "duplicada" };
+    }
+    const t = await import("./transcricao.server");
+    let b64 = input.audio.base64;
+    if (!b64) b64 = await t.buscarBase64NaEvolution(input.sessaoId, input.audio.mensagemBruta);
+    const texto = b64
+      ? await t.transcreverAudioBase64(b64, {
+          mimetype: input.audio.mimetype ?? null,
+          duracaoS: input.audio.duracaoS ?? null,
+        })
+      : null;
+    b64 = null;
+    input = { ...input, audio: null };
+    if (texto) {
+      input = { ...input, tipo: "text", conteudo: texto };
+      tipoGravado = "audio";
+    } else {
+      console.error("[whatsapp/audio] áudio sem transcrição", {
+        sessao: input.sessaoId,
+        mensagem: input.mensagemExternaId,
+      });
+    }
+  }
   let conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao) return { tratada: false, motivo: "sessao_desconhecida" };
   // Deduplicação antes de qualquer resposta: mensagem reprocessada nunca responde duas vezes.
@@ -504,7 +548,7 @@ export async function processarMensagemRecebida(input: {
         mensagem_externa_id: input.mensagemExternaId,
         direcao: "entrada",
         telefone_remetente: telefone,
-        tipo: input.tipo,
+        tipo: tipoGravado,
         conteudo: input.conteudo,
         midia_url: input.midiaUrl ?? null,
         status: "recebida",
@@ -547,7 +591,7 @@ export async function processarMensagemRecebida(input: {
     mensagem_externa_id: input.mensagemExternaId,
     direcao: "entrada",
     telefone_remetente: telefone,
-    tipo: input.tipo,
+    tipo: tipoGravado,
     conteudo: input.conteudo,
     midia_url: input.midiaUrl ?? null,
     status: "recebida",
@@ -656,7 +700,7 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "canal_de_notificacoes" };
     }
   }
-  // Áudio: ainda sem transcrição automática — pede para escrever (texto fixo).
+  // Áudio que não deu para transcrever: pede para repetir, sem pedir texto.
   if (input.tipo === "audio") {
     await enviarPelaBarbearia({
       tenantId,
@@ -664,10 +708,10 @@ export async function processarMensagemRecebida(input: {
       conexaoId: conexao.id,
       sessaoId: conexao.sessao_id,
       telefone,
-      texto: TEXTO_PEDIR_ESCRITA,
+      texto: TEXTO_AUDIO_NAO_ENTENDIDO,
       porIa: false,
     }).catch(() => undefined);
-    return { tratada: true, motivo: "audio_pedir_texto" };
+    return { tratada: true, motivo: "audio_nao_entendido" };
   }
   // CortAI — Assistente Virtual: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
   if (input.tipo === "text" && input.conteudo.trim()) {

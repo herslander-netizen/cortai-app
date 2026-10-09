@@ -1,58 +1,147 @@
 /**
- * Camada de transcrição de áudio do CortAI.
+ * Transcrição de áudio do WhatsApp para o CortAI (só servidor).
  *
- * O fluxo previsto é: áudio → transcrição → CortAI → Cortaí → resposta.
- *
- * Aqui não existe simulação: se o serviço de WhatsApp não entregar um endereço
- * de mídia acessível, ou se a IA não estiver disponível, a função devolve
- * `null` e o fluxo avisa a pessoa com honestidade de que só lê texto.
+ * áudio (Base64 do payload ou buscado na Evolution) → texto em pt-BR → mesmo
+ * fluxo das mensagens de texto. O áudio nunca é gravado nem logado: vive só
+ * na memória desta chamada.
  */
 
 const ENDPOINT = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
-const MODELO = "google/gemini-3.5-transcribe";
-const TAMANHO_MAXIMO = 12 * 1024 * 1024; // 12 MB
+const MODELO = "openai/gpt-transcribe";
+const TEMPO_LIMITE_MS = 20_000;
+const DURACAO_MAXIMA_S = 120;
+const TAMANHO_MAXIMO = 20 * 1024 * 1024;
 
 export function transcricaoConfigurada(): boolean {
   return Boolean(process.env["LOVABLE_API_KEY"]);
 }
 
+function base64ParaBytes(b64: string): Uint8Array {
+  const limpo = b64.replace(/^data:[^,]*,/, "").replace(/\s/g, "");
+  const bin = atob(limpo);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+/** Busca o Base64 da mídia na Evolution quando não veio no webhook. */
+export async function buscarBase64NaEvolution(
+  sessaoId: string,
+  mensagem: Record<string, unknown>,
+): Promise<string | null> {
+  const baseUrl = (process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"])?.replace(
+    /\/+$/,
+    "",
+  );
+  const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
+  if (!baseUrl || !apiKey) return null;
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), 10_000);
+  try {
+    const r = await fetch(
+      `${baseUrl}/chat/getBase64FromMediaMessage/${encodeURIComponent(sessaoId)}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", apikey: apiKey },
+        body: JSON.stringify({ message: mensagem, convertToMp4: false }),
+        signal: controle.signal,
+      },
+    );
+    if (!r.ok) {
+      console.error("[whatsapp/audio] Evolution não entregou a mídia", { status: r.status });
+      return null;
+    }
+    const corpo = (await r.json().catch(() => null)) as Record<string, unknown> | null;
+    const b64 = corpo?.["base64"];
+    return typeof b64 === "string" && b64 ? b64 : null;
+  } catch {
+    console.error("[whatsapp/audio] falha ao buscar mídia na Evolution");
+    return null;
+  } finally {
+    clearTimeout(relogio);
+  }
+}
+
 /**
- * Transcreve um áudio a partir do endereço entregue pelo gateway.
- * Devolve `null` quando não é possível transcrever de verdade.
+ * Transcreve o áudio em Base64. Devolve `null` quando não deu para entender.
+ * `duracaoS` (do audioMessage.seconds) limita a leitura aos primeiros 2 minutos.
  */
-export async function transcreverAudio(
-  midiaUrl: string | null | undefined,
+export async function transcreverAudioBase64(
+  base64: string,
+  opcoes: { mimetype?: string | null; duracaoS?: number | null } = {},
 ): Promise<string | null> {
   const chave = process.env["LOVABLE_API_KEY"];
-  if (!chave || !midiaUrl) return null;
-  if (!/^https?:\/\//i.test(midiaUrl)) return null;
+  if (!chave || !base64) return null;
+  let bytes: Uint8Array | null = base64ParaBytes(base64);
+  if (bytes.byteLength === 0) return null;
+  // Acima de 2 min: só o início (proporção dos bytes; Opus/OGG decodifica do começo).
+  const dur = opcoes.duracaoS ?? 0;
+  if (dur > DURACAO_MAXIMA_S) {
+    bytes = bytes.slice(0, Math.floor(bytes.byteLength * (DURACAO_MAXIMA_S / dur)));
+  }
+  if (bytes.byteLength > TAMANHO_MAXIMO) bytes = bytes.slice(0, TAMANHO_MAXIMO);
 
+  const tipo = (opcoes.mimetype ?? "audio/ogg").split(";")[0]!.trim() || "audio/ogg";
+  const formulario = new FormData();
+  formulario.append("file", new Blob([bytes as BlobPart], { type: tipo }), "audio.ogg");
+  formulario.append("model", MODELO);
+  formulario.append("languages", "pt");
+  formulario.append("stream", "true");
+  bytes = null;
+
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
   try {
-    const baixado = await fetch(midiaUrl, {
-      headers: process.env["WHATSAPP_GATEWAY_API_KEY"]
-        ? { authorization: `Bearer ${process.env["WHATSAPP_GATEWAY_API_KEY"]}` }
-        : {},
-    });
-    if (!baixado.ok) return null;
-    const bytes = await baixado.arrayBuffer();
-    if (bytes.byteLength === 0 || bytes.byteLength > TAMANHO_MAXIMO) return null;
-
-    const tipo = baixado.headers.get("content-type") ?? "audio/ogg";
-    const formulario = new FormData();
-    formulario.append("file", new Blob([bytes], { type: tipo }), "audio.ogg");
-    formulario.append("model", MODELO);
-    formulario.append("language", "pt");
-
     const resposta = await fetch(ENDPOINT, {
       method: "POST",
-      headers: { authorization: `Bearer ${chave}` },
+      headers: {
+        authorization: `Bearer ${chave}`,
+        "X-Lovable-AIG-SDK": "fetch",
+      },
       body: formulario,
+      signal: controle.signal,
     });
-    if (!resposta.ok) return null;
-    const corpo = (await resposta.json()) as { text?: string };
-    const texto = (corpo.text ?? "").trim();
-    return texto.length > 0 ? texto : null;
+    if (!resposta.ok || !resposta.body) {
+      console.error("[whatsapp/audio] transcrição recusada", { status: resposta.status });
+      return null;
+    }
+    const leitor = resposta.body.getReader();
+    const dec = new TextDecoder();
+    let buffer = "";
+    let parcial = "";
+    let final: string | null = null;
+    for (;;) {
+      const { value, done } = await leitor.read();
+      if (done) break;
+      buffer += dec.decode(value, { stream: true });
+      let fim: number;
+      while ((fim = buffer.indexOf("\n\n")) >= 0) {
+        const bloco = buffer.slice(0, fim);
+        buffer = buffer.slice(fim + 2);
+        const dados = bloco
+          .split("\n")
+          .filter((l) => l.startsWith("data:"))
+          .map((l) => l.slice(5).trim())
+          .join("");
+        if (!dados || dados === "[DONE]") continue;
+        try {
+          const ev = JSON.parse(dados) as { type?: string; text?: string; delta?: string };
+          if (ev.type === "transcript.text.delta" && ev.delta) parcial += ev.delta;
+          else if (ev.type === "transcript.text.done" && typeof ev.text === "string") final = ev.text;
+        } catch {
+          /* evento parcial */
+        }
+      }
+    }
+    const texto = (final ?? parcial).trim();
+    return texto.length >= 2 ? texto : null;
   } catch {
+    console.error(
+      "[whatsapp/audio] falha na transcrição",
+      controle.signal.aborted ? "tempo esgotado" : "erro",
+    );
     return null;
+  } finally {
+    clearTimeout(relogio);
   }
 }
