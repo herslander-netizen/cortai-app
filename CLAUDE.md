@@ -11,7 +11,9 @@ A memória oficial do projeto é o **Knowledge** do Lovable e os `AGENTS.md` (ra
 
 **Onde cada coisa mora:** `docs/mapa-do-codigo.md`. Ele traz as rotas, os domínios em `src/lib`, as tabelas, o código sem uso e as divergências conhecidas.
 
-**Comandos:**
+**Comandos do projeto (`.claude/commands/`, em português):** `/verificar`, `/migracao`, `/auditar`, `/revisar-regras`, `/pedido-lovable`. Por padrão só leem e relatam; nada vai para a `main` nem para o banco sem autorização, e nenhum publica o site.
+
+**Comandos de terminal:**
 
 ```sh
 npm install --no-package-lock   # o bun.lock aponta para um cache privado do Lovable

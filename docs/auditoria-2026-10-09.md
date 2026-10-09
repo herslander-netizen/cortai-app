@@ -75,6 +75,7 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 13 | Baixa | Remarcação pela IA: o plano B recria o horário como agendamento novo |
 | 14 | Baixa | Painel admin conta linhas trazendo tudo: passa do teto de 1000 linhas e mostra números errados |
 | 15 | Baixa | Pequenos pontos (contadores não atômicos, JSON sem try, consultas sem limite, legado ALVO IA, buckets sem tipo de arquivo) |
+| 16 | Média | Criação de negócios sem login: o único freio (5 rascunhos por hora) usa o IP vindo de `x-forwarded-for`, que o visitante forja |
 
 ---
 
@@ -289,6 +290,20 @@ Ambos valem para todos os negócios ativos, pela API pública do Supabase. As te
 - **`confirmar_agendamento` (API legada):** grava o `status` direto em vez de usar a RPC.
 - **Buckets do Storage:** não têm `allowed_mime_types`, então só o limite de tamanho protege. O envio é só do dono, mas um tipo como SVG passa.
 
+### 16. Média — Criação de negócios sem login com freio forjável
+
+**Onde:** `src/lib/rascunho.functions.ts` (`origem()`, `freioDeAbuso`, `criarRascunhoDeBarbearia`, `salvarRascunhoDeBarbearia`, `publicarRascunhoDeBarbearia`).
+
+**O que acontece:**
+- Montar e **publicar** um negócio novo pelo link `/configurar-minha-barbearia` não exige login. As três funções não usam `requireSupabaseAuth`.
+- O único freio é `freioDeAbuso`: no máximo 5 rascunhos por hora por `origem_ip`.
+- `origem()` lê `x-forwarded-for` **antes** de `cf-connecting-ip` e pega o primeiro valor, que o visitante escreve à vontade. Trocar o cabeçalho a cada chamada zera o limite.
+- A pesquisa de 09/10/2026 achou o mesmo padrão em `brain/secretaria-publica.functions.ts` (achado 8). Em `api/public/funil.ts` o cabeçalho confiável (`cf-connecting-ip`) vem primeiro, então só o fallback é frágil, e o contador é em memória (não vale entre instâncias).
+
+**Efeito:** dá para criar rascunhos e negócios sem limite: lixo no banco, endereços (slugs) ocupados e custo de armazenamento. Não confirmei se a publicação tem outro freio no banco.
+
+**Correção:** usar `ipDaChamada()` do `webhook-guard.server.ts` e `consumirLimite` (contador no banco) em criar, salvar e publicar; considerar um limite também por negócio publicado por IP por dia.
+
 ---
 
 ## O que está bem feito
@@ -339,3 +354,4 @@ Ambos valem para todos os negócios ativos, pela API pública do Supabase. As te
 4. **Achados 7, 8 e 9:** correções curtas de uma linha ou uma função cada.
 5. **Achados 10b, 10 e 12:** corrigir os links `/painel`, remover os casts e revogar as colunas expostas ao anônimo.
 6. **Achado 11:** decisão de produto.
+7. **Achados 8 e 16:** trocar a origem do visitante por `ipDaChamada()` (junto, porque é a mesma correção).
