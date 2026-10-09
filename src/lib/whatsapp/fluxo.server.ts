@@ -461,8 +461,8 @@ export async function processarMensagemRecebida(input: {
     if (!b64) b64 = await t.buscarBase64NaEvolution(input.sessaoId, input.audio.mensagemBruta);
     const texto = b64
       ? await t.transcreverAudioBase64(b64, {
-          mimetype: input.audio.mimetype,
-          duracaoS: input.audio.duracaoS,
+          mimetype: input.audio.mimetype ?? null,
+          duracaoS: input.audio.duracaoS ?? null,
         })
       : null;
     b64 = null;
