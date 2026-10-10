@@ -850,7 +850,7 @@ export async function atualizarEstadoDaConexao(
 }
 
 /**
- * Entrega a mensagem livre ao cérebro CortAI (persona Secretária) e envia a
+ * Entrega a mensagem livre ao cérebro CortAI (persona do atendimento) e envia a
  * resposta pelo provedor do negócio. Devolve false quando não respondeu
  * (atendimento humano, plano, IA desligada/pausada, limite) para o chamador
  * seguir a orientação fixa — o canal nunca trava.

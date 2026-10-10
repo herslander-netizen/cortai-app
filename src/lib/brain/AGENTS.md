@@ -2,3 +2,4 @@
 - Uso da IA contado em `acoes_de_ia_log` (`cerebro.<canal>`); 402/403 pausam em `config_atendimento_ia.ia_pausada_em` e canais automáticos voltam às regras fixas — custo controlado sem travar a operação.
 - Não existe ação de pagamento: recebimento é sempre conferido pela equipe.
 - Permissões por papel só em `acaoPermitida` (`acoes.server.ts`): cliente vê só o próprio telefone; profissional só a própria agenda e sem indicadores; dono vê o negócio. Equipe no WhatsApp tem cota própria (`cerebro.whatsapp.equipe`) — uma regra testável, sem consumir a cota dos clientes.
+- Interruptor geral `config_atendimento_ia.cortai_ativa` (só o ADM/servidor muda; gatilho barra a equipe), pausa por crédito e cotas são conferidos dentro de `pensarCortai` via `bloqueioDeUso`, para todos os canais; estado e selos em `estado-cortai.ts` — um lugar só para ligar/desligar a IA, sem desligar agenda, comandas ou avisos.

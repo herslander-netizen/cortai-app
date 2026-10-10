@@ -46,6 +46,6 @@
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
 - Conta Cortaí = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
-- Integração externa ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado; o cérebro em `src/lib/brain` (regras no AGENTS.md de lá) nunca a chama.
+- Integração externa ALVO IA desligada em 10/10/2026: `/api/public/alvo-ia`, `/api/public/ai/*` e `/api/public/cortai/acoes` respondem 410 (`ia/legado-desligado.ts`); tabelas mantidas, sem DROP. O cérebro em `src/lib/brain` (regras no AGENTS.md de lá) é o único caminho de IA.
 
 - Regras do formato de aviso e do entendimento no WhatsApp: `src/lib/whatsapp/AGENTS.md`.
