@@ -27,7 +27,7 @@ export function FaixaDeEstado(props: Parameters<typeof estadoDoEditor>[0]) {
     >
       <Icone
         aria-hidden
-        className={`mt-0.5 size-4 shrink-0 ${estado.ocupado ? "animate-spin" : ""}`}
+        className={`mt-0.5 size-4 shrink-0 ${estado.ocupado ? "animate-spin" : ""} ${estado.tom === "ok" ? "animate-in fade-in zoom-in-50 duration-200" : ""}`}
       />
       <span>{estado.texto}</span>
     </p>

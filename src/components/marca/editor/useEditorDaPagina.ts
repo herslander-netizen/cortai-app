@@ -7,6 +7,7 @@ import type { FaseDoEditor } from "./estadoDoEditor";
 import { supabase } from "@/integrations/supabase/client";
 import {
   alterarLinkPublico,
+  descartarRascunhoPagina,
   publicarPagina,
   restaurarMarca,
   salvarRascunhoPagina,
@@ -24,6 +25,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const publish = useServerFn(publicarPagina);
   const restore = useServerFn(restaurarMarca);
+  const discard = useServerFn(descartarRascunhoPagina);
   const changePublicLink = useServerFn(alterarLinkPublico);
   const publicQuery = useQuery({
     queryKey: ["pagina-publica", initial.slug],
@@ -178,6 +180,26 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     }
   };
 
+  /** Volta ao que está publicado. O rascunho descartado fica nas versões anteriores. */
+  const descartar = async () => {
+    setBusy(true);
+    setStatus(null);
+    try {
+      if (initial.alteracoes_pendentes) await discard();
+      setForm(initial);
+      setConfig(initial.pagina);
+      setLogoPreview(initial.logo_signed_url);
+      setCoverPreview(initial.capa_signed_url);
+      setAvatarPreview(initial.avatar_signed_url);
+      await reload();
+      setStatus("Alterações descartadas. A página voltou ao que está publicada.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Não foi possível descartar.", true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const usaConversa =
     config.experiencia === "conversa" ||
     (config.experiencia === "vitrine" && config.chat.modo === "conversa");
@@ -234,6 +256,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     removerLogo,
     salvarSlug,
     executar,
+    descartar,
     restaurar,
     usaConversa,
     previewData,
