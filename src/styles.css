@@ -5724,12 +5724,6 @@ button.agenda-nome:hover {
   min-height: 48px;
 }
 @media (max-width: 767px) {
-  /* A faixa de profissionais sangra até a borda da tela. O recorte lateral da Agenda
-     ficava na margem da página e cortava os cartões; aqui ele passa para a borda. */
-  .agenda-operacional {
-    margin-inline: -1.25rem;
-    padding-inline: 1.25rem;
-  }
   /* Modelo: o topo e a semana são uma só superfície; quem desenha o bloco é a SemanaDoTopo. */
   .agenda-cabecalho-unico.agenda-cabecalho-compacto {
     position: static;
