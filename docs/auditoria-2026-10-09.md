@@ -66,16 +66,16 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 5 | ~~**Alta**~~ **Corrigido no código** (aguarda publicar) | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
 | 6 | ~~Média~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
 | 7 | ~~Média~~ **Corrigido** em `022e748` | Cupom aceita curinga (`%`, `_`) no código digitado |
-| 8 | Média — **IP corrigido no código** (aguarda publicar); falta limite extra por IP | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
-| 9 | Média | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
+| 8 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
+| 9 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
 | 10 | Baixa | Dois sistemas de migração e 63 casts `as never` desnecessários |
-| 10b | Média | Avisos apontam para `/painel`, rota que não existe (página não encontrada) |
+| 10b | ~~Média~~ **Corrigido no código** (aguarda publicar) | Avisos apontam para `/painel`, rota que não existe (página não encontrada) |
 | 11 | Média | Agendamento público com telefone de outra pessoa |
 | 12 | Baixa | Visitante anônimo lê a comissão dos serviços e o `user_id` dos profissionais de todos os negócios |
 | 13 | Baixa | Remarcação pela IA: o plano B recria o horário como agendamento novo |
 | 14 | Baixa | Painel admin conta linhas trazendo tudo: passa do teto de 1000 linhas e mostra números errados |
 | 15 | Baixa | Pequenos pontos (contadores não atômicos, JSON sem try, consultas sem limite, legado ALVO IA, buckets sem tipo de arquivo) |
-| 16 | Média — **IP corrigido no código** (aguarda publicar); falta limite em salvar e publicar | Criação de negócios sem login: o único freio (5 rascunhos por hora) usava o IP vindo de `x-forwarded-for`, que o visitante forja |
+| 16 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Criação de negócios sem login: o único freio (5 rascunhos por hora) usava o IP vindo de `x-forwarded-for`, que o visitante forja |
 | 17 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Prazo de cancelamento configurado pelo dono (`tenants.cancelamento_min_horas`) não era aplicado: o cliente cancelava a qualquer hora |
 
 ---
@@ -217,6 +217,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 
 ### 8. Média — Secretária do site: limite por visitante burlável
 
+> **Corrigido no código em 10/10/2026.** Além do IP confiável, `perguntarSecretariaPublica` soma um limite de 6 perguntas por minuto por IP (`dentroDoLimitePublico`, contador no banco) aos limites por hora e por dia do cérebro.
+
 **Onde:** `src/lib/brain/secretaria-publica.functions.ts`.
 
 **O que acontece:** o identificador do visitante usa o **primeiro** valor de `x-forwarded-for`, que o cliente pode forjar. O `webhook-guard` faz certo: usa `cf-connecting-ip` ou o último valor da cadeia.
@@ -228,6 +230,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 **Estado (10/10/2026):** a origem do IP foi corrigida em `brain/secretaria-publica.functions.ts`, `rascunho.functions.ts` e `api/public/funil.ts`: os três agora usam `ipDaChamada()`. Um teste (`src/lib/webhook-guard.test.ts`) falha se qualquer outro arquivo voltar a ler `x-forwarded-for`. **Continua em aberto:** somar um limite por IP com `consumirLimite` (secretária) e limitar também salvar e publicar o rascunho.
 
 ### 9. Média — Fila de chegada pública sem limite de taxa
+
+> **Corrigido no código em 10/10/2026.** `entrarNaFilaPublica` aplica 6 entradas por minuto por IP e 3 por WhatsApp antes de qualquer gravação, com o mesmo limitador do agendamento.
 
 **Onde:** `entrarNaFilaPublica` e a RPC `entrar_na_fila_publica`.
 
@@ -248,6 +252,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 **Correção:** remover os casts aos poucos e documentar no `AGENTS.md` qual pasta de migração é a oficial.
 
 ### 10b. Média — Avisos apontam para `/painel`, que não existe
+
+> **Corrigido no código em 10/10/2026.** Os dois pontos usam `LINKS_DE_TELA.inicio`, e `/painel` e `/painel/<tela>` redirecionam (302) para `/barbeiro` e `/barbeiro/<tela>`. No banco não havia aviso gravado com `/painel`. Falta decidir qual endereço é o oficial e alinhar o Knowledge.
 
 **Onde:**
 - `src/lib/whatsapp/fluxo.server.ts`: aviso "Cliente pediu atendimento", com `_link: "/painel"`.
@@ -299,11 +305,13 @@ Ambos valem para todos os negócios ativos, pela API pública do Supabase. As te
 - **`/api/public/whatsapp/eventos`:** faz `JSON.parse` sem `try` e devolve 500 em vez de 400. Só afeta quem tem o segredo.
 - **`getPaginaPublica`:** lê todas as notas para calcular a média; vai pesar com o volume.
 - **`conversas_whatsapp.nao_lidas`:** leitura + 1 + gravação; com mensagens simultâneas, o contador perde.
-- **Legado ALVO IA ainda exposto:** `/api/public/ai/*`, `/api/public/cortai/acoes` e `/api/public/alvo-ia` aceitam tokens ativos. Suspender ou desligar com autorização (fase 5 do plano da CortAI).
+- ~~**Legado ALVO IA ainda exposto**~~ **Desligado em 10/10/2026:** `/api/public/ai/*`, `/api/public/cortai/acoes` e `/api/public/alvo-ia` respondem 410 antes de ler token. `integracoes_de_ia` estava vazia; nenhuma tabela foi apagada.
 - **`confirmar_agendamento` (API legada):** grava o `status` direto em vez de usar a RPC.
 - **Buckets do Storage:** não têm `allowed_mime_types`, então só o limite de tamanho protege. O envio é só do dono, mas um tipo como SVG passa.
 
 ### 16. Média — Criação de negócios sem login com freio forjável
+
+> **Corrigido no código em 10/10/2026.** Criar 3/min, salvar 30/min e publicar 3/min por IP, e no máximo 3 negócios publicados por IP em 24 h. Sem IP identificável o freio não é mais pulado: vale um balde comum 10× mais folgado.
 
 **Onde:** `src/lib/rascunho.functions.ts` (`origem()`, `freioDeAbuso`, `criarRascunhoDeBarbearia`, `salvarRascunhoDeBarbearia`, `publicarRascunhoDeBarbearia`).
 
