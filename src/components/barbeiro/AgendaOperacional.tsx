@@ -1408,7 +1408,7 @@ export function AgendaOperacional() {
         </div>
 
         {visualizacao === "timeline" && agenda.data && mostrarDica ? (
-          <p className="mt-2 text-center text-xs text-mute" role="note">
+          <p className="mt-0.5 text-center text-[11px] leading-4 text-mute2 opacity-80" role="note">
             Segure para agendar · Segure e arraste para mover
           </p>
         ) : null}
