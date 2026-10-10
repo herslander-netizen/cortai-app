@@ -1,6 +1,14 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
 import { Check, Clock3 } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type React from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
@@ -606,9 +614,43 @@ export function AgendaTimeline({
             : 0,
         );
   const interativo = !previa;
+  const alinharNoCelular = previa && diaCompleto;
+  const abreEm = funcionamentoDoDia ? minutosDoHorario(funcionamentoDoDia.abre) : 8 * 60;
+  const envolturaRef = useRef<HTMLDivElement>(null);
+  // Celular: a prévia do dia vizinho já aparece no lugar exato em que ele vai assentar
+  // (hoje com o agora no meio da tela; outro dia com a abertura do expediente), na mesma
+  // coluna da grade atual. Assim o dia que entra pelo gesto não "pula" ao ser confirmado.
+  useLayoutEffect(() => {
+    const envoltura = envolturaRef.current;
+    const area = rolagemRef.current;
+    const real = document.querySelector<HTMLElement>(
+      ".agenda-timeline-wrap:not(.agenda-timeline-previa)",
+    );
+    if (!alinharNoCelular || !envoltura || !area || !real) return;
+    const medida = real.getBoundingClientRect();
+    // A Agenda de verdade já pode estar andando com o dedo: descontar esse deslocamento.
+    const palcoReal = real.closest<HTMLElement>(".agenda-operacional");
+    const andado = palcoReal
+      ? new DOMMatrixReadOnly(getComputedStyle(palcoReal).transform).m41 || 0
+      : 0;
+    const esquerdaReal = medida.left - andado;
+    envoltura.style.width = `${medida.width}px`;
+    area.style.transform = "";
+    const grade = area.querySelector<HTMLElement>(".agenda-timeline")?.getBoundingClientRect();
+    const eu = envoltura.getBoundingClientRect();
+    // A prévia inteira anda com o dedo: medir a coluna em relação a ela, não à tela.
+    const palco = envoltura.closest<HTMLElement>(".agenda-previa-vizinho")?.getBoundingClientRect();
+    const esquerdaNoPalco = eu.left - (palco?.left ?? 0);
+    if (!grade) return;
+    const topoDesejado = ehHoje
+      ? window.innerHeight / 2 - posicaoAgora
+      : 120 - abreEm * PX_POR_MINUTO;
+    area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - grade.top}px,0)`;
+  }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length]);
 
   return (
     <div
+      ref={envolturaRef}
       className={`agenda-timeline-wrap${previa ? " agenda-timeline-previa" : ""}`}
       aria-hidden={previa || undefined}
       style={previa ? { pointerEvents: "none" } : undefined}
@@ -642,7 +684,7 @@ export function AgendaTimeline({
             ? {
                 maxHeight: "none",
                 overflow: "visible",
-                transform: `translateY(${-deslocamentoPrevia}px)`,
+                transform: alinharNoCelular ? undefined : `translateY(${-deslocamentoPrevia}px)`,
               }
             : undefined
         }
@@ -795,6 +837,7 @@ export function AgendaTimeline({
                   type="button"
                   variant="ghost"
                   aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                  data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}
                   className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     top: `${topo}px`,

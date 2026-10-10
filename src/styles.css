@@ -6251,3 +6251,18 @@ button.agenda-nome:hover {
 .agenda-operacional .agenda-timeline-bloco.agenda-arrastando {
   opacity: 0.85;
 }
+
+/* Celular: a prévia do dia vizinho ocupa a tela toda por baixo da barra do topo e já nasce
+   alinhada à grade (ver AgendaTimeline); sem a data editorial, que não existe no dia real. */
+@media (max-width: 767px) {
+  .agenda-previa-vizinho {
+    top: 0;
+    padding: 0;
+  }
+  .agenda-previa-vizinho[data-formato="timeline"] .agenda-previa-data {
+    display: none;
+  }
+  .agenda-previa-vizinho[data-formato="timeline"] > div {
+    margin-top: 0;
+  }
+}

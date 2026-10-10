@@ -1507,6 +1507,7 @@ export function AgendaOperacional() {
         visualizacao={visualizacao === "lista" ? "lista" : "timeline"}
         profissionalId={profFiltro}
         discreto={modoDiscreto}
+        diaCompleto={celular}
       />
 
       <BotaoAgoraPrincipal

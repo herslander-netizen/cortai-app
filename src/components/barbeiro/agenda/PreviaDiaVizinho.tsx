@@ -19,12 +19,14 @@ export function PreviaDiaVizinho({
   visualizacao = "lista",
   profissionalId,
   discreto,
+  diaCompleto = false,
   ref,
 }: {
   dia: string;
   visualizacao?: FormatoDaPrevia;
   profissionalId: string | null;
   discreto: boolean;
+  diaCompleto?: boolean;
   ref?: Ref<HTMLDivElement>;
 }) {
   const consulta = useQuery({ ...opcoesAgendaDia(dia), refetchOnMount: false });
@@ -56,6 +58,7 @@ export function PreviaDiaVizinho({
             selecionado={null}
             onSelecionar={nada}
             discreto={discreto}
+            diaCompleto={diaCompleto}
           />
         </div>
       ) : (
@@ -86,6 +89,7 @@ export function PreviaDoGesto({
   visualizacao?: FormatoDaPrevia;
   profissionalId: string | null;
   discreto: boolean;
+  diaCompleto?: boolean;
   ref?: Ref<HTMLDivElement>;
 }) {
   const vizinho = useVizinhoDoGesto();
