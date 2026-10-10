@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Eye, Save, Send, Share2 } from "lucide-react";
+import { Copy, Eye, Save, Send, Share2, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -123,6 +123,15 @@ function Editor({
             <Eye />
             Ver publicada
           </a>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="xl:hidden"
+          onClick={() => setPreviaAberta(true)}
+        >
+          <Smartphone />
+          Ver como ficou
         </Button>
         <Button
           variant="outline"
