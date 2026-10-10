@@ -9,7 +9,7 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/lib/barbeiro.functions", () => ({ getContagemDoMes: () => undefined }));
 
-import { AlcaDoCalendario, SemanaDoTopo } from "./SemanaDoTopo";
+import { SemanaDoTopo } from "./SemanaDoTopo";
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
@@ -69,22 +69,14 @@ describe("faixa da semana no topo", () => {
     );
     expect(comAtendimento.map((d) => d.textContent)).toEqual(["8", "9"]);
   });
-  it("tocar num dia troca o dia; a alça abre o calendário", async () => {
+  it("tocar num dia troca o dia", async () => {
     const onDia = vi.fn();
-    const onExpandido = vi.fn();
     const alvo = await montar({ onDia });
-    const alca = document.createElement("div");
-    document.body.appendChild(alca);
-    const raizAlca = createRoot(alca);
-    limpar.push(() => act(() => raizAlca.unmount()));
-    act(() => raizAlca.render(createElement(AlcaDoCalendario, { expandido: false, onExpandido })));
     const dia7 = Array.from(alvo.querySelectorAll<HTMLButtonElement>("[aria-pressed]")).find(
       (d) => d.textContent === "7",
     );
     act(() => dia7!.click());
     expect(onDia).toHaveBeenCalledWith("2026-10-07");
-    act(() => alca.querySelector<HTMLButtonElement>('[aria-label="Abrir o calendário"]')!.click());
-    expect(onExpandido).toHaveBeenCalledWith(true);
   });
   it("deslizar para a esquerda mostra a semana seguinte sem trocar o dia", async () => {
     const onDia = vi.fn();

@@ -249,26 +249,13 @@ export function SemanaDoTopo({
   );
 }
 
-/** Alça "• • • • •" no começo da grade (rola junto com ela): abre e recolhe o calendário. */
-export function AlcaDoCalendario({
-  expandido,
-  onExpandido,
-}: {
-  expandido: boolean;
-  onExpandido: (aberto: boolean) => void;
-}) {
+/** Cinco pontinhos discretos que marcam o começo e o fim da grade do dia (só informam, não são botão). */
+export function MarcaDoLimiteDoDia({ className = "" }: { className?: string }) {
   return (
-    <Button
-      variant="ghost"
-      data-sem-gesto-dia
-      aria-label={expandido ? "Recolher o calendário" : "Abrir o calendário"}
-      aria-expanded={expandido}
-      className="mx-auto -mb-2 flex min-h-12 w-full items-center justify-center gap-1.5 hover:bg-transparent"
-      onClick={() => onExpandido(!expandido)}
-    >
+    <div aria-hidden className={`flex h-8 items-center justify-center gap-1.5 ${className}`}>
       {[0, 1, 2, 3, 4].map((i) => (
-        <span key={i} aria-hidden className="size-1 rounded-full bg-mute2" />
+        <span key={i} className="size-1 rounded-full bg-mute2 opacity-60" />
       ))}
-    </Button>
+    </div>
   );
 }

@@ -59,7 +59,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
-import { AlcaDoCalendario, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
+import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { NaBarraDoTopo } from "@/components/barbeiro/agenda/NaBarraDoTopo";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
@@ -1180,7 +1180,7 @@ export function AgendaOperacional() {
                 />
               )}
             </NaBarraDoTopo>
-            <AlcaDoCalendario expandido={calAberto} onExpandido={setCalAberto} />
+            <MarcaDoLimiteDoDia />
           </>
         ) : null}
         <CabecalhoAgenda
@@ -1355,29 +1355,32 @@ export function AgendaOperacional() {
               ))}
             </div>
           ) : visualizacao !== "lista" ? (
-            <AgendaTimeline
-              dia={dia}
-              fuso={fuso}
-              itens={itens}
-              itensEscala={todosItens}
-              horarios={agenda.data?.horarios ?? []}
-              selecionado={selecionado}
-              onSelecionar={abrir}
-              onMover={moverPorArrasto}
-              onRedimensionar={redimensionarPorAlca}
-              onEditar={(item) => edicao.iniciar(item.id)}
-              passoMin={passoMin}
-              edicaoDoCartao={cartaoEmEdicao}
-              onHorarioVazio={(h) => {
-                setHoraVazia(h);
-                setProfVazio(null);
-                setManualAberto(true);
-              }}
-              destaques={novos}
-              mostrarProfissional={!profFiltro && profissionais.length > 1}
-              discreto={modoDiscreto}
-              diaCompleto={celular}
-            />
+            <>
+              <AgendaTimeline
+                dia={dia}
+                fuso={fuso}
+                itens={itens}
+                itensEscala={todosItens}
+                horarios={agenda.data?.horarios ?? []}
+                selecionado={selecionado}
+                onSelecionar={abrir}
+                onMover={moverPorArrasto}
+                onRedimensionar={redimensionarPorAlca}
+                onEditar={(item) => edicao.iniciar(item.id)}
+                passoMin={passoMin}
+                edicaoDoCartao={cartaoEmEdicao}
+                onHorarioVazio={(h) => {
+                  setHoraVazia(h);
+                  setProfVazio(null);
+                  setManualAberto(true);
+                }}
+                destaques={novos}
+                mostrarProfissional={!profFiltro && profissionais.length > 1}
+                discreto={modoDiscreto}
+                diaCompleto={celular}
+              />
+              {celular ? <MarcaDoLimiteDoDia className="mt-3" /> : null}
+            </>
           ) : (
             <ListaAgenda
               itens={itens}
