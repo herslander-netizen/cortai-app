@@ -9,8 +9,9 @@
 const ENDPOINT = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
 const MODELO = "openai/gpt-transcribe";
 const TEMPO_LIMITE_MS = 20_000;
-const DURACAO_MAXIMA_S = 120;
-const TAMANHO_MAXIMO = 20 * 1024 * 1024;
+const MODELO_RESERVA = "google/gemini-3.5-transcribe";
+const TAMANHO_MAXIMO = 24 * 1024 * 1024;
+const TAMANHO_MAXIMO_RESERVA = 14 * 1024 * 1024;
 
 export function transcricaoConfigurada(): boolean {
   return Boolean(process.env["LOVABLE_API_KEY"]);
@@ -66,43 +67,30 @@ export async function buscarBase64NaEvolution(
  * Transcreve o áudio em Base64. Devolve `null` quando não deu para entender.
  * `duracaoS` (do audioMessage.seconds) limita a leitura aos primeiros 2 minutos.
  */
-export async function transcreverAudioBase64(
-  base64: string,
-  opcoes: { mimetype?: string | null; duracaoS?: number | null } = {},
+async function chamarTranscricao(
+  chave: string,
+  bytes: Uint8Array,
+  tipo: string,
+  modelo: string,
 ): Promise<string | null> {
-  const chave = process.env["LOVABLE_API_KEY"];
-  if (!chave || !base64) return null;
-  let bytes: Uint8Array | null = base64ParaBytes(base64);
-  if (bytes.byteLength === 0) return null;
-  // Acima de 2 min: só o início (proporção dos bytes; Opus/OGG decodifica do começo).
-  const dur = opcoes.duracaoS ?? 0;
-  if (dur > DURACAO_MAXIMA_S) {
-    bytes = bytes.slice(0, Math.floor(bytes.byteLength * (DURACAO_MAXIMA_S / dur)));
-  }
-  if (bytes.byteLength > TAMANHO_MAXIMO) bytes = bytes.slice(0, TAMANHO_MAXIMO);
-
-  const tipo = (opcoes.mimetype ?? "audio/ogg").split(";")[0]!.trim() || "audio/ogg";
   const formulario = new FormData();
   formulario.append("file", new Blob([bytes as BlobPart], { type: tipo }), "audio.ogg");
-  formulario.append("model", MODELO);
-  formulario.append("languages", "pt");
+  formulario.append("model", modelo);
+  if (modelo === MODELO) formulario.append("languages", "pt");
+  else formulario.append("language", "pt-BR");
   formulario.append("stream", "true");
-  bytes = null;
 
   const controle = new AbortController();
   const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
   try {
     const resposta = await fetch(ENDPOINT, {
       method: "POST",
-      headers: {
-        authorization: `Bearer ${chave}`,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
+      headers: { authorization: `Bearer ${chave}`, "X-Lovable-AIG-SDK": "fetch" },
       body: formulario,
       signal: controle.signal,
     });
     if (!resposta.ok || !resposta.body) {
-      console.error("[whatsapp/audio] transcrição recusada", { status: resposta.status });
+      console.error("[whatsapp/audio] transcrição recusada", { modelo, status: resposta.status });
       return null;
     }
     const leitor = resposta.body.getReader();
@@ -138,10 +126,34 @@ export async function transcreverAudioBase64(
   } catch {
     console.error(
       "[whatsapp/audio] falha na transcrição",
-      controle.signal.aborted ? "tempo esgotado" : "erro",
+      { modelo, motivo: controle.signal.aborted ? "tempo esgotado" : "erro" },
     );
     return null;
   } finally {
     clearTimeout(relogio);
   }
+}
+
+/**
+ * Transcreve o áudio em Base64 por inteiro (sem cortar o final). Se o modelo
+ * principal falhar ou não entender, tenta o modelo reserva em pt-BR.
+ * Devolve `null` quando nenhum dos dois entendeu.
+ */
+export async function transcreverAudioBase64(
+  base64: string,
+  opcoes: { mimetype?: string | null; duracaoS?: number | null } = {},
+): Promise<string | null> {
+  const chave = process.env["LOVABLE_API_KEY"];
+  if (!chave || !base64) return null;
+  const bytes = base64ParaBytes(base64);
+  if (bytes.byteLength === 0) return null;
+  if (bytes.byteLength > TAMANHO_MAXIMO) {
+    console.error("[whatsapp/audio] áudio grande demais para transcrever");
+    return null;
+  }
+  const tipo = (opcoes.mimetype ?? "audio/ogg").split(";")[0]!.trim() || "audio/ogg";
+  const principal = await chamarTranscricao(chave, bytes, tipo, MODELO);
+  if (principal) return principal;
+  if (bytes.byteLength > TAMANHO_MAXIMO_RESERVA) return null;
+  return chamarTranscricao(chave, bytes, tipo, MODELO_RESERVA);
 }
