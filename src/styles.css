@@ -6308,3 +6308,36 @@ button.agenda-nome:hover {
 .agenda-item-nao_compareceu { border-left-color: var(--estado-faltou); }
 .agenda-item-remarcado { border-left-color: var(--estado-remarcado); }
 .agenda-item-encaixe { border-left-color: var(--estado-encaixe); }
+
+/* Menu da apresentação no celular: a navegação some abaixo de 900px e este botão a substitui. */
+.showroom-header-actions > .showroom-menu-botao {
+  width: 48px;
+  height: 48px;
+  display: none;
+}
+@media (max-width: 900px) {
+  .showroom-header-actions > .showroom-menu-botao {
+    display: inline-flex;
+  }
+}
+.showroom-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.showroom-menu-lista {
+  display: flex;
+  flex-direction: column;
+}
+.showroom-menu-lista a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--line, #e1e8f2);
+}
+.showroom-menu-acoes {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: auto;
+}

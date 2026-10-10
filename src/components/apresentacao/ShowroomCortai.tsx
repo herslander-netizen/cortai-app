@@ -22,6 +22,7 @@ import { FichaFocoVisual } from "@/components/barbeiro/agenda/FichaFoco";
 import { ChatHeader } from "@/components/chat/ChatShell";
 import { useWhatsappAlvo } from "@/components/layout/Signature";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MenuDaApresentacao } from "@/components/apresentacao/MenuDaApresentacao";
 import { TabelaDePlanos } from "@/components/planos/TabelaDePlanos";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -410,6 +411,7 @@ export function ShowroomCortai({
             <a href="#duvidas">Dúvidas</a>
           </nav>
           <div className="showroom-header-actions">
+            <MenuDaApresentacao />
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">Entrar</Link>
             </Button>

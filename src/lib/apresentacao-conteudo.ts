@@ -101,7 +101,8 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     },
     {
       pergunta: "Meus clientes podem agendar sozinhos?",
-      resposta: "Sim, a partir do plano Conecta, usando a página e o WhatsApp do Cortaí.",
+      resposta:
+        "Sim. Pela página do seu negócio, no Essencial, com até 40 agendamentos por mês. No Conecta, os agendamentos são ilimitados.",
     },
     {
       pergunta: "O WhatsApp está em todos os planos?",
