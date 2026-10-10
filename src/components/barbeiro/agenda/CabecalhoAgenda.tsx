@@ -11,6 +11,7 @@ import {
   Lock,
   Maximize2,
   MoreHorizontal,
+  MoreVertical,
 } from "lucide-react";
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -186,9 +187,9 @@ export function CabecalhoAgenda({
             variant="ghost"
             size="icon"
             aria-label="Mais opções da agenda"
-            className={`relative ${discreto ? "" : "ml-auto"}`}
+            className={`relative ${discreto ? "" : "ml-auto"} ${celular ? "w-9 min-w-9" : ""}`}
           >
-            <MoreHorizontal />
+            {celular ? <MoreVertical /> : <MoreHorizontal />}
             {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
           </Button>
         </DropdownMenuTrigger>
