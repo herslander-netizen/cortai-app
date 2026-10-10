@@ -252,7 +252,7 @@ export function SemanaDoTopo({
 /** Cinco pontinhos discretos que marcam o começo e o fim da grade do dia (só informam, não são botão). */
 export function MarcaDoLimiteDoDia({ className = "" }: { className?: string }) {
   return (
-    <div aria-hidden className={`flex h-8 items-center justify-center gap-1.5 ${className}`}>
+    <div aria-hidden className={`flex h-5 items-center justify-center gap-1.5 ${className}`}>
       {[0, 1, 2, 3, 4].map((i) => (
         <span key={i} className="size-1 rounded-full bg-mute2 opacity-60" />
       ))}

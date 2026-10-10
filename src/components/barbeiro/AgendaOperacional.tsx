@@ -1180,7 +1180,6 @@ export function AgendaOperacional() {
                 />
               )}
             </NaBarraDoTopo>
-            <MarcaDoLimiteDoDia />
           </>
         ) : null}
         <CabecalhoAgenda
@@ -1356,6 +1355,7 @@ export function AgendaOperacional() {
             </div>
           ) : visualizacao !== "lista" ? (
             <>
+              {celular ? <MarcaDoLimiteDoDia className="mb-1" /> : null}
               <AgendaTimeline
                 dia={dia}
                 fuso={fuso}
@@ -1379,7 +1379,7 @@ export function AgendaOperacional() {
                 discreto={modoDiscreto}
                 diaCompleto={celular}
               />
-              {celular ? <MarcaDoLimiteDoDia className="mt-3" /> : null}
+              {celular ? <MarcaDoLimiteDoDia className="mt-1" /> : null}
             </>
           ) : (
             <ListaAgenda
