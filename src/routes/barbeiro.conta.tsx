@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/barbeiro/conta")({
 });
 
 function ContaPage() {
+  const [confirmar, dialogo] = useConfirmar();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
   const [saindo, setSaindo] = useState(false);
   const queryClient = useQueryClient();
@@ -50,6 +52,7 @@ function ContaPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os do seu negócio.">
+      {dialogo}
       <div className="flex items-center gap-4 border-b border-line pb-6">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
           <UserRound size={22} />
@@ -156,9 +159,12 @@ function ContaPage() {
             onClick={async () => {
               setSalvandoSegmento(true);
               try {
-                const aplicarCores = window.confirm(
-                  `Usar também as cores recomendadas para ${termos(segmento).nome}?`,
-                );
+                const aplicarCores = await confirmar({
+                  titulo: "Usar também as cores recomendadas?",
+                  descricao: `Aplicar as cores recomendadas para ${termos(segmento).nome}.`,
+                  confirmar: "Usar cores",
+                  cancelar: "Manter as atuais",
+                });
                 const resultado = await salvarSegmento({ data: { segmento, aplicarCores } });
                 if (aplicarCores) {
                   aplicarIdentidade(resultado.identidade);
@@ -166,9 +172,12 @@ function ContaPage() {
                 }
                 if (
                   resultado.ofereceTrocarAtalhos &&
-                  window.confirm(
-                    `Trocar os atalhos da ficha do cliente pelos sugeridos para ${termos(segmento).nome}?`,
-                  )
+                  (await confirmar({
+                    titulo: "Trocar os atalhos da ficha do cliente?",
+                    descricao: `Usar os atalhos sugeridos para ${termos(segmento).nome}.`,
+                    confirmar: "Trocar atalhos",
+                    cancelar: "Manter",
+                  }))
                 )
                   await trocarAtalhos();
                 await queryClient.invalidateQueries({ queryKey: ["sessao"] });

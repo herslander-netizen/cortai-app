@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -93,6 +94,7 @@ function AdminWhatsappPage() {
 }
 
 function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
+  const [confirmar, dialogo] = useConfirmar();
   const cliente = useQueryClient();
   const operar = useServerFn(operarWhatsappDoNegocio);
   const definir = useServerFn(definirNotificacoesDoNegocio);
@@ -109,6 +111,7 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
 
   return (
     <div className="surface mt-3 p-4">
+      {dialogo}
       {n.ultimoErro ? <p className="text-xs text-mute2">Último erro: {n.ultimoErro}</p> : null}
       {n.verificadoEm ? (
         <p className="text-xs text-mute2">
@@ -167,8 +170,15 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
               size="sm"
               variant="ghost"
               disabled={acao.isPending}
-              onClick={() => {
-                if (window.confirm(`Desconectar o WhatsApp de ${n.nome}? Nada é apagado.`))
+              onClick={async () => {
+                if (
+                  await confirmar({
+                    titulo: `Desconectar o WhatsApp de ${n.nome}?`,
+                    descricao: "Nada é apagado.",
+                    confirmar: "Desconectar",
+                    destrutivo: true,
+                  })
+                )
                   acao.mutate("desconectar");
               }}
             >

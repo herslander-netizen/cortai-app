@@ -1,4 +1,5 @@
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -603,6 +604,7 @@ const CABECALHO_DO_TIPO: Record<TipoDeConexao, { titulo: string; subtitulo: stri
 };
 
 function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoDeConexao }) {
+  const [confirmar, dialogo] = useConfirmar();
   const cliente = useQueryClient();
   const daLinha = tipo === "atendimento" ? painel.conexao : painel.conexaoNotificacoes;
   const cabecalho = CABECALHO_DO_TIPO[tipo];
@@ -799,6 +801,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
   return (
     <section className="surface p-5">
+      {dialogo}
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
           {tipo === "atendimento" ? <MessageCircle size={18} /> : <Smartphone size={18} />}
@@ -892,11 +895,14 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
               type="button"
               className="w-full rounded-md border border-line2 py-2.5 text-sm text-brick disabled:opacity-50"
               disabled={acao.isPending}
-              onClick={() => {
+              onClick={async () => {
                 if (
-                  window.confirm(
-                    `Desconectar o ${cabecalho.subtitulo}? Clientes, histórico e agendamentos continuam salvos.`,
-                  )
+                  await confirmar({
+                    titulo: `Desconectar o ${cabecalho.subtitulo}?`,
+                    descricao: "Clientes, histórico e agendamentos continuam salvos.",
+                    confirmar: "Desconectar",
+                    destrutivo: true,
+                  })
                 ) {
                   acao.mutate("desconectar");
                 }

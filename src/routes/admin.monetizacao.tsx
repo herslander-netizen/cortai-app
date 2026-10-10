@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -387,6 +388,7 @@ function FormularioPlano({
 /* ----------------------------- POR BARBEARIA ----------------------------- */
 
 function AbaBarbearia() {
+  const [confirmar, dialogo] = useConfirmar();
   const tenants = useQuery({
     queryKey: ["admin-tenants"],
     queryFn: () => getAdminTenants(),
@@ -425,6 +427,7 @@ function AbaBarbearia() {
 
   return (
     <div>
+      {dialogo}
       <Campo label="Barbearia">
         <select
           className={input}
@@ -526,11 +529,14 @@ function AbaBarbearia() {
                     type="button"
                     className="btn-secondary px-3 text-xs disabled:opacity-60"
                     disabled={acao.ocupado}
-                    onClick={() => {
+                    onClick={async () => {
                       if (
-                        !window.confirm(
-                          "Encerrar esta condição especial? A barbearia volta ao preço padrão.",
-                        )
+                        !(await confirmar({
+                          titulo: "Encerrar esta condição especial?",
+                          descricao: "A barbearia volta ao preço padrão.",
+                          confirmar: "Encerrar",
+                          destrutivo: true,
+                        }))
                       )
                         return;
                       void acao.executar(

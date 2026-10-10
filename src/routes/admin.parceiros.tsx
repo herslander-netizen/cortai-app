@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/admin/parceiros")({
 const VAZIO = { nome: "", logo_url: "", link: "", ordem: 0, ativo: true };
 
 function ParceirosAdmin() {
+  const [confirmar, dialogo] = useConfirmar();
   const consulta = useQuery({
     queryKey: ["parceiros-admin"],
     queryFn: () => listarParceirosAdmin(),
@@ -55,6 +57,7 @@ function ParceirosAdmin() {
       title="Parceiros"
       subtitle="Faixa discreta da página inicial; sem parceiros ativos, ela fica oculta."
     >
+      {dialogo}
       {consulta.isError ? <AdminNotice error={consulta.error} /> : null}
 
       <form
@@ -197,8 +200,15 @@ function ParceirosAdmin() {
                 type="button"
                 className="text-xs text-brick disabled:opacity-60"
                 disabled={acao.ocupado}
-                onClick={() => {
-                  if (!window.confirm(`Remover o parceiro ${parceiro.nome} da página inicial?`))
+                onClick={async () => {
+                  if (
+                    !(await confirmar({
+                      titulo: `Remover o parceiro ${parceiro.nome}?`,
+                      descricao: "Ele sai da página inicial.",
+                      confirmar: "Remover",
+                      destrutivo: true,
+                    }))
+                  )
                     return;
                   void acao.executar(
                     `remover-${parceiro.id}`,
