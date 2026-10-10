@@ -9,7 +9,7 @@ import { marcarCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convi
 
 const CHAVE_FAIXA = "cortai-menu-desempenho-aberto";
 
-/** Faixa recolhível "Desempenho dos últimos 7 dias" (dentro do bloco Sua Página). */
+/** Linha recolhível "Ver desempenho · últimos 7 dias", logo abaixo do cartão Sua Página. */
 export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: boolean }) {
   const [aberta, setAberta] = useState(false);
   useEffect(() => {
@@ -43,20 +43,20 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
     { rotulo: "Conversão", valor: data ? `${data.conversao}%` : undefined },
   ];
   return (
-    <div className="bg-drawer-band">
-      <button
-        type="button"
+    <div className="overflow-hidden rounded-[24px] border border-drawer-borda bg-drawer-band">
+      <Button
+        variant="ghost"
         onClick={alternar}
         aria-expanded={aberta}
-        className="flex min-h-11 w-full items-center gap-2 px-5 py-2 text-left text-sm text-mute"
+        className="min-h-12 w-full justify-start gap-2 whitespace-normal px-5 py-2 text-left text-sm font-normal text-mute hover:bg-transparent"
       >
         <TrendingUp className="size-4 shrink-0" aria-hidden />
-        <span className="flex-1 truncate">Desempenho dos últimos 7 dias</span>
+        <span className="flex-1 truncate">Ver desempenho · últimos 7 dias</span>
         <ChevronDown
           className={`size-4 transition-transform duration-[150ms] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
           aria-hidden
         />
-      </button>
+      </Button>
       <div
         className={`grid transition-[grid-template-rows] duration-[150ms] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
@@ -103,11 +103,11 @@ export function CartaoAvisosDoMenu({ tenantId }: { tenantId: string | null }) {
       </div>
       <div className="mt-4 flex items-center gap-2">
         {instalarPrimeiro ? null : (
-          <Button className="h-11 rounded-full px-6" onClick={() => void ativar()}>
+          <Button className="h-12 rounded-full px-6" onClick={() => void ativar()}>
             Ativar
           </Button>
         )}
-        <Button variant="ghost" className="h-11 rounded-full px-4 text-mute" onClick={dispensar}>
+        <Button variant="ghost" className="h-12 rounded-full px-4 text-mute" onClick={dispensar}>
           {instalarPrimeiro ? "Entendi" : "Agora não"}
         </Button>
       </div>

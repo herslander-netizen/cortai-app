@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +18,8 @@ import {
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { DrawerAjustes } from "@/components/layout/DrawerAjustes";
 import { DrawerDestaques } from "@/components/layout/DrawerDestaques";
-import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
+import { GruposDoMenu } from "@/components/layout/GruposDoMenu";
+import { CartaoSuporte } from "@/components/layout/CartaoSuporte";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
 import { getAgendaDia } from "@/lib/barbeiro.functions";
@@ -229,13 +229,12 @@ export function ManagementHeader() {
                     />
                     <div className="min-w-0">
                       <SheetTitle
-                        className={`line-clamp-2 break-words font-semibold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-xl leading-6" : "text-2xl leading-7"}`}
+                        className={`line-clamp-2 break-words font-bold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-lg leading-6" : "text-[22px] leading-7"}`}
                       >
                         {sessao?.tenantNome ?? "Meu negócio"}
                       </SheetTitle>
-                      <SheetDescription className="mt-1 truncate text-[15px] text-mute">
-                        {sessao?.nome?.split(" ")[0] ?? "Equipe"} ·{" "}
-                        {rotuloDoPapel(sessao?.papelNaEquipe)}
+                      <SheetDescription className="mt-1 truncate text-sm text-mute">
+                        {sessao?.nome ?? "Equipe"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
                       </SheetDescription>
                     </div>
                   </div>
@@ -267,62 +266,20 @@ export function ManagementHeader() {
                   menuAberto={aberto}
                   fechar={() => setAberto(false)}
                 />
-                <div className="mt-6 space-y-4">
-                  {grupos.map((grupo) =>
-                    grupo.itens.length ? (
-                      <section key={grupo.titulo}>
-                        <Button
-                          variant="ghost"
-                          className="min-h-12 w-full justify-between px-1 text-lg font-bold text-menu-icone hover:bg-transparent"
-                          aria-expanded={abertos.includes(grupo.titulo)}
-                          aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
-                          onClick={() => alternar(grupo.titulo)}
-                        >
-                          {grupo.titulo === "Negócio"
-                            ? capitalizar(termos(sessao?.segmento).possessivo)
-                            : grupo.titulo}
-                          <ChevronDown
-                            className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
-                            aria-hidden
-                          />
-                        </Button>
-                        {abertos.includes(grupo.titulo) ? (
-                          <ul
-                            id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
-                            className="space-y-1.5 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
-                          >
-                            {grupo.itens.map((item, indice) => {
-                              const Icon = item.icon;
-                              const ativo = itemDeNavegacaoAtivo(caminho, item.to);
-                              const raio =
-                                grupo.itens.length === 1
-                                  ? "rounded-[24px]"
-                                  : indice === 0
-                                    ? "rounded-t-[24px] rounded-b-[9px]"
-                                    : indice === grupo.itens.length - 1
-                                      ? "rounded-t-[9px] rounded-b-[24px]"
-                                      : "rounded-[9px]";
-                              return (
-                                <li key={`${grupo.titulo}-${item.label}`}>
-                                  <Link
-                                    to={item.to as never}
-                                    preload="intent"
-                                    onClick={() => setAberto(false)}
-                                    aria-current={ativo ? "page" : undefined}
-                                    className={`grid min-h-16 grid-cols-[40px_minmax(0,1fr)] items-center gap-3 border border-drawer-borda bg-drawer-card px-4 py-3 text-lg font-medium text-paper ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}
-                                  >
-                                    <IconeDoMenu icone={Icon} ativo={ativo} />
-                                    <span className="truncate">{item.label}</span>
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        ) : null}
-                      </section>
-                    ) : null,
-                  )}
-                </div>
+                <GruposDoMenu
+                  grupos={grupos.map((grupo) => ({
+                    ...grupo,
+                    rotulo:
+                      grupo.titulo === "Negócio"
+                        ? capitalizar(termos(sessao?.segmento).possessivo)
+                        : grupo.titulo,
+                  }))}
+                  abertos={abertos}
+                  caminho={caminho}
+                  onAlternar={alternar}
+                  onNavegar={() => setAberto(false)}
+                />
+                <CartaoSuporte />
               </nav>
             </div>
           </SheetContent>
