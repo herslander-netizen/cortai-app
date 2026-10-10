@@ -30,6 +30,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { LegendaDasCores } from "./LegendaDasCores";
+import { useAlvoNoTopo } from "./useAlvoNoTopo";
 import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
 
@@ -114,10 +115,7 @@ export function CabecalhoAgenda({
     { id: "lista" as const, rotulo: "Lista", Icone: List },
     ...(mostrarSemana ? [{ id: "semana" as const, rotulo: "Semana", Icone: CalendarDays }] : []),
   ];
-  const [topo, setTopo] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setTopo(celular ? document.getElementById("topo-centro") : null);
-  }, [celular]);
+  const topo = useAlvoNoTopo("topo-centro", celular);
   const data = (
     <>
       <Popover open={calendario} onOpenChange={setCalendario}>
