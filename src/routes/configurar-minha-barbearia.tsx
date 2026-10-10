@@ -313,25 +313,22 @@ function ConfigurarMinhaBarbearia() {
                 <p className="text-sm font-semibold text-paper">Seu negócio está publicado.</p>
                 <p className="mt-1 break-all text-xs text-mute">{link}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <button
+                  <Button
                     type="button"
-                    className="btn-secondary px-4 py-2 text-sm"
+                    variant="outline"
                     onClick={() => {
                       void navigator.clipboard.writeText(link);
                       setCopiado(true);
                       window.setTimeout(() => setCopiado(false), 2000);
                     }}
                   >
-                    {copiado ? <Check size={15} /> : <Copy size={15} />} Copiar link
-                  </button>
-                  <a
-                    className="btn-secondary px-4 py-2 text-sm"
-                    href={link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <ExternalLink size={15} /> Abrir página
-                  </a>
+                    {copiado ? <Check /> : <Copy />} Copiar link
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <a href={link} target="_blank" rel="noreferrer">
+                      <ExternalLink /> Abrir página
+                    </a>
+                  </Button>
                 </div>
                 {reivindicado ? (
                   <p className="mt-4 text-xs text-mute">
@@ -343,14 +340,14 @@ function ConfigurarMinhaBarbearia() {
                       Para gerenciar agenda, clientes e financeiro, assuma o acesso com sua conta.
                       Ninguém mais consegue administrar este negócio sem este aparelho.
                     </p>
-                    <button
+                    <Button
                       type="button"
-                      className="btn-primary mt-3 w-full py-3"
+                      className="mt-3 w-full"
                       disabled={ocupado}
                       onClick={() => void assumirAcesso()}
                     >
                       Assumir acesso ao painel
-                    </button>
+                    </Button>
                   </>
                 )}
               </div>
@@ -366,21 +363,22 @@ function ConfigurarMinhaBarbearia() {
                     Horários: {dados.horarios.filter((h) => !h.fechado).length} dia(s) aberto(s)
                   </li>
                 </ul>
-                <button
+                <Button
                   type="button"
-                  className="btn-primary mt-5 w-full py-3.5"
+                  className="mt-5 w-full"
                   disabled={ocupado}
                   onClick={() => void publicarAgora()}
                 >
                   {ocupado ? "Publicando…" : "Publicar meu negócio"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="btn-tertiary mt-3 w-full text-sm"
+                  variant="ghost"
+                  className="mt-3 w-full"
                   onClick={() => setPasso(2)}
                 >
                   Voltar
-                </button>
+                </Button>
               </div>
             )}
           </section>
@@ -429,18 +427,13 @@ function Rodape({
     <>
       <div className="mt-8 flex items-center gap-4">
         {onVoltar ? (
-          <button type="button" className="btn-tertiary text-sm" onClick={onVoltar}>
+          <Button type="button" variant="ghost" onClick={onVoltar}>
             Voltar
-          </button>
+          </Button>
         ) : null}
-        <button
-          type="button"
-          className="btn-primary flex-1 py-3.5"
-          disabled={!podeAvancar}
-          onClick={onAvancar}
-        >
+        <Button type="button" className="flex-1" disabled={!podeAvancar} onClick={onAvancar}>
           Continuar
-        </button>
+        </Button>
       </div>
       {dica ? <p className="mt-3 text-xs text-mute2">{dica}</p> : null}
     </>

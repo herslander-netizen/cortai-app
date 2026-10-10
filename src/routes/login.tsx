@@ -283,9 +283,10 @@ function LoginPage() {
 
       <p className="mt-4 text-center text-sm text-mute">
         {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
-        <button
+        <Button
           type="button"
-          className="-my-2 inline-flex min-h-11 items-center px-0.5 font-semibold text-paper hover:underline"
+          variant="link"
+          className="h-auto min-h-12 px-1"
           onClick={() => {
             setModo(modo === "entrar" ? "criar" : "entrar");
             setErro(null);
@@ -293,7 +294,7 @@ function LoginPage() {
           }}
         >
           {modo === "entrar" ? "Criar conta" : "Entrar"}
-        </button>
+        </Button>
       </p>
 
       <Link
