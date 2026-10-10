@@ -1311,13 +1311,6 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     const criado = res as unknown as { agendamento_id: string; inicio: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
 
-    // Fila de eventos da integração de IA: nunca interfere no agendamento.
-    const { emitirEvento } = await import("@/lib/ia/eventos.server");
-    await emitirEvento(tenant.id, "appointment_created", criado.agendamento_id, {
-      inicio: criado.inicio,
-      origem: "manual",
-    });
-
     // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
     try {
       const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
