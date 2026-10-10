@@ -16,6 +16,7 @@ import {
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
+import { AlcaDeDuracao, PASSO_DA_ALCA_MIN } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
 
@@ -50,6 +51,8 @@ type AgendaTimelineProps = {
   /** Mantido por compatibilidade; a timeline mostra só estados especiais. */
   renderStatus?: (status: string) => ReactNode;
   onMover?: (item: AgendaItem, deltaMin: number) => void;
+  /** Esticar ou encurtar a duração pela alça da base do cartão (variação em minutos). */
+  onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -108,6 +111,7 @@ export function AgendaTimeline({
   selecionado,
   onSelecionar,
   onMover,
+  onRedimensionar,
   onHorarioVazio,
   destaques,
   itensEscala,
@@ -125,6 +129,7 @@ export function AgendaTimeline({
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
+  const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
   const gesto = useRef<{
     id: string;
     y0: number;
@@ -731,6 +736,21 @@ export function AgendaTimeline({
               .join(" · ");
             const passoArrasto =
               arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : 0;
+            const passoRedim =
+              redim?.id === item.id
+                ? Math.round(redim.dy / PX_POR_MINUTO / PASSO_DA_ALCA_MIN) * PASSO_DA_ALCA_MIN
+                : 0;
+            const alturaDoBloco = Math.max(
+              ALTURA_MINIMA_BLOCO,
+              blocoAltura + passoRedim * PX_POR_MINUTO,
+            );
+            const faixaDaColuna = posicao?.colunas
+              ? {
+                  left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                  right: "auto",
+                  width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                }
+              : { left: "7px", right: "4px" };
             return (
               <Fragment key={item.id}>
                 {arrasto?.id === item.id ? (
@@ -752,7 +772,7 @@ export function AgendaTimeline({
                   className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     top: `${topo}px`,
-                    minHeight: `${blocoAltura}px`,
+                    minHeight: `${alturaDoBloco}px`,
                     ...(posicao?.colunas
                       ? {
                           left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -829,6 +849,21 @@ export function AgendaTimeline({
                   ) : null}
                   {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
                 </Button>
+                {!previa && onRedimensionar && podeMover(item) ? (
+                  <AlcaDeDuracao
+                    rotulo={`Esticar a duração de ${nome}`}
+                    etiqueta={redim?.id === item.id ? `até ${horaMinuto(fim + passoRedim)}` : null}
+                    estilo={{ top: `${topo + alturaDoBloco - 32}px`, ...faixaDaColuna }}
+                    pxPorMinuto={PX_POR_MINUTO}
+                    lerRolagem={() =>
+                      celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
+                    }
+                    onTravar={travarRolagemDoToque}
+                    onSoltar={soltarRolagemDoToque}
+                    onArrastar={(dy) => setRedim(dy === null ? null : { id: item.id, dy })}
+                    onConfirmar={(delta) => onRedimensionar(item, delta)}
+                  />
+                ) : null}
               </Fragment>
             );
           })}

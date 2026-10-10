@@ -40,6 +40,72 @@ function evento(tipo: string, y: number, extra: Record<string, unknown> = {}) {
   return e;
 }
 
+function montar(extra: Record<string, unknown>) {
+  window.matchMedia ??= ((q: string) => ({
+    matches: false,
+    media: q,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    onchange: null,
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+  const alvo = document.createElement("div");
+  document.body.appendChild(alvo);
+  const raiz = createRoot(alvo);
+  limpar.push(() => act(() => raiz.unmount()));
+  act(() =>
+    raiz.render(
+      createElement(AgendaTimeline, {
+        dia: "2099-10-09",
+        fuso: "America/Sao_Paulo",
+        itens: [item],
+        horarios: [],
+        selecionado: null,
+        onSelecionar: () => {},
+        ...extra,
+      }),
+    ),
+  );
+  return alvo;
+}
+
+describe("alça de duração na Timeline", () => {
+  it("arrastar a alça para baixo propõe aumentar a duração, sem mover o início", () => {
+    const onMover = vi.fn();
+    const onRedimensionar = vi.fn();
+    const alvo = montar({ onMover, onRedimensionar });
+    const alca = alvo.querySelector<HTMLElement>("[role=separator]");
+    expect(alca).not.toBeNull();
+    act(() => {
+      alca!.dispatchEvent(evento("pointerdown", 300));
+      alca!.dispatchEvent(evento("pointermove", 348));
+      alca!.dispatchEvent(evento("pointerup", 348));
+    });
+    expect(onMover).not.toHaveBeenCalled();
+    expect(onRedimensionar).toHaveBeenCalledTimes(1);
+    const delta = onRedimensionar.mock.calls[0]?.[1] as number;
+    expect(delta).toBeGreaterThan(0);
+    expect(delta % 15).toBe(0);
+  });
+  it("as setas do teclado mudam 15 minutos", () => {
+    const onRedimensionar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onRedimensionar });
+    const alca = alvo.querySelector<HTMLElement>("[role=separator]");
+    act(() => {
+      alca!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }),
+      );
+    });
+    expect(onRedimensionar.mock.calls[0]?.[1]).toBe(15);
+  });
+  it("sem onRedimensionar não há alça (atendimento só leitura)", () => {
+    const alvo = montar({ onMover: vi.fn() });
+    expect(alvo.querySelector("[role=separator]")).toBeNull();
+  });
+});
+
 describe("arrastar na Timeline (mouse)", () => {
   it("soltar depois de arrastar chama onMover com o deslocamento em minutos", () => {
     window.matchMedia ??= ((q: string) => ({

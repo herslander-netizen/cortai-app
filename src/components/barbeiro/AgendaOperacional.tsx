@@ -804,6 +804,9 @@ export function AgendaOperacional() {
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, deltaMin);
   }
+  function redimensionarPorAlca(item: AgendaItem, deltaMin: number) {
+    edicao.propor(item.id, 0, deltaMin);
+  }
 
   async function verificarRemarcar(item: AgendaItem, pedido: PedidoRemarcar) {
     const r = await moverAgendamento({
@@ -1319,6 +1322,7 @@ export function AgendaOperacional() {
                     selecionado={selecionado}
                     onSelecionar={abrir}
                     onMover={moverPorArrasto}
+                    onRedimensionar={redimensionarPorAlca}
                     onHorarioVazio={(h) => {
                       setHoraVazia(h);
                       setProfVazio(p.id);
@@ -1342,6 +1346,7 @@ export function AgendaOperacional() {
               selecionado={selecionado}
               onSelecionar={abrir}
               onMover={moverPorArrasto}
+              onRedimensionar={redimensionarPorAlca}
               onHorarioVazio={(h) => {
                 setHoraVazia(h);
                 setProfVazio(null);
