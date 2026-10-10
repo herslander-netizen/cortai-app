@@ -5725,6 +5725,11 @@ button.agenda-nome:hover {
   min-height: 48px;
 }
 @media (max-width: 767px) {
+  /* A faixa de profissionais vai até a borda da tela: o recorte lateral da Agenda
+     ficava na margem da página. A tela já recorta o excesso (management-shell). */
+  .agenda-operacional {
+    overflow-x: visible;
+  }
   /* Modelo: o topo e a semana são uma só superfície; quem desenha o bloco é a SemanaDoTopo. */
   .agenda-cabecalho-unico.agenda-cabecalho-compacto {
     position: static;

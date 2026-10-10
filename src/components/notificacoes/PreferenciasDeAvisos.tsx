@@ -123,10 +123,10 @@ export function PreferenciasDeAvisos() {
           return (
             <li
               key={t.chave}
-              className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3"
+              className="flex flex-col gap-2 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-3"
             >
-              <span className="min-w-0 flex-1 truncate text-sm text-paper">{t.rotulo}</span>
-              <span className="flex gap-2">
+              <span className="min-w-0 text-sm text-paper">{t.rotulo}</span>
+              <span className="flex flex-wrap gap-2">
                 {canaisDo(t.chave).map((canal) => {
                   const ativo = linha[canal];
                   return (

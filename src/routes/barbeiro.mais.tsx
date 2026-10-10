@@ -60,7 +60,7 @@ function MaisPage() {
   return (
     <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
       <div data-guia="mais-lista" className="space-y-8">
-        <section>
+        <section className="mt-6">
           <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sistema</h2>
           <ul className="divide-y divide-line border-y border-line">
             {sistema.map((item) => {
