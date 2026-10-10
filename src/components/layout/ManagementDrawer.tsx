@@ -234,11 +234,11 @@ export function ManagementHeader() {
                     />
                     <div className="min-w-0">
                       <SheetTitle
-                        className={`line-clamp-2 break-words font-bold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-lg leading-6" : "text-[22px] leading-7"}`}
+                        className={`line-clamp-2 break-words font-bold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-base leading-5" : "text-lg leading-6"}`}
                       >
                         {sessao?.tenantNome ?? "Meu negócio"}
                       </SheetTitle>
-                      <SheetDescription className="mt-1 truncate text-sm text-mute">
+                      <SheetDescription className="mt-0.5 truncate text-[13px] text-mute">
                         {sessao?.nome ?? "Equipe"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
                       </SheetDescription>
                     </div>
