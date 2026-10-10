@@ -109,6 +109,16 @@
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #d9a441;
   --agenda-linha-hora: #414742;
+  /* Cartões da Agenda: uma cor viva por estado do cliente. */
+  --estado-agendado: #9d8cff;
+  --estado-confirmado: #3d8bff;
+  --estado-chegou: #ffb020;
+  --estado-na-cadeira: #00b4ff;
+  --estado-finalizado: #34c759;
+  --estado-cancelado: #8e8e93;
+  --estado-faltou: #ff4d5e;
+  --estado-remarcado: #ff2d78;
+  --estado-encaixe: #2dd4bf;
   --agenda-listra-base: #2a2f2b;
   --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2b);
   --grafite-ink: var(--fundo);
@@ -226,6 +236,15 @@
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #c98a1a;
   --agenda-linha-hora: #d8e0da;
+  --estado-agendado: #6a5af9;
+  --estado-confirmado: #1f6fe5;
+  --estado-chegou: #c98500;
+  --estado-na-cadeira: #0090cc;
+  --estado-finalizado: #1f9d48;
+  --estado-cancelado: #6b6b70;
+  --estado-faltou: #e0343a;
+  --estado-remarcado: #e0145e;
+  --estado-encaixe: #0f9488;
   --agenda-listra-base: #f0f6f2;
   --agenda-listra: #e2eae4;
   --ink: var(--fundo);
@@ -5654,18 +5673,18 @@ button.agenda-nome:hover {
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
   color: var(--menu-icone);
 }
-/* Modelo: ícones maiores na pílula (mira 20px, lista 26px). */
+/* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
 .agenda-botao-agora-ir {
-  font-size: 18px;
+  font-size: 16px;
 }
 .agenda-botao-agora-ir svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 .agenda-botao-agora-visualizacao svg {
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.4;
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
 }
 .agenda-botao-agora-principal button:active {
   transform: scale(0.97);
@@ -5923,16 +5942,6 @@ button.agenda-nome:hover {
   .agenda-timeline-marca:not(.agenda-timeline-hora) {
     border-top-color: transparent;
   }
-  /* Cartões no escuro: superfície mais funda que a grade, sem contorno, com a faixa de status. */
-  :root:not(.light) .agenda-timeline-agendado,
-  :root:not(.light) .agenda-timeline-finalizado,
-  :root:not(.light) .agenda-timeline-remarcado,
-  :root:not(.light) .agenda-timeline-na_cadeira {
-    border-top-color: transparent;
-    border-right-color: transparent;
-    border-bottom-color: transparent;
-    background: color-mix(in oklab, var(--ink) 70%, black);
-  }
   .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(
       135deg,
@@ -5951,13 +5960,13 @@ button.agenda-nome:hover {
 
 /* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
-  --agenda-fab-tamanho: 72px;
-  --agenda-fab-icone: 28px;
+  --agenda-fab-tamanho: 56px;
+  --agenda-fab-icone: 24px;
   --agenda-fab-margem: 16px;
   --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
   --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
-  --agenda-composto-largura: 184px;
-  --agenda-respiro-inferior: 112px;
+  --agenda-composto-largura: 148px;
+  --agenda-respiro-inferior: 96px;
 }
 .agenda-acao-fixa {
   position: fixed;
@@ -5991,7 +6000,7 @@ button.agenda-nome:hover {
   }
   /* Modelo: "+" em quadrado de cantos bem arredondados; no escuro, azul mais fechado. */
   .agenda-acao-fixa .agenda-acao-redonda {
-    border-radius: 26px;
+    border-radius: 20px;
   }
   :root:not(.light) .agenda-acao-fixa .agenda-fab-toggle {
     background: color-mix(in oklab, var(--primary) 55%, black);
@@ -6016,7 +6025,7 @@ button.agenda-nome:hover {
     min-width: var(--agenda-fab-tamanho);
   }
   .agenda-botao-agora-separador {
-    height: 32px;
+    height: 24px;
   }
   .agenda-operacional {
     padding-bottom: calc(var(--agenda-respiro-inferior) + env(safe-area-inset-bottom));
@@ -6182,4 +6191,61 @@ button.agenda-nome:hover {
   .light .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(135deg, var(--agenda-listra-base) 0 6px, var(--agenda-listra) 6px 7px);
   }
+}
+
+/* Agenda: cartões coloridos pelo estado do cliente, com a faixa lateral arredondada do modelo. */
+.agenda-timeline-bloco {
+  --cor-estado: var(--estado-agendado);
+  --fundo-estado: 20%;
+}
+.light .agenda-timeline-bloco {
+  --fundo-estado: 11%;
+}
+.agenda-timeline-confirmado { --cor-estado: var(--estado-confirmado); }
+.agenda-timeline-chegou { --cor-estado: var(--estado-chegou); }
+.agenda-timeline-na_cadeira { --cor-estado: var(--estado-na-cadeira); --fundo-estado: 28%; }
+.light .agenda-timeline-na_cadeira { --fundo-estado: 16%; }
+.agenda-timeline-finalizado { --cor-estado: var(--estado-finalizado); }
+.agenda-timeline-cancelado { --cor-estado: var(--estado-cancelado); }
+.agenda-timeline-nao_compareceu { --cor-estado: var(--estado-faltou); }
+.agenda-timeline-remarcado { --cor-estado: var(--estado-remarcado); }
+.agenda-timeline-encaixe:not(.agenda-timeline-chegou, .agenda-timeline-na_cadeira, .agenda-timeline-finalizado, .agenda-timeline-cancelado, .agenda-timeline-nao_compareceu) {
+  --cor-estado: var(--estado-encaixe);
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco {
+  border: 1px solid color-mix(in oklab, var(--cor-estado) 30%, transparent);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--cor-estado) var(--fundo-estado), var(--ink2));
+  padding-left: 18px;
+  opacity: 1;
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-encaixe {
+  border-style: dashed;
+}
+.agenda-operacional .agenda-timeline-bloco::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--cor-estado);
+  pointer-events: none;
+}
+/* Encerrados continuam legíveis pela cor; só perdem um pouco de destaque. */
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-cancelado,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-nao_compareceu,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-remarcado {
+  opacity: 0.8;
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-passado:not(.agenda-timeline-na_cadeira) {
+  opacity: 0.82;
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-selecionado {
+  border-color: var(--cor-estado);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--cor-estado) 35%, transparent);
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-arrastando {
+  opacity: 0.85;
 }
