@@ -6318,6 +6318,7 @@ button.agenda-nome:hover {
 @media (max-width: 900px) {
   .showroom-header-actions > .showroom-menu-botao {
     display: inline-flex;
+    order: 1;
   }
 }
 .showroom-menu {
@@ -6340,4 +6341,10 @@ button.agenda-nome:hover {
   display: grid;
   gap: 0.5rem;
   margin-top: auto;
+}
+/* No celular, "Entrar" fica dentro do menu; o cabeçalho mantém só o menu e "Começar grátis". */
+@media (max-width: 900px) {
+  .showroom-header-actions > :nth-child(2) {
+    display: none;
+  }
 }
