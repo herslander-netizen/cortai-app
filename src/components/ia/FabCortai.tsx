@@ -2,7 +2,11 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { IconeDaIA } from "./IconeDaIA";
+import { PontoDaCortai } from "./SeloDaCortai";
+import { useEstadoDaCortai } from "./useEstadoDaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
+import { Button } from "@/components/ui/button";
+import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
 import { getSessao } from "@/lib/sessao.functions";
 
 const AssistenteCortai = lazy(() =>
@@ -60,6 +64,46 @@ export function FabCortai() {
           ) : null}
         </button>
       </div>
+
+      {aberto ? (
+        <Suspense fallback={null}>
+          <AssistenteCortai segmento={sessao?.segmento} onFechar={() => setAberto(false)} />
+        </Suspense>
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Ícone da CortAI no cabeçalho do painel, ao lado do sininho.
+ * Abre a mesma conversa (`AssistenteCortai`) sobre a tela atual e mostra um ponto
+ * quando a CortAI está desligada, pausada ou no limite.
+ */
+export function AtalhoCortaiNoCabecalho() {
+  const [aberto, setAberto] = useState(false);
+  const estado = useEstadoDaCortai();
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300_000,
+  });
+  const situacao = estado && estado !== "ativa" ? ` · ${SELO_DA_CORTAI[estado].rotulo}` : "";
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={() => setAberto(true)}
+        aria-label={`Abrir CortAI${situacao}`}
+        aria-haspopup="dialog"
+        aria-expanded={aberto}
+        className="relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold"
+      >
+        <IconeDaIA segmento={sessao?.segmento} size={22} />
+        <PontoDaCortai estado={estado} />
+      </Button>
 
       {aberto ? (
         <Suspense fallback={null}>

@@ -73,9 +73,10 @@ export const SERVICOS_SUGERIDOS: ServicoSugerido[] = [
 ];
 
 /** Mensagem honesta quando não há credencial de IA no ambiente. */
-export function respostaIndisponivel(): RespostaDoAssistente {
+export function respostaIndisponivel(texto?: string): RespostaDoAssistente {
   return {
     resposta:
+      texto ??
       "O assistente do CortAI ainda não está ligado neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
     intencao: "ajuda",
     precisaConfirmar: false,

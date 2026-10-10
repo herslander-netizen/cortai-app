@@ -8,6 +8,7 @@
  *   voltam às regras fixas e o painel mostra o aviso, sem travar a operação.
  */
 import type { Canal } from "./acoes.server";
+import { bloqueioDaConfig } from "./estado-cortai";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -21,11 +22,13 @@ function chaveDoUso(canal: Canal, equipe: boolean) {
   return equipe ? `cerebro.${canal}.equipe` : `cerebro.${canal}`;
 }
 
-const LIMITE_DIARIO_PADRAO: Record<Canal, number> = { painel: 1000, whatsapp: 400, site: 300 };
-/** Pausa por crédito: só uma nova tentativa a cada 6 h, até o dono reativar. */
-const PAUSA_MS = 6 * 60 * 60_000;
+export const LIMITE_DIARIO_PADRAO: Record<Canal, number> = {
+  painel: 1000,
+  whatsapp: 400,
+  site: 300,
+};
 
-export type Bloqueio = "pausada" | "limite_diario" | "limite_pessoa" | null;
+export type Bloqueio = "desligada" | "pausada" | "limite_diario" | "limite_pessoa" | null;
 
 export async function bloqueioDeUso(
   tenantId: string,
@@ -36,13 +39,14 @@ export async function bloqueioDeUso(
 ): Promise<Bloqueio> {
   try {
     const db = await admin();
+    // `*` mantém a leitura válida antes e depois da coluna `cortai_ativa` existir no banco.
     const { data: cfg } = await db
       .from("config_atendimento_ia")
-      .select("ia_pausada_em, ia_limite_diario_whatsapp")
+      .select("*")
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (cfg?.ia_pausada_em && Date.now() - Date.parse(cfg.ia_pausada_em) < PAUSA_MS)
-      return "pausada";
+    const daConfig = bloqueioDaConfig(cfg);
+    if (daConfig) return daConfig;
 
     const umDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const umaHora = new Date(Date.now() - 60 * 60_000).toISOString();

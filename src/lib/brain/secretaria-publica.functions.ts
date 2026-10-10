@@ -33,8 +33,6 @@ export const perguntarSecretariaPublica = createServerFn({ method: "POST" })
     if (!tenantId) return { texto: null };
 
     const ip = guard.ipDaChamada(request) ?? guard.BALDE_SEM_IP;
-    const { bloqueioDeUso } = await import("./uso.server");
-    if (await bloqueioDeUso(tenantId, "site", ip)) return { texto: null };
 
     const { data: tenant } = await supabaseAdmin
       .from("tenants")

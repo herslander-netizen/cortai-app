@@ -35,7 +35,8 @@ import {
   recusaInequivoca,
   RESPOSTA_RECUSA,
 } from "./guardas";
-import { pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
+import { textoDoBloqueio, type EstadoDaCortai } from "./estado-cortai";
+import { bloqueioDeUso, pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
 
 export type Pendente = {
   id: string;
@@ -63,6 +64,8 @@ export type ResultadoDoCerebro = {
   acoes: { nome: string; sucesso: boolean; erro?: string | null }[];
   /** Preenchido quando a IA não pôde responder (sem crédito, sem chave...). */
   indisponivel: string | null;
+  /** Por que o cérebro nem chamou a IA: desligada no ADM, pausada ou cota esgotada. */
+  bloqueio?: Exclude<EstadoDaCortai, "ativa" | "sem_configuracao"> | null;
 };
 
 const MAX_PASSOS = 6;
@@ -161,6 +164,21 @@ export async function pensarCortai(input: {
   const acoes: ResultadoDoCerebro["acoes"] = [];
   let pendente: Pendente | null = null;
   let pedirHumano = false;
+
+  // Interruptor geral, pausa por crédito e cotas: verificados aqui, para todos os canais.
+  // Bloqueado, nada executa (nem a ação pendente) e a pendente é preservada.
+  const bloqueio = await bloqueioDeUso(ctx.tenantId, ctx.canal, ctx.ator, ehEquipeNoWhatsapp(ctx));
+  if (bloqueio) {
+    const texto = textoDoBloqueio(bloqueio);
+    return {
+      texto,
+      pendente: input.pendente,
+      pedirHumano: false,
+      acoes,
+      indisponivel: texto,
+      bloqueio,
+    };
+  }
 
   if (pedidoNocivo(input.mensagem)) {
     await registrarTurno({
