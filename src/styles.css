@@ -5619,9 +5619,9 @@ button.agenda-nome:hover {
   height: 50px;
   align-items: center;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: var(--paper);
+  background: var(--ink2);
   box-shadow: var(--shadow-sm);
 }
 .agenda-botao-agora-ir {
@@ -5629,7 +5629,7 @@ button.agenda-nome:hover {
   min-height: 50px;
   border-radius: 999px 0 0 999px;
   padding-inline: 14px 12px;
-  color: var(--ink);
+  color: var(--paper);
 }
 .agenda-botao-agora-separador {
   width: 1px;
@@ -5640,7 +5640,7 @@ button.agenda-nome:hover {
 .agenda-botao-agora-visualizacao {
   min-width: 48px;
   border-radius: 0 999px 999px 0;
-  color: var(--ink);
+  color: var(--menu-icone);
 }
 .agenda-botao-agora-principal button,
 .agenda-botao-agora-principal button:hover,
@@ -5648,8 +5648,11 @@ button.agenda-nome:hover {
 .agenda-botao-agora-principal button:focus-visible,
 .agenda-botao-agora-principal button:active {
   background: transparent;
-  color: var(--ink);
+  color: var(--paper);
   -webkit-tap-highlight-color: transparent;
+}
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
+  color: var(--menu-icone);
 }
 .agenda-botao-agora-principal button:active {
   transform: scale(0.97);
@@ -5874,6 +5877,13 @@ button.agenda-nome:hover {
 
 /* Celular 3.0: fora do expediente com listras bem sutis; dentro, liso. */
 @media (max-width: 767px) {
+  /* Modelo: sem a linha vertical da coluna de horas; faixa listrada com cantos arredondados. */
+  .agenda-timeline {
+    border-left: 0;
+  }
+  .agenda-timeline-fora-expediente {
+    border-radius: 14px;
+  }
   .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(
       135deg,
@@ -5929,6 +5939,13 @@ button.agenda-nome:hover {
   }
   .agenda-acao-fixa {
     right: var(--agenda-fab-direita);
+  }
+  /* Modelo: "+" em quadrado de cantos bem arredondados; no escuro, azul mais fechado. */
+  .agenda-acao-fixa .agenda-acao-redonda {
+    border-radius: 22px;
+  }
+  :root:not(.light) .agenda-acao-fixa .agenda-fab-toggle {
+    background: color-mix(in oklab, var(--primary) 55%, black);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);

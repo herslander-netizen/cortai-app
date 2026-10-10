@@ -22,6 +22,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -176,6 +178,14 @@ export function CabecalhoAgenda({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
+          {celular ? (
+            <>
+              <DropdownMenuLabel className="max-w-72 whitespace-normal text-sm font-normal text-mute">
+                {resumo}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
           <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
             {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
           </DropdownMenuItem>
@@ -196,38 +206,30 @@ export function CabecalhoAgenda({
       </DropdownMenu>
     </>
   );
+  // Celular: "Mês Ano" grande à esquerda, calendário e "…" (o sino vem da barra do app).
   const topoCelular = (
     <>
       <Button
         variant="ghost"
-        size="icon"
-        className="size-12 shrink-0"
-        aria-label="Dia anterior"
-        onClick={() => onDia(somarDias(dia, -1))}
-      >
-        <ChevronLeft />
-      </Button>
-      <Button
-        variant="ghost"
-        className="min-h-12 min-w-0 flex-1 px-2"
-        aria-label={calendarioAberto ? "Recolher mês" : "Abrir mês"}
+        className="min-h-12 min-w-0 flex-1 justify-start px-2 hover:bg-transparent"
+        aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
         onClick={onCalendario}
       >
-        <span className="min-w-0 text-center">
-          <strong className="block truncate text-sm text-paper">{tituloCelular ?? tituloDoMes(dia)}</strong>
-          <span className="block truncate text-xs text-mute">{dataEditorial(dia)}</span>
-        </span>
+        <strong className="truncate text-[26px] font-semibold leading-none text-paper">
+          {tituloCelular ?? tituloDoMes(dia)}
+        </strong>
       </Button>
       <Button
         variant="ghost"
         size="icon"
         className="size-12 shrink-0"
-        aria-label="Próximo dia"
-        onClick={() => onDia(somarDias(dia, 1))}
+        aria-label="Abrir calendário"
+        onClick={onCalendario}
       >
-        <ChevronRight />
+        <CalendarDays className="size-6" />
       </Button>
+      {menu}
     </>
   );
   const parar = (e: { stopPropagation: () => void }) => e.stopPropagation();
@@ -237,7 +239,7 @@ export function CabecalhoAgenda({
         ? createPortal(
             // Toques na barra do topo não sobem até o deslize de dia.
             <div
-              className="agenda-topo-data"
+              className="agenda-topo-data w-full"
               onTouchStart={parar}
               onTouchMove={parar}
               onTouchEnd={parar}
@@ -256,7 +258,7 @@ export function CabecalhoAgenda({
             {menu}
           </div>
         )}
-        <div className="mt-1 flex min-w-0 items-center gap-1">
+        <div className={`mt-1 min-w-0 items-center gap-1 ${celular ? "hidden" : "flex"}`}>
           <p className="agenda-resumo-dia min-w-0 flex-1 truncate text-left" aria-live="polite">
             {resumo}
           </p>
@@ -265,7 +267,6 @@ export function CabecalhoAgenda({
               Hoje
             </Button>
           ) : null}
-          {celular ? menu : null}
           {!ocultarSeletor ? (
             <div
               className="flex shrink-0"

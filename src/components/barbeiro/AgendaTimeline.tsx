@@ -70,7 +70,7 @@ type AgendaTimelineProps = {
   diaCompleto?: boolean;
 };
 
-const PX_POR_MINUTO = 1.6;
+const PX_POR_MINUTO = 2;
 const MARGEM_AGORA_MIN = 90;
 const ALTURA_MINIMA_BLOCO = 72;
 const ESPACO_ENTRE_BLOCOS = 6;
@@ -716,7 +716,13 @@ export function AgendaTimeline({
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}
             >
-              <span>{minuto % 60 === 0 ? horaMinuto(minuto) : ""}</span>
+              <span>
+                {minuto % 60 !== 0
+                  ? ""
+                  : diaCompleto
+                    ? String(Math.floor(minuto / 60) % 24).padStart(2, "0")
+                    : horaMinuto(minuto)}
+              </span>
             </div>
           ))}
 

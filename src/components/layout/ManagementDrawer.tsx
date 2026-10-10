@@ -47,7 +47,6 @@ import {
   identidadeValida,
   MODE_KEY,
 } from "@/lib/aparencia";
-import { termos } from "@/lib/segmentos";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
@@ -193,7 +192,15 @@ export function ManagementHeader() {
   }
 
   return (
-    <header className="management-header">
+    <header
+      className="management-header"
+      // Agenda no celular: a barra continua no mesmo tom da faixa da semana, sem divisória.
+      style={
+        celular && caminho === "/barbeiro"
+          ? { background: "var(--ink2)", borderBottomColor: "transparent", backdropFilter: "none" }
+          : undefined
+      }
+    >
       <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between gap-3 px-4 md:px-8">
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
@@ -267,13 +274,8 @@ export function ManagementHeader() {
                   fechar={() => setAberto(false)}
                 />
                 <GruposDoMenu
-                  grupos={grupos.map((grupo) => ({
-                    ...grupo,
-                    rotulo:
-                      grupo.titulo === "Negócio"
-                        ? capitalizar(termos(sessao?.segmento).possessivo)
-                        : grupo.titulo,
-                  }))}
+                  grupos={grupos}
+                  segmento={sessao?.segmento}
                   abertos={abertos}
                   caminho={caminho}
                   onAlternar={alternar}
@@ -292,8 +294,4 @@ export function ManagementHeader() {
       </div>
     </header>
   );
-}
-
-function capitalizar(texto: string) {
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }

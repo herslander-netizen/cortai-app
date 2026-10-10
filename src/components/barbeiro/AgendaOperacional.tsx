@@ -60,6 +60,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
+import { SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -1203,6 +1204,18 @@ export function AgendaOperacional() {
             )
           }
         >
+          {celular ? (
+            <SemanaDoTopo
+              dia={dia}
+              hoje={hojeNoFuso(fuso)}
+              profissionalId={profFiltro}
+              onDia={mudarDia}
+              onAbrirMes={() => {
+                setMesCal(mesDoDia(dia));
+                setCalAberto(true);
+              }}
+            />
+          ) : null}
           {celular ? (
             <FaixaCalendario
               dia={dia}

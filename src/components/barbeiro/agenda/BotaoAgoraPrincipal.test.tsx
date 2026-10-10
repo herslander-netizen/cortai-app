@@ -143,7 +143,7 @@ describe("BotaoAgoraPrincipal", () => {
     expect(estilos).toContain(".agenda-botao-agora-principal button:focus-visible,");
     expect(estilos).toContain(".agenda-botao-agora-principal button:active {");
     expect(estilos).toMatch(
-      /\.agenda-botao-agora-principal button:active \{[\s\S]*?background: transparent;[\s\S]*?color: var\(--ink\);/,
+      /\.agenda-botao-agora-principal button:active \{[\s\S]*?background: transparent;[\s\S]*?color: var\(--paper\);/,
     );
     const botoes = Array.from(
       host?.querySelectorAll<HTMLButtonElement>(

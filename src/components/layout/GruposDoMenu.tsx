@@ -3,19 +3,30 @@ import { ChevronDown, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { itemDeNavegacaoAtivo } from "@/lib/navegacao-barbeiro";
+import { termos } from "@/lib/segmentos";
 
 type ItemDoMenu = { label: string; to: string; icon: LucideIcon };
-type GrupoDoMenu = { titulo: string; rotulo: string; itens: ItemDoMenu[] };
+type GrupoDoMenu = { titulo: string; rotulo?: string; itens: ItemDoMenu[] };
+
+/** "Negócio" vira o nome do segmento ("Sua barbearia", "Seu salão"...). */
+function rotuloDoGrupo(grupo: GrupoDoMenu, segmento: Parameters<typeof termos>[0]) {
+  if (grupo.rotulo) return grupo.rotulo;
+  if (grupo.titulo !== "Negócio") return grupo.titulo;
+  const possessivo = termos(segmento).possessivo;
+  return possessivo.charAt(0).toUpperCase() + possessivo.slice(1);
+}
 
 /** Grupos recolhíveis do menu lateral: título, chevron e os itens em bloco. */
 export function GruposDoMenu({
   grupos,
+  segmento,
   abertos,
   caminho,
   onAlternar,
   onNavegar,
 }: {
   grupos: GrupoDoMenu[];
+  segmento?: Parameters<typeof termos>[0];
   abertos: string[];
   caminho: string;
   onAlternar: (titulo: string) => void;
@@ -33,7 +44,7 @@ export function GruposDoMenu({
               aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
               onClick={() => onAlternar(grupo.titulo)}
             >
-              {grupo.rotulo}
+              {rotuloDoGrupo(grupo, segmento)}
               <ChevronDown
                 className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
                 aria-hidden
