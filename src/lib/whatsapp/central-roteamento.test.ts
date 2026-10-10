@@ -64,19 +64,19 @@ describe("uma conexão por negócio", () => {
   it("linha legada de notificações nunca envia", () => {
     const r = escolherConexaoPorFinalidade([principal(), legadoNotif()], "notificacoes");
     expect(r).toMatchObject({ tipo: "propria", conexao: { id: "a" } });
-    expect(escolherConexaoPorFinalidade([legadoNotif()], "notificacoes").tipo).toBe("reserva");
+    expect(escolherConexaoPorFinalidade([legadoNotif()], "notificacoes").tipo).toBe("indisponivel");
   });
-  it("principal desconectada → reserva, nunca a linha legada", () => {
+  it("principal desconectada → indisponível, nunca a linha legada ou o número oficial", () => {
     const r = escolherConexaoPorFinalidade(
       [principal("desconectado"), legadoNotif()],
       "notificacoes",
     );
-    expect(r.tipo).toBe("reserva");
+    expect(r.tipo).toBe("indisponivel");
   });
   it("linha da plataforma nunca conta como conexão do negócio", () => {
     expect(ehConexaoCentral(central())).toBe(true);
-    expect(escolherConexaoPorFinalidade([central()], "notificacoes").tipo).toBe("reserva");
-    expect(escolherConexaoPorFinalidade([central()], "atendimento").tipo).toBe("reserva");
+    expect(escolherConexaoPorFinalidade([central()], "notificacoes").tipo).toBe("indisponivel");
+    expect(escolherConexaoPorFinalidade([central()], "atendimento").tipo).toBe("indisponivel");
   });
   it("trava de envio bloqueia a linha da plataforma para qualquer negócio", () => {
     expect(podeEnviarPelaConexao({ tenant_id: null, compartilhada: false }, "t1")).toBe(false);

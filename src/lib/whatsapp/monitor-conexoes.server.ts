@@ -95,14 +95,23 @@ async function verificarUma(linha: Linha, agora: Date) {
   try {
     real = await comPrazo(gw.consultarStatus(linha.sessao_id));
   } catch (e) {
-    // Serviço sem resposta não prova queda: registra e tenta na próxima varredura.
-    logConexao("monitor_sem_resposta", { ...base, erro: e instanceof Error ? e.message : "" });
+    // Serviço sem resposta não prova queda: a primeira falha só vira "instável"; a queda é
+    // confirmada na segunda falha seguida (ver incidente-evolution.ts).
+    const { classificarFalhaDoServico } = await import("./incidente-evolution");
+    const classe = classificarFalhaDoServico(e);
+    logConexao("monitor_sem_resposta", { ...base, classe });
+    const { registrarFalhaDoServico } = await import("./incidente-evolution.server");
+    await registrarFalhaDoServico(linha, classe, agora);
     await db
       .from("conexoes_whatsapp")
       .update({ verificado_em: agora.toISOString() })
       .eq("id", linha.id);
     return "sem_resposta" as const;
   }
+
+  // O serviço respondeu: se havia uma ocorrência aberta, ela termina aqui.
+  const { registrarServicoOk } = await import("./incidente-evolution.server");
+  await registrarServicoOk(linha, agora);
 
   const acao = decidirAcaoDoMonitor({
     statusBanco: linha.status,
@@ -199,6 +208,8 @@ export async function monitorarConexoesWhatsapp(agora = new Date()) {
     )
     .eq("provedor", "evolution")
     .eq("compartilhada", false)
+    // A conexão antiga de avisos não é mais operacional: o monitor não a verifica nem a reconecta.
+    .neq("tipo", "notificacoes")
     .or(
       "status.in.(conectado,conectando,erro),and(status.eq.desconectado,reconexao_tentativas.gt.0)",
     )

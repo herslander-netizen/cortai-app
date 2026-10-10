@@ -1,5 +1,6 @@
 import {
   Banknote,
+  Bot,
   Gauge,
   HeartHandshake,
   MessageCircle,
@@ -112,6 +113,15 @@ export const MODULOS_DE_NAVEGACAO = [
     label: "WhatsApp",
     detail: "Conexão, notificações e experiência",
     icon: MessageCircle,
+    permissao: "ver_cortai",
+    rotaDaCapacidade: "/barbeiro/cortai",
+  },
+  {
+    grupo: "Clientes e marca",
+    to: "/barbeiro/automacao",
+    label: "Automação do WhatsApp",
+    detail: "Atendimento e avisos inteligentes",
+    icon: Bot,
     permissao: "ver_cortai",
     rotaDaCapacidade: "/barbeiro/cortai",
   },
