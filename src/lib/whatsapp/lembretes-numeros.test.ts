@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- simulações de banco e IA nos testes */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Resposta a avisos com banco em memória: nada sai para o banco real nem para o WhatsApp.
@@ -56,7 +56,9 @@ vi.mock("@/integrations/supabase/client.server", () => ({
   },
 }));
 
-const futuro = new Date(Date.now() + 3600_000).toISOString();
+// Relógio fixo no dia dos avisos: o cenário não depende de quando o teste roda.
+const AGORA = "2026-10-08T12:30:00Z";
+const futuro = "2026-10-08T13:30:00Z";
 const TEL = "5511999990000";
 function aviso(id: string, ag: string, acoes: string[], enviadoEm: string) {
   return {
@@ -75,6 +77,8 @@ function aviso(id: string, ag: string, acoes: string[], enviadoEm: string) {
 }
 
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(AGORA));
   banco.rpcs = [];
   banco.rpcResultado = {};
   banco.tabelas = {
@@ -88,6 +92,10 @@ beforeEach(() => {
       { id: "agB", tenant_id: "t2", inicio: "2026-10-09T13:00:00Z", status: "agendado" },
     ],
   };
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 async function responder(texto: string, tenantId = "t1") {

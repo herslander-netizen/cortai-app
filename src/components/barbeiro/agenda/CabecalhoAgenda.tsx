@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
+import { LegendaDasCores } from "./LegendaDasCores";
 import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
 
@@ -218,6 +219,7 @@ export function CabecalhoAgenda({
               <HelpCircle /> Ajuda desta tela
             </DropdownMenuItem>
           ) : null}
+          <LegendaDasCores />
         </DropdownMenuContent>
       </DropdownMenu>
     </>
