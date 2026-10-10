@@ -166,22 +166,64 @@ async function slugLivre(db: any, nome: string) {
   return `${base}-${Date.now().toString(36)}`;
 }
 
-/** Freio simples contra abuso: poucos rascunhos por origem a cada hora. */
+/** Limites do cadastro sem login. Sem IP identificável, o balde é comum e 10× mais folgado. */
+const LIMITES_DO_RASCUNHO = {
+  /** Rascunhos novos por IP a cada hora. */
+  criarPorHora: 5,
+  /** Negócios publicados por IP a cada 24 h. */
+  publicarPorDia: 3,
+  /** Chamadas por IP a cada minuto (contador no banco, vale entre instâncias). */
+  porMinuto: { criar: 3, salvar: 30, publicar: 3 },
+} as const;
+
+/** Barra rajadas por minuto, com o mesmo contador das outras entradas públicas. */
+async function limitarPorMinuto(acao: keyof typeof LIMITES_DO_RASCUNHO.porMinuto) {
+  const { dentroDoLimitePublico, MENSAGEM_DE_EXCESSO } = await import("@/lib/webhook-guard.server");
+  let request: Request | null = null;
+  try {
+    request = getRequest();
+  } catch {
+    request = null;
+  }
+  const ok = await dentroDoLimitePublico(
+    request,
+    `rascunho_${acao}`,
+    LIMITES_DO_RASCUNHO.porMinuto[acao],
+  );
+  if (!ok) throw new Error(MENSAGEM_DE_EXCESSO);
+}
+
+/** Freio contra abuso: poucos rascunhos por origem a cada hora. */
 async function freioDeAbuso(db: any, ip: string) {
-  if (ip === "desconhecido") return;
+  const fator = ip === "desconhecido" ? 10 : 1;
   const desde = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count } = await db
     .from("rascunhos_de_barbearia")
     .select("id", { count: "exact", head: true })
     .eq("origem_ip", ip)
     .gte("criado_em", desde);
-  if ((count ?? 0) >= 5) {
+  if ((count ?? 0) >= LIMITES_DO_RASCUNHO.criarPorHora * fator) {
     throw new Error("Muitos cadastros seguidos deste aparelho. Tente de novo mais tarde.");
+  }
+}
+
+/** Freio de publicação: poucos negócios novos por origem a cada 24 h. */
+async function freioDePublicacao(db: any, ip: string) {
+  const fator = ip === "desconhecido" ? 10 : 1;
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await db
+    .from("rascunhos_de_barbearia")
+    .select("id", { count: "exact", head: true })
+    .eq("origem_ip", ip)
+    .gte("publicado_em", desde);
+  if ((count ?? 0) >= LIMITES_DO_RASCUNHO.publicarPorDia * fator) {
+    throw new Error("Muitos negócios publicados deste aparelho hoje. Tente de novo amanhã.");
   }
 }
 
 export const criarRascunhoDeBarbearia = createServerFn({ method: "POST" }).handler(
   async (): Promise<{ token: string; dados: DadosDoRascunho }> => {
+    await limitarPorMinuto("criar");
     const db = await admin();
     const ip = await origem();
     await freioDeAbuso(db, ip);
@@ -220,6 +262,7 @@ export const getRascunhoDeBarbearia = createServerFn({ method: "POST" })
 export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ token: tokenSchema, dados: dadosSchema }).parse(input))
   .handler(async ({ data }) => {
+    await limitarPorMinuto("salvar");
     const { db, linha } = await lerRascunho(data.token);
     if (linha["publicado_em"]) {
       throw new Error(
@@ -242,6 +285,7 @@ export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
 export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }): Promise<{ slug: string }> => {
+    await limitarPorMinuto("publicar");
     const { db, linha } = await lerRascunho(data.token);
     const dados = comDefaults(linha["dados"]);
 
@@ -259,6 +303,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
     if (!dados.servicos.filter((s) => limparTexto(s.nome).length >= 2).length) {
       throw new Error("Cadastre pelo menos um serviço antes de publicar.");
     }
+    await freioDePublicacao(db, await origem());
 
     const slug = await slugLivre(db, nome);
     const definicao = SEGMENTOS_CONFIG[dados.segmento];

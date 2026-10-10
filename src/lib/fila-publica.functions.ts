@@ -70,6 +70,26 @@ export const getFilaPublica = createServerFn({ method: "GET" })
     };
   });
 
+/** Limites por minuto da entrada pelo link (por IP e por WhatsApp), como no agendamento. */
+const LIMITE_DA_FILA = { ip: 6, telefone: 3 };
+
+async function limitarEntradaNaFila(telefone: string) {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const { dentroDoLimitePublico, MENSAGEM_DE_EXCESSO } = await import("@/lib/webhook-guard.server");
+  const { normalizarTelefone } = await import("@/lib/telefone");
+  let request: Request | null = null;
+  try {
+    request = getRequest();
+  } catch {
+    request = null;
+  }
+  const ok = await dentroDoLimitePublico(request, "fila", LIMITE_DA_FILA.ip, {
+    chave: `tel:${normalizarTelefone(telefone)}`,
+    limite: LIMITE_DA_FILA.telefone,
+  });
+  if (!ok) throw new Error(MENSAGEM_DE_EXCESSO);
+}
+
 export const entrarNaFilaPublica = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
     z
@@ -82,6 +102,7 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<{ token: string; posicao: number }> => {
+    await limitarEntradaNaFila(data.telefone);
     const db = await admin();
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
     const resolvido = await resolverTenantPorSlug(db, data.slug);
