@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/sheet";
 import { aviso } from "@/lib/avisos";
 import { getTicketComanda } from "@/lib/comanda-ticket.functions";
-import type { DadosDoTicket } from "@/lib/comanda-ticket";
+import {
+  numeroParaWhatsApp,
+  textoDaComandaParaWhatsApp,
+  type DadosDoTicket,
+} from "@/lib/comanda-ticket";
+import { brl } from "@/lib/format";
 import { canvasParaPng, desenharTicket } from "./desenhar-ticket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
 
@@ -35,7 +40,11 @@ async function copiar(texto: string, ok: string) {
 }
 
 /** Ações da comanda: mesma imagem do ticket para WhatsApp e download. */
-export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
+export function useAcoesDoTicket(
+  ticket: DadosDoTicket | undefined,
+  /** Equipe: abre a conversa direto no telefone do cliente cadastrado (a imagem segue em "Baixar imagem"). */
+  opcoes: { direto?: boolean } = {},
+) {
   const [gerando, setGerando] = useState<"whatsapp" | "baixar" | null>(null);
   async function arquivo() {
     const canvas = await desenharTicket(ticket!, SIMBOLO_CORTAI);
@@ -51,6 +60,19 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
   }
   async function executar(tipo: "whatsapp" | "baixar") {
     if (!ticket || gerando) return;
+    if (tipo === "whatsapp" && opcoes.direto) {
+      const numero = numeroParaWhatsApp(ticket.cliente.telefone);
+      if (numero) {
+        const texto = textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos));
+        window.open(
+          `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
+          "_blank",
+          "noopener",
+        );
+        return;
+      }
+      aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
+    }
     setGerando(tipo);
     try {
       const f = await arquivo();
@@ -65,8 +87,7 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
         baixarArquivo(f);
         if (tipo === "whatsapp") {
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
-          const dig = (ticket.cliente.telefone ?? "").replace(/\D/g, "");
-          const numero = dig.length === 10 || dig.length === 11 ? `55${dig}` : dig;
+          const numero = numeroParaWhatsApp(ticket.cliente.telefone) ?? "";
           window.open(
             `https://wa.me/${numero}?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
             "_blank",
@@ -97,7 +118,7 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
     queryFn: () => buscar({ data: { comandaId } }),
     staleTime: 30_000,
   });
-  const acoes = useAcoesDoTicket(q.data);
+  const acoes = useAcoesDoTicket(q.data, { direto: true });
   return (
     <>
       {q.isLoading ? (

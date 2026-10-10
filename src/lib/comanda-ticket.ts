@@ -189,3 +189,21 @@ export function telefoneDoTicket(tel: string | null | undefined): string | null 
   const meio = resto.length - 4;
   return `+55 ${ddd} ${resto.slice(0, meio)}-${resto.slice(meio)}`;
 }
+
+/** Número para o wa.me (só dígitos, com 55 quando vier sem DDI); null se não der para usar. */
+export function numeroParaWhatsApp(tel: string | null | undefined): string | null {
+  const dig = (tel ?? "").replace(/\D/g, "");
+  if (dig.length === 10 || dig.length === 11) return `55${dig}`;
+  if ((dig.length === 12 || dig.length === 13) && dig.startsWith("55")) return dig;
+  return null;
+}
+
+/** Mensagem curta com os dados da comanda, para abrir a conversa já preenchida. */
+export function textoDaComandaParaWhatsApp(
+  t: Pick<DadosDoTicket, "codigo" | "negocio" | "cliente" | "totalCentavos">,
+  total: string,
+): string {
+  const primeiro = t.cliente.nome.trim().split(/\s+/)[0] ?? "";
+  const de = t.negocio.nome ? ` — ${t.negocio.nome}` : "";
+  return `Olá${primeiro ? `, ${primeiro}` : ""}! Sua comanda #${t.codigo}${de}. Total: ${total}.`;
+}

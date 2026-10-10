@@ -4,9 +4,11 @@ import {
   barrasDoCodigo,
   codigoLegivel,
   estadoDoTicket,
+  numeroParaWhatsApp,
   prefixoDeCodigo,
   rotuloDaForma,
   telefoneDoTicket,
+  textoDaComandaParaWhatsApp,
 } from "./comanda-ticket";
 
 describe("comanda em ticket", () => {
@@ -62,5 +64,25 @@ describe("comanda nasce com o agendamento", () => {
     const chamadas: unknown[] = [];
     invalidarComandas({ invalidateQueries: (f) => chamadas.push(f.queryKey) });
     expect(chamadas).toEqual([...CHAVES_DA_COMANDA]);
+  });
+});
+
+describe("WhatsApp da comanda", () => {
+  it("normaliza o telefone e recusa o que não dá para usar", () => {
+    expect(numeroParaWhatsApp("(11) 98765-4321")).toBe("5511987654321");
+    expect(numeroParaWhatsApp("+55 11 98765-4321")).toBe("5511987654321");
+    expect(numeroParaWhatsApp("1198")).toBeNull();
+    expect(numeroParaWhatsApp(null)).toBeNull();
+  });
+  it("mensagem traz código, negócio e total", () => {
+    const t = {
+      codigo: "08102026-2142-12",
+      negocio: { nome: "Nando Barber", logoUrl: null },
+      cliente: { nome: "Teste Auditoria", telefone: null },
+      totalCentavos: 5500,
+    };
+    expect(textoDaComandaParaWhatsApp(t, "R$ 55,00")).toBe(
+      "Olá, Teste! Sua comanda #08102026-2142-12 — Nando Barber. Total: R$ 55,00.",
+    );
   });
 });
