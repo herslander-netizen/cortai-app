@@ -20,7 +20,10 @@ export function useArrastarParaFechar(
     const horizontal = lado === "left" || lado === "right";
     const sinal = lado === "left" ? -1 : 1;
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    elemento.style.touchAction = horizontal ? "pan-y" : "pan-x";
+    // Em qualquer lado a rolagem do conteúdo continua nativa: gaveta de baixo rola na vertical
+    // (pan-y), as laterais também. O arrasto para fechar só assume quando o dedo vai no sentido
+    // de recolher e o conteúdo já está no começo (ver `rolouParaBaixo`).
+    elemento.style.touchAction = "pan-y";
     delete elemento.dataset["arrastado"];
 
     let inicio: { x: number; y: number; t: number } | null = null;
@@ -41,6 +44,21 @@ export function useArrastarParaFechar(
       return false;
     };
 
+    // Gaveta de baixo: se algum trecho rolável sob o dedo já desceu, o gesto é rolagem, não fechar.
+    const rolouParaBaixo = (alvo: EventTarget | null) => {
+      let no = alvo as HTMLElement | null;
+      while (no) {
+        if (no.scrollHeight > no.clientHeight + 1 && no.scrollTop > 0) {
+          const ov = getComputedStyle(no).overflowY;
+          if (ov === "auto" || ov === "scroll") return true;
+        }
+        if (no === elemento) break;
+        no = no.parentElement;
+      }
+      return false;
+    };
+    let comecouNoTopo = true;
+
     const aplicar = (d: number) => {
       elemento.style.transform = horizontal ? `translateX(${d}px)` : `translateY(${d}px)`;
     };
@@ -51,6 +69,7 @@ export function useArrastarParaFechar(
         inicio = null;
         return;
       }
+      comecouNoTopo = horizontal || !rolouParaBaixo(e.target);
       inicio = { x: t.clientX, y: t.clientY, t: e.timeStamp };
       arrastando = false;
       ultimo = { d: 0, t: e.timeStamp };
@@ -65,7 +84,9 @@ export function useArrastarParaFechar(
       if (!arrastando) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) < LIMIAR_EIXO) return;
         const principal = horizontal ? Math.abs(dx) > Math.abs(dy) : Math.abs(dy) > Math.abs(dx);
-        if (!principal) {
+        // Rolando o conteúdo (já no meio, ou subindo na gaveta de baixo): não é gesto de fechar.
+        const recolhendo = horizontal || (sinal > 0 ? dy > 0 : dy < 0);
+        if (!principal || !comecouNoTopo || !recolhendo) {
           inicio = null;
           return;
         }
@@ -99,10 +120,13 @@ export function useArrastarParaFechar(
       } else {
         elemento.style.transition = reduzido ? "none" : "transform 200ms ease-out";
         aplicar(0);
-        window.setTimeout(() => {
-          elemento.style.transform = "";
-          elemento.style.transition = "";
-        }, reduzido ? 0 : 220);
+        window.setTimeout(
+          () => {
+            elemento.style.transform = "";
+            elemento.style.transition = "";
+          },
+          reduzido ? 0 : 220,
+        );
       }
     };
 
