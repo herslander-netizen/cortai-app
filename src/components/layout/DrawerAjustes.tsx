@@ -116,7 +116,7 @@ export function DrawerAjustes({
           evento.preventDefault();
           gatilhoRef.current?.focus();
         }}
-        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 [&>button:first-child]:right-5 [&>button:first-child]:top-5"
+        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5"
       >
         <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
         <SheetDescription className="mt-1 text-sm text-mute">

@@ -54,44 +54,86 @@ interface SheetContentProps
   extends
     React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {
-  /** Quando verdadeiro, arrastar o dedo no sentido de recolher a gaveta a fecha. */
+  /**
+   * Barra (alça) para recolher a gaveta no celular: arrastar a barra, ou tocar nela, fecha.
+   * Só a barra reage ao arrasto; o resto da gaveta é conteúdo. Padrão: ligada nas gavetas de
+   * baixo. No computador (≥768px) a barra some e o "X" continua.
+   */
   arrastarParaFechar?: boolean;
+  /** Esconde o "X" também no computador (gaveta que fecha por fora, como o menu lateral). */
+  esconderX?: boolean;
+}
+
+/** Barra de recolher a gaveta: pílula discreta numa zona de toque maior. */
+function AlcaDaGaveta({ side }: { side: "top" | "bottom" | "left" | "right" }) {
+  const horizontal = side === "left" || side === "right";
+  return (
+    <SheetPrimitive.Close
+      data-fechar-gaveta=""
+      data-alca-gaveta=""
+      aria-label="Fechar"
+      className={cn(
+        "absolute z-[1] flex cursor-grab touch-none items-center justify-center rounded-none border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden",
+        horizontal
+          ? `top-1/2 h-36 w-8 -translate-y-1/2 ${side === "left" ? "right-0 justify-end pr-2" : "left-0 justify-start pl-2"}`
+          : "inset-x-0 top-0 h-12 items-start pt-2",
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "rounded-full bg-mute2/60 transition-[background-color] duration-[120ms] [button:active>&]:bg-mute2",
+          horizontal ? "h-10 w-1.5" : "h-1.5 w-10",
+        )}
+      />
+    </SheetPrimitive.Close>
+  );
 }
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, arrastarParaFechar = false, ...props }, ref) => {
-  const [elementoGaveta, setElementoGaveta] = React.useState<HTMLDivElement | null>(null);
-  useArrastarParaFechar(elementoGaveta, side ?? "right", arrastarParaFechar);
-  return (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content
-        ref={(elemento) => {
-          setElementoGaveta(elemento);
-          if (typeof ref === "function") ref(elemento);
-          else if (ref) ref.current = elemento;
-        }}
-        className={cn(
-          sheetVariants({ side }),
-          "data-[arrastado=true]:data-[state=closed]:animate-none",
-          className,
-        )}
-        {...props}
-      >
-        <SheetPrimitive.Close
-          data-fechar-gaveta=""
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+>(
+  (
+    { side = "right", className, children, arrastarParaFechar, esconderX = false, ...props },
+    ref,
+  ) => {
+    const [elementoGaveta, setElementoGaveta] = React.useState<HTMLDivElement | null>(null);
+    const comAlca = (arrastarParaFechar ?? side === "bottom") && side !== "top";
+    useArrastarParaFechar(elementoGaveta, side ?? "right", comAlca);
+    return (
+      <SheetPortal>
+        <SheetOverlay />
+        <SheetPrimitive.Content
+          ref={(elemento) => {
+            setElementoGaveta(elemento);
+            if (typeof ref === "function") ref(elemento);
+            else if (ref) ref.current = elemento;
+          }}
+          className={cn(
+            sheetVariants({ side }),
+            "data-[arrastado=true]:data-[state=closed]:animate-none",
+            className,
+          )}
+          {...props}
         >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Fechar</span>
-        </SheetPrimitive.Close>
-        {children}
-      </SheetPrimitive.Content>
-    </SheetPortal>
-  );
-});
+          {comAlca ? <AlcaDaGaveta side={side ?? "right"} /> : null}
+          <SheetPrimitive.Close
+            data-fechar-gaveta=""
+            className={cn(
+              "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary",
+              esconderX ? "hidden" : comAlca ? "max-md:hidden" : "",
+            )}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Fechar</span>
+          </SheetPrimitive.Close>
+          {children}
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    );
+  },
+);
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

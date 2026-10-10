@@ -220,7 +220,8 @@ export function ManagementHeader() {
           <SheetContent
             side="left"
             arrastarParaFechar
-            className="management-drawer w-[90vw] max-w-[390px] overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200 [&>button:first-child]:hidden"
+            esconderX
+            className="management-drawer w-[90vw] max-w-[390px] overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200"
           >
             <div className="flex h-full min-h-0 flex-col">
               <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
