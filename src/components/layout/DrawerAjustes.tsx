@@ -111,6 +111,7 @@ export function DrawerAjustes({
       </SheetTrigger>
       <SheetContent
         side="bottom"
+        arrastarParaFechar
         onCloseAutoFocus={(evento) => {
           evento.preventDefault();
           gatilhoRef.current?.focus();
