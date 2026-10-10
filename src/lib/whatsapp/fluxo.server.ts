@@ -1,4 +1,5 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
+import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *
@@ -939,7 +940,7 @@ async function responderComCerebro(input: {
         _tipo: "whatsapp_humano",
         _titulo: "Cliente pediu atendimento",
         _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
-        _link: "/painel",
+        _link: LINKS_DE_TELA.inicio,
       })
       .then(
         () => undefined,
