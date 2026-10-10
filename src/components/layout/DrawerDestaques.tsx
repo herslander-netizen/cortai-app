@@ -75,11 +75,9 @@ export function DrawerDestaques({
               <Share2 className="size-[22px]" aria-hidden />
             </Button>
           </div>
-        </div>
-      ) : null}
-      {slug && tenantId && verDesempenho ? (
-        <div className="-mt-2">
-          <FaixaDesempenho tenantId={tenantId} ativo={menuAberto} />
+          {tenantId && verDesempenho ? (
+            <FaixaDesempenho tenantId={tenantId} ativo={menuAberto} />
+          ) : null}
         </div>
       ) : null}
 
