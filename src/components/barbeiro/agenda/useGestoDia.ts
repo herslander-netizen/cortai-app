@@ -49,6 +49,10 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     const largura = window.innerWidth;
     const el = palco.current;
     if (el) el.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
+    // A data da semana acompanha o dedo: +1 = chegou no próximo dia, -1 = no anterior.
+    const raiz = document.documentElement.style;
+    if (dx) raiz.setProperty("--dia-progresso", String(Math.max(-1, Math.min(1, -dx / largura))));
+    else raiz.removeProperty("--dia-progresso");
     const p = previa.current;
     if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
   }, []);
@@ -60,6 +64,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.willChange = "";
     }
     document.documentElement.classList.remove("agenda-gesto-ativo");
+    document.documentElement.style.removeProperty("--dia-progresso");
     definirVizinhoDoGesto(0);
   }, []);
 
@@ -225,6 +230,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   useEffect(
     () => () => {
       animacao.current?.stop();
+      document.documentElement.style.removeProperty("--dia-progresso");
       document.documentElement.classList.remove("agenda-gesto-ativo");
       definirVizinhoDoGesto(0);
     },

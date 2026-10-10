@@ -34,6 +34,7 @@ function DiaDoCalendario({
   hoje,
   comAtendimento,
   compacto = false,
+  vizinho,
   onDia,
 }: {
   dia: string;
@@ -42,8 +43,17 @@ function DiaDoCalendario({
   comAtendimento: boolean;
   /** Grade do mês: célula de 48px com o pontinho por dentro. */
   compacto?: boolean;
+  /** Na semana: a data escolhida e seus vizinhos mudam de cor junto com o círculo que desliza. */
+  vizinho?: "atual" | "proximo" | "anterior" | undefined;
   onDia: (dia: string) => void;
 }) {
+  const p = "var(--dia-progresso, 0)";
+  const tinta: Record<"atual" | "proximo" | "anterior", string> = {
+    atual: `calc((1 - max(${p}, ${p} * -1)) * 100%)`,
+    proximo: `calc(max(${p}, 0) * 100%)`,
+    anterior: `calc(max(${p} * -1, 0) * 100%)`,
+  };
+  const deslizante = vizinho !== undefined;
   return (
     <Button
       variant="ghost"
@@ -53,7 +63,16 @@ function DiaDoCalendario({
       onClick={() => onDia(dia)}
     >
       <span
-        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-11 text-xl" : "size-11 text-xl"} ${escolhido ? "bg-menu-icone font-semibold text-ink" : hoje ? "font-normal text-menu-icone ring-[1.5px] ring-inset ring-menu-icone" : "font-normal text-paper"}`}
+        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-11 text-xl" : "size-11 text-xl"} ${escolhido ? `${deslizante ? "" : "bg-menu-icone text-ink"} font-semibold` : hoje ? "font-normal text-menu-icone ring-[1.5px] ring-inset ring-menu-icone" : "font-normal text-paper"} ${deslizante && vizinho === "atual" ? "text-paper" : ""}`}
+        style={
+          deslizante && vizinho
+            ? {
+                color: `color-mix(in oklab, var(--ink) ${tinta[vizinho]}, ${
+                  !escolhido && hoje ? "var(--menu-icone)" : "var(--paper)"
+                })`,
+              }
+            : undefined
+        }
       >
         {numeroDoDia(dia)}
       </span>
@@ -89,6 +108,7 @@ export function SemanaDoTopo({
   useEffect(() => setSemanas(0), [dia]);
   const semana = semanaDoDia(somarDias(dia, semanas * 7));
 
+  const indiceDoDia = semana.indexOf(dia);
   const mesDoDiaEscolhido = mesDoDia(dia);
   const mesesComContagem = [
     ...new Set([
@@ -231,7 +251,7 @@ export function SemanaDoTopo({
         ) : (
           <div
             ref={linha}
-            className="grid touch-pan-y grid-cols-7 animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
+            className="relative grid touch-pan-y grid-cols-7 overflow-x-clip animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
             role="group"
             aria-label="Dias da semana"
             onTouchStart={comecar}
@@ -239,13 +259,35 @@ export function SemanaDoTopo({
             onTouchEnd={soltar}
             onTouchCancel={soltar}
           >
-            {semana.map((d) => (
+            {indiceDoDia >= 0 ? (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-0 top-1 grid w-[calc(100%/7)] place-items-center transition-transform duration-[200ms] motion-reduce:transition-none [.agenda-gesto-ativo_&]:transition-none"
+                style={{
+                  transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
+                }}
+              >
+                <i className="size-11 rounded-full bg-menu-icone" />
+              </span>
+            ) : null}
+            {semana.map((d, i) => (
               <DiaDoCalendario
                 key={d}
                 dia={d}
                 escolhido={d === dia}
                 hoje={d === hoje}
                 comAtendimento={temAtendimento(d)}
+                vizinho={
+                  indiceDoDia < 0
+                    ? undefined
+                    : i === indiceDoDia
+                      ? "atual"
+                      : i === indiceDoDia + 1
+                        ? "proximo"
+                        : i === indiceDoDia - 1
+                          ? "anterior"
+                          : undefined
+                }
                 onDia={onDia}
               />
             ))}
