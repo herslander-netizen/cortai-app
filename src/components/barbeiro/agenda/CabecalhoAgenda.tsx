@@ -34,18 +34,6 @@ import { useAlvoNoTopo } from "./useAlvoNoTopo";
 import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
 
-/** Calendário preenchido (estado aberto do modelo): bloco azul-claro com o dia marcado. */
-function IconeCalendarioCheio() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-6 text-menu-icone">
-      <rect x="3" y="4.5" width="18" height="17" rx="3.5" fill="currentColor" />
-      <rect x="7" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />
-      <rect x="14.6" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />
-      <rect x="7" y="13" width="4.5" height="4.5" rx="1" className="fill-ink2" />
-    </svg>
-  );
-}
-
 export type VisualizacaoAgenda = "lista" | "timeline" | "semana";
 
 function paraData(dia: string) {
@@ -188,7 +176,7 @@ export function CabecalhoAgenda({
             aria-label="Mais opções da agenda"
             className={`relative ${discreto ? "" : "ml-auto"} ${celular ? "w-9 min-w-9" : ""}`}
           >
-            {celular ? <MoreVertical /> : <MoreHorizontal />}
+            {celular ? <MoreVertical className="size-5" /> : <MoreHorizontal className="size-5" />}
             {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
           </Button>
         </DropdownMenuTrigger>
@@ -247,7 +235,7 @@ export function CabecalhoAgenda({
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
       >
-        {calendarioAberto ? <IconeCalendarioCheio /> : <CalendarDays className="size-6" />}
+        <CalendarDays className="size-5" />
       </Button>
       {menu}
     </>

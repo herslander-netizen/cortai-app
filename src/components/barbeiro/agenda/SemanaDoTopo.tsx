@@ -78,7 +78,7 @@ function DiaDoCalendario({
       </span>
       <span
         aria-hidden
-        className={`size-1.5 rounded-full ${compacto ? "absolute bottom-0.5" : ""} ${comAtendimento ? "bg-rosa" : "bg-transparent"}`}
+        className={`size-1 rounded-full ${compacto ? "absolute bottom-1" : ""} ${comAtendimento ? "bg-rosa" : "bg-transparent"}`}
       />
     </Button>
   );
