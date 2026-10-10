@@ -21,7 +21,7 @@ export function useArrastarParaFechar(
     const sinal = lado === "left" ? -1 : 1;
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     elemento.style.touchAction = horizontal ? "pan-y" : "pan-x";
-    delete elemento.dataset.arrastado;
+    delete elemento.dataset["arrastado"];
 
     let inicio: { x: number; y: number; t: number } | null = null;
     let arrastando = false;
@@ -31,7 +31,7 @@ export function useArrastarParaFechar(
     const temRolagemHorizontal = (alvo: EventTarget | null) => {
       let no = alvo as HTMLElement | null;
       while (no && no !== elemento) {
-        if (no.dataset?.semArrastar !== undefined) return true;
+        if (no.dataset?.["semArrastar"] !== undefined) return true;
         if (horizontal && no.scrollWidth > no.clientWidth + 1) {
           const ov = getComputedStyle(no).overflowX;
           if (ov === "auto" || ov === "scroll") return true;
@@ -92,7 +92,7 @@ export function useArrastarParaFechar(
       const distancia = Math.abs(ultimo.d);
       const rapido = velocidade * sinal > 0.5;
       if (distancia > tamanho * 0.3 || (rapido && distancia > 20)) {
-        elemento.dataset.arrastado = "true";
+        elemento.dataset["arrastado"] = "true";
         elemento.style.transition = reduzido ? "none" : "transform 200ms ease-out";
         aplicar(sinal * tamanho);
         elemento.querySelector<HTMLButtonElement>("[data-fechar-gaveta]")?.click();
