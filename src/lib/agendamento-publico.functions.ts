@@ -45,24 +45,23 @@ const LIMITES = {
 
 /** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
 async function limitarPublico(acao: keyof typeof LIMITES, telefone?: string) {
-  const { ipDaChamada, consumirLimite, BALDE_SEM_IP } = await import("@/lib/webhook-guard.server");
-  let ip: string | null = null;
+  const { dentroDoLimitePublico, MENSAGEM_DE_EXCESSO } = await import("@/lib/webhook-guard.server");
+  let request: Request | null = null;
   try {
-    ip = ipDaChamada(getRequest());
+    request = getRequest();
   } catch {
-    ip = null;
+    request = null;
   }
   const limite = LIMITES[acao];
-  // Sem IP identificável: balde próprio e 10× mais folgado, para não travar ninguém.
-  const okIp = await consumirLimite(
-    `pub:${acao}|ip:${ip ?? BALDE_SEM_IP}`,
-    ip ? limite.ip : limite.ip * 10,
+  const ok = await dentroDoLimitePublico(
+    request,
+    acao,
+    limite.ip,
+    telefone
+      ? { chave: `tel:${normalizarTelefone(telefone)}`, limite: limite.telefone }
+      : undefined,
   );
-  const okTel = telefone
-    ? await consumirLimite(`pub:${acao}|tel:${normalizarTelefone(telefone)}`, limite.telefone)
-    : true;
-  if (!okIp || !okTel)
-    throw new Error("Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.");
+  if (!ok) throw new Error(MENSAGEM_DE_EXCESSO);
 }
 
 export type AgendaPublica = {

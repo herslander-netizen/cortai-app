@@ -48,6 +48,34 @@ export async function consumirLimite(chave: string, limite: number): Promise<boo
   }
 }
 
+export const MENSAGEM_DE_EXCESSO =
+  "Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.";
+
+/**
+ * Limite por minuto de uma ação pública sem login: por IP e, se houver, por uma
+ * segunda chave (telefone). Sem IP identificável, balde próprio 10× mais folgado,
+ * para não travar ninguém. true = dentro do limite.
+ */
+export async function dentroDoLimitePublico(
+  request: Request | null,
+  acao: string,
+  limiteIp: number,
+  outra?: { chave: string; limite: number },
+): Promise<boolean> {
+  let ip: string | null = null;
+  try {
+    ip = request ? ipDaChamada(request) : null;
+  } catch {
+    ip = null;
+  }
+  const okIp = await consumirLimite(
+    `pub:${acao}|ip:${ip ?? BALDE_SEM_IP}`,
+    ip ? limiteIp : limiteIp * 10,
+  );
+  const okOutra = outra ? await consumirLimite(`pub:${acao}|${outra.chave}`, outra.limite) : true;
+  return okIp && okOutra;
+}
+
 /** Antes de autenticar: barra IP que já errou demais no último minuto. */
 export async function barrarAbusivo(request: Request, endpoint: string): Promise<Response | null> {
   const ip = ipDaChamada(request) ?? BALDE_SEM_IP;

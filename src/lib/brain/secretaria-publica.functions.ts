@@ -15,6 +15,9 @@ const Entrada = z.object({
     .default([]),
 });
 
+/** Perguntas por IP a cada minuto, somadas ao limite por hora e ao diário do cérebro. */
+const LIMITE_POR_MINUTO = 6;
+
 export const perguntarSecretariaPublica = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => Entrada.parse(input))
   .handler(async ({ data }): Promise<{ texto: string | null }> => {
@@ -22,6 +25,9 @@ export const perguntarSecretariaPublica = createServerFn({ method: "POST" })
     const request = getRequest();
     const guard = await import("@/lib/webhook-guard.server");
     if (await guard.barrarAbusivo(request, "cortai/site")) return { texto: null };
+    // Rajada por IP (contador no banco): protege a cota diária do negócio e o custo.
+    if (!(await guard.dentroDoLimitePublico(request, "cortai_site", LIMITE_POR_MINUTO)))
+      return { texto: null };
 
     const { iaDisponivel } = await import("./gateway.server");
     if (!iaDisponivel("site")) return { texto: null };
