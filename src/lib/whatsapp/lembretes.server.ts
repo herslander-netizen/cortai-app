@@ -444,6 +444,13 @@ export async function tratarRespostaDeLembrete(input: {
       return { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
     }
     case "CORTAI_CANCELAR": {
+      try {
+        const { exigirPrazoDeCancelamento } = await import("@/lib/prazo-cancelamento.server");
+        await exigirPrazoDeCancelamento(db, ag.id);
+      } catch (e) {
+        await registrar("lembrete_cancelar", false, "prazo_vencido");
+        return { texto: e instanceof Error ? e.message : "Não foi possível cancelar agora." };
+      }
       const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: ag.id });
       await registrar("lembrete_cancelar", !error, error?.message);
       if (error) {

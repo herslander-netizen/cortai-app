@@ -114,6 +114,7 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 
 Última auditoria: `docs/auditoria-2026-10-09.md`. Achados abertos mais graves (corrigidos: admin por curinga no e-mail e cupom em `022e748`; escrita da equipe no banco pela migração 0027):
 - Nenhum achado alto aberto no momento. Corrigidos no código, aguardando publicar: o chat da CortAI no painel agora respeita papel e permissões, e o negócio em uso é resolvido por uma regra única (`vinculo-ativo.ts`).
+- Corrigido no código, aguardando publicar: prazo de cancelamento do dono (`cancelamento_min_horas`) agora vale para o cliente (achado 17).
 - Abertos (médios): secretária do site e criação de negócio sem login com IP forjável, fila de chegada sem limite, agendamento com telefone de terceiros, links `/painel` inexistentes.
 
 Consulte o documento antes de mexer em IA, permissões, RLS, cobrança ou rotas públicas.

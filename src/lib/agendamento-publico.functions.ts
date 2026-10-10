@@ -683,6 +683,8 @@ export const cancelarComoConvidado = createServerFn({ method: "POST" })
     const telefone = String((ag as any).clientes?.telefone ?? "");
     if (!variantesDoTelefone(telefone).some((v) => variantesDoTelefone(data.telefone).includes(v)))
       throw new Error("Agendamento não encontrado.");
+    const { exigirPrazoDeCancelamento } = await import("@/lib/prazo-cancelamento.server");
+    await exigirPrazoDeCancelamento(db, data.agendamentoId);
     const { error } = await db.rpc("cancelar_agendamento", { _agendamento_id: data.agendamentoId });
     if (error) throw new Error("Não foi possível cancelar agora.");
     try {
