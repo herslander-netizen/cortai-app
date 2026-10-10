@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { escolherConexaoPorFinalidade, tipoValido } from "./finalidade-conexao";
+import { escolherConexaoPorFinalidade, podeAtivarConexao, tipoValido } from "./finalidade-conexao";
 import { podeEnviarPelaConexao } from "./saude-conexao";
 
 const atend = (status = "conectado") => ({
@@ -35,9 +35,9 @@ describe("conexão principal do negócio", () => {
       conexao: { id: "a" },
     });
   });
-  it("principal caída segue a reserva oficial, como antes", () => {
+  it("principal caída não troca de número: fica indisponível", () => {
     expect(escolherConexaoPorFinalidade([atend("desconectado")], "notificacoes")).toMatchObject({
-      tipo: "reserva",
+      tipo: "indisponivel",
       propriaExistente: true,
     });
   });
@@ -47,7 +47,7 @@ describe("conexão principal do negócio", () => {
       conexao: { id: "a" },
     });
     expect(escolherConexaoPorFinalidade([oficial], "atendimento")).toMatchObject({
-      tipo: "reserva",
+      tipo: "indisponivel",
     });
   });
   it("tipo desconhecido vira atendimento", () => {
@@ -70,5 +70,12 @@ describe("isolamento entre negócios", () => {
         "t1",
       ),
     ).toBe(true);
+  });
+});
+
+describe("conexão antiga de avisos", () => {
+  it("não pode ser ativada, pareada nem reconectada; a principal pode", () => {
+    expect(podeAtivarConexao("notificacoes")).toBe(false);
+    expect(podeAtivarConexao("atendimento")).toBe(true);
   });
 });

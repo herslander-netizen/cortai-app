@@ -23,7 +23,7 @@ function somenteDigitos(telefone: string) {
 }
 
 /** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
-async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
+export async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
   const db = await admin();
   const { data, error } = await db.rpc("recurso_do_tenant_ativo", {
     _tenant_id: tenantId,

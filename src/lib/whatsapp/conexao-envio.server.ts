@@ -1,12 +1,11 @@
 /**
- * Remetente de qualquer envio do negócio, com reserva:
- * (a) conexão própria, conectada e não compartilhada;
- * (b) senão, o número oficial do Cortaí (conexão compartilhada) — criada
- *     automaticamente para o negócio que ainda não tem linha;
- * (c) senão, nenhuma: quem chama registra "Nenhum WhatsApp disponível".
+ * Remetente de qualquer envio iniciado pelo Cortaí: a conexão principal do próprio negócio,
+ * conectada e não compartilhada. Sem ela, não há envio (retorna null) — nunca existe troca
+ * silenciosa para outro número, nem para o oficial compartilhado, e nenhuma linha é criada
+ * automaticamente. Quem chama registra "Nenhum WhatsApp disponível".
  *
- * Cada conexão carrega o próprio `provedor` (evolution/meta): o envio usa o
- * serviço da conexão escolhida, nunca o de outro negócio.
+ * Cada conexão carrega o próprio `provedor` (evolution/meta): o envio usa o serviço da
+ * conexão escolhida, nunca o de outro negócio.
  */
 import { logConexao, podeEnviarPelaConexao } from "./saude-conexao";
 import {
@@ -79,54 +78,15 @@ export async function conexaoDeEnvio(
     await sinalizarFalhaDaFinalidade(tenantId, finalidade).catch(() => undefined);
     return null;
   }
-  const propria = escolha.propriaExistente ? { status: escolha.motivo } : null;
-
-  const { data: oficial } = await db
-    .from("conexoes_whatsapp")
-    .select("id, sessao_id, provedor, numero, nome_exibicao, meta_phone_number_id")
-    .eq("compartilhada", true)
-    .eq("status", "conectado")
-    .order("criado_em", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!oficial) return null;
-  const doOficial = { compartilhada: true, provedor: oficial.provedor ?? null };
-
-  // Já tem linha própria (desconectada): não sobrescreve; usa o número oficial.
-  if (propria) {
-    logConexao("envio_pela_reserva", { tenantId, finalidade, motivo: propria.status });
-    return { id: oficial.id, sessao_id: oficial.sessao_id, ...doOficial };
-  }
-
-  const { data: criada, error } = await db
-    .from("conexoes_whatsapp")
-    .insert({
-      tenant_id: tenantId,
-      provedor: oficial.provedor,
-      sessao_id: `cortai_oficial_${tenantId.replace(/-/g, "").slice(0, 12)}`,
-      numero: oficial.numero,
-      nome_exibicao: oficial.nome_exibicao,
-      meta_phone_number_id: oficial.meta_phone_number_id,
-      compartilhada: true,
-      status: "conectado",
-      conectado_em: new Date().toISOString(),
-    })
-    .select("id, sessao_id")
-    .single();
-  if (error || !criada) {
-    // Corrida com outra execução: relê a linha criada.
-    const { data: relida } = await db
-      .from("conexoes_whatsapp")
-      .select("id, sessao_id, status")
-      .eq("tenant_id", tenantId)
-      .eq("compartilhada", true)
-      .limit(1)
-      .maybeSingle();
-    if (relida?.status === "conectado")
-      return { id: relida.id, sessao_id: relida.sessao_id, ...doOficial };
-    return { id: oficial.id, sessao_id: oficial.sessao_id, ...doOficial };
-  }
-  return { id: criada.id, sessao_id: criada.sessao_id, ...doOficial };
+  // Sem conexão própria conectada: nada sai. Não há reserva nem número compartilhado; a falha
+  // fica registrada e o negócio é avisado (no máximo uma vez por hora).
+  logConexao("envio_bloqueado_sem_conexao_propria", {
+    tenantId,
+    finalidade,
+    motivo: escolha.motivo,
+  });
+  await sinalizarFalhaDaFinalidade(tenantId, finalidade).catch(() => undefined);
+  return null;
 }
 
 /** Aviso único por hora ao negócio: a conexão da finalidade está fora do ar. */

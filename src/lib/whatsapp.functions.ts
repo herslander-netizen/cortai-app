@@ -11,6 +11,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import {
+  MENSAGEM_DO_LEGADO,
+  podeAtivarConexao,
   TIPOS_DE_CONEXAO,
   tipoValido,
   type TipoDeConexao,
@@ -343,8 +345,10 @@ async function sessaoDoTenant(tenantId: string, tipo: TipoDeConexao) {
     .eq("tipo", tipo)
     .maybeSingle();
   if (data) return data;
+  // A conexão antiga de avisos nunca volta a ser criada.
+  if (!podeAtivarConexao(tipo)) throw new Error(MENSAGEM_DO_LEGADO);
   const { randomBytes } = await import("node:crypto");
-  const prefixo = tipo === "notificacoes" ? "cortai_n_" : "cortai_";
+  const prefixo = "cortai_";
   const sessaoId = `${prefixo}${tenantId.replace(/-/g, "").slice(0, 12)}_${randomBytes(6).toString("hex")}`;
   const { data: criada, error } = await db
     .from("conexoes_whatsapp")
@@ -364,6 +368,7 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      if (!podeAtivarConexao(tipo)) return { status: "desconectado", aviso: MENSAGEM_DO_LEGADO };
       const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado()) {
@@ -417,6 +422,7 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      if (!podeAtivarConexao(tipo)) return { conexao: null, aviso: MENSAGEM_DO_LEGADO };
       const { gatewayConfigurado, gatewayDeWhatsapp } =
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
@@ -469,6 +475,8 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      if (!podeAtivarConexao(tipoValido(data.tipo)))
+        return { codigo: null, expiraEm: null, aviso: MENSAGEM_DO_LEGADO };
       const { numeroParaPareamento } = await import("@/lib/whatsapp/pareamento-telefone");
       const numero = numeroParaPareamento(data.telefone);
       if (!numero)
@@ -527,6 +535,7 @@ export const reconectarWhatsapp = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
       await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      if (!podeAtivarConexao(tipo)) return { status: "desconectado", aviso: MENSAGEM_DO_LEGADO };
       const { gatewayConfigurado, gatewayDeWhatsapp } =
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
@@ -616,6 +625,8 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
         .maybeSingle();
       // Sem sessão criada ainda não há nada para consultar — evita chamada inútil.
       if (!atual) return { conexao: null, aviso: null };
+      // Conexão antiga de avisos: só mostra o que está gravado, sem tocar no serviço.
+      if (!podeAtivarConexao(tipo)) return { conexao: conexaoDaLinha(atual), aviso: null };
       try {
         const estado = await gatewayDeWhatsapp.consultarStatus(atual.sessao_id);
         const conectou = estado.status === "conectado";

@@ -35,8 +35,11 @@ export type EscolhaDeConexao<T extends ConexaoPropria> =
   | { tipo: "propria"; conexao: T; legado: boolean }
   /** Mantido por compatibilidade de tipos; a regra atual não gera falha aqui. */
   | { tipo: "falha"; motivo: string }
-  /** Sem conexão principal conectada: segue a reserva (número oficial compartilhado). */
-  | { tipo: "reserva"; motivo: string; propriaExistente: boolean };
+  /**
+   * Sem conexão principal conectada: o envio é bloqueado e registrado. Nunca há troca
+   * silenciosa para outro número (nem o oficial compartilhado).
+   */
+  | { tipo: "indisponivel"; motivo: string; propriaExistente: boolean };
 
 /** Conexão Central da plataforma: nunca conta como conexão de um negócio. */
 export function ehConexaoCentral(l: {
@@ -44,6 +47,15 @@ export function ehConexaoCentral(l: {
   tenant_id?: string | null;
 }): boolean {
   return l.escopo === "central" || ("tenant_id" in l && l.tenant_id === null);
+}
+
+/** Aviso mostrado quando alguém tenta ativar, parear ou reconectar a conexão antiga de avisos. */
+export const MENSAGEM_DO_LEGADO =
+  "A conexão antiga de avisos não é mais usada. Os avisos saem pelo número principal do negócio.";
+
+/** Pareamento, QR Code, código por telefone e reconexão valem só para a conexão principal. */
+export function podeAtivarConexao(tipo: TipoDeConexao): boolean {
+  return tipo !== "notificacoes";
 }
 
 /** Linha antiga de "segundo número de notificações": não é mais usada. */
@@ -64,8 +76,8 @@ export function conexaoPrincipal<T extends ConexaoPropria>(linhasDoTenant: T[]):
 }
 
 /**
- * Remetente do negócio para qualquer finalidade: a conexão principal
- * conectada; senão, reserva. A finalidade não troca de número.
+ * Remetente do negócio para qualquer finalidade: a conexão principal conectada; senão,
+ * indisponível (sem reserva). A finalidade não troca de número.
  */
 export function escolherConexaoPorFinalidade<T extends ConexaoPropria>(
   linhasDoTenant: T[],
@@ -75,13 +87,17 @@ export function escolherConexaoPorFinalidade<T extends ConexaoPropria>(
   if (principal) {
     if (principal.status === "conectado")
       return { tipo: "propria", conexao: principal, legado: false };
-    return { tipo: "reserva", motivo: `propria_${principal.status}`, propriaExistente: true };
+    return { tipo: "indisponivel", motivo: `propria_${principal.status}`, propriaExistente: true };
   }
-  return { tipo: "reserva", motivo: "sem_propria", propriaExistente: linhasDoTenant.length > 0 };
+  return {
+    tipo: "indisponivel",
+    motivo: "sem_propria",
+    propriaExistente: linhasDoTenant.length > 0,
+  };
 }
 
 export function mensagemDeFalhaDaFinalidade(_finalidade: TipoDeConexao): string {
-  return "WhatsApp indisponível. Reconecte em Painel → WhatsApp.";
+  return "WhatsApp indisponível. Reconecte em Automação do WhatsApp.";
 }
 
 export type DecisaoDeNotificacao =
