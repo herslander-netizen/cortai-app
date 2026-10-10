@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState, type TouchEvent } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type AnimationEvent,
+  type TouchEvent,
+} from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -250,11 +257,51 @@ export function SemanaDoTopo({
 }
 
 /** Cinco pontinhos discretos que marcam o começo e o fim da grade do dia (só informam, não são botão). */
-export function MarcaDoLimiteDoDia({ className = "" }: { className?: string }) {
+export function MarcaDoLimiteDoDia({
+  className = "",
+  carregando = false,
+}: {
+  className?: string;
+  /** Enquanto a Agenda atualiza, os pontos correm pela direita e voltam pela esquerda. */
+  carregando?: boolean;
+}) {
+  // Só começa se a atualização durar um instante (evita piscar a cada consulta rápida).
+  const [correndo, setCorrendo] = useState(false);
+  const carregandoRef = useRef(carregando);
+  carregandoRef.current = carregando;
+  const raiz = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!carregando) return;
+    const espera = window.setTimeout(() => {
+      raiz.current
+        ?.querySelectorAll<HTMLElement>("span")
+        .forEach((p) => (p.style.animationName = ""));
+      setCorrendo(true);
+    }, 350);
+    return () => window.clearTimeout(espera);
+  }, [carregando]);
+  // Cada ponto termina a volta em que está e para no seu lugar: nada trava no meio do caminho.
+  function aoVoltar(e: AnimationEvent<HTMLElement>) {
+    const ponto = e.currentTarget;
+    if (carregandoRef.current) return;
+    ponto.style.animationName = "none";
+    if (ponto.dataset["ultimo"]) setCorrendo(false);
+  }
   return (
-    <div aria-hidden className={`flex h-5 items-center justify-center gap-1.5 ${className}`}>
+    <div
+      ref={raiz}
+      aria-hidden
+      data-correndo={correndo || undefined}
+      className={`agenda-pontos flex h-5 items-center justify-center gap-1.5 ${className}`}
+    >
       {[0, 1, 2, 3, 4].map((i) => (
-        <span key={i} className="size-1 rounded-full bg-mute2 opacity-60" />
+        <span
+          key={i}
+          data-ultimo={i === 0 ? "1" : undefined}
+          style={{ animationDelay: `${(4 - i) * 140}ms` }}
+          onAnimationIteration={aoVoltar}
+          className="size-1 rounded-full bg-mute2 opacity-60"
+        />
       ))}
     </div>
   );

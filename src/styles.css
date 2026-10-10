@@ -6266,3 +6266,34 @@ button.agenda-nome:hover {
     margin-top: 0;
   }
 }
+
+/* Pontinhos do começo e do fim da grade: enquanto a Agenda atualiza, correm como um carregando.
+   Saem pela direita devagar, aceleram, reaparecem pela esquerda e assentam no lugar. */
+@keyframes agenda-pontos-correr {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
+  }
+  45% {
+    transform: translate3d(150px, 0, 0);
+    opacity: 0;
+  }
+  45.01% {
+    transform: translate3d(-150px, 0, 0);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.1, 0.55, 0.45, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.6;
+  }
+}
+.agenda-pontos[data-correndo] > span {
+  animation: agenda-pontos-correr 1.7s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-pontos[data-correndo] > span {
+    animation: none;
+  }
+}
