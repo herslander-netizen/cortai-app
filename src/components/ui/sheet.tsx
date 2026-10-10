@@ -62,21 +62,28 @@ const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
 >(({ side = "right", className, children, arrastarParaFechar = false, ...props }, ref) => {
-  const referenciaInterna = React.useRef<React.ElementRef<typeof SheetPrimitive.Content>>(null);
-  useArrastarParaFechar(referenciaInterna, side ?? "right", arrastarParaFechar);
+  const [elementoGaveta, setElementoGaveta] = React.useState<HTMLDivElement | null>(null);
+  useArrastarParaFechar(elementoGaveta, side ?? "right", arrastarParaFechar);
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Content
         ref={(elemento) => {
-          referenciaInterna.current = elemento;
+          setElementoGaveta(elemento);
           if (typeof ref === "function") ref(elemento);
           else if (ref) ref.current = elemento;
         }}
-        className={cn(sheetVariants({ side }), className)}
+        className={cn(
+          sheetVariants({ side }),
+          "data-[arrastado=true]:data-[state=closed]:animate-none",
+          className,
+        )}
         {...props}
       >
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.Close
+          data-fechar-gaveta=""
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+        >
           <X className="h-4 w-4" />
           <span className="sr-only">Fechar</span>
         </SheetPrimitive.Close>
