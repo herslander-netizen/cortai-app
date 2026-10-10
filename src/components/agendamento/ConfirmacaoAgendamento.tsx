@@ -1,7 +1,8 @@
-import { CalendarPlus, CalendarX, MessageCircle, Share2 } from "lucide-react";
+import { CalendarPlus, CalendarX, ChevronDown, MapPin, MessageCircle, Share2 } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { VistoAnimado } from "@/components/ui/VistoAnimado";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,7 +72,7 @@ export function ConfirmacaoAgendamento({
   const podeCompartilhar =
     typeof navigator !== "undefined" && typeof navigator.share === "function";
   const titulo = {
-    confirmado: "Agendamento confirmado",
+    confirmado: "Horário garantido",
     cancelado: "Agendamento cancelado",
     cancelado_pela_barbearia: "O negócio cancelou este horário",
     remarcado: "O negócio remarcou este horário",
@@ -109,6 +110,12 @@ export function ConfirmacaoAgendamento({
         </span>
         <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
         {ativo && textoFinal ? <p className="mt-2 text-sm text-mute">{textoFinal}</p> : null}
+        {ativo && confirmacao.endereco ? (
+          <p className="mt-2 flex items-start gap-2 text-sm text-mute">
+            <MapPin size={16} className="mt-0.5 shrink-0" aria-hidden />
+            {confirmacao.endereco}
+          </p>
+        ) : null}
         {ativo ? (
           <div className="mt-6">
             <IngressoAgendamento
@@ -131,37 +138,49 @@ export function ConfirmacaoAgendamento({
         ) : null}
         {ativo ? (
           <div className="mt-6 grid gap-2">
-            <Button asChild variant="outline">
+            <Button asChild size="lg" variant="primary" className="rounded-full">
               <a href={linkGoogleAgenda(confirmacao)} target="_blank" rel="noopener noreferrer">
                 <CalendarPlus />
-                Google Agenda
+                Adicionar à agenda
               </a>
             </Button>
-            <Button variant="outline" onClick={() => baixarArquivoIcs(confirmacao)}>
-              <CalendarPlus />
-              Baixar arquivo .ics
-            </Button>
-            {podeCompartilhar ? (
-              <Button
-                variant="outline"
-                onClick={() => navigator.share({ title: "Meu horário", text: compartilhamento })}
-              >
-                <Share2 />
-                Compartilhar horário
-              </Button>
-            ) : null}
-            {confirmacao.whatsapp ? (
-              <Button asChild variant="outline">
-                <a
-                  href={`https://wa.me/${confirmacao.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! ${compartilhamento}`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <MessageCircle />
-                  Enviar pelo WhatsApp
-                </a>
-              </Button>
-            ) : null}
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full">
+                  Mais formas de guardar e enviar
+                  <ChevronDown aria-hidden />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 grid gap-2">
+                <Button variant="outline" onClick={() => baixarArquivoIcs(confirmacao)}>
+                  <CalendarPlus />
+                  Baixar arquivo .ics
+                </Button>
+                {podeCompartilhar ? (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      navigator.share({ title: "Meu horário", text: compartilhamento })
+                    }
+                  >
+                    <Share2 />
+                    Compartilhar horário
+                  </Button>
+                ) : null}
+                {confirmacao.whatsapp ? (
+                  <Button asChild variant="outline">
+                    <a
+                      href={`https://wa.me/${confirmacao.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! ${compartilhamento}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <MessageCircle />
+                      Enviar pelo WhatsApp
+                    </a>
+                  </Button>
+                ) : null}
+              </CollapsibleContent>
+            </Collapsible>
             <Button variant="outline" disabled={cancelando} onClick={onAlterar}>
               Alterar agendamento
             </Button>
