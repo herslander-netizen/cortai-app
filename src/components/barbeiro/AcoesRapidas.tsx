@@ -84,6 +84,7 @@ export function AcoesRapidas() {
       </Button>
       <SheetContent
         side="bottom"
+        arrastarParaFechar
         className="management-popover mx-auto max-h-[82vh] max-w-[520px] overflow-y-auto rounded-t-xl border-line bg-ink3 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6"
       >
         <SheetHeader className="pr-10 text-left">
