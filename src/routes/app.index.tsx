@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Clock3, MapPin, ShoppingBag, Sparkles } from "lucide-react";
+import { ChevronRight, MapPin, ShoppingBag, Sparkles } from "lucide-react";
 import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
+import { Button } from "@/components/ui/button";
 import { brl, dataHoraLonga } from "@/lib/format";
 import { DescobrirBarbearias } from "@/components/cliente/DescobrirBarbearias";
 import { StatusAgendamento } from "@/components/cliente/StatusAgendamento";
@@ -61,6 +62,10 @@ function InicioCliente() {
     )
     .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())[0];
 
+  const ultimo = (agendamentos.data ?? [])
+    .filter((a) => a.status === "finalizado")
+    .sort((x, y) => new Date(y.inicio).getTime() - new Date(x.inicio).getTime())[0];
+
   if (isLoading) {
     return <EsqueletoCascoCliente />;
   }
@@ -79,72 +84,35 @@ function InicioCliente() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      <header className="px-5 pb-5 pt-7">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            {data.logo_signed_url ? (
-              <img
-                src={data.logo_signed_url}
-                alt={`Logo ${data.nome}`}
-                className="h-11 w-11 shrink-0 rounded-md object-contain"
-              />
-            ) : null}
-            <div className="min-w-0">
-              <h1 className="truncate text-[26px] font-bold leading-tight text-paper">
-                {data.nome}
-              </h1>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-mute">
-                <Clock3 size={13} aria-hidden /> Agendamentos online
-              </p>
-              <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-mute">
-                <MapPin size={13} className="shrink-0" aria-hidden />
-                <span className="truncate">{data.endereco ?? "Atendimento no local"}</span>
-              </p>
-            </div>
+      <header className="px-5 pb-4 pt-7">
+        <div className="flex min-w-0 items-center gap-3">
+          {data.logo_signed_url ? (
+            <img
+              src={data.logo_signed_url}
+              alt={`Logo ${data.nome}`}
+              className="h-11 w-11 shrink-0 rounded-md object-contain"
+            />
+          ) : null}
+          <div className="min-w-0">
+            <h1 className="truncate text-[26px] font-bold leading-tight text-paper">{data.nome}</h1>
+            <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-mute">
+              <MapPin size={13} className="shrink-0" aria-hidden />
+              <span className="truncate">{data.endereco ?? "Atendimento no local"}</span>
+            </p>
           </div>
-          <span className="mt-1 flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-ink2 px-2.5 py-1.5 text-[9px] font-semibold uppercase text-sage">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden /> Agenda online
-          </span>
         </div>
       </header>
 
       <main className="flex-1 px-5">
-        <section className="relative min-h-[340px] overflow-hidden rounded-2xl">
-          <img
-            src={data.capa_signed_url ?? (ehBarbearia ? coverBarbearia.url : coverNeutra.url)}
-            alt={`Capa de ${data.nome}`}
-            width={1200}
-            height={1500}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-ink/55" />
-          <div className="relative flex min-h-[340px] flex-col justify-end p-5">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-gold">
-              <Sparkles size={13} /> Sua melhor versão
-            </p>
-            <p className="mt-2 max-w-[300px] text-[30px] font-bold leading-[1.1] text-paper">
-              Seu estilo, no seu horário.
-            </p>
-            <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-paper/75">
-              {data.texto_boas_vindas ?? "Seu cuidado, no seu tempo."}
-            </p>
-            <Link
-              to="/app/agendar"
-              search={{ b: data.slug }}
-              className="btn-primary mt-5 self-start px-6 py-3.5"
-            >
-              Agendar horário
-            </Link>
-          </div>
-        </section>
-
-        <section className="py-7">
-          <h2 className="text-xs font-semibold uppercase text-mute">Seu próximo atendimento</h2>
+        <section aria-labelledby="proximo-horario">
+          <h2 id="proximo-horario" className="text-xs font-semibold uppercase text-mute">
+            Seu próximo horário
+          </h2>
           {proximo ? (
             <Link
               to="/app/historico"
               search={{ b: data.slug }}
-              className="mt-4 flex min-h-[72px] items-center gap-4 border-y border-line py-5"
+              className="mt-3 flex min-h-[72px] items-center gap-4 rounded-2xl border border-line bg-ink2 p-4"
             >
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-2">
@@ -170,17 +138,50 @@ function InicioCliente() {
           ) : agendamentos.isLoading ? (
             <EsqueletoLista linhas={1} />
           ) : (
-            <div className="mt-4 border-y border-line py-5">
+            <div className="mt-3 rounded-2xl border border-line bg-ink2 p-4">
               <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
               <p className="mt-1 text-sm text-mute">
                 Escolha o melhor dia para o próximo atendimento.
               </p>
             </div>
           )}
+          <Button asChild size="lg" variant="primary" className="mt-3 w-full rounded-full">
+            <Link to="/app/agendar" search={{ b: data.slug }}>
+              {proximo ? "Agendar outro horário" : "Agendar horário"}
+            </Link>
+          </Button>
+          {ultimo ? (
+            <p className="mt-2 text-center text-xs text-mute">
+              Último atendimento: {ultimo.servicos?.nome ?? "serviço"}
+              {ultimo.profissionais?.nome ? ` com ${ultimo.profissionais.nome}` : ""}
+            </p>
+          ) : null}
+        </section>
+
+        <section className="relative mt-6 min-h-[200px] overflow-hidden rounded-2xl">
+          <img
+            src={data.capa_signed_url ?? (ehBarbearia ? coverBarbearia.url : coverNeutra.url)}
+            alt={`Capa de ${data.nome}`}
+            width={1200}
+            height={1500}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-ink/55" />
+          <div className="relative flex min-h-[200px] flex-col justify-end p-5">
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-gold">
+              <Sparkles size={13} aria-hidden /> Sua melhor versão
+            </p>
+            <p className="mt-2 max-w-[320px] text-sm leading-relaxed text-paper/85">
+              {data.texto_boas_vindas ?? "Seu cuidado, no seu tempo."}
+            </p>
+          </div>
+        </section>
+
+        <section className="py-6">
           <Link
             to="/app/espera"
             search={{ b: data.slug }}
-            className="mt-5 flex min-h-12 items-center justify-between gap-4 border-b border-line pb-5"
+            className="flex min-h-[64px] items-center justify-between gap-4 rounded-2xl border border-line bg-ink2 p-4"
           >
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-paper">
@@ -190,9 +191,12 @@ function InicioCliente() {
                 Entre na lista de espera e avisamos quando vagar.
               </span>
             </span>
-            <span className="shrink-0 text-xs text-gold">Entrar</span>
+            <span className="shrink-0 text-xs font-semibold text-gold">Entrar</span>
           </Link>
-          <Link to="/barbearias" className="mt-5 block text-xs text-mute underline">
+          <Link
+            to="/barbearias"
+            className="mt-4 flex min-h-12 items-center text-xs text-mute underline"
+          >
             Trocar de negócio
           </Link>
         </section>
