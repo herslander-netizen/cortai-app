@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+
+import type { FaseDoEditor } from "./estadoDoEditor";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -38,9 +40,18 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(
-    initial.alteracoes_pendentes ? "Há alterações salvas que ainda não foram publicadas." : null,
+  const [fase, setFase] = useState<FaseDoEditor>("ocioso");
+  const [erro, setErro] = useState(false);
+  const [status, setStatusBruto] = useState<string | null>(null);
+  const setStatus = (texto: string | null, ehErro = false) => {
+    setStatusBruto(texto);
+    setErro(ehErro);
+  };
+  const baseline = useMemo(
+    () => JSON.stringify({ form: initial, config: initial.pagina }),
+    [initial],
   );
+  const naoSalvo = JSON.stringify({ form, config }) !== baseline;
   const vocabulario = termos(initial.segmento);
 
   useEffect(() => {
@@ -65,11 +76,11 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     event.target.value = "";
     if (!file) return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
+      setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).", true);
       return;
     }
     if (file.size > 20 * 1024 * 1024) {
-      setStatus("Essa imagem é grande demais. Use uma de até 20 MB.");
+      setStatus("Essa imagem é grande demais. Use uma de até 20 MB.", true);
       return;
     }
     setBusy(true);
@@ -80,7 +91,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
         transparente: kind === "logo",
       });
       if (blob.size > 2 * 1024 * 1024) {
-        setStatus("Mesmo reduzida, a imagem passou de 2 MB. Tente outra foto.");
+        setStatus("Mesmo reduzida, a imagem passou de 2 MB. Tente outra foto.", true);
         return;
       }
       const tipo = blob.type || file.type;
@@ -91,7 +102,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
         .from("tenant-logos")
         .upload(path, blob, { contentType: tipo });
       if (error) {
-        setStatus("Não foi possível enviar a imagem. Tente de novo.");
+        setStatus("Não foi possível enviar a imagem. Tente de novo.", true);
         return;
       }
       const preview = URL.createObjectURL(blob);
@@ -109,7 +120,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       }
       setStatus("Imagem pronta. Salve o rascunho para continuar depois.");
     } catch {
-      setStatus("Não foi possível enviar a imagem. Tente de novo.");
+      setStatus("Não foi possível enviar a imagem. Tente de novo.", true);
     } finally {
       setBusy(false);
     }
@@ -135,7 +146,10 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       await reload();
       setStatus("Link atualizado. O endereço anterior continua funcionando.");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Não foi possível atualizar o link.");
+      setStatus(
+        error instanceof Error ? error.message : "Não foi possível atualizar o link.",
+        true,
+      );
     } finally {
       setBusy(false);
     }
@@ -143,6 +157,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
 
   const executar = async (mode: "draft" | "publish") => {
     setBusy(true);
+    setFase(mode === "draft" ? "salvando" : "publicando");
     setStatus(null);
     try {
       if (mode === "draft") {
@@ -156,9 +171,10 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       }
       await reload();
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Não foi possível concluir.");
+      setStatus(error instanceof Error ? error.message : "Não foi possível concluir.", true);
     } finally {
       setBusy(false);
+      setFase("ocioso");
     }
   };
 
@@ -201,6 +217,10 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     busy,
     status,
     setStatus,
+    fase,
+    erro,
+    naoSalvo,
+    pendente: initial.alteracoes_pendentes,
     vocabulario,
     fileRef,
     coverRef,

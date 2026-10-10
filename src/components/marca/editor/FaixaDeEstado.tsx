@@ -1,0 +1,35 @@
+import { AlertCircle, CheckCircle2, CircleDot, Loader2 } from "lucide-react";
+
+import { estadoDoEditor } from "./estadoDoEditor";
+
+const ESTILO = {
+  info: "border-line bg-ink2 text-paper",
+  pendente: "border-gold/40 bg-gold-soft text-paper",
+  erro: "border-brick/40 bg-brick-soft text-paper",
+  ok: "border-sage/40 bg-sage-soft text-paper",
+} as const;
+
+/** Faixa única de estado: salvando, publicando, não salvo, pendente de publicar, sucesso ou erro. */
+export function FaixaDeEstado(props: Parameters<typeof estadoDoEditor>[0]) {
+  const estado = estadoDoEditor(props);
+  if (!estado) return null;
+  const Icone = estado.ocupado
+    ? Loader2
+    : estado.tom === "erro"
+      ? AlertCircle
+      : estado.tom === "ok"
+        ? CheckCircle2
+        : CircleDot;
+  return (
+    <p
+      role={estado.tom === "erro" ? "alert" : "status"}
+      className={`mt-3 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm transition-opacity duration-200 ${ESTILO[estado.tom]}`}
+    >
+      <Icone
+        aria-hidden
+        className={`mt-0.5 size-4 shrink-0 ${estado.ocupado ? "animate-spin" : ""}`}
+      />
+      <span>{estado.texto}</span>
+    </p>
+  );
+}

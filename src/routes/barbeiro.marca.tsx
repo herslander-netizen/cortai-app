@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
+import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
@@ -198,7 +199,12 @@ function Editor({
               />
             </Item>
             <Item id="redes" titulo="Redes sociais">
-              <SecaoRedes form={e.form} setMarca={e.setMarca} config={e.config} setPagina={e.setPagina} />
+              <SecaoRedes
+                form={e.form}
+                setMarca={e.setMarca}
+                config={e.config}
+                setPagina={e.setPagina}
+              />
             </Item>
             <Item id="ajustes" titulo="Ajustes finos">
               <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />
@@ -219,11 +225,13 @@ function Editor({
             </Item>
           </Accordion>
 
-          {e.status ? (
-            <p role="status" className="mt-3 text-sm text-sage">
-              {e.status}
-            </p>
-          ) : null}
+          <FaixaDeEstado
+            fase={e.fase}
+            erro={e.erro}
+            status={e.status}
+            naoSalvo={e.naoSalvo}
+            pendente={e.pendente}
+          />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
             <Button
