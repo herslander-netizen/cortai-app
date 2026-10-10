@@ -16,6 +16,7 @@ function temVinculoPendente() {
 }
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Button } from "@/components/ui/button";
+import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 import { LISTA_DE_SEGMENTOS, SEGMENTOS_CONFIG, termos, type Segmento } from "@/lib/segmentos";
 
@@ -87,9 +88,10 @@ function ComecarPage() {
           um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o
           Cortaí para agendar como cliente.
         </p>
-        <button
-          type="button"
-          className="btn-primary mt-8 w-full py-3.5"
+        <Button
+          size="lg"
+          variant="primary"
+          className="mt-8 w-full rounded-full"
           disabled={enviando}
           onClick={async () => {
             setEnviando(true);
@@ -104,14 +106,10 @@ function ComecarPage() {
           }}
         >
           Continuar como cliente
-        </button>
-        <button
-          type="button"
-          className="mt-4 w-full text-center text-xs text-mute"
-          onClick={() => void sair()}
-        >
+        </Button>
+        <Button variant="ghost" className="mt-3 w-full text-mute" onClick={() => void sair()}>
           Sair da conta
-        </button>
+        </Button>
         {erro ? (
           <p className="mt-4 text-sm text-brick" role="alert">
             {erro}
@@ -147,19 +145,20 @@ function ComecarPage() {
             {avisoTeste ?? "Seu teste grátis de 45 dias começou, com tudo liberado."} Agora são 5
             minutos para deixar seu link de agendamento pronto.
           </p>
-          <button
-            type="button"
-            className="btn-primary mt-8 w-full"
+          <Button
+            size="lg"
+            variant="primary"
+            className="mt-8 w-full rounded-full"
             onClick={() => void navigate({ to: "/barbeiro/configurar" })}
           >
             Configurar {termos(segmento).possessivo}
-          </button>
+          </Button>
         </div>
       ) : modo === "escolha" ? (
         <div className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
-          <button
-            type="button"
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-5 text-left transition-colors hover:bg-ink3"
+          <Button
+            variant="ghost"
+            className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-items-stretch gap-4 whitespace-normal rounded-none px-4 py-5 text-left font-normal"
             disabled={enviando}
             onClick={async () => {
               setEnviando(true);
@@ -181,10 +180,10 @@ function ComecarPage() {
                 Marcar horários em negócios de Beleza.
               </span>
             </span>
-          </button>
-          <button
-            type="button"
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-5 text-left transition-colors hover:bg-ink3"
+          </Button>
+          <Button
+            variant="ghost"
+            className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-items-stretch gap-4 whitespace-normal rounded-none px-4 py-5 text-left font-normal"
             onClick={() => setModo("segmento")}
           >
             <Scissors size={20} className="text-gold" aria-hidden />
@@ -192,17 +191,17 @@ function ComecarPage() {
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
               <span className="mt-1 block text-xs text-mute">Escolha seu segmento de Beleza.</span>
             </span>
-          </button>
+          </Button>
         </div>
       ) : modo === "segmento" ? (
         <div className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
           {LISTA_DE_SEGMENTOS.map((item) => {
             const Icon = item.icone;
             return (
-              <button
+              <Button
                 key={item.id}
-                type="button"
-                className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-ink3"
+                variant="ghost"
+                className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-items-stretch gap-4 whitespace-normal rounded-none px-4 py-4 text-left font-normal"
                 onClick={() => {
                   setSegmento(item.id);
                   aplicarIdentidade(item.identidade);
@@ -227,7 +226,7 @@ function ComecarPage() {
                   className="shrink-0 text-mute2"
                   aria-hidden
                 />
-              </button>
+              </Button>
             );
           })}
           {sessao.papel !== "barbeiro" ? (
@@ -265,53 +264,51 @@ function ComecarPage() {
             }
           }}
         >
-          <label className="block text-xs font-medium text-mute">
-            Nome {termos(segmento).de}
-            <input
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              minLength={2}
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
-            />
-          </label>
-          <label className="mt-4 block text-xs font-medium text-mute">
-            CPF ou CNPJ
-            <input
-              value={documento}
-              onChange={(e) => setDocumento(e.target.value)}
-              required
-              inputMode="numeric"
-              autoComplete="off"
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
-            />
-          </label>
-          <label className="mt-4 block text-xs font-medium text-mute">
-            Telefone com DDD
-            <input
-              value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              required
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
-            />
-          </label>
-          <p className="mt-3 text-xs text-mute">
-            45 dias grátis com tudo liberado. Sem cartão. Usamos o CPF/CNPJ e o telefone só para
-            garantir um teste por negócio.
-          </p>
-          <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
+          <CampoDeFormulario
+            rotulo={`Nome ${termos(segmento).de}`}
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            obrigatorio
+            minLength={2}
+          />
+          <CampoDeFormulario
+            className="mt-4"
+            rotulo="CPF ou CNPJ"
+            value={documento}
+            onChange={(e) => setDocumento(e.target.value)}
+            obrigatorio
+            inputMode="numeric"
+            autoComplete="off"
+            dica="Usamos só para garantir um teste grátis por negócio."
+          />
+          <CampoDeFormulario
+            className="mt-4"
+            rotulo="Telefone com DDD"
+            value={telefone}
+            onChange={(e) => setTelefone(e.target.value)}
+            obrigatorio
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            dica="Para os avisos de agenda do seu negócio."
+          />
+          <p className="mt-4 text-sm text-mute">45 dias grátis com tudo liberado. Sem cartão.</p>
+          <Button
+            size="lg"
+            variant="primary"
+            className="mt-6 w-full rounded-full"
+            disabled={enviando}
+          >
             {enviando ? "Criando…" : "Criar meu negócio"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="mt-4 w-full text-center text-xs text-mute"
+            variant="ghost"
+            className="mt-3 w-full text-mute"
             onClick={() => setModo("segmento")}
           >
             Voltar
-          </button>
+          </Button>
         </form>
       )}
 
