@@ -117,7 +117,7 @@ export function ListaAgenda({
               role="button"
               tabIndex={0}
               aria-label={`${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
-              className={`agenda-item agenda-item-${item.status} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
+              className={`agenda-item agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
               style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
               onClick={() => onAbrir(item.id)}
               onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}

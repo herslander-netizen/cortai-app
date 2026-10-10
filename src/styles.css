@@ -6297,3 +6297,14 @@ button.agenda-nome:hover {
     animation: none;
   }
 }
+
+/* Lista: só a barrinha lateral ganha a cor do estado do cliente (o resto do cartão não muda). */
+.agenda-item-agendado { border-left-color: var(--estado-agendado); }
+.agenda-item-confirmado { border-left-color: var(--estado-confirmado); }
+.agenda-item-chegou { border-left-color: var(--estado-chegou); }
+.agenda-item-na_cadeira { border-left-color: var(--estado-na-cadeira); }
+.agenda-item-finalizado { border-left-color: var(--estado-finalizado); }
+.agenda-item-cancelado { border-left-color: var(--estado-cancelado); }
+.agenda-item-nao_compareceu { border-left-color: var(--estado-faltou); }
+.agenda-item-remarcado { border-left-color: var(--estado-remarcado); }
+.agenda-item-encaixe { border-left-color: var(--estado-encaixe); }
