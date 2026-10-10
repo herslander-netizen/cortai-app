@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
 import { Carregando } from "@/components/layout/Carregando";
+import { CodigoPorNumeroDoNegocio } from "@/components/admin/CodigoPorNumeroDoNegocio";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { Button } from "@/components/ui/button";
 import {
@@ -187,6 +188,7 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
           </>
         ) : null}
       </div>
+      <CodigoPorNumeroDoNegocio tenantId={n.tenantId} />
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3">
         <span className="text-sm text-paper">Notificações pelo WhatsApp</span>
         <Button
