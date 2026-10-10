@@ -282,7 +282,7 @@ export function SinoDeAvisos() {
                     <button
                       type="button"
                       onClick={() => void abrirAviso(aviso)}
-                      className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left transition-transform duration-100 active:scale-[0.99] active:bg-ink3"
+                      className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left transition-transform duration-[120ms] active:scale-[0.99] active:bg-ink3"
                     >
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${aviso.lida_em ? "bg-transparent" : "bg-gold"}`}

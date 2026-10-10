@@ -22,10 +22,7 @@ import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
-  return [
-    SEGMENTOS_CONFIG[s].exemploIA,
-    ...ATALHOS_FIXOS,
-  ];
+  return [SEGMENTOS_CONFIG[s].exemploIA, ...ATALHOS_FIXOS];
 }
 
 const ATALHOS_FIXOS = [
@@ -54,7 +51,7 @@ function ProgressoDaConfiguracao() {
       </span>
       <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-ink3">
         <span
-          className="block h-full rounded-full bg-gold transition-[width] duration-500"
+          className="block h-full rounded-full bg-gold transition-[width] duration-[280ms]"
           style={{ width: `${Math.max(4, pct)}%` }}
         />
       </span>

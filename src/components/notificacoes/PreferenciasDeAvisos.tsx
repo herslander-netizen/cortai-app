@@ -138,7 +138,7 @@ export function PreferenciasDeAvisos() {
                       aria-label={`${ROTULO_DO_CANAL[canal]} — ${t.rotulo}`}
                       disabled={isLoading}
                       onClick={() => alternar(t.chave, canal)}
-                      className={`flex items-center gap-1.5 min-h-11 rounded-full border px-3.5 text-xs transition-transform duration-100 active:scale-[0.97] disabled:opacity-50 ${
+                      className={`flex items-center gap-1.5 min-h-11 rounded-full border px-3.5 text-xs transition-transform duration-[120ms] active:scale-[0.97] disabled:opacity-50 ${
                         ativo ? "border-gold/45 bg-gold-soft text-gold" : "border-line text-mute"
                       }`}
                     >
@@ -220,7 +220,8 @@ function MeuWhatsappNoCortai() {
   if (data?.verificadoEm && !codigo) {
     return (
       <p className="mb-3 flex min-h-11 items-center gap-2 text-sm text-paper">
-        <Check className="h-4 w-4 text-gold" aria-hidden /> WhatsApp confirmado: converse com o CortAI e receba avisos por lá
+        <Check className="h-4 w-4 text-gold" aria-hidden /> WhatsApp confirmado: converse com o
+        CortAI e receba avisos por lá
       </p>
     );
   }
@@ -233,7 +234,13 @@ function MeuWhatsappNoCortai() {
       {codigo ? (
         <div className="mt-3 space-y-2 text-xs leading-relaxed text-mute">
           <p>
-            Do seu WhatsApp, envie para {codigo.numero ? <strong className="text-paper">+{codigo.numero}</strong> : "o número do Cortaí"}:
+            Do seu WhatsApp, envie para{" "}
+            {codigo.numero ? (
+              <strong className="text-paper">+{codigo.numero}</strong>
+            ) : (
+              "o número do Cortaí"
+            )}
+            :
           </p>
           <p className="rounded-md bg-ink px-3 py-2 text-center font-mono text-base tracking-widest text-gold">
             CODIGO {codigo.codigo}

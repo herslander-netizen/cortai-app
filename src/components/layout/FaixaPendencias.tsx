@@ -38,7 +38,7 @@ export function FaixaPendencias() {
     <motion.div layout transition={transicaoBase} className="mb-4">
       <Link
         to={proximo.destino}
-        className={`flex items-center gap-2 rounded-full border border-gold/40 bg-gold-soft text-gold transition-transform duration-100 active:scale-[0.98] ${
+        className={`flex items-center gap-2 rounded-full border border-gold/40 bg-gold-soft text-gold transition-transform duration-[120ms] active:scale-[0.98] ${
           encolhida ? "w-fit px-3 py-1.5" : "w-full px-4 py-3"
         }`}
       >

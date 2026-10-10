@@ -34,10 +34,10 @@ export function TabBar({ items, centralAction }: { items: TabItem[]; centralActi
                 {...(item.search === undefined ? {} : { search: item.search })}
                 preload="intent"
                 activeOptions={{ exact: item.to.split("/").length === 2 }}
-                className="group relative mx-auto flex h-14 w-full max-w-[76px] flex-col items-center justify-center gap-1 rounded-xl text-mute transition-colors duration-150 hover:text-paper active:scale-[0.97] active:bg-ink3"
+                className="group relative mx-auto flex h-14 w-full max-w-[76px] flex-col items-center justify-center gap-1 rounded-xl text-mute transition-colors duration-[120ms] hover:text-paper active:scale-[0.97] active:bg-ink3"
                 activeProps={{ className: "text-gold", "aria-current": "page" }}
               >
-                <span className="flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-150 group-aria-[current=page]:bg-gold-soft">
+                <span className="flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-[120ms] group-aria-[current=page]:bg-gold-soft">
                   <Icon
                     size={19}
                     strokeWidth={1.7}

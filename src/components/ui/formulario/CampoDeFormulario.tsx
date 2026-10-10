@@ -36,7 +36,7 @@ export function CampoDeFormulario({
         <label
           htmlFor={id}
           className={cn(
-            "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[17px] text-mute transition-all duration-150",
+            "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[17px] text-mute transition-all duration-[120ms]",
             "peer-focus:top-4 peer-focus:text-xs peer-focus:text-gold",
             "peer-[:not(:placeholder-shown)]:top-4 peer-[:not(:placeholder-shown)]:text-xs",
           )}

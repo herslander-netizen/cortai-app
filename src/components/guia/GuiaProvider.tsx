@@ -301,13 +301,13 @@ function GuiaOverlay({
         type="button"
         aria-label="Fechar dicas"
         onClick={aoPular}
-        className="absolute inset-0 h-full w-full cursor-default bg-ink/60 transition-opacity duration-300"
+        className="absolute inset-0 h-full w-full cursor-default bg-ink/60 transition-opacity duration-[280ms]"
         style={alvo ? { backgroundColor: "transparent" } : undefined}
       />
       {alvo ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute rounded-xl ring-1 ring-gold/60 transition-all duration-300 ease-out"
+          className="pointer-events-none absolute rounded-xl ring-1 ring-gold/60 transition-all duration-[280ms] ease-out"
           style={{
             top: alvo.top - 6,
             left: alvo.left - 6,
@@ -324,7 +324,7 @@ function GuiaOverlay({
         aria-modal="true"
         aria-labelledby="guia-titulo"
         aria-describedby="guia-texto"
-        className="absolute rounded-xl border border-line bg-ink3 p-5 shadow-xl transition-all duration-300 ease-out"
+        className="absolute rounded-xl border border-line bg-ink3 p-5 shadow-xl transition-all duration-[280ms] ease-out"
         style={{ top: topoDica, left: esquerdaDica, width: largura }}
       >
         <p id="guia-titulo" className="flex items-center gap-2 text-sm font-bold text-paper">
