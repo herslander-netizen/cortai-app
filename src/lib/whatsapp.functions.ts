@@ -448,6 +448,77 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
     },
   );
 
+const pareamentoSchema = z.object({
+  tipo: z.enum(TIPOS_DE_CONEXAO).optional(),
+  telefone: z.string().trim().min(8).max(24),
+});
+
+/**
+ * Conexão por número de telefone: devolve o código de 8 caracteres que o dono digita no
+ * celular (WhatsApp → Aparelhos conectados → Conectar com número de telefone). O código
+ * não fica gravado; o estado da conexão continua sendo acompanhado como no QR Code.
+ */
+export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => pareamentoSchema.parse(d))
+  .handler(
+    async ({
+      context,
+      data,
+    }): Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }> => {
+      const tenantId = await tenantIdDoMembro(context);
+      await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+      await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+      const { numeroParaPareamento } = await import("@/lib/whatsapp/pareamento-telefone");
+      const numero = numeroParaPareamento(data.telefone);
+      if (!numero)
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: "Confira o número: use DDD e telefone, como (11) 99999-8888.",
+        };
+      const { gatewayConfigurado, gatewayDeWhatsapp, provedorDoGateway } =
+        await import("@/lib/whatsapp/gateway.server");
+      if (!gatewayConfigurado())
+        return { codigo: null, expiraEm: null, aviso: "Serviço de WhatsApp não configurado." };
+      if (provedorDoGateway() !== "evolution")
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: "Neste serviço a conexão é só pelo QR Code.",
+        };
+      const sessao = await sessaoDoTenant(tenantId, tipoValido(data.tipo));
+      const db = await admin();
+      try {
+        let pareamento;
+        try {
+          pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);
+        } catch {
+          // Sessão ainda não existe no serviço: cria e tenta de novo.
+          await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, URL_DE_EVENTOS_EVOLUTION);
+          pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);
+        }
+        await db
+          .from("conexoes_whatsapp")
+          .update({
+            provedor: provedorDoGateway(),
+            status: "conectando",
+            qr_code: null,
+            qr_expira_em: null,
+            ultimo_erro: null,
+          })
+          .eq("id", sessao.id);
+        return { codigo: pareamento.codigo, expiraEm: pareamento.expiraEm, aviso: null };
+      } catch (erro) {
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: erro instanceof Error ? erro.message : "Não foi possível gerar o código agora.",
+        };
+      }
+    },
+  );
+
 export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))

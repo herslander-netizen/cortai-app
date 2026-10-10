@@ -17,6 +17,7 @@ import {
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { Carregando } from "@/components/layout/Carregando";
+import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
 import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
@@ -930,6 +931,15 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             ) : null}
           </>
         )}
+        {status !== "conectado" ? (
+          <CodigoPorTelefone
+            tipo={tipo}
+            aoGerar={() => {
+              void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+              void estado.refetch();
+            }}
+          />
+        ) : null}
         {aviso ? <p className="text-center text-sm text-brick">{aviso}</p> : null}
         {conexao?.ultimoErro ? (
           <p className="text-center text-xs text-brick">{conexao.ultimoErro}</p>

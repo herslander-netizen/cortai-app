@@ -24,6 +24,8 @@ import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 type Provedor = "evolution" | "generico" | "meta";
 type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
 
+import { codigoDePareamento, MINUTOS_DO_CODIGO } from "@/lib/whatsapp/pareamento-telefone";
+
 const URL_GATEWAY_META = "https://connector-gateway.lovable.dev/whatsapp";
 
 function configEvolution(): Config | null {
@@ -132,6 +134,10 @@ export async function chamar<T>(
   const texto = await resposta.text();
   return (texto ? JSON.parse(texto) : {}) as T;
 }
+
+export type CodigoDePareamento = { codigo: string; expiraEm: string };
+
+const SEM_PAREAMENTO = "A conexão por número de telefone não está disponível neste serviço.";
 
 export type EstadoDaSessao = {
   status: StatusDaConexao;
@@ -254,6 +260,21 @@ function criarEvolution(cfg: Config | null) {
       };
     },
 
+    /** Código de 8 caracteres para digitar no celular, no lugar de ler o QR Code. */
+    async obterCodigoDePareamento(sessaoId: string, numero: string): Promise<CodigoDePareamento> {
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/instance/connect/${encodeURIComponent(sessaoId)}?number=${encodeURIComponent(numero)}`,
+        "GET",
+      );
+      const codigo = codigoDePareamento(r);
+      if (!codigo) throw new Error("O WhatsApp não devolveu o código. Tente de novo em instantes.");
+      return {
+        codigo,
+        expiraEm: new Date(Date.now() + MINUTOS_DO_CODIGO * 60_000).toISOString(),
+      };
+    },
+
     async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
       const r = await chamar<Record<string, unknown>>(
         cfg,
@@ -316,6 +337,9 @@ function criarGenerico(cfg: Config | null) {
           "GET",
         ),
       );
+    },
+    async obterCodigoDePareamento(_sessaoId: string, _numero: string): Promise<CodigoDePareamento> {
+      throw new Error(SEM_PAREAMENTO);
     },
     async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
       return normalizarEstado(
@@ -447,6 +471,9 @@ function criarMeta(cfg: Config | null) {
       const lista = (r["messages"] as Record<string, unknown>[]) ?? [];
       return { id: (lista[0]?.["id"] as string) ?? null };
     },
+    async obterCodigoDePareamento(): Promise<CodigoDePareamento> {
+      throw new Error(SEM_PAREAMENTO);
+    },
     reiniciarSessao(): Promise<EstadoDaSessao> {
       return meta.consultarStatus();
     },
@@ -489,6 +516,8 @@ export function gatewayDoProvedor(preferido?: string | null) {
     criarSessao: (sessaoId: string, webhookUrl: string) => impl().criarSessao(sessaoId, webhookUrl),
     obterQrCode: (sessaoId: string) => impl().obterQrCode(sessaoId),
     consultarStatus: (sessaoId: string) => impl().consultarStatus(sessaoId),
+    obterCodigoDePareamento: (sessaoId: string, numero: string) =>
+      impl().obterCodigoDePareamento(sessaoId, numero),
     enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
       impl().enviarMensagem(sessaoId, telefone, texto),
     /** Só a API oficial garante botões; nos demais provedores devolve null. */
