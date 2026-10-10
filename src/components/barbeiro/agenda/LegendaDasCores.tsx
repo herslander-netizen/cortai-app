@@ -3,7 +3,7 @@ import { DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdo
 /** Cada cor dos cartões da Agenda e o estado do cliente que ela mostra (tokens `--estado-*`). */
 export const CORES_DOS_ESTADOS = [
   { nome: "Agendado", token: "--estado-agendado" },
-  { nome: "Confirmado", token: "--estado-confirmado" },
+  { nome: "Confirmou", token: "--estado-confirmado" },
   { nome: "Chegou", token: "--estado-chegou" },
   { nome: "Na cadeira", token: "--estado-na-cadeira" },
   { nome: "Finalizado", token: "--estado-finalizado" },

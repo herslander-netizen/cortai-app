@@ -907,16 +907,21 @@ export function AgendaTimeline({
                       </span>
                     ) : null}
                     <span className="flex shrink-0 gap-1">
-                      {item.status === "finalizado" ? (
-                        <Check className="agenda-check-finalizado" aria-label="Finalizado" />
-                      ) : null}
-                      {item.status === "na_cadeira" ? <StatusBadge status="na_cadeira" /> : null}
+                      {/* Etiqueta com o nome do estado em todo cartão: a cor ajuda, mas não é a única pista. */}
+                      {item.confirmadoEm && item.status === "agendado" ? (
+                        <StatusBadge status="confirmado" label="Confirmou" />
+                      ) : (
+                        <StatusBadge
+                          status={
+                            item.encaixe && item.status === "agendado" ? "encaixe" : item.status
+                          }
+                        />
+                      )}
                       {ehHoje && estaAtrasado(item, agora) ? (
                         <StatusBadge status="atrasado" />
                       ) : null}
-                      {item.encaixe ? <StatusBadge status="encaixe" /> : null}
-                      {item.confirmadoEm && item.status === "agendado" ? (
-                        <StatusBadge status="confirmado" label="Confirmou" />
+                      {item.encaixe && (item.status !== "agendado" || item.confirmadoEm) ? (
+                        <StatusBadge status="encaixe" />
                       ) : null}
                     </span>
                   </span>
