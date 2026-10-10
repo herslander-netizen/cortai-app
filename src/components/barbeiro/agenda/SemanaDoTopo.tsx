@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type TouchEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type TouchEvent } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { getContagemDoMes } from "@/lib/barbeiro.functions";
+import { prefereMenosMovimento } from "@/lib/motion";
 
 import {
   gradeDoMes,
@@ -100,19 +101,67 @@ export function SemanaDoTopo({
   });
   const temAtendimento = (d: string) => contagens.some((q) => Number(q.data?.[d] ?? 0) > 0);
 
-  // Deslizar na semana troca de semana (o dia escolhido não muda).
-  const toque = useRef<{ x: number; y: number } | null>(null);
+  // A semana acompanha o dedo e, ao trocar (pelo gesto aqui ou pelo deslize do dia), entra pelo lado.
+  const linha = useRef<HTMLDivElement>(null);
+  const primeiraDaSemana = useRef(semana[0] ?? dia);
+  useLayoutEffect(() => {
+    const antes = primeiraDaSemana.current;
+    const agora = semana[0] ?? dia;
+    primeiraDaSemana.current = agora;
+    const el = linha.current;
+    if (!el || antes === agora || prefereMenosMovimento() || !el.animate) return;
+    const lado = agora > antes ? 1 : -1;
+    el.animate(
+      [
+        { transform: `translate3d(${lado * 36}%,0,0)`, opacity: 0 },
+        { transform: "translate3d(0,0,0)", opacity: 1 },
+      ],
+      { duration: 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+  }, [semana, dia]);
+
+  const toque = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null);
   function comecar(e: TouchEvent) {
     const t = e.touches[0];
-    toque.current = t ? { x: t.clientX, y: t.clientY } : null;
+    toque.current = t ? { x: t.clientX, y: t.clientY, horizontal: null } : null;
+  }
+  function mover(e: TouchEvent) {
+    const inicio = toque.current;
+    const t = e.touches[0];
+    const el = linha.current;
+    if (!inicio || !t || !el) return;
+    const dx = t.clientX - inicio.x;
+    const dy = t.clientY - inicio.y;
+    if (inicio.horizontal === null && Math.hypot(dx, dy) > 8)
+      inicio.horizontal = Math.abs(dx) > Math.abs(dy);
+    if (!inicio.horizontal || prefereMenosMovimento()) return;
+    el.style.transform = `translate3d(${dx * 0.7}px,0,0)`;
+    el.style.opacity = String(1 - Math.min(Math.abs(dx) / 400, 0.45));
   }
   function soltar(e: TouchEvent) {
     const inicio = toque.current;
     const t = e.changedTouches[0];
+    const el = linha.current;
     toque.current = null;
-    if (!inicio || !t) return;
+    if (!el) return;
+    const volta = () => {
+      el.style.transform = "";
+      el.style.opacity = "";
+    };
+    if (!inicio || !t) return volta();
     const dx = t.clientX - inicio.x;
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(t.clientY - inicio.y)) return;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(t.clientY - inicio.y)) {
+      if (!prefereMenosMovimento() && el.animate && el.style.transform) {
+        const de = el.style.transform;
+        volta();
+        el.animate([{ transform: de }, { transform: "translate3d(0,0,0)" }], {
+          duration: 200,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        });
+      } else volta();
+      return;
+    }
+    volta();
     setSemanas((s) => s + (dx < 0 ? 1 : -1));
   }
 
@@ -174,11 +223,14 @@ export function SemanaDoTopo({
           </div>
         ) : (
           <div
-            className="grid grid-cols-7 animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
+            ref={linha}
+            className="grid touch-pan-y grid-cols-7 animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
             role="group"
             aria-label="Dias da semana"
             onTouchStart={comecar}
+            onTouchMove={mover}
             onTouchEnd={soltar}
+            onTouchCancel={soltar}
           >
             {semana.map((d) => (
               <DiaDoCalendario

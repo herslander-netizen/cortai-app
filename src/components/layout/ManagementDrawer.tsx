@@ -198,7 +198,7 @@ export function ManagementHeader() {
       style={celular && caminho === "/barbeiro" ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
     >
       <div
-        className={`mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between px-4 md:px-8 ${celular && caminho === "/barbeiro" ? "gap-1" : "gap-3"}`}
+        className={`mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between ${celular && caminho === "/barbeiro" ? "gap-0.5 px-3 md:px-8" : "gap-3 px-4 md:px-8"}`}
       >
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>

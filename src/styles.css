@@ -5933,10 +5933,12 @@ button.agenda-nome:hover {
     display: none;
   }
   .agenda-linha-agora span {
-    left: -37px;
-    width: 34px;
+    left: -30px;
+    width: 30px;
     padding: 1px 0;
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
   /* Só as linhas das horas inteiras, como no modelo. */
   .agenda-timeline-marca:not(.agenda-timeline-hora) {

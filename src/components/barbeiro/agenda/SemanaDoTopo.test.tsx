@@ -14,6 +14,13 @@ import { AlcaDoCalendario, SemanaDoTopo } from "./SemanaDoTopo";
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
 
+window.matchMedia ??= ((q: string) => ({
+  matches: false,
+  media: q,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+})) as unknown as typeof window.matchMedia;
+
 const limpar: Array<() => void> = [];
 afterEach(() => {
   while (limpar.length) limpar.pop()?.();

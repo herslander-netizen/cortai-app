@@ -226,12 +226,12 @@ export function CabecalhoAgenda({
     <>
       <Button
         variant="ghost"
-        className="min-h-12 min-w-0 flex-1 justify-start px-1 hover:bg-transparent"
+        className="min-h-12 min-w-0 flex-1 justify-start px-0.5 hover:bg-transparent"
         aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
         onClick={onCalendario}
       >
-        <span className="truncate text-[clamp(19px,5.8vw,24px)] leading-none text-paper">
+        <span className="truncate text-[clamp(18px,5vw,22px)] leading-none text-paper">
           <strong className="font-semibold">
             {(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}
           </strong>{" "}
@@ -241,7 +241,7 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="size-12 shrink-0"
+        className="h-12 w-11 min-w-11 shrink-0"
         aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
