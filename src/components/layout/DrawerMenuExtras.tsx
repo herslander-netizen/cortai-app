@@ -9,7 +9,10 @@ import { marcarCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convi
 
 const CHAVE_FAIXA = "cortai-menu-desempenho-aberto";
 
-/** Faixa recolhível "Desempenho dos últimos 7 dias" (dentro do bloco Sua Página). */
+/**
+ * Faixa recolhível de desempenho, logo abaixo do cartão Sua Página. Fechada: uma linha
+ * "Ver desempenho · últimos 7 dias". Aberta: as três métricas em cima e o rótulo embaixo.
+ */
 export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: boolean }) {
   const [aberta, setAberta] = useState(false);
   useEffect(() => {
@@ -43,7 +46,7 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
     { rotulo: "Conversão", valor: data ? `${data.conversao}%` : undefined },
   ];
   return (
-    <div className="bg-drawer-band">
+    <div className="overflow-hidden rounded-b-[28px] rounded-t-[10px] bg-drawer-band">
       <div
         className={`grid transition-[grid-template-rows] duration-[150ms] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
@@ -67,7 +70,9 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
         className="min-h-12 w-full justify-start gap-2 whitespace-normal px-5 py-2 text-left text-sm font-normal text-mute hover:bg-transparent"
       >
         <TrendingUp className="size-4 shrink-0" aria-hidden />
-        <span className="flex-1 truncate">Desempenho dos últimos 7 dias</span>
+        <span className="flex-1 truncate">
+          {aberta ? "Desempenho dos últimos 7 dias" : "Ver desempenho · últimos 7 dias"}
+        </span>
         <ChevronDown
           className={`size-4 transition-transform duration-[150ms] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
           aria-hidden

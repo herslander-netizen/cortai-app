@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, type LucideIcon } from "lucide-react";
+import { ChevronRight, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { itemDeNavegacaoAtivo } from "@/lib/navegacao-barbeiro";
@@ -45,8 +45,8 @@ export function GruposDoMenu({
               onClick={() => onAlternar(grupo.titulo)}
             >
               {rotuloDoGrupo(grupo, segmento)}
-              <ChevronDown
-                className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-180" : ""}`}
+              <ChevronRight
+                className={`size-5 transition-transform duration-[120ms] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-90" : ""}`}
                 aria-hidden
               />
             </Button>

@@ -47,33 +47,39 @@ export function DrawerDestaques({
   return (
     <div className="space-y-4">
       {slug ? (
-        <div className="overflow-hidden rounded-[28px] border border-drawer-borda bg-drawer-card">
-          <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_48px] items-center pl-5 pr-2">
-            <Link
-              to="/b/$slug"
-              params={{ slug }}
-              onClick={fechar}
-              className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)] items-center gap-3 py-3"
-            >
-              <IconeDoMenu icone={Link2} destaque />
-              <span className="min-w-0">
-                <span className="block truncate text-lg font-semibold text-paper">Sua Página</span>
-                {paginaPublicada ? (
-                  <span className="mt-0.5 flex items-center gap-2 text-sm text-sage">
-                    <span className="size-2.5 rounded-full bg-sage" aria-hidden /> Online
+        <div className="space-y-2">
+          <div
+            className={`overflow-hidden border border-drawer-borda bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[10px] rounded-t-[28px]" : "rounded-[28px]"}`}
+          >
+            <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_48px] items-center pl-5 pr-2">
+              <Link
+                to="/b/$slug"
+                params={{ slug }}
+                onClick={fechar}
+                className="grid min-w-0 grid-cols-[44px_minmax(0,1fr)] items-center gap-3 py-3"
+              >
+                <IconeDoMenu icone={Link2} destaque />
+                <span className="min-w-0">
+                  <span className="block truncate text-lg font-semibold text-paper">
+                    Sua Página
                   </span>
-                ) : null}
-              </span>
-            </Link>
-            <Button
-              variant="icon"
-              size="icon"
-              aria-label="Compartilhar sua página"
-              onClick={() => void compartilhar()}
-              className="size-12 rounded-full text-menu-icone"
-            >
-              <Share2 className="size-[22px]" aria-hidden />
-            </Button>
+                  {paginaPublicada ? (
+                    <span className="mt-0.5 flex items-center gap-2 text-sm text-sage">
+                      <span className="size-2.5 rounded-full bg-sage" aria-hidden /> Online
+                    </span>
+                  ) : null}
+                </span>
+              </Link>
+              <Button
+                variant="icon"
+                size="icon"
+                aria-label="Compartilhar sua página"
+                onClick={() => void compartilhar()}
+                className="size-12 rounded-full text-menu-icone"
+              >
+                <Share2 className="size-[22px]" aria-hidden />
+              </Button>
+            </div>
           </div>
           {tenantId && verDesempenho ? (
             <FaixaDesempenho tenantId={tenantId} ativo={menuAberto} />
