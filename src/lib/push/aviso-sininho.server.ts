@@ -11,6 +11,7 @@ import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 import { chavesVapid } from "./eventos.server";
 import { destinatariosDoAviso, focoAtivo, inscricaoVencida, textoDoAviso } from "./regras";
 import { enviarPush } from "./webpush.server";
+import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 
 type Db = SupabaseClient;
 

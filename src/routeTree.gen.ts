@@ -87,6 +87,8 @@ import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as PainelIndexRouteImport } from './routes/painel.index'
+import { Route as PainelSplatRouteImport } from './routes/painel.$'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
@@ -498,6 +500,16 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelIndexRoute = PainelIndexRouteImport.update({
+  id: '/painel/',
+  path: '/painel/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelSplatRoute = PainelSplatRouteImport.update({
+  id: '/painel/$',
+  path: '/painel/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VagaTokenRoute = VagaTokenRouteImport.update({
   id: '/vaga/$token',
   path: '/vaga/$token',
@@ -670,10 +682,12 @@ export interface FileRoutesByFullPath {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
@@ -764,10 +778,12 @@ export interface FileRoutesByTo {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
+  '/painel': typeof PainelIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
@@ -863,10 +879,12 @@ export interface FileRoutesById {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
@@ -963,10 +981,12 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/painel/$'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/painel/'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
@@ -1057,10 +1077,12 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/painel/$'
     | '/vaga/$token'
     | '/admin'
     | '/app'
     | '/barbeiro'
+    | '/painel'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
@@ -1155,10 +1177,12 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/painel/$'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
+    | '/painel/'
     | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
@@ -1205,7 +1229,9 @@ export interface RootRouteChildren {
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
+  PainelSplatRoute: typeof PainelSplatRoute
   VagaTokenRoute: typeof VagaTokenRoute
+  PainelIndexRoute: typeof PainelIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicFunilRoute: typeof ApiPublicFunilRoute
@@ -1771,6 +1797,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/': {
+      id: '/painel/'
+      path: '/painel'
+      fullPath: '/painel/'
+      preLoaderRoute: typeof PainelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/$': {
+      id: '/painel/$'
+      path: '/painel/$'
+      fullPath: '/painel/$'
+      preLoaderRoute: typeof PainelSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vaga/$token': {
       id: '/vaga/$token'
       path: '/vaga/$token'
@@ -2071,7 +2111,9 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
+  PainelSplatRoute: PainelSplatRoute,
   VagaTokenRoute: VagaTokenRoute,
+  PainelIndexRoute: PainelIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicFunilRoute: ApiPublicFunilRoute,
