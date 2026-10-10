@@ -3,12 +3,14 @@ import { useEffect } from "react";
 import { type LadoDaGaveta } from "@/lib/arrastar-para-fechar";
 
 const LIMIAR_EIXO = 10;
+export const SELETOR_DA_ALCA = "[data-alca-gaveta]";
 
 /**
- * Fecha uma gaveta arrastando o dedo no sentido de recolhê-la. A gaveta
- * acompanha o dedo (transform direto no elemento, sem re-render); ao soltar,
- * fecha acima de 30% do tamanho ou 0,5 px/ms, senão volta. Recebe o elemento
- * (não um ref) para religar quando o portal monta a gaveta a cada abertura.
+ * Fecha uma gaveta arrastando a barra (alça) dela no sentido de recolher. O gesto só começa
+ * quando o toque nasce dentro de `[data-alca-gaveta]`: o resto da gaveta é conteúdo (rola,
+ * toca, escolhe) e nunca fecha por arrasto. A gaveta acompanha o dedo (transform direto no
+ * elemento, sem re-render); ao soltar, fecha acima de 30% do tamanho ou 0,5 px/ms, senão volta.
+ * Recebe o elemento (não um ref) para religar quando o portal monta a gaveta a cada abertura.
  */
 export function useArrastarParaFechar(
   elemento: HTMLElement | null,
@@ -20,10 +22,6 @@ export function useArrastarParaFechar(
     const horizontal = lado === "left" || lado === "right";
     const sinal = lado === "left" ? -1 : 1;
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    // Em qualquer lado a rolagem do conteúdo continua nativa: gaveta de baixo rola na vertical
-    // (pan-y), as laterais também. O arrasto para fechar só assume quando o dedo vai no sentido
-    // de recolher e o conteúdo já está no começo (ver `rolouParaBaixo`).
-    elemento.style.touchAction = "pan-y";
     delete elemento.dataset["arrastado"];
 
     let inicio: { x: number; y: number; t: number } | null = null;
@@ -31,45 +29,17 @@ export function useArrastarParaFechar(
     let ultimo = { d: 0, t: 0 };
     let velocidade = 0;
 
-    const temRolagemHorizontal = (alvo: EventTarget | null) => {
-      let no = alvo as HTMLElement | null;
-      while (no && no !== elemento) {
-        if (no.dataset?.["semArrastar"] !== undefined) return true;
-        if (horizontal && no.scrollWidth > no.clientWidth + 1) {
-          const ov = getComputedStyle(no).overflowX;
-          if (ov === "auto" || ov === "scroll") return true;
-        }
-        no = no.parentElement;
-      }
-      return false;
-    };
-
-    // Gaveta de baixo: se algum trecho rolável sob o dedo já desceu, o gesto é rolagem, não fechar.
-    const rolouParaBaixo = (alvo: EventTarget | null) => {
-      let no = alvo as HTMLElement | null;
-      while (no) {
-        if (no.scrollHeight > no.clientHeight + 1 && no.scrollTop > 0) {
-          const ov = getComputedStyle(no).overflowY;
-          if (ov === "auto" || ov === "scroll") return true;
-        }
-        if (no === elemento) break;
-        no = no.parentElement;
-      }
-      return false;
-    };
-    let comecouNoTopo = true;
-
     const aplicar = (d: number) => {
       elemento.style.transform = horizontal ? `translateX(${d}px)` : `translateY(${d}px)`;
     };
 
     const comecar = (e: TouchEvent) => {
       const t = e.touches[0];
-      if (e.touches.length !== 1 || !t || temRolagemHorizontal(e.target)) {
+      const naAlca = (e.target as HTMLElement | null)?.closest(SELETOR_DA_ALCA);
+      if (e.touches.length !== 1 || !t || !naAlca || !elemento.contains(naAlca)) {
         inicio = null;
         return;
       }
-      comecouNoTopo = horizontal || !rolouParaBaixo(e.target);
       inicio = { x: t.clientX, y: t.clientY, t: e.timeStamp };
       arrastando = false;
       ultimo = { d: 0, t: e.timeStamp };
@@ -84,9 +54,7 @@ export function useArrastarParaFechar(
       if (!arrastando) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) < LIMIAR_EIXO) return;
         const principal = horizontal ? Math.abs(dx) > Math.abs(dy) : Math.abs(dy) > Math.abs(dx);
-        // Rolando o conteúdo (já no meio, ou subindo na gaveta de baixo): não é gesto de fechar.
-        const recolhendo = horizontal || (sinal > 0 ? dy > 0 : dy < 0);
-        if (!principal || !comecouNoTopo || !recolhendo) {
+        if (!principal) {
           inicio = null;
           return;
         }
