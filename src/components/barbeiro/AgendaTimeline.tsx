@@ -54,6 +54,8 @@ type AgendaTimelineProps = {
   onMover?: (item: AgendaItem, deltaMin: number) => void;
   /** Esticar ou encurtar a duração pela alça da base do cartão (variação em minutos). */
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
+  /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
+  onEditar?: (item: AgendaItem) => void;
   /** Passo do negócio, em minutos: define o passo fino do arrasto (veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
@@ -117,6 +119,7 @@ export function AgendaTimeline({
   onSelecionar,
   onMover,
   onRedimensionar,
+  onEditar,
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
@@ -145,6 +148,7 @@ export function AgendaTimeline({
     ativo: boolean;
     timer?: number;
     arrastou: boolean;
+    longo?: boolean;
     rolagem0: number;
     dy: number;
   } | null>(null);
@@ -493,6 +497,7 @@ export function AgendaTimeline({
           return;
         }
         g.ativo = true;
+        g.longo = true;
         travarRolagemDoToque();
         setArrasto({ id: item.id, dy: 0 });
         navigator.vibrate?.(10);
@@ -549,7 +554,14 @@ export function AgendaTimeline({
     window.clearTimeout(g.timer);
     const dy = g.id === item.id ? g.dy : 0;
     setArrasto(null);
-    if (!g.arrastou) return;
+    if (!g.arrastou) {
+      // Toque longo sem arrastar: abre o modo de edição (como no modelo), sem abrir a ficha.
+      if (g.longo && onEditar) {
+        ignorarClique.current = true;
+        onEditar(item);
+      }
+      return;
+    }
     ignorarClique.current = true;
     const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
     if (delta !== 0) {
@@ -756,6 +768,8 @@ export function AgendaTimeline({
               ALTURA_MINIMA_BLOCO,
               blocoAltura + passoRedim * PX_POR_MINUTO,
             );
+            // Cartão curto (até 30 min): só a linha principal e o serviço, com altura fixa.
+            const compacto = fim - inicio <= 30;
             const faixaDaColuna = posicao?.colunas
               ? {
                   left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -784,7 +798,9 @@ export function AgendaTimeline({
                   className={`agenda-timeline-bloco agenda-timeline-${item.status} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     top: `${topo}px`,
-                    minHeight: `${alturaDoBloco}px`,
+                    ...(compacto
+                      ? { height: `${alturaDoBloco}px` }
+                      : { minHeight: `${alturaDoBloco}px` }),
                     ...(posicao?.colunas
                       ? {
                           left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -835,7 +851,7 @@ export function AgendaTimeline({
                   {edicaoDoCartao?.id === item.id ? (
                     <span
                       role={edicaoDoCartao.motivo ? "alert" : undefined}
-                      className={`w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${edicaoDoCartao.motivo ? "bg-brick/15 text-brick" : "bg-ink3 text-paper"}`}
+                      className={`absolute right-2 top-1.5 z-[1] max-w-[60%] truncate rounded-full px-2.5 py-0.5 text-xs font-semibold ${edicaoDoCartao.motivo ? "bg-brick/15 text-brick" : "bg-ink3 text-paper"}`}
                     >
                       {edicaoDoCartao.motivo ?? `${horaMinuto(inicio)} – ${horaMinuto(fim)}`}
                     </span>
@@ -861,15 +877,19 @@ export function AgendaTimeline({
                       ) : null}
                     </span>
                   </span>
-                  <OrigemDoAgendamento origem={item.origem} assistido={item.assistidoPorCortai} />
-                  {item.daListaDeEspera ? (
+                  {compacto ? null : (
+                    <OrigemDoAgendamento origem={item.origem} assistido={item.assistidoPorCortai} />
+                  )}
+                  {item.daListaDeEspera && !compacto ? (
                     <span className="agenda-timeline-fila">
                       Vaga preenchida pela lista de espera
                     </span>
                   ) : null}
-                  {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
+                  {reais && !compacto ? (
+                    <span className="agenda-timeline-reais">{reais}</span>
+                  ) : null}
                 </Button>
-                {!previa && onRedimensionar && podeMover(item) ? (
+                {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (
                   <AlcaDeDuracao
                     rotulo={`Esticar a duração de ${nome}`}
                     etiqueta={redim?.id === item.id ? `até ${horaMinuto(fim + passoRedim)}` : null}

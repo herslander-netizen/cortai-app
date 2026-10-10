@@ -47,11 +47,20 @@ describe("rascunho de horário", () => {
     expect(result.current.aplicar([item])[0]?.inicio).toBe("2026-10-09T17:30:00.000Z");
     expect(salvar).not.toHaveBeenCalled();
   });
-  it("voltar ao horário original encerra o rascunho", () => {
-    const { result } = montar();
+  it("voltar ao horário original deixa o rascunho aberto, mas sem nada para salvar", async () => {
+    const { result, salvar } = montar();
     act(() => result.current.propor("a1", 30));
     act(() => result.current.propor("a1", -30));
-    expect(result.current.rascunho).toBeNull();
+    expect(result.current.rascunho).not.toBeNull();
+    expect(result.current.semMudanca).toBe(true);
+    await act(async () => result.current.confirmar());
+    expect(salvar).not.toHaveBeenCalled();
+  });
+  it("toque longo sem arrastar entra no modo de edição sem mudança", () => {
+    const { result } = montar();
+    act(() => result.current.iniciar("a1"));
+    expect(result.current.rascunho?.id).toBe("a1");
+    expect(result.current.semMudanca).toBe(true);
   });
   it("para o passado: recusa com a mensagem e não salva", async () => {
     const { result, salvar } = montar();

@@ -60,6 +60,7 @@ import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { AlcaDoCalendario, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
+import { NaBarraDoTopo } from "@/components/barbeiro/agenda/NaBarraDoTopo";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -856,7 +857,7 @@ export function AgendaOperacional() {
         setManualAberto(true);
       }}
       comBotaoFechar={!modoFoco}
-      visivel={acoesFlutuantesVisiveis}
+      visivel={acoesFlutuantesVisiveis && !edicao.rascunho}
     />
   );
 
@@ -1071,20 +1072,6 @@ export function AgendaOperacional() {
   if (focoAtivo) {
     return (
       <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
-        {edicao.rascunho && edicao.original && edicao.novo ? (
-          <BarraDeEdicaoDeHorario
-            cliente={edicao.original.cliente}
-            inicio={edicao.novo.inicio}
-            fim={edicao.novo.fim}
-            fuso={fuso}
-            motivo={edicao.textoDoMotivo}
-            avisar={edicao.rascunho.avisar}
-            salvando={edicao.salvando}
-            onAvisar={edicao.definirAviso}
-            onDescartar={edicao.descartar}
-            onSalvar={() => void edicao.confirmar()}
-          />
-        ) : null}
         {faixa}
         <AgendaFocoMobile
           fuso={fuso}
@@ -1154,6 +1141,22 @@ export function AgendaOperacional() {
 
   return (
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
+      {edicao.rascunho && !celular ? <CabecalhoDeEdicao dia={dia} /> : null}
+      {edicao.rascunho && edicao.original && edicao.novo ? (
+        <BarraDeEdicaoDeHorario
+          cliente={edicao.original.cliente}
+          inicio={edicao.novo.inicio}
+          fim={edicao.novo.fim}
+          fuso={fuso}
+          motivo={edicao.textoDoMotivo}
+          avisar={edicao.rascunho.avisar}
+          salvando={edicao.salvando}
+          semMudanca={edicao.semMudanca}
+          onAvisar={edicao.definirAviso}
+          onDescartar={edicao.descartar}
+          onSalvar={() => void edicao.confirmar()}
+        />
+      ) : null}
       <div
         key={dia}
         className="agenda-operacional agenda-troca-dia pb-32"
@@ -1161,6 +1164,25 @@ export function AgendaOperacional() {
         data-entrada={gestoDia.entradaPeloGesto ? "gesto" : undefined}
         ref={gestoDia.ref}
       >
+        {celular ? (
+          <>
+            <NaBarraDoTopo>
+              {edicao.rascunho ? (
+                <CabecalhoDeEdicao dia={dia} naBarra />
+              ) : (
+                <SemanaDoTopo
+                  dia={dia}
+                  hoje={hojeNoFuso(fuso)}
+                  profissionalId={profFiltro}
+                  onDia={mudarDia}
+                  expandido={calAberto}
+                  onExpandido={setCalAberto}
+                />
+              )}
+            </NaBarraDoTopo>
+            <AlcaDoCalendario expandido={calAberto} onExpandido={setCalAberto} />
+          </>
+        ) : null}
         <CabecalhoAgenda
           dia={dia}
           ehHoje={ehHoje}
@@ -1180,6 +1202,7 @@ export function AgendaOperacional() {
           discreto={modoDiscreto}
           onDiscreto={alternarModoDiscreto}
           tituloCelular={tituloDoMes(dia)}
+          emEdicao={Boolean(edicao.rascunho)}
           calendarioAberto={calAberto}
           onCalendario={() => {
             setMesCal(mesDoDia(dia));
@@ -1203,16 +1226,6 @@ export function AgendaOperacional() {
             )
           }
         >
-          {celular ? (
-            <SemanaDoTopo
-              dia={dia}
-              hoje={hojeNoFuso(fuso)}
-              profissionalId={profFiltro}
-              onDia={mudarDia}
-              expandido={calAberto}
-              onExpandido={setCalAberto}
-            />
-          ) : null}
           {profissionais.length > 1 ? (
             <SeletorProfissionais
               profissionais={profissionais}
@@ -1225,7 +1238,6 @@ export function AgendaOperacional() {
             />
           ) : null}
         </CabecalhoAgenda>
-        {celular ? <AlcaDoCalendario expandido={calAberto} onExpandido={setCalAberto} /> : null}
 
         {faixa}
 
@@ -1326,6 +1338,7 @@ export function AgendaOperacional() {
                     onSelecionar={abrir}
                     onMover={moverPorArrasto}
                     onRedimensionar={redimensionarPorAlca}
+                    onEditar={(item) => edicao.iniciar(item.id)}
                     passoMin={passoMin}
                     edicaoDoCartao={cartaoEmEdicao}
                     onHorarioVazio={(h) => {
@@ -1352,6 +1365,7 @@ export function AgendaOperacional() {
               onSelecionar={abrir}
               onMover={moverPorArrasto}
               onRedimensionar={redimensionarPorAlca}
+              onEditar={(item) => edicao.iniciar(item.id)}
               passoMin={passoMin}
               edicaoDoCartao={cartaoEmEdicao}
               onHorarioVazio={(h) => {
@@ -1498,7 +1512,7 @@ export function AgendaOperacional() {
         ehHoje={ehHoje}
         onHoje={() => mudarDia(hojeNoFuso(fuso))}
         menuAberto={menuAberto}
-        visivel={acoesFlutuantesVisiveis}
+        visivel={acoesFlutuantesVisiveis && !edicao.rascunho}
         onAlternarMenu={() => {
           setPainelAberto(false);
           setSelecionado(null);

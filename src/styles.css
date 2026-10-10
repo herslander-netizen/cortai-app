@@ -5707,11 +5707,11 @@ button.agenda-nome:hover {
 @media (max-width: 767px) {
   /* Modelo: o topo e a semana são uma só superfície; quem desenha o bloco é a SemanaDoTopo. */
   .agenda-cabecalho-unico.agenda-cabecalho-compacto {
-    top: 3.5rem;
-    margin-bottom: 0;
+    position: static;
+    margin: 0;
     border-bottom: 0;
     background: transparent;
-    padding: 0;
+    padding: 0 0 8px;
   }
 }
 
@@ -5914,6 +5914,8 @@ button.agenda-nome:hover {
     display: none;
   }
   .agenda-linha-agora span {
+    left: -37px;
+    width: 34px;
     padding: 1px 0;
     font-size: 11px;
   }

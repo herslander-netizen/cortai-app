@@ -130,7 +130,7 @@ export function SemanaDoTopo({
 
   return (
     <div data-sem-gesto-dia>
-      <div className="rounded-b-[24px] bg-ink2 px-2 pb-3 shadow-md">
+      <div className="px-2 pb-3">
         <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
             <span key={i} className="pb-4 pt-5">

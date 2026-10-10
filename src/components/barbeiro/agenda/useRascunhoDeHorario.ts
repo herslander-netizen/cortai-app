@@ -81,7 +81,7 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
         deltaInicioMin: base.deltaInicioMin + deltaInicioMin,
         deltaDuracaoMin: base.deltaDuracaoMin + deltaDuracaoMin,
       };
-      return proximo.deltaInicioMin === 0 && proximo.deltaDuracaoMin === 0 ? null : proximo;
+      return proximo;
     });
   }, []);
 
@@ -101,8 +101,10 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
     [rascunho, novo],
   );
 
+  const semMudanca = !rascunho || (rascunho.deltaInicioMin === 0 && rascunho.deltaDuracaoMin === 0);
+
   async function confirmar() {
-    if (!rascunho || !original || !novo || motivo || salvando) return;
+    if (!rascunho || !original || !novo || motivo || salvando || semMudanca) return;
     setSalvando(true);
     try {
       const ok = await salvar(
@@ -126,7 +128,10 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
     motivo,
     textoDoMotivo: motivo ? TEXTO_DO_MOTIVO[motivo] : null,
     salvando,
+    semMudanca,
     propor,
+    /** Entra no modo de edição sem mudar nada (toque longo sem arrastar). */
+    iniciar: (id: string) => propor(id, 0, 0),
     aplicar,
     confirmar,
     descartar: () => setRascunho(null),

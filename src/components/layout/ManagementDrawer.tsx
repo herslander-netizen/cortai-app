@@ -19,6 +19,7 @@ import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { DrawerAjustes } from "@/components/layout/DrawerAjustes";
 import { DrawerDestaques } from "@/components/layout/DrawerDestaques";
 import { GruposDoMenu } from "@/components/layout/GruposDoMenu";
+import { ESTILO_DA_BARRA_NA_AGENDA } from "@/components/layout/barra-da-agenda";
 import { CartaoSuporte } from "@/components/layout/CartaoSuporte";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
@@ -194,12 +195,7 @@ export function ManagementHeader() {
   return (
     <header
       className="management-header"
-      // Agenda no celular: a barra continua no mesmo tom da faixa da semana, sem divisória.
-      style={
-        celular && caminho === "/barbeiro"
-          ? { background: "var(--ink2)", borderBottomColor: "transparent", backdropFilter: "none" }
-          : undefined
-      }
+      style={celular && caminho === "/barbeiro" ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
     >
       <div
         className={`mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between px-4 md:px-8 ${celular && caminho === "/barbeiro" ? "gap-1" : "gap-3"}`}
@@ -294,6 +290,7 @@ export function ManagementHeader() {
           <SinoDeAvisos />
         </div>
       </div>
+      <div id="topo-baixo" className="md:hidden" />
     </header>
   );
 }

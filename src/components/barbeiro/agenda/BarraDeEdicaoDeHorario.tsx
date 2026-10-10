@@ -11,6 +11,7 @@ export function BarraDeEdicaoDeHorario({
   motivo,
   avisar,
   salvando,
+  semMudanca = false,
   onAvisar,
   onDescartar,
   onSalvar,
@@ -22,6 +23,8 @@ export function BarraDeEdicaoDeHorario({
   motivo: string | null;
   avisar: boolean;
   salvando: boolean;
+  /** Nada mudou ainda: Salvar fica desabilitado. */
+  semMudanca?: boolean;
   onAvisar: (valor: boolean) => void;
   onDescartar: () => void;
   onSalvar: () => void;
@@ -59,7 +62,7 @@ export function BarraDeEdicaoDeHorario({
           variant="primary"
           className="rounded-full"
           onClick={onSalvar}
-          disabled={Boolean(motivo) || salvando}
+          disabled={Boolean(motivo) || salvando || semMudanca}
         >
           {salvando ? "Salvando…" : "Salvar"}
         </Button>

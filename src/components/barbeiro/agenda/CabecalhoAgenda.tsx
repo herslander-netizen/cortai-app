@@ -75,6 +75,7 @@ export function CabecalhoAgenda({
   tituloCelular,
   calendarioAberto = false,
   onCalendario,
+  emEdicao = false,
   children,
 }: {
   dia: string;
@@ -100,6 +101,8 @@ export function CabecalhoAgenda({
   tituloCelular?: string;
   calendarioAberto?: boolean;
   onCalendario?: () => void;
+  /** Celular, modo de editar horário: a barra do topo mostra só a data (some título e ações). */
+  emEdicao?: boolean;
   children?: ReactNode;
 }) {
   const [calendario, setCalendario] = useState(false);
@@ -228,7 +231,7 @@ export function CabecalhoAgenda({
         aria-expanded={calendarioAberto}
         onClick={onCalendario}
       >
-        <span className="truncate text-[clamp(20px,6.8vw,28px)] leading-none text-paper">
+        <span className="truncate text-[clamp(19px,5.8vw,24px)] leading-none text-paper">
           <strong className="font-semibold">
             {(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}
           </strong>{" "}
@@ -251,7 +254,7 @@ export function CabecalhoAgenda({
   const parar = (e: { stopPropagation: () => void }) => e.stopPropagation();
   return (
     <>
-      {topo
+      {topo && !emEdicao
         ? createPortal(
             // Toques na barra do topo não sobem até o deslize de dia.
             <div

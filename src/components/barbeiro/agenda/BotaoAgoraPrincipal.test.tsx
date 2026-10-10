@@ -196,6 +196,7 @@ describe("BotaoAgoraPrincipal", () => {
     Object.defineProperty(barra, "offsetHeight", { configurable: true, value: 56 });
     const cabecalho = document.createElement("div");
     cabecalho.className = "agenda-cabecalho-unico";
+    cabecalho.style.position = "sticky";
     Object.defineProperty(cabecalho, "offsetHeight", { configurable: true, value: 100 });
     document.body.append(barra, cabecalho);
     act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());

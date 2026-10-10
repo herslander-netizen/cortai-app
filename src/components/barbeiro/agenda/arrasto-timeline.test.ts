@@ -75,7 +75,7 @@ describe("alça de duração na Timeline", () => {
   it("arrastar a alça para baixo propõe aumentar a duração, sem mover o início", () => {
     const onMover = vi.fn();
     const onRedimensionar = vi.fn();
-    const alvo = montar({ onMover, onRedimensionar });
+    const alvo = montar({ onMover, onRedimensionar, edicaoDoCartao: { id: "a1", motivo: null } });
     const alca = alvo.querySelector<HTMLElement>("[role=separator]");
     expect(alca).not.toBeNull();
     act(() => {
@@ -91,7 +91,11 @@ describe("alça de duração na Timeline", () => {
   });
   it("as setas do teclado mudam 15 minutos", () => {
     const onRedimensionar = vi.fn();
-    const alvo = montar({ onMover: vi.fn(), onRedimensionar });
+    const alvo = montar({
+      onMover: vi.fn(),
+      onRedimensionar,
+      edicaoDoCartao: { id: "a1", motivo: null },
+    });
     const alca = alvo.querySelector<HTMLElement>("[role=separator]");
     act(() => {
       alca!.dispatchEvent(
@@ -102,7 +106,12 @@ describe("alça de duração na Timeline", () => {
   });
   it("com passo do negócio de 5 min, a alça e as setas andam de 5 em 5", () => {
     const onRedimensionar = vi.fn();
-    const alvo = montar({ onMover: vi.fn(), onRedimensionar, passoMin: 5 });
+    const alvo = montar({
+      onMover: vi.fn(),
+      onRedimensionar,
+      passoMin: 5,
+      edicaoDoCartao: { id: "a1", motivo: null },
+    });
     const alca = alvo.querySelector<HTMLElement>("[role=separator]");
     act(() => {
       alca!.dispatchEvent(
@@ -122,6 +131,27 @@ describe("alça de duração na Timeline", () => {
       edicaoDoCartao: { id: "a1", motivo: "Deve ser após agora" },
     });
     expect(comMotivo.querySelector("[role=alert]")?.textContent).toBe("Deve ser após agora");
+  });
+  it("fora do modo de edição, nenhum cartão mostra a alça (como no modelo)", () => {
+    const alvo = montar({ onMover: vi.fn(), onRedimensionar: vi.fn() });
+    expect(alvo.querySelector("[role=separator]")).toBeNull();
+  });
+  it("toque longo sem arrastar entra no modo de edição e não abre a ficha", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const onSelecionar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onEditar, onSelecionar });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    bloco.setPointerCapture = () => {};
+    act(() => {
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      vi.advanceTimersByTime(300);
+      bloco.dispatchEvent(evento("pointerup", 200, { pointerType: "touch" }));
+      bloco.click();
+    });
+    vi.useRealTimers();
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onSelecionar).not.toHaveBeenCalled();
   });
   it("sem onRedimensionar não há alça (atendimento só leitura)", () => {
     const alvo = montar({ onMover: vi.fn() });

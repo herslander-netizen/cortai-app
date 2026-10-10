@@ -112,11 +112,13 @@ export type FaixaForaDoExpediente = {
   fechado?: boolean;
 };
 
-/** Altura ocupada pelas duas barras fixas acima da Agenda no celular. */
+/** Altura ocupada pelas barras fixas acima da Agenda (o cabeçalho da Agenda só conta se fixo). */
 export function alturaDoTopoDaAgenda() {
+  const cabecalho = document.querySelector<HTMLElement>(".agenda-cabecalho-unico");
+  const cabecalhoFixo = cabecalho && getComputedStyle(cabecalho).position === "sticky";
   return (
     (document.querySelector<HTMLElement>(".management-header")?.offsetHeight ?? 0) +
-    (document.querySelector<HTMLElement>(".agenda-cabecalho-unico")?.offsetHeight ?? 0)
+    (cabecalhoFixo ? cabecalho.offsetHeight : 0)
   );
 }
 
