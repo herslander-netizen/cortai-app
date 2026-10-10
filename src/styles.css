@@ -5641,7 +5641,7 @@ button.agenda-nome:hover {
   border: 1px solid transparent;
   border-radius: 999px;
   background: var(--ink2);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 .agenda-botao-agora-ir {
   height: 50px;
