@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FAMILIAS_DE_TEMA, familiaDoTema } from "@/lib/familias-tema";
 import { TEMAS, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
+import { MiniaturaDoTema } from "./MiniaturaDoTema";
 import { definicaoDoSegmento } from "@/lib/segmentos";
 
 export function SecaoTema({
@@ -35,15 +36,7 @@ export function SecaoTema({
               onClick={() => escolher(familia.variantes[0]!.tema)}
               className={`whitespace-normal rounded-lg border p-3 text-left ${ativa ? "border-gold bg-gold/10" : "border-line"}`}
             >
-              <span className="mb-3 flex gap-1" aria-hidden>
-                {[cores.fundo, cores.principal, cores.destaque, cores.texto].map((cor, i) => (
-                  <i
-                    key={`${familia.id}-${i}`}
-                    className="h-5 flex-1 rounded-sm border border-line"
-                    style={{ backgroundColor: cor }}
-                  />
-                ))}
-              </span>
+              <MiniaturaDoTema cores={cores} />
               <span className="flex items-center justify-between gap-2 text-xs font-semibold text-paper">
                 {familia.nome}
                 {ativa ? <Check size={14} className="text-gold" aria-hidden /> : null}
@@ -71,6 +64,11 @@ export function SecaoTema({
                 aria-pressed={config.tema === v.tema}
                 onClick={() => escolher(v.tema)}
               >
+                <i
+                  aria-hidden
+                  className="size-3.5 shrink-0 rounded-full border border-line"
+                  style={{ backgroundColor: TEMAS[v.tema].cores.principal }}
+                />
                 {v.rotulo}
               </Button>
             ))}
