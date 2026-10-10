@@ -292,7 +292,10 @@ function ComecarPage() {
             autoComplete="tel"
             dica="Para os avisos de agenda do seu negócio."
           />
-          <p className="mt-4 text-sm text-mute">45 dias grátis com tudo liberado. Sem cartão.</p>
+          <p className="mt-4 text-sm text-mute">
+            45 dias grátis com tudo liberado, sem cartão, para negócios que ainda não usaram o
+            teste.
+          </p>
           <Button
             size="lg"
             variant="primary"

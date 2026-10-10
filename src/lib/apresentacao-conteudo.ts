@@ -112,7 +112,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     {
       pergunta: "Preciso de cartão?",
       resposta:
-        "Não. O teste de 45 dias não pede cartão. Se decidir assinar, você paga por Pix, boleto ou cartão.",
+        "Não. O teste de 45 dias não pede cartão e vale para negócios que ainda não usaram o teste com o mesmo CPF/CNPJ ou telefone. Se decidir assinar, você paga por Pix, boleto ou cartão.",
     },
     {
       pergunta: "O que acontece quando o teste acaba?",
