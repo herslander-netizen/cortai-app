@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Eye, Save, Send, Share2 } from "lucide-react";
+import { Copy, Eye, Undo2, Save, Send, Share2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
+import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
@@ -96,6 +98,7 @@ function Editor({
 }) {
   const e = useEditorDaPagina(initial, reload);
   const [previaAberta, setPreviaAberta] = useState(false);
+  const [confirmar, dialogo] = useConfirmar();
   const link = `https://cortai.dev/${e.slug}`;
   const previa = (altura?: string) => (
     <PreviaDaExperiencia
@@ -225,6 +228,7 @@ function Editor({
             </Item>
           </Accordion>
 
+          <LacunasDaPagina lacunas={initial.lacunas} />
           <FaixaDeEstado
             fase={e.fase}
             erro={e.erro}
@@ -265,6 +269,7 @@ function Editor({
         </aside>
       </div>
 
+      {dialogo}
       <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
         <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4">
           <SheetHeader>

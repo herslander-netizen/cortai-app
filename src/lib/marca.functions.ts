@@ -1,4 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import {
+  haAlteracoesPendentes,
+  lacunasDaPagina,
+  mesmoConteudo,
+  type Lacuna,
+} from "@/lib/pagina-pendencias";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
@@ -69,6 +75,7 @@ export type MarcaData = MarcaForm & {
   pagina: PaginaConfig;
   publicada: PaginaConfig;
   alteracoes_pendentes: boolean;
+  lacunas: Lacuna[];
   segmento: Segmento;
 };
 
@@ -146,7 +153,14 @@ export const getMarca = createServerFn({ method: "GET" })
     // Quem não é dono vê o aviso da tela, sem erro.
     const tenantId = await tenantDoDono(context.supabase, context.userId).catch(() => null);
     if (!tenantId) return null;
-    const [{ data: tenant }, { data: versoes }, { data: pagina }] = await Promise.all([
+    const [
+      { data: tenant },
+      { data: versoes },
+      { data: pagina },
+      { count: servicosAtivos },
+      { count: profissionais },
+      { count: diasAbertos },
+    ] = await Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
         .from("tenant_branding_versions")
@@ -159,6 +173,20 @@ export const getMarca = createServerFn({ method: "GET" })
         .select("draft_config, published_config, updated_at, published_at")
         .eq("tenant_id", tenantId)
         .maybeSingle(),
+      context.supabase
+        .from("servicos")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true),
+      context.supabase
+        .from("profissionais")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId),
+      context.supabase
+        .from("horarios_de_funcionamento")
+        .select("dia_semana", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .eq("fechado", false),
     ]);
     if (!tenant) throw new Error("Negócio não encontrado.");
     const atual = snapshot(tenant);
@@ -189,7 +217,12 @@ export const getMarca = createServerFn({ method: "GET" })
           frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
           sobre: tenant.descricao ?? "",
         }),
-        alteracoes_pendentes: Boolean(pagina && pagina.updated_at !== pagina.published_at),
+        alteracoes_pendentes: haAlteracoesPendentes(pagina),
+        lacunas: lacunasDaPagina({
+          servicosAtivos: servicosAtivos ?? 0,
+          profissionais: profissionais ?? 0,
+          diasAbertos: diasAbertos ?? 0,
+        }),
         segmento: segmentoValido(tenant.segmento),
       },
       versoes: (versoes ?? [])
@@ -287,6 +320,42 @@ export const salvarRascunhoPagina = createServerFn({ method: "POST" })
     );
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const descartarRascunhoPagina = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
+    const { data: linha } = await context.supabase
+      .from("tenant_page_configs")
+      .select("draft_config, published_config, published_at")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (!linha?.published_at) throw new Error("Ainda não há página publicada para voltar.");
+    if (mesmoConteudo(linha.draft_config, linha.published_config))
+      return { ok: true, descartou: false };
+    // O rascunho descartado vira uma versão: nada se perde, dá para restaurar.
+    const { data: ultima } = await context.supabase
+      .from("tenant_branding_versions")
+      .select("versao")
+      .eq("tenant_id", tenantId)
+      .order("versao", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { error: erroVersao } = await context.supabase.from("tenant_branding_versions").insert({
+      tenant_id: tenantId,
+      versao: (ultima?.versao ?? 0) + 1,
+      snapshot: linha.draft_config as Json,
+      criado_por: context.userId,
+    });
+    if (erroVersao) throw new Error(erroVersao.message);
+    const { error } = await context.supabase
+      .from("tenant_page_configs")
+      .update({ draft_config: linha.published_config, draft_by: context.userId })
+      .eq("tenant_id", tenantId);
+    if (error) throw new Error(error.message);
+    return { ok: true, descartou: true };
   });
 
 export const alterarLinkPublico = createServerFn({ method: "POST" })
