@@ -7,6 +7,7 @@ import { exigirRecurso } from "@/lib/planos";
 import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
 import { mapearHorarios, passoValido, validarAgendamento } from "@/lib/agenda-regras.server";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
@@ -1540,8 +1541,19 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       novoInicio: string;
       profissionalId?: string | null;
       apenasVerificar?: boolean;
+      /** Nova duração em minutos (alça da Agenda); sem ela, a duração atual é mantida. */
+      novaDuracaoMin?: number;
+      /** Avisar o cliente da mudança; sem informar, avisa (comportamento de sempre). */
+      avisarCliente?: boolean;
     }) => {
       if (Number.isNaN(new Date(data.novoInicio).getTime())) throw new Error("Horário inválido.");
+      if (
+        data.novaDuracaoMin !== undefined &&
+        (!Number.isInteger(data.novaDuracaoMin) ||
+          data.novaDuracaoMin < DURACAO_MIN_MINUTOS ||
+          data.novaDuracaoMin > DURACAO_MAX_MINUTOS)
+      )
+        throw new Error(TEXTO_DO_MOTIVO.duracao);
       return data;
     },
   )
@@ -1557,9 +1569,22 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para remarcar quem ainda não começou.");
-    const duracao = new Date(atual.fim).getTime() - new Date(atual.inicio).getTime();
+    const duracao =
+      data.novaDuracaoMin !== undefined
+        ? data.novaDuracaoMin * 60_000
+        : new Date(atual.fim).getTime() - new Date(atual.inicio).getTime();
     const inicio = new Date(data.novoInicio);
     const fim = new Date(inicio.getTime() + duracao);
+    // Mesma regra da tela: mudar o início para o passado não vale (esticar quem já começou, sim).
+    // Tolerância de 1 minuto para o relógio do aparelho.
+    if (
+      inicio.getTime() !== new Date(atual.inicio).getTime() &&
+      inicio.getTime() < Date.now() - 60_000
+    ) {
+      if (data.apenasVerificar)
+        return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
+      throw new Error(TEXTO_DO_MOTIVO.passado);
+    }
     const profissionalId = data.profissionalId ?? atual.profissional_id ?? null;
     if (profissionalId && profissionalId !== atual.profissional_id) {
       const { data: prof } = await db
@@ -1610,16 +1635,19 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
         throw new Error("Esse horário já está ocupado.");
       throw new Error(error.message);
     }
-    try {
-      const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
-      await notificarAgendamento(atual.id, "remarcacao");
-    } catch {
-      /* o horário já está salvo */
+    if (data.avisarCliente !== false) {
+      try {
+        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+        await notificarAgendamento(atual.id, "remarcacao");
+      } catch {
+        /* o horário já está salvo */
+      }
     }
     return {
       ok: true,
       livre: true,
       inicioAnterior: atual.inicio as string,
+      fimAnterior: atual.fim as string,
       profissionalAnterior: (atual.profissional_id as string | null) ?? null,
     };
   });
