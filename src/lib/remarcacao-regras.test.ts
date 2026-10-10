@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { aplicarEdicao, arredondarAoPasso, motivoDaRecusa } from "./remarcacao-regras";
+import {
+  aplicarEdicao,
+  arredondarAoPasso,
+  motivoDaRecusa,
+  passoDoGesto,
+} from "./remarcacao-regras";
 
 const fuso = "America/Sao_Paulo";
 // 09/10/2026 às 12:00 em São Paulo (UTC-3)
@@ -56,5 +61,19 @@ describe("aplicarEdicao e passo", () => {
     expect(arredondarAoPasso(23, 15)).toBe(30);
     expect(arredondarAoPasso(7, 30)).toBe(0);
     expect(arredondarAoPasso(7, 1)).toBe(5);
+  });
+});
+
+describe("passoDoGesto", () => {
+  it("usa o passo do negócio quando é menor que 15, entre 5 e 15", () => {
+    expect(passoDoGesto(10)).toBe(10);
+    expect(passoDoGesto(5)).toBe(5);
+    expect(passoDoGesto(2)).toBe(5);
+  });
+  it("nunca passa de 15 e cai em 15 sem valor válido", () => {
+    expect(passoDoGesto(30)).toBe(15);
+    expect(passoDoGesto(null)).toBe(15);
+    expect(passoDoGesto(0)).toBe(15);
+    expect(passoDoGesto(Number.NaN)).toBe(15);
   });
 });

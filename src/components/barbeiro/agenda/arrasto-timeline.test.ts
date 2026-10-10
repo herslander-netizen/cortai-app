@@ -100,6 +100,29 @@ describe("alça de duração na Timeline", () => {
     });
     expect(onRedimensionar.mock.calls[0]?.[1]).toBe(15);
   });
+  it("com passo do negócio de 5 min, a alça e as setas andam de 5 em 5", () => {
+    const onRedimensionar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onRedimensionar, passoMin: 5 });
+    const alca = alvo.querySelector<HTMLElement>("[role=separator]");
+    act(() => {
+      alca!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }),
+      );
+    });
+    expect(onRedimensionar.mock.calls[0]?.[1]).toBe(5);
+  });
+  it("cartão em edição mostra o intervalo, ou o motivo quando não pode salvar", () => {
+    const comIntervalo = montar({
+      onMover: vi.fn(),
+      edicaoDoCartao: { id: "a1", motivo: null },
+    });
+    expect(comIntervalo.textContent).toMatch(/\d{2}:\d{2} – \d{2}:\d{2}/);
+    const comMotivo = montar({
+      onMover: vi.fn(),
+      edicaoDoCartao: { id: "a1", motivo: "Deve ser após agora" },
+    });
+    expect(comMotivo.querySelector("[role=alert]")?.textContent).toBe("Deve ser após agora");
+  });
   it("sem onRedimensionar não há alça (atendimento só leitura)", () => {
     const alvo = montar({ onMover: vi.fn() });
     expect(alvo.querySelector("[role=separator]")).toBeNull();

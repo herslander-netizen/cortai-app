@@ -16,7 +16,8 @@ import {
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
-import { AlcaDeDuracao, PASSO_DA_ALCA_MIN } from "@/components/barbeiro/agenda/AlcaDeDuracao";
+import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
+import { passoDoGesto } from "@/lib/remarcacao-regras";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
 
@@ -53,6 +54,10 @@ type AgendaTimelineProps = {
   onMover?: (item: AgendaItem, deltaMin: number) => void;
   /** Esticar ou encurtar a duração pela alça da base do cartão (variação em minutos). */
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
+  /** Passo do negócio, em minutos: define o passo fino do arrasto (veja `passoDoGesto`). */
+  passoMin?: number;
+  /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
+  edicaoDoCartao?: { id: string; motivo: string | null } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -112,6 +117,8 @@ export function AgendaTimeline({
   onSelecionar,
   onMover,
   onRedimensionar,
+  passoMin,
+  edicaoDoCartao,
   onHorarioVazio,
   destaques,
   itensEscala,
@@ -130,6 +137,7 @@ export function AgendaTimeline({
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
+  const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
     y0: number;
@@ -543,7 +551,7 @@ export function AgendaTimeline({
     setArrasto(null);
     if (!g.arrastou) return;
     ignorarClique.current = true;
-    const delta = Math.round(dy / PX_POR_MINUTO / 15) * 15;
+    const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
@@ -735,11 +743,9 @@ export function AgendaTimeline({
               .filter(Boolean)
               .join(" · ");
             const passoArrasto =
-              arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15 : 0;
+              arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo : 0;
             const passoRedim =
-              redim?.id === item.id
-                ? Math.round(redim.dy / PX_POR_MINUTO / PASSO_DA_ALCA_MIN) * PASSO_DA_ALCA_MIN
-                : 0;
+              redim?.id === item.id ? Math.round(redim.dy / PX_POR_MINUTO / passo) * passo : 0;
             const alturaDoBloco = Math.max(
               ALTURA_MINIMA_BLOCO,
               blocoAltura + passoRedim * PX_POR_MINUTO,
@@ -814,12 +820,20 @@ export function AgendaTimeline({
                     <strong className="col-span-2">
                       {horaMinuto(
                         arrasto?.id === item.id
-                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / 15) * 15
+                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo
                           : inicio,
                       )}{" "}
                       · {nome}
                     </strong>
                   </span>
+                  {edicaoDoCartao?.id === item.id ? (
+                    <span
+                      role={edicaoDoCartao.motivo ? "alert" : undefined}
+                      className={`w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${edicaoDoCartao.motivo ? "bg-brick/15 text-brick" : "bg-ink3 text-paper"}`}
+                    >
+                      {edicaoDoCartao.motivo ?? `${horaMinuto(inicio)} – ${horaMinuto(fim)}`}
+                    </span>
+                  ) : null}
                   <span className="flex min-w-0 items-center gap-1">
                     <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
                     {mostrarProfissional ? (
@@ -855,6 +869,7 @@ export function AgendaTimeline({
                     etiqueta={redim?.id === item.id ? `até ${horaMinuto(fim + passoRedim)}` : null}
                     estilo={{ top: `${topo + alturaDoBloco - 32}px`, ...faixaDaColuna }}
                     pxPorMinuto={PX_POR_MINUTO}
+                    passoMin={passo}
                     lerRolagem={() =>
                       celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
                     }

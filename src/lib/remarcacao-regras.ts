@@ -60,3 +60,13 @@ export function arredondarAoPasso(minutos: number, passoMin: number): number {
   const passo = Math.max(5, Math.round(passoMin) || 15);
   return Math.round(minutos / passo) * passo;
 }
+
+/**
+ * Passo do arrasto na Agenda: o do negócio quando for menor que 15 min (mais fino, até 5),
+ * nunca maior que 15 (o arrasto já é assim hoje) e nunca menor que 5.
+ */
+export function passoDoGesto(passoMin: number | null | undefined): number {
+  const passo = Math.round(Number(passoMin));
+  if (!Number.isFinite(passo) || passo <= 0) return 15;
+  return Math.min(15, Math.max(5, passo));
+}

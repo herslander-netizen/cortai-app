@@ -59,6 +59,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
+import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -804,6 +805,9 @@ export function AgendaOperacional() {
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, deltaMin);
   }
+  const cartaoEmEdicao = edicao.original
+    ? { id: edicao.original.id, motivo: edicao.textoDoMotivo }
+    : undefined;
   function redimensionarPorAlca(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, 0, deltaMin);
   }
@@ -1323,6 +1327,8 @@ export function AgendaOperacional() {
                     onSelecionar={abrir}
                     onMover={moverPorArrasto}
                     onRedimensionar={redimensionarPorAlca}
+                    passoMin={passoMin}
+                    edicaoDoCartao={cartaoEmEdicao}
                     onHorarioVazio={(h) => {
                       setHoraVazia(h);
                       setProfVazio(p.id);
@@ -1347,6 +1353,8 @@ export function AgendaOperacional() {
               onSelecionar={abrir}
               onMover={moverPorArrasto}
               onRedimensionar={redimensionarPorAlca}
+              passoMin={passoMin}
+              edicaoDoCartao={cartaoEmEdicao}
               onHorarioVazio={(h) => {
                 setHoraVazia(h);
                 setProfVazio(null);

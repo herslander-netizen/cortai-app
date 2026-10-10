@@ -39,9 +39,7 @@ export function BarraDeEdicaoDeHorario({
         <p role="alert" className="mt-1 text-sm font-semibold text-brick">
           {motivo}
         </p>
-      ) : (
-        <p className="mt-1 text-xs text-mute">Para mudar de dia, use Remarcar.</p>
-      )}
+      ) : null}
       <div className="mt-3 flex min-h-12 items-center justify-between gap-4">
         <label htmlFor="avisar-cliente-horario" className="text-sm font-semibold text-paper">
           Avisar cliente por WhatsApp

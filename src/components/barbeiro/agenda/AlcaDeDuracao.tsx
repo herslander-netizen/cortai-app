@@ -1,18 +1,17 @@
 import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 import { useRef } from "react";
 
-export const PASSO_DA_ALCA_MIN = 15;
-
 /**
  * Alça na base do cartão para esticar ou encurtar a duração. Arrastar mostra o novo fim ao vivo
  * (`onArrastar`) e soltar propõe a mudança (`onConfirmar`, em minutos): quem grava é o Salvar.
- * Com o foco, as setas para cima e para baixo mudam 15 minutos.
+ * Com o foco, as setas para cima e para baixo mudam um passo.
  */
 export function AlcaDeDuracao({
   rotulo,
   etiqueta,
   estilo,
   pxPorMinuto,
+  passoMin,
   lerRolagem,
   onTravar,
   onSoltar,
@@ -24,6 +23,8 @@ export function AlcaDeDuracao({
   etiqueta: string | null;
   estilo: CSSProperties;
   pxPorMinuto: number;
+  /** Passo em minutos (veja `passoDoGesto`). */
+  passoMin: number;
   lerRolagem: () => number;
   onTravar: () => void;
   onSoltar: () => void;
@@ -56,7 +57,7 @@ export function AlcaDeDuracao({
     onSoltar();
     onArrastar(null);
     if (!confirmar || !g) return;
-    const delta = Math.round(g.dy / pxPorMinuto / PASSO_DA_ALCA_MIN) * PASSO_DA_ALCA_MIN;
+    const delta = Math.round(g.dy / pxPorMinuto / passoMin) * passoMin;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onConfirmar(delta);
@@ -65,7 +66,7 @@ export function AlcaDeDuracao({
   function teclas(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
-    onConfirmar(e.key === "ArrowDown" ? PASSO_DA_ALCA_MIN : -PASSO_DA_ALCA_MIN);
+    onConfirmar(e.key === "ArrowDown" ? passoMin : -passoMin);
   }
 
   return (
