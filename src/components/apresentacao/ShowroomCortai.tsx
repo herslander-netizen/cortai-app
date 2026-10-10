@@ -125,7 +125,7 @@ function Agenda({ segmento }: { segmento: Segmento }) {
           <small>Agenda</small>
           <strong>Hoje · {ROTULO_DIA}</strong>
         </span>
-        <em>Ao vivo</em>
+        <em>Exemplo de agenda</em>
       </div>
       <AgendaTimeline
         dia={DIA}

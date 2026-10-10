@@ -4552,8 +4552,8 @@ html.agenda-gesto-ativo body {
   font-size: 0.92rem;
 }
 .showroom-produto-topo > em {
-  color: var(--show-muted);
-  font-size: 0.68rem;
+  color: var(--show-ink);
+  font-size: 0.72rem;
   font-style: normal;
 }
 .showroom-produto-topo > em::before {
@@ -4746,6 +4746,7 @@ html.agenda-gesto-ativo body {
   color: var(--show-muted);
 }
 .showroom-chat {
+  position: relative;
   display: flex;
   height: min(610px, 72dvh);
   flex-direction: column;
