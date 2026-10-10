@@ -58,6 +58,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
+import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
   SheetContent,
@@ -326,16 +328,16 @@ export function AgendaOperacional() {
   const rotaDaAgenda = caminho === "/barbeiro" || caminho === "/barbeiro/agenda";
   const temSobreposicao = Boolean(
     painelAberto ||
-      bloquearAberto ||
-      focoTrancado ||
-      manualAberto ||
-      rapidoAberto ||
-      perfil ||
-      fechando ||
-      ticketAberto ||
-      conflito ||
-      filaAberta ||
-      layoutEquipe?.menuAberto,
+    bloquearAberto ||
+    focoTrancado ||
+    manualAberto ||
+    rapidoAberto ||
+    perfil ||
+    fechando ||
+    ticketAberto ||
+    conflito ||
+    filaAberta ||
+    layoutEquipe?.menuAberto,
   );
   const acoesFlutuantesVisiveis = rotaDaAgenda && !temSobreposicao;
 
@@ -525,13 +527,28 @@ export function AgendaOperacional() {
     if (meuId) setProfFiltro(meuId);
   }, [filaQ.data, meuId]);
 
-  const todosItens = useMemo(
+  const itensBase = useMemo(
     () =>
       (agenda.data?.itens ?? [])
         .map((item) => ({ ...item, status: estadosLocais[item.id] ?? item.status }))
         .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime()),
     [agenda.data?.itens, estadosLocais],
   );
+  // Editar horário: arrastar ou esticar só propõe; nada grava até Salvar.
+  const relogioDaEdicao = useAgora();
+  const edicao = useRascunhoDeHorario({
+    itens: itensBase,
+    dia,
+    fuso,
+    agora: relogioDaEdicao,
+    salvar: (original, novo, avisar) =>
+      remarcarPara(original, novo.inicio, original.profissionalId ?? null, true, {
+        fim: novo.fim,
+        avisarCliente: avisar,
+      }),
+  });
+  const { aplicar: aplicarRascunho } = edicao;
+  const todosItens = useMemo(() => aplicarRascunho(itensBase), [aplicarRascunho, itensBase]);
   const itens = useMemo(
     () => todosItens.filter((item) => !profFiltro || item.profissionalId === profFiltro),
     [todosItens, profFiltro],
@@ -704,15 +721,25 @@ export function AgendaOperacional() {
     setSelecionado(null);
   }
 
-  /** Remarca para um instante/profissional; desfazer volta ao horário e profissional anteriores. */
+  /**
+   * Remarca para um instante/profissional (e, opcionalmente, nova duração); desfazer volta ao
+   * horário, duração e profissional anteriores. Devolve se gravou.
+   */
   async function remarcarPara(
     item: AgendaItem,
     novoInicio: string,
     profissionalId: string | null,
     desfazivel = true,
-  ) {
-    const duracao = new Date(item.fim).getTime() - new Date(item.inicio).getTime();
-    const novoFim = new Date(new Date(novoInicio).getTime() + duracao).toISOString();
+    opcoes: { fim?: string; avisarCliente?: boolean } = {},
+  ): Promise<boolean> {
+    const duracaoAtual = new Date(item.fim).getTime() - new Date(item.inicio).getTime();
+    const novoFim =
+      opcoes.fim ?? new Date(new Date(novoInicio).getTime() + duracaoAtual).toISOString();
+    const novaDuracaoMin = Math.round(
+      (new Date(novoFim).getTime() - new Date(novoInicio).getTime()) / 60_000,
+    );
+    const mudouDuracao =
+      new Date(novoFim).getTime() - new Date(novoInicio).getTime() !== duracaoAtual;
     queryClient.setQueryData<AgendaDia>(["agenda-dia", dia], (atual) =>
       atual
         ? {
@@ -732,35 +759,50 @@ export function AgendaOperacional() {
         : atual,
     );
     try {
-      await moverAgendamento({ data: { agendamentoId: item.id, novoInicio, profissionalId } });
+      await moverAgendamento({
+        data: {
+          agendamentoId: item.id,
+          novoInicio,
+          profissionalId,
+          ...(mudouDuracao ? { novaDuracaoMin } : {}),
+          ...(opcoes.avisarCliente !== undefined ? { avisarCliente: opcoes.avisarCliente } : {}),
+        },
+      });
       if (desfazivel) {
         const outroDia =
           new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)) !== dia;
+        const soDuracao = novoInicio === item.inicio;
         comDesfazer(
-          `Remarcado · ${item.cliente} ${outroDia ? `em ${dataEditorial(new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)))} ` : ""}às ${hora(novoInicio, fuso)}`,
+          soDuracao
+            ? `Duração alterada · ${item.cliente} até ${hora(novoFim, fuso)}`
+            : `Remarcado · ${item.cliente} ${outroDia ? `em ${dataEditorial(new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(novoInicio)))} ` : ""}às ${hora(novoInicio, fuso)}`,
           async () => {
             await remarcarPara(
               { ...item, inicio: novoInicio, fim: novoFim },
               item.inicio,
               item.profissionalId ?? null,
               false,
+              {
+                fim: item.fim,
+                ...(opcoes.avisarCliente !== undefined
+                  ? { avisarCliente: opcoes.avisarCliente }
+                  : {}),
+              },
             );
           },
         );
       }
+      return true;
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não foi possível remarcar.");
+      return false;
     } finally {
       await sincronizar();
     }
   }
 
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
-    void remarcarPara(
-      item,
-      new Date(new Date(item.inicio).getTime() + deltaMin * 60_000).toISOString(),
-      item.profissionalId ?? null,
-    );
+    edicao.propor(item.id, deltaMin);
   }
 
   async function verificarRemarcar(item: AgendaItem, pedido: PedidoRemarcar) {
@@ -839,9 +881,9 @@ export function AgendaOperacional() {
         onCancelar={(i) => void transicionar(i, "cancelado")}
         onPerfil={setPerfil}
         onVerificar={verificarRemarcar}
-        onRemarcar={(i, p) =>
-          remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId)
-        }
+        onRemarcar={async (i, p) => {
+          await remarcarPara(i, isoNoFusoDaBarbearia(p.dia, p.hora, fuso), p.profissionalId);
+        }}
       />
       <FolhaDoTicket
         comandaId={ticketAberto}
@@ -1022,6 +1064,20 @@ export function AgendaOperacional() {
   if (focoAtivo) {
     return (
       <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
+        {edicao.rascunho && edicao.original && edicao.novo ? (
+          <BarraDeEdicaoDeHorario
+            cliente={edicao.original.cliente}
+            inicio={edicao.novo.inicio}
+            fim={edicao.novo.fim}
+            fuso={fuso}
+            motivo={edicao.textoDoMotivo}
+            avisar={edicao.rascunho.avisar}
+            salvando={edicao.salvando}
+            onAvisar={edicao.definirAviso}
+            onDescartar={edicao.descartar}
+            onSalvar={() => void edicao.confirmar()}
+          />
+        ) : null}
         {faixa}
         <AgendaFocoMobile
           fuso={fuso}
