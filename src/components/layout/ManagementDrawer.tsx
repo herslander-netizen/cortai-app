@@ -201,7 +201,9 @@ export function ManagementHeader() {
           : undefined
       }
     >
-      <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between gap-3 px-4 md:px-8">
+      <div
+        className={`mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between px-4 md:px-8 ${celular && caminho === "/barbeiro" ? "gap-1" : "gap-3"}`}
+      >
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
             <Button
@@ -215,7 +217,7 @@ export function ManagementHeader() {
                 onError={() => logoUsavel && setLogoFalhou(logoUsavel)}
                 alt=""
                 aria-hidden
-                className="h-11 w-11 rounded-[8px] object-cover"
+                className={`h-11 w-11 object-cover ${celular && caminho === "/barbeiro" ? "rounded-full" : "rounded-[8px]"}`}
               />
             </Button>
           </SheetTrigger>

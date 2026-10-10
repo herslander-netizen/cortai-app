@@ -15,7 +15,6 @@ import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
-import { FaixaCalendario } from "@/components/barbeiro/agenda/FaixaCalendario";
 import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
 import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
 import {
@@ -60,7 +59,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
-import { SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
+import { AlcaDoCalendario, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -1180,7 +1179,7 @@ export function AgendaOperacional() {
           onTeclasVisualizacao={teclasAbas}
           discreto={modoDiscreto}
           onDiscreto={alternarModoDiscreto}
-          tituloCelular={tituloDoMes(calAberto ? mesCal : dia)}
+          tituloCelular={tituloDoMes(dia)}
           calendarioAberto={calAberto}
           onCalendario={() => {
             setMesCal(mesDoDia(dia));
@@ -1210,22 +1209,8 @@ export function AgendaOperacional() {
               hoje={hojeNoFuso(fuso)}
               profissionalId={profFiltro}
               onDia={mudarDia}
-              onAbrirMes={() => {
-                setMesCal(mesDoDia(dia));
-                setCalAberto(true);
-              }}
-            />
-          ) : null}
-          {celular ? (
-            <FaixaCalendario
-              dia={dia}
-              hoje={hojeNoFuso(fuso)}
-              onDia={mudarDia}
-              profissionalId={profFiltro}
               expandido={calAberto}
               onExpandido={setCalAberto}
-              mesVisivel={mesCal}
-              onMesVisivel={setMesCal}
             />
           ) : null}
           {profissionais.length > 1 ? (
@@ -1240,6 +1225,7 @@ export function AgendaOperacional() {
             />
           ) : null}
         </CabecalhoAgenda>
+        {celular ? <AlcaDoCalendario expandido={calAberto} onExpandido={setCalAberto} /> : null}
 
         {faixa}
 

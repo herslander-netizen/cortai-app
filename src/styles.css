@@ -5654,6 +5654,19 @@ button.agenda-nome:hover {
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
   color: var(--menu-icone);
 }
+/* Modelo: ícones maiores na pílula (mira 20px, lista 26px). */
+.agenda-botao-agora-ir {
+  font-size: 18px;
+}
+.agenda-botao-agora-ir svg {
+  width: 24px;
+  height: 24px;
+}
+.agenda-botao-agora-visualizacao svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
+}
 .agenda-botao-agora-principal button:active {
   transform: scale(0.97);
 }
@@ -5692,8 +5705,13 @@ button.agenda-nome:hover {
   min-height: 48px;
 }
 @media (max-width: 767px) {
+  /* Modelo: o topo e a semana são uma só superfície; quem desenha o bloco é a SemanaDoTopo. */
   .agenda-cabecalho-unico.agenda-cabecalho-compacto {
     top: 3.5rem;
+    margin-bottom: 0;
+    border-bottom: 0;
+    background: transparent;
+    padding: 0;
   }
 }
 
@@ -5877,12 +5895,41 @@ button.agenda-nome:hover {
 
 /* Celular 3.0: fora do expediente com listras bem sutis; dentro, liso. */
 @media (max-width: 767px) {
-  /* Modelo: sem a linha vertical da coluna de horas; faixa listrada com cantos arredondados. */
+  /* Modelo: coluna de horas de ~50px a partir da borda, sem a linha vertical; faixa listrada arredondada. */
   .agenda-timeline {
+    width: calc(100% - 37px);
+    margin-left: 37px;
     border-left: 0;
   }
   .agenda-timeline-fora-expediente {
-    border-radius: 14px;
+    border-radius: 10px;
+  }
+  /* Horas e linha do agora como no modelo: rótulo leve, etiqueta compacta e sem o ponto. */
+  .agenda-timeline-marca span {
+    width: 30px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .agenda-linha-agora::before {
+    display: none;
+  }
+  .agenda-linha-agora span {
+    padding: 1px 0;
+    font-size: 11px;
+  }
+  /* Só as linhas das horas inteiras, como no modelo. */
+  .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    border-top-color: transparent;
+  }
+  /* Cartões no escuro: superfície mais funda que a grade, sem contorno, com a faixa de status. */
+  :root:not(.light) .agenda-timeline-agendado,
+  :root:not(.light) .agenda-timeline-finalizado,
+  :root:not(.light) .agenda-timeline-remarcado,
+  :root:not(.light) .agenda-timeline-na_cadeira {
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    background: color-mix(in oklab, var(--ink) 70%, black);
   }
   .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(
@@ -5902,12 +5949,12 @@ button.agenda-nome:hover {
 
 /* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
-  --agenda-fab-tamanho: 64px;
+  --agenda-fab-tamanho: 72px;
   --agenda-fab-icone: 28px;
   --agenda-fab-margem: 16px;
   --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
   --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
-  --agenda-composto-largura: 160px;
+  --agenda-composto-largura: 184px;
   --agenda-respiro-inferior: 112px;
 }
 .agenda-acao-fixa {
@@ -5942,7 +5989,7 @@ button.agenda-nome:hover {
   }
   /* Modelo: "+" em quadrado de cantos bem arredondados; no escuro, azul mais fechado. */
   .agenda-acao-fixa .agenda-acao-redonda {
-    border-radius: 22px;
+    border-radius: 26px;
   }
   :root:not(.light) .agenda-acao-fixa .agenda-fab-toggle {
     background: color-mix(in oklab, var(--primary) 55%, black);

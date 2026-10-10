@@ -18,7 +18,8 @@ import {
 } from "./gesto-dia";
 import { somarDias } from "./tempo";
 
-const IGNORAR = ".agenda-timeline-bloco, .agenda-chips, input, select, textarea, [role=dialog]";
+const IGNORAR =
+  ".agenda-timeline-bloco, .agenda-chips, [data-sem-gesto-dia], input, select, textarea, [role=dialog]";
 const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
 
 type Estado = {

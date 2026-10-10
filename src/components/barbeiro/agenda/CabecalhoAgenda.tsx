@@ -31,6 +31,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
 
+/** Calendário preenchido (estado aberto do modelo): bloco azul-claro com o dia marcado. */
+function IconeCalendarioCheio() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className="size-6 text-menu-icone">
+      <rect x="3" y="4.5" width="18" height="17" rx="3.5" fill="currentColor" />
+      <rect x="7" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />
+      <rect x="14.6" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />
+      <rect x="7" y="13" width="4.5" height="4.5" rx="1" className="fill-ink2" />
+    </svg>
+  );
+}
+
 export type VisualizacaoAgenda = "lista" | "timeline" | "semana";
 
 function paraData(dia: string) {
@@ -211,23 +223,27 @@ export function CabecalhoAgenda({
     <>
       <Button
         variant="ghost"
-        className="min-h-12 min-w-0 flex-1 justify-start px-2 hover:bg-transparent"
+        className="min-h-12 min-w-0 flex-1 justify-start px-1 hover:bg-transparent"
         aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
         onClick={onCalendario}
       >
-        <strong className="truncate text-[26px] font-semibold leading-none text-paper">
-          {tituloCelular ?? tituloDoMes(dia)}
-        </strong>
+        <span className="truncate text-[clamp(20px,6.8vw,28px)] leading-none text-paper">
+          <strong className="font-semibold">
+            {(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}
+          </strong>{" "}
+          <span className="font-normal">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[1]}</span>
+        </span>
       </Button>
       <Button
         variant="ghost"
         size="icon"
         className="size-12 shrink-0"
-        aria-label="Abrir calendário"
+        aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
+        aria-pressed={calendarioAberto}
         onClick={onCalendario}
       >
-        <CalendarDays className="size-6" />
+        {calendarioAberto ? <IconeCalendarioCheio /> : <CalendarDays className="size-6" />}
       </Button>
       {menu}
     </>
@@ -292,9 +308,8 @@ export function CabecalhoAgenda({
             </div>
           ) : null}
         </div>
-        {celular ? null : children}
+        {children}
       </header>
-      {celular ? children : null}
     </>
   );
 }
