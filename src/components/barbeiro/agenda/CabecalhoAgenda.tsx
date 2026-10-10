@@ -168,46 +168,53 @@ export function CabecalhoAgenda({
           <EyeOff />
         </Button>
       ) : null}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Mais opções da agenda"
-            className={`relative ${discreto ? "" : "ml-auto"} ${celular ? "w-9 min-w-9" : ""}`}
-          >
-            {celular ? <MoreVertical className="size-5" /> : <MoreHorizontal className="size-5" />}
-            {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
-          {celular ? (
-            <>
-              <DropdownMenuLabel className="max-w-72 whitespace-normal text-sm font-normal text-mute">
-                {resumo}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-            </>
-          ) : null}
-          <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
-            {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
-          </DropdownMenuItem>
-          {mostrarFila ? (
-            <DropdownMenuItem className="min-h-12" onSelect={onFila}>
-              <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
+      {/* No celular, as opções da agenda estão desativadas por ora (Modo Foco, Fila e Ajuda). */}
+      {celular ? null : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Mais opções da agenda"
+              className={`relative ${discreto ? "" : "ml-auto"} ${celular ? "w-9 min-w-9" : ""}`}
+            >
+              {celular ? (
+                <MoreVertical className="size-5" />
+              ) : (
+                <MoreHorizontal className="size-5" />
+              )}
+              {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-52 border-line bg-ink2">
+            {celular ? (
+              <>
+                <DropdownMenuLabel className="max-w-72 whitespace-normal text-sm font-normal text-mute">
+                  {resumo}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+              </>
+            ) : null}
+            <DropdownMenuItem className="min-h-12" onSelect={onModoFoco}>
+              {focoNoPlano ? <Maximize2 /> : <Lock />} Modo Foco
             </DropdownMenuItem>
-          ) : null}
-          <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
-            {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
-          </DropdownMenuItem>
-          {guiaDisponivel ? (
-            <DropdownMenuItem className="min-h-12" onSelect={abrirGuia}>
-              <HelpCircle /> Ajuda desta tela
+            {mostrarFila ? (
+              <DropdownMenuItem className="min-h-12" onSelect={onFila}>
+                <ListOrdered /> Fila de chegada{fila > 0 ? ` (${fila})` : ""}
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuItem className="min-h-12" onSelect={onDiscreto}>
+              {discreto ? <EyeOff /> : <Eye />} {discreto ? "Desativar" : "Ativar"} modo discreto
             </DropdownMenuItem>
-          ) : null}
-          <LegendaDasCores />
-        </DropdownMenuContent>
-      </DropdownMenu>
+            {guiaDisponivel ? (
+              <DropdownMenuItem className="min-h-12" onSelect={abrirGuia}>
+                <HelpCircle /> Ajuda desta tela
+              </DropdownMenuItem>
+            ) : null}
+            <LegendaDasCores />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </>
   );
   // Celular: "Mês Ano" grande à esquerda, calendário e "…" (o sino vem da barra do app).
@@ -235,7 +242,7 @@ export function CabecalhoAgenda({
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
       >
-        <CalendarDays className="size-5" />
+        <CalendarDays className="size-5" strokeWidth={1.8} />
       </Button>
       {menu}
     </>
