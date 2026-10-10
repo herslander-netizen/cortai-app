@@ -270,6 +270,8 @@ export const cancelarAgendamento = createServerFn({ method: "POST" })
       .in("cliente_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"])
       .maybeSingle();
     if (!ag) throw new Error("Esse agendamento não é seu.");
+    const { exigirPrazoDeCancelamento } = await import("@/lib/prazo-cancelamento.server");
+    await exigirPrazoDeCancelamento(db, data.agendamentoId);
     const { data: res, error } = await db.rpc("cancelar_agendamento", {
       _agendamento_id: data.agendamentoId,
     });

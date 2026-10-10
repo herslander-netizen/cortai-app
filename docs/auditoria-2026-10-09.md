@@ -76,6 +76,7 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 14 | Baixa | Painel admin conta linhas trazendo tudo: passa do teto de 1000 linhas e mostra números errados |
 | 15 | Baixa | Pequenos pontos (contadores não atômicos, JSON sem try, consultas sem limite, legado ALVO IA, buckets sem tipo de arquivo) |
 | 16 | Média | Criação de negócios sem login: o único freio (5 rascunhos por hora) usa o IP vindo de `x-forwarded-for`, que o visitante forja |
+| 17 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Prazo de cancelamento configurado pelo dono (`tenants.cancelamento_min_horas`) não era aplicado: o cliente cancelava a qualquer hora |
 
 ---
 
@@ -315,6 +316,14 @@ Ambos valem para todos os negócios ativos, pela API pública do Supabase. As te
 **Correção:** usar `ipDaChamada()` do `webhook-guard.server.ts` e `consumirLimite` (contador no banco) em criar, salvar e publicar; considerar um limite também por negócio publicado por IP por dia.
 
 ---
+
+### 17. Média — Prazo de cancelamento configurado, mas não aplicado
+
+- **O que acontecia:** o dono define, em Configurar o negócio, até quantas horas antes o cliente pode cancelar (`tenants.cancelamento_min_horas`, padrão 2, de 0 a 168). O valor só era gravado e mostrado. Nenhuma função do banco o consulta (verificado no catálogo) e o código nunca o lia ao cancelar.
+- **Efeito:** o cliente cancelava a minutos do horário, mesmo com o prazo configurado, deixando o horário vazio sem chance de reaproveitar.
+- **Por que não foi no banco:** `cancelar_agendamento` é chamada também pela equipe, pelo desfazer de 5 s, pela remarcação e pelo reverso de uma reserva que falhou. Um prazo dentro dela quebraria esses fluxos.
+- **Correção (no código, só onde o cliente cancela):** `src/lib/prazo-cancelamento.ts` (regra pura, testada) e `prazo-cancelamento.server.ts`, chamados em `cancelarComoConvidado` (link público), `cancelarAgendamento` (app do cliente), na ação `cancelar_agendamento` da CortAI quando quem pede é o cliente, e no botão "cancelar" do lembrete do WhatsApp. A equipe cancela a qualquer hora.
+- **Observação de produto:** com o padrão de 2 h, o botão "cancelar" do lembrete de 2 h antes passa a ser recusado com a mensagem do prazo. Se o dono quiser que ele valha, basta configurar um prazo menor.
 
 ## O que está bem feito
 
