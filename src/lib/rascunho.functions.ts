@@ -108,12 +108,11 @@ function novoToken(): string {
     .join("");
 }
 
-function origem(): string {
+/** IP de quem chamou, só o que a borda garante (nunca o primeiro valor de x-forwarded-for). */
+async function origem(): Promise<string> {
   try {
-    const req = getRequest();
-    const cabecalho =
-      req.headers.get("x-forwarded-for") ?? req.headers.get("cf-connecting-ip") ?? "";
-    return cabecalho.split(",")[0]?.trim().slice(0, 60) || "desconhecido";
+    const { ipDaChamada } = await import("@/lib/webhook-guard.server");
+    return ipDaChamada(getRequest())?.slice(0, 60) || "desconhecido";
   } catch {
     return "desconhecido";
   }
@@ -184,7 +183,7 @@ async function freioDeAbuso(db: any, ip: string) {
 export const criarRascunhoDeBarbearia = createServerFn({ method: "POST" }).handler(
   async (): Promise<{ token: string; dados: DadosDoRascunho }> => {
     const db = await admin();
-    const ip = origem();
+    const ip = await origem();
     await freioDeAbuso(db, ip);
     const token = novoToken();
     const { error } = await db.from("rascunhos_de_barbearia").insert({

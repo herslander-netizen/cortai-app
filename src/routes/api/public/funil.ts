@@ -32,10 +32,8 @@ export const Route = createFileRoute("/api/public/funil")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          const ip =
-            request.headers.get("cf-connecting-ip") ||
-            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            "?";
+          const { ipDaChamada } = await import("@/lib/webhook-guard.server");
+          const ip = ipDaChamada(request) ?? "?";
           if (excedeu(ip)) return vazio();
           const texto = await request.text();
           if (texto.length > 1000) return vazio();

@@ -66,7 +66,7 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 5 | ~~**Alta**~~ **Corrigido no código** (aguarda publicar) | `tenantIdDoMembro` ignora o negócio escolhido: com dois negócios, age no errado |
 | 6 | ~~Média~~ **Corrigido** (migração 0027, aplicada em 09/10/2026) | Qualquer membro altera serviços, preços, profissionais, horários, produtos e avaliações |
 | 7 | ~~Média~~ **Corrigido** em `022e748` | Cupom aceita curinga (`%`, `_`) no código digitado |
-| 8 | Média | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
+| 8 | Média — **IP corrigido no código** (aguarda publicar); falta limite extra por IP | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
 | 9 | Média | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
 | 10 | Baixa | Dois sistemas de migração e 63 casts `as never` desnecessários |
 | 10b | Média | Avisos apontam para `/painel`, rota que não existe (página não encontrada) |
@@ -75,7 +75,7 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 13 | Baixa | Remarcação pela IA: o plano B recria o horário como agendamento novo |
 | 14 | Baixa | Painel admin conta linhas trazendo tudo: passa do teto de 1000 linhas e mostra números errados |
 | 15 | Baixa | Pequenos pontos (contadores não atômicos, JSON sem try, consultas sem limite, legado ALVO IA, buckets sem tipo de arquivo) |
-| 16 | Média | Criação de negócios sem login: o único freio (5 rascunhos por hora) usa o IP vindo de `x-forwarded-for`, que o visitante forja |
+| 16 | Média — **IP corrigido no código** (aguarda publicar); falta limite em salvar e publicar | Criação de negócios sem login: o único freio (5 rascunhos por hora) usava o IP vindo de `x-forwarded-for`, que o visitante forja |
 | 17 | ~~Média~~ **Corrigido no código** (aguarda publicar) | Prazo de cancelamento configurado pelo dono (`tenants.cancelamento_min_horas`) não era aplicado: o cliente cancelava a qualquer hora |
 
 ---
@@ -225,6 +225,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 
 **Correção:** usar `ipDaChamada()` e somar um limite por IP com `consumirLimite`.
 
+**Estado (10/10/2026):** a origem do IP foi corrigida em `brain/secretaria-publica.functions.ts`, `rascunho.functions.ts` e `api/public/funil.ts`: os três agora usam `ipDaChamada()`. Um teste (`src/lib/webhook-guard.test.ts`) falha se qualquer outro arquivo voltar a ler `x-forwarded-for`. **Continua em aberto:** somar um limite por IP com `consumirLimite` (secretária) e limitar também salvar e publicar o rascunho.
+
 ### 9. Média — Fila de chegada pública sem limite de taxa
 
 **Onde:** `entrarNaFilaPublica` e a RPC `entrar_na_fila_publica`.
@@ -314,6 +316,8 @@ Ambos valem para todos os negócios ativos, pela API pública do Supabase. As te
 **Efeito:** dá para criar rascunhos e negócios sem limite: lixo no banco, endereços (slugs) ocupados e custo de armazenamento. Não confirmei se a publicação tem outro freio no banco.
 
 **Correção:** usar `ipDaChamada()` do `webhook-guard.server.ts` e `consumirLimite` (contador no banco) em criar, salvar e publicar; considerar um limite também por negócio publicado por IP por dia.
+
+**Estado (10/10/2026):** a origem do IP foi corrigida em `brain/secretaria-publica.functions.ts`, `rascunho.functions.ts` e `api/public/funil.ts`: os três agora usam `ipDaChamada()`. Um teste (`src/lib/webhook-guard.test.ts`) falha se qualquer outro arquivo voltar a ler `x-forwarded-for`. **Continua em aberto:** somar um limite por IP com `consumirLimite` (secretária) e limitar também salvar e publicar o rascunho.
 
 ---
 

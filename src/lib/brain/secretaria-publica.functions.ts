@@ -26,14 +26,13 @@ export const perguntarSecretariaPublica = createServerFn({ method: "POST" })
     const { iaDisponivel } = await import("./gateway.server");
     if (!iaDisponivel()) return { texto: null };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: alvo } = await supabaseAdmin.rpc("resolver_tenant_por_slug", { _slug: data.slug });
+    const { data: alvo } = await supabaseAdmin.rpc("resolver_tenant_por_slug", {
+      _slug: data.slug,
+    });
     const tenantId = (alvo as { tenant_id: string }[] | null)?.[0]?.tenant_id;
     if (!tenantId) return { texto: null };
 
-    const ip =
-      request.headers.get("cf-connecting-ip") ??
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "anonimo";
+    const ip = guard.ipDaChamada(request) ?? guard.BALDE_SEM_IP;
     const { bloqueioDeUso } = await import("./uso.server");
     if (await bloqueioDeUso(tenantId, "site", ip)) return { texto: null };
 
