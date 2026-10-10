@@ -35,7 +35,7 @@ export function Screen({
             {voltarPara ? (
               <Link
                 to={voltarPara}
-                className="-ml-2 mb-1 inline-flex min-h-11 items-center gap-1 px-2 text-xs text-mute transition-colors hover:text-paper"
+                className="-ml-2 mb-1 inline-flex min-h-12 items-center gap-1 px-2 text-xs text-mute transition-colors hover:text-paper"
               >
                 <ChevronLeft size={14} />
                 {voltarRotulo}

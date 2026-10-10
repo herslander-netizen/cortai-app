@@ -73,7 +73,7 @@ export function EditorDeServicos({
               <button
                 key={s.nome}
                 type="button"
-                className="inline-flex items-center gap-1.5 min-h-11 rounded-full border border-line2 px-4 text-sm text-paper transition-colors hover:border-gold active:scale-[0.98]"
+                className="inline-flex items-center gap-1.5 min-h-12 rounded-full border border-line2 px-4 text-sm text-paper transition-colors hover:border-gold active:scale-[0.98]"
                 onClick={() => onChange([...servicos, { ...s }])}
               >
                 <Plus size={13} className="text-gold" aria-hidden /> {s.nome}
@@ -86,7 +86,7 @@ export function EditorDeServicos({
       <Button
         variant="link"
         type="button"
-        className="mt-1 min-h-11 px-0 text-xs text-mute"
+        className="mt-1 min-h-12 px-0 text-xs text-mute"
         onClick={() => setMostrarTodas((valor) => !valor)}
       >
         {mostrarTodas ? "Ocultar outras sugestões" : "Ver sugestões de outros segmentos"}
@@ -104,7 +104,7 @@ export function EditorDeServicos({
                     key={`${item.id}-${servico.nome}`}
                     variant="outline"
                     type="button"
-                    className="min-h-10 rounded-full px-3 text-xs"
+                    className="min-h-12 rounded-full px-3 text-xs"
                     onClick={() => onChange([...servicos, { ...servico }])}
                   >
                     <Plus size={13} aria-hidden /> {servico.nome}
@@ -311,7 +311,7 @@ export function EditorDeServicos({
                                 : proximo,
                           });
                         }}
-                        className={`min-h-10 rounded-full border px-3 text-xs ${
+                        className={`min-h-12 rounded-full border px-3 text-xs ${
                           ativo ? "border-paper bg-paper text-ink" : "border-line2 text-mute"
                         }`}
                       >
@@ -328,7 +328,7 @@ export function EditorDeServicos({
 
       <button
         type="button"
-        className="btn-tertiary mt-3 min-h-11 text-sm"
+        className="btn-tertiary mt-3 min-h-12 text-sm"
         onClick={() =>
           onChange([
             ...servicos,

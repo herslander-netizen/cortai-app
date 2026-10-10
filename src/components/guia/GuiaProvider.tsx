@@ -341,7 +341,7 @@ function GuiaOverlay({
           <button
             type="button"
             onClick={aoPular}
-            className="min-h-11 rounded-md px-2 text-xs text-mute transition-colors hover:text-paper"
+            className="min-h-12 rounded-md px-2 text-xs text-mute transition-colors hover:text-paper"
           >
             Pular dicas
           </button>

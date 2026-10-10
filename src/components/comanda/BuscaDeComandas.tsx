@@ -65,7 +65,7 @@ export function BuscaDeComandas() {
             type="button"
             onClick={() => setEstado(f.v)}
             aria-pressed={estado === f.v}
-            className={`h-10 shrink-0 rounded-full border px-4 text-sm ${estado === f.v ? "border-gold bg-gold-soft text-paper" : "border-line text-mute"}`}
+            className={`h-12 shrink-0 rounded-full border px-4 text-sm ${estado === f.v ? "border-gold bg-gold-soft text-paper" : "border-line text-mute"}`}
           >
             {f.r}
           </button>

@@ -31,7 +31,7 @@ export function PreferenciasDicas() {
           reiniciar();
           setAviso("Dicas reiniciadas. Elas voltam a aparecer nas próximas telas.");
         }}
-        className="mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-gold"
+        className="mt-2 inline-flex min-h-12 items-center text-xs font-semibold text-gold"
       >
         Reiniciar dicas
       </button>

@@ -64,7 +64,7 @@ export function PreferenciasDePrivacidade() {
           registrar(escolhas);
           setAviso("Preferências salvas.");
         }}
-        className="mt-4 h-10 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
+        className="mt-4 h-12 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
       >
         Salvar
       </button>

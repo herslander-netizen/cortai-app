@@ -88,7 +88,7 @@ export function AlterarSenha() {
                 autoComplete={campo.auto}
                 required
                 minLength={8}
-                className="mt-2 h-11 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper outline-none"
+                className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper outline-none"
               />
             </label>
           ))}
