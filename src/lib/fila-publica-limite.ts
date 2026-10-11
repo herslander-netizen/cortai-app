@@ -20,6 +20,9 @@ export async function aplicarLimiteDaFila(
     `pub:fila|ip:${ip ?? BALDE_SEM_IP_FILA}`,
     ip ? LIMITE_ENTRAR_NA_FILA.ip : LIMITE_ENTRAR_NA_FILA.ip * 10,
   );
-  const okTel = await consumir(`pub:fila|tel:${telefoneNormalizado}`, LIMITE_ENTRAR_NA_FILA.telefone);
+  const okTel = await consumir(
+    `pub:fila|tel:${telefoneNormalizado}`,
+    LIMITE_ENTRAR_NA_FILA.telefone,
+  );
   if (!okIp || !okTel) throw new Error(MENSAGEM_LIMITE_FILA);
 }
