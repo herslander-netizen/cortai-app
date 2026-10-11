@@ -82,6 +82,7 @@ async function chamarTranscricao(
   bytes: Uint8Array,
   tipo: string,
   modelo: string,
+  aoRecusar?: (status: number) => void,
 ): Promise<string | null> {
   const formulario = new FormData();
   formulario.append(
@@ -105,6 +106,7 @@ async function chamarTranscricao(
     });
     if (!resposta.ok || !resposta.body) {
       console.error("[whatsapp/audio] transcrição recusada", { modelo, status: resposta.status });
+      aoRecusar?.(resposta.status);
       return null;
     }
     const leitor = resposta.body.getReader();
@@ -155,7 +157,12 @@ async function chamarTranscricao(
  */
 export async function transcreverAudioBase64(
   base64: string,
-  opcoes: { mimetype?: string | null; duracaoS?: number | null } = {},
+  opcoes: {
+    mimetype?: string | null;
+    duracaoS?: number | null;
+    /** Recebe o status HTTP quando o serviço recusa (ex.: 402 sem crédito). */
+    aoRecusar?: (status: number) => void;
+  } = {},
 ): Promise<string | null> {
   const chave = process.env["LOVABLE_API_KEY"];
   if (!chave || !base64) return null;
@@ -166,8 +173,8 @@ export async function transcreverAudioBase64(
     return null;
   }
   const tipo = (opcoes.mimetype ?? "audio/ogg").split(";")[0]!.trim() || "audio/ogg";
-  const principal = await chamarTranscricao(chave, bytes, tipo, MODELO);
+  const principal = await chamarTranscricao(chave, bytes, tipo, MODELO, opcoes.aoRecusar);
   if (principal) return principal;
   if (bytes.byteLength > TAMANHO_MAXIMO_RESERVA) return null;
-  return chamarTranscricao(chave, bytes, tipo, MODELO_RESERVA);
+  return chamarTranscricao(chave, bytes, tipo, MODELO_RESERVA, opcoes.aoRecusar);
 }

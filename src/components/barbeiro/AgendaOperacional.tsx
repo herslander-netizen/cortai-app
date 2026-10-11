@@ -26,7 +26,7 @@ import {
 import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
-import { gravacaoDeVozSuportada } from "@/components/ia/useGravadorDeVoz";
+import { comandoDeVozSuportado } from "@/components/ia/useGravadorDeVoz";
 import { segmentoParaApresentacao } from "@/lib/segmentos";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
@@ -286,7 +286,7 @@ export function AgendaOperacional() {
   // Agendar por voz: abre a CortAI já ouvindo. Só existe se o navegador grava áudio.
   const [vozAberta, setVozAberta] = useState(false);
   const [vozSuportada, setVozSuportada] = useState(false);
-  useEffect(() => setVozSuportada(gravacaoDeVozSuportada()), []);
+  useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
   const [focoTrancado, setFocoTrancado] = useState(false);
   const [manualAberto, setManualAberto] = useState(

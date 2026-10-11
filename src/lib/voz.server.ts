@@ -48,8 +48,77 @@ export type ResultadoDaVoz =
         | "tipo_nao_aceito"
         | "indisponivel"
         | "nao_entendi"
-        | "limite";
+        | "limite"
+        | "sem_credito"
+        | "sobrecarregado";
     };
+
+/**
+ * Provedor de transcrição próprio (API compatível com OpenAI `/audio/transcriptions`, ex.: o
+ * Whisper do Groq, que tem plano gratuito). Sem isto, usa o gateway do Lovable como antes.
+ */
+export type ConfigDeVoz = { baseUrl: string; modelo: string; chave: string; tempoLimiteMs: number };
+
+export function lerConfigDeVoz(
+  env: Record<string, string | undefined> = process.env,
+): ConfigDeVoz | null {
+  const baseUrl = (env["CORTAI_STT_BASE_URL"] ?? "").trim().replace(/\/+$/, "");
+  const modelo = (env["CORTAI_STT_MODEL"] ?? "").trim();
+  const chave = (env["CORTAI_STT_API_KEY"] ?? "").trim();
+  if (!baseUrl || !modelo || !chave) return null;
+  try {
+    const u = new URL(baseUrl);
+    const local = u.hostname === "localhost" || u.hostname === "127.0.0.1";
+    if (u.protocol !== "https:" && !(u.protocol === "http:" && local)) return null;
+  } catch {
+    return null;
+  }
+  return { baseUrl, modelo, chave, tempoLimiteMs: 20_000 };
+}
+
+/** Uma transcrição no provedor compatível. Devolve o texto ou o status HTTP da recusa. */
+export async function transcreverComProvedor(
+  config: ConfigDeVoz,
+  base64: string,
+  tipo: string,
+  buscar: typeof fetch = fetch,
+): Promise<{ texto: string | null; status?: number }> {
+  const { extensaoDoTipo } = await import("@/lib/whatsapp/transcricao.server");
+  const bruto = atob(base64.replace(/^data:[^,]*,/, "").replace(/\s/g, ""));
+  const bytes = new Uint8Array(bruto.length);
+  for (let i = 0; i < bruto.length; i += 1) bytes[i] = bruto.charCodeAt(i);
+  const formulario = new FormData();
+  formulario.append(
+    "file",
+    new Blob([bytes as BlobPart], { type: tipo }),
+    `audio.${extensaoDoTipo(tipo)}`,
+  );
+  formulario.append("model", config.modelo);
+  formulario.append("language", "pt");
+  formulario.append("response_format", "json");
+  formulario.append("temperature", "0");
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), config.tempoLimiteMs);
+  try {
+    const r = await buscar(`${config.baseUrl}/audio/transcriptions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${config.chave}` },
+      body: formulario,
+      signal: controle.signal,
+    });
+    if (!r.ok) {
+      console.error("[voz] provedor de transcrição recusou", { status: r.status });
+      return { texto: null, status: r.status };
+    }
+    const corpo = (await r.json().catch(() => null)) as { text?: unknown } | null;
+    const texto = typeof corpo?.text === "string" ? corpo.text.trim() : "";
+    return { texto: texto.length >= 2 ? texto : null };
+  } catch {
+    return { texto: null };
+  } finally {
+    clearTimeout(relogio);
+  }
+}
 
 /** Uso por pessoa/hora em `acoes_de_ia_log` (sem tabela nova). Falha de leitura não bloqueia a equipe. */
 export async function limiteDeVozAtingido(tenantId: string, userId: string): Promise<boolean> {
@@ -95,15 +164,28 @@ export async function transcreverComandoDeVoz(entrada: {
   if (await limiteDeVozAtingido(entrada.tenantId, entrada.userId))
     return { texto: null, motivo: "limite" };
 
-  const { transcricaoConfigurada, transcreverAudioBase64 } =
-    await import("@/lib/whatsapp/transcricao.server");
-  if (!transcricaoConfigurada()) return { texto: null, motivo: "indisponivel" };
-
-  const texto = await transcreverAudioBase64(entrada.audioBase64, {
-    mimetype: v.tipo,
-    duracaoS: Math.min(entrada.duracaoS ?? DURACAO_MAXIMA_S, DURACAO_MAXIMA_S),
-  });
+  const config = lerConfigDeVoz();
+  let texto: string | null = null;
+  let recusa: number | null = null;
+  if (config) {
+    const r = await transcreverComProvedor(config, entrada.audioBase64, v.tipo);
+    texto = r.texto;
+    recusa = r.status ?? null;
+  } else {
+    const { transcricaoConfigurada, transcreverAudioBase64 } =
+      await import("@/lib/whatsapp/transcricao.server");
+    if (!transcricaoConfigurada()) return { texto: null, motivo: "indisponivel" };
+    texto = await transcreverAudioBase64(entrada.audioBase64, {
+      mimetype: v.tipo,
+      duracaoS: Math.min(entrada.duracaoS ?? DURACAO_MAXIMA_S, DURACAO_MAXIMA_S),
+      aoRecusar: (status) => (recusa = status),
+    });
+  }
   await registrarUso(entrada.tenantId, entrada.userId, Boolean(texto));
   // Comando absurdamente longo = ruído ou abuso; o chat limita a 1500 de qualquer forma.
-  return texto ? { texto: texto.slice(0, 1500) } : { texto: null, motivo: "nao_entendi" };
+  if (texto) return { texto: texto.slice(0, 1500) };
+  // O motivo real importa: "não entendi" quando na verdade acabou o crédito engana a pessoa.
+  if (recusa === 402 || recusa === 403) return { texto: null, motivo: "sem_credito" };
+  if (recusa === 429) return { texto: null, motivo: "sobrecarregado" };
+  return { texto: null, motivo: "nao_entendi" };
 }

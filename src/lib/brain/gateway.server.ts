@@ -12,6 +12,7 @@ import {
   chamarCompativel,
   ErroDoProvedor,
   lerConfigDoProvedor,
+  type ConfigCompativel,
   type LeituraDaConfig,
   type UsoDeTokens,
 } from "./gateway-compativel.server";
@@ -34,6 +35,8 @@ export class ErroDoGateway extends Error {
   constructor(
     readonly status: number,
     mensagem: string,
+    /** Provedor que recusou: a pausa por crédito só vale para ele, não para outro configurado depois. */
+    readonly provedor: string = "lovable",
   ) {
     super(mensagem);
   }
@@ -60,6 +63,12 @@ export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: s
   if (leitura.ok && leitura.config.tipo === "compativel")
     return { provedor: leitura.config.nome, modelo: leitura.config.modelo };
   return { provedor: "lovable", modelo: MODELO_CORTAI };
+}
+
+/** Provedor compatível (ex.: GPT-OSS gratuito) configurado para o canal, ou null (usa o Lovable). */
+export function provedorCompativelDoCanal(canal: Canal): ConfigCompativel | null {
+  const leitura = resolverProvedor(canal);
+  return leitura.ok && leitura.config.tipo === "compativel" ? leitura.config : null;
 }
 
 /** Sem `canal`, responde "alguma IA está configurada?" (usado só no painel de status). */
@@ -196,7 +205,7 @@ export function criarSessaoDoGateway(opcoes?: {
         } catch (erro) {
           const status = erro instanceof ErroDoProvedor ? erro.status : 500;
           avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: status });
-          throw new ErroDoGateway(status, mensagemSegura(status));
+          throw new ErroDoGateway(status, mensagemSegura(status), identidade.provedor);
         }
       }
 

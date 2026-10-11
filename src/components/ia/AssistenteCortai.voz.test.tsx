@@ -534,3 +534,76 @@ describe("conferência visível na tela", () => {
     expect(lista()).toBeNull();
   });
 });
+
+describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
+  let instancias: any[] = [];
+  class FakeReconhecimento {
+    lang = "";
+    interimResults = false;
+    continuous = true;
+    onresult: ((e: any) => void) | null = null;
+    onerror: ((e: any) => void) | null = null;
+    onend: (() => void) | null = null;
+    constructor() {
+      instancias.push(this);
+    }
+    start() {}
+    stop() {
+      this.onend?.();
+    }
+    abort() {}
+  }
+  beforeEach(() => {
+    instancias = [];
+    (window as any).webkitSpeechRecognition = FakeReconhecimento;
+  });
+  afterEach(() => {
+    delete (window as any).webkitSpeechRecognition;
+  });
+
+  it("abre ouvindo, mostra o que entendeu e envia como voz SEM chamar a transcrição do servidor", async () => {
+    mocks.perguntar.mockResolvedValue(RESPOSTA("Entendi assim: Agendar Corte. Posso confirmar?"));
+    await montar(true);
+    await avancar(200);
+    expect(instancias).toHaveLength(1);
+    expect((navigator as any).mediaDevices.getUserMedia).not.toHaveBeenCalled();
+    act(() =>
+      instancias[0].onresult({
+        resultIndex: 0,
+        results: [
+          Object.assign([{ transcript: "marque Leandro Silva às 15h" }], { isFinal: false }),
+        ],
+      }),
+    );
+    expect(document.body.textContent).toContain("marque Leandro Silva às 15h");
+    act(() =>
+      instancias[0].onresult({
+        resultIndex: 0,
+        results: [
+          Object.assign([{ transcript: "marque Leandro Silva às 15h para corte" }], {
+            isFinal: true,
+          }),
+        ],
+      }),
+    );
+    await act(async () => instancias[0].onend());
+    await avancar(0);
+    expect(mocks.transcrever).not.toHaveBeenCalled();
+    expect(mocks.perguntar.mock.calls[0]![0].data).toMatchObject({
+      mensagem: "marque Leandro Silva às 15h para corte",
+      origem: "voz",
+    });
+  });
+
+  it("falta de crédito do servidor aparece com a mensagem certa (e não 'não entendi')", async () => {
+    delete (window as any).webkitSpeechRecognition; // navegador sem reconhecimento: cai na gravação
+    mocks.transcrever.mockResolvedValue({ texto: null, motivo: "sem_credito" });
+    await montar(true);
+    await avancar(200);
+    await avancar(1_500);
+    await act(async () => botao("Parar e enviar o comando de voz")!.click());
+    await avancar(0);
+    expect(document.body.textContent).toMatch(/sem créditos/);
+    expect(document.body.textContent).not.toMatch(/Não entendi o áudio/);
+  });
+});

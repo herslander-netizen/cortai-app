@@ -127,6 +127,8 @@ describe("gateway central — escolha do provedor", () => {
       .responder({ instrucoes: "i", entrada: [], ferramentas })
       .catch((e) => e);
     expect(erro.semCredito).toBe(true);
+    // A pausa por crédito precisa saber QUEM recusou (o gratuito não herda a pausa do Lovable).
+    expect(erro.provedor).toBe("api.exemplo.test");
     expect(erro.message).not.toContain("sem crédito");
     expect(eventos[0]).toMatchObject({ ok: false, httpStatus: 402 });
   });

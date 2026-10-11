@@ -36,6 +36,8 @@ const MOTIVOS_DA_VOZ: Record<string, string> = {
   indisponivel: "A voz ainda não está ligada neste ambiente. Escreva o comando.",
   nao_entendi: "Não entendi o áudio. Fale mais perto do microfone ou escreva o comando.",
   limite: "Você usou muitos comandos de voz nesta hora. Escreva por enquanto.",
+  sem_credito: "A transcrição de voz do servidor está sem créditos. Escreva o comando.",
+  sobrecarregado: "O serviço de voz está sobrecarregado agora. Tente de novo em instantes.",
 };
 
 function tempo(segundos: number) {
@@ -287,6 +289,10 @@ export function AssistenteCortai({
   const conferenciaDoCartao = confirmacaoAtual ? (ultimaMensagem?.acao?.conferencia ?? null) : null;
 
   const voz = useGravadorDeVoz({
+    // Caminho gratuito: o navegador entende a fala; o texto segue como qualquer mensagem.
+    aoReconhecer: async (texto) => {
+      await enviar(texto, "voz");
+    },
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
       const r = await transcrever({
         data: { audioBase64: await blobParaBase64(blob), mimeType, duracaoS },
@@ -670,7 +676,11 @@ export function AssistenteCortai({
               <>
                 <span className="h-2 w-2 animate-pulse rounded-full bg-brick" aria-hidden />
                 <span className="text-paper">Ouvindo… {tempo(voz.segundos)}</span>
-                <span className="text-mute2">toque no quadrado para enviar</span>
+                {voz.parcial ? (
+                  <span className="min-w-0 flex-1 truncate italic text-mute">“{voz.parcial}”</span>
+                ) : (
+                  <span className="text-mute2">toque no quadrado para enviar</span>
+                )}
                 <button
                   type="button"
                   onClick={voz.cancelar}

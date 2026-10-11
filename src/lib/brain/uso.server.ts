@@ -25,6 +25,12 @@ const LIMITE_DIARIO_PADRAO: Record<Canal, number> = { painel: 1000, whatsapp: 40
 /** Pausa por crédito: só uma nova tentativa a cada 6 h, até o dono reativar. */
 const PAUSA_MS = 6 * 60 * 60_000;
 
+/** Provedor registrado na pausa; pausas antigas, sem registro, eram do Lovable. */
+export function pausaDoProvedor(motivo: string | null | undefined): string {
+  const marca = (motivo ?? "").split("@")[1]?.trim();
+  return marca || "lovable";
+}
+
 export type Bloqueio = "pausada" | "limite_diario" | "limite_pessoa" | null;
 
 export async function bloqueioDeUso(
@@ -38,11 +44,16 @@ export async function bloqueioDeUso(
     const db = await admin();
     const { data: cfg } = await db
       .from("config_atendimento_ia")
-      .select("ia_pausada_em, ia_limite_diario_whatsapp")
+      .select("ia_pausada_em, ia_pausa_motivo, ia_limite_diario_whatsapp")
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (cfg?.ia_pausada_em && Date.now() - Date.parse(cfg.ia_pausada_em) < PAUSA_MS)
-      return "pausada";
+    if (cfg?.ia_pausada_em && Date.now() - Date.parse(cfg.ia_pausada_em) < PAUSA_MS) {
+      // A pausa por falta de crédito é do PROVEDOR que recusou ("gateway_402@lovable"). Se o
+      // provedor do canal mudou (ex.: passou para um gratuito), a pausa antiga não vale.
+      const { identidadeDoModelo } = await import("./gateway.server");
+      const pausadoPor = pausaDoProvedor(cfg.ia_pausa_motivo);
+      if (pausadoPor === identidadeDoModelo(canal).provedor) return "pausada";
+    }
 
     const umDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const umaHora = new Date(Date.now() - 60 * 60_000).toISOString();

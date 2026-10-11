@@ -14,12 +14,14 @@ import {
   type ServicoSugerido,
 } from "./assistente";
 
+import { provedorCompativelDoCanal } from "@/lib/brain/gateway.server";
+
 // Infraestrutura da Alvo IA / Lovable AI Gateway — nenhum consumo de tokens da OpenAI.
 const ENDPOINT = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODELO = "google/gemini-3-flash";
 
 export function assistenteConfigurado(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"]);
+  return Boolean(process.env["LOVABLE_API_KEY"]) || provedorCompativelDoCanal("painel") !== null;
 }
 
 export type ContextoDaBarbearia = {
@@ -230,7 +232,9 @@ export async function pensar(input: {
   historico?: Turno[];
   instrucaoExtra?: string;
 }): Promise<RespostaDoAssistente> {
-  const chave = process.env["LOVABLE_API_KEY"];
+  // Provedor gratuito/compatível configurado para o painel (CORTAI_AI_*) tem prioridade.
+  const compat = provedorCompativelDoCanal("painel");
+  const chave = compat?.chave ?? process.env["LOVABLE_API_KEY"];
   if (!chave) return respostaIndisponivel();
 
   const entrada = [
@@ -244,18 +248,35 @@ export async function pensar(input: {
     { role: "user", content: input.mensagem },
   ];
 
-  const resposta = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
-    body: JSON.stringify({
-      model: MODELO,
-      messages: entrada,
-      response_format: {
-        type: "json_schema",
-        json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
-      },
-    }),
+  const chamar = (mensagens: unknown[], formato: Record<string, unknown>) =>
+    fetch(compat ? `${compat.baseUrl}/chat/completions` : ENDPOINT, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
+      ...(compat ? { signal: AbortSignal.timeout(compat.tempoLimiteMs) } : {}),
+      body: JSON.stringify({
+        model: compat?.modelo ?? MODELO,
+        messages: mensagens,
+        response_format: formato,
+      }),
+    });
+
+  let resposta = await chamar(entrada, {
+    type: "json_schema",
+    json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
   });
+  // Nem todo provedor aceita json_schema estrito: pede JSON puro com o esquema na instrução.
+  if (compat && resposta.status === 400) {
+    resposta = await chamar(
+      [
+        ...entrada,
+        {
+          role: "system",
+          content: `Responda SOMENTE com um objeto JSON válido, sem texto fora dele, seguindo este esquema: ${JSON.stringify(ESQUEMA)}`,
+        },
+      ],
+      { type: "json_object" },
+    );
+  }
 
   if (!resposta.ok) throw erroDoGateway(resposta.status, await resposta.text().catch(() => ""));
 

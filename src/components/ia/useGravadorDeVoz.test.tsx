@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   blobParaBase64,
+  comandoDeVozSuportado,
   escolherTipoDeAudio,
   gravacaoDeVozSuportada,
   mensagemDeErroDoMicrofone,
@@ -206,5 +207,213 @@ describe("useGravadorDeVoz", () => {
     await avancar(0);
     expect(api.atual!.erro).toBe("Não entendi o áudio.");
     expect(api.atual!.estado).toBe("ocioso");
+  });
+});
+
+/* ------------------- Reconhecimento de fala do navegador (gratuito) ------------------- */
+
+let reconhecedores: FakeReconhecimento[] = [];
+class FakeReconhecimento {
+  lang = "";
+  interimResults = false;
+  continuous = true;
+  maxAlternatives = 0;
+  onresult: ((e: any) => void) | null = null;
+  onerror: ((e: any) => void) | null = null;
+  onend: (() => void) | null = null;
+  iniciado = false;
+  abortado = false;
+  constructor() {
+    reconhecedores.push(this);
+  }
+  start() {
+    this.iniciado = true;
+  }
+  stop() {
+    this.onend?.();
+  }
+  abort() {
+    this.abortado = true;
+  }
+  /** Simula o navegador entendendo um trecho (parcial ou final). */
+  ouvir(texto: string, final: boolean) {
+    this.onresult?.({
+      resultIndex: 0,
+      results: [Object.assign([{ transcript: texto }], { isFinal: final })],
+    });
+  }
+}
+
+function montarComReconhecimento(
+  aoGravar: (a: any) => Promise<void>,
+  aoReconhecer: ((t: string) => Promise<void>) | undefined,
+) {
+  const api: { atual: Api | null } = { atual: null };
+  function Teste() {
+    api.atual = useGravadorDeVoz({ aoGravar, ...(aoReconhecer ? { aoReconhecer } : {}) });
+    return null;
+  }
+  const alvo = document.createElement("div");
+  const raiz = createRoot(alvo);
+  act(() => raiz.render(createElement(Teste)));
+  return { api, desmontar: () => act(() => raiz.unmount()) };
+}
+
+describe("reconhecimento de fala do navegador (de graça, sem servidor)", () => {
+  beforeEach(() => {
+    reconhecedores = [];
+    (window as any).webkitSpeechRecognition = FakeReconhecimento;
+  });
+  afterEach(() => {
+    delete (window as any).webkitSpeechRecognition;
+    delete (window as any).SpeechRecognition;
+  });
+
+  it("suporte: basta o reconhecimento do navegador, mesmo sem gravação", () => {
+    delete (window as any).MediaRecorder;
+    expect(gravacaoDeVozSuportada()).toBe(false);
+    expect(comandoDeVozSuportado()).toBe(true);
+    delete (window as any).webkitSpeechRecognition;
+    expect(comandoDeVozSuportado()).toBe(false);
+  });
+
+  it("escuta em pt-BR, mostra o texto parcial e entrega o texto final SEM usar microfone/servidor", async () => {
+    const aoGravar = vi.fn(async () => undefined);
+    const aoReconhecer = vi.fn(async () => undefined);
+    const { api } = montarComReconhecimento(aoGravar, aoReconhecer);
+    await act(async () => void (await api.atual!.iniciar()));
+    const r = reconhecedores[0]!;
+    expect(r).toMatchObject({
+      lang: "pt-BR",
+      interimResults: true,
+      continuous: false,
+      iniciado: true,
+    });
+    expect(api.atual!.estado).toBe("gravando");
+    act(() => r.ouvir("marque Leandro", false));
+    expect(api.atual!.parcial).toBe("marque Leandro");
+    act(() => r.ouvir("marque Leandro Silva às 15h", true));
+    await act(async () => r.onend?.()); // o navegador encerra depois da pausa
+    await avancar(0);
+    expect(aoReconhecer).toHaveBeenCalledWith("marque Leandro Silva às 15h");
+    expect(aoGravar).not.toHaveBeenCalled();
+    expect((navigator as any).mediaDevices.getUserMedia).not.toHaveBeenCalled();
+    expect(api.atual!.estado).toBe("ocioso");
+    expect(api.atual!.parcial).toBe("");
+  });
+
+  it("tocar no quadrado (parar) entrega o que já foi entendido", async () => {
+    const aoReconhecer = vi.fn(async () => undefined);
+    const { api } = montarComReconhecimento(
+      vi.fn(async () => undefined),
+      aoReconhecer,
+    );
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.ouvir("quais clientes chamam Leandro", true));
+    await act(async () => api.atual!.parar());
+    await avancar(0);
+    expect(aoReconhecer).toHaveBeenCalledWith("quais clientes chamam Leandro");
+  });
+
+  it("silêncio: avisa que não ouviu e não envia nada", async () => {
+    const aoReconhecer = vi.fn(async () => undefined);
+    const { api } = montarComReconhecimento(
+      vi.fn(async () => undefined),
+      aoReconhecer,
+    );
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.onerror?.({ error: "no-speech" }));
+    await act(async () => reconhecedores[0]!.onend?.());
+    expect(aoReconhecer).not.toHaveBeenCalled();
+    expect(api.atual!.erro).toMatch(/Não ouvi nada/);
+    expect(api.atual!.estado).toBe("ocioso");
+  });
+
+  it("microfone negado no reconhecedor mostra o motivo claro", async () => {
+    const { api } = montarComReconhecimento(
+      vi.fn(async () => undefined),
+      vi.fn(async () => undefined),
+    );
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.onerror?.({ error: "not-allowed" }));
+    await act(async () => reconhecedores[0]!.onend?.());
+    expect(api.atual!.erro).toMatch(/Permita o uso do microfone/);
+  });
+
+  it("falha de rede do reconhecedor cai SOZINHA para a gravação com transcrição no servidor", async () => {
+    const aoGravar = vi.fn(async () => undefined);
+    const aoReconhecer = vi.fn(async () => undefined);
+    const { api } = montarComReconhecimento(aoGravar, aoReconhecer);
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.onerror?.({ error: "network" }));
+    await act(async () => reconhecedores[0]!.onend?.());
+    await avancar(0);
+    expect((navigator as any).mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+    expect(api.atual!.estado).toBe("gravando");
+    await avancar(1_500);
+    await act(async () => api.atual!.parar());
+    expect(aoGravar).toHaveBeenCalledTimes(1);
+    expect(aoReconhecer).not.toHaveBeenCalled();
+  });
+
+  it("falha de rede sem gravação disponível: orienta a escrever", async () => {
+    delete (window as any).MediaRecorder;
+    const { api } = montarComReconhecimento(
+      vi.fn(async () => undefined),
+      vi.fn(async () => undefined),
+    );
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.onerror?.({ error: "network" }));
+    await act(async () => reconhecedores[0]!.onend?.());
+    expect(api.atual!.erro).toMatch(/precisa de internet/);
+    expect(api.atual!.estado).toBe("ocioso");
+  });
+
+  it("cancelar e fechar o chat abortam o reconhecedor sem enviar nada", async () => {
+    const aoReconhecer = vi.fn(async () => undefined);
+    const { api, desmontar } = montarComReconhecimento(
+      vi.fn(async () => undefined),
+      aoReconhecer,
+    );
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.ouvir("texto", true));
+    await act(async () => api.atual!.cancelar());
+    await act(async () => reconhecedores[0]!.onend?.());
+    expect(reconhecedores[0]!.abortado).toBe(true);
+    expect(aoReconhecer).not.toHaveBeenCalled();
+
+    await act(async () => void (await api.atual!.iniciar()));
+    desmontar();
+    expect(reconhecedores[1]!.abortado).toBe(true);
+  });
+
+  it("sem a função de reconhecimento, mesmo com suporte do navegador, usa a gravação (compatibilidade)", async () => {
+    const aoGravar = vi.fn(async () => undefined);
+    const { api } = montarComReconhecimento(aoGravar, undefined);
+    await act(async () => void (await api.atual!.iniciar()));
+    expect(reconhecedores).toHaveLength(0);
+    expect((navigator as any).mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+  });
+
+  it("para sozinho no limite de duração", async () => {
+    const aoReconhecer = vi.fn(async () => undefined);
+    const api: { atual: Api | null } = { atual: null };
+    function Teste() {
+      api.atual = useGravadorDeVoz({
+        aoGravar: vi.fn(async () => undefined),
+        aoReconhecer,
+        duracaoMaximaS: 2,
+      });
+      return null;
+    }
+    const alvo = document.createElement("div");
+    const raiz2 = createRoot(alvo);
+    act(() => raiz2.render(createElement(Teste)));
+    await act(async () => void (await api.atual!.iniciar()));
+    act(() => reconhecedores[0]!.ouvir("ok", true));
+    await avancar(2_500);
+    await avancar(0);
+    expect(aoReconhecer).toHaveBeenCalledWith("ok");
+    act(() => raiz2.unmount());
   });
 });

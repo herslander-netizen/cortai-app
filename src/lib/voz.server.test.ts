@@ -6,6 +6,7 @@ const estado = vi.hoisted(() => ({
   banco: null as any,
   configurada: true,
   transcricao: "marque um horário para Leandro amanhã às 15h para corte" as string | null,
+  recusa: null as number | null,
   chamadas: [] as any[],
 }));
 
@@ -16,13 +17,17 @@ vi.mock("@/integrations/supabase/client.server", () => ({
 }));
 vi.mock("@/lib/whatsapp/transcricao.server", () => ({
   transcricaoConfigurada: () => estado.configurada,
+  extensaoDoTipo: () => "webm",
   transcreverAudioBase64: async (b64: string, o: any) => {
     estado.chamadas.push({ tamanho: b64.length, ...o });
+    if (estado.recusa) o.aoRecusar?.(estado.recusa);
     return estado.transcricao;
   },
 }));
 
 import {
+  lerConfigDeVoz,
+  transcreverComProvedor,
   LIMITE_POR_HORA,
   TAMANHO_MAXIMO_DO_AUDIO,
   transcreverComandoDeVoz,
@@ -34,6 +39,7 @@ const audioOk = (bytes = 2_000) => Buffer.alloc(bytes, 7).toString("base64");
 beforeEach(() => {
   estado.banco = criarBancoFalso({ acoes_de_ia_log: [] });
   estado.configurada = true;
+  estado.recusa = null;
   estado.transcricao = "marque um horário para Leandro amanhã às 15h para corte";
   estado.chamadas.length = 0;
 });
@@ -146,5 +152,138 @@ describe("transcreverComandoDeVoz (servidor)", () => {
     estado.transcricao = "a".repeat(5_000);
     const r: any = await transcreverComandoDeVoz(entrada());
     expect(r.texto.length).toBe(1_500);
+  });
+});
+
+describe("motivo real da falha (não dizer 'não entendi' quando acabou o crédito)", () => {
+  const entrada = { tenantId: "t1", userId: "u1", audioBase64: audioOk(), mimeType: "audio/webm" };
+
+  it.each([
+    [402, "sem_credito"],
+    [403, "sem_credito"],
+    [429, "sobrecarregado"],
+  ])("recusa %i do serviço vira '%s'", async (status, motivo) => {
+    estado.transcricao = null;
+    estado.recusa = status;
+    expect(await transcreverComandoDeVoz(entrada)).toEqual({ texto: null, motivo });
+  });
+
+  it("falha sem recusa explícita continua 'nao_entendi'", async () => {
+    estado.transcricao = null;
+    expect(await transcreverComandoDeVoz(entrada)).toEqual({ texto: null, motivo: "nao_entendi" });
+  });
+});
+
+describe("provedor de transcrição próprio (ex.: Whisper gratuito)", () => {
+  const env = {
+    CORTAI_STT_BASE_URL: "https://api.exemplo.test/openai/v1/",
+    CORTAI_STT_MODEL: "whisper-large-v3-turbo",
+    CORTAI_STT_API_KEY: "chave-de-teste",
+  };
+
+  it("lê a configuração e valida https; incompleta = não usa", () => {
+    expect(lerConfigDeVoz(env)).toMatchObject({
+      baseUrl: "https://api.exemplo.test/openai/v1",
+      modelo: "whisper-large-v3-turbo",
+    });
+    expect(lerConfigDeVoz({})).toBeNull();
+    expect(lerConfigDeVoz({ ...env, CORTAI_STT_API_KEY: "" })).toBeNull();
+    expect(lerConfigDeVoz({ ...env, CORTAI_STT_BASE_URL: "http://externo.test/v1" })).toBeNull();
+    expect(lerConfigDeVoz({ ...env, CORTAI_STT_BASE_URL: "http://localhost:9/v1" })).not.toBeNull();
+    expect(lerConfigDeVoz({ ...env, CORTAI_STT_BASE_URL: "não é url" })).toBeNull();
+  });
+
+  it("envia o áudio no formato OpenAI (multipart) com a chave só no cabeçalho", async () => {
+    const buscar = vi.fn(
+      async (_u: any, _i: any) =>
+        new Response(JSON.stringify({ text: " marque Leandro às 15h " }), { status: 200 }),
+    );
+    const r = await transcreverComProvedor(
+      lerConfigDeVoz(env)!,
+      audioOk(),
+      "audio/webm",
+      buscar as any,
+    );
+    expect(r).toEqual({ texto: "marque Leandro às 15h" });
+    const [url, init] = buscar.mock.calls[0]!;
+    expect(url).toBe("https://api.exemplo.test/openai/v1/audio/transcriptions");
+    expect(init.headers.Authorization).toBe("Bearer chave-de-teste");
+    const f = init.body as FormData;
+    expect(f.get("model")).toBe("whisper-large-v3-turbo");
+    expect(f.get("language")).toBe("pt");
+    expect((f.get("file") as File).name).toBe("audio.webm");
+    expect(JSON.stringify([...f.entries()].filter(([k]) => k !== "file"))).not.toContain(
+      "chave-de-teste",
+    );
+  });
+
+  it("recusa do provedor devolve o status; rede caída e resposta vazia viram sem texto", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const cfg = lerConfigDeVoz(env)!;
+    expect(
+      await transcreverComProvedor(
+        cfg,
+        audioOk(),
+        "audio/webm",
+        (async () => new Response("x", { status: 429 })) as any,
+      ),
+    ).toEqual({ texto: null, status: 429 });
+    expect(
+      await transcreverComProvedor(cfg, audioOk(), "audio/webm", (async () => {
+        throw new Error("rede");
+      }) as any),
+    ).toEqual({ texto: null });
+    expect(
+      await transcreverComProvedor(
+        cfg,
+        audioOk(),
+        "audio/webm",
+        (async () => new Response(JSON.stringify({ text: "" }), { status: 200 })) as any,
+      ),
+    ).toEqual({ texto: null });
+  });
+
+  it("configurado, o comando usa o provedor próprio e NÃO o gateway do Lovable", async () => {
+    vi.stubEnv("CORTAI_STT_BASE_URL", env.CORTAI_STT_BASE_URL);
+    vi.stubEnv("CORTAI_STT_MODEL", env.CORTAI_STT_MODEL);
+    vi.stubEnv("CORTAI_STT_API_KEY", env.CORTAI_STT_API_KEY);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ text: "quais clientes chamam Leandro" }), { status: 200 }),
+      ),
+    );
+    estado.configurada = false; // sem LOVABLE_API_KEY: ainda assim funciona
+    const r = await transcreverComandoDeVoz({
+      tenantId: "t1",
+      userId: "u1",
+      audioBase64: audioOk(),
+      mimeType: "audio/webm",
+    });
+    expect(r).toEqual({ texto: "quais clientes chamam Leandro" });
+    expect(estado.chamadas).toHaveLength(0);
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("provedor próprio sem crédito (402) é dito com clareza", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubEnv("CORTAI_STT_BASE_URL", env.CORTAI_STT_BASE_URL);
+    vi.stubEnv("CORTAI_STT_MODEL", env.CORTAI_STT_MODEL);
+    vi.stubEnv("CORTAI_STT_API_KEY", env.CORTAI_STT_API_KEY);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("quota", { status: 402 })),
+    );
+    const r = await transcreverComandoDeVoz({
+      tenantId: "t1",
+      userId: "u1",
+      audioBase64: audioOk(),
+      mimeType: "audio/webm",
+    });
+    expect(r).toEqual({ texto: null, motivo: "sem_credito" });
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 });
