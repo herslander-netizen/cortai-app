@@ -43,6 +43,8 @@ export type RespostaDoAssistente = {
   disponivel: boolean;
   /** Opções para escolher na tela (ex.: dois clientes com o mesmo nome). */
   opcoes?: OpcaoDeEscolha[] | null;
+  /** Escrita preparada que espera o toque em "Confirmar" (o texto é o resumo conferido). */
+  aguardandoConfirmacao?: { resumo: string } | null;
 };
 
 export const DIAS_DA_SEMANA = [

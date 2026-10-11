@@ -59,6 +59,7 @@ Até aqui valia “**toda** escrita vira pendente e só executa após o SIM” (
 
 - Só `criar_agendamento` é “dispensável” (`POLITICA_DE_CONFIRMACAO`). Cancelar, remarcar, cadastrar e anotar **seguem exigindo SIM**.
 - Só no **painel**, com **dono ou profissional** autenticado. WhatsApp, site e cliente nunca executam direto.
+- **Por voz, NÃO executa direto (padrão).** A transcrição pode errar um nome ou uma hora, então a CortAI mostra **“Entendi assim: Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva. Posso confirmar?”** e um cartão com **Confirmar** / **Não** (um toque, sem digitar “sim”). O texto da conferência é montado pelo **sistema** com os nomes validados no banco — o modelo não consegue parafrasear errado a data, a hora ou o cliente. Texto digitado continua direto. Para a voz também executar direto: `CORTAI_EXECUCAO_DIRETA_VOZ=true`.
 - Só se **cada referência foi provada por uma consulta oficial neste mesmo turno**: o cliente apareceu como resultado **único** da busca por nome; o serviço está em `listar_servicos`; o horário (instante exato, profissional e serviço) veio de `consultar_disponibilidade`. O modelo **não consegue** chutar id nem horário.
 - Cliente homônimo (busca com 2+ resultados) **nunca** resolve: cai na confirmação.
 - Faltou qualquer prova → o fluxo antigo (resumo + “Posso confirmar?”). Nada executa sem o SIM.

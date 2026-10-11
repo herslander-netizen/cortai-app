@@ -94,6 +94,9 @@ export default class ProvedorCortai {
 
     const restaurarEnv = aplicarPerfil(perfil);
     // Cenário "execução direta desligada": o interruptor vale só durante esta chamada.
+    const diretaVoz = process.env.CORTAI_EXECUCAO_DIRETA_VOZ;
+    if (v.execucaoDiretaVoz === true) process.env.CORTAI_EXECUCAO_DIRETA_VOZ = "true";
+    else delete process.env.CORTAI_EXECUCAO_DIRETA_VOZ;
     const direta = process.env.CORTAI_EXECUCAO_DIRETA;
     if (v.execucaoDireta === false) process.env.CORTAI_EXECUCAO_DIRETA = "false";
     else delete process.env.CORTAI_EXECUCAO_DIRETA;
@@ -186,6 +189,7 @@ export default class ProvedorCortai {
             ? mensagemComEscolha(v.mensagem, v.clienteEscolhidoId)
             : v.mensagem,
           ...(v.clienteEscolhidoId ? { clienteEscolhidoId: v.clienteEscolhidoId } : {}),
+          origemDoComando: v.origem === "voz" ? "voz" : "texto",
           pendente: pendenteAtual,
           conversaId: "conversa-avaliacao",
           ...(v.simultaneas ? { consumirPendente } : {}),
@@ -224,6 +228,8 @@ export default class ProvedorCortai {
       globalThis.fetch = fetchOriginal;
       mundo.restaurar();
       restaurarEnv();
+      if (diretaVoz === undefined) delete process.env.CORTAI_EXECUCAO_DIRETA_VOZ;
+      else process.env.CORTAI_EXECUCAO_DIRETA_VOZ = diretaVoz;
       if (direta === undefined) delete process.env.CORTAI_EXECUCAO_DIRETA;
       else process.env.CORTAI_EXECUCAO_DIRETA = direta;
     }

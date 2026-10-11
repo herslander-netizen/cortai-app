@@ -1,6 +1,6 @@
 # CortAI executora (painel, texto ou voz transcrita). Mundo fictício: nada é gravado de verdade.
 # Cliente fictício: "Leandro Silva" (único com esse nome completo), "Leandro Costa" (homônimo), "Marcos Lima".
-- description: Voz — comando completo executa na hora, sem confirmação redundante
+- description: Texto digitado — comando completo executa na hora, sem confirmação redundante
   vars:
     mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
     canal: painel
@@ -202,3 +202,35 @@
     permissoes: "agendamento_manual,visualizar_clientes"
   assert:
     - { type: javascript, value: "file://asserts/index.mjs:semOpcoes" }
+
+- description: Voz — mostra o que entendeu e espera o toque (a transcrição pode errar)
+  vars:
+    mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
+    origem: voz
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:preparouEPediuConfirmacao",
+        config: { nome: criar_agendamento },
+      }
+    - type: javascript
+      value: "JSON.parse(output).texto.startsWith('Entendi assim: Agendar Corte') && JSON.parse(output).texto.includes('Leandro Silva')"
+
+- description: Voz com o interruptor próprio ligado — executa direto
+  vars:
+    mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
+    origem: voz
+    execucaoDiretaVoz: true
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:executouDireto",
+        config: { nome: criar_agendamento },
+      }

@@ -411,3 +411,69 @@ describe("homônimos: pop-up de opções e escolha na tela", () => {
     expect(r.pendente).not.toBeNull();
   });
 });
+
+describe("comando por voz: o que entendeu + confirmação", () => {
+  it("voz com tudo resolvido NÃO grava: mostra 'Entendi assim' (texto do sistema) e espera o toque", async () => {
+    // O modelo tenta enganar com uma paráfrase errada; o texto da conferência é do sistema.
+    estado.roteiro = [...roteiroCompleto(), [texto("Prontinho, marquei para as 5 da tarde!")]];
+    const r = await comandar(undefined, painel, { origemDoComando: "voz" });
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.pendente?.acao).toBe("criar_agendamento");
+    expect(r.texto).toBe(
+      "Entendi assim: Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva. Posso confirmar?",
+    );
+    expect(estado.estados).not.toContain("acao_executada_direta");
+  });
+
+  it("o toque em Confirmar (um 'sim') grava uma vez, com o texto de resultado do sistema", async () => {
+    estado.roteiro = [...roteiroCompleto(), [texto("ok")]];
+    const preparado = await comandar(undefined, painel, { origemDoComando: "voz" });
+    let consumida = false;
+    const consumirPendente = async () => (consumida ? false : (consumida = true));
+    const r = await comandar("sim", painel, {
+      pendente: preparado.pendente,
+      consumirPendente,
+      origemDoComando: "texto",
+    });
+    expect(estado.executadas).toEqual(["criar_agendamento"]);
+    expect(r.texto).toMatch(/^Pronto ✅/);
+  });
+
+  it("o mesmo comando digitado continua executando direto", async () => {
+    estado.roteiro = roteiroCompleto();
+    const r = await comandar(undefined, painel, { origemDoComando: "texto" });
+    expect(estado.executadas).toEqual(["criar_agendamento"]);
+    expect(r.texto).toMatch(/^Pronto ✅/);
+  });
+
+  it("com CORTAI_EXECUCAO_DIRETA_VOZ=true a voz também executa direto", async () => {
+    vi.stubEnv("CORTAI_EXECUCAO_DIRETA_VOZ", "true");
+    estado.roteiro = roteiroCompleto();
+    const r = await comandar(undefined, painel, { origemDoComando: "voz" });
+    expect(estado.executadas).toEqual(["criar_agendamento"]);
+    expect(r.texto).toMatch(/^Pronto ✅/);
+  });
+
+  it("a conferência fixa vale também para escrita que sempre confirma (ex.: cancelar)", async () => {
+    estado.roteiro = [
+      [chamada("cancelar_agendamento", { agendamentoId: "ag-1" })],
+      [texto("Cancelei!")],
+    ];
+    const r = await comandar("cancela o do Leandro", painel, { origemDoComando: "voz" });
+    expect(r.texto).toBe("Entendi assim: Cancelar o corte de terça. Posso confirmar?");
+    expect(estado.executadas).toHaveLength(0);
+  });
+
+  it("fora do painel (WhatsApp) o texto do modelo segue como antes", async () => {
+    estado.roteiro = [
+      [chamada("cancelar_agendamento", { agendamentoId: "ag-1" })],
+      [texto("Quer cancelar o corte de terça? Posso confirmar?")],
+    ];
+    const r = await comandar(
+      "cancela",
+      { ...painel, canal: "whatsapp", papel: "cliente" },
+      { origemDoComando: "texto" },
+    );
+    expect(r.texto).toBe("Quer cancelar o corte de terça? Posso confirmar?");
+  });
+});

@@ -226,6 +226,12 @@ export function AssistenteCortai({
       ? (ultimaMensagem.acao?.opcoes ?? [])
       : [];
 
+  // Escrita preparada (ex.: agendamento por voz): conferir e tocar, sem digitar "sim".
+  const confirmacaoAtual =
+    ultimaMensagem?.autor === "assistente" && !enviando && !opcoesDispensadas.has(`c-${ultimaId}`)
+      ? (ultimaMensagem.acao?.aguardandoConfirmacao ?? null)
+      : null;
+
   const voz = useGravadorDeVoz({
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
       const r = await transcrever({
@@ -258,6 +264,8 @@ export function AssistenteCortai({
     mensagem: string,
     origem: "texto" | "voz" = "texto",
     clienteEscolhidoId?: string,
+    /** Toque em botão (escolha/confirmação): se falhar, some a fala provisória e o botão volta. */
+    descartarSeFalhar = false,
   ): Promise<boolean> {
     const limpo = mensagem.trim();
     if (!limpo || enviando) return false;
@@ -303,7 +311,8 @@ export function AssistenteCortai({
     } catch (e) {
       setErro(e instanceof Error ? e.message : "O assistente não respondeu agora.");
       // Escolha que não chegou: tira a fala provisória para o pop-up voltar e a pessoa tocar de novo.
-      if (clienteEscolhidoId) setMensagens((atual) => atual.filter((m) => m.id !== idLocal));
+      if (clienteEscolhidoId || descartarSeFalhar)
+        setMensagens((atual) => atual.filter((m) => m.id !== idLocal));
       return false;
     } finally {
       setEnviando(false);
@@ -511,6 +520,40 @@ export function AssistenteCortai({
                 {s}
               </button>
             ))}
+          </div>
+        ) : null}
+        {confirmacaoAtual ? (
+          <div
+            role="group"
+            aria-label="Confirmar o que a CortAI entendeu"
+            className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
+          >
+            <p className="mb-0.5 text-xs font-semibold text-paper">Confere?</p>
+            <p className="mb-3 break-words text-sm leading-snug text-mute">
+              {confirmacaoAtual.resumo}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  const enviou = await enviar("sim", "texto", undefined, true);
+                  if (enviou) setOpcoesDispensadas((a) => new Set(a).add(`c-${ultimaId}`));
+                }}
+                className="btn-primary min-h-11 flex-1 py-2.5 text-sm"
+              >
+                Confirmar
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const enviou = await enviar("não", "texto", undefined, true);
+                  if (enviou) setOpcoesDispensadas((a) => new Set(a).add(`c-${ultimaId}`));
+                }}
+                className="min-h-11 rounded-xl border border-line2 px-4 py-2.5 text-sm text-mute"
+              >
+                Não
+              </button>
+            </div>
           </div>
         ) : null}
         {opcoesAtuais.length ? (

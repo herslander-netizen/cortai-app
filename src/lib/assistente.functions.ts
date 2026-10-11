@@ -293,6 +293,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
               horarios: null,
               disponivel: !r.indisponivel,
               opcoes: r.opcoes ?? null,
+              aguardandoConfirmacao: r.pendente ? { resumo: r.pendente.resumo } : null,
             };
           }
         }

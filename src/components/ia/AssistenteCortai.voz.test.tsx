@@ -327,3 +327,96 @@ describe("pop-up de homônimos", () => {
     expect(grupo()).toBeNull();
   });
 });
+
+describe("conferência com um toque (Confirmar / Não)", () => {
+  const conversaComPendente = {
+    conversaId: "c1",
+    disponivel: true,
+    mensagens: [
+      {
+        id: "m1",
+        autor: "barbeiro",
+        conteudo: "marque Leandro Silva amanhã às 15h para corte",
+        acao: null,
+      },
+      {
+        id: "m2",
+        autor: "assistente",
+        conteudo:
+          "Entendi assim: Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva. Posso confirmar?",
+        acao: {
+          ...RESPOSTA("x").resposta,
+          aguardandoConfirmacao: {
+            resumo: "Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva.",
+          },
+        },
+      },
+    ],
+  };
+  const cartao = () =>
+    document.querySelector('[role="group"][aria-label="Confirmar o que a CortAI entendeu"]');
+  const botaoDoCartao = (t: string) =>
+    Array.from(cartao()?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
+      (b) => b.textContent === t,
+    );
+  async function montarComPendente() {
+    mocks.conversa.mockResolvedValueOnce(conversaComPendente as never);
+    await montar(false);
+    await avancar(0);
+    await avancar(0);
+  }
+
+  it("mostra o que foi entendido com botões grandes; Confirmar envia 'sim' e fecha o cartão", async () => {
+    mocks.perguntar.mockResolvedValue(
+      RESPOSTA("Pronto ✅ Concluído: Agendar Corte para Leandro Silva."),
+    );
+    await montarComPendente();
+    expect(cartao()?.textContent).toContain(
+      "Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva.",
+    );
+    await act(async () => botaoDoCartao("Confirmar")!.click());
+    await avancar(0);
+    expect(mocks.perguntar.mock.calls[0]![0].data).toMatchObject({
+      mensagem: "sim",
+      conversaId: "c1",
+    });
+    expect(cartao()).toBeNull();
+    expect(document.body.textContent).toContain("Pronto ✅ Concluído");
+  });
+
+  it("'Não' envia 'não' (a pendente é descartada no servidor)", async () => {
+    mocks.perguntar.mockResolvedValue(RESPOSTA("Tudo bem, não alterei nada. Como prefere seguir?"));
+    await montarComPendente();
+    await act(async () => botaoDoCartao("Não")!.click());
+    await avancar(0);
+    expect(mocks.perguntar.mock.calls[0]![0].data.mensagem).toBe("não");
+    expect(cartao()).toBeNull();
+  });
+
+  it("se o envio falhar, o cartão continua para tentar de novo", async () => {
+    mocks.perguntar
+      .mockRejectedValueOnce(new Error("sem rede"))
+      .mockResolvedValue(RESPOSTA("Pronto ✅ Concluído: x"));
+    await montarComPendente();
+    await act(async () => botaoDoCartao("Confirmar")!.click());
+    await avancar(0);
+    expect(document.body.textContent).toMatch(/sem rede/);
+    expect(cartao()).not.toBeNull();
+    await act(async () => botaoDoCartao("Confirmar")!.click());
+    await avancar(0);
+    expect(cartao()).toBeNull();
+    // Reenvio do MESMO "sim" reaproveita o id de idempotência.
+    const [a, b] = mocks.perguntar.mock.calls.map((c) => c[0].data.idDaMensagem);
+    expect(b).toBe(a);
+  });
+
+  it("não aparece sem pendente nem quando a última mensagem é da pessoa", async () => {
+    const semPendente = JSON.parse(JSON.stringify(conversaComPendente));
+    semPendente.mensagens[1].acao.aguardandoConfirmacao = null;
+    mocks.conversa.mockResolvedValueOnce(semPendente);
+    await montar(false);
+    await avancar(0);
+    await avancar(0);
+    expect(cartao()).toBeNull();
+  });
+});

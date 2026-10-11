@@ -30,6 +30,7 @@ import {
   ehNumeroSolto,
   pedidoNocivo,
   TEXTO_CONFIRMACAO_JA_TRATADA,
+  textoDeConferencia,
   TEXTO_PEDIR_SIM_OU_NAO,
   TEXTO_RECUSA_DA_PENDENTE,
   TEXTO_TENTE_CONFIRMAR_DE_NOVO,
@@ -42,6 +43,7 @@ import { opcoesDeClientes, type OpcaoDeEscolha } from "./escolha-de-cliente";
 import {
   decidirExecucao,
   execucaoDiretaLigada,
+  execucaoDiretaPorVozLigada,
   novasEvidencias,
   registrarEvidencia,
 } from "./execucao-direta";
@@ -315,6 +317,7 @@ async function pensarCortaiComTurno(
   // Busca ambígua mais recente: vira o pop-up de opções (só vale se o turno terminar em texto).
   let opcoes: OpcaoDeEscolha[] = [];
   const diretaLigada = execucaoDiretaLigada();
+  const diretaPorVoz = execucaoDiretaPorVozLigada();
   const gateway = criarSessaoDoGateway({
     canal: ctx.canal,
     aoChamar: (e) => obs.aoChamarModelo(e),
@@ -329,12 +332,17 @@ async function pensarCortaiComTurno(
       if (!chamadas.length) {
         // Barreira: escritas nunca rodam dentro deste ciclo, então qualquer
         // "confirmado/agendado/cancelado" escrito pela IA aqui é falso.
-        const texto = barrarVazamento(
+        const textoDoModelo = barrarVazamento(
           barrarAfirmacaoSemAcao(
             textoDaSaida(saida),
             (pendente as Pendente | null)?.resumo ?? null,
           ),
         );
+        // No painel, com uma escrita preparada, a conferência é texto fixo do sistema.
+        const texto =
+          pendente && ctx.canal === "painel"
+            ? textoDeConferencia((pendente as Pendente).resumo, input.origemDoComando)
+            : textoDoModelo;
         await retomarIa(ctx.tenantId);
         await registrarTurno({
           tenantId: ctx.tenantId,
@@ -388,6 +396,8 @@ async function pensarCortaiComTurno(
                 },
                 evidencias,
                 ligada: diretaLigada,
+                origem: input.origemDoComando ?? "texto",
+                ligadaPorVoz: diretaPorVoz,
               });
               if (decisao.direta) {
                 // Tudo provado por consultas oficiais deste turno e autorizado: executa sem

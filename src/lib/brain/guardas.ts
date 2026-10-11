@@ -112,6 +112,16 @@ export function textoDoResultado(
   return `Não consegui concluir: ${resultado.resumo} Motivo: ${resultado.motivo} Nada foi alterado. Quer tentar de outro jeito?`;
 }
 
+/**
+ * Conferência de uma escrita preparada no painel. O texto vem do SISTEMA, montado com os nomes
+ * já validados no banco: o modelo não pode parafrasear errado a data, a hora ou o cliente.
+ */
+export function textoDeConferencia(resumo: string, origem: "texto" | "voz" = "texto"): string {
+  return origem === "voz"
+    ? `Entendi assim: ${resumo} Posso confirmar?`
+    : `${resumo} Posso confirmar?`;
+}
+
 export const TEXTO_RECUSA_DA_PENDENTE = "Tudo bem, não alterei nada. Como prefere seguir?";
 
 /** Segunda confirmação da mesma ação pendente (duas mensagens quase juntas): não executa de novo. */

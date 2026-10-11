@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   decidirExecucao,
   execucaoDiretaLigada,
+  execucaoDiretaPorVozLigada,
   novasEvidencias,
   registrarEvidencia,
   type Evidencias,
@@ -172,5 +173,27 @@ describe("registrarEvidencia ignora lixo", () => {
       { livres: [{ profissionalId: 1, inicio: "x" }] },
     );
     expect(ev.clientes.size + ev.servicos.size + ev.horarios.length).toBe(0);
+  });
+});
+
+describe("comando por VOZ pede conferência (a transcrição pode errar)", () => {
+  it("por padrão, voz nunca executa direto, mesmo com tudo provado", () => {
+    expect(decidir({ origem: "voz" }).direta).toBe(false);
+    expect(decidir({ origem: "voz", ligadaPorVoz: false }).direta).toBe(false);
+    expect((decidir({ origem: "voz" }) as { motivo: string }).motivo).toMatch(/conferência/);
+  });
+  it("texto digitado continua direto; voz só executa direto se o interruptor próprio estiver ligado", () => {
+    expect(decidir({ origem: "texto" })).toEqual({ direta: true });
+    expect(decidir()).toEqual({ direta: true });
+    expect(decidir({ origem: "voz", ligadaPorVoz: true })).toEqual({ direta: true });
+  });
+  it("o interruptor da voz vem desligado e só liga com valor explícito", () => {
+    expect(execucaoDiretaPorVozLigada({})).toBe(false);
+    expect(execucaoDiretaPorVozLigada({ CORTAI_EXECUCAO_DIRETA_VOZ: "false" })).toBe(false);
+    for (const v of ["true", "1", "ON", " sim "])
+      expect(execucaoDiretaPorVozLigada({ CORTAI_EXECUCAO_DIRETA_VOZ: v })).toBe(true);
+  });
+  it("voz com o interruptor geral desligado continua exigindo confirmação", () => {
+    expect(decidir({ origem: "voz", ligadaPorVoz: true, ligada: false }).direta).toBe(false);
   });
 });

@@ -29,6 +29,16 @@ export function execucaoDiretaLigada(env: Record<string, string | undefined> = p
   return !(v === "false" || v === "0" || v === "off" || v === "nao");
 }
 
+/**
+ * Comando por VOZ passa por conferência (a transcrição pode errar um nome ou uma hora):
+ * a CortAI mostra o que entendeu e a pessoa confirma com um toque. Quem quiser execução
+ * direta também por voz liga `CORTAI_EXECUCAO_DIRETA_VOZ=true`.
+ */
+export function execucaoDiretaPorVozLigada(env: Record<string, string | undefined> = process.env) {
+  const v = (env["CORTAI_EXECUCAO_DIRETA_VOZ"] ?? "").trim().toLowerCase();
+  return v === "true" || v === "1" || v === "on" || v === "sim";
+}
+
 export type HorarioLivre = { servicoId: string | null; profissionalId: string; inicioMs: number };
 
 /** O que as consultas oficiais deste turno provaram. Vive só durante um turno. */
@@ -121,12 +131,18 @@ export function decidirExecucao(entrada: {
   ctx: ContextoDaDecisao;
   evidencias: Evidencias;
   ligada: boolean;
+  /** Como o comando chegou. Padrão: texto. */
+  origem?: "texto" | "voz";
+  /** Voz pode executar direto? Padrão: não (pede conferência). */
+  ligadaPorVoz?: boolean;
 }): DecisaoDeExecucao {
   const { acao, dados, ctx, evidencias: ev } = entrada;
   const nao = (motivo: string): DecisaoDeExecucao => ({ direta: false, motivo });
 
   if (POLITICA_DE_CONFIRMACAO[acao] !== "dispensavel") return nao("ação exige confirmação");
   if (!entrada.ligada) return nao("execução direta desligada");
+  if (entrada.origem === "voz" && !entrada.ligadaPorVoz)
+    return nao("comando por voz pede conferência antes de gravar");
   if (ctx.canal !== "painel") return nao("só no painel, com a equipe autenticada");
   if (ctx.papel !== "dono" && ctx.papel !== "profissional") return nao("papel sem execução direta");
 
