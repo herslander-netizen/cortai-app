@@ -37,7 +37,7 @@ import { tituloDoMes } from "./calendario";
 /** Calendário preenchido (estado aberto do modelo): bloco azul-claro com o dia marcado. */
 function IconeCalendarioCheio() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-6 text-menu-icone">
+    <svg viewBox="0 0 24 24" aria-hidden className="size-6 text-[var(--agenda-escolhido)]">
       <rect x="3" y="4.5" width="18" height="17" rx="3.5" fill="currentColor" />
       <rect x="7" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />
       <rect x="14.6" y="2" width="2.4" height="5" rx="1.2" fill="currentColor" />

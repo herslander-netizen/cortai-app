@@ -219,6 +219,11 @@
   --drawer-band: #212724;
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
   --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
+  /* Agenda: dia escolhido em ciano com texto escuro, "hoje" e ícones no mesmo ciano.
+     O tema claro repete estes papéis (mesmo padrão), só ajusta o contraste. */
+  --agenda-escolhido: var(--menu-icone);
+  --agenda-escolhido-texto: var(--ink);
+  --agenda-destaque: var(--menu-icone);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
 }
 
@@ -230,7 +235,7 @@
   --linha: #d6ded9;
   --texto: #1a211d;
   --texto-suave: #68706b;
-  --agenda-acao: #0160c8;
+  --agenda-acao: #01408f;
   --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
@@ -290,6 +295,10 @@
   --drawer-band: #f0f5f1;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
+  /* Agenda: mesmo padrão do escuro (ciano no dia escolhido, marinho na ação). */
+  --agenda-escolhido: color-mix(in oklab, var(--identity-accent) 70%, white);
+  --agenda-escolhido-texto: var(--identity-deep);
+  --agenda-destaque: color-mix(in oklab, var(--identity-accent) 72%, black);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
 
   --status-scheduled: #696862;
@@ -5660,7 +5669,7 @@ button.agenda-nome:hover {
 .agenda-botao-agora-visualizacao {
   min-width: 48px;
   border-radius: 0 999px 999px 0;
-  color: var(--menu-icone);
+  color: var(--agenda-destaque);
 }
 .agenda-botao-agora-principal button,
 .agenda-botao-agora-principal button:hover,
@@ -5672,7 +5681,7 @@ button.agenda-nome:hover {
   -webkit-tap-highlight-color: transparent;
 }
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
-  color: var(--menu-icone);
+  color: var(--agenda-destaque);
 }
 /* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
 .agenda-botao-agora-ir {
@@ -6001,11 +6010,11 @@ button.agenda-nome:hover {
   .agenda-acao-fixa {
     right: var(--agenda-fab-direita);
   }
-  /* Modelo: "+" em quadrado de cantos bem arredondados; no escuro, azul mais fechado. */
+  /* Modelo: "+" em quadrado de cantos bem arredondados, marinho nos dois temas. */
   .agenda-acao-fixa .agenda-acao-redonda {
     border-radius: 20px;
   }
-  :root:not(.light) .agenda-acao-fixa .agenda-fab-toggle {
+  .agenda-acao-fixa .agenda-fab-toggle {
     background: color-mix(in oklab, var(--primary) 55%, black);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
