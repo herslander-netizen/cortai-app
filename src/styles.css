@@ -5993,6 +5993,24 @@ button.agenda-nome:hover {
   width: var(--agenda-fab-icone);
   height: var(--agenda-fab-icone);
 }
+/* Segurar o "+" abre o agendamento por voz: sem seleção/menu do sistema, com retorno visual
+   (só transform) enquanto o tempo corre. */
+.agenda-fab-toggle {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.agenda-fab-toggle[data-segurando] {
+  transform: scale(0.9);
+  transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-fab-toggle[data-segurando] {
+    transform: none;
+    transition: none;
+  }
+}
 @media (max-width: 600px) {
   :root {
     --agenda-fab-direita: var(--agenda-fab-margem);

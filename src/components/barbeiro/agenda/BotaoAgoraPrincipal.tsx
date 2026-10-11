@@ -10,6 +10,7 @@ import { DURACAO, SUAVE } from "@/lib/motion";
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
 import { solicitarAgora } from "./pilula-agora";
 import { alturaDoTopoDaAgenda } from "./tempo";
+import { useToqueLongo } from "./useToqueLongo";
 
 /** Controle principal do pé da Agenda no celular e o botão "+" preservado em todas as larguras. */
 export function BotaoAgoraPrincipal({
@@ -19,6 +20,7 @@ export function BotaoAgoraPrincipal({
   onHoje,
   menuAberto,
   onAlternarMenu,
+  onAgendarPorVoz,
   visivel = true,
 }: {
   visualizacao: VisualizacaoAgenda;
@@ -27,9 +29,13 @@ export function BotaoAgoraPrincipal({
   onHoje: () => void;
   menuAberto: boolean;
   onAlternarMenu: () => void;
+  /** Segurar o "+" abre o agendamento por voz já ouvindo. Sem isto, o "+" só abre o menu. */
+  onAgendarPorVoz?: () => void;
   visivel?: boolean;
 }) {
   const celular = useMediaQuery("(max-width: 600px)");
+  // Só com o menu fechado: com o menu aberto o "+" é o "X" e segurar não faz nada de especial.
+  const toqueLongo = useToqueLongo(onAgendarPorVoz, { ativo: !menuAberto });
   const menosMovimento = useMenosMovimento();
   const levarAoAgoraQuandoForHoje = useRef(false);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
@@ -149,16 +155,24 @@ export function BotaoAgoraPrincipal({
           aria-label={menuAberto ? "Fechar ações da agenda" : "Ações da agenda"}
           aria-haspopup="menu"
           aria-expanded={menuAberto}
+          aria-describedby={onAgendarPorVoz ? "agenda-fab-dica-voz" : undefined}
           data-acoes-agenda
           className="agenda-acao-redonda agenda-fab-toggle"
           data-aberto={menuAberto}
+          data-segurando={toqueLongo.segurando || undefined}
           onClick={onAlternarMenu}
+          {...toqueLongo.propriedades}
         >
           <Plus
             aria-hidden
             className={`agenda-fab-icone ${menuAberto ? "agenda-fab-icone-aberto" : ""}`}
           />
         </Button>
+        {onAgendarPorVoz ? (
+          <span id="agenda-fab-dica-voz" className="sr-only">
+            Segure para agendar por voz.
+          </span>
+        ) : null}
       </div>
     </>
   );

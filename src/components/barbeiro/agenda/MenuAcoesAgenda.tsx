@@ -1,9 +1,4 @@
-import {
-  CalendarPlus,
-  Clock3,
-  Scissors,
-  type LucideIcon,
-} from "lucide-react";
+import { CalendarPlus, Clock3, Mic, Scissors, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
@@ -41,6 +36,7 @@ export function MenuAcoesAgenda({
   onChamarFila: _onChamarFila,
   onBloquear,
   onNovoCliente: _onNovoCliente,
+  onAgendarPorVoz,
   visivel = true,
 }: {
   aberto: boolean;
@@ -56,6 +52,8 @@ export function MenuAcoesAgenda({
   onChamarFila: () => void;
   onBloquear: () => void;
   onNovoCliente: () => void;
+  /** Quando existe (navegador com microfone), aparece "Agendar por voz" no leque. */
+  onAgendarPorVoz?: () => void;
   visivel?: boolean;
   /** Mantido por compatibilidade: o próprio "+" vira "X". */
   comBotaoFechar?: boolean;
@@ -132,6 +130,18 @@ export function MenuAcoesAgenda({
       onSelect: onEncaixe,
       disabled: !online,
     },
+    ...(onAgendarPorVoz
+      ? [
+          {
+            id: "voz",
+            rotulo: "Agendar por voz",
+            descricao: "Fale o cliente, o dia e a hora",
+            Icone: Mic,
+            onSelect: onAgendarPorVoz,
+            disabled: !online,
+          },
+        ]
+      : []),
     {
       id: "agendar",
       rotulo: "Agendar horário",

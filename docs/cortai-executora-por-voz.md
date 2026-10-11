@@ -18,6 +18,17 @@ A equipe autenticada fala ou escreve “CortAI, marque um horário para Leandro 
 
 Lacunas encontradas e tratadas: (1) busca de cliente por nome; (2) o `criar_agendamento` **não era idempotente** — repetir o pedido esbarraria na regra “o cliente já tem um horário nesse dia” (erro enganoso) ou, numa corrida, na trava do banco; (3) o sucesso era o retorno do domínio, **sem reler** o registro; (4) o resumo de confirmação não dizia **para quem** era o horário; (5) não existia captura de áudio no painel (só o WhatsApp transcreve, e só no servidor).
 
+## 1.1 Como abrir (atalhos na Agenda)
+
+Três jeitos, todos levam à **mesma** conversa da CortAI (uma superfície ativa por vez):
+
+1. **Segurar o "+"** da Agenda (~0,5 s): vibra, a folha da CortAI abre **já ouvindo** e o teclado não pula na frente. Toque curto continua abrindo o menu de sempre. Mexer o dedo (rolagem), soltar antes do tempo ou o navegador cancelar o toque desfazem o gesto; o clique que o navegador dispara ao soltar é engolido (senão abriria o menu junto). Com o menu aberto o "+" é o "X" e segurar não faz nada de especial. Código: `barbeiro/agenda/useToqueLongo.ts`.
+2. **"Agendar por voz" no menu do "+"**: item no leque, colado ao "Agendar horário". É também o caminho para teclado e leitor de tela (segurar é só um atalho; o "+" ganha a descrição "Segure para agendar por voz"). Fica desabilitado sem internet (o comando depende do servidor).
+3. **Botão de microfone dentro do chat** (e o botão flutuante da CortAI como antes).
+
+Os itens 1 e 2 só existem se o navegador grava áudio; senão a Agenda fica exatamente como era.
+Decisão de desenho: segurar **abre e começa a ouvir** (toque no quadrado para enviar), em vez de "segurar enquanto fala e soltar para enviar". A alternativa (push-to-talk) é simples de trocar, mas exige manter o dedo parado durante a fala inteira; avise se preferir.
+
 ## 2. Fluxo (do pedido ao resultado)
 
 1. **Captura**: botão de microfone no chat (`AssistenteCortai.tsx` + `useGravadorDeVoz.ts`). Só aparece se o navegador tem `getUserMedia` e `MediaRecorder`; senão a pessoa escreve. Até 60 s; toque no quadrado para enviar; cancelar disponível; fechar o chat solta o microfone.

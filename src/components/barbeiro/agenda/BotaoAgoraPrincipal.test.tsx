@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+/* eslint-disable @typescript-eslint/no-explicit-any -- eventos de ponteiro simulados */
 import { readFileSync } from "node:fs";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -46,6 +47,7 @@ async function montar(
   onHoje = vi.fn(),
   menuAberto = false,
   onAlternarMenu = vi.fn(),
+  onAgendarPorVoz?: () => void,
 ) {
   prepararLargura(largura);
   host = document.createElement("div");
@@ -60,10 +62,11 @@ async function montar(
         onHoje={onHoje}
         menuAberto={menuAberto}
         onAlternarMenu={onAlternarMenu}
+        {...(onAgendarPorVoz ? { onAgendarPorVoz } : {})}
       />,
     ),
   );
-  return { onVisualizacao, onHoje };
+  return { onVisualizacao, onHoje, onAlternarMenu };
 }
 
 describe("BotaoAgoraPrincipal", () => {
@@ -234,5 +237,91 @@ describe("BotaoAgoraPrincipal", () => {
       ),
     );
     expect(ir).toHaveBeenCalledOnce();
+  });
+
+  describe('segurar o "+" para agendar por voz', () => {
+    const mais = () => document.querySelector<HTMLButtonElement>("[data-acoes-agenda]")!;
+    const ponteiro = (tipo: string) => {
+      const Ctor: typeof MouseEvent = (window as any).PointerEvent ?? MouseEvent;
+      return new Ctor(tipo, { bubbles: true, cancelable: true, button: 0, clientX: 5, clientY: 5 });
+    };
+
+    it("toque curto abre o menu e não aciona a voz", async () => {
+      vi.useFakeTimers();
+      const voz = vi.fn();
+      const { onAlternarMenu } = await montar(
+        390,
+        "timeline",
+        vi.fn(),
+        true,
+        vi.fn(),
+        false,
+        vi.fn(),
+        voz,
+      );
+      act(() => void mais().dispatchEvent(ponteiro("pointerdown")));
+      act(() => void vi.advanceTimersByTime(120));
+      act(() => void mais().dispatchEvent(ponteiro("pointerup")));
+      act(() => mais().click());
+      act(() => void vi.advanceTimersByTime(1_000));
+      expect(onAlternarMenu).toHaveBeenCalledTimes(1);
+      expect(voz).not.toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("segurar aciona a voz UMA vez e não abre o menu", async () => {
+      vi.useFakeTimers();
+      const voz = vi.fn();
+      const { onAlternarMenu } = await montar(
+        390,
+        "timeline",
+        vi.fn(),
+        true,
+        vi.fn(),
+        false,
+        vi.fn(),
+        voz,
+      );
+      act(() => void mais().dispatchEvent(ponteiro("pointerdown")));
+      act(() => void vi.advanceTimersByTime(600));
+      expect(mais().getAttribute("data-segurando")).toBeNull();
+      act(() => void mais().dispatchEvent(ponteiro("pointerup")));
+      act(() => mais().click());
+      expect(voz).toHaveBeenCalledTimes(1);
+      expect(onAlternarMenu).not.toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("mostra o retorno visual enquanto segura e descreve o gesto para leitor de tela", async () => {
+      vi.useFakeTimers();
+      await montar(390, "timeline", vi.fn(), true, vi.fn(), false, vi.fn(), vi.fn());
+      act(() => void mais().dispatchEvent(ponteiro("pointerdown")));
+      expect(mais().getAttribute("data-segurando")).toBe("true");
+      const dica = document.getElementById(mais().getAttribute("aria-describedby") ?? "");
+      expect(dica?.textContent).toMatch(/Segure para agendar por voz/);
+      vi.useRealTimers();
+    });
+
+    it("com o menu aberto, segurar não aciona a voz", async () => {
+      vi.useFakeTimers();
+      const voz = vi.fn();
+      await montar(390, "timeline", vi.fn(), true, vi.fn(), true, vi.fn(), voz);
+      act(() => void mais().dispatchEvent(ponteiro("pointerdown")));
+      act(() => void vi.advanceTimersByTime(1_000));
+      expect(voz).not.toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("sem a ação de voz, o '+' é o de sempre: sem dica nem gesto", async () => {
+      vi.useFakeTimers();
+      const { onAlternarMenu } = await montar(390);
+      expect(mais().getAttribute("aria-describedby")).toBeNull();
+      act(() => void mais().dispatchEvent(ponteiro("pointerdown")));
+      act(() => void vi.advanceTimersByTime(1_000));
+      act(() => void mais().dispatchEvent(ponteiro("pointerup")));
+      act(() => mais().click());
+      expect(onAlternarMenu).toHaveBeenCalledTimes(1);
+      vi.useRealTimers();
+    });
   });
 });

@@ -163,9 +163,12 @@ function PreviaDaAcao({
 export function AssistenteCortai({
   onFechar,
   segmento,
+  iniciarPorVoz = false,
 }: {
   onFechar: () => void;
   segmento?: Segmento | undefined;
+  /** Abre já ouvindo (atalho "Agendar por voz" da Agenda). */
+  iniciarPorVoz?: boolean;
 }) {
   const queryClient = useQueryClient();
   const perguntar = useServerFn(perguntarAoCortai);
@@ -208,7 +211,9 @@ export function AssistenteCortai({
   }, [mensagens.length, enviando]);
 
   useEffect(() => {
-    campo.current?.focus();
+    // Aberto por voz, o teclado não deve pular na frente do microfone.
+    if (!iniciarPorVoz) campo.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só ao abrir
   }, []);
 
   const voz = useGravadorDeVoz({
@@ -222,6 +227,17 @@ export function AssistenteCortai({
       await enviar(r.texto, "voz");
     },
   });
+
+  // Atalho "Agendar por voz": começa a ouvir assim que a folha abre. O atraso curto evita
+  // dupla partida quando o React remonta o componente em desenvolvimento.
+  const iniciarVoz = useRef(voz.iniciar);
+  iniciarVoz.current = voz.iniciar;
+  useEffect(() => {
+    if (!iniciarPorVoz || !voz.suportado) return;
+    const id = window.setTimeout(() => void iniciarVoz.current(), 150);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só ao abrir
+  }, []);
 
   // Mesmo texto reenviado depois de falha/timeout reaproveita o id: o servidor não duplica.
   const tentativa = useRef<{ texto: string; id: string } | null>(null);

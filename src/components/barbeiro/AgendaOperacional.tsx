@@ -26,6 +26,8 @@ import {
 import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
+import { gravacaoDeVozSuportada } from "@/components/ia/useGravadorDeVoz";
+import { segmentoParaApresentacao } from "@/lib/segmentos";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
   PainelAtendimento,
@@ -105,6 +107,9 @@ import {
   useLugarDaAgenda,
 } from "@/components/barbeiro/agenda/useLugarDaAgenda";
 
+const AssistenteCortaiLazy = lazyComRecuperacao(() =>
+  import("@/components/ia/AssistenteCortai").then((m) => ({ default: m.AssistenteCortai })),
+);
 const AgendamentoManualLazy = lazyComRecuperacao(() =>
   import("@/components/barbeiro/AgendamentoManual").then((m) => ({ default: m.AgendamentoManual })),
 );
@@ -278,6 +283,10 @@ export function AgendaOperacional() {
   const [painelAberto, setPainelAberto] = useState(false);
   const [estadosLocais, setEstadosLocais] = useState<Record<string, string>>({});
   const [menuAberto, setMenuAberto] = useState(false);
+  // Agendar por voz: abre a CortAI já ouvindo. Só existe se o navegador grava áudio.
+  const [vozAberta, setVozAberta] = useState(false);
+  const [vozSuportada, setVozSuportada] = useState(false);
+  useEffect(() => setVozSuportada(gravacaoDeVozSuportada()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
   const [focoTrancado, setFocoTrancado] = useState(false);
   const [manualAberto, setManualAberto] = useState(
@@ -839,6 +848,13 @@ export function AgendaOperacional() {
     />
   );
 
+  function abrirAgendamentoPorVoz() {
+    setMenuAberto(false);
+    setPainelAberto(false);
+    setSelecionado(null);
+    setVozAberta(true);
+  }
+
   const menuAcoes = (
     <MenuAcoesAgenda
       aberto={menuAberto}
@@ -856,6 +872,7 @@ export function AgendaOperacional() {
         setNovoCliente(true);
         setManualAberto(true);
       }}
+      {...(vozSuportada ? { onAgendarPorVoz: abrirAgendamentoPorVoz } : {})}
       comBotaoFechar={!modoFoco}
       visivel={acoesFlutuantesVisiveis && !edicao.rascunho}
     />
@@ -864,6 +881,15 @@ export function AgendaOperacional() {
   // Folhas e diálogos compartilhados pelas duas telas (normal e Modo Foco).
   const compartilhados = (
     <>
+      {vozAberta ? (
+        <Suspense fallback={null}>
+          <AssistenteCortaiLazy
+            segmento={segmentoParaApresentacao(segmentoAgenda)}
+            iniciarPorVoz
+            onFechar={() => setVozAberta(false)}
+          />
+        </Suspense>
+      ) : null}
       <PainelAtendimento
         item={itemSelecionado}
         aberto={painelAberto}
@@ -1521,6 +1547,7 @@ export function AgendaOperacional() {
         onHoje={() => mudarDia(hojeNoFuso(fuso))}
         menuAberto={menuAberto}
         visivel={acoesFlutuantesVisiveis && !edicao.rascunho}
+        {...(vozSuportada ? { onAgendarPorVoz: abrirAgendamentoPorVoz } : {})}
         onAlternarMenu={() => {
           setPainelAberto(false);
           setSelecionado(null);
