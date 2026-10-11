@@ -1,87 +1,96 @@
-# Auditoria técnica do Cortaí — 11/10/2026 (somente leitura)
+# C1 — Fechar a leitura pública de comissão e vínculo de conta
 
-Nada foi alterado no código, no banco, nas configurações nem na publicação. Este documento é o relatório da auditoria. Ao aprovar, ele vira `docs/auditoria-2026-10-11.md` e nenhuma correção é feita.
+Escopo: só `servicos.comissao_percentual` e `profissionais.user_id` para quem não está logado (papel `anon`). Nada mais muda.
 
-## 1. Resumo executivo
+## Fatos confirmados (leitura do catálogo e do código, 11/10/2026)
 
-- **Build e testes estão saudáveis:** a checagem de tipos rodou sem erros e a suíte inteira passou (126 arquivos, 1038 testes, 1 ignorado).
-- **Servidor:** os pontos já revisados continuam sólidos. O webhook da Evolution recusa chamadas sem segredo válido (503 sem segredo configurado, 401 com segredo errado) e o IP vem só de `ipDaChamada()`. Os cupons comparam o código sem curinga.
-- **Falhas confirmadas que continuam abertas:** fila de chegada pública sem limite de tentativas; avisos que apontam para `/painel`, uma página que não existe; 76 conversões `as never`; transcrição de áudio nunca testada com áudio real; gesto de arrastar para fechar nunca testado em aparelho.
-- **Conclusão:** não há achado grave confirmado no que foi lido. A cobertura é parcial (ver seção 9), então isso **não** prova que o projeto está seguro.
+**Banco**
+- `relacl` das duas tabelas: `anon=arwdDxtm` e `authenticated=arwdDxtm`, ou seja, permissão em nível de TABELA para tudo.
+- `has_column_privilege('anon', ...)` = true em todas as colunas, inclusive `comissao_percentual` e `user_id`.
+- Políticas para `anon`: "publico ve servicos ativos" e "publico ve profissionais ativos" (SELECT com `ativo = true` e negócio ativo). Elas filtram linhas, não colunas.
+- Não existe política de escrita para `anon` nessas tabelas: as escritas já são bloqueadas pelo RLS.
+- Nenhuma view do schema `public` lê essas tabelas.
+- Funções sem privilégio de dono (invoker) que `anon` pode executar e que citam as tabelas: `permissoes_padrao` e `teto_do_papel` (não leem as colunas) e `agendamento_validar_integridade`. Esta última é um gatilho de `agendamentos`, e `anon` não grava em `agendamentos`.
 
-## 2. Tabela de achados
+**Conclusão técnica:** revogar só a coluna (`REVOKE SELECT (coluna)`) NÃO funciona enquanto existir o SELECT em nível de tabela. O Postgres libera a coluna se houver permissão na tabela ou na coluna. É preciso revogar o SELECT de tabela do `anon` e conceder SELECT coluna a coluna, apenas nas colunas seguras.
 
-| ID | Sev. | Domínio | Onde | Evidência | Impacto | Como reproduzir | Recomendação |
-|---|---|---|---|---|---|---|---|
-| A1 | P1 | Fila pública | `src/lib/fila-publica.functions.ts` `entrarNaFilaPublica` (l.73-95) | Usa a chave de serviço e não chama `limitarPublico`/`barrarAbusivo` | Um robô pode encher a fila de chegada de qualquer negócio com nomes e telefones falsos | Repetir POST com o slug de um negócio que tem a fila ligada | Limite por IP e por slug com `limitarPublico` |
-| A2 | P2 | Notificações | `src/lib/push/aviso-sininho.server.ts:72`, `src/lib/whatsapp/fluxo.server.ts:943` | O link padrão é `"/painel"`, mas essa rota não existe (as rotas reais são `/barbeiro/...`) | Tocar no aviso abre "página não encontrada" | Aviso sem link próprio → tocar no push | Usar `links-de-tela.ts` como link padrão |
-| A3 | P2 | Público | Agendamento público (achado 11 de 09/10) | Não mudou no que foi lido | Alguém pode agendar com o telefone de outra pessoa | Agendar pelo link com um número que não é seu | Confirmação leve ou limite por telefone |
-| A4 | P2 | Cliente anônimo | Permissões de coluna (achado 12) | Não reverificado no banco nesta rodada | Comissão e `user_id` podem estar visíveis a qualquer visitante | — | Reconferir no catálogo e revogar as colunas |
-| A5 | P2 | WhatsApp áudio | `transcricao.server.ts`, `fluxo.server.ts:461-463` | Está ligado ao fluxo, mas não há teste automático nem teste real | Áudio de cliente pode falhar sem ninguém perceber | Mandar áudio para a Aurora | Teste de ponta a ponta e testes unitários com áudio simulado |
-| A6 | P2 | UX gavetas | `useArrastarParaFechar.ts`, `sheet.tsx` | Fecha clicando o botão interno do Radix; nunca validado em aparelho | O gesto pode não funcionar ou dar "pulo" no iOS ou no Android | Arrastar o menu no celular | Teste em aparelho; fechar pelo contexto do Dialog em vez do botão |
-| A7 | P3 | Qualidade | 76 `as never` em `src` | Contagem por busca no código | Escondem erros de tipo em chamadas ao banco | — | Remover aos poucos, junto com os tipos gerados |
-| A8 | P3 | Arquitetura | Dois sistemas de migração (Supabase e Drizzle) | `supabase/migrations` e `drizzle/migrations` | Risco de histórico divergente | — | Documentar qual vale e congelar o outro |
-| A9 | P3 | Legado | `/api/public/cortai/acoes`, `/api/public/alvo-ia`, `ia/ponte.server.ts` | Ainda publicados, com token e `barrarAbusivo` | Superfície de ataque sem uso no fluxo novo | — | Desligar por interruptor e depois remover, sem DROP |
-| A10 | P3 | Busca de comanda | `comanda-ticket.functions.ts:293` | `ilike(prefixo%)` com prefixo validado e filtro por tenant | Baixo; vale confirmar que `prefixoDeCodigo` remove `%` e `_` | — | Escapar curingas |
-| A11 | P3 | IA | `config_atendimento_ia.cortai_ativa` | Não existe no código (busca vazia) | Ainda não há um interruptor geral da CortAI fora do WhatsApp | — | Fase 3 do plano da CortAI |
+**Código: quem lê essas tabelas sem login**
 
-## 3. Segurança e isolamento entre negócios
+| Tela | Função | Acesso | Colunas lidas |
+|---|---|---|---|
+| `/b/$slug` (vitrine) | `publico.functions.ts` (~l.86 e 92) | admin no servidor | servicos: id, nome, duracao_min, preco_centavos · profissionais: id, nome, avatar_url, descricao, portfolio |
+| `/agendar/$slug` | `agendamento-publico.functions.ts` `getAgendaPublica` (l.174/180), `agendarComoConvidado` (l.342/349), `getPreviaDaBarbearia` (l.612) | admin | sem comissao, sem user_id |
+| Cortaí Chat público | `agenda-chat.functions.ts` (l.81/87) | admin | id, nome, duracao_min, preco_centavos, profissional_ids · id, nome |
+| Loja `/loja/$slug` | `loja.functions.ts` `getLojaPublica` | admin | não lê servicos/profissionais |
+| Capa `/api/public/capa/$slug` | `capa.$slug.ts` | admin | só `tenants` e storage |
+| Clientes públicos do servidor (chave pública) | `institucional`, `parceiros`, `admin.getGlobalDesign` | anon | não leem essas tabelas |
+| MCP | `mcp/supabase.ts` `supabaseForUser` | usuário logado (`authenticated`) | não usa `anon` |
 
-- **Confirmado no código atual:** o negócio vem do vínculo da pessoa logada (`vinculoDoMembro` + `escolherVinculo`) e acesso suspenso é recusado. As permissões passam por `exigirPermissao` → `has_tenant_permission`. O webhook da Evolution recusa por padrão. Os cupons não aceitam curinga. O IP não é forjável.
-- **Comparação com a auditoria de 09/10:**
-  - Corrigidos: 1, 7 e 16 (a parte do IP), confirmados no código. Os itens 2, 3 e 6 aparecem como corrigidos pela migração 0027, mas não foram reverificados no banco nesta rodada.
-  - Os itens 4, 5, 8 (IP) e 17 continuam "corrigidos no código". Não é possível confirmar se já estão publicados.
-  - Abertos e confirmados: 9 (= A1), 10 (= A7/A8) e 10b (= A2).
-  - Não verificáveis nesta rodada: 11, 12, 13, 14 e 15.
+- Nenhum componente ou rota do navegador lê `servicos`/`profissionais` com o cliente do navegador. As leituras com `context.supabase` estão em funções do servidor com login (`authenticated`).
+- `select("*")` em `servicos` só em `onboarding.functions.ts` (l.181 e 499), que roda logado e com admin. Não é afetado.
+- `comissao_percentual` aparece só em telas internas (`financeiro.functions.ts:110`, `FechamentoComanda.tsx`) e `user_id` em `whatsapp-equipe.functions.ts:96`. Todos com login.
 
-## 4. Bugs funcionais e regras
+**Impacto esperado por tela:** nenhum. Todas as telas públicas leem pelo servidor com acesso de administrador, que não depende das permissões do `anon`.
 
-- Links `/painel` quebrados (A2).
-- Remarcação feita pela IA pode recriar o horário como agendamento novo (achado 13; não reverificado).
-- Agendamentos antigos com origem `app` continuam assim: a migração 0026 não fez backfill, que depende de autorização.
+## Hipóteses (não confirmadas)
+- H1: algum cliente externo (integração, app antigo, PWA em cache) lê essas tabelas direto pela API com a chave pública. Não há evidência no código; só os logs de API diriam.
+- H2: um PWA antigo em cache pode ter um bundle que lia direto. É improvável, porque o código atual não faz isso e o histórico não foi checado.
 
-## 5. Visual e celular
+## Mudança mínima proposta (uma migração, só de acréscimo/ajuste de permissão)
 
-- Não houve verificação visual nesta rodada: a sessão disponível não tem estabelecimento. Ficam pendentes: gavetas com arrasto, o sino nas três identidades, o cadastro inicial em 360/390px e o banner de cookies.
+```sql
+REVOKE SELECT ON public.servicos FROM anon;
+GRANT SELECT (id, tenant_id, nome, duracao_min, preco_centavos, ativo, ordem,
+              criado_em, categoria, profissional_ids, retorno_dias, foto_url)
+  ON public.servicos TO anon;
 
-## 6. Confiabilidade e integridade
+REVOKE SELECT ON public.profissionais FROM anon;
+GRANT SELECT (id, tenant_id, nome, avatar_url, ativo, criado_em, descricao, portfolio)
+  ON public.profissionais TO anon;
+```
 
-- A suíte cobre dedupe, envios presos, números 1/2/3, Pix com token, fila e gestos.
-- Contadores não atômicos e consultas sem limite (achado 15) não foram reverificados.
+- Não mexe em políticas, no `authenticated`, no `service_role` nem nos dados.
+- As subconsultas das políticas `anon` usam `ativo`, `tenant_id` e `tenants`, e continuam liberadas.
+- Comportamento da API: `select=*` como `anon` passa a dar erro de permissão (42501) em vez de devolver só parte das colunas. Pedir colunas explícitas continua funcionando. Isso é aceitável porque nenhum código atual faz esse pedido como `anon`.
+- Fica fora desta rodada: INSERT/UPDATE/DELETE do `anon` na tabela (já bloqueados pelo RLS, que não tem política de escrita) e a leitura entre negócios por `authenticated` (não há política pública para `authenticated`).
+- Coluna nova no futuro: fica fechada para `anon` por padrão, que é o lado seguro. Vou registrar uma regra no `AGENTS.md` lembrando de conceder a coluna se ela precisar ser pública.
 
-## 7. Integrações
+## Plano de testes
 
-| Integração | Estado |
-|---|---|
-| Evolution (texto) | Implementada; depende de URL, chave e segredo configurados no ambiente publicado e do envio do cabeçalho `x-webhook-secret` |
-| Evolution (áudio) | Implementada, não testada |
-| Meta Cloud | Implementada (coexiste com a Evolution) |
-| Asaas | Implementada; a chave só circula em funções de admin |
-| Push | Implementado; o link padrão está quebrado (A2) |
-| CortAI | Implementada pelo gateway de IA; falta o interruptor geral (A11) |
-| ALVO IA | Legado, ainda exposto (A9) |
+**Negativos (como `anon`, em transação com ROLLBACK, no formato de `tests/sql/rbac*.sql`)**
+- `SELECT comissao_percentual FROM servicos` → erro de permissão.
+- `SELECT user_id FROM profissionais` → erro de permissão.
+- `SELECT * FROM servicos` e `SELECT * FROM profissionais` → erro.
+- `has_column_privilege('anon', ...)` = false nas duas colunas.
 
-## 8. Testes e build executados nesta rodada
+**Positivos**
+- Como `anon`: selecionar cada coluna segura funciona, e o filtro `ativo`/negócio ativo continua valendo (registro inativo não aparece).
+- Como `authenticated` membro: continua lendo `comissao_percentual` e `user_id` do próprio negócio.
+- `has_column_privilege('authenticated', ...)` continua true.
+- Telas sem login, manualmente/Playwright: `/b/<slug-demo>`, `/agendar/<slug-demo>` (lista, horários e reserva de teste em negócio de teste), Cortaí Chat público, `/loja/<slug>`, capa.
+- Com login: Financeiro/Fechamento de comanda (comissão), equipe/WhatsApp da equipe (user_id), onboarding de serviços, MCP `listar-servicos`.
+- Rodar `npx vitest run` e `npx tsc --noEmit` (sem mudança de código, só para confirmar).
 
-- `npx tsc --noEmit`: sem erros.
-- `npx vitest run`: 126 arquivos, 1038 testes passaram e 1 foi ignorado. Os 8 testes de números que falhavam na rodada anterior agora passam.
-- Lint e build de produção: **não executados** nesta rodada.
+## Reversão
+Uma migração inversa restaura o estado atual:
+```sql
+GRANT SELECT ON public.servicos TO anon;
+GRANT SELECT ON public.profissionais TO anon;
+```
+Ela não perde dados e é imediata.
 
-## 9. O que não foi verificado e por quê
+## Dependências
+- Sua autorização para aplicar a migração; ela vale para a prévia e para o site publicado, porque é um banco só.
+- Antes de aplicar, conferir os logs de API das últimas semanas: alguma requisição `anon` a `/rest/v1/servicos` ou `/profissionais` pedindo `*` ou essas colunas? Isso fecha a hipótese H1.
+- Registrar a migração na árvore oficial do projeto (`drizzle/migrations`), seguindo o padrão atual.
 
-- **Banco de produção** (RLS, permissões de coluna, funções `SECURITY DEFINER`, buckets): o modo de leitura desta rodada não consultou o catálogo.
-- Motor de disponibilidade, `whatsapp/motor/*`, `barbeiro.functions` e a maioria das telas: não foram lidos linha a linha, por limite de tempo.
-- **Visual em 390/1280px:** não há sessão com estabelecimento.
-- **Ambiente publicado** (segredos presentes, logs, áudio real): não consultado.
-- Service worker e recuperação de chunk: só cobertos pelos testes existentes.
+## Critérios de aceite
+1. `anon` não lê `servicos.comissao_percentual` nem `profissionais.user_id` (testes negativos passam).
+2. Todas as telas públicas listadas carregam e reservam normalmente.
+3. Membros logados continuam vendo comissão e vínculo como hoje.
+4. Nenhuma política, dado ou permissão de escrita alterados; o linter do banco não aponta problema novo.
+5. A reversão foi testada em transação.
 
-## 10. Plano de correção priorizado (não executado)
-
-1. A1: limite de tentativas na fila pública.
-2. A2: link padrão dos avisos via `links-de-tela.ts`.
-3. Rodada de banco somente leitura: reconferir 0027, A4 e as funções expostas.
-4. A5 e A6: teste real de áudio e do gesto no celular, com testes automáticos.
-5. Rodar lint e build e registrar o resultado.
-6. A3: proteção do telefone no agendamento público.
-7. A9 e A11: interruptor da CortAI e desligamento do legado ALVO IA.
-8. A7, A8 e A10: limpeza técnica gradual.
+## Detalhes técnicos de suporte
+- A regra "tabela OU coluna" do Postgres torna o REVOKE só de coluna ineficaz quando há GRANT de tabela. Por isso a proposta revoga na tabela e concede coluna a coluna.
+- A API (PostgREST) respeita as permissões por coluna: `select=*` vira uma lista de todas as colunas e falha se alguma não estiver liberada. Por isso as consultas públicas, se existissem, precisariam de colunas explícitas.
