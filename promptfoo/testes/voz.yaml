@@ -28,6 +28,7 @@
         value: "file://asserts/index.mjs:perguntouQualDosHomonimos",
         config: { nomes: [Silva, Costa] },
       }
+    - { type: javascript, value: "file://asserts/index.mjs:ofereceuOpcoes", config: { minimo: 2 } }
 
 - description: Cliente que não existe — não cria horário e oferece cadastrar
   vars:
@@ -166,3 +167,38 @@
         value: "file://asserts/index.mjs:consultou",
         config: { nome: buscar_cliente_por_nome },
       }
+
+- description: Pop-up de homônimos — depois de tocar no cliente, agenda direto
+  vars:
+    mensagem: "Leandro Silva (final 4321)"
+    historico:
+      - {
+          autor: usuario,
+          texto: "CortAI, marque um horário para Leandro amanhã às 15h para corte.",
+        }
+      - {
+          autor: assistente,
+          texto: "Encontrei mais de um: Leandro Silva (final 4321) e Leandro Costa (final 0001). Qual deles?",
+        }
+    clienteEscolhidoId: cli-leandro-silva
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:executouDireto",
+        config: { nome: criar_agendamento },
+      }
+    - { type: javascript, value: "file://asserts/index.mjs:semOpcoes" }
+    - type: javascript
+      value: "JSON.parse(output).executadas[0].dados.clienteId === 'cli-leandro-silva'"
+
+- description: Cliente único com nome e sobrenome — sem pop-up
+  vars:
+    mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:semOpcoes" }

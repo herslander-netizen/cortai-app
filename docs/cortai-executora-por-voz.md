@@ -29,6 +29,17 @@ Três jeitos, todos levam à **mesma** conversa da CortAI (uma superfície ativa
 Os itens 1 e 2 só existem se o navegador grava áudio; senão a Agenda fica exatamente como era.
 Decisão de desenho: segurar **abre e começa a ouvir** (toque no quadrado para enviar), em vez de "segurar enquanto fala e soltar para enviar". A alternativa (push-to-talk) é simples de trocar, mas exige manter o dedo parado durante a fala inteira; avise se preferir.
 
+## 1.2 Dois clientes com o mesmo nome (pop-up de opções)
+
+Se a busca por nome devolve **mais de um** cliente, a CortAI não chuta e **nada é agendado**. A conversa mostra um cartão fixo acima do campo de escrita, “Qual cliente? Toque no certo”, com um botão por cliente (nome + final do telefone). Ao tocar:
+
+- a tela envia o **ID** do cliente (não só o nome); o servidor confere que ele é **deste negócio**, não está arquivado e que a pessoa pode ver clientes (`visualizar_clientes`); se não, recusa;
+- a política de execução direta passa a tratar esse cliente como **resolvido**; a CortAI continua o pedido original (serviço, dia e hora que já estavam na conversa), consulta a disponibilidade e agenda;
+- ao modelo vai **só o ID validado, nunca o nome** (nome de cliente é dado de terceiros e poderia carregar instrução maliciosa);
+- se o envio falhar (rede), o cartão volta e a pessoa toca de novo, sem redigitar; “×” fecha o cartão sem enviar; o cartão só aparece enquanto a última mensagem é a pergunta da CortAI.
+
+**Regra de nome e sobrenome**: já vale sem obrigar ninguém a dizer o sobrenome. Se a pessoa fala “Leandro Silva” e só existe um, executa; se falar só “Leandro” e houver dois, aparece o cartão; se houver só um “Leandro” cadastrado, executa direto (a busca única é a prova exigida). Exigir sobrenome SEMPRE, mesmo com um só candidato, é uma mudança de uma linha em `execucao-direta.ts`, mas acrescenta atrito em toda marcação por voz — não ativei; é decisão sua.
+
 ## 2. Fluxo (do pedido ao resultado)
 
 1. **Captura**: botão de microfone no chat (`AssistenteCortai.tsx` + `useGravadorDeVoz.ts`). Só aparece se o navegador tem `getUserMedia` e `MediaRecorder`; senão a pessoa escreve. Até 60 s; toque no quadrado para enviar; cancelar disponível; fechar o chat solta o microfone.

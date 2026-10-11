@@ -292,3 +292,122 @@ describe("mensagem repetida no mesmo turno", () => {
     expect(estado.executadas).toHaveLength(1);
   });
 });
+
+describe("homônimos: pop-up de opções e escolha na tela", () => {
+  const doisLeandros = {
+    encontrados: 2,
+    clientes: [
+      { id: "cli-1", nome: "Leandro Silva", telefoneFinal: "4321" },
+      { id: "cli-2", nome: "Leandro Silva", telefoneFinal: "0001" },
+    ],
+  };
+
+  it("busca ambígua + pergunta ao usuário: a resposta traz as opções para tocar", async () => {
+    estado.buscaDevolve = doisLeandros;
+    estado.roteiro = [
+      [chamada("buscar_cliente_por_nome", { nome: "Leandro" })],
+      [texto("Encontrei dois Leandro Silva. Qual deles?")],
+    ];
+    const r = await comandar();
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.opcoes).toEqual([
+      { tipo: "cliente", id: "cli-1", rotulo: "Leandro Silva", detalhe: "final 4321" },
+      { tipo: "cliente", id: "cli-2", rotulo: "Leandro Silva", detalhe: "final 0001" },
+    ]);
+  });
+
+  it("busca com resultado único ou sem resultado: nenhum pop-up", async () => {
+    estado.roteiro = [
+      [chamada("buscar_cliente_por_nome", { nome: "Leandro Silva" })],
+      [texto("Ok, qual serviço?")],
+    ];
+    expect((await comandar()).opcoes).toBeUndefined();
+    estado.buscaDevolve = { encontrados: 0, clientes: [] };
+    estado.roteiro = [
+      [chamada("buscar_cliente_por_nome", { nome: "Zacarias" })],
+      [texto("Não achei. Cadastro?")],
+    ];
+    expect((await comandar()).opcoes).toBeUndefined();
+  });
+
+  it("uma busca nova e única depois da ambígua desfaz o pop-up", async () => {
+    estado.buscaDevolve = doisLeandros;
+    estado.roteiro = [
+      [chamada("buscar_cliente_por_nome", { nome: "Leandro" }, "a")],
+      [
+        {
+          ...chamada("buscar_cliente_por_nome", { nome: "Leandro Silva final 4321" }, "b"),
+        },
+      ],
+      [texto("Certo.")],
+    ];
+    // O segundo resultado volta a ser ambíguo no mock; simula o refinamento trocando a resposta.
+    let n = 0;
+    const original = estado.buscaDevolve;
+    Object.defineProperty(estado, "buscaDevolve", {
+      configurable: true,
+      get: () => (n++ === 0 ? original : { encontrados: 1, clientes: [original.clientes[0]] }),
+      set: () => undefined,
+    });
+    const r = await comandar();
+    expect(r.opcoes).toBeUndefined();
+    Object.defineProperty(estado, "buscaDevolve", {
+      configurable: true,
+      writable: true,
+      value: original,
+    });
+  });
+
+  it("depois que a pessoa TOCA no cliente, o agendamento executa direto, sem repetir a busca", async () => {
+    estado.roteiro = [
+      [chamada("listar_servicos", {})],
+      [
+        chamada("consultar_disponibilidade", {
+          dia: "2026-10-12",
+          servicoId: "srv-1",
+          profissionalId: null,
+        }),
+      ],
+      [chamada("criar_agendamento", dadosDoAgendamento)],
+    ];
+    const r = await comandar("Leandro Silva (final 4321)", painel, { clienteEscolhidoId: "cli-1" });
+    expect(estado.executadas).toEqual(["criar_agendamento"]);
+    expect(r.texto).toMatch(/^Pronto ✅/);
+  });
+
+  it("a escolha vale só para AQUELE cliente: outro id continua pedindo confirmação", async () => {
+    estado.roteiro = [
+      [chamada("listar_servicos", {})],
+      [
+        chamada("consultar_disponibilidade", {
+          dia: "2026-10-12",
+          servicoId: "srv-1",
+          profissionalId: null,
+        }),
+      ],
+      [chamada("criar_agendamento", { ...dadosDoAgendamento, clienteId: "cli-2" })],
+      [texto("ok")],
+    ];
+    const r = await comandar("Leandro Silva (final 4321)", painel, { clienteEscolhidoId: "cli-1" });
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.pendente?.acao).toBe("criar_agendamento");
+  });
+
+  it("sem a escolha, o mesmo roteiro (ids vindos de lugar nenhum) não executa", async () => {
+    estado.roteiro = [
+      [chamada("listar_servicos", {})],
+      [
+        chamada("consultar_disponibilidade", {
+          dia: "2026-10-12",
+          servicoId: "srv-1",
+          profissionalId: null,
+        }),
+      ],
+      [chamada("criar_agendamento", dadosDoAgendamento)],
+      [texto("ok")],
+    ];
+    const r = await comandar("Leandro Silva (final 4321)");
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.pendente).not.toBeNull();
+  });
+});

@@ -39,7 +39,19 @@ function resposta(content, chamadas = []) {
 
 /** Roteiro do painel: busca o cliente, confere o serviço, consulta horários e só então agenda. */
 function fluxoDoPainel(msgs, ofertadas) {
-  const original = [...msgs].reverse().find((m) => m.role === "user")?.content ?? "";
+  const ultimaDaPessoa = [...msgs].reverse().find((m) => m.role === "user")?.content ?? "";
+  // Pop-up de homônimos: a pessoa tocou em um cliente; o pedido original está no histórico.
+  const escolhido = /cliente é o de id ([\w-]+)/.exec(ultimaDaPessoa)?.[1];
+  const original = escolhido
+    ? ([...msgs]
+        .reverse()
+        .find(
+          (m) =>
+            m.role === "user" &&
+            /marque|marcar|agendar/i.test(m.content) &&
+            !m.content.includes("Escolha confirmada"),
+        )?.content ?? "")
+    : ultimaDaPessoa;
   const fala = original.toLowerCase();
   const ultima = msgs.at(-1);
   const chamadas = msgs.flatMap((m) => m.tool_calls ?? []);
@@ -61,7 +73,9 @@ function fluxoDoPainel(msgs, ofertadas) {
   }
   if (!/marque|marcar|agendar/.test(fala) || !nome) return null;
 
-  const busca = resultado("buscar_cliente_por_nome");
+  const busca = escolhido
+    ? { resultado: { clientes: [{ id: escolhido }] } }
+    : resultado("buscar_cliente_por_nome");
   if (!busca) return chama("buscar_cliente_por_nome", { nome });
   const achados = busca.resultado?.clientes ?? [];
   if (achados.length === 0)

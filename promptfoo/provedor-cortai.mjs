@@ -99,6 +99,7 @@ export default class ProvedorCortai {
     else delete process.env.CORTAI_EXECUCAO_DIRETA;
     const { ACOES, ferramentasDoContexto } = await import(`${RAIZ}/src/lib/brain/acoes.server.ts`);
     const { pensarCortai } = await import(`${RAIZ}/src/lib/brain/agente.server.ts`);
+    const { mensagemComEscolha } = await import(`${RAIZ}/src/lib/brain/escolha-de-cliente.ts`);
     const mundo = instalarMundo(ACOES, {
       falhas: lista(v.falhasDeLeitura),
       falhasDeEscrita: lista(v.falhasDeEscrita),
@@ -180,7 +181,11 @@ export default class ProvedorCortai {
             segmento: "barbearia",
           },
           historico: v.historico ?? [],
-          mensagem: v.mensagem,
+          // Igual ao servidor: a escolha tocada na tela entra só como id já validado.
+          mensagem: v.clienteEscolhidoId
+            ? mensagemComEscolha(v.mensagem, v.clienteEscolhidoId)
+            : v.mensagem,
+          ...(v.clienteEscolhidoId ? { clienteEscolhidoId: v.clienteEscolhidoId } : {}),
           pendente: pendenteAtual,
           conversaId: "conversa-avaliacao",
           ...(v.simultaneas ? { consumirPendente } : {}),
@@ -194,6 +199,7 @@ export default class ProvedorCortai {
         pendente: r.pendente,
         pedirHumano: r.pedirHumano,
         indisponivel: r.indisponivel,
+        opcoes: r.opcoes ?? [],
         executadas: mundo.registro.executadas,
         preparadas: mundo.registro.preparadas,
         leituras: mundo.registro.leituras,

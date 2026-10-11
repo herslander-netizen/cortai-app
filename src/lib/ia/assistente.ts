@@ -1,3 +1,4 @@
+import type { OpcaoDeEscolha } from "@/lib/brain/escolha-de-cliente";
 /**
  * Contrato do assistente do CortAI — seguro para o navegador (só tipos e rótulos).
  *
@@ -40,6 +41,8 @@ export type RespostaDoAssistente = {
   horarios: HorarioSugerido[] | null;
   /** false quando a IA não está disponível neste ambiente. */
   disponivel: boolean;
+  /** Opções para escolher na tela (ex.: dois clientes com o mesmo nome). */
+  opcoes?: OpcaoDeEscolha[] | null;
 };
 
 export const DIAS_DA_SEMANA = [

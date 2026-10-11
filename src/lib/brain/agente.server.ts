@@ -38,6 +38,7 @@ import {
   recusaInequivoca,
   RESPOSTA_RECUSA,
 } from "./guardas";
+import { opcoesDeClientes, type OpcaoDeEscolha } from "./escolha-de-cliente";
 import {
   decidirExecucao,
   execucaoDiretaLigada,
@@ -73,6 +74,8 @@ export type ResultadoDoCerebro = {
   acoes: { nome: string; sucesso: boolean; erro?: string | null }[];
   /** Preenchido quando a IA não pôde responder (sem crédito, sem chave...). */
   indisponivel: string | null;
+  /** Opções para a pessoa tocar (ex.: clientes homônimos). Só no painel. */
+  opcoes?: OpcaoDeEscolha[];
 };
 
 const MAX_PASSOS = 6;
@@ -193,6 +196,8 @@ export type EntradaDoCerebro = {
   mensagem: string;
   pendente: Pendente | null;
   conversaId?: string | null;
+  /** Cliente que a pessoa tocou no pop-up (já validado no servidor): conta como resolvido. */
+  clienteEscolhidoId?: string;
   /** Como o comando chegou (a voz é transcrita antes). Só para rastreio. */
   origemDoComando?: "texto" | "voz";
   /**
@@ -306,6 +311,9 @@ async function pensarCortaiComTurno(
   ];
 
   const evidencias = novasEvidencias();
+  if (input.clienteEscolhidoId) evidencias.clientes.add(input.clienteEscolhidoId);
+  // Busca ambígua mais recente: vira o pop-up de opções (só vale se o turno terminar em texto).
+  let opcoes: OpcaoDeEscolha[] = [];
   const diretaLigada = execucaoDiretaLigada();
   const gateway = criarSessaoDoGateway({
     canal: ctx.canal,
@@ -345,6 +353,8 @@ async function pensarCortaiComTurno(
           pedirHumano,
           acoes,
           indisponivel: null,
+          // Sem ação pendente e com homônimos na busca: a tela mostra as opções para tocar.
+          ...(!pendente && opcoes.length ? { opcoes } : {}),
         };
       }
       entrada.push(...saida);
@@ -443,6 +453,7 @@ async function pensarCortaiComTurno(
           try {
             const resultado = await executarAcao(ctx, nome, dados, conversaId, obs);
             registrarEvidencia(evidencias, nome, dados, resultado);
+            if (nome === "buscar_cliente_por_nome") opcoes = opcoesDeClientes(resultado);
             saidaDaAcao = { ok: true, resultado };
             acoes.push({ nome, sucesso: true });
           } catch (erro) {

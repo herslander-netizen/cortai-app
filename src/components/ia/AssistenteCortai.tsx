@@ -216,6 +216,16 @@ export function AssistenteCortai({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- só ao abrir
   }, []);
 
+  // Pop-up de homônimos: some quando a pessoa escolhe, fecha ou manda outra mensagem.
+  const [opcoesDispensadas, setOpcoesDispensadas] = useState<Set<string>>(new Set());
+
+  const ultimaMensagem = mensagens.at(-1);
+  const ultimaId = ultimaMensagem?.id ?? "";
+  const opcoesAtuais =
+    ultimaMensagem?.autor === "assistente" && !enviando && !opcoesDispensadas.has(ultimaId)
+      ? (ultimaMensagem.acao?.opcoes ?? [])
+      : [];
+
   const voz = useGravadorDeVoz({
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
       const r = await transcrever({
@@ -240,23 +250,39 @@ export function AssistenteCortai({
   }, []);
 
   // Mesmo texto reenviado depois de falha/timeout reaproveita o id: o servidor não duplica.
-  const tentativa = useRef<{ texto: string; id: string } | null>(null);
+  const tentativa = useRef<{ texto: string; id: string; escolha?: string | undefined } | null>(
+    null,
+  );
 
-  async function enviar(mensagem: string, origem: "texto" | "voz" = "texto") {
+  async function enviar(
+    mensagem: string,
+    origem: "texto" | "voz" = "texto",
+    clienteEscolhidoId?: string,
+  ): Promise<boolean> {
     const limpo = mensagem.trim();
-    if (!limpo || enviando) return;
-    const id = tentativa.current?.texto === limpo ? tentativa.current.id : crypto.randomUUID();
-    tentativa.current = { texto: limpo, id };
+    if (!limpo || enviando) return false;
+    const id =
+      tentativa.current?.texto === limpo && tentativa.current.escolha === clienteEscolhidoId
+        ? tentativa.current.id
+        : crypto.randomUUID();
+    tentativa.current = { texto: limpo, id, escolha: clienteEscolhidoId };
     setTexto("");
     setErro(null);
     setEnviando(true);
+    const idLocal = `local-${Date.now()}`;
     setMensagens((atual) => [
       ...atual,
-      { id: `local-${Date.now()}`, autor: "barbeiro", conteudo: limpo, acao: null },
+      { id: idLocal, autor: "barbeiro", conteudo: limpo, acao: null },
     ]);
     try {
       const r = await perguntar({
-        data: { mensagem: limpo, conversaId, idDaMensagem: id, origem },
+        data: {
+          mensagem: limpo,
+          conversaId,
+          idDaMensagem: id,
+          origem,
+          ...(clienteEscolhidoId ? { clienteEscolhidoId } : {}),
+        },
       });
       tentativa.current = null;
       // O sistema só escreve "Pronto ✅" depois de gravar: a agenda aberta se atualiza já.
@@ -273,8 +299,12 @@ export function AssistenteCortai({
           acao: r.resposta,
         },
       ]);
+      return true;
     } catch (e) {
       setErro(e instanceof Error ? e.message : "O assistente não respondeu agora.");
+      // Escolha que não chegou: tira a fala provisória para o pop-up voltar e a pessoa tocar de novo.
+      if (clienteEscolhidoId) setMensagens((atual) => atual.filter((m) => m.id !== idLocal));
+      return false;
     } finally {
       setEnviando(false);
       campo.current?.focus();
@@ -481,6 +511,50 @@ export function AssistenteCortai({
                 {s}
               </button>
             ))}
+          </div>
+        ) : null}
+        {opcoesAtuais.length ? (
+          <div
+            role="group"
+            aria-label="Escolha o cliente"
+            className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <span className="text-xs font-semibold text-paper">Qual cliente?</span>
+              <span className="text-xs text-mute2">Toque no certo</span>
+              <button
+                type="button"
+                onClick={() => setOpcoesDispensadas((a) => new Set(a).add(ultimaId))}
+                aria-label="Fechar as opções"
+                className="ml-auto flex h-7 w-7 items-center justify-center rounded-full border border-line2 text-mute"
+              >
+                <X size={14} aria-hidden />
+              </button>
+            </div>
+            <ul className="max-h-40 space-y-1.5 overflow-y-auto">
+              {opcoesAtuais.map((o) => (
+                <li key={o.id}>
+                  <button
+                    type="button"
+                    disabled={enviando}
+                    onClick={async () => {
+                      const enviou = await enviar(
+                        `${o.rotulo}${o.detalhe ? ` (${o.detalhe})` : ""}`,
+                        "texto",
+                        o.id,
+                      );
+                      if (enviou) setOpcoesDispensadas((a) => new Set(a).add(ultimaId));
+                    }}
+                    className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink2 px-3.5 py-2 text-left text-sm text-paper transition-colors hover:border-gold/50 disabled:opacity-50"
+                  >
+                    <span className="min-w-0 truncate">{o.rotulo}</span>
+                    {o.detalhe ? (
+                      <span className="shrink-0 text-xs text-mute">{o.detalhe}</span>
+                    ) : null}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : null}
         {voz.estado !== "ocioso" || voz.erro ? (

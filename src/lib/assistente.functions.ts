@@ -3,6 +3,11 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro, vinculoDoMembro } from "@/lib/tenant";
+import {
+  mensagemComEscolha,
+  validarClienteEscolhido,
+  type ClienteEscolhido,
+} from "@/lib/brain/escolha-de-cliente";
 import type { RespostaDoAssistente } from "@/lib/ia/assistente";
 
 /** Monta o contexto real da barbearia — a IA só enxerga o que existe de verdade. */
@@ -104,6 +109,8 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         /** Gerado pelo navegador por envio e reaproveitado em nova tentativa (idempotência). */
         idDaMensagem: z.string().uuid().optional(),
         origem: z.enum(["texto", "voz"]).default("texto"),
+        /** Cliente tocado no pop-up de homônimos (conferido no servidor). */
+        clienteEscolhidoId: z.string().uuid().optional(),
       })
       .parse(input),
   )
@@ -111,6 +118,14 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
     async ({ data, context }): Promise<{ conversaId: string; resposta: RespostaDoAssistente }> => {
       const { tenantId, papel: papelNaEquipe } = await vinculoDoMembro(context);
       const db = context.supabase;
+
+      // Cliente tocado no pop-up: precisa ser deste negócio e a pessoa precisa poder ver clientes.
+      let clienteEscolhido: ClienteEscolhido | null = null;
+      if (data.clienteEscolhidoId) {
+        await exigirPermissao(context, tenantId, "visualizar_clientes");
+        clienteEscolhido = await validarClienteEscolhido(db, tenantId, data.clienteEscolhidoId);
+        if (!clienteEscolhido) throw new Error("Esse cliente não está disponível neste negócio.");
+      }
 
       let conversaId = data.conversaId;
       if (conversaId) {
@@ -238,10 +253,13 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
                 autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
                 texto: String(m["conteudo"] ?? ""),
               })),
-              mensagem: data.mensagem,
+              mensagem: clienteEscolhido
+                ? mensagemComEscolha(data.mensagem, clienteEscolhido.id)
+                : data.mensagem,
               pendente: pendente as never,
               conversaId,
               origemDoComando: data.origem,
+              ...(clienteEscolhido ? { clienteEscolhidoId: clienteEscolhido.id } : {}),
               // Dois "sim" simultâneos leem a mesma pendente: só quem a zera primeiro executa.
               consumirPendente: async (pendenteId) => {
                 const idDaMensagem = ultima?.["id"] as string | undefined;
@@ -274,6 +292,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
               servicos: null,
               horarios: null,
               disponivel: !r.indisponivel,
+              opcoes: r.opcoes ?? null,
             };
           }
         }

@@ -308,3 +308,15 @@ export const perguntouQualDosHomonimos = (output, ctx) =>
       `Texto: "${String(o.texto).slice(0, 160)}"`,
     );
   });
+
+/** A resposta traz o pop-up de homônimos: pelo menos `config.minimo` opções, todas com id e rótulo. */
+export const ofereceuOpcoes = (output, ctx) =>
+  com(output, (o) => {
+    const n = (o.opcoes ?? []).length;
+    const validas = (o.opcoes ?? []).every((x) => x.tipo === "cliente" && x.id && x.rotulo);
+    return resultado(n >= (ctx.config?.minimo ?? 2) && validas, `opções=${n}`);
+  });
+
+/** Nenhum pop-up (cliente único, inexistente ou ação já feita). */
+export const semOpcoes = (output) =>
+  com(output, (o) => resultado((o.opcoes ?? []).length === 0, `opções=${(o.opcoes ?? []).length}`));

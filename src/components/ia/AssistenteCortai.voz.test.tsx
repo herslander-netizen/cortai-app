@@ -222,3 +222,108 @@ describe("reenvio do mesmo comando (timeout) reaproveita o id", () => {
     expect(a).not.toBe(b);
   });
 });
+
+describe("pop-up de homônimos", () => {
+  const opcoes = [
+    { tipo: "cliente", id: "cli-1", rotulo: "Leandro Silva", detalhe: "final 4321" },
+    { tipo: "cliente", id: "cli-2", rotulo: "Leandro Silva", detalhe: "final 0001" },
+  ];
+  const conversaComOpcoes = (extra: Record<string, unknown> = {}) => ({
+    conversaId: "c1",
+    disponivel: true,
+    mensagens: [
+      {
+        id: "m1",
+        autor: "barbeiro",
+        conteudo: "marque Leandro amanhã às 15h para corte",
+        acao: null,
+      },
+      {
+        id: "m2",
+        autor: "assistente",
+        conteudo: "Encontrei dois Leandro Silva. Qual deles?",
+        acao: { ...RESPOSTA("x").resposta, opcoes, ...extra },
+      },
+    ],
+  });
+  const grupo = () => document.querySelector('[role="group"][aria-label="Escolha o cliente"]');
+  const opcao = (texto: string) =>
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[role="group"] li button')).find((b) =>
+      b.textContent?.includes(texto),
+    );
+
+  async function montarComConversa(conversa: unknown) {
+    mocks.conversa.mockResolvedValueOnce(conversa as never);
+    await montar(false);
+    await avancar(0);
+    await avancar(0);
+  }
+
+  it("mostra uma opção por cliente, com o que os diferencia", async () => {
+    await montarComConversa(conversaComOpcoes());
+    expect(grupo()).not.toBeNull();
+    expect(document.body.textContent).toMatch(/Qual cliente\?/);
+    expect(opcao("final 4321")).toBeDefined();
+    expect(opcao("final 0001")).toBeDefined();
+  });
+
+  it("tocar manda o ID do cliente escolhido (não só o nome) e fecha o pop-up", async () => {
+    mocks.perguntar.mockResolvedValue(
+      RESPOSTA("Pronto ✅ Concluído: Agendar Corte para Leandro Silva."),
+    );
+    await montarComConversa(conversaComOpcoes());
+    await act(async () => opcao("final 0001")!.click());
+    await avancar(0);
+    const enviado = mocks.perguntar.mock.calls[0]![0].data;
+    expect(enviado).toMatchObject({
+      mensagem: "Leandro Silva (final 0001)",
+      clienteEscolhidoId: "cli-2",
+      conversaId: "c1",
+    });
+    expect(enviado.idDaMensagem).toMatch(/^[0-9a-f-]{36}$/);
+    expect(grupo()).toBeNull();
+  });
+
+  it("fechar o pop-up não envia nada e dá para seguir escrevendo", async () => {
+    await montarComConversa(conversaComOpcoes());
+    await act(async () => botao("Fechar as opções")!.click());
+    expect(grupo()).toBeNull();
+    expect(mocks.perguntar).not.toHaveBeenCalled();
+  });
+
+  it("não aparece sem opções, nem quando a última mensagem é da pessoa", async () => {
+    await montarComConversa(conversaComOpcoes({ opcoes: null }));
+    expect(grupo()).toBeNull();
+    act(() => raiz?.unmount());
+    host?.remove();
+    const c = conversaComOpcoes();
+    c.mensagens.push({ id: "m3", autor: "barbeiro", conteudo: "o primeiro", acao: null });
+    await montarComConversa(c);
+    expect(grupo()).toBeNull();
+  });
+
+  it("se o envio da escolha falhar, o pop-up volta e dá para tocar de novo (sem redigitar)", async () => {
+    const iguais = [
+      { tipo: "cliente", id: "cli-1", rotulo: "Leandro Silva", detalhe: null },
+      { tipo: "cliente", id: "cli-2", rotulo: "Leandro Silva", detalhe: null },
+    ];
+    mocks.perguntar
+      .mockRejectedValueOnce(new Error("sem rede"))
+      .mockResolvedValue(RESPOSTA("Pronto ✅ Concluído: Agendar Corte."));
+    await montarComConversa(conversaComOpcoes({ opcoes: iguais }));
+    const botoes = () => document.querySelectorAll<HTMLButtonElement>('[role="group"] li button');
+    await act(async () => botoes()[0]!.click());
+    await avancar(0);
+    expect(document.body.textContent).toMatch(/sem rede/);
+    expect(grupo()).not.toBeNull(); // pop-up de volta
+    expect(document.body.textContent).not.toContain("Leandro Silva (final"); // fala provisória removida
+    await act(async () => botoes()[1]!.click()); // agora o outro homônimo (mesmo rótulo)
+    await avancar(0);
+    const [primeira, segunda] = mocks.perguntar.mock.calls.map((c) => c[0].data);
+    expect(primeira.clienteEscolhidoId).toBe("cli-1");
+    expect(segunda.clienteEscolhidoId).toBe("cli-2");
+    // Mesmo texto, clientes diferentes: não podem compartilhar o id de idempotência.
+    expect(segunda.idDaMensagem).not.toBe(primeira.idDaMensagem);
+    expect(grupo()).toBeNull();
+  });
+});
