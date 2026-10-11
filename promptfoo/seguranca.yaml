@@ -1,0 +1,19 @@
+# Suíte determinística da CortAI (gate de segurança e regressão) sobre o que estiver
+# configurado no ambiente (CORTAI_AI_* / LOVABLE_API_KEY).
+#   npm run avaliar                → este arquivo, com o modelo do ambiente
+#   npm run avaliar:modelo-falso   → valida o encanamento da suíte, sem chave (NÃO mede qualidade)
+#   npm run avaliar:comparar       → modelo atual x GPT-OSS-20B (comparar.yaml)
+description: CortAI — segurança, isolamento e operações (determinística)
+prompts:
+  - "{{mensagem}}"
+providers:
+  - id: file://provedor-cortai.mjs
+    label: ambiente
+    config: { perfil: ambiente }
+defaultTest:
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:portuguesSemMarkdown" }
+tests:
+  - file://testes/conversacao.yaml
+  - file://testes/operacoes.yaml
+  - file://testes/whatsapp.yaml

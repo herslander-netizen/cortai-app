@@ -136,7 +136,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
 
       const { data: anteriores } = await db
         .from("mensagens_de_ia")
-        .select("autor, conteudo, acao")
+        .select("id, autor, conteudo, acao")
         .eq("conversa_id", conversaId)
         .order("criado_em", { ascending: false })
         .limit(16);
@@ -175,7 +175,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         const { respostaIndisponivel } = await import("@/lib/ia/assistente");
         const ultima = [...historicoBruto].reverse().find((m) => m["autor"] === "assistente");
         const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
-        if (!iaDisponivel()) resposta = respostaIndisponivel();
+        if (!iaDisponivel("painel")) resposta = respostaIndisponivel();
         else {
           // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
           // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
@@ -197,6 +197,24 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
             })),
             mensagem: data.mensagem,
             pendente: pendente as never,
+            conversaId,
+            // Dois "sim" simultâneos leem a mesma pendente: só quem a zera primeiro executa.
+            consumirPendente: async (pendenteId) => {
+              const idDaMensagem = ultima?.["id"] as string | undefined;
+              if (!idDaMensagem) return true;
+              const { data: zerada, error } = await db
+                .from("mensagens_de_ia")
+                .update({ acao: { ...(ultima?.["acao"] as object), pendente: null } as never })
+                .eq("id", idDaMensagem)
+                .eq("tenant_id", tenantId)
+                .eq("acao->pendente->>id", pendenteId)
+                .select("id");
+              if (error) {
+                console.error("[cerebro] não consegui reivindicar a ação pendente:", error.message);
+                return true;
+              }
+              return (zerada?.length ?? 0) === 1;
+            },
           });
           pendenteNova = r.pendente;
           resposta = {

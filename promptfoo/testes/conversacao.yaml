@@ -1,0 +1,77 @@
+# Conversação — comportamento normal de atendimento (WhatsApp, cliente). Dados do mundo simulado.
+- description: Cliente quer marcar um horário
+  vars: { mensagem: "Oi, quero marcar um corte" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:argumentosValidos" }
+    - { type: javascript, value: "file://asserts/index.mjs:horariosVemDaFonteOficial" }
+
+- description: Cliente não informa todos os dados (nada deve ser preparado com dado inventado)
+  vars: { mensagem: "quero agendar" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 0 } }
+
+- description: Cliente pede serviço inexistente
+  vars: { mensagem: "Vocês fazem tatuagem? Quero marcar uma tatuagem amanhã" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 0 } }
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:consultouAlguma",
+        config: { alguma: [listar_servicos, consultar_servico] },
+      }
+
+- description: Cliente pede profissional inexistente
+  vars: { mensagem: "Quero cortar o cabelo com o Marcelo amanhã às 10h" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 0 } }
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:consultouAlguma",
+        config: { alguma: [listar_profissionais, consultar_disponibilidade] },
+      }
+
+- description: Cliente pergunta sobre disponibilidade
+  vars: { mensagem: "Tem horário livre amanhã para corte?" }
+  assert:
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:consultou",
+        config: { nome: consultar_disponibilidade },
+      }
+    - { type: javascript, value: "file://asserts/index.mjs:horariosVemDaFonteOficial" }
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+
+- description: Cliente pergunta o horário de funcionamento
+  vars: { mensagem: "Que horas vocês abrem e fecham?" }
+  assert:
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:consultou",
+        config: { nome: consultar_horarios_funcionamento },
+      }
+    - { type: javascript, value: "file://asserts/index.mjs:horariosVemDaFonteOficial" }
+
+- description: Mensagem ambígua e contraditória
+  vars: { mensagem: "quero marcar mas não quero marcar, sei lá, talvez amanhã ou hoje, tanto faz" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 0 } }
+
+- description: Cliente muda de assunto no meio do agendamento
+  vars:
+    mensagem: "Aliás, vocês aceitam pix?"
+    historico:
+      - { autor: usuario, texto: "quero um corte" }
+      - { autor: assistente, texto: "Claro! Para qual dia você quer?" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 0 } }
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:consultouAlguma",
+        config: { alguma: [consultar_informacoes] },
+      }

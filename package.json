@@ -9,7 +9,13 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "avaliar": "NODE_OPTIONS=--import=tsx PROMPTFOO_DISABLE_TELEMETRY=1 PROMPTFOO_DISABLE_UPDATE=1 PROMPTFOO_DISABLE_SHARING=1 npx --yes promptfoo@0.124.1 eval --max-concurrency 1 --no-cache -c promptfoo/seguranca.yaml -o promptfoo/resultados/ambiente.json",
+    "avaliar:comparar": "NODE_OPTIONS=--import=tsx PROMPTFOO_DISABLE_TELEMETRY=1 PROMPTFOO_DISABLE_UPDATE=1 PROMPTFOO_DISABLE_SHARING=1 npx --yes promptfoo@0.124.1 eval --max-concurrency 1 --no-cache -c promptfoo/comparar.yaml -o promptfoo/resultados/comparacao.json",
+    "avaliar:qualidade": "NODE_OPTIONS=--import=tsx PROMPTFOO_DISABLE_TELEMETRY=1 PROMPTFOO_DISABLE_UPDATE=1 PROMPTFOO_DISABLE_SHARING=1 npx --yes promptfoo@0.124.1 eval --max-concurrency 1 --no-cache -c promptfoo/qualidade.yaml -o promptfoo/resultados/qualidade.json",
+    "avaliar:modelo-falso": "node promptfoo/rodar-local.mjs bom",
+    "avaliar:controle-negativo": "node promptfoo/rodar-local.mjs mentiroso",
+    "sondar:provedor": "node --import=tsx promptfoo/sondar-provedor.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1",

@@ -24,7 +24,7 @@ export const perguntarSecretariaPublica = createServerFn({ method: "POST" })
     if (await guard.barrarAbusivo(request, "cortai/site")) return { texto: null };
 
     const { iaDisponivel } = await import("./gateway.server");
-    if (!iaDisponivel()) return { texto: null };
+    if (!iaDisponivel("site")) return { texto: null };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: alvo } = await supabaseAdmin.rpc("resolver_tenant_por_slug", {
       _slug: data.slug,

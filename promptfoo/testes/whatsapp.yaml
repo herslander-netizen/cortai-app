@@ -1,0 +1,70 @@
+# WhatsApp — o que depende do cérebro. Entrega, duplicidade de webhook e opt-out por palavra-chave
+# são tratados FORA do modelo e já têm testes de unidade (veja promptfoo/README.md).
+- description: Cliente repete a mesma mensagem (duplicada no histórico) — não duplica o pedido
+  vars:
+    mensagem: "quero um corte amanhã"
+    historico:
+      - { autor: usuario, texto: "quero um corte amanhã" }
+      - { autor: usuario, texto: "quero um corte amanhã" }
+      - { autor: assistente, texto: "Claro! Prefere algum horário ou profissional?" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:preparouNoMaximo", config: { n: 1 } }
+
+- description: '"sim" sem ação pendente (só havia uma oferta) não executa nada'
+  vars:
+    mensagem: "sim"
+    historico:
+      - { autor: assistente, texto: "Quer que eu veja os horários livres de amanhã?" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:semAfirmarConclusao" }
+
+- description: '"não" sem ação pendente não executa nada'
+  vars:
+    mensagem: "não"
+    historico:
+      - { autor: assistente, texto: "Quer que eu veja os horários livres de amanhã?" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+
+- description: '"1" escolhendo um horário listado só PREPARA; não agenda e não inventa horário'
+  vars:
+    mensagem: "1"
+    historico:
+      - { autor: usuario, texto: "tem horário amanhã pra corte?" }
+      - {
+          autor: assistente,
+          texto: "Tenho estes horários com o Rafa amanhã: 1) 10:00  2) 10:30  3) 14:00. Qual prefere?",
+        }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:semAfirmarConclusao" }
+    - { type: javascript, value: "file://asserts/index.mjs:horariosVemDaFonteOficial" }
+
+- description: Mensagem fora de ordem (confirmação de algo que nunca foi preparado)
+  vars:
+    mensagem: "sim, pode confirmar o das 14h"
+    historico:
+      - { autor: assistente, texto: "Posso confirmar o corte às 14:00?" }
+      - { autor: usuario, texto: "oi" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - { type: javascript, value: "file://asserts/index.mjs:semAfirmarConclusao" }
+
+- description: Cliente pede atendimento humano
+  vars: { mensagem: "Quero falar com uma pessoa de verdade, por favor" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:pediuHumano" }
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+
+- description: Cliente pede o dono/atendente
+  vars: { mensagem: "Chama o atendente aí" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:pediuHumano" }
+
+- description: Pedido em texto livre para parar de receber mensagens — não promete o que o cérebro não faz
+  vars: { mensagem: "Pare de me mandar mensagem, não quero mais receber notificação de vocês" }
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:naoAfirmaDescadastroFeito" }
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }

@@ -7,6 +7,15 @@
  * da mesma rodada (passos de ferramenta), sem nunca criar um id próprio.
  */
 
+import type { Canal } from "./acoes.server";
+import {
+  chamarCompativel,
+  ErroDoProvedor,
+  lerConfigDoProvedor,
+  type LeituraDaConfig,
+  type UsoDeTokens,
+} from "./gateway-compativel.server";
+
 export const MODELO_CORTAI = "openai/gpt-6-astra";
 const URL_RESPOSTAS = "https://ai.gateway.lovable.dev/v1/responses";
 const CABECALHO_RUN = "X-Lovable-AIG-Run-ID";
@@ -33,9 +42,49 @@ export class ErroDoGateway extends Error {
   }
 }
 
-export function iaDisponivel(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"]);
+/**
+ * Qual provedor atende cada canal do cérebro. Sem `CORTAI_AI_PROVIDER` é o Lovable AI
+ * Gateway de sempre. `openai_compatible` usa CORTAI_AI_BASE_URL/MODEL/API_KEY (ex.: GPT-OSS-20B)
+ * SÓ nos canais de `CORTAI_AI_CANAIS` (padrão: painel); os outros seguem no Lovable.
+ * Voltar ao modelo anterior = remover o canal da lista ou as variáveis `CORTAI_AI_*`.
+ */
+function resolverProvedor(canal?: Canal): LeituraDaConfig {
+  const leitura = lerConfigDoProvedor();
+  if (!leitura.ok || leitura.config.tipo !== "compativel") return leitura;
+  if (!canal || leitura.config.canais.includes(canal)) return leitura;
+  return { ok: true, config: { tipo: "lovable" } };
 }
+
+export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: string } {
+  const leitura = resolverProvedor(canal);
+  if (leitura.ok && leitura.config.tipo === "compativel")
+    return { provedor: leitura.config.nome, modelo: leitura.config.modelo };
+  return { provedor: "lovable", modelo: MODELO_CORTAI };
+}
+
+/** Sem `canal`, responde "alguma IA está configurada?" (usado só no painel de status). */
+export function iaDisponivel(canal?: Canal): boolean {
+  const leitura = resolverProvedor(canal);
+  if (!leitura.ok) return false;
+  if (leitura.config.tipo === "compativel") return true;
+  if (process.env["LOVABLE_API_KEY"]) return true;
+  // Sem chave do Lovable: ainda há IA se o provedor novo está válido e o canal não foi pedido.
+  const global = lerConfigDoProvedor();
+  return !canal && global.ok && global.config.tipo === "compativel";
+}
+
+/** O que cada chamada ao modelo deixa para a observabilidade (sem conteúdo de conversa). */
+export type EventoDeChamada = {
+  provedor: string;
+  modelo: string;
+  latenciaMs: number;
+  ok: boolean;
+  httpStatus?: number;
+  uso?: UsoDeTokens;
+  /** Nomes das ferramentas pedidas pelo modelo nesta rodada. */
+  ferramentas: string[];
+  geroutexto: boolean;
+};
 
 function mensagemSegura(status: number): string {
   if (status === 402) return "Os créditos de IA do CortAI acabaram.";
@@ -46,7 +95,10 @@ function mensagemSegura(status: number): string {
 }
 
 /** Lê o SSE até `response.completed` e devolve os itens de saída. */
-async function lerStream(resposta: Response): Promise<ItemDeEntrada[]> {
+async function lerStream(
+  resposta: Response,
+  aoUso?: (uso: UsoDeTokens) => void,
+): Promise<ItemDeEntrada[]> {
   const leitor = resposta.body?.getReader();
   if (!leitor) return [];
   const decodificador = new TextDecoder();
@@ -77,6 +129,18 @@ async function lerStream(resposta: Response): Promise<ItemDeEntrada[]> {
         itensFeitos.push(evento["item"]);
       } else if (evento["type"] === "response.completed") {
         saida = (evento["response"]?.output as ItemDeEntrada[]) ?? null;
+        const u = evento["response"]?.usage as Record<string, unknown> | undefined;
+        if (u && aoUso) {
+          const num = (v: unknown) => (typeof v === "number" ? v : undefined);
+          const uso: UsoDeTokens = {};
+          const e = num(u["input_tokens"]);
+          const sd = num(u["output_tokens"]);
+          const t = num(u["total_tokens"]);
+          if (e !== undefined) uso.entrada = e;
+          if (sd !== undefined) uso.saida = sd;
+          if (t !== undefined) uso.total = t;
+          aoUso(uso);
+        }
       } else if (evento["type"] === "response.failed" || evento["type"] === "error") {
         throw new ErroDoGateway(500, mensagemSegura(500));
       }
@@ -85,14 +149,57 @@ async function lerStream(resposta: Response): Promise<ItemDeEntrada[]> {
   return saida ?? itensFeitos;
 }
 
-export function criarSessaoDoGateway() {
+export function criarSessaoDoGateway(opcoes?: {
+  canal?: Canal;
+  aoChamar?: (e: EventoDeChamada) => void;
+}) {
   let runId: string | undefined;
+  const avisar = (e: EventoDeChamada) => {
+    try {
+      opcoes?.aoChamar?.(e);
+    } catch {
+      /* observabilidade nunca derruba o atendimento */
+    }
+  };
+  const resumo = (itens: ItemDeEntrada[]) => ({
+    ferramentas: itens
+      .filter((i) => i["type"] === "function_call")
+      .map((i) => String(i["name"] ?? "")),
+    geroutexto: textoDaSaida(itens).length > 0,
+  });
   return {
     async responder(input: {
       instrucoes: string;
       entrada: ItemDeEntrada[];
       ferramentas: FerramentaDoModelo[];
     }): Promise<ItemDeEntrada[]> {
+      const inicio = Date.now();
+      const leitura = resolverProvedor(opcoes?.canal);
+      if (!leitura.ok) {
+        console.error(`[cerebro] ${leitura.motivo}`);
+        throw new ErroDoGateway(401, mensagemSegura(401));
+      }
+      const identidade = identidadeDoModelo(opcoes?.canal);
+      const base = { ...identidade, ferramentas: [] as string[], geroutexto: false };
+
+      if (leitura.config.tipo === "compativel") {
+        try {
+          const { itens, uso } = await chamarCompativel(leitura.config, input);
+          avisar({
+            ...base,
+            ...resumo(itens),
+            latenciaMs: Date.now() - inicio,
+            ok: true,
+            uso,
+          });
+          return itens;
+        } catch (erro) {
+          const status = erro instanceof ErroDoProvedor ? erro.status : 500;
+          avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: status });
+          throw new ErroDoGateway(status, mensagemSegura(status));
+        }
+      }
+
       const chave = process.env["LOVABLE_API_KEY"];
       if (!chave) throw new ErroDoGateway(401, mensagemSegura(401));
       const headers = new Headers({
@@ -119,9 +226,29 @@ export function criarSessaoDoGateway() {
       if (!resposta.ok) {
         const corpo = await resposta.text().catch(() => "");
         console.error(`[cerebro] gateway ${resposta.status}: ${corpo.slice(0, 300)}`);
+        avisar({
+          ...base,
+          latenciaMs: Date.now() - inicio,
+          ok: false,
+          httpStatus: resposta.status,
+        });
         throw new ErroDoGateway(resposta.status, mensagemSegura(resposta.status));
       }
-      return lerStream(resposta);
+      let uso: UsoDeTokens | undefined;
+      try {
+        const itens = await lerStream(resposta, (u) => (uso = u));
+        avisar({
+          ...base,
+          ...resumo(itens),
+          latenciaMs: Date.now() - inicio,
+          ok: true,
+          ...(uso ? { uso } : {}),
+        });
+        return itens;
+      } catch (erro) {
+        avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false });
+        throw erro;
+      }
     },
   };
 }

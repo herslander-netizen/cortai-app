@@ -25,16 +25,20 @@ import {
 } from "./gateway.server";
 import {
   barrarAfirmacaoSemAcao,
+  barrarVazamento,
   confirmacaoInequivoca,
   ehNumeroSolto,
   pedidoNocivo,
+  TEXTO_CONFIRMACAO_JA_TRATADA,
   TEXTO_PEDIR_SIM_OU_NAO,
   TEXTO_RECUSA_DA_PENDENTE,
+  TEXTO_TENTE_CONFIRMAR_DE_NOVO,
   textoDoResultado,
   pendenteValida,
   recusaInequivoca,
   RESPOSTA_RECUSA,
 } from "./guardas";
+import { iniciarTurno, type Turno as TurnoObservado } from "./observabilidade.server";
 import { pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
 
 export type Pendente = {
@@ -115,11 +119,21 @@ async function executarAcao(
   nome: string,
   dados: Record<string, unknown>,
   conversaId: string | null,
+  obs?: TurnoObservado,
 ) {
   const def = ACOES[nome];
   if (!def || !acaoPermitida(nome, ctx)) throw new Error("Ação não disponível.");
+  const inicio = Date.now();
+  const fase = def.risco === "leitura" ? ("leitura" as const) : ("executada" as const);
   try {
     const resultado = await def.executar(ctx, dados as Record<string, any>);
+    obs?.registrarFerramenta({
+      nome,
+      fase,
+      ok: true,
+      latenciaMs: Date.now() - inicio,
+      argumentos: dados,
+    });
     if (def.risco !== "leitura")
       await registrarAcao({
         tenantId: ctx.tenantId,
@@ -133,6 +147,14 @@ async function executarAcao(
     return resultado;
   } catch (erro) {
     const msg = erro instanceof Error ? erro.message : "Falha ao executar.";
+    obs?.registrarFerramenta({
+      nome,
+      fase,
+      ok: false,
+      latenciaMs: Date.now() - inicio,
+      argumentos: dados,
+      erro: msg.slice(0, 120),
+    });
     if (def.risco !== "leitura")
       await registrarAcao({
         tenantId: ctx.tenantId,
@@ -148,14 +170,25 @@ async function executarAcao(
   }
 }
 
-export async function pensarCortai(input: {
+export type EntradaDoCerebro = {
   ctx: ContextoDoCerebro;
   persona: Persona;
   historico: Turno[];
   mensagem: string;
   pendente: Pendente | null;
   conversaId?: string | null;
-}): Promise<ResultadoDoCerebro> {
+  /**
+   * Reivindica a ação pendente ANTES de executá-la: devolve `true` só para quem a
+   * consumiu primeiro (atualização condicional no banco). Com duas confirmações
+   * simultâneas, só uma executa. Sem esta função vale o comportamento anterior.
+   */
+  consumirPendente?: (pendenteId: string) => Promise<boolean>;
+};
+
+async function pensarCortaiComTurno(
+  input: EntradaDoCerebro,
+  obs: ReturnType<typeof iniciarTurno>,
+): Promise<ResultadoDoCerebro> {
   const { ctx } = input;
   const conversaId = input.conversaId ?? null;
   const acoes: ResultadoDoCerebro["acoes"] = [];
@@ -163,6 +196,7 @@ export async function pensarCortai(input: {
   let pedirHumano = false;
 
   if (pedidoNocivo(input.mensagem)) {
+    obs.definirEstado("bloqueado_guarda");
     await registrarTurno({
       tenantId: ctx.tenantId,
       canal: ctx.canal,
@@ -204,12 +238,28 @@ export async function pensarCortai(input: {
     return fim(TEXTO_PEDIR_SIM_OU_NAO, anterior);
   }
   if (anterior && confirmacaoInequivoca(input.mensagem)) {
+    if (input.consumirPendente) {
+      let consumida: boolean;
+      try {
+        consumida = await input.consumirPendente(anterior.id);
+      } catch {
+        // Sem conseguir reivindicar, nada executa: a pendente continua valendo.
+        obs.definirEstado("erro_interno");
+        return fim(TEXTO_TENTE_CONFIRMAR_DE_NOVO, anterior, "consumo_falhou");
+      }
+      if (!consumida) {
+        obs.definirEstado("confirmacao_duplicada");
+        return fim(TEXTO_CONFIRMACAO_JA_TRATADA, null);
+      }
+    }
     try {
-      await executarAcao(ctx, anterior.acao, anterior.dados, conversaId);
+      await executarAcao(ctx, anterior.acao, anterior.dados, conversaId, obs);
       acoes.push({ nome: anterior.acao, sucesso: true });
+      obs.definirEstado("acao_confirmada_executada");
       return fim(textoDoResultado({ sucesso: true, resumo: anterior.resumo }), null);
     } catch (erro) {
       const msg = erro instanceof Error ? erro.message : "Falha.";
+      obs.definirEstado("acao_confirmada_falhou");
       acoes.push({ nome: anterior.acao, sucesso: false, erro: msg });
       return fim(
         textoDoResultado({ sucesso: false, resumo: anterior.resumo, motivo: msg }),
@@ -218,6 +268,7 @@ export async function pensarCortai(input: {
       );
     }
   } else if (anterior && recusaInequivoca(input.mensagem)) {
+    obs.definirEstado("acao_recusada");
     return fim(TEXTO_RECUSA_DA_PENDENTE, null);
   }
 
@@ -229,7 +280,10 @@ export async function pensarCortai(input: {
     { role: "user", content: input.mensagem },
   ];
 
-  const gateway = criarSessaoDoGateway();
+  const gateway = criarSessaoDoGateway({
+    canal: ctx.canal,
+    aoChamar: (e) => obs.aoChamarModelo(e),
+  });
   const ferramentas = ferramentasDoContexto(ctx);
   const texto0 = await instrucoes(ctx, input.persona);
 
@@ -240,9 +294,11 @@ export async function pensarCortai(input: {
       if (!chamadas.length) {
         // Barreira: escritas nunca rodam dentro deste ciclo, então qualquer
         // "confirmado/agendado/cancelado" escrito pela IA aqui é falso.
-        const texto = barrarAfirmacaoSemAcao(
-          textoDaSaida(saida),
-          (pendente as Pendente | null)?.resumo ?? null,
+        const texto = barrarVazamento(
+          barrarAfirmacaoSemAcao(
+            textoDaSaida(saida),
+            (pendente as Pendente | null)?.resumo ?? null,
+          ),
         );
         await retomarIa(ctx.tenantId);
         await registrarTurno({
@@ -292,6 +348,7 @@ export async function pensarCortai(input: {
                 resumo,
                 criadaEm: new Date().toISOString(),
               };
+              obs.registrarFerramenta({ nome, fase: "preparada", ok: true, argumentos: dados });
               saidaDaAcao = {
                 status: "aguardando_confirmacao",
                 resumo,
@@ -311,7 +368,10 @@ export async function pensarCortai(input: {
           acoes.push({ nome, sucesso: true });
         } else {
           try {
-            saidaDaAcao = { ok: true, resultado: await executarAcao(ctx, nome, dados, conversaId) };
+            saidaDaAcao = {
+              ok: true,
+              resultado: await executarAcao(ctx, nome, dados, conversaId, obs),
+            };
             acoes.push({ nome, sucesso: true });
           } catch (erro) {
             const msg = erro instanceof Error ? erro.message : "Falha.";
@@ -336,6 +396,7 @@ export async function pensarCortai(input: {
       sucesso: false,
       erro: "passos_esgotados",
     });
+    obs.definirEstado("passos_esgotados");
     return {
       texto: pendente
         ? `${(pendente as Pendente).resumo} Posso confirmar?`
@@ -348,6 +409,7 @@ export async function pensarCortai(input: {
   } catch (erro) {
     const status = erro instanceof ErroDoGateway ? erro.status : 500;
     const msg = erro instanceof Error ? erro.message : "IA indisponível.";
+    obs.definirEstado("indisponivel");
     if (erro instanceof ErroDoGateway && erro.semCredito)
       await pausarIa(ctx.tenantId, `gateway_${status}`);
     await registrarTurno({
@@ -368,5 +430,37 @@ export async function pensarCortai(input: {
       acoes,
       indisponivel: msg,
     };
+  }
+}
+
+/**
+ * Entrada pública do cérebro. Envolve o ciclo com o rastro de observabilidade
+ * (Langfuse), que só observa: se falhar ou estiver desligado, nada muda no atendimento.
+ */
+export async function pensarCortai(input: EntradaDoCerebro): Promise<ResultadoDoCerebro> {
+  const obs = iniciarTurno({
+    canal: input.ctx.canal,
+    papel: input.ctx.papel ?? null,
+    tenantId: input.ctx.tenantId,
+    ator: input.ctx.ator,
+    conversaId: input.conversaId ?? null,
+  });
+  let estadoDefinido = false;
+  const marcado: TurnoObservado = {
+    ...obs,
+    definirEstado: (e) => {
+      estadoDefinido = true;
+      obs.definirEstado(e);
+    },
+  };
+  try {
+    const r = await pensarCortaiComTurno(input, marcado);
+    if (!estadoDefinido) obs.definirEstado(r.pendente ? "acao_preparada" : "resposta");
+    await obs.finalizar({ textoDaPessoa: input.mensagem, textoDaResposta: r.texto });
+    return r;
+  } catch (erro) {
+    obs.definirEstado("erro_interno");
+    await obs.finalizar();
+    throw erro;
   }
 }

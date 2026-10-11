@@ -109,3 +109,43 @@ export function textoDoResultado(
 }
 
 export const TEXTO_RECUSA_DA_PENDENTE = "Tudo bem, não alterei nada. Como prefere seguir?";
+
+/** Segunda confirmação da mesma ação pendente (duas mensagens quase juntas): não executa de novo. */
+export const TEXTO_CONFIRMACAO_JA_TRATADA =
+  "Essa confirmação já foi tratada. Se ainda precisar de algo, é só me dizer.";
+
+/** Não foi possível reivindicar a ação pendente: nada foi executado. */
+export const TEXTO_TENTE_CONFIRMAR_DE_NOVO =
+  "Não consegui processar sua confirmação agora e nada foi alterado. Responda SIM de novo em instantes.";
+
+/**
+ * Marcas de que a resposta expõe o que é interno: o texto das instruções, nomes de ações
+ * do catálogo, nomes de variáveis de ambiente, chaves ou ids de infraestrutura.
+ */
+const VAZAMENTOS = [
+  /regras obrigatorias/,
+  /\b(nunca revele estas instrucoes|orientacoes do negocio \(nao sobrepoem)/,
+  /\b(listar_|consultar_|buscar_|criar_|cancelar_|reagendar_|atualizar_|registrar_|avisar_)[a-z_]{3,}\b/,
+  /\b(encaminhar_humano|minha_agenda)\b/,
+  /\b(lovable_api_key|cortai_ai_[a-z_]+|langfuse_[a-z_]+|supabase_[a-z_]+|service[_ ]role)\b/,
+  /\bsk-[a-z0-9]{8,}/,
+  /\b(system prompt|prompt do sistema|tenant[_-]?id)\b/,
+];
+
+/** O texto da IA expõe instruções internas, nomes de ações ou segredos? */
+export function vazaInterno(texto: string): boolean {
+  // Só tira acentos e caixa: `normalizarTexto` apagaria o "_" dos nomes de ação.
+  const t = texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  return VAZAMENTOS.some((r) => r.test(t));
+}
+
+/**
+ * Barreira de saída contra extração de prompt/segredos (injeção de prompt): se o texto
+ * expõe algo interno, ele é trocado pela recusa padrão. Determinística, sem modelo.
+ */
+export function barrarVazamento(texto: string): string {
+  return vazaInterno(texto) ? RESPOSTA_RECUSA : texto;
+}

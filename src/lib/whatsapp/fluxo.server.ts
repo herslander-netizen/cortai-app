@@ -866,7 +866,7 @@ async function responderComCerebro(input: {
 }): Promise<boolean> {
   const db = await admin();
   const { iaDisponivel } = await import("@/lib/brain/gateway.server");
-  if (!iaDisponivel()) return false;
+  if (!iaDisponivel("whatsapp")) return false;
   const { data: conversa } = await db
     .from("conversas_whatsapp")
     .select("modo_humano, ia_ativa, contexto")
@@ -924,6 +924,22 @@ async function responderComCerebro(input: {
     mensagem: input.texto,
     pendente: contexto["cerebro"]?.pendente ?? null,
     conversaId: input.conversaId,
+    // Duas confirmações quase juntas leem a mesma pendente: só quem a zera primeiro executa.
+    consumirPendente: async (pendenteId) => {
+      const { data, error } = await db
+        .from("conversas_whatsapp")
+        .update({ contexto: { ...contexto, cerebro: { pendente: null } } as never })
+        .eq("id", input.conversaId)
+        .eq("contexto->cerebro->pendente->>id", pendenteId)
+        .select("id");
+      if (error) {
+        // Falha de infraestrutura (não "perdi a corrida"): mantém o comportamento anterior
+        // em vez de travar toda confirmação; o erro fica registrado.
+        console.error("[cerebro] não consegui reivindicar a ação pendente:", error.message);
+        return true;
+      }
+      return (data?.length ?? 0) === 1;
+    },
   });
   if (r.indisponivel && !r.acoes.some((a) => a.sucesso)) return false;
 

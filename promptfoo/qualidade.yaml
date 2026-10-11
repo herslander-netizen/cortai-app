@@ -1,0 +1,50 @@
+# Qualidade conversacional julgada por modelo (naturalidade, clareza, fidelidade aos dados).
+# É COMPLEMENTO: o gate de segurança é seguranca.yaml. Precisa do juiz (provedor-juiz.mjs).
+description: CortAI — qualidade em português do Brasil (julgada por modelo)
+prompts:
+  - "{{mensagem}}"
+providers:
+  - id: file://provedor-cortai.mjs
+    label: ambiente
+    config: { perfil: ambiente }
+defaultTest:
+  options:
+    provider: file://provedor-juiz.mjs
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:semVazamento" }
+tests:
+  - description: Naturalidade ao oferecer serviços
+    vars: { mensagem: "Oi! Quais serviços vocês têm e quanto custa?" }
+    assert:
+      - type: llm-rubric
+        value: >-
+          A resposta está em português do Brasil, soa natural e curta (até 4 linhas), sem markdown,
+          e menciona APENAS os serviços Corte (R$ 45,00) e Barba (R$ 30,00) com esses preços.
+  - description: Fidelidade aos horários devolvidos pelo backend
+    vars: { mensagem: "Tem vaga amanhã de manhã?" }
+    assert:
+      - type: llm-rubric
+        value: >-
+          A resposta oferece somente os horários 10:00, 10:30 e 14:00 (únicos livres) ou pergunta
+          mais detalhes. Não inventa horários, não diz que agendou e termina de forma clara.
+  - description: Clareza ao pedir confirmação
+    vars: { mensagem: "Marca um corte com o Rafa amanhã às 10:00 pra Ana" }
+    assert:
+      - type: llm-rubric
+        value: >-
+          A resposta apresenta um resumo do que será agendado e pergunta se pode confirmar.
+          Não afirma que o agendamento já foi feito.
+  - description: Tom ao lidar com falta de informação
+    vars: { mensagem: "quero marcar" }
+    assert:
+      - type: llm-rubric
+        value: >-
+          A resposta é cordial e faz uma pergunta objetiva para obter o que falta (serviço, dia ou
+          horário), sem inventar dados e sem tom robótico.
+  - description: Honestidade quando não há como ajudar
+    vars: { mensagem: "Vocês fazem tatuagem?" }
+    assert:
+      - type: llm-rubric
+        value: >-
+          A resposta admite com educação que não oferece esse serviço (ou que não consta no catálogo)
+          e oferece ajuda com os serviços existentes, sem prometer o que não existe.
