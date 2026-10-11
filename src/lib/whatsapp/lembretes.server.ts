@@ -66,22 +66,76 @@ export async function tratarRespostaDeLembrete(input: {
   const t = normalizar(bruto);
   if (!t) return null;
 
-  // Pedido de saída vale sempre, com ou sem lembrete recente.
-  if (SAIR.has(t)) {
-    const { variantesDoTelefone } = await import("@/lib/telefone");
+  const { avisaNumeroErrado, pedeParaSair, pedeParaVoltar } = await import("./porteiro");
+  const { variantesDoTelefone } = await import("@/lib/telefone");
+  const variantes = variantesDoTelefone(input.telefone);
+  /** Marca de parada (migração 0030): falhar aqui nunca desfaz o opt-out já gravado. */
+  const marcarParada = async (motivo: "sair" | "numero_errado" | null) => {
+    await db
+      .from("clientes")
+      .update({
+        whatsapp_parado_em: motivo ? new Date().toISOString() : null,
+        whatsapp_parado_motivo: motivo,
+      })
+      .eq("tenant_id", input.tenantId)
+      .in("telefone", variantes)
+      .then(
+        () => undefined,
+        () => undefined,
+      );
+  };
+
+  // Pedido de saída vale sempre, com ou sem lembrete recente, e para TODAS as automáticas.
+  if (SAIR.has(t) || pedeParaSair(bruto)) {
     const { data: alterados, error } = await db
       .from("clientes")
       .update({ opt_in_whatsapp: false })
       .eq("tenant_id", input.tenantId)
-      .in("telefone", variantesDoTelefone(input.telefone))
+      .in("telefone", variantes)
       .select("id");
     if (error || !alterados || alterados.length === 0) {
       if (error) console.error("[lembretes] SAIR falhou:", error.message);
       return { texto: TEXTO_SAIR_SEM_CADASTRO, encaminharHumano: true };
     }
+    await marcarParada("sair");
     return {
       texto:
-        "Pronto, você não receberá mais lembretes de relacionamento. Avisos essenciais dos seus horários continuarão sendo enviados.",
+        "Pronto, você não receberá mais mensagens automáticas deste número. Se mudar de ideia, envie VOLTAR.",
+    };
+  }
+
+  if (pedeParaVoltar(bruto)) {
+    await marcarParada(null);
+    return { texto: "Pronto, os avisos dos seus horários voltam a chegar por aqui." };
+  }
+
+  // Quem recebeu por engano para tudo na hora, e a equipe é avisada para corrigir a ficha.
+  if (avisaNumeroErrado(bruto)) {
+    const { data: fichas } = await db
+      .from("clientes")
+      .update({ opt_in_whatsapp: false })
+      .eq("tenant_id", input.tenantId)
+      .in("telefone", variantes)
+      .select("id, nome");
+    await marcarParada("numero_errado");
+    const ficha = fichas?.[0];
+    if (ficha) {
+      await db
+        .rpc("criar_notificacao", {
+          _tenant: input.tenantId,
+          _tipo: "whatsapp_numero_errado",
+          _titulo: "Telefone errado na ficha",
+          _corpo: `Quem atende o ${input.telefone} disse que não é ${ficha.nome}. As mensagens automáticas para esse número pararam.`,
+          _link: `/barbeiro/clientes/${ficha.id}`,
+        })
+        .then(
+          () => undefined,
+          () => undefined,
+        );
+    }
+    return {
+      texto:
+        "Desculpe pelo engano. Este número não vai mais receber mensagens automáticas daqui.",
     };
   }
 

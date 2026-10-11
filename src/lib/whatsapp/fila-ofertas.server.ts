@@ -257,6 +257,9 @@ async function enviarOferta(ofertaId: string) {
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
   const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
+  // Porteiro único: só quem confirmou o telefone e não pediu para parar recebe a oferta.
+  const { decisaoDeEnvio } = await import("./porteiro.server");
+  if (!(await decisaoDeEnvio(clienteId)).pode) return;
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db

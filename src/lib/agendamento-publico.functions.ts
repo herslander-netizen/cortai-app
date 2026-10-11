@@ -43,6 +43,7 @@ const LIMITES = {
   preferencias: { ip: 10, telefone: 5 },
   /** A tela consulta a cada 3 s enquanto espera o código chegar. */
   confirmarTelefone: { ip: 40, telefone: 30 },
+  avisos: { ip: 6, telefone: 3 },
 } as const;
 
 /** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
@@ -300,6 +301,11 @@ export type ConfirmacaoPublica = {
   endereco: string | null;
   whatsapp: string | null;
   valor_centavos: number;
+  /**
+   * WhatsApp deste horário: "ativos" (telefone confirmado), "confirmar" (número novo:
+   * a pessoa pode ativar mandando o código) ou "sem_whatsapp" (negócio sem WhatsApp).
+   */
+  avisosWhatsapp?: "ativos" | "confirmar" | "sem_whatsapp";
 };
 
 export type ResultadoConvidado =
@@ -367,6 +373,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     // WhatsApp do negócio conectado, o cliente manda o código; sem ele, o horário é
     // marcado como "telefone não confirmado" para a equipe e o nome da ficha não aparece.
     let telefoneNaoConfirmado = false;
+    let avisosWhatsapp: NonNullable<ConfirmacaoPublica["avisosWhatsapp"]> = "ativos";
     if (existente) {
       const v = await import("@/lib/verificacao-telefone.server");
       const confirmado =
@@ -384,7 +391,12 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
           };
         }
         telefoneNaoConfirmado = true;
+        avisosWhatsapp = "sem_whatsapp";
       }
+    } else {
+      // Número novo: nada sai pelo WhatsApp até a pessoa confirmar (porteiro do WhatsApp).
+      const { numeroQueRecebeCodigo } = await import("@/lib/verificacao-telefone.server");
+      avisosWhatsapp = (await numeroQueRecebeCodigo(tenant.id)) ? "confirmar" : "sem_whatsapp";
     }
 
     // Só pode substituir um horário ativo do próprio WhatsApp; senão, erro (nunca cria um segundo em silêncio).
@@ -566,9 +578,36 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         endereco: tenant.endereco,
         whatsapp: tenant.whatsapp,
         valor_centavos: servico.preco_centavos,
+        avisosWhatsapp,
       },
     };
   });
+
+/**
+ * Número novo pede para receber os avisos no WhatsApp: gera o código que a pessoa manda
+ * ao negócio. Só para um telefone que já tem ficha aqui (acabou de agendar).
+ */
+export const pedirAvisosNoWhatsapp = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({ slug: slugSchema, telefone: telefoneSchema }).parse(input),
+  )
+  .handler(
+    async ({ data }): Promise<{ verificacaoId: string; codigo: string; link: string } | null> => {
+      await limitarPublico("avisos", data.telefone);
+      const db = await admin();
+      const tenant = await barbeariaPorSlug(db, data.slug);
+      if (!(await clientePorTelefone(db, tenant.id, data.telefone))) return null;
+      const { pedirConfirmacaoDoTelefone } = await import("@/lib/verificacao-telefone.server");
+      const pedido = await pedirConfirmacaoDoTelefone(tenant.id, data.telefone);
+      if (!pedido) return null;
+      const { linkParaEnviarCodigo } = await import("@/lib/verificacao-telefone");
+      return {
+        verificacaoId: pedido.verificacaoId,
+        codigo: pedido.codigo,
+        link: linkParaEnviarCodigo(pedido.numero, pedido.codigo),
+      };
+    },
+  );
 
 /** A tela acompanha se o código já chegou pelo WhatsApp. Não revela nada da ficha. */
 export const situacaoDaConfirmacaoDoTelefone = createServerFn({ method: "POST" })

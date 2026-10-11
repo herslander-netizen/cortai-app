@@ -948,6 +948,9 @@ export type Database = {
           telefone: string
           tenant_id: string
           user_id: string | null
+          whatsapp_confirmado_em: string | null
+          whatsapp_parado_em: string | null
+          whatsapp_parado_motivo: string | null
         }
         Insert: {
           alergias?: string | null
@@ -972,6 +975,9 @@ export type Database = {
           telefone: string
           tenant_id: string
           user_id?: string | null
+          whatsapp_confirmado_em?: string | null
+          whatsapp_parado_em?: string | null
+          whatsapp_parado_motivo?: string | null
         }
         Update: {
           alergias?: string | null
@@ -996,6 +1002,9 @@ export type Database = {
           telefone?: string
           tenant_id?: string
           user_id?: string | null
+          whatsapp_confirmado_em?: string | null
+          whatsapp_parado_em?: string | null
+          whatsapp_parado_motivo?: string | null
         }
         Relationships: [
           {

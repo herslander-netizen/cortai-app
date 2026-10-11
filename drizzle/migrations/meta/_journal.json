@@ -211,6 +211,13 @@
       "when": 1791678409495,
       "tag": "0029_verificacao_de_telefone",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791680351744,
+      "tag": "0030_whatsapp_so_com_numero_confirmado",
+      "breakpoints": true
     }
   ]
 }

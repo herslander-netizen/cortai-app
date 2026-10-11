@@ -20,6 +20,7 @@ import {
   type PedidoDeConfirmacao,
 } from "@/components/agendamento/ConfirmarTelefone";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { AvisosNoWhatsapp } from "@/components/agendamento/AvisosNoWhatsapp";
 import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { ConviteDeConta } from "@/components/agendamento/ConviteDeConta";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
@@ -469,6 +470,11 @@ function AgendamentoPublico() {
           extras={
             situacao === "confirmado" ? (
               <>
+                <AvisosNoWhatsapp
+                  slug={slug}
+                  telefone={digitosTel}
+                  estado={confirmado.avisosWhatsapp}
+                />
                 {confirmado.preferenciasToken ? (
                   modoConversa ? (
                     <PreferenciasEmConversa
