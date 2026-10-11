@@ -204,6 +204,7 @@ export default class ProvedorCortai {
         pedirHumano: r.pedirHumano,
         indisponivel: r.indisponivel,
         opcoes: r.opcoes ?? [],
+        conferencia: r.conferencia ?? null,
         executadas: mundo.registro.executadas,
         preparadas: mundo.registro.preparadas,
         leituras: mundo.registro.leituras,

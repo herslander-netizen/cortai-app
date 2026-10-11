@@ -12,6 +12,9 @@ const estado = vi.hoisted(() => ({
     clientes: [{ id: "cli-1", nome: "Leandro Silva", telefoneFinal: "4321" }],
   } as any,
   agendarFalha: null as string | null,
+  itensConferir: [] as any[],
+  conferirFalha: false,
+  conferirChamadas: 0,
   agendarDevolve: { agendamento_id: "ag-1", jaExistia: false, verificado: true } as any,
 }));
 
@@ -54,6 +57,11 @@ vi.mock("./acoes.server", () => ({
     criar_agendamento: {
       risco: "escrita",
       resumir: async () => "Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva.",
+      conferir: async () => {
+        estado.conferirChamadas += 1;
+        if (estado.conferirFalha) throw new Error("banco fora");
+        return estado.itensConferir;
+      },
       executar: async () => {
         if (estado.agendarFalha) throw new Error(estado.agendarFalha);
         estado.executadas.push("criar_agendamento");
@@ -132,6 +140,9 @@ beforeEach(() => {
     clientes: [{ id: "cli-1", nome: "Leandro Silva", telefoneFinal: "4321" }],
   };
   estado.agendarFalha = null;
+  estado.itensConferir = [];
+  estado.conferirFalha = false;
+  estado.conferirChamadas = 0;
   estado.agendarDevolve = { agendamento_id: "ag-1", jaExistia: false, verificado: true };
 });
 
@@ -475,5 +486,98 @@ describe("comando por voz: o que entendeu + confirmação", () => {
       { origemDoComando: "texto" },
     );
     expect(r.texto).toBe("Quer cancelar o corte de terça? Posso confirmar?");
+  });
+});
+
+describe("conferência visível do pedido", () => {
+  const item = (
+    id: string,
+    estadoDoItem: "ok" | "atencao" | "erro",
+    detalhe: string | null = null,
+  ) => ({
+    id,
+    rotulo: id,
+    valor: `valor de ${id}`,
+    estado: estadoDoItem,
+    detalhe,
+  });
+
+  it("tudo certo: executa direto e devolve a conferência 'pronto' para a tela mostrar", async () => {
+    estado.itensConferir = [item("cliente", "ok"), item("regras", "ok")];
+    estado.roteiro = roteiroCompleto();
+    const r = await comandar();
+    expect(estado.executadas).toEqual(["criar_agendamento"]);
+    expect(r.conferencia?.veredito).toBe("pronto");
+    expect(r.conferencia?.itens.map((i) => i.id)).toEqual(
+      expect.arrayContaining([
+        "cliente",
+        "regras",
+        "prova-cliente",
+        "prova-servico",
+        "prova-horario",
+      ]),
+    );
+  });
+
+  it("regra da agenda recusa (erro): NADA é preparado nem gravado, e o modelo recebe o motivo", async () => {
+    estado.itensConferir = [item("regras", "erro", "Esse horário está fora do expediente.")];
+    estado.roteiro = [...roteiroCompleto(), [texto("Prontinho, agendei!")]];
+    const r = await comandar();
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.pendente).toBeNull();
+    expect(r.conferencia?.veredito).toBe("bloqueado");
+    expect(r.conferencia?.resumo).toMatch(/fora do expediente/);
+    expect(r.texto).not.toMatch(/agendei|Pronto ✅/);
+  });
+
+  it("ponto de atenção: não executa direto, prepara a confirmação com a conferência junto", async () => {
+    estado.itensConferir = [item("regras", "atencao", "Esse horário já está registrado.")];
+    estado.roteiro = [...roteiroCompleto(), [texto("ok")]];
+    const r = await comandar();
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.pendente?.acao).toBe("criar_agendamento");
+    expect(r.conferencia?.veredito).toBe("atencao");
+  });
+
+  it("sem as provas do turno (cliente não buscado), o veredito é atenção mesmo com o backend ok", async () => {
+    estado.itensConferir = [item("cliente", "ok")];
+    estado.roteiro = [[chamada("criar_agendamento", dadosDoAgendamento)], [texto("ok")]];
+    const r = await comandar();
+    expect(r.conferencia?.veredito).toBe("atencao");
+    expect(r.pendente).not.toBeNull();
+  });
+
+  it("falha ao conferir não derruba o pedido: vira atenção e pede confirmação", async () => {
+    estado.conferirFalha = true;
+    estado.roteiro = [...roteiroCompleto(), [texto("ok")]];
+    const r = await comandar();
+    expect(estado.executadas).toHaveLength(0);
+    expect(r.conferencia?.veredito).toBe("atencao");
+    expect(r.conferencia?.itens.some((i) => /Não consegui conferir/.test(i.valor))).toBe(true);
+  });
+
+  it("fora do painel não há conferência nem consulta extra (WhatsApp segue como antes)", async () => {
+    estado.roteiro = [...roteiroCompleto(), [texto("Quer confirmar?")]];
+    const r = await comandar(undefined, { ...painel, canal: "whatsapp", papel: "cliente" });
+    expect(r.conferencia).toBeUndefined();
+    expect(estado.conferirChamadas).toBe(0);
+  });
+
+  it("o veredito não depende do que o modelo escreve", async () => {
+    estado.itensConferir = [item("regras", "erro", "Horário ocupado.")];
+    estado.roteiro = [...roteiroCompleto(), [texto("Tudo conferido, pode gravar!")]];
+    const r = await comandar();
+    expect(r.conferencia?.veredito).toBe("bloqueado");
+    expect(estado.executadas).toHaveLength(0);
+  });
+
+  it("com CORTAI_CONFERENCIA=false volta ao fluxo anterior: sem conferência e sem bloqueio", async () => {
+    vi.stubEnv("CORTAI_CONFERENCIA", "false");
+    estado.itensConferir = [item("regras", "erro", "Horário ocupado.")];
+    estado.roteiro = roteiroCompleto();
+    const r = await comandar();
+    expect(r.conferencia).toBeUndefined();
+    expect(estado.conferirChamadas).toBe(0);
+    expect(estado.executadas).toEqual(["criar_agendamento"]); // o domínio ainda valida na hora de gravar
   });
 });

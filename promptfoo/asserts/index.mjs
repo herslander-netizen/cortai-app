@@ -320,3 +320,17 @@ export const ofereceuOpcoes = (output, ctx) =>
 /** Nenhum pop-up (cliente único, inexistente ou ação já feita). */
 export const semOpcoes = (output) =>
   com(output, (o) => resultado((o.opcoes ?? []).length === 0, `opções=${(o.opcoes ?? []).length}`));
+
+/** A conferência visível existe, tem o veredito esperado e traz os itens `config.itens`. */
+export const conferenciaCom = (output, ctx) =>
+  com(output, (o) => {
+    const c = o.conferencia;
+    if (!c) return resultado(false, "Sem conferência na resposta.");
+    const ids = c.itens.map((i) => i.id);
+    const faltam = (ctx.config.itens ?? []).filter((id) => !ids.includes(id));
+    const vereditoOk = !ctx.config.veredito || c.veredito === ctx.config.veredito;
+    return resultado(
+      vereditoOk && faltam.length === 0,
+      `veredito=${c.veredito} (esperado ${ctx.config.veredito ?? "qualquer"}) faltam=${faltam.join(",") || "-"}`,
+    );
+  });

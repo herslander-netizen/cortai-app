@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Loader2, Mic, Send, Square, X } from "lucide-react";
+import { ArrowRight, Check, Loader2, Mic, Send, Square, TriangleAlert, X } from "lucide-react";
 
 import { AgendarNoChat } from "./AgendarNoChat";
 import { IconeDaIA } from "./IconeDaIA";
@@ -11,6 +11,7 @@ import { FolhaCortai } from "./FolhaCortai";
 import { blobParaBase64, useGravadorDeVoz } from "./useGravadorDeVoz";
 import { useProgressoCortai } from "./useProgressoCortai";
 
+import type { Conferencia } from "@/lib/brain/conferencia";
 import { brl } from "@/lib/format";
 import { DIAS_DA_SEMANA, type RespostaDoAssistente } from "@/lib/ia/assistente";
 import {
@@ -72,6 +73,57 @@ function ProgressoDaConfiguracao() {
         />
       </span>
       {progresso.feitos > 0 ? <Check size={12} className="shrink-0 text-sage" aria-hidden /> : null}
+    </div>
+  );
+}
+
+/**
+ * O que a CortAI conferiu antes de gravar, item por item, e o veredito. É regra calculada no
+ * servidor (entidades do negócio + regras oficiais da agenda), não opinião do modelo.
+ */
+function ListaDeConferencia({ conferencia }: { conferencia: Conferencia }) {
+  const corDoVeredito =
+    conferencia.veredito === "pronto"
+      ? "text-sage"
+      : conferencia.veredito === "atencao"
+        ? "text-gold"
+        : "text-brick";
+  return (
+    <div role="group" aria-label="Conferência do pedido" className="mt-2.5">
+      <p className={`mb-1.5 text-xs font-semibold ${corDoVeredito}`}>{conferencia.resumo}</p>
+      <ul className="space-y-1">
+        {conferencia.itens.map((i) => (
+          <li key={i.id} className="flex items-start gap-2 text-xs leading-snug">
+            <span
+              className={`mt-px shrink-0 ${
+                i.estado === "ok"
+                  ? "text-sage"
+                  : i.estado === "atencao"
+                    ? "text-gold"
+                    : "text-brick"
+              }`}
+              aria-label={
+                i.estado === "ok" ? "conferido" : i.estado === "atencao" ? "atenção" : "problema"
+              }
+            >
+              {i.estado === "ok" ? (
+                <Check size={13} aria-hidden />
+              ) : i.estado === "atencao" ? (
+                <TriangleAlert size={13} aria-hidden />
+              ) : (
+                <X size={13} aria-hidden />
+              )}
+            </span>
+            <span className="min-w-0 break-words">
+              <span className="text-mute2">{i.rotulo}: </span>
+              <span className="text-paper">{i.valor}</span>
+              {i.detalhe && i.estado !== "ok" ? (
+                <span className="block text-mute">{i.detalhe}</span>
+              ) : null}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -231,6 +283,8 @@ export function AssistenteCortai({
     ultimaMensagem?.autor === "assistente" && !enviando && !opcoesDispensadas.has(`c-${ultimaId}`)
       ? (ultimaMensagem.acao?.aguardandoConfirmacao ?? null)
       : null;
+
+  const conferenciaDoCartao = confirmacaoAtual ? (ultimaMensagem?.acao?.conferencia ?? null) : null;
 
   const voz = useGravadorDeVoz({
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
@@ -422,6 +476,9 @@ export function AssistenteCortai({
                       {m.acao ? (
                         <PreviaDaAcao acao={m.acao} onConfirmado={() => undefined} />
                       ) : null}
+                      {m.acao?.conferencia && !(confirmacaoAtual && m.id === ultimaId) ? (
+                        <ListaDeConferencia conferencia={m.acao.conferencia} />
+                      ) : null}
                     </div>
                     {m.acao?.destino ? (
                       <Link
@@ -529,9 +586,14 @@ export function AssistenteCortai({
             className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
           >
             <p className="mb-0.5 text-xs font-semibold text-paper">Confere?</p>
-            <p className="mb-3 break-words text-sm leading-snug text-mute">
-              {confirmacaoAtual.resumo}
-            </p>
+            <p className="break-words text-sm leading-snug text-mute">{confirmacaoAtual.resumo}</p>
+            {conferenciaDoCartao ? (
+              <div className="mb-3">
+                <ListaDeConferencia conferencia={conferenciaDoCartao} />
+              </div>
+            ) : (
+              <div className="mb-3" />
+            )}
             <div className="flex gap-2">
               <button
                 type="button"
@@ -541,7 +603,9 @@ export function AssistenteCortai({
                 }}
                 className="btn-primary min-h-11 flex-1 py-2.5 text-sm"
               >
-                Confirmar
+                {conferenciaDoCartao?.veredito === "atencao"
+                  ? "Confirmar mesmo assim"
+                  : "Confirmar"}
               </button>
               <button
                 type="button"

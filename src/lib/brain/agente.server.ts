@@ -39,6 +39,14 @@ import {
   recusaInequivoca,
   RESPOSTA_RECUSA,
 } from "./guardas";
+import {
+  conferenciaLigada,
+  itensDeProvasDoAgendamento,
+  montarConferencia,
+  motivoDoBloqueio,
+  type Conferencia,
+  type ItemDeConferencia,
+} from "./conferencia";
 import { opcoesDeClientes, type OpcaoDeEscolha } from "./escolha-de-cliente";
 import {
   decidirExecucao,
@@ -78,6 +86,8 @@ export type ResultadoDoCerebro = {
   indisponivel: string | null;
   /** Opções para a pessoa tocar (ex.: clientes homônimos). Só no painel. */
   opcoes?: OpcaoDeEscolha[];
+  /** Verificações visíveis do pedido de escrita e o veredito (pronto / atenção / bloqueado). Só no painel. */
+  conferencia?: Conferencia;
 };
 
 const MAX_PASSOS = 6;
@@ -245,6 +255,8 @@ async function pensarCortaiComTurno(
   // O resultado é comunicado por texto FIXO do sistema, nunca escrito pela IA.
   const anterior =
     input.pendente && pendenteValida(input.pendente.criadaEm) ? input.pendente : null;
+  // Conferência da escrita avaliada neste turno (aparece na tela junto da resposta).
+  let conferencia: Conferencia | null = null;
   const fim = async (texto: string, novaPendente: Pendente | null, erro?: string) => {
     await registrarTurno({
       tenantId: ctx.tenantId,
@@ -256,7 +268,14 @@ async function pensarCortaiComTurno(
       sucesso: !erro,
       ...(erro ? { erro } : {}),
     });
-    return { texto, pendente: novaPendente, pedirHumano: false, acoes, indisponivel: null };
+    return {
+      texto,
+      pendente: novaPendente,
+      pedirHumano: false,
+      acoes,
+      indisponivel: null,
+      ...(conferencia ? { conferencia } : {}),
+    };
   };
   if (anterior && ehNumeroSolto(input.mensagem)) {
     // Número solto nunca confirma ação da IA: mantém a pendente e pede SIM/NÃO.
@@ -361,6 +380,7 @@ async function pensarCortaiComTurno(
           pedirHumano,
           acoes,
           indisponivel: null,
+          ...(conferencia ? { conferencia } : {}),
           // Sem ação pendente e com homônimos na busca: a tela mostra as opções para tocar.
           ...(!pendente && opcoes.length ? { opcoes } : {}),
         };
@@ -386,68 +406,108 @@ async function pensarCortaiComTurno(
               const resumo = def.resumir
                 ? await def.resumir(ctx, dados as Record<string, any>)
                 : nome;
-              const decisao = decidirExecucao({
-                acao: nome,
-                dados,
-                ctx: {
-                  canal: ctx.canal,
-                  papel: ctx.papel ?? null,
-                  profissionalId: ctx.profissionalId ?? null,
-                },
-                evidencias,
-                ligada: diretaLigada,
-                origem: input.origemDoComando ?? "texto",
-                ligadaPorVoz: diretaPorVoz,
-              });
-              if (decisao.direta) {
-                // Tudo provado por consultas oficiais deste turno e autorizado: executa sem
-                // pedir um "sim" redundante. O backend ainda valida disponibilidade e permissão.
-                let resultado: unknown = null;
-                let falha: string | null = null;
-                try {
-                  resultado = await executarAcao(ctx, nome, dados, conversaId, obs);
-                } catch (erro) {
-                  falha = erro instanceof Error ? erro.message : "Falha ao executar.";
-                }
-                if (!falha) {
-                  acoes.push({ nome, sucesso: true });
-                  obs.definirEstado("acao_executada_direta");
-                  await retomarIa(ctx.tenantId);
-                  // Texto FIXO do sistema, escrito só depois de o backend confirmar a gravação.
-                  return fim(
-                    textoDoResultado({ sucesso: true, resumo, jaExistia: jaExistia(resultado) }),
-                    null,
-                  );
-                }
-                // Nada foi gravado: o modelo recebe o motivo real e pode oferecer alternativas.
-                acoes.push({ nome, sucesso: false, erro: falha });
+              // Conferência visível (painel): entidades, regras oficiais da agenda e provas do turno.
+              conferencia = null;
+              if (ctx.canal === "painel" && conferenciaLigada()) {
+                const daAcao: ItemDeConferencia[] = def.conferir
+                  ? await def.conferir(ctx, dados).catch(() => [
+                      {
+                        id: "conferencia",
+                        rotulo: "Conferência",
+                        valor: "Não consegui conferir agora",
+                        estado: "atencao" as const,
+                        detalhe: "Confira os dados antes de confirmar.",
+                      },
+                    ])
+                  : [];
+                const provas =
+                  nome === "criar_agendamento"
+                    ? itensDeProvasDoAgendamento(dados, ctx, evidencias)
+                    : [];
+                const itens = [...daAcao, ...provas];
+                if (itens.length) conferencia = montarConferencia(itens);
+              }
+              if (conferencia && (conferencia as Conferencia).veredito === "bloqueado") {
+                // Não há o que confirmar: nada é preparado nem gravado.
+                const bloqueio = conferencia as Conferencia;
+                obs.registrarFerramenta({
+                  nome,
+                  fase: "recusada",
+                  ok: false,
+                  argumentos: dados,
+                  erro: motivoDoBloqueio(bloqueio).slice(0, 120),
+                });
                 saidaDaAcao = {
                   ok: false,
-                  erro: falha,
+                  erro: motivoDoBloqueio(bloqueio),
                   instrucao:
-                    "Nada foi alterado. Explique em uma frase e ofereça horários reais (consultar_disponibilidade) ou pergunte o que falta.",
+                    "Nada foi alterado. Explique em uma frase o motivo e ofereça alternativas reais (consultar_disponibilidade) ou pergunte o que falta.",
                 };
-                entrada.push({
-                  type: "function_call_output",
-                  call_id: chamada["call_id"],
-                  output: JSON.stringify(saidaDaAcao).slice(0, 12_000),
+              } else {
+                const decisao = decidirExecucao({
+                  acao: nome,
+                  dados,
+                  ctx: {
+                    canal: ctx.canal,
+                    papel: ctx.papel ?? null,
+                    profissionalId: ctx.profissionalId ?? null,
+                  },
+                  evidencias,
+                  ligada: diretaLigada,
+                  origem: input.origemDoComando ?? "texto",
+                  ligadaPorVoz: diretaPorVoz,
+                  ...(conferencia ? { veredito: (conferencia as Conferencia).veredito } : {}),
                 });
-                continue;
+                if (decisao.direta) {
+                  // Tudo provado por consultas oficiais deste turno e autorizado: executa sem
+                  // pedir um "sim" redundante. O backend ainda valida disponibilidade e permissão.
+                  let resultado: unknown = null;
+                  let falha: string | null = null;
+                  try {
+                    resultado = await executarAcao(ctx, nome, dados, conversaId, obs);
+                  } catch (erro) {
+                    falha = erro instanceof Error ? erro.message : "Falha ao executar.";
+                  }
+                  if (!falha) {
+                    acoes.push({ nome, sucesso: true });
+                    obs.definirEstado("acao_executada_direta");
+                    await retomarIa(ctx.tenantId);
+                    // Texto FIXO do sistema, escrito só depois de o backend confirmar a gravação.
+                    return fim(
+                      textoDoResultado({ sucesso: true, resumo, jaExistia: jaExistia(resultado) }),
+                      null,
+                    );
+                  }
+                  // Nada foi gravado: o modelo recebe o motivo real e pode oferecer alternativas.
+                  acoes.push({ nome, sucesso: false, erro: falha });
+                  saidaDaAcao = {
+                    ok: false,
+                    erro: falha,
+                    instrucao:
+                      "Nada foi alterado. Explique em uma frase e ofereça horários reais (consultar_disponibilidade) ou pergunte o que falta.",
+                  };
+                  entrada.push({
+                    type: "function_call_output",
+                    call_id: chamada["call_id"],
+                    output: JSON.stringify(saidaDaAcao).slice(0, 12_000),
+                  });
+                  continue;
+                }
+                pendente = {
+                  id: crypto.randomUUID(),
+                  acao: nome,
+                  dados,
+                  resumo,
+                  criadaEm: new Date().toISOString(),
+                };
+                obs.registrarFerramenta({ nome, fase: "preparada", ok: true, argumentos: dados });
+                saidaDaAcao = {
+                  status: "aguardando_confirmacao",
+                  resumo,
+                  instrucao:
+                    "Mostre o resumo e pergunte se pode confirmar. Nada foi executado ainda.",
+                };
               }
-              pendente = {
-                id: crypto.randomUUID(),
-                acao: nome,
-                dados,
-                resumo,
-                criadaEm: new Date().toISOString(),
-              };
-              obs.registrarFerramenta({ nome, fase: "preparada", ok: true, argumentos: dados });
-              saidaDaAcao = {
-                status: "aguardando_confirmacao",
-                resumo,
-                instrucao:
-                  "Mostre o resumo e pergunte se pode confirmar. Nada foi executado ainda.",
-              };
             } catch (erro) {
               saidaDaAcao = {
                 ok: false,

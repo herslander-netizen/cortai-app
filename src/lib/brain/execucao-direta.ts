@@ -135,11 +135,15 @@ export function decidirExecucao(entrada: {
   origem?: "texto" | "voz";
   /** Voz pode executar direto? Padrão: não (pede conferência). */
   ligadaPorVoz?: boolean;
+  /** Veredito da conferência visível; só "pronto" libera a execução direta. Padrão: pronto. */
+  veredito?: "pronto" | "atencao" | "bloqueado";
 }): DecisaoDeExecucao {
   const { acao, dados, ctx, evidencias: ev } = entrada;
   const nao = (motivo: string): DecisaoDeExecucao => ({ direta: false, motivo });
 
   if (POLITICA_DE_CONFIRMACAO[acao] !== "dispensavel") return nao("ação exige confirmação");
+  if (entrada.veredito && entrada.veredito !== "pronto")
+    return nao("a conferência tem pontos a verificar");
   if (!entrada.ligada) return nao("execução direta desligada");
   if (entrada.origem === "voz" && !entrada.ligadaPorVoz)
     return nao("comando por voz pede conferência antes de gravar");

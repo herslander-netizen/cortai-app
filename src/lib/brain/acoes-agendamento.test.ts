@@ -5,6 +5,7 @@ import { criarBancoFalso } from "./banco-falso.apoio";
 const estado = vi.hoisted(() => ({
   banco: null as any,
   domínio: vi.fn(),
+  validar: vi.fn(),
 }));
 
 vi.mock("@/integrations/supabase/client.server", () => ({
@@ -15,7 +16,10 @@ vi.mock("@/integrations/supabase/client.server", () => ({
 vi.mock("@/lib/ia/acoes.server", () => ({
   ACOES_DO_AGENTE: { criar_agendamento: (...a: unknown[]) => estado.domínio(...a) },
 }));
-vi.mock("@/lib/agenda-regras.server", () => ({ STATUS_QUE_OCUPAM: ["agendado", "chegou"] }));
+vi.mock("@/lib/agenda-regras.server", () => ({
+  STATUS_QUE_OCUPAM: ["agendado", "chegou"],
+  validarAgendamento: (...a: unknown[]) => estado.validar(...a),
+}));
 vi.mock("@/lib/fuso.server", () => ({ fusoDoTenant: async () => "America/Sao_Paulo" }));
 
 import {
@@ -23,6 +27,7 @@ import {
   ACOES,
   agendamentoIdentico,
   agendarComSeguranca,
+  conferirAgendamento,
   ferramentasDoContexto,
   verificarGravacao,
   type ContextoDoCerebro,
@@ -51,6 +56,8 @@ const linha = (extra: Record<string, unknown> = {}) => ({
 beforeEach(() => {
   estado.banco = criarBancoFalso({ agendamentos: [], clientes: [] });
   estado.domínio.mockReset();
+  estado.validar.mockReset();
+  estado.validar.mockResolvedValue(null);
 });
 
 describe("agendamento idempotente e verificado", () => {
@@ -295,5 +302,111 @@ describe("quem pode usar o quê (permissões)", () => {
     )!;
     expect(noZap.description).toMatch(/só executa depois que a pessoa confirmar/);
     expect(noZap.description).not.toMatch(/executa na hora/);
+  });
+});
+
+describe("conferência do agendamento (o que a pessoa vê antes de gravar)", () => {
+  const dados = { clienteId: "cli-1", servicoId: "srv-1", profissionalId: "pro-1", inicio: INICIO };
+  const popular = () => {
+    estado.banco.tabelas.clientes.push({
+      id: "cli-1",
+      tenant_id: "t1",
+      nome: "Leandro Silva",
+      telefone: "5511988884321",
+    });
+    estado.banco.tabelas.servicos = [
+      {
+        id: "srv-1",
+        tenant_id: "t1",
+        nome: "Corte",
+        preco_centavos: 4500,
+        duracao_min: 30,
+        ativo: true,
+        profissional_ids: null,
+      },
+    ];
+    estado.banco.tabelas.profissionais = [
+      { id: "pro-1", tenant_id: "t1", nome: "Rafa", ativo: true },
+    ];
+  };
+  const por = (itens: any[], id: string) => itens.find((i) => i.id === id);
+
+  it("tudo certo: mostra cliente, serviço, profissional, dia/hora e as regras da agenda como ok", async () => {
+    popular();
+    const itens = await conferirAgendamento(ctx, dados);
+    expect(por(itens, "cliente")).toMatchObject({
+      estado: "ok",
+      valor: "Leandro Silva (final 4321)",
+    });
+    expect(por(itens, "servico")).toMatchObject({ estado: "ok" });
+    expect(por(itens, "servico").valor).toMatch(/^Corte · 30 min · R\$/);
+    expect(por(itens, "profissional")).toMatchObject({ estado: "ok", valor: "Rafa" });
+    expect(por(itens, "quando").estado).toBe("ok");
+    expect(por(itens, "regras")).toMatchObject({ estado: "ok" });
+    expect(por(itens, "permissao")).toMatchObject({ estado: "ok" });
+    expect(estado.validar).toHaveBeenCalledTimes(1);
+    expect(estado.validar.mock.calls[0]![1]).toMatchObject({
+      tenantId: "t1",
+      profissionalId: "pro-1",
+      clienteId: "cli-1",
+    });
+  });
+
+  it("a regra OFICIAL da agenda que recusa vira item de erro com o motivo dela", async () => {
+    popular();
+    estado.validar.mockRejectedValue(new Error("Esse horário está fora do expediente."));
+    const itens = await conferirAgendamento(ctx, dados);
+    expect(por(itens, "regras")).toMatchObject({
+      estado: "erro",
+      detalhe: "Esse horário está fora do expediente.",
+    });
+  });
+
+  it("outro horário do mesmo cliente no dia bloqueia (o domínio também recusaria)", async () => {
+    popular();
+    estado.validar.mockResolvedValue({ hora: "11:00" });
+    const itens = await conferirAgendamento(ctx, dados);
+    expect(por(itens, "regras")).toMatchObject({ estado: "erro" });
+    expect(por(itens, "regras").valor).toMatch(/11:00/);
+  });
+
+  it("o mesmo agendamento já existe: atenção (confirmar não cria outro) e a regra de conflito nem roda", async () => {
+    popular();
+    estado.banco.tabelas.agendamentos.push(linha());
+    const itens = await conferirAgendamento(ctx, dados);
+    expect(por(itens, "regras")).toMatchObject({ estado: "atencao" });
+    expect(estado.validar).not.toHaveBeenCalled();
+  });
+
+  it("cliente, serviço e profissional inexistentes viram erro e as regras nem são consultadas", async () => {
+    const itens = await conferirAgendamento(ctx, dados);
+    expect(por(itens, "cliente").estado).toBe("erro");
+    expect(por(itens, "servico").estado).toBe("erro");
+    expect(por(itens, "profissional").estado).toBe("erro");
+    expect(por(itens, "regras")).toBeUndefined();
+    expect(estado.validar).not.toHaveBeenCalled();
+  });
+
+  it("cliente de OUTRO negócio é tratado como inexistente", async () => {
+    popular();
+    estado.banco.tabelas.clientes[0]!.tenant_id = "outro-negocio";
+    expect(por(await conferirAgendamento(ctx, dados), "cliente").estado).toBe("erro");
+  });
+
+  it("horário ilegível e falta de permissão aparecem como erro", async () => {
+    popular();
+    expect(
+      por(await conferirAgendamento(ctx, { ...dados, inicio: "amanhã às 15h" }), "quando").estado,
+    ).toBe("erro");
+    const semPermissao = { ...ctx, permissoes: [] };
+    expect(por(await conferirAgendamento(semPermissao, dados), "permissao").estado).toBe("erro");
+  });
+
+  it("só lê: nunca grava nem chama o domínio", async () => {
+    popular();
+    const antes = JSON.stringify(estado.banco.tabelas);
+    await conferirAgendamento(ctx, dados);
+    expect(JSON.stringify(estado.banco.tabelas)).toBe(antes);
+    expect(estado.domínio).not.toHaveBeenCalled();
   });
 });

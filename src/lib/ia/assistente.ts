@@ -1,3 +1,4 @@
+import type { Conferencia } from "@/lib/brain/conferencia";
 import type { OpcaoDeEscolha } from "@/lib/brain/escolha-de-cliente";
 /**
  * Contrato do assistente do CortAI — seguro para o navegador (só tipos e rótulos).
@@ -45,6 +46,8 @@ export type RespostaDoAssistente = {
   opcoes?: OpcaoDeEscolha[] | null;
   /** Escrita preparada que espera o toque em "Confirmar" (o texto é o resumo conferido). */
   aguardandoConfirmacao?: { resumo: string } | null;
+  /** Verificações do pedido (o que foi conferido) e o veredito, para a pessoa ver. */
+  conferencia?: Conferencia | null;
 };
 
 export const DIAS_DA_SEMANA = [

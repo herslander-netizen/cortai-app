@@ -40,6 +40,21 @@ Se a busca por nome devolve **mais de um** cliente, a CortAI não chuta e **nada
 
 **Regra de nome e sobrenome**: já vale sem obrigar ninguém a dizer o sobrenome. Se a pessoa fala “Leandro Silva” e só existe um, executa; se falar só “Leandro” e houver dois, aparece o cartão; se houver só um “Leandro” cadastrado, executa direto (a busca única é a prova exigida). Exigir sobrenome SEMPRE, mesmo com um só candidato, é uma mudança de uma linha em `execucao-direta.ts`, mas acrescenta atrito em toda marcação por voz — não ativei; é decisão sua.
 
+## 1.3 Conferência visível (o que foi verificado e se pode gravar)
+
+Antes de qualquer escrita preparada no painel, a CortAI monta uma **lista de verificações que a pessoa vê**, com um veredito calculado por **regra** (não por opinião do modelo):
+
+| Verificação | De onde vem |
+|---|---|
+| Cliente (nome e final do telefone), Serviço (duração, preço), Profissional, Dia e hora | Leitura no banco, **dentro do negócio** (cliente/serviço/profissional ativos) |
+| **Regras da agenda** | A **mesma** `validarAgendamento` que o domínio usa ao gravar: expediente, antecedência, janela de dias, profissional × serviço, choque de horários, outro horário do cliente no dia |
+| Permissão | `acaoPermitida` (as permissões das telas) |
+| Cliente identificado / Serviço no catálogo / Horário da agenda oficial | Provas do turno: veio de uma consulta oficial? (a busca por nome teve resultado único?) |
+
+Veredito: **pronto** (tudo conferido) → pode gravar; **atenção** (algo a olhar, ex.: cliente não confirmado por busca, horário já registrado) → mostra a lista e o botão vira “Confirmar mesmo assim”; **bloqueado** (cliente/serviço inexistente, horário ocupado ou fora do expediente, permissão) → **não se cria confirmação**, nada é gravado, a lista mostra o problema em vermelho e a CortAI explica e oferece alternativas.
+
+Onde aparece: no cartão “Confere?” (com os botões), e dentro da resposta quando já foi gravado (“Tudo conferido”) ou foi bloqueado. A conferência **só lê** (teste garante que não grava nada) e usa a regra oficial, então não pode divergir do que o sistema faria ao gravar. Execução direta passa a exigir veredito **pronto**. Se a conferência falhar por erro técnico, vira “atenção” (cai na confirmação), nunca derruba o pedido. Interruptor: `CORTAI_CONFERENCIA=false` volta ao fluxo anterior. Só no painel; WhatsApp não muda.
+
 ## 2. Fluxo (do pedido ao resultado)
 
 1. **Captura**: botão de microfone no chat (`AssistenteCortai.tsx` + `useGravadorDeVoz.ts`). Só aparece se o navegador tem `getUserMedia` e `MediaRecorder`; senão a pessoa escreve. Até 60 s; toque no quadrado para enviar; cancelar disponível; fechar o chat solta o microfone.

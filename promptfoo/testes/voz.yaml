@@ -234,3 +234,49 @@
         value: "file://asserts/index.mjs:executouDireto",
         config: { nome: criar_agendamento },
       }
+
+- description: Conferência visível — cliente, serviço, profissional, hora, regras da agenda e provas, com veredito "pronto"
+  vars:
+    mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
+    origem: voz
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - { type: javascript, value: "file://asserts/index.mjs:nadaExecutado" }
+    - type: javascript
+      value: "file://asserts/index.mjs:conferenciaCom"
+      config:
+        {
+          veredito: pronto,
+          itens:
+            [
+              cliente,
+              servico,
+              profissional,
+              quando,
+              regras,
+              permissao,
+              prova-cliente,
+              prova-servico,
+              prova-horario,
+            ],
+        }
+
+- description: Conferência visível também no agendamento direto (texto) — mostra o que foi conferido
+  vars:
+    mensagem: "CortAI, marque um horário para Leandro Silva amanhã às 15h para corte."
+    canal: painel
+    papel: dono
+    permissoes: "agendamento_manual,visualizar_clientes"
+  assert:
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:executouDireto",
+        config: { nome: criar_agendamento },
+      }
+    - {
+        type: javascript,
+        value: "file://asserts/index.mjs:conferenciaCom",
+        config: { veredito: pronto, itens: [cliente, regras] },
+      }

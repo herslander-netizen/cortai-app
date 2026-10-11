@@ -130,11 +130,76 @@ function leitura(nome, d, falhas) {
  * Troca o catálogo pelo mundo simulado. Devolve `registro` (o que aconteceu) e `restaurar()`.
  * `falhas`: nomes de ações de leitura que devem falhar nesta rodada.
  */
+/** Conferência do mundo fictício: mesmas verificações da real, sobre os dados fixos. */
+function conferirNoMundo(d) {
+  const cliente = CLIENTES.find((c) => c.id === d.clienteId);
+  const servico = SERVICOS.find((s) => s.id === d.servicoId);
+  const profissional = PROFISSIONAIS.find((p) => p.id === d.profissionalId);
+  const hora = /T(\d{2}:\d{2})/.exec(String(d.inicio))?.[1];
+  const livre = HORARIOS_LIVRES.includes(hora ?? "");
+  return [
+    cliente
+      ? {
+          id: "cliente",
+          rotulo: "Cliente",
+          valor: `${cliente.nome} (final ${cliente.telefone.slice(-4)})`,
+          estado: "ok",
+        }
+      : {
+          id: "cliente",
+          rotulo: "Cliente",
+          valor: "Não encontrado neste negócio",
+          estado: "erro",
+          detalhe: "Esse cliente não existe neste negócio.",
+        },
+    servico
+      ? {
+          id: "servico",
+          rotulo: "Serviço",
+          valor: `${servico.nome} · ${servico.duracaoMin} min · ${servico.preco}`,
+          estado: "ok",
+        }
+      : {
+          id: "servico",
+          rotulo: "Serviço",
+          valor: "Não encontrado",
+          estado: "erro",
+          detalhe: "Esse serviço não está ativo.",
+        },
+    profissional
+      ? { id: "profissional", rotulo: "Profissional", valor: profissional.nome, estado: "ok" }
+      : {
+          id: "profissional",
+          rotulo: "Profissional",
+          valor: "Não encontrado",
+          estado: "erro",
+          detalhe: "Profissional inexistente.",
+        },
+    { id: "quando", rotulo: "Dia e hora", valor: String(d.inicio), estado: "ok" },
+    livre
+      ? {
+          id: "regras",
+          rotulo: "Regras da agenda",
+          valor: "Horário livre e dentro do expediente",
+          estado: "ok",
+        }
+      : {
+          id: "regras",
+          rotulo: "Regras da agenda",
+          valor: "Horário ocupado ou fora do expediente",
+          estado: "erro",
+          detalhe: "Esse horário não está livre.",
+        },
+    { id: "permissao", rotulo: "Permissão", valor: "Você pode agendar", estado: "ok" },
+  ];
+}
+
 export function instalarMundo(ACOES, { falhas = [], falhasDeEscrita = [] } = {}) {
   const registro = { executadas: [], preparadas: [], leituras: [], tenantsVistos: new Set() };
   const originais = new Map();
   for (const [nome, def] of Object.entries(ACOES)) {
-    originais.set(nome, { executar: def.executar, resumir: def.resumir });
+    originais.set(nome, { executar: def.executar, resumir: def.resumir, conferir: def.conferir });
+    if (nome === "criar_agendamento") def.conferir = async (_ctx, d) => conferirNoMundo(d);
     def.executar = async (ctx, d) => {
       registro.tenantsVistos.add(ctx.tenantId);
       if (def.risco === "escrita") {
@@ -161,6 +226,8 @@ export function instalarMundo(ACOES, { falhas = [], falhasDeEscrita = [] } = {})
         ACOES[nome].executar = o.executar;
         if (o.resumir) ACOES[nome].resumir = o.resumir;
         else delete ACOES[nome].resumir;
+        if (o.conferir) ACOES[nome].conferir = o.conferir;
+        else delete ACOES[nome].conferir;
       }
     },
   };

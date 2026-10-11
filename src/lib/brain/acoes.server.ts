@@ -13,6 +13,7 @@ import * as dominio from "@/lib/ia/acoes.server";
 import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { filtrarCandidatos, padraoDoBanco, termosDaBusca } from "./busca-cliente";
+import type { ItemDeConferencia } from "./conferencia";
 import { execucaoDiretaLigada, POLITICA_DE_CONFIRMACAO } from "./execucao-direta";
 import type { FerramentaDoModelo } from "./gateway.server";
 
@@ -61,6 +62,11 @@ type Definicao = {
   permissoes?: readonly string[];
   executar: (ctx: ContextoDoCerebro, dados: any) => Promise<unknown>;
   resumir?: (ctx: ContextoDoCerebro, dados: any) => Promise<string>;
+  /**
+   * Verificações que a pessoa VÊ antes de gravar (painel). Só lê, nunca grava; devolve itens
+   * em vez de lançar erro, para a tela mostrar o que está certo e o que impede.
+   */
+  conferir?: (ctx: ContextoDoCerebro, dados: any) => Promise<ItemDeConferencia[]>;
 };
 
 async function admin() {
@@ -308,6 +314,187 @@ export async function agendarComSeguranca(
   const id = (gravado as { agendamento_id?: string } | null)?.agendamento_id;
   await verificarGravacao(ctx, id, alvo);
   return { ...(gravado as object), jaExistia: false, verificado: true };
+}
+
+/**
+ * Conferência do agendamento: entidades do negócio + regras OFICIAIS da agenda
+ * (`validarAgendamento`: expediente, antecedência, profissional×serviço, choque de horários,
+ * outro horário do mesmo cliente). Só lê. Cada item diz o que foi verificado e o resultado.
+ */
+export async function conferirAgendamento(
+  ctx: ContextoDoCerebro,
+  d: { clienteId?: unknown; servicoId?: unknown; profissionalId?: unknown; inicio?: unknown },
+): Promise<ItemDeConferencia[]> {
+  const itens: ItemDeConferencia[] = [];
+  const profissionalId = profissionalEfetivo(ctx, d.profissionalId);
+  const clienteId = d.clienteId ? String(d.clienteId) : null;
+  const servicoId = String(d.servicoId ?? "");
+  const inicioMs = Date.parse(String(d.inicio ?? ""));
+  const db = await admin();
+
+  const [cli, srv, prof] = await Promise.all([
+    clienteId && !ehCliente(ctx)
+      ? db
+          .from("clientes")
+          .select("id, nome, telefone")
+          .eq("id", clienteId)
+          .eq("tenant_id", ctx.tenantId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    db
+      .from("servicos")
+      .select("id, nome, preco_centavos, duracao_min, profissional_ids")
+      .eq("id", servicoId)
+      .eq("tenant_id", ctx.tenantId)
+      .eq("ativo", true)
+      .maybeSingle(),
+    db
+      .from("profissionais")
+      .select("id, nome")
+      .eq("id", profissionalId)
+      .eq("tenant_id", ctx.tenantId)
+      .eq("ativo", true)
+      .maybeSingle(),
+  ]);
+  const cliente = cli.data as { nome: string; telefone: string | null } | null;
+  const servico = srv.data as {
+    id: string;
+    nome: string;
+    preco_centavos: number;
+    duracao_min: number;
+    profissional_ids: string[] | null;
+  } | null;
+  const profissional = prof.data as { nome: string } | null;
+
+  if (!ehCliente(ctx)) {
+    itens.push(
+      cliente
+        ? {
+            id: "cliente",
+            rotulo: "Cliente",
+            valor: `${cliente.nome}${
+              cliente.telefone ? ` (final ${cliente.telefone.replace(/\D/g, "").slice(-4)})` : ""
+            }`,
+            estado: "ok",
+          }
+        : {
+            id: "cliente",
+            rotulo: "Cliente",
+            valor: "Não encontrado neste negócio",
+            estado: "erro",
+            detalhe: "Esse cliente não existe neste negócio.",
+          },
+    );
+  }
+  itens.push(
+    servico
+      ? {
+          id: "servico",
+          rotulo: "Serviço",
+          valor: `${servico.nome} · ${servico.duracao_min} min · ${reais(servico.preco_centavos)}`,
+          estado: "ok",
+        }
+      : {
+          id: "servico",
+          rotulo: "Serviço",
+          valor: "Não encontrado",
+          estado: "erro",
+          detalhe: "Esse serviço não está ativo no catálogo do negócio.",
+        },
+    profissional
+      ? { id: "profissional", rotulo: "Profissional", valor: profissional.nome, estado: "ok" }
+      : {
+          id: "profissional",
+          rotulo: "Profissional",
+          valor: "Não encontrado",
+          estado: "erro",
+          detalhe: "Esse profissional não está ativo neste negócio.",
+        },
+    Number.isFinite(inicioMs)
+      ? {
+          id: "quando",
+          rotulo: "Dia e hora",
+          valor: await quando(ctx, new Date(inicioMs).toISOString()),
+          estado: "ok",
+        }
+      : {
+          id: "quando",
+          rotulo: "Dia e hora",
+          valor: "Horário inválido",
+          estado: "erro",
+          detalhe: "Não entendi o dia e a hora.",
+        },
+  );
+
+  // Regras da agenda só fazem sentido com tudo identificado.
+  if (servico && profissional && Number.isFinite(inicioMs) && (ehCliente(ctx) || cliente)) {
+    try {
+      const identico = clienteId
+        ? await agendamentoIdentico(ctx, {
+            clienteId,
+            servicoId,
+            profissionalId,
+            inicio: new Date(inicioMs).toISOString(),
+          })
+        : null;
+      if (identico) {
+        itens.push({
+          id: "regras",
+          rotulo: "Regras da agenda",
+          valor: "Esse horário já está registrado para este cliente",
+          estado: "atencao",
+          detalhe: "Confirmar não cria outro: o sistema avisa que já existia.",
+        });
+      } else {
+        const { validarAgendamento } = await import("@/lib/agenda-regras.server");
+        const conflito = await validarAgendamento(db, {
+          tenantId: ctx.tenantId,
+          servico,
+          profissionalId,
+          inicio: new Date(inicioMs),
+          clienteId,
+        });
+        itens.push(
+          conflito
+            ? {
+                id: "regras",
+                rotulo: "Regras da agenda",
+                valor: `O cliente já tem um horário às ${conflito.hora} nesse dia`,
+                estado: "erro",
+                detalhe: `O cliente já tem um horário às ${conflito.hora} nesse dia.`,
+              }
+            : {
+                id: "regras",
+                rotulo: "Regras da agenda",
+                valor: "Horário livre e dentro do expediente",
+                estado: "ok",
+              },
+        );
+      }
+    } catch (erro) {
+      // A validação oficial lança mensagens claras (fora do horário, ocupado, antecedência…).
+      const motivo = erro instanceof Error ? erro.message : "Não consegui conferir a agenda agora.";
+      itens.push({
+        id: "regras",
+        rotulo: "Regras da agenda",
+        valor: motivo,
+        estado: "erro",
+        detalhe: motivo,
+      });
+    }
+  }
+  itens.push({
+    id: "permissao",
+    rotulo: "Permissão",
+    valor: acaoPermitida("criar_agendamento", ctx)
+      ? "Você pode agendar"
+      : "Sem permissão para agendar",
+    estado: acaoPermitida("criar_agendamento", ctx) ? "ok" : "erro",
+    detalhe: acaoPermitida("criar_agendamento", ctx)
+      ? null
+      : "Seu usuário não pode criar agendamentos.",
+  });
+  return itens;
 }
 
 export const ACOES: Record<string, Definicao> = {
@@ -560,6 +747,7 @@ export const ACOES: Record<string, Definicao> = {
       }
       return `Agendar ${servico.nome} (${reais(servico.preco_centavos)}, ${servico.duracao_min} min) com ${profissional.nome} em ${await quando(ctx, String(d.inicio))}${paraQuem}.`;
     },
+    conferir: (ctx, d) => conferirAgendamento(ctx, d),
     executar: async (ctx, d) => {
       if (ctx.papel === "profissional" && !ctx.profissionalId)
         throw new Error("Seu usuário não está ligado a um profissional.");

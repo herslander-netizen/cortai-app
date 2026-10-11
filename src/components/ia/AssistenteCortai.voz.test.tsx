@@ -420,3 +420,117 @@ describe("conferência com um toque (Confirmar / Não)", () => {
     expect(cartao()).toBeNull();
   });
 });
+
+describe("conferência visível na tela", () => {
+  const itens = [
+    {
+      id: "cliente",
+      rotulo: "Cliente",
+      valor: "Leandro Silva (final 4321)",
+      estado: "ok",
+      detalhe: null,
+    },
+    {
+      id: "servico",
+      rotulo: "Serviço",
+      valor: "Corte · 30 min · R$ 45,00",
+      estado: "ok",
+      detalhe: null,
+    },
+    {
+      id: "regras",
+      rotulo: "Regras da agenda",
+      valor: "Esse horário já está registrado",
+      estado: "atencao",
+      detalhe: "Confirmar não cria outro.",
+    },
+  ];
+  const conv = (acao: Record<string, unknown>) => ({
+    conversaId: "c1",
+    disponivel: true,
+    mensagens: [
+      { id: "m1", autor: "barbeiro", conteudo: "marque Leandro Silva às 15h", acao: null },
+      {
+        id: "m2",
+        autor: "assistente",
+        conteudo: "Entendi assim: Agendar Corte. Posso confirmar?",
+        acao: { ...RESPOSTA("x").resposta, ...acao },
+      },
+    ],
+  });
+  async function com(conversa: unknown) {
+    mocks.conversa.mockResolvedValueOnce(conversa as never);
+    await montar(false);
+    await avancar(0);
+    await avancar(0);
+  }
+  const lista = () => document.querySelector('[role="group"][aria-label="Conferência do pedido"]');
+
+  it("no cartão de confirmação: cada verificação com seu estado e o botão avisa quando há atenção", async () => {
+    await com(
+      conv({
+        aguardandoConfirmacao: { resumo: "Agendar Corte." },
+        conferencia: {
+          itens,
+          veredito: "atencao",
+          resumo: "Confira os pontos marcados antes de confirmar.",
+        },
+      }),
+    );
+    expect(lista()?.textContent).toContain("Confira os pontos marcados antes de confirmar.");
+    expect(lista()?.textContent).toContain("Cliente: Leandro Silva (final 4321)");
+    expect(lista()?.textContent).toContain("Confirmar não cria outro.");
+    expect(lista()?.querySelectorAll('[aria-label="conferido"]')).toHaveLength(2);
+    expect(lista()?.querySelectorAll('[aria-label="atenção"]')).toHaveLength(1);
+    expect(
+      Array.from(document.querySelectorAll("button")).some(
+        (b) => b.textContent === "Confirmar mesmo assim",
+      ),
+    ).toBe(true);
+  });
+
+  it("veredito 'pronto' mantém o botão simples 'Confirmar'", async () => {
+    await com(
+      conv({
+        aguardandoConfirmacao: { resumo: "Agendar Corte." },
+        conferencia: {
+          itens: itens.slice(0, 2),
+          veredito: "pronto",
+          resumo: "Tudo conferido: pode gravar.",
+        },
+      }),
+    );
+    const botoes = Array.from(document.querySelectorAll("button")).map((b) => b.textContent);
+    expect(botoes).toContain("Confirmar");
+    expect(botoes).not.toContain("Confirmar mesmo assim");
+  });
+
+  it("bloqueado: mostra o problema na própria resposta e NÃO há botão de confirmar", async () => {
+    await com(
+      conv({
+        aguardandoConfirmacao: null,
+        conferencia: {
+          itens: [
+            {
+              id: "regras",
+              rotulo: "Regras da agenda",
+              valor: "Fora do expediente",
+              estado: "erro",
+              detalhe: "Esse horário está fora do expediente.",
+            },
+          ],
+          veredito: "bloqueado",
+          resumo: "Não dá para gravar: Esse horário está fora do expediente.",
+        },
+      }),
+    );
+    expect(lista()?.textContent).toContain("Não dá para gravar");
+    expect(lista()?.querySelectorAll('[aria-label="problema"]')).toHaveLength(1);
+    expect(document.querySelector('[aria-label="Confirmar o que a CortAI entendeu"]')).toBeNull();
+  });
+
+  it("resposta sem conferência (conversa comum) não mostra lista", async () => {
+    await com(conv({ conferencia: null }));
+    expect(lista()).toBeNull();
+  });
+});
