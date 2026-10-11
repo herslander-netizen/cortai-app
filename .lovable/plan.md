@@ -1,99 +1,87 @@
-# Auditoria da CortAI (somente leitura) e proposta em fases
+# Auditoria técnica do Cortaí — 11/10/2026 (somente leitura)
 
-Nada foi alterado nem publicado. Abaixo está o que já existe e uma proposta de implementação para você aprovar depois.
+Nada foi alterado no código, no banco, nas configurações nem na publicação. Este documento é o relatório da auditoria. Ao aprovar, ele vira `docs/auditoria-2026-10-11.md` e nenhuma correção é feita.
 
-## 1. Onde já existe IA
+## 1. Resumo executivo
 
-- **Núcleo único ("cérebro")**, em `src/lib/brain/`:
-  - `gateway.server.ts`: fala com o Lovable AI Gateway (modelo `openai/gpt-6-astra`, Responses API, streaming, chave `LOVABLE_API_KEY` apenas no servidor).
-  - `agente.server.ts`: `pensarCortai`, onde o modelo só escolhe ações.
-  - `acoes.server.ts`: catálogo de ações e permissões por papel (`acaoPermitida`).
-  - `guardas.ts`: barreiras de segurança.
-  - `uso.server.ts`: cota, registro em `acoes_de_ia_log`, e pausa/retomada da IA (`ia_pausada_em`) quando o gateway responde 402/403.
-- **Legado em paralelo, ainda no código:**
-  - `src/lib/ia/assistente.server.ts` e `src/lib/whatsapp/atendimento.server.ts`, que a própria função marca como `@deprecated`. Os dois também leem `LOVABLE_API_KEY`.
-  - `src/lib/whatsapp/transcricao.server.ts`: transcrição de áudio pronta, mas não ligada ao fluxo. A regra atual é pedir texto ao cliente.
-- **Gemini/OpenAI direto:** não existe. Tudo passa pelo gateway da Lovable.
+- **Build e testes estão saudáveis:** a checagem de tipos rodou sem erros e a suíte inteira passou (126 arquivos, 1038 testes, 1 ignorado).
+- **Servidor:** os pontos já revisados continuam sólidos. O webhook da Evolution recusa chamadas sem segredo válido (503 sem segredo configurado, 401 com segredo errado) e o IP vem só de `ipDaChamada()`. Os cupons comparam o código sem curinga.
+- **Falhas confirmadas que continuam abertas:** fila de chegada pública sem limite de tentativas; avisos que apontam para `/painel`, uma página que não existe; 76 conversões `as never`; transcrição de áudio nunca testada com áudio real; gesto de arrastar para fechar nunca testado em aparelho.
+- **Conclusão:** não há achado grave confirmado no que foi lido. A cobertura é parcial (ver seção 9), então isso **não** prova que o projeto está seguro.
 
-## 2. Pontos de chat no servidor
+## 2. Tabela de achados
 
-- `src/lib/assistente.functions.ts`:
-  - `getConversaDoAssistente`: carrega a conversa.
-  - `perguntarAoCortai`: chama `pensarCortai`.
-  - `confirmarAcaoDaIa`: só executa uma ação depois da confirmação.
-  - `interpretarServicos` e `interpretarHorarios`: usados no onboarding.
-- `src/lib/brain/secretaria-publica.functions.ts`: `perguntarSecretariaPublica`, usada pelo chat público de agendamento. O nome ainda carrega "Secretária".
-- `src/lib/whatsapp/fluxo.server.ts`, por volta da linha 837: o WhatsApp chama o mesmo `pensarCortai`.
+| ID | Sev. | Domínio | Onde | Evidência | Impacto | Como reproduzir | Recomendação |
+|---|---|---|---|---|---|---|---|
+| A1 | P1 | Fila pública | `src/lib/fila-publica.functions.ts` `entrarNaFilaPublica` (l.73-95) | Usa a chave de serviço e não chama `limitarPublico`/`barrarAbusivo` | Um robô pode encher a fila de chegada de qualquer negócio com nomes e telefones falsos | Repetir POST com o slug de um negócio que tem a fila ligada | Limite por IP e por slug com `limitarPublico` |
+| A2 | P2 | Notificações | `src/lib/push/aviso-sininho.server.ts:72`, `src/lib/whatsapp/fluxo.server.ts:943` | O link padrão é `"/painel"`, mas essa rota não existe (as rotas reais são `/barbeiro/...`) | Tocar no aviso abre "página não encontrada" | Aviso sem link próprio → tocar no push | Usar `links-de-tela.ts` como link padrão |
+| A3 | P2 | Público | Agendamento público (achado 11 de 09/10) | Não mudou no que foi lido | Alguém pode agendar com o telefone de outra pessoa | Agendar pelo link com um número que não é seu | Confirmação leve ou limite por telefone |
+| A4 | P2 | Cliente anônimo | Permissões de coluna (achado 12) | Não reverificado no banco nesta rodada | Comissão e `user_id` podem estar visíveis a qualquer visitante | — | Reconferir no catálogo e revogar as colunas |
+| A5 | P2 | WhatsApp áudio | `transcricao.server.ts`, `fluxo.server.ts:461-463` | Está ligado ao fluxo, mas não há teste automático nem teste real | Áudio de cliente pode falhar sem ninguém perceber | Mandar áudio para a Aurora | Teste de ponta a ponta e testes unitários com áudio simulado |
+| A6 | P2 | UX gavetas | `useArrastarParaFechar.ts`, `sheet.tsx` | Fecha clicando o botão interno do Radix; nunca validado em aparelho | O gesto pode não funcionar ou dar "pulo" no iOS ou no Android | Arrastar o menu no celular | Teste em aparelho; fechar pelo contexto do Dialog em vez do botão |
+| A7 | P3 | Qualidade | 76 `as never` em `src` | Contagem por busca no código | Escondem erros de tipo em chamadas ao banco | — | Remover aos poucos, junto com os tipos gerados |
+| A8 | P3 | Arquitetura | Dois sistemas de migração (Supabase e Drizzle) | `supabase/migrations` e `drizzle/migrations` | Risco de histórico divergente | — | Documentar qual vale e congelar o outro |
+| A9 | P3 | Legado | `/api/public/cortai/acoes`, `/api/public/alvo-ia`, `ia/ponte.server.ts` | Ainda publicados, com token e `barrarAbusivo` | Superfície de ataque sem uso no fluxo novo | — | Desligar por interruptor e depois remover, sem DROP |
+| A10 | P3 | Busca de comanda | `comanda-ticket.functions.ts:293` | `ilike(prefixo%)` com prefixo validado e filtro por tenant | Baixo; vale confirmar que `prefixoDeCodigo` remove `%` e `_` | — | Escapar curingas |
+| A11 | P3 | IA | `config_atendimento_ia.cortai_ativa` | Não existe no código (busca vazia) | Ainda não há um interruptor geral da CortAI fora do WhatsApp | — | Fase 3 do plano da CortAI |
 
-## 3. Telas que já conversam com a IA
+## 3. Segurança e isolamento entre negócios
 
-- `components/ia/AssistenteCortai.tsx`: folha de chat do painel. Abre por:
-  - `BotaoAssistente`, montado só em `/barbeiro/mais`;
-  - `FabCortai`, a bolha flutuante. **Ela existe, mas não está montada em nenhuma tela.**
-- `components/ia/FolhaCortai.tsx`, `Digitando.tsx` e `IconeDaIA.tsx`: peças de interface já prontas.
-- Chat público: `components/agendamento/AgendamentoChat.tsx` e `chat/useConversaAgendamento.ts`.
-- Onboarding: `EditorDeServicos.tsx` e `EditorDeHorarios.tsx`.
-- `src/routes/barbeiro.cortai.tsx` é a tela de conexão do WhatsApp, não um chat.
+- **Confirmado no código atual:** o negócio vem do vínculo da pessoa logada (`vinculoDoMembro` + `escolherVinculo`) e acesso suspenso é recusado. As permissões passam por `exigirPermissao` → `has_tenant_permission`. O webhook da Evolution recusa por padrão. Os cupons não aceitam curinga. O IP não é forjável.
+- **Comparação com a auditoria de 09/10:**
+  - Corrigidos: 1, 7 e 16 (a parte do IP), confirmados no código. Os itens 2, 3 e 6 aparecem como corrigidos pela migração 0027, mas não foram reverificados no banco nesta rodada.
+  - Os itens 4, 5, 8 (IP) e 17 continuam "corrigidos no código". Não é possível confirmar se já estão publicados.
+  - Abertos e confirmados: 9 (= A1), 10 (= A7/A8) e 10b (= A2).
+  - Não verificáveis nesta rodada: 11, 12, 13, 14 e 15.
 
-## 4. Estado e persistência da ativação (o que existe hoje)
+## 4. Bugs funcionais e regras
 
-| Controle | Onde fica | O que faz hoje |
-| --- | --- | --- |
-| `config_atendimento_ia.responder_whatsapp` | por negócio | resposta automática no WhatsApp |
-| `config_atendimento_ia.ia_pausada_em` / `ia_pausa_motivo` | por negócio | pausa automática por falta de crédito |
-| `config_atendimento_ia.ia_limite_diario_whatsapp` | por negócio | cota diária do WhatsApp |
-| `ia_ativa` e `modo_humano` | por conversa | liga/desliga a IA naquela conversa |
-| `tenants.notificacoes_whatsapp_ativas` | por negócio | avisos, não IA |
-| `recursos_de_plano` | por plano | libera recursos conforme o plano contratado |
+- Links `/painel` quebrados (A2).
+- Remarcação feita pela IA pode recriar o horário como agendamento novo (achado 13; não reverificado).
+- Agendamentos antigos com origem `app` continuam assim: a migração 0026 não fez backfill, que depende de autorização.
 
-**Lacuna:** não confirmei nenhum interruptor único "CortAI ligada/desligada" por negócio que valha para painel, site e WhatsApp ao mesmo tempo.
+## 5. Visual e celular
 
-## 5. Botão "CortAI" no topo e ícone de chat: forma segura
+- Não houve verificação visual nesta rodada: a sessão disponível não tem estabelecimento. Ficam pendentes: gavetas com arrasto, o sino nas três identidades, o cadastro inicial em 360/390px e o banner de cookies.
 
-- **Interruptor geral (só dono ou permissão de gestão):**
-  - Grava um campo novo por negócio, por exemplo `config_atendimento_ia.cortai_ativa boolean DEFAULT true`. A mudança é só de acréscimo, sem apagar nada.
-  - Uma função no servidor faz a gravação e confere a permissão do usuário.
-  - A verificação acontece **dentro do cérebro**, em `bloqueioDeUso`/`pensarCortai`. Assim valem os três canais, e não só o botão na tela.
-  - Desligado, o WhatsApp volta às regras fixas: 1/2/3, avisos e templates. Agenda, comandas e notificações continuam iguais.
-- **Ícone separado do chat:**
-  - Reaproveita o `FabCortai`/`AssistenteCortai`, levado para o cabeçalho com `IconeDaIA`, sem criar um segundo chat.
-  - Fica oculto ou desativado quando a CortAI estiver desligada, pausada ou fora do plano.
-  - Respeita as regras de ações rápidas do cabeçalho (só em rotas permitidas) e a camada do painel Ajustes.
-- **Riscos a evitar:**
-  - Interruptor só na tela, sem conferência no servidor.
-  - Duplicar o controle de pausa por crédito: o interruptor manual precisa ficar separado da pausa automática.
-  - Um profissional sem permissão conseguir desligar a CortAI do negócio.
-  - O "⚡" competir com o FAB da Agenda.
+## 6. Confiabilidade e integridade
 
-## 6. Relação com WhatsApp, Evolution e automações
+- A suíte cobre dedupe, envios presos, números 1/2/3, Pix com token, fila e gestos.
+- Contadores não atômicos e consultas sem limite (achado 15) não foram reverificados.
 
-- Mensagem recebida pela Evolution → webhook → `fluxo.server.ts` → regras fixas primeiro (números e avisos pendentes) → só depois `pensarCortai`, se `responder_whatsapp` e a conversa permitirem.
-- Lembretes e avisos nascem de eventos reais e não dependem da IA.
-- O interruptor geral deve entrar no mesmo ponto em que já se verifica `responder_whatsapp`.
+## 7. Integrações
 
-## 7. Integração externa "ALVO IA"
+| Integração | Estado |
+|---|---|
+| Evolution (texto) | Implementada; depende de URL, chave e segredo configurados no ambiente publicado e do envio do cabeçalho `x-webhook-secret` |
+| Evolution (áudio) | Implementada, não testada |
+| Meta Cloud | Implementada (coexiste com a Evolution) |
+| Asaas | Implementada; a chave só circula em funções de admin |
+| Push | Implementado; o link padrão está quebrado (A2) |
+| CortAI | Implementada pelo gateway de IA; falta o interruptor geral (A11) |
+| ALVO IA | Legado, ainda exposto (A9) |
 
-- Está referenciada, mas é legado desativado:
-  - `src/lib/ia/alvo-ia.server.ts` (`@deprecated`): só funciona se existirem `ALVO_IA_BASE_URL` e `ALVO_IA_API_KEY`;
-  - `src/routes/api/public/alvo-ia.ts`: responde 503 sem `ALVO_IA_WEBHOOK_SECRET`;
-  - `src/routes/api/public/ai/$.ts` e `src/routes/api/public/cortai/acoes.ts`: API REST por token `cortai_…`;
-  - `src/lib/ia/ponte.server.ts` e `src/lib/ia/eventos.server.ts`, este último ainda chamado em `barbeiro.functions.ts:1293`.
-- Não há outro projeto Lovable ligado. O cérebro novo nunca chama a ALVO IA.
+## 8. Testes e build executados nesta rodada
 
-## 8. O que falta para conversar de fato
+- `npx tsc --noEmit`: sem erros.
+- `npx vitest run`: 126 arquivos, 1038 testes passaram e 1 foi ignorado. Os 8 testes de números que falhavam na rodada anterior agora passam.
+- Lint e build de produção: **não executados** nesta rodada.
 
-1. Confirmar que `LOVABLE_API_KEY` existe e que há crédito, com um teste real de `perguntarAoCortai`.
-2. Montar o ponto de entrada no painel: hoje o chat só abre pelo item em `/barbeiro/mais`.
-3. Criar o interruptor geral e aplicá-lo no cérebro.
-4. Mostrar na tela os estados "pausada por crédito", "desligada" e "fora do plano".
-5. Opcional: renomear `secretaria-publica` e retirar o legado da ALVO IA quando for seguro.
+## 9. O que não foi verificado e por quê
 
-## Fases recomendadas
+- **Banco de produção** (RLS, permissões de coluna, funções `SECURITY DEFINER`, buckets): o modo de leitura desta rodada não consultou o catálogo.
+- Motor de disponibilidade, `whatsapp/motor/*`, `barbeiro.functions` e a maioria das telas: não foram lidos linha a linha, por limite de tempo.
+- **Visual em 390/1280px:** não há sessão com estabelecimento.
+- **Ambiente publicado** (segredos presentes, logs, áudio real): não consultado.
+- Service worker e recuperação de chunk: só cobertos pelos testes existentes.
 
-1. **Verificação (sem código):** teste real do gateway e do chat atual com um usuário dono.
-2. **Ponto de entrada:** ícone de chat no cabeçalho reaproveitando `FabCortai`/`AssistenteCortai`, com papéis e rotas permitidas respeitados.
-3. **Interruptor geral:** migration só de acréscimo (`cortai_ativa`), função protegida, verificação no cérebro, botão "⚡ CortAI" no topo para o dono e testes cobrindo os três canais.
-4. **Estados e consumo:** selo de pausada/desligada/limite e ligação com o painel Admin por negócio.
-5. **Limpeza (com autorização à parte):** nomenclatura "Secretária" e legado da ALVO IA, sem DROP.
+## 10. Plano de correção priorizado (não executado)
 
-Nenhuma fase publica automaticamente.
+1. A1: limite de tentativas na fila pública.
+2. A2: link padrão dos avisos via `links-de-tela.ts`.
+3. Rodada de banco somente leitura: reconferir 0027, A4 e as funções expostas.
+4. A5 e A6: teste real de áudio e do gesto no celular, com testes automáticos.
+5. Rodar lint e build e registrar o resultado.
+6. A3: proteção do telefone no agendamento público.
+7. A9 e A11: interruptor da CortAI e desligamento do legado ALVO IA.
+8. A7, A8 e A10: limpeza técnica gradual.
