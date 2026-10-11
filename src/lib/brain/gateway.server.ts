@@ -8,6 +8,7 @@
  */
 
 import type { Canal } from "./acoes.server";
+import { modoBasicoLigado, planejarModoBasico } from "./modo-basico";
 import {
   chamarCompativel,
   ErroDoProvedor,
@@ -53,13 +54,19 @@ export class ErroDoGateway extends Error {
  */
 function resolverProvedor(canal?: Canal): LeituraDaConfig {
   const leitura = lerConfigDoProvedor();
-  if (!leitura.ok || leitura.config.tipo !== "compativel") return leitura;
+  if (!leitura.ok) return leitura;
+  // Modo básico por regras: só o painel; os demais canais seguem no Lovable.
+  if (leitura.config.tipo === "regras")
+    return !canal || canal === "painel" ? leitura : { ok: true, config: { tipo: "lovable" } };
+  if (leitura.config.tipo !== "compativel") return leitura;
   if (!canal || leitura.config.canais.includes(canal)) return leitura;
   return { ok: true, config: { tipo: "lovable" } };
 }
 
 export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: string } {
   const leitura = resolverProvedor(canal);
+  if (leitura.ok && leitura.config.tipo === "regras")
+    return { provedor: "modo-basico", modelo: "regras" };
   if (leitura.ok && leitura.config.tipo === "compativel")
     return { provedor: leitura.config.nome, modelo: leitura.config.modelo };
   return { provedor: "lovable", modelo: MODELO_CORTAI };
@@ -73,8 +80,11 @@ export function provedorCompativelDoCanal(canal: Canal): ConfigCompativel | null
 
 /** Sem `canal`, responde "alguma IA está configurada?" (usado só no painel de status). */
 export function iaDisponivel(canal?: Canal): boolean {
+  // No painel o modo básico (regras) é a rede de segurança: sempre há como responder.
+  if (canal === "painel" && modoBasicoLigado()) return true;
   const leitura = resolverProvedor(canal);
   if (!leitura.ok) return false;
+  if (leitura.config.tipo === "regras") return true;
   if (leitura.config.tipo === "compativel") return true;
   if (process.env["LOVABLE_API_KEY"]) return true;
   // Sem chave do Lovable: ainda há IA se o provedor novo está válido e o canal não foi pedido.
@@ -160,6 +170,9 @@ async function lerStream(
 
 export function criarSessaoDoGateway(opcoes?: {
   canal?: Canal;
+  /** Papel e profissional de quem fala (o modo básico precisa para agendar para a pessoa certa). */
+  papel?: string | null;
+  profissionalId?: string | null;
   aoChamar?: (e: EventoDeChamada) => void;
 }) {
   let runId: string | undefined;
@@ -176,86 +189,130 @@ export function criarSessaoDoGateway(opcoes?: {
       .map((i) => String(i["name"] ?? "")),
     geroutexto: textoDaSaida(itens).length > 0,
   });
-  return {
-    async responder(input: {
-      instrucoes: string;
-      entrada: ItemDeEntrada[];
-      ferramentas: FerramentaDoModelo[];
-    }): Promise<ItemDeEntrada[]> {
-      const inicio = Date.now();
-      const leitura = resolverProvedor(opcoes?.canal);
-      if (!leitura.ok) {
-        console.error(`[cerebro] ${leitura.motivo}`);
-        throw new ErroDoGateway(401, mensagemSegura(401));
-      }
-      const identidade = identidadeDoModelo(opcoes?.canal);
-      const base = { ...identidade, ferramentas: [] as string[], geroutexto: false };
+  type EntradaDoPasso = {
+    instrucoes: string;
+    entrada: ItemDeEntrada[];
+    ferramentas: FerramentaDoModelo[];
+  };
+  let usandoBasico = false;
 
-      if (leitura.config.tipo === "compativel") {
-        try {
-          const { itens, uso } = await chamarCompativel(leitura.config, input);
-          avisar({
-            ...base,
-            ...resumo(itens),
-            latenciaMs: Date.now() - inicio,
-            ok: true,
-            uso,
-          });
-          return itens;
-        } catch (erro) {
-          const status = erro instanceof ErroDoProvedor ? erro.status : 500;
-          avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: status });
-          throw new ErroDoGateway(status, mensagemSegura(status), identidade.provedor);
-        }
-      }
+  /** Modo básico: o "modelo" é um conjunto de regras (sem IA, sem chave, sem custo). */
+  const pelasRegras = (input: EntradaDoPasso): ItemDeEntrada[] => {
+    const inicio = Date.now();
+    const itens = planejarModoBasico({
+      instrucoes: input.instrucoes,
+      entrada: input.entrada,
+      ferramentas: input.ferramentas,
+      papel: opcoes?.papel,
+      profissionalId: opcoes?.profissionalId,
+    });
+    avisar({
+      provedor: "modo-basico",
+      modelo: "regras",
+      latenciaMs: Date.now() - inicio,
+      ok: true,
+      ...resumo(itens),
+    });
+    return itens;
+  };
 
-      const chave = process.env["LOVABLE_API_KEY"];
-      if (!chave) throw new ErroDoGateway(401, mensagemSegura(401));
-      const headers = new Headers({
-        "Content-Type": "application/json",
-        "Lovable-API-Key": chave,
-        "X-Lovable-AIG-SDK": "fetch",
-      });
-      if (runId) headers.set(CABECALHO_RUN, runId);
-      const resposta = await fetch(URL_RESPOSTAS, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model: MODELO_CORTAI,
-          instructions: input.instrucoes,
-          input: input.entrada,
-          tools: input.ferramentas,
-          stream: true,
-          store: false,
-          reasoning: { effort: "low", summary: "auto" },
-          include: ["reasoning.encrypted_content"],
-        }),
-      });
-      runId ??= resposta.headers.get(CABECALHO_RUN)?.trim() || undefined;
-      if (!resposta.ok) {
-        const corpo = await resposta.text().catch(() => "");
-        console.error(`[cerebro] gateway ${resposta.status}: ${corpo.slice(0, 300)}`);
-        avisar({
-          ...base,
-          latenciaMs: Date.now() - inicio,
-          ok: false,
-          httpStatus: resposta.status,
-        });
-        throw new ErroDoGateway(resposta.status, mensagemSegura(resposta.status));
-      }
-      let uso: UsoDeTokens | undefined;
+  const pelaIA = async (input: EntradaDoPasso): Promise<ItemDeEntrada[]> => {
+    const inicio = Date.now();
+    const leitura = resolverProvedor(opcoes?.canal);
+    if (!leitura.ok) {
+      console.error(`[cerebro] ${leitura.motivo}`);
+      throw new ErroDoGateway(401, mensagemSegura(401));
+    }
+    const identidade = identidadeDoModelo(opcoes?.canal);
+    const base = { ...identidade, ferramentas: [] as string[], geroutexto: false };
+
+    if (leitura.config.tipo === "compativel") {
       try {
-        const itens = await lerStream(resposta, (u) => (uso = u));
+        const { itens, uso } = await chamarCompativel(leitura.config, input);
         avisar({
           ...base,
           ...resumo(itens),
           latenciaMs: Date.now() - inicio,
           ok: true,
-          ...(uso ? { uso } : {}),
+          uso,
         });
         return itens;
       } catch (erro) {
-        avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false });
+        const status = erro instanceof ErroDoProvedor ? erro.status : 500;
+        avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: status });
+        throw new ErroDoGateway(status, mensagemSegura(status), identidade.provedor);
+      }
+    }
+
+    const chave = process.env["LOVABLE_API_KEY"];
+    if (!chave) throw new ErroDoGateway(401, mensagemSegura(401));
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Lovable-API-Key": chave,
+      "X-Lovable-AIG-SDK": "fetch",
+    });
+    if (runId) headers.set(CABECALHO_RUN, runId);
+    const resposta = await fetch(URL_RESPOSTAS, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model: MODELO_CORTAI,
+        instructions: input.instrucoes,
+        input: input.entrada,
+        tools: input.ferramentas,
+        stream: true,
+        store: false,
+        reasoning: { effort: "low", summary: "auto" },
+        include: ["reasoning.encrypted_content"],
+      }),
+    });
+    runId ??= resposta.headers.get(CABECALHO_RUN)?.trim() || undefined;
+    if (!resposta.ok) {
+      const corpo = await resposta.text().catch(() => "");
+      console.error(`[cerebro] gateway ${resposta.status}: ${corpo.slice(0, 300)}`);
+      avisar({
+        ...base,
+        latenciaMs: Date.now() - inicio,
+        ok: false,
+        httpStatus: resposta.status,
+      });
+      throw new ErroDoGateway(resposta.status, mensagemSegura(resposta.status));
+    }
+    let uso: UsoDeTokens | undefined;
+    try {
+      const itens = await lerStream(resposta, (u) => (uso = u));
+      avisar({
+        ...base,
+        ...resumo(itens),
+        latenciaMs: Date.now() - inicio,
+        ok: true,
+        ...(uso ? { uso } : {}),
+      });
+      return itens;
+    } catch (erro) {
+      avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false });
+      throw erro;
+    }
+  };
+
+  return {
+    /** Esta sessão respondeu pelo modo básico (a IA está desligada, sem crédito ou fora do ar)? */
+    usouModoBasico: () => usandoBasico,
+    async responder(input: EntradaDoPasso): Promise<ItemDeEntrada[]> {
+      const leitura = resolverProvedor(opcoes?.canal);
+      // Escolha explícita (CORTAI_AI_PROVIDER=regras) ou rede de segurança já acionada neste turno.
+      if (usandoBasico || (leitura.ok && leitura.config.tipo === "regras")) {
+        usandoBasico = true;
+        return pelasRegras(input);
+      }
+      try {
+        return await pelaIA(input);
+      } catch (erro) {
+        // Só no painel e de forma VISÍVEL (a resposta avisa): a equipe nunca fica sem resposta.
+        if (opcoes?.canal === "painel" && modoBasicoLigado()) {
+          usandoBasico = true;
+          return pelasRegras(input);
+        }
         throw erro;
       }
     },

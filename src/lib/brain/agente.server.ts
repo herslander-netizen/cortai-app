@@ -55,6 +55,7 @@ import {
   novasEvidencias,
   registrarEvidencia,
 } from "./execucao-direta";
+import { AVISO_DO_MODO_BASICO } from "./modo-basico";
 import { iniciarTurno, type Turno as TurnoObservado } from "./observabilidade.server";
 import { pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
 
@@ -332,6 +333,9 @@ async function pensarCortaiComTurno(
   ];
 
   const evidencias = novasEvidencias();
+  /** Avisa, de forma visível, quando quem respondeu foi o modo básico (sem IA). */
+  const comAviso = (t: string) =>
+    gateway.usouModoBasico?.() ? `${t}\n\n(${AVISO_DO_MODO_BASICO})` : t;
   if (input.clienteEscolhidoId) evidencias.clientes.add(input.clienteEscolhidoId);
   // Busca ambígua mais recente: vira o pop-up de opções (só vale se o turno terminar em texto).
   let opcoes: OpcaoDeEscolha[] = [];
@@ -339,6 +343,8 @@ async function pensarCortaiComTurno(
   const diretaPorVoz = execucaoDiretaPorVozLigada();
   const gateway = criarSessaoDoGateway({
     canal: ctx.canal,
+    papel: ctx.papel ?? null,
+    profissionalId: ctx.profissionalId ?? null,
     aoChamar: (e) => obs.aoChamarModelo(e),
   });
   const ferramentas = ferramentasDoContexto(ctx);
@@ -362,7 +368,8 @@ async function pensarCortaiComTurno(
           pendente && ctx.canal === "painel"
             ? textoDeConferencia((pendente as Pendente).resumo, input.origemDoComando)
             : textoDoModelo;
-        await retomarIa(ctx.tenantId);
+        // No modo básico a IA NÃO respondeu: não se encerra a pausa por falta de crédito.
+        if (!gateway.usouModoBasico?.()) await retomarIa(ctx.tenantId);
         await registrarTurno({
           tenantId: ctx.tenantId,
           canal: ctx.canal,
@@ -373,9 +380,10 @@ async function pensarCortaiComTurno(
           sucesso: true,
         });
         return {
-          texto:
+          texto: comAviso(
             texto ||
-            (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
+              (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
+          ),
           pendente,
           pedirHumano,
           acoes,
@@ -471,10 +479,16 @@ async function pensarCortaiComTurno(
                   if (!falha) {
                     acoes.push({ nome, sucesso: true });
                     obs.definirEstado("acao_executada_direta");
-                    await retomarIa(ctx.tenantId);
+                    if (!gateway.usouModoBasico?.()) await retomarIa(ctx.tenantId);
                     // Texto FIXO do sistema, escrito só depois de o backend confirmar a gravação.
                     return fim(
-                      textoDoResultado({ sucesso: true, resumo, jaExistia: jaExistia(resultado) }),
+                      comAviso(
+                        textoDoResultado({
+                          sucesso: true,
+                          resumo,
+                          jaExistia: jaExistia(resultado),
+                        }),
+                      ),
                       null,
                     );
                   }

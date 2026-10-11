@@ -47,3 +47,13 @@ O que passa a usar o provedor gratuito: o chat do painel (inclusive agendar por 
 - **Limites**: planos gratuitos limitam requisições por minuto e por dia (fontes de terceiros falam em ~30 por minuto e ~1.000 por dia para o gpt-oss-20b no Groq; **confira na tela de limites da sua conta**). Estourou → a CortAI diz que está sobrecarregada e você tenta de novo; não há cobrança.
 - **Qualidade**: o GPT-OSS-20B é um modelo pequeno; pode errar mais em ferramentas e português do que o modelo que você usava. Por isso agendar continua passando pela **conferência** e pelas regras oficiais da agenda. Para medir: `npm run avaliar:comparar` (precisa das duas chaves) ou `npm run avaliar` com o modelo gratuito.
 - **Privacidade/LGPD**: com provedor externo, nomes e telefones de clientes que a CortAI consulta vão para ele; com a voz do Chrome, o áudio vai ao Google. Leia a política de dados do plano gratuito antes de usar com clientes reais.
+
+## 4. Modo básico (sem IA, sem chave, sem custo)
+
+Quando a IA do painel falha por **falta de crédito, limite ou indisponibilidade** (ou quando `CORTAI_AI_PROVIDER=regras` para o canal), a CortAI cai sozinha no **modo básico**: um entendimento por regras, que escolhe as mesmas ações do catálogo que o modelo escolheria. Um aviso visível ("Modo básico…") aparece na resposta.
+
+- Entende: agendar (`agendar Leandro Silva amanhã às 15h corte com Ana`), buscar cliente, serviços e preços, equipe, horário de funcionamento, horários livres e resumo do dia.
+- Segurança igual à da IA: permissões, isolamento por negócio, conferência visível, regras oficiais da agenda e confirmação por toque continuam valendo. Horário só vale se vier da consulta oficial de disponibilidade; na dúvida ele **pergunta**, nunca adivinha.
+- Não entende conversa livre — para isso use a chave gratuita da seção 2.
+- Só o canal do painel usa o modo básico; site e WhatsApp seguem as regras fixas de sempre.
+- Desligar: `CORTAI_MODO_BASICO=false`.

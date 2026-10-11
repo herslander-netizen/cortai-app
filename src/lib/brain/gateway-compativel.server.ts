@@ -26,7 +26,7 @@ export type ConfigCompativel = {
   canais: Canal[];
 };
 
-export type ConfigDoProvedor = { tipo: "lovable" } | ConfigCompativel;
+export type ConfigDoProvedor = { tipo: "lovable" } | { tipo: "regras" } | ConfigCompativel;
 
 export type LeituraDaConfig =
   { ok: true; config: ConfigDoProvedor } | { ok: false; motivo: string };
@@ -47,6 +47,8 @@ function ehLocal(host: string) {
 export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   const bruto = (env["CORTAI_AI_PROVIDER"] ?? "").trim().toLowerCase();
   if (!bruto || bruto === "lovable") return { ok: true, config: { tipo: "lovable" } };
+  // Modo básico por regras: sem IA, sem chave, sem custo (só painel).
+  if (bruto === "regras") return { ok: true, config: { tipo: "regras" } };
   if (bruto !== "openai_compatible")
     return { ok: false, motivo: `CORTAI_AI_PROVIDER inválido ("${bruto.slice(0, 40)}").` };
 
