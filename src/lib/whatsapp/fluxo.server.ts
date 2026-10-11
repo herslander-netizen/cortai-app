@@ -1,4 +1,5 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
+import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Cortaí.
  *

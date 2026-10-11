@@ -167,3 +167,5 @@
 - [x] Elevar conteúdo e fundo da confirmação acima do painel Ajustes
 - [ ] Testar continuar conectado e sair em 390px com os dois painéis abertos — bloqueado: sessão disponível redireciona ao Admin, sem acesso ao painel do negócio
 - [x] Auditar outras confirmações dentro de painéis sem alterá-las; nenhum conflito equivalente confirmado nos três componentes indicados
+
+- [x] Auditoria 11/10: A1 limite na fila pública e A2 links padrão dos avisos (sem publicar)
