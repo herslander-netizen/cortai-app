@@ -172,6 +172,7 @@ export type Database = {
           recorrencia: string | null
           servico_id: string | null
           started_at: string | null
+          telefone_nao_confirmado: boolean
           started_inferido: boolean
           status: string
           status_alterado_em: string | null
@@ -205,6 +206,7 @@ export type Database = {
           recorrencia?: string | null
           servico_id?: string | null
           started_at?: string | null
+          telefone_nao_confirmado?: boolean
           started_inferido?: boolean
           status?: string
           status_alterado_em?: string | null
@@ -238,6 +240,7 @@ export type Database = {
           recorrencia?: string | null
           servico_id?: string | null
           started_at?: string | null
+          telefone_nao_confirmado?: boolean
           started_inferido?: boolean
           status?: string
           status_alterado_em?: string | null
@@ -4858,6 +4861,47 @@ export type Database = {
           },
           {
             foreignKeyName: "vendas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verificacoes_de_telefone: {
+        Row: {
+          codigo_hash: string
+          criado_em: string
+          expira_em: string
+          id: string
+          telefone: string
+          tenant_id: string
+          tentativas: number
+          verificado_em: string | null
+        }
+        Insert: {
+          codigo_hash: string
+          criado_em?: string
+          expira_em: string
+          id?: string
+          telefone: string
+          tenant_id: string
+          tentativas?: number
+          verificado_em?: string | null
+        }
+        Update: {
+          codigo_hash?: string
+          criado_em?: string
+          expira_em?: string
+          id?: string
+          telefone?: string
+          tenant_id?: string
+          tentativas?: number
+          verificado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verificacoes_de_telefone_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

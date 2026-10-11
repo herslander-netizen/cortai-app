@@ -493,17 +493,23 @@ export async function processarMensagemRecebida(input: {
   }
 
   const telefone = somenteDigitos(input.telefone);
-  // Equipe confirmando o próprio WhatsApp ("CODIGO 123456"): antes de qualquer menu.
+  // "CODIGO 123456" antes de qualquer menu: primeiro o cliente confirmando o telefone
+  // no agendamento público; sem pedido de cliente pendente, a equipe confirmando o seu.
   if (input.tipo === "text") {
+    const { tentarConfirmarTelefoneDoCliente } = await import("@/lib/verificacao-telefone.server");
+    const doCliente = await tentarConfirmarTelefoneDoCliente(telefone, input.conteudo).catch(
+      () => null,
+    );
     const { tentarVerificarPorMensagem } = await import("./identidade.server");
-    const resposta = await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null);
+    const resposta =
+      doCliente ?? (await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null));
     if (resposta) {
       const { gatewayDoProvedor } = await import("./gateway.server");
       const provedorDaSessao = (conexao as { provedor?: string | null }).provedor ?? null;
       await gatewayDoProvedor(provedorDaSessao)
         .enviarMensagem(input.sessaoId, telefone, resposta)
         .catch(() => undefined);
-      return { tratada: true, motivo: "verificacao_equipe" };
+      return { tratada: true, motivo: doCliente ? "verificacao_cliente" : "verificacao_equipe" };
     }
   }
   // Central de Notificações da plataforma: sem negócio próprio; o negócio vem do

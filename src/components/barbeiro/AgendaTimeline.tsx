@@ -926,7 +926,11 @@ export function AgendaTimeline({
                     </span>
                   </span>
                   {compacto ? null : (
-                    <OrigemDoAgendamento origem={item.origem} assistido={item.assistidoPorCortai} />
+                    <OrigemDoAgendamento
+                      origem={item.origem}
+                      assistido={item.assistidoPorCortai}
+                      telefoneNaoConfirmado={item.telefoneNaoConfirmado}
+                    />
                   )}
                   {item.daListaDeEspera && !compacto ? (
                     <span className="agenda-timeline-fila">

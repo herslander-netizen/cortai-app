@@ -116,7 +116,7 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 - Nenhum achado alto aberto no momento. Corrigidos no código, aguardando publicar: o chat da CortAI no painel agora respeita papel e permissões, e o negócio em uso é resolvido por uma regra única (`vinculo-ativo.ts`).
 - Corrigido no código, aguardando publicar: prazo de cancelamento do dono (`cancelamento_min_horas`) agora vale para o cliente (achado 17).
 - Corrigidos no código em 10/10, aguardando publicar: limites por IP na CortAI do site, na fila de chegada e no cadastro sem login (achados 8, 9 e 16) e avisos que levavam a `/painel` (10b).
-- Aberto (médio): agendamento com telefone de terceiros (achado 11), que pede decisão de produto.
+- Corrigido no código em 11/10, aguardando publicar e a migração 0029: agendamento com telefone de terceiros (achado 11). Ficha existente só com o código mandado pelo WhatsApp do cliente; sem WhatsApp conectado, o horário fica marcado "telefone não confirmado".
 
 Consulte o documento antes de mexer em IA, permissões, RLS, cobrança ou rotas públicas.
 
@@ -128,3 +128,4 @@ Fases 1 a 5 da CortAI aprovadas e feitas na branch `ccr-3f34ed3f-07fy6o` (sem pu
 3. Interruptor geral `config_atendimento_ia.cortai_ativa`, conferido dentro do cérebro. **Migração 0028 ensaiada, ainda não aplicada no banco.**
 4. Selos (desligada, pausada, limite) no cabeçalho e no chat; aba CortAI no ADM com consumo, limite e encerrar pausa.
 5. Legado ALVO IA desligado (410), sem DROP; "Secretária" fora dos comentários.
+6. Confirmação do telefone no agendamento público (achado 11). **Migração 0029 ensaiada, ainda não aplicada no banco.**
