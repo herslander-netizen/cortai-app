@@ -101,6 +101,9 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
       .object({
         mensagem: z.string().trim().min(1).max(1500),
         conversaId: z.string().uuid().nullable().default(null),
+        /** Gerado pelo navegador por envio e reaproveitado em nova tentativa (idempotência). */
+        idDaMensagem: z.string().uuid().optional(),
+        origem: z.enum(["texto", "voz"]).default("texto"),
       })
       .parse(input),
   )
@@ -141,109 +144,170 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         .order("criado_em", { ascending: false })
         .limit(16);
 
-      await db.from("mensagens_de_ia").insert({
-        conversa_id: conversaId,
-        tenant_id: tenantId,
-        autor: "barbeiro",
-        conteudo: data.mensagem,
-      });
-
-      const historicoBruto = ((anteriores ?? []) as Record<string, any>[]).reverse();
-      const contexto = await contextoDaBarbearia(context, tenantId);
-      let resposta: RespostaDoAssistente;
-      let pendenteNova: unknown = null;
-
-      // Cadastro em lote de serviços/horários segue no fluxo estruturado já existente.
-      const cadastroEstruturado =
-        /\b(cadastr\w*|adicion\w*|cri\w*)\b.*\bservi[cç]os?\b|\bhor[aá]rios? de funcionamento\b|\b(abr\w*|fech\w*) (de|às|as) \d/i.test(
-          data.mensagem,
-        );
-      if (cadastroEstruturado) {
-        const { pensar } = await import("@/lib/ia/assistente.server");
-        resposta = await pensar({
+      // Reenvio/timeout com o mesmo id: devolve a resposta já dada ou avisa que está em andamento.
+      let usuarioMsgId: string | null = null;
+      let usuarioJaGravado = false;
+      if (data.idDaMensagem) {
+        const { reivindicarPedido } = await import("@/lib/brain/idempotencia-de-pedido");
+        const pedido = await reivindicarPedido(db as never, {
+          tenantId,
+          conversaId,
+          idDaMensagem: data.idDaMensagem,
+          origem: data.origem,
           mensagem: data.mensagem,
-          contexto,
-          historico: historicoBruto.map((m) => ({
-            autor: m["autor"] as "barbeiro" | "assistente",
-            conteudo: m["conteudo"] as string,
-          })),
+        }).catch((erro: unknown) => {
+          // Sem a checagem, segue como antes: a idempotência do agendamento continua valendo.
+          console.error("[cortai] idempotência do pedido indisponível:", (erro as Error).message);
+          return null;
         });
-      } else {
-        // Caminho canônico: cérebro CortAI com ações reais do negócio.
-        const { pensarCortai } = await import("@/lib/brain/agente.server");
-        const { iaDisponivel } = await import("@/lib/brain/gateway.server");
-        const { respostaIndisponivel } = await import("@/lib/ia/assistente");
-        const ultima = [...historicoBruto].reverse().find((m) => m["autor"] === "assistente");
-        const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
-        if (!iaDisponivel("painel")) resposta = respostaIndisponivel();
-        else {
-          // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
-          // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
-          const { acessoDoPainel } = await import("@/lib/brain/acesso-painel.server");
-          const acesso = await acessoDoPainel(context, tenantId, papelNaEquipe);
-          const r = await pensarCortai({
-            ctx: {
-              tenantId,
-              canal: "painel",
-              ator: context.userId,
-              papel: acesso.papel,
-              profissionalId: acesso.profissionalId,
-              permissoes: acesso.permissoes,
-            },
-            persona: { nome: "CortAI", negocio: contexto.nome, segmento: contexto.segmento },
-            historico: historicoBruto.map((m) => ({
-              autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
-              texto: String(m["conteudo"] ?? ""),
-            })),
-            mensagem: data.mensagem,
-            pendente: pendente as never,
+        if (pedido?.tipo === "repetido")
+          return { conversaId, resposta: pedido.resposta as unknown as RespostaDoAssistente };
+        if (pedido?.tipo === "em_andamento")
+          return {
             conversaId,
-            // Dois "sim" simultâneos leem a mesma pendente: só quem a zera primeiro executa.
-            consumirPendente: async (pendenteId) => {
-              const idDaMensagem = ultima?.["id"] as string | undefined;
-              if (!idDaMensagem) return true;
-              const { data: zerada, error } = await db
-                .from("mensagens_de_ia")
-                .update({ acao: { ...(ultima?.["acao"] as object), pendente: null } as never })
-                .eq("id", idDaMensagem)
-                .eq("tenant_id", tenantId)
-                .eq("acao->pendente->>id", pendenteId)
-                .select("id");
-              if (error) {
-                console.error("[cerebro] não consegui reivindicar a ação pendente:", error.message);
-                return true;
-              }
-              return (zerada?.length ?? 0) === 1;
+            resposta: {
+              resposta: "Ainda estou processando esse pedido. Aguarde um instante.",
+              intencao: "conversa",
+              precisaConfirmar: false,
+              perguntaDeConfirmacao: null,
+              destino: null,
+              rotuloDoDestino: null,
+              servicos: null,
+              horarios: null,
+              disponivel: true,
             },
-          });
-          pendenteNova = r.pendente;
-          resposta = {
-            resposta: r.texto,
-            intencao: r.acoes.length ? "consultar" : "conversa",
-            precisaConfirmar: false,
-            perguntaDeConfirmacao: null,
-            destino: null,
-            rotuloDoDestino: null,
-            servicos: null,
-            horarios: null,
-            disponivel: !r.indisponivel,
           };
+        if (pedido?.tipo === "novo") {
+          usuarioJaGravado = true;
+          usuarioMsgId = pedido.usuarioMsgId;
         }
       }
+      if (!usuarioJaGravado)
+        await db.from("mensagens_de_ia").insert({
+          conversa_id: conversaId,
+          tenant_id: tenantId,
+          autor: "barbeiro",
+          conteudo: data.mensagem,
+        });
 
-      await db.from("mensagens_de_ia").insert({
-        conversa_id: conversaId,
-        tenant_id: tenantId,
-        autor: "assistente",
-        conteudo: resposta.resposta,
-        acao: { ...resposta, pendente: pendenteNova } as never,
-      });
-      await db
-        .from("conversas_de_ia")
-        .update({ atualizado_em: new Date().toISOString() })
-        .eq("id", conversaId);
+      try {
+        const historicoBruto = ((anteriores ?? []) as Record<string, any>[]).reverse();
+        const contexto = await contextoDaBarbearia(context, tenantId);
+        let resposta: RespostaDoAssistente;
+        let pendenteNova: unknown = null;
 
-      return { conversaId, resposta };
+        // Cadastro em lote de serviços/horários segue no fluxo estruturado já existente.
+        const cadastroEstruturado =
+          /\b(cadastr\w*|adicion\w*|cri\w*)\b.*\bservi[cç]os?\b|\bhor[aá]rios? de funcionamento\b|\b(abr\w*|fech\w*) (de|às|as) \d/i.test(
+            data.mensagem,
+          );
+        if (cadastroEstruturado) {
+          const { pensar } = await import("@/lib/ia/assistente.server");
+          resposta = await pensar({
+            mensagem: data.mensagem,
+            contexto,
+            historico: historicoBruto.map((m) => ({
+              autor: m["autor"] as "barbeiro" | "assistente",
+              conteudo: m["conteudo"] as string,
+            })),
+          });
+        } else {
+          // Caminho canônico: cérebro CortAI com ações reais do negócio.
+          const { pensarCortai } = await import("@/lib/brain/agente.server");
+          const { iaDisponivel } = await import("@/lib/brain/gateway.server");
+          const { respostaIndisponivel } = await import("@/lib/ia/assistente");
+          const ultima = [...historicoBruto].reverse().find((m) => m["autor"] === "assistente");
+          const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
+          if (!iaDisponivel("painel")) resposta = respostaIndisponivel();
+          else {
+            // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
+            // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
+            const { acessoDoPainel } = await import("@/lib/brain/acesso-painel.server");
+            const acesso = await acessoDoPainel(context, tenantId, papelNaEquipe);
+            const r = await pensarCortai({
+              ctx: {
+                tenantId,
+                canal: "painel",
+                ator: context.userId,
+                papel: acesso.papel,
+                profissionalId: acesso.profissionalId,
+                permissoes: acesso.permissoes,
+              },
+              persona: { nome: "CortAI", negocio: contexto.nome, segmento: contexto.segmento },
+              historico: historicoBruto.map((m) => ({
+                autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
+                texto: String(m["conteudo"] ?? ""),
+              })),
+              mensagem: data.mensagem,
+              pendente: pendente as never,
+              conversaId,
+              origemDoComando: data.origem,
+              // Dois "sim" simultâneos leem a mesma pendente: só quem a zera primeiro executa.
+              consumirPendente: async (pendenteId) => {
+                const idDaMensagem = ultima?.["id"] as string | undefined;
+                if (!idDaMensagem) return true;
+                const { data: zerada, error } = await db
+                  .from("mensagens_de_ia")
+                  .update({ acao: { ...(ultima?.["acao"] as object), pendente: null } as never })
+                  .eq("id", idDaMensagem)
+                  .eq("tenant_id", tenantId)
+                  .eq("acao->pendente->>id", pendenteId)
+                  .select("id");
+                if (error) {
+                  console.error(
+                    "[cerebro] não consegui reivindicar a ação pendente:",
+                    error.message,
+                  );
+                  return true;
+                }
+                return (zerada?.length ?? 0) === 1;
+              },
+            });
+            pendenteNova = r.pendente;
+            resposta = {
+              resposta: r.texto,
+              intencao: r.acoes.length ? "consultar" : "conversa",
+              precisaConfirmar: false,
+              perguntaDeConfirmacao: null,
+              destino: null,
+              rotuloDoDestino: null,
+              servicos: null,
+              horarios: null,
+              disponivel: !r.indisponivel,
+            };
+          }
+        }
+
+        await db.from("mensagens_de_ia").insert({
+          conversa_id: conversaId,
+          tenant_id: tenantId,
+          autor: "assistente",
+          conteudo: resposta.resposta,
+          acao: {
+            ...resposta,
+            pendente: pendenteNova,
+            ...(data.idDaMensagem ? { idDaMensagem: data.idDaMensagem, origem: data.origem } : {}),
+          } as never,
+        });
+        await db
+          .from("conversas_de_ia")
+          .update({ atualizado_em: new Date().toISOString() })
+          .eq("id", conversaId);
+
+        return { conversaId, resposta };
+      } catch (erro) {
+        // Libera a nova tentativa (mesmo id) sem esperar a janela de "em andamento".
+        if (data.idDaMensagem && usuarioMsgId) {
+          const { marcarPedidoComoFalho } = await import("@/lib/brain/idempotencia-de-pedido");
+          await marcarPedidoComoFalho(db as never, {
+            tenantId,
+            usuarioMsgId,
+            idDaMensagem: data.idDaMensagem,
+            origem: data.origem,
+          }).catch(() => undefined);
+        }
+        throw erro;
+      }
     },
   );
 

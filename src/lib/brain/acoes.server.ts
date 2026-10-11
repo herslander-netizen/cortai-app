@@ -12,6 +12,8 @@
 import * as dominio from "@/lib/ia/acoes.server";
 import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
+import { filtrarCandidatos, padraoDoBanco, termosDaBusca } from "./busca-cliente";
+import { execucaoDiretaLigada, POLITICA_DE_CONFIRMACAO } from "./execucao-direta";
 import type { FerramentaDoModelo } from "./gateway.server";
 
 export type Canal = "painel" | "whatsapp" | "site";
@@ -226,6 +228,88 @@ function reais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+type AlvoDoAgendamento = {
+  clienteId: string;
+  servicoId: string;
+  profissionalId: string;
+  inicio: string;
+};
+
+/**
+ * Já existe exatamente este agendamento (mesmo cliente, serviço, profissional e horário, ainda
+ * ativo)? Torna o agendar idempotente: reenvio de mensagem ou de áudio, "sim" repetido e nova
+ * tentativa depois de um timeout nunca criam um segundo horário.
+ */
+export async function agendamentoIdentico(ctx: ContextoDoCerebro, alvo: AlvoDoAgendamento) {
+  const ms = Date.parse(alvo.inicio);
+  if (!Number.isFinite(ms)) return null;
+  const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+  const db = await admin();
+  const { data } = await db
+    .from("agendamentos")
+    .select("id")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("cliente_id", alvo.clienteId)
+    .eq("servico_id", alvo.servicoId)
+    .eq("profissional_id", alvo.profissionalId)
+    .eq("inicio", new Date(ms).toISOString())
+    .in("status", [...STATUS_QUE_OCUPAM])
+    .limit(1)
+    .maybeSingle();
+  return (data as { id: string } | null) ?? null;
+}
+
+/**
+ * Sucesso só depois de reler o que foi gravado: o registro existe neste negócio, com o
+ * cliente, o serviço, o profissional e o horário pedidos. Qualquer divergência vira erro.
+ */
+export async function verificarGravacao(
+  ctx: ContextoDoCerebro,
+  agendamentoId: unknown,
+  alvo: AlvoDoAgendamento,
+) {
+  if (typeof agendamentoId !== "string" || !agendamentoId)
+    throw new Error("Não consegui confirmar que o horário foi gravado.");
+  const db = await admin();
+  const { data } = await db
+    .from("agendamentos")
+    .select("id, cliente_id, servico_id, profissional_id, inicio, status")
+    .eq("id", agendamentoId)
+    .eq("tenant_id", ctx.tenantId)
+    .maybeSingle();
+  const a = data as Record<string, string> | null;
+  const confere =
+    a &&
+    a["cliente_id"] === alvo.clienteId &&
+    a["servico_id"] === alvo.servicoId &&
+    a["profissional_id"] === alvo.profissionalId &&
+    Date.parse(a["inicio"] ?? "") === Date.parse(alvo.inicio);
+  if (!confere) throw new Error("Não consegui confirmar que o horário foi gravado.");
+  return a;
+}
+
+/** Agendar com idempotência e verificação, sobre a ação de domínio já existente. */
+export async function agendarComSeguranca(
+  ctx: ContextoDoCerebro,
+  alvo: AlvoDoAgendamento,
+  agendar: () => Promise<unknown>,
+) {
+  const ja = await agendamentoIdentico(ctx, alvo);
+  if (ja) return { agendamento_id: ja.id, jaExistia: true, verificado: true };
+  let gravado: unknown;
+  try {
+    gravado = await agendar();
+  } catch (erro) {
+    // Pedido idêntico em paralelo pode ter gravado entre a checagem e a gravação.
+    const depois = await agendamentoIdentico(ctx, alvo);
+    if (depois) return { agendamento_id: depois.id, jaExistia: true, verificado: true };
+    throw erro;
+  }
+  const id = (gravado as { agendamento_id?: string } | null)?.agendamento_id;
+  await verificarGravacao(ctx, id, alvo);
+  return { ...(gravado as object), jaExistia: false, verificado: true };
+}
+
 export const ACOES: Record<string, Definicao> = {
   /* ------------------------------ Leitura ------------------------------ */
   listar_servicos: {
@@ -303,6 +387,31 @@ export const ACOES: Record<string, Definicao> = {
         .limit(1)
         .maybeSingle();
       return data ?? null;
+    },
+  },
+  buscar_cliente_por_nome: {
+    descricao:
+      "Procura clientes do negócio pelo NOME (como a pessoa falou). Devolve até 6 candidatos com id, nome e final do telefone. Se vier mais de um, pergunte qual; se nenhum, pergunte se deve cadastrar.",
+    parametros: obj({ nome: { type: "string" } }, ["nome"]),
+    risco: "leitura",
+    // Só painel; a equipe no WhatsApp entra por `papeis`. Cliente e site nunca (listaria outros clientes).
+    canais: ["painel"],
+    papeis: ["profissional", "dono"],
+    permissoes: ["visualizar_clientes"],
+    executar: async (ctx, d) => {
+      const termos = termosDaBusca(String(d.nome ?? ""));
+      if (!termos.length) return { encontrados: 0, clientes: [] };
+      const maior = [...termos].sort((a, b) => b.length - a.length)[0]!;
+      const db = await admin();
+      const { data } = await db
+        .from("clientes")
+        .select("id, nome, telefone")
+        .eq("tenant_id", ctx.tenantId)
+        .is("arquivado_em", null)
+        .ilike("nome", padraoDoBanco(maior))
+        .limit(60);
+      const { clientes, total } = filtrarCandidatos((data ?? []) as never, termos);
+      return { encontrados: total, clientes, maisResultados: total > clientes.length };
     },
   },
   consultar_agendamentos_cliente: {
@@ -436,7 +545,20 @@ export const ACOES: Record<string, Definicao> = {
         profissionalId: profissionalEfetivo(ctx, d.profissionalId),
       });
       if (!servico || !profissional) throw new Error("Serviço ou profissional não encontrado.");
-      return `Agendar ${servico.nome} (${reais(servico.preco_centavos)}, ${servico.duracao_min} min) com ${profissional.nome} em ${await quando(ctx, String(d.inicio))}.`;
+      // Equipe agenda para um cliente escolhido: o resumo diz QUEM, para conferência.
+      let paraQuem = "";
+      if (!ehCliente(ctx) && d.clienteId) {
+        const db = await admin();
+        const { data: c } = await db
+          .from("clientes")
+          .select("nome")
+          .eq("id", String(d.clienteId))
+          .eq("tenant_id", ctx.tenantId)
+          .maybeSingle();
+        if (!c) throw new Error("Cliente não encontrado neste negócio.");
+        paraQuem = ` para ${(c as { nome: string }).nome}`;
+      }
+      return `Agendar ${servico.nome} (${reais(servico.preco_centavos)}, ${servico.duracao_min} min) com ${profissional.nome} em ${await quando(ctx, String(d.inicio))}${paraQuem}.`;
     },
     executar: async (ctx, d) => {
       if (ctx.papel === "profissional" && !ctx.profissionalId)
@@ -456,13 +578,19 @@ export const ACOES: Record<string, Definicao> = {
           clienteId = novo.id;
         }
       } else clienteId = await clienteAlvo(ctx, d.clienteId);
-      return dominio.ACOES_DO_AGENTE.criar_agendamento(agenteDe(ctx), {
+      const alvo = {
         clienteId,
         servicoId: String(d.servicoId),
         profissionalId: profissionalEfetivo(ctx, d.profissionalId),
         inicio: String(d.inicio),
-        formaPagamento: "balcao",
-      });
+      };
+      // Mesma ação de domínio de sempre (regras, conflitos, RPC), agora idempotente e verificada.
+      return agendarComSeguranca(ctx, alvo, () =>
+        dominio.ACOES_DO_AGENTE.criar_agendamento(agenteDe(ctx), {
+          ...alvo,
+          formaPagamento: "balcao",
+        }),
+      );
     },
   },
   cancelar_agendamento: {
@@ -671,7 +799,13 @@ export function ferramentasDoContexto(ctx: ContextoDoCerebro): FerramentaDoModel
     name: nome,
     description:
       a.risco === "escrita"
-        ? `${a.descricao} (Escrita: o sistema prepara um resumo e só executa depois que a pessoa confirmar.)`
+        ? `${a.descricao} ${
+            POLITICA_DE_CONFIRMACAO[nome] === "dispensavel" &&
+            ctx.canal === "painel" &&
+            execucaoDiretaLigada()
+              ? "(Escrita: o sistema valida tudo. Se o cliente foi encontrado sem ambiguidade, o serviço está no catálogo e o horário veio de consultar_disponibilidade, ele executa na hora e devolve o resultado; senão prepara um resumo e espera a confirmação.)"
+              : "(Escrita: o sistema prepara um resumo e só executa depois que a pessoa confirmar.)"
+          }`
         : a.descricao,
     parameters: a.parametros,
     strict: false,

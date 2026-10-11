@@ -17,6 +17,16 @@ export function transcricaoConfigurada(): boolean {
   return Boolean(process.env["LOVABLE_API_KEY"]);
 }
 
+/** Extensão coerente com o tipo (o navegador grava webm/mp4; o WhatsApp manda ogg). */
+export function extensaoDoTipo(tipo: string): string {
+  const t = tipo.toLowerCase();
+  if (t.includes("webm")) return "webm";
+  if (t.includes("mp4") || t.includes("m4a") || t.includes("aac")) return "m4a";
+  if (t.includes("mpeg") || t.includes("mp3")) return "mp3";
+  if (t.includes("wav")) return "wav";
+  return "ogg";
+}
+
 function base64ParaBytes(b64: string): Uint8Array {
   const limpo = b64.replace(/^data:[^,]*,/, "").replace(/\s/g, "");
   const bin = atob(limpo);
@@ -74,7 +84,11 @@ async function chamarTranscricao(
   modelo: string,
 ): Promise<string | null> {
   const formulario = new FormData();
-  formulario.append("file", new Blob([bytes as BlobPart], { type: tipo }), "audio.ogg");
+  formulario.append(
+    "file",
+    new Blob([bytes as BlobPart], { type: tipo }),
+    `audio.${extensaoDoTipo(tipo)}`,
+  );
   formulario.append("model", modelo);
   if (modelo === MODELO) formulario.append("languages", "pt");
   else formulario.append("language", "pt-BR");

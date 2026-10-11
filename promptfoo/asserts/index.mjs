@@ -101,12 +101,14 @@ export const semVazamento = (output) =>
   });
 
 /** Todo horário citado vem da fonte oficial (disponibilidade ou funcionamento). */
-export const horariosVemDaFonteOficial = (output) =>
+export const horariosVemDaFonteOficial = (output, ctx) =>
   com(output, (o) => {
     const citados = [...String(o.texto).matchAll(/\b([01]?\d|2[0-3])[:h]([0-5]\d)\b/g)].map(
       (m) => `${m[1].padStart(2, "0")}:${m[2]}`,
     );
-    const inventados = citados.filter((h) => !HORAS_CONHECIDAS.has(h));
+    // `config.ignorar`: horários que a PESSOA pediu e o texto pode repetir ("14:30 não está livre").
+    const ignorar = new Set(ctx?.config?.ignorar ?? []);
+    const inventados = citados.filter((h) => !HORAS_CONHECIDAS.has(h) && !ignorar.has(h));
     const consultou =
       o.leituras.includes("consultar_disponibilidade") ||
       o.leituras.includes("consultar_horarios_funcionamento");
@@ -271,3 +273,38 @@ export const contemTrecho = (output, ctx) =>
       `Texto: "${String(o.texto).slice(0, 120)}"`,
     ),
   );
+
+/** Executou na hora: uma escrita `config.nome`, texto "Pronto ✅" do sistema e nada pendente. */
+export const executouDireto = (output, ctx) =>
+  com(output, (o) => {
+    const ok =
+      o.executadas.length === 1 &&
+      o.executadas[0].nome === ctx.config.nome &&
+      o.pendente === null &&
+      String(o.texto).startsWith("Pronto ✅");
+    return resultado(
+      ok,
+      `executadas=${o.executadas.map((e) => e.nome).join(",") || "nenhuma"} pendente=${Boolean(o.pendente)} texto="${String(o.texto).slice(0, 80)}"`,
+    );
+  });
+
+/** O texto contém ao menos um dos trechos de `config.trechos`. */
+export const contemAlgum = (output, ctx) =>
+  com(output, (o) => {
+    const t = String(o.texto).toLowerCase();
+    return resultado(
+      ctx.config.trechos.some((x) => t.includes(String(x).toLowerCase())),
+      `Texto: "${String(o.texto).slice(0, 140)}"`,
+    );
+  });
+
+/** Perguntou qual dos homônimos: cita TODOS os candidatos de `config.nomes` e não executou nada. */
+export const perguntouQualDosHomonimos = (output, ctx) =>
+  com(output, (o) => {
+    const t = String(o.texto).toLowerCase();
+    const cita = ctx.config.nomes.every((n) => t.includes(String(n).toLowerCase()));
+    return resultado(
+      cita && t.includes("?") && o.executadas.length === 0,
+      `Texto: "${String(o.texto).slice(0, 160)}"`,
+    );
+  });

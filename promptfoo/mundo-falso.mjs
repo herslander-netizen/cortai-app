@@ -21,8 +21,17 @@ export const HORARIOS_DE_FUNCIONAMENTO = [
   { dia: "segunda a sábado", abre: "09:00", fecha: "19:00" },
   { dia: "domingo", fechado: true },
 ];
+import { filtrarCandidatos, termosDaBusca } from "../src/lib/brain/busca-cliente.ts";
+
 export const DIA_DE_REFERENCIA = "2026-10-12";
-export const HORARIOS_LIVRES = ["10:00", "10:30", "14:00"];
+/** Livres em QUALQUER dia pedido (o cenário não depende da data em que a suíte roda). */
+export const HORARIOS_LIVRES = ["10:00", "10:30", "14:00", "15:00"];
+
+export const CLIENTES = [
+  { id: "cli-leandro-silva", nome: "Leandro Silva", telefone: "5511988884321" },
+  { id: "cli-leandro-costa", nome: "Leandro Costa", telefone: "5511977770001" },
+  { id: "cli-marcos", nome: "Marcos Lima", telefone: "5511966660002" },
+];
 
 /** Todo horário que a IA pode citar sem ter inventado. */
 export const HORAS_CONHECIDAS = new Set([
@@ -50,7 +59,9 @@ function resumoDe(nome, d) {
       const s = nomeDe(SERVICOS, d.servicoId);
       const p = nomeDe(PROFISSIONAIS, d.profissionalId);
       if (!s || !p) throw new Error("Serviço ou profissional não encontrado.");
-      return `Agendar ${s} com ${p} em ${String(d.inicio)}.`;
+      const cliente = d.clienteId ? CLIENTES.find((c) => c.id === d.clienteId) : null;
+      if (d.clienteId && !cliente) throw new Error("Cliente não encontrado neste negócio.");
+      return `Agendar ${s} com ${p} em ${String(d.inicio)}${cliente ? ` para ${cliente.nome}` : ""}.`;
     }
     case "cancelar_agendamento":
       if (d.agendamentoId !== AGENDAMENTO_DO_CLIENTE.id)
@@ -85,17 +96,24 @@ function leitura(nome, d, falhas) {
       return HORARIOS_DE_FUNCIONAMENTO;
     case "consultar_informacoes":
       return { nome: "Barbearia Aurora", endereco: "Rua das Flores, 100", aceitaPix: true };
-    case "consultar_disponibilidade":
-      if (!SERVICOS.some((s) => s.id === d.servicoId))
-        return { horarios: [], motivo: "Serviço não encontrado." };
+    case "consultar_disponibilidade": {
+      const dia = d.dia ?? DIA_DE_REFERENCIA;
+      const profissionais = d.profissionalId ? [d.profissionalId] : ["pro-rafa"];
       return {
-        dia: d.dia ?? DIA_DE_REFERENCIA,
-        horarios: HORARIOS_LIVRES.map((h) => ({
-          rotulo: h,
-          inicio: `${d.dia ?? DIA_DE_REFERENCIA}T${h}:00${FUSO}`,
-          profissionalId: "pro-rafa",
-        })),
+        dia,
+        fechado: false,
+        duracaoMin: SERVICOS.find((s) => s.id === d.servicoId)?.duracaoMin ?? 30,
+        ocupados: [],
+        // Mesmo formato da ação real: { profissionalId, inicio } por horário livre.
+        livres: profissionais.flatMap((profissionalId) =>
+          HORARIOS_LIVRES.map((h) => ({ profissionalId, inicio: `${dia}T${h}:00${FUSO}` })),
+        ),
       };
+    }
+    case "buscar_cliente_por_nome": {
+      const { clientes, total } = filtrarCandidatos(CLIENTES, termosDaBusca(String(d.nome ?? "")));
+      return { encontrados: total, clientes, maisResultados: false };
+    }
     case "consultar_agendamentos_cliente":
     case "minha_agenda":
       return [AGENDAMENTO_DO_CLIENTE];

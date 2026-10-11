@@ -102,8 +102,12 @@ export function barrarAfirmacaoSemAcao(texto: string, resumoPendente: string | n
 
 /** Textos fixos do resultado real de uma ação confirmada. */
 export function textoDoResultado(
-  resultado: { sucesso: true; resumo: string } | { sucesso: false; resumo: string; motivo: string },
+  resultado:
+    | { sucesso: true; resumo: string; jaExistia?: boolean }
+    | { sucesso: false; resumo: string; motivo: string },
 ): string {
+  if (resultado.sucesso && resultado.jaExistia)
+    return `Pronto ✅ Esse horário já estava registrado, não criei outro: ${resultado.resumo}`;
   if (resultado.sucesso) return `Pronto ✅ Concluído: ${resultado.resumo}`;
   return `Não consegui concluir: ${resultado.resumo} Motivo: ${resultado.motivo} Nada foi alterado. Quer tentar de outro jeito?`;
 }

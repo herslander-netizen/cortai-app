@@ -1,0 +1,92 @@
+# CortAI executora por voz (painel)
+
+Estado em 2026-10-11, branch `ccr-1c1f9637-ur1ccn`. Nada foi publicado.
+
+A equipe autenticada fala ou escreve “CortAI, marque um horário para Leandro amanhã às 15h para corte” no chat do painel. A voz é gravada no navegador, transcrita **no servidor** e entra no **mesmo cérebro** do texto.
+
+## 1. Auditoria: o que já existia (e foi reaproveitado)
+
+| Operação | Ação do catálogo (`brain/acoes.server.ts`) | Domínio (`ia/acoes.server.ts`) | Observação |
+|---|---|---|---|
+| Criar agendamento | `criar_agendamento` (escrita, perm. `agendamento_manual`) | `criarAgendamento` → valida cliente/profissional/serviço **do negócio**, `validarAgendamento` (regras + conflito do cliente) e a RPC `criar_agendamento` com `_validar_regras` (a sobreposição é travada no banco) | **É a ação segura. Não há segunda implementação.** |
+| Remarcar | `reagendar_agendamento` (escrita) | `remarcarAgendamento` (cria o novo antes de cancelar o antigo) | Continua com confirmação. |
+| Cancelar | `cancelar_agendamento` (escrita) | `cancelarAgendamento` (+ prazo de cancelamento para cliente) | Continua com confirmação. |
+| Cadastrar/atualizar cliente, nota | `criar_cliente`, `atualizar_dados_cliente`, `registrar_nota` | `registrarCliente`… | Continuam com confirmação. |
+| Disponibilidade | `consultar_disponibilidade` | `consultarDisponibilidade` (motor oficial) | Devolve `livres: [{profissionalId, inicio}]`. |
+| Achar cliente | `buscar_cliente` | — | **Só por telefone.** Faltava buscar por **nome** (a pessoa fala nomes). |
+| Agenda do dia, fila | `minha_agenda`, `consultar_fila` | — | Hoje só para equipe **no WhatsApp**; não existem no painel. |
+
+Lacunas encontradas e tratadas: (1) busca de cliente por nome; (2) o `criar_agendamento` **não era idempotente** — repetir o pedido esbarraria na regra “o cliente já tem um horário nesse dia” (erro enganoso) ou, numa corrida, na trava do banco; (3) o sucesso era o retorno do domínio, **sem reler** o registro; (4) o resumo de confirmação não dizia **para quem** era o horário; (5) não existia captura de áudio no painel (só o WhatsApp transcreve, e só no servidor).
+
+## 2. Fluxo (do pedido ao resultado)
+
+1. **Captura**: botão de microfone no chat (`AssistenteCortai.tsx` + `useGravadorDeVoz.ts`). Só aparece se o navegador tem `getUserMedia` e `MediaRecorder`; senão a pessoa escreve. Até 60 s; toque no quadrado para enviar; cancelar disponível; fechar o chat solta o microfone.
+2. **Transcrição**: o navegador manda o áudio (base64) para `transcreverComandoDeVozDoPainel` (`voz.functions.ts`): exige sessão e vínculo ativo; valida tipo e tamanho (≤ 4 MB); limite de 60 transcrições/hora por pessoa; usa a chave que **só existe no servidor**; o áudio não é gravado nem logado.
+3. **Cérebro**: o texto transcrito aparece como mensagem da pessoa e segue por `perguntarAoCortai` → `pensarCortai`, com o contexto autenticado (negócio, papel, profissional e permissões resolvidos no servidor — nunca vindos do navegador).
+4. **Intenção e ferramentas**: o modelo só escolhe ações do catálogo. Roteiro (instruído no prompt do painel): `buscar_cliente_por_nome` → `listar_servicos` → datas relativas (“amanhã”) pela data do servidor → `consultar_disponibilidade` → `criar_agendamento`.
+5. **Pergunta só o necessário**: mais de um “Leandro” → pergunta qual (nome + final do telefone); nenhum → oferece cadastrar; falta serviço/hora → pergunta isso; horário ocupado → oferece horários reais.
+6. **Validação no backend**: cliente/serviço/profissional do negócio, regras da agenda, conflito, permissões e papel — as mesmas do caminho confirmado.
+7. **Execução direta ou confirmação**: ver seção 3.
+8. **Gravação verificada**: depois do domínio, o registro é **relido** (mesmo negócio, cliente, serviço, profissional e horário). Divergência = erro.
+9. **Resposta**: em execução direta, o texto vem do **sistema** (“Pronto ✅ Concluído: Agendar Corte … para Leandro Silva.”), nunca do modelo. A Agenda aberta é atualizada (ela já assina mudanças em tempo real; o chat também invalida o cache).
+10. **Falha**: nada é afirmado. O modelo recebe o motivo real (“Esse horário acabou de ser reservado”), oferece alternativas, e a barreira de saída impede “agendei” sem execução.
+
+## 3. ⚠️ Mudança de regra: execução direta (precisa da sua ciência)
+
+Até aqui valia “**toda** escrita vira pendente e só executa após o SIM” (`brain/AGENTS.md`, `CLAUDE.md`). Você pediu execução sem confirmação redundante quando os dados forem claros. Implementei como **exceção estreita e auditável** (`brain/execucao-direta.ts`), não como o novo padrão:
+
+- Só `criar_agendamento` é “dispensável” (`POLITICA_DE_CONFIRMACAO`). Cancelar, remarcar, cadastrar e anotar **seguem exigindo SIM**.
+- Só no **painel**, com **dono ou profissional** autenticado. WhatsApp, site e cliente nunca executam direto.
+- Só se **cada referência foi provada por uma consulta oficial neste mesmo turno**: o cliente apareceu como resultado **único** da busca por nome; o serviço está em `listar_servicos`; o horário (instante exato, profissional e serviço) veio de `consultar_disponibilidade`. O modelo **não consegue** chutar id nem horário.
+- Cliente homônimo (busca com 2+ resultados) **nunca** resolve: cai na confirmação.
+- Faltou qualquer prova → o fluxo antigo (resumo + “Posso confirmar?”). Nada executa sem o SIM.
+- **Interruptor**: `CORTAI_EXECUCAO_DIRETA=false` desliga tudo e volta ao comportamento anterior, sem deploy de código.
+- O que a política **não** garante: que a transcrição acertou a **intenção**. Se o áudio “15h” virasse “5h”, o horário seria outro (e ainda assim livre e válido). Por isso o resultado é sempre dito com dia, hora, serviço e cliente, e a pessoa vê o comando transcrito na conversa. Cancelar continua exigindo SIM.
+
+Não há configuração por negócio (exigiria migração). Se quiser “execução direta ligada/desligada por negócio”, o caminho é uma coluna em `config_atendimento_ia` — decisão sua.
+
+## 4. Duplicidade: reenvio de mensagem, de áudio e timeout
+
+Três camadas, da mais forte para a mais fraca:
+
+1. **Semântica (a que importa)** — `agendarComSeguranca`: antes de gravar, procura o **mesmo** agendamento ativo (negócio + cliente + serviço + profissional + horário); se existir, devolve “já estava registrado, não criei outro”. Se a gravação falhar por corrida, procura de novo: encontrou o idêntico → sucesso idempotente. Cobre áudio reenviado, “sim” repetido, nova tentativa após timeout e duas chamadas simultâneas. **Cancelado não conta** (dá para agendar de novo).
+2. **Por requisição** — `idempotencia-de-pedido.ts`: o navegador gera um `idDaMensagem` por envio e o reutiliza se a primeira tentativa falhou/estourou o tempo. O servidor devolve a mesma resposta se já respondeu, avisa “ainda processando” se há outra em andamento, e reprocessa (sem duplicar a fala) se a tentativa anterior morreu. Evita chamar o modelo duas vezes.
+3. **Ação pendente** (já existia + correção da fase anterior): a reivindicação condicional impede dois “sim” de executarem a mesma pendente.
+
+Limite honesto da camada 2: sem índice único no banco, a disputa “quem inseriu primeiro” não é 100% atômica. Por isso a camada 1 não depende dela. Se quiser blindar também a camada 2, a migração mínima (aditiva) seria um índice único parcial em `mensagens_de_ia (conversa_id, (acao->>'idDaMensagem')) WHERE autor = 'barbeiro'`. **Não apliquei nenhuma migração.**
+
+## 5. Segurança preservada
+
+- Catálogo, permissões e isolamento: `acaoPermitida` (painel exige as permissões das telas), toda consulta com `tenant_id`. `buscar_cliente_por_nome` é só do painel/equipe; **cliente e site nunca a recebem** (teste dedicado) — ela listaria outros clientes.
+- Privacidade: a busca devolve ao modelo só id, nome e **final** do telefone.
+- Chaves só no servidor; o navegador nunca vê a chave de transcrição.
+- Prompt injection: comando que embute “cancele tudo” não amplia a ação (cancelar nunca é direto); barreiras de entrada e saída existentes.
+- Observabilidade: novo estado `acao_executada_direta` e `origem` (texto/voz); continua sem texto de conversa por padrão.
+
+## 6. Como estender (consultar agenda, achar cliente, observação, remarcar)
+
+Cada operação futura é uma entrada em `ACOES` com sua `permissoes` e `risco`. Para executar sem SIM, ela precisa (a) entrar em `POLITICA_DE_CONFIRMACAO` e (b) ganhar uma regra de prova em `decidirExecucao`. Mapa:
+
+| Comando | Já existe | Falta |
+|---|---|---|
+| “Localizar clientes” | `buscar_cliente_por_nome` (leitura) | — |
+| “Verificar horários” | `consultar_disponibilidade` | — |
+| “Agenda de hoje” | `minha_agenda` (hoje só WhatsApp-equipe) | liberar no painel com permissão de ver agenda |
+| “Registrar observação” | `registrar_nota` (escrita, SIM) | regra de prova + decidir se dispensa SIM |
+| “Remarcar” | `reagendar_agendamento` (escrita, SIM) | idempotência semântica análoga + decidir política |
+
+## 7. Arquivos
+
+Novos: `brain/execucao-direta.ts`, `brain/busca-cliente.ts`, `brain/idempotencia-de-pedido.ts`, `voz.server.ts`, `voz.functions.ts`, `components/ia/useGravadorDeVoz.ts`, `promptfoo/testes/voz.yaml` e testes. Alterados: `brain/acoes.server.ts`, `brain/agente.server.ts`, `brain/guardas.ts`, `brain/observabilidade.server.ts`, `assistente.functions.ts`, `AssistenteCortai.tsx`, `whatsapp/transcricao.server.ts` (só o nome/extensão do arquivo enviado). Sem migração, sem dependência nova.
+
+## 8. Testes (dados fictícios; nenhum agendamento real)
+
+Ver o relatório no fim da sessão para os números. Cobertura: política (20), catálogo/idempotência/permissões/isolamento sobre banco simulado (21), agente com modelo roteirizado (15), idempotência de requisição (8), transcrição no servidor (11), gravador no navegador com `MediaRecorder` simulado (12) e **12 cenários Promptfoo** de voz rodando o cérebro real com mundo fictício.
+
+## 9. O que NÃO foi validado
+
+- Microfone real em navegador real (Chrome/Safari/Firefox/iOS): só com `getUserMedia`/`MediaRecorder` simulados. `getUserMedia` exige **HTTPS** (produção ok). Safari grava `audio/mp4`: confirmar que o provedor de transcrição o aceita.
+- Transcrição de áudio real em português (nomes próprios!) e latência.
+- Qualidade do modelo real no roteiro (rode `npm run avaliar` com chave; com o modelo simulado só o encanamento é validado).
+- Filtros de caminho JSON (`acao->>idDaMensagem`) e a RPC `criar_agendamento` contra o **banco real** (o MCP do Supabase não conectou).
+- Experiência visual (não abri o app no navegador).

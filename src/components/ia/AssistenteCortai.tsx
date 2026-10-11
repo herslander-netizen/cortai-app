@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Send, X } from "lucide-react";
+import { ArrowRight, Check, Loader2, Mic, Send, Square, X } from "lucide-react";
 
 import { AgendarNoChat } from "./AgendarNoChat";
 import { IconeDaIA } from "./IconeDaIA";
 import { Digitando } from "./Digitando";
 import { FolhaCortai } from "./FolhaCortai";
+import { blobParaBase64, useGravadorDeVoz } from "./useGravadorDeVoz";
 import { useProgressoCortai } from "./useProgressoCortai";
 
 import { brl } from "@/lib/format";
@@ -18,11 +19,26 @@ import {
   perguntarAoCortai,
   type TurnoDaConversa,
 } from "@/lib/assistente.functions";
+import { transcreverComandoDeVozDoPainel } from "@/lib/voz.functions";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
   return [SEGMENTOS_CONFIG[s].exemploIA, ...ATALHOS_FIXOS];
+}
+
+/** Por que a voz não virou comando — texto claro, sem culpar a pessoa. */
+const MOTIVOS_DA_VOZ: Record<string, string> = {
+  invalido: "Não consegui usar esse áudio. Tente gravar de novo.",
+  grande_demais: "O áudio ficou longo demais. Fale só o comando, em até 1 minuto.",
+  tipo_nao_aceito: "Este navegador gravou um formato que não consigo ler. Escreva o comando.",
+  indisponivel: "A voz ainda não está ligada neste ambiente. Escreva o comando.",
+  nao_entendi: "Não entendi o áudio. Fale mais perto do microfone ou escreva o comando.",
+  limite: "Você usou muitos comandos de voz nesta hora. Escreva por enquanto.",
+};
+
+function tempo(segundos: number) {
+  return `${Math.floor(segundos / 60)}:${String(segundos % 60).padStart(2, "0")}`;
 }
 
 const ATALHOS_FIXOS = [
@@ -151,7 +167,9 @@ export function AssistenteCortai({
   onFechar: () => void;
   segmento?: Segmento | undefined;
 }) {
+  const queryClient = useQueryClient();
   const perguntar = useServerFn(perguntarAoCortai);
+  const transcrever = useServerFn(transcreverComandoDeVozDoPainel);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -193,9 +211,26 @@ export function AssistenteCortai({
     campo.current?.focus();
   }, []);
 
-  async function enviar(mensagem: string) {
+  const voz = useGravadorDeVoz({
+    aoGravar: async ({ blob, mimeType, duracaoS }) => {
+      const r = await transcrever({
+        data: { audioBase64: await blobParaBase64(blob), mimeType, duracaoS },
+      });
+      if ("motivo" in r)
+        throw new Error(MOTIVOS_DA_VOZ[r.motivo] ?? "Não consegui entender o áudio.");
+      // O comando falado aparece na conversa como qualquer mensagem e segue o mesmo caminho.
+      await enviar(r.texto, "voz");
+    },
+  });
+
+  // Mesmo texto reenviado depois de falha/timeout reaproveita o id: o servidor não duplica.
+  const tentativa = useRef<{ texto: string; id: string } | null>(null);
+
+  async function enviar(mensagem: string, origem: "texto" | "voz" = "texto") {
     const limpo = mensagem.trim();
     if (!limpo || enviando) return;
+    const id = tentativa.current?.texto === limpo ? tentativa.current.id : crypto.randomUUID();
+    tentativa.current = { texto: limpo, id };
     setTexto("");
     setErro(null);
     setEnviando(true);
@@ -204,7 +239,14 @@ export function AssistenteCortai({
       { id: `local-${Date.now()}`, autor: "barbeiro", conteudo: limpo, acao: null },
     ]);
     try {
-      const r = await perguntar({ data: { mensagem: limpo, conversaId } });
+      const r = await perguntar({
+        data: { mensagem: limpo, conversaId, idDaMensagem: id, origem },
+      });
+      tentativa.current = null;
+      // O sistema só escreve "Pronto ✅" depois de gravar: a agenda aberta se atualiza já.
+      if (r.resposta.resposta.startsWith("Pronto ✅"))
+        for (const chave of ["agenda-dia", "agenda-agora-proximo", "agenda-meu-dia", "agenda-fila"])
+          void queryClient.invalidateQueries({ queryKey: [chave] });
       setConversaId(r.conversaId);
       setMensagens((atual) => [
         ...atual,
@@ -425,6 +467,37 @@ export function AssistenteCortai({
             ))}
           </div>
         ) : null}
+        {voz.estado !== "ocioso" || voz.erro ? (
+          <div className="mb-2 flex items-center gap-2 text-xs" role="status" aria-live="polite">
+            {voz.estado === "gravando" ? (
+              <>
+                <span className="h-2 w-2 animate-pulse rounded-full bg-brick" aria-hidden />
+                <span className="text-paper">Ouvindo… {tempo(voz.segundos)}</span>
+                <span className="text-mute2">toque no quadrado para enviar</span>
+                <button
+                  type="button"
+                  onClick={voz.cancelar}
+                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : voz.estado === "processando" ? (
+              <span className="text-mute">Entendendo o que você falou…</span>
+            ) : (
+              <>
+                <span className="text-brick">{voz.erro}</span>
+                <button
+                  type="button"
+                  onClick={voz.limparErro}
+                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
+                >
+                  Ok
+                </button>
+              </>
+            )}
+          </div>
+        ) : null}
         <form
           className="flex items-end gap-2"
           onSubmit={(e) => {
@@ -446,6 +519,34 @@ export function AssistenteCortai({
             placeholder="Escreva aqui…"
             className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
           />
+          {voz.suportado ? (
+            <button
+              type="button"
+              onClick={() => (voz.estado === "gravando" ? voz.parar() : void voz.iniciar())}
+              disabled={enviando || voz.estado === "processando"}
+              aria-label={
+                voz.estado === "gravando"
+                  ? "Parar e enviar o comando de voz"
+                  : voz.estado === "processando"
+                    ? "Entendendo o comando de voz"
+                    : "Falar um comando"
+              }
+              aria-pressed={voz.estado === "gravando"}
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:opacity-40 ${
+                voz.estado === "gravando"
+                  ? "border-brick bg-brick/15 text-brick"
+                  : "border-line2 bg-ink text-mute hover:border-gold/40 hover:text-paper"
+              }`}
+            >
+              {voz.estado === "processando" ? (
+                <Loader2 size={17} className="animate-spin" aria-hidden />
+              ) : voz.estado === "gravando" ? (
+                <Square size={15} fill="currentColor" aria-hidden />
+              ) : (
+                <Mic size={17} aria-hidden />
+              )}
+            </button>
+          ) : null}
           <button
             type="submit"
             aria-label="Enviar"

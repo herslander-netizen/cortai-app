@@ -14,6 +14,13 @@
  */
 import { instalarMundo, TENANT_DA_AVALIACAO } from "./mundo-falso.mjs";
 
+/**
+ * Aceita lista ("a,b") ou array. No YAML use texto separado por vírgula: o Promptfoo expande
+ * variáveis que são arrays de textos em VÁRIOS testes (produto cartesiano).
+ */
+const lista = (x) =>
+  Array.isArray(x) ? x : typeof x === "string" && x.trim() ? x.split(",").map((i) => i.trim()) : [];
+
 const RAIZ = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const CHAVES_DO_PROVEDOR = [
   "CORTAI_AI_PROVIDER",
@@ -86,11 +93,15 @@ export default class ProvedorCortai {
       return { error: "Perfil atual sem LOVABLE_API_KEY: nada foi avaliado." };
 
     const restaurarEnv = aplicarPerfil(perfil);
+    // Cenário "execução direta desligada": o interruptor vale só durante esta chamada.
+    const direta = process.env.CORTAI_EXECUCAO_DIRETA;
+    if (v.execucaoDireta === false) process.env.CORTAI_EXECUCAO_DIRETA = "false";
+    else delete process.env.CORTAI_EXECUCAO_DIRETA;
     const { ACOES, ferramentasDoContexto } = await import(`${RAIZ}/src/lib/brain/acoes.server.ts`);
     const { pensarCortai } = await import(`${RAIZ}/src/lib/brain/agente.server.ts`);
     const mundo = instalarMundo(ACOES, {
-      falhas: v.falhasDeLeitura ?? [],
-      falhasDeEscrita: v.falhasDeEscrita ?? [],
+      falhas: lista(v.falhasDeLeitura),
+      falhasDeEscrita: lista(v.falhasDeEscrita),
     });
 
     const canal = v.canal ?? "whatsapp";
@@ -101,7 +112,7 @@ export default class ProvedorCortai {
       ator: canal === "painel" ? "usuario-1" : "5511900000000",
       ...(canal === "whatsapp" && papel === "cliente" ? { telefoneCliente: "5511900000000" } : {}),
       ...(canal === "whatsapp" || canal === "painel" ? { papel } : {}),
-      ...(v.permissoes ? { permissoes: v.permissoes } : {}),
+      ...(lista(v.permissoes).length ? { permissoes: lista(v.permissoes) } : {}),
       ...(v.profissionalId ? { profissionalId: v.profissionalId } : {}),
     };
     const ferramentasOferecidasNoCatalogo = ferramentasDoContexto(ctx).map((f) => f.name);
@@ -207,6 +218,8 @@ export default class ProvedorCortai {
       globalThis.fetch = fetchOriginal;
       mundo.restaurar();
       restaurarEnv();
+      if (direta === undefined) delete process.env.CORTAI_EXECUCAO_DIRETA;
+      else process.env.CORTAI_EXECUCAO_DIRETA = direta;
     }
   }
 }

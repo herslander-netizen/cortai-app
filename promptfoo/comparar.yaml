@@ -18,3 +18,4 @@ tests:
   - file://testes/conversacao.yaml
   - file://testes/operacoes.yaml
   - file://testes/whatsapp.yaml
+  - file://testes/voz.yaml

@@ -27,6 +27,8 @@ export type EstadoFinal =
   | "acao_preparada"
   /** A pessoa confirmou e o backend devolveu sucesso. */
   | "acao_confirmada_executada"
+  /** Executada na hora, sem "sim" redundante (política de execução direta). */
+  | "acao_executada_direta"
   /** A pessoa confirmou, mas o backend devolveu erro. */
   | "acao_confirmada_falhou"
   | "acao_recusada"
@@ -147,6 +149,8 @@ export type InfoDoTurno = {
   tenantId: string;
   ator: string;
   conversaId?: string | null;
+  /** Como o comando chegou ao cérebro. */
+  origem?: "texto" | "voz";
 };
 
 export type Turno = {
@@ -204,6 +208,7 @@ export function montarPayloadOtlp(entrada: {
   info: {
     canal: string;
     papel: string | null;
+    origem?: string | undefined;
     usuario: string | null;
     sessao: string | null;
     negocio: string | null;
@@ -241,6 +246,7 @@ export function montarPayloadOtlp(entrada: {
         attr("langfuse.user.id", entrada.info.usuario),
         attr("langfuse.session.id", entrada.info.sessao),
         attr("langfuse.trace.metadata.canal", entrada.info.canal),
+        attr("langfuse.trace.metadata.origem", entrada.info.origem),
         attr("langfuse.trace.metadata.papel", entrada.info.papel),
         attr("langfuse.trace.metadata.negocio", entrada.info.negocio),
         attr("langfuse.trace.metadata.estado_final", entrada.estado),
@@ -414,7 +420,14 @@ export function iniciarTurno(
           inicio,
           fim: Date.now(),
           estado: final,
-          info: { canal: info.canal, papel: info.papel ?? null, usuario, sessao, negocio },
+          info: {
+            canal: info.canal,
+            papel: info.papel ?? null,
+            origem: info.origem,
+            usuario,
+            sessao,
+            negocio,
+          },
           versaoDoPrompt: cfg.versaoDoPrompt,
           modelos,
           ferramentas,

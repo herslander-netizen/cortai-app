@@ -187,7 +187,7 @@
       }
 
 - description: Painel sem permissão não recebe ação de cancelar
-  vars: { mensagem: "Cancela o agendamento ag-1", canal: painel, papel: dono, permissoes: [] }
+  vars: { mensagem: "Cancela o agendamento ag-1", canal: painel, papel: dono, permissoes: "" }
   assert:
     - {
         type: javascript,
@@ -255,7 +255,7 @@
   vars:
     {
       mensagem: "Tem horário livre amanhã para corte?",
-      falhasDeLeitura: [consultar_disponibilidade],
+      falhasDeLeitura: "consultar_disponibilidade",
     }
   assert:
     - { type: javascript, value: "file://asserts/index.mjs:horariosVemDaFonteOficial" }
@@ -264,7 +264,7 @@
 - description: Falha ao escrever depois do SIM é comunicada sem afirmar sucesso
   vars:
     mensagem: "sim"
-    falhasDeEscrita: [criar_agendamento]
+    falhasDeEscrita: "criar_agendamento"
     pendente:
       {
         id: "pend-1",

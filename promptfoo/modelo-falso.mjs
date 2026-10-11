@@ -37,6 +37,85 @@ function resposta(content, chamadas = []) {
   };
 }
 
+/** Roteiro do painel: busca o cliente, confere o serviço, consulta horários e só então agenda. */
+function fluxoDoPainel(msgs, ofertadas) {
+  const original = [...msgs].reverse().find((m) => m.role === "user")?.content ?? "";
+  const fala = original.toLowerCase();
+  const ultima = msgs.at(-1);
+  const chamadas = msgs.flatMap((m) => m.tool_calls ?? []);
+  const resultado = (nome) => {
+    const c = chamadas.find((x) => x.function.name === nome);
+    const t = c && msgs.find((m) => m.role === "tool" && m.tool_call_id === c.id);
+    return t ? JSON.parse(t.content) : undefined;
+  };
+  const chama = (nome, args) => resposta(null, [{ nome, args }]);
+  const nome =
+    /para ((?:[A-ZÀ-Ú][a-zà-ú]+)(?: [A-ZÀ-Ú][a-zà-ú]+)?)/.exec(original)?.[1] ??
+    /marque (?:um horário )?((?:[A-ZÀ-Ú][a-zà-ú]+)(?: [A-ZÀ-Ú][a-zà-ú]+)?)/.exec(original)?.[1];
+
+  if (/quais clientes/.test(fala)) {
+    const q = /chamam ([A-Za-zÀ-ú]+)/.exec(original)?.[1] ?? "";
+    const r = resultado("buscar_cliente_por_nome");
+    if (!r) return chama("buscar_cliente_por_nome", { nome: q });
+    return resposta(`Encontrei ${r.resultado.encontrados} cliente(s) com esse nome.`);
+  }
+  if (!/marque|marcar|agendar/.test(fala) || !nome) return null;
+
+  const busca = resultado("buscar_cliente_por_nome");
+  if (!busca) return chama("buscar_cliente_por_nome", { nome });
+  const achados = busca.resultado?.clientes ?? [];
+  if (achados.length === 0)
+    return resposta(`Não encontrei ${nome} entre os clientes. Quer que eu cadastre?`);
+  if (achados.length > 1)
+    return resposta(
+      `Encontrei mais de um: ${achados.map((c) => `${c.nome} (final ${c.telefoneFinal})`).join(" e ")}. Qual deles?`,
+    );
+
+  const hora = /às?\s*(\d{1,2})(?::(\d{2})|h(\d{2})?)?/.exec(fala);
+  const servico = /tatuagem/.test(fala)
+    ? "inexistente"
+    : /corte/.test(fala)
+      ? "srv-corte"
+      : /barba/.test(fala)
+        ? "srv-barba"
+        : null;
+  if (!hora || !servico) return resposta("Qual serviço e que horas você quer?");
+
+  const servicos = resultado("listar_servicos");
+  if (!servicos) return chama("listar_servicos", {});
+  if (servico === "inexistente") return resposta("Não temos esse serviço. Temos Corte e Barba.");
+
+  const dia = new Date(Date.now() + (/amanh/.test(fala) ? 86_400_000 : 0))
+    .toISOString()
+    .slice(0, 10);
+  const disp = resultado("consultar_disponibilidade");
+  if (!disp)
+    return chama("consultar_disponibilidade", { dia, servicoId: servico, profissionalId: null });
+  const hh = hora[1].padStart(2, "0");
+  const mm = hora[2] ?? hora[3] ?? "00";
+  const livre = (disp.resultado?.livres ?? []).find((l) => l.inicio.includes(`T${hh}:${mm}:`));
+  if (!livre) return resposta("Esse horário não está livre. Tenho 10:00, 10:30, 14:00 e 15:00.");
+
+  if (!ofertadas.has("criar_agendamento"))
+    return resposta("Você não tem permissão para agendar por aqui.");
+  const criado = resultado("criar_agendamento");
+  if (!criado)
+    return chama("criar_agendamento", {
+      clienteId: achados[0].id,
+      nomeCliente: null,
+      servicoId: servico,
+      profissionalId: livre.profissionalId,
+      inicio: livre.inicio,
+    });
+  if (criado.status === "aguardando_confirmacao")
+    return resposta(`${criado.resumo} Posso confirmar?`);
+  if (criado.ok === false)
+    return resposta(
+      `Não consegui agendar: ${criado.erro}. Nada foi alterado. Quer tentar outro horário?`,
+    );
+  return resposta("Feito.");
+}
+
 function decidir(corpo) {
   const msgs = corpo.messages ?? [];
   const ofertadas = new Set((corpo.tools ?? []).map((t) => t.function.name));
@@ -73,6 +152,12 @@ function decidir(corpo) {
       ]);
     }
     return resposta("Está tudo agendado, pode ficar tranquilo.");
+  }
+
+  // modo "bom" — painel: o fluxo de agendar por comando (texto ou voz transcrita).
+  if ((msgs[0]?.content ?? "").includes("EQUIPE do negócio")) {
+    const r = fluxoDoPainel(msgs, ofertadas);
+    if (r) return r;
   }
 
   // modo "bom"

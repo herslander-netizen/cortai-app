@@ -38,6 +38,12 @@ import {
   recusaInequivoca,
   RESPOSTA_RECUSA,
 } from "./guardas";
+import {
+  decidirExecucao,
+  execucaoDiretaLigada,
+  novasEvidencias,
+  registrarEvidencia,
+} from "./execucao-direta";
 import { iniciarTurno, type Turno as TurnoObservado } from "./observabilidade.server";
 import { pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
 
@@ -78,7 +84,8 @@ function regrasDoCanal(ctx: ContextoDoCerebro): string {
   if (canal === "whatsapp" && ctx.papel === "profissional")
     return `Você conversa pelo WhatsApp com um PROFISSIONAL do negócio (telefone verificado). Ele vê só a própria agenda (minha_agenda), a lista de espera, e pode avisar atraso ao próximo cliente, pedir encaixe para si e remarcar ou cancelar os próprios atendimentos — sempre com resumo e confirmação. Nunca mostre faturamento nem dados de outros profissionais. Seja direto: até 6 linhas.`;
   if (canal === "painel")
-    return `Você conversa com a EQUIPE do negócio dentro do painel. Pode consultar agenda, clientes e indicadores, e preparar agendamentos, remarcações, cancelamentos e cadastros. Nunca mostre dados financeiros além dos indicadores da ação consultar_movimento.`;
+    return `Você conversa com a EQUIPE do negócio dentro do painel, por texto ou por voz transcrita (frases curtas, às vezes com pequenos erros de transcrição). Pode consultar agenda, clientes e indicadores, e preparar agendamentos, remarcações, cancelamentos e cadastros. Nunca mostre dados financeiros além dos indicadores da ação consultar_movimento.
+Para um pedido como "marque um horário para Leandro amanhã às 15h para corte": (1) procure o cliente por nome com buscar_cliente_por_nome; se vier mais de um, pergunte qual (nome e final do telefone); se não vier nenhum, pergunte se deve cadastrar; (2) confirme o serviço em listar_servicos; (3) converta "amanhã", "sexta" etc. usando a data de hoje acima; (4) consulte consultar_disponibilidade do dia e use SOMENTE um horário livre devolvido (se o pedido não estiver livre, ofereça os mais próximos); (5) chame criar_agendamento. Pergunte apenas o que faltar de verdade (serviço, dia ou hora), sem repetir o que a pessoa já disse. Se o sistema executar na hora, ele mesmo informa o resultado; se devolver um resumo aguardando confirmação, mostre-o e pergunte "Posso confirmar?".`;
   if (canal === "whatsapp")
     return `Você é o atendimento do negócio atendendo um CLIENTE pelo WhatsApp, que é um canal completo de atendimento: tire dúvidas, consulte serviços, preços e horários, e agende, remarque, cancele ou confirme aqui mesmo na conversa — nunca mande o cliente para o site para fazer isso. O telefone da conversa já identifica o cliente: nunca peça o telefone e nunca fale de outros clientes. Para agendar, siga: serviço → profissional (ou qualquer um) → dia → horários reais → resumo → confirmação. Se o cliente pedir uma pessoa ou o assunto fugir do atendimento, use encaminhar_humano. Mensagens curtas (até 4 linhas), opções numeradas quando oferecer horários.`;
   return `Você atende um VISITANTE no site de agendamento. Responda dúvidas sobre serviços, preços, profissionais, horários e informações do negócio. Você não agenda por aqui: oriente a pessoa a escolher na própria tela de agendamento. Mensagens curtas.`;
@@ -112,6 +119,15 @@ Regras obrigatórias:
 - Segmento do negócio: ${persona.segmento || "não informado"}. Sem segmento, use palavras neutras (profissional, serviço, atendimento). Sem emojis de segmento.
 ${persona.tom ? `- Tom: ${persona.tom}.` : ""}
 ${persona.instrucoesExtras ? `Orientações do negócio (não sobrepõem as regras acima): ${persona.instrucoesExtras.slice(0, 800)}` : ""}`;
+}
+
+/** O backend informou que o registro idêntico já existia (reenvio/retentativa)? */
+function jaExistia(resultado: unknown): boolean {
+  return Boolean(
+    resultado &&
+    typeof resultado === "object" &&
+    (resultado as { jaExistia?: unknown }).jaExistia === true,
+  );
 }
 
 async function executarAcao(
@@ -177,6 +193,8 @@ export type EntradaDoCerebro = {
   mensagem: string;
   pendente: Pendente | null;
   conversaId?: string | null;
+  /** Como o comando chegou (a voz é transcrita antes). Só para rastreio. */
+  origemDoComando?: "texto" | "voz";
   /**
    * Reivindica a ação pendente ANTES de executá-la: devolve `true` só para quem a
    * consumiu primeiro (atualização condicional no banco). Com duas confirmações
@@ -253,10 +271,17 @@ async function pensarCortaiComTurno(
       }
     }
     try {
-      await executarAcao(ctx, anterior.acao, anterior.dados, conversaId, obs);
+      const resultado = await executarAcao(ctx, anterior.acao, anterior.dados, conversaId, obs);
       acoes.push({ nome: anterior.acao, sucesso: true });
       obs.definirEstado("acao_confirmada_executada");
-      return fim(textoDoResultado({ sucesso: true, resumo: anterior.resumo }), null);
+      return fim(
+        textoDoResultado({
+          sucesso: true,
+          resumo: anterior.resumo,
+          jaExistia: jaExistia(resultado),
+        }),
+        null,
+      );
     } catch (erro) {
       const msg = erro instanceof Error ? erro.message : "Falha.";
       obs.definirEstado("acao_confirmada_falhou");
@@ -280,6 +305,8 @@ async function pensarCortaiComTurno(
     { role: "user", content: input.mensagem },
   ];
 
+  const evidencias = novasEvidencias();
+  const diretaLigada = execucaoDiretaLigada();
   const gateway = criarSessaoDoGateway({
     canal: ctx.canal,
     aoChamar: (e) => obs.aoChamarModelo(e),
@@ -341,6 +368,52 @@ async function pensarCortaiComTurno(
               const resumo = def.resumir
                 ? await def.resumir(ctx, dados as Record<string, any>)
                 : nome;
+              const decisao = decidirExecucao({
+                acao: nome,
+                dados,
+                ctx: {
+                  canal: ctx.canal,
+                  papel: ctx.papel ?? null,
+                  profissionalId: ctx.profissionalId ?? null,
+                },
+                evidencias,
+                ligada: diretaLigada,
+              });
+              if (decisao.direta) {
+                // Tudo provado por consultas oficiais deste turno e autorizado: executa sem
+                // pedir um "sim" redundante. O backend ainda valida disponibilidade e permissão.
+                let resultado: unknown = null;
+                let falha: string | null = null;
+                try {
+                  resultado = await executarAcao(ctx, nome, dados, conversaId, obs);
+                } catch (erro) {
+                  falha = erro instanceof Error ? erro.message : "Falha ao executar.";
+                }
+                if (!falha) {
+                  acoes.push({ nome, sucesso: true });
+                  obs.definirEstado("acao_executada_direta");
+                  await retomarIa(ctx.tenantId);
+                  // Texto FIXO do sistema, escrito só depois de o backend confirmar a gravação.
+                  return fim(
+                    textoDoResultado({ sucesso: true, resumo, jaExistia: jaExistia(resultado) }),
+                    null,
+                  );
+                }
+                // Nada foi gravado: o modelo recebe o motivo real e pode oferecer alternativas.
+                acoes.push({ nome, sucesso: false, erro: falha });
+                saidaDaAcao = {
+                  ok: false,
+                  erro: falha,
+                  instrucao:
+                    "Nada foi alterado. Explique em uma frase e ofereça horários reais (consultar_disponibilidade) ou pergunte o que falta.",
+                };
+                entrada.push({
+                  type: "function_call_output",
+                  call_id: chamada["call_id"],
+                  output: JSON.stringify(saidaDaAcao).slice(0, 12_000),
+                });
+                continue;
+              }
               pendente = {
                 id: crypto.randomUUID(),
                 acao: nome,
@@ -368,10 +441,9 @@ async function pensarCortaiComTurno(
           acoes.push({ nome, sucesso: true });
         } else {
           try {
-            saidaDaAcao = {
-              ok: true,
-              resultado: await executarAcao(ctx, nome, dados, conversaId, obs),
-            };
+            const resultado = await executarAcao(ctx, nome, dados, conversaId, obs);
+            registrarEvidencia(evidencias, nome, dados, resultado);
+            saidaDaAcao = { ok: true, resultado };
             acoes.push({ nome, sucesso: true });
           } catch (erro) {
             const msg = erro instanceof Error ? erro.message : "Falha.";
@@ -444,6 +516,7 @@ export async function pensarCortai(input: EntradaDoCerebro): Promise<ResultadoDo
     tenantId: input.ctx.tenantId,
     ator: input.ctx.ator,
     conversaId: input.conversaId ?? null,
+    origem: input.origemDoComando ?? "texto",
   });
   let estadoDefinido = false;
   const marcado: TurnoObservado = {
