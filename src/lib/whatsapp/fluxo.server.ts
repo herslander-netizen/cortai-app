@@ -940,7 +940,7 @@ async function responderComCerebro(input: {
         _tipo: "whatsapp_humano",
         _titulo: "Cliente pediu atendimento",
         _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
-        _link: "/painel",
+        _link: LINKS_DE_TELA.inicio,
       })
       .then(
         () => undefined,

@@ -82,6 +82,17 @@ export const entrarNaFilaPublica = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<{ token: string; posicao: number }> => {
+    const { ipDaChamada, consumirLimite } = await import("@/lib/webhook-guard.server");
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { normalizarTelefone } = await import("@/lib/telefone");
+    const { aplicarLimiteDaFila } = await import("@/lib/fila-publica-limite");
+    let ip: string | null = null;
+    try {
+      ip = ipDaChamada(getRequest());
+    } catch {
+      ip = null;
+    }
+    await aplicarLimiteDaFila(consumirLimite, ip, normalizarTelefone(data.telefone));
     const db = await admin();
     const { resolverTenantPorSlug } = await import("@/lib/tenant-slug");
     const resolvido = await resolverTenantPorSlug(db, data.slug);

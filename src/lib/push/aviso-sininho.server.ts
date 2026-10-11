@@ -6,6 +6,8 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { LINKS_DE_TELA } from "@/lib/links-de-tela";
+
 import { chavesVapid } from "./eventos.server";
 import { destinatariosDoAviso, focoAtivo, inscricaoVencida, textoDoAviso } from "./regras";
 import { enviarPush } from "./webpush.server";
@@ -69,7 +71,7 @@ export async function processarAvisoDoSininho(notificacaoId: string): Promise<{ 
       if (repetido) continue;
       const status = await enviarPush(
         inscricao,
-        { tipo: n.tipo, corpo: textoDoAviso(n.titulo, n.corpo), link: n.link || "/painel", tag: `av-${n.tipo}` },
+        { tipo: n.tipo, corpo: textoDoAviso(n.titulo, n.corpo), link: n.link || LINKS_DE_TELA.inicio, tag: `av-${n.tipo}` },
         chaves!,
         { ttl: critica ? 900 : 3600, urgente: critica || n.prioridade === "importante" },
       ).catch(() => 0);
