@@ -129,7 +129,7 @@ export function CabecalhoAgenda({
             {ehHoje ? <span>{dataEditorial(dia)}</span> : null}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto border-line bg-ink2 p-2">
+        <PopoverContent align="start" className="w-auto border-line bg-ink3 p-2">
           <Calendar
             mode="single"
             selected={paraData(dia)}
