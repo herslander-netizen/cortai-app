@@ -31,6 +31,7 @@ export function SecaoRecepcao({
             type="button"
             variant="outline"
             className="size-16 overflow-hidden p-0"
+            aria-label="Alterar foto da recepção"
             onClick={() => avatarRef.current?.click()}
           >
             {avatarPreview ? (
@@ -43,13 +44,19 @@ export function SecaoRecepcao({
               <ImagePlus />
             )}
           </Button>
-          <Button type="button" variant="outline" onClick={() => avatarRef.current?.click()}>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-12"
+            onClick={() => avatarRef.current?.click()}
+          >
             Escolher foto
           </Button>
           {config.chat.avatarUrl ? (
             <Button
               type="button"
               variant="ghost"
+              className="min-h-12"
               onClick={() => {
                 setPagina("chat", { ...config.chat, avatarUrl: null });
                 setAvatarPreview(null);
@@ -115,6 +122,7 @@ export function SecaoRecepcao({
             type="button"
             variant={config.chat.corDestaque === cor ? "default" : "outline"}
             className="h-12 capitalize"
+            aria-pressed={config.chat.corDestaque === cor}
             onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
           >
             {cor}

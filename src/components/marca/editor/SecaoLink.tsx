@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,16 +22,20 @@ export function SecaoLink({
   form: MarcaForm;
   setMarca: <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) => void;
 }) {
+  const slugId = useId();
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-xs font-medium text-mute">
-          Endereço personalizado
+        <div>
+          <label htmlFor={slugId} className="block text-xs font-medium text-mute">
+            Endereço personalizado
+          </label>
           <div className="mt-2 flex items-stretch gap-2">
             <span className="flex items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute">
               cortai.dev/
             </span>
             <input
+              id={slugId}
               className={`${fieldClass} mt-0 min-w-0 flex-1`}
               value={slug}
               maxLength={60}
@@ -45,17 +50,18 @@ export function SecaoLink({
             />
             <Button
               type="button"
+              className="min-h-12"
               disabled={busy || slug === slugInicial || slug.length < 3}
               onClick={salvarSlug}
             >
               Salvar
             </Button>
           </div>
-        </label>
+        </div>
         <p className="mt-2 text-xs text-mute">
           O endereço antigo permanece ativo para não quebrar links já enviados.
         </p>
-        <Button type="button" variant="outline" className="mt-3" asChild>
+        <Button type="button" variant="outline" className="mt-3 min-h-12" asChild>
           <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
             <ExternalLink />
             Abrir agendamento
