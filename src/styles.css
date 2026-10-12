@@ -472,9 +472,10 @@
   --ink: var(--chat-surface);
   --ink2: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
   --ink3: var(--chat-subtle);
+  --cartao: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
   --paper: var(--chat-content);
   --mute: var(--chat-muted);
-  --mute2: color-mix(in oklab, var(--chat-content) 48%, transparent);
+  --mute2: color-mix(in oklab, var(--chat-content) 68%, var(--chat-surface));
   --line: color-mix(in oklab, var(--chat-content) 10%, transparent);
   --line2: var(--chat-borda);
   --gold: var(--chat-primary, var(--primary));
@@ -705,6 +706,10 @@
 .agendamento-marca {
   --ink: var(--chat-page, var(--background));
   --ink2: var(--chat-superficie-1, var(--ink2));
+  --cartao: var(
+    --chat-superficie-1,
+    color-mix(in oklab, var(--chat-page, var(--background)) 96%, var(--chat-page-text, var(--foreground)))
+  );
   --paper: var(--chat-page-text, var(--foreground));
   --ink3: var(--chat-superficie-2, var(--ink3));
   --background: var(--chat-page, var(--background));
