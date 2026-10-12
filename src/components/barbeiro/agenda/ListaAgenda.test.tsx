@@ -122,7 +122,7 @@ describe("ListaAgenda", () => {
   });
 
   it("usa um botão semântico para abrir o cartão e mantém as ações fora dele", () => {
-    const { onAbrir } = montar([item({ status: "agendado" })]);
+    const { onAbrir } = montar([item({ status: "agendado" })], vi.fn(), vi.fn(), vi.fn(), true);
     const resumo = host!.querySelector<HTMLButtonElement>(".agenda-item-resumo")!;
 
     expect(host!.querySelector("li[role=button]")).toBeNull();

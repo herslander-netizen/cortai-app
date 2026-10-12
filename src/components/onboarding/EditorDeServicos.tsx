@@ -1,26 +1,15 @@
 import { useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { Plus, Sparkles, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
-import { brl } from "@/lib/format";
-import type { ServicoSugerido } from "@/lib/ia/assistente";
-import { interpretarServicos } from "@/lib/assistente.functions";
-import {
-  LISTA_DE_SEGMENTOS,
-  SEGMENTOS_CONFIG,
-  segmentoValido,
-  type Segmento,
-} from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { supabase } from "@/integrations/supabase/client";
 import { comprimirImagem } from "@/lib/imagem";
-
-export type ServicoEditavel = Omit<ServicoSugerido, "retornoDias"> & {
-  id?: string;
-  profissionalIds?: string[];
-  retornoDias?: number | null;
-  fotoUrl?: string | null;
-};
+import { AssistenteDeServicos } from "./AssistenteDeServicos";
+import { SugestoesDeServicos } from "./SugestoesDeServicos";
+import type { ServicoEditavel } from "./servicos.types";
+export type { ServicoEditavel } from "./servicos.types";
 
 export function EditorDeServicos({
   servicos,
@@ -40,16 +29,11 @@ export function EditorDeServicos({
   tenantId?: string;
   fotosAssinadas?: Record<string, string>;
 }) {
-  const interpretar = useServerFn(interpretarServicos);
-  const [texto, setTexto] = useState("");
   const [rascunho, setRascunho] = useState<Record<string, string>>({});
 
-  const [pensando, setPensando] = useState(false);
-  const [previa, setPrevia] = useState<ServicoSugerido[] | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const [mostrarTodas, setMostrarTodas] = useState(false);
+  const [erroFoto, setErroFoto] = useState<string | null>(null);
   const [enviandoFoto, setEnviandoFoto] = useState<number | null>(null);
+  const [confirmarRemocao, dialogoRemocao] = useConfirmar();
   const arquivos = useRef<Record<number, HTMLInputElement | null>>({});
   const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
 
@@ -57,64 +41,9 @@ export function EditorDeServicos({
     onChange(servicos.map((s, i) => (i === indice ? { ...s, ...campos } : s)));
   }
 
-  const naoAdicionados = definicao.servicosSugeridos.filter(
-    (s) => !servicos.some((a) => a.nome.toLowerCase() === s.nome.toLowerCase()),
-  );
-
   return (
     <div>
-      {naoAdicionados.length ? (
-        <>
-          <p className="text-xs text-mute">
-            Sugestões rápidas — toque para adicionar e edite depois.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {naoAdicionados.map((s) => (
-              <button
-                key={s.nome}
-                type="button"
-                className="inline-flex items-center gap-1.5 min-h-12 rounded-full border border-line2 px-4 text-sm text-paper transition-colors hover:border-gold active:scale-[0.98]"
-                onClick={() => onChange([...servicos, { ...s }])}
-              >
-                <Plus size={13} className="text-gold" aria-hidden /> {s.nome}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : null}
-
-      <Button
-        variant="link"
-        type="button"
-        className="mt-1 min-h-12 px-0 text-xs text-mute"
-        onClick={() => setMostrarTodas((valor) => !valor)}
-      >
-        {mostrarTodas ? "Ocultar outras sugestões" : "Ver sugestões de outros segmentos"}
-      </Button>
-      {mostrarTodas ? (
-        <div className="mt-3 space-y-4 border-t border-line pt-4">
-          {LISTA_DE_SEGMENTOS.filter(
-            (item) => item.id !== definicao.id && item.servicosSugeridos.length,
-          ).map((item) => (
-            <section key={item.id}>
-              <p className="text-xs font-semibold text-paper">{item.rotulo}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {item.servicosSugeridos.map((servico) => (
-                  <Button
-                    key={`${item.id}-${servico.nome}`}
-                    variant="outline"
-                    type="button"
-                    className="min-h-12 rounded-full px-3 text-xs"
-                    onClick={() => onChange([...servicos, { ...servico }])}
-                  >
-                    <Plus size={13} aria-hidden /> {servico.nome}
-                  </Button>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-      ) : null}
+      <SugestoesDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
 
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
@@ -172,7 +101,7 @@ export function EditorDeServicos({
                       atualizar(i, { fotoUrl: path });
                       fotosAssinadas[path] = preview;
                     } catch {
-                      setErro("Não foi possível enviar a foto do serviço.");
+                      setErroFoto("Não foi possível enviar a foto do serviço.");
                     } finally {
                       setEnviandoFoto(null);
                     }
@@ -188,14 +117,24 @@ export function EditorDeServicos({
                 className="field-control min-h-12 min-w-0 flex-1 rounded-lg px-3 text-sm"
                 aria-label="Nome do serviço"
               />
-              <button
+              <Button
                 type="button"
-                aria-label={`Remover ${s.nome}`}
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-mute transition-colors hover:bg-ink3 hover:text-destructive"
-                onClick={() => onChange(servicos.filter((_, j) => j !== i))}
+                variant="destructive"
+                size="icon"
+                aria-label={`Remover ${s.nome || "serviço sem nome"}`}
+                className="shrink-0 rounded-full"
+                onClick={async () => {
+                  const confirmou = await confirmarRemocao({
+                    titulo: `Remover ${s.nome || "este serviço"}?`,
+                    descricao: "O serviço será removido desta lista antes de salvar as alterações.",
+                    confirmar: "Remover serviço",
+                    destrutivo: true,
+                  });
+                  if (confirmou) onChange(servicos.filter((_, j) => j !== i));
+                }}
               >
                 <Trash2 size={16} />
-              </button>
+              </Button>
             </div>
             <label className="mt-2 block text-xs text-mute">
               Categoria
@@ -296,9 +235,10 @@ export function EditorDeServicos({
                     const todos = marcados.length === 0;
                     const ativo = todos || marcados.includes(p.id);
                     return (
-                      <button
+                      <Button
                         key={p.id}
                         type="button"
+                        variant={ativo ? "secondary" : "outline"}
                         aria-pressed={ativo}
                         onClick={() => {
                           const base = todos ? profissionais.map((x) => x.id) : marcados;
@@ -312,12 +252,10 @@ export function EditorDeServicos({
                                 : proximo,
                           });
                         }}
-                        className={`min-h-12 rounded-full border px-3 text-xs ${
-                          ativo ? "border-paper bg-paper text-ink" : "border-line2 text-mute"
-                        }`}
+                        className="min-h-12 rounded-full px-3 text-xs"
                       >
                         {p.nome}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -327,9 +265,10 @@ export function EditorDeServicos({
         ))}
       </ul>
 
-      <button
+      <Button
         type="button"
-        className="btn-tertiary mt-3 min-h-12 text-sm"
+        variant="outline"
+        className="mt-3 min-h-12 text-sm"
         onClick={() =>
           onChange([
             ...servicos,
@@ -338,7 +277,7 @@ export function EditorDeServicos({
         }
       >
         + Adicionar serviço
-      </button>
+      </Button>
 
       <datalist id="categorias-de-servico">
         {definicao.categorias.map((c) => (
@@ -346,84 +285,15 @@ export function EditorDeServicos({
         ))}
       </datalist>
 
+      {erroFoto ? (
+        <p className="mt-3 text-sm text-brick" role="alert">
+          {erroFoto}
+        </p>
+      ) : null}
       {semIA ? null : (
-        <div className="mt-6 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o CortAI configure
-            isso para você?
-          </p>
-          <textarea
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            rows={2}
-            placeholder={definicao.exemploIA}
-            className="mt-3 w-full resize-none rounded-lg border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
-          />
-          <button
-            type="button"
-            className="btn-secondary mt-3 w-full py-2.5 text-sm"
-            disabled={pensando || texto.trim().length < 3}
-            onClick={async () => {
-              setPensando(true);
-              setErro(null);
-              setAviso(null);
-              try {
-                const r = await interpretar({ data: { texto } });
-                if (!r.disponivel) setAviso(r.resposta);
-                else if (r.servicos?.length) setPrevia(r.servicos);
-                else setAviso(r.resposta);
-              } catch (e) {
-                setErro(e instanceof Error ? e.message : "Não consegui entender agora.");
-              } finally {
-                setPensando(false);
-              }
-            }}
-          >
-            {pensando ? "Interpretando…" : "Configurar com IA"}
-          </button>
-
-          {previa ? (
-            <div className="mt-4 rounded-lg border border-line2 bg-ink px-4 py-3">
-              <p className="text-xs text-mute">
-                Prévia — você ainda pode editar depois de adicionar:
-              </p>
-              <ul className="mt-2 space-y-1">
-                {previa.map((s, i) => (
-                  <li key={`${s.nome}-${i}`} className="flex justify-between gap-3 text-sm">
-                    <span className="min-w-0 truncate text-paper">{s.nome}</span>
-                    <span className="shrink-0 text-xs text-mute">
-                      {s.duracaoMin} min · {brl(s.precoCentavos)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 flex gap-3">
-                <button
-                  type="button"
-                  className="btn-primary flex-1 py-2 text-sm"
-                  onClick={() => {
-                    onChange([...servicos, ...previa.map((s) => ({ ...s }))]);
-                    setPrevia(null);
-                    setTexto("");
-                  }}
-                >
-                  Adicionar à lista
-                </button>
-                <button
-                  type="button"
-                  className="btn-tertiary text-sm"
-                  onClick={() => setPrevia(null)}
-                >
-                  Descartar
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {aviso ? <p className="mt-3 text-xs text-mute">{aviso}</p> : null}
-          {erro ? <p className="mt-3 text-xs text-brick">{erro}</p> : null}
-        </div>
+        <AssistenteDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
       )}
+      {dialogoRemocao}
     </div>
   );
 }

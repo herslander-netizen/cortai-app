@@ -7,6 +7,7 @@
 | Alta | `ListaAgenda` marcava o item `<li>` inteiro como botão, embora seus filhos incluíssem botões de ação. Isso criava controles interativos aninhados e deixava a semântica de teclado ambígua. | Corrigido com botão semântico para o resumo e ações como controles irmãos. |
 | Média | Os campos do catálogo tinham 40 px e o botão de remover tinha 44 px, abaixo do alvo mínimo de 48 px especificado em `docs/contrato-de-design.md`. | Ajustado para controles de ao menos 48 px e aplicado o token `field-control`. |
 | Média | Compartilhar não fazia nada quando a API nativa não estava disponível, e falhas ao copiar não davam feedback. | Compartilhar agora usa a cópia como alternativa e as falhas são comunicadas pela faixa de estado existente. |
+| Média | O catálogo misturava botões nativos e estilos legados, e os erros/sugestões da configuração assistida não eram anunciados semanticamente. | Ações agora usam `Button`; remoção pede confirmação, a descrição tem rótulo e feedback usa `status`/`alert`. |
 | A verificar visualmente | A agenda tem linha do tempo, lista, foco mobile, navegação de datas, estados e ações próprias. | Mantidos. Esta execução não conseguiu fazer inspeção visual responsiva no navegador. |
 
 ## Telas examinadas
@@ -25,9 +26,9 @@ Os arquivos `auditoria-visual-figaroo.md` e `docs/referencia-ux-figaroo-cortai.m
 ## Validação
 
 - `tsc --noEmit`: passou.
-- ESLint nos quatro arquivos TypeScript alterados: passou.
+- ESLint nos arquivos TypeScript alterados: passou.
 - `git diff --check`: passou.
-- Vitest não iniciou: o plugin Vite do projeto rejeitou o caminho absoluto de `src/routes` durante a validação de configuração. Os testes não foram executados.
+- Vitest com configuração temporária isolada e pool `vmThreads`: 26 arquivos e 154 testes de agenda, tema e catálogo passaram. A configuração padrão segue bloqueada pela validação de caminho do plugin Vite do projeto.
 - Instalação das dependências terminou com aviso de scripts `esbuild` ignorados pelo pnpm; dependências foram instaladas. Nenhum lockfile foi criado.
 
 ## Escopo
