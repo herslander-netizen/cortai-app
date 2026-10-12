@@ -38,3 +38,9 @@ Os arquivos `auditoria-visual-figaroo.md` e `docs/referencia-ux-figaroo-cortai.m
 ## Escopo
 
 As mudanças são de interface e acessibilidade. Não alteram reservas, preços, regras de disponibilidade, persistência, contratos de API ou integrações.
+
+## Continuação: configurações da página profissional
+
+As nove seções do editor `/barbeiro/marca` foram agrupadas em quatro áreas navegáveis: Conteúdo, Aparência, Divulgação e Histórico. Cada seção agora explica brevemente o que pode ser ajustado; os controles existentes, a prévia, o salvamento de rascunho e a publicação foram preservados. A navegação usa os componentes de abas e acordeão existentes, com alvos de toque de 48 px e suporte de teclado.
+
+Validações desta continuação: `tsc --noEmit` passou; ESLint nos arquivos alterados passou; os testes focados de `PaineisDoEditor` e `SecaoTema` passaram (2 arquivos, 2 testes); `git diff --check` passou. A inspeção visual automatizada em larguras diferentes permanece pendente: não há configuração de Playwright no projeto e a build Vite local segue bloqueada pela checagem de caminho Windows do plugin Lovable. Os arquivos de referência visual do Figaroo continuam indisponíveis neste checkout, então a organização foi baseada na arquitetura e nos tokens existentes do Cortaí.
