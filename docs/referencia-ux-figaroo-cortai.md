@@ -95,3 +95,28 @@ Auditar detalhadamente os arquivos reais relacionados a:
 3. Os testes existentes dessas áreas.
 
 Após esse inventário, propor alterações pontuais, arquivo por arquivo, antes de implementá-las. Não enviar alterações à `main` nem publicar o site sem autorização explícita.
+
+
+## Inventário técnico inicial do Cortaí
+
+Consulta à branch `main` em 12/10/2026. Contagem física de linhas dos arquivos consultados (serve como sinal de complexidade, não como avaliação automática da qualidade):
+
+| Arquivo | Linhas | Observação |
+|---|---:|---|
+| `src/components/barbeiro/AgendaOperacional.tsx` | 1.562 | Superfície central com estado, fluxo operacional e composição de várias subáreas. Evitar adicionar mais responsabilidades diretamente aqui. |
+| `src/components/barbeiro/AgendaTimeline.tsx` | 975 | Renderização e interações da timeline; alterações visuais devem preservar gestos, rolagem nativa, estado “Agora” e acessibilidade. |
+| `src/components/barbeiro/AgendaFocoMobile.tsx` | 244 | Orquestra o Modo Foco e os alertas; parece estar abaixo do limite de 300 linhas indicado pelo contrato. |
+| `src/routes/barbeiro.marca.tsx` | 293 | A página de personalização já reúne componentes focados e está perto do limite de 300 linhas. |
+| `src/components/marca/editor/SecaoTema.tsx` | 81 | Já existe um componente específico para seleção de tema. |
+| `src/components/marca/editor/PreviaDaExperiencia.tsx` | 84 | Já existe prévia reutilizável da experiência pública, incluindo apresentação mobile. |
+| `src/components/onboarding/EditorDeServicos.tsx` | 429 | Editor atual de serviços; avaliar antes de criar qualquer editor paralelo. |
+
+Outras confirmações da estrutura:
+- `src/routes/barbeiro.temas.tsx` redireciona para `/barbeiro/marca`: temas e personalização já foram consolidados em um lugar.
+- `src/routes/barbeiro.agenda.tsx` é uma rota fina que carrega `AgendaLazy`, separando a rota do componente operacional.
+- O contrato de design orienta dividir rotas/componentes com mais de 300 linhas. Portanto, uma evolução da Agenda deve preferir extrações pequenas e coesas, sem misturar mudança visual com mudança de regra de negócio.
+- O Cortaí já tem componentes de Timeline, Lista e Modo Foco, assim como uma prévia de experiência pública. A oportunidade principal parece ser comparar detalhes de experiência e refinar componentes existentes, não criar novas superfícies concorrentes.
+
+### Implicação para implementação
+
+Antes de mudar a Agenda, mapear responsabilidades e testes de `AgendaOperacional` e `AgendaTimeline`. Caso seja necessário tocar nesses arquivos extensos, limitar o diff e extrair apenas uma responsabilidade que já esteja claramente delimitada. No editor público, começar por `SecaoTema`, `PreviaDaExperiencia` e pelos componentes chamados em `barbeiro.marca.tsx`. No catálogo, reutilizar `EditorDeServicos` e catalogar as diferenças antes de alterar seu fluxo.
