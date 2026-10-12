@@ -130,15 +130,7 @@ const PerfilClienteLazy = lazyComRecuperacao(() =>
 type Visualizacao = "lista" | "timeline" | "semana";
 
 function useEhDesktop() {
-  const [v, setV] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const f = () => setV(mq.matches);
-    f();
-    mq.addEventListener("change", f);
-    return () => mq.removeEventListener("change", f);
-  }, []);
-  return v;
+  return useMediaQuery("(min-width: 768px)");
 }
 
 /** Folha da fila de chegada. Usa relógio próprio para não redesenhar a agenda. */

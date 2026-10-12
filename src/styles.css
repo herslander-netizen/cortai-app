@@ -5252,7 +5252,7 @@ html.agenda-gesto-ativo body {
 .agenda-agora-compacto:focus-visible,
 .agenda-proximo-linha:focus-visible,
 .agenda-lista-item:focus-visible,
-.agenda-item:focus-visible {
+.agenda-item-resumo:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
@@ -5353,7 +5353,6 @@ button.agenda-nome:hover {
   min-height: 64px;
   border-left: 4px solid transparent;
   padding: 12px 8px;
-  cursor: pointer;
   transition:
     background-color 150ms ease,
     border-color 150ms ease;
