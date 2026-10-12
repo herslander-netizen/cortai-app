@@ -139,7 +139,20 @@ function Editor({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigator.share?.({ title: e.form.nome, url: link })}
+          onClick={async () => {
+            try {
+              if (navigator.share) {
+                await navigator.share({ title: e.form.nome, url: link });
+                e.setStatus("Link compartilhado.");
+              } else {
+                await navigator.clipboard.writeText(link);
+                e.setStatus("Link copiado.");
+              }
+            } catch (error) {
+              if (error instanceof Error && error.name === "AbortError") return;
+              e.setStatus("Não foi possível compartilhar o link. Tente copiá-lo.", true);
+            }
+          }}
         >
           <Share2 />
           Compartilhar
@@ -148,8 +161,12 @@ function Editor({
           variant="outline"
           size="sm"
           onClick={async () => {
-            await navigator.clipboard.writeText(link);
-            e.setStatus("Link copiado.");
+            try {
+              await navigator.clipboard.writeText(link);
+              e.setStatus("Link copiado.");
+            } catch {
+              e.setStatus("Não foi possível copiar o link. Tente novamente.", true);
+            }
           }}
         >
           <Copy />
