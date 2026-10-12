@@ -76,4 +76,14 @@ describe("EditorDeServicos", () => {
     expect(rotulo?.textContent).toContain("Descreva os serviços");
     expect(host!.querySelector("textarea")?.id).toBe(rotulo?.htmlFor);
   });
+
+  it("mantém as sugestões em uma faixa móvel rolável com botões de toque adequados", () => {
+    montar(vi.fn(), true);
+    const sugestoes = host!.querySelector<HTMLElement>(
+      '[aria-label="Sugestões rápidas de serviços"]',
+    )!;
+
+    expect(sugestoes.className).toContain("overflow-x-auto");
+    expect(sugestoes.querySelector("button")?.className).toContain("min-h-12");
+  });
 });

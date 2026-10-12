@@ -30,15 +30,19 @@ export function SugestoesDeServicos({
       {naoAdicionados.length ? (
         <>
           <p className="text-xs text-mute">
-            Sugestões rápidas — toque para adicionar e edite depois.
+            Sugestões rápidas — deslize para ver mais e toque para adicionar.
           </p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div
+            className="-mx-4 mt-2 flex max-w-full snap-x snap-mandatory flex-nowrap gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+            role="group"
+            aria-label="Sugestões rápidas de serviços"
+          >
             {naoAdicionados.map((servico) => (
               <Button
                 key={servico.nome}
                 type="button"
                 variant="outline"
-                className="min-h-12 rounded-full px-4 text-sm"
+                className="min-h-12 shrink-0 snap-start rounded-full px-4 text-sm"
                 onClick={() => onChange([...servicos, { ...servico }])}
               >
                 <Plus size={13} className="text-gold" aria-hidden /> {servico.nome}
