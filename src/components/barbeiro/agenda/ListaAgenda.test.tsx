@@ -116,8 +116,23 @@ describe("ListaAgenda", () => {
   it("estado finalizado não tem ação principal e abre o cartão ao clicar", () => {
     const { onAcao, onAbrir } = montar([item({ status: "finalizado" })]);
     expect(host!.querySelector(".agenda-item-primaria")).toBeNull();
-    act(() => host!.querySelector<HTMLLIElement>(".agenda-item")!.click());
+    act(() => host!.querySelector<HTMLButtonElement>(".agenda-item-resumo")!.click());
     expect(onAcao).not.toHaveBeenCalled();
+    expect(onAbrir).toHaveBeenCalledWith("a1");
+  });
+
+  it("usa um botão semântico para abrir o cartão e mantém as ações fora dele", () => {
+    const { onAbrir } = montar([item({ status: "agendado" })]);
+    const resumo = host!.querySelector<HTMLButtonElement>(".agenda-item-resumo")!;
+
+    expect(host!.querySelector("li[role=button]")).toBeNull();
+    expect(resumo.getAttribute("aria-pressed")).toBe("false");
+    expect(resumo.querySelector("button")).toBeNull();
+    expect(host!.querySelector(".agenda-item")?.querySelectorAll("button").length).toBeGreaterThan(
+      1,
+    );
+
+    act(() => resumo.click());
     expect(onAbrir).toHaveBeenCalledWith("a1");
   });
 

@@ -184,13 +184,14 @@ export function EditorDeServicos({
               <input
                 value={s.nome}
                 onChange={(e) => atualizar(i, { nome: e.target.value })}
-                className="h-10 min-w-0 flex-1 rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                placeholder="Nome do serviço"
+                className="field-control min-h-12 min-w-0 flex-1 rounded-lg px-3 text-sm"
                 aria-label="Nome do serviço"
               />
               <button
                 type="button"
                 aria-label={`Remover ${s.nome}`}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-mute transition-colors hover:bg-ink3 hover:text-destructive"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-mute transition-colors hover:bg-ink3 hover:text-destructive"
                 onClick={() => onChange(servicos.filter((_, j) => j !== i))}
               >
                 <Trash2 size={16} />
@@ -202,7 +203,7 @@ export function EditorDeServicos({
                 value={s.categoria}
                 onChange={(e) => atualizar(i, { categoria: e.target.value })}
                 list="categorias-de-servico"
-                className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                className="field-control mt-1 min-h-12 rounded-lg px-3 text-sm"
               />
             </label>
             <div className="mt-2 grid grid-cols-2 gap-3">
@@ -228,7 +229,7 @@ export function EditorDeServicos({
                       ),
                     )
                   }
-                  className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                  className="field-control mt-1 min-h-12 rounded-lg px-3 text-sm"
                 />
               </label>
               <label className="block text-xs text-mute">
@@ -252,7 +253,7 @@ export function EditorDeServicos({
                       ),
                     )
                   }
-                  className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                  className="field-control mt-1 min-h-12 rounded-lg px-3 text-sm"
                 />
               </label>
             </div>
@@ -280,7 +281,7 @@ export function EditorDeServicos({
                     ),
                   )
                 }
-                className="mt-1 h-10 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                className="field-control mt-1 min-h-12 rounded-lg px-3 text-sm"
               />
               <span className="mt-1 block text-mute2">
                 A CortAI lembra o cliente no WhatsApp quando chegar a hora.
