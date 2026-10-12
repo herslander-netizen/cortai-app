@@ -112,7 +112,7 @@ export function TelaDeFormulario({
               <Icone size={20} />
             </Button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
             <DialogPrimitive.Title className="titulo-tela mt-4 px-1">
               {titulo}
             </DialogPrimitive.Title>
@@ -129,14 +129,17 @@ export function TelaDeFormulario({
           </div>
           {acao ? (
             <div
-              className="pointer-events-none absolute right-4 flex justify-end"
-              style={{ bottom: `calc(${teclado}px + 1rem + env(safe-area-inset-bottom))` }}
+              className="shrink-0 border-t border-line bg-ink px-4 pt-3"
+              style={{
+                marginBottom: teclado ? `${teclado}px` : undefined,
+                paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+              }}
             >
               <Button
                 type="button"
                 variant="primary"
                 size="lg"
-                className="pointer-events-auto rounded-full px-7 shadow-[var(--shadow-md)]"
+                className="min-h-14 w-full rounded-full shadow-[var(--shadow-md)]"
                 disabled={acao.desabilitada || acao.carregando}
                 loading={acao.carregando ?? false}
                 onClick={acao.onClick}
