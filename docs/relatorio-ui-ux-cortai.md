@@ -68,3 +68,9 @@ Validações desta continuação: Prettier e ESLint nos quatro arquivos alterado
 O inventário encontrou três cascos internos distintos: gestão profissional, área do cliente e administração da plataforma. As áreas profissionais/clientes já compartilham `Screen`; as páginas de administração usam `AdminScreen`. Entrada de conta, onboarding, agendamento público e página pública têm jornadas próprias e devem compartilhar identidade, componentes e acessibilidade sem herdar a navegação interna.
 
 Como primeiro passo da padronização, `Screen` e `AdminScreen` agora usam `CabecalhoDeTela` para o título, subtítulo e, quando aplicável, o identificador da área. Isso alinha tipografia e ritmo de leitura em dezenas de páginas sem alterar menus, permissões, conteúdo, contratos ou os limites de largura específicos de cada tela. A revisão das navegações por papel e das páginas com composição própria continua sendo trabalho pendente; esta etapa não declara a padronização global concluída.
+
+### Continuação: cabeçalho administrativo em telas estreitas
+
+O cabeçalho compartilhado das páginas administrativas mantinha título e ação em colunas rígidas, com a ação proibida de encolher. Em telas estreitas, isso podia disputar largura com o título. Agora as ações quebram em linhas e ficam abaixo do título em celular; a partir de `sm`, voltam ao alinhamento horizontal. Nenhuma rota, ação ou permissão mudou.
+
+Validações desta etapa: ESLint e Prettier passaram em `AdminScreen.tsx`; `git diff --check` passou. A revisão transversal das navegações, formulários e estados por perfil continua pendente, assim como a validação visual em 390px e 1280px.
