@@ -56,9 +56,9 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
     return { ok: false, motivo: `CORTAI_AI_PROVIDER inválido ("${bruto.slice(0, 40)}").` };
 
   const baseUrl = (
-    env["CORTAI_AI_BASE_URL"] ??
+    env["CORTAI_AI_BASE_URL"]?.trim() ||
     (gpt4free ? "https://gpt4free-production-eb35.up.railway.app/v1" : "")
-  ).trim().replace(/\/+$/, "");
+  ).replace(/\/+$/, "");
   const modelo = (env["CORTAI_AI_MODEL"] ?? "").trim();
   const chave = (env["CORTAI_AI_API_KEY"] || (gpt4free ? env["G4F_API_KEY"] : "") || "").trim();
   if (!baseUrl || !modelo || !chave)
