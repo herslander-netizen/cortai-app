@@ -104,3 +104,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 As opções do agendamento (serviço, profissional, data e pagamento) usavam botões nativos com alvos menores e estado visual próprio. Elas agora usam `Button` com alvos mínimos de 48 px e estado selecionado anunciado, preservando as escolhas e a ordem existentes. O atalho da lista de espera e a resolução de conflito também seguem as variantes compartilhadas; falhas de confirmação são anunciadas como alerta. No Perfil, a ação de sair usa o mesmo padrão de botão das demais linhas de conta. Nenhuma regra de disponibilidade, reserva, pagamento ou autenticação mudou.
 
 Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetados. A verificação visual em dispositivos segue pendente.
+
+### Continuação: ficha e carteira do cliente no painel profissional
+
+A ficha de cliente usava estilos legados junto ao Button compartilhado em baixa parcial, quitação e arquivamento; as ações agora usam variantes semânticas e alvos mínimos de 48 px. O campo da baixa segue `field-control`, a cobrança externa usa o botão compartilhado como link, e falhas ao arquivar são anunciadas. O link de retorno ganhou área de toque adequada. Cálculos, limites, exclusão, arquivo e chamadas de persistência não foram alterados.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
