@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
-import { getSessao } from "@/lib/sessao.functions";
+import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/login")({
     if (data.user) {
       // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
       // de renderizar nem apagar a sessão válida do usuário.
-      let sessao;
+      let sessao: Sessao;
       try {
         sessao = await getSessao();
       } catch {
@@ -116,7 +116,7 @@ function LoginPage() {
   }, []);
 
   async function seguirParaMinhaArea() {
-    let sessao;
+    let sessao: Sessao;
     try {
       sessao = await getSessao();
     } catch {
