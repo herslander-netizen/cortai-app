@@ -64,7 +64,9 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   if (!baseUrl || !modelo || !chave)
     return {
       ok: false,
-      motivo: "Faltam CORTAI_AI_BASE_URL, CORTAI_AI_MODEL ou CORTAI_AI_API_KEY.",
+      motivo: gpt4free
+        ? "Faltam CORTAI_AI_MODEL ou a chave G4F_API_KEY/CORTAI_AI_API_KEY."
+        : "Faltam CORTAI_AI_BASE_URL, CORTAI_AI_MODEL ou CORTAI_AI_API_KEY.",
     };
 
   let url: URL;
