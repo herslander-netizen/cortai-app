@@ -250,3 +250,7 @@ O atalho do CortAI, o botão de dicas e o convite para ativar avisos agora usam 
 ### Continuação: guia contextual
 
 Avançar, pular e reiniciar as dicas agora usam as variantes semânticas do botão compartilhado e áreas de toque consistentes. O alvo que escurece o fundo continua um botão de tela inteira para preservar o comportamento de fechar ao tocar fora; a sequência do tutorial não mudou. Prettier e `git diff --check` passaram; ESLint não encontrou erros, com um aviso preexistente `react-refresh/only-export-components` em `GuiaProvider.tsx`.
+
+### Continuação: busca e ticket de comanda
+
+Filtros e linhas de resultado agora usam botões compartilhados, com alvo mínimo de 48 px e foco consistente. Copiar a chave Pix e o código do ticket também usa o mesmo sistema, preservando o estilo visual específico do recibo. Busca, cópia, filtros e abertura do ticket não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei teste específico desses componentes.
