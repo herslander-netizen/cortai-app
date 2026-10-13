@@ -11,8 +11,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-const URL_EVOLUTION = "https://cortai.dev/api/public/whatsapp/evolution";
-const URL_META = "https://cortai.dev/api/public/whatsapp/eventos";
+/** URL de callback exclusiva do ambiente atual; falha fechada sem configuração. */
+function urlDeEventos(provedor: "evolution" | "meta"): string {
+  const base = process.env.CORTAI_PUBLIC_BASE_URL?.trim().replace(/\/$/, "");
+  if (!base) throw new Error("Configure CORTAI_PUBLIC_BASE_URL antes de conectar o WhatsApp.");
+  let parsed: URL;
+  try {
+    parsed = new URL(base);
+  } catch {
+    throw new Error("CORTAI_PUBLIC_BASE_URL precisa ser uma URL HTTPS válida.");
+  }
+  if (parsed.protocol !== "https:" || parsed.hostname === "cortai.dev" || parsed.hostname.endsWith(".cortai.dev")) {
+    throw new Error("CORTAI_PUBLIC_BASE_URL deve apontar para o ambiente independente, nunca para produção.");
+  }
+  return `${base}${provedor === "evolution" ? "/api/public/whatsapp/evolution" : "/api/public/whatsapp/eventos"}`;
+}
 
 export type WhatsappDoNegocio = {
   tenantId: string;
@@ -142,7 +155,7 @@ export const operarWhatsappDoNegocio = createServerFn({ method: "POST" })
         data.acao === "conectar"
           ? await gw.criarSessao(
               principal.sessao_id,
-              provedor === "evolution" ? URL_EVOLUTION : URL_META,
+              urlDeEventos(provedor === "evolution" ? "evolution" : "meta"),
             )
           : data.acao === "qr"
             ? await gw.obterQrCode(principal.sessao_id)
