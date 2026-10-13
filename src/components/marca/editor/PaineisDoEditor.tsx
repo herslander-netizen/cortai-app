@@ -18,7 +18,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import type { MarcaData, getMarca } from "@/lib/marca.functions";
+import { pagina } from "@/lib/motion";
 import { TEMAS } from "@/lib/pagina-config";
 
 function Item({
@@ -90,131 +92,139 @@ export function PaineisDoEditor({
         </TabsList>
 
         <TabsContent value="conteudo" className="mt-2">
-          <Accordion type="multiple" defaultValue={["experiencia"]}>
-            <Item
-              id="experiencia"
-              titulo="Experiência de agendamento"
-              descricao="Escolha como seus clientes vão iniciar o agendamento."
-            >
-              <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
-              {e.usaConversa ? (
-                <div className="mt-6 border-t border-line pt-6">
-                  <h3 className="mb-4 text-sm font-semibold text-paper">Recepção</h3>
-                  <SecaoRecepcao
-                    config={e.config}
-                    setPagina={e.setPagina}
-                    avatarRef={e.avatarRef}
-                    avatarPreview={e.avatarPreview}
-                    setAvatarPreview={e.setAvatarPreview}
-                    upload={e.upload}
-                  />
-                </div>
-              ) : null}
-            </Item>
-            <Item
-              id="conteudo"
-              titulo="Blocos da página"
-              descricao="Mostre serviços, equipe, avaliações e outras informações reais."
-            >
-              <SecaoConteudo config={e.config} setPagina={e.setPagina} />
-            </Item>
-            <Item
-              id="textos"
-              titulo="Textos e botão"
-              descricao="Ajuste sua apresentação, endereço e chamada para agendar."
-            >
-              <SecaoTextos
-                config={e.config}
-                setPagina={e.setPagina}
-                form={e.form}
-                setMarca={e.setMarca}
-                vocabulario={e.vocabulario}
-              />
-            </Item>
-          </Accordion>
-          <LacunasDaPagina lacunas={initial.lacunas} />
+          <motion.div {...pagina}>
+            <Accordion type="multiple" defaultValue={["experiencia"]}>
+              <Item
+                id="experiencia"
+                titulo="Experiência de agendamento"
+                descricao="Escolha como seus clientes vão iniciar o agendamento."
+              >
+                <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
+                {e.usaConversa ? (
+                  <div className="mt-6 border-t border-line pt-6">
+                    <h3 className="mb-4 text-sm font-semibold text-paper">Recepção</h3>
+                    <SecaoRecepcao
+                      config={e.config}
+                      setPagina={e.setPagina}
+                      avatarRef={e.avatarRef}
+                      avatarPreview={e.avatarPreview}
+                      setAvatarPreview={e.setAvatarPreview}
+                      upload={e.upload}
+                    />
+                  </div>
+                ) : null}
+              </Item>
+              <Item
+                id="conteudo"
+                titulo="Blocos da página"
+                descricao="Mostre serviços, equipe, avaliações e outras informações reais."
+              >
+                <SecaoConteudo config={e.config} setPagina={e.setPagina} />
+              </Item>
+              <Item
+                id="textos"
+                titulo="Textos e botão"
+                descricao="Ajuste sua apresentação, endereço e chamada para agendar."
+              >
+                <SecaoTextos
+                  config={e.config}
+                  setPagina={e.setPagina}
+                  form={e.form}
+                  setMarca={e.setMarca}
+                  vocabulario={e.vocabulario}
+                />
+              </Item>
+            </Accordion>
+            <LacunasDaPagina lacunas={initial.lacunas} />
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="aparencia" className="mt-2">
-          <Accordion type="multiple" defaultValue={["tema"]}>
-            <Item id="tema" titulo="Tema e cores" descricao="Escolha o estilo visual da página.">
-              <SecaoTema
-                config={e.config}
-                segmento={initial.segmento}
-                escolher={(tema) =>
-                  e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))
-                }
-              />
-            </Item>
-            <Item
-              id="imagens"
-              titulo="Logo e imagens"
-              descricao="Defina a identidade visual que seus clientes vão reconhecer."
-            >
-              <SecaoImagens
-                coverRef={e.coverRef}
-                fileRef={e.fileRef}
-                coverPreview={e.coverPreview}
-                logoPreview={e.logoPreview}
-                logoAtual={e.form.logo_url}
-                busy={e.busy}
-                upload={e.upload}
-                usarLogo={e.usarLogo}
-                removerLogo={e.removerLogo}
-              />
-            </Item>
-            <Item
-              id="ajustes"
-              titulo="Detalhes visuais"
-              descricao="Personalize pequenos ajustes de layout e apresentação."
-            >
-              <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />
-            </Item>
-          </Accordion>
+          <motion.div {...pagina}>
+            <Accordion type="multiple" defaultValue={["tema"]}>
+              <Item id="tema" titulo="Tema e cores" descricao="Escolha o estilo visual da página.">
+                <SecaoTema
+                  config={e.config}
+                  segmento={initial.segmento}
+                  escolher={(tema) =>
+                    e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))
+                  }
+                />
+              </Item>
+              <Item
+                id="imagens"
+                titulo="Logo e imagens"
+                descricao="Defina a identidade visual que seus clientes vão reconhecer."
+              >
+                <SecaoImagens
+                  coverRef={e.coverRef}
+                  fileRef={e.fileRef}
+                  coverPreview={e.coverPreview}
+                  logoPreview={e.logoPreview}
+                  logoAtual={e.form.logo_url}
+                  busy={e.busy}
+                  upload={e.upload}
+                  usarLogo={e.usarLogo}
+                  removerLogo={e.removerLogo}
+                />
+              </Item>
+              <Item
+                id="ajustes"
+                titulo="Detalhes visuais"
+                descricao="Personalize pequenos ajustes de layout e apresentação."
+              >
+                <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />
+              </Item>
+            </Accordion>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="divulgacao" className="mt-2">
-          <Accordion type="multiple" defaultValue={["link"]}>
-            <Item
-              id="link"
-              titulo="Link e contato"
-              descricao="Edite o endereço público e as formas de contato."
-            >
-              <SecaoLink
-                slug={e.slug}
-                setSlug={e.setSlug}
-                slugInicial={initial.slug}
-                busy={e.busy}
-                salvarSlug={e.salvarSlug}
-                form={e.form}
-                setMarca={e.setMarca}
-              />
-            </Item>
-            <Item
-              id="redes"
-              titulo="Redes sociais"
-              descricao="Conecte os perfis do seu negócio à página."
-            >
-              <SecaoRedes
-                form={e.form}
-                setMarca={e.setMarca}
-                config={e.config}
-                setPagina={e.setPagina}
-              />
-            </Item>
-          </Accordion>
+          <motion.div {...pagina}>
+            <Accordion type="multiple" defaultValue={["link"]}>
+              <Item
+                id="link"
+                titulo="Link e contato"
+                descricao="Edite o endereço público e as formas de contato."
+              >
+                <SecaoLink
+                  slug={e.slug}
+                  setSlug={e.setSlug}
+                  slugInicial={initial.slug}
+                  busy={e.busy}
+                  salvarSlug={e.salvarSlug}
+                  form={e.form}
+                  setMarca={e.setMarca}
+                />
+              </Item>
+              <Item
+                id="redes"
+                titulo="Redes sociais"
+                descricao="Conecte os perfis do seu negócio à página."
+              >
+                <SecaoRedes
+                  form={e.form}
+                  setMarca={e.setMarca}
+                  config={e.config}
+                  setPagina={e.setPagina}
+                />
+              </Item>
+            </Accordion>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="historico" className="mt-2">
-          <Accordion type="multiple" defaultValue={["versoes"]}>
-            <Item
-              id="versoes"
-              titulo="Versões anteriores"
-              descricao="Consulte e restaure uma versão salva como rascunho."
-            >
-              <SecaoVersoes versions={versions} busy={e.busy} restaurar={e.restaurar} />
-            </Item>
-          </Accordion>
+          <motion.div {...pagina}>
+            <Accordion type="multiple" defaultValue={["versoes"]}>
+              <Item
+                id="versoes"
+                titulo="Versões anteriores"
+                descricao="Consulte e restaure uma versão salva como rascunho."
+              >
+                <SecaoVersoes versions={versions} busy={e.busy} restaurar={e.restaurar} />
+              </Item>
+            </Accordion>
+          </motion.div>
         </TabsContent>
       </Tabs>
 

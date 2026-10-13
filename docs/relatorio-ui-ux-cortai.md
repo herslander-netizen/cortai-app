@@ -9,7 +9,7 @@
 | Média                   | Compartilhar não fazia nada quando a API nativa não estava disponível, e falhas ao copiar não davam feedback.                                                                               | Compartilhar agora usa a cópia como alternativa e as falhas são comunicadas pela faixa de estado existente.                             |
 | Média                   | O catálogo misturava botões nativos e estilos legados, e os erros/sugestões da configuração assistida não eram anunciados semanticamente.                                                   | Ações agora usam `Button`; remoção pede confirmação, a descrição tem rótulo e feedback usa `status`/`alert`.                            |
 | Média                   | As sugestões rápidas ocupavam várias linhas no celular; o botão de salvar combinava a variante fantasma com um estilo de ação principal.                                                    | Sugestões agora formam uma faixa horizontal rolável no celular e o salvamento usa a variante principal compartilhada.                   |
-| Alta                    | Na folha de agendamento manual, a ação de confirmar flutuava sobre a grade de horários e de pagamento durante a rolagem.                                                                  | A confirmação agora fica num rodapé próprio; o conteúdo rola acima dela, e o rodapé acompanha a abertura do teclado virtual.             |
+| Alta                    | Na folha de agendamento manual, a ação de confirmar flutuava sobre a grade de horários e de pagamento durante a rolagem.                                                                    | A confirmação agora fica num rodapé próprio; o conteúdo rola acima dela, e o rodapé acompanha a abertura do teclado virtual.            |
 | Média                   | No editor da página pública, o rótulo do link personalizado envolvia também um botão e opções de foto/cor não tinham nome ou estado anunciado adequadamente.                                | Rótulo agora aponta só para o campo; ação de foto tem nome acessível; cores expõem `aria-pressed` e controles principais atendem 48 px. |
 | A verificar visualmente | A agenda tem linha do tempo, lista, foco mobile, navegação de datas, estados e ações próprias.                                                                                              | Mantidos. Esta execução não conseguiu fazer inspeção visual responsiva no navegador.                                                    |
 
@@ -23,9 +23,13 @@
 
 No editor da página pública, os estados de salvamento, publicação e erro já usam uma faixa acessível, e o celular já recebe uma folha de prévia. Foram corrigidos o rótulo mal associado no endereço personalizado e os nomes/estados acessíveis dos controles de foto e cor. No fluxo público, revisão das escolhas, entradas de dados, horário e navegação por etapas já têm hierarquia e alvos de toque adequados; não alterei as regras nem esses elementos após a inspeção.
 
-## Limitações da auditoria
+## Evidências e limitações da auditoria Figaroo
 
-Os arquivos `auditoria-visual-figaroo.md` e `docs/referencia-ux-figaroo-cortai.md` não existem neste checkout. A auditoria disponível em `docs/auditoria-2026-10-09.md` trata de segurança e não examinou as telas. Portanto, nenhuma conclusão visual foi atribuída ao Figaroo. A inspeção de código não substitui a validação visual nos tamanhos de 320, 360, 390, 430, 768, 1024 e 1440 px.
+Os arquivos `auditoria-visual-figaroo.md` e `docs/referencia-ux-figaroo-cortai.md` não existem neste checkout. O usuário forneceu capturas de tela e as cinco partes do APK, além do `LEIA-ME-reconstrucao.zip`. As partes 000/001 reenviadas têm os mesmos hashes das cópias anteriores. O APK completo foi reconstruído em diretório temporário e validado como arquivo ZIP/APK; o inventário registrou 87.574.817 bytes, 589 entradas, 6 arquivos DEX, 31 recursos sob `res/anim`, cinco fontes (`Plus Jakarta Sans`, três pesos de `Poppins` e `JetBrains Mono`) e quatro imagens raster.
+
+As capturas confirmam visualmente o reagendamento em grade horária com cabeçalho de data, instrução para trocar o dia pelo comando Reagendar e rodapé fixo com notificação, Descartar e Salvar. Também mostram o cartão reduzido durante uma das interações de horário; a captura sozinha não confirma a mecânica de animação usada. Os recursos `res/anim` incluem nomes genéricos de bibliotecas Android e não provam por si só quais animações o Figaroo usa em suas telas. O APK foi inspecionado estaticamente, sem instalação ou execução; detalhes de interação que não aparecem nas capturas permanecem hipóteses.
+
+A inspeção de código do Cortaí não substitui a validação visual nos tamanhos de 320, 360, 390, 430, 768, 1024 e 1440 px.
 
 ## Validação
 
@@ -44,3 +48,17 @@ As mudanças são de interface e acessibilidade. Não alteram reservas, preços,
 As nove seções do editor `/barbeiro/marca` foram agrupadas em quatro áreas navegáveis: Conteúdo, Aparência, Divulgação e Histórico. Cada seção agora explica brevemente o que pode ser ajustado; os controles existentes, a prévia, o salvamento de rascunho e a publicação foram preservados. A navegação usa os componentes de abas e acordeão existentes, com alvos de toque de 48 px e suporte de teclado.
 
 Validações desta continuação: `tsc --noEmit` passou; ESLint nos arquivos alterados passou; os testes focados de `PaineisDoEditor` e `SecaoTema` passaram (2 arquivos, 2 testes); `git diff --check` passou. A inspeção visual automatizada em larguras diferentes permanece pendente: não há configuração de Playwright no projeto e a build Vite local segue bloqueada pela checagem de caminho Windows do plugin Lovable. Os arquivos de referência visual do Figaroo continuam indisponíveis neste checkout, então a organização foi baseada na arquitetura e nos tokens existentes do Cortaí.
+
+## Continuação: edição e reagendamento pela timeline
+
+As capturas do usuário mostraram o motivo de validação "Deve ser após agora" comprimido sobre o nome do atendimento no cartão, além de repetido no painel inferior. A timeline agora mantém no cartão somente o intervalo proposto; o motivo aparece uma vez, destacado no painel de edição. O resumo do painel separa o rótulo "Horário proposto", o cliente e o intervalo, e o painel pode rolar dentro de uma altura máxima em telas baixas. O aviso ao cliente, Descartar e Salvar mantêm os comportamentos existentes.
+
+Esta mudança é visual: as regras de validação, o bloqueio de horários passados e o fluxo de persistência permanecem no hook existente. Validações: `tsc --noEmit` passou; os 15 testes focados de timeline e rascunho de horário passaram; Prettier passou; `git diff --check` passou. ESLint reportou zero erros e um aviso preexistente de dependência de `useEffect` em `AgendaTimeline.tsx:479`, fora das linhas alteradas.
+
+## Continuação: movimento e resposta visual
+
+Foram adicionadas transições curtas às quatro áreas do editor da página profissional, com o token de entrada já usado no app. A prévia ao vivo agora anima a mudança de largura entre celular e computador. A seleção de tema apresenta o indicador de escolha com movimento sutil, e novos serviços entram usando o componente compartilhado de cascata. Os dados, campos, seleção, salvamento e limites do catálogo não mudaram. A agenda e o chat mantêm suas animações existentes.
+
+Estas escolhas adaptam padrões de interface das capturas Figaroo ao sistema visual do Cortaí; não reproduzem cores, marca ou telas completas. A análise estática do APK e as capturas permitem confirmar tecnologias e aparências específicas, mas não comprovar a implementação exata de todas as animações observadas. O componente de cascata consulta a preferência por movimento reduzido, e as demais animações são controladas pela configuração global de movimento do app.
+
+Validações desta continuação: Prettier e ESLint nos quatro arquivos alterados passaram; `git diff --check` passou. O TypeScript (`tsc --noEmit`) e Vitest iniciaram, mas permaneceram sem saída por mais de 30 segundos e foram interrompidos, sem resultado. A validação visual em navegador não foi executada.

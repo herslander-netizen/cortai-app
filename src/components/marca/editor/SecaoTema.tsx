@@ -1,7 +1,9 @@
 import { Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { FAMILIAS_DE_TEMA, familiaDoTema } from "@/lib/familias-tema";
+import { transicaoRapida } from "@/lib/motion";
 import { TEMAS, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { MiniaturaDoTema } from "./MiniaturaDoTema";
 import { definicaoDoSegmento } from "@/lib/segmentos";
@@ -39,7 +41,16 @@ export function SecaoTema({
               <MiniaturaDoTema cores={cores} />
               <span className="flex items-center justify-between gap-2 text-xs font-semibold text-paper">
                 {familia.nome}
-                {ativa ? <Check size={14} className="text-gold" aria-hidden /> : null}
+                {ativa ? (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={transicaoRapida}
+                    className="inline-flex"
+                  >
+                    <Check size={14} className="text-gold" aria-hidden />
+                  </motion.span>
+                ) : null}
               </span>
               {recomendadas.has(familia.id) ? (
                 <span className="mt-1 inline-block rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-semibold text-gold">

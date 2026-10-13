@@ -120,7 +120,7 @@ describe("alça de duração na Timeline", () => {
     });
     expect(onRedimensionar.mock.calls[0]?.[1]).toBe(5);
   });
-  it("cartão em edição mostra o intervalo, ou o motivo quando não pode salvar", () => {
+  it("cartão em edição mostra o intervalo sem sobrepor o motivo de validação", () => {
     const comIntervalo = montar({
       onMover: vi.fn(),
       edicaoDoCartao: { id: "a1", motivo: null },
@@ -130,7 +130,10 @@ describe("alça de duração na Timeline", () => {
       onMover: vi.fn(),
       edicaoDoCartao: { id: "a1", motivo: "Deve ser após agora" },
     });
-    expect(comMotivo.querySelector("[role=alert]")?.textContent).toBe("Deve ser após agora");
+    expect(comMotivo.querySelector("[role=alert]")).toBeNull();
+    expect(comMotivo.querySelector('[aria-label="Novo horário proposto"]')?.textContent).toMatch(
+      /\d{2}:\d{2} – \d{2}:\d{2}/,
+    );
   });
   it("fora do modo de edição, nenhum cartão mostra a alça (como no modelo)", () => {
     const alvo = montar({ onMover: vi.fn(), onRedimensionar: vi.fn() });
