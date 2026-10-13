@@ -663,6 +663,13 @@
 .chat-sistema input {
   border-radius: 999px !important;
 }
+.chat-sistema input:-webkit-autofill,
+.chat-sistema input:-webkit-autofill:hover,
+.chat-sistema input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--chat-content);
+  -webkit-box-shadow: 0 0 0 1000px var(--cartao) inset;
+  caret-color: var(--chat-content);
+}
 .chat-card-servico,
 .chat-ingresso {
   border-color: var(--chat-borda);

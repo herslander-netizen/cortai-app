@@ -259,4 +259,6 @@ Filtros e linhas de resultado agora usam botões compartilhados, com alvo mínim
 
 Login, recuperação de senha e redefinição agora usam os controles `Field` e `Input` compartilhados. A mensagem de validação do e-mail de recuperação aparece junto do campo; os campos de redefinição mantêm os botões acessíveis para mostrar/ocultar a senha fora do rótulo clicável. Provedores, destinos após login, validações, mensagens de privacidade e chamadas de autenticação não mudaram.
 
-Validações: Prettier, ESLint direcionado e `git diff --check` passaram nos três arquivos. Não foi executada validação visual em navegador/aparelho nesta etapa.
+O chat público também neutraliza o preenchimento automático visual do navegador para manter o texto e o fundo dos campos legíveis no tema claro. A regra fica limitada ao escopo `.chat-sistema`.
+
+Validações: Prettier, ESLint direcionado e `git diff --check` passaram. Não foi executada validação visual em navegador/aparelho nesta etapa.

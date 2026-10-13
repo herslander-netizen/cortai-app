@@ -94,7 +94,7 @@ function RecuperarSenhaPage() {
             await enviarInstrucoes();
           }}
         >
-          <Field label="E-mail" error={erro ?? undefined}>
+          <Field label="E-mail">
             <Input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -107,6 +107,11 @@ function RecuperarSenhaPage() {
               className="mt-1.5"
             />
           </Field>
+          {erro ? (
+            <p className="text-sm text-brick" role="alert">
+              {erro}
+            </p>
+          ) : null}
           <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
             {enviando ? "Enviando…" : "Enviar instruções"}
           </Button>
