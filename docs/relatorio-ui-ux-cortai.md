@@ -74,3 +74,9 @@ Como primeiro passo da padronização, `Screen` e `AdminScreen` agora usam `Cabe
 O cabeçalho compartilhado das páginas administrativas mantinha título e ação em colunas rígidas, com a ação proibida de encolher. Em telas estreitas, isso podia disputar largura com o título. Agora as ações quebram em linhas e ficam abaixo do título em celular; a partir de `sm`, voltam ao alinhamento horizontal. Nenhuma rota, ação ou permissão mudou.
 
 Validações desta etapa: ESLint e Prettier passaram em `AdminScreen.tsx`; `git diff --check` passou. A revisão transversal das navegações, formulários e estados por perfil continua pendente, assim como a validação visual em 390px e 1280px.
+
+### Continuação: navegação mobile e desktop da administração
+
+A barra inferior do administrador duplicava a navegação do cliente e não compartilhava os mesmos estados de foco, transição e área segura. Ela agora usa `TabBar`, preservando os quatro destinos e o rótulo acessível específico da plataforma. A lateral desktop do admin oferece alvo mínimo de 48 px e anuncia a rota atual com `aria-current="page"`. As opções, guardas e permissões não mudaram.
+
+Validações: ESLint, Prettier e `git diff --check` passaram nos arquivos alterados. A revisão visual em dispositivo/navegador continua pendente.
