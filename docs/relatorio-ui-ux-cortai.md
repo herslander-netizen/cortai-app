@@ -116,3 +116,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 O editor de Horários mostrava valores iniciais enquanto a configuração do negócio ainda carregava. Agora o formulário só aparece depois que a configuração foi lida e aplicada ao estado local; durante a leitura, permanece o esqueleto. Se a leitura falhar sem dados disponíveis, há uma mensagem de erro e tentativa de novo. Isso evita apresentar valores fictícios como configuração existente e impede interação prematura. Não houve mudança no formato ou no salvamento das regras.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: configuração inicial do profissional
+
+O onboarding tinha uma string local de estilos de campo e combinava classes legadas com `Button` no rodapé. Campos agora reutilizam `field-control`, voltar/continuar seguem variantes secundária/principal e o botão de pular tem alvo mínimo de 48 px. A seleção do modo de agendamento anuncia o estado pressionado, as ações de copiar/WhatsApp/prévia usam componentes compartilhados, e falha na cópia informa o usuário. As etapas, opções, convites e persistência do onboarding não mudaram.
+
+Validações: Prettier, ESLint e `git diff --check` passaram. A tela de onboarding continua sendo um componente extenso preexistente; a separação estrutural fica como pendência para uma mudança dedicada que possa preservar seu estado entre etapas.
