@@ -122,3 +122,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 O onboarding tinha uma string local de estilos de campo e combinava classes legadas com `Button` no rodapé. Campos agora reutilizam `field-control`, voltar/continuar seguem variantes secundária/principal e o botão de pular tem alvo mínimo de 48 px. A seleção do modo de agendamento anuncia o estado pressionado, as ações de copiar/WhatsApp/prévia usam componentes compartilhados, e falha na cópia informa o usuário. As etapas, opções, convites e persistência do onboarding não mudaram.
 
 Validações: Prettier, ESLint e `git diff --check` passaram. A tela de onboarding continua sendo um componente extenso preexistente; a separação estrutural fica como pendência para uma mudança dedicada que possa preservar seu estado entre etapas.
+
+### Continuação: pedidos administrativos e lista de agendamentos
+
+Em Pedidos, a linha expansível agora usa Button compartilhado, os campos do diálogo seguem `field-control` e a ausência de registros tem um estado vazio explicativo. Em Agendamentos confirmados, os filtros comunicam a seleção com `aria-pressed`, respeitam alvo mínimo de 48 px e a ação Atualizar deixou de sobrepor uma classe de botão legado. A falha da consulta é anunciada como alerta. Filtros, dados, períodos e atualizações permanecem iguais.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.

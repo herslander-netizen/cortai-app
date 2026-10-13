@@ -107,7 +107,8 @@ function AgendamentosPage() {
             key={p.chave}
             type="button"
             onClick={() => setPeriodo(p.chave)}
-            className={`rounded-lg border px-3 py-2 text-xs ${
+            aria-pressed={periodo === p.chave}
+            className={`min-h-12 rounded-lg border px-3 text-xs ${
               periodo === p.chave
                 ? "border-gold/45 bg-gold-soft text-paper"
                 : "border-line bg-ink2 text-mute"
@@ -125,7 +126,7 @@ function AgendamentosPage() {
         <Button
           variant="ghost"
           type="button"
-          className="btn-tertiary text-xs"
+          className="min-h-12 px-3 text-xs"
           onClick={() => void refetch()}
         >
           Atualizar
@@ -134,7 +135,7 @@ function AgendamentosPage() {
 
       {isLoading ? <EsqueletoAgenda linhas={5} onTentarDeNovo={() => void refetch()} /> : null}
       {isError ? (
-        <div className="surface p-5">
+        <div className="surface p-5" role="alert">
           <p className="text-sm text-paper">Não conseguimos carregar os agendamentos agora.</p>
           <Button variant="outline" className="mt-4" onClick={() => void refetch()}>
             Tentar de novo
