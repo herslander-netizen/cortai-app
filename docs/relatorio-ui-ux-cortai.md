@@ -80,3 +80,9 @@ Validações desta etapa: ESLint e Prettier passaram em `AdminScreen.tsx`; `git 
 A barra inferior do administrador duplicava a navegação do cliente e não compartilhava os mesmos estados de foco, transição e área segura. Ela agora usa `TabBar`, preservando os quatro destinos e o rótulo acessível específico da plataforma. A lateral desktop do admin oferece alvo mínimo de 48 px e anuncia a rota atual com `aria-current="page"`. As opções, guardas e permissões não mudaram.
 
 Validações: ESLint, Prettier e `git diff --check` passaram nos arquivos alterados. A revisão visual em dispositivo/navegador continua pendente.
+
+### Continuação: lista de espera do cliente
+
+Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.
+
+Validações: Prettier, ESLint e `git diff --check` passaram. Não foi feita validação visual em navegador nesta etapa.
