@@ -6,6 +6,8 @@ import { useState } from "react";
 
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EsqueletoFormulario, EsqueletoLista } from "@/components/layout/Esqueleto";
+import { Aviso } from "@/components/ui/aviso";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
@@ -57,15 +59,14 @@ const emCentavos = (texto: string) =>
 
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs uppercase text-mute2">{label}</span>
+    <label className="field-label">
+      <span>{label}</span>
       {children}
     </label>
   );
 }
 
-const input =
-  "w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-paper outline-none focus:border-gold/50";
+const input = "field-control mt-1";
 
 function MonetizacaoPage() {
   const [aba, setAba] = useState<(typeof ABAS)[number]>("Planos e preços");
@@ -79,15 +80,16 @@ function MonetizacaoPage() {
         aria-label="Seções de monetização"
       >
         {ABAS.map((a) => (
-          <button
+          <Button
             key={a}
             type="button"
+            variant="ghost"
             onClick={() => setAba(a)}
-            aria-current={aba === a ? "page" : undefined}
-            className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs ${aba === a ? "border-gold bg-gold-soft text-gold" : "border-line text-mute"}`}
+            aria-pressed={aba === a}
+            className={`h-auto min-h-12 whitespace-nowrap rounded-full border px-4 text-xs ${aba === a ? "border-gold bg-gold-soft text-gold" : "border-line text-mute"}`}
           >
             {a}
-          </button>
+          </Button>
         ))}
       </nav>
       <Link
@@ -145,14 +147,14 @@ function AbaPlanos() {
   return (
     <div>
       {status ? (
-        <p className="mb-4 text-sm text-sage" role="status">
+        <Aviso className="mb-4" tom="sucesso">
           {status}
-        </p>
+        </Aviso>
       ) : null}
       {erro ? (
-        <p className="mb-4 text-sm text-brick" role="alert">
+        <Aviso className="mb-4" tom="erro">
           {erro}
-        </p>
+        </Aviso>
       ) : null}
 
       <ul className="space-y-3">
@@ -173,25 +175,27 @@ function AbaPlanos() {
                   {p.limiteAgendamentosMes ?? "sem limite"} agendamentos/mês
                 </p>
               </div>
-              <button
+              <Button
                 type="button"
-                className="btn-secondary px-3 text-xs"
+                variant="outline"
+                className="px-3 text-xs"
                 onClick={() => setEditando(p)}
               >
                 Editar
-              </button>
+              </Button>
             </div>
           </li>
         ))}
       </ul>
 
-      <button
+      <Button
         type="button"
-        className="btn-secondary mt-4 text-xs"
+        variant="outline"
+        className="mt-4 text-xs"
         onClick={() => setEditando(novo)}
       >
         Novo plano
-      </button>
+      </Button>
 
       {editando ? (
         <FormularioPlano
@@ -370,16 +374,12 @@ function FormularioPlano({
         <span className="text-xs text-mute">Plano disponível para contratação</span>
       </div>
       <div className="flex gap-2 pt-1">
-        <button
-          type="submit"
-          className="btn-primary px-5 text-sm disabled:opacity-60"
-          disabled={acao.ocupado}
-        >
+        <Button type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
           {acao.estaEm("plano") ? "Salvando…" : "Salvar"}
-        </button>
-        <button type="button" className="btn-secondary px-5 text-sm" onClick={onCancelar}>
+        </Button>
+        <Button type="button" variant="outline" className="px-5 text-sm" onClick={onCancelar}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -448,14 +448,14 @@ function AbaBarbearia() {
       </Campo>
 
       {status ? (
-        <p className="mt-4 text-sm text-sage" role="status">
+        <Aviso className="mt-4" tom="sucesso">
           {status}
-        </p>
+        </Aviso>
       ) : null}
       {erro ? (
-        <p className="mt-4 text-sm text-brick" role="alert">
+        <Aviso className="mt-4" tom="erro">
           {erro}
-        </p>
+        </Aviso>
       ) : null}
 
       {tenantId && visao.isError ? (
@@ -525,9 +525,10 @@ function AbaBarbearia() {
                   </p>
                 </div>
                 {c.ativo ? (
-                  <button
+                  <Button
                     type="button"
-                    className="btn-secondary px-3 text-xs disabled:opacity-60"
+                    variant="outline"
+                    className="px-3 text-xs"
                     disabled={acao.ocupado}
                     onClick={async () => {
                       if (
@@ -552,7 +553,7 @@ function AbaBarbearia() {
                     }}
                   >
                     {acao.estaEm(`encerrar-${c.id}`) ? "Encerrando…" : "Encerrar"}
-                  </button>
+                  </Button>
                 ) : null}
               </li>
             ))}
@@ -672,13 +673,14 @@ function AbaBarbearia() {
                 />
               </Campo>
             </div>
-            <button
+            <Button
               type="submit"
-              className="btn-primary px-5 text-sm disabled:opacity-60"
+              variant="primary"
+              className="px-5 text-sm"
               disabled={acao.ocupado}
             >
               {acao.estaEm("condicao") ? "Aplicando…" : "Aplicar condição"}
-            </button>
+            </Button>
           </form>
         </>
       ) : null}
@@ -770,13 +772,9 @@ function MudarPlano({
         <div />
       )}
       <div className="sm:col-span-4">
-        <button
-          type="submit"
-          className="btn-secondary px-5 text-sm disabled:opacity-60"
-          disabled={acao.ocupado}
-        >
+        <Button type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
           {acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano da barbearia"}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -834,14 +832,14 @@ function AbaCupons() {
   return (
     <div>
       {status ? (
-        <p className="mb-4 text-sm text-sage" role="status">
+        <Aviso className="mb-4" tom="sucesso">
           {status}
-        </p>
+        </Aviso>
       ) : null}
       {erro ? (
-        <p className="mb-4 text-sm text-brick" role="alert">
+        <Aviso className="mb-4" tom="erro">
           {erro}
-        </p>
+        </Aviso>
       ) : null}
 
       <ul className="space-y-2">
@@ -994,9 +992,9 @@ function AbaCupons() {
             onChange={(e) => setF({ ...f, descricao: e.target.value })}
           />
         </Campo>
-        <button type="submit" className="btn-primary px-5 text-sm">
+        <Button type="submit" variant="primary" className="px-5 text-sm">
           Criar cupom
-        </button>
+        </Button>
       </form>
     </div>
   );
@@ -1005,6 +1003,7 @@ function AbaCupons() {
 /* ------------------------------- CAMPANHAS ------------------------------- */
 
 function AbaBanners() {
+  const [confirmar, dialogo] = useConfirmar();
   const query = useQuery({
     queryKey: ["admin-banners"],
     queryFn: () => listarBanners(),
@@ -1063,15 +1062,16 @@ function AbaBanners() {
 
   return (
     <div>
+      {dialogo}
       {status ? (
-        <p className="mb-4 text-sm text-sage" role="status">
+        <Aviso className="mb-4" tom="sucesso">
           {status}
-        </p>
+        </Aviso>
       ) : null}
       {erro ? (
-        <p className="mb-4 text-sm text-brick" role="alert">
+        <Aviso className="mb-4" tom="erro">
           {erro}
-        </p>
+        </Aviso>
       ) : null}
 
       <ul className="space-y-2">
@@ -1091,17 +1091,26 @@ function AbaBanners() {
                 aria-label={`Campanha ${b.titulo} ativa`}
                 onCheckedChange={(v) => void alternar(b, v)}
               />
-              <button
+              <Button
                 type="button"
-                className="text-xs text-brick"
+                variant="destructive"
                 onClick={async () => {
+                  if (
+                    !(await confirmar({
+                      titulo: "Excluir esta campanha?",
+                      descricao: "A campanha será removida e deixará de aparecer para os clientes.",
+                      confirmar: "Excluir campanha",
+                      destrutivo: true,
+                    }))
+                  )
+                    return;
                   await remover({ data: { id: b.id } });
                   await query.refetch();
                   setStatus("Campanha removida.");
                 }}
               >
                 Excluir
-              </button>
+              </Button>
             </div>
           </li>
         ))}
@@ -1251,9 +1260,9 @@ function AbaBanners() {
             </Campo>
           ) : null}
         </div>
-        <button type="submit" className="btn-primary px-5 text-sm">
+        <Button type="submit" variant="primary" className="px-5 text-sm">
           Publicar campanha
-        </button>
+        </Button>
       </form>
     </div>
   );

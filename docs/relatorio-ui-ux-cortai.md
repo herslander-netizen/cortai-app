@@ -186,3 +186,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 O seletor de negócio combinava `Button` com classes legadas. A ação agora escolhe explicitamente variante outline para o negócio em uso e primary para os demais, com altura de ação consistente. A troca, a indicação de configuração e as restrições de acesso não mudaram.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: painel administrativo de monetização
+
+As abas e ações de planos, condições, cupons e campanhas agora seguem o `Button` compartilhado; os campos usam `field-control` e os estados de sucesso/erro usam `Aviso`. A exclusão de campanha pede confirmação explícita. Mantive valores, cálculos, limites, chamadas de persistência e as demais ações.
+
+Validações: Prettier e `git diff --check` passaram. O ESLint da rota aponta dois `no-explicit-any` preexistentes em conversões de segmento; desativando apenas essa regra para validar a rota, não há outros problemas. Não há teste específico dessa tela e a inspeção visual segue pendente.
