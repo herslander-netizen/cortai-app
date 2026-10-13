@@ -54,3 +54,11 @@ A migration inicial termina com dados de demonstração para tenant, profissiona
 
 ## Limitação atual
 Não há baseline consolidada e validada pronta para execução. Não executar as 134 migrations em sequência como substituto da auditoria. A prioridade é corrigir as falhas P0/P1 antes de criar o schema final.
+
+## Correções preparadas na branch isolada (não aplicadas ao banco)
+
+- A migration inicial foi editada para remover o bloco de INSERTs de demonstração (tenant, profissionais, serviços, clientes, carteiras, movimentos e regras fictícias).
+- Foi criada `supabase/migrations/20261013170000_reconstruction_security_and_constraints.sql`: revoga INSERT direto em `public.movimentos` para `anon` e `authenticated`, preserva acesso de leitura e acesso total do `service_role`, e reconcilia as constraints de pagamento/movimentos para evitar que os valores já usados nas funções falhem.
+- A migration de correção ainda é candidata: precisa ser testada após aplicar o schema completo numa instância temporária. Em particular, é necessário auditar todas as rotas que escrevem em `movimentos` para confirmar que usam operações confiáveis do servidor antes de revogar INSERT direto a usuários autenticados.
+- A prevenção de corrida de horários ainda exige revisão integral das migrations posteriores e teste de concorrência; não foi incluída constraint de exclusão sem validar extensão, opclasses, regras de encaixe e reservas existentes.
+- Nenhuma migration foi aplicada a `cortai-prod`; nenhuma alteração foi feita em `evolution-crm`, produção, DNS ou integrações externas.
