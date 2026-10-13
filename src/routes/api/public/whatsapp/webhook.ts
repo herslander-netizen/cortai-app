@@ -13,7 +13,25 @@
  * - falha de processamento responde 5xx para que a entrega seja reenviada.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifyWebhookRequest, WebhookError } from "@lovable.dev/webhooks-js";
+
+/** Valida a assinatura oficial da Meta sobre o corpo cru, sem normalizar o JSON. */
+export function verificarAssinaturaMeta(
+  corpo: string,
+  assinatura: string | null,
+  appSecret: string | undefined,
+): boolean {
+  if (!assinatura || !appSecret || !assinatura.startsWith("sha256=")) return false;
+  const esperada =
+    "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
+  const recebidaBytes = Buffer.from(assinatura, "utf8");
+  const esperadaBytes = Buffer.from(esperada, "utf8");
+  return (
+    recebidaBytes.length === esperadaBytes.length &&
+    timingSafeEqual(recebidaBytes, esperadaBytes)
+  );
+}
 
 type MudancaMeta = {
   field?: string;
@@ -222,12 +240,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           const corpo = await request.text();
           if (corpo.length > 4 * 1024 * 1024)
             return guard.rejeitar(request, "whatsapp/meta", "corpo grande", 413);
-          const { createHmac, timingSafeEqual } = await import("node:crypto");
-          const esperado =
-            "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
-          const a = Buffer.from(assinaturaMeta, "utf8");
-          const b = Buffer.from(esperado, "utf8");
-          if (a.length !== b.length || !timingSafeEqual(a, b)) {
+          if (!verificarAssinaturaMeta(corpo, assinaturaMeta, appSecret)) {
             return guard.rejeitar(request, "whatsapp/meta", "x-hub-signature-256 invalida");
           }
           try {
