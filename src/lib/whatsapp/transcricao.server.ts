@@ -6,15 +6,49 @@
  * na memória desta chamada.
  */
 
-const ENDPOINT = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
-const MODELO = "openai/gpt-transcribe";
+import { lerConfigDoProvedor } from "@/lib/brain/gateway-compativel.server";
+
+const ENDPOINT_LOVABLE = "https://ai.gateway.lovable.dev/v1/audio/transcriptions";
+const MODELO_LOVABLE = "openai/gpt-transcribe";
+const MODELO_RESERVA_LOVABLE = "google/gemini-3.5-transcribe";
 const TEMPO_LIMITE_MS = 20_000;
-const MODELO_RESERVA = "google/gemini-3.5-transcribe";
+
+type ConfiguracaoTranscricao = {
+  endpoint: string;
+  chave: string;
+  modelo: string;
+  modeloReserva?: string;
+  lovable: boolean;
+};
+
+/** Resolve o mesmo provedor escolhido para o cérebro; nunca troca silenciosamente de fornecedor. */
+function configuracaoTranscricao(): ConfiguracaoTranscricao | null {
+  const leitura = lerConfigDoProvedor();
+  if (!leitura.ok) return null;
+  if (leitura.config.tipo === "compativel") {
+    return {
+      endpoint: `${leitura.config.baseUrl}/audio/transcriptions`,
+      chave: leitura.config.chave,
+      modelo: process.env["CORTAI_AI_TRANSCRIPTION_MODEL"]?.trim() || "whisper-1",
+      lovable: false,
+    };
+  }
+  if (leitura.config.tipo !== "lovable") return null;
+  const chave = process.env["LOVABLE_API_KEY"];
+  if (!chave) return null;
+  return {
+    endpoint: ENDPOINT_LOVABLE,
+    chave,
+    modelo: MODELO_LOVABLE,
+    modeloReserva: MODELO_RESERVA_LOVABLE,
+    lovable: true,
+  };
+}
 const TAMANHO_MAXIMO = 24 * 1024 * 1024;
 const TAMANHO_MAXIMO_RESERVA = 14 * 1024 * 1024;
 
 export function transcricaoConfigurada(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"]);
+  return configuracaoTranscricao() !== null;
 }
 
 /** Extensão coerente com o tipo (o navegador grava webm/mp4; o WhatsApp manda ogg). */
@@ -82,6 +116,7 @@ async function chamarTranscricao(
   bytes: Uint8Array,
   tipo: string,
   modelo: string,
+  configuracao: ConfiguracaoTranscricao,
   aoRecusar?: (status: number) => void,
 ): Promise<string | null> {
   const formulario = new FormData();
@@ -91,16 +126,19 @@ async function chamarTranscricao(
     `audio.${extensaoDoTipo(tipo)}`,
   );
   formulario.append("model", modelo);
-  if (modelo === MODELO) formulario.append("languages", "pt");
+  if (configuracao.lovable && modelo === MODELO_LOVABLE) formulario.append("languages", "pt");
   else formulario.append("language", "pt-BR");
-  formulario.append("stream", "true");
+  if (configuracao.lovable) formulario.append("stream", "true");
 
   const controle = new AbortController();
   const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
   try {
-    const resposta = await fetch(ENDPOINT, {
+    const resposta = await fetch(configuracao.endpoint, {
       method: "POST",
-      headers: { authorization: `Bearer ${chave}`, "X-Lovable-AIG-SDK": "fetch" },
+      headers: {
+        authorization: `Bearer ${chave}`,
+        ...(configuracao.lovable ? { "X-Lovable-AIG-SDK": "fetch" } : {}),
+      },
       body: formulario,
       signal: controle.signal,
     });
@@ -108,6 +146,12 @@ async function chamarTranscricao(
       console.error("[whatsapp/audio] transcrição recusada", { modelo, status: resposta.status });
       aoRecusar?.(resposta.status);
       return null;
+    }
+    // APIs compatíveis costumam responder JSON; o gateway Lovable envia SSE.
+    if (!configuracao.lovable) {
+      const corpo = (await resposta.json().catch(() => null)) as Record<string, unknown> | null;
+      const texto = typeof corpo?.["text"] === "string" ? corpo["text"].trim() : "";
+      return texto.length >= 2 ? texto : null;
     }
     const leitor = resposta.body.getReader();
     const dec = new TextDecoder();
@@ -164,8 +208,9 @@ export async function transcreverAudioBase64(
     aoRecusar?: (status: number) => void;
   } = {},
 ): Promise<string | null> {
-  const chave = process.env["LOVABLE_API_KEY"];
-  if (!chave || !base64) return null;
+  const configuracao = configuracaoTranscricao();
+  if (!configuracao || !base64) return null;
+  const chave = configuracao.chave;
   const bytes = base64ParaBytes(base64);
   if (bytes.byteLength === 0) return null;
   if (bytes.byteLength > TAMANHO_MAXIMO) {
@@ -173,8 +218,22 @@ export async function transcreverAudioBase64(
     return null;
   }
   const tipo = (opcoes.mimetype ?? "audio/ogg").split(";")[0]!.trim() || "audio/ogg";
-  const principal = await chamarTranscricao(chave, bytes, tipo, MODELO, opcoes.aoRecusar);
-  if (principal) return principal;
+  const principal = await chamarTranscricao(
+    chave,
+    bytes,
+    tipo,
+    configuracao.modelo,
+    configuracao,
+    opcoes.aoRecusar,
+  );
+  if (principal || !configuracao.lovable || !configuracao.modeloReserva) return principal;
   if (bytes.byteLength > TAMANHO_MAXIMO_RESERVA) return null;
-  return chamarTranscricao(chave, bytes, tipo, MODELO_RESERVA, opcoes.aoRecusar);
+  return chamarTranscricao(
+    chave,
+    bytes,
+    tipo,
+    configuracao.modeloReserva,
+    configuracao,
+    opcoes.aoRecusar,
+  );
 }
