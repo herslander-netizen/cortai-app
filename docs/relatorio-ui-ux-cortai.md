@@ -92,3 +92,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram. Não foi feita val
 Na lista de parceiros, Editar e Remover tinham alvos menores que o mínimo acessível e estilos próprios; agora usam `Button` compartilhado, variantes semântica e destrutiva, e altura mínima de 48 px. O erro de carregamento da lista de conexões WhatsApp passou a ser anunciado com `role="alert"`, e a linha expansível usa o mesmo botão compartilhado com alvo mínimo. As operações, confirmações e dados mantêm o comportamento existente.
 
 Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetados.
+
+### Continuação: horários e avaliações do profissional
+
+A tela de Horários combinava `Button` com a classe legada `btn-primary`, que podia sobrescrever o visual compartilhado; a ação agora usa a variante principal e o seletor de fuso usa `field-control`. Em Avaliações, as ações usavam classe terciária dentro de `Button`; agora seguem variantes da biblioteca. A nota comunica a seleção com `aria-pressed` e alvos de 48 px, o comentário tem nome acessível e o resultado é anunciado como estado. Lógica de horário, avaliação e persistência não mudou.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.

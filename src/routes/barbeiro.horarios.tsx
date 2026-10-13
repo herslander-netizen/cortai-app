@@ -61,7 +61,7 @@ function HorariosPage() {
           Fuso horário do negócio
         </span>
         <select
-          className="mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none focus:border-gold"
+          className="field-control mt-2 w-full"
           value={fuso}
           onChange={(e) => setFuso(e.target.value)}
         >
@@ -88,9 +88,10 @@ function HorariosPage() {
       </div>
 
       <Button
-        variant="ghost"
+        variant="primary"
+        size="lg"
         type="button"
-        className="btn-primary mt-8 w-full py-3.5"
+        className="mt-8 w-full"
         disabled={estado === "salvando"}
         onClick={async () => {
           setEstado("salvando");
