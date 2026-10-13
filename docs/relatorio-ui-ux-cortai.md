@@ -218,3 +218,7 @@ Os controles compartilhados do editor da página do profissional agora usam `Fie
 Validações: Prettier, ESLint direcionado e `git diff --check` passaram. O teste existente de acessibilidade não iniciou por incompatibilidade preexistente do plugin Vite `@lovable.dev/mcp-js` com caminhos Windows (`routesDir`); não foi possível validar por navegador nesta etapa.
 
 Os campos especiais das seções de textos, redes, recepção, link e ajustes finos também passaram a compartilhar a mesma classe visual `field-control` do Cortaí. Validei o helper alterado com Prettier, ESLint e `git diff --check`; executar ESLint nos arquivos consumidores antigos revelou somente os erros de quebra de linha CRLF já existentes nesses arquivos.
+
+### Continuação: campos do catálogo de serviços
+
+Nome, categoria, duração, preço e intervalo de retorno passaram a usar o `Input` compartilhado, que mantém o foco e o tamanho de texto consistentes em celular. A conversão para centavos, os limites, sugestões, fotos, atribuição a profissionais e remoção confirmada seguem iguais. Prettier, ESLint direcionado e `git diff --check` passaram. O teste existente `EditorDeServicos.test.tsx` não iniciou pela incompatibilidade preexistente de caminhos Windows no plugin Vite; não houve inspeção visual em dispositivo.
