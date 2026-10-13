@@ -210,3 +210,9 @@ O editor de horários do onboarding agora usa `Button`, `field-control`, `Textar
 Os campos de desconto, condições e observações da ficha agora usam os controles compartilhados, com dicas que deixam explícito o que é herdado e o que é privado. O switch de WhatsApp ganhou área mínima de toque e o botão de salvar usa a variante primária. Valores, consentimento, persistência e feedback de sucesso/erro permanecem iguais.
 
 Validações: Prettier, ESLint direcionado e `git diff --check` passaram. Não há teste de componente específico nem inspeção visual em aparelho nesta etapa.
+
+### Continuação: campos do editor da página pública
+
+Os controles compartilhados do editor da página do profissional agora usam `Field`, `Input` e `Select` do sistema visual do Cortaí, alinhando rótulos, foco, altura e bordas em todas as seções que os reutilizam. Mantive valores, opções e callbacks de edição.
+
+Validações: Prettier, ESLint direcionado e `git diff --check` passaram. O teste existente de acessibilidade não iniciou por incompatibilidade preexistente do plugin Vite `@lovable.dev/mcp-js` com caminhos Windows (`routesDir`); não foi possível validar por navegador nesta etapa.

@@ -1,5 +1,5 @@
-export const fieldClass =
-  "mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none placeholder:text-mute2 focus:border-gold";
+import { Field, Select } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export function Campo({
   label,
@@ -13,15 +13,14 @@ export function Campo({
   placeholder?: string;
 }) {
   return (
-    <label className="block text-xs font-medium text-mute">
-      {label}
-      <input
-        className={fieldClass}
+    <Field label={label}>
+      <Input
+        className="mt-2"
         value={value ?? ""}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
       />
-    </label>
+    </Field>
   );
 }
 
@@ -37,19 +36,14 @@ export function SelectNative({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="text-xs font-medium text-mute">
-      {label}
-      <select
-        className={fieldClass}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
+    <Field label={label}>
+      <Select className="mt-2" value={value} onChange={(event) => onChange(event.target.value)}>
         {Object.entries(options).map(([id, name]) => (
           <option key={id} value={id}>
             {name}
           </option>
         ))}
-      </select>
-    </label>
+      </Select>
+    </Field>
   );
 }
