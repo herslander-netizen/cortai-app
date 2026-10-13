@@ -42,10 +42,31 @@ export async function verificarWebhookIndependente<T = unknown>(opcoes: {
     throw new WebhookVerificationError("stale_timestamp");
   }
 
-  const corpo = await req.text();
-  if (new TextEncoder().encode(corpo).byteLength > maxBodyBytes) {
+  const declarado = Number(req.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declarado) && declarado > maxBodyBytes) {
     throw new WebhookVerificationError("body_too_large");
   }
+  const leitor = req.body?.getReader();
+  if (!leitor) throw new WebhookVerificationError("invalid_json");
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await leitor.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBodyBytes) {
+      await leitor.cancel().catch(() => undefined);
+      throw new WebhookVerificationError("body_too_large");
+    }
+    partes.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let deslocamento = 0;
+  for (const parte of partes) {
+    bytes.set(parte, deslocamento);
+    deslocamento += parte.byteLength;
+  }
+  const corpo = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 
   const esperada = createHmac("sha256", secret).update(`${timestamp}.${corpo}`, "utf8").digest("hex");
   const recebida = assinatura.replace(/^sha256=/, "").trim().toLowerCase();
