@@ -22,7 +22,7 @@ Esta auditoria foi iniciada após relatos de carregamento que permanece em skele
 
 - O conector do Lovable retornou **HTTP 504** em todas as consultas ao catálogo do banco tentadas, inclusive um `SELECT 1`. Por isso, as políticas RLS, permissões de coluna, funções executáveis e configuração dos buckets do banco de produção **não foram revalidadas nesta rodada**. O estado “corrigido” de achados de banco mencionado no relatório anterior permanece pendente de confirmação ao vivo.
 - A URL pública não pôde ser exercitada diretamente por este ambiente; não há captura das requisições de rede do celular ou logs de runtime associados aos horários das telas.
-- A execução de `tsc`, Vitest, ESLint e build foi solicitada ao ambiente de desenvolvimento do Lovable em modo somente leitura, mas nenhum resultado final foi recebido até a criação deste relatório. Consulte a seção “Verificações automatizadas” antes de considerar a auditoria concluída.
+- A execução de `tsc`, Vitest, ESLint e build foi concluída no ambiente de desenvolvimento do Lovable em modo somente leitura. Os resultados são registrados na seção “Verificações automatizadas”; o build passou, mas TypeScript e alguns testes falharam.
 - Não houve teste de penetração, teste de mutação de produção, verificação visual automatizada ou leitura de dados de clientes.
 
 ## P0 — Bloqueio relatado: carregamento em múltiplas telas
@@ -139,14 +139,28 @@ A auditoria anterior descreveu que o agendamento como convidado encontra/reutili
 
 | Verificação | Resultado desta rodada |
 |---|---|
-| `npx tsc --noEmit -p .` | Solicitada ao ambiente Lovable; resultado final não recebido. |
-| `npx vitest run` | Solicitada; resultado final não recebido. |
-| `npx eslint .` | Solicitada; resultado final não recebido. |
-| `npx vite build` | Solicitada; resultado final não recebido. |
+| `npx tsc --noEmit -p .` | **Falhou (exit 2): 11 erros de tipo.** A base descrita em 09/10 tinha 0. |
+| `npx vitest run` | **Falhou (exit 1): 150 arquivos; 149 passaram e 1 falhou.** 1.417 testes no total: 1.412 passaram, 4 falharam e 1 foi ignorado. |
+| `npx eslint .` | **Falhou (exit 1): 5.022 problemas**, sendo 4.804 de Prettier, 185 de `@typescript-eslint/no-explicit-any` e 4 de `react-hooks/exhaustive-deps`. A contagem parece ligeiramente melhor que a base documentada (5.042), mas ainda são milhares de problemas preexistentes. |
+| `npx vite build --outDir /tmp/verif/dist` | **Passou (exit 0)**; build cliente/servidor concluído. O Vite também gerou artefatos em diretórios ignorados (`dist/` e `node_modules/.nitro`), mas `git status` permaneceu limpo. |
 | GitHub checks para o commit examinado | O conector retornou lista de status vazia e nenhuma execução associada disponível por esta ferramenta. Isso não prova, por si só, que não exista CI configurado. |
 | Catálogo de banco / RLS / grants / storage | **Bloqueado por HTTP 504** do conector Lovable; inclusive `SELECT 1` não respondeu. |
 
 Como referência histórica, o relatório anterior/documentação do projeto descreve uma base em que `tsc` tinha zero erros, `vite build` passava, Vitest tinha oito falhas de datas fixas em `src/lib/whatsapp/lembretes-numeros.test.ts`, e o ESLint mostrava milhares de problemas preexistentes. Esses números **não representam a execução atual** e precisam ser confirmados novamente.
+
+
+### Detalhe dos erros que precisam ser acompanhados
+
+**TypeScript (11 erros):**
+- Seis usos do tom `"erro"`, que não pertence ao tipo `TomDeAviso` (tons aceitos: `info`, `atencao`, `sucesso`, `acao`): `src/routes/admin.monetizacao.tsx` (linhas 155, 456, 840 e 1072), `src/routes/convite.tsx:122` e `src/components/onboarding/EditorDeHorarios.tsx:219`.
+- Três manipuladores de clique retornam `boolean` em vez de `void` ou `Promise`: `src/components/agendamento/HorariosOcupados.tsx:41`, `src/components/layout/NavegacaoEquipe.tsx:86` e `src/components/pwa/AvisoDeVersao.tsx:76`.
+- Dois casos de `subtitle` possivelmente indefinido incompatível com `exactOptionalPropertyTypes`: `src/components/layout/AdminScreen.tsx:18` e `src/components/layout/Screen.tsx:45`.
+
+O Vite conseguir gerar os bundles não substitui o typecheck; o build não rejeitou esses erros estáticos.
+
+**Vitest (4 falhas):**
+- As quatro falhas estão em `EditorDeServicos.test.tsx` e apresentam `TypeError: window.matchMedia is not a function`. É plausível que o setup de testes precise simular `matchMedia` após alteração do componente, mas isso precisa ser confirmado antes de decidir se é uma falha exclusiva de ambiente ou um comportamento regressivo.
+- Os oito testes antigos de datas em `src/lib/whatsapp/lembretes-numeros.test.ts`, documentados como falha conhecida em 09/10, agora passam.
 
 ## Ordem recomendada de correção
 
