@@ -56,9 +56,12 @@ vi.mock("@/integrations/supabase/client.server", () => ({
   },
 }));
 
-// Relógio fixo no dia dos avisos: o cenário não depende de quando o teste roda.
-const AGORA = "2026-10-08T12:30:00Z";
-const futuro = "2026-10-08T13:30:00Z";
+// Relógio controlado relativo ao momento do teste: os avisos nunca nascem expirados.
+const AGORA = new Date();
+function hora(minutos: number) {
+  return new Date(AGORA.getTime() + minutos * 60_000).toISOString();
+}
+const futuro = hora(60);
 const TEL = "5511999990000";
 function aviso(id: string, ag: string, acoes: string[], enviadoEm: string) {
   return {
@@ -78,7 +81,7 @@ function aviso(id: string, ag: string, acoes: string[], enviadoEm: string) {
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
-  vi.setSystemTime(new Date(AGORA));
+  vi.setSystemTime(AGORA);
   banco.rpcs = [];
   banco.rpcResultado = {};
   banco.tabelas = {
@@ -87,9 +90,9 @@ beforeEach(() => {
     acoes_de_ia_log: [],
     envios_de_whatsapp: [],
     agendamentos: [
-      { id: "ag1", tenant_id: "t1", inicio: "2026-10-09T13:00:00Z", status: "agendado" },
-      { id: "ag2", tenant_id: "t1", inicio: "2026-10-10T17:00:00Z", status: "agendado" },
-      { id: "agB", tenant_id: "t2", inicio: "2026-10-09T13:00:00Z", status: "agendado" },
+      { id: "ag1", tenant_id: "t1", inicio: hora(24 * 60), status: "agendado" },
+      { id: "ag2", tenant_id: "t1", inicio: hora(48 * 60), status: "agendado" },
+      { id: "agB", tenant_id: "t2", inicio: hora(24 * 60), status: "agendado" },
     ],
   };
 });
@@ -110,9 +113,9 @@ describe("bug do '1' — dois avisos abertos", () => {
         "lembrete",
         "ag1",
         ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR", "CORTAI_CANCELAR"],
-        "2026-10-08T12:24:00Z",
+        hora(-6),
       ),
-      aviso("confirmacao", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:00:00Z"),
+      aviso("confirmacao", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], hora(-30)),
     ];
     const r = await responder("1");
     expect(banco.rpcs.map((c) => c.nome)).toEqual(["confirmar_presenca_whatsapp"]);
@@ -121,8 +124,8 @@ describe("bug do '1' — dois avisos abertos", () => {
 
   it("horários diferentes: pergunta qual, sem executar nada e sem ir para a IA", async () => {
     banco.tabelas["envios_de_whatsapp"] = [
-      aviso("e2", "ag2", ["CORTAI_CONFIRMAR"], "2026-10-08T12:24:00Z"),
-      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], "2026-10-08T12:00:00Z"),
+      aviso("e2", "ag2", ["CORTAI_CONFIRMAR"], hora(-6)),
+      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], hora(-30)),
     ];
     const r = await responder("1");
     expect(r).not.toBeNull();
@@ -138,7 +141,7 @@ describe("bug do '1' — dois avisos abertos", () => {
 
   it("número que não é opção: responde as opções reais, nunca cai na IA", async () => {
     banco.tabelas["envios_de_whatsapp"] = [
-      aviso("e1", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], "2026-10-08T12:00:00Z"),
+      aviso("e1", "ag1", ["CORTAI_REMARCAR", "CORTAI_CANCELAR"], hora(-30)),
     ];
     const r = await responder("1");
     expect(r?.texto).toContain("Não encontrei essa opção");
@@ -148,7 +151,7 @@ describe("bug do '1' — dois avisos abertos", () => {
 
   it("número aceito mesmo se outra mensagem saiu depois do aviso (dentro do prazo)", async () => {
     banco.tabelas["envios_de_whatsapp"] = [
-      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], "2026-10-08T12:00:00Z"),
+      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], hora(-30)),
     ];
     const r = await responder("1");
     expect(r?.texto).toMatch(/^Confirmado ✅/);
@@ -158,7 +161,7 @@ describe("bug do '1' — dois avisos abertos", () => {
 describe("ações pelo número fixo", () => {
   const todas = ["CORTAI_CONFIRMAR", "CORTAI_REMARCAR", "CORTAI_CANCELAR"];
   beforeEach(() => {
-    banco.tabelas["envios_de_whatsapp"] = [aviso("e1", "ag1", todas, "2026-10-08T12:00:00Z")];
+    banco.tabelas["envios_de_whatsapp"] = [aviso("e1", "ag1", todas, hora(-30))];
   });
 
   it("2 = Remarcar: pergunta o novo horário, sem alterar a agenda", async () => {
