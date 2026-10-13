@@ -50,6 +50,15 @@ Portanto, várias causas são possíveis: uma função do servidor lenta, consul
 - `src/routes/__root.tsx` inicializa service worker e recuperação de chunks. O service worker parece intencionalmente restrito a assets versionados e navegação offline; não há evidência estática suficiente para atribuir a ele a falha.
 - `src/server.ts` converte algumas falhas catastróficas de SSR numa página de erro HTTP 500, mas isso não explica sozinho skeletons que aparecem dentro de rotas já renderizadas.
 
+### Sinais adicionais encontrados na verificação
+
+- O levantamento estático encontrou cerca de 30 usos dos componentes skeleton, e só cerca de 13 fornecem `onTentarDeNovo`. Nos demais, a ação padrão recarrega a página toda em vez de refazer apenas a consulta.
+- Os esqueletos de área inteira (`EsqueletoCockpit`/`CascoEquipe`, `CascoCliente`, `CascoAdmin` e `EsqueletoGenerico`) não recebem `onTentarDeNovo`; são usados como `pendingComponent` em `/barbeiro`, `/app` e `/admin`, no `defaultPendingComponent` do router e na `TelaDeCarregamento`.
+- TanStack Query está usando os padrões de retry (até três tentativas com espera crescente); isso pode atrasar a apresentação de um erro real por vários segundos. Não foi revisado cada hook para confirmar que toda tela trata `isError`.
+- A área `/barbeiro` usa `ssr: false` e busca a sessão no cliente. A inspeção apontou uma consulta `useQuery(["sessao"])` sem tratamento explícito do estado de erro nesse layout; se `getSessao` falha, o layout pode ficar sem o segmento/contexto esperado sem explicar o motivo ao usuário.
+
+Esses sinais ampliam a área de investigação, mas não provam qual chamada ou serviço está causando o travamento observado nas capturas.
+
 ### Próximos testes necessários (sem alterar produção)
 
 1. Capturar, no navegador, as requisições que permanecem pendentes ou falham (URL/função, status HTTP, duração e mensagem; redigir tokens, cookies e dados pessoais).
