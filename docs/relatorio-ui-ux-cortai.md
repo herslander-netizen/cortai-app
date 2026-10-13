@@ -236,3 +236,5 @@ Os campos de texto, descrições, plano e motivo de auditoria agora usam `Field`
 ### Continuação: instalação do app nas configurações
 
 A linha de instalação do Cortaí agora usa o botão compartilhado com alvo mínimo de 48 px, foco visível e layout que não corta textos em telas estreitas. Removi o símbolo de confirmação repetido no estado já instalado. O fluxo de instalação e as instruções por plataforma continuam iguais. Prettier, ESLint direcionado e `git diff --check` passaram; não há teste específico nem conferência visual em dispositivo.
+
+O convite flutuante pós-login também usa os botões compartilhados: fechar, instalar/consultar instrução e dispensar têm área mínima de 48 px e estados consistentes. Regras de exibição e instalação por plataforma não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram; sem teste específico ou verificação visual em aparelho.
