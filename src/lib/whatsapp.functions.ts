@@ -35,10 +35,25 @@ async function admin() {
   return supabaseAdmin;
 }
 
-/** Endereço público que o serviço de WhatsApp chama para avisar o Cortaí. */
-export const URL_DE_EVENTOS = "https://cortai.dev/api/public/whatsapp/eventos";
-/** Endereço usado quando o provedor é a Evolution API. */
-export const URL_DE_EVENTOS_EVOLUTION = "https://cortai.dev/api/public/whatsapp/evolution";
+/**
+ * Endereço público deste ambiente para callbacks de WhatsApp.
+ * Nunca usa o domínio de produção como fallback: configure CORTAI_PUBLIC_BASE_URL
+ * apenas depois que a reconstrução tiver uma URL pública própria.
+ */
+function urlDeEventos(provedor: string): string {
+  const base = process.env.CORTAI_PUBLIC_BASE_URL?.trim().replace(/\/$/, "");
+  if (!base) throw new Error("Configure CORTAI_PUBLIC_BASE_URL para ativar o WhatsApp neste ambiente.");
+  let parsed: URL;
+  try {
+    parsed = new URL(base);
+  } catch {
+    throw new Error("CORTAI_PUBLIC_BASE_URL precisa ser uma URL HTTPS válida.");
+  }
+  if (parsed.protocol !== "https:" || parsed.hostname === "cortai.dev" || parsed.hostname.endsWith(".cortai.dev")) {
+    throw new Error("CORTAI_PUBLIC_BASE_URL deve apontar para o ambiente independente, nunca para o domínio de produção.");
+  }
+  return `${base}${provedor === "evolution" ? "/api/public/whatsapp/evolution" : "/api/public/whatsapp/eventos"}`;
+}
 
 export type PainelDoCortai = {
   /** Existe serviço de WhatsApp publicado e configurado neste ambiente? */
@@ -290,8 +305,8 @@ export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
       enderecoDeEventos: oficial
         ? "https://cortai.dev/api/public/whatsapp/webhook"
         : provedor === "evolution"
-          ? URL_DE_EVENTOS_EVOLUTION
-          : URL_DE_EVENTOS,
+          ? urlDeEventos("evolution")
+          : urlDeEventos(provedorDoGateway()),
       conexao: conexaoDaLinha(linha),
       vistoEm: linha?.visto_em ?? null,
       eventos24h: eventos.count ?? 0,
@@ -383,7 +398,7 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
       try {
         const estado = await gatewayDeWhatsapp.criarSessao(
           sessao.sessao_id,
-          provedorDoGateway() === "evolution" ? URL_DE_EVENTOS_EVOLUTION : URL_DE_EVENTOS,
+          provedorDoGateway() === "evolution" ? urlDeEventos("evolution") : urlDeEventos(provedorDoGateway()),
         );
         await db
           .from("conexoes_whatsapp")
@@ -503,7 +518,7 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
           pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);
         } catch {
           // Sessão ainda não existe no serviço: cria e tenta de novo.
-          await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, URL_DE_EVENTOS_EVOLUTION);
+          await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, urlDeEventos("evolution"));
           pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);
         }
         await db
