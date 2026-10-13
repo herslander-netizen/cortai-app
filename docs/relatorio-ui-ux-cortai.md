@@ -81,6 +81,14 @@ A barra inferior do administrador duplicava a navegação do cliente e não comp
 
 Validações: ESLint, Prettier e `git diff --check` passaram nos arquivos alterados. A revisão visual em dispositivo/navegador continua pendente.
 
+### Continuação: acesso, notificações e privacidade
+
+O login ainda tinha uma composição própria de campos; e-mail e senha agora usam `field-label` e `field-control`, preservando OAuth, cadastro, validação, destino pós-login e mensagens. A confirmação do convite de equipe usava botões/estilos legados e erro sem o componente padrão; agora usa `Button` e `Aviso`, sem alterar consulta, confirmação, permissões ou destino.
+
+Nas configurações compartilhadas, Alterar senha agora usa campos e ações do sistema visual; preferências de lembrete do cliente e da equipe usam `Button` para opções com estado selecionado e alvos de toque consistentes. A tela de notificações usa os mesmos botões para voltar, marcar lidas, alternar abas e abrir itens. Preferências de cookies e o banner usam os botões compartilhados; o sucesso ao salvar preferências é anunciado pelo aviso padrão. Nenhuma chamada de API, regra de consentimento, preferência, texto de negócio ou fluxo de conta foi alterado.
+
+Validações desta continuação: Prettier, ESLint e `git diff --check` passaram nos oito arquivos desta etapa. A validação visual em navegador/dispositivo não foi executada; os testes de integração desses fluxos também não foram executados nesta etapa.
+
 ### Continuação: lista de espera do cliente
 
 Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.

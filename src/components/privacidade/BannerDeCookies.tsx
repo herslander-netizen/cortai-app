@@ -32,7 +32,10 @@ export function BannerDeCookies() {
       >
         <p className="text-[13px] leading-relaxed text-muted-foreground">
           Usamos cookies para o Cortaí funcionar e, se você permitir, melhorar sua experiência.{" "}
-          <Link to="/privacidade" className="font-medium text-foreground underline underline-offset-2">
+          <Link
+            to="/privacidade"
+            className="font-medium text-foreground underline underline-offset-2"
+          >
             Política de Privacidade
           </Link>
         </p>
@@ -69,35 +72,38 @@ export function BannerDeCookies() {
           type="button"
           variant="outline"
           onClick={() => registrar(configurando ? escolhas : TODAS_ACEITAS)}
-          className="mt-3 min-h-11 w-full rounded-xl text-sm font-semibold"
+          className="mt-3 min-h-12 w-full rounded-xl text-sm font-semibold"
         >
           {configurando ? "Salvar escolhas" : "Aceitar todos"}
         </Button>
         <div className="mt-1 flex items-center justify-between gap-2">
           {configurando ? (
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setConfigurando(false)}
-              className="min-h-11 px-2 text-sm font-medium text-foreground"
+              className="h-auto min-h-12 px-2 text-sm font-medium text-foreground"
             >
               Voltar
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setConfigurando(true)}
-              className="min-h-11 px-2 text-sm font-medium text-foreground"
+              className="h-auto min-h-12 px-2 text-sm font-medium text-foreground"
             >
               Gerenciar preferências
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => registrar(SOMENTE_NECESSARIAS)}
-            className="min-h-11 px-2 text-sm font-medium text-foreground"
+            className="h-auto min-h-12 px-2 text-sm font-medium text-foreground"
           >
             Rejeitar todos
-          </button>
+          </Button>
         </div>
       </div>
     </div>

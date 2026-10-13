@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCheck } from "lucide-react";
 import { agrupar, type Notificacao } from "@/lib/notificacoes";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { useMenosMovimento } from "@/hooks/useMovimento";
+import { Button } from "@/components/ui/button";
 
 function quando(iso: string) {
   return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -43,23 +44,25 @@ export function TelaDeAvisos({
       transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
     >
       <div className="flex items-center justify-between px-2 pt-2">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           aria-label="Voltar"
           onClick={onVoltar}
-          className="grid size-12 place-items-center text-mute"
+          className="size-12 p-0 text-mute"
         >
           <ArrowLeft size={22} />
-        </button>
+        </Button>
         {temNaoLidas ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             aria-label="Marcar todas como lidas"
             onClick={onMarcarTodas}
-            className="grid size-12 place-items-center text-mute"
+            className="size-12 p-0 text-mute"
           >
             <CheckCheck size={22} />
-          </button>
+          </Button>
         ) : null}
       </div>
       <h1 id="titulo-notificacoes" className="px-5 pb-4 text-3xl font-semibold text-paper">
@@ -72,18 +75,19 @@ export function TelaDeAvisos({
             ["todas", "Todas"],
           ] as const
         ).map(([id, rotulo]) => (
-          <button
+          <Button
             key={id}
             type="button"
+            variant="ghost"
             role="tab"
             aria-selected={aba === id}
             onClick={() => setAba(id)}
-            className={`min-h-12 rounded-full text-sm font-medium ${
+            className={`h-auto min-h-12 rounded-full text-sm font-medium ${
               aba === id ? "bg-primary text-primary-foreground" : "bg-card text-paper"
             }`}
           >
             {rotulo}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
@@ -108,10 +112,11 @@ export function TelaDeAvisos({
               <ul>
                 {grupo.itens.map((aviso) => (
                   <li key={aviso.id} className="border-b border-line">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => onAbrir(aviso)}
-                      className="grid min-h-14 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left active:bg-card"
+                      className="h-auto min-h-14 w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left active:bg-card"
                     >
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${aviso.lida_em ? "bg-transparent" : "bg-gold"}`}
@@ -127,7 +132,7 @@ export function TelaDeAvisos({
                         ) : null}
                       </span>
                       <span className="text-xs text-mute2">{quando(aviso.criado_em)}</span>
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
