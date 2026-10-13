@@ -226,3 +226,5 @@ Nome, categoria, duração, preço e intervalo de retorno passaram a usar o `Inp
 ### Continuação: central de avisos
 
 As ações de marcar como lido, fechar, abrir aviso e os convites de instalação/ativação agora usam o `Button` compartilhado com alvos de 48 px e foco consistente. Grupos, contagens, navegação, notificações do navegador e animações existentes não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei teste específico desses componentes nem validei em aparelho.
+
+As preferências de lembrete do cliente agora usam o `Input` compartilhado para as horas de silêncio; no celular, início e fim dividem o espaço disponível sem comprimir os controles. Persistência otimista, valores e regras de lembrete não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram.

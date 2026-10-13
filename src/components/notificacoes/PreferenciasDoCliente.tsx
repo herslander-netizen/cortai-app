@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso } from "@/lib/avisos";
 
@@ -121,20 +122,20 @@ export function PreferenciasDoCliente() {
       </div>
       <p className="mb-2 mt-4 text-xs text-mute">Não me avisar entre</p>
       <div className="flex items-center gap-2 text-sm text-paper">
-        <input
+        <Input
           type="time"
           aria-label="Início do silêncio"
           value={p.silencio_inicio?.slice(0, 5) ?? ""}
           onChange={(e) => mudar({ silencio_inicio: e.target.value || null })}
-          className="field-control w-auto"
+          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
         />
         <span className="text-mute">e</span>
-        <input
+        <Input
           type="time"
           aria-label="Fim do silêncio"
           value={p.silencio_fim?.slice(0, 5) ?? ""}
           onChange={(e) => mudar({ silencio_fim: e.target.value || null })}
-          className="field-control w-auto"
+          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
         />
       </div>
     </section>
