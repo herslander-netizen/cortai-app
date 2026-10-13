@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { ItemCascata } from "@/components/layout/ItemCascata";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,7 +112,7 @@ export function EditorDeServicos({
               </div>
             ) : null}
             <div className="flex items-center gap-3">
-              <input
+              <Input
                 value={s.nome}
                 onChange={(e) => atualizar(i, { nome: e.target.value })}
                 placeholder="Nome do serviço"
@@ -139,7 +140,7 @@ export function EditorDeServicos({
             </div>
             <label className="mt-2 block text-xs text-mute">
               Categoria
-              <input
+              <Input
                 value={s.categoria}
                 onChange={(e) => atualizar(i, { categoria: e.target.value })}
                 list="categorias-de-servico"
@@ -149,7 +150,7 @@ export function EditorDeServicos({
             <div className="mt-2 grid grid-cols-2 gap-3">
               <label className="block text-xs text-mute">
                 Duração (min)
-                <input
+                <Input
                   type="number"
                   min={5}
                   max={480}
@@ -174,7 +175,7 @@ export function EditorDeServicos({
               </label>
               <label className="block text-xs text-mute">
                 Preço (R$)
-                <input
+                <Input
                   type="number"
                   min={0}
                   step="0.5"
@@ -199,7 +200,7 @@ export function EditorDeServicos({
             </div>
             <label className="mt-2 block text-xs text-mute">
               Voltar em (dias) <span className="text-mute2">— opcional</span>
-              <input
+              <Input
                 type="number"
                 min={3}
                 max={365}

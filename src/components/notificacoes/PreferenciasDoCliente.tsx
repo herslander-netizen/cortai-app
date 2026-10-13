@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso } from "@/lib/avisos";
 
@@ -76,61 +78,64 @@ export function PreferenciasDoCliente() {
   const p = data.pref;
   const mudar = (parcial: Partial<Pref>) => salvar.mutate({ ...p, ...parcial });
   const chip = (ativo: boolean) =>
-    `min-h-12 rounded-full border px-4 text-sm ${ativo ? "border-gold/45 bg-gold-soft text-paper" : "border-line text-mute"}`;
+    `h-auto min-h-12 rounded-full border px-4 text-sm ${ativo ? "border-gold/45 bg-gold-soft text-paper" : "border-line text-mute"}`;
 
   return (
     <section className="mt-8">
       <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Lembretes do horário</h2>
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           role="switch"
           aria-checked={p.whatsapp_ativo}
           className={chip(p.whatsapp_ativo)}
           onClick={() => mudar({ whatsapp_ativo: !p.whatsapp_ativo })}
         >
           WhatsApp
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           role="switch"
           aria-checked={p.push_ativo}
           className={chip(p.push_ativo)}
           onClick={() => mudar({ push_ativo: !p.push_ativo })}
         >
           No celular
-        </button>
+        </Button>
       </div>
       <p className="mb-2 mt-4 text-xs text-mute">Quando avisar</p>
       <div className="flex flex-wrap gap-2">
         {FREQ.map((f) => (
-          <button
+          <Button
             key={f.v}
             type="button"
+            variant="ghost"
             aria-pressed={p.frequencia === f.v}
             className={chip(p.frequencia === f.v)}
             onClick={() => mudar({ frequencia: f.v })}
           >
             {f.r}
-          </button>
+          </Button>
         ))}
       </div>
       <p className="mb-2 mt-4 text-xs text-mute">Não me avisar entre</p>
       <div className="flex items-center gap-2 text-sm text-paper">
-        <input
+        <Input
           type="time"
           aria-label="Início do silêncio"
           value={p.silencio_inicio?.slice(0, 5) ?? ""}
           onChange={(e) => mudar({ silencio_inicio: e.target.value || null })}
-          className="min-h-12 rounded-lg border border-line bg-ink2 px-3"
+          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
         />
         <span className="text-mute">e</span>
-        <input
+        <Input
           type="time"
           aria-label="Fim do silêncio"
           value={p.silencio_fim?.slice(0, 5) ?? ""}
           onChange={(e) => mudar({ silencio_fim: e.target.value || null })}
-          className="min-h-12 rounded-lg border border-line bg-ink2 px-3"
+          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
         />
       </div>
     </section>

@@ -39,7 +39,7 @@ export const Route = createFileRoute("/barbeiro/avaliacoes")({
 
 function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => void }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1" role="group" aria-label="Nota da avaliação">
       {[1, 2, 3, 4, 5].map((n) => (
         <Button
           variant="ghost"
@@ -47,8 +47,9 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
           type="button"
           disabled={!onChange}
           aria-label={`${n} ${n === 1 ? "estrela" : "estrelas"}`}
+          aria-pressed={n === nota}
           onClick={() => onChange?.(n)}
-          className={n <= nota ? "text-gold" : "text-mute2"}
+          className={`h-12 w-12 p-0 ${n <= nota ? "text-gold" : "text-mute2"}`}
         >
           <Star size={18} fill={n <= nota ? "currentColor" : "none"} />
         </Button>
@@ -104,9 +105,9 @@ function AvaliacoesPage() {
         />
       </label>
       <Button
-        variant="ghost"
+        variant="outline"
         type="button"
-        className="btn-tertiary mt-2 text-xs disabled:opacity-60"
+        className="mt-2 min-h-12 text-xs"
         disabled={acao.ocupado}
         onClick={() =>
           acao.executar("link", () => salvarLink({ data: { link } }), {
@@ -143,12 +144,13 @@ function AvaliacoesPage() {
                     onChange={(e) => setComentarios((s) => ({ ...s, [p.id]: e.target.value }))}
                     rows={2}
                     placeholder="Comentário (opcional)"
+                    aria-label={`Comentário da avaliação de ${p.cliente}`}
                     className="field-control mt-3 w-full resize-none"
                   />
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     type="button"
-                    className="btn-tertiary mt-2 text-xs disabled:opacity-60"
+                    className="mt-2 min-h-12 text-xs"
                     disabled={acao.ocupado}
                     onClick={() =>
                       acao.executar(
@@ -186,7 +188,11 @@ function AvaliacoesPage() {
         })}
       </ul>
 
-      {convite ? <p className="mt-4 break-words text-sm text-sage">{convite}</p> : null}
+      {convite ? (
+        <p className="mt-4 break-words text-sm text-sage" role="status">
+          {convite}
+        </p>
+      ) : null}
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Registradas</h2>
       {data && data.registradas.length === 0 ? (

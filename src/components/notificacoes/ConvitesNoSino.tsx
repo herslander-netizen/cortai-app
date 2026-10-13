@@ -1,6 +1,7 @@
 import { Bell, Download, X } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { useAvisosDoAparelho } from "@/lib/avisos-do-navegador";
 import { useInstalacao } from "@/lib/pwa";
 
@@ -44,25 +45,28 @@ export function ConvitesNoSino() {
                 <span className="text-paper">Adicionar à Tela de Início</span>.
               </p>
             ) : null}
-            <button
+            <Button
+              variant="text"
               type="button"
-              className="mt-2 min-h-11 text-xs font-bold text-gold"
+              className="mt-2 h-12 px-2 text-xs text-gold"
               onClick={() => {
                 if (inst.podeInstalarAgora) void inst.instalar();
                 else setVerComoNoIphone(true);
               }}
             >
               {inst.podeInstalarAgora ? "Instalar" : "Como instalar"}
-            </button>
+            </Button>
           </div>
-          <button
+          <Button
+            variant="icon"
+            size="icon"
             type="button"
             onClick={inst.dispensar}
             aria-label="Fechar convite"
-            className="flex h-11 w-11 shrink-0 items-center justify-center text-mute"
+            className="h-12 w-12 shrink-0 text-mute"
           >
             <X size={15} />
-          </button>
+          </Button>
         </li>
       ) : null}
       {mostraAvisos ? (
@@ -71,9 +75,10 @@ export function ConvitesNoSino() {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-paper">Ativar avisos</p>
             <p className="text-xs text-mute2">{TEXTO_AVISOS}</p>
-            <button
+            <Button
+              variant="text"
               type="button"
-              className="mt-2 min-h-11 text-xs font-bold text-gold"
+              className="mt-2 h-12 px-2 text-xs text-gold"
               onClick={() => {
                 void avisos.pedir().then((ok) => {
                   if (!ok) avisos.dispensar();
@@ -81,16 +86,18 @@ export function ConvitesNoSino() {
               }}
             >
               Ativar avisos
-            </button>
+            </Button>
           </div>
-          <button
+          <Button
+            variant="icon"
+            size="icon"
             type="button"
             onClick={avisos.dispensar}
             aria-label="Fechar convite de avisos"
-            className="flex h-11 w-11 shrink-0 items-center justify-center text-mute"
+            className="h-12 w-12 shrink-0 text-mute"
           >
             <X size={15} />
-          </button>
+          </Button>
         </li>
       ) : null}
     </ul>

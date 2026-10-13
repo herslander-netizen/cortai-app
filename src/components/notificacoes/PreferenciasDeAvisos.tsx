@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
 import { aviso } from "@/lib/avisos";
@@ -130,15 +131,16 @@ export function PreferenciasDeAvisos() {
                 {canaisDo(t.chave).map((canal) => {
                   const ativo = linha[canal];
                   return (
-                    <button
+                    <Button
                       key={canal}
                       type="button"
+                      variant="ghost"
                       role="checkbox"
                       aria-checked={ativo}
                       aria-label={`${ROTULO_DO_CANAL[canal]} — ${t.rotulo}`}
                       disabled={isLoading}
                       onClick={() => alternar(t.chave, canal)}
-                      className={`flex items-center gap-1.5 min-h-11 rounded-full border px-3.5 text-xs transition-transform duration-[120ms] active:scale-[0.97] disabled:opacity-50 ${
+                      className={`h-auto min-h-12 flex items-center gap-1.5 rounded-full border px-3.5 text-xs ${
                         ativo ? "border-gold/45 bg-gold-soft text-gold" : "border-line text-mute"
                       }`}
                     >
@@ -153,7 +155,7 @@ export function PreferenciasDeAvisos() {
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />
                       </span>
                       {ROTULO_DO_CANAL[canal]}
-                    </button>
+                    </Button>
                   );
                 })}
               </span>
@@ -179,8 +181,9 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
   }
   return (
     <div className="mb-3">
-      <button
+      <Button
         type="button"
+        variant="primary"
         disabled={ocupado}
         onClick={async () => {
           if (precisaInstalarParaPush()) {
@@ -192,10 +195,10 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
           setOcupado(false);
           setAtivo(r === "ativo");
         }}
-        className="h-12 w-full rounded-lg bg-gold text-sm font-bold text-ink disabled:opacity-60"
+        className="w-full"
       >
         Ativar avisos no celular
-      </button>
+      </Button>
       {instalar ? (
         <p className="mt-2 rounded-lg border border-line bg-ink px-3 py-3 text-xs leading-relaxed text-mute">
           {TEXTO_INSTALAR_PRIMEIRO}
@@ -246,8 +249,9 @@ function MeuWhatsappNoCortai() {
             CODIGO {codigo.codigo}
           </p>
           <p>Vale por 15 minutos.</p>
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={async () => {
               const r = await refetch();
               if (r.data?.verificadoEm) {
@@ -255,14 +259,15 @@ function MeuWhatsappNoCortai() {
                 aviso.ok("WhatsApp confirmado.");
               } else aviso.erro("Ainda não recebemos o código. Envie e tente de novo.");
             }}
-            className="min-h-11 w-full rounded-lg border border-line text-sm text-paper"
+            className="w-full"
           >
             Já enviei
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={ocupado}
           onClick={async () => {
             setOcupado(true);
@@ -275,10 +280,10 @@ function MeuWhatsappNoCortai() {
               setOcupado(false);
             }
           }}
-          className="mt-3 min-h-11 w-full rounded-lg border border-gold/45 bg-gold-soft text-sm font-semibold text-gold disabled:opacity-60"
+          className="mt-3 w-full border-gold/45 bg-gold-soft text-gold hover:bg-gold-soft"
         >
           Confirmar meu WhatsApp
-        </button>
+        </Button>
       )}
     </div>
   );

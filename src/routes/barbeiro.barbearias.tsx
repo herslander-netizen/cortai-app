@@ -121,9 +121,10 @@ function MinhasBarbeariasPage() {
               </div>
 
               <Button
-                variant="ghost"
+                variant={b.ehAtiva ? "outline" : "primary"}
+                size="lg"
                 type="button"
-                className={`${b.ehAtiva ? "btn-secondary" : "btn-primary"} mt-4 w-full py-3`}
+                className="mt-4 w-full"
                 disabled={!b.acessoAtivo || indo !== null}
                 onClick={() => void abrirConfiguracao(b.id, b.ehAtiva)}
               >

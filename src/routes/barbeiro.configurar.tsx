@@ -315,9 +315,6 @@ function ConfigurarPage() {
       .catch(() => undefined);
   }
 
-  const campo =
-    "mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none";
-
   const rodape = (
     aoContinuar: () => void,
     rotulo = "Continuar",
@@ -328,18 +325,18 @@ function ConfigurarPage() {
       <div className="flex items-center gap-3">
         {indice > 0 ? (
           <Button
-            variant="ghost"
+            variant="outline"
             type="button"
-            className="btn-tertiary min-h-12 px-3 text-sm"
+            className="min-h-12 px-3 text-sm"
             onClick={anterior}
           >
             Voltar
           </Button>
         ) : null}
         <Button
-          variant="ghost"
+          variant="primary"
           type="button"
-          className="btn-primary min-h-14 flex-1 text-sm"
+          className="min-h-14 flex-1 text-sm"
           disabled={desabilitado || salvando}
           onClick={aoContinuar}
         >
@@ -350,7 +347,7 @@ function ConfigurarPage() {
         <Button
           variant="ghost"
           type="button"
-          className="mt-2 min-h-10 w-full text-center text-xs text-mute"
+          className="mt-2 min-h-12 w-full text-center text-xs text-mute"
           onClick={pular}
         >
           Pular por agora
@@ -436,7 +433,7 @@ function ConfigurarPage() {
                 <input
                   value={valorNome}
                   onChange={(e) => setNome(e.target.value)}
-                  className={campo}
+                  className="field-control mt-2 w-full"
                 />
               </label>
               <label className="block text-xs font-medium text-mute">
@@ -447,7 +444,7 @@ function ConfigurarPage() {
                   inputMode="tel"
                   autoComplete="tel"
                   placeholder="(11) 90000-0000"
-                  className={campo}
+                  className="field-control mt-2 w-full"
                 />
               </label>
               <label className="block text-xs font-medium text-mute">
@@ -456,7 +453,7 @@ function ConfigurarPage() {
                   value={valorEndereco}
                   onChange={(e) => setEndereco(e.target.value)}
                   placeholder="Rua, número, bairro, cidade"
-                  className={campo}
+                  className="field-control mt-2 w-full"
                 />
               </label>
               {rodape(
@@ -544,7 +541,7 @@ function ConfigurarPage() {
                     value={novoNome}
                     onChange={(e) => setNovoNome(e.target.value)}
                     placeholder="Nome"
-                    className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
+                    className="field-control w-full"
                   />
                 ) : null}
                 <input
@@ -557,14 +554,14 @@ function ConfigurarPage() {
                       ? "E-mail (para enviar o convite)"
                       : "E-mail para dar acesso (opcional)"
                   }
-                  className="h-12 w-full rounded-lg border border-line2 bg-ink px-4 text-sm text-paper outline-none"
+                  className="field-control w-full"
                 />
                 <Button
-                  variant="ghost"
                   type="button"
                   disabled={adicionando}
                   onClick={() => void adicionarPessoa()}
-                  className="btn-secondary min-h-12 w-full text-sm"
+                  variant="outline"
+                  className="min-h-12 w-full text-sm"
                 >
                   <Plus size={14} className="mr-1.5 inline" aria-hidden />
                   {adicionando ? "Adicionando…" : "Adicionar"}
@@ -694,36 +691,38 @@ function ConfigurarPage() {
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <Button
-                  variant="ghost"
                   type="button"
-                  className="btn-secondary min-h-12 text-sm"
+                  variant="outline"
+                  className="min-h-12 text-sm"
                   onClick={async () => {
-                    await navigator.clipboard.writeText(link);
-                    setCopiado(true);
-                    marcarLinkCompartilhado();
+                    try {
+                      await navigator.clipboard.writeText(link);
+                      setCopiado(true);
+                      marcarLinkCompartilhado();
+                    } catch {
+                      aviso.erro("Não consegui copiar o link. Tente novamente.");
+                    }
                   }}
                 >
                   <Copy size={14} className="mr-1.5 inline" aria-hidden />
                   {copiado ? "Copiado" : "Copiar"}
                 </Button>
-                <a
-                  className="btn-secondary inline-flex min-h-12 items-center justify-center text-sm"
-                  href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={marcarLinkCompartilhado}
-                >
-                  <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
-                </a>
+                <Button variant="outline" className="min-h-12 text-sm" asChild>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={marcarLinkCompartilhado}
+                  >
+                    <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
+                  </a>
+                </Button>
               </div>
-              <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-xs text-paper underline"
-              >
-                <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
-              </a>
+              <Button variant="ghost" className="mt-4 min-h-12 px-2 text-xs" asChild>
+                <a href={link} target="_blank" rel="noreferrer">
+                  <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
+                </a>
+              </Button>
               {rodape(() => proxima(), "Concluir")}
             </div>
           ) : null}
@@ -736,21 +735,23 @@ function ConfigurarPage() {
               </p>
               <div
                 className="mt-5 grid grid-cols-2 gap-3"
-                role="radiogroup"
+                role="group"
                 aria-label="Modo de agendamento"
               >
                 <Button
                   type="button"
-                  variant={valorModo === "conversa" ? "default" : "outline"}
+                  variant={valorModo === "conversa" ? "primary" : "outline"}
                   className="h-14"
+                  aria-pressed={valorModo === "conversa"}
                   onClick={() => setModo("conversa")}
                 >
                   Conversa
                 </Button>
                 <Button
                   type="button"
-                  variant={valorModo === "tradicional" ? "default" : "outline"}
+                  variant={valorModo === "tradicional" ? "primary" : "outline"}
                   className="h-14"
+                  aria-pressed={valorModo === "tradicional"}
                   onClick={() => setModo("tradicional")}
                 >
                   Tradicional
@@ -779,9 +780,9 @@ function ConfigurarPage() {
               </h2>
               <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
               <Button
-                variant="ghost"
+                variant="primary"
                 type="button"
-                className="btn-primary mt-8 min-h-14 w-full text-sm"
+                className="mt-8 min-h-14 w-full text-sm"
                 onClick={() => void navigate({ to: "/barbeiro" })}
               >
                 Ir para a agenda

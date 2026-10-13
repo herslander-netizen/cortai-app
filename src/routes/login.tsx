@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { LockKeyhole, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -139,8 +138,6 @@ function LoginPage() {
   const falha = (provedor: "google" | "apple") =>
     setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
 
-  const campo =
-    "mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4";
   const botaoSocial =
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
 
@@ -229,38 +226,32 @@ function LoginPage() {
           await seguirParaMinhaArea();
         }}
       >
-        <label className="block text-xs font-medium text-mute">
+        <label className="field-label">
           E-mail
-          <span className={campo}>
-            <Mail size={17} aria-hidden />
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="voce@exemplo.com"
-              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-            />
-          </span>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            autoComplete="email"
+            required
+            placeholder="voce@exemplo.com"
+            className="field-control mt-1.5 text-base"
+          />
         </label>
-        <label className="block text-xs font-medium text-mute">
+        <label className="field-label">
           <span className="flex items-center justify-between">
             <span>Senha</span>
           </span>
-          <span className={campo}>
-            <LockKeyhole size={17} aria-hidden />
-            <input
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              type="password"
-              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-              required
-              minLength={8}
-              placeholder="Sua senha"
-              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-            />
-          </span>
+          <input
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            type="password"
+            autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+            required
+            minLength={8}
+            placeholder="Sua senha"
+            className="field-control mt-1.5 text-base"
+          />
         </label>
         {modo === "entrar" ? (
           <Link

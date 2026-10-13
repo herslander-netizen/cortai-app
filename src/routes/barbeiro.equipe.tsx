@@ -158,14 +158,14 @@ function EquipePage() {
             >
               <label className="block text-xs font-medium text-mute">
                 E-mail da conta
-                <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink px-3">
+                <span className="mt-2 grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink px-3">
                   <Mail size={16} aria-hidden className="text-mute" />
                   <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     type="email"
                     required
-                    className="h-11 min-w-0 bg-transparent text-sm text-paper outline-none"
+                    className="min-h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
                   />
                 </span>
               </label>
@@ -174,7 +174,7 @@ function EquipePage() {
                 <select
                   value={papelConvite}
                   onChange={(e) => setPapelConvite(e.target.value as PapelDeEquipe)}
-                  className="mt-2 h-11 w-full rounded-lg border border-line2 bg-ink px-3 text-sm text-paper outline-none"
+                  className="field-control mt-2 w-full"
                 >
                   <option value="gerente">{PAPEIS.gerente}</option>
                   <option value="barbeiro">{PAPEIS.barbeiro}</option>
@@ -184,11 +184,7 @@ function EquipePage() {
                   {DESCRICAO_DO_PAPEL[papelConvite]}
                 </span>
               </label>
-              <Button
-                variant="ghost"
-                className="btn-primary w-full py-3"
-                disabled={convite.isPending}
-              >
+              <Button variant="primary" className="min-h-12 w-full" disabled={convite.isPending}>
                 {convite.isPending ? "Enviando…" : "Convidar para a equipe"}
               </Button>
             </form>
@@ -353,7 +349,7 @@ function CartaoMembro({
                       .map((item) => (
                         <label
                           key={item.chave}
-                          className="flex items-start gap-3 text-sm text-paper"
+                          className="flex min-h-12 items-center gap-3 text-sm text-paper"
                         >
                           <input
                             type="checkbox"
@@ -365,7 +361,7 @@ function CartaoMembro({
                                   : atual.filter((c) => c !== item.chave),
                               )
                             }
-                            className="mt-0.5 h-4 w-4 shrink-0 rounded border-line2 bg-ink accent-[var(--gold)]"
+                            className="h-5 w-5 shrink-0 rounded border-line2 bg-ink accent-[var(--gold)]"
                           />
                           <span className="min-w-0">
                             <span className="block leading-snug">{item.rotulo}</span>
@@ -381,39 +377,39 @@ function CartaoMembro({
             </div>
           ) : null}
 
-          <label className="flex items-center gap-3 text-sm text-paper">
+          <label className="flex min-h-12 items-center gap-3 text-sm text-paper">
             <input
               type="checkbox"
               checked={ativo}
               onChange={(e) => setAtivo(e.target.checked)}
-              className="h-4 w-4 rounded border-line2 bg-ink accent-[var(--gold)]"
+              className="h-5 w-5 rounded border-line2 bg-ink accent-[var(--gold)]"
             />
             Acesso liberado para entrar no negócio
           </label>
 
           <div className="flex flex-wrap gap-2">
             <Button
-              variant="ghost"
+              variant="primary"
               type="button"
-              className="btn-primary flex-1 py-2.5"
+              className="min-h-12 flex-1"
               disabled={ocupado}
               onClick={() => onSalvar({ papel, permissoes, ativo })}
             >
               Salvar acesso
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
-              className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-paper"
+              className="min-h-12 px-3 text-xs"
               disabled={ocupado}
               onClick={onRecuperar}
             >
               <KeyRound size={14} /> Enviar recuperação
             </Button>
             <Button
-              variant="ghost"
+              variant="destructive"
               type="button"
-              className="flex items-center gap-2 rounded-lg border border-line2 bg-ink px-3 py-2.5 text-xs text-brick"
+              className="min-h-12 px-3 text-xs"
               disabled={ocupado}
               onClick={onRemover}
             >
@@ -456,7 +452,9 @@ function RegraDeRecebimento() {
         />
       </label>
       {mudar.isError ? (
-        <p className="mt-2 text-xs text-paper">Não foi possível salvar. Tente de novo.</p>
+        <p className="mt-2 text-xs text-paper" role="alert">
+          Não foi possível salvar. Tente de novo.
+        </p>
       ) : null}
     </section>
   );
