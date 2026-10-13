@@ -2,7 +2,6 @@ import { useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { classificarErro, recuperarDeChunk, type TipoDeErro } from "@/lib/pwa/recuperar-chunk";
 import { useEffect } from "react";
 
@@ -49,8 +48,6 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
   const t = TEXTOS[tipo];
 
   useEffect(() => {
-    const erroNormalizado = error instanceof Error ? error : new Error(String(error));
-    reportLovableError(erroNormalizado, { boundary: "tanstack_route_error_component", tipo });
     // Chunk antigo: tenta recarregar sozinho uma vez (a trava evita loop).
     if (tipo === "chunk") recuperarDeChunk();
   }, [error, tipo]);
