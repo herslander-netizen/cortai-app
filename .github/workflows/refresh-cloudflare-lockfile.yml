@@ -1,0 +1,36 @@
+name: Refresh Bun lockfile for Cloudflare migration
+
+on:
+  push:
+    branches: [cloudflare-workers-migration-2026-10-13]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lockfile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: cloudflare-workers-migration-2026-10-13
+          fetch-depth: 0
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Refresh lockfile
+        run: bun install
+      - name: Commit updated lockfile
+        run: |
+          if git diff --quiet -- bun.lock; then
+            echo "bun.lock is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bun.lock
+          git commit -m "chore: refresh Bun lockfile for Cloudflare Workers"
+          git push origin HEAD:cloudflare-workers-migration-2026-10-13
