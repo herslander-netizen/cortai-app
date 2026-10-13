@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-ro
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
@@ -226,23 +228,19 @@ function LoginPage() {
           await seguirParaMinhaArea();
         }}
       >
-        <label className="field-label">
-          E-mail
-          <input
+        <Field label="E-mail">
+          <Input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             autoComplete="email"
             required
             placeholder="voce@exemplo.com"
-            className="field-control mt-1.5 text-base"
+            className="mt-1.5"
           />
-        </label>
-        <label className="field-label">
-          <span className="flex items-center justify-between">
-            <span>Senha</span>
-          </span>
-          <input
+        </Field>
+        <Field label="Senha">
+          <Input
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             type="password"
@@ -250,9 +248,9 @@ function LoginPage() {
             required
             minLength={8}
             placeholder="Sua senha"
-            className="field-control mt-1.5 text-base"
+            className="mt-1.5"
           />
-        </label>
+        </Field>
         {modo === "entrar" ? (
           <Link
             to="/recuperar-senha"

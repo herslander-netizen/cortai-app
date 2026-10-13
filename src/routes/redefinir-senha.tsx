@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { supabase } from "@/integrations/supabase/client";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
@@ -128,62 +130,72 @@ function RedefinirSenhaPage() {
           <p className="text-sm leading-relaxed text-mute">
             Use pelo menos 8 caracteres, incluindo uma letra e um número.
           </p>
-          <label className="block text-xs font-medium text-mute">
-            Nova senha
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-line2 bg-ink2 pl-4 pr-1">
-              <LockKeyhole size={17} aria-hidden />
-              <input
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                type={mostrarSenha ? "text" : "password"}
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                aria-label={mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"}
-                aria-pressed={mostrarSenha}
-                onClick={() => setMostrarSenha((valor) => !valor)}
-              >
-                {mostrarSenha ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
-              </Button>
-            </span>
-          </label>
-          <label className="block text-xs font-medium text-mute">
-            Confirmar nova senha
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-line2 bg-ink2 pl-4 pr-1">
-              <LockKeyhole size={17} aria-hidden />
-              <input
-                value={confirmacao}
-                onChange={(e) => setConfirmacao(e.target.value)}
-                type={mostrarConfirmacao ? "text" : "password"}
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                aria-label={
-                  mostrarConfirmacao
-                    ? "Ocultar confirmação da senha"
-                    : "Mostrar confirmação da senha"
-                }
-                aria-pressed={mostrarConfirmacao}
-                onClick={() => setMostrarConfirmacao((valor) => !valor)}
-              >
-                {mostrarConfirmacao ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
-              </Button>
-            </span>
-          </label>
+          <div>
+            <Field label="Nova senha">
+              <div className="relative mt-1.5">
+                <LockKeyhole
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute"
+                  aria-hidden
+                />
+                <Input
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  type={mostrarSenha ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  className="pr-14 pl-11"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                  aria-label={mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"}
+                  aria-pressed={mostrarSenha}
+                  onClick={() => setMostrarSenha((valor) => !valor)}
+                >
+                  {mostrarSenha ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                </Button>
+              </div>
+            </Field>
+          </div>
+          <div>
+            <Field label="Confirmar nova senha">
+              <div className="relative mt-1.5">
+                <LockKeyhole
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute"
+                  aria-hidden
+                />
+                <Input
+                  value={confirmacao}
+                  onChange={(e) => setConfirmacao(e.target.value)}
+                  type={mostrarConfirmacao ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  className="pr-14 pl-11"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                  aria-label={
+                    mostrarConfirmacao
+                      ? "Ocultar confirmação da senha"
+                      : "Mostrar confirmação da senha"
+                  }
+                  aria-pressed={mostrarConfirmacao}
+                  onClick={() => setMostrarConfirmacao((valor) => !valor)}
+                >
+                  {mostrarConfirmacao ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                </Button>
+              </div>
+            </Field>
+          </div>
           {erro ? (
             <p className="text-sm text-brick" role="alert">
               {erro}

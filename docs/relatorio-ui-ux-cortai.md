@@ -254,3 +254,9 @@ Avançar, pular e reiniciar as dicas agora usam as variantes semânticas do bot�
 ### Continuação: busca e ticket de comanda
 
 Filtros e linhas de resultado agora usam botões compartilhados, com alvo mínimo de 48 px e foco consistente. Copiar a chave Pix e o código do ticket também usa o mesmo sistema, preservando o estilo visual específico do recibo. Busca, cópia, filtros e abertura do ticket não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei teste específico desses componentes.
+
+### Continuação: acesso e recuperação de conta
+
+Login, recuperação de senha e redefinição agora usam os controles `Field` e `Input` compartilhados. A mensagem de validação do e-mail de recuperação aparece junto do campo; os campos de redefinição mantêm os botões acessíveis para mostrar/ocultar a senha fora do rótulo clicável. Provedores, destinos após login, validações, mensagens de privacidade e chamadas de autenticação não mudaram.
+
+Validações: Prettier, ESLint direcionado e `git diff --check` passaram nos três arquivos. Não foi executada validação visual em navegador/aparelho nesta etapa.
