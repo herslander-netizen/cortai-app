@@ -89,6 +89,10 @@ Nas configurações compartilhadas, Alterar senha agora usa campos e ações do 
 
 Validações desta continuação: Prettier, ESLint e `git diff --check` passaram nos oito arquivos desta etapa. A validação visual em navegador/dispositivo não foi executada; os testes de integração desses fluxos também não foram executados nesta etapa.
 
+### Validação geral da branch
+
+Prettier nos 39 arquivos `.ts`/`.tsx`/`.md` alterados: passou. ESLint nos arquivos TypeScript da branch: zero erros e um aviso preexistente em `AgendaTimeline.tsx:479` (`acompanharAgora`). `git diff --check`: passou. ESLint no repositório inteiro não é uma verificação válida neste checkout: reportou mais de 110 mil erros de regra Prettier sobre CRLF em arquivos não alterados. A tentativa de build encerrou antes de compilar, porque o plugin Lovable compara `routesDir` com separadores de caminho diferentes no Windows. Não foi possível obter verificação visual responsiva nesta execução.
+
 ### Continuação: lista de espera do cliente
 
 Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.
