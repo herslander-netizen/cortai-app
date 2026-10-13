@@ -98,3 +98,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetad
 A tela de Horários combinava `Button` com a classe legada `btn-primary`, que podia sobrescrever o visual compartilhado; a ação agora usa a variante principal e o seletor de fuso usa `field-control`. Em Avaliações, as ações usavam classe terciária dentro de `Button`; agora seguem variantes da biblioteca. A nota comunica a seleção com `aria-pressed` e alvos de 48 px, o comentário tem nome acessível e o resultado é anunciado como estado. Lógica de horário, avaliação e persistência não mudou.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: agendamento e perfil do cliente
+
+As opções do agendamento (serviço, profissional, data e pagamento) usavam botões nativos com alvos menores e estado visual próprio. Elas agora usam `Button` com alvos mínimos de 48 px e estado selecionado anunciado, preservando as escolhas e a ordem existentes. O atalho da lista de espera e a resolução de conflito também seguem as variantes compartilhadas; falhas de confirmação são anunciadas como alerta. No Perfil, a ação de sair usa o mesmo padrão de botão das demais linhas de conta. Nenhuma regra de disponibilidade, reserva, pagamento ou autenticação mudou.
+
+Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetados. A verificação visual em dispositivos segue pendente.

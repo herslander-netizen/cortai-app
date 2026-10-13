@@ -61,13 +61,14 @@ function Chip({
   onClick?: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       disabled={disabled}
       onClick={onClick}
       aria-pressed={selected}
       className={[
-        "rounded-full border px-4 py-2 text-sm transition-colors",
+        "min-h-12 rounded-full border px-4 text-sm transition-colors",
         selected ? "border-gold bg-gold font-semibold text-ink" : "border-line2 bg-ink2 text-paper",
         disabled ? "cursor-not-allowed border-line text-mute2 opacity-60" : "",
         strike ? "line-through" : "",
@@ -77,7 +78,7 @@ function Chip({
       {sub ? (
         <span className={`ml-2 text-xs ${selected ? "text-ink" : "text-mute"}`}>{sub}</span>
       ) : null}
-    </button>
+    </Button>
   );
 }
 
@@ -454,13 +455,14 @@ function Fluxo({
             <p className="text-sm text-mute">
               Agenda cheia? Entre na lista de espera e avisaremos quando surgir uma vaga.
             </p>
-            <Link
-              to="/app/espera"
-              search={{ ...(slug ? { b: slug } : {}), servico: servico.id, dia }}
-              className="btn-primary mt-3 inline-flex px-5 py-3"
-            >
-              Entrar na lista de espera
-            </Link>
+            <Button asChild variant="primary" className="mt-3 min-h-12">
+              <Link
+                to="/app/espera"
+                search={{ ...(slug ? { b: slug } : {}), servico: servico.id, dia }}
+              >
+                Entrar na lista de espera
+              </Link>
+            </Button>
           </div>
         )}
       </Passo>
@@ -579,17 +581,22 @@ function Fluxo({
             <p className="text-sm text-paper">
               Você já tem um horário às {conflito.hora} nesse dia.
             </p>
-            <button
+            <Button
               type="button"
-              className="mt-3 h-12 w-full rounded-lg border border-line2 text-sm font-semibold text-paper"
+              variant="outline"
+              className="mt-3 min-h-12 w-full"
               disabled={enviando}
               onClick={() => void confirmar(conflito.agendamentoId)}
             >
               Alterar esse horário
-            </button>
+            </Button>
           </div>
         ) : null}
-        {erro ? <p className="mt-3 text-sm text-brick">{erro}</p> : null}
+        {erro ? (
+          <p className="mt-3 text-sm text-brick" role="alert">
+            {erro}
+          </p>
+        ) : null}
         <Button
           type="button"
           className="mt-5 h-14 w-full text-base"
@@ -626,12 +633,13 @@ function LinhaPagamento({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       disabled={desabilitado}
       onClick={onClick}
       aria-pressed={selecionado}
-      className={`flex w-full items-start justify-between gap-4 border-b border-line py-4 text-left ${
+      className={`min-h-16 w-full justify-between gap-4 rounded-none border-b border-line py-4 text-left ${
         desabilitado ? "opacity-50" : ""
       }`}
     >
@@ -651,6 +659,6 @@ function LinhaPagamento({
         </span>
       </span>
       <span className={`shrink-0 text-sm ${valorClasse ?? "text-paper"}`}>{valor}</span>
-    </button>
+    </Button>
   );
 }

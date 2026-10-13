@@ -93,15 +93,16 @@ function PerfilPage() {
               </Link>
             </li>
             <li className="border-b border-line">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => void sair()}
-                className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
+                className="min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 py-5 text-left"
               >
                 <LogOut size={18} className="text-mute" />
                 <span className="text-sm text-paper">Sair da conta</span>
                 <ChevronRight size={16} className="text-mute2" />
-              </button>
+              </Button>
             </li>
           </ul>
           <SegurancaDaConta />
