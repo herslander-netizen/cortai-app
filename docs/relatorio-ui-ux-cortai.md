@@ -152,3 +152,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 Busca e filtros agora têm rótulos/alvos mais consistentes, e os filtros anunciam seleção. Linhas de desktop e celular usam o Button compartilhado e o mesmo alvo mínimo; a lista vazia explica que busca/filtro podem ser ajustados. Campos do histórico de contato usam `field-control`, com altura adequada também no texto livre. Dados, filtros, status e operações de contato não mudaram.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: equipe e permissões do profissional
+
+A tela de equipe agora dá 48 px ou mais aos campos e às opções de permissão; os checkboxes ficam alinhados com seus rótulos e são mais fáceis de tocar. Convidar, salvar, recuperar acesso e remover usam variantes semânticas do Button compartilhado. A falha ao salvar a configuração de recebimento é anunciada como alerta. Papéis, permissões, valores padrão e ações de convite/remoção não mudaram.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
