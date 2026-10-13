@@ -7,18 +7,21 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
-import { getSessao } from "@/lib/sessao.functions";
+import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { proximo?: string; aba?: "criar" } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { proximo?: string; aba?: "criar"; erro?: "perfil" } => ({
     ...(typeof search["proximo"] === "string" && search["proximo"]
       ? { proximo: search["proximo"] }
       : {}),
     ...(search["aba"] === "criar" ? { aba: "criar" as const } : {}),
+    ...(search["erro"] === "perfil" ? { erro: "perfil" as const } : {}),
   }),
   head: () => ({
     meta: [
@@ -40,7 +43,14 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (data.user) {
-      const sessao = await getSessao();
+      // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
+      // de renderizar nem apagar a sessão válida do usuário.
+      let sessao: Sessao;
+      try {
+        sessao = await getSessao();
+      } catch {
+        return;
+      }
       throw redirect({ to: destinoDoPapel(sessao) });
     }
   },
@@ -87,11 +97,15 @@ function MarcaApple() {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { proximo, aba } = Route.useSearch();
+  const { proximo, aba, erro: erroNaSessao } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(
+    erroNaSessao === "perfil"
+      ? "Sua conta foi autenticada, mas não conseguimos carregar seu perfil. Tente novamente em instantes; você não precisa sair da conta."
+      : null,
+  );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -102,7 +116,18 @@ function LoginPage() {
   }, []);
 
   async function seguirParaMinhaArea() {
-    const sessao = await getSessao();
+    let sessao: Sessao;
+    try {
+      sessao = await getSessao();
+    } catch {
+      // O login pode ter sido bem-sucedido mesmo se o perfil estiver indisponível.
+      // Não apague a sessão: informe o problema e permita tentar novamente.
+      setErro(
+        "Sua conta foi autenticada, mas não conseguimos carregar seu perfil. Tente novamente em instantes; você não precisa sair da conta.",
+      );
+      setEnviando(false);
+      return;
+    }
     // Só aceita caminho interno da área autorizada para o papel da pessoa.
     const pedido = destinoSolicitadoPermitido(proximo, destinoDoPapel(sessao));
     const destino = destinoAposEntrar(sessao);
