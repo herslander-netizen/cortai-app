@@ -146,3 +146,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 O retorno de Recursos ainda usava uma classe de link legada; agora é um Button outline como link. Sair em Perfil usa o Button fantasma com alvo mínimo e alinhamento de linha, mantendo a função de encerrar sessão sem alterar o fluxo.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: lista administrativa de estabelecimentos
+
+Busca e filtros agora têm rótulos/alvos mais consistentes, e os filtros anunciam seleção. Linhas de desktop e celular usam o Button compartilhado e o mesmo alvo mínimo; a lista vazia explica que busca/filtro podem ser ajustados. Campos do histórico de contato usam `field-control`, com altura adequada também no texto livre. Dados, filtros, status e operações de contato não mudaram.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
