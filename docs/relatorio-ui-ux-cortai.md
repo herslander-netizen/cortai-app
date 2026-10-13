@@ -242,3 +242,7 @@ O convite flutuante pós-login também usa os botões compartilhados: fechar, in
 ### Continuação: aviso de nova versão
 
 O aviso não bloqueante agora organiza texto e ações em uma faixa responsiva, com botões compartilhados e alvos de 48 px. Atualizar, abrir novidades e adiar continuam com os mesmos comportamentos. Prettier, ESLint direcionado e `git diff --check` passaram; não há teste específico e não rodei a tela em navegador/dispositivo.
+
+### Continuação: assistente, ajuda e avisos do aparelho
+
+O atalho do CortAI, o botão de dicas e o convite para ativar avisos agora usam `Button`, com alvos de 48 px, foco visível e texto que quebra em telas estreitas. A abertura do assistente, a ajuda contextual, a inscrição em notificações e o dispensar mantêm as ações existentes. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei testes específicos para esses controles.
