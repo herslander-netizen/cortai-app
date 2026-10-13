@@ -43,7 +43,7 @@ function PerfilPage() {
     <Screen title="Perfil" subtitle="Sua conta no Cortaí.">
       {sessao.isLoading ? <EsqueletoFicha onTentarDeNovo={() => void sessao.refetch()} /> : null}
       {sessao.isError ? (
-        <div className="surface p-5">
+        <div className="surface p-5" role="alert">
           <p className="text-sm text-paper">Não conseguimos carregar seu perfil agora.</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void sessao.refetch()}>
             Tentar de novo

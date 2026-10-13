@@ -134,3 +134,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 A avaliação após o atendimento usava ciano local fora dos tokens Cortaí, estrelas com alvo de 44 px e botões nativos. Agora usa `gold` da marca, `Button` compartilhado com alvos de 48 px, estado escolhido via `aria-pressed`, campo `field-control` e botões padronizados para enviar/compartilhar. O grupo é identificado com rótulo acessível. A nota obrigatória, dimensões opcionais, texto e integração de envio permanecem os mesmos.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: recuperação no Perfil e Histórico do cliente
+
+Os estados de falha ao ler o perfil e o histórico já ofereciam nova tentativa, mas faltava o papel de alerta para leitores de tela. Ambos agora anunciam imediatamente a falha e mantêm a recuperação no mesmo lugar. Nenhum dado ou ação mudou.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
