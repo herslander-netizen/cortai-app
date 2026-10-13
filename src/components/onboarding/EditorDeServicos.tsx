@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
 import { useConfirmar } from "@/components/ui/useConfirmar";
+import { ItemCascata } from "@/components/layout/ItemCascata";
 import { supabase } from "@/integrations/supabase/client";
 import { comprimirImagem } from "@/lib/imagem";
 import { AssistenteDeServicos } from "./AssistenteDeServicos";
@@ -47,7 +48,7 @@ export function EditorDeServicos({
 
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
-          <li key={s.id ?? `novo-${i}`} className="surface px-4 py-3">
+          <ItemCascata key={s.id ?? `novo-${i}`} indice={i} className="surface px-4 py-3">
             {tenantId ? (
               <div className="mb-3 flex items-center gap-3">
                 <Button
@@ -261,7 +262,7 @@ export function EditorDeServicos({
                 </div>
               </div>
             ) : null}
-          </li>
+          </ItemCascata>
         ))}
       </ul>
 
