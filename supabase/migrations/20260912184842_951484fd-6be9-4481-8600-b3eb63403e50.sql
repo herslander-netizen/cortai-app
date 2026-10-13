@@ -302,41 +302,4 @@ ALTER TABLE public.fila_de_espera ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "tenant gerencia fila" ON public.fila_de_espera
   FOR ALL TO authenticated USING (public.is_tenant_member(tenant_id)) WITH CHECK (public.is_tenant_member(tenant_id));
 
--- ============ DADOS DE EXEMPLO ============
-INSERT INTO public.tenants (id, nome, slug, telefone, endereco, plano, texto_boas_vindas, rotulo_carteira, instagram, whatsapp)
-VALUES ('11111111-1111-4111-8111-111111111111', 'M.A Barbearia', 'ma-barbearia', '(11) 99999-0001',
-        'Rua das Tesouras, 120 — Centro', 'pro', 'Bem-vindo à M.A Barbearia.', 'Carteira',
-        '@mabarbearia', '5511999990001');
-
-INSERT INTO public.profissionais (id, tenant_id, nome, ativo) VALUES
-  ('22222222-2222-4222-8222-222222222201', '11111111-1111-4111-8111-111111111111', 'Marcos Alves', true),
-  ('22222222-2222-4222-8222-222222222202', '11111111-1111-4111-8111-111111111111', 'André Lima', true);
-
-INSERT INTO public.servicos (id, tenant_id, nome, duracao_min, preco_centavos, ordem) VALUES
-  ('33333333-3333-4333-8333-333333333301', '11111111-1111-4111-8111-111111111111', 'Corte', 30, 4500, 1),
-  ('33333333-3333-4333-8333-333333333302', '11111111-1111-4111-8111-111111111111', 'Corte + barba', 50, 6500, 2),
-  ('33333333-3333-4333-8333-333333333303', '11111111-1111-4111-8111-111111111111', 'Barba', 25, 3500, 3),
-  ('33333333-3333-4333-8333-333333333304', '11111111-1111-4111-8111-111111111111', 'Pezinho', 15, 2500, 4);
-
-INSERT INTO public.clientes (id, tenant_id, nome, telefone, opt_in_whatsapp, limite_fiado_centavos) VALUES
-  ('44444444-4444-4444-8444-444444444401', '11111111-1111-4111-8111-111111111111', 'João Pereira', '(11) 98888-0001', true, 0),
-  ('44444444-4444-4444-8444-444444444402', '11111111-1111-4111-8111-111111111111', 'Rafael Souza', '(11) 98888-0002', true, 0),
-  ('44444444-4444-4444-8444-444444444403', '11111111-1111-4111-8111-111111111111', 'Bruno Castro', '(11) 98888-0003', false, 0),
-  ('44444444-4444-4444-8444-444444444404', '11111111-1111-4111-8111-111111111111', 'Diego Martins', '(11) 98888-0004', true, 15000),
-  ('44444444-4444-4444-8444-444444444405', '11111111-1111-4111-8111-111111111111', 'Lucas Ferreira', '(11) 98888-0005', false, 0),
-  ('44444444-4444-4444-8444-444444444406', '11111111-1111-4111-8111-111111111111', 'Paulo Ribeiro', '(11) 98888-0006', true, 0);
-
-INSERT INTO public.carteiras (id, tenant_id, cliente_id)
-SELECT gen_random_uuid(), tenant_id, id FROM public.clientes
-WHERE tenant_id = '11111111-1111-4111-8111-111111111111';
-
-INSERT INTO public.movimentos (carteira_id, tipo, centavos_delta, origem, descricao)
-SELECT c.id, 'fiado', -12000, 'fiado', 'Atendimentos em aberto'
-FROM public.carteiras c
-WHERE c.cliente_id = '44444444-4444-4444-8444-444444444404';
-
-INSERT INTO public.regras_de_plano (tenant_id, tipo, ativo, preco_centavos, cota, validade_dias, fidelidade_alvo) VALUES
-  ('11111111-1111-4111-8111-111111111111', 'avulso', true, 0, NULL, NULL, NULL),
-  ('11111111-1111-4111-8111-111111111111', 'mensal', true, 12900, 4, 30, NULL),
-  ('11111111-1111-4111-8111-111111111111', 'fiado', true, 0, NULL, NULL, NULL),
-  ('11111111-1111-4111-8111-111111111111', 'fidelidade', true, 0, NULL, NULL, 10);
+-- Seeds de demonstração removidos na branch de reconstrução.
