@@ -204,3 +204,9 @@ O cartão de serviço e a resposta editável da conversa ainda eram botões nati
 ### Continuação: configuração inicial de horários
 
 O editor de horários do onboarding agora usa `Button`, `field-control`, `Textarea` e `Aviso` para ações, campos e feedback. Os campos de abertura, fechamento e intervalo ganharam rótulos acessíveis; os intervalos podem quebrar em mais de uma linha no celular. A interpretação assistida, os dias padrão e os valores aplicados continuam iguais. Validações: Prettier, ESLint e `git diff --check` passaram; não há teste específico encontrado nem inspeção visual em dispositivo nesta etapa.
+
+### Continuação: personalizações por cliente
+
+Os campos de desconto, condições e observações da ficha agora usam os controles compartilhados, com dicas que deixam explícito o que é herdado e o que é privado. O switch de WhatsApp ganhou área mínima de toque e o botão de salvar usa a variante primária. Valores, consentimento, persistência e feedback de sucesso/erro permanecem iguais.
+
+Validações: Prettier, ESLint direcionado e `git diff --check` passaram. Não há teste de componente específico nem inspeção visual em aparelho nesta etapa.
