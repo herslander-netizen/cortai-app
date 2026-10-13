@@ -140,3 +140,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 Os estados de falha ao ler o perfil e o histórico já ofereciam nova tentativa, mas faltava o papel de alerta para leitores de tela. Ambos agora anunciam imediatamente a falha e mantêm a recuperação no mesmo lugar. Nenhum dado ou ação mudou.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: navegação e sessão do administrador
+
+O retorno de Recursos ainda usava uma classe de link legada; agora é um Button outline como link. Sair em Perfil usa o Button fantasma com alvo mínimo e alinhamento de linha, mantendo a função de encerrar sessão sem alterar o fluxo.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
