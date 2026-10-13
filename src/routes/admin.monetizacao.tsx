@@ -152,7 +152,7 @@ function AbaPlanos() {
         </Aviso>
       ) : null}
       {erro ? (
-        <Aviso className="mb-4" tom="erro">
+        <Aviso className="mb-4" tom="atencao">
           {erro}
         </Aviso>
       ) : null}
@@ -453,7 +453,7 @@ function AbaBarbearia() {
         </Aviso>
       ) : null}
       {erro ? (
-        <Aviso className="mt-4" tom="erro">
+        <Aviso className="mt-4" tom="atencao">
           {erro}
         </Aviso>
       ) : null}
@@ -837,7 +837,7 @@ function AbaCupons() {
         </Aviso>
       ) : null}
       {erro ? (
-        <Aviso className="mb-4" tom="erro">
+        <Aviso className="mb-4" tom="atencao">
           {erro}
         </Aviso>
       ) : null}
@@ -1069,7 +1069,7 @@ function AbaBanners() {
         </Aviso>
       ) : null}
       {erro ? (
-        <Aviso className="mb-4" tom="erro">
+        <Aviso className="mb-4" tom="atencao">
           {erro}
         </Aviso>
       ) : null}

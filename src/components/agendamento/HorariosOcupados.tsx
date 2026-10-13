@@ -38,7 +38,9 @@ export function HorariosOcupados({
             disabled={!listaDeEspera}
             aria-expanded={aberto === o.iso}
             aria-label={`${o.label}, ocupado${listaDeEspera ? ". Tocar para entrar na lista de espera" : ""}`}
-            onClick={() => listaDeEspera && setAberto(aberto === o.iso ? null : o.iso)}
+            onClick={() => {
+              if (listaDeEspera) setAberto(aberto === o.iso ? null : o.iso);
+            }}
             className={cn(
               "h-auto min-h-12 flex-col rounded-lg border border-dashed px-3 py-1 text-sm",
               aberto === o.iso ? "border-brick text-paper" : "border-line text-mute2",
