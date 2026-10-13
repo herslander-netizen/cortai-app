@@ -179,9 +179,10 @@ function ParceirosAdmin() {
               </span>
             </span>
             <span className="flex shrink-0 gap-3">
-              <button
+              <Button
                 type="button"
-                className="text-xs text-gold"
+                variant="ghost"
+                className="min-h-12 px-2 text-xs text-gold"
                 onClick={() => {
                   setOrdem(String(parceiro.ordem));
                   setForm({
@@ -195,10 +196,11 @@ function ParceirosAdmin() {
                 }}
               >
                 Editar
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="text-xs text-brick disabled:opacity-60"
+                variant="destructive"
+                className="min-h-12 px-2 text-xs"
                 disabled={acao.ocupado}
                 onClick={async () => {
                   if (
@@ -227,7 +229,7 @@ function ParceirosAdmin() {
                 }}
               >
                 {acao.estaEm(`remover-${parceiro.id}`) ? "Removendo…" : "Remover"}
-              </button>
+              </Button>
             </span>
           </li>
         ))}

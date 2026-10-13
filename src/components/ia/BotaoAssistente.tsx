@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState } from "react";
 import { Sparkles } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 const AssistenteCortai = lazy(() =>
   import("./AssistenteCortai").then((m) => ({ default: m.AssistenteCortai })),
 );
@@ -12,11 +14,12 @@ export function BotaoAssistente({ variante = "destaque" }: { variante?: "destaqu
   return (
     <>
       {variante === "destaque" ? (
-        <button
+        <Button
+          variant="ghost"
           type="button"
           data-guia="dash-assistente"
           onClick={() => setAberto(true)}
-          className="flex w-full items-center gap-3 rounded-xl border border-gold/40 bg-ink2 px-4 py-3.5 text-left"
+          className="h-auto min-h-12 w-full justify-start whitespace-normal rounded-xl border border-gold/40 bg-ink2 px-4 py-3.5 text-left"
         >
           <Sparkles size={18} className="shrink-0 text-gold" aria-hidden />
           <span className="min-w-0">
@@ -25,16 +28,17 @@ export function BotaoAssistente({ variante = "destaque" }: { variante?: "destaqu
               Cadastre serviços, ajuste horários ou tire dúvidas escrevendo normal.
             </span>
           </span>
-        </button>
+        </Button>
       ) : (
-        <button
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setAberto(true)}
-          className="flex w-full items-center gap-3 border-b border-line py-4 text-left"
+          className="h-auto min-h-12 w-full justify-start whitespace-normal rounded-none border-b border-line px-0 py-4 text-left"
         >
           <Sparkles size={17} className="shrink-0 text-gold" aria-hidden />
           <span className="text-sm text-paper">Perguntar ao CortAI</span>
-        </button>
+        </Button>
       )}
 
       {aberto ? (

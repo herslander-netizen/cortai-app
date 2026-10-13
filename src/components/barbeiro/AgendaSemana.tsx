@@ -1,6 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 
 import { StatusBadge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getAgendaDia, type AgendaDia } from "@/lib/barbeiro.functions";
 
 const INATIVOS = new Set(["cancelado", "remarcado", "nao_compareceu"]);
@@ -40,8 +41,9 @@ export function AgendaSemana({
         const data = new Date(`${d}T12:00:00Z`);
         return (
           <section key={d} className="agenda-semana-coluna" data-hoje={d === hoje}>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               className="agenda-semana-coluna-topo"
               onClick={() => onAbrirDia(d)}
             >
@@ -56,12 +58,13 @@ export function AgendaSemana({
                   ? "…"
                   : `${itens.length} ${itens.length === 1 ? "agendado" : "agendados"}`}
               </small>
-            </button>
+            </Button>
             <ul>
               {itens.map((it) => (
                 <li key={it.id}>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     className={`agenda-semana-item agenda-timeline-${it.status} ${it.encaixe ? "agenda-timeline-encaixe" : ""}`}
                     onClick={() => onAbrirDia(d)}
                   >
@@ -70,7 +73,7 @@ export function AgendaSemana({
                     </strong>
                     <span>{it.servico}</span>
                     <StatusBadge status={it.status} />
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>

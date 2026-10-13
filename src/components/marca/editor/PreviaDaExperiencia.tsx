@@ -4,6 +4,8 @@ import { ChatPreview } from "@/components/agendamento/ChatPreview";
 import { EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { transicaoBase } from "@/lib/motion";
 import type { PaginaConfig } from "@/lib/pagina-config";
 import type { PaginaPublica } from "@/lib/publico.functions";
 import { PreviaDireta } from "./PreviaDireta";
@@ -61,7 +63,9 @@ export function PreviaDaExperiencia({
       {conversa ? (
         <ChatPreview ativo config={config} nome={nome} logoUrl={avatarUrl} capaUrl={capaUrl} />
       ) : (
-        <div
+        <motion.div
+          layout
+          transition={transicaoBase}
           className={`mx-auto max-w-full overflow-y-auto rounded-lg border border-line bg-background shadow-xl ${altura ?? "h-[720px]"} ${config.experiencia === "vitrine" && device === "desktop" ? "w-full" : "w-[390px]"}`}
         >
           {!data ? (
@@ -76,7 +80,7 @@ export function PreviaDaExperiencia({
               previaCelular={device === "mobile"}
             />
           )}
-        </div>
+        </motion.div>
       )}
     </div>
   );

@@ -24,7 +24,6 @@ import {
   nomeEhGenerico,
   ROTULO_ESTADO,
   tempoExcedido,
-  teclaDeAtivar,
 } from "./tempo";
 
 export type AcaoCard = "chegou" | "iniciar" | "terminar";
@@ -114,75 +113,83 @@ export function ListaAgenda({
           return (
             <li
               key={item.id}
-              role="button"
-              tabIndex={0}
-              aria-label={`${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
               className={`agenda-item agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
               style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
-              onClick={() => onAbrir(item.id)}
-              onKeyDown={teclaDeAtivar(() => onAbrir(item.id))}
             >
-              <div className="grid grid-cols-[54px_minmax(0,1fr)] items-start gap-3">
-                <div className="pt-0.5">
-                  <p className="text-sm font-extrabold text-paper">{hora(item.inicio, fuso)}</p>
-                  {item.status === "na_cadeira" ? (
-                    <p className="agenda-item-hora-agora" aria-hidden>
-                      AGORA
-                    </p>
-                  ) : null}
-                </div>
-                <div className="min-w-0">
-                  <p
-                    className={`agenda-nome text-sm ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
-                  >
-                    {nome}
-                  </p>
-                  <p className="mt-0.5 truncate text-xs text-mute">
-                    {item.servico}
-                    {mostrarProfissional ? ` · ${item.profissional}` : ""}
-                  </p>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {item.status !== "na_cadeira" ? (
-                      <span className={`agenda-item-badge agenda-item-badge-${item.status}`}>
-                        {estado}
+              <Button
+                type="button"
+                variant="ghost"
+                className="agenda-item-resumo h-auto min-h-12 w-full flex-col items-stretch justify-start gap-1 rounded-none whitespace-normal px-0 py-0 text-left hover:bg-transparent active:bg-transparent"
+                aria-label={`${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
+                aria-pressed={selecionado === item.id}
+                onClick={() => onAbrir(item.id)}
+              >
+                <span className="grid grid-cols-[54px_minmax(0,1fr)] items-start gap-3">
+                  <span className="pt-0.5">
+                    <span className="block text-sm font-extrabold text-paper">
+                      {hora(item.inicio, fuso)}
+                    </span>
+                    {item.status === "na_cadeira" ? (
+                      <span className="agenda-item-hora-agora block" aria-hidden>
+                        AGORA
                       </span>
                     ) : null}
-                    {item.encaixe ? (
-                      <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span>
-                    ) : null}
-                    {item.confirmadoEm && item.status === "agendado" ? (
-                      <span className="agenda-item-badge agenda-item-badge-confirmado">
-                        Confirmou
-                      </span>
-                    ) : null}
-                    {atrasado ? (
-                      <span className="agenda-item-badge agenda-item-badge-atrasado">Atrasado</span>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-              {alergia ? (
-                <p className="mt-2 border-l-2 border-brick pl-2 text-xs font-semibold text-paper">
-                  {alergia}
-                </p>
-              ) : null}
-              {item.status === "na_cadeira" ? (
-                <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                  <progress
-                    className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`}
-                    max={Math.max(item.duracaoMin, decorrido)}
-                    value={decorrido}
-                    aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
-                  />
-                  <span
-                    className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
-                  >
-                    {estourou
-                      ? tempoExcedido(decorrido, item.duracaoMin)
-                      : `${decorrido}/${item.duracaoMin} min`}
                   </span>
-                </div>
-              ) : null}
+                  <span className="min-w-0">
+                    <span
+                      className={`agenda-nome text-sm ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
+                    >
+                      {nome}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-mute">
+                      {item.servico}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
+                    </span>
+                    <span className="mt-1 flex flex-wrap gap-1">
+                      {item.status !== "na_cadeira" ? (
+                        <span className={`agenda-item-badge agenda-item-badge-${item.status}`}>
+                          {estado}
+                        </span>
+                      ) : null}
+                      {item.encaixe ? (
+                        <span className="agenda-item-badge agenda-item-badge-encaixe">Encaixe</span>
+                      ) : null}
+                      {item.confirmadoEm && item.status === "agendado" ? (
+                        <span className="agenda-item-badge agenda-item-badge-confirmado">
+                          Confirmou
+                        </span>
+                      ) : null}
+                      {atrasado ? (
+                        <span className="agenda-item-badge agenda-item-badge-atrasado">
+                          Atrasado
+                        </span>
+                      ) : null}
+                    </span>
+                  </span>
+                </span>
+                {alergia ? (
+                  <span className="mt-2 block border-l-2 border-brick pl-2 text-xs font-semibold text-paper">
+                    {alergia}
+                  </span>
+                ) : null}
+                {item.status === "na_cadeira" ? (
+                  <span className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                    <progress
+                      className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`}
+                      max={Math.max(item.duracaoMin, decorrido)}
+                      value={decorrido}
+                      aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
+                    />
+                    <span
+                      className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
+                    >
+                      {estourou
+                        ? tempoExcedido(decorrido, item.duracaoMin)
+                        : `${decorrido}/${item.duracaoMin} min`}
+                    </span>
+                  </span>
+                ) : null}
+              </Button>
               {principal || atrasado ? (
                 <div className="agenda-item-acoes">
                   {principal ? (

@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Switch } from "@/components/ui/switch";
+import { Field, Select, Textarea } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -148,40 +150,33 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
       >
         {TEXTO.map((item) =>
           item.area ? (
-            <label key={item.campo} className="block text-xs text-mute">
-              {item.rotulo}
-              <textarea
+            <Field key={item.campo} label={item.rotulo}>
+              <Textarea
                 value={form[item.campo] ?? ""}
                 onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })}
                 rows={2}
-                className="mt-1 w-full resize-y rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
+                className="mt-1 resize-y"
               />
-            </label>
+            </Field>
           ) : (
-            <label key={item.campo} className="block text-xs text-mute">
-              {item.rotulo}
-              <input
+            <Field key={item.campo} label={item.rotulo}>
+              <Input
                 value={form[item.campo] ?? ""}
                 onChange={(e) => setForm({ ...form, [item.campo]: e.target.value })}
-                className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
+                className="mt-1"
               />
-            </label>
+            </Field>
           ),
         )}
 
-        <label className="block text-xs text-mute">
-          Plano
-          <select
-            value={plano}
-            onChange={(e) => setPlano(e.target.value)}
-            className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
-          >
+        <Field label="Plano">
+          <Select value={plano} onChange={(e) => setPlano(e.target.value)} className="mt-1">
             <option value="essencial">Essencial</option>
             <option value="pro">Profissional</option>
             <option value="conecta">Conecta</option>
             <option value="studio">Equipe</option>
-          </select>
-        </label>
+          </Select>
+        </Field>
 
         <div className="flex items-center justify-between gap-4 border-y border-line py-3">
           <span className="text-sm text-paper">
@@ -193,16 +188,15 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           <Switch checked={loja} onCheckedChange={setLoja} aria-label="Loja online do negócio" />
         </div>
 
-        <label className="block text-xs text-mute">
-          Motivo do atendimento (fica na auditoria)
-          <input
+        <Field label="Motivo do atendimento (fica na auditoria)">
+          <Input
             required
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             placeholder="Ex.: cliente pediu troca do endereço"
-            className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
+            className="mt-1"
           />
-        </label>
+        </Field>
 
         <Button className="w-full sm:w-auto" disabled={salvando}>
           {salvando ? "Salvando…" : "Salvar alterações"}

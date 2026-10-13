@@ -10,6 +10,7 @@ import {
 import { useModoFoco } from "@/lib/modo-foco";
 import { EVENTO_ABRIR_NOVIDADES } from "@/components/sistema/NovidadesDaVersao";
 import { AtualizacaoObrigatoria } from "@/components/pwa/AtualizacaoObrigatoria";
+import { Button } from "@/components/ui/button";
 import { deveBloquear, INTERVALO_DE_CHECAGEM_MS } from "@/lib/pwa/atualizacao-obrigatoria";
 
 const CHAVE_ADIADO = "cortai:versao-adiada";
@@ -68,22 +69,27 @@ export function AvisoDeVersao() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
-      <div className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4 py-3">
-        <button
+      <div className="pointer-events-auto flex w-full max-w-md flex-wrap items-center gap-2 rounded-xl border border-line2 bg-ink2 p-3">
+        <Button
+          variant="ghost"
           type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent(EVENTO_ABRIR_NOVIDADES))}
-          className="min-w-0 flex-1 text-left text-xs text-paper underline-offset-2 hover:underline"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent(EVENTO_ABRIR_NOVIDADES));
+          }}
+          className="order-1 h-12 min-w-0 basis-full justify-start rounded-lg px-3 text-left text-xs sm:flex-1"
         >
           Cortaí 3.0 disponível
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="primary"
           type="button"
           onClick={atualizar}
-          className="rounded-lg bg-gold px-3 py-1.5 text-xs font-medium text-ink"
+          className="order-2 h-12 flex-1 rounded-lg px-3 text-xs sm:flex-none"
         >
           Atualizar
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
           type="button"
           onClick={() => {
             void buscarVersaoPublicada().then((info) => {
@@ -91,10 +97,10 @@ export function AvisoDeVersao() {
             });
             setAdiado(true);
           }}
-          className="rounded-lg border border-line2 px-3 py-1.5 text-xs text-mute"
+          className="order-3 h-12 flex-1 rounded-lg px-3 text-xs sm:flex-none"
         >
           Agora não
-        </button>
+        </Button>
       </div>
     </div>
   );

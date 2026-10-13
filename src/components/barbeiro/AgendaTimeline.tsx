@@ -67,7 +67,7 @@ type AgendaTimelineProps = {
   /** Passo do negócio, em minutos: define o passo fino do arrasto (veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
-  edicaoDoCartao?: { id: string; motivo: string | null } | undefined;
+  edicaoDoCartao?: { id: string } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -893,10 +893,10 @@ export function AgendaTimeline({
                   </span>
                   {edicaoDoCartao?.id === item.id ? (
                     <span
-                      role={edicaoDoCartao.motivo ? "alert" : undefined}
-                      className={`absolute right-2 top-1.5 z-[1] max-w-[60%] truncate rounded-full px-2.5 py-0.5 text-xs font-semibold ${edicaoDoCartao.motivo ? "bg-brick/15 text-brick" : "bg-ink3 text-paper"}`}
+                      aria-label="Novo horário proposto"
+                      className="absolute right-2 top-1.5 z-[1] max-w-[48%] truncate rounded-full bg-ink3 px-2.5 py-0.5 text-xs font-semibold text-paper"
                     >
-                      {edicaoDoCartao.motivo ?? `${horaMinuto(inicio)} – ${horaMinuto(fim)}`}
+                      {horaMinuto(inicio)} – {horaMinuto(fim)}
                     </span>
                   ) : null}
                   <span className="flex min-w-0 items-center gap-1">

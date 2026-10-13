@@ -13,6 +13,7 @@ import {
 
 import { getSessao } from "@/lib/sessao.functions";
 import { itemDeNavegacaoAtivo, itensDaBarra } from "@/lib/navegacao-barbeiro";
+import { Button } from "@/components/ui/button";
 
 const CHAVE = "cortai-lateral-recolhida";
 
@@ -77,21 +78,25 @@ export function NavegacaoEquipe() {
           );
         })}
         <li>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             title="Menu"
-            className="equipe-lateral-link w-full"
-            onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
+            className="equipe-lateral-link h-auto min-h-12 w-full justify-start"
+            onClick={() => {
+              window.dispatchEvent(new Event("cortai:abrir-menu"));
+            }}
           >
             <Menu size={19} strokeWidth={1.75} aria-hidden />
             <span className="equipe-lateral-rotulo">Menu</span>
-          </button>
+          </Button>
         </li>
       </ul>
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={alternar}
-        className="equipe-lateral-link equipe-lateral-alternar"
+        className="equipe-lateral-link equipe-lateral-alternar h-auto min-h-12 justify-start"
         aria-label={recolhida ? "Expandir barra lateral" : "Recolher barra lateral"}
       >
         {recolhida ? (
@@ -100,7 +105,7 @@ export function NavegacaoEquipe() {
           <PanelLeftClose size={19} strokeWidth={1.75} aria-hidden />
         )}
         <span className="equipe-lateral-rotulo">Recolher</span>
-      </button>
+      </Button>
     </nav>
   );
 }

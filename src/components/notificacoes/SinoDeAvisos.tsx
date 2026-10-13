@@ -244,25 +244,28 @@ export function SinoDeAvisos() {
         </div>
         <div className="flex items-center gap-3">
           {naoLidas ? (
-            <button
+            <Button
+              variant="text"
               type="button"
-              className="text-xs text-gold"
+              className="h-12 px-2 text-xs text-gold"
               onClick={async () => {
                 await marcarTodasComoLidas(tenantId!);
                 void queryClient.invalidateQueries({ queryKey: ["notificacoes", tenantId] });
               }}
             >
               Marcar todas como lidas
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
+            variant="icon"
+            size="icon"
             type="button"
             aria-label="Fechar avisos"
             onClick={() => setAberto(false)}
-            className="text-mute"
+            className="h-12 w-12 text-mute"
           >
             <X size={17} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -279,10 +282,11 @@ export function SinoDeAvisos() {
               <ul>
                 {grupo.itens.map((aviso) => (
                   <li key={aviso.id} className="border-b border-line">
-                    <button
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => void abrirAviso(aviso)}
-                      className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left transition-transform duration-[120ms] active:scale-[0.99] active:bg-ink3"
+                      className="grid h-auto min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 whitespace-normal rounded-none px-5 py-3 text-left transition-transform duration-[120ms] active:scale-[0.99] active:bg-ink3"
                     >
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${aviso.lida_em ? "bg-transparent" : "bg-gold"}`}
@@ -298,7 +302,7 @@ export function SinoDeAvisos() {
                         ) : null}
                       </span>
                       <span className="text-xs text-mute2">{quando(aviso.criado_em)}</span>
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
