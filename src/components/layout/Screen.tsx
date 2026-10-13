@@ -42,7 +42,7 @@ export function Screen({
                 {voltarRotulo}
               </Link>
             ) : null}
-            <CabecalhoDeTela title={title} subtitle={subtitle} />
+            <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
           </div>
           <div className="flex items-center gap-2">
             <BotaoAjuda />

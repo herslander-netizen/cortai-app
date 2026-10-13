@@ -73,7 +73,9 @@ export function AvisoDeVersao() {
         <Button
           variant="ghost"
           type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent(EVENTO_ABRIR_NOVIDADES))}
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent(EVENTO_ABRIR_NOVIDADES));
+          }}
           className="order-1 h-12 min-w-0 basis-full justify-start rounded-lg px-3 text-left text-xs sm:flex-1"
         >
           Cortaí 3.0 disponível

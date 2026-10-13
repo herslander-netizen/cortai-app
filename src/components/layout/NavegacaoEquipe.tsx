@@ -83,7 +83,9 @@ export function NavegacaoEquipe() {
             variant="ghost"
             title="Menu"
             className="equipe-lateral-link h-auto min-h-12 w-full justify-start"
-            onClick={() => window.dispatchEvent(new Event("cortai:abrir-menu"))}
+            onClick={() => {
+              window.dispatchEvent(new Event("cortai:abrir-menu"));
+            }}
           >
             <Menu size={19} strokeWidth={1.75} aria-hidden />
             <span className="equipe-lateral-rotulo">Menu</span>

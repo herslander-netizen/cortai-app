@@ -216,7 +216,7 @@ export function EditorDeHorarios({
             </Aviso>
           ) : null}
           {erro ? (
-            <Aviso className="mt-3" tom="erro">
+            <Aviso className="mt-3" tom="atencao">
               {erro}
             </Aviso>
           ) : null}
