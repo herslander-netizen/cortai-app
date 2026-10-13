@@ -62,3 +62,9 @@ Foram adicionadas transições curtas às quatro áreas do editor da página pro
 Estas escolhas adaptam padrões de interface das capturas Figaroo ao sistema visual do Cortaí; não reproduzem cores, marca ou telas completas. A análise estática do APK e as capturas permitem confirmar tecnologias e aparências específicas, mas não comprovar a implementação exata de todas as animações observadas. O componente de cascata consulta a preferência por movimento reduzido, e as demais animações são controladas pela configuração global de movimento do app.
 
 Validações desta continuação: Prettier e ESLint nos quatro arquivos alterados passaram; `git diff --check` passou. O TypeScript (`tsc --noEmit`) e Vitest iniciaram, mas permaneceram sem saída por mais de 30 segundos e foram interrompidos, sem resultado. A validação visual em navegador não foi executada.
+
+## Padronização transversal dos layouts
+
+O inventário encontrou três cascos internos distintos: gestão profissional, área do cliente e administração da plataforma. As áreas profissionais/clientes já compartilham `Screen`; as páginas de administração usam `AdminScreen`. Entrada de conta, onboarding, agendamento público e página pública têm jornadas próprias e devem compartilhar identidade, componentes e acessibilidade sem herdar a navegação interna.
+
+Como primeiro passo da padronização, `Screen` e `AdminScreen` agora usam `CabecalhoDeTela` para o título, subtítulo e, quando aplicável, o identificador da área. Isso alinha tipografia e ritmo de leitura em dezenas de páginas sem alterar menus, permissões, conteúdo, contratos ou os limites de largura específicos de cada tela. A revisão das navegações por papel e das páginas com composição própria continua sendo trabalho pendente; esta etapa não declara a padronização global concluída.
