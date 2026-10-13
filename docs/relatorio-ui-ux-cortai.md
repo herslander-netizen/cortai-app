@@ -192,3 +192,7 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 As abas e ações de planos, condições, cupons e campanhas agora seguem o `Button` compartilhado; os campos usam `field-control` e os estados de sucesso/erro usam `Aviso`. A exclusão de campanha pede confirmação explícita. Mantive valores, cálculos, limites, chamadas de persistência e as demais ações.
 
 Validações: Prettier e `git diff --check` passaram. O ESLint da rota aponta dois `no-explicit-any` preexistentes em conversões de segmento; desativando apenas essa regra para validar a rota, não há outros problemas. Não há teste específico dessa tela e a inspeção visual segue pendente.
+
+### Continuação: primeiros passos e ciclo de cobrança
+
+O comando Pular do checklist de configuração profissional e as opções Mensal/Anual da tabela comercial agora usam `Button` e anunciam o estado escolhido. O cálculo, os preços, o conteúdo dos planos e os destinos continuam iguais. Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes; não há testes de componente específicos e falta inspeção visual responsiva.

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   PLANOS_COMERCIAIS,
   precoAnualComercial,
@@ -26,12 +27,12 @@ export function TabelaDePlanos({
   return (
     <div>
       <div className="planos-ciclo" role="group" aria-label="Forma de cobrança">
-        <button type="button" aria-pressed={!anual} onClick={() => setAnual(false)}>
+        <Button type="button" variant="ghost" aria-pressed={!anual} onClick={() => setAnual(false)}>
           Mensal
-        </button>
-        <button type="button" aria-pressed={anual} onClick={() => setAnual(true)}>
+        </Button>
+        <Button type="button" variant="ghost" aria-pressed={anual} onClick={() => setAnual(true)}>
           Anual (−20%)
-        </button>
+        </Button>
       </div>
       <ol className="planos-tabela" aria-label="Planos do Cortaí">
         {PLANOS_COMERCIAIS.map((plano) => {
