@@ -246,3 +246,7 @@ O aviso não bloqueante agora organiza texto e ações em uma faixa responsiva, 
 ### Continuação: assistente, ajuda e avisos do aparelho
 
 O atalho do CortAI, o botão de dicas e o convite para ativar avisos agora usam `Button`, com alvos de 48 px, foco visível e texto que quebra em telas estreitas. A abertura do assistente, a ajuda contextual, a inscrição em notificações e o dispensar mantêm as ações existentes. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei testes específicos para esses controles.
+
+### Continuação: guia contextual
+
+Avançar, pular e reiniciar as dicas agora usam as variantes semânticas do botão compartilhado e áreas de toque consistentes. O alvo que escurece o fundo continua um botão de tela inteira para preservar o comportamento de fechar ao tocar fora; a sequência do tutorial não mudou. Prettier e `git diff --check` passaram; ESLint não encontrou erros, com um aviso preexistente `react-refresh/only-export-components` em `GuiaProvider.tsx`.
