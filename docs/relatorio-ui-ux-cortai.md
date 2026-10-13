@@ -158,3 +158,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram.
 A tela de equipe agora dá 48 px ou mais aos campos e às opções de permissão; os checkboxes ficam alinhados com seus rótulos e são mais fáceis de tocar. Convidar, salvar, recuperar acesso e remover usam variantes semânticas do Button compartilhado. A falha ao salvar a configuração de recebimento é anunciada como alerta. Papéis, permissões, valores padrão e ações de convite/remoção não mudaram.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: troca entre negócios do profissional
+
+O seletor de negócio combinava `Button` com classes legadas. A ação agora escolhe explicitamente variante outline para o negócio em uso e primary para os demais, com altura de ação consistente. A troca, a indicação de configuração e as restrições de acesso não mudaram.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
