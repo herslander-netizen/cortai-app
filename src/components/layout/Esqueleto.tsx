@@ -22,9 +22,11 @@ export function RegiaoDeEsqueleto({ children, className, onTentarDeNovo }: Regia
 
   if (demorou) {
     return (
-      <div role="alert" className={cn("surface p-5", className)}>
-        <p className="text-sm font-semibold text-paper">Não conseguimos carregar agora.</p>
-        <p className="mt-1 text-xs text-mute">Confira sua conexão e tente novamente.</p>
+      <div role="status" aria-live="polite" className={cn("surface p-5", className)}>
+        <p className="text-sm font-semibold text-paper">O carregamento está demorando mais que o esperado.</p>
+        <p className="mt-1 text-xs text-mute">
+          Ainda estamos aguardando os dados. Se a tela não avançar, tente novamente.
+        </p>
         <Button
           variant="outline"
           className="mt-4"
