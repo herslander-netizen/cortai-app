@@ -110,3 +110,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetad
 A ficha de cliente usava estilos legados junto ao Button compartilhado em baixa parcial, quitação e arquivamento; as ações agora usam variantes semânticas e alvos mínimos de 48 px. O campo da baixa segue `field-control`, a cobrança externa usa o botão compartilhado como link, e falhas ao arquivar são anunciadas. O link de retorno ganhou área de toque adequada. Cálculos, limites, exclusão, arquivo e chamadas de persistência não foram alterados.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: estado de leitura das configurações de horário
+
+O editor de Horários mostrava valores iniciais enquanto a configuração do negócio ainda carregava. Agora o formulário só aparece depois que a configuração foi lida e aplicada ao estado local; durante a leitura, permanece o esqueleto. Se a leitura falhar sem dados disponíveis, há uma mensagem de erro e tentativa de novo. Isso evita apresentar valores fictícios como configuração existente e impede interação prematura. Não houve mudança no formato ou no salvamento das regras.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
