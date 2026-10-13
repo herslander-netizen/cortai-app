@@ -62,14 +62,17 @@ function AdminWhatsappPage() {
     >
       {negocios.isLoading ? <Carregando /> : null}
       {negocios.isError ? (
-        <p className="text-sm text-brick">Acesso negado ou indisponível.</p>
+        <p className="text-sm text-brick" role="alert">
+          Acesso negado ou indisponível.
+        </p>
       ) : null}
       <ul className="divide-y divide-line border-y border-line">
         {(negocios.data ?? []).map((n) => (
           <li key={n.tenantId} className="py-3">
-            <button
+            <Button
               type="button"
-              className="flex w-full items-center justify-between gap-3 text-left"
+              variant="ghost"
+              className="min-h-12 w-full justify-between gap-3 rounded-md px-2 text-left"
               onClick={() => setAberto(aberto === n.tenantId ? null : n.tenantId)}
               aria-expanded={aberto === n.tenantId}
             >
@@ -84,7 +87,7 @@ function AdminWhatsappPage() {
               <span className="shrink-0 text-xs text-mute">
                 Avisos {n.notificacoesAtivas ? "ligados" : "desligados"}
               </span>
-            </button>
+            </Button>
             {aberto === n.tenantId ? <Detalhe negocio={n} /> : null}
           </li>
         ))}

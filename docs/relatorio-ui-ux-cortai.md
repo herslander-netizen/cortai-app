@@ -86,3 +86,9 @@ Validações: ESLint, Prettier e `git diff --check` passaram nos arquivos altera
 Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.
 
 Validações: Prettier, ESLint e `git diff --check` passaram. Não foi feita validação visual em navegador nesta etapa.
+
+### Continuação: ações administrativas em parceiros e WhatsApp
+
+Na lista de parceiros, Editar e Remover tinham alvos menores que o mínimo acessível e estilos próprios; agora usam `Button` compartilhado, variantes semântica e destrutiva, e altura mínima de 48 px. O erro de carregamento da lista de conexões WhatsApp passou a ser anunciado com `role="alert"`, e a linha expansível usa o mesmo botão compartilhado com alvo mínimo. As operações, confirmações e dados mantêm o comportamento existente.
+
+Validações: Prettier, ESLint e `git diff --check` passaram nos arquivos afetados.
