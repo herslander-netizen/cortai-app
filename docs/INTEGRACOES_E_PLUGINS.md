@@ -9,7 +9,7 @@ Objetivo: manter a reconstrução independente do Lovable e permitir conectar/de
 | Código e automação | GitHub, GitHub Actions | Conectado; CI ativo |
 | Hospedagem e preview | Cloudflare Workers + Wrangler | Workflow preparado; preview ainda não publicado |
 | Dados, autenticação e arquivos | Supabase | Projeto novo isolado; migrations ainda não aplicadas |
-| WhatsApp | Evolution API, Z-API, Meta Cloud API, gateway genérico | Código existente a adaptar e testar; credenciais não configuradas aqui |
+| WhatsApp | Evolution API, Z-API, Meta Cloud API, gateway genérico | Assinatura do webhook Meta/Lovable desacoplada do SDK; testes unitários adicionados; validação no CI pendente |
 | IA | OpenAI, Anthropic/Claude, Google Gemini | Variáveis reservadas; conectores precisam ser validados |
 | Pagamentos | Asaas | Variável reservada; integração não validada |
 | Assistentes de código | ChatGPT, Codex, Claude Code, GitHub | Ferramentas externas; nenhuma chave deve ficar no frontend |
@@ -56,3 +56,12 @@ O arquivo .env.example contém apenas nomes de variáveis sem valores secretos. 
 - Este documento e o template de ambiente preparam o caminho; não afirmam que todos os provedores estão prontos.
 - Evolution, Z-API, Meta, Asaas e provedores de IA precisam de testes reais com credenciais e webhooks de teste.
 - A autenticação Lovable/MCP continua sendo um ponto de desacoplamento: remover dependências requer substituir e testar os fluxos de OAuth/MCP antes de desinstalar pacotes.
+
+
+## Webhook Meta / encaminhamento Lovable — desacoplamento
+
+O endpoint `/api/public/whatsapp/webhook` não depende mais do pacote `@lovable.dev/webhooks-js`. A validação da assinatura encaminhada foi movida para `src/lib/webhooks/lovable-signature.server.ts`, mantendo o formato HMAC-SHA256 de `timestamp.corpo-cru`, comparação em tempo constante, janela de timestamp de 5 minutos e limite de tamanho de corpo. A verificação direta da Meta (`x-hub-signature-256`) continua separada.
+
+A caixa de entrada durável `whatsapp_webhook_events`, a deduplicação por `delivery_id`, o roteamento pela conexão registrada e a resposta 5xx em falha de processamento permanecem no fluxo existente.
+
+Testes unitários cobrem assinatura válida, assinatura inválida, corpo alterado, timestamp antigo/inválido, JSON inválido e corpo acima do limite. **Ainda é necessário confirmar no CI e testar com uma entrega real do provedor antes de ativar em qualquer ambiente publicado.** Nenhuma configuração de webhook ou segredo foi alterada.
