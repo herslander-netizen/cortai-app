@@ -14,7 +14,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { verifyWebhookRequest, WebhookError } from "@lovable.dev/webhooks-js";
+import { verificarWebhookIndependente, WebhookVerificationError } from "@/lib/webhooks/lovable-signature.server";
 
 /** Valida a assinatura oficial da Meta sobre o corpo cru, sem normalizar o JSON. */
 export function verificarAssinaturaMeta(
@@ -254,20 +254,18 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           // Entrega pelo conector do Lovable, assinada com a chave da integração.
           if (!segredo) return guard.rejeitar(request, "whatsapp/meta", "sem assinatura");
           try {
-            const verificado = await verifyWebhookRequest({
+            const verificado = await verificarWebhookIndependente({
               req: request,
               secret: segredo,
               maxBodyBytes: 4 * 1024 * 1024,
             });
             payload = verificado.payload;
           } catch (erro) {
-            if (erro instanceof WebhookError) {
-              return guard.rejeitar(
-                request,
-                "whatsapp/meta",
-                erro.code,
-                erro.code === "invalid_signature" ? 401 : 400,
-              );
+            if (erro instanceof WebhookVerificationError) {
+              const status =
+                erro.code === "body_too_large" ? 413 :
+                erro.code === "missing_signature" || erro.code === "invalid_signature" ? 401 : 400;
+              return guard.rejeitar(request, "whatsapp/meta", erro.code, status);
             }
             throw erro;
           }
