@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, "claude/**", "teste-fora-lovable", "reconstrucao-independente-2026-10-13", "cloudflare-workers-migration-2026-10-13"]
+    branches: [main, "claude/**", "teste-fora-lovable", "reconstrucao-independente-2026-10-13", "cloudflare-workers-migration-2026-10-13", "integracao-gpt4free-2026-10-13"]
 
 permissions:
   contents: read

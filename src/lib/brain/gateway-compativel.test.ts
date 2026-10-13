@@ -38,11 +38,29 @@ describe("lerConfigDoProvedor", () => {
     });
   });
 
+  it("configura GPT4Free com URL padrão e a chave do serviço sem expô-la", () => {
+    const r = lerConfigDoProvedor({
+      CORTAI_AI_PROVIDER: "gpt4free",
+      CORTAI_AI_MODEL: "gpt-4o",
+      G4F_API_KEY: "chave-g4f-teste",
+    });
+    expect(r.ok && r.config.tipo === "compativel" && r.config).toMatchObject({
+      baseUrl: "https://gpt4free-production-eb35.up.railway.app/v1",
+      modelo: "gpt-4o",
+      nome: "gpt4free-production-eb35.up.railway.app",
+      canais: ["painel"],
+    });
+    expect(JSON.stringify(r)).not.toContain("chave-g4f-teste");
+  });
+
   it("configuração incompleta ou inválida NÃO cai em outro provedor", () => {
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_API_KEY: "" }).ok).toBe(false);
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_MODEL: "" }).ok).toBe(false);
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_BASE_URL: "" }).ok).toBe(false);
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_PROVIDER: "gemini" }).ok).toBe(false);
+    expect(
+      lerConfigDoProvedor({ CORTAI_AI_PROVIDER: "gpt4free", CORTAI_AI_MODEL: "gpt-4o" }).ok,
+    ).toBe(false);
   });
 
   it("exige https, salvo localhost", () => {

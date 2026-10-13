@@ -10,7 +10,7 @@ Objetivo: manter a reconstrução independente do Lovable e permitir conectar/de
 | Hospedagem e preview | Cloudflare Workers + Wrangler | Workflow preparado; preview ainda não publicado |
 | Dados, autenticação e arquivos | Supabase | Projeto novo isolado; migrations ainda não aplicadas |
 | WhatsApp | Evolution API, Z-API, Meta Cloud API, gateway genérico | Código existente a adaptar e testar; credenciais não configuradas aqui |
-| IA | OpenAI, Anthropic/Claude, Google Gemini | Variáveis reservadas; conectores precisam ser validados |
+| IA | GPT4Free (Railway), OpenAI-compatible, Anthropic/Claude, Google Gemini | Adaptador GPT4Free adicionado na branch de integração; teste real de modelo/ferramentas pendente |
 | Pagamentos | Asaas | Variável reservada; integração não validada |
 | Assistentes de código | ChatGPT, Codex, Claude Code, GitHub | Ferramentas externas; nenhuma chave deve ficar no frontend |
 | Desenvolvimento remoto | Codespaces ou ambiente web equivalente | Opção de trabalho; não é dependência de runtime |
@@ -56,3 +56,18 @@ O arquivo .env.example contém apenas nomes de variáveis sem valores secretos. 
 - Este documento e o template de ambiente preparam o caminho; não afirmam que todos os provedores estão prontos.
 - Evolution, Z-API, Meta, Asaas e provedores de IA precisam de testes reais com credenciais e webhooks de teste.
 - A autenticação Lovable/MCP continua sendo um ponto de desacoplamento: remover dependências requer substituir e testar os fluxos de OAuth/MCP antes de desinstalar pacotes.
+
+
+## GPT4Free (serviço isolado no Railway)
+
+A branch `integracao-gpt4free-2026-10-13` adiciona o identificador `CORTAI_AI_PROVIDER=gpt4free` ao adaptador compatível com OpenAI. Ele usa por padrão o endpoint do serviço Railway já existente:
+
+- Base URL: `https://gpt4free-production-eb35.up.railway.app/v1`
+- Autenticação: segredo `G4F_API_KEY` no runtime do Cortaí, com o mesmo valor configurado no serviço GPT4Free. O segredo nunca é colocado no frontend ou no Git.
+- Modelo: `CORTAI_AI_MODEL`; o valor precisa ser confirmado contra os modelos que o serviço realmente disponibiliza.
+- Canais: padrão `painel` apenas. Não habilitar WhatsApp/site até passar nos testes de ferramentas, segurança e qualidade.
+- Timeout: `CORTAI_AI_TIMEOUT_MS` (padrão 45 segundos).
+
+**Limitação importante:** o deploy do GPT4Free consta como ativo no Railway, mas ainda não foi comprovado um ciclo real de chat + chamada de ferramenta usando o serviço. O status de deploy não prova que um provedor/modelo responda corretamente. O Cortaí mantém as validações, permissões, confirmações e barreiras de saída existentes; GPT4Free apenas propõe texto/ações ao núcleo do Cortaí.
+
+Para ativar em um ambiente de teste, configure no servidor `CORTAI_AI_PROVIDER=gpt4free`, `CORTAI_AI_MODEL=<modelo validado>`, `G4F_API_KEY=<segredo do serviço>` e `CORTAI_AI_CANAIS=painel`. Não configure o segredo em `VITE_*`, no navegador, nem em arquivos versionados. Remover `CORTAI_AI_PROVIDER` restaura o gateway Lovable; não há fallback silencioso.
