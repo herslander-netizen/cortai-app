@@ -47,14 +47,20 @@ function ehLocal(host: string) {
 export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   const bruto = (env["CORTAI_AI_PROVIDER"] ?? "").trim().toLowerCase();
   if (!bruto || bruto === "lovable") return { ok: true, config: { tipo: "lovable" } };
+  // GPT4Free é um gateway separado já hospedado; usa o mesmo contrato OpenAI Chat Completions.
+  // A chave é configurada separadamente no runtime do Cortaí, nunca enviada ao navegador.
+  const gpt4free = bruto === "gpt4free";
   // Modo básico por regras: sem IA, sem chave, sem custo (só painel).
   if (bruto === "regras") return { ok: true, config: { tipo: "regras" } };
-  if (bruto !== "openai_compatible")
+  if (bruto !== "openai_compatible" && !gpt4free)
     return { ok: false, motivo: `CORTAI_AI_PROVIDER inválido ("${bruto.slice(0, 40)}").` };
 
-  const baseUrl = (env["CORTAI_AI_BASE_URL"] ?? "").trim().replace(/\/+$/, "");
+  const baseUrl = (
+    env["CORTAI_AI_BASE_URL"] ??
+    (gpt4free ? "https://gpt4free-production-eb35.up.railway.app/v1" : "")
+  ).trim().replace(/\/+$/, "");
   const modelo = (env["CORTAI_AI_MODEL"] ?? "").trim();
-  const chave = (env["CORTAI_AI_API_KEY"] ?? "").trim();
+  const chave = (env["CORTAI_AI_API_KEY"] || (gpt4free ? env["G4F_API_KEY"] : "") || "").trim();
   if (!baseUrl || !modelo || !chave)
     return {
       ok: false,
