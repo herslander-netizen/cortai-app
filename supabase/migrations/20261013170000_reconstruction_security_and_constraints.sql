@@ -44,13 +44,10 @@ ALTER TABLE public.agendamentos
 
 ALTER TABLE public.movimentos
   ADD CONSTRAINT movimentos_tipo_reconstruction_check
-  CHECK (tipo IN
-    ('credito','debito','fiado','baixa','expiracao','rollover','fidelidade','perda','devolucao'));
+  CHECK (length(btrim(tipo)) > 0);
 
 ALTER TABLE public.movimentos
   ADD CONSTRAINT movimentos_origem_reconstruction_check
-  CHECK (origem IS NULL OR origem IN
-    ('avulso','semanal','mensal','pacote','fidelidade','fiado','ajuste',
-     'agendamento','cancelamento','balcao','comanda'));
+  CHECK (origem IS NULL OR length(btrim(origem)) > 0);
 
 COMMIT;
