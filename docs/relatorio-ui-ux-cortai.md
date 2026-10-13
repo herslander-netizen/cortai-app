@@ -196,3 +196,7 @@ Validações: Prettier e `git diff --check` passaram. O ESLint da rota aponta do
 ### Continuação: primeiros passos e ciclo de cobrança
 
 O comando Pular do checklist de configuração profissional e as opções Mensal/Anual da tabela comercial agora usam `Button` e anunciam o estado escolhido. O cálculo, os preços, o conteúdo dos planos e os destinos continuam iguais. Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes; não há testes de componente específicos e falta inspeção visual responsiva.
+
+### Continuação: respostas do agendamento em conversa
+
+O cartão de serviço e a resposta editável da conversa ainda eram botões nativos; agora usam `Button` sem perder seleção, estilo de cartão, nome acessível ou edição da resposta. Profissional, serviço, data, disponibilidade e sequência de etapas seguem intactos. Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes. Não há teste específico encontrado nem inspeção visual em celular nesta etapa.
