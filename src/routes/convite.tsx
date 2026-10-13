@@ -119,7 +119,7 @@ function ConvitePage() {
           </ul>
 
           {confirmar.isError ? (
-            <Aviso tom="erro" titulo="Não foi possível confirmar agora.">
+            <Aviso tom="acao" titulo="Não foi possível confirmar agora.">
               Tente de novo.
             </Aviso>
           ) : null}
