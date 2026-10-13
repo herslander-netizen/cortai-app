@@ -200,3 +200,7 @@ O comando Pular do checklist de configuração profissional e as opções Mensal
 ### Continuação: respostas do agendamento em conversa
 
 O cartão de serviço e a resposta editável da conversa ainda eram botões nativos; agora usam `Button` sem perder seleção, estilo de cartão, nome acessível ou edição da resposta. Profissional, serviço, data, disponibilidade e sequência de etapas seguem intactos. Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes. Não há teste específico encontrado nem inspeção visual em celular nesta etapa.
+
+### Continuação: configuração inicial de horários
+
+O editor de horários do onboarding agora usa `Button`, `field-control`, `Textarea` e `Aviso` para ações, campos e feedback. Os campos de abertura, fechamento e intervalo ganharam rótulos acessíveis; os intervalos podem quebrar em mais de uma linha no celular. A interpretação assistida, os dias padrão e os valores aplicados continuam iguais. Validações: Prettier, ESLint e `git diff --check` passaram; não há teste específico encontrado nem inspeção visual em dispositivo nesta etapa.
