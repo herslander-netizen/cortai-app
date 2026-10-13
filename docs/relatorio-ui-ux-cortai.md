@@ -99,6 +99,10 @@ Na agenda semanal, cabeçalho dos dias e compromissos agora usam o `Button` comp
 
 Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes afetados. Não houve teste automatizado específico nem inspeção visual nesta continuação.
 
+### Continuação: navegação profissional e galeria do cliente
+
+As ações Menu/Recolher da navegação lateral profissional e a abertura de fotos na ficha de cliente agora usam `Button`, mantendo seus eventos e estado; a galeria preserva o botão destrutivo separado para apagar. Os alvos interativos mantêm ao menos 48 px. Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes; não houve teste de componente nem inspeção visual específica.
+
 ### Continuação: lista de espera do cliente
 
 Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.
