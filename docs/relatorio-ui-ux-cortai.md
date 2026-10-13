@@ -93,6 +93,12 @@ Validações desta continuação: Prettier, ESLint e `git diff --check` passaram
 
 Prettier nos 39 arquivos `.ts`/`.tsx`/`.md` alterados: passou. ESLint nos arquivos TypeScript da branch: zero erros e um aviso preexistente em `AgendaTimeline.tsx:479` (`acompanharAgora`). `git diff --check`: passou. ESLint no repositório inteiro não é uma verificação válida neste checkout: reportou mais de 110 mil erros de regra Prettier sobre CRLF em arquivos não alterados. A tentativa de build encerrou antes de compilar, porque o plugin Lovable compara `routesDir` com separadores de caminho diferentes no Windows. Não foi possível obter verificação visual responsiva nesta execução.
 
+### Continuação: ações da semana e horários ocupados
+
+Na agenda semanal, cabeçalho dos dias e compromissos agora usam o `Button` compartilhado, preservando os cartões e o clique que abre o dia. No agendamento público, horários ocupados só ficam habilitados quando a lista de espera oferece uma ação; o estado de expansão do convite é anunciado. O link da lista de espera segue o mesmo botão principal do restante do fluxo, mantendo os parâmetros atuais. Disponibilidade, reserva e fila permanecem inalteradas.
+
+Validações: Prettier, ESLint e `git diff --check` passaram nos dois componentes afetados. Não houve teste automatizado específico nem inspeção visual nesta continuação.
+
 ### Continuação: lista de espera do cliente
 
 Na entrada `/app/espera`, a escolha de período usava botões nativos sem anunciar qual opção estava selecionada, e a ação principal recorria a um estilo legado. O grupo agora tem `fieldset`/`legend`, cada opção usa o Button compartilhado com `aria-pressed` e alvo mínimo de 48 px, e o envio usa a variante principal. Mensagens de falha são anunciadas como alerta. Períodos, validação e chamada de entrada na fila não mudaram.
