@@ -222,3 +222,7 @@ Os campos especiais das seções de textos, redes, recepção, link e ajustes fi
 ### Continuação: campos do catálogo de serviços
 
 Nome, categoria, duração, preço e intervalo de retorno passaram a usar o `Input` compartilhado, que mantém o foco e o tamanho de texto consistentes em celular. A conversão para centavos, os limites, sugestões, fotos, atribuição a profissionais e remoção confirmada seguem iguais. Prettier, ESLint direcionado e `git diff --check` passaram. O teste existente `EditorDeServicos.test.tsx` não iniciou pela incompatibilidade preexistente de caminhos Windows no plugin Vite; não houve inspeção visual em dispositivo.
+
+### Continuação: central de avisos
+
+As ações de marcar como lido, fechar, abrir aviso e os convites de instalação/ativação agora usam o `Button` compartilhado com alvos de 48 px e foco consistente. Grupos, contagens, navegação, notificações do navegador e animações existentes não mudaram. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei teste específico desses componentes nem validei em aparelho.
