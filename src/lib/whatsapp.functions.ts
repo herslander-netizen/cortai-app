@@ -41,7 +41,7 @@ async function admin() {
  * apenas depois que a reconstrução tiver uma URL pública própria.
  */
 function urlDeEventos(provedor: string): string {
-  const base = process.env.CORTAI_PUBLIC_BASE_URL?.trim().replace(/\/$/, "");
+  const base = process.env["CORTAI_PUBLIC_BASE_URL"]?.trim().replace(/\/$/, "");
   if (!base) throw new Error("Configure CORTAI_PUBLIC_BASE_URL para ativar o WhatsApp neste ambiente.");
   let parsed: URL;
   try {
