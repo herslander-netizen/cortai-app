@@ -8,6 +8,22 @@ import type { ServicoEditavel } from "./servicos.types";
 
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => vi.fn() }));
 
+// Os componentes responsivos usam matchMedia; jsdom não implementa essa API.
+// Mantemos o resultado desktop por padrão para tornar os testes determinísticos.
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: vi.fn().mockImplementation((media: string) => ({
+    matches: false,
+    media,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 vi.mock("@/lib/assistente.functions", () => ({ interpretarServicos: vi.fn() }));
 
 vi.mock("@/integrations/supabase/client", () => ({
