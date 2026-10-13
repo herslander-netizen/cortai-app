@@ -128,3 +128,9 @@ Validações: Prettier, ESLint e `git diff --check` passaram. A tela de onboardi
 Em Pedidos, a linha expansível agora usa Button compartilhado, os campos do diálogo seguem `field-control` e a ausência de registros tem um estado vazio explicativo. Em Agendamentos confirmados, os filtros comunicam a seleção com `aria-pressed`, respeitam alvo mínimo de 48 px e a ação Atualizar deixou de sobrepor uma classe de botão legado. A falha da consulta é anunciada como alerta. Filtros, dados, períodos e atualizações permanecem iguais.
 
 Validações: Prettier, ESLint e `git diff --check` passaram.
+
+### Continuação: avaliação pública pelo cliente
+
+A avaliação após o atendimento usava ciano local fora dos tokens Cortaí, estrelas com alvo de 44 px e botões nativos. Agora usa `gold` da marca, `Button` compartilhado com alvos de 48 px, estado escolhido via `aria-pressed`, campo `field-control` e botões padronizados para enviar/compartilhar. O grupo é identificado com rótulo acessível. A nota obrigatória, dimensões opcionais, texto e integração de envio permanecem os mesmos.
+
+Validações: Prettier, ESLint e `git diff --check` passaram.
