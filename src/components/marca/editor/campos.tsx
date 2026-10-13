@@ -1,6 +1,9 @@
 import { Field, Select } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
+/** Classe legada para controles especiais do editor, alinhada ao sistema compartilhado. */
+export const fieldClass = "field-control mt-2";
+
 export function Campo({
   label,
   value,

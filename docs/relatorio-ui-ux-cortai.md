@@ -216,3 +216,5 @@ Validações: Prettier, ESLint direcionado e `git diff --check` passaram. Não h
 Os controles compartilhados do editor da página do profissional agora usam `Field`, `Input` e `Select` do sistema visual do Cortaí, alinhando rótulos, foco, altura e bordas em todas as seções que os reutilizam. Mantive valores, opções e callbacks de edição.
 
 Validações: Prettier, ESLint direcionado e `git diff --check` passaram. O teste existente de acessibilidade não iniciou por incompatibilidade preexistente do plugin Vite `@lovable.dev/mcp-js` com caminhos Windows (`routesDir`); não foi possível validar por navegador nesta etapa.
+
+Os campos especiais das seções de textos, redes, recepção, link e ajustes finos também passaram a compartilhar a mesma classe visual `field-control` do Cortaí. Validei o helper alterado com Prettier, ESLint e `git diff --check`; executar ESLint nos arquivos consumidores antigos revelou somente os erros de quebra de linha CRLF já existentes nesses arquivos.
