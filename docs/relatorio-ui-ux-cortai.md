@@ -232,3 +232,7 @@ As preferências de lembrete do cliente agora usam o `Input` compartilhado para 
 ### Continuação: formulário administrativo de suporte
 
 Os campos de texto, descrições, plano e motivo de auditoria agora usam `Field`, `Input`, `Textarea` e `Select`; todos ganham a mesma escala visual e altura mínima dos formulários compartilhados. Confirmações, registro de auditoria, campos exigidos e salvamento continuam iguais. Prettier, ESLint direcionado e `git diff --check` passaram; não encontrei teste específico e não fiz inspeção visual em navegador.
+
+### Continuação: instalação do app nas configurações
+
+A linha de instalação do Cortaí agora usa o botão compartilhado com alvo mínimo de 48 px, foco visível e layout que não corta textos em telas estreitas. Removi o símbolo de confirmação repetido no estado já instalado. O fluxo de instalação e as instruções por plataforma continuam iguais. Prettier, ESLint direcionado e `git diff --check` passaram; não há teste específico nem conferência visual em dispositivo.
