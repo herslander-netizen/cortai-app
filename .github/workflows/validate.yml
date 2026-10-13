@@ -28,3 +28,11 @@ jobs:
         run: bunx vitest run
       - name: Production build
         run: bunx vite build --outDir /tmp/cortai-build
+
+      - name: Save validated build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortai-build-${{ github.sha }}
+          path: /tmp/cortai-build/
+          if-no-files-found: error
+          retention-days: 30
