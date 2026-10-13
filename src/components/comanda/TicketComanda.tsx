@@ -2,7 +2,6 @@ import { Calendar, Check, Clock, Copy, Package, Sparkles, User, X, Hourglass } f
 import type { ReactNode } from "react";
 
 import simbolo from "@/assets/cortai-simbolo-oficial.png.asset.json";
-import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import {
   barrasDoCodigo,
@@ -215,11 +214,10 @@ export function TicketComanda({
         <section className="mt-4">
           <Rotulo>PAGAMENTO</Rotulo>
           {ehPix && ticket.pixChave && onCopiarPix ? (
-            <Button
-              variant="ghost"
+            <button
               type="button"
               onClick={onCopiarPix}
-              className="mt-2 h-auto min-h-12 w-full justify-start rounded-[var(--raio-bloco)] border border-[var(--ticket-linha)] px-3 py-2 text-left text-[var(--ticket-navy)] hover:bg-[var(--ticket-suave)]"
+              className="mt-2 flex min-h-12 w-full items-center gap-3 rounded-[var(--raio-bloco)] border border-[var(--ticket-linha)] px-3 py-2 text-left"
             >
               <SimboloPix />
               <span className="min-w-0 flex-1">
@@ -229,7 +227,7 @@ export function TicketComanda({
                 </span>
               </span>
               <Copy className="size-4 text-[var(--ticket-navy)]" aria-hidden />
-            </Button>
+            </button>
           ) : (
             <div className="mt-2 flex min-h-12 items-center gap-3 rounded-[var(--raio-bloco)] border border-[var(--ticket-linha)] px-3 py-2">
               {ehPix ? <SimboloPix /> : null}
@@ -256,16 +254,14 @@ export function TicketComanda({
             </p>
           </div>
           {onCopiarCodigo ? (
-            <Button
-              variant="icon"
-              size="icon"
+            <button
               type="button"
               onClick={onCopiarCodigo}
               aria-label="Copiar código da comanda"
-              className="size-12 shrink-0 rounded-full text-[var(--ticket-navy)]"
+              className="grid size-12 shrink-0 place-items-center rounded-full"
             >
               <Copy className="size-4 text-[var(--ticket-navy)]" aria-hidden />
-            </Button>
+            </button>
           ) : null}
         </div>
 

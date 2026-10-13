@@ -8,8 +8,6 @@ import {
   useConsentimento,
   type Categorias,
 } from "@/lib/consentimento";
-import { Button } from "@/components/ui/button";
-import { Aviso } from "@/components/ui/aviso";
 
 /** Seção de Perfil/Configurações para revisar e alterar as preferências de privacidade. */
 export function PreferenciasDePrivacidade() {
@@ -60,22 +58,17 @@ export function PreferenciasDePrivacidade() {
           </li>
         ))}
       </ul>
-      <Button
+      <button
         type="button"
-        variant="primary"
         onClick={() => {
           registrar(escolhas);
           setAviso("Preferências salvas.");
         }}
-        className="mt-4"
+        className="mt-4 h-12 rounded-lg bg-gold px-4 text-xs font-bold text-ink"
       >
         Salvar
-      </Button>
-      {aviso ? (
-        <Aviso className="mt-3" tom="sucesso">
-          {aviso}
-        </Aviso>
-      ) : null}
+      </button>
+      {aviso ? <p className="mt-3 text-xs text-mute2">{aviso}</p> : null}
       {consentimento ? (
         <p className="mt-3 text-xs text-mute2">
           Registrado em {new Date(consentimento.registradoEm).toLocaleString("pt-BR")} · política{" "}

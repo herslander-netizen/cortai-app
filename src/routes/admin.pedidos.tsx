@@ -7,7 +7,6 @@ import { useState } from "react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
-import { EmptyState } from "@/components/ui/section";
 import {
   Dialog,
   DialogContent,
@@ -80,12 +79,11 @@ function PedidosPage() {
       ) : (
         <div>
           {query.data?.map((item) => (
-            <Button
+            <button
               type="button"
-              variant="ghost"
               key={item.id}
               onClick={() => setSelected(item)}
-              className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] gap-5 rounded-none border-b border-line px-0 py-5 text-left"
+              className="grid w-full grid-cols-[1fr_auto] gap-5 border-b border-line py-5 text-left"
             >
               <span>
                 <span className="text-sm font-semibold text-paper">{item.pedido}</span>
@@ -100,16 +98,12 @@ function PedidosPage() {
                   {statuses[item.status as Status]}
                 </span>
               </span>
-            </Button>
+            </button>
           ))}
         </div>
       )}
       {!query.isLoading && !query.data?.length ? (
-        <EmptyState
-          className="mt-4"
-          title="Nenhum pedido cadastrado"
-          description="Novas solicitações dos estabelecimentos aparecerão aqui."
-        />
+        <p className="text-sm text-mute">Nenhum pedido cadastrado.</p>
       ) : null}
       <NewSuggestion
         open={newOpen}
@@ -150,7 +144,7 @@ function PedidosPage() {
                     },
                   );
                 }}
-                className="field-control mt-2 w-full"
+                className="mt-2 w-full rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
               >
                 {Object.entries(statuses).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -221,7 +215,7 @@ function NewSuggestion({
           <textarea
             value={pedido}
             onChange={(e) => setPedido(e.target.value)}
-            className="field-control mt-2 min-h-20 w-full py-3"
+            className="mt-2 min-h-20 w-full rounded-md border border-line2 bg-ink p-3 text-sm text-paper"
             required
           />
         </label>
@@ -230,7 +224,7 @@ function NewSuggestion({
           <textarea
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
-            className="field-control mt-2 min-h-24 w-full py-3"
+            className="mt-2 min-h-24 w-full rounded-md border border-line2 bg-ink p-3 text-sm text-paper"
             required
           />
         </label>
@@ -239,7 +233,7 @@ function NewSuggestion({
           <select
             value={canal}
             onChange={(e) => setCanal(e.target.value)}
-            className="field-control mt-2 w-full"
+            className="mt-2 w-full rounded-md border border-line2 bg-ink p-3 text-sm text-paper"
           >
             <option value="whatsapp">WhatsApp</option>
             <option value="ligacao">Ligação</option>

@@ -1,7 +1,6 @@
 import { Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useConsentimento } from "@/lib/consentimento";
 import { useModoFoco } from "@/lib/modo-foco";
 import { instrucaoDeInstalacao, marcarConviteDeInstalacao, useInstalacao } from "@/lib/pwa";
@@ -76,16 +75,14 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
               Tenha acesso mais rápido ao seu sistema.
             </p>
           </div>
-          <Button
-            variant="icon"
-            size="icon"
+          <button
             type="button"
             onClick={dispensar}
             aria-label="Fechar convite"
-            className="-mr-2 -mt-2 h-12 w-12 shrink-0 rounded-full text-mute"
+            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mute"
           >
             <X size={15} />
-          </Button>
+          </button>
         </div>
 
         {verComoNoIphone ? (
@@ -95,26 +92,24 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
         ) : null}
 
         <div className="mt-3 flex items-center gap-2">
-          <Button
-            variant="primary"
+          <button
             type="button"
             onClick={() => {
               if (podeInstalarAgora) void instalar();
               else setVerComoNoIphone(true);
             }}
-            className="h-12 min-w-0 flex-1 rounded-lg px-3 text-xs"
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-gold text-xs font-bold text-ink"
           >
             <Download size={14} />
             {podeInstalarAgora ? "Instalar" : "Como instalar"}
-          </Button>
-          <Button
-            variant="outline"
+          </button>
+          <button
             type="button"
             onClick={dispensar}
-            className="h-12 rounded-lg px-4 text-xs"
+            className="h-11 rounded-lg px-4 text-xs font-semibold text-mute"
           >
             Agora não
-          </Button>
+          </button>
         </div>
       </div>
     </div>

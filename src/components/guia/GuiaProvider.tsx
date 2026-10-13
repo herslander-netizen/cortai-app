@@ -11,7 +11,6 @@ import {
 import { useRouterState } from "@tanstack/react-router";
 import { Lightbulb } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { guiaDaRota, type Guia } from "@/lib/guia/tours";
 import { supabase } from "@/integrations/supabase/client";
 import { useModoFoco } from "@/lib/modo-foco";
@@ -339,23 +338,21 @@ function GuiaOverlay({
           {passo + 1} de {guia.passos.length}
         </p>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <Button
-            variant="ghost"
+          <button
             type="button"
             onClick={aoPular}
-            className="h-12 rounded-md px-2 text-xs text-mute transition-colors hover:text-paper"
+            className="min-h-12 rounded-md px-2 text-xs text-mute transition-colors hover:text-paper"
           >
             Pular dicas
-          </Button>
-          <Button
-            variant="primary"
+          </button>
+          <button
             ref={proximoRef}
             type="button"
             onClick={aoAvancar}
-            className="h-12 rounded-lg px-4 text-sm transition-opacity hover:opacity-90"
+            className="rounded-lg bg-gold px-4 py-2.5 text-sm font-bold text-ink transition-opacity hover:opacity-90"
           >
             {passo + 1 === guia.passos.length ? "Entendi" : "Próximo →"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

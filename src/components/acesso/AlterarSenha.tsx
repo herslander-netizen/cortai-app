@@ -2,7 +2,6 @@ import { ChevronRight, KeyRound } from "lucide-react";
 import { useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -20,12 +19,11 @@ export function AlterarSenha() {
 
   return (
     <div className="border-b border-line">
-      <Button
+      <button
         type="button"
-        variant="ghost"
         onClick={() => setAberto((v) => !v)}
         aria-expanded={aberto}
-        className="h-auto min-h-12 w-full justify-between gap-4 py-5 text-left"
+        className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
       >
         <KeyRound size={18} className="text-mute" />
         <span className="text-sm text-paper">Alterar minha senha</span>
@@ -33,7 +31,7 @@ export function AlterarSenha() {
           size={16}
           className={`text-mute2 transition-transform ${aberto ? "rotate-90" : ""}`}
         />
-      </Button>
+      </button>
 
       {aberto ? (
         <form
@@ -81,7 +79,7 @@ export function AlterarSenha() {
               auto: "new-password",
             },
           ].map((campo) => (
-            <label key={campo.rotulo} className="field-label">
+            <label key={campo.rotulo} className="block text-xs font-medium text-mute">
               {campo.rotulo}
               <input
                 value={campo.valor}
@@ -90,7 +88,7 @@ export function AlterarSenha() {
                 autoComplete={campo.auto}
                 required
                 minLength={8}
-                className="field-control mt-1.5 text-base"
+                className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper outline-none"
               />
             </label>
           ))}
@@ -102,9 +100,9 @@ export function AlterarSenha() {
           {ok ? (
             <Aviso tom="sucesso">Sua senha foi alterada. Ela já vale no próximo acesso.</Aviso>
           ) : null}
-          <Button variant="primary" className="w-full" loading={salvando} disabled={salvando}>
+          <button className="btn-primary w-full py-3" disabled={salvando}>
             {salvando ? "Salvando…" : "Salvar nova senha"}
-          </Button>
+          </button>
         </form>
       ) : null}
     </div>

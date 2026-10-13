@@ -45,8 +45,7 @@ describe("padrão de carregamento", () => {
     vi.useFakeTimers();
     act(() => root.render(<EsqueletoFormulario onTentarDeNovo={tentarDeNovo} />));
     act(() => vi.advanceTimersByTime(10_000));
-    expect(host.textContent).toContain("O carregamento está demorando mais que o esperado.");
-    expect(host.textContent).toContain("Ainda estamos aguardando os dados.");
+    expect(host.textContent).toContain("Não conseguimos carregar agora.");
     expect(host.textContent).toContain("Tentar de novo");
     const botao = host.querySelector("button");
     expect(botao?.className).toContain("border-input");

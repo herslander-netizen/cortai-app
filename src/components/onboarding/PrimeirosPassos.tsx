@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades, getUsoDaAgendaOnline } from "@/lib/capacidades.functions";
 import {
@@ -153,10 +152,9 @@ function ListaDePrimeirosPassos() {
                 </span>
               </Link>
               {feito ? null : (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  className="h-auto min-h-12 px-3 text-xs font-medium text-mute"
+                  className="min-h-12 px-3 text-xs font-medium text-mute"
                   onClick={() =>
                     void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
                       queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
@@ -164,7 +162,7 @@ function ListaDePrimeirosPassos() {
                   }
                 >
                   Pular
-                </Button>
+                </button>
               )}
             </li>
           );

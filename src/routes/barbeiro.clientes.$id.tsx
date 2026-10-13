@@ -91,10 +91,7 @@ function FichaPage() {
       title={data?.cliente.nome ?? "Ficha do cliente"}
       subtitle={data?.cliente.telefone ?? ""}
     >
-      <Link
-        to="/barbeiro/clientes"
-        className="mb-4 inline-flex min-h-12 items-center text-xs text-mute underline"
-      >
+      <Link to="/barbeiro/clientes" className="mb-4 inline-block text-xs text-mute underline">
         Voltar para clientes
       </Link>
 
@@ -164,13 +161,13 @@ function FichaPage() {
                 value={valor}
                 disabled={quitado}
                 onChange={(e) => setValor(e.target.value)}
-                className="field-control mt-1 w-full disabled:opacity-50"
+                className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper disabled:opacity-50"
               />
             </label>
             <Button
-              variant="outline"
+              variant="ghost"
               type="button"
-              className="mt-3 min-h-12 w-full"
+              className="btn-secondary mt-3 w-full disabled:opacity-50"
               disabled={quitado || !valor}
               onClick={() => {
                 const centavos = Math.round(
@@ -183,9 +180,9 @@ function FichaPage() {
               Dar baixa parcial
             </Button>
             <Button
-              variant="primary"
+              variant="ghost"
               type="button"
-              className="mt-3 min-h-12 w-full"
+              className="btn-primary mt-3 w-full disabled:opacity-50"
               disabled={quitado}
               onClick={() => registrar(aberto)}
             >
@@ -194,17 +191,16 @@ function FichaPage() {
             <p className="mt-2 text-xs text-mute2">
               Toda baixa entra como lançamento novo na carteira. O débito original nunca é alterado.
             </p>
-            <Button variant="outline" className="mt-4 min-h-12 w-full" asChild>
-              <a
-                href={`https://wa.me/55${data.cliente.telefone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                  `Olá, ${data.cliente.nome}! Passando para lembrar do valor de ${brl(aberto)} em aberto ${tp.barbearia ? "na barbearia" : tp.em}.`,
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Cobrar no WhatsApp
-              </a>
-            </Button>
+            <a
+              className="btn-tertiary mt-4 inline-block text-sm"
+              href={`https://wa.me/55${data.cliente.telefone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                `Olá, ${data.cliente.nome}! Passando para lembrar do valor de ${brl(aberto)} em aberto ${tp.barbearia ? "na barbearia" : tp.em}.`,
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Cobrar no WhatsApp
+            </a>
           </div>
 
           {data.baixas.length > 0 ? (
@@ -248,10 +244,10 @@ function FichaPage() {
                 : "Ativo nas listas e na agenda. Arquivar é reversível e não apaga nada."}
             </p>
             <Button
-              variant="outline"
+              variant="ghost"
               type="button"
               disabled={arquivando}
-              className="mt-3 min-h-12 w-full"
+              className="btn-secondary mt-3 w-full disabled:opacity-50"
               onClick={async () => {
                 setArquivando(true);
                 setErro(null);
@@ -272,11 +268,7 @@ function FichaPage() {
                   ? "Reativar cliente"
                   : "Arquivar cliente"}
             </Button>
-            {erro ? (
-              <p className="mt-2 text-xs text-brick" role="alert">
-                {erro}
-              </p>
-            ) : null}
+            {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
             <p className="mt-5 text-xs text-mute2">
               A exclusão definitiva só é possível para cadastros sem nenhum atendimento ou
               lançamento financeiro. Com histórico, o caminho seguro é arquivar.

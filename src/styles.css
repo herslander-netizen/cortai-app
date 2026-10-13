@@ -472,10 +472,9 @@
   --ink: var(--chat-surface);
   --ink2: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
   --ink3: var(--chat-subtle);
-  --cartao: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
   --paper: var(--chat-content);
   --mute: var(--chat-muted);
-  --mute2: color-mix(in oklab, var(--chat-content) 68%, var(--chat-surface));
+  --mute2: color-mix(in oklab, var(--chat-content) 48%, transparent);
   --line: color-mix(in oklab, var(--chat-content) 10%, transparent);
   --line2: var(--chat-borda);
   --gold: var(--chat-primary, var(--primary));
@@ -663,13 +662,6 @@
 .chat-sistema input {
   border-radius: 999px !important;
 }
-.chat-sistema input:-webkit-autofill,
-.chat-sistema input:-webkit-autofill:hover,
-.chat-sistema input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--chat-content);
-  -webkit-box-shadow: 0 0 0 1000px var(--cartao) inset;
-  caret-color: var(--chat-content);
-}
 .chat-card-servico,
 .chat-ingresso {
   border-color: var(--chat-borda);
@@ -713,10 +705,6 @@
 .agendamento-marca {
   --ink: var(--chat-page, var(--background));
   --ink2: var(--chat-superficie-1, var(--ink2));
-  --cartao: var(
-    --chat-superficie-1,
-    color-mix(in oklab, var(--chat-page, var(--background)) 96%, var(--chat-page-text, var(--foreground)))
-  );
   --paper: var(--chat-page-text, var(--foreground));
   --ink3: var(--chat-superficie-2, var(--ink3));
   --background: var(--chat-page, var(--background));
@@ -5264,7 +5252,7 @@ html.agenda-gesto-ativo body {
 .agenda-agora-compacto:focus-visible,
 .agenda-proximo-linha:focus-visible,
 .agenda-lista-item:focus-visible,
-.agenda-item-resumo:focus-visible {
+.agenda-item:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
@@ -5365,6 +5353,7 @@ button.agenda-nome:hover {
   min-height: 64px;
   border-left: 4px solid transparent;
   padding: 12px 8px;
+  cursor: pointer;
   transition:
     background-color 150ms ease,
     border-color 150ms ease;

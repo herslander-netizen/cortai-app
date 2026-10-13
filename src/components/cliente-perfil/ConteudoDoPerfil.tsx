@@ -245,10 +245,9 @@ export function Conteudo({
               <ul className="grid grid-cols-3 gap-2">
                 {p.fotos.map((f) => (
                   <li key={f.id} className="relative">
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
-                      className="h-auto min-h-12 w-full overflow-hidden p-0"
+                      className="block w-full"
                       onClick={() => setVerFoto(f.url)}
                       aria-label={`Ver ${termos.fotoAtendimento.toLocaleLowerCase("pt-BR")}`}
                     >
@@ -258,7 +257,7 @@ export function Conteudo({
                         className="aspect-square w-full rounded-[var(--raio-imagem)] object-cover"
                         loading="lazy"
                       />
-                    </Button>
+                    </button>
                     <Button
                       type="button"
                       variant="icon"

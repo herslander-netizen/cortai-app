@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Pencil } from "lucide-react";
 
 import { Message, MessageContent } from "@/components/ai-elements/message";
-import { Button } from "@/components/ui/button";
 import { ChipsDeSugestao } from "./ChipsDeSugestao";
 import type { MensagemExtra } from "./tipos";
 
@@ -34,16 +33,15 @@ export function BolhaEditavel({
 }) {
   return (
     <Message from="user" className="chat-enter">
-      <Button
+      <button
         type="button"
-        variant="ghost"
         onClick={onEditar}
         aria-label={`Alterar ${rotulo}: ${texto}`}
-        className="chat-bolha-cliente ml-auto h-auto min-h-12 max-w-full justify-start gap-2 whitespace-normal px-4 py-3 text-left font-semibold underline decoration-dotted underline-offset-4"
+        className="chat-bolha-cliente ml-auto inline-flex min-h-12 items-center gap-2 px-4 py-3 text-left font-semibold underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {texto}
         <Pencil size={14} aria-hidden className="shrink-0 opacity-70" />
-      </Button>
+      </button>
     </Message>
   );
 }

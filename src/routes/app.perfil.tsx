@@ -43,7 +43,7 @@ function PerfilPage() {
     <Screen title="Perfil" subtitle="Sua conta no Cortaí.">
       {sessao.isLoading ? <EsqueletoFicha onTentarDeNovo={() => void sessao.refetch()} /> : null}
       {sessao.isError ? (
-        <div className="surface p-5" role="alert">
+        <div className="surface p-5">
           <p className="text-sm text-paper">Não conseguimos carregar seu perfil agora.</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void sessao.refetch()}>
             Tentar de novo
@@ -93,16 +93,15 @@ function PerfilPage() {
               </Link>
             </li>
             <li className="border-b border-line">
-              <Button
+              <button
                 type="button"
-                variant="ghost"
                 onClick={() => void sair()}
-                className="min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 py-5 text-left"
+                className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left"
               >
                 <LogOut size={18} className="text-mute" />
                 <span className="text-sm text-paper">Sair da conta</span>
                 <ChevronRight size={16} className="text-mute2" />
-              </Button>
+              </button>
             </li>
           </ul>
           <SegurancaDaConta />

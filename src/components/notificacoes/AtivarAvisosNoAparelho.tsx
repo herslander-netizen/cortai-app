@@ -1,7 +1,6 @@
 import { Bell, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useConviteDeInstalacaoVisivel } from "@/lib/pwa";
 import { TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 import { useCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convite-avisos";
@@ -59,36 +58,32 @@ export function AtivarAvisosNoAparelho({
                     : "Receba um aviso no aparelho quando algo importante acontecer."))}
             </p>
           </div>
-          <Button
-            variant="icon"
-            size="icon"
+          <button
             type="button"
             onClick={dispensar}
             aria-label="Fechar convite de avisos"
-            className="-mr-2 -mt-2 h-12 w-12 shrink-0 rounded-full text-mute"
+            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mute"
           >
             <X size={15} strokeWidth={1.75} />
-          </Button>
+          </button>
         </div>
         <div className="mt-3 flex items-center gap-2">
           {instalarPrimeiro ? null : (
-            <Button
-              variant="primary"
+            <button
               type="button"
               onClick={() => void ativar()}
-              className="h-12 flex-1 rounded-lg text-sm"
+              className="h-12 flex-1 rounded-lg bg-gold text-sm font-bold text-ink"
             >
               Ativar avisos
-            </Button>
+            </button>
           )}
-          <Button
-            variant="outline"
+          <button
             type="button"
             onClick={dispensar}
             className="h-12 rounded-lg px-4 text-xs font-semibold text-mute"
           >
             {instalarPrimeiro ? "Entendi" : "Agora não"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

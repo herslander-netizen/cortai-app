@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
-import { Button } from "@/components/ui/button";
 import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
 import { useContextoCliente } from "@/lib/contexto-cliente";
@@ -98,31 +97,23 @@ function EsperaPage() {
             />
           </label>
 
-          {horario ? null : (
-            <fieldset className="mt-6">
-              <legend className="text-xs text-mute2">Melhor período</legend>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {JANELAS.map((j, i) => (
-                  <Button
-                    key={j.rotulo}
-                    type="button"
-                    variant="ghost"
-                    aria-pressed={i === janela}
-                    onClick={() => setJanela(i)}
-                    className={`min-h-12 rounded-lg border px-3 text-xs ${i === janela ? "border-gold text-paper" : "border-line2 text-mute"}`}
-                  >
-                    {j.rotulo}
-                  </Button>
-                ))}
-              </div>
-            </fieldset>
-          )}
+          {horario ? null : <p className="mt-6 text-xs text-mute2">Melhor período</p>}
+          <div className={`mt-2 grid grid-cols-2 gap-2 ${horario ? "hidden" : ""}`}>
+            {JANELAS.map((j, i) => (
+              <button
+                key={j.rotulo}
+                type="button"
+                onClick={() => setJanela(i)}
+                className={`rounded-lg border px-3 py-3 text-xs ${i === janela ? "border-gold text-paper" : "border-line2 text-mute"}`}
+              >
+                {j.rotulo}
+              </button>
+            ))}
+          </div>
 
-          <Button
+          <button
             type="button"
-            variant="primary"
-            size="lg"
-            className="mt-7 w-full"
+            className="btn-primary mt-7 w-full disabled:opacity-60"
             disabled={acao.ocupado || nome.trim().length < 2 || telefone.trim().length < 8}
             onClick={() => {
               setStatus(null);
@@ -156,12 +147,8 @@ function EsperaPage() {
             }}
           >
             {acao.estaEm("fila") ? "Entrando na lista…" : "Entrar na lista de espera"}
-          </Button>
-          {status && !pronto ? (
-            <p className="mt-3 text-sm text-brick" role="alert">
-              {status}
-            </p>
-          ) : null}
+          </button>
+          {status && !pronto ? <p className="mt-3 text-sm text-brick">{status}</p> : null}
         </>
       )}
     </Screen>

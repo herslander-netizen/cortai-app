@@ -3,7 +3,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 
 import { Aviso } from "@/components/ui/aviso";
-import { Button } from "@/components/ui/button";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { confirmarMeuAcesso, meuConvite } from "@/lib/equipe.functions";
 import { ACOES, MODULOS, PAPEIS, type PapelDeEquipe } from "@/lib/permissoes";
@@ -52,14 +51,13 @@ function ConvitePage() {
           <Aviso tom="atencao" titulo="Nenhum acesso de equipe por aqui.">
             Sua conta ainda não foi ligada a um negócio. Peça ao responsável para convidar você.
           </Aviso>
-          <Button
+          <button
             type="button"
-            variant="primary"
-            className="w-full"
+            className="btn-primary w-full py-3.5"
             onClick={() => void navigate({ to: "/app" })}
           >
             Ir para meus agendamentos
-          </Button>
+          </button>
         </div>
       ) : (
         <div className="mt-6 space-y-6">
@@ -119,20 +117,19 @@ function ConvitePage() {
           </ul>
 
           {confirmar.isError ? (
-            <Aviso tom="atencao" titulo="Não foi possível confirmar agora.">
-              Tente de novo.
-            </Aviso>
+            <p className="text-sm text-brick" role="alert">
+              Não foi possível confirmar agora. Tente de novo.
+            </p>
           ) : null}
 
-          <Button
+          <button
             type="button"
-            variant="primary"
-            className="w-full"
+            className="btn-primary w-full py-3.5"
             disabled={confirmar.isPending || !dados.ativo}
             onClick={() => confirmar.mutate()}
           >
             {confirmar.isPending ? "Confirmando…" : "Confirmar e entrar"}
-          </Button>
+          </button>
         </div>
       )}
     </main>

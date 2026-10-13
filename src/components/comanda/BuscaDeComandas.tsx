@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { buscarComandas } from "@/lib/comanda-ticket.functions";
 import { rotuloDaForma, rotuloDoEstado, type EstadoDoTicket } from "@/lib/comanda-ticket";
@@ -61,8 +60,7 @@ export function BuscaDeComandas() {
       </label>
       <div className="mt-3 flex gap-2 overflow-x-auto">
         {FILTROS.map((f) => (
-          <Button
-            variant="ghost"
+          <button
             key={f.v}
             type="button"
             onClick={() => setEstado(f.v)}
@@ -70,7 +68,7 @@ export function BuscaDeComandas() {
             className={`h-12 shrink-0 rounded-full border px-4 text-sm ${estado === f.v ? "border-gold bg-gold-soft text-paper" : "border-line text-mute"}`}
           >
             {f.r}
-          </Button>
+          </button>
         ))}
       </div>
       <ul className="mt-3 grid gap-1">
@@ -83,11 +81,10 @@ export function BuscaDeComandas() {
         ) : null}
         {q.data?.map((c) => (
           <li key={c.id}>
-            <Button
-              variant="ghost"
+            <button
               type="button"
               onClick={() => setAberta(c.id)}
-              className="h-auto min-h-14 w-full justify-start rounded-[var(--raio-bloco)] px-2 py-2 text-left hover:bg-ink2"
+              className="flex min-h-14 w-full items-center gap-3 rounded-[var(--raio-bloco)] px-2 py-2 text-left hover:bg-ink2"
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold text-paper">{c.cliente}</span>
@@ -103,7 +100,7 @@ export function BuscaDeComandas() {
                 {brl(c.totalCentavos)}
               </span>
               <ChevronRight className="size-4 text-mute" aria-hidden />
-            </Button>
+            </button>
           </li>
         ))}
       </ul>

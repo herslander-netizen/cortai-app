@@ -13,20 +13,12 @@ export type TabItem = {
  * Navegação principal do Cortaí: cinco posições fixas, alturas iguais e a
  * ação central da marca. Nada de rolagem horizontal na barra principal.
  */
-export function TabBar({
-  items,
-  centralAction,
-  ariaLabel = "Navegação principal",
-}: {
-  items: TabItem[];
-  centralAction?: ReactNode;
-  ariaLabel?: string;
-}) {
+export function TabBar({ items, centralAction }: { items: TabItem[]; centralAction?: ReactNode }) {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-ink2"
       style={{ paddingBottom: "calc(6px + env(safe-area-inset-bottom))" }}
-      aria-label={ariaLabel}
+      aria-label="Navegação principal"
     >
       <ul
         className={`mx-auto grid max-w-[560px] px-1 pt-1 ${

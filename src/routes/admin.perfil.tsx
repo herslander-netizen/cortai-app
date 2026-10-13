@@ -10,7 +10,6 @@ import { PreferenciasDePrivacidade } from "@/components/privacidade/Preferencias
 import { getSessao } from "@/lib/sessao.functions";
 import { sair } from "@/lib/guarda";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/perfil")({
   head: () => ({
@@ -67,20 +66,19 @@ function AdminPerfilPage() {
           </Link>
         </li>
         <li className="border-b border-line">
-          <Button
+          <button
             type="button"
-            variant="ghost"
             disabled={saindo}
             onClick={() => {
               setSaindo(true);
               void sair();
             }}
-            className="grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 rounded-none px-0 py-5 text-left font-medium"
+            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left disabled:opacity-50"
           >
             <LogOut size={18} className="text-mute" />
             <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
             <span className="text-xs text-mute2">Encerrar sessão</span>
-          </Button>
+          </button>
         </li>
       </ul>
       <PreferenciasDicas />

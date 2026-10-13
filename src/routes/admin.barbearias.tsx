@@ -7,7 +7,6 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/section";
 import {
   Dialog,
   DialogContent,
@@ -75,14 +74,14 @@ function BarbeariasPage() {
       ) : (
         <>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <label className="flex min-h-12 flex-1 items-center gap-2">
+            <label className="flex flex-1 items-center gap-2 border-b border-line2 px-1 py-2">
               <Search size={16} className="text-mute" />
               <input
                 aria-label="Buscar barbearia"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar barbearia"
-                className="field-control min-w-0 flex-1"
+                className="w-full bg-transparent text-sm text-paper outline-none placeholder:text-mute2"
               />
             </label>
             <div className="flex gap-1">
@@ -91,7 +90,6 @@ function BarbeariasPage() {
                   key={item}
                   size="sm"
                   variant={filter === item ? "default" : "ghost"}
-                  aria-pressed={filter === item}
                   onClick={() => setFilter(item)}
                 >
                   {item === "risco" ? "Em risco" : item.charAt(0).toUpperCase() + item.slice(1)}
@@ -109,12 +107,11 @@ function BarbeariasPage() {
                 <span>Status</span>
               </div>
               {list.map((tenant) => (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
                   key={tenant.id}
                   onClick={() => setSelected(tenant)}
-                  className="grid min-h-16 w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 rounded-none border-b border-line px-0 py-4 text-left"
+                  className="grid w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 border-b border-line py-4 text-left"
                 >
                   <span>
                     <span className="block text-sm font-semibold text-paper">{tenant.nome}</span>
@@ -136,7 +133,7 @@ function BarbeariasPage() {
                   >
                     {!tenant.ativo ? "Desativada" : tenant.risco ? "Em risco" : "Saudável"}
                   </span>
-                </Button>
+                </button>
               ))}
             </div>
           </div>
@@ -146,11 +143,10 @@ function BarbeariasPage() {
           <ul className="mt-6 divide-y divide-line border-y border-line md:hidden">
             {list.map((tenant) => (
               <li key={tenant.id}>
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
                   onClick={() => setSelected(tenant)}
-                  className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-none px-0 py-4 text-left"
+                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4 text-left"
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-paper">
@@ -171,16 +167,12 @@ function BarbeariasPage() {
                   >
                     {!tenant.ativo ? "Desativada" : tenant.risco ? "Em risco" : "Saudável"}
                   </span>
-                </Button>
+                </button>
               </li>
             ))}
           </ul>
           {!query.isLoading && !list.length ? (
-            <EmptyState
-              className="mt-4"
-              title="Nenhuma barbearia encontrada"
-              description="Ajuste a busca ou escolha outro filtro para ver resultados."
-            />
+            <p className="mt-8 text-sm text-mute">Nenhuma barbearia neste filtro.</p>
           ) : null}
           <TenantDialog
             key={selected?.id ?? "closed"}
@@ -437,7 +429,7 @@ function TenantDialog({
                         <select
                           value={channel}
                           onChange={(e) => setChannel(e.target.value as typeof channel)}
-                          className="field-control mt-1 w-full"
+                          className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
                         >
                           {tenant.whatsapp ? <option value="whatsapp">WhatsApp</option> : null}
                           {tenant.telefone ? <option value="telefone">Telefone</option> : null}
@@ -448,7 +440,7 @@ function TenantDialog({
                         <select
                           value={result}
                           onChange={(e) => setResult(e.target.value)}
-                          className="field-control mt-1 w-full"
+                          className="mt-1 h-10 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
                         >
                           {Object.entries(statusLabel).map(([value, label]) => (
                             <option key={value} value={value}>
@@ -465,7 +457,7 @@ function TenantDialog({
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="Resumo do contato"
                         rows={2}
-                        className="field-control mt-1 min-h-24 w-full resize-y py-3"
+                        className="mt-1 w-full resize-y rounded-md border border-line2 bg-ink px-3 py-2 text-sm text-paper"
                       />
                     </label>
                     <Button

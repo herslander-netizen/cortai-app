@@ -98,7 +98,7 @@ function HistoricoPage() {
       ) : null}
 
       {lista.isError ? (
-        <div className="surface p-5" role="alert">
+        <div className="surface p-5">
           <p className="text-sm text-paper">Não conseguimos carregar seus horários agora.</p>
           <Button
             type="button"

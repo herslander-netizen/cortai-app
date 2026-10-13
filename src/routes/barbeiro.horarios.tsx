@@ -32,7 +32,7 @@ export const Route = createFileRoute("/barbeiro/horarios")({
 
 function HorariosPage() {
   const salvar = useServerFn(salvarHorarios);
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
   });
@@ -55,83 +55,68 @@ function HorariosPage() {
       title="Horários"
       subtitle="Quando o negócio atende. Vale para a agenda e para a fila."
     >
-      {isLoading || (data && !iniciado) ? (
-        <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} />
-      ) : null}
-      {isError && !data ? (
-        <div role="alert" className="surface p-5">
-          <p className="text-sm text-paper">Não conseguimos carregar os horários.</p>
-          <Button variant="outline" className="mt-4 w-full" onClick={() => void refetch()}>
-            Tentar de novo
-          </Button>
-        </div>
-      ) : null}
-      {data && iniciado ? (
-        <>
-          <label className="mt-2 block">
-            <span className="text-xs font-semibold uppercase tracking-wide text-mute">
-              Fuso horário do negócio
-            </span>
-            <select
-              className="field-control mt-2 w-full"
-              value={fuso}
-              onChange={(e) => setFuso(e.target.value)}
-            >
-              {FUSOS_DA_BARBEARIA.map((f) => (
-                <option key={f.valor} value={f.valor}>
-                  {f.rotulo}
-                </option>
-              ))}
-            </select>
-            <span className="mt-2 block text-xs text-mute">
-              Usado na agenda, nos horários oferecidos ao cliente e nos lembretes enviados.
-            </span>
-          </label>
+      {isLoading ? <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} /> : null}
+      <label className="mt-2 block">
+        <span className="text-xs font-semibold uppercase tracking-wide text-mute">
+          Fuso horário do negócio
+        </span>
+        <select
+          className="mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none focus:border-gold"
+          value={fuso}
+          onChange={(e) => setFuso(e.target.value)}
+        >
+          {FUSOS_DA_BARBEARIA.map((f) => (
+            <option key={f.valor} value={f.valor}>
+              {f.rotulo}
+            </option>
+          ))}
+        </select>
+        <span className="mt-2 block text-xs text-mute">
+          Usado na agenda, nos horários oferecidos ao cliente e nos lembretes enviados.
+        </span>
+      </label>
 
-          <InterruptorFilaDeChegada />
-          <InterruptorListaDeEspera />
+      <InterruptorFilaDeChegada />
+      <InterruptorListaDeEspera />
 
-          <div className="mt-6" data-guia="horarios-editor">
-            <EditorDeHorarios
-              horarios={horarios}
-              onChange={setHorarios}
-              segmento={data?.tenant.segmento ?? "outro"}
-            />
-          </div>
+      <div className="mt-6" data-guia="horarios-editor">
+        <EditorDeHorarios
+          horarios={horarios}
+          onChange={setHorarios}
+          segmento={data?.tenant.segmento ?? "outro"}
+        />
+      </div>
 
-          <Button
-            variant="primary"
-            size="lg"
-            type="button"
-            className="mt-8 w-full"
-            disabled={estado === "salvando"}
-            onClick={async () => {
-              setEstado("salvando");
-              setErro(null);
-              try {
-                await salvar({ data: { horarios, fuso } });
-                await refetch();
-                setEstado("salvo");
-              } catch (e) {
-                setEstado("pronto");
-                setErro(e instanceof Error ? e.message : "Não consegui salvar agora.");
-              }
-            }}
-          >
-            {estado === "salvando"
-              ? "Salvando…"
-              : estado === "salvo"
-                ? "Horários salvos"
-                : "Salvar horários"}
-          </Button>
-          {erro ? (
-            <p className="mt-3 text-sm text-brick" role="alert">
-              {erro}
-            </p>
-          ) : null}
-          <EscalaDaEquipe />
-        </>
+      <Button
+        variant="ghost"
+        type="button"
+        className="btn-primary mt-8 w-full py-3.5"
+        disabled={estado === "salvando"}
+        onClick={async () => {
+          setEstado("salvando");
+          setErro(null);
+          try {
+            await salvar({ data: { horarios, fuso } });
+            await refetch();
+            setEstado("salvo");
+          } catch (e) {
+            setEstado("pronto");
+            setErro(e instanceof Error ? e.message : "Não consegui salvar agora.");
+          }
+        }}
+      >
+        {estado === "salvando"
+          ? "Salvando…"
+          : estado === "salvo"
+            ? "Horários salvos"
+            : "Salvar horários"}
+      </Button>
+      {erro ? (
+        <p className="mt-3 text-sm text-brick" role="alert">
+          {erro}
+        </p>
       ) : null}
+      <EscalaDaEquipe />
     </Screen>
   );
 }

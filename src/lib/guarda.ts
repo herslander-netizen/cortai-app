@@ -99,19 +99,9 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   try {
     sessao = await sessaoDoUsuario(usuario.id);
   } catch {
-    // Falha ao carregar o perfil não prova que a sessão é inválida.
-    // Preserve os tokens e permita nova tentativa na tela de login.
-    esquecerSessao();
-    throw redirect({
-      to: "/login",
-      search: {
-        proximo:
-          typeof window !== "undefined"
-            ? `${window.location.pathname}${window.location.search}`
-            : "",
-        erro: "perfil",
-      },
-    });
+    // Sessão expirada/inválida: encerra com prazo para a rota nunca ficar pendurada.
+    await encerrarSessaoComSeguranca();
+    throw redirect({ to: "/login", search: { proximo: "" } });
   }
   const destino = destinoDoPapel(sessao);
   if (sessao.papel !== papel || (papel === "barbeiro" && !sessao.tenantId)) {

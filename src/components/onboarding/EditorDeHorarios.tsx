@@ -2,9 +2,6 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles } from "lucide-react";
 
-import { Aviso } from "@/components/ui/aviso";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { DIAS_DA_SEMANA, type HorarioSugerido } from "@/lib/ia/assistente";
 import { interpretarHorarios } from "@/lib/assistente.functions";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
@@ -38,14 +35,13 @@ export function EditorDeHorarios({
 
   return (
     <div>
-      <Button
+      <button
         type="button"
-        variant="outline"
-        className="w-full text-sm"
+        className="btn-secondary w-full py-2.5 text-sm"
         onClick={() => onChange(padrao.map((horario) => ({ ...horario })))}
       >
         {rotuloPadrao}
-      </Button>
+      </button>
 
       <ul className="mt-4 divide-y divide-line border-y border-line">
         {horarios
@@ -60,7 +56,6 @@ export function EditorDeHorarios({
                 <input
                   type="checkbox"
                   checked={!h.fechado}
-                  aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} aberto`}
                   onChange={(e) => atualizar(h.diaSemana, { fechado: !e.target.checked })}
                 />
                 Aberto
@@ -71,62 +66,58 @@ export function EditorDeHorarios({
                 <span className="flex items-center gap-2">
                   <input
                     type="time"
-                    aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
                     value={h.abre}
                     onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
-                    className="field-control w-auto px-2 text-sm"
+                    className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
                   />
                   <span className="text-xs text-mute2">às</span>
                   <input
                     type="time"
-                    aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
                     value={h.fecha}
                     onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
-                    className="field-control w-auto px-2 text-sm"
+                    className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
                   />
                 </span>
               )}
               {!h.fechado ? (
                 h.intervaloInicio && h.intervaloFim ? (
-                  <span className="flex w-full flex-wrap items-center gap-2 pl-0 text-xs text-mute sm:flex-nowrap sm:pl-20">
+                  <span className="flex w-full items-center gap-2 pl-20 text-xs text-mute">
                     Intervalo
                     <input
                       type="time"
-                      aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} início do intervalo`}
                       value={h.intervaloInicio}
                       onChange={(e) => atualizar(h.diaSemana, { intervaloInicio: e.target.value })}
-                      className="field-control w-auto px-2 text-sm"
+                      className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
+                      aria-label="Início do intervalo"
                     />
                     <span className="text-mute2">às</span>
                     <input
                       type="time"
-                      aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fim do intervalo`}
                       value={h.intervaloFim}
                       onChange={(e) => atualizar(h.diaSemana, { intervaloFim: e.target.value })}
-                      className="field-control w-auto px-2 text-sm"
+                      className="h-10 rounded-lg border border-line2 bg-ink2 px-2 text-sm text-paper"
+                      aria-label="Fim do intervalo"
                     />
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
-                      className="h-auto min-h-12 px-2 text-mute underline"
+                      className="min-h-10 px-2 text-mute underline"
                       onClick={() =>
                         atualizar(h.diaSemana, { intervaloInicio: null, intervaloFim: null })
                       }
                     >
                       Tirar
-                    </Button>
+                    </button>
                   </span>
                 ) : (
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    className="ml-20 h-auto min-h-12 text-xs text-mute underline"
+                    className="ml-20 min-h-10 text-xs text-mute underline"
                     onClick={() =>
                       atualizar(h.diaSemana, { intervaloInicio: "12:00", intervaloFim: "13:00" })
                     }
                   >
                     + Intervalo
-                  </Button>
+                  </button>
                 )
               ) : null}
             </li>
@@ -139,18 +130,16 @@ export function EditorDeHorarios({
             <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o CortAI configure
             isso para você?
           </p>
-          <Textarea
+          <textarea
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             rows={2}
             placeholder="segunda a sábado das 9 às 19 e domingo fechado"
-            className="mt-3 min-h-20 resize-none"
-            aria-label="Descreva os horários de atendimento"
+            className="mt-3 w-full resize-none rounded-lg border border-line2 bg-ink px-3.5 py-2.5 text-sm text-paper outline-none"
           />
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="mt-3 w-full text-sm"
+            className="btn-secondary mt-3 w-full py-2.5 text-sm"
             disabled={pensando || texto.trim().length < 3}
             onClick={async () => {
               setPensando(true);
@@ -169,7 +158,7 @@ export function EditorDeHorarios({
             }}
           >
             {pensando ? "Interpretando…" : "Configurar com IA"}
-          </Button>
+          </button>
 
           {previa ? (
             <div className="mt-4 rounded-lg border border-line2 bg-ink px-4 py-3">
@@ -185,10 +174,9 @@ export function EditorDeHorarios({
                 ))}
               </ul>
               <div className="mt-3 flex gap-3">
-                <Button
+                <button
                   type="button"
-                  variant="primary"
-                  className="flex-1 text-sm"
+                  className="btn-primary flex-1 py-2 text-sm"
                   onClick={() => {
                     const mapa = new Map(previa.map((h) => [h.diaSemana, h]));
                     onChange(padrao.map((h) => mapa.get(h.diaSemana) ?? { ...h }));
@@ -197,29 +185,20 @@ export function EditorDeHorarios({
                   }}
                 >
                   Aplicar
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant="ghost"
-                  className="text-sm"
+                  className="btn-tertiary text-sm"
                   onClick={() => setPrevia(null)}
                 >
                   Descartar
-                </Button>
+                </button>
               </div>
             </div>
           ) : null}
 
-          {aviso ? (
-            <Aviso className="mt-3" tom="info">
-              {aviso}
-            </Aviso>
-          ) : null}
-          {erro ? (
-            <Aviso className="mt-3" tom="atencao">
-              {erro}
-            </Aviso>
-          ) : null}
+          {aviso ? <p className="mt-3 text-xs text-mute">{aviso}</p> : null}
+          {erro ? <p className="mt-3 text-xs text-brick">{erro}</p> : null}
         </div>
       )}
     </div>

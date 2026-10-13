@@ -1,27 +1,23 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
+import { LockKeyhole, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
-import { getSessao, type Sessao } from "@/lib/sessao.functions";
+import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { proximo?: string; aba?: "criar"; erro?: "perfil" } => ({
+  validateSearch: (search: Record<string, unknown>): { proximo?: string; aba?: "criar" } => ({
     ...(typeof search["proximo"] === "string" && search["proximo"]
       ? { proximo: search["proximo"] }
       : {}),
     ...(search["aba"] === "criar" ? { aba: "criar" as const } : {}),
-    ...(search["erro"] === "perfil" ? { erro: "perfil" as const } : {}),
   }),
   head: () => ({
     meta: [
@@ -43,14 +39,7 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (data.user) {
-      // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
-      // de renderizar nem apagar a sessão válida do usuário.
-      let sessao: Sessao;
-      try {
-        sessao = await getSessao();
-      } catch {
-        return;
-      }
+      const sessao = await getSessao();
       throw redirect({ to: destinoDoPapel(sessao) });
     }
   },
@@ -97,15 +86,11 @@ function MarcaApple() {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { proximo, aba, erro: erroNaSessao } = Route.useSearch();
+  const { proximo, aba } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState<string | null>(
-    erroNaSessao === "perfil"
-      ? "Sua conta foi autenticada, mas não conseguimos carregar seu perfil. Tente novamente em instantes; você não precisa sair da conta."
-      : null,
-  );
+  const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -116,18 +101,7 @@ function LoginPage() {
   }, []);
 
   async function seguirParaMinhaArea() {
-    let sessao: Sessao;
-    try {
-      sessao = await getSessao();
-    } catch {
-      // O login pode ter sido bem-sucedido mesmo se o perfil estiver indisponível.
-      // Não apague a sessão: informe o problema e permita tentar novamente.
-      setErro(
-        "Sua conta foi autenticada, mas não conseguimos carregar seu perfil. Tente novamente em instantes; você não precisa sair da conta.",
-      );
-      setEnviando(false);
-      return;
-    }
+    const sessao = await getSessao();
     // Só aceita caminho interno da área autorizada para o papel da pessoa.
     const pedido = destinoSolicitadoPermitido(proximo, destinoDoPapel(sessao));
     const destino = destinoAposEntrar(sessao);
@@ -165,6 +139,8 @@ function LoginPage() {
   const falha = (provedor: "google" | "apple") =>
     setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
 
+  const campo =
+    "mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4";
   const botaoSocial =
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
 
@@ -253,29 +229,39 @@ function LoginPage() {
           await seguirParaMinhaArea();
         }}
       >
-        <Field label="E-mail">
-          <Input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="voce@exemplo.com"
-            className="mt-1.5"
-          />
-        </Field>
-        <Field label="Senha">
-          <Input
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            type="password"
-            autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-            required
-            minLength={8}
-            placeholder="Sua senha"
-            className="mt-1.5"
-          />
-        </Field>
+        <label className="block text-xs font-medium text-mute">
+          E-mail
+          <span className={campo}>
+            <Mail size={17} aria-hidden />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="voce@exemplo.com"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
+        <label className="block text-xs font-medium text-mute">
+          <span className="flex items-center justify-between">
+            <span>Senha</span>
+          </span>
+          <span className={campo}>
+            <LockKeyhole size={17} aria-hidden />
+            <input
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              type="password"
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              placeholder="Sua senha"
+              className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+            />
+          </span>
+        </label>
         {modo === "entrar" ? (
           <Link
             to="/recuperar-senha"

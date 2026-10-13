@@ -6,7 +6,6 @@ import { Star } from "lucide-react";
 
 import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
-import { Button } from "@/components/ui/button";
 import {
   getConviteDeAvaliacao,
   registrarAvaliacaoPublica,
@@ -41,23 +40,22 @@ function Estrelas({
   rotulo: string;
 }) {
   return (
-    <div className="flex gap-1" role="group" aria-label={rotulo}>
+    <div className="flex gap-1" role="radiogroup" aria-label={rotulo}>
       {[1, 2, 3, 4, 5].map((nota) => (
-        <Button
+        <button
           key={nota}
           type="button"
-          variant="ghost"
-          aria-pressed={valor === nota}
+          role="radio"
+          aria-checked={valor === nota}
           aria-label={`${nota} de 5`}
           onClick={() => aoMudar(nota)}
-          className="h-12 w-12 rounded-lg p-0"
+          className="flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-cyan-400"
         >
           <Star
             size={26}
-            aria-hidden
-            className={nota <= valor ? "fill-gold text-gold" : "text-mute2"}
+            className={nota <= valor ? "fill-cyan-400 text-cyan-400" : "text-mute2"}
           />
-        </Button>
+        </button>
       ))}
     </div>
   );
@@ -89,11 +87,14 @@ function AvaliacaoPage() {
             : "Seu feedback foi registrado e será considerado pela equipe."}
         </p>
         {envio.data.linkPublico ? (
-          <Button asChild variant="primary" size="lg" className="mt-7">
-            <a href={envio.data.linkPublico} target="_blank" rel="noreferrer">
-              Compartilhar experiência publicamente
-            </a>
-          </Button>
+          <a
+            className="btn-primary mt-7 py-3"
+            href={envio.data.linkPublico}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Compartilhar experiência publicamente
+          </a>
         ) : null}
         <Signature />
       </main>
@@ -102,7 +103,7 @@ function AvaliacaoPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-6 pb-10 pt-12">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-400">
         {convite.data.negocio}
       </p>
       <h1 className="mt-3 text-3xl font-bold text-paper">Como foi sua experiência?</h1>
@@ -142,12 +143,12 @@ function AvaliacaoPage() {
             onChange={(e) => setComentario(e.target.value)}
             maxLength={400}
             rows={4}
-            className="field-control mt-2 min-h-28 w-full py-3"
+            className="mt-2 w-full rounded-xl border border-line2 bg-ink2 p-4 text-sm text-paper outline-none focus:border-cyan-400"
           />
         </label>
-        <Button variant="primary" size="lg" className="w-full" disabled={!nota || envio.isPending}>
+        <button className="btn-primary min-h-12 w-full" disabled={!nota || envio.isPending}>
           {envio.isPending ? "Enviando…" : "Enviar avaliação"}
-        </Button>
+        </button>
         {envio.isError ? (
           <p className="text-sm text-brick" role="alert">
             {envio.error.message}

@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAcao } from "@/hooks/useAcao";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
@@ -66,9 +65,9 @@ function RecursosPage() {
       title="Recursos dos planos"
       subtitle="Disponibilidade por plano; bloquear não apaga dados."
       actions={
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/admin/monetizacao">Voltar à monetização</Link>
-        </Button>
+        <Link to="/admin/monetizacao" className="btn-secondary text-xs">
+          Voltar à monetização
+        </Link>
       }
     >
       {!query.data ? (

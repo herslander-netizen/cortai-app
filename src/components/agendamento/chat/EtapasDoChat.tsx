@@ -22,11 +22,10 @@ export function EtapaServico({ data, selecao }: { data: AgendaPublica; selecao: 
       <p className="mb-3">{TEXTOS_CONVERSA.servico}</p>
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {data.servicos.map((s, i) => (
-          <Button
+          <button
             key={s.id}
             type="button"
-            variant="ghost"
-            className={`chat-card-servico h-auto w-40 shrink-0 snap-start flex-col p-0 text-left ${cascata(i).className}`}
+            className={`chat-card-servico w-40 shrink-0 snap-start text-left ${cascata(i).className}`}
             style={cascata(i).style}
             aria-pressed={selecao.servicoId === s.id}
             onClick={() => selecao.setServicoId(s.id)}
@@ -53,7 +52,7 @@ export function EtapaServico({ data, selecao }: { data: AgendaPublica; selecao: 
                 <span className="font-extrabold text-paper">{brl(s.preco_centavos)}</span>
               </span>
             </span>
-          </Button>
+          </button>
         ))}
       </div>
     </Fala>

@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { supabase } from "@/integrations/supabase/client";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
@@ -94,19 +93,23 @@ function RecuperarSenhaPage() {
             await enviarInstrucoes();
           }}
         >
-          <Field label="E-mail">
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              autoComplete="email"
-              required
-              inputMode="email"
-              placeholder="voce@exemplo.com"
-              aria-invalid={Boolean(erro)}
-              className="mt-1.5"
-            />
-          </Field>
+          <label className="block text-xs font-medium text-mute">
+            E-mail
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+              <Mail size={17} aria-hidden />
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                autoComplete="email"
+                required
+                inputMode="email"
+                placeholder="voce@exemplo.com"
+                aria-invalid={Boolean(erro)}
+                className="h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+              />
+            </span>
+          </label>
           {erro ? (
             <p className="text-sm text-brick" role="alert">
               {erro}

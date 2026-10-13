@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Link, type LinkProps } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { Signature } from "./Signature";
-import { CabecalhoDeTela } from "./CabecalhoDeTela";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 
 export function Screen({
@@ -42,7 +41,10 @@ export function Screen({
                 {voltarRotulo}
               </Link>
             ) : null}
-            <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
+            <h1 className="screen-title">{title}</h1>
+            {subtitle ? (
+              <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             <BotaoAjuda />

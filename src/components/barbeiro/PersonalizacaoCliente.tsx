@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { Aviso } from "@/components/ui/aviso";
 import { salvarPersonalizacaoCliente, type FichaCliente } from "@/lib/barbeiro.functions";
 import { Button } from "@/components/ui/button";
-import { Field, Textarea } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 
 type Participa = "padrao" | "sim" | "nao";
 
@@ -112,45 +110,45 @@ export function PersonalizacaoCliente({
         </p>
       </div>
 
-      <Field
-        label="Desconto personalizado (%)"
-        hint={
-          c.desconto_percentual === null
-            ? "Herdado: preço de tabela."
-            : "Personalizado manualmente."
-        }
-        className="mt-6"
-      >
-        <Input
+      <label className="mt-6 block">
+        <span className="text-sm text-paper">Desconto personalizado (%)</span>
+        <input
           inputMode="numeric"
           placeholder="Sem desconto"
           value={desconto}
           onChange={(e) => setDesconto(e.target.value.replace(/\D/g, "").slice(0, 3))}
-          className="mt-1"
+          className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
         />
-      </Field>
+        <span className="mt-1 block text-xs text-mute2">
+          {c.desconto_percentual === null
+            ? "Herdado: preço de tabela."
+            : "Personalizado manualmente."}
+        </span>
+      </label>
 
-      <Field label="Condições especiais" className="mt-5">
-        <Textarea
+      <label className="mt-5 block">
+        <span className="text-sm text-paper">Condições especiais</span>
+        <textarea
           rows={2}
           value={condicoes}
           placeholder="Ex.: sempre atende antes das 10h, cobra pai e filho junto…"
           onChange={(e) => setCondicoes(e.target.value)}
-          className="mt-1"
+          className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
         />
-      </Field>
+      </label>
 
-      <Field label="Observações internas" hint="Só a barbearia vê este campo." className="mt-5">
-        <Textarea
+      <label className="mt-5 block">
+        <span className="text-sm text-paper">Observações internas</span>
+        <textarea
           rows={2}
           value={observacoes}
-          placeholder="Anotações privadas sobre este cliente."
+          placeholder="Só a barbearia vê este campo."
           onChange={(e) => setObservacoes(e.target.value)}
-          className="mt-1"
+          className="mt-1 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
         />
-      </Field>
+      </label>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+      <div className="mt-6 flex items-center justify-between border-t border-line pt-5">
         <div className="pr-4">
           <p className="text-sm text-paper">Pode receber mensagens no WhatsApp</p>
           <p className="mt-0.5 text-xs text-mute2">Avisos de horário, fila e retorno.</p>
@@ -162,7 +160,7 @@ export function PersonalizacaoCliente({
           aria-checked={whats}
           aria-label="Pode receber mensagens no WhatsApp"
           onClick={() => setWhats((v) => !v)}
-          className={`h-12 w-14 shrink-0 rounded-full border p-0 transition-colors ${
+          className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${
             whats ? "border-gold bg-gold" : "border-line2 bg-ink2"
           }`}
         >
@@ -186,9 +184,9 @@ export function PersonalizacaoCliente({
       ) : null}
 
       <Button
-        variant="primary"
+        variant="ghost"
         type="button"
-        className="mt-5 w-full"
+        className="btn-primary mt-5 w-full"
         disabled={salvando}
         onClick={async () => {
           setSalvando(true);

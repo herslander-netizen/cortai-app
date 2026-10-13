@@ -70,9 +70,9 @@ function ServicosPage() {
       </div>
 
       <Button
-        variant="primary"
+        variant="ghost"
         type="button"
-        className="mt-8 min-h-12 w-full"
+        className="btn-primary mt-8 w-full py-3.5"
         disabled={
           estado === "salvando" || servicos.filter((s) => s.nome.trim().length >= 2).length === 0
         }

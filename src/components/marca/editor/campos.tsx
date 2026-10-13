@@ -1,8 +1,5 @@
-import { Field, Select } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-
-/** Classe legada para controles especiais do editor, alinhada ao sistema compartilhado. */
-export const fieldClass = "field-control mt-2";
+export const fieldClass =
+  "mt-2 w-full rounded-lg border border-line2 bg-ink2 px-3 py-3 text-sm text-paper outline-none placeholder:text-mute2 focus:border-gold";
 
 export function Campo({
   label,
@@ -16,14 +13,15 @@ export function Campo({
   placeholder?: string;
 }) {
   return (
-    <Field label={label}>
-      <Input
-        className="mt-2"
+    <label className="block text-xs font-medium text-mute">
+      {label}
+      <input
+        className={fieldClass}
         value={value ?? ""}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
       />
-    </Field>
+    </label>
   );
 }
 
@@ -39,14 +37,19 @@ export function SelectNative({
   onChange: (value: string) => void;
 }) {
   return (
-    <Field label={label}>
-      <Select className="mt-2" value={value} onChange={(event) => onChange(event.target.value)}>
+    <label className="text-xs font-medium text-mute">
+      {label}
+      <select
+        className={fieldClass}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
         {Object.entries(options).map(([id, name]) => (
           <option key={id} value={id}>
             {name}
           </option>
         ))}
-      </Select>
-    </Field>
+      </select>
+    </label>
   );
 }
