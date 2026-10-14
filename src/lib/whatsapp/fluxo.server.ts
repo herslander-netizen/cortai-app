@@ -542,7 +542,7 @@ export async function processarMensagemRecebida(input: {
         telefone,
         nomeContato: input.nomeContato ?? null,
       });
-      await db.from("mensagens_whatsapp").insert({
+      const { error: erroInsercao } = await db.from("mensagens_whatsapp").insert({
         tenant_id: conexao.tenant_id,
         conversa_id: conversa.id,
         conexao_id: conexao.id,
@@ -554,6 +554,12 @@ export async function processarMensagemRecebida(input: {
         midia_url: input.midiaUrl ?? null,
         status: "recebida",
       });
+      // A restrição única é a última barreira contra entregas concorrentes.
+      // Se outra execução gravou a mensagem primeiro, não envie o menu de novo.
+      if (erroInsercao) {
+        if (erroInsercao.code === "23505") return { tratada: true, motivo: "duplicada" };
+        throw new Error(erroInsercao.message);
+      }
       await gatewayDeWhatsapp
         .enviarMensagem(
           input.sessaoId,
