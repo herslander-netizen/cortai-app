@@ -190,10 +190,11 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
           await processar(mudanca);
         }
       }
-      await db
+      const { error: concluirErro } = await db
         .from("whatsapp_webhook_events")
         .update({ processed_at: new Date().toISOString(), processing_error: null })
         .eq("id", pendente.id);
+      if (concluirErro) throw new Error("Falha ao registrar conclusão do webhook pendente.");
     } catch (erro) {
       await db
         .from("whatsapp_webhook_events")
@@ -311,10 +312,13 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
               await processar(mudanca);
             }
           }
-          await db
+          const { error: concluirErro } = await db
             .from("whatsapp_webhook_events")
             .update({ processed_at: new Date().toISOString(), processing_error: null })
             .eq("id", eventoId);
+          if (concluirErro) {
+            throw new Error("Falha ao registrar conclusão do webhook.");
+          }
           // Retomada limitada: no máximo 1 pendente antigo, com teto de 3 s, sem atrasar a resposta além disso.
           await Promise.race([
             reprocessarPendentes(eventoId).catch(() => undefined),
