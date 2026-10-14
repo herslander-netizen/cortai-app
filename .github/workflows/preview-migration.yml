@@ -1,0 +1,72 @@
+name: Cortaí Migration Preview
+
+on:
+  push:
+    branches:
+      - cloudflare-workers-migration-2026-10-13
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cortai-migration-preview
+  cancel-in-progress: true
+
+jobs:
+  validate-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: cloudflare-workers-migration-2026-10-13
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: TypeScript
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: bunx tsc --noEmit -p .
+      - name: Tests
+        run: bunx vitest run
+      - name: Build migration preview
+        run: bunx vite build --outDir /tmp/cortai-preview-build
+      - name: Upload preview build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortai-migration-preview-${{ github.sha }}
+          path: /tmp/cortai-preview-build/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy-isolated-preview:
+    needs: validate-build
+    if: ${{ vars.CORTAI_PREVIEW_DEPLOY_ENABLED == 'true' && secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' && secrets.PREVIEW_SUPABASE_URL != '' && secrets.PREVIEW_SUPABASE_ANON_KEY != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: cloudflare-workers-migration-2026-10-13
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build with isolated preview configuration
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.PREVIEW_SUPABASE_ANON_KEY }}
+        run: bunx vite build
+      - name: Deploy isolated preview Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler deploy --config wrangler.jsonc --name cortai-reconstruction-test-2026
