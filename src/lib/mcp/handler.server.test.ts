@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { handleMcpRequest } from "./handler.server";
+import { handleMcpRequest, validarPeriodoAgendamentos } from "./handler.server";
 
 const { createClientMock, tenantLookupMock } = vi.hoisted(() => ({
   createClientMock: vi.fn(),
@@ -96,5 +96,32 @@ describe("handler MCP — bordas de autenticação", () => {
       supabase: expect.any(Object),
       userId: "user-without-tenant",
     });
+  });
+});
+
+
+describe("validação do período de agendamentos MCP", () => {
+  it("aceita um período positivo de até 31 dias e normaliza datas", () => {
+    const periodo = validarPeriodoAgendamentos("2026-10-01T10:00:00-03:00", "2026-11-01T10:00:00-03:00");
+
+    expect(periodo.de.toISOString()).toBe("2026-10-01T13:00:00.000Z");
+    expect(periodo.ate.toISOString()).toBe("2026-11-01T13:00:00.000Z");
+  });
+
+  it("rejeita fim igual ou anterior ao início", () => {
+    expect(() => validarPeriodoAgendamentos("2026-10-01T10:00:00Z", "2026-10-01T10:00:00Z"))
+      .toThrow("O fim precisa ser depois do início.");
+    expect(() => validarPeriodoAgendamentos("2026-10-02T10:00:00Z", "2026-10-01T10:00:00Z"))
+      .toThrow("O fim precisa ser depois do início.");
+  });
+
+  it("rejeita período superior a 31 dias", () => {
+    expect(() => validarPeriodoAgendamentos("2026-10-01T00:00:00Z", "2026-11-01T00:00:00.001Z"))
+      .toThrow("Período máximo de 31 dias.");
+  });
+
+  it("rejeita datas inválidas se chamado fora do schema MCP", () => {
+    expect(() => validarPeriodoAgendamentos("não-é-data", "também-não"))
+      .toThrow("Informe um período válido.");
   });
 });
