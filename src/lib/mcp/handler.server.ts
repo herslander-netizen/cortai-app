@@ -74,7 +74,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   }
 
   const server = new McpServer({ name: "cortai", version: "1.0.0" });
-  server.registerTool(
+  (server as any).registerTool(
     "listar_servicos",
     {
       title: "Listar serviços",
@@ -100,7 +100,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       return { content: [{ type: "text", text: JSON.stringify(servicos) }], structuredContent: { servicos } };
     },
   );
-  server.registerTool(
+  (server as any).registerTool(
     "listar_agendamentos",
     {
       title: "Listar agendamentos",
@@ -111,7 +111,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       },
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
     },
-    async ({ inicio, fim }) => {
+    async ({ inicio, fim }: { inicio: string; fim: string }) => {
       const de = new Date(inicio);
       const ate = new Date(fim);
       if (ate <= de) throw new Error("O fim precisa ser depois do início.");
