@@ -1,11 +1,4 @@
-/**
- * Gateway interno de IA do CortAI — só servidor.
- *
- * Fala com o Lovable AI Gateway pela Responses API, sempre em streaming (SSE),
- * e devolve o `output` final da resposta. A chave nunca sai do servidor.
- * Reaproveita o id de execução devolvido pelo gateway nas chamadas seguintes
- * da mesma rodada (passos de ferramenta), sem nunca criar um id próprio.
- */
+/** Gateway interno de IA do Cortaí. Só usa provedor compatível configurado no servidor. */
 
 import type { Canal } from "./acoes.server";
 import { modoBasicoLigado, planejarModoBasico } from "./modo-basico";
@@ -18,9 +11,7 @@ import {
   type UsoDeTokens,
 } from "./gateway-compativel.server";
 
-export const MODELO_CORTAI = "openai/gpt-6-astra";
-const URL_RESPOSTAS = "https://ai.gateway.lovable.dev/v1/responses";
-const CABECALHO_RUN = "X-Lovable-AIG-Run-ID";
+export const MODELO_CORTAI = "openai/gpt-oss-20b";
 
 export type ItemDeEntrada = Record<string, unknown>;
 export type FerramentaDoModelo = {
@@ -69,7 +60,7 @@ export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: s
     return { provedor: "modo-basico", modelo: "regras" };
   if (leitura.ok && leitura.config.tipo === "compativel")
     return { provedor: leitura.config.nome, modelo: leitura.config.modelo };
-  return { provedor: "lovable", modelo: MODELO_CORTAI };
+  return { provedor: "não configurado", modelo: MODELO_CORTAI };
 }
 
 /** Provedor compatível (ex.: GPT-OSS gratuito) configurado para o canal, ou null (usa o Lovable). */
@@ -86,10 +77,7 @@ export function iaDisponivel(canal?: Canal): boolean {
   if (!leitura.ok) return false;
   if (leitura.config.tipo === "regras") return true;
   if (leitura.config.tipo === "compativel") return true;
-  if (process.env["LOVABLE_API_KEY"]) return true;
-  // Sem chave do Lovable: ainda há IA se o provedor novo está válido e o canal não foi pedido.
-  const global = lerConfigDoProvedor();
-  return !canal && global.ok && global.config.tipo === "compativel";
+  return false;
 }
 
 /** O que cada chamada ao modelo deixa para a observabilidade (sem conteúdo de conversa). */
@@ -175,7 +163,6 @@ export function criarSessaoDoGateway(opcoes?: {
   profissionalId?: string | null;
   aoChamar?: (e: EventoDeChamada) => void;
 }) {
-  let runId: string | undefined;
   const avisar = (e: EventoDeChamada) => {
     try {
       opcoes?.aoChamar?.(e);
