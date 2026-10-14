@@ -82,14 +82,14 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
     expect(r.servicos).toHaveLength(1);
   });
 
-  it("sem o provedor gratuito, o caminho do Lovable fica exatamente como era", async () => {
+  it("sem provedor independente, o assistente fica indisponível e não faz chamadas externas", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
     vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
-    await pensar({ mensagem: "cadastre corte", contexto });
-    expect(String(buscar.mock.calls[0]![0])).toContain("ai.gateway.lovable.dev");
-    expect(JSON.parse(buscar.mock.calls[0]![1].body).model).toBe("google/gemini-3-flash");
+    const r = await pensar({ mensagem: "cadastre corte", contexto });
+    expect(r.disponivel).toBe(false);
+    expect(buscar).not.toHaveBeenCalled();
   });
 
   it("limite de uso do provedor gratuito (429) vira mensagem clara", async () => {
