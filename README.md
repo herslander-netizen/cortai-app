@@ -1,32 +1,44 @@
-# Welcome to your Lovable project
+# Cortaí
 
-This project was built with [Lovable](https://lovable.dev).
+Plataforma de gestão para negócios de beleza, com agenda, serviços, profissionais, clientes, pagamentos, notificações e assistente CortAI.
 
-## Build with Lovable
+Esta branch contém o trabalho isolado de reconstrução e desacoplamento de serviços externos. Ela não representa um deploy de produção.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Stack
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- TanStack Start, React e TypeScript
+- Tailwind CSS e componentes Radix
+- Supabase (Auth, Postgres e Storage)
+- Cloudflare Workers / Vite
+- Vitest para testes
 
-## Development
+## Desenvolvimento local
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Use Bun na versão compatível com o lockfile deste branch.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+bun run dev
 ```
 
-## Built with
+## Validação
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+```sh
+bun run tsc --noEmit
+bun run vitest run
+bun run build
+```
 
-## Cortaí 3.0
-Paleta neutra única, Agenda mobile redesenhada (calendário semanal/mensal, dia completo 00–23), menu "+" em speed dial, Notificações em tela cheia no celular e diálogo de novidades da versão.
+Os comandos exatos de validação automatizada estão definidos em `.github/workflows/validate.yml`.
+
+## Segurança da migração
+
+- Não use o domínio de produção para testes.
+- Não mescle esta branch em `main` nem faça deploy sem autorização específica.
+- Não aplique migrações a bancos reais nesta etapa.
+- Não adicione chaves ou segredos ao repositório; configure-os apenas no ambiente de execução.
+- Consulte `docs/PLANO_DESACOPLAMENTO_LOVABLE.md` para o estado das dependências e as validações pendentes.
+
+## MCP
+
+A rota `/mcp` oferece ferramentas de leitura para listar serviços e agendamentos do negócio autenticado. A compatibilidade ponta a ponta com um cliente MCP real e o fluxo OAuth ainda precisam ser verificados antes de uso externo.
