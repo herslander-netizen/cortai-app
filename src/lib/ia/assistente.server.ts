@@ -16,12 +16,10 @@ import {
 
 import { provedorCompativelDoCanal } from "@/lib/brain/gateway.server";
 
-// Infraestrutura da Alvo IA / Lovable AI Gateway — nenhum consumo de tokens da OpenAI.
-const ENDPOINT = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODELO = "google/gemini-3-flash";
+
 
 export function assistenteConfigurado(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"]) || provedorCompativelDoCanal("painel") !== null;
+  return provedorCompativelDoCanal("painel") !== null;
 }
 
 export type ContextoDaBarbearia = {
@@ -234,8 +232,8 @@ export async function pensar(input: {
 }): Promise<RespostaDoAssistente> {
   // Provedor gratuito/compatível configurado para o painel (CORTAI_AI_*) tem prioridade.
   const compat = provedorCompativelDoCanal("painel");
-  const chave = compat?.chave ?? process.env["LOVABLE_API_KEY"];
-  if (!chave) return respostaIndisponivel();
+  const chave = compat?.chave;
+  if (!compat || !chave) return respostaIndisponivel();
 
   const entrada = [
     { role: "system", content: REGRAS },
@@ -249,12 +247,12 @@ export async function pensar(input: {
   ];
 
   const chamar = (mensagens: unknown[], formato: Record<string, unknown>) =>
-    fetch(compat ? `${compat.baseUrl}/chat/completions` : ENDPOINT, {
+    fetch(`${compat.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
-      ...(compat ? { signal: AbortSignal.timeout(compat.tempoLimiteMs) } : {}),
+      signal: AbortSignal.timeout(compat.tempoLimiteMs),
       body: JSON.stringify({
-        model: compat?.modelo ?? MODELO,
+        model: compat.modelo,
         messages: mensagens,
         response_format: formato,
       }),
@@ -265,7 +263,7 @@ export async function pensar(input: {
     json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
   });
   // Nem todo provedor aceita json_schema estrito: pede JSON puro com o esquema na instrução.
-  if (compat && resposta.status === 400) {
+  if (resposta.status === 400) {
     resposta = await chamar(
       [
         ...entrada,
