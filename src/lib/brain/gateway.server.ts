@@ -46,12 +46,14 @@ export class ErroDoGateway extends Error {
 function resolverProvedor(canal?: Canal): LeituraDaConfig {
   const leitura = lerConfigDoProvedor();
   if (!leitura.ok) return leitura;
-  // Modo básico por regras: só o painel; os demais canais seguem no Lovable.
+  if (leitura.config.tipo === "lovable")
+    return { ok: false, motivo: "Configure CORTAI_AI_PROVIDER e as credenciais do provedor independente." };
   if (leitura.config.tipo === "regras")
-    return !canal || canal === "painel" ? leitura : { ok: true, config: { tipo: "lovable" } };
-  if (leitura.config.tipo !== "compativel") return leitura;
+    return !canal || canal === "painel"
+      ? leitura
+      : { ok: false, motivo: "O modo por regras está disponível apenas no painel." };
   if (!canal || leitura.config.canais.includes(canal)) return leitura;
-  return { ok: true, config: { tipo: "lovable" } };
+  return { ok: false, motivo: `Nenhum provedor independente configurado para o canal ${canal}.` };
 }
 
 export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: string } {
