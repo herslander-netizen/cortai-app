@@ -5,6 +5,7 @@ export default defineConfig({
   schema: "./drizzle/schema.ts",
   out: "./drizzle/migrations",
   dbCredentials: {
-    url: process.env.LOVABLE_DB_MIGRATION_URL ?? "",
+    // Prefer the provider-neutral name; legacy name remains for existing local setups.
+    url: process.env.CORTAI_DB_MIGRATION_URL ?? process.env.LOVABLE_DB_MIGRATION_URL ?? "",
   },
 });
