@@ -35,7 +35,7 @@ npx vite build
 
 ## Stack
 
-TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. A IA passa pelo Lovable AI Gateway (`LOVABLE_API_KEY` só no servidor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
+TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; não há fallback para o Lovable. Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
 ## Identidade visual
 
