@@ -191,11 +191,15 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
           await processar(mudanca);
         }
       }
-      const { error: concluirErro } = await db
+      const { data: concluido, error: concluirErro } = await db
         .from("whatsapp_webhook_events")
         .update({ processed_at: new Date().toISOString(), processing_error: null })
-        .eq("id", pendente.id);
-      if (concluirErro) throw new Error("Falha ao registrar conclusão do webhook pendente.");
+        .eq("id", pendente.id)
+        .select("id")
+        .maybeSingle();
+      if (concluirErro || !concluido) {
+        throw new Error("Falha ao registrar conclusão do webhook pendente.");
+      }
     } catch (erro) {
       await db
         .from("whatsapp_webhook_events")
@@ -320,11 +324,13 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
               await processar(mudanca);
             }
           }
-          const { error: concluirErro } = await db
+          const { data: concluido, error: concluirErro } = await db
             .from("whatsapp_webhook_events")
             .update({ processed_at: new Date().toISOString(), processing_error: null })
-            .eq("id", eventoId);
-          if (concluirErro) {
+            .eq("id", eventoId)
+            .select("id")
+            .maybeSingle();
+          if (concluirErro || !concluido) {
             throw new Error("Falha ao registrar conclusão do webhook.");
           }
           // A retomada é trabalho secundário: no Cloudflare, registrar em waitUntil
