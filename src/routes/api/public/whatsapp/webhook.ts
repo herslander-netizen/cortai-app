@@ -15,6 +15,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { verificarWebhookIndependente, WebhookVerificationError } from "@/lib/webhooks/lovable-signature.server";
+import { lerCorpoLimitado } from "@/lib/webhooks/read-limited-body.server";
 
 /** Valida a assinatura oficial da Meta sobre o corpo cru, sem normalizar o JSON. */
 export function verificarAssinaturaMeta(
@@ -68,38 +69,6 @@ async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
-
-async function lerCorpoLimitado(
-  request: Request,
-  maxBytes: number,
-): Promise<{ corpo: string } | { status: 400 | 413 }> {
-  const leitor = request.body?.getReader();
-  if (!leitor) return { status: 400 };
-  const partes: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await leitor.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > maxBytes) {
-      await leitor.cancel().catch(() => undefined);
-      return { status: 413 };
-    }
-    partes.push(value);
-  }
-  const bytes = new Uint8Array(total);
-  let deslocamento = 0;
-  for (const parte of partes) {
-    bytes.set(parte, deslocamento);
-    deslocamento += parte.byteLength;
-  }
-  try {
-    return { corpo: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
-  } catch {
-    return { status: 400 };
-  }
-}
-
 
 /**
  * Barbearia dona do aviso: pelo phone_number_id que a Meta envia em value.metadata.
