@@ -1,9 +1,9 @@
 /**
  * Camada de IA do CortAI — só roda no servidor.
  *
- * Fala com o Lovable AI Gateway (Responses API, sempre em streaming) e devolve
- * uma resposta ESTRUTURADA. A chave nunca sai do servidor e, se ela não existir,
- * o produto continua funcionando com um aviso honesto — nada é simulado.
+ * Fala com o provedor compatível configurado e devolve uma resposta ESTRUTURADA.
+ * A chave nunca sai do servidor e, se o provedor não estiver configurado, devolve
+ * um aviso honesto — sem fallback silencioso e sem simular respostas.
  */
 import {
   DESTINOS_PERMITIDOS,
