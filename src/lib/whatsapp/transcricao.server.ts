@@ -22,7 +22,7 @@ function configuracaoTranscricao(): ConfiguracaoTranscricao | null {
   if (!leitura.ok) return null;
   if (leitura.config.tipo !== "compativel") return null;
   return {
-    endpoint: (process.env["CORTAI_STT_BASE_URL"]?.trim().replace(/\\/+$/, "") || `${leitura.config.baseUrl}/audio/transcriptions`),
+    endpoint: (process.env["CORTAI_STT_BASE_URL"]?.trim().replace(/\/+$/, "") || `${leitura.config.baseUrl}/audio/transcriptions`),
     chave: process.env["CORTAI_STT_API_KEY"]?.trim() || leitura.config.chave,
     modelo: process.env["CORTAI_STT_MODEL"]?.trim() || process.env["CORTAI_AI_TRANSCRIPTION_MODEL"]?.trim() || "whisper-1",
   };
