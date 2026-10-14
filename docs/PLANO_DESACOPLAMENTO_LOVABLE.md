@@ -35,7 +35,7 @@ A correção ainda depende de CI verde e testes de contrato. Validar resposta co
 
 ### Integrações auxiliares / compatibilidade
 
-- `src/lib/lovable-error-reporting.ts` e `RouteError.tsx`: telemetria específica do editor; pode ser removida somente após confirmar fallback silencioso fora do editor.
+- **Tratamento de erro de rota:** `src/components/layout/RouteError.tsx` permanece como interface própria de recuperação de erros (sessão, rede, permissão e chunks desatualizados); não é, por si só, telemetria do editor. O módulo `src/lib/lovable-error-reporting.ts` não existe nesta branch. Não remover o `RouteError` sem substituir suas rotas de recuperação e testar o comportamento offline/PWA.
 - `src/integrations/lovable/index.ts` ainda preserva o nome de compatibilidade para consumidores existentes, mas delega o login ao Supabase; renomear todos os consumidores é limpeza posterior, não bloqueia o runtime.
 - `LOVABLE_CRON_SECRET` em `src/integrations/supabase/cron-auth.ts`: nome de variável ainda legado. Rotacionar/renomear exige transição compatível com jobs existentes e não deve ser feito isoladamente.
 - Comentários, metadados e rotas com o prefixo `/.lovable` podem fazer parte do fluxo OAuth de consentimento; não excluir só pelo nome.
