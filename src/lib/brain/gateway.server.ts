@@ -233,55 +233,9 @@ export function criarSessaoDoGateway(opcoes?: {
       }
     }
 
-    const chave = process.env["LOVABLE_API_KEY"];
-    if (!chave) throw new ErroDoGateway(401, mensagemSegura(401));
-    const headers = new Headers({
-      "Content-Type": "application/json",
-      "Lovable-API-Key": chave,
-      "X-Lovable-AIG-SDK": "fetch",
-    });
-    if (runId) headers.set(CABECALHO_RUN, runId);
-    const resposta = await fetch(URL_RESPOSTAS, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: MODELO_CORTAI,
-        instructions: input.instrucoes,
-        input: input.entrada,
-        tools: input.ferramentas,
-        stream: true,
-        store: false,
-        reasoning: { effort: "low", summary: "auto" },
-        include: ["reasoning.encrypted_content"],
-      }),
-    });
-    runId ??= resposta.headers.get(CABECALHO_RUN)?.trim() || undefined;
-    if (!resposta.ok) {
-      const corpo = await resposta.text().catch(() => "");
-      console.error(`[cerebro] gateway ${resposta.status}: ${corpo.slice(0, 300)}`);
-      avisar({
-        ...base,
-        latenciaMs: Date.now() - inicio,
-        ok: false,
-        httpStatus: resposta.status,
-      });
-      throw new ErroDoGateway(resposta.status, mensagemSegura(resposta.status));
-    }
-    let uso: UsoDeTokens | undefined;
-    try {
-      const itens = await lerStream(resposta, (u) => (uso = u));
-      avisar({
-        ...base,
-        ...resumo(itens),
-        latenciaMs: Date.now() - inicio,
-        ok: true,
-        ...(uso ? { uso } : {}),
-      });
-      return itens;
-    } catch (erro) {
-      avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false });
-      throw erro;
-    }
+    const erro = new ErroDoGateway(401, mensagemSegura(401), "não configurado");
+    avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: 401 });
+    throw erro;
   };
 
   return {
