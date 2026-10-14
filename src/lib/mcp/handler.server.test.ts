@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { handleMcpRequest, validarPeriodoAgendamentos } from "./handler.server";
+import { consultarAgendamentosTenant, consultarServicosTenant, handleMcpRequest, validarPeriodoAgendamentos } from "./handler.server";
 
 const { createClientMock, tenantLookupMock } = vi.hoisted(() => ({
   createClientMock: vi.fn(),
@@ -123,5 +123,72 @@ describe("validação do período de agendamentos MCP", () => {
   it("rejeita datas inválidas se chamado fora do schema MCP", () => {
     expect(() => validarPeriodoAgendamentos("não-é-data", "também-não"))
       .toThrow("Informe um período válido.");
+  });
+});
+
+
+function queryMock(data: Record<string, unknown>[] = []) {
+  const calls: Array<[string, ...unknown[]]> = [];
+  const builder: any = {};
+  for (const method of ["select", "eq", "gte", "lt", "order", "limit"]) {
+    builder[method] = vi.fn((...args: unknown[]) => {
+      calls.push([method, ...args]);
+      return builder;
+    });
+  }
+  builder.then = (resolve: (value: { data: Record<string, unknown>[]; error: null }) => unknown) =>
+    Promise.resolve(resolve({ data, error: null }));
+  return { builder, calls, db: { from: vi.fn(() => builder) } };
+}
+
+describe("isolamento por estabelecimento nas consultas MCP", () => {
+  it("sempre filtra serviços pelo tenant autenticado e apenas ativos", async () => {
+    const mock = queryMock([{ id: "s1", nome: "Corte", duracao_min: 30, preco_centavos: 4500, categoria: "Cabelo" }]);
+
+    const result = await consultarServicosTenant(mock.db as any, "tenant-a");
+
+    expect(mock.db.from).toHaveBeenCalledWith("servicos");
+    expect(mock.calls).toContainEqual(["eq", "tenant_id", "tenant-a"]);
+    expect(mock.calls).toContainEqual(["eq", "ativo", true]);
+    expect(result).toEqual([{ id: "s1", nome: "Corte", duracaoMin: 30, precoReais: 45, categoria: "Cabelo" }]);
+  });
+
+  it("sempre filtra agendamentos pelo tenant, limita datas e quantidade", async () => {
+    const mock = queryMock([{
+      id: "a1",
+      inicio: "2026-10-10T13:00:00.000Z",
+      fim: "2026-10-10T13:30:00.000Z",
+      status: "confirmado",
+      valor_centavos: 4500,
+      clientes: { nome: "Cliente teste" },
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Profissional teste" },
+    }]);
+
+    const result = await consultarAgendamentosTenant(
+      mock.db as any,
+      "tenant-b",
+      "2026-10-10T10:00:00-03:00",
+      "2026-10-11T10:00:00-03:00",
+    );
+
+    expect(mock.db.from).toHaveBeenCalledWith("agendamentos");
+    expect(mock.calls).toContainEqual(["eq", "tenant_id", "tenant-b"]);
+    expect(mock.calls).toContainEqual(["gte", "inicio", "2026-10-10T13:00:00.000Z"]);
+    expect(mock.calls).toContainEqual(["lt", "inicio", "2026-10-11T13:00:00.000Z"]);
+    expect(mock.calls).toContainEqual(["limit", 500]);
+    expect(result[0]).toMatchObject({ id: "a1", cliente: "Cliente teste", servico: "Corte", profissional: "Profissional teste", valorReais: 45 });
+  });
+
+  it("não consulta o banco quando o período é inválido", async () => {
+    const mock = queryMock();
+
+    await expect(consultarAgendamentosTenant(
+      mock.db as any,
+      "tenant-b",
+      "2026-10-10T10:00:00Z",
+      "2026-11-11T10:00:00Z",
+    )).rejects.toThrow("Período máximo de 31 dias.");
+    expect(mock.db.from).not.toHaveBeenCalled();
   });
 });
