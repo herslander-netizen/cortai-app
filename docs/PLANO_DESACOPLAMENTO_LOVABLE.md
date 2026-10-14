@@ -17,11 +17,13 @@ Este documento distingue pacotes removíveis de serviços externos que ainda faz
 
 ### MCP e OAuth de recursos protegidos
 
-O transporte MCP foi substituído por `@modelcontextprotocol/sdk` em `src/lib/mcp/handler.server.ts`; `src/routes/mcp.ts` agora encaminha GET/POST/DELETE para o handler próprio. O handler valida o token no Supabase, deriva o usuário e o estabelecimento no servidor, mantém as ferramentas somente leitura e aplica o limite de 31 dias e 500 agendamentos. O plugin e o pacote `@lovable.dev/mcp-js` não aparecem mais nas dependências atuais.
+O transporte MCP foi substituído por `@modelcontextprotocol/sdk` em `src/lib/mcp/handler.server.ts`; `src/routes/mcp.ts` agora encaminha GET/POST/DELETE para o handler próprio. O handler valida o token no Supabase, deriva o usuário e o estabelecimento no servidor, mantém as ferramentas somente leitura e aplica o limite de 31 dias e 500 agendamentos. O plugin e o pacote `@lovable.dev/mcp-js` não aparecem mais nas dependências atuais. Também removi os módulos órfãos antigos de ferramentas MCP e o helper de autenticação duplicado, mantendo uma única implementação ativa no handler novo.
 
 Ainda é necessário testar o protocolo com um cliente MCP real, os metadados OAuth, o fluxo de consentimento e os casos de token inválido/expirado e usuário sem vínculo. A substituição de código não prova compatibilidade ponta a ponta.
 
 ### Gateway de IA
+
+O harness Promptfoo e os arquivos de comparação foram atualizados para usar o provedor configurado ou GPT-OSS; o perfil legado que dependia do gateway Lovable foi removido. As avaliações com provedor real ainda exigem credenciais explícitas e não foram executadas nesta etapa.
 
 - `src/lib/brain/gateway.server.ts` encaminha somente para o provedor compatível configurado ou para o modo de regras; o caminho de execução direto do gateway Lovable foi removido.
 - `src/lib/ia/assistente.server.ts` usa o adaptador independente.
@@ -33,7 +35,7 @@ A correção ainda depende de CI verde e testes de contrato. Validar resposta co
 ### Integrações auxiliares / compatibilidade
 
 - `src/lib/lovable-error-reporting.ts` e `RouteError.tsx`: telemetria específica do editor; pode ser removida somente após confirmar fallback silencioso fora do editor.
-- `src/integrations/lovable/index.ts` e consumidores ainda usam o nome compatível `lovable`; renomear é limpeza posterior, não bloqueia o runtime.
+- `src/integrations/lovable/index.ts` ainda preserva o nome de compatibilidade para consumidores existentes, mas delega o login ao Supabase; renomear todos os consumidores é limpeza posterior, não bloqueia o runtime.
 - `LOVABLE_CRON_SECRET` em `src/integrations/supabase/cron-auth.ts`: nome de variável ainda legado. Rotacionar/renomear exige transição compatível com jobs existentes e não deve ser feito isoladamente.
 - Comentários, metadados e rotas com o prefixo `/.lovable` podem fazer parte do fluxo OAuth de consentimento; não excluir só pelo nome.
 
