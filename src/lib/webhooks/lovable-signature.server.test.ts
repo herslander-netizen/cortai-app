@@ -43,6 +43,20 @@ describe("verificarWebhookIndependente", () => {
     await expect(verificarWebhookIndependente({ req: request("{"), secret, nowMs: now }))
       .rejects.toMatchObject({ code: "invalid_json" });
   });
+  it("classifica UTF-8 inválido como payload inválido, sem vazar erro interno", async () => {
+    const timestamp = String(Math.floor(now / 1000));
+    const req = new Request("https://example.test/webhook", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-lovable-timestamp": timestamp,
+        "x-lovable-signature": "a".repeat(64),
+      },
+      body: new Uint8Array([0xff, 0xfe]),
+    });
+    await expect(verificarWebhookIndependente({ req, secret, nowMs: now }))
+      .rejects.toMatchObject({ code: "invalid_json" });
+  });
   it("rejeita payload maior que o limite", async () => {
     await expect(verificarWebhookIndependente({ req: request('{"texto":"grande"}'), secret, maxBodyBytes: 4, nowMs: now }))
       .rejects.toMatchObject({ code: "body_too_large" });
