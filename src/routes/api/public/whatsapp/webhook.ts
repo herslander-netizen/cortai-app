@@ -208,7 +208,11 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
       }
       const { data: concluido, error: concluirErro } = await db
         .from("whatsapp_webhook_events")
-        .update({ processed_at: new Date().toISOString(), processing_error: null, processing_started_at: null })
+        .update({
+          processed_at: new Date().toISOString(),
+          processing_error: null,
+          processing_started_at: null,
+        })
         .eq("id", pendente.id)
         .select("id")
         .maybeSingle();
