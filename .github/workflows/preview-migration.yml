@@ -46,7 +46,7 @@ jobs:
 
   deploy-isolated-preview:
     needs: validate-build
-    if: ${{ vars.CORTAI_PREVIEW_DEPLOY_ENABLED == 'true' }}
+    # The job itself checks dedicated preview credentials and safely skips deployment if absent.
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
