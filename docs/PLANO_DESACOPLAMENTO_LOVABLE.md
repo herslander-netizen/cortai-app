@@ -19,7 +19,7 @@ Este documento distingue pacotes removíveis de serviços externos que ainda faz
 
 O transporte MCP foi substituído por `@modelcontextprotocol/sdk` em `src/lib/mcp/handler.server.ts`; `src/routes/mcp.ts` agora encaminha GET/POST/DELETE para o handler próprio. O handler valida o token no Supabase, deriva o usuário e o estabelecimento no servidor, mantém as ferramentas somente leitura e aplica o limite de 31 dias e 500 agendamentos. O plugin e o pacote `@lovable.dev/mcp-js` não aparecem mais nas dependências atuais. Também removi os módulos órfãos antigos de ferramentas MCP e o helper de autenticação duplicado, mantendo uma única implementação ativa no handler novo.
 
-Ainda é necessário testar o protocolo com um cliente MCP real, os metadados OAuth, o fluxo de consentimento e os casos de token inválido/expirado e usuário sem vínculo. A substituição de código não prova compatibilidade ponta a ponta.
+Os testes automatizados agora cobrem token ausente, token inválido/expirado e usuário autenticado sem vínculo ativo; a execução de CI `38504235312` passou com TypeScript, testes e build. Os testes de autenticação usam mocks: não comprovam a validação contra um projeto Supabase real nem substituem teste de isolamento ponta a ponta. Ainda é necessário exercitar as ferramentas com dois estabelecimentos de teste, usar um cliente MCP real e validar os metadados OAuth e o fluxo de consentimento.
 
 ### Gateway de IA
 
