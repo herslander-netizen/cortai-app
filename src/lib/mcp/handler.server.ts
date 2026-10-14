@@ -38,6 +38,21 @@ function unauthorized(request: Request): Response {
   });
 }
 
+const MAX_AGENDAMENTOS_PERIODO_MS = 31 * 86400000;
+
+export function validarPeriodoAgendamentos(inicio: string, fim: string): { de: Date; ate: Date } {
+  const de = new Date(inicio);
+  const ate = new Date(fim);
+  if (!Number.isFinite(de.getTime()) || !Number.isFinite(ate.getTime())) {
+    throw new Error("Informe um período válido.");
+  }
+  if (ate <= de) throw new Error("O fim precisa ser depois do início.");
+  if (ate.getTime() - de.getTime() > MAX_AGENDAMENTOS_PERIODO_MS) {
+    throw new Error("Período máximo de 31 dias.");
+  }
+  return { de, ate };
+}
+
 export async function handleMcpRequest(request: Request): Promise<Response> {
   if (request.method !== "POST" && request.method !== "GET" && request.method !== "DELETE") {
     return new Response("Method not allowed", { status: 405, headers: { allow: "GET, POST, DELETE" } });
@@ -112,10 +127,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
     },
     async ({ inicio, fim }: { inicio: string; fim: string }) => {
-      const de = new Date(inicio);
-      const ate = new Date(fim);
-      if (ate <= de) throw new Error("O fim precisa ser depois do início.");
-      if (ate.getTime() - de.getTime() > 31 * 86400000) throw new Error("Período máximo de 31 dias.");
+      const { de, ate } = validarPeriodoAgendamentos(inicio, fim);
       const { data, error } = await db
         .from("agendamentos")
         .select("id, inicio, fim, status, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)")
