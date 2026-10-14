@@ -9,14 +9,14 @@ Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do
 - Banco: cerca de 87 tabelas e 69 funções públicas (ver `src/integrations/supabase/types.ts`).
 - Migrações:
   - `supabase/migrations/`: cerca de 150 arquivos, até 01/10/2026.
-  - `drizzle/migrations/`: 0000 a 0026, a partir de 01/10/2026, aplicadas com `LOVABLE_DB_MIGRATION_URL`.
+  - `drizzle/migrations/`: 0000 a 0026, a partir de 01/10/2026, aplicadas com `CORTAI_DB_MIGRATION_URL` (compatibilidade temporária: `LOVABLE_DB_MIGRATION_URL`).
 
 ## Stack
 
 - **Front e servidor:** TanStack Start (React 19) roda em Cloudflare Workers (`src/server.ts`, `ctx.waitUntil` em `segundo-plano.server.ts`). Usa Vite 8, Tailwind 4 e shadcn/Radix.
 - **Banco:** Supabase (Postgres, Auth e Storage), com RLS. O navegador fala direto com o Supabase usando o login do usuário.
 - **Servidor:** funções do servidor (`createServerFn`) nos arquivos `*.functions.ts` e rotas HTTP em `src/routes/api/public/*`.
-- **IA:** Lovable AI Gateway (`src/lib/brain/gateway.server.ts`), via Responses API com streaming.
+- **IA:** Gateway de IA configurável (`src/lib/brain/gateway.server.ts`), via Responses API com streaming e provedor compatível.
 - **WhatsApp:** Meta Cloud API (oficial) e Evolution API (número próprio).
 - **Pagamentos dos planos:** Asaas.
 - **PWA:** service worker próprio (`/sw.js`) e Web Push com VAPID.
@@ -33,7 +33,7 @@ npx vite build                  # build
 ```
 
 Variáveis: `.env` só traz as chaves públicas do Supabase. Os segredos do servidor estão no Lovable Cloud:
-- `SUPABASE_SERVICE_ROLE_KEY`, `LOVABLE_API_KEY`, `LOVABLE_CRON_SECRET`
+- `SUPABASE_SERVICE_ROLE_KEY`, `CORTAI_AI_*`, `CORTAI_CRON_SECRET` (compatibilidade temporária: `LOVABLE_API_KEY` e `LOVABLE_CRON_SECRET`)
 - `META_APP_SECRET`, `META_VERIFY_TOKEN`, `WHATSAPP_API_KEY`, `EVOLUTION_*`
 - chave do Asaas e chaves internas, guardadas na tabela `chaves_internas`
 
