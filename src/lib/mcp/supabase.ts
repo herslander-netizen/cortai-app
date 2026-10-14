@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import type { AuthContext } from "@lovable.dev/mcp-js";
 
 import { tenantIdDoMembro } from "@/lib/tenant";
+
+type AuthContext = { getToken(): string | null; getUserId(): string | null };
 
 type RuntimeGlobals = typeof globalThis & {
   process?: { env?: Record<string, string | undefined> };
@@ -34,11 +35,8 @@ export function supabaseForUser(auth: AuthContext) {
 /** Descobre o negócio pelo vínculo real do usuário, nunca por parâmetro. */
 export async function tenantDoUsuario(auth: AuthContext) {
   const db = supabaseForUser(auth);
-  // Mesma regra do resto do servidor: negócio escolhido, acesso ativo.
-  const tenantId = await tenantIdDoMembro({ supabase: db, userId: auth.getUserId() ?? "" }).catch(
-    () => {
-      throw new Error("Sua conta ainda não está ligada a um negócio no Cortaí.");
-    },
-  );
+  const tenantId = await tenantIdDoMembro({ supabase: db, userId: auth.getUserId() ?? "" }).catch(() => {
+    throw new Error("Sua conta ainda não está ligada a um negócio no Cortaí.");
+  });
   return { db, tenantId };
 }
