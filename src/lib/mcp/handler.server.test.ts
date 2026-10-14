@@ -2,10 +2,31 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { handleMcpRequest } from "./handler.server";
 
+const { createClientMock, tenantLookupMock } = vi.hoisted(() => ({
+  createClientMock: vi.fn(),
+  tenantLookupMock: vi.fn(),
+}));
+
+vi.mock("@supabase/supabase-js", () => ({ createClient: createClientMock }));
+vi.mock("@/lib/tenant", () => ({ tenantIdDoMembro: tenantLookupMock }));
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  createClientMock.mockReset();
+  tenantLookupMock.mockReset();
 });
+
+function mcpRequest(token = "test-token") {
+  return new Request("https://cortai.example/mcp", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
+  });
+}
 
 describe("handler MCP — bordas de autenticação", () => {
   it("recusa pedido sem bearer antes de acessar o backend", async () => {
@@ -25,6 +46,7 @@ describe("handler MCP — bordas de autenticação", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(await response.json()).toMatchObject({ error: "unauthorized" });
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(createClientMock).not.toHaveBeenCalled();
   });
 
   it("rejeita métodos não suportados antes de autenticar", async () => {
@@ -39,5 +61,40 @@ describe("handler MCP — bordas de autenticação", () => {
     expect(response.status).toBe(405);
     expect(response.headers.get("allow")).toBe("GET, POST, DELETE");
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(createClientMock).not.toHaveBeenCalled();
+  });
+
+  it("recusa token inválido/expirado sem tentar resolver o negócio", async () => {
+    vi.stubEnv("SUPABASE_URL", "https://backend.example");
+    vi.stubEnv("SUPABASE_PUBLISHABLE_KEY", "publishable-test-key");
+    createClientMock.mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: "Invalid JWT" } }) },
+    });
+
+    const response = await handleMcpRequest(mcpRequest("expired-token"));
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ error: "unauthorized" });
+    expect(createClientMock).toHaveBeenCalledOnce();
+    expect(tenantLookupMock).not.toHaveBeenCalled();
+  });
+
+  it("recusa usuário autenticado sem vínculo ativo com negócio", async () => {
+    vi.stubEnv("SUPABASE_URL", "https://backend.example");
+    vi.stubEnv("SUPABASE_PUBLISHABLE_KEY", "publishable-test-key");
+    createClientMock.mockReturnValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-without-tenant" } }, error: null }) },
+    });
+    tenantLookupMock.mockRejectedValue(new Error("Sua conta ainda não está ligada a uma barbearia."));
+
+    const response = await handleMcpRequest(mcpRequest());
+
+    expect(response.status).toBe(403);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(await response.json()).toMatchObject({ error: "forbidden" });
+    expect(tenantLookupMock).toHaveBeenCalledWith({
+      supabase: expect.any(Object),
+      userId: "user-without-tenant",
+    });
   });
 });
