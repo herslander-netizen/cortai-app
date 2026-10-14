@@ -146,7 +146,7 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
     const db = await admin();
     const { gatewayConfigurado, provedorDoGateway, credenciaisFaltantes } =
       await import("@/lib/whatsapp/gateway.server");
-    const { iaConfigurada } = await import("@/lib/whatsapp/atendimento.server");
+    const { iaDisponivel } = await import("@/lib/brain/gateway.server");
     const { configuracaoDoTenant } = await import("@/lib/whatsapp/fluxo.server");
 
     const [
@@ -186,7 +186,7 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       gatewayConfigurado: gatewayConfigurado(),
       provedor: provedorDoGateway(),
       credenciaisFaltantes: credenciaisFaltantes(),
-      iaDisponivel: iaConfigurada(),
+      iaDisponivel: iaDisponivel("whatsapp"),
       conexao: conexaoDaLinha(linhaDoTipo(conexoes, "atendimento")),
       conexaoNotificacoes: conexaoDaLinha(linhaDoTipo(conexoes, "notificacoes")),
       configuracao,
