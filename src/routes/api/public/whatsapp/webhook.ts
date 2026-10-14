@@ -374,11 +374,13 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           return Response.json({ ok: true });
         } catch (erro) {
           const mensagem = erro instanceof Error ? erro.message : "Falha ao processar.";
+          console.error("[whatsapp/meta] falha ao processar webhook", erro);
           await db
             .from("whatsapp_webhook_events")
             .update({ processing_error: mensagem })
             .eq("id", eventoId);
-          return new Response(mensagem, { status: 500 });
+          // Detalhes internos ficam no log/inbox; não são expostos ao remetente.
+          return new Response("Webhook processing failed", { status: 500 });
         }
       },
     },
