@@ -18,14 +18,14 @@ afterEach(() => {
 });
 
 describe("gateway central — escolha do provedor", () => {
-  it("padrão: Lovable, com o modelo de sempre, e indisponível sem a chave", async () => {
+  it("sem provedor independente, fica indisponível mesmo que exista chave antiga", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
     vi.stubEnv("LOVABLE_API_KEY", "");
     const g = await import("./gateway.server");
-    expect(g.identidadeDoModelo()).toEqual({ provedor: "lovable", modelo: g.MODELO_CORTAI });
+    expect(g.identidadeDoModelo()).toEqual({ provedor: "não configurado", modelo: g.MODELO_CORTAI });
     expect(g.iaDisponivel()).toBe(false);
     vi.stubEnv("LOVABLE_API_KEY", "x");
-    expect(g.iaDisponivel()).toBe(true);
+    expect(g.iaDisponivel()).toBe(false);
   });
 
   it("provedor compatível completo fica disponível mesmo sem LOVABLE_API_KEY", async () => {
@@ -133,7 +133,7 @@ describe("gateway central — escolha do provedor", () => {
     expect(eventos[0]).toMatchObject({ ok: false, httpStatus: 402 });
   });
 
-  it("migração por canal: só os canais listados vão para o provedor novo; os demais ficam no Lovable", async () => {
+  it("migração por canal: só os canais listados usam o provedor; os demais ficam indisponíveis", async () => {
     vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
@@ -143,22 +143,22 @@ describe("gateway central — escolha do provedor", () => {
     // Padrão: só o painel.
     expect(g.identidadeDoModelo("painel").modelo).toBe("openai/gpt-oss-20b");
     expect(g.identidadeDoModelo("whatsapp")).toEqual({
-      provedor: "lovable",
+      provedor: "não configurado",
       modelo: g.MODELO_CORTAI,
     });
-    expect(g.identidadeDoModelo("site").provedor).toBe("lovable");
-    // Ampliar a lista move os outros canais; esvaziar (rollback) devolve tudo ao Lovable.
+    expect(g.identidadeDoModelo("site").provedor).toBe("não configurado");
+    // Ampliar a lista move os outros canais; canais não listados não têm fallback.
     vi.stubEnv("CORTAI_AI_CANAIS", "painel,site");
     expect(g.identidadeDoModelo("site").modelo).toBe("openai/gpt-oss-20b");
-    expect(g.identidadeDoModelo("whatsapp").provedor).toBe("lovable");
+    expect(g.identidadeDoModelo("whatsapp").provedor).toBe("não configurado");
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
     expect(g.identidadeDoModelo("painel")).toEqual({
-      provedor: "lovable",
+      provedor: "não configurado",
       modelo: g.MODELO_CORTAI,
     });
   });
 
-  it("canal fora da lista chama o endpoint do Lovable, não o do provedor novo", async () => {
+  it("canal fora da lista não chama provedor algum", async () => {
     vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
@@ -183,7 +183,6 @@ describe("gateway central — escolha do provedor", () => {
       .criarSessaoDoGateway({ canal: "painel" })
       .responder({ instrucoes: "i", entrada: [], ferramentas })
       .catch(() => undefined);
-    expect(urls[0]).toContain("ai.gateway.lovable.dev");
-    expect(urls[1]).toBe("https://api.exemplo.test/v1/chat/completions");
+    expect(urls).toEqual(["https://api.exemplo.test/v1/chat/completions"]);
   });
 });
