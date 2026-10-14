@@ -19,12 +19,9 @@ const base = {
 };
 
 describe("lerConfigDoProvedor", () => {
-  it("sem variáveis segue o Lovable de sempre", () => {
-    expect(lerConfigDoProvedor({})).toEqual({ ok: true, config: { tipo: "lovable" } });
-    expect(lerConfigDoProvedor({ CORTAI_AI_PROVIDER: "lovable" })).toEqual({
-      ok: true,
-      config: { tipo: "lovable" },
-    });
+  it("sem provedor ou com o legado Lovable, fica indisponível sem fallback", () => {
+    expect(lerConfigDoProvedor({})).toMatchObject({ ok: false });
+    expect(lerConfigDoProvedor({ CORTAI_AI_PROVIDER: "lovable" })).toMatchObject({ ok: false });
   });
 
   it("aceita o provedor compatível completo e normaliza a URL", () => {
