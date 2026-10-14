@@ -9,7 +9,10 @@ export function servidoresDeAutorizacaoSupabase(
   if (supabaseUrl) {
     try {
       const configured = new URL(supabaseUrl);
-      if (configured.protocol !== "https:" && configured.hostname !== "localhost") return [];
+      if (
+        configured.protocol !== "https:" &&
+        !(configured.protocol === "http:" && configured.hostname === "localhost")
+      ) return [];
       const basePath = configured.pathname.replace(/\/+$/, "");
       return [`${configured.origin}${basePath}/auth/v1`];
     } catch {
