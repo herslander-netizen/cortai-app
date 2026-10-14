@@ -184,6 +184,21 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
     .limit(1);
   for (const pendente of pendentes ?? []) {
     if (pendente.id === excluirId) continue;
+    const { data: reivindicado, error: reivindicarErro } = await db.rpc(
+      "claim_whatsapp_webhook_event",
+      {
+        _id: pendente.id,
+        _stale_before: new Date(Date.now() - 5 * 60_000).toISOString(),
+      },
+    );
+    if (reivindicarErro) {
+      console.error("[whatsapp/meta] falha ao reivindicar webhook pendente", {
+        eventoId: pendente.id,
+        erro: reivindicarErro.message,
+      });
+      continue;
+    }
+    if (!reivindicado) continue;
     try {
       const corpo = pendente.payload as { entry?: { changes?: MudancaMeta[] }[] };
       for (const entrada of corpo.entry ?? []) {
@@ -193,7 +208,7 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
       }
       const { data: concluido, error: concluirErro } = await db
         .from("whatsapp_webhook_events")
-        .update({ processed_at: new Date().toISOString(), processing_error: null })
+        .update({ processed_at: new Date().toISOString(), processing_error: null, processing_started_at: null })
         .eq("id", pendente.id)
         .select("id")
         .maybeSingle();
@@ -203,7 +218,10 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
     } catch (erro) {
       const { error: registrarErro } = await db
         .from("whatsapp_webhook_events")
-        .update({ processing_error: erro instanceof Error ? erro.message : "Falha ao processar." })
+        .update({
+          processing_error: erro instanceof Error ? erro.message : "Falha ao processar.",
+          processing_started_at: null,
+        })
         .eq("id", pendente.id);
       if (registrarErro) {
         console.error("[whatsapp/meta] falha ao registrar erro do webhook pendente", {
@@ -323,6 +341,24 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           eventoId = gravado.id as string;
         }
 
+        const { data: reivindicado, error: reivindicarErro } = await db.rpc(
+          "claim_whatsapp_webhook_event",
+          {
+            _id: eventoId,
+            _stale_before: new Date(Date.now() - 5 * 60_000).toISOString(),
+          },
+        );
+        if (reivindicarErro) {
+          console.error("[whatsapp/meta] falha ao reivindicar webhook", {
+            eventoId,
+            erro: reivindicarErro.message,
+          });
+          return new Response("Webhook claim failed", { status: 500 });
+        }
+        if (!reivindicado) {
+          return Response.json({ ok: true, motivo: "em_processamento" });
+        }
+
         try {
           const corpo = verificado.payload as { entry?: { changes?: MudancaMeta[] }[] };
           for (const entrada of corpo.entry ?? []) {
@@ -358,7 +394,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           console.error("[whatsapp/meta] falha ao processar webhook", erro);
           await db
             .from("whatsapp_webhook_events")
-            .update({ processing_error: mensagem })
+            .update({ processing_error: mensagem, processing_started_at: null })
             .eq("id", eventoId);
           // Detalhes internos ficam no log/inbox; não são expostos ao remetente.
           return new Response("Webhook processing failed", { status: 500 });
