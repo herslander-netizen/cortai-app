@@ -51,8 +51,24 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           return new Response(null, { status: 401 });
         }
 
-        const corpo = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-        if (!corpo) return new Response("Invalid payload", { status: 400 });
+        const { lerCorpoLimitado } = await import("@/lib/webhooks/read-limited-body.server");
+        const lido = await lerCorpoLimitado(request, 4 * 1024 * 1024);
+        if ("status" in lido) {
+          return new Response(
+            lido.status === 413 ? "Payload too large" : "Invalid payload",
+            { status: lido.status },
+          );
+        }
+        let corpo: Record<string, unknown>;
+        try {
+          const payload: unknown = JSON.parse(lido.corpo);
+          if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+            return new Response("Invalid payload", { status: 400 });
+          }
+          corpo = payload as Record<string, unknown>;
+        } catch {
+          return new Response("Invalid payload", { status: 400 });
+        }
 
         const evento = String(corpo["event"] ?? "")
           .toLowerCase()
