@@ -16,6 +16,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { verificarWebhookIndependente, WebhookVerificationError } from "@/lib/webhooks/lovable-signature.server";
 import { lerCorpoLimitado } from "@/lib/webhooks/read-limited-body.server";
+import { reivindicarWebhook, concluirWebhook, registrarFalhaWebhook } from "@/lib/webhooks/whatsapp-event-claim.server";
 
 /** Valida a assinatura oficial da Meta sobre o corpo cru, sem normalizar o JSON. */
 export function verificarAssinaturaMeta(
@@ -184,53 +185,32 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
     .limit(1);
   for (const pendente of pendentes ?? []) {
     if (pendente.id === excluirId) continue;
-    const { data: reivindicado, error: reivindicarErro } = await db.rpc(
-      "claim_whatsapp_webhook_event",
-      {
-        _id: pendente.id,
-        _stale_before: new Date(Date.now() - 5 * 60_000).toISOString(),
-      },
-    );
-    if (reivindicarErro) {
+    let claim;
+    try {
+      claim = await reivindicarWebhook(db, pendente.id);
+    } catch (erro) {
       console.error("[whatsapp/meta] falha ao reivindicar webhook pendente", {
         eventoId: pendente.id,
-        erro: reivindicarErro.message,
+        erro: erro instanceof Error ? erro.message : "Falha desconhecida",
       });
       continue;
     }
-    if (!reivindicado) continue;
+    if (!claim) continue;
     try {
-      const corpo = pendente.payload as { entry?: { changes?: MudancaMeta[] }[] };
+      const corpo = claim.evento.payload as { entry?: { changes?: MudancaMeta[] }[] };
       for (const entrada of corpo.entry ?? []) {
         for (const mudanca of entrada.changes ?? []) {
           await processar(mudanca);
         }
       }
-      const { data: concluido, error: concluirErro } = await db
-        .from("whatsapp_webhook_events")
-        .update({
-          processed_at: new Date().toISOString(),
-          processing_error: null,
-          processing_started_at: null,
-        })
-        .eq("id", pendente.id)
-        .select("id")
-        .maybeSingle();
-      if (concluirErro || !concluido) {
-        throw new Error("Falha ao registrar conclusão do webhook pendente.");
-      }
+      await concluirWebhook(db, claim);
     } catch (erro) {
-      const { error: registrarErro } = await db
-        .from("whatsapp_webhook_events")
-        .update({
-          processing_error: erro instanceof Error ? erro.message : "Falha ao processar.",
-          processing_started_at: null,
-        })
-        .eq("id", pendente.id);
-      if (registrarErro) {
+      try {
+        await registrarFalhaWebhook(db, claim, erro);
+      } catch (registrarErro) {
         console.error("[whatsapp/meta] falha ao registrar erro do webhook pendente", {
           eventoId: pendente.id,
-          erro: registrarErro.message,
+          erro: registrarErro instanceof Error ? registrarErro.message : "Falha desconhecida",
         });
       }
     }
@@ -345,40 +325,28 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           eventoId = gravado.id as string;
         }
 
-        const { data: reivindicado, error: reivindicarErro } = await db.rpc(
-          "claim_whatsapp_webhook_event",
-          {
-            _id: eventoId,
-            _stale_before: new Date(Date.now() - 5 * 60_000).toISOString(),
-          },
-        );
-        if (reivindicarErro) {
+        let claim;
+        try {
+          claim = await reivindicarWebhook(db, eventoId);
+        } catch (erro) {
           console.error("[whatsapp/meta] falha ao reivindicar webhook", {
             eventoId,
-            erro: reivindicarErro.message,
+            erro: erro instanceof Error ? erro.message : "Falha desconhecida",
           });
           return new Response("Webhook claim failed", { status: 500 });
         }
-        if (!reivindicado) {
+        if (!claim) {
           return Response.json({ ok: true, motivo: "em_processamento" });
         }
 
         try {
-          const corpo = verificado.payload as { entry?: { changes?: MudancaMeta[] }[] };
+          const corpo = claim.evento.payload as { entry?: { changes?: MudancaMeta[] }[] };
           for (const entrada of corpo.entry ?? []) {
             for (const mudanca of entrada.changes ?? []) {
               await processar(mudanca);
             }
           }
-          const { data: concluido, error: concluirErro } = await db
-            .from("whatsapp_webhook_events")
-            .update({ processed_at: new Date().toISOString(), processing_error: null })
-            .eq("id", eventoId)
-            .select("id")
-            .maybeSingle();
-          if (concluirErro || !concluido) {
-            throw new Error("Falha ao registrar conclusão do webhook.");
-          }
+          await concluirWebhook(db, claim);
           // A retomada é trabalho secundário: no Cloudflare, registrar em waitUntil
           // evita que a execução seja interrompida quando a resposta HTTP terminar.
           const retomada = reprocessarPendentes(eventoId).catch((erro) => {
@@ -396,10 +364,14 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         } catch (erro) {
           const mensagem = erro instanceof Error ? erro.message : "Falha ao processar.";
           console.error("[whatsapp/meta] falha ao processar webhook", erro);
-          await db
-            .from("whatsapp_webhook_events")
-            .update({ processing_error: mensagem, processing_started_at: null })
-            .eq("id", eventoId);
+          try {
+            await registrarFalhaWebhook(db, claim, erro);
+          } catch (registrarErro) {
+            console.error("[whatsapp/meta] falha ao persistir erro do webhook", {
+              eventoId,
+              erro: registrarErro instanceof Error ? registrarErro.message : "Falha desconhecida",
+            });
+          }
           // Detalhes internos ficam no log/inbox; não são expostos ao remetente.
           return new Response("Webhook processing failed", { status: 500 });
         }
