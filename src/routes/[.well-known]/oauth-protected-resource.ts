@@ -5,16 +5,27 @@ export const Route = createFileRoute("/.well-known/oauth-protected-resource")({
     handlers: {
       GET: ({ request }) => {
         const origin = new URL(request.url).origin;
-        const projectRef =
-          import.meta.env["VITE_SUPABASE_PROJECT_ID"] ??
-          (import.meta.env["VITE_SUPABASE_URL"] ? new URL(import.meta.env["VITE_SUPABASE_URL"]).hostname.split(".")[0] : "");
-        const authorizationServers = projectRef ? [`https://${projectRef}.supabase.co/auth/v1`] : [];
-        return Response.json({
-          resource: `${origin}/mcp`,
-          authorization_servers: authorizationServers,
-          bearer_methods_supported: ["header"],
-          scopes_supported: ["authenticated"],
-        }, { headers: { "cache-control": "public, max-age=300" } });
+        const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"];
+        const projectRef = import.meta.env["VITE_SUPABASE_PROJECT_ID"];
+        let authorizationServers: string[] = [];
+
+        if (supabaseUrl) {
+          const configured = new URL(supabaseUrl);
+          const basePath = configured.pathname.replace(/\/+$/, "");
+          authorizationServers = [`${configured.origin}${basePath}/auth/v1`];
+        } else if (projectRef) {
+          authorizationServers = [`https://${projectRef}.supabase.co/auth/v1`];
+        }
+
+        return Response.json(
+          {
+            resource: `${origin}/mcp`,
+            authorization_servers: authorizationServers,
+            bearer_methods_supported: ["header"],
+            scopes_supported: ["authenticated"],
+          },
+          { headers: { "cache-control": "public, max-age=300" } },
+        );
       },
     },
   },
