@@ -38,16 +38,20 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   },
   loader: async ({ location }) => {
     const id = new URLSearchParams(location.search).get("authorization_id")!;
-    const { data, error } = await oauth().getAuthorizationDetails(id);
-    if (error) throw new Error(error.message);
-    const imediato = data?.redirect_url ?? data?.redirect_to;
-    if (imediato && !data?.client) throw redirect({ href: imediato });
-    return data as { client?: { name?: string } } | null;
+    try {
+      const { data, error } = await oauth().getAuthorizationDetails(id);
+      if (error || !data) throw new Error("Falha ao consultar autorização");
+      const imediato = data.redirect_url ?? data.redirect_to;
+      if (imediato && !data.client) throw redirect({ href: imediato });
+      return data as { client?: { name?: string } } | null;
+    } catch {
+      throw new Error("Não foi possível validar este pedido de autorização. Tente iniciar a conexão novamente.");
+    }
   },
   component: Consentimento,
-  errorComponent: ({ error }) => (
+  errorComponent: () => (
     <main className="mx-auto max-w-[400px] px-6 py-16 text-center text-sm text-mute">
-      Não foi possível abrir este pedido: {String((error as Error)?.message ?? error)}
+      Não foi possível validar este pedido de autorização. Tente iniciar a conexão novamente.
     </main>
   ),
 });
@@ -62,16 +66,21 @@ function Consentimento() {
   async function decidir(aprovar: boolean) {
     setOcupado(true);
     setErro(null);
-    const { data, error } = aprovar
-      ? await oauth().approveAuthorization(authorization_id)
-      : await oauth().denyAuthorization(authorization_id);
-    const destino = data?.redirect_url ?? data?.redirect_to;
-    if (error || !destino) {
+    try {
+      const { data, error } = aprovar
+        ? await oauth().approveAuthorization(authorization_id)
+        : await oauth().denyAuthorization(authorization_id);
+      const destino = data?.redirect_url ?? data?.redirect_to;
+      if (error || !destino) {
+        setOcupado(false);
+        setErro("Não foi possível concluir a autorização. Tente novamente.");
+        return;
+      }
+      window.location.href = destino;
+    } catch {
       setOcupado(false);
-      setErro(error?.message ?? "Não recebemos o retorno da autorização.");
-      return;
+      setErro("Não foi possível concluir a autorização. Verifique sua conexão e tente novamente.");
     }
-    window.location.href = destino;
   }
 
   return (
