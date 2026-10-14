@@ -1,8 +1,9 @@
 name: Validate Cortaí
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches: [main]
+    branches: [main, "cloudflare-workers-migration-2026-10-13"]
   push:
     branches: [main, "claude/**", "teste-fora-lovable", "reconstrucao-independente-2026-10-13", "cloudflare-workers-migration-2026-10-13"]
 
