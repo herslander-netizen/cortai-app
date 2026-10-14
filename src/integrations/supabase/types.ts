@@ -4942,6 +4942,7 @@ export type Database = {
           processed_at: string | null
           processing_error: string | null
           processing_started_at: string | null
+          processing_token: string | null
           received_at: string
         }
         Insert: {
@@ -4952,6 +4953,7 @@ export type Database = {
           processed_at?: string | null
           processing_error?: string | null
           processing_started_at?: string | null
+          processing_token?: string | null
           received_at?: string
         }
         Update: {
@@ -4962,6 +4964,7 @@ export type Database = {
           processed_at?: string | null
           processing_error?: string | null
           processing_started_at?: string | null
+          processing_token?: string | null
           received_at?: string
         }
         Relationships: []
@@ -5002,7 +5005,7 @@ export type Database = {
     Functions: {
       claim_whatsapp_webhook_event: {
         Args: { _id: string; _stale_before: string }
-        Returns: boolean
+        Returns: string
       }
 
       aceitar_oferta_da_fila: { Args: { _token: string }; Returns: Json }
