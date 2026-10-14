@@ -13,41 +13,22 @@ Este documento distingue pacotes removíveis de serviços externos que ainda faz
 - **Cloud Auth SDK:** removido das dependências e do lockfile.
 - **Exceções de instalação:** removidas do `bunfig.toml` para pacotes já não usados.
 
-## Ainda acoplado — não remover sem substituição testada
+## Em validação — MCP e IA
 
 ### MCP e OAuth de recursos protegidos
 
-Pacote: `@lovable.dev/mcp-js`
+O transporte MCP foi substituído por `@modelcontextprotocol/sdk` em `src/lib/mcp/handler.server.ts`; `src/routes/mcp.ts` agora encaminha GET/POST/DELETE para o handler próprio. O handler valida o token no Supabase, deriva o usuário e o estabelecimento no servidor, mantém as ferramentas somente leitura e aplica o limite de 31 dias e 500 agendamentos. O plugin e o pacote `@lovable.dev/mcp-js` não aparecem mais nas dependências atuais.
 
-Arquivos principais:
-- `vite.config.ts` — plugin MCP que gera rotas.
-- `src/routes/mcp.ts` — transporte MCP.
-- `src/routes/[.well-known]/oauth-protected-resource.ts` — metadados OAuth.
-- `src/lib/mcp/index.ts` — definição do servidor, emissor e ferramentas.
-- `src/lib/mcp/supabase.ts` — contexto autenticado e descoberta do tenant.
-- `src/lib/mcp/tools/listar-servicos.ts` e `listar-agendamentos.ts` — ferramentas somente leitura.
-- `src/routes/[.]lovable.oauth.consent.tsx` — tela de consentimento usando a API OAuth do Supabase.
-
-Substituição exigida antes de retirar o pacote:
-1. Implementar transporte compatível com MCP e métodos HTTP suportados pelo cliente.
-2. Reproduzir corretamente os metadados de recurso protegido e os desafios `WWW-Authenticate`.
-3. Validar JWT do Supabase no servidor e derivar usuário/tenant do token validado; nunca confiar em tenant enviado pelo cliente.
-4. Manter escopo somente leitura, schema/validação dos argumentos, limite de 31 dias e limite de 500 agendamentos.
-5. Testar cliente sem token, token inválido/expirado, usuário sem vínculo, acesso a outro tenant, listagem de serviços e agenda.
-6. Confirmar o fluxo de consentimento e callback OAuth no ambiente de teste antes de mudar a rota.
+Ainda é necessário testar o protocolo com um cliente MCP real, os metadados OAuth, o fluxo de consentimento e os casos de token inválido/expirado e usuário sem vínculo. A substituição de código não prova compatibilidade ponta a ponta.
 
 ### Gateway de IA
 
-Endpoints ainda usados:
-- `https://ai.gateway.lovable.dev/v1/responses` em `src/lib/brain/gateway.server.ts`.
-- `https://ai.gateway.lovable.dev/v1/chat/completions` em `src/lib/ia/assistente.server.ts`.
-- `https://ai.gateway.lovable.dev/v1/audio/transcriptions` em `src/lib/whatsapp/transcricao.server.ts`.
+- `src/lib/brain/gateway.server.ts` encaminha somente para o provedor compatível configurado ou para o modo de regras; o caminho de execução direto do gateway Lovable foi removido.
+- `src/lib/ia/assistente.server.ts` usa o adaptador independente.
+- `src/lib/whatsapp/transcricao.server.ts` usa endpoint de transcrição configurável e não deve recorrer ao gateway Lovable.
+- `src/lib/brain/gateway-compativel.server.ts` trata ausência de `CORTAI_AI_PROVIDER` (ou valor legado `lovable`) como configuração indisponível, sem fallback automático.
 
-Há suporte parcial a provedor OpenAI-compatible no cérebro, mas isso não significa que todas as chamadas estejam desacopladas. Antes de trocar:
-1. Unificar o adaptador de provedor para respostas, chamadas com ferramentas e transcrição.
-2. Preservar streaming, resposta estruturada, uso/custos, limites, erros 402/403/429/5xx e pausa por provedor.
-3. Não enviar chaves ao navegador nem incluir conteúdo de conversa na telemetria por padrão.
-4. Validar com testes de contrato e avaliações Promptfoo antes de ativar um provedor alternativo.
+A correção ainda depende de CI verde e testes de contrato. Validar resposta com ferramentas, JSON estruturado, timeout, erros HTTP, transcrição e comportamento quando nenhuma chave estiver configurada. Não ativar provedor real nem executar avaliação com credenciais sem configuração explícita do ambiente.
 
 ### Integrações auxiliares / compatibilidade
 
