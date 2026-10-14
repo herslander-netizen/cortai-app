@@ -32,4 +32,9 @@ describe("servidores de autorização OAuth para MCP", () => {
       "http://localhost:54321/auth/v1",
     ]);
   });
+
+  it("rejeita protocolos não seguros mesmo em localhost", () => {
+    expect(servidoresDeAutorizacaoSupabase("ftp://localhost:21")).toEqual([]);
+    expect(servidoresDeAutorizacaoSupabase("http://127.0.0.1:54321")).toEqual([]);
+  });
 });
