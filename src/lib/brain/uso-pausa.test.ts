@@ -41,14 +41,14 @@ describe("pausa por falta de crédito é do provedor que recusou", () => {
     expect(pausaDoProvedor(null)).toBe("lovable");
   });
 
-  it("mesmo provedor sem crédito: continua pausada (não insiste em gastar/falhar)", async () => {
+  it("sem provedor independente configurado, pausa antiga do Lovable não bloqueia um provedor inexistente", async () => {
     pausar("gateway_402@lovable");
-    expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBe("pausada");
+    expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
   });
 
-  it("pausa antiga (sem marca) do Lovable continua valendo enquanto o provedor é o Lovable", async () => {
+  it("pausa antiga sem marca não ativa fallback para Lovable", async () => {
     pausar("gateway_402");
-    expect(await bloqueioDeUso("t1", "site", "ip")).toBe("pausada");
+    expect(await bloqueioDeUso("t1", "site", "ip")).toBeNull();
   });
 
   it("trocou para o provedor gratuito: a pausa do Lovable NÃO vale e a IA volta na hora", async () => {
@@ -70,11 +70,11 @@ describe("pausa por falta de crédito é do provedor que recusou", () => {
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBe("pausada");
   });
 
-  it("canal que continua no Lovable mantém a pausa mesmo com o painel no provedor gratuito", async () => {
+  it("canal fora da lista do provedor não herda pausa antiga do Lovable", async () => {
     usarProvedorGratuito();
     vi.stubEnv("CORTAI_AI_CANAIS", "painel");
     pausar("gateway_402@lovable");
-    expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBe("pausada");
+    expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
   });
 
   it("depois de 6 horas a pausa acaba de qualquer jeito", async () => {
