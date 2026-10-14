@@ -127,7 +127,7 @@ describe("validação do período de agendamentos MCP", () => {
 });
 
 
-function queryMock(data: Record<string, unknown>[] = []) {
+function queryMock(data: Record<string, unknown>[] = [], error: unknown | null = null) {
   const calls: Array<[string, ...unknown[]]> = [];
   const builder: any = {};
   for (const method of ["select", "eq", "gte", "lt", "order", "limit"]) {
@@ -136,8 +136,8 @@ function queryMock(data: Record<string, unknown>[] = []) {
       return builder;
     });
   }
-  builder.then = (resolve: (value: { data: Record<string, unknown>[]; error: null }) => unknown) =>
-    Promise.resolve(resolve({ data, error: null }));
+  builder.then = (resolve: (value: { data: Record<string, unknown>[]; error: unknown | null }) => unknown) =>
+    Promise.resolve(resolve({ data, error }));
   return { builder, calls, db: { from: vi.fn(() => builder) } };
 }
 
@@ -190,5 +190,26 @@ describe("isolamento por estabelecimento nas consultas MCP", () => {
       "2026-11-11T10:00:00Z",
     )).rejects.toThrow("Período máximo de 31 dias.");
     expect(mock.db.from).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("erros de consulta no MCP", () => {
+  it("não expõe detalhes internos quando a consulta de serviços falha", async () => {
+    const mock = queryMock([], { message: "private database detail" });
+
+    await expect(consultarServicosTenant(mock.db as any, "tenant-a"))
+      .rejects.toThrow("Não foi possível consultar os serviços.");
+  });
+
+  it("não expõe detalhes internos quando a consulta de agendamentos falha", async () => {
+    const mock = queryMock([], { message: "private database detail" });
+
+    await expect(consultarAgendamentosTenant(
+      mock.db as any,
+      "tenant-a",
+      "2026-10-10T10:00:00Z",
+      "2026-10-11T10:00:00Z",
+    )).rejects.toThrow("Não foi possível consultar os agendamentos.");
   });
 });
