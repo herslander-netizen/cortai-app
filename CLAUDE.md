@@ -1,11 +1,14 @@
 # Cortaí — Contexto do projeto
 
-Este repositório é sincronizado nos dois sentidos com o projeto Cortaí no Lovable:
-- Editor: https://lovable.dev/projects/a3550de1-ec98-4622-8484-7dadb8b04ed0
-- Prévia: https://id-preview--a3550de1-ec98-4622-8484-7dadb8b04ed0.lovable.app
-- Site publicado: https://cortai.dev
+## Estado e limites da migração
 
-**Tudo o que for enviado para `main` aparece no Lovable.** Mantenha `main` sempre funcionando e nunca reescreva histórico já enviado. Não altere código sem pedido explícito do dono; documentação (`CLAUDE.md`, `docs/`) pode ser atualizada.
+Este arquivo contém contexto histórico do projeto original, que foi desenvolvido/sincronizado com o Lovable. **A branch `cloudflare-workers-migration-2026-10-13` é uma trilha isolada de reconstrução e desacoplamento**: não presumir que ela esteja sincronizada com o editor, com a prévia ou com o site publicado.
+
+- Projeto original/editor: Lovable (referência histórica; preservar sem alterações nesta migração).
+- Domínio publicado `cortai.dev`: produção; não usar para testes nem alterar durante esta fase.
+- Não mesclar esta branch em `main`, não publicar/deployar, não mudar DNS, nem aplicar migrações a bancos sem autorização específica para essa etapa.
+- Preservar o projeto original, suas credenciais e seus dados. Não copiar segredos para o repositório.
+- As instruções históricas abaixo descrevem o produto e a arquitetura existentes; não anulam estes limites de segurança da migração.
 
 A memória oficial do projeto é o **Knowledge** do Lovable e os `AGENTS.md` (raiz, `src/lib`, `src/lib/brain`, `src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`). Este arquivo é um resumo deles (atualizado em 2026-10-09). Se houver conflito, valem eles.
 
