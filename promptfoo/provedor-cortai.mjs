@@ -2,9 +2,8 @@
  * Provedor Promptfoo: roda o cérebro REAL da CortAI (`pensarCortai`) com o mundo simulado.
  *
  * Perfis (config.perfil):
- *  - "atual"    → Lovable AI Gateway (precisa de LOVABLE_API_KEY); ignora CORTAI_AI_*.
  *  - "oss"      → provedor compatível com GPT-OSS-20B (PROMPTFOO_OSS_BASE_URL/MODEL/API_KEY).
- *  - "ambiente" → usa o que já estiver em CORTAI_AI_* / LOVABLE_API_KEY.
+ *  - "ambiente" → usa o provedor independente configurado em CORTAI_AI_*.
  *
  * Mexe em process.env e em fetch durante a chamada → rode com `--max-concurrency 1`
  * (os scripts do package.json já fazem isso).
@@ -34,7 +33,6 @@ const CHAVES_DO_PROVEDOR = [
 
 function aplicarPerfil(perfil) {
   const guardado = Object.fromEntries(CHAVES_DO_PROVEDOR.map((k) => [k, process.env[k]]));
-  if (perfil === "atual") for (const k of CHAVES_DO_PROVEDOR) delete process.env[k];
   if (perfil === "oss") {
     process.env.CORTAI_AI_PROVIDER = "openai_compatible";
     // A avaliação mede o modelo em todos os canais, independentemente do rollout de produção.
@@ -89,8 +87,6 @@ export default class ProvedorCortai {
       )
     )
       return { error: "Perfil oss sem PROMPTFOO_OSS_BASE_URL/MODEL/API_KEY: nada foi avaliado." };
-    if (perfil === "atual" && !process.env.LOVABLE_API_KEY)
-      return { error: "Perfil atual sem LOVABLE_API_KEY: nada foi avaliado." };
 
     const restaurarEnv = aplicarPerfil(perfil);
     // Cenário "execução direta desligada": o interruptor vale só durante esta chamada.
