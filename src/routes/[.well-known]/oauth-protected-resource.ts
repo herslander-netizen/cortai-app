@@ -1,21 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { servidoresDeAutorizacaoSupabase } from "@/lib/mcp/oauth-resource-metadata";
+
 export const Route = createFileRoute("/.well-known/oauth-protected-resource")({
   server: {
     handlers: {
       GET: ({ request }) => {
         const origin = new URL(request.url).origin;
-        const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"];
-        const projectRef = import.meta.env["VITE_SUPABASE_PROJECT_ID"];
-        let authorizationServers: string[] = [];
-
-        if (supabaseUrl) {
-          const configured = new URL(supabaseUrl);
-          const basePath = configured.pathname.replace(/\/+$/, "");
-          authorizationServers = [`${configured.origin}${basePath}/auth/v1`];
-        } else if (projectRef) {
-          authorizationServers = [`https://${projectRef}.supabase.co/auth/v1`];
-        }
+        const authorizationServers = servidoresDeAutorizacaoSupabase(
+          import.meta.env["VITE_SUPABASE_URL"],
+          import.meta.env["VITE_SUPABASE_PROJECT_ID"],
+        );
 
         return Response.json(
           {
