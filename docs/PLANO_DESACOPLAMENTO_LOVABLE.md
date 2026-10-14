@@ -12,7 +12,7 @@ Este documento distingue pacotes removíveis de serviços externos que ainda faz
 - **Pacote de webhooks:** removido das dependências depois da migração local.
 - **Cloud Auth SDK:** removido das dependências e do lockfile.
 - **Exceções de instalação:** removidas do `bunfig.toml` para pacotes já não usados.
-- **Metadados do editor hospedado:** removidos `.lovable/project.json` e `.lovable/mcp/manifest.json`, incluindo o manifesto que fixava o endpoint OAuth em um projeto Supabase antigo. O histórico de planos em `.lovable/plan/` foi preservado como documentação de produto, não como dependência de execução.
+- **Metadados e comandos do editor hospedado:** removidos `.lovable/project.json`, `.lovable/mcp/manifest.json` e `.claude/commands/pedido-lovable.md`. O manifesto removido fixava o endpoint OAuth em um projeto Supabase antigo; o comando removido gerava pedidos para o editor hospedado. O histórico de planos em `.lovable/plan/` foi preservado como documentação de produto, não como dependência de execução.
 
 ## Em validação — MCP e IA
 
