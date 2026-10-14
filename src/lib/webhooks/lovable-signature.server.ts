@@ -33,7 +33,7 @@ export async function verificarWebhookIndependente<T = unknown>(opcoes: {
   const assinatura = req.headers.get("x-lovable-signature");
   const timestamp = req.headers.get("x-lovable-timestamp") ?? "";
   if (!assinatura || !timestamp) throw new WebhookVerificationError("missing_signature");
-  if (!/^\\d{10,13}$/.test(timestamp)) throw new WebhookVerificationError("invalid_timestamp");
+  if (!/^\d{10,13}$/.test(timestamp)) throw new WebhookVerificationError("invalid_timestamp");
 
   const numero = Number(timestamp);
   const timestampMs = timestamp.length === 10 ? numero * 1000 : numero;
