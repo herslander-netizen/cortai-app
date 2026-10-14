@@ -319,11 +319,19 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           if (concluirErro) {
             throw new Error("Falha ao registrar conclusão do webhook.");
           }
-          // Retomada limitada: no máximo 1 pendente antigo, com teto de 3 s, sem atrasar a resposta além disso.
-          await Promise.race([
-            reprocessarPendentes(eventoId).catch(() => undefined),
-            new Promise((r) => setTimeout(r, 3000)),
-          ]);
+          // A retomada é trabalho secundário: no Cloudflare, registrar em waitUntil
+          // evita que a execução seja interrompida quando a resposta HTTP terminar.
+          const retomada = reprocessarPendentes(eventoId).catch((erro) => {
+            console.error("[whatsapp/meta] falha ao retomar webhooks pendentes", erro);
+          });
+          const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
+          if (!emSegundoPlano(retomada)) {
+            // Em ambientes sem waitUntil, limitar a espera da resposta; o erro é logado acima.
+            await Promise.race([
+              retomada,
+              new Promise((resolve) => setTimeout(resolve, 3000)),
+            ]);
+          }
           return Response.json({ ok: true });
         } catch (erro) {
           const mensagem = erro instanceof Error ? erro.message : "Falha ao processar.";
