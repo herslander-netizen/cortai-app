@@ -53,6 +53,70 @@ export function validarPeriodoAgendamentos(inicio: string, fim: string): { de: D
   return { de, ate };
 }
 
+type SupabaseQueryResult = { data: Record<string, unknown>[] | null; error: unknown | null };
+type SupabaseQueryBuilder = {
+  select(columns: string): SupabaseQueryBuilder;
+  eq(column: string, value: unknown): SupabaseQueryBuilder;
+  gte(column: string, value: string): SupabaseQueryBuilder;
+  lt(column: string, value: string): SupabaseQueryBuilder;
+  order(column: string): SupabaseQueryBuilder;
+  limit(value: number): SupabaseQueryBuilder;
+  then<TResult1 = SupabaseQueryResult, TResult2 = never>(
+    onfulfilled?: ((value: SupabaseQueryResult) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): Promise<TResult1 | TResult2>;
+};
+type SupabaseReadClient = { from(table: string): SupabaseQueryBuilder };
+
+export async function consultarServicosTenant(db: SupabaseReadClient, tenantId: string) {
+  const { data, error } = await db
+    .from("servicos")
+    .select("id, nome, duracao_min, preco_centavos, categoria")
+    .eq("tenant_id", tenantId)
+    .eq("ativo", true)
+    .order("ordem");
+  if (error) throw new Error("Não foi possível consultar os serviços.");
+  return (data ?? []).map((s) => ({
+    id: String(s["id"]),
+    nome: String(s["nome"]),
+    duracaoMin: Number(s["duracao_min"]),
+    precoReais: Number(s["preco_centavos"]) / 100,
+    categoria: s["categoria"] ? String(s["categoria"]) : null,
+  }));
+}
+
+export async function consultarAgendamentosTenant(
+  db: SupabaseReadClient,
+  tenantId: string,
+  inicio: string,
+  fim: string,
+) {
+  const { de, ate } = validarPeriodoAgendamentos(inicio, fim);
+  const { data, error } = await db
+    .from("agendamentos")
+    .select("id, inicio, fim, status, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)")
+    .eq("tenant_id", tenantId)
+    .gte("inicio", de.toISOString())
+    .lt("inicio", ate.toISOString())
+    .order("inicio")
+    .limit(500);
+  if (error) throw new Error("Não foi possível consultar os agendamentos.");
+  const nome = (value: unknown) =>
+    value && typeof value === "object" && "nome" in value
+      ? String((value as { nome: unknown }).nome)
+      : null;
+  return (data ?? []).map((a) => ({
+    id: String(a["id"]),
+    inicio: String(a["inicio"]),
+    fim: String(a["fim"]),
+    status: String(a["status"]),
+    valorReais: Number(a["valor_centavos"]) / 100,
+    cliente: nome(a["clientes"]),
+    servico: nome(a["servicos"]),
+    profissional: nome(a["profissionais"]),
+  }));
+}
+
 export async function handleMcpRequest(request: Request): Promise<Response> {
   if (request.method !== "POST" && request.method !== "GET" && request.method !== "DELETE") {
     return new Response("Method not allowed", { status: 405, headers: { allow: "GET, POST, DELETE" } });
@@ -98,20 +162,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
     },
     async () => {
-      const { data, error } = await db
-        .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos, categoria")
-        .eq("tenant_id", tenantId)
-        .eq("ativo", true)
-        .order("ordem");
-      if (error) throw new Error("Não foi possível consultar os serviços.");
-      const servicos = (data ?? []).map((s: Record<string, unknown>) => ({
-        id: String(s["id"]),
-        nome: String(s["nome"]),
-        duracaoMin: Number(s["duracao_min"]),
-        precoReais: Number(s["preco_centavos"]) / 100,
-        categoria: s["categoria"] ? String(s["categoria"]) : null,
-      }));
+      const servicos = await consultarServicosTenant(db, tenantId);
       return { content: [{ type: "text", text: JSON.stringify(servicos) }], structuredContent: { servicos } };
     },
   );
@@ -127,30 +178,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
     },
     async ({ inicio, fim }: { inicio: string; fim: string }) => {
-      const { de, ate } = validarPeriodoAgendamentos(inicio, fim);
-      const { data, error } = await db
-        .from("agendamentos")
-        .select("id, inicio, fim, status, valor_centavos, clientes(nome), servicos(nome), profissionais(nome)")
-        .eq("tenant_id", tenantId)
-        .gte("inicio", de.toISOString())
-        .lt("inicio", ate.toISOString())
-        .order("inicio")
-        .limit(500);
-      if (error) throw new Error("Não foi possível consultar os agendamentos.");
-      const nome = (value: unknown) =>
-        value && typeof value === "object" && "nome" in value
-          ? String((value as { nome: unknown }).nome)
-          : null;
-      const agendamentos = (data ?? []).map((a: Record<string, unknown>) => ({
-        id: String(a["id"]),
-        inicio: String(a["inicio"]),
-        fim: String(a["fim"]),
-        status: String(a["status"]),
-        valorReais: Number(a["valor_centavos"]) / 100,
-        cliente: nome(a["clientes"]),
-        servico: nome(a["servicos"]),
-        profissional: nome(a["profissionais"]),
-      }));
+      const agendamentos = await consultarAgendamentosTenant(db, tenantId, inicio, fim);
       return { content: [{ type: "text", text: JSON.stringify(agendamentos) }], structuredContent: { agendamentos } };
     },
   );
