@@ -12,8 +12,8 @@ Promptfoo roda via `npx` com versão fixada (`promptfoo@0.124.1`); **não entra 
 | `npm run avaliar:modelo-falso`      | Valida o encanamento (harness + adaptador + asserts) contra um modelo simulado. **Não mede qualidade de modelo nenhum.** | nada                                  |
 | `npm run avaliar:controle-negativo` | Roda contra um modelo "mentiroso"; só passa se a suíte REPROVAR. Prova que os asserts pegam o problema.                  | nada                                  |
 | `npm run sondar:provedor`           | Testa um provedor real (texto, chamada de ferramenta, 2º passo, tokens) com o adaptador de produção.                     | `CORTAI_AI_*`                         |
-| `npm run avaliar`                   | Suíte determinística com o modelo configurado no ambiente.                                                               | `CORTAI_AI_*` ou `LOVABLE_API_KEY`    |
-| `npm run avaliar:comparar`          | Mesma suíte: modelo atual × GPT-OSS-20B, lado a lado.                                                                    | `LOVABLE_API_KEY` + `PROMPTFOO_OSS_*` |
+| `npm run avaliar`                   | Suíte determinística com o modelo configurado no ambiente.                                                               | `CORTAI_AI_*`    |
+| `npm run avaliar:comparar`          | Mesma suíte: provedor configurado × GPT-OSS-20B, lado a lado.                                                                    | `CORTAI_AI_*` + `PROMPTFOO_OSS_*` |
 | `npm run avaliar:qualidade`         | Naturalidade/fidelidade julgadas por modelo (complemento).                                                               | modelo + `PROMPTFOO_JUIZ_*`           |
 
 Rode sempre com concorrência 1 (os scripts já fazem): o harness troca `process.env` e `fetch`
