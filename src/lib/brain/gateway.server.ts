@@ -28,7 +28,7 @@ export class ErroDoGateway extends Error {
     readonly status: number,
     mensagem: string,
     /** Provedor que recusou: a pausa por crédito só vale para ele, não para outro configurado depois. */
-    readonly provedor: string = "lovable",
+    readonly provedor: string = "não configurado",
   ) {
     super(mensagem);
   }
@@ -38,10 +38,8 @@ export class ErroDoGateway extends Error {
 }
 
 /**
- * Qual provedor atende cada canal do cérebro. Sem `CORTAI_AI_PROVIDER` é o Lovable AI
- * Gateway de sempre. `openai_compatible` usa CORTAI_AI_BASE_URL/MODEL/API_KEY (ex.: GPT-OSS-20B)
- * SÓ nos canais de `CORTAI_AI_CANAIS` (padrão: painel); os outros seguem no Lovable.
- * Voltar ao modelo anterior = remover o canal da lista ou as variáveis `CORTAI_AI_*`.
+ * Resolve o provedor por canal. Só usa provedor independente explicitamente configurado
+ * ou modo de regras; nenhum canal recorre ao gateway do Lovable.
  */
 function resolverProvedor(canal?: Canal): LeituraDaConfig {
   const leitura = lerConfigDoProvedor();
@@ -65,7 +63,7 @@ export function identidadeDoModelo(canal?: Canal): { provedor: string; modelo: s
   return { provedor: "não configurado", modelo: MODELO_CORTAI };
 }
 
-/** Provedor compatível (ex.: GPT-OSS gratuito) configurado para o canal, ou null (usa o Lovable). */
+/** Provedor compatível configurado para o canal, ou null se indisponível. */
 export function provedorCompativelDoCanal(canal: Canal): ConfigCompativel | null {
   const leitura = resolverProvedor(canal);
   return leitura.ok && leitura.config.tipo === "compativel" ? leitura.config : null;
