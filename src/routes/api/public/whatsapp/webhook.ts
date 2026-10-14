@@ -69,6 +69,38 @@ async function admin() {
   return supabaseAdmin;
 }
 
+async function lerCorpoLimitado(
+  request: Request,
+  maxBytes: number,
+): Promise<{ corpo: string } | { status: 400 | 413 }> {
+  const leitor = request.body?.getReader();
+  if (!leitor) return { status: 400 };
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await leitor.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await leitor.cancel().catch(() => undefined);
+      return { status: 413 };
+    }
+    partes.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let deslocamento = 0;
+  for (const parte of partes) {
+    bytes.set(parte, deslocamento);
+    deslocamento += parte.byteLength;
+  }
+  try {
+    return { corpo: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
+  } catch {
+    return { status: 400 };
+  }
+}
+
+
 /**
  * Barbearia dona do aviso: pelo phone_number_id que a Meta envia em value.metadata.
  * Sem correspondência, o aviso fica registrado com erro e não é processado.
@@ -238,9 +270,16 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           // Chamada direta da Meta: X-Hub-Signature-256 = HMAC-SHA256(corpo cru, App Secret).
           if (!appSecret)
             return guard.rejeitar(request, "whatsapp/meta", "META_APP_SECRET ausente");
-          const corpo = await request.text();
-          if (corpo.length > 4 * 1024 * 1024)
-            return guard.rejeitar(request, "whatsapp/meta", "corpo grande", 413);
+          const lido = await lerCorpoLimitado(request, 4 * 1024 * 1024);
+          if ("status" in lido) {
+            return guard.rejeitar(
+              request,
+              "whatsapp/meta",
+              lido.status === 413 ? "corpo grande" : "corpo UTF-8 inválido",
+              lido.status,
+            );
+          }
+          const corpo = lido.corpo;
           if (!verificarAssinaturaMeta(corpo, assinaturaMeta, appSecret)) {
             return guard.rejeitar(request, "whatsapp/meta", "x-hub-signature-256 invalida");
           }
