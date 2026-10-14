@@ -46,7 +46,9 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   const token = /^Bearer\s+([^\s]+)$/i.exec(request.headers.get("authorization") ?? "")?.[1];
   if (!token) return unauthorized(request);
 
-  let db: ReturnType<typeof createClient>;
+  // Supabase's generated schema types cause excessive recursive instantiation in this generic MCP handler.
+  // Runtime queries remain tenant-scoped and the SDK validates request schemas separately.
+  let db: any;
   let userId: string;
   try {
     const config = supabaseConfig();
@@ -141,7 +143,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
     },
   );
 
-  const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  const transport = new WebStandardStreamableHTTPServerTransport({});
   await server.connect(transport);
   try {
     return await transport.handleRequest(request);
