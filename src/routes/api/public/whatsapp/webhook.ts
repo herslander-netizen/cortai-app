@@ -201,10 +201,16 @@ async function reprocessarPendentes(excluirId: string): Promise<void> {
         throw new Error("Falha ao registrar conclusão do webhook pendente.");
       }
     } catch (erro) {
-      await db
+      const { error: registrarErro } = await db
         .from("whatsapp_webhook_events")
         .update({ processing_error: erro instanceof Error ? erro.message : "Falha ao processar." })
         .eq("id", pendente.id);
+      if (registrarErro) {
+        console.error("[whatsapp/meta] falha ao registrar erro do webhook pendente", {
+          eventoId: pendente.id,
+          erro: registrarErro.message,
+        });
+      }
     }
   }
 }
