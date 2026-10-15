@@ -91,3 +91,42 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx wrangler deploy --config dist/server/wrangler.json --name cortai-reconstruction-test-2026
+      # Variáveis do servidor (lidas em process.env pelo Worker). Só vão as que existem
+      # nos segredos do GitHub; nada fica no código nem no log.
+      - name: Send server secrets to the preview Worker
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
+          CORTAI_PUBLIC_BASE_URL: https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev
+          CORTAI_CRON_SECRET: ${{ secrets.PREVIEW_CORTAI_CRON_SECRET }}
+          CORTAI_AI_PROVIDER: ${{ secrets.PREVIEW_CORTAI_AI_PROVIDER }}
+          CORTAI_AI_BASE_URL: ${{ secrets.PREVIEW_CORTAI_AI_BASE_URL }}
+          CORTAI_AI_MODEL: ${{ secrets.PREVIEW_CORTAI_AI_MODEL }}
+          CORTAI_AI_API_KEY: ${{ secrets.PREVIEW_CORTAI_AI_API_KEY }}
+          CORTAI_AI_CANAIS: ${{ secrets.PREVIEW_CORTAI_AI_CANAIS }}
+          META_WHATSAPP_ACCESS_TOKEN: ${{ secrets.PREVIEW_META_WHATSAPP_ACCESS_TOKEN }}
+          META_WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.PREVIEW_META_WHATSAPP_PHONE_NUMBER_ID }}
+          META_WHATSAPP_VERIFY_TOKEN: ${{ secrets.PREVIEW_META_WHATSAPP_VERIFY_TOKEN }}
+          META_WHATSAPP_APP_SECRET: ${{ secrets.PREVIEW_META_WHATSAPP_APP_SECRET }}
+        run: |
+          set -euo pipefail
+          nomes=(SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY CORTAI_PUBLIC_BASE_URL
+            CORTAI_CRON_SECRET CORTAI_AI_PROVIDER CORTAI_AI_BASE_URL CORTAI_AI_MODEL CORTAI_AI_API_KEY
+            CORTAI_AI_CANAIS META_WHATSAPP_ACCESS_TOKEN META_WHATSAPP_PHONE_NUMBER_ID
+            META_WHATSAPP_VERIFY_TOKEN META_WHATSAPP_APP_SECRET)
+          json='{}'; enviados=()
+          for n in "${nomes[@]}"; do
+            v="$(printf '%s' "${!n}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            [ -n "$v" ] || continue
+            json="$(jq -c --arg k "$n" --arg v "$v" '. + {($k): $v}' <<<"$json")"
+            enviados+=("$n")
+          done
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY}" ]; then
+            echo "::warning::PREVIEW_SUPABASE_SERVICE_ROLE_KEY ausente: login, agenda e funções do servidor não vão funcionar na prévia."
+          fi
+          printf '%s' "$json" | bunx wrangler secret bulk --config dist/server/wrangler.json --name cortai-reconstruction-test-2026
+          echo "Variáveis enviadas: ${enviados[*]}"
