@@ -1,0 +1,6 @@
+# Migrações que NÃO entram num banco novo (só dados de demonstração ou configuração da conta antiga).
+# Uma por linha: prefixo de 14 dígitos e o motivo.
+20260930070533 dados do negócio de demonstração "Aurora"
+20261001205921 IDs fixos de modelos do WhatsApp (WABA) da conta antiga
+20261001210601 registro de um envio de WhatsApp de teste
+20261001210640 atualização do envio de WhatsApp de teste

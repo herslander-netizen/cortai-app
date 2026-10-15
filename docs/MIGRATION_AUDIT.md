@@ -62,3 +62,30 @@ Não há baseline consolidada e validada pronta para execução. Não executar a
 - A migration de correção ainda é candidata: precisa ser testada após aplicar o schema completo numa instância temporária. Em particular, é necessário auditar todas as rotas que escrevem em `movimentos` para confirmar que usam operações confiáveis do servidor antes de revogar INSERT direto a usuários autenticados.
 - A prevenção de corrida de horários ainda exige revisão integral das migrations posteriores e teste de concorrência; não foi incluída constraint de exclusão sem validar extensão, opclasses, regras de encaixe e reservas existentes.
 - Nenhuma migration foi aplicada a `cortai-prod`; nenhuma alteração foi feita em `evolution-crm`, produção, DNS ou integrações externas.
+
+## Ensaio completo da sequência (15/10/2026)
+
+O banco original do Lovable não respondeu às consultas de leitura (erro 504), então a estrutura foi reconstruída a partir do repositório e conferida contra `src/integrations/supabase/types.ts` (gerado do banco original) e contra o que a auditoria de 09/10 verificou no banco de produção.
+
+**Como repetir:** `supabase/baseline/ensaio/ensaio-local.sh`. Ele cria um Postgres temporário com uma imitação mínima do Supabase (`imitacao-supabase.sql`), aplica as migrações Supabase e Drizzle em ordem e roda `supabase/tests`. Não conecta em nenhum banco remoto.
+
+**Resultado:** 136 migrações Supabase aplicadas, 4 puladas, 28 Drizzle aplicadas e RBAC com 68 de 68 verificações. Todas as tabelas e colunas do `types.ts` existem, e nenhuma tabela fica sem RLS.
+
+**Por que a sequência original não fechava:** algumas peças foram criadas direto no banco do Lovable, sem virar migração. Agora estão em duas migrações novas, idempotentes, que não fazem nada num banco que já as tenha:
+- `20260912184850_reconstrucao_lacunas_iniciais.sql`: `tenant_usuarios.permissoes`, a restrição de papel aceitando `gerente`, `agendamentos.pagamento_confirmado_por` e as tabelas `auditoria_da_barbearia`, `recursos_do_tenant` e `aceites_legais`.
+- `20261015120000_reconstrucao_lacunas_finais.sql`: as redes sociais da plataforma, `agendamentos.pagamento_confirmado_em`, as políticas de leitura, a função `registrar_auditoria_barbearia` e os buckets `tenant-logos` e `home-publica`.
+
+**Deduzido, revisar antes de produção:**
+- As regras de acesso das 3 tabelas. Toda gravação acontece no servidor; a leitura da auditoria exige a permissão `relatorios`.
+- O corpo de `registrar_auditoria_barbearia`, deduzido dos chamadores.
+- Os buckets, criados como privados.
+
+**Não reconstruído:** `confirmar_pagamento_agendamento` aparece no `types.ts`, mas nenhum código a chama.
+
+**Puladas num banco novo** (`supabase/baseline/ensaio/pular-no-banco-novo.txt`): dados do negócio de demonstração, IDs de modelos do WhatsApp da conta antiga e o envio de WhatsApp de teste.
+
+**Teste ajustado:** `supabase/tests/rbac.sql` esperava que o dono mudasse o plano por escrita direta. A migração `20260930083859` tirou essa permissão de propósito (plano só muda no servidor), então o teste passou a exigir a recusa.
+
+**Para aplicar no `cortai-prod`:** mesma ordem e mesmos pulos do ensaio, com `check_function_bodies = off` em cada migração (há funções que citam peças criadas depois). Em seguida, conferir com `supabase/baseline/baseline_verification.sql` e com os alertas de segurança do Supabase. **Depende de autorização explícita.**
+
+**Limites do ensaio:** Postgres 16 local com imitações de `auth`, `storage`, `cron` e `net`; o `cortai-prod` usa Postgres 17 e o Supabase real. Também ficam para depois: os nomes com "barbearia" (troca para nomes neutros, em etapa própria) e 5 funções que o visitante anônimo pode executar (4 de gatilho e `recurso_do_tenant_ativo`).

@@ -84,10 +84,11 @@ BEGIN
     EXCEPTION WHEN others THEN ok := false; END;
     total := total + 1; IF ok <> r.fiado THEN falhas := falhas || format('%s liberar fiado', r.papel); END IF;
 
-    -- Plano (só dono)
+    -- Plano
     BEGIN UPDATE public.tenants SET plano = plano WHERE id = t; ok := FOUND;
     EXCEPTION WHEN others THEN ok := false; END;
-    total := total + 1; IF ok <> r.plano THEN falhas := falhas || format('%s trocar plano', r.papel); END IF;
+    -- Plano só muda no servidor (migração 20260930083859): nem o dono troca por escrita direta.
+    total := total + 1; IF ok THEN falhas := falhas || format('%s trocar plano por escrita direta', r.papel); END IF;
     total := total + 1;
     IF public.has_tenant_permission(t,'gerenciar_plano') <> r.plano THEN falhas := falhas || format('%s permissão de plano', r.papel); END IF;
 
