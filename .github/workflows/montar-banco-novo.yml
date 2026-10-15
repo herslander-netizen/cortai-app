@@ -43,6 +43,7 @@ jobs:
       - name: Apply migrations (all or nothing)
         env:
           BANCO_URL: ${{ secrets.CORTAI_PROD_DB_URL }}
+          BANCO_SENHA: ${{ secrets.CORTAI_PROD_DB_SENHA }}
           PROJETO_ESPERADO: ibsberidejlbczxrweqg
           URL_DO_APP: https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev
         run: bash supabase/baseline/aplicar-no-banco-novo.sh

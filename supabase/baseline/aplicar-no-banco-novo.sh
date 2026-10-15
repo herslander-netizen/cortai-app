@@ -22,6 +22,37 @@ case "$BANCO_URL" in
   *) echo "Recusado: a URL do banco não é do projeto $PROJETO_ESPERADO."; exit 1 ;;
 esac
 
+# Diagnóstico do formato da URI, sem nunca mostrar a senha. BANCO_SENHA (opcional) substitui
+# a senha da URI e vai por PGPASSWORD, fora da URI, então símbolos não atrapalham.
+BANCO_URL="$(printf '%s' "$BANCO_URL" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+BANCO_URL="$(python3 - "$BANCO_URL" <<'PY'
+import sys, os, re
+from urllib.parse import unquote
+url = sys.argv[1]
+m = re.match(r"^(?P<esq>[a-z]+)://(?P<usu>[^:@/]+)(?::(?P<senha>.*))?@(?P<resto>[^@]*)$", url)
+if not m:
+    print("diagnóstico: a URI não está no formato postgresql://usuário:senha@endereço:porta/banco", file=sys.stderr)
+    sys.exit(1)
+senha = unquote(m["senha"] or "")
+resto = m["resto"]
+separada = (os.environ.get("BANCO_SENHA") or "").strip()
+print(f"diagnóstico: esquema={m['esq']} usuário={m['usu']} endereço/banco={resto.split('?')[0]}", file=sys.stderr)
+print(f"diagnóstico: senha na URI tem {len(senha)} caracteres; colchetes={'[' in senha or ']' in senha}; "
+      f"espaços={any(c.isspace() for c in senha)}; só letras e números={senha.isalnum()}; "
+      f"parece chave sb_={senha.startswith('sb_')}; senha separada={'sim' if separada else 'não'}", file=sys.stderr)
+print(f"{m['esq']}://{m['usu']}@{resto}")
+if not separada:
+    with open(os.path.expanduser("~/.senha_banco"), "w") as f:
+        f.write(senha)
+PY
+)" || exit 1
+if [ -n "${BANCO_SENHA:-}" ]; then
+  PGPASSWORD="$(printf '%s' "$BANCO_SENHA" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+else
+  PGPASSWORD="$(cat ~/.senha_banco)"; rm -f ~/.senha_banco
+fi
+export PGPASSWORD
+
 PSQL=(psql "$BANCO_URL" -v ON_ERROR_STOP=1 -q -X)
 tabelas="$("${PSQL[@]}" -At -c "select count(*) from pg_tables where schemaname = 'public'")" || { echo "Não conectou no banco."; exit 1; }
 if [ "$tabelas" != "0" ]; then
