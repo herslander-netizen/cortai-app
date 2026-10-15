@@ -4,6 +4,10 @@ name: Montar banco novo (cortai-prod)
 # Só roda à mão, só nesta branch, só com a confirmação digitada, e o script recusa
 # banco que não esteja vazio ou que não seja do projeto esperado. Tudo ou nada.
 on:
+  # O push só registra a automação no GitHub; sem a confirmação MONTAR o job é pulado.
+  push:
+    branches: [cloudflare-workers-migration-2026-10-13]
+    paths: [.github/workflows/montar-banco-novo.yml]
   workflow_dispatch:
     inputs:
       confirmar:
@@ -20,7 +24,7 @@ concurrency:
 
 jobs:
   montar:
-    if: github.ref == 'refs/heads/cloudflare-workers-migration-2026-10-13' && inputs.confirmar == 'MONTAR'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/cloudflare-workers-migration-2026-10-13' && inputs.confirmar == 'MONTAR'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
