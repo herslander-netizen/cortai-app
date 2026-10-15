@@ -65,27 +65,34 @@ Não há baseline consolidada e validada pronta para execução. Não executar a
 
 ## Ensaio completo da sequência (15/10/2026)
 
-O banco original do Lovable não respondeu às consultas de leitura (erro 504), então a estrutura foi reconstruída a partir do repositório e conferida contra `src/integrations/supabase/types.ts` (gerado do banco original) e contra o que a auditoria de 09/10 verificou no banco de produção.
+O banco original do Lovable não respondeu às consultas de leitura (erro 504). A estrutura foi reconstruída a partir do repositório e conferida contra `src/integrations/supabase/types.ts` (gerado do banco original) e contra o que a auditoria de 09/10 verificou no banco de produção.
 
-**Como repetir:** `supabase/baseline/ensaio/ensaio-local.sh`. Ele cria um Postgres temporário com uma imitação mínima do Supabase (`imitacao-supabase.sql`), aplica as migrações Supabase e Drizzle em ordem e roda `supabase/tests`. Não conecta em nenhum banco remoto.
+**Como repetir:** `supabase/baseline/ensaio/ensaio-local.sh` (com `MANTER=1` o banco fica de pé para inspeção). Ele cria um Postgres temporário com uma imitação mínima do Supabase (`imitacao-supabase.sql`), aplica as migrações Supabase e Drizzle em ordem e roda `supabase/tests`. Não conecta em nenhum banco remoto.
 
-**Resultado:** 136 migrações Supabase aplicadas, 4 puladas, 28 Drizzle aplicadas e RBAC com 68 de 68 verificações. Todas as tabelas e colunas do `types.ts` existem, e nenhuma tabela fica sem RLS.
+**Resultado:** 142 migrações Supabase aplicadas, 4 puladas, 28 Drizzle aplicadas e RBAC com 68 de 68 verificações. Todas as tabelas, colunas e funções do `types.ts` existem, e nenhuma tabela fica sem RLS.
 
-**Por que a sequência original não fechava:** algumas peças foram criadas direto no banco do Lovable, sem virar migração. Agora estão em duas migrações novas, idempotentes, que não fazem nada num banco que já as tenha:
-- `20260912184850_reconstrucao_lacunas_iniciais.sql`: `tenant_usuarios.permissoes`, a restrição de papel aceitando `gerente`, `agendamentos.pagamento_confirmado_por` e as tabelas `auditoria_da_barbearia`, `recursos_do_tenant` e `aceites_legais`.
-- `20261015120000_reconstrucao_lacunas_finais.sql`: as redes sociais da plataforma, `agendamentos.pagamento_confirmado_em`, as políticas de leitura, a função `registrar_auditoria_barbearia` e os buckets `tenant-logos` e `home-publica`.
+**Migrações recuperadas:** a sequência do GitHub parava em `20260913144719`, porque 7 migrações de 13/09 nunca chegaram ao repositório. Elas foram recuperadas de um export do projeto feito naquela data e voltaram com os nomes originais:
+- `20260913005022`: permissões por papel, `gerente`, confirmação de pagamento, auditoria do negócio, `registrar_auditoria_barbearia` e `confirmar_pagamento_agendamento`.
+- `20260913005054`: permissões dessas funções.
+- `20260913010327`: configuração visual e contato da plataforma.
+- `20260913012556`: recursos por negócio.
+- `20260913022536`: redes sociais da plataforma.
+- `20260913022610`: permissões de `contato_da_plataforma`.
+- `20260913023749`: leitura de recursos só por membros.
 
-**Deduzido, revisar antes de produção:**
-- As regras de acesso das 3 tabelas. Toda gravação acontece no servidor; a leitura da auditoria exige a permissão `relatorios`.
-- O corpo de `registrar_auditoria_barbearia`, deduzido dos chamadores.
-- Os buckets, criados como privados.
-
-**Não reconstruído:** `confirmar_pagamento_agendamento` aparece no `types.ts`, mas nenhum código a chama.
+**Ainda deduzido** (`20261015120000_reconstrucao_lacunas_finais.sql`, revisar antes de produção):
+- A tabela `aceites_legais`: estrutura do `types.ts`; cada pessoa lê e registra só os próprios aceites.
+- Os buckets `tenant-logos` e `home-publica`, criados como privados.
 
 **Puladas num banco novo** (`supabase/baseline/ensaio/pular-no-banco-novo.txt`): dados do negócio de demonstração, IDs de modelos do WhatsApp da conta antiga e o envio de WhatsApp de teste.
 
 **Teste ajustado:** `supabase/tests/rbac.sql` esperava que o dono mudasse o plano por escrita direta. A migração `20260930083859` tirou essa permissão de propósito (plano só muda no servidor), então o teste passou a exigir a recusa.
 
-**Para aplicar no `cortai-prod`:** mesma ordem e mesmos pulos do ensaio, com `check_function_bodies = off` em cada migração (há funções que citam peças criadas depois). Em seguida, conferir com `supabase/baseline/baseline_verification.sql` e com os alertas de segurança do Supabase. **Depende de autorização explícita.**
+**Para aplicar no `cortai-prod`:** mesma ordem e mesmos pulos do ensaio, com `check_function_bodies = off` em cada migração. Em seguida, conferir com `supabase/baseline/baseline_verification.sql` e com os alertas de segurança do Supabase. **Depende de autorização explícita.**
 
-**Limites do ensaio:** Postgres 16 local com imitações de `auth`, `storage`, `cron` e `net`; o `cortai-prod` usa Postgres 17 e o Supabase real. Também ficam para depois: os nomes com "barbearia" (troca para nomes neutros, em etapa própria) e 5 funções que o visitante anônimo pode executar (4 de gatilho e `recurso_do_tenant_ativo`).
+**Limites do ensaio:** Postgres 16 local com imitações de `auth`, `storage`, `cron` e `net`; o `cortai-prod` usa Postgres 17 e o Supabase real.
+
+**Pendências ligadas a isto:**
+- Trocar os nomes com "barbearia" por nomes neutros, numa etapa própria.
+- Fechar 4 funções de gatilho que o visitante anônimo consegue executar.
+- `src/lib/barbeiro.functions.ts:1249`: as sugestões de horário usam uma grade fixa das 9h às 19h com `setHours`. Isso ignora o horário do negócio e o fuso.

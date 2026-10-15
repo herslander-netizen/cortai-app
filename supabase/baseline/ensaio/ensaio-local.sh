@@ -10,7 +10,7 @@ PGBIN="${PGBIN:-$(dirname "$(command -v initdb || ls /usr/lib/postgresql/*/bin/i
 DIR="$(mktemp -d)"; PORTA="${PORTA:-54329}"
 [ "$(id -u)" = 0 ] && { chown postgres "$DIR"; COMO="su postgres -c"; } || COMO="bash -c"
 $COMO "$PGBIN/initdb -D $DIR/data -U postgres -A trust >/dev/null && $PGBIN/pg_ctl -D $DIR/data -o '-p $PORTA -k $DIR' -l $DIR/log start >/dev/null" || exit 1
-trap '$COMO "$PGBIN/pg_ctl -D $DIR/data stop -m fast >/dev/null"; rm -rf "$DIR"' EXIT
+[ "${MANTER:-0}" = 1 ] && echo "banco mantido em $DIR (porta $PORTA)" || trap '$COMO "$PGBIN/pg_ctl -D $DIR/data stop -m fast >/dev/null"; rm -rf "$DIR"' EXIT
 PSQL=(psql -h "$DIR" -p "$PORTA" -U postgres -d postgres -v ON_ERROR_STOP=1 -q)
 "${PSQL[@]}" -f "$AQUI/imitacao-supabase.sql" >/dev/null 2>&1 || { echo "falhou a imitação do Supabase"; exit 1; }
 "${PSQL[@]}" -c "alter database postgres set search_path = public, extensions" >/dev/null
