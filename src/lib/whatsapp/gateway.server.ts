@@ -22,7 +22,7 @@
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 
 type Provedor = "evolution" | "generico" | "meta";
-type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
+type Config = { baseUrl: string; apiKey: string; provedor: Provedor; direto?: boolean };
 
 import { codigoDePareamento, MINUTOS_DO_CODIGO } from "@/lib/whatsapp/pareamento-telefone";
 
@@ -40,14 +40,42 @@ function configEvolution(): Config | null {
   };
 }
 
-// WhatsApp Business oficial (Meta), conectado em Connectors → WhatsApp.
-// Não existe QR Code: a conexão é da conta, verificada em /phone_number.
+const VERSAO_GRAPH_PADRAO = "v21.0";
+
+/**
+ * WhatsApp Business oficial (Meta) direto na Cloud API, sem intermediário:
+ * META_WHATSAPP_ACCESS_TOKEN (token permanente do usuário do sistema) e
+ * META_WHATSAPP_PHONE_NUMBER_ID. A base aponta para o número, então os
+ * caminhos são os mesmos do conector antigo ("/messages", "?fields=...").
+ */
+function configMetaDireta(): Config | null {
+  const token = process.env["META_WHATSAPP_ACCESS_TOKEN"]?.trim();
+  const numeroId = process.env["META_WHATSAPP_PHONE_NUMBER_ID"]?.trim();
+  if (!token || !numeroId) return null;
+  const versao = process.env["META_GRAPH_VERSION"]?.trim() || VERSAO_GRAPH_PADRAO;
+  return {
+    baseUrl: `https://graph.facebook.com/${versao}/${encodeURIComponent(numeroId)}`,
+    apiKey: token,
+    provedor: "meta",
+    direto: true,
+  };
+}
+
+// WhatsApp Business oficial pelo conector do Lovable (legado, usado só sem a
+// configuração direta). Não existe QR Code: a conexão é da conta.
 function configMeta(): Config | null {
+  const direta = configMetaDireta();
+  if (direta) return direta;
   const chaveMeta = process.env["WHATSAPP_API_KEY"];
   if (chaveMeta && process.env["LOVABLE_API_KEY"]) {
     return { baseUrl: URL_GATEWAY_META, apiKey: chaveMeta, provedor: "meta" };
   }
   return null;
+}
+
+/** Com a conta oficial configurada (direta ou pelo conector legado). */
+function metaConfigurada(): boolean {
+  return configMeta() !== null;
 }
 
 /**
@@ -80,7 +108,7 @@ export function credenciaisFaltantes(): string[] {
     faltam.push("EVOLUTION_API_KEY");
   }
   // Com a conta oficial da Meta vinculada, nenhuma dessas é necessária.
-  if (process.env["WHATSAPP_API_KEY"] && process.env["LOVABLE_API_KEY"]) return [];
+  if (metaConfigurada()) return [];
   if (!segredoDoWebhookDeWhatsapp()) faltam.push("EVOLUTION_WEBHOOK_SECRET");
   return faltam;
 }
@@ -102,7 +130,7 @@ export async function chamar<T>(
   if (!config) throw new GatewayNaoConfiguradoError();
   const cabecalhos: Record<string, string> = { "content-type": "application/json" };
   if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
-  else if (config.provedor === "meta") {
+  else if (config.provedor === "meta" && !config.direto) {
     cabecalhos["authorization"] = `Bearer ${process.env["LOVABLE_API_KEY"]}`;
     cabecalhos["x-connection-api-key"] = config.apiKey;
   } else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
@@ -387,9 +415,10 @@ function criarMeta(cfg: Config | null) {
   const meta = {
     async consultarStatus(): Promise<EstadoDaSessao> {
       try {
+        // Direto na Cloud API a base já é o número; no conector legado é /phone_number.
         const r = await chamar<Record<string, unknown>>(
           cfg,
-          "/phone_number?fields=display_phone_number,quality_rating",
+          `${cfg?.direto ? "" : "/phone_number"}?fields=display_phone_number,quality_rating`,
           "GET",
         );
         return {

@@ -9,6 +9,7 @@ Este documento distingue pacotes removíveis de serviços externos que ainda faz
 - **Build Vite/TanStack:** configuração nativa com Cloudflare Vite plugin, TanStack Start, React, Tailwind e aliases.
 - **OAuth de entrada:** `src/integrations/lovable/index.ts` encaminha Google/Apple para `supabase.auth.signInWithOAuth`. A configuração de provedores e URLs de retorno precisa ser validada por ambiente antes do uso real.
 - **Webhook WhatsApp:** validação HMAC local, timestamp com tolerância limitada, comparação constante, limite do corpo e testes próprios em `src/lib/webhooks/lovable-signature.server.ts`.
+- **WhatsApp oficial (Meta):** envio direto pela Cloud API (`graph.facebook.com`) quando `META_WHATSAPP_ACCESS_TOKEN` e `META_WHATSAPP_PHONE_NUMBER_ID` existem; o recebimento direto já conferia `X-Hub-Signature-256` com o App Secret e agora aceita também `META_WHATSAPP_VERIFY_TOKEN`/`META_WHATSAPP_APP_SECRET`. O conector do Lovable (`connector-gateway.lovable.dev`) só é usado se a configuração direta faltar. Testes: `src/lib/whatsapp/gateway-meta-direta.test.ts`.
 - **Pacote de webhooks:** removido das dependências depois da migração local.
 - **Cloud Auth SDK:** removido das dependências e do lockfile.
 - **Exceções de instalação:** removidas do `bunfig.toml` para pacotes já não usados.

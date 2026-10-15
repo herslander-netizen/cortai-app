@@ -1,8 +1,9 @@
 /**
  * Entrada oficial dos avisos do WhatsApp Business (Meta) para o Cortaí.
  *
- * O Lovable encaminha para cá cada mudança que a Meta envia para o número
- * conectado (mensagens de clientes, confirmações de entrega, erros).
+ * A Meta envia para cá cada mudança do número conectado (mensagens de clientes,
+ * confirmações de entrega, erros), direto (X-Hub-Signature-256) ou, no legado,
+ * pelo conector do Lovable.
  *
  * Segurança e confiabilidade:
  * - toda entrega tem a assinatura conferida antes de qualquer processamento;
@@ -223,7 +224,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
       /** Verificação de URL da Meta (quando a Meta chama direto, sem intermediário). */
       GET: async ({ request }) => {
         const url = new URL(request.url);
-        const token = process.env["META_VERIFY_TOKEN"];
+        const token = process.env["META_VERIFY_TOKEN"] ?? process.env["META_WHATSAPP_VERIFY_TOKEN"];
         if (
           token &&
           url.searchParams.get("hub.mode") === "subscribe" &&
@@ -239,7 +240,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         const abuso = await guard.barrarAbusivo(request, "whatsapp/meta");
         if (abuso) return abuso;
 
-        const appSecret = process.env["META_APP_SECRET"];
+        const appSecret = process.env["META_APP_SECRET"] ?? process.env["META_WHATSAPP_APP_SECRET"];
         const assinaturaMeta = request.headers.get("x-hub-signature-256");
         const segredo = process.env["WHATSAPP_API_KEY"];
 
