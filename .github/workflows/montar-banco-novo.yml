@@ -1,0 +1,44 @@
+name: Montar banco novo (cortai-prod)
+
+# Monta o banco do cortai-prod do zero, com a mesma sequência do ensaio local.
+# Só roda à mão, só nesta branch, só com a confirmação digitada, e o script recusa
+# banco que não esteja vazio ou que não seja do projeto esperado. Tudo ou nada.
+on:
+  workflow_dispatch:
+    inputs:
+      confirmar:
+        description: "Digite MONTAR para aplicar as migrações no cortai-prod vazio"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: montar-banco-novo
+  cancel-in-progress: false
+
+jobs:
+  montar:
+    if: github.ref == 'refs/heads/cloudflare-workers-migration-2026-10-13' && inputs.confirmar == 'MONTAR'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+      - name: Install psql
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Check secret
+        env:
+          BANCO_URL: ${{ secrets.CORTAI_PROD_DB_URL }}
+        run: |
+          if [ -z "$BANCO_URL" ]; then
+            echo "::error::Configure o segredo CORTAI_PROD_DB_URL (Session pooler do cortai-prod)."
+            exit 1
+          fi
+      - name: Apply migrations (all or nothing)
+        env:
+          BANCO_URL: ${{ secrets.CORTAI_PROD_DB_URL }}
+          PROJETO_ESPERADO: ibsberidejlbczxrweqg
+          URL_DO_APP: https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev
+        run: bash supabase/baseline/aplicar-no-banco-novo.sh

@@ -96,3 +96,15 @@ O banco original do Lovable não respondeu às consultas de leitura (erro 504). 
 - Trocar os nomes com "barbearia" por nomes neutros, numa etapa própria.
 - Fechar 4 funções de gatilho que o visitante anônimo consegue executar.
 - `src/lib/barbeiro.functions.ts:1249`: as sugestões de horário usam uma grade fixa das 9h às 19h com `setHours`. Isso ignora o horário do negócio e o fuso.
+
+## Aplicação no `cortai-prod`
+
+- **Tarefa agendada recriada:** `20260928084249_reconstrucao_tarefa_varredura_whatsapp.sql` recria a tarefa `cortai-varredura-whatsapp` (a cada 15 min). Ela foi criada direto no banco original, e a migração `20260928084250` altera a tarefa nº 1, que precisa existir antes.
+- **Script:** `supabase/baseline/aplicar-no-banco-novo.sh` aplica tudo numa transação só. Se qualquer migração falhar, nada fica gravado. Ele recusa:
+  - banco que não seja do projeto esperado;
+  - esquema `public` que não esteja vazio;
+  - endereço do app que não comece com `https://`.
+
+  Na hora de aplicar, troca `https://cortai.dev/api/` pelo endereço do ambiente (`URL_DO_APP`), para as tarefas agendadas e os avisos de push não chamarem a produção antiga. Os arquivos das migrações não mudam.
+- **Automação:** "Montar banco novo (cortai-prod)", só manual, com a confirmação `MONTAR`. Usa o segredo `CORTAI_PROD_DB_URL` (string do Session pooler do Supabase, que funciona por IPv4 nos runners do GitHub).
+- **Testado localmente:** com falha forçada, nada ficou gravado; a aplicação completa passou com 171 migrações e RBAC 68 de 68; as tarefas e os gatilhos de push apontam para `URL_DO_APP`.
