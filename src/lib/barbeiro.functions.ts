@@ -9,7 +9,13 @@ import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
-import { mapearHorarios, passoValido, validarAgendamento } from "@/lib/agenda-regras.server";
+import {
+  mapearHorarios,
+  passoValido,
+  regrasDaBarbearia,
+  validarAgendamento,
+} from "@/lib/agenda-regras.server";
+import { sugestoesDeHorario } from "@/lib/sugestoes-de-horario";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 async function admin() {
@@ -1244,36 +1250,47 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     );
     const livre = (i: number, f: number) => !ocupados.some(([oi, of]) => i < of && f > oi);
 
-    const sugerir = () => {
-      const sugestoes: { iso: string; label: string }[] = [];
-      for (let h = 9; h < 19 && sugestoes.length < 4; h++) {
-        for (const m of [0, 30]) {
-          const cand = new Date(dia);
-          cand.setHours(h, m, 0, 0);
-          if (cand.getTime() <= Date.now()) continue;
-          const candFim = cand.getTime() + servico.duracao_min * 60000;
-          if (livre(cand.getTime(), candFim) && sugestoes.length < 4) {
-            sugestoes.push({
-              iso: cand.toISOString(),
-              label: `${String(h).padStart(2, "0")}:${m === 0 ? "00" : "30"}`,
-            });
-          }
-        }
-      }
-      return sugestoes;
+    // Sugestões pelo motor único: expediente, pausa, fuso, antecedência, intervalo e
+    // passo do negócio, mais bloqueios e escalas do profissional.
+    const sugerir = async () => {
+      const regras = await regrasDaBarbearia(db, tenant.id);
+      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+      const extras = await ocupacoesExtras(db, {
+        tenantId: tenant.id,
+        fuso: regras.fuso,
+        desde: dia,
+        ate: fimDia,
+        profissionalIds: [data.profissionalId],
+      }).catch(() => []);
+      return sugestoesDeHorario({
+        pedido: inicio,
+        servico,
+        profissionalId: data.profissionalId,
+        horarios: regras.horarios,
+        fuso: regras.fuso,
+        ocupados: [
+          ...(doDia ?? []).map((a) => ({ ...a, profissional_id: data.profissionalId })),
+          ...extras,
+        ],
+        regras: {
+          antecedenciaMin: regras.antecedenciaMin,
+          intervaloEntreMin: regras.intervaloEntreMin,
+        },
+        passoMin: regras.passoMin,
+      });
     };
-    const conflitoDoPainel = (): ResultadoManual => ({
+    const conflitoDoPainel = async (): Promise<ResultadoManual> => ({
       ok: false,
       conflito: {
         mensagem: "Esse horário já tem agendamento. Encaixar mesmo assim?",
-        sugestoes: sugerir(),
+        sugestoes: await sugerir().catch(() => []),
         podeEncaixar: true,
       },
     });
 
     if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) {
       if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
-      return conflitoDoPainel();
+      return await conflitoDoPainel();
     }
 
     // 5. Criar pelas mesmas regras do app e marcar a origem como manual.
@@ -1288,7 +1305,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     });
     if (error) {
       if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
-      if (error.message.includes("horario ja ocupado")) return conflitoDoPainel();
+      if (error.message.includes("horario ja ocupado")) return await conflitoDoPainel();
       throw new Error(error.message);
     }
     const criado = res as unknown as { agendamento_id: string; inicio: string };
