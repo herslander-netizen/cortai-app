@@ -60,30 +60,9 @@ if [ "$tabelas" != "0" ]; then
   exit 1
 fi
 
-# Tudo vai numa transação só: se qualquer migração falhar, nada fica gravado.
-# Por isso saem as linhas BEGIN;/COMMIT; que algumas migrações têm por conta própria.
-# ENSAIO_SEM_EXTENSOES=1 tira pg_cron/pg_net (só para testar o script num Postgres local).
-preparar() {
-  local regras=(-e 's/--> statement-breakpoint//' -e '/^[[:space:]]*(BEGIN|COMMIT)[[:space:]]*;[[:space:]]*$/Id'
-    -e "s#https://cortai\.dev/api/#$URL_DO_APP/api/#g")
-  [ "${ENSAIO_SEM_EXTENSOES:-0}" = 1 ] && regras+=(-e '/create extension (if not exists )?(pg_net|pg_cron)/Id')
-  sed -E "${regras[@]}" "$1"
-}
-
+# Tudo vai numa transação só (montar-lote.sh): se qualquer migração falhar, nada fica gravado.
 LOTE="$(mktemp)"; trap 'rm -f "$LOTE"' EXIT
-{
-  echo "begin;"
-  echo "set local check_function_bodies = off;"
-  for f in "$RAIZ"/supabase/migrations/*.sql; do
-    p="$(basename "$f" | cut -c1-14)"
-    if grep -q "^$p " "$PULAR"; then echo "\\echo 'pulada: $(basename "$f")'"; continue; fi
-    echo "\\echo 'aplicando: $(basename "$f")'"; preparar "$f"; echo ";"
-  done
-  for f in "$RAIZ"/drizzle/migrations/0*.sql; do
-    echo "\\echo 'aplicando: drizzle/$(basename "$f")'"; preparar "$f"; echo ";"
-  done
-  echo "commit;"
-} > "$LOTE"
+MODO=psql "$RAIZ/supabase/baseline/montar-lote.sh" > "$LOTE"
 
 if ! saida="$("${PSQL[@]}" -f "$LOTE" 2>&1)"; then
   echo "$saida" | grep -E "aplicando|pulada" | tail -1
