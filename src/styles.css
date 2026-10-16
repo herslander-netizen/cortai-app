@@ -6404,9 +6404,3 @@ button.agenda-nome:hover {
     display: none;
   }
 }
-
-
-/* Landing premium Cortaí: revelação acessível e respeitando movimento reduzido. */
-[data-reveal]{opacity:0;transform:translateY(18px);transition:opacity .5s cubic-bezier(.22,.8,.28,1),transform .5s cubic-bezier(.22,.8,.28,1)}
-[data-reveal].in{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){[data-reveal]{opacity:1!important;transform:none!important;transition:none}html{scroll-behavior:auto}}

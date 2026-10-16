@@ -39,6 +39,14 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 Segredos usados (nomes): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ACCESS_TOKEN`; opcionais `PREVIEW_CORTAI_AI_*`, `PREVIEW_CORTAI_CRON_SECRET`, `PREVIEW_META_WHATSAPP_*`.
 
+## Última correção de rota (2026-10-16)
+
+- A home pública oficial continua em `/apresentacao` e o conteúdo segue editável em `/admin/home`.
+- A rota `/` foi restaurada ao comportamento original de autenticação/apresentação. Não criar landing estática separada em `/`.
+- A landing está sendo adaptada dentro de `ShowroomCortai`; CTAs de negócio usam `/comecar` (que exige login) e descoberta usa `/barbearias`.
+- O PR #15 para `main`, aberto por engano, foi fechado sem merge. Não abrir PR para `main`.
+- Nenhum deploy de produção foi acionado. A prévia é atualizada pelo push na branch de migração.
+
 ## Pendências
 
 Do dono:

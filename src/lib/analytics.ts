@@ -1,5 +1,0 @@
-export type LandingEvent = "landing_view" | "hero_cta_click" | "secondary_cta_click" | "navigation_click" | "faq_opened";
-const ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
-function canTrack(){ return typeof window !== "undefined" && !!ID && !!(window as any).gtag; }
-export function track(event:LandingEvent, params:Record<string,string>={}){ if(!canTrack()) return; (window as any).gtag("event", event, { page_location: window.location.pathname, ...params }); }
-export function initAnalytics(){ if(typeof window==="undefined"||!ID) return; if(document.querySelector(`script[data-ga="${ID}"]`)) return; const s=document.createElement("script"); s.async=true; s.dataset.ga=ID; s.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ID)}`; document.head.appendChild(s); (window as any).dataLayer=(window as any).dataLayer||[]; (window as any).gtag=function(){(window as any).dataLayer.push(arguments);}; (window as any).gtag("js", new Date()); (window as any).gtag("config", ID, { send_page_view:false }); }

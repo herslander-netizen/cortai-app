@@ -415,10 +415,8 @@ export function ShowroomCortai({
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">Entrar</Link>
             </Button>
-            <Button asChild size="sm">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-                Começar agora
-              </Link>
+            <Button asChild size="sm" variant="primary">
+              <Link to="/comecar">Cadastrar meu negócio</Link>
             </Button>
           </div>
         </div>
@@ -437,15 +435,17 @@ export function ShowroomCortai({
           </h1>
           <p className="showroom-lead">{c.hero.texto}</p>
           <div className="showroom-hero-actions">
-            <Button asChild size="lg">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
+            <Button asChild size="lg" variant="primary">
+              <Link to="/comecar">
                 {c.hero.cta} <ArrowRight />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="#como-funciona">Ver como funciona</a>
+              <Link to="/barbearias">Encontrar estabelecimento</Link>
             </Button>
+            <a href="#como-funciona" className="showroom-link-como-funciona">Ver como funciona</a>
           </div>
+          <p className="showroom-login-nota">Você entrará com sua conta para iniciar o cadastro do seu negócio.</p>
           <p className="showroom-assinatura">Simplifica. Conecta. Cresce.</p>
         </div>
         <div
@@ -510,11 +510,9 @@ export function ShowroomCortai({
             <div className="showroom-plano-nota">
               <Sparkles />
               <span>
-                <strong>
-                  Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.
-                </strong>
+                <strong>Integrações em validação.</strong>
                 <small>
-                  Inclui WhatsApp, agendamento pelo cliente, WhatsApp e confirmações automáticas.
+                  WhatsApp, CortAI e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
                 </small>
               </span>
             </div>
@@ -548,9 +546,7 @@ export function ShowroomCortai({
         <TabelaDePlanos
           acao={() => (
             <Button asChild className="w-full" variant="outline">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-                Começar agora
-              </Link>
+              <Link to="/comecar">Cadastrar meu negócio</Link>
             </Button>
           )}
         />
@@ -573,10 +569,11 @@ export function ShowroomCortai({
         <h2>{c.final.titulo}</h2>
         {c.final.texto ? <p>{c.final.texto}</p> : null}
         <div>
-          <Button asChild size="lg">
-            <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-              Começar agora <ArrowRight />
-            </Link>
+          <Button asChild size="lg" variant="primary">
+            <Link to="/comecar">Cadastrar meu negócio <ArrowRight /></Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/barbearias">Encontrar estabelecimento</Link>
           </Button>
           {contato ? (
             <Button asChild size="lg" variant="outline">
@@ -590,7 +587,7 @@ export function ShowroomCortai({
 
       <footer className="showroom-footer">
         <MarcaCortai variante="escura" className="h-auto w-24" />
-        <span>By Alvo Digital</span>
+        <span>Agendamentos de um jeito mais simples.</span>
         <nav aria-label="Links do rodapé">
           <a href="#recursos">Recursos</a>
           <a href="#planos">Planos</a>
