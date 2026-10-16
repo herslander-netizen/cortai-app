@@ -5344,6 +5344,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      quitar_fiado_seguro: {
+        Args: {
+          _ator: string
+          _fiado_id: string
+          _forma: string
+          _saldo_esperado_centavos?: number | null
+          _tenant_id: string
+          _valor_centavos: number
+        }
+        Returns: Json
+      }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }
         Returns: boolean

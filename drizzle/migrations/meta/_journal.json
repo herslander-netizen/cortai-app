@@ -253,6 +253,13 @@
       "when": 1792111100492,
       "tag": "0035_anonimo_so_le_colunas_publicas",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792111160492,
+      "tag": "0036_quitar_fiado_seguro",
+      "breakpoints": true
     }
   ]
 }

@@ -46,9 +46,16 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
-2. **C5** — quitação de fiado numa RPC atômica com idempotência.
-3. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
+1. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)` (só texto; rotas, tabelas e
+   papéis no banco ficam como estão).
+2. Achados menores da auditoria de 16/10: N6 (`convidar_membro` revela conta), C6 (`has_role` com
+   qualquer `user_id`), C8 (equipe no WhatsApp sem checagem por ação), 13 (remarcação pela IA
+   recria agendamento), 14 (contagem do admin presa a 1000 linhas), 15 (buckets sem tipo/tamanho;
+   contadores não atômicos), 10 (`as never`).
+3. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (lista na auditoria de 16/10).
+
+Já resolvidos nesta branch (não repetir): 16 e N4 (limites do rascunho e do formulário, commits
+`16a7f757` e `bece4b08`); 8 (limite por IP da CortAI do site).
 
 Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
 
@@ -56,7 +63,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 13:00 | C5: quitação de fiado numa RPC atômica com idempotência | `src/lib/financeiro.functions.ts` (`quitarFiado`), telas que chamam; migração `0036` |
+| — | — | — | — |
 
 ## Recados
 
@@ -83,6 +90,22 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 13:20 UTC — Claude — C5: quitação de fiado atômica e idempotente
+- Commit: este
+- O que mudou e por quê: `quitarFiado` gravava pagamento, caixa, fiado e carteira em quatro
+  chamadas soltas. Migração `0036_quitar_fiado_seguro.sql`: função `quitar_fiado_seguro` (só
+  `service_role`) faz tudo numa transação com o fiado travado; tabela `fiado_quitacoes` registra
+  cada quitação por (fiado, saldo de antes), e repetir o mesmo pedido devolve o resultado sem
+  gravar de novo. A tela do caixa manda `saldoEsperadoCentavos`. Tipo da função adicionado em
+  `types.ts` (sem `as never`).
+- Testes: novo `supabase/tests/quitar_fiado.sql` 15/15 (permissão, parcial, repetição, saldo
+  desatualizado, total, já quitado, privilégios); ensaio completo do zero: anônimo 11/11, tokens
+  7/7, RBAC 68/68; `tsc` ok; `vitest` 1503; `build` ok.
+- Banco/infra: `0036` aplicada no `cortai-prod` logo depois deste commit (o código novo depende
+  dela), dentro da autorização do dono de executar o restante.
+- Pendente / atenção para o outro: o fluxo não foi exercitado na prévia com dados reais.
+  16/N4 e 8 já estavam resolvidos nesta branch; a fila foi atualizada.
 
 ### 2026-10-16 12:55 UTC — Claude — N3: links seguem o ambiente em que o app roda
 - Commit: este

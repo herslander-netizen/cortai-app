@@ -353,6 +353,7 @@ function CaixaPage() {
                               fiadoId: f.id,
                               valorCentavos: f.saldo_centavos,
                               forma: "dinheiro",
+                              saldoEsperadoCentavos: f.saldo_centavos,
                             },
                           });
                         } catch (e) {
