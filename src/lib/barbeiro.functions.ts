@@ -102,6 +102,8 @@ export type AgendaItem = {
   daListaDeEspera?: boolean;
   origem?: string | null;
   assistidoPorCortai?: boolean;
+  /** Agendamento público que usou uma ficha existente sem confirmar o telefone. */
+  telefoneNaoConfirmado?: boolean;
   profissionalId?: string | null;
   confirmadoEm?: string | null;
 };
@@ -203,7 +205,23 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
       origem: (a as { origem?: string | null }).origem ?? null,
       assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
+      telefoneNaoConfirmado: false,
     }));
+
+    // Marca "telefone não confirmado" (migração 0029): leitura à parte, só dos horários que
+    // vieram do link, e que nunca derruba a agenda se a coluna ainda não existir.
+    const doLink = itens.filter((i) => i.origem === "link_publico").map((i) => i.id);
+    if (doLink.length) {
+      const { data: marcados, error: erroMarca } = await db
+        .from("agendamentos")
+        .select("id")
+        .in("id", doLink)
+        .eq("telefone_nao_confirmado", true);
+      if (!erroMarca) {
+        const ids = new Set((marcados ?? []).map((m) => m.id));
+        for (const i of itens) if (ids.has(i.id)) i.telefoneNaoConfirmado = true;
+      }
+    }
 
     const fila = (filaRes.data ?? []).map((f) => {
       const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number } | null;

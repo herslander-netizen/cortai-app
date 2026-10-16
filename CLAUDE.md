@@ -121,15 +121,17 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 Última auditoria: `docs/auditoria-2026-10-09.md`. Achados abertos mais graves (corrigidos: admin por curinga no e-mail e cupom em `022e748`; escrita da equipe no banco pela migração 0027):
 - Nenhum achado alto aberto no momento. Corrigidos no código, aguardando publicar: o chat da CortAI no painel agora respeita papel e permissões, e o negócio em uso é resolvido por uma regra única (`vinculo-ativo.ts`).
 - Corrigido no código, aguardando publicar: prazo de cancelamento do dono (`cancelamento_min_horas`) agora vale para o cliente (achado 17).
-- Abertos (médios): secretária do site e criação de negócio sem login (IP forjável corrigido no código, falta limite extra por IP), fila de chegada sem limite, agendamento com telefone de terceiros, links `/painel` inexistentes.
+- Corrigidos no código em 10/10, aguardando publicar: limites por IP na CortAI do site, na fila de chegada e no cadastro sem login (achados 8, 9 e 16) e avisos que levavam a `/painel` (10b).
+- Corrigido no código em 11/10, aguardando publicar e a migração 0032: agendamento com telefone de terceiros (achado 11). Ficha existente só com o código mandado pelo WhatsApp do cliente; sem WhatsApp conectado, o horário fica marcado "telefone não confirmado".
 
 Consulte o documento antes de mexer em IA, permissões, RLS, cobrança ou rotas públicas.
 
 ## Em andamento (2026-10-09)
 
-Auditoria da CortAI concluída, sem nada alterado. As fases propostas aguardam aprovação:
-1. Teste real do gateway e do `perguntarAoCortai`.
-2. Ícone do chat no cabeçalho, reaproveitando `FabCortai`/`AssistenteCortai`.
-3. Interruptor geral `config_atendimento_ia.cortai_ativa`, verificado dentro do cérebro.
-4. Selos de pausada/desligada/limite e ligação com o ADM.
-5. Limpeza do nome "Secretária" e do legado ALVO IA, sem DROP.
+Fases 1 a 5 da CortAI aprovadas e feitas na branch `ccr-3f34ed3f-07fy6o` e trazidas para `cloudflare-workers-migration-2026-10-13` (sem publicar):
+1. Teste do gateway: testes automáticos e botão "Testar agora" no ADM (aba CortAI do negócio).
+2. Ícone da CortAI no cabeçalho do painel, ao lado do sininho (fora da Agenda no celular).
+3. Interruptor geral `config_atendimento_ia.cortai_ativa`, conferido dentro do cérebro. **Migração 0031 (antes 0028) ensaiada, ainda não aplicada no banco.**
+4. Selos (desligada, pausada, limite) no cabeçalho e no chat; aba CortAI no ADM com consumo, limite e encerrar pausa.
+5. Legado ALVO IA desligado (410), sem DROP; "Secretária" fora dos comentários.
+6. Confirmação do telefone no agendamento público (achado 11). **Migração 0032 (antes 0029) ensaiada, ainda não aplicada no banco.**

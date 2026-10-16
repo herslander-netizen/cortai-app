@@ -69,8 +69,8 @@ Há também uma falha pontual que pode dar **acesso de administrador da platafor
 | 8 | Média — **IP corrigido no código** (aguarda publicar); falta limite extra por IP | Limite por visitante da secretária do site é burlável e permite esgotar a cota do negócio |
 | 9 | Média | Entrada pública na fila de chegada sem limite de taxa (confirmado também no SQL) |
 | 10 | Baixa | Dois sistemas de migração e 63 casts `as never` desnecessários |
-| 10b | Média | Avisos apontam para `/painel`, rota que não existe (página não encontrada) |
-| 11 | Média | Agendamento público com telefone de outra pessoa |
+| 10b | ~~Média~~ **Corrigido no código** (aguarda publicar) | Avisos apontam para `/painel`, rota que não existe (página não encontrada) |
+| 11 | ~~Média~~ **Corrigido no código** (aguarda publicar e a migração 0032) | Agendamento público com telefone de outra pessoa |
 | 12 | Baixa | Visitante anônimo lê a comissão dos serviços e o `user_id` dos profissionais de todos os negócios |
 | 13 | Baixa | Remarcação pela IA: o plano B recria o horário como agendamento novo |
 | 14 | Baixa | Painel admin conta linhas trazendo tudo: passa do teto de 1000 linhas e mostra números errados |
@@ -258,6 +258,8 @@ Antes, confirmar quais telas gravam direto na tabela, para não quebrar fluxos q
 **Correção:** usar `LINKS_DE_TELA` (`src/lib/links-de-tela.ts`) nesses dois pontos, ou criar a rota `/painel` redirecionando para `/barbeiro`. Também é preciso decidir qual dos dois endereços é o oficial e alinhar o Knowledge.
 
 ### 11. Média — Agendamento público com telefone de terceiros
+
+> **Corrigido no código em 11/10/2026 (decisão do dono).** Quando o WhatsApp informado já tem ficha, `agendarComoConvidado` pede a confirmação antes de usá-la: com o WhatsApp próprio do negócio conectado, a pessoa manda "CODIGO 123456" para o negócio (link `wa.me` pronto); a mensagem vinda daquele número é a prova, e o horário conclui sozinho. Nada é enviado pelo Cortaí, então não há modelo da Meta. Sem WhatsApp conectado, o horário é marcado como "telefone não confirmado" (`agendamentos.telefone_nao_confirmado`), a equipe vê a marca na agenda e a tela não mostra o nome da ficha. Código só em hash, 15 min, 5 tentativas; confirmação vale 30 min, para o mesmo negócio e telefone (`verificacao-telefone*.ts`, migração 0032). Código por e-mail ficou de fora: nenhuma ficha tem e-mail e não há serviço de envio além do login.
 
 **Onde:** `agendarComoConvidado`.
 

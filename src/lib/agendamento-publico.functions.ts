@@ -41,6 +41,8 @@ const LIMITES = {
   situacao: { ip: 30, telefone: 15 },
   cancelar: { ip: 8, telefone: 5 },
   preferencias: { ip: 10, telefone: 5 },
+  /** A tela consulta a cada 3 s enquanto espera o código chegar. */
+  confirmarTelefone: { ip: 40, telefone: 30 },
 } as const;
 
 /** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
@@ -302,7 +304,9 @@ export type ConfirmacaoPublica = {
 
 export type ResultadoConvidado =
   | { tipo: "ok"; confirmacao: ConfirmacaoPublica }
-  | { tipo: "conflito"; agendamentoId: string; hora: string };
+  | { tipo: "conflito"; agendamentoId: string; hora: string }
+  /** O WhatsApp já tem ficha: o cliente confirma o número mandando o código ao negócio. */
+  | { tipo: "verificar"; verificacaoId: string; codigo: string; link: string };
 
 export const agendarComoConvidado = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
@@ -315,6 +319,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         nome: z.string().trim().min(2).max(80),
         telefone: telefoneSchema,
         substituiId: z.string().uuid().optional(),
+        verificacaoId: z.string().uuid().optional(),
       })
       .parse(input),
   )
@@ -357,6 +362,30 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
 
     // Ficha do cliente: reaproveita pelo WhatsApp para não duplicar cadastro.
     const existente = await clientePorTelefone(db, tenant.id, data.telefone);
+
+    // Ficha existente só é usada por quem prova que o número é seu (achado 11). Com o
+    // WhatsApp do negócio conectado, o cliente manda o código; sem ele, o horário é
+    // marcado como "telefone não confirmado" para a equipe e o nome da ficha não aparece.
+    let telefoneNaoConfirmado = false;
+    if (existente) {
+      const v = await import("@/lib/verificacao-telefone.server");
+      const confirmado =
+        !!data.verificacaoId &&
+        (await v.situacaoDoPedido(tenant.id, data.telefone, data.verificacaoId)) === "confirmado";
+      if (!confirmado) {
+        const pedido = await v.pedirConfirmacaoDoTelefone(tenant.id, data.telefone);
+        if (pedido) {
+          const { linkParaEnviarCodigo } = await import("@/lib/verificacao-telefone");
+          return {
+            tipo: "verificar",
+            verificacaoId: pedido.verificacaoId,
+            codigo: pedido.codigo,
+            link: linkParaEnviarCodigo(pedido.numero, pedido.codigo),
+          };
+        }
+        telefoneNaoConfirmado = true;
+      }
+    }
 
     // Só pode substituir um horário ativo do próprio WhatsApp; senão, erro (nunca cria um segundo em silêncio).
     let substituiId: string | null = null;
@@ -413,7 +442,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     let fichaCriadaAgora = false;
     if (existente) {
       clienteId = existente.id;
-      clienteNome = existente.nome;
+      clienteNome = telefoneNaoConfirmado ? data.nome : existente.nome;
     } else {
       const { data: novo, error } = await db
         .from("clientes")
@@ -487,6 +516,18 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       throw new Error("Não foi possível concluir o agendamento agora.");
     }
 
+    if (telefoneNaoConfirmado) {
+      // Marca só informativa: falhar aqui (ex.: migração 0029 pendente) nunca desfaz o horário.
+      await db
+        .from("agendamentos")
+        .update({ telefone_nao_confirmado: true })
+        .eq("id", criado.agendamento_id)
+        .then(
+          () => undefined,
+          () => undefined,
+        );
+    }
+
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
     // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
     if (substituiId) {
@@ -527,6 +568,21 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         valor_centavos: servico.preco_centavos,
       },
     };
+  });
+
+/** A tela acompanha se o código já chegou pelo WhatsApp. Não revela nada da ficha. */
+export const situacaoDaConfirmacaoDoTelefone = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z
+      .object({ slug: slugSchema, telefone: telefoneSchema, verificacaoId: z.string().uuid() })
+      .parse(input),
+  )
+  .handler(async ({ data }): Promise<{ situacao: "confirmado" | "pendente" | "expirado" }> => {
+    await limitarPublico("confirmarTelefone", data.telefone);
+    const db = await admin();
+    const tenant = await barbeariaPorSlug(db, data.slug);
+    const { situacaoDoPedido } = await import("@/lib/verificacao-telefone.server");
+    return { situacao: await situacaoDoPedido(tenant.id, data.telefone, data.verificacaoId) };
   });
 
 /** Preferências opcionais após a confirmação; não lê nem devolve a ficha privada. */

@@ -11,10 +11,14 @@ import { detectarExperiencia, origemDaVisita, registrarEtapa, type EtapaFunil } 
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import {
+  ConfirmarTelefone,
+  type PedidoDeConfirmacao,
+} from "@/components/agendamento/ConfirmarTelefone";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
 import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { ConviteDeConta } from "@/components/agendamento/ConviteDeConta";
@@ -154,6 +158,10 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
+  // Telefone com ficha existente: código pelo WhatsApp antes de concluir (achado 11).
+  const [pedidoDeConfirmacao, setPedidoDeConfirmacao] = useState<PedidoDeConfirmacao | null>(null);
+  const verificacaoRef = useRef<string | null>(null);
+  const trocaPendenteRef = useRef<string | undefined>(undefined);
   const fluxo = data ? fluxoDoAgendamento(data.pagina.experiencia, data.pagina.chat.modo) : null;
   const experienciaPublicada = data?.pagina.experiencia;
   const slugFunil = data?.tenant ? slug : null;
@@ -254,6 +262,10 @@ function AgendamentoPublico() {
   }, [chaveSalva]);
 
   const digitosTel = telefone.replace(/\D/g, "");
+  useEffect(() => {
+    // Outro número: a confirmação anterior não vale para ele.
+    verificacaoRef.current = null;
+  }, [digitosTel]);
   const erroTelefone = digitosTel.length < 10 ? "Informe seu WhatsApp com DDD" : null;
   const erroNome = nome.trim().length < 2 ? "Informe seu nome" : null;
   const falta = !servico
@@ -273,14 +285,25 @@ function AgendamentoPublico() {
           nome: nome.trim(),
           telefone: digitosTel,
           ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
+          ...(verificacaoRef.current ? { verificacaoId: verificacaoRef.current } : {}),
         },
       }),
     onMutate: () => marcarEtapa("dados_enviados"),
-    onSuccess: (res) => {
+    onSuccess: (res, troca) => {
       if (res.tipo === "conflito") {
         setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
         return;
       }
+      if (res.tipo === "verificar") {
+        trocaPendenteRef.current = troca;
+        setPedidoDeConfirmacao({
+          verificacaoId: res.verificacaoId,
+          codigo: res.codigo,
+          link: res.link,
+        });
+        return;
+      }
+      setPedidoDeConfirmacao(null);
       setErro(null);
       setConflito(null);
       setSubstituiId(null);
@@ -319,6 +342,29 @@ function AgendamentoPublico() {
       }
     },
   });
+
+  const criarMutate = criar.mutate;
+  const concluirComTelefoneConfirmado = useCallback(
+    (verificacaoId: string) => {
+      verificacaoRef.current = verificacaoId;
+      setPedidoDeConfirmacao(null);
+      criarMutate(trocaPendenteRef.current);
+    },
+    [criarMutate],
+  );
+  const confirmacaoDoTelefone = (
+    <ConfirmarTelefone
+      slug={slug}
+      telefone={digitosTel}
+      pedido={pedidoDeConfirmacao}
+      aoConfirmar={concluirComTelefoneConfirmado}
+      aoGerarOutro={() => {
+        verificacaoRef.current = null;
+        criar.mutate(trocaPendenteRef.current);
+      }}
+      aoFechar={() => setPedidoDeConfirmacao(null)}
+    />
+  );
 
   const cancelar = useMutation({
     mutationFn: () =>
@@ -477,31 +523,34 @@ function AgendamentoPublico() {
           }
         : null;
     return (
-      <AgendamentoChat
-        futuro={futuro}
-        linkSobre={linkSobre}
-        data={data}
-        selecao={selecao}
-        nome={nome}
-        telefone={telefone}
-        setNome={setNome}
-        setTelefone={setTelefone}
-        confirmar={() => {
-          if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
-          setErro(null);
-          setConflito(null);
-          criar.mutate(undefined);
-        }}
-        conflito={conflito}
-        alterarConflito={() => {
-          if (!conflito) return;
-          setSubstituiId(conflito.agendamentoId);
-          setConflito(null);
-          criar.mutate(conflito.agendamentoId);
-        }}
-        enviando={criar.isPending}
-        erro={erro}
-      />
+      <>
+        <AgendamentoChat
+          futuro={futuro}
+          linkSobre={linkSobre}
+          data={data}
+          selecao={selecao}
+          nome={nome}
+          telefone={telefone}
+          setNome={setNome}
+          setTelefone={setTelefone}
+          confirmar={() => {
+            if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
+            setErro(null);
+            setConflito(null);
+            criar.mutate(undefined);
+          }}
+          conflito={conflito}
+          alterarConflito={() => {
+            if (!conflito) return;
+            setSubstituiId(conflito.agendamentoId);
+            setConflito(null);
+            criar.mutate(conflito.agendamentoId);
+          }}
+          enviando={criar.isPending}
+          erro={erro}
+        />
+        {confirmacaoDoTelefone}
+      </>
     );
   }
 
@@ -794,6 +843,7 @@ function AgendamentoPublico() {
           ) : null}
         </div>
       </div>
+      {confirmacaoDoTelefone}
     </main>
   );
 }

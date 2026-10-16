@@ -225,6 +225,13 @@
       "when": 1792110860492,
       "tag": "0031_cortai_interruptor_geral",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792110920492,
+      "tag": "0032_verificacao_de_telefone",
+      "breakpoints": true
     }
   ]
 }
