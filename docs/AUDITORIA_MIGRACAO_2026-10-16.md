@@ -28,7 +28,7 @@
   - `bunx vitest run`
   - `bunx vite build --outDir /tmp/cortai-build`
 
-## Bloqueios e riscos que permanecem
+## Verificação da correção de segurança\n\n- A correção de traversal foi aplicada por inspeção estática do shell script. Ainda precisa de teste automatizado positivo (migração válida) e negativo (caminho com \`../\` e symlink fora da pasta). Não foi executada contra nenhum banco.\n\n## Bloqueios e riscos que permanecem
 
 1. **Proteção da branch:** não há proteção configurada para a branch de migração. Habilitar regras exige configuração administrativa do GitHub; não foi alterada automaticamente para evitar mudanças de governança sem validação.
 2. **Diferença de 214 commits:** a branch contém um volume muito grande de mudanças comparada à `main`. Não promover por automação sem revisão detalhada do diff e validação funcional.
