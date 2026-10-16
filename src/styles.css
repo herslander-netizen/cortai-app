@@ -1869,6 +1869,8 @@ body:has(.auth-screen) {
   --ink2: #ffffff;
   --ink3: #eaf2fb;
   --paper: #021a46;
+  /* Campos (field-control) usam --cartao: sem isto herdavam o grafite do tema escuro. */
+  --cartao: #f3f7fc;
   --mute: #5d6f89;
   --mute2: #6d7f99;
   --line: #d9e3f0;
@@ -1877,6 +1879,15 @@ body:has(.auth-screen) {
   --primary: #087cf0;
   --primary-foreground: #ffffff;
   --ring: #00b7f4;
+}
+
+/* Preenchimento automático do navegador com as cores do tema da tela de acesso. */
+.auth-screen input:-webkit-autofill,
+.auth-screen input:-webkit-autofill:hover,
+.auth-screen input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--paper);
+  -webkit-box-shadow: 0 0 0 1000px var(--cartao) inset;
+  caret-color: var(--paper);
 }
 
 .auth-screen--claro .brand-logo-on-dark {
