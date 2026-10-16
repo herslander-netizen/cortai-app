@@ -72,8 +72,17 @@ jobs:
             const erros = [];
             page.on("pageerror", (e) => erros.push(String(e.message).slice(0, 200)));
             page.on("console", (m) => { if (m.type() === "error") erros.push(m.text().slice(0, 200)); });
+            page.on("response", (r) => { if (r.status() >= 400) erros.push(`HTTP ${r.status()} ${r.url().slice(0, 160)}`); });
             const entrar = async (senha) => {
               await page.goto(site + "/login", { waitUntil: "networkidle", timeout: 45000 });
+              // Aviso de cookies cobre o botão no celular: aceita como uma pessoa faria.
+              const cookies = page.getByRole("dialog", { name: "Privacidade e cookies" });
+              if (await cookies.isVisible().catch(() => false)) {
+                const botoes = cookies.getByRole("button");
+                console.log(`[${nome}] aviso de cookies: ${(await botoes.allTextContents()).join(" | ")}`);
+                await botoes.last().click();
+                await cookies.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {});
+              }
               await page.fill('input[type="email"]', process.env.EMAIL);
               await page.fill('input[type="password"]', senha);
               await page.locator("form button").last().click();
