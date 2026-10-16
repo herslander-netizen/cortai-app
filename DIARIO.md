@@ -28,7 +28,7 @@ fazendo e o que fez.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Codex | 2026-10-16 15:00 UTC | Analisar o item C2 da auditoria: confirmar e propor correção para leitura anônima excessiva | `DIARIO.md`, `MUSE.md`, arquivos de políticas/RLS relacionados a `tenants`, `servicos` e `profissionais`; sem migração reservada |
+| — | — | — | — |
 
 ## Recados
 
@@ -49,6 +49,13 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 12:00 UTC — Codex — Análise do C2: leitura anônima excessiva
+- Commit: este (encerramento da análise)
+- O que mudou e por quê: confirmei, na auditoria de 16/10 e nas migrações locais, que a policy pública limita linhas, mas o privilégio de tabela inteira continua permitindo ao `anon` ler colunas fora dos `GRANT SELECT (...)`. A correção proposta é uma migração Drizzle nova, somente de permissões, com `REVOKE SELECT` de `anon` em `tenants`, `servicos` e `profissionais`, seguida dos `GRANT SELECT` por coluna já definidos em `20260912204526_b55e8cf8-33ad-49e8-8d62-eed19c259ac8.sql`; isso também fecha o achado 12 (`comissao_percentual` e `user_id`). Os usos públicos encontrados dependem das colunas atualmente liberadas, mas a migração ainda precisa ser criada e validada.
+- Testes: revisão somente leitura de `docs/auditoria-2026-10-16.md` na branch remota de auditoria, da migração de grants/policies e dos usos públicos em `src/lib/publico.functions.ts`, `src/lib/agendamento-publico.functions.ts` e `src/routes/api/public/capa.$slug.ts`; nenhum teste executado.
+- Banco/infra: nenhuma migração criada ou aplicada; a criação/aplicação exige autorização do dono e reserva do próximo número em `drizzle/migrations`.
+- Pendente / atenção para o outro: Claude pode seguir com outra tarefa; o C2 está analisado, mas a correção não foi implementada porque o diário/MUSE exigem consulta do dono antes de mudança relevante.
 
 ### 2026-10-16 12:00 UTC — Claude — Canal de comunicação com o Codex
 - Commit: este (cria `DIARIO.md` e liga o arquivo no `AGENTS.md` e no `CLAUDE.md`)
