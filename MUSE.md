@@ -51,7 +51,7 @@ Técnicas:
 - C5 (quitação de fiado sem RPC atômica): corrigido com `quitar_fiado_seguro` (migração `0036`, teste `supabase/tests/quitar_fiado.sql`).
 - C3 (`state` do OAuth reutilizável): corrigido no código (nonce, prazo, cookie do navegador e permissão de quem iniciou).
 - C2 e achado 12 (anônimo lia todas as colunas de `tenants`, `servicos` e `profissionais`): corrigidos na migração `0035_anonimo_so_le_colunas_publicas.sql`, ensaiada localmente (`supabase/tests/privilegios_anonimo.sql`). **Aplicada no `cortai-prod` em 16/10.**
-- Auditoria de 16/10 (`docs/auditoria-2026-10-16.md` na branch `claude/auditoria-2026-10-16`) ainda aberta: C6, C7 e C8.
+- Auditoria de 16/10 (`docs/auditoria-2026-10-16.md` na branch `claude/auditoria-2026-10-16`) ainda aberta: C7 e C8.
 - N3 (links fixos para `cortai.dev`): corrigido com `src/lib/origem-publica.ts`.
 - N6 (`convidar_membro` revelava conta) e C6 (`has_role` com qualquer `user_id`): corrigidos na migração `0037`, aplicada no `cortai-prod` em 16/10.
 - Auditoria aberta: N7 negócio de demonstração no banco; #15 buckets sem limite de tipo/tamanho; #10 `as never` escondendo erro de tipo.
