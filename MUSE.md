@@ -17,7 +17,7 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 - Banco: só migrações de acréscimo, sem DROP de tabela/coluna, sem apagar dados. Nada de SQL direto no banco: migração nova vai para `drizzle/migrations` (com `_journal.json`) e é aplicada pela automação abaixo, com autorização do dono.
 - Segredos nunca no repositório nem no chat; ficam só nos segredos do GitHub, colocados pelo dono.
 - Não reescrever histórico git (sem rebase/force-push). Não usar `npm install` nem alterar `bun.lock` à toa.
-- Consultar o dono antes de cada mudança relevante.
+- O que cada IA faz sozinha e o que precisa de autorização está em "Regras da dupla", no topo do `AGENTS.md`. Na dúvida, vale aquela lista.
 
 ## O que já está pronto
 

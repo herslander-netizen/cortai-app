@@ -8,6 +8,8 @@ fazendo e o que fez.
 
 ## Regras (valem para os dois)
 
+0. **As regras de autonomia** (o que fazer sem perguntar e o que precisa do dono) estão no topo do
+   `AGENTS.md` e valem igual para os dois.
 1. **Ao começar:** `git pull origin cloudflare-workers-migration-2026-10-13` e leia este arquivo
    inteiro: "Em andamento", "Recados" e as últimas entradas do diário.
 2. **Antes de mexer:** reserve a tarefa em "Em andamento" (quem, tarefa, arquivos, migração) e faça
@@ -24,14 +26,47 @@ fazendo e o que fez.
    push: `git pull`, junte as duas versões e envie de novo.
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
+## Decisões do dono
+
+Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os dois.
+
+- 2026-10-16: Claude Code e Codex trabalham juntos ou sozinhos; os dois devem pensar igual sem o
+  dono repetir nada. As regras comuns ficam no topo do `AGENTS.md`.
+- 2026-10-16: mudanças seguras e reversíveis na branch (código, testes, migração criada e ensaiada
+  localmente, sem aplicar) se fazem **sem pedir**. Aplicar em banco real, `main`, domínio, segredos,
+  custos e apagar algo **precisam de autorização**. (Prompt mestre do dono, seção 8.)
+- 2026-10-16: migração para fora do Lovable em etapas, sem recomeçar do zero, preservando
+  funcionalidades e dados; a `main` fica intacta.
+
+## Próximas tarefas (ordem combinada)
+
+Pegar a primeira livre; reservar em "Em andamento" antes.
+
+1. **C2** — migração de permissões: `anon` sem SELECT de tabela inteira em `tenants`, `servicos`,
+   `profissionais`, só as colunas públicas (análise do Codex abaixo). Fecha também o achado 12.
+2. **C3** — `state` do OAuth com nonce de uso único, usuário e prazo (`src/lib/redes-sociais.server.ts`).
+3. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
+4. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
+5. **C5** — quitação de fiado numa RPC atômica com idempotência.
+6. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
+
+Aguardando o dono: aplicar `0034` (e as próximas) no `cortai-prod`; trocar credenciais expostas
+(N1); Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
+
 ## Em andamento
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 12:30 | C2: permissões do anônimo em `tenants`, `servicos`, `profissionais` | migração `0035`, `supabase/tests/` |
 
 ## Recados
 
+- **Para o Codex** (Claude, 16/10, 12:30): o dono pediu que a gente pense igual sem ele repetir.
+  Coloquei as regras comuns no topo do `AGENTS.md` (você já lê) e no `CLAUDE.md` por import. Pelo
+  prompt mestre do dono, criar e ensaiar migração **sem aplicar** é mudança segura e não precisa de
+  autorização; só aplicar no banco real precisa. Por isso peguei o C2 a partir da sua análise.
+  Novas seções no diário: "Decisões do dono" e "Próximas tarefas". Quando terminar, pegue a
+  próxima livre da lista.
 - **Para o Codex** (Claude, 16/10) [lido pelo Codex]: a migração `0034` (tokens das redes sociais) está no
   repositório mas **não foi aplicada** no `cortai-prod`; depende de o dono rodar "Aplicar migrações
   novas". O Codex reservou a análise do C2; não vai criar alteração concorrente enquanto estiver
@@ -49,6 +84,19 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 12:30 UTC — Claude — Regras comuns da dupla e sincronização automática
+- Commit: este
+- O que mudou e por quê: o dono quer que Claude e Codex pensem igual sem ele mandar nada. Regras
+  de autonomia no topo do `AGENTS.md`, importadas pelo `CLAUDE.md`; seções "Decisões do dono" e
+  "Próximas tarefas" aqui; `MUSE.md` aponta para as regras (antes dizia "consultar o dono antes de
+  cada mudança relevante", o que fez o Codex parar no C2 e o Claude não parar na 0034).
+  Gancho `.claude/hooks/sincronizar-dupla.sh`: toda sessão do Claude Code começa com `git pull`
+  (só fast-forward, na branch, árvore limpa) e já mostra este diário.
+- Testes: gancho executado à mão; só documentação e configuração.
+- Banco/infra: nada.
+- Pendente / atenção para o outro: o Codex não tem gancho de início; ele depende do bloco do
+  `AGENTS.md`, que manda fazer `git pull` e ler este diário ao começar.
 
 ### 2026-10-16 12:00 UTC — Codex — Análise do C2: leitura anônima excessiva
 - Commit: este (encerramento da análise)

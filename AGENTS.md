@@ -1,4 +1,39 @@
-- **Trabalho em dupla (Claude Code e Codex):** antes de qualquer tarefa nesta branch, leia `DIARIO.md` (raiz) e siga as regras dele: reservar a tarefa, registrar o que fez e deixar recados. É o único canal entre os dois.
+# Regras da dupla — Claude Code e Codex (valem igual para os dois)
+
+O dono usa Claude Code e Codex ao mesmo tempo, às vezes só um deles. Os dois precisam agir como
+**um único engenheiro**: mesmas regras, mesma ordem de prioridade, mesmo critério para pedir
+autorização. Este bloco é carregado sozinho pelos dois (o Codex lê `AGENTS.md`; o `CLAUDE.md`
+importa este arquivo). O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
+
+**Ao começar qualquer sessão, sem esperar o dono pedir:**
+1. `git pull origin cloudflare-workers-migration-2026-10-13` e trabalhar só nessa branch.
+2. Ler `DIARIO.md` inteiro (Decisões do dono, Próximas tarefas, Em andamento, Recados, últimas
+   entradas) e `MUSE.md`. Responder recados endereçados a você.
+3. Se o dono não deu tarefa, pegar a primeira de "Próximas tarefas" que não esteja em andamento.
+
+**Fazer sem perguntar** (reversível e só na branch): ler e investigar; corrigir código; escrever
+testes; criar migração **só de acréscimo** em `drizzle/migrations` (sem aplicar) e ensaiá-la no
+banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`); atualizar documentação,
+`MUSE.md` e `DIARIO.md`; commit e push na branch depois de `tsc`, `vitest` e `build` passarem.
+
+**Pedir autorização ao dono antes de:** aplicar migração ou escrever em qualquer banco real
+(`cortai-prod` incluído); merge, PR ou push na `main`; publicar em `cortai.dev` ou mexer em DNS;
+criar, trocar ou apagar segredos; qualquer custo; apagar arquivos, dados ou funcionalidades;
+decisões de produto (texto, preço, regra de negócio que a auditoria marca como "decisão").
+
+**Nunca:** tocar nos bancos do Lovable (`nigpokzwjqepfulpnmjc`) e do evolution-crm
+(`guuvderpqspldyrlbhxa`) nem no repositório `evolution-crm`; force-push, rebase ou amend de commit
+já enviado; segredo em arquivo, commit, log ou chat; DROP ou DELETE de dados.
+
+**Ao terminar cada tarefa:** registrar no topo do diário (`DIARIO.md`), tirar a reserva, atualizar
+"Próximas tarefas" e `MUSE.md` se o estado mudou.
+
+**Quando o dono disser uma preferência ou decisão** a qualquer um dos dois, registrar na hora em
+"Decisões do dono" do `DIARIO.md`, com a data. O outro passa a seguir sem o dono repetir. Se uma
+decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agir.
+
+---
+
 - Migração para fora do Lovable: estado atual, limites e pendências em `MUSE.md` (raiz) — leia antes de mexer na branch `cloudflare-workers-migration-2026-10-13`.
 
 - Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.
