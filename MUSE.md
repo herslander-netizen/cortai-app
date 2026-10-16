@@ -23,6 +23,7 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 | Peça | Estado |
 |---|---|
+| Site principal | https://cortai.pages.dev (Cloudflare Pages) — publicado só pelo botão "Publicar Cortaí (site principal)" (`.github/workflows/publicar-producao.yml`) |
 | Prévia isolada | https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev — publicada a cada push na branch (`.github/workflows/preview-migration.yml`) |
 | Banco novo | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`), montado do zero com todas as migrações; teste de permissões `supabase/tests/rbac.sql` 68/68 |
 | Login, cadastro, criação de negócio | Testados pelo dono na prévia em 16/10 |

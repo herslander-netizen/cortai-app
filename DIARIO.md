@@ -43,6 +43,11 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   e mandou executar o resto da fila de "Próximas tarefas".
 - 2026-10-16: o dono mandou executar o restante da fila e **parar depois** (rodada encerrada em
   13:55 UTC após N6/C6). Próxima sessão só retoma a fila se o dono pedir.
+- 2026-10-16: **site principal grátis com nome só "cortai"**: Cloudflare Pages, projeto `cortai`
+  (`https://cortai.pages.dev`), nada de "aprovamaisbarra" no endereço. Publicação pelo botão
+  "Publicar Cortaí (site principal)" no GitHub Actions (`publicar-producao.yml`, digitar
+  PUBLICAR). Fluxo igual ao Lovable: mudança na branch → prévia → dono testa → Publicar.
+  Prévia e principal usam o mesmo banco (`cortai-prod`) por enquanto. `cortai.dev` fica para depois.
 
 ## Próximas tarefas (ordem combinada)
 
@@ -89,6 +94,20 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 14:20 UTC — Claude — Botão "Publicar" para o site principal
+- Commit: este
+- O que mudou e por quê: o dono quer trabalhar como no Lovable e ter o site no ar para prospectar.
+  Novo `.github/workflows/publicar-producao.yml`: valida (tsc, testes), cria na primeira vez o
+  projeto `cortai` no Cloudflare Pages, faz o build com a origem do site principal, põe o Worker
+  em `_worker.js/` com `_routes.json` para os estáticos, publica, envia as variáveis do servidor
+  (mesmas da prévia, `CORTAI_PUBLIC_BASE_URL` = endereço principal), publica de novo para valerem
+  e marca o commit com a tag `producao-AAAAMMDD-HHMM`.
+- Testes: só configuração; o resultado real vem da primeira execução.
+- Banco/infra: novo site na Cloudflare; banco, `main` e `cortai.dev` intocados.
+- Pendente / atenção para o outro: no Supabase (Auth → URL Configuration) falta incluir o
+  endereço principal nas Redirect URLs para o login funcionar lá. As tarefas agendadas do banco
+  (`URL_DO_APP`) continuam chamando a prévia, o que funciona porque o banco é o mesmo.
 
 ### 2026-10-16 13:55 UTC — Claude — N6 e C6: convite e papéis sem descobrir contas alheias
 - Commit: este
