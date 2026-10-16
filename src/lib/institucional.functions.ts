@@ -1,8 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
-
-import type { Database } from "@/integrations/supabase/types";
 
 export const TIPOS_DE_PROJETO = [
   { valor: "aplicativo", rotulo: "Aplicativo personalizado" },
@@ -24,25 +22,40 @@ const esquema = z.object({
 
 export type PedidoDeProjeto = z.infer<typeof esquema>;
 
-/** Recebe pedidos comerciais da Alvo Digital. Público por natureza: só grava, nunca lê. */
+/** Limites por minuto do formulário público: por IP e por WhatsApp. */
+const LIMITE_POR_IP = 3;
+const LIMITE_POR_WHATSAPP = 2;
+
+/**
+ * Recebe pedidos comerciais da Alvo Digital. Público por natureza: só grava, nunca lê.
+ * Grava pelo servidor, depois do limite de tentativas: o visitante não insere direto no banco.
+ */
 export const enviarPedidoDeProjeto = createServerFn({ method: "POST" })
   .validator((input: PedidoDeProjeto) => esquema.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-      auth: { persistSession: false },
-      global: {
-        fetch: (input, init) => {
-          const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
-            h.delete("Authorization");
-          h.set("apikey", key);
-          return fetch(input, { ...init, headers: h });
-        },
-      },
-    });
+    const { ipDaChamada, consumirLimite, BALDE_SEM_IP } =
+      await import("@/lib/webhook-guard.server");
+    let ip: string | null = null;
+    try {
+      ip = ipDaChamada(getRequest());
+    } catch {
+      ip = null;
+    }
+    const whatsapp = data.whatsapp.replace(/\D/g, "");
+    // Sem IP identificável: balde próprio e mais folgado, para não travar ninguém.
+    const okIp = await consumirLimite(
+      `pub:pedido_projeto|ip:${ip ?? BALDE_SEM_IP}`,
+      ip ? LIMITE_POR_IP : LIMITE_POR_IP * 10,
+    );
+    const okWhatsapp = await consumirLimite(
+      `pub:pedido_projeto|tel:${whatsapp}`,
+      LIMITE_POR_WHATSAPP,
+    );
+    if (!okIp || !okWhatsapp)
+      throw new Error("Muitos envios em pouco tempo. Aguarde um minuto e tente de novo.");
 
-    const { error } = await client.from("pedidos_de_projeto").insert({
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("pedidos_de_projeto").insert({
       nome: data.nome,
       empresa: data.empresa || null,
       whatsapp: data.whatsapp,
