@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
   ClipboardList,
@@ -12,7 +13,9 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { TrocarPainel } from "@/components/acesso/TrocarPainel";
 import { AdminScreen } from "@/components/layout/AdminScreen";
+import { getSessao } from "@/lib/sessao.functions";
 
 export const Route = createFileRoute("/admin/mais")({
   head: () => ({
@@ -108,9 +111,22 @@ const grupos = [
 ] as const;
 
 function AdminMaisPage() {
+  const { data: sessao } = useQuery({
+    queryKey: ["sessao"],
+    queryFn: () => getSessao(),
+    staleTime: 300000,
+  });
   return (
     <AdminScreen title="Mais" subtitle="Configurações e áreas menos frequentes da plataforma.">
       <div className="space-y-8">
+        {sessao?.contextos.negocio ? (
+          <section>
+            <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Seus negócios</h2>
+            <div className="border-y border-line">
+              <TrocarPainel para="negocio" />
+            </div>
+          </section>
+        ) : null}
         {grupos.map((grupo) => (
           <section key={grupo.titulo}>
             <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">{grupo.titulo}</h2>

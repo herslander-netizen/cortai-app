@@ -39,6 +39,11 @@ export type Sessao = {
   contextos: { cliente: boolean; negocio: boolean };
   /** A pessoa já escolheu em qual contexto quer estar. */
   contextoEscolhido: boolean;
+  /**
+   * Conta com papel de admin da plataforma. Pode estar no painel do ADM (papel "admin") ou,
+   * se escolheu o contexto "negocio" e tem vínculo ativo, no painel do negócio — e voltar.
+   */
+  adminDaPlataforma?: boolean;
 };
 
 async function admin() {
@@ -148,9 +153,13 @@ export const getSessao = createServerFn({ method: "GET" })
       acessoSuspenso: false,
       contextos,
       contextoEscolhido,
+      adminDaPlataforma: Boolean(papelAdmin),
     };
 
-    if (papelAdmin) {
+    // Admin da plataforma entra no ADM, a não ser que tenha escolhido o painel do negócio
+    // (contexto "negocio" com vínculo ativo). As funções do servidor continuam conferindo
+    // vínculo e permissões em cada ação.
+    if (papelAdmin && !(contextoAtivo === "negocio" && vinculo?.ativo)) {
       return { ...base, papel: "admin" as const };
     }
     // Conta com os dois contextos que escolheu "cliente": entra como cliente,
@@ -231,10 +240,25 @@ export const getSessao = createServerFn({ method: "GET" })
 export const escolherContexto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
-    z.object({ contexto: z.enum(["cliente", "negocio"]) }).parse(input),
+    z.object({ contexto: z.enum(["cliente", "negocio", "admin"]) }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await admin();
+    // Voltar ao painel do ADM: só para quem tem o papel de admin (conferido no servidor).
+    // Contexto vazio = padrão do admin.
+    if (data.contexto === "admin") {
+      const { data: ehAdmin } = await db.rpc("has_role", {
+        _user_id: context.userId,
+        _role: "admin",
+      });
+      if (ehAdmin !== true) throw new Error("Esta conta não tem acesso ao painel do ADM.");
+      const { error } = await db
+        .from("perfis")
+        .update({ contexto_ativo: null })
+        .eq("user_id", context.userId);
+      if (error) throw new Error("Não foi possível trocar de painel agora.");
+      return { ok: true };
+    }
     if (data.contexto === "negocio") {
       const { data: vinculo } = await db
         .from("tenant_usuarios")

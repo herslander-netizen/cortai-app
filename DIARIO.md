@@ -99,7 +99,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 18:10 | Admin troca entre painel do ADM e painel do negócio | `src/lib/sessao.functions.ts`, `src/routes/admin.mais.tsx`, `src/routes/barbeiro.mais.tsx` |
+| — | — | — | — |
 
 ## Recados
 
@@ -134,6 +134,20 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 18:25 UTC — Claude — Admin troca entre painel do ADM e painel do negócio
+- Commit: este
+- O que mudou e por quê: o dono (admin da plataforma e dono dos negócios de exemplo) não conseguia
+  sair do ADM: `getSessao` devolvia sempre papel "admin" e `exigirPapel("barbeiro")` mandava de volta
+  para `/admin`. Agora o ADM é mais um contexto da mesma conta: admin com `contexto_ativo = negocio` e
+  vínculo ativo recebe a sessão do negócio (`adminDaPlataforma: true`); `escolherContexto("admin")`
+  (só para quem tem `has_role admin`, conferido no servidor) volta ao ADM limpando o contexto.
+  Botão `TrocarPainel` em `/admin/mais` ("Seus negócios") e em `/barbeiro/mais` ("Plataforma").
+  Sem migração (contexto vazio = ADM). As funções do servidor seguem conferindo vínculo e permissão.
+- Testes: `tsc` ok; `vitest` 1503; `build` ok; lint dos arquivos ok.
+- Banco/infra: nada. Vai para a prévia; site principal só com "Publicar" autorizado pelo dono.
+- Pendente / atenção para o outro: a conta do dono está com contexto `negocio`, então abre no painel
+  do negócio e usa "Painel do ADM" em Ajustes para ir ao ADM.
 
 ### 2026-10-16 15:00 UTC — Claude — Login testado nos dois sites e imagens da marca fora do Lovable
 - Commits: `91d7b9e7`/`11078aa0` (teste), `79294923` (imagens, feito pela automação), este.
