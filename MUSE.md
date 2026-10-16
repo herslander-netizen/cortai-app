@@ -53,7 +53,8 @@ Técnicas:
 - C2 e achado 12 (anônimo lia todas as colunas de `tenants`, `servicos` e `profissionais`): corrigidos na migração `0035_anonimo_so_le_colunas_publicas.sql`, ensaiada localmente (`supabase/tests/privilegios_anonimo.sql`). **Aplicada no `cortai-prod` em 16/10.**
 - Auditoria de 16/10 (`docs/auditoria-2026-10-16.md` na branch `claude/auditoria-2026-10-16`) ainda aberta: C6, C7 e C8.
 - N3 (links fixos para `cortai.dev`): corrigido com `src/lib/origem-publica.ts`.
-- Auditoria aberta: N6 `convidar_membro` revela se o e-mail tem conta; N7 negócio de demonstração no banco; #15 buckets sem limite de tipo/tamanho; #10 `as never` escondendo erro de tipo.
+- N6 (`convidar_membro` revelava conta) e C6 (`has_role` com qualquer `user_id`): corrigidos na migração `0037`, aplicada no `cortai-prod` em 16/10.
+- Auditoria aberta: N7 negócio de demonstração no banco; #15 buckets sem limite de tipo/tamanho; #10 `as never` escondendo erro de tipo.
 - Depois: login Google/Apple, renomeação neutra no código e banco (etapa própria, nome antigo e novo convivendo), validação ponta a ponta.
 
 ## Validação antes de qualquer commit

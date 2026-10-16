@@ -260,6 +260,13 @@
       "when": 1792111160492,
       "tag": "0036_quitar_fiado_seguro",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792111220492,
+      "tag": "0037_equipe_e_papeis_sem_descoberta",
+      "breakpoints": true
     }
   ]
 }

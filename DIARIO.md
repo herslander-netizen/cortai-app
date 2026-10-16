@@ -41,13 +41,14 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   listar isso como pendência.
 - 2026-10-16: o dono autorizou aplicar `0034` e `0035` no `cortai-prod` (aplicadas às 12:10 UTC)
   e mandou executar o resto da fila de "Próximas tarefas".
+- 2026-10-16: o dono mandou executar o restante da fila e **parar depois** (rodada encerrada em
+  13:55 UTC após N6/C6). Próxima sessão só retoma a fila se o dono pedir.
 
 ## Próximas tarefas (ordem combinada)
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. Achados menores da auditoria de 16/10: N6 (`convidar_membro` revela conta), C6 (`has_role` com
-   qualquer `user_id`), C8 (equipe no WhatsApp sem checagem por ação), 13 (remarcação pela IA
+1. Achados menores da auditoria de 16/10: C8 (equipe no WhatsApp sem checagem por ação), 13 (remarcação pela IA
    recria agendamento), 14 (contagem do admin presa a 1000 linhas), 15 (buckets sem tipo/tamanho;
    contadores não atômicos), 10 (`as never`).
 2. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (lista na auditoria de 16/10).
@@ -61,7 +62,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 13:45 | Achados menores: N6 (`convidar_membro`), C6 (`has_role`) | migração `0037` |
+| — | — | — | — |
 
 ## Recados
 
@@ -88,6 +89,21 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 13:55 UTC — Claude — N6 e C6: convite e papéis sem descobrir contas alheias
+- Commit: este
+- O que mudou e por quê: migração `0037_equipe_e_papeis_sem_descoberta.sql` (só corpo de função).
+  `convidar_membro` agora confere `gerenciar_permissoes` antes de procurar o e-mail (antes,
+  qualquer pessoa logada descobria se um e-mail tinha conta, e o servidor ainda mandava o convite).
+  `has_role` com sessão de usuário só responde sobre a própria conta; servidor e funções internas
+  continuam consultando qualquer conta. Nenhuma política ou função chama `has_role` com outro id.
+- Testes: novo `supabase/tests/equipe_e_papeis.sql`: 2 falhas em 7 com as funções antigas, 7/7
+  com a `0037`. Ensaio completo: anônimo 11/11, tokens 7/7, fiado 15/15, RBAC 68/68; `vitest`
+  1503; `tsc` ok.
+- Banco/infra: `0037` aplicada no `cortai-prod` depois deste commit (autorização do dono de
+  executar o restante).
+- Pendente / atenção para o outro: o dono pediu para **parar depois desta rodada**. Fila restante:
+  C8, 13, 14, 15, 10 e o resíduo do achado 6. Quem pegar, segue a fila.
 
 ### 2026-10-16 13:40 UTC — Claude — Textos fixos de tela com termos neutros
 - Commit: este
