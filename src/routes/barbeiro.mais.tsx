@@ -61,14 +61,9 @@ function MaisPage() {
   return (
     <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
       <div data-guia="mais-lista" className="space-y-8">
-        {sessao?.adminDaPlataforma ? (
-          <section className="mt-6">
-            <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Plataforma</h2>
-            <div className="border-y border-line">
-              <TrocarPainel para="admin" />
-            </div>
-          </section>
-        ) : null}
+        <div className="mt-6">
+          <TrocarPainel />
+        </div>
         <section className="mt-6">
           <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sistema</h2>
           <ul className="divide-y divide-line border-y border-line">

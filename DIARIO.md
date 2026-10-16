@@ -135,6 +135,15 @@ Modelo:
 - Pendente / atenção para o outro:
 ```
 
+### 2026-10-16 20:45 UTC — Claude — "Trocar de painel" com ADM e todos os negócios
+- Commit: este
+- O que mudou e por quê: o dono quer, de qualquer um dos três (ADM, Barbearia Prime, Bella Rosa),
+  escolher para qual ir. `TrocarPainel` agora lista o painel do ADM (só admin) e todos os negócios com
+  acesso ativo, marca o que está em uso e troca com `definirBarbeariaAtiva` + `escolherContexto`.
+  Aparece no topo de `/admin/mais` e de `/barbeiro/mais` (some quando há só uma opção).
+- Testes: `tsc` ok; `vitest` 1503; `build` ok; lint ok.
+- Banco/infra: nada; publicado no site principal a pedido do dono.
+
 ### 2026-10-16 18:25 UTC — Claude — Admin troca entre painel do ADM e painel do negócio
 - Commit: este
 - O que mudou e por quê: o dono (admin da plataforma e dono dos negócios de exemplo) não conseguia
