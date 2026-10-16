@@ -512,3 +512,146 @@ export const definirRecursoDePlano = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ------------------------- CORTAI POR NEGÓCIO (ADMIN) ------------------------- */
+
+export type CortaiDoNegocio = {
+  estado: "ativa" | "desligada" | "pausada" | "sem_configuracao";
+  ativa: boolean;
+  pausadaEm: string | null;
+  pausaMotivo: string | null;
+  limiteWhatsapp: number;
+  /** Turnos da CortAI nas últimas 24 h, por canal (o mesmo contador das cotas). */
+  uso: { painel: number; whatsapp: number; equipe: number; site: number };
+  limites: { painel: number; whatsapp: number; site: number };
+};
+
+/** Estado, consumo e limites da CortAI de um negócio, lidos do mesmo lugar que o cérebro usa. */
+export const getCortaiDoNegocio = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<CortaiDoNegocio> => {
+    const db = await adminContext(context);
+    const { bloqueioDaConfig } = await import("@/lib/brain/estado-cortai");
+    const { LIMITE_DIARIO_PADRAO } = await import("@/lib/brain/uso.server");
+    const { iaDisponivel } = await import("@/lib/brain/gateway.server");
+    const umDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+    const contar = (acao: string) =>
+      db
+        .from("acoes_de_ia_log")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenantId)
+        .eq("acao", acao)
+        .gte("criado_em", umDia)
+        .then((r) => r.count ?? 0);
+    // `*`: a leitura vale antes e depois da coluna `cortai_ativa` (migração 0028) existir.
+    const [{ data: cfg }, painel, whatsapp, equipe, site] = await Promise.all([
+      db.from("config_atendimento_ia").select("*").eq("tenant_id", data.tenantId).maybeSingle(),
+      contar("cerebro.painel"),
+      contar("cerebro.whatsapp"),
+      contar("cerebro.whatsapp.equipe"),
+      contar("cerebro.site"),
+    ]);
+    const bloqueio = bloqueioDaConfig(cfg);
+    const limiteWhatsapp = cfg?.ia_limite_diario_whatsapp ?? LIMITE_DIARIO_PADRAO.whatsapp;
+    return {
+      estado: bloqueio ?? (iaDisponivel() ? "ativa" : "sem_configuracao"),
+      ativa: cfg?.cortai_ativa !== false,
+      pausadaEm: cfg?.ia_pausada_em ?? null,
+      pausaMotivo: cfg?.ia_pausa_motivo ?? null,
+      limiteWhatsapp,
+      uso: { painel, whatsapp, equipe, site },
+      limites: { ...LIMITE_DIARIO_PADRAO, whatsapp: limiteWhatsapp },
+    };
+  });
+
+/**
+ * Liga/desliga a CortAI do negócio, ajusta o limite diário do WhatsApp ou encerra a pausa.
+ * Desligar a IA nunca desliga agenda, comandas nem avisos. Tudo fica na auditoria do negócio.
+ */
+export const definirCortaiDoNegocio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        tenantId: z.string().uuid(),
+        ativa: z.boolean().optional(),
+        limiteWhatsapp: z.number().int().min(0).max(5000).optional(),
+        retomar: z.literal(true).optional(),
+      })
+      .refine((d) => d.ativa !== undefined || d.limiteWhatsapp !== undefined || d.retomar, {
+        message: "Nada para alterar.",
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const db = await adminContext(context);
+    const campos: Database["public"]["Tables"]["config_atendimento_ia"]["Insert"] = {
+      tenant_id: data.tenantId,
+    };
+    if (data.ativa !== undefined) campos.cortai_ativa = data.ativa;
+    if (data.limiteWhatsapp !== undefined) campos.ia_limite_diario_whatsapp = data.limiteWhatsapp;
+    if (data.retomar) {
+      campos.ia_pausada_em = null;
+      campos.ia_pausa_motivo = null;
+    }
+    const { error } = await db
+      .from("config_atendimento_ia")
+      .upsert(campos, { onConflict: "tenant_id" });
+    if (error) {
+      console.error("[admin] definirCortaiDoNegocio falhou:", error.message);
+      throw new Error(
+        /cortai_ativa/.test(error.message)
+          ? "O interruptor da CortAI ainda não existe no banco (migração 0028 pendente)."
+          : "Não foi possível salvar a CortAI deste negócio agora.",
+      );
+    }
+    await db.from("auditoria_da_barbearia").insert({
+      tenant_id: data.tenantId,
+      ator_user_id: context.userId,
+      acao: "adm.cortai_alterada",
+      alvo: "cortai",
+      detalhes: {
+        ativa: data.ativa ?? null,
+        limiteWhatsapp: data.limiteWhatsapp ?? null,
+        retomar: data.retomar ?? false,
+      },
+    });
+    return { ok: true };
+  });
+
+/**
+ * Teste real do gateway de IA neste ambiente: uma pergunta mínima, sem ferramentas e sem
+ * dados de negócio. Mostra se a chave existe, o status devolvido e o tempo de resposta.
+ */
+export const testarGatewayDaCortai = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await adminContext(context);
+    const { criarSessaoDoGateway, ErroDoGateway, iaDisponivel, textoDaSaida } =
+      await import("@/lib/brain/gateway.server");
+    if (!iaDisponivel())
+      return { ok: false, status: 401, ms: 0, mensagem: "LOVABLE_API_KEY não está configurada." };
+    const inicio = Date.now();
+    try {
+      const saida = await criarSessaoDoGateway().responder({
+        instrucoes: "Responda somente com a palavra OK.",
+        entrada: [{ role: "user", content: "Teste de conexão." }],
+        ferramentas: [],
+      });
+      const texto = textoDaSaida(saida);
+      return {
+        ok: Boolean(texto),
+        status: 200,
+        ms: Date.now() - inicio,
+        mensagem: texto ? `Respondeu: "${texto.slice(0, 40)}"` : "Respondeu sem texto.",
+      };
+    } catch (erro) {
+      return {
+        ok: false,
+        status: erro instanceof ErroDoGateway ? erro.status : 500,
+        ms: Date.now() - inicio,
+        mensagem: erro instanceof Error ? erro.message : "Falha desconhecida.",
+      };
+    }
+  });

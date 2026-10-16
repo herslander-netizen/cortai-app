@@ -1512,6 +1512,7 @@ export type Database = {
           atendimento_automatico: boolean
           atualizado_em: string
           confirmacao_automatica: boolean
+          cortai_ativa: boolean
           criado_em: string
           encaminhamento_humano: boolean
           horario_dias: number[]
@@ -1543,6 +1544,7 @@ export type Database = {
           atendimento_automatico?: boolean
           atualizado_em?: string
           confirmacao_automatica?: boolean
+          cortai_ativa?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]
@@ -1574,6 +1576,7 @@ export type Database = {
           atendimento_automatico?: boolean
           atualizado_em?: string
           confirmacao_automatica?: boolean
+          cortai_ativa?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]

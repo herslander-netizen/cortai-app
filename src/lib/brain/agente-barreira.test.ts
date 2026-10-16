@@ -13,9 +13,11 @@ const estado = vi.hoisted(() => ({
   executadas: [] as string[],
   falhar: false,
   chamadasIa: 0,
+  bloqueio: null as string | null,
 }));
 
 vi.mock("./uso.server", () => ({
+  bloqueioDeUso: async () => estado.bloqueio,
   pausarIa: async () => undefined,
   registrarAcao: async () => undefined,
   registrarTurno: async () => undefined,
@@ -80,6 +82,7 @@ beforeEach(() => {
   estado.executadas = [];
   estado.falhar = false;
   estado.chamadasIa = 0;
+  estado.bloqueio = null;
 });
 
 describe("números nunca confirmam ação da IA", () => {
@@ -141,5 +144,29 @@ describe("barreira de saída", () => {
     expect(barrarAfirmacaoSemAcao("Agendei para você!", "Agendar corte às 10:00.")).toBe(
       "Agendar corte às 10:00. Posso confirmar?",
     );
+  });
+});
+
+describe("interruptor geral, pausa e cotas dentro do cérebro", () => {
+  it("desligada no ADM: não chama a IA, não executa a pendente e a preserva", async () => {
+    estado.bloqueio = "desligada";
+    const r = await pensar("sim");
+    expect(estado.chamadasIa).toBe(0);
+    expect(estado.executadas).toEqual([]);
+    expect(r.bloqueio).toBe("desligada");
+    expect(r.indisponivel).toContain("desligada");
+    expect(r.pendente?.id).toBe("p1");
+  });
+  it("pausada por crédito: responde com texto fixo, sem chamar a IA", async () => {
+    estado.bloqueio = "pausada";
+    const r = await pensar("oi", false);
+    expect(estado.chamadasIa).toBe(0);
+    expect(r.bloqueio).toBe("pausada");
+    expect(r.texto).toContain("créditos");
+  });
+  it("sem bloqueio, segue normal", async () => {
+    const r = await pensar("oi", false);
+    expect(estado.chamadasIa).toBe(1);
+    expect(r.bloqueio ?? null).toBeNull();
   });
 });

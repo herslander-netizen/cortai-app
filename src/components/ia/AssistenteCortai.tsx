@@ -9,6 +9,8 @@ import { IconeDaIA } from "./IconeDaIA";
 import { Digitando } from "./Digitando";
 import { FolhaCortai } from "./FolhaCortai";
 import { blobParaBase64, useGravadorDeVoz } from "./useGravadorDeVoz";
+import { SeloDaCortai } from "./SeloDaCortai";
+import { CHAVE_DO_ESTADO_DA_CORTAI, useEstadoDaCortai } from "./useEstadoDaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
 
 import type { Conferencia } from "@/lib/brain/conferencia";
@@ -22,6 +24,7 @@ import {
 } from "@/lib/assistente.functions";
 import { transcreverComandoDeVozDoPainel } from "@/lib/voz.functions";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
+import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
@@ -238,6 +241,7 @@ export function AssistenteCortai({
   const noFim = useRef(true);
   const [novaMensagem, setNovaMensagem] = useState(false);
   const [agendando, setAgendando] = useState(false);
+  const estado = useEstadoDaCortai();
 
   const { data } = useQuery({
     queryKey: ["assistente-conversa"],
@@ -358,6 +362,7 @@ export function AssistenteCortai({
         for (const chave of ["agenda-dia", "agenda-agora-proximo", "agenda-meu-dia", "agenda-fila"])
           void queryClient.invalidateQueries({ queryKey: [chave] });
       setConversaId(r.conversaId);
+      queryClient.setQueryData(CHAVE_DO_ESTADO_DA_CORTAI, { estado: r.estado });
       setMensagens((atual) => [
         ...atual,
         {
@@ -394,8 +399,11 @@ export function AssistenteCortai({
               <IconeDaIA segmento={segmento} size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold tracking-wide text-paper">
-                CortAI
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-semibold tracking-wide text-paper">
+                  CortAI
+                </span>
+                <SeloDaCortai estado={estado} />
               </span>
               <span className="block truncate text-xs uppercase tracking-[.12em] text-mute2">
                 Agenda, clientes e atendimento
@@ -450,7 +458,11 @@ export function AssistenteCortai({
                 </button>
               ))}
             </div>
-            {data && !data.disponivel ? (
+            {estado && estado !== "ativa" ? (
+              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
+                {SELO_DA_CORTAI[estado].texto}
+              </p>
+            ) : data && !data.disponivel ? (
               <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
                 O assistente ainda não está ligado neste ambiente. As respostas vão indicar isso com
                 clareza.

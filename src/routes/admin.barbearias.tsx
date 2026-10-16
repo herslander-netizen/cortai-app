@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { SuporteBarbearia } from "@/components/admin/SuporteBarbearia";
+import { CortaiDoNegocio } from "@/components/admin/CortaiDoNegocio";
 import {
   addRetentionContact,
   definirStatusDaBarbearia,
@@ -259,7 +260,7 @@ function TenantDialog({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
-          <TabsList className="grid h-auto shrink-0 grid-cols-3 rounded-none border-b border-line bg-ink2 p-0 px-3 sm:px-5">
+          <TabsList className="grid h-auto shrink-0 grid-cols-4 rounded-none border-b border-line bg-ink2 p-0 px-3 sm:px-5">
             <TabsTrigger
               value="overview"
               className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
@@ -277,6 +278,12 @@ function TenantDialog({
               className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               Suporte
+            </TabsTrigger>
+            <TabsTrigger
+              value="cortai"
+              className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              CortAI
             </TabsTrigger>
           </TabsList>
 
@@ -532,6 +539,10 @@ function TenantDialog({
                 </p>
               </div>
               <SuporteBarbearia tenantId={tenant.id} />
+            </TabsContent>
+
+            <TabsContent value="cortai" className="mt-0">
+              <CortaiDoNegocio tenantId={tenant.id} />
             </TabsContent>
           </div>
         </Tabs>

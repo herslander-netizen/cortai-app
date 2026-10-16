@@ -886,8 +886,7 @@ async function responderComCerebro(input: {
   const config = await configuracaoDoTenant(input.tenantId);
   if (!equipe && !config.responderWhatsapp) return false;
   if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
-  const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
-  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone, !!equipe)) return false;
+  // Interruptor geral, pausa e cotas são conferidos dentro do cérebro (`pensarCortai`).
 
   const [{ data: tenant }, { data: historico }] = await Promise.all([
     db.from("tenants").select("nome, segmento").eq("id", input.tenantId).maybeSingle(),

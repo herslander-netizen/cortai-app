@@ -57,7 +57,8 @@ import {
 } from "./execucao-direta";
 import { AVISO_DO_MODO_BASICO } from "./modo-basico";
 import { iniciarTurno, type Turno as TurnoObservado } from "./observabilidade.server";
-import { pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
+import { textoDoBloqueio, type EstadoDaCortai } from "./estado-cortai";
+import { bloqueioDeUso, pausarIa, registrarAcao, registrarTurno, retomarIa } from "./uso.server";
 
 export type Pendente = {
   id: string;
@@ -89,6 +90,8 @@ export type ResultadoDoCerebro = {
   opcoes?: OpcaoDeEscolha[];
   /** Verificações visíveis do pedido de escrita e o veredito (pronto / atenção / bloqueado). Só no painel. */
   conferencia?: Conferencia;
+  /** Por que o cérebro nem chamou a IA: desligada no ADM, pausada ou cota esgotada. */
+  bloqueio?: Exclude<EstadoDaCortai, "ativa" | "sem_configuracao"> | null;
 };
 
 const MAX_PASSOS = 6;
@@ -230,6 +233,21 @@ async function pensarCortaiComTurno(
   const acoes: ResultadoDoCerebro["acoes"] = [];
   let pendente: Pendente | null = null;
   let pedirHumano = false;
+
+  // Interruptor geral, pausa por crédito e cotas: verificados aqui, para todos os canais.
+  // Bloqueado, nada executa (nem a ação pendente) e a pendente é preservada.
+  const bloqueio = await bloqueioDeUso(ctx.tenantId, ctx.canal, ctx.ator, ehEquipeNoWhatsapp(ctx));
+  if (bloqueio) {
+    const texto = textoDoBloqueio(bloqueio);
+    return {
+      texto,
+      pendente: input.pendente,
+      pedirHumano: false,
+      acoes,
+      indisponivel: texto,
+      bloqueio,
+    };
+  }
 
   if (pedidoNocivo(input.mensagem)) {
     obs.definirEstado("bloqueado_guarda");
