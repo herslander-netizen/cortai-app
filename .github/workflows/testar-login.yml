@@ -1,0 +1,123 @@
+name: Testar login (site principal e prévia)
+
+# Teste de ponta a ponta com navegador real. Cria um usuário temporário de teste
+# (teste-login-<execução>@example.com), entra pela tela /login dos dois sites e apaga o usuário
+# no fim, mesmo se o teste falhar. Não mexe em nenhum outro dado.
+on:
+  push:
+    branches: [cloudflare-workers-migration-2026-10-13]
+    paths: [.github/workflows/testar-login.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  login:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_URL: https://ibsberidejlbczxrweqg.supabase.co
+      SERVICE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
+      SITES: "https://cortaiapp.pages.dev https://previa.cortaiapp.pages.dev"
+    steps:
+      - name: Páginas abrem
+        run: |
+          for s in $SITES; do
+            for p in / /login /apresentacao /favicon.ico; do
+              printf '%-45s %s\n' "$s$p" "$(curl -s -o /dev/null -w '%{http_code} %{time_total}s' "$s$p")"
+            done
+          done
+
+      - name: Usuário temporário de teste
+        id: usuario
+        run: |
+          set -euo pipefail
+          email="teste-login-${GITHUB_RUN_ID}@example.com"
+          senha="T$(openssl rand -hex 12)!a"
+          echo "::add-mask::$senha"
+          r="$(curl -sS -X POST "$SUPABASE_URL/auth/v1/admin/users" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" -H "Content-Type: application/json" \
+            --data "$(jq -nc --arg e "$email" --arg s "$senha" '{email:$e,password:$s,email_confirm:true}')")"
+          id="$(jq -r '.id // empty' <<<"$r")"
+          [ -n "$id" ] || { echo "::error::Não criei o usuário de teste: $(jq -c '{code,msg,error_code}' <<<"$r")"; exit 1; }
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "email=$email" >> "$GITHUB_OUTPUT"
+          echo "senha=$senha" >> "$GITHUB_OUTPUT"
+          echo "Usuário de teste criado: $email"
+
+      - name: Navegador
+        run: |
+          mkdir -p /tmp/teste && cd /tmp/teste
+          npm init -y >/dev/null
+          npm i playwright@1.49.1 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+
+      - name: Entrar pela tela de login
+        env:
+          EMAIL: ${{ steps.usuario.outputs.email }}
+          SENHA: ${{ steps.usuario.outputs.senha }}
+        run: |
+          cd /tmp/teste
+          cat > teste.mjs <<'JS'
+          import { chromium } from "playwright";
+          const sites = process.env.SITES.split(" ");
+          let falhou = false;
+          const browser = await chromium.launch();
+          for (const site of sites) {
+            const nome = new URL(site).hostname.split(".")[0];
+            const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+            const page = await ctx.newPage();
+            const erros = [];
+            page.on("pageerror", (e) => erros.push(String(e.message).slice(0, 200)));
+            page.on("console", (m) => { if (m.type() === "error") erros.push(m.text().slice(0, 200)); });
+            const entrar = async (senha) => {
+              await page.goto(site + "/login", { waitUntil: "networkidle", timeout: 45000 });
+              await page.fill('input[type="email"]', process.env.EMAIL);
+              await page.fill('input[type="password"]', senha);
+              await page.locator("form button").last().click();
+            };
+            try {
+              // 1) Senha errada: precisa aparecer o aviso de erro
+              await entrar("senha-errada-123");
+              const alerta = await page.getByRole("alert").first().textContent({ timeout: 20000 }).catch(() => null);
+              console.log(`[${nome}] senha errada → ${alerta ?? "(nenhum aviso)"}`);
+              if (!alerta) falhou = true;
+              // 2) Senha certa: precisa sair de /login
+              await entrar(process.env.SENHA);
+              await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30000 }).catch(() => {});
+              await page.waitForLoadState("networkidle").catch(() => {});
+              const url = new URL(page.url());
+              const aviso = await page.getByRole("alert").first().textContent({ timeout: 2000 }).catch(() => null);
+              const ok = !url.pathname.startsWith("/login");
+              console.log(`[${nome}] senha certa → ${ok ? "ENTROU" : "NÃO ENTROU"}: ${url.pathname}${aviso ? " | aviso: " + aviso : ""}`);
+              if (!ok) falhou = true;
+              await page.screenshot({ path: `/tmp/teste/${nome}-depois-do-login.png`, fullPage: true });
+            } catch (e) {
+              falhou = true;
+              console.log(`[${nome}] ERRO: ${e.message}`);
+              await page.screenshot({ path: `/tmp/teste/${nome}-erro.png`, fullPage: true }).catch(() => {});
+            }
+            if (erros.length) console.log(`[${nome}] erros no console:\n  ` + [...new Set(erros)].slice(0, 10).join("\n  "));
+            await ctx.close();
+          }
+          await browser.close();
+          process.exit(falhou ? 1 : 0);
+          JS
+          node teste.mjs
+
+      - name: Fotos das telas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telas-do-login
+          path: /tmp/teste/*.png
+          if-no-files-found: ignore
+
+      - name: Apagar o usuário temporário
+        if: always() && steps.usuario.outputs.id != ''
+        run: |
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE "$SUPABASE_URL/auth/v1/admin/users/${{ steps.usuario.outputs.id }}" \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY")"
+          echo "Usuário de teste apagado (HTTP $code)"
