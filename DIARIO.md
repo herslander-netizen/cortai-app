@@ -48,6 +48,9 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   "Publicar Cortaí (site principal)" no GitHub Actions (`publicar-producao.yml`, digitar
   PUBLICAR). Fluxo igual ao Lovable: mudança na branch → prévia → dono testa → Publicar.
   Prévia e principal usam o mesmo banco (`cortai-prod`) por enquanto. `cortai.dev` fica para depois.
+- 2026-10-16: a prévia também só com "cortai" no endereço: `https://previa.cortai.pages.dev`
+  (ramo `previa` do mesmo projeto Pages). O Worker antigo `cortai-reconstruction-test-2026` fica
+  ligado (as tarefas agendadas do banco ainda chamam esse endereço), mas não recebe mais versões.
 
 ## Próximas tarefas (ordem combinada)
 

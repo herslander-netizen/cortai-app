@@ -85,6 +85,8 @@ jobs:
       - name: Montar pacote do Pages
         run: |
           set -euo pipefail
+          # O build deixa um apontador para dist/server/wrangler.json, que confunde o Pages.
+          rm -rf .wrangler
           cd dist
           rm -f server/wrangler.json
           mv server client/_worker.js
