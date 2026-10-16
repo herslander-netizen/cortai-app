@@ -124,7 +124,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT | 2026-10-17 00:00 UTC | Aproximar os pontos indicadores da linha inicial da agenda no celular | src/components/barbeiro/AgendaOperacional.tsx |
 
 ## Recados
 
