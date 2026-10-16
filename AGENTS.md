@@ -25,12 +25,18 @@ editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reesc
 para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
 Lovable, pare e avise o dono para abrir a tarefa no GPT/Codex ou no Claude Code ligado ao GitHub.
 
-**Versões e publicação (decisão do dono, 16/10/2026 — substitui a prévia):** não há mais prévia. O site
-principal (`cortaiapp.pages.dev`) recebe **versões numeradas** (3.1, 3.2…; mudança grande vira 4.0) pelo
-botão **"Lançar versão"** no GitHub Actions, que testa, grava o número no app, cria a tag `vX.Y` e a
-Release com o que mudou. Se algo der errado, **"Voltar versão"** põe no ar a versão anterior (ou a
-pedida) na hora. Cada push no ramo só roda a validação (TypeScript, testes e build).
-- Lançar versão só quando o dono pedir. Sempre dizer ao dono o número lançado e o que testar.
+**Prévia e publicação (decisão do dono, 16/10/2026):**
+- **Prévia:** todo push na branch passa pela validação (TypeScript, testes e build) e, se passar, vai
+  para **`https://previa.cortaiapp.pages.dev`** (workflow `preview-migration.yml`). O dono vê ali o
+  que pediu, sem esperar. Depois de enviar, diga ao dono o que mudou e o que olhar na prévia.
+- **"Mande pra main" = publicar no site principal** (`cortaiapp.pages.dev`). Quando o dono disser
+  isso (ou "publica", "sobe pro site"), rode o **"Lançar versão"** no GitHub Actions: ele testa,
+  grava o número da versão (3.1, 3.2…; mudança grande vira 4.0), cria a tag `vX.Y` e a Release com o
+  que mudou, e publica. Não é o ramo `main` do Git: o site sai da branch de trabalho.
+- Sem esse pedido, nada vai para o site principal. Se algo der errado, **"Voltar versão"** põe no ar a
+  versão anterior (ou a pedida) na hora.
+- Sempre dizer ao dono o número lançado e o que testar.
+- Prévia e site principal usam o mesmo banco (`cortai-prod`): o que se grava na prévia é real.
 - Banco não volta junto com a versão: migração continua só de acréscimo e com autorização.
 
 **Ao começar qualquer sessão, sem esperar o dono pedir:**

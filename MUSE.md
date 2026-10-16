@@ -32,7 +32,7 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 ## Automações (GitHub Actions)
 
-- `preview-migration.yml` — a cada push: só TypeScript, testes e build (sem prévia desde 16/10).
+- `preview-migration.yml` — a cada push: TypeScript, testes e build e, se passar, publica a prévia em `https://previa.cortaiapp.pages.dev`. Site principal só pelo "Lançar versão" (quando o dono disser "mande pra main").
 - `lancar-versao.yml` — manual: lança a próxima versão (3.1, 3.2…; "grande" vira 4.0) no site principal, com tag `vX.Y` e Release. Primeira: 3.1, em 16/10.
 - `voltar-versao.yml` — manual: põe no ar a versão anterior (campo vazio) ou a pedida, na hora.
 - `aplicar-migracoes-novas.yml` — manual: informe os arquivos e digite `APLICAR`. Cada arquivo numa transação; registro em `cortai_controle.migracoes_aplicadas` (já aplicadas são puladas).
