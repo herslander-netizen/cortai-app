@@ -54,6 +54,9 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 - 2026-10-16: `cortai.pages.dev` já era de outra pessoa; o dono escolheu **`cortaiapp.pages.dev`**
   (prévia em `previa.cortaiapp.pages.dev`). O primeiro projeto Pages `cortai` (`cortai-5ou.pages.dev`)
   foi apagado a pedido do dono em 16/10 (automação de uso único, já removida).
+- 2026-10-16: a conta do dono é **herslander@gmail.com**. Ela foi ligada como **dona do negócio de
+  demonstração** (`0de00000-…-0001`, slug `barbearia-prime`) no `cortai-prod`, com autorização do dono
+  (perfil: contexto `negocio`, negócio ativo = demonstração). O negócio `Teste01` é de outra conta.
 
 ## Próximas tarefas (ordem combinada)
 
