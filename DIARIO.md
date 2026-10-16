@@ -69,6 +69,10 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   editor nem pela sincronização do Lovable. Regra no topo do `AGENTS.md`.
 - 2026-10-16: **pendente de decisão do dono:** um pedido (feito ao GPT) de nova página inicial em `/`
   contradiz a regra "home pública oficial só em `/apresentacao`". Não implementar até o dono decidir.
+- 2026-10-16: a barbearia de demonstração virou **Barbearia Prime** (`/barbearia-prime`), no mesmo padrão do
+  Bella Rosa: tema Premium escuro, equipe e serviços com foto, fichas, 12 agendamentos, 4 avaliações,
+  perguntas (cópias repetidas desativadas, sem apagar) e página publicada. Script
+  `supabase/demos/barbearia-prime.sql`, ensaiado no banco local e aplicado no `cortai-prod`.
 
 ## Próximas tarefas (ordem combinada)
 
