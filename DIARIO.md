@@ -106,7 +106,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 ## Diário (mais recente primeiro)
 
 ### 2026-10-16 17:50 UTC — GPT via GitHub — Correção de rota da landing para a apresentação oficial
-- Commit: pendente neste registro; commit anterior de reserva `f6174b91`.
+- Commit: `e317031b` (correção da rota e da landing oficial).
 - O que mudou e por quê: revertida a landing estática indevida de `/`; a rota raiz volta ao comportamento original de autenticação e apresentação. Ajustes visuais/CTAs são feitos dentro de `ShowroomCortai`, a página oficial `/apresentacao`, sem alterar o conteúdo publicado pelo administrador. Removidos os componentes auxiliares criados fora de escopo e o CSS de revelação, restaurado o CSS original.
 - Testes: a validar pelos GitHub Actions da branch; este ambiente não oferece terminal para executar diretamente `bun run tsc --noEmit`, `bun run vitest run` e `bun run build`.
 - Banco/infra: nenhum banco, segredo ou configuração de produção alterados. Sem PR para `main`; PR #15 fechado por ter sido aberto incorretamente.

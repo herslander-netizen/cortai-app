@@ -443,9 +443,9 @@ export function ShowroomCortai({
             <Button asChild size="lg" variant="outline">
               <Link to="/barbearias">Encontrar estabelecimento</Link>
             </Button>
-            <a href="#como-funciona" className="showroom-link-como-funciona">Ver como funciona</a>
+            <a href="#como-funciona" className="text-sm font-semibold text-ink underline underline-offset-4">Ver como funciona</a>
           </div>
-          <p className="showroom-login-nota">Você entrará com sua conta para iniciar o cadastro do seu negócio.</p>
+          <p className="mt-3 max-w-prose text-sm text-mute">Você entrará com sua conta para iniciar o cadastro do seu negócio.</p>
           <p className="showroom-assinatura">Simplifica. Conecta. Cresce.</p>
         </div>
         <div
