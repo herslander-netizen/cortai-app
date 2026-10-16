@@ -246,6 +246,13 @@
       "when": 1792111040492,
       "tag": "0034_conexoes_sociais_sem_tokens_para_equipe",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792111100492,
+      "tag": "0035_anonimo_so_le_colunas_publicas",
+      "breakpoints": true
     }
   ]
 }

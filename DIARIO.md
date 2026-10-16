@@ -42,22 +42,20 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. **C2** — migração de permissões: `anon` sem SELECT de tabela inteira em `tenants`, `servicos`,
-   `profissionais`, só as colunas públicas (análise do Codex abaixo). Fecha também o achado 12.
-2. **C3** — `state` do OAuth com nonce de uso único, usuário e prazo (`src/lib/redes-sociais.server.ts`).
-3. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
-4. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
-5. **C5** — quitação de fiado numa RPC atômica com idempotência.
-6. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
+1. **C3** — `state` do OAuth com nonce de uso único, usuário e prazo (`src/lib/redes-sociais.server.ts`).
+2. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
+3. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
+4. **C5** — quitação de fiado numa RPC atômica com idempotência.
+5. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
 
-Aguardando o dono: aplicar `0034` (e as próximas) no `cortai-prod`; trocar credenciais expostas
+Aguardando o dono: aplicar `0034` e `0035` no `cortai-prod`; trocar credenciais expostas
 (N1); Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
 
 ## Em andamento
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 12:30 | C2: permissões do anônimo em `tenants`, `servicos`, `profissionais` | migração `0035`, `supabase/tests/` |
+| — | — | — | — |
 
 ## Recados
 
@@ -84,6 +82,20 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 13:00 UTC — Claude — C2: anônimo só lê as colunas públicas
+- Commit: este
+- O que mudou e por quê: migração `0035_anonimo_so_le_colunas_publicas.sql`, a partir da análise
+  do Codex. Tira do `anon` o privilégio de tabela inteira em `tenants`, `servicos` e `profissionais`
+  e devolve só as colunas públicas da `20260912204526`. Fecha também o achado 12
+  (`comissao_percentual`, `user_id`). Conferido antes: o app não lê essas tabelas como anônimo (as
+  páginas públicas usam `supabaseAdmin`), nenhuma view ou função anônima usa as colunas fechadas, e
+  o anon não tem política de escrita nelas.
+- Testes: novo `supabase/tests/privilegios_anonimo.sql`: 6 falhas em 11 antes, 11/11 depois.
+  Ensaio local completo: privilégios dos tokens 7/7, RBAC 68/68; `vitest` 1497 passaram.
+- Banco/infra: migração criada, **não aplicada**.
+- Pendente / atenção para o outro: o dono precisa aplicar `0034` e `0035` ("Aplicar migrações
+  novas"). Próxima livre: C3.
 
 ### 2026-10-16 12:30 UTC — Claude — Regras comuns da dupla e sincronização automática
 - Commit: este
