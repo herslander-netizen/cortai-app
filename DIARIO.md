@@ -53,7 +53,7 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   ligado (as tarefas agendadas do banco ainda chamam esse endereço), mas não recebe mais versões.
 - 2026-10-16: `cortai.pages.dev` já era de outra pessoa; o dono escolheu **`cortaiapp.pages.dev`**
   (prévia em `previa.cortaiapp.pages.dev`). O primeiro projeto Pages `cortai` (`cortai-5ou.pages.dev`)
-  ficou criado e sem uso; não apagar sem autorização.
+  foi apagado a pedido do dono em 16/10 (automação de uso único, já removida).
 
 ## Próximas tarefas (ordem combinada)
 
