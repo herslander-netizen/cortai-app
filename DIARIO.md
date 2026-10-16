@@ -1,3 +1,9 @@
+### 2026-10-17 00:12 UTC — GPT — Reduzir espaço acima dos pontos da agenda
+- Commit de código: `1f05360d`.
+- O que mudou e por quê: a primeira correção mexia apenas na margem inferior do indicador, sem aproximar os pontos do limite superior da área da agenda. Agora adicionei `-mt-4` ao indicador superior em `src/components/barbeiro/AgendaOperacional.tsx`, deslocando os pontos para cima em 16 px, sem mudar a distância entre eles, tamanho, cor ou posição relativa da timeline.
+- Testes: GitHub Actions pendente; sem terminal local nesta sessão.
+- Para o Claude: o dono relatou que a tentativa anterior não mudou visualmente; esta correção atua na margem superior. Conferir o preview no Android e ajustar se necessário.
+ 
 ### 2026-10-17 00:00 UTC — GPT — Aproximar os pontos da linha inicial da agenda
 - Commit: `271bfda9`.
 - O que mudou e por quê: em `src/components/barbeiro/AgendaOperacional.tsx`, alterei apenas a margem inferior do indicador superior `MarcaDoLimiteDoDia`, de `mb-1` para `mb-0 -mb-3`, para aproximar os cinco pontos da linha inicial da timeline no celular, conforme a captura enviada.
@@ -131,7 +137,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-17 00:10 UTC | Corrigir espaçamento vertical do indicador superior dos pontos da agenda | src/components/barbeiro/AgendaOperacional.tsx |
+| — | — | — | — |
 
 ## Recados
 
