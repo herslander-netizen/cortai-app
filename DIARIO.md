@@ -30,6 +30,9 @@ fazendo e o que fez.
 
 Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os dois.
 
+- 2026-10-16: não alterar o ramo de sincronização do Lovable nem trabalhar no editor Lovable. Trabalhar pelo Codex/GitHub na branch `cloudflare-workers-migration-2026-10-13`; a prévia é `https://previa.cortaiapp.pages.dev` a cada push. Produção só muda com autorização explícita pelo workflow/botão "Publicar Cortaí (site principal)". Não abrir PR para `main`.
+- 2026-10-16: a home pública oficial é `/apresentacao`, com conteúdo editado em `/admin/home`. Preservar a regra atual de `/` (redirecionamento de autenticação e apresentação oficial); a landing solicitada deve ser implementada em `ShowroomCortai` dentro de `/apresentacao`, não como nova landing estática em `/`.
+
 - 2026-10-16: Claude Code e Codex trabalham juntos ou sozinhos; os dois devem pensar igual sem o
   dono repetir nada. As regras comuns ficam no topo do `AGENTS.md`.
 - 2026-10-16: mudanças seguras e reversíveis na branch (código, testes, migração criada e ensaiada
@@ -85,7 +88,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT via GitHub API | 2026-10-16 17:45 | Corrigir implementação da landing: restaurar `/` e levar o trabalho para a home oficial `/apresentacao`, mantendo conteúdo administrável; remover arquivos auxiliares da landing fora de escopo e registrar a decisão do dono. | `src/routes/index.tsx`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/styles.css`, `DIARIO.md`, `MUSE.md`; sem migração |
 
 ## Recados
 
