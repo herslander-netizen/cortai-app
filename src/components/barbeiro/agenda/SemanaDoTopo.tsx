@@ -334,7 +334,7 @@ export function MarcaDoLimiteDoDia({
       ref={raiz}
       aria-hidden
       data-correndo={correndo || undefined}
-      className={`agenda-pontos flex h-5 items-center justify-center gap-1.5 ${className}`}
+      className={`agenda-pontos flex h-5 items-center justify-center gap-[6px] ${className}`}
     >
       {[0, 1, 2, 3, 4].map((i) => (
         <span
