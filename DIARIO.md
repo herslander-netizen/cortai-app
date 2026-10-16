@@ -117,7 +117,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT | 2026-10-16 23:40 UTC | Ajustar espaçamento horizontal dos cinco pontos da agenda conforme fotos | src/components/barbeiro/agenda/SemanaDoTopo.tsx; CSS específico da marcação agenda-pontos (se necessário) |
 
 ## Recados
 
