@@ -1374,7 +1374,7 @@ export function AgendaOperacional() {
           ) : visualizacao !== "lista" ? (
             <>
               {celular ? (
-                <MarcaDoLimiteDoDia className="mb-0 -mb-3" carregando={agenda.isFetching} />
+                <MarcaDoLimiteDoDia className="-mt-4 mb-0 -mb-3" carregando={agenda.isFetching} />
               ) : null}
               <AgendaTimeline
                 dia={dia}
