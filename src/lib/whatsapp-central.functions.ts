@@ -273,7 +273,7 @@ export const gerarCodigoDoNegocio = createServerFn({ method: "POST" })
           pareamento = await gw.obterCodigoDePareamento(principal.sessao_id, numero);
         } catch {
           // Sessão ainda não existe no serviço: cria e tenta de novo.
-          await gw.criarSessao(principal.sessao_id, URL_EVOLUTION);
+          await gw.criarSessao(principal.sessao_id, urlDeEventos("evolution"));
           pareamento = await gw.obterCodigoDePareamento(principal.sessao_id, numero);
         }
         await db
