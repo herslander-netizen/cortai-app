@@ -101,6 +101,20 @@ Modelo:
 - Pendente / atenção para o outro:
 ```
 
+### 2026-10-16 15:00 UTC — Claude — Login testado nos dois sites e imagens da marca fora do Lovable
+- Commits: `91d7b9e7`/`11078aa0` (teste), `79294923` (imagens, feito pela automação), este.
+- O que mudou e por quê: novo `.github/workflows/testar-login.yml` (Actions → "Testar login"):
+  navegador real em 390 px, cria usuário temporário, senha errada mostra o aviso, senha certa
+  entra, apaga o usuário no fim. Resultado em `cortaiapp.pages.dev` e `previa.cortaiapp.pages.dev`:
+  senha errada → "E-mail ou senha incorretos."; senha certa → entrou (`/comecar`). O teste achou o
+  logo quebrado: os 17 `src/assets/*.asset.json` apontavam para `/__l5e/assets-v1` (armazenamento
+  do Lovable). Uma automação de uso único (já removida) baixou as 17 imagens do Lovable, conferiu
+  o tamanho e gravou em `public/marca-lovable/`; os `.asset.json` agora apontam para lá.
+- Testes: login 2/2 sites; imagens conferidas por tamanho e tipo.
+- Banco/infra: nenhum dado mudou (usuário temporário criado e apagado no mesmo teste).
+- Pendente / atenção para o outro: imagens novas da marca vão direto em `public/` (não usar o
+  armazenamento do Lovable).
+
 ### 2026-10-16 14:20 UTC — Claude — Botão "Publicar" para o site principal
 - Commit: este
 - O que mudou e por quê: o dono quer trabalhar como no Lovable e ter o site no ar para prospectar.
