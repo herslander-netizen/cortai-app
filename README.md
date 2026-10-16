@@ -24,9 +24,9 @@ bun run dev
 ## Validação
 
 ```sh
-bun run tsc --noEmit
-bun run vitest run
-bun run build
+bunx tsc --noEmit -p .
+bunx vitest run
+bunx vite build --outDir /tmp/cortai-build
 ```
 
 Os comandos exatos de validação automatizada estão definidos em `.github/workflows/validate.yml`.
