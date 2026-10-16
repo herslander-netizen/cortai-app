@@ -1,7 +1,7 @@
 name: Publicar Cortaí (site principal)
 
 # O "Publish" do Lovable: leva a versão testada na prévia para o site principal
-# (Cloudflare Pages, projeto "cortai" → https://cortai.pages.dev). Só roda à mão, nesta
+# (Cloudflare Pages, projeto "cortaiapp" → https://cortaiapp.pages.dev). Só roda à mão, nesta
 # branch, com PUBLICAR digitado. Não mexe no banco, na main nem no domínio cortai.dev.
 on:
   # O push só registra o botão no GitHub; sem PUBLICAR digitado o job é pulado.
@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROJETO_PAGES: cortai
+  PROJETO_PAGES: cortaiapp
   SUPABASE_URL_PUBLICA: https://ibsberidejlbczxrweqg.supabase.co
   SUPABASE_CHAVE_PUBLICA: sb_publishable_jGNr3ZXqTm603K_TtSK8rQ_sbQQT6IF
 
@@ -71,7 +71,7 @@ jobs:
           sub="$(jq -r '.result.subdomain' <<<"$resp")"
           echo "endereco=https://$sub" >> "$GITHUB_OUTPUT"
           echo "Endereço do site principal: https://$sub"
-          [ "$sub" = "$PROJETO_PAGES.pages.dev" ] || echo "::warning::O nome cortai.pages.dev já era de outra pessoa; a Cloudflare deu https://$sub"
+          [ "$sub" = "$PROJETO_PAGES.pages.dev" ] || echo "::warning::O nome $PROJETO_PAGES.pages.dev já era de outra pessoa; a Cloudflare deu https://$sub"
 
       - name: Build do site principal
         env:

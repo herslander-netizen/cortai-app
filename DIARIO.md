@@ -43,14 +43,17 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   e mandou executar o resto da fila de "Próximas tarefas".
 - 2026-10-16: o dono mandou executar o restante da fila e **parar depois** (rodada encerrada em
   13:55 UTC após N6/C6). Próxima sessão só retoma a fila se o dono pedir.
-- 2026-10-16: **site principal grátis com nome só "cortai"**: Cloudflare Pages, projeto `cortai`
-  (`https://cortai.pages.dev`), nada de "aprovamaisbarra" no endereço. Publicação pelo botão
+- 2026-10-16: **site principal grátis com nome só "cortai"**: Cloudflare Pages, projeto `cortaiapp`
+  (`https://cortaiapp.pages.dev`), nada de "aprovamaisbarra" no endereço. Publicação pelo botão
   "Publicar Cortaí (site principal)" no GitHub Actions (`publicar-producao.yml`, digitar
   PUBLICAR). Fluxo igual ao Lovable: mudança na branch → prévia → dono testa → Publicar.
   Prévia e principal usam o mesmo banco (`cortai-prod`) por enquanto. `cortai.dev` fica para depois.
-- 2026-10-16: a prévia também só com "cortai" no endereço: `https://previa.cortai.pages.dev`
+- 2026-10-16: a prévia também só com "cortai" no endereço: `https://previa.cortaiapp.pages.dev`
   (ramo `previa` do mesmo projeto Pages). O Worker antigo `cortai-reconstruction-test-2026` fica
   ligado (as tarefas agendadas do banco ainda chamam esse endereço), mas não recebe mais versões.
+- 2026-10-16: `cortai.pages.dev` já era de outra pessoa; o dono escolheu **`cortaiapp.pages.dev`**
+  (prévia em `previa.cortaiapp.pages.dev`). O primeiro projeto Pages `cortai` (`cortai-5ou.pages.dev`)
+  ficou criado e sem uso; não apagar sem autorização.
 
 ## Próximas tarefas (ordem combinada)
 
