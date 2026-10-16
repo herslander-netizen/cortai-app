@@ -29,7 +29,14 @@ sql() { printf '%s' "$1" > "$TMP/q.sql"; s="$(consultar "$TMP/q.sql")"; [ "$s" =
 # Os arquivos precisam existir nas pastas de migração do repositório.
 for a in "$@"; do
   case "$a" in supabase/migrations/*.sql|drizzle/migrations/*.sql) ;; *) echo "Recusado: $a não é uma migração do repositório."; exit 1 ;; esac
+  # Não aceite traversal (../), caminhos alternativos ou symlinks para fora das pastas de migração.
+  case "/$a/" in *"/../"*|*"/./"*) echo "Recusado: caminho relativo inseguro: $a"; exit 1 ;; esac
   [ -f "$RAIZ/$a" ] || { echo "Recusado: $a não existe."; exit 1; }
+  resolvido="$(realpath "$RAIZ/$a")" || { echo "Recusado: não foi possível resolver $a."; exit 1; }
+  case "$resolvido" in
+    "$RAIZ/supabase/migrations/"*.sql|"$RAIZ/drizzle/migrations/"*.sql) ;;
+    *) echo "Recusado: $a resolve para fora das pastas de migração permitidas."; exit 1 ;;
+  esac
 done
 
 # O banco precisa estar montado (esta automação não substitui a montagem do zero).
