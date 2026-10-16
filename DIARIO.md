@@ -56,7 +56,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 13:00 | C5: quitação de fiado numa RPC atômica com idempotência | `src/lib/financeiro.functions.ts` (`quitarFiado`), telas que chamam; migração `0036` |
 
 ## Recados
 
