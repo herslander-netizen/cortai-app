@@ -5,6 +5,16 @@ O dono usa Claude Code e Codex ao mesmo tempo, às vezes só um deles. Os dois p
 autorização. Este bloco é carregado sozinho pelos dois (o Codex lê `AGENTS.md`; o `CLAUDE.md`
 importa este arquivo). O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
 
+**Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
+`cloudflare-workers-migration-2026-10-13`), com o Codex/Claude Code ligados ao repositório. **Nunca pelo
+editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reescreve build e `bun.lock`
+para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
+Lovable, pare e avise o dono para abrir a tarefa no Codex ligado ao GitHub.
+
+**Publicar é como no Lovable:** cada push no ramo atualiza a prévia (`previa.cortaiapp.pages.dev`); o site
+principal (`cortaiapp.pages.dev`) só muda pelo botão "Publicar Cortaí (site principal)" no GitHub Actions,
+com autorização do dono.
+
 **Ao começar qualquer sessão, sem esperar o dono pedir:**
 1. `git pull origin cloudflare-workers-migration-2026-10-13` e trabalhar só nessa branch.
 2. Ler `DIARIO.md` inteiro (Decisões do dono, Próximas tarefas, Em andamento, Recados, últimas

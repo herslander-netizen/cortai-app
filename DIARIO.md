@@ -62,6 +62,10 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   dono `herslander@gmail.com`. Criado no `cortai-prod` pelo script `supabase/demos/salao-bella-rosa.sql`
   (ensaiado antes no banco local, idempotente). Fotos do Unsplash conferidas pela automação
   `conferir-links.yml`.
+- 2026-10-16: IAs trabalham **só pelo GitHub** (Codex/Claude Code ligados ao repositório), nunca pelo
+  editor nem pela sincronização do Lovable. Regra no topo do `AGENTS.md`.
+- 2026-10-16: **pendente de decisão do dono:** um pedido (feito ao GPT) de nova página inicial em `/`
+  contradiz a regra "home pública oficial só em `/apresentacao`". Não implementar até o dono decidir.
 
 ## Próximas tarefas (ordem combinada)
 
