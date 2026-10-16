@@ -46,13 +46,11 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)` (só texto; rotas, tabelas e
-   papéis no banco ficam como estão).
-2. Achados menores da auditoria de 16/10: N6 (`convidar_membro` revela conta), C6 (`has_role` com
+1. Achados menores da auditoria de 16/10: N6 (`convidar_membro` revela conta), C6 (`has_role` com
    qualquer `user_id`), C8 (equipe no WhatsApp sem checagem por ação), 13 (remarcação pela IA
    recria agendamento), 14 (contagem do admin presa a 1000 linhas), 15 (buckets sem tipo/tamanho;
    contadores não atômicos), 10 (`as never`).
-3. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (lista na auditoria de 16/10).
+2. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (lista na auditoria de 16/10).
 
 Já resolvidos nesta branch (não repetir): 16 e N4 (limites do rascunho e do formulário, commits
 `16a7f757` e `bece4b08`); 8 (limite por IP da CortAI do site).
@@ -90,6 +88,21 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 13:40 UTC — Claude — Textos fixos de tela com termos neutros
+- Commit: este
+- O que mudou e por quê: textos fixos com "barbearia"/"barbeiro" passaram a neutros (negócio,
+  profissional, equipe) em 22 arquivos: títulos "Painel do negócio", telas do ADM (lista,
+  monetização, pedidos, recursos), caixa, equipe ("Profissional recebe pagamento"), ficha do
+  cliente, mensagens de erro (`tenant.ts`, `ia/acoes.server.ts`, `admin.functions.ts`), aviso de
+  fiado no agendamento e a resposta "estamos fechados" do WhatsApp. **Mantidos de propósito:**
+  rotas, arquivos, funções e chaves de cache (`/barbeiro/...`, `barbeiro.functions`); o
+  vocabulário que o WhatsApp usa para *entender* o cliente (`motor/vocabulario.ts`); textos que já
+  escolhem pelo segmento; descrições das fotos de barbearia da home; histórico em `versao.ts`;
+  frases que citam "barbearias, salões e…" como exemplo de público.
+- Testes: `tsc` ok; `vitest` 1503 passaram; `build` ok; `eslint` só com `any` que já existiam.
+- Banco/infra: nada.
+- Pendente / atenção para o outro: fila agora começa pelos achados menores.
 
 ### 2026-10-16 13:20 UTC — Claude — C5: quitação de fiado atômica e idempotente
 - Commit: este

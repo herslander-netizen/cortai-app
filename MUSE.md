@@ -46,7 +46,7 @@ Do dono:
 3. Testar o uso real na prévia: serviços, profissionais, agenda, comanda, cobrança.
 
 Técnicas:
-- Textos fixos com "barbearia"/"barbeiro" nas telas → termos neutros ou `termos(segmento)`. Só texto; rotas, tabelas e papéis no banco ficam como estão.
+- Textos fixos de tela com "barbearia"/"barbeiro": trocados por termos neutros em 16/10 (rotas, tabelas, papéis e o vocabulário do WhatsApp ficam como estão).
 - C1 (tokens das redes sociais legíveis pela equipe): corrigido na migração `drizzle/migrations/0034_conexoes_sociais_sem_tokens_para_equipe.sql`, ensaiada no banco local (teste `supabase/tests/privilegios_tokens.sql`). **Aplicada no `cortai-prod` em 16/10.**
 - C5 (quitação de fiado sem RPC atômica): corrigido com `quitar_fiado_seguro` (migração `0036`, teste `supabase/tests/quitar_fiado.sql`).
 - C3 (`state` do OAuth reutilizável): corrigido no código (nonce, prazo, cookie do navegador e permissão de quem iniciou).

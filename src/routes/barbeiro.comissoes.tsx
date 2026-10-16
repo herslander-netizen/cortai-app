@@ -19,7 +19,7 @@ export const Route = createFileRoute("/barbeiro/comissoes")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Comissões — Painel do barbeiro | Cortaí" },
+      { title: "Comissões — Painel do negócio | Cortaí" },
       {
         name: "description",
         content: "Comissão gerada, paga e pendente por profissional, item a item.",

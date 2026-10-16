@@ -35,7 +35,7 @@ export const Route = createFileRoute("/admin/monetizacao")({
       { title: "Monetização — Cortaí" },
       {
         name: "description",
-        content: "Planos, preços, condições por barbearia, cupons e campanhas do Cortaí.",
+        content: "Planos, preços, condições por negócio, cupons e campanhas do Cortaí.",
       },
       { property: "og:title", content: "Monetização — Cortaí" },
       {
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/admin/monetizacao")({
   component: MonetizacaoPage,
 });
 
-const ABAS = ["Planos e preços", "Por barbearia", "Cupons", "Campanhas"] as const;
+const ABAS = ["Planos e preços", "Por negócio", "Cupons", "Campanhas"] as const;
 
 const hoje = () => new Date().toISOString().slice(0, 10);
 const emReais = (centavos: number) => (centavos / 100).toFixed(2).replace(".", ",");
@@ -73,7 +73,7 @@ function MonetizacaoPage() {
   return (
     <AdminScreen
       title="Monetização"
-      subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você negocia com uma barbearia."
+      subtitle="Planos, condições especiais, cupons e campanhas. O preço padrão nunca muda quando você fecha uma condição especial com um negócio."
     >
       <nav
         className="sem-barra mb-6 flex gap-2 overflow-x-auto pb-1"
@@ -105,7 +105,7 @@ function MonetizacaoPage() {
         <span className="text-xs text-gold">Abrir</span>
       </Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
-      {aba === "Por barbearia" ? <AbaBarbearia /> : null}
+      {aba === "Por negócio" ? <AbaBarbearia /> : null}
       {aba === "Cupons" ? <AbaCupons /> : null}
       {aba === "Campanhas" ? <AbaBanners /> : null}
     </AdminScreen>
@@ -209,7 +209,7 @@ function AbaPlanos() {
               setEditando(null);
               await query.refetch();
               setStatus(
-                "Plano salvo. As barbearias com condição especial continuam com o preço delas.",
+                "Plano salvo. Os negócios com condição especial continuam com o preço deles.",
               );
             } catch (e) {
               setErro(e instanceof Error ? e.message : "Não deu para salvar.");
@@ -438,7 +438,7 @@ function AbaBarbearia() {
             setErro("");
           }}
         >
-          <option value="">Escolha uma barbearia</option>
+          <option value="">Escolha um negócio</option>
           {(tenants.data ?? []).map((t) => (
             <option key={t.id} value={t.id}>
               {t.nome}
@@ -500,7 +500,7 @@ function AbaBarbearia() {
               try {
                 await definirPlano({ data: { tenantId, ...dados } });
                 await visao.refetch();
-                setStatus("Plano da barbearia atualizado.");
+                setStatus("Plano do negócio atualizado.");
               } catch (e) {
                 setErro(e instanceof Error ? e.message : "Não deu para atualizar.");
               }
@@ -534,7 +534,7 @@ function AbaBarbearia() {
                       if (
                         !(await confirmar({
                           titulo: "Encerrar esta condição especial?",
-                          descricao: "A barbearia volta ao preço padrão.",
+                          descricao: "O negócio volta ao preço padrão.",
                           confirmar: "Encerrar",
                           destrutivo: true,
                         }))
@@ -544,7 +544,7 @@ function AbaBarbearia() {
                         `encerrar-${c.id}`,
                         () => encerrar({ data: { id: c.id } }),
                         {
-                          sucesso: "Condição encerrada. A barbearia volta ao preço padrão.",
+                          sucesso: "Condição encerrada. O negócio volta ao preço padrão.",
                           aoConcluir: async () => {
                             await visao.refetch();
                           },
@@ -591,7 +591,7 @@ function AbaBarbearia() {
                   }),
                 {
                   sucesso:
-                    "Condição criada só para esta barbearia. O preço padrão do plano não mudou.",
+                    "Condição criada só para este negócio. O preço padrão do plano não mudou.",
                   aoConcluir: async () => {
                     setForm({ ...form, preco: "", percentual: "0", fixo: "0", motivo: "" });
                     await visao.refetch();
@@ -773,7 +773,7 @@ function MudarPlano({
       )}
       <div className="sm:col-span-4">
         <Button type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
-          {acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano da barbearia"}
+          {acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano do negócio"}
         </Button>
       </div>
     </form>
@@ -853,7 +853,7 @@ function AbaCupons() {
                   : `${brl(c.valor)} de desconto`}{" "}
                 ·{" "}
                 {c.publico === "todos"
-                  ? "todas as barbearias"
+                  ? "todos os negócios"
                   : c.publico === "novos"
                     ? "barbearias novas"
                     : "barbearias já clientes"}
@@ -963,9 +963,9 @@ function AbaCupons() {
               value={f.publico}
               onChange={(e) => setF({ ...f, publico: e.target.value })}
             >
-              <option value="todos">Todas as barbearias</option>
-              <option value="novos">Só barbearias novas</option>
-              <option value="existentes">Só barbearias já clientes</option>
+              <option value="todos">Todos os negócios</option>
+              <option value="novos">Só negócios novos</option>
+              <option value="existentes">Só negócios já clientes</option>
             </select>
           </Campo>
           <Campo label="Planos (vazio = todos)">
@@ -1219,12 +1219,12 @@ function AbaBanners() {
               value={f.segmento}
               onChange={(e) => setF({ ...f, segmento: e.target.value })}
             >
-              <option value="todos">Todas as barbearias</option>
-              <option value="novos">Barbearias novas</option>
+              <option value="todos">Todos os negócios</option>
+              <option value="novos">Negócios novos</option>
               <option value="teste">Em teste grátis</option>
               <option value="vencimento">Teste perto de acabar</option>
               <option value="plano">Um plano específico</option>
-              <option value="tenant">Uma barbearia específica</option>
+              <option value="tenant">Um negócio específico</option>
             </select>
           </Campo>
           {f.segmento === "plano" ? (

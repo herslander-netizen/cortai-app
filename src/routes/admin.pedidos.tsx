@@ -25,13 +25,13 @@ import {
 export const Route = createFileRoute("/admin/pedidos")({
   head: () => ({
     meta: [
-      { title: "Pedidos das barbearias — Cortaí" },
+      { title: "Pedidos dos negócios — Cortaí" },
       {
         name: "description",
-        content: "Sugestões agrupadas e priorizadas das barbearias do Cortaí.",
+        content: "Sugestões agrupadas e priorizadas dos negócios do Cortaí.",
       },
-      { property: "og:title", content: "Pedidos das barbearias — Cortaí" },
-      { property: "og:description", content: "Demanda real das barbearias por novas soluções." },
+      { property: "og:title", content: "Pedidos dos negócios — Cortaí" },
+      { property: "og:description", content: "Demanda real dos negócios por novas soluções." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -248,7 +248,7 @@ function NewSuggestion({
           </select>
         </label>
         <fieldset>
-          <legend className="text-xs text-mute">Barbearias que pediram</legend>
+          <legend className="text-xs text-mute">Negócios que pediram</legend>
           <div className="mt-2 max-h-48 overflow-y-auto">
             {tenants.data?.map((tenant) => (
               <label

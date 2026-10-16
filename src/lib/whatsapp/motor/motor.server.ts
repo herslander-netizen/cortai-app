@@ -660,7 +660,7 @@ async function oferecerHorarios(
     const proximo = somarDias(opcoes.dia, 1);
     return responder(
       [
-        `Nesse dia (${diaPorExtenso(opcoes.dia)}) a barbearia está fechada.`,
+        `Nesse dia (${diaPorExtenso(opcoes.dia)}) estamos fechados.`,
         "",
         `Quer que eu veja ${diaPorExtenso(proximo)}?`,
       ].join("\n"),

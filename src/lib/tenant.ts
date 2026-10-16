@@ -28,8 +28,7 @@ export async function vinculoDoMembro(
     (perfil?.tenant_ativo as string | null | undefined) ?? null,
   );
   // Acesso suspenso nunca vale, mesmo que a leitura ainda o devolva.
-  if (!vinculo || !vinculo.ativo)
-    throw new Error("Sua conta ainda não está ligada a uma barbearia.");
+  if (!vinculo || !vinculo.ativo) throw new Error("Sua conta ainda não está ligada a um negócio.");
   const tenantId = vinculo.tenant_id;
   const { data: tenant } = await context.supabase
     .from("tenants")
@@ -37,7 +36,7 @@ export async function vinculoDoMembro(
     .eq("id", tenantId)
     .maybeSingle();
   if (tenant && tenant.ativo === false) {
-    throw new Error("Esta barbearia está desativada. Fale com o suporte do Cortaí para reativar.");
+    throw new Error("Este negócio está desativado. Fale com o suporte do Cortaí para reativar.");
   }
   return { tenantId, papel: vinculo.papel };
 }
@@ -60,8 +59,6 @@ export async function exigirPermissao(
     _permission: chave,
   });
   if (error || !data) {
-    throw new Error(
-      "Você não tem permissão para esta ação. Fale com o responsável pela barbearia.",
-    );
+    throw new Error("Você não tem permissão para esta ação. Fale com o responsável pelo negócio.");
   }
 }

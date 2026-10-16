@@ -23,7 +23,7 @@ export const Route = createFileRoute("/barbeiro/caixa")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Caixa do dia — Painel do barbeiro | Cortaí" },
+      { title: "Caixa do dia — Painel do negócio | Cortaí" },
       {
         name: "description",
         content: "Entradas, saídas, fiado em aberto e origem de cada movimentação.",
@@ -96,7 +96,7 @@ function CaixaPage() {
     >
       {caixa.isLoading ? <EsqueletoPainel onTentarDeNovo={() => void caixa.refetch()} /> : null}
       {caixa.isError ? (
-        <p className="text-sm text-mute">Você não tem acesso ao caixa desta barbearia.</p>
+        <p className="text-sm text-mute">Você não tem acesso ao caixa deste negócio.</p>
       ) : null}
 
       {caixa.data ? (

@@ -159,7 +159,7 @@ export async function consultarDisponibilidade(
     ? profissionais.filter((p) => p.id === input.profissionalId)
     : profissionais;
   if (input.profissionalId && equipe.length === 0) {
-    throw new Error("Profissional não encontrado nesta barbearia.");
+    throw new Error("Profissional não encontrado neste negócio.");
   }
 
   const servicoDoMotor = servico ?? { id: "consulta", duracao_min: 30, profissional_ids: null };
@@ -261,7 +261,7 @@ async function exigirAgendamentoDoTenant(ctx: ContextoDoAgente, agendamentoId: s
     .eq("id", agendamentoId)
     .eq("tenant_id", ctx.tenantId)
     .maybeSingle();
-  if (!data) throw new Error("Agendamento não encontrado nesta barbearia.");
+  if (!data) throw new Error("Agendamento não encontrado neste negócio.");
   return data;
 }
 
@@ -318,9 +318,9 @@ export async function criarAgendamento(
       .eq("ativo", true)
       .maybeSingle(),
   ]);
-  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
-  if (!profissional) throw new Error("Profissional não encontrado nesta barbearia.");
-  if (!servico) throw new Error("Serviço não encontrado nesta barbearia.");
+  if (!cliente) throw new Error("Cliente não encontrado neste negócio.");
+  if (!profissional) throw new Error("Profissional não encontrado neste negócio.");
+  if (!servico) throw new Error("Serviço não encontrado neste negócio.");
 
   const inicio = new Date(input.inicio);
   if (Number.isNaN(inicio.getTime())) throw new Error("Horário inválido.");
@@ -460,7 +460,7 @@ export async function consultarServico(ctx: ContextoDoAgente, input: { servicoId
     .eq("tenant_id", ctx.tenantId)
     .eq("id", input.servicoId)
     .maybeSingle();
-  if (!data) throw new Error("Serviço não encontrado nesta barbearia.");
+  if (!data) throw new Error("Serviço não encontrado neste negócio.");
   return data;
 }
 
@@ -502,7 +502,7 @@ export async function historicoDoCliente(ctx: ContextoDoAgente, input: { cliente
     .eq("tenant_id", ctx.tenantId)
     .eq("id", input.clienteId)
     .maybeSingle();
-  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+  if (!cliente) throw new Error("Cliente não encontrado neste negócio.");
 
   const [{ data: passados }, servicos, profissionais, { data: memoria }] = await Promise.all([
     db
@@ -585,7 +585,7 @@ export async function salvarPreferenciaDoCliente(
     .eq("tenant_id", ctx.tenantId)
     .eq("id", input.clienteId)
     .maybeSingle();
-  if (!cliente) throw new Error("Cliente não encontrado nesta barbearia.");
+  if (!cliente) throw new Error("Cliente não encontrado neste negócio.");
   const { error } = await db
     .from("memoria_do_cliente")
     .upsert(

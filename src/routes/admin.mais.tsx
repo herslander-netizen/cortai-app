@@ -42,7 +42,7 @@ const grupos = [
       {
         to: "/admin/pedidos",
         label: "Pedidos",
-        detail: "Solicitações e prioridades das barbearias",
+        detail: "Solicitações e prioridades dos negócios",
         icon: ClipboardList,
       },
       {

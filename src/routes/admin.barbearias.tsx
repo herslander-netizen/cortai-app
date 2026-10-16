@@ -33,9 +33,9 @@ export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({
     meta: [
       { title: "Barbearias da plataforma — Cortaí" },
-      { name: "description", content: "Acompanhe planos, uso e risco das barbearias do Cortaí." },
+      { name: "description", content: "Acompanhe planos, uso e risco dos negócios do Cortaí." },
       { property: "og:title", content: "Barbearias da plataforma — Cortaí" },
-      { property: "og:description", content: "Planos, uso e retenção das barbearias." },
+      { property: "og:description", content: "Planos, uso e retenção dos negócios." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -79,10 +79,10 @@ function BarbeariasPage() {
             <label className="flex min-h-12 flex-1 items-center gap-2">
               <Search size={16} className="text-mute" />
               <input
-                aria-label="Buscar barbearia"
+                aria-label="Buscar negócio"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar barbearia"
+                placeholder="Buscar negócio"
                 className="field-control min-w-0 flex-1"
               />
             </label>
@@ -103,7 +103,7 @@ function BarbeariasPage() {
           <div className="mt-7 hidden overflow-x-auto md:block">
             <div className="min-w-[680px]">
               <div className="grid grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] gap-4 border-b border-line pb-3 text-xs text-mute">
-                <span>Barbearia</span>
+                <span>Negócio</span>
                 <span>Plano</span>
                 <span>Ciclo</span>
                 <span>Agenda</span>
@@ -179,7 +179,7 @@ function BarbeariasPage() {
           {!query.isLoading && !list.length ? (
             <EmptyState
               className="mt-4"
-              title="Nenhuma barbearia encontrada"
+              title="Nenhum negócio encontrado"
               description="Ajuste a busca ou escolha outro filtro para ver resultados."
             />
           ) : null}
@@ -226,7 +226,7 @@ function TenantDialog({
   if (!tenant) return null;
   const number = (tenant.whatsapp ?? tenant.telefone ?? "").replace(/\D/g, "");
   const message = encodeURIComponent(
-    "Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar sua barbearia a aproveitar melhor o Cortaí.",
+    "Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar seu negócio a aproveitar melhor o Cortaí.",
   );
   return (
     <Dialog
@@ -239,7 +239,7 @@ function TenantDialog({
         <DialogHeader className="shrink-0 border-b border-line px-5 pb-4 pt-5 pr-14 text-left sm:px-6 sm:pt-6 sm:pr-14">
           <div className="flex min-w-0 items-center gap-2">
             <DialogTitle className="truncate">{tenant.nome}</DialogTitle>
-            <span className="shrink-0 text-sm text-mute">| Barbearia</span>
+            <span className="shrink-0 text-sm text-mute">| Negócio</span>
           </div>
           <DialogDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="capitalize">{tenant.plano}</span>
@@ -350,8 +350,8 @@ function TenantDialog({
                   {statusOcupado
                     ? "Salvando…"
                     : tenant.ativo
-                      ? "Desativar barbearia"
-                      : "Reativar barbearia"}
+                      ? "Desativar negócio"
+                      : "Reativar negócio"}
                 </Button>
                 {erroStatus ? <p className="mt-2 text-xs text-brick">{erroStatus}</p> : null}
                 <div className="mt-5 border-t border-line pt-4">
@@ -361,7 +361,7 @@ function TenantDialog({
                   <div className="mt-2">
                     <ExclusaoPermanente
                       titulo={`Excluir ${tenant.nome} permanentemente`}
-                      descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos desta barbearia. Não há como recuperar."
+                      descricao="Serão apagados agendamentos, clientes, carteiras, vendas, produtos, serviços, profissionais e acessos deste negócio. Não há como recuperar."
                       onExcluir={async () =>
                         (await remover({ data: { tenantId: tenant.id } })).aviso
                       }
@@ -379,7 +379,7 @@ function TenantDialog({
             <TabsContent value="contact" className="mt-0 space-y-5">
               <section className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-paper">Contato da barbearia</h3>
+                  <h3 className="text-sm font-semibold text-paper">Contato do negócio</h3>
                   <p className="mt-1 truncate text-xs text-mute">
                     {tenant.whatsapp ?? tenant.telefone ?? "Nenhum número informado"}
                   </p>

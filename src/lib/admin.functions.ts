@@ -418,7 +418,7 @@ export const definirStatusDaBarbearia = createServerFn({ method: "POST" })
       .eq("id", data.tenantId);
     if (error) {
       console.error("[admin] definirStatusDaBarbearia falhou:", error.message);
-      throw new Error("Não foi possível atualizar a situação da barbearia agora. Tente novamente.");
+      throw new Error("Não foi possível atualizar a situação do negócio agora. Tente novamente.");
     }
     return { ok: true, ativo: data.ativo };
   });
