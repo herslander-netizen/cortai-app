@@ -1,3 +1,10 @@
+### 2026-10-17 00:00 UTC — GPT — Aproximar os pontos da linha inicial da agenda
+- Commit: `271bfda9`.
+- O que mudou e por quê: em `src/components/barbeiro/AgendaOperacional.tsx`, alterei apenas a margem inferior do indicador superior `MarcaDoLimiteDoDia`, de `mb-1` para `mb-0 -mb-3`, para aproximar os cinco pontos da linha inicial da timeline no celular, conforme a captura enviada.
+- Testes: pendentes no GitHub Actions; sem terminal disponível nesta sessão.
+- Segurança: sem alteração em banco, autenticação, integrações ou main.
+- Para o Claude: conferir o espaçamento visual no Android; se a aproximação ficar excessiva, ajustar somente essa margem.
+
 ### 2026-10-16 23:42 UTC — GPT — Espaçamento explícito dos pontos da agenda
 - Commit: `6391b1e0`.
 - O que mudou e por quê: em `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, troquei a classe implícita `gap-1.5` por `gap-[6px]` para declarar explicitamente o espaçamento horizontal de 6 px entre os cinco pontos de `MarcaDoLimiteDoDia`, sem mudar tamanho, cor, posição vertical ou comportamento. As duas capturas fornecidas aparentam ter os pontos na mesma distância; a alteração explicita o valor já equivalente no Tailwind.
@@ -124,7 +131,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-17 00:00 UTC | Aproximar os pontos indicadores da linha inicial da agenda no celular | src/components/barbeiro/AgendaOperacional.tsx |
+| — | — | — | — |
 
 ## Recados
 
