@@ -1,3 +1,4 @@
+- **Trabalho em dupla (Claude Code e Codex):** antes de qualquer tarefa nesta branch, leia `DIARIO.md` (raiz) e siga as regras dele: reservar a tarefa, registrar o que fez e deixar recados. É o único canal entre os dois.
 - Migração para fora do Lovable: estado atual, limites e pendências em `MUSE.md` (raiz) — leia antes de mexer na branch `cloudflare-workers-migration-2026-10-13`.
 
 - Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.

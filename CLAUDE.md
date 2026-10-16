@@ -2,6 +2,8 @@
 
 ## Estado e limites da migração
 
+**Trabalho em dupla:** o dono usa Claude Code e Codex ao mesmo tempo nesta branch. Antes de qualquer tarefa, leia `DIARIO.md` (raiz) e siga as regras dele: reservar a tarefa, registrar o que fez e deixar recados. É o único canal entre os dois.
+
 Este arquivo contém contexto histórico do projeto original, que foi desenvolvido/sincronizado com o Lovable. **A branch `cloudflare-workers-migration-2026-10-13` é uma trilha isolada de reconstrução e desacoplamento**: não presumir que ela esteja sincronizada com o editor, com a prévia ou com o site publicado.
 
 - Projeto original/editor: Lovable (referência histórica; preservar sem alterações nesta migração).

@@ -1,6 +1,7 @@
 # Estado da migração — leia antes de mexer
 
 Resumo para qualquer IA ou pessoa que continue o trabalho (Muse Code, GPT, Claude). Atualizado em 2026-10-16.
+Claude Code e Codex trabalham juntos nesta branch: o que cada um está fazendo e fez fica em `DIARIO.md`.
 As regras do projeto continuam valendo e vêm primeiro: `CLAUDE.md`, `AGENTS.md`, `src/lib/AGENTS.md`, `docs/contrato-de-design.md`.
 
 ## Objetivo
