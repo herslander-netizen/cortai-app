@@ -84,7 +84,11 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
-        run: bunx vite build
+        run: |
+          # Só a raiz do projeto (https://<ref>.supabase.co): sem /rest/v1, /auth/v1 nem barra final.
+          VITE_SUPABASE_URL="$(printf '%s' "$VITE_SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/+$##')"
+          export VITE_SUPABASE_URL
+          bunx vite build
       - name: Deploy isolated preview Worker
         if: steps.gate.outputs.ready == 'true'
         env:
@@ -119,6 +123,7 @@ jobs:
             CORTAI_AI_CANAIS META_WHATSAPP_ACCESS_TOKEN META_WHATSAPP_PHONE_NUMBER_ID
             META_WHATSAPP_VERIFY_TOKEN META_WHATSAPP_APP_SECRET)
           json='{}'; enviados=()
+          SUPABASE_URL="$(printf '%s' "$SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/+$##')"
           for n in "${nomes[@]}"; do
             v="$(printf '%s' "${!n}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
             [ -n "$v" ] || continue
