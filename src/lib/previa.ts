@@ -1,3 +1,5 @@
+import { urlPublica } from "@/lib/origem-publica";
+
 /** Metatags da prévia do link de uma barbearia (WhatsApp, Instagram, buscadores). */
 export type PreviaDaBarbearia =
   { nome: string; descricao: string | null; imagem: string | null } | null | undefined;
@@ -13,7 +15,7 @@ export function headDaBarbearia(
   const descricao =
     previa?.descricao?.slice(0, 160) ||
     `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
-  const url = `https://cortai.dev${caminho}`;
+  const url = urlPublica(caminho);
   const imagem = previa?.imagem?.startsWith("https://") ? previa.imagem : null;
   return {
     meta: [

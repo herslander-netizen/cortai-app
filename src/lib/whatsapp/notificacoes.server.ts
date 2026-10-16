@@ -18,6 +18,7 @@ import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido } from "@/lib/segmentos";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
+import { urlPublica } from "@/lib/origem-publica";
 
 export type TipoDeNotificacao =
   | "confirmacao_agendamento"
@@ -729,7 +730,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     const { criarConviteDeAvaliacao } = await import("@/lib/avaliacoes-publicas.functions");
     const token = await criarConviteDeAvaliacao(ag.id);
     if (!token) return marcarErro("Convite de avaliação já criado ou atendimento não elegível.");
-    linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
+    linkAvaliacao = urlPublica(`/avaliar/${token}`);
   }
 
   const { gatewayDoProvedor } = await import("./gateway.server");
@@ -749,7 +750,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       segmento: tenant?.segmento ?? null,
       textoRetorno,
       linkAvaliacao,
-      linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
+      linkAgendamento: tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : null,
       linkPagamento:
         tipo === "confirmacao_agendamento" &&
         config.pagamentoAntecipado &&

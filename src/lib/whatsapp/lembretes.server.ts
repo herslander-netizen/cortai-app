@@ -7,6 +7,7 @@
  * continuam na própria conversa com o CortAI (o link oficial fica como opção).
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -48,7 +49,8 @@ export type RespostaDeLembrete = {
 
 export const TEXTO_SAIR_SEM_CADASTRO =
   "Não consegui localizar seu cadastro para parar os lembretes. Vou passar seu pedido para a equipe do estabelecimento.";
-export const TEXTO_FALHA_TRANSITORIA = "Não consegui processar agora. Tente novamente em instantes.";
+export const TEXTO_FALHA_TRANSITORIA =
+  "Não consegui processar agora. Tente novamente em instantes.";
 
 const SAIR = new Set(["sair", "parar", "cortai_sair", "descadastrar", "nao quero mais receber"]);
 
@@ -134,8 +136,7 @@ export async function tratarRespostaDeLembrete(input: {
         );
     }
     return {
-      texto:
-        "Desculpe pelo engano. Este número não vai mais receber mensagens automáticas daqui.",
+      texto: "Desculpe pelo engano. Este número não vai mais receber mensagens automáticas daqui.",
     };
   }
 
@@ -207,7 +208,11 @@ export async function tratarRespostaDeLembrete(input: {
       .eq("tenant_id", input.tenantId)
       .maybeSingle();
     const citado = data as
-      | (Envio & { aguarda_resposta: boolean | null; respondido_em: string | null; valido_ate: string | null })
+      | (Envio & {
+          aguarda_resposta: boolean | null;
+          respondido_em: string | null;
+          valido_ate: string | null;
+        })
       | null;
     // Só vale se ainda aguarda resposta dentro do prazo; senão, segue o fluxo normal.
     if (
@@ -257,7 +262,8 @@ export async function tratarRespostaDeLembrete(input: {
       acao = escolhaValida.acao;
     } else {
       return {
-        texto: "Esse aviso não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
+        texto:
+          "Esse aviso não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
       };
     }
   }
@@ -408,7 +414,8 @@ export async function tratarRespostaDeLembrete(input: {
     .maybeSingle();
   if (!respondido)
     return {
-      texto: "Essa opção não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
+      texto:
+        "Essa opção não vale mais. Me diga aqui o que precisa que eu vejo seu horário atualizado.",
     };
   const { escolherNotificacao: _e, estado: _s, notificacao: _n, ...resto } = ctx;
   await db
@@ -419,7 +426,9 @@ export async function tratarRespostaDeLembrete(input: {
   // A reserva acima evita resposta duplicada. Se a ação não rodar por falha
   // transitória, o aviso volta a ficar aberto e o cliente pode tentar de novo.
   const reabrir = async (motivo: string) => {
-    console.error(`[lembretes] ação ${acao} falhou, aviso ${envio.id} reaberto: ${motivo.slice(0, 200)}`);
+    console.error(
+      `[lembretes] ação ${acao} falhou, aviso ${envio.id} reaberto: ${motivo.slice(0, 200)}`,
+    );
     await db
       .from("envios_de_whatsapp")
       .update({ respondido_em: null, resposta: null } as never)
@@ -469,7 +478,10 @@ export async function tratarRespostaDeLembrete(input: {
         ? {
             texto: `Confirmado ✅ Te esperamos ${dia(ag.inicio, fuso)} às ${hora(ag.inicio, fuso)}.`,
           }
-        : { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
+        : {
+            texto:
+              "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários.",
+          };
     }
     case "CORTAI_CHEGUEI": {
       const { data, error } = await db.rpc(
@@ -495,7 +507,10 @@ export async function tratarRespostaDeLembrete(input: {
             "Já passou do horário do check-in pelo WhatsApp. Fale com a recepção quando chegar, por favor.",
         };
       }
-      return { texto: "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários." };
+      return {
+        texto:
+          "Esse horário não está mais ativo. Me diga aqui o que precisa que eu verifico seus horários.",
+      };
     }
     case "CORTAI_CANCELAR": {
       try {
@@ -516,9 +531,7 @@ export async function tratarRespostaDeLembrete(input: {
       const { notificarAgendamento } = await import("./notificacoes.server");
       const aviso = await notificarAgendamento(ag.id, "cancelamento");
       return {
-        texto: aviso.enviado
-          ? ""
-          : "Cancelado ✅ Quando quiser voltar, é só me chamar aqui.",
+        texto: aviso.enviado ? "" : "Cancelado ✅ Quando quiser voltar, é só me chamar aqui.",
       };
     }
     case "CORTAI_REMARCAR": {
@@ -567,7 +580,7 @@ function telefoneCorresponde(a: string, b: string) {
 async function linkDoCortai(tenantId: string) {
   const db = await admin();
   const { data } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
-  return data?.slug ? `https://cortai.dev/agendar/${data.slug}` : "https://cortai.dev";
+  return data?.slug ? urlPublica(`/agendar/${data.slug}`) : urlPublica("");
 }
 
 /** Quero / Não posso da vaga da lista de espera. Reserva atômica: toque duplo não repete. */

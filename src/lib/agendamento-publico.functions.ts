@@ -18,6 +18,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   const { data } = await db
@@ -726,8 +727,8 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         descricao: (t.descricao || t.texto_boas_vindas || null) as string | null,
         // Endereço estável: redireciona para uma URL assinada nova a cada acesso.
         imagem: temImagem
-          ? `https://cortai.dev/api/public/capa/${slugAtual}`
-          : "https://cortai.dev/capa-social-cortai.jpg",
+          ? urlPublica(`/api/public/capa/${slugAtual}`)
+          : urlPublica("/capa-social-cortai.jpg"),
         logo,
         segmento: (t.segmento as string | null) ?? null,
         endereco: (t.endereco as string | null) ?? null,

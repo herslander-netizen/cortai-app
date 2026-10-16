@@ -83,6 +83,8 @@ jobs:
           # Projeto da prévia (cortai-prod). Endereço e chave pública vão para o navegador: não são segredos.
           VITE_SUPABASE_URL: https://ibsberidejlbczxrweqg.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_jGNr3ZXqTm603K_TtSK8rQ_sbQQT6IF
+          # Links de compartilhar e prévias de link no navegador apontam para a prévia (src/lib/origem-publica.ts).
+          VITE_CORTAI_PUBLIC_URL: https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev
         run: |
           # Só a raiz do projeto (https://<ref>.supabase.co): sem /rest/v1, /auth/v1 nem barra final.
           VITE_SUPABASE_URL="$(printf '%s' "$VITE_SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/+$##')"

@@ -46,10 +46,9 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
-2. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
-3. **C5** — quitação de fiado numa RPC atômica com idempotência.
-4. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
+1. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
+2. **C5** — quitação de fiado numa RPC atômica com idempotência.
+3. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
 
 Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
 
@@ -57,7 +56,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 12:45 | N3: links de `cortai.dev` lendo a origem do ambiente | `src/lib/origem-publica.ts` (novo), links de compartilhar/prévia/WhatsApp, `preview-migration.yml` |
+| — | — | — | — |
 
 ## Recados
 
@@ -84,6 +83,23 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 12:55 UTC — Claude — N3: links seguem o ambiente em que o app roda
+- Commit: este
+- O que mudou e por quê: na prévia, compartilhar, abrir o agendamento, prévias de link, imagem
+  social e os links das mensagens de WhatsApp levavam para `cortai.dev` (produção antiga). Novo
+  `src/lib/origem-publica.ts` (`origemPublica`/`urlPublica`/`hostPublico`): servidor lê
+  `CORTAI_PUBLIC_BASE_URL`, navegador lê `VITE_CORTAI_PUBLIC_URL` (posto no build da prévia em
+  `preview-migration.yml`); sem as duas, `https://cortai.dev` como antes. Trocados: compartilhar
+  e QR da página pública, `SecaoLink`, `barbeiro.marca`, `previa.ts`, imagem social e capa,
+  links de lembrete/agendamento/avaliação/vaga no WhatsApp, `schema-negocio`, endereço de eventos
+  mostrado no ADM e `URL_DE_ATUALIZACAO`. **Mantidos de propósito:** metatags canônicas de SEO
+  (`apresentacao`, `login`, `privacidade`, `loja`, `home-publica`), o guarda que recusa `cortai.dev`
+  em `whatsapp.functions.ts`/`whatsapp-central.functions.ts` e os hosts do PWA.
+- Testes: `tsc` ok; `vitest` 1503 passaram (3 novos em `origem-publica.test.ts`); `build` ok.
+  `eslint` só acusa `any` que já existiam nesses arquivos.
+- Banco/infra: o workflow da prévia ganhou `VITE_CORTAI_PUBLIC_URL` (valor público, não é segredo).
+- Pendente / atenção para o outro: próxima livre é 16 / N4.
 
 ### 2026-10-16 12:40 UTC — Claude — C3: login das redes sociais preso a quem iniciou
 - Commit: este

@@ -13,6 +13,7 @@ import {
   type ConfiguracaoDoAtendimento,
   type TomDoAtendimento,
 } from "./contrato";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -747,7 +748,7 @@ export async function processarMensagemRecebida(input: {
     if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
-  const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
+  const link = tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : urlPublica("");
   const fallback = `Recebi sua mensagem! Estou com instabilidade agora — pode me escrever de novo daqui a pouco, que eu continuo por aqui. Se preferir, também dá para agendar pelo link: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db

@@ -19,6 +19,7 @@ import {
   type PreferenciaDaFila,
   type ServicoDaVaga,
 } from "@/lib/fila-compatibilidade";
+import { urlPublica } from "@/lib/origem-publica";
 
 export { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
 const LOTE_DA_FILA = 200;
@@ -66,7 +67,7 @@ function partes(iso: string, fuso: string) {
 }
 
 export function linkDaOferta(token: string) {
-  return `https://cortai.dev/vaga/${token}`;
+  return urlPublica(`/vaga/${token}`);
 }
 
 /** Oferece a vaga de um agendamento cancelado/remarcado ao próximo compatível. */
