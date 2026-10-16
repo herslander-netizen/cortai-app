@@ -61,7 +61,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 13:45 | Achados menores: N6 (`convidar_membro`), C6 (`has_role`) | migração `0037` |
 
 ## Recados
 
