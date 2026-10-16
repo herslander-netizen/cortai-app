@@ -157,9 +157,11 @@ export const getSessao = createServerFn({ method: "GET" })
     };
 
     // Admin da plataforma entra no ADM, a não ser que tenha escolhido o painel do negócio
-    // (contexto "negocio" com vínculo ativo). As funções do servidor continuam conferindo
-    // vínculo e permissões em cada ação.
-    if (papelAdmin && !(contextoAtivo === "negocio" && vinculo?.ativo)) {
+    // (contexto "negocio" com vínculo ativo) ou a área de cliente na tela /escolher. As funções
+    // do servidor continuam conferindo vínculo e permissões em cada ação.
+    const escolheuOutraArea =
+      (contextoAtivo === "negocio" && vinculo?.ativo) || contextoAtivo === "cliente";
+    if (papelAdmin && !escolheuOutraArea) {
       return { ...base, papel: "admin" as const };
     }
     // Conta com os dois contextos que escolheu "cliente": entra como cliente,

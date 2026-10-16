@@ -1,12 +1,15 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronRight, Plus, Store } from "lucide-react";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CalendarDays, ChevronRight, Plus, ShieldCheck } from "lucide-react";
+import { useState, type ReactNode } from "react";
 
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { definirBarbeariaAtiva, getMinhasBarbearias } from "@/lib/barbearias.functions";
+import { opcoesDeEntrada, type OpcaoDeEntrada } from "@/lib/contextos";
 import { esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
+import { definicaoDoSegmento } from "@/lib/segmentos";
 import { escolherContexto } from "@/lib/sessao.functions";
 
 export const Route = createFileRoute("/escolher")({
@@ -37,26 +40,92 @@ export const Route = createFileRoute("/escolher")({
 const CARTAO =
   "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[var(--raio-bloco)] border border-line bg-ink2 px-4 py-4 text-left transition-colors hover:bg-ink3 disabled:opacity-60";
 
+function chaveDaOpcao(o: OpcaoDeEntrada) {
+  return o.tipo === "negocio" ? o.tenantId : o.tipo;
+}
+
 function EscolherContexto() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [enviando, setEnviando] = useState<"cliente" | "negocio" | null>(null);
+  const [enviando, setEnviando] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const primeiroNome = sessao.nome?.split(" ")[0];
+  const { data: negocios, isError } = useQuery({
+    queryKey: ["minhas-barbearias"],
+    queryFn: () => getMinhasBarbearias(),
+    staleTime: 60000,
+  });
 
-  async function entrar(contexto: "cliente" | "negocio") {
-    setEnviando(contexto);
+  // Enquanto a lista carrega, o negócio da sessão (se houver) segura o lugar; sem ela, nada some.
+  const carregando = !negocios && !isError && sessao.contextos.negocio;
+  const opcoes = opcoesDeEntrada({
+    adminDaPlataforma: Boolean(sessao.adminDaPlataforma),
+    negocios:
+      negocios ??
+      (sessao.tenantId
+        ? [
+            {
+              id: sessao.tenantId,
+              nome: sessao.tenantNome ?? "Meu negócio",
+              segmento: sessao.segmento,
+              acessoAtivo: true,
+              ativa: true,
+            },
+          ]
+        : []),
+  }).filter((o) => !(carregando && o.tipo === "criar_negocio"));
+
+  async function entrar(o: OpcaoDeEntrada) {
+    if (o.tipo === "criar_negocio") {
+      void navigate({ to: "/comecar" });
+      return;
+    }
+    setEnviando(chaveDaOpcao(o));
     setErro(null);
     try {
-      await escolherContexto({ data: { contexto } });
+      if (o.tipo === "negocio") {
+        await definirBarbeariaAtiva({ data: { tenantId: o.tenantId } });
+        await escolherContexto({ data: { contexto: "negocio" } });
+      } else {
+        await escolherContexto({ data: { contexto: o.tipo } });
+      }
       esquecerSessao();
       qc.clear();
-      await navigate({ to: contexto === "cliente" ? "/app" : "/barbeiro", replace: true });
+      const destino = o.tipo === "cliente" ? "/app" : o.tipo === "admin" ? "/admin" : "/barbeiro";
+      await navigate({ to: destino, replace: true });
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível continuar agora.");
       setEnviando(null);
     }
+  }
+
+  function conteudo(o: OpcaoDeEntrada): { icone: ReactNode; titulo: string; detalhe: string } {
+    if (o.tipo === "cliente")
+      return {
+        icone: <CalendarDays className="size-6 text-gold" aria-hidden />,
+        titulo: "Cliente",
+        detalhe: "Agendamentos, comandas e histórico",
+      };
+    if (o.tipo === "admin")
+      return {
+        icone: <ShieldCheck className="size-6 text-gold" aria-hidden />,
+        titulo: "Painel do ADM",
+        detalhe: "Administração da plataforma Cortaí",
+      };
+    if (o.tipo === "criar_negocio")
+      return {
+        icone: <Plus className="size-6 text-gold" aria-hidden />,
+        titulo: "Criar meu negócio",
+        detalhe: "Na mesma conta, sem novo cadastro",
+      };
+    const segmento = definicaoDoSegmento(o.segmento);
+    const Icone = segmento.icone;
+    return {
+      icone: <Icone className="size-6 text-gold" aria-hidden />,
+      titulo: o.nome,
+      detalhe: `${segmento.rotulo} · agenda, clientes e administração`,
+    };
   }
 
   return (
@@ -68,57 +137,28 @@ function EscolherContexto() {
       <p className="mt-1 text-base text-mute">Onde você quer entrar?</p>
 
       <div className="mt-8 grid gap-3">
-        <button
-          type="button"
-          className={CARTAO}
-          disabled={enviando !== null}
-          onClick={() => void entrar("cliente")}
-        >
-          <CalendarDays className="size-6 text-gold" aria-hidden />
-          <span className="min-w-0">
-            <span className="block text-base font-semibold text-paper">Cliente</span>
-            <span className="mt-0.5 block text-xs text-mute">
-              {enviando === "cliente" ? "Entrando…" : "Agendamentos, comandas e histórico"}
-            </span>
-          </span>
-          <ChevronRight className="size-5 text-mute2" aria-hidden />
-        </button>
-
-        {sessao.contextos.negocio ? (
-          <button
-            type="button"
-            className={CARTAO}
-            disabled={enviando !== null}
-            onClick={() => void entrar("negocio")}
-          >
-            <Store className="size-6 text-gold" aria-hidden />
-            <span className="min-w-0">
-              <span className="block truncate text-base font-semibold text-paper">
-                {sessao.tenantNome ?? "Meu negócio"}
+        {opcoes.map((o) => {
+          const chave = chaveDaOpcao(o);
+          const { icone, titulo, detalhe } = conteudo(o);
+          return (
+            <button
+              key={chave}
+              type="button"
+              className={CARTAO}
+              disabled={enviando !== null}
+              onClick={() => void entrar(o)}
+            >
+              {icone}
+              <span className="min-w-0">
+                <span className="block truncate text-base font-semibold text-paper">{titulo}</span>
+                <span className="mt-0.5 block text-xs text-mute">
+                  {enviando === chave ? "Entrando…" : detalhe}
+                </span>
               </span>
-              <span className="mt-0.5 block text-xs text-mute">
-                {enviando === "negocio" ? "Entrando…" : "Agenda, clientes e administração"}
-              </span>
-            </span>
-            <ChevronRight className="size-5 text-mute2" aria-hidden />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className={CARTAO}
-            disabled={enviando !== null}
-            onClick={() => void navigate({ to: "/comecar" })}
-          >
-            <Plus className="size-6 text-gold" aria-hidden />
-            <span className="min-w-0">
-              <span className="block text-base font-semibold text-paper">Criar meu negócio</span>
-              <span className="mt-0.5 block text-xs text-mute">
-                Na mesma conta, sem novo cadastro
-              </span>
-            </span>
-            <ChevronRight className="size-5 text-mute2" aria-hidden />
-          </button>
-        )}
+              <ChevronRight className="size-5 text-mute2" aria-hidden />
+            </button>
+          );
+        })}
       </div>
 
       {erro ? (

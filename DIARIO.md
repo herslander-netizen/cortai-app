@@ -123,6 +123,19 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-16 21:40 UTC — Claude — Tela /escolher com todos os negócios e o painel do ADM
+- O que mudou e por quê: o dono (dono da Barbearia Prime e do Bella Rosa, e admin) só via "Cliente" e
+  um negócio na tela "Onde você quer entrar?"; o salão e o ADM não apareciam. Agora a tela lista
+  Cliente, **cada negócio com acesso ativo** (nome e tipo, via `definicaoDoSegmento`) e **Painel do
+  ADM** só para admin. A troca usa as mesmas funções do `TrocarPainel` (`definirBarbeariaAtiva` +
+  `escolherContexto`). Regra pura em `opcoesDeEntrada` (`src/lib/contextos.ts`), com testes.
+- `getMinhasBarbearias` passou a trazer `segmento`.
+- `getSessao`: admin que escolhe "Cliente" na tela agora entra como cliente (antes voltava ao ADM).
+  O ADM continua sendo o padrão quando nada foi escolhido; o servidor segue conferindo `has_role`.
+- Testes: `tsc`, `vitest` (163 arquivos, 1506 testes) e `build` passaram; eslint sem avisos nos
+  arquivos tocados. Tela não conferida em navegador logado.
+- Banco/infra: nada alterado. Sem versão lançada.
+
 ### 2026-10-16 17:50 UTC — GPT via GitHub — Correção de rota da landing para a apresentação oficial
 - Commit: `e317031b` (correção da rota e da landing oficial).
 - O que mudou e por quê: revertida a landing estática indevida de `/`; a rota raiz volta ao comportamento original de autenticação e apresentação. Ajustes visuais/CTAs são feitos dentro de `ShowroomCortai`, a página oficial `/apresentacao`, sem alterar o conteúdo publicado pelo administrador. Removidos os componentes auxiliares criados fora de escopo e o CSS de revelação, restaurado o CSS original.

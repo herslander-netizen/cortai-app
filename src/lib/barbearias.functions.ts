@@ -8,6 +8,7 @@ export type BarbeariaVinculada = {
   id: string;
   nome: string;
   slug: string | null;
+  segmento: string | null;
   logoUrl: string | null;
   plano: string;
   planoNome: string;
@@ -32,7 +33,9 @@ export const getMinhasBarbearias = createServerFn({ method: "GET" })
     const [{ data: vinculos }, { data: perfil }, { data: planos }] = await Promise.all([
       db
         .from("tenant_usuarios")
-        .select("tenant_id, papel, ativo, tenants(id, nome, slug, plano, ativo, logo_url)")
+        .select(
+          "tenant_id, papel, ativo, tenants(id, nome, slug, segmento, plano, ativo, logo_url)",
+        )
         .eq("user_id", context.userId),
       db.from("perfis").select("tenant_ativo").eq("user_id", context.userId).maybeSingle(),
       db.from("planos_da_plataforma").select("chave, nome"),
@@ -57,6 +60,7 @@ export const getMinhasBarbearias = createServerFn({ method: "GET" })
           id: string;
           nome: string;
           slug: string | null;
+          segmento: string | null;
           plano: string | null;
           ativo: boolean | null;
           logo_url: string | null;
@@ -68,6 +72,7 @@ export const getMinhasBarbearias = createServerFn({ method: "GET" })
           id: v.tenant_id,
           nome: t?.nome ?? "Negócio",
           slug: t?.slug ?? null,
+          segmento: t?.segmento ?? null,
           logoUrl: t?.logo_url ?? null,
           plano,
           planoNome: nomeDoPlano.get(plano) ?? plano,
