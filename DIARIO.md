@@ -131,7 +131,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT | 2026-10-17 00:10 UTC | Corrigir espaçamento vertical do indicador superior dos pontos da agenda | src/components/barbeiro/AgendaOperacional.tsx |
 
 ## Recados
 
