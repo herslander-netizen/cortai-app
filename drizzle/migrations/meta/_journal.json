@@ -204,6 +204,20 @@
       "when": 1792104501667,
       "tag": "0028_funcoes_de_gatilho_sem_execucao_direta",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1792110727478,
+      "tag": "0029_itens_de_venda_so_leitura_para_equipe",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792110800492,
+      "tag": "0030_pedidos_de_projeto_so_pelo_servidor",
+      "breakpoints": true
     }
   ]
 }
