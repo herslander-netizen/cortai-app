@@ -614,6 +614,11 @@ export async function processarMensagemRecebida(input: {
     if (erroInsercao.code === "23505") return { tratada: true, motivo: "duplicada" };
     throw new Error(erroInsercao.message);
   }
+  // A pessoa escreveu do próprio número: a ficha passa a receber WhatsApp automático.
+  {
+    const { marcarTelefoneConfirmado } = await import("@/lib/verificacao-telefone.server");
+    await marcarTelefoneConfirmado(tenantId, telefone);
+  }
 
   const { data: linhaAtual } = await db
     .from("conversas_whatsapp")

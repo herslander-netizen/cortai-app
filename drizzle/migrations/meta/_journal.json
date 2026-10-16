@@ -232,6 +232,13 @@
       "when": 1792110920492,
       "tag": "0032_verificacao_de_telefone",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792110980492,
+      "tag": "0033_whatsapp_so_com_numero_confirmado",
+      "breakpoints": true
     }
   ]
 }

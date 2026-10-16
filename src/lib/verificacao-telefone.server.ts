@@ -1,6 +1,6 @@
 /**
  * Confirmação do telefone no agendamento público — banco e WhatsApp (só servidor).
- * Regras puras em `verificacao-telefone.ts`. Tudo tolera a migração 0029 ainda não
+ * Regras puras em `verificacao-telefone.ts`. Tudo tolera a migração 0032 ainda não
  * aplicada: sem a tabela, não há como confirmar e o agendamento segue marcado.
  */
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
@@ -42,6 +42,54 @@ export async function numeroQueRecebeCodigo(tenantId: string): Promise<string | 
   if (escolha.tipo !== "propria") return null;
   const numero = (escolha.conexao.numero ?? "").replace(/\D/g, "");
   return numero.length >= 10 ? numero : null;
+}
+
+/**
+ * A pessoa escreveu do próprio número para o negócio (ou mandou o código): a ficha
+ * passa a receber WhatsApp automático. Só marca quem ainda não estava marcado; nunca lança.
+ */
+export async function marcarTelefoneConfirmado(tenantId: string, telefone: string) {
+  try {
+    const db = await admin();
+    await db
+      .from("clientes")
+      .update({ whatsapp_confirmado_em: new Date().toISOString() })
+      .eq("tenant_id", tenantId)
+      .in("telefone", variantesDoTelefone(telefone))
+      .is("whatsapp_confirmado_em", null);
+  } catch {
+    /* antes da migração 0033 a coluna não existe: segue a regra antiga */
+  }
+}
+
+/**
+ * Depois de confirmar pelo código, os próximos horários da ficha recebem a confirmação
+ * que ficou retida (o envio é idempotente por agendamento e tipo).
+ */
+async function enviarConfirmacoesRetidas(tenantId: string, telefone: string) {
+  try {
+    const db = await admin();
+    const { data: fichas } = await db
+      .from("clientes")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .in("telefone", variantesDoTelefone(telefone));
+    const ids = (fichas ?? []).map((f) => f.id);
+    if (!ids.length) return;
+    const { data: proximos } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .in("cliente_id", ids)
+      .eq("status", "agendado")
+      .gte("inicio", new Date().toISOString())
+      .order("inicio")
+      .limit(3);
+    const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+    for (const a of proximos ?? []) await notificarAgendamento(a.id, "confirmacao_agendamento");
+  } catch {
+    /* o horário já está salvo; a confirmação fica na tela */
+  }
 }
 
 /** Cria um pedido de confirmação. null = não há como confirmar agora. */
@@ -100,7 +148,7 @@ export async function tentarConfirmarTelefoneDoCliente(
   const db = await admin();
   const { data: pendentes, error } = await db
     .from("verificacoes_de_telefone")
-    .select("id, codigo_hash, expira_em, tentativas, verificado_em")
+    .select("id, tenant_id, codigo_hash, expira_em, tentativas, verificado_em")
     .in("telefone", variantesDoTelefone(telefone))
     .is("verificado_em", null)
     .gt("expira_em", new Date().toISOString())
@@ -122,5 +170,7 @@ export async function tentarConfirmarTelefoneDoCliente(
     .from("verificacoes_de_telefone")
     .update({ verificado_em: new Date().toISOString() })
     .eq("id", certo.id);
-  return "Telefone confirmado ✅ Volte para a página de agendamento: seu horário será concluído lá.";
+  await marcarTelefoneConfirmado(certo.tenant_id, telefone);
+  await enviarConfirmacoesRetidas(certo.tenant_id, telefone);
+  return "Telefone confirmado ✅ A confirmação e os lembretes dos seus horários chegam por aqui. Se estava agendando, volte para a página: o horário é concluído lá.";
 }

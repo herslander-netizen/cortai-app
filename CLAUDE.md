@@ -135,3 +135,4 @@ Fases 1 a 5 da CortAI aprovadas e feitas na branch `ccr-3f34ed3f-07fy6o` e trazi
 4. Selos (desligada, pausada, limite) no cabeçalho e no chat; aba CortAI no ADM com consumo, limite e encerrar pausa.
 5. Legado ALVO IA desligado (410), sem DROP; "Secretária" fora dos comentários.
 6. Confirmação do telefone no agendamento público (achado 11). **Migração 0032 (antes 0029) ensaiada, ainda não aplicada no banco.**
+7. Porteiro do WhatsApp (análise de 11/10 aprovada): número do link/fila/app só recebe depois de confirmado; SAIR/"número errado" param tudo; ritmo de envio. **Migração 0033 (antes 0030) ensaiada, ainda não aplicada no banco.** Pendente: o que é "o do barbeiro por e-mail".

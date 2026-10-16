@@ -544,7 +544,7 @@ export const getCortaiDoNegocio = createServerFn({ method: "GET" })
         .eq("acao", acao)
         .gte("criado_em", umDia)
         .then((r) => r.count ?? 0);
-    // `*`: a leitura vale antes e depois da coluna `cortai_ativa` (migração 0028) existir.
+    // `*`: a leitura vale antes e depois da coluna `cortai_ativa` (migração 0031) existir.
     const [{ data: cfg }, painel, whatsapp, equipe, site] = await Promise.all([
       db.from("config_atendimento_ia").select("*").eq("tenant_id", data.tenantId).maybeSingle(),
       contar("cerebro.painel"),
@@ -602,7 +602,7 @@ export const definirCortaiDoNegocio = createServerFn({ method: "POST" })
       console.error("[admin] definirCortaiDoNegocio falhou:", error.message);
       throw new Error(
         /cortai_ativa/.test(error.message)
-          ? "O interruptor da CortAI ainda não existe no banco (migração 0028 pendente)."
+          ? "O interruptor da CortAI ainda não existe no banco (migração 0031 pendente)."
           : "Não foi possível salvar a CortAI deste negócio agora.",
       );
     }

@@ -167,6 +167,45 @@ describe("SAIR sem cadastro", () => {
     expect(r?.texto).not.toMatch(/^Pronto/);
     expect(r?.encaminharHumano).toBe(true);
   });
+  it("SAIR para todas as automáticas (não só as de relacionamento)", async () => {
+    const { tratarRespostaDeLembrete } = await import("./lembretes.server");
+    fila.push({ data: [{ id: "cli" }], error: null });
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "SAIR",
+    });
+    expect(r?.texto).toContain("mensagens automáticas");
+    expect(atualizacoes).toContainEqual(
+      expect.objectContaining({ whatsapp_parado_motivo: "sair" }),
+    );
+  });
+  it("VOLTAR limpa a parada", async () => {
+    const { tratarRespostaDeLembrete } = await import("./lembretes.server");
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "voltar",
+    });
+    expect(r?.texto).toMatch(/^Pronto/);
+    expect(atualizacoes).toContainEqual({ whatsapp_parado_em: null, whatsapp_parado_motivo: null });
+  });
+  it("'número errado' para tudo e avisa a equipe", async () => {
+    const { tratarRespostaDeLembrete } = await import("./lembretes.server");
+    fila.push({ data: [{ id: "cli", nome: "Ana" }], error: null });
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "Número errado",
+    });
+    expect(r?.texto).toContain("Desculpe pelo engano");
+    expect(atualizacoes).toContainEqual(
+      expect.objectContaining({ whatsapp_parado_motivo: "numero_errado" }),
+    );
+  });
   it("com linha afetada confirma a saída", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
     fila.push({ data: [{ id: "cli" }], error: null });

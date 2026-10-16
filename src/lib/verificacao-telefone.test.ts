@@ -181,8 +181,8 @@ describe("confirmação pelo WhatsApp", () => {
   });
 });
 
-describe("migração 0029", () => {
-  const sql = readFileSync("drizzle/migrations/0029_verificacao_de_telefone.sql", "utf8");
+describe("migração 0032", () => {
+  const sql = readFileSync("drizzle/migrations/0032_verificacao_de_telefone.sql", "utf8");
   it("só acrescenta e deixa os códigos fora do alcance do navegador", () => {
     expect(sql).not.toMatch(/\bDROP\b|\bTRUNCATE\b|\bDELETE\s+FROM\b/i);
     expect(sql).toContain("ENABLE ROW LEVEL SECURITY");

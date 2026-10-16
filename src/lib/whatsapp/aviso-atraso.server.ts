@@ -20,7 +20,9 @@ export async function avisarClienteDoAtraso(input: {
   const db = await admin();
   const { data: ag } = await db
     .from("agendamentos")
-    .select("id, tenant_id, inicio, clientes(nome, telefone), profissionais(nome), tenants(nome)")
+    .select(
+      "id, tenant_id, inicio, cliente_id, clientes(nome, telefone), profissionais(nome), tenants(nome)",
+    )
     .eq("id", input.agendamentoId)
     .eq("tenant_id", input.tenantId)
     .maybeSingle();
@@ -56,6 +58,10 @@ export async function avisarClienteDoAtraso(input: {
   });
 
   if (!telefone) return { enviado: false, motivo: "Cliente sem telefone.", cliente };
+  // Porteiro único: telefone confirmado, SAIR/número errado e número recusado.
+  const { decisaoDeEnvio } = await import("./porteiro.server");
+  const porteiro = await decisaoDeEnvio((ag as { cliente_id?: string | null }).cliente_id);
+  if (!porteiro.pode) return { enviado: false, motivo: porteiro.motivo, cliente };
   try {
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
     const conexao = await conexaoDeEnvio(input.tenantId, "notificacoes");

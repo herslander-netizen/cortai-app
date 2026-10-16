@@ -208,7 +208,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       telefoneNaoConfirmado: false,
     }));
 
-    // Marca "telefone não confirmado" (migração 0029): leitura à parte, só dos horários que
+    // Marca "telefone não confirmado" (migração 0032): leitura à parte, só dos horários que
     // vieram do link, e que nunca derruba a agenda se a coluna ainda não existir.
     const doLink = itens.filter((i) => i.origem === "link_publico").map((i) => i.id);
     if (doLink.length) {
