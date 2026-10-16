@@ -32,7 +32,9 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 ## Automações (GitHub Actions)
 
-- `preview-migration.yml` — a cada push: TypeScript, testes, build, deploy da prévia e envio dos segredos do servidor.
+- `preview-migration.yml` — a cada push: só TypeScript, testes e build (sem prévia desde 16/10).
+- `lancar-versao.yml` — manual: lança a próxima versão (3.1, 3.2…; "grande" vira 4.0) no site principal, com tag `vX.Y` e Release. Primeira: 3.1, em 16/10.
+- `voltar-versao.yml` — manual: põe no ar a versão anterior (campo vazio) ou a pedida, na hora.
 - `aplicar-migracoes-novas.yml` — manual: informe os arquivos e digite `APLICAR`. Cada arquivo numa transação; registro em `cortai_controle.migracoes_aplicadas` (já aplicadas são puladas).
 - `montar-banco-novo.yml` — só para banco vazio (montagem do zero). Não usar no `cortai-prod`, que já está montado.
 
@@ -56,9 +58,9 @@ Segredos usados (nomes): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PREVI
 ## Pendências
 
 Do dono:
-1. Conferir Site URL e Redirect URL do Auth do Supabase apontando para a prévia.
-2. Escolher a IA (Groq grátis ou Muse Spark pago) e colocar `PREVIEW_CORTAI_AI_*`.
-3. Testar o uso real na prévia: serviços, profissionais, agenda, comanda, cobrança.
+1. Conferir Site URL e Redirect URL do Auth do Supabase apontando para `https://cortaiapp.pages.dev`.
+2. Escolher a IA (Groq grátis ou Muse Spark pago) e colocar `PREVIEW_CORTAI_AI_*` (o nome dos segredos ficou; valem para o site principal).
+3. Testar o uso real no site principal: serviços, profissionais, agenda, comanda, cobrança.
 
 Técnicas:
 - Textos fixos de tela com "barbearia"/"barbeiro": trocados por termos neutros em 16/10 (rotas, tabelas, papéis e o vocabulário do WhatsApp ficam como estão).
