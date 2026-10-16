@@ -46,11 +46,10 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-1. **C3** — `state` do OAuth com nonce de uso único, usuário e prazo (`src/lib/redes-sociais.server.ts`).
-2. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
-3. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
-4. **C5** — quitação de fiado numa RPC atômica com idempotência.
-5. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
+1. **N3** — links fixos de `cortai.dev` lendo a origem de variável, com `cortai.dev` como padrão.
+2. **16 / N4** — limite em salvar e publicar rascunho de negócio sem login.
+3. **C5** — quitação de fiado numa RPC atômica com idempotência.
+4. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
 
 Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
 
@@ -58,7 +57,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-16 12:15 | C3: `state` do OAuth com nonce, usuário e prazo | `src/lib/redes-sociais*.ts`, `src/routes/api/public/oauth/$plataforma.ts`; migração `0036` |
+| — | — | — | — |
 
 ## Recados
 
@@ -85,6 +84,19 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 12:40 UTC — Claude — C3: login das redes sociais preso a quem iniciou
+- Commit: este
+- O que mudou e por quê: o `state` do OAuth era fixo por negócio (`tenantId.HMAC`) e quem o visse
+  ligava a própria conta ao negócio a qualquer hora. Agora (`src/lib/redes-sociais.server.ts`):
+  negócio, pessoa, plataforma, prazo de 10 min e nonce aleatório, assinados; o nonce vai também num
+  cookie HttpOnly (`cortai_oauth_<plataforma>`, path `/api/public/oauth`) e o callback só aceita
+  com esse cookie, apagando-o em toda resposta. O callback também confere `permissao_efetiva`
+  (`alterar_dados_barbearia`) de quem iniciou e grava `conectado_por`.
+- Testes: `tsc` ok; `vitest` 1500 passaram (3 novos em `redes-sociais.test.ts`); `eslint` dos
+  arquivos tocados ok; `build` ok. Sem chaves da Meta/TikTok, o fluxo real não foi exercitado.
+- Banco/infra: nada (a reserva da `0036` foi liberada; não precisou de migração).
+- Pendente / atenção para o outro: próxima livre é N3.
 
 ### 2026-10-16 13:00 UTC — Claude — C2: anônimo só lê as colunas públicas
 - Commit: este

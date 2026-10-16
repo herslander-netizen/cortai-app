@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { getRequest, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -47,7 +47,8 @@ export const iniciarConexaoSocial = createServerFn({ method: "POST" })
       const tenantId = await tenantIdDoMembro(context);
       await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
 
-      const { credenciaisDaPlataforma, assinarEstado } = await import("@/lib/redes-sociais.server");
+      const { credenciaisDaPlataforma, criarEstado, nomeDoCookieDoEstado, VALIDADE_DO_ESTADO_MS } =
+        await import("@/lib/redes-sociais.server");
       const creds = credenciaisDaPlataforma(data.plataforma);
 
       if (!creds) {
@@ -68,7 +69,17 @@ export const iniciarConexaoSocial = createServerFn({ method: "POST" })
 
       const origem = new URL(getRequest().url).origin;
       const redirectUri = `${origem}/api/public/oauth/${data.plataforma}`;
-      const state = assinarEstado(tenantId, creds.clientSecret);
+      const { state, nonce } = criarEstado(
+        { tenantId, userId: context.userId, plataforma: data.plataforma },
+        creds.clientSecret,
+      );
+      setCookie(nomeDoCookieDoEstado(data.plataforma), nonce, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/api/public/oauth",
+        maxAge: VALIDADE_DO_ESTADO_MS / 1000,
+      });
       const url = urlDeAutorizacao(data.plataforma, {
         clientId: creds.clientId,
         redirectUri,
