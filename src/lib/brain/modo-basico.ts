@@ -10,6 +10,7 @@
  * Entende: agendar; buscar cliente por nome; serviços e preços; equipe; horário de
  * funcionamento; horários livres; resumo do dia. Conversa livre exige a IA.
  */
+import { respostaDeAjuda } from "./ajuda-do-painel";
 import {
   ehPedidoDeAgendar,
   formatarHora,
@@ -487,6 +488,7 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
           : `Não há horários livres em ${rotuloDoDia(dia)}.`,
       );
     }
+    if (i === "como_fazer") return texto(respostaDeAjuda(ultima));
     return texto(AJUDA);
   }
 }
