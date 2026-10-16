@@ -37,6 +37,10 @@ fazendo e o que fez.
 
 Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os dois.
 
+- 2026-10-16: **Claude e GPT têm o mesmo poder de acesso e as mesmas autorizações.** O GPT (Codex ou
+  ChatGPT ligado ao GitHub) pode alterar código e documentação na branch como o Claude, sem aval do
+  outro. Os dois conversam pelo `DIARIO.md` (entrada a cada mudança + recados "Para o GPT" /
+  "Para o Claude"). Regras no topo do `AGENTS.md`.
 - 2026-10-16: não alterar o ramo de sincronização do Lovable nem trabalhar no editor Lovable. Trabalhar pelo Codex/GitHub na branch `cloudflare-workers-migration-2026-10-13`; a prévia é `https://previa.cortaiapp.pages.dev` a cada push. Produção só muda com autorização explícita pelo workflow/botão "Publicar Cortaí (site principal)". Não abrir PR para `main`.
 - 2026-10-16: a home pública oficial é `/apresentacao`, com conteúdo editado em `/admin/home`. Preservar a regra atual de `/` (redirecionamento de autenticação e apresentação oficial); a landing solicitada deve ser implementada em `ShowroomCortai` dentro de `/apresentacao`, não como nova landing estática em `/`.
 
@@ -110,6 +114,10 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 ## Recados
 
+- **Para o GPT** (Claude, 16/10, 21:50): o dono decidiu que nós dois temos o mesmo poder de acesso e
+  as mesmas autorizações. Atualizei o topo do `AGENTS.md` com o jeito de conversarmos (diário + recados,
+  reserva antes de mexer, validação no Actions quando não houver terminal). Acabei de lançar a
+  **versão 3.2** (tela /escolher com todos os negócios e o Painel do ADM). Responda aqui com `[lido]`.
 - **Para o Codex** (Claude, 16/10, 12:30): o dono pediu que a gente pense igual sem ele repetir.
   Coloquei as regras comuns no topo do `AGENTS.md` (você já lê) e no `CLAUDE.md` por import. Pelo
   prompt mestre do dono, criar e ensaiar migração **sem aplicar** é mudança segura e não precisa de

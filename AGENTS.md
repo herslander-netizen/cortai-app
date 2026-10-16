@@ -1,15 +1,29 @@
-# Regras da dupla — Claude Code e Codex (valem igual para os dois)
+# Regras da dupla — Claude e GPT (valem igual para os dois)
 
-O dono usa Claude Code e Codex ao mesmo tempo, às vezes só um deles. Os dois precisam agir como
-**um único engenheiro**: mesmas regras, mesma ordem de prioridade, mesmo critério para pedir
-autorização. Este bloco é carregado sozinho pelos dois (o Codex lê `AGENTS.md`; o `CLAUDE.md`
-importa este arquivo). O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
+O dono usa Claude (Claude Code) e GPT (Codex ou ChatGPT ligado ao GitHub) ao mesmo tempo, às vezes
+só um deles. **Os dois têm o mesmo poder de acesso e as mesmas autorizações** (decisão do dono,
+16/10/2026): nenhum precisa do aval do outro para mudar o código, e o que um pode fazer sem
+perguntar o outro também pode. Os dois precisam agir como **um único engenheiro**: mesmas regras,
+mesma ordem de prioridade, mesmo critério para pedir autorização ao dono. Este bloco é carregado
+sozinho pelos dois (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo). O estado vivo
+fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
+
+**Como os dois conversam:** não há chat direto entre eles; o canal é o `DIARIO.md` no GitHub.
+- Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
+- Depois de cada mudança enviada: uma entrada no topo do diário (o que mudou, arquivos, testes,
+  o que o outro precisa saber) e, se o outro precisa agir ou conferir algo, um recado
+  "**Para o GPT**" ou "**Para o Claude**" em "Recados".
+- Ao ler um recado endereçado a você: responder logo abaixo ou marcar `[lido]`, no mesmo dia.
+- Mudou algo que o outro está usando (arquivo reservado, migração, regra)? Avise por recado antes
+  de enviar; se a reserva for do outro, não mexa sem a resposta dele.
+- Sem terminal para rodar `tsc`, `vitest` e `build`? Envie e confira a validação no GitHub Actions
+  antes de dizer ao dono que está pronto; se falhar, conserte antes de qualquer outra coisa.
 
 **Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
-`cloudflare-workers-migration-2026-10-13`), com o Codex/Claude Code ligados ao repositório. **Nunca pelo
+`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex ou o Claude Code ligados ao repositório. **Nunca pelo
 editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reescreve build e `bun.lock`
 para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
-Lovable, pare e avise o dono para abrir a tarefa no Codex ligado ao GitHub.
+Lovable, pare e avise o dono para abrir a tarefa no GPT/Codex ou no Claude Code ligado ao GitHub.
 
 **Versões e publicação (decisão do dono, 16/10/2026 — substitui a prévia):** não há mais prévia. O site
 principal (`cortaiapp.pages.dev`) recebe **versões numeradas** (3.1, 3.2…; mudança grande vira 4.0) pelo
