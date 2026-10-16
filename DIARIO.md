@@ -57,6 +57,11 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 - 2026-10-16: a conta do dono é **herslander@gmail.com**. Ela foi ligada como **dona do negócio de
   demonstração** (`0de00000-…-0001`, slug `barbearia-prime`) no `cortai-prod`, com autorização do dono
   (perfil: contexto `negocio`, negócio ativo = demonstração). O negócio `Teste01` é de outra conta.
+- 2026-10-16: o dono pediu um **salão de exemplo** com cara de negócio real (sem "teste" ou
+  "demonstração" no nome): **Bella Rosa Studio de Beleza** (`/bella-rosa`, id `b0a10000-…-0001`),
+  dono `herslander@gmail.com`. Criado no `cortai-prod` pelo script `supabase/demos/salao-bella-rosa.sql`
+  (ensaiado antes no banco local, idempotente). Fotos do Unsplash conferidas pela automação
+  `conferir-links.yml`.
 
 ## Próximas tarefas (ordem combinada)
 
