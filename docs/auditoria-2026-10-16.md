@@ -180,3 +180,82 @@ O banco original do Lovable não foi consultado: ele não responde (504) e está
 5. **N3:** origem configurável para os links (antes de divulgar a prévia).
 6. **12 e 15:** colunas sensíveis para o anônimo e limites dos buckets.
 7. **N6, N7, N8, 10:** limpezas.
+
+---
+
+## Complemento — segunda leitura (16/10/2026, mais tarde)
+
+Feita em outra sessão, também **somente leitura**:
+- **Código:** a `main` (`a709f88`). Os arquivos citados abaixo são iguais nesta branch (conferido).
+- **Banco:** o mesmo `cortai-prod`, só o catálogo e contagens.
+- **Banco do Lovable:** continuou em 504.
+- **Nada foi exercitado:** nenhuma chamada como `anon` ou `authenticated`.
+
+### Correção de uma afirmação acima
+
+Na linha do achado 12, o texto diz que "nenhuma outra coluna sensível é visível ao anônimo". **Não é o caso.** No `cortai-prod`, `anon` e `authenticated` têm privilégio de **tabela inteira** (`SELECT, INSERT, UPDATE, DELETE…`) em `tenants`, `servicos`, `profissionais`, `conexoes_sociais` e outras tabelas.
+
+Os `GRANT SELECT (colunas)` das migrações (`20260912204526_…`, `20260912222429_…` e `drizzle/0008`) não restringem nada porque, exceto em `produtos`, nenhuma faz `REVOKE SELECT` da tabela antes. O RLS ainda escolhe as linhas, mas **todas as colunas** das linhas visíveis ficam abertas.
+
+### N2 (`venda_itens`) — já fechado no banco
+
+Hoje `venda_itens` só tem a política `equipe le itens das vendas visiveis` (SELECT). O N2 acima parece já fechado no banco; vale confirmar qual migração fechou.
+
+### Achados novos desta leitura
+
+| # | Severidade | Tema |
+|---|---|---|
+| C1 | **Alta** | Tokens OAuth do Instagram/TikTok (`conexoes_sociais.token_acesso`/`token_refresh`) legíveis por qualquer membro |
+| C2 | Média | `anon` lê as 54 colunas de `tenants` ativos (hoje são 2) |
+| C3 | Média | Callback OAuth com `state` fixo por negócio, sem `nonce`, prazo nem usuário |
+| C4 | Média | `pedidos_de_projeto` sem política de INSERT: o formulário público (N4 acima) falha no banco novo |
+| C5 | Baixa | Quitação de fiado grava `pagamentos` confirmado em vários passos, sem RPC atômica nem idempotência |
+| C6 | Baixa | `has_role(_user_id, …)` aceita qualquer `user_id`; com C2/12 dá para descobrir quem é admin |
+| C7 | Baixa | Proteção contra senha vazada desligada no Auth (advisor do Supabase) |
+| C8 | Baixa | Resíduo do achado 4: equipe no WhatsApp sem checagem de permissão por ação |
+
+**C1. Alta — Tokens das redes sociais.**
+- **O que acontece:** a política `Membros leem conexoes do negocio` é `is_tenant_member(tenant_id)`. O `GRANT` por coluna da `drizzle/0008` (sem os tokens) não vale, porque `authenticated` tem `SELECT` na tabela.
+- **Efeito:** barbeiro ou recepção leem pela API os tokens da conta do negócio e postam como ele. Isso contraria `src/lib/AGENTS.md` ("leitura do membro sem tokens"). Hoje há 0 conexões, então nada vazou.
+- **Correção:** `REVOKE ALL ON public.conexoes_sociais FROM anon, authenticated;` e depois o `GRANT SELECT (…)` da 0008 de novo.
+
+**C2. Média — `tenants` inteiro para o anônimo.**
+- **O que acontece:** a política `publico ve barbearias ativas` (`ativo = true`) somada ao `SELECT` de tabela expõe `plano`, `assinatura_status`, `desconto_percentual`, `teste_fim`, `teste_negado`, `indicacao_codigo`, `envios_auto_*` etc.
+- **Correção:** `REVOKE SELECT ON public.tenants, public.servicos, public.profissionais FROM anon;` e os `GRANT SELECT (…)` atuais. Isso também fecha o 12. Conferir antes se a página pública só usa as colunas liberadas.
+
+**C3. Média — `state` do OAuth reutilizável.**
+- **Onde:** `src/lib/redes-sociais.server.ts` (`assinarEstado`/`verificarEstado`).
+- **O que acontece:** `state = tenantId.HMAC(tenantId)`. A comparação é em tempo constante, mas o valor nunca muda.
+- **Efeito:** quem viu o `state` uma vez (histórico do navegador, logs, ex-funcionário) liga a **própria** conta ao negócio a qualquer momento (CSRF de login).
+- **Correção:** `nonce` de uso único, `user_id` de quem iniciou e prazo curto.
+
+**C4. Média — Formulário "Pedir projeto" no banco novo.**
+- **O que acontece:** `enviarPedidoDeProjeto` grava com a chave pública, como `anon`. No `cortai-prod`, `pedidos_de_projeto` só tem SELECT e UPDATE para admin. Sem política de INSERT, o RLS recusa a gravação.
+- **Correção:** trazer a política de INSERT do banco antigo (ou gravar pelo servidor) junto com o limite do N4.
+
+**C5. Baixa — Fiado.**
+- **Onde:** `src/lib/financeiro.functions.ts`, por volta da linha 906.
+- **O que acontece:** com `confirmar_pagamento` (conferido), o servidor grava `pagamentos` confirmado, depois `caixa_movimentos` e depois o fiado, em chamadas separadas e sem chave de idempotência.
+- **Efeito:** uma falha no meio, ou um clique duplo, deixa os números do caixa desencontrados.
+- **Correção:** uma RPC única, como `confirmar_pagamento_comanda_segura`.
+
+**C6, C7, C8:**
+- **C6:** usar `auth.uid()` em `has_role` quando quem chama não é o servidor.
+- **C7:** ligar a proteção em Auth → Password security.
+- **C8:** `acaoPermitida` (`brain/acoes.server.ts`) confere as permissões só no canal `painel`.
+
+### Estado dos achados antigos que acima ficaram "não reverificados"
+
+- **11:** **Aberto** (decisão de produto).
+- **13:** **Aberto**. `ia/acoes.server.ts:365` ainda "cancela primeiro e recria".
+- **14:** **Aberto**. `admin.functions.ts` ainda faz `select("tenant_id")` e conta no servidor.
+- **15:** **Aberto** também nos contadores não atômicos (`cupons.usos + 1`, `nao_lidas + 1`) e no `JSON.parse` sem `try` em `whatsapp/eventos.ts:70`.
+- **16:** a origem do IP foi corrigida, mas `salvarRascunhoDeBarbearia` e `publicarRascunhoDeBarbearia` continuam **sem limite**.
+
+### Ordem sugerida (encaixando com a lista acima)
+
+1. **N1** (credenciais), como acima.
+2. **C1, C2 e C4 numa migração só de acréscimo** (`REVOKE` de tabela + `GRANT` por coluna + INSERT de `pedidos_de_projeto`), **antes de qualquer cliente real no banco novo**. Depois, rodar de novo a lista de privilégios.
+3. **C3:** `nonce` no OAuth, antes de ligar as chaves reais do Instagram/TikTok.
+4. **Achado 6 (resto), N4, 16 e C5.**
+5. **Limpezas:** C6, C7, C8, 12–15 e 10.
