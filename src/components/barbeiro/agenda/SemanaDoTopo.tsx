@@ -63,12 +63,12 @@ function DiaDoCalendario({
       onClick={() => onDia(dia)}
     >
       <span
-        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-11 text-xl" : "size-11 text-xl"} ${escolhido ? `${deslizante ? "" : "bg-menu-icone text-ink"} font-semibold` : hoje ? "font-normal text-menu-icone ring-[1.5px] ring-inset ring-menu-icone" : "font-normal text-paper"} ${deslizante && vizinho === "atual" ? "text-paper" : ""}`}
+        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-11 text-xl" : "size-11 text-xl"} ${escolhido ? `${deslizante ? "" : "bg-[var(--agenda-escolhido)] text-[var(--agenda-escolhido-texto)]"} font-semibold` : hoje ? "font-normal text-[var(--agenda-destaque)] ring-[1.5px] ring-inset ring-[var(--agenda-destaque)]" : "font-normal text-paper"} ${deslizante && vizinho === "atual" ? "text-paper" : ""}`}
         style={
           deslizante && vizinho
             ? {
-                color: `color-mix(in oklab, var(--ink) ${tinta[vizinho]}, ${
-                  !escolhido && hoje ? "var(--menu-icone)" : "var(--paper)"
+                color: `color-mix(in oklab, var(--agenda-escolhido-texto) ${tinta[vizinho]}, ${
+                  !escolhido && hoje ? "var(--agenda-destaque)" : "var(--paper)"
                 })`,
               }
             : undefined
@@ -267,7 +267,7 @@ export function SemanaDoTopo({
                   transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
                 }}
               >
-                <i className="size-11 rounded-full bg-menu-icone" />
+                <i className="size-11 rounded-full bg-[var(--agenda-escolhido)]" />
               </span>
             ) : null}
             {semana.map((d, i) => (
