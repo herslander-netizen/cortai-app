@@ -25,17 +25,17 @@ const TOPICOS: Topico[] = [
   {
     teste: /\bfila de chegada\b|\bchegou sem horario\b|\bsem horario\b|\bavulso\b/,
     resposta:
-      'Fila de chegada (quem chegou sem horário): ligue em Mais › Lista de espera › "Fila de chegada". Ela aparece na Agenda; para atender alguém agora sem agendamento, toque no "+" da Agenda › "Atendimento avulso".',
+      'Fila de chegada (quem chegou sem horário): ligue em Mais › Horários › "Fila de chegada". Ela aparece na Agenda; para atender alguém agora sem agendamento, toque no "+" da Agenda › "Atendimento avulso".',
   },
   {
     teste: /\b(fila|espera|lista de espera)\b/,
     resposta:
-      'Lista de espera: o cliente entra pelo seu link de agendamento quando não acha horário (opção "Avise-me se vagar"). Você acompanha em Mais › Lista de espera, onde pode subir/descer a posição, editar a preferência ou tocar em "Agendar" para marcar direto. Com "Oferecer vagas automaticamente" ligado, a vaga que libera vai para quem combina.',
+      'Lista de espera: o cliente entra pelo seu link de agendamento tocando num horário ocupado e escolhendo entrar na lista de espera daquele horário. Você acompanha em Mais › Lista de espera, onde pode subir/descer a posição, editar a preferência ou tocar em "Agendar" para marcar direto. Com "Oferecer vagas automaticamente" ligado, a vaga que libera vai para quem combina.',
   },
   {
     teste: /\b(cancel\w*)\b/,
     resposta:
-      'Para cancelar: abra a Agenda, toque no atendimento e escolha "Cancelar". Você tem 5 segundos para desfazer. Por aqui, diga "cancelar o horário da Ana amanhã" que eu preparo e peço sua confirmação.',
+      'Para cancelar: abra a Agenda, abra o atendimento e use a opção de cancelar; há alguns segundos para desfazer. Por aqui, diga "cancelar o horário da Ana amanhã" que eu preparo e peço sua confirmação.',
   },
   {
     teste: /\b(remarc\w*|mudar o horario|trocar o horario)\b/,
@@ -50,7 +50,7 @@ const TOPICOS: Topico[] = [
   {
     teste: /\b(cadastr\w*|novo cliente|adicion\w* (?:um )?cliente|criar (?:um )?cliente)\b/,
     resposta:
-      'Para cadastrar um cliente: Mais › Clientes › "Novo cliente". Também dá para criar na hora ao agendar: no "+" da Agenda › "Agendar horário", digite o nome e escolha "Cadastrar".',
+      'Para cadastrar um cliente: no "+" da Agenda › "Agendar horário", digite o nome e toque em "Novo cliente". A lista completa fica em Mais › Clientes.',
   },
   {
     teste: /\b(agend\w*|marc\w*|horario)\b/,

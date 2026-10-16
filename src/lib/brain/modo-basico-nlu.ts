@@ -19,6 +19,8 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
+import { ehPerguntaDeAjuda } from "./ajuda-do-painel";
+
 /* --------------------------------- Intenção -------------------------------- */
 
 export type Intencao =
@@ -29,16 +31,20 @@ export type Intencao =
   | "funcionamento"
   | "buscar_cliente"
   | "disponibilidade"
-  | "ajuda";
+  | "ajuda"
+  | "como_fazer";
 
 const VERBO_DE_AGENDAR = /\b(agend\w*|marc(?:ar|a|ando)|marqu\w*|reserv\w*|encaix\w*)\b/;
 
 export function ehPedidoDeAgendar(texto: string): boolean {
+  if (ehPerguntaDeAjuda(texto)) return false;
   return VERBO_DE_AGENDAR.test(normalizar(texto));
 }
 
 export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
+  // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
+  if (ehPerguntaDeAjuda(texto)) return "como_fazer";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
   if (
     /\b(quanto entrou|faturamento|faturei|movimento|indicadores?|caixa de hoje|quanto (?:ja )?(?:ganhei|fiz))\b/.test(
@@ -47,7 +53,7 @@ export function intencaoDe(texto: string): Intencao {
   )
     return "movimento";
   if (
-    /\b(clientes?)\b.*\b(chamam?|chamado|nome|com nome|de nome)\b|\b(buscar|procurar|achar|localizar|ver)\b.*\bclientes?\b|\bcliente\b\s+\w+/.test(
+    /\b(clientes?)\b.*\b(chamam?|chamado|nome|com nome|de nome)\b|\b(buscar|procurar|achar|localizar|ver)\b.*\bclientes?\b|\bcliente\b\s+(?!(?:na|no|nas|nos|da|do|de|em|para|pra|a|o|um|uma|que|com)\b)\w+/.test(
       t,
     )
   )
