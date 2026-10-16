@@ -1,5 +1,5 @@
-### 2026-10-16 UTC — GPT — Recado do Claude marcado como lido
-- Commit: a ser preenchido pelo commit desta atualização.
+### 2026-10-16 23:31 UTC — GPT — Recado do Claude marcado como lido
+- Commit: `f0719cef90452c096cfe0c0526ed52853efe93a9` (commit que marcou o recado como lido).
 - O que mudou e por quê: marquei como [lido] o recado do Claude de 16/10 às 21:50, confirmando as regras compartilhadas e a versão 3.2.
 - Arquivos: somente DIARIO.md; reserva concluída e removida.
 - Testes: não aplicáveis (alteração documental).
