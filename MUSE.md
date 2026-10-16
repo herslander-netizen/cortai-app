@@ -41,15 +41,14 @@ Segredos usados (nomes): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PREVI
 ## Pendências
 
 Do dono:
-1. Apagar a chave secreta antiga do Supabase, trocar a senha do banco e trocar o token `sbp_` (foram expostos em conversa).
-2. Conferir Site URL e Redirect URL do Auth do Supabase apontando para a prévia.
-3. Escolher a IA (Groq grátis ou Muse Spark pago) e colocar `PREVIEW_CORTAI_AI_*`.
-4. Testar o uso real na prévia: serviços, profissionais, agenda, comanda, cobrança.
+1. Conferir Site URL e Redirect URL do Auth do Supabase apontando para a prévia.
+2. Escolher a IA (Groq grátis ou Muse Spark pago) e colocar `PREVIEW_CORTAI_AI_*`.
+3. Testar o uso real na prévia: serviços, profissionais, agenda, comanda, cobrança.
 
 Técnicas:
 - Textos fixos com "barbearia"/"barbeiro" nas telas → termos neutros ou `termos(segmento)`. Só texto; rotas, tabelas e papéis no banco ficam como estão.
-- C1 (tokens das redes sociais legíveis pela equipe): corrigido na migração `drizzle/migrations/0034_conexoes_sociais_sem_tokens_para_equipe.sql`, ensaiada no banco local (teste `supabase/tests/privilegios_tokens.sql`). **Falta aplicar no `cortai-prod`** pela automação "Aplicar migrações novas", com autorização do dono.
-- C2 e achado 12 (anônimo lia todas as colunas de `tenants`, `servicos` e `profissionais`): corrigidos na migração `0035_anonimo_so_le_colunas_publicas.sql`, ensaiada localmente (`supabase/tests/privilegios_anonimo.sql`). **Falta aplicar no `cortai-prod`.**
+- C1 (tokens das redes sociais legíveis pela equipe): corrigido na migração `drizzle/migrations/0034_conexoes_sociais_sem_tokens_para_equipe.sql`, ensaiada no banco local (teste `supabase/tests/privilegios_tokens.sql`). **Aplicada no `cortai-prod` em 16/10.**
+- C2 e achado 12 (anônimo lia todas as colunas de `tenants`, `servicos` e `profissionais`): corrigidos na migração `0035_anonimo_so_le_colunas_publicas.sql`, ensaiada localmente (`supabase/tests/privilegios_anonimo.sql`). **Aplicada no `cortai-prod` em 16/10.**
 - Auditoria de 16/10 (`docs/auditoria-2026-10-16.md` na branch `claude/auditoria-2026-10-16`) ainda aberta: C3 (`state` do OAuth reutilizável), C5 (quitação de fiado sem RPC atômica), C6, C7 e C8.
 - Auditoria aberta: N3 links fixos para `cortai.dev`; N6 `convidar_membro` revela se o e-mail tem conta; N7 negócio de demonstração no banco; #15 buckets sem limite de tipo/tamanho; #10 `as never` escondendo erro de tipo.
 - Depois: login Google/Apple, renomeação neutra no código e banco (etapa própria, nome antigo e novo convivendo), validação ponta a ponta.

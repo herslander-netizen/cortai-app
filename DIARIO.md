@@ -37,6 +37,10 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   custos e apagar algo **precisam de autorização**. (Prompt mestre do dono, seção 8.)
 - 2026-10-16: migração para fora do Lovable em etapas, sem recomeçar do zero, preservando
   funcionalidades e dados; a `main` fica intacta.
+- 2026-10-16: o dono decidiu **ignorar a troca das credenciais expostas** (N1). Não cobrar nem
+  listar isso como pendência.
+- 2026-10-16: o dono autorizou aplicar `0034` e `0035` no `cortai-prod` (aplicadas às 12:10 UTC)
+  e mandou executar o resto da fila de "Próximas tarefas".
 
 ## Próximas tarefas (ordem combinada)
 
@@ -48,14 +52,13 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 4. **C5** — quitação de fiado numa RPC atômica com idempotência.
 5. Textos com "barbearia"/"barbeiro" nas telas → `termos(segmento)`.
 
-Aguardando o dono: aplicar `0034` e `0035` no `cortai-prod`; trocar credenciais expostas
-(N1); Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
+Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do WhatsApp; teste real na prévia.
 
 ## Em andamento
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 12:15 | C3: `state` do OAuth com nonce, usuário e prazo | `src/lib/redes-sociais*.ts`, `src/routes/api/public/oauth/$plataforma.ts`; migração `0036` |
 
 ## Recados
 
