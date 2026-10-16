@@ -1,3 +1,10 @@
+### 2026-10-16 23:42 UTC — GPT — Espaçamento explícito dos pontos da agenda
+- Commit: `6391b1e0`.
+- O que mudou e por quê: em `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, troquei a classe implícita `gap-1.5` por `gap-[6px]` para declarar explicitamente o espaçamento horizontal de 6 px entre os cinco pontos de `MarcaDoLimiteDoDia`, sem mudar tamanho, cor, posição vertical ou comportamento. As duas capturas fornecidas aparentam ter os pontos na mesma distância; a alteração explicita o valor já equivalente no Tailwind.
+- Testes: ainda aguardando GitHub Actions; sem terminal disponível nesta sessão.
+- Banco/infra: nada.
+- Para o Claude: alteração restrita ao espaçamento dos cinco pontos; conferir o resultado visual se houver diferenças de renderização no Android.
+
 ### 2026-10-16 23:31 UTC — GPT — Recado do Claude marcado como lido
 - Commit: `f0719cef90452c096cfe0c0526ed52853efe93a9` (commit que marcou o recado como lido).
 - O que mudou e por quê: marquei como [lido] o recado do Claude de 16/10 às 21:50, confirmando as regras compartilhadas e a versão 3.2.
@@ -117,7 +124,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-16 23:40 UTC | Ajustar espaçamento horizontal dos cinco pontos da agenda conforme fotos | src/components/barbeiro/agenda/SemanaDoTopo.tsx; CSS específico da marcação agenda-pontos (se necessário) |
+| — | — | — | — |
 
 ## Recados
 
