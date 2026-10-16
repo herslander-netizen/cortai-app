@@ -92,7 +92,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT via GitHub API | 2026-10-16 18:10 | Implementar a experiência premium da landing conforme o prompt master: demonstração interativa sem reservas reais, refino visual, acessibilidade e conteúdo honesto; preservar /, /admin/home e rotas existentes. | `src/components/apresentacao/ShowroomCortai.tsx`, novo `src/components/apresentacao/DemoAgendamento.tsx`, `src/styles.css`, `DIARIO.md`, `MUSE.md`; sem migração |
 
 ## Recados
 
