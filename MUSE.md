@@ -23,8 +23,7 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 | Peça | Estado |
 |---|---|
-| Site principal | https://cortaiapp.pages.dev (Cloudflare Pages) — publicado só pelo botão "Publicar Cortaí (site principal)" (`.github/workflows/publicar-producao.yml`) |
-| Prévia isolada | https://previa.cortaiapp.pages.dev — publicada a cada push na branch (`.github/workflows/preview-migration.yml`) |
+| Site principal | https://cortaiapp.pages.dev (Cloudflare Pages) — versões numeradas pelo botão "Lançar versão" (`.github/workflows/lancar-versao.yml`); volta na hora com "Voltar versão" (`voltar-versao.yml`) |
 | Banco novo | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`), montado do zero com todas as migrações; teste de permissões `supabase/tests/rbac.sql` 68/68 |
 | Login, cadastro, criação de negócio | Testados pelo dono na prévia em 16/10 |
 | Dependências | `bun.lock` usa o registro público do npm |

@@ -83,6 +83,10 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
 - 2026-10-16: **LEI: nada vai ao site principal antes da prévia.** O dono testa e aprova cada versão na
   prévia; só então se publica. "Pode publicar" antigo não vale para mudança nova. (Claude publicou a lista
   "Trocar de painel" direto às 20:57 UTC sem teste do dono — erro registrado; não repetir.)
+- 2026-10-16: **sem prévia.** O dono trocou a prévia por **versões numeradas** no site principal: "Lançar
+  versão" (3.1, 3.2…, grande = 4.0, tag `vX.Y` + Release com as mudanças) e "Voltar versão" (rollback
+  na hora pela Cloudflare). Substitui a lei "nada sem prévia"; continua valendo lançar só quando o dono
+  pedir. A prévia (`previa.cortaiapp.pages.dev`) não recebe mais publicações.
 
 ## Próximas tarefas (ordem combinada)
 
@@ -137,6 +141,18 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para o outro:
 ```
+
+### 2026-10-16 21:20 UTC — Claude — Versões numeradas e "Voltar versão" no lugar da prévia
+- Commit: este
+- O que mudou e por quê: pedido do dono ("esquema 1.0, 1.1, 1.2 com reboot da versão anterior, como o
+  mercado usa"). `publicar-producao.yml` virou `lancar-versao.yml`: testa, calcula a próxima versão
+  pela última tag (`v3.1` na primeira vez, porque o app já estava em 3.0.0), grava em `src/lib/versao.ts`
+  e `public/versao.json`, commit + tag, build, variáveis, publica e cria a Release com o id da
+  publicação da Cloudflare. Novo `voltar-versao.yml`: rollback pela API da Cloudflare (sem novo build).
+  `preview-migration.yml` agora só valida (sem deploy de prévia e sem artefato). `testar-login.yml` só
+  no site principal.
+- Testes: YAML conferido; o primeiro lançamento vai validar o fluxo.
+- Banco/infra: nada no banco.
 
 ### 2026-10-16 20:45 UTC — Claude — "Trocar de painel" com ADM e todos os negócios
 - Commit: este

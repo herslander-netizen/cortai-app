@@ -1,4 +1,4 @@
-name: Testar login (site principal e prévia)
+name: Testar login (site principal)
 
 # Teste de ponta a ponta com navegador real. Cria um usuário temporário de teste
 # (teste-login-<execução>@example.com), entra pela tela /login dos dois sites e apaga o usuário
@@ -20,7 +20,7 @@ jobs:
     env:
       SUPABASE_URL: https://ibsberidejlbczxrweqg.supabase.co
       SERVICE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
-      SITES: "https://cortaiapp.pages.dev https://previa.cortaiapp.pages.dev"
+      SITES: "https://cortaiapp.pages.dev"
     steps:
       - name: Páginas abrem
         run: |

@@ -11,13 +11,13 @@ editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reesc
 para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
 Lovable, pare e avise o dono para abrir a tarefa no Codex ligado ao GitHub.
 
-**Publicar é como no Lovable:** cada push no ramo atualiza a prévia (`previa.cortaiapp.pages.dev`); o site
-principal (`cortaiapp.pages.dev`) só muda pelo botão "Publicar Cortaí (site principal)" no GitHub Actions.
-
-**LEI DO DONO (16/10/2026): nada vai ao site principal sem antes estar na prévia e o dono ter testado e
-aprovado aquela versão.** Toda mudança: envia → espera a prévia terminar (conferir que o deploy deu
-certo) → avisa o dono do que testar → só publica quando ele aprovar **aquela** versão depois de testar.
-Um "pode publicar" antigo não vale para mudanças novas. Nunca disparar o "Publicar" junto com o envio.
+**Versões e publicação (decisão do dono, 16/10/2026 — substitui a prévia):** não há mais prévia. O site
+principal (`cortaiapp.pages.dev`) recebe **versões numeradas** (3.1, 3.2…; mudança grande vira 4.0) pelo
+botão **"Lançar versão"** no GitHub Actions, que testa, grava o número no app, cria a tag `vX.Y` e a
+Release com o que mudou. Se algo der errado, **"Voltar versão"** põe no ar a versão anterior (ou a
+pedida) na hora. Cada push no ramo só roda a validação (TypeScript, testes e build).
+- Lançar versão só quando o dono pedir. Sempre dizer ao dono o número lançado e o que testar.
+- Banco não volta junto com a versão: migração continua só de acréscimo e com autorização.
 
 **Ao começar qualquer sessão, sem esperar o dono pedir:**
 1. `git pull origin cloudflare-workers-migration-2026-10-13` e trabalhar só nessa branch.
