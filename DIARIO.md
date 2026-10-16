@@ -99,7 +99,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 18:10 | Admin troca entre painel do ADM e painel do negócio | `src/lib/sessao.functions.ts`, `src/routes/admin.mais.tsx`, `src/routes/barbeiro.mais.tsx` |
 
 ## Recados
 
