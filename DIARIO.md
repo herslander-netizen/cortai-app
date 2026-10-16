@@ -110,7 +110,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT | 2026-10-16 UTC | Ler e responder recado do Claude endereçado ao GPT com [lido] | DIARIO.md (somente recado e reserva) |
 
 ## Recados
 
