@@ -1,3 +1,10 @@
+### 2026-10-16 18:20 UTC — GPT via GitHub — Implementação premium da apresentação (primeira entrega para validação)
+- Commit: a preencher após publicação na branch.
+- Escopo: acrescentada demonstração interativa local em quatro etapas (estabelecimento, serviço, horário ilustrativo e resumo), sem chamadas à API nem criação de reservas; refinada a composição visual da apresentação com os tokens oficiais; melhorados breakpoints mobile e estados de foco; reduzidos textos que prometiam redução de faltas ou disponibilidade garantida.
+- Preservado: rota /apresentacao, redirecionamento original de /, conteúdo vindo de /admin/home, autenticação, rotas, backend, banco, preços comerciais e integrações.
+- Verificações: pendentes nos GitHub Actions; sem terminal local disponível nesta sessão. Lighthouse/performance não medidos nesta etapa.
+- Próximo passo: verificar CI e deploy isolado da prévia; comparar visualmente em 390px e desktop antes de declarar aceite completo.
+
 # Diário compartilhado — Claude Code e Codex
 
 O dono trabalha com **Claude Code e Codex ao mesmo tempo**, na mesma branch
@@ -92,7 +99,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT via GitHub API | 2026-10-16 18:10 | Implementar a experiência premium da landing conforme o prompt master: demonstração interativa sem reservas reais, refino visual, acessibilidade e conteúdo honesto; preservar /, /admin/home e rotas existentes. | `src/components/apresentacao/ShowroomCortai.tsx`, novo `src/components/apresentacao/DemoAgendamento.tsx`, `src/styles.css`, `DIARIO.md`, `MUSE.md`; sem migração |
+| — | — | — | — |
 
 ## Recados
 

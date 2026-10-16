@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
+import { DemoAgendamento } from "@/components/apresentacao/DemoAgendamento";
 
 import { Conversation, ConversationContent } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -321,7 +322,7 @@ function Lembrete({ segmento }: { segmento: Segmento }) {
           <Balao cliente>Confirmar</Balao>
           <Balao>Confirmado. Até amanhã!</Balao>
           <p className="showroom-chat-nota">
-            <Check /> Menos faltas, sem você mandar mensagem.
+            <Check /> Exemplo ilustrativo. A disponibilidade depende da configuração do estabelecimento.
           </p>
         </ConversationContent>
       </Conversation>
@@ -334,7 +335,7 @@ const RECURSOS = [
     icone: MessageCircle,
     titulo: "Lembrete por WhatsApp",
     texto:
-      "Aviso automático antes de cada horário. O cliente confirma com um toque e as faltas caem.",
+      "Veja como lembretes e confirmações podem aparecer quando a integração estiver habilitada e configurada pelo estabelecimento.",
   },
   {
     icone: CalendarDays,
@@ -359,7 +360,7 @@ const RECURSOS = [
   {
     icone: MessageCircle,
     titulo: "WhatsApp",
-    texto: "O cliente agenda sozinho pelo link, a qualquer hora.",
+    texto: "Conheça o fluxo de conversa apresentado como exemplo. A disponibilidade depende da configuração do estabelecimento.",
   },
 ];
 
@@ -455,6 +456,8 @@ export function ShowroomCortai({
           <Agenda segmento={segmento} />
         </div>
       </section>
+
+      <DemoAgendamento />
 
       <section
         className="showroom-faixa showroom-segmentos"

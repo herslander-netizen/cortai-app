@@ -39,6 +39,13 @@ Recriar a partir do código existente, sem começar do zero. O público é qualq
 
 Segredos usados (nomes): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ACCESS_TOKEN`; opcionais `PREVIEW_CORTAI_AI_*`, `PREVIEW_CORTAI_CRON_SECRET`, `PREVIEW_META_WHATSAPP_*`.
 
+## Landing premium — implementação em validação (2026-10-16)
+
+- A experiência está sendo implementada dentro de ShowroomCortai em /apresentacao; a rota / não foi substituída.
+- Demonstração interativa local de quatro etapas com dados fictícios identificados; não cria reservas nem chama APIs.
+- Refinos visuais seguem tokens oficiais e movimento reduzido. Textos que prometiam resultados garantidos foram suavizados.
+- Status: aguardando CI e confirmação de deploy da prévia. SEO/analytics e Lighthouse ainda precisam de verificação antes do aceite completo.
+
 ## Última correção de rota (2026-10-16)
 
 - A home pública oficial continua em `/apresentacao` e o conteúdo segue editável em `/admin/home`.

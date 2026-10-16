@@ -6404,3 +6404,69 @@ button.agenda-nome:hover {
     display: none;
   }
 }
+
+
+/* Refinamento premium da apresentação: tokens oficiais, sem alterar regras de produto. */
+.showroom-page {
+  --show-bg: var(--paper);
+  --show-surface: var(--background);
+  --show-ink: var(--ink);
+  --show-muted: var(--mute);
+  --show-line: var(--line);
+  --show-accent: var(--gold);
+  --show-accent-soft: color-mix(in oklab, var(--gold) 10%, var(--paper));
+  --show-shadow: 0 28px 80px color-mix(in oklab, var(--ink) 12%, transparent);
+  background: radial-gradient(ellipse at 82% 8%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 35rem), var(--show-bg);
+}
+.showroom-header { border-bottom-color: color-mix(in oklab, var(--line) 80%, transparent); background: color-mix(in oklab, var(--paper) 90%, transparent); backdrop-filter: blur(18px) saturate(140%); }
+.showroom-header-inner { min-height: 76px; width: min(100% - 2.5rem, 1280px); }
+.showroom-header-inner nav a, .showroom-footer nav a { min-height: 44px; display: inline-flex; align-items: center; transition: color 180ms ease, opacity 180ms ease; }
+.showroom-hero, .showroom-secao, .showroom-dividida, .showroom-cta-final, .showroom-footer { width: min(100% - 2.5rem, 1280px); }
+.showroom-hero { position: relative; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 6vw, 6rem); min-height: min(860px, calc(100svh - 76px)); padding-block: clamp(4rem, 8vw, 8rem); }
+.showroom-hero-copy { position: relative; z-index: 1; max-width: 640px; }
+.showroom-eyebrow { display: inline-flex; align-items: center; gap: .65rem; color: var(--ink2); letter-spacing: .16em; text-transform: uppercase; }
+.showroom-eyebrow::before { width: 1.6rem; height: 1px; background: var(--rosa); content: ""; }
+.showroom-hero h1 { max-width: 12ch; font-size: clamp(3rem, 5.7vw, 5.75rem); line-height: .99; letter-spacing: -.065em; text-wrap: balance; }
+.showroom-lead { max-width: 46ch; margin-top: 1.4rem; font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.7; }
+.showroom-hero-actions { align-items: center; gap: .85rem; margin-top: 1.8rem; }
+.showroom-hero-actions .btn, .showroom-cta-final .btn { min-height: 48px; border-radius: 999px; padding-inline: 1.35rem; }
+.showroom-hero-produto { isolation: isolate; }
+.showroom-hero-produto::before { position: absolute; z-index: -1; inset: 7% -4% -5% 9%; border: 1px solid color-mix(in oklab, var(--gold) 22%, transparent); border-radius: 2rem; background: linear-gradient(145deg, color-mix(in oklab, var(--gold) 8%, transparent), transparent 55%); content: ""; transform: rotate(2deg); }
+.showroom-hero-produto > .showroom-agenda { transform: translateY(-.5rem); }
+.showroom-faixa { border-color: color-mix(in oklab, var(--line) 75%, transparent); }
+.showroom-secao-cabecalho h2, .showroom-cta-final h2 { letter-spacing: -.045em; text-wrap: balance; }
+.showroom-produto, .showroom-chat { border-radius: 1.4rem; box-shadow: var(--show-shadow); }
+.showroom-recursos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.5rem; }
+.showroom-recursos article { min-height: 160px; padding: 1.5rem .5rem 1rem 0; border-top-width: 1px; transition: transform 200ms ease, border-color 200ms ease; }
+.showroom-recursos article:hover { border-color: var(--gold); transform: translateY(-3px); }
+.showroom-recursos article svg { width: 1.5rem; height: 1.5rem; }
+.showroom-recursos h3 { font-size: 1rem; letter-spacing: -.02em; }
+.showroom-recursos p { max-width: 34ch; font-size: .85rem; line-height: 1.7; }
+.showroom-faq summary { min-height: 48px; display: flex; align-items: center; padding-block: .35rem; }
+.showroom-faq details[open] summary { color: var(--ink2); }
+.showroom-cta-final { position: relative; isolation: isolate; max-width: 100%; width: 100%; padding-inline: max(1.25rem, calc((100% - 900px) / 2)); background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--gold) 16%, transparent), transparent 28rem), var(--paper); }
+.showroom-cta-final h2 { max-width: 16ch; margin-inline: auto; }
+.showroom-footer { grid-template-columns: auto minmax(0, 1fr) auto; width: min(100% - 2.5rem, 1280px); gap: 1.25rem; }
+@media (max-width: 900px) {
+  .showroom-hero { grid-template-columns: minmax(0, 1fr); min-height: auto; gap: 3rem; padding-block: 4rem; }
+  .showroom-hero-copy { max-width: 720px; }
+  .showroom-hero h1 { max-width: 14ch; font-size: clamp(3rem, 9vw, 5rem); }
+  .showroom-hero-produto { width: min(100%, 720px); margin-inline: auto; }
+}
+@media (max-width: 640px) {
+  .showroom-header-inner { width: min(100% - 1.25rem, 1280px); gap: .5rem; }
+  .showroom-hero, .showroom-secao, .showroom-dividida, .showroom-footer { width: min(100% - 1.5rem, 1280px); }
+  .showroom-hero { padding-block: 3.25rem; }
+  .showroom-hero h1 { font-size: clamp(2.7rem, 12vw, 4rem); }
+  .showroom-hero-actions { align-items: stretch; flex-direction: column; }
+  .showroom-hero-actions > * { width: 100%; justify-content: center; }
+  .showroom-recursos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
+  .showroom-recursos article { min-height: 0; }
+  .showroom-faq { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-inline: 1rem; }
+  .showroom-footer { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .showroom-footer nav { flex-wrap: wrap; gap: .5rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showroom-page, .showroom-page *, .showroom-page *::before, .showroom-page *::after { scroll-behavior: auto; transition-duration: .01ms; animation-duration: .01ms; animation-iteration-count: 1; }
+  .showroom-recursos article:hover { transform: none; }
+}
