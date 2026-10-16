@@ -12,8 +12,12 @@ para o cache privado dele e a prévia/site principal param de montar. Se você e
 Lovable, pare e avise o dono para abrir a tarefa no Codex ligado ao GitHub.
 
 **Publicar é como no Lovable:** cada push no ramo atualiza a prévia (`previa.cortaiapp.pages.dev`); o site
-principal (`cortaiapp.pages.dev`) só muda pelo botão "Publicar Cortaí (site principal)" no GitHub Actions,
-com autorização do dono.
+principal (`cortaiapp.pages.dev`) só muda pelo botão "Publicar Cortaí (site principal)" no GitHub Actions.
+
+**LEI DO DONO (16/10/2026): nada vai ao site principal sem antes estar na prévia e o dono ter testado e
+aprovado aquela versão.** Toda mudança: envia → espera a prévia terminar (conferir que o deploy deu
+certo) → avisa o dono do que testar → só publica quando ele aprovar **aquela** versão depois de testar.
+Um "pode publicar" antigo não vale para mudanças novas. Nunca disparar o "Publicar" junto com o envio.
 
 **Ao começar qualquer sessão, sem esperar o dono pedir:**
 1. `git pull origin cloudflare-workers-migration-2026-10-13` e trabalhar só nessa branch.

@@ -80,6 +80,9 @@ Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os d
   Bella Rosa: tema Premium escuro, equipe e serviços com foto, fichas, 12 agendamentos, 4 avaliações,
   perguntas (cópias repetidas desativadas, sem apagar) e página publicada. Script
   `supabase/demos/barbearia-prime.sql`, ensaiado no banco local e aplicado no `cortai-prod`.
+- 2026-10-16: **LEI: nada vai ao site principal antes da prévia.** O dono testa e aprova cada versão na
+  prévia; só então se publica. "Pode publicar" antigo não vale para mudança nova. (Claude publicou a lista
+  "Trocar de painel" direto às 20:57 UTC sem teste do dono — erro registrado; não repetir.)
 
 ## Próximas tarefas (ordem combinada)
 
