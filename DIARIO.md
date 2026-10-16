@@ -57,7 +57,7 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| Claude | 2026-10-16 12:45 | N3: links de `cortai.dev` lendo a origem do ambiente | `src/lib/origem-publica.ts` (novo), links de compartilhar/prévia/WhatsApp, `preview-migration.yml` |
 
 ## Recados
 
