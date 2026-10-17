@@ -400,7 +400,7 @@ export function ShowroomCortai({
   const [segmento, setSegmento] = useState(inicial);
   const contato = useWhatsappAlvo();
   return (
-    <main className="showroom-page light">
+    <main className="showroom-page dark">
       <header className="showroom-header">
         <div className="showroom-header-inner">
           <a href="#inicio" aria-label="Cortaí — início">
