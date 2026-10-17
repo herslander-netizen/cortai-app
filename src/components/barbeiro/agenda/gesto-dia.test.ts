@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   decidirFimDoGesto,
-  gestoPodeComecar,
   definirVizinhoDoGesto,
   limitarDeslocamento,
   movimentoRecente,
