@@ -108,3 +108,27 @@ describe("bolinha da semana ao terminar o gesto", () => {
     expect(tira).toBeLessThan(troca);
   });
 });
+
+describe("troca de dia em carrossel no celular", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+  const previa = readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8");
+  const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+
+  it("só os cartões e o expediente deslizam; horas e linhas ficam paradas", () => {
+    expect(timeline).toContain('{ "data-trilho-dia": "" }');
+    expect(timeline.match(/className="agenda-dia-camada"/g)?.length).toBe(2);
+    expect(css).toMatch(/\.agenda-dia-janela \{[^}]*overflow-x: clip;/);
+  });
+
+  it("os dias vizinhos entram dentro da mesma grade", () => {
+    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(?\s*<CamadasVizinhas/);
+    expect(previa).toContain("export function CamadasVizinhas");
+    expect(css).toContain('.agenda-dia-vizinha[data-lado="anterior"]');
+    expect(css).toContain('.agenda-dia-vizinha[data-lado="proximo"]');
+  });
+
+  it("o gesto move os trilhos pela largura da grade", () => {
+    expect(gesto).toContain('querySelectorAll<HTMLElement>("[data-trilho-dia]")');
+    expect(gesto).toContain("carrossel.current?.largura ?? window.innerWidth");
+  });
+});

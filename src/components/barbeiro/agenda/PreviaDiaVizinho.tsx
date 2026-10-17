@@ -125,3 +125,80 @@ export function PreviaDoGesto({
     </>
   );
 }
+
+/**
+ * Dias vizinhos dentro da grade da Agenda (carrossel do celular): a coluna do dia anterior à
+ * esquerda e a do próximo à direita, só com cartões e expediente. Ficam fora da vista até o
+ * gesto lateral deslizar as camadas (`useGestoDia`).
+ */
+export function CamadasVizinhas({
+  diaAtual,
+  profissionalId,
+  discreto,
+  diaCompleto = false,
+}: {
+  diaAtual: string;
+  profissionalId: string | null;
+  discreto: boolean;
+  diaCompleto?: boolean;
+}) {
+  return (
+    <>
+      <CamadaVizinha
+        lado="anterior"
+        dia={somarDias(diaAtual, -1)}
+        profissionalId={profissionalId}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+      <CamadaVizinha
+        lado="proximo"
+        dia={somarDias(diaAtual, 1)}
+        profissionalId={profissionalId}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+    </>
+  );
+}
+
+function CamadaVizinha({
+  lado,
+  dia,
+  profissionalId,
+  discreto,
+  diaCompleto,
+}: {
+  lado: "anterior" | "proximo";
+  dia: string;
+  profissionalId: string | null;
+  discreto: boolean;
+  diaCompleto: boolean;
+}) {
+  const { data } = useQuery({
+    ...opcoesAgendaDia(dia),
+    refetchOnMount: false,
+    staleTime: 15_000,
+  });
+  if (!data) return null;
+  const itens = data.itens
+    .filter((i) => !ENCERRADOS.has(i.status))
+    .filter((i) => !profissionalId || i.profissionalId === profissionalId)
+    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return (
+    <div className="agenda-dia-vizinha" data-lado={lado} aria-hidden="true">
+      <AgendaTimeline
+        previa
+        emCamada
+        dia={dia}
+        fuso={data.fuso}
+        itens={itens}
+        horarios={data.horarios ?? []}
+        selecionado={null}
+        onSelecionar={nada}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+    </div>
+  );
+}

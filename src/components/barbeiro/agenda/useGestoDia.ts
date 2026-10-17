@@ -41,6 +41,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const previaProxima = useRef<HTMLDivElement | null>(null);
   const estado = useRef<Estado | null>(null);
   const animacao = useRef<{ stop: () => void } | null>(null);
+  /** Carrossel: camadas de cartões que deslizam e a distância de um dia (coluna + vão). */
+  const carrossel = useRef<{ trilhos: HTMLElement[]; largura: number } | null>(null);
   const [diaDoGesto, setDiaDoGesto] = useState<string | null>(null);
   const diaRef = useRef(dia);
   diaRef.current = dia;
@@ -48,6 +50,16 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   trocarRef.current = aoTrocar;
 
   const escrever = useCallback((dx: number) => {
+    const c = carrossel.current;
+    if (c) {
+      // Carrossel: horas, linhas e profissionais ficam parados; só as camadas deslizam.
+      for (const t of c.trilhos) t.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
+      const raiz = document.documentElement.style;
+      if (dx)
+        raiz.setProperty("--dia-progresso", String(Math.max(-1, Math.min(1, -dx / c.largura))));
+      else raiz.removeProperty("--dia-progresso");
+      return;
+    }
     const largura = window.innerWidth;
     const el = palco.current;
     if (el) el.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
@@ -67,6 +79,11 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.transform = "";
       el.style.willChange = "";
     }
+    for (const t of carrossel.current?.trilhos ?? []) {
+      t.style.transform = "";
+      t.style.willChange = "";
+    }
+    carrossel.current = null;
     // As prévias ficam sempre montadas: depois do gesto voltam para fora da tela. Sem isso a que
     // entrou ficava parada por cima da Agenda (tela vazia, a página rolando por baixo).
     const largura = window.innerWidth;
@@ -99,7 +116,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       estado.current = null;
       if (!s) return;
       if (s.quadro !== null) cancelAnimationFrame(s.quadro);
-      const largura = window.innerWidth;
+      const largura = carrossel.current?.largura ?? window.innerWidth;
       const { velocidade, distancia } = movimentoRecente(s.amostras, performance.now());
       const d = decidirFimDoGesto({
         inicio: s.inicio,
@@ -173,14 +190,22 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       if (!s.eixo) {
         s.eixo = "x";
         if (!prefereMenosMovimento() && palco.current) {
-          palco.current.style.willChange = "transform";
+          const trilhos = Array.from(
+            palco.current.querySelectorAll<HTMLElement>("[data-trilho-dia]"),
+          );
+          const coluna = trilhos[0]?.parentElement?.getBoundingClientRect().width ?? 0;
+          if (trilhos.length && coluna > 0) {
+            const vao = parseFloat(getComputedStyle(trilhos[0]!).getPropertyValue("--trilho-vao"));
+            carrossel.current = { trilhos, largura: coluna + (Number.isFinite(vao) ? vao : 0) };
+            for (const t of trilhos) t.style.willChange = "transform";
+          } else palco.current.style.willChange = "transform";
           document.documentElement.classList.add("agenda-gesto-ativo");
         }
       }
       const agora = performance.now();
       s.amostras.push({ x: t.clientX, t: agora });
       if (s.amostras.length > 12) s.amostras.shift();
-      s.dx = limitarDeslocamento(dx, window.innerWidth);
+      s.dx = limitarDeslocamento(dx, carrossel.current?.largura ?? window.innerWidth);
       if (prefereMenosMovimento()) return;
       definirVizinhoDoGesto(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
       if (s.quadro === null)

@@ -3029,6 +3029,54 @@ html.agenda-gesto-ativo body {
   pointer-events: none;
   will-change: transform;
 }
+/* Troca de dia em carrossel: horas e linhas da grade ficam paradas; só as camadas de expediente
+   e de cartões deslizam (useGestoDia), com os dias vizinhos ao lado, dentro da mesma coluna. */
+.agenda-dia-janela {
+  position: absolute;
+  inset: 0;
+  overflow-x: clip;
+  pointer-events: none;
+}
+.agenda-dia-camada {
+  --trilho-vao: 16px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.agenda-dia-camada > * {
+  pointer-events: auto;
+}
+.agenda-timeline-previa .agenda-dia-camada > * {
+  pointer-events: none;
+}
+.agenda-dia-vizinha {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.agenda-dia-vizinha[data-lado="anterior"] {
+  left: calc(-100% - var(--trilho-vao));
+}
+.agenda-dia-vizinha[data-lado="proximo"] {
+  left: calc(100% + var(--trilho-vao));
+}
+/* Dentro do carrossel o dia vizinho é só a coluna: sem horas, linhas nem a linha do agora. */
+.agenda-dia-vizinha .agenda-timeline-wrap,
+.agenda-dia-vizinha .agenda-timeline-scroll {
+  max-height: none;
+  overflow: visible;
+}
+.agenda-dia-vizinha .agenda-timeline {
+  width: 100%;
+  margin-left: 0;
+  border-left-color: transparent;
+}
+.agenda-dia-vizinha .agenda-timeline-marca,
+.agenda-dia-vizinha .agenda-linha-agora {
+  display: none;
+}
+
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
 html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   visibility: hidden;

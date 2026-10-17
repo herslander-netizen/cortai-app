@@ -108,7 +108,7 @@ import {
   dicaDaAgendaVista,
   marcarDicaDaAgendaVista,
 } from "@/components/barbeiro/agenda/preferencias";
-import { PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
+import { CamadasVizinhas, PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
 import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 import {
@@ -1441,6 +1441,16 @@ export function AgendaOperacional() {
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
                 diaCompleto={celular}
+                vizinhos={
+                  celular ? (
+                    <CamadasVizinhas
+                      diaAtual={dia}
+                      profissionalId={profFiltro}
+                      discreto={modoDiscreto}
+                      diaCompleto
+                    />
+                  ) : undefined
+                }
               />
               {celular ? (
                 <MarcaDoLimiteDoDia
@@ -1569,15 +1579,18 @@ export function AgendaOperacional() {
         ) : null}
       </div>
 
-      <PreviaDoGesto
-        refAnterior={gestoDia.refPreviaAnterior}
-        refProximo={gestoDia.refPreviaProxima}
-        diaAtual={dia}
-        visualizacao={visualizacao === "lista" ? "lista" : "timeline"}
-        profissionalId={profFiltro}
-        discreto={modoDiscreto}
-        diaCompleto={celular}
-      />
+      {/* Celular na grade: os dias vizinhos já entram pelo carrossel dentro da timeline. */}
+      {celular && visualizacao !== "lista" && !colunas ? null : (
+        <PreviaDoGesto
+          refAnterior={gestoDia.refPreviaAnterior}
+          refProximo={gestoDia.refPreviaProxima}
+          diaAtual={dia}
+          visualizacao={visualizacao === "lista" ? "lista" : "timeline"}
+          profissionalId={profFiltro}
+          discreto={modoDiscreto}
+          diaCompleto={celular}
+        />
+      )}
 
       <BotaoAgoraPrincipal
         visualizacao={visualizacao}

@@ -83,7 +83,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-17 UTC | Agenda: troca de dia como carrossel (horas, linhas e profissionais parados; só os cartões deslizam) | `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/styles.css` (regras da timeline e da prévia) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
@@ -115,6 +114,23 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — Claude — Troca de dia em carrossel na Agenda (celular)
+- O que mudou e por quê: a pedido do dono, ao arrastar o dia na timeline do celular, as horas, as
+  linhas e a faixa de profissionais ficam paradas; só os cartões e o expediente deslizam, com o dia
+  vizinho entrando dentro da mesma grade (16 px de vão), sem a tela inteira correr. Na lista, nas
+  colunas e no desktop continua a prévia antiga.
+- Como: `AgendaTimeline` ganhou as camadas `agenda-dia-janela`/`agenda-dia-camada` (com
+  `data-trilho-dia`) e as props `vizinhos` e `emCamada`; `CamadasVizinhas` (em `PreviaDiaVizinho.tsx`)
+  desenha o dia anterior e o seguinte a partir do cache (`opcoesAgendaDia`); `useGestoDia` move os
+  trilhos quando eles existem e usa a largura da grade. Toque no cartão e toque longo no espaço
+  vazio continuam iguais.
+- Testes: `tsc`, `vitest` (1510) e `build` passaram; testes novos em
+  `timeline-rolagem-celular.test.ts`. Simulação local no Chromium (390 px) nos dois sentidos: dia
+  troca, rolagem vertical preservada.
+- Banco/infra: nada alterado; nada publicado no site principal.
+- Atenção para as outras IAs: mudanças na timeline precisam manter os cartões e a linha "Agora"
+  dentro da `agenda-dia-camada` com `data-trilho-dia`, senão o carrossel deixa de mover esse item.
 
 ### 2026-10-17 UTC — GPT — Grade mobile mais limpa na Agenda
 - Commit: `2e7ea7c`.
