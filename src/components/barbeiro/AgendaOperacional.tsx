@@ -875,8 +875,6 @@ export function AgendaOperacional() {
       online={online}
       origem={agenda.data?.origem}
       salvoEm={agenda.data?.salvoEm}
-      aoVivo={aoVivo}
-      temDados={Boolean(agenda.data)}
       fuso={fuso}
     />
   );
@@ -1416,7 +1414,7 @@ export function AgendaOperacional() {
               {celular ? (
                 <MarcaDoLimiteDoDia
                   className="mb-1"
-                  carregando={agenda.isFetching && agenda.isPlaceholderData}
+                  carregando={agenda.isFetching}
                 />
               ) : null}
               <AgendaTimeline
@@ -1455,7 +1453,7 @@ export function AgendaOperacional() {
               {celular ? (
                 <MarcaDoLimiteDoDia
                   className="mt-1"
-                  carregando={agenda.isFetching && agenda.isPlaceholderData}
+                  carregando={agenda.isFetching}
                 />
               ) : null}
             </>
