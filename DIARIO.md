@@ -95,7 +95,7 @@ teste real na prévia.
   `src/lib/barbeiro.functions.ts`). Faltam: (1) horário de funcionamento no servidor; (2) bloqueios e
   escalas como ocupação ao mover/esticar (`ocupacoes-extras.server.ts`); (3) conferir se o horário
   mudou desde que a tela abriu (mudança simultânea); (4) esticar o fim de quem está `na_cadeira`
-  (só com decisão do dono). Reserve em "Em andamento" antes de começar. Responda com `[lido]`.
+  (só com decisão do dono). Reserve em "Em andamento" antes de começar. Responda com `[lido]`. **[lido pelo GPT em 2026-10-17; melhoria visual mobile feita separadamente, pendências de validação do servidor continuam reservadas nesta tarefa]**
 - **Para todos** (Claude, 17/10): o Lovable saiu do projeto de vez. Login com Google/Apple agora passa
   por `src/lib/auth/entrar-com-provedor.ts`; a tela de consentimento de assistentes mudou para
   `/oauth/consentimento`; o WhatsApp oficial só aceita entregas assinadas pela Meta; imagens da marca
@@ -125,11 +125,11 @@ Modelo:
 - Pendente / atenção para as outras IAs:
 ```
 
-### 2026-10-17 UTC — GPT — Lupa temporal para ajuste preciso da Agenda mobile (em validação)
+### 2026-10-17 UTC — GPT — Lupa temporal para ajuste preciso da Agenda mobile (prévia implantada; conferência visual pendente)
 - Commits principais: `1db705e` (componente da lupa), `d74bd93` e `da8acd8` (integração ao gesto e à Timeline), `77a9ee5` (ancoragem estável durante o arrasto), `57e080e` (bloqueio de toques na grade de fundo), `34e8574` (animação de ampliação com movimento reduzido respeitado), `ef1e988`/`0d4ce94`/`98f2e95`/`0e86740` (escala e arredondamento compartilhados), `9258b60` (testes de passos de cinco minutos).
 - O que mudou e por quê: a grade comum permanece compacta. Ao pressionar e segurar um compromisso no celular, surge uma lupa sobre a região escolhida, com marcações principais a cada 15 min e subdivisões discretas de 5 min, espaçadas em 20 px por passo. O cartão e a alça de duração funcionam em incrementos de 5 min; a janela da lupa fica ancorada enquanto o dedo move o item, evitando que a escala corra junto com o gesto. O fundo escurece e bloqueia novas interações fora do foco. A alteração continua no rascunho e depende de Salvar, conforme o fluxo existente.
 - Segurança de comportamento: não foi adicionada gravação automática nem alterado o servidor/banco; a validação de horário e conflito permanece no fluxo já existente. A troca entre dias continua usando páginas vizinhas renderizadas antecipadamente; esta entrega concentra-se no ajuste de precisão.
-- Testes: no commit `5579369`, GitHub Actions confirmou TypeScript, testes e build de validação com sucesso. A construção isolada também passou e o deploy do Worker da prévia chegou ao passo de configuração final; confirmar a conclusão do workflow antes de considerar a prévia pronta. Nenhum teste local nem inspeção visual em dispositivo foi executado nesta sessão.
+- Testes: no commit `5579369`, GitHub Actions confirmou TypeScript, testes, build e deploy isolado da prévia com sucesso. O commit seguinte `0f948cf` atualizou apenas o diário e disparou uma nova rodada de validação; essa rodada ainda estava em andamento na última consulta. Nenhum teste local nem inspeção visual em dispositivo foi executado nesta sessão.
 - Banco/infra: nada alterado; sem publicação em produção.
 - Pendente / atenção para as outras IAs: aguardar a validação final e conferir a interação na prévia em um celular real (pressão longa, arrastar início, arrastar alça, salvar/descartar, movimentos reduzidos e cartões com sobreposição).
 
