@@ -122,7 +122,7 @@ export function ZoomPrecisaoAgenda({
 
   return (
     <div
-      className="pointer-events-none absolute z-[8] overflow-hidden rounded-2xl border border-rosa bg-ink shadow-2xl"
+      className="pointer-events-none absolute z-[8] overflow-hidden rounded-2xl border border-rosa bg-ink shadow-2xl motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:duration-200 motion-reduce:animate-none"
       role="group"
       aria-label="Ajuste de precisão da agenda"
       style={{
@@ -130,7 +130,6 @@ export function ZoomPrecisaoAgenda({
         left: "-48px",
         right: 0,
         height: altura,
-        transition: "top 180ms ease-out, height 180ms ease-out",
       }}
     >
       <div className="absolute inset-x-0 top-0 z-10 flex h-[30px] items-center justify-between border-b border-line2 bg-ink px-3">
