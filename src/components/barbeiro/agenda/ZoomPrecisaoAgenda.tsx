@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
 
-export const PX_POR_MINUTO_PRECISAO = 6;
+export const PX_POR_MINUTO_PRECISAO = 4;
 export const CABECALHO_ZOOM_PX = 30;
 
 export type PosicaoTimeline = {
