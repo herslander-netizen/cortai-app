@@ -126,10 +126,10 @@ export function ZoomPrecisaoAgenda({
       role="group"
       aria-label="Ajuste de precisão da agenda"
       style={{
-        top,
+        top: topo,
         left: "-48px",
         right: 0,
-        height,
+        height: altura,
         transition: "top 180ms ease-out, height 180ms ease-out",
       }}
     >
