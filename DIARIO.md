@@ -86,6 +86,7 @@ teste real na prévia.
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
 
+| GPT | 2026-10-17 UTC | Remover halo/sombra difusa do botão + da Agenda sem alterar aparência base ou animação | `DIARIO.md`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx` |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Ajustar animação do calendário e carrossel de cinco pontos; remover texto de polling | `DIARIO.md`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/EstadosAgenda.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx` |
