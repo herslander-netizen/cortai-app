@@ -705,7 +705,7 @@ export function AgendaTimeline({
       ) : null}
       <div
         ref={rolagemRef}
-        className="agenda-timeline-scroll"
+        className="agenda-timeline-scroll sem-barra"
         aria-label={previa ? undefined : "Timeline de atendimentos"}
         onScroll={
           interativo
