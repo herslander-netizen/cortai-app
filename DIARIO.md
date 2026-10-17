@@ -118,6 +118,20 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-17 UTC — Claude — Ajustes finais do carrossel de dias
+- O que mudou e por quê: a partir das fotos do dono no celular. (1) O dia vizinho ficava ~10 px
+  abaixo do atual: tirado o respiro da grade (`padding-block`) dentro de `.agenda-dia-vizinha`.
+  (2) As listras de fora do expediente do dia vizinho cobriam as linhas das horas: o vizinho agora
+  é desenhado em duas partes (`emCamada="expediente"` abaixo das linhas, `"cartoes"` acima), como o
+  dia atual. (3) A etiqueta "07:04" da linha do agora sumia (ficava cortada pela janela do
+  carrossel): a linha voltou para fora do trilho, parada, e some aos poucos enquanto o dia sai.
+- Arquivos: `AgendaTimeline.tsx` (`vizinhos` virou função por parte; tipo `ParteDoDia`),
+  `PreviaDiaVizinho.tsx`, `AgendaOperacional.tsx`, `src/styles.css`, testes em
+  `timeline-rolagem-celular.test.ts`.
+- Testes: `tsc`, `vitest` (1512) e `build` passaram; simulação no Chromium a 390 px conferiu o
+  alinhamento, as linhas sobre as listras e a etiqueta do agora.
+- Banco/infra: nada alterado; nada publicado no site principal.
+
 ### 2026-10-17 UTC — Claude — Troca de dia em carrossel na Agenda (celular)
 - O que mudou e por quê: a pedido do dono, ao arrastar o dia na timeline do celular, as horas, as
   linhas e a faixa de profissionais ficam paradas; só os cartões e o expediente deslizam, com o dia

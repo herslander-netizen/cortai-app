@@ -122,10 +122,21 @@ describe("troca de dia em carrossel no celular", () => {
   });
 
   it("os dias vizinhos entram dentro da mesma grade", () => {
-    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(?\s*<CamadasVizinhas/);
+    expect(operacional).toMatch(/vizinhos=\{\s*celular\s*\? \(parte\) => \(\s*<CamadasVizinhas/);
     expect(previa).toContain("export function CamadasVizinhas");
     expect(css).toContain('.agenda-dia-vizinha[data-lado="anterior"]');
     expect(css).toContain('.agenda-dia-vizinha[data-lado="proximo"]');
+  });
+
+  it("o dia vizinho alinha hora a hora e o expediente fica abaixo das linhas", () => {
+    expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
+    expect(timeline).toContain('vizinhos?.("expediente")');
+    expect(timeline).toContain('vizinhos?.("cartoes")');
+  });
+
+  it("a linha do agora fica fora do trilho (rótulo na coluna das horas)", () => {
+    const fimDoTrilho = timeline.indexOf('vizinhos?.("cartoes")');
+    expect(timeline.indexOf('className="agenda-linha-agora"')).toBeGreaterThan(fimDoTrilho);
   });
 
   it("o gesto move os trilhos pela largura da grade", () => {

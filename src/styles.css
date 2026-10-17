@@ -3067,6 +3067,10 @@ html.agenda-gesto-ativo body {
   max-height: none;
   overflow: visible;
 }
+/* Sem o respiro da grade: o dia vizinho alinha hora a hora com o atual. */
+.agenda-dia-vizinha .agenda-timeline-scroll {
+  padding-block: 0;
+}
 .agenda-dia-vizinha .agenda-timeline {
   width: 100%;
   margin-left: 0;
@@ -3075,6 +3079,11 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha .agenda-timeline-marca,
 .agenda-dia-vizinha .agenda-linha-agora {
   display: none;
+}
+
+/* A linha do agora não desliza com o dia: some aos poucos enquanto o dedo leva o dia embora. */
+html.agenda-gesto-ativo .agenda-timeline:has([data-trilho-dia]) > .agenda-linha-agora {
+  opacity: calc(1 - max(var(--dia-progresso, 0), calc(var(--dia-progresso, 0) * -1)) * 3);
 }
 
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import type { Ref } from "react";
 
-import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
+import { AgendaTimeline, type ParteDoDia } from "@/components/barbeiro/AgendaTimeline";
 import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 
 import { useVizinhoDoGesto } from "./gesto-dia";
@@ -136,11 +136,13 @@ export function CamadasVizinhas({
   profissionalId,
   discreto,
   diaCompleto = false,
+  parte,
 }: {
   diaAtual: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto?: boolean;
+  parte: ParteDoDia;
 }) {
   return (
     <>
@@ -150,6 +152,7 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
+        parte={parte}
       />
       <CamadaVizinha
         lado="proximo"
@@ -157,6 +160,7 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
+        parte={parte}
       />
     </>
   );
@@ -168,12 +172,14 @@ function CamadaVizinha({
   profissionalId,
   discreto,
   diaCompleto,
+  parte,
 }: {
   lado: "anterior" | "proximo";
   dia: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto: boolean;
+  parte: ParteDoDia;
 }) {
   const { data } = useQuery({
     ...opcoesAgendaDia(dia),
@@ -189,7 +195,7 @@ function CamadaVizinha({
     <div className="agenda-dia-vizinha" data-lado={lado} aria-hidden="true">
       <AgendaTimeline
         previa
-        emCamada
+        emCamada={parte}
         dia={dia}
         fuso={data.fuso}
         itens={itens}

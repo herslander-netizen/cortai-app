@@ -83,10 +83,15 @@ type AgendaTimelineProps = {
    * camadas de cartões e de expediente deslizam com o dedo (`useGestoDia`); horas e linhas
    * ficam paradas.
    */
-  vizinhos?: ReactNode;
-  /** Camada de um dia vizinho dentro do carrossel: só cartões e expediente, sem horas. */
-  emCamada?: boolean;
+  vizinhos?: ((parte: ParteDoDia) => ReactNode) | undefined;
+  /**
+   * Dia vizinho dentro do carrossel: desenha só uma parte, para o expediente ficar abaixo das
+   * linhas da grade e os cartões acima, como no dia atual.
+   */
+  emCamada?: ParteDoDia;
 };
+
+export type ParteDoDia = "expediente" | "cartoes";
 
 const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
@@ -146,7 +151,7 @@ export function AgendaTimeline({
   previa = false,
   diaCompleto = false,
   vizinhos,
-  emCamada = false,
+  emCamada,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -776,7 +781,7 @@ export function AgendaTimeline({
         >
           <div className="agenda-dia-janela" aria-hidden>
             <div className="agenda-dia-camada" {...trilho}>
-              {faixasFora.map((faixa) => (
+              {(emCamada === "cartoes" ? [] : faixasFora).map((faixa) => (
                 <div
                   key={`${faixa.inicio}-${faixa.fim}`}
                   className="agenda-timeline-intervalo agenda-timeline-fora-expediente"
@@ -789,7 +794,7 @@ export function AgendaTimeline({
                   {faixa.fechado ? <span>Fechado</span> : null}
                 </div>
               ))}
-              {intervalo ? (
+              {intervalo && emCamada !== "cartoes" ? (
                 <div
                   className="agenda-timeline-intervalo"
                   style={{
@@ -801,6 +806,7 @@ export function AgendaTimeline({
                   <span>Intervalo</span>
                 </div>
               ) : null}
+              {vizinhos?.("expediente")}
             </div>
           </div>
           {toqueVazio !== null ? (
@@ -875,7 +881,7 @@ export function AgendaTimeline({
 
           <div className="agenda-dia-janela">
             <div className="agenda-dia-camada" {...trilho}>
-              {itens.map((item) => {
+              {(emCamada === "expediente" ? [] : itens).map((item) => {
                 const nome = nomeDaAgenda(item.cliente, discreto);
                 const posicao = layout.posicoes.get(item.id);
                 const inicio = posicao?.inicio ?? minutosNoFuso(item.inicio, fuso);
@@ -1062,19 +1068,20 @@ export function AgendaTimeline({
                 );
               })}
 
-              {ehHoje && posicaoAgora >= 0 && posicaoAgora <= altura ? (
-                <div
-                  ref={linhaAgoraRef}
-                  className="agenda-linha-agora"
-                  style={{ transform: `translateY(${posicaoAgora}px)` }}
-                  aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}
-                >
-                  <span>{horaMinuto(escala.minutoAtual)}</span>
-                </div>
-              ) : null}
-              {vizinhos}
+              {vizinhos?.("cartoes")}
             </div>
           </div>
+          {/* Fora do trilho: o rótulo fica na coluna das horas e a linha não desliza com o dia. */}
+          {ehHoje && posicaoAgora >= 0 && posicaoAgora <= altura ? (
+            <div
+              ref={linhaAgoraRef}
+              className="agenda-linha-agora"
+              style={{ transform: `translateY(${posicaoAgora}px)` }}
+              aria-label={`Agora, ${horaMinuto(escala.minutoAtual)}`}
+            >
+              <span>{horaMinuto(escala.minutoAtual)}</span>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
