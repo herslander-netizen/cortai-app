@@ -14,13 +14,13 @@ export function CabecalhoDeEdicao({ dia, naBarra = false }: { dia: string; naBar
         <p className="text-[clamp(18px,5.8vw,25px)] font-medium leading-tight text-paper first-letter:uppercase">
           {extenso}
         </p>
-        <p className="mt-1 text-sm text-mute">Para mudar de dia, use Remarcar.</p>
+        <p className="mt-1 text-sm text-mute">Para mudar de dia, use Reagendar.</p>
       </div>
     );
   return (
     <header className="mb-3 rounded-xl border border-line bg-ink2 px-5 py-3">
       <p className="text-lg font-bold text-paper first-letter:uppercase">{extenso}</p>
-      <p className="mt-0.5 text-sm text-mute">Para mudar de dia, use Remarcar.</p>
+      <p className="mt-0.5 text-sm text-mute">Para mudar de dia, use Reagendar.</p>
     </header>
   );
 }
