@@ -6114,7 +6114,15 @@ button.agenda-nome:hover {
     border-radius: 20px;
   }
   .agenda-acao-fixa .agenda-fab-toggle {
-    background: color-mix(in oklab, var(--primary) 55%, black);
+    /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
+    background: color-mix(in oklab, var(--primary) 76%, black);
+    box-shadow:
+      0 8px 24px color-mix(in oklab, var(--primary) 30%, transparent),
+      var(--shadow-md);
+  }
+  .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+    color: white;
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, black 18%, transparent));
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);
