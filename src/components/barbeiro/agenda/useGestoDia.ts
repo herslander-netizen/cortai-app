@@ -34,7 +34,7 @@ type Estado = {
  * (transform) dentro de requestAnimationFrame — nada de estado a cada quadro.
  * A decisão de completar ou voltar fica em `decidirFimDoGesto`.
  */
-export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bloqueado = false) {
+export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const palco = useRef<HTMLElement | null>(null);
   const previaAnterior = useRef<HTMLDivElement | null>(null);
   const previaProxima = useRef<HTMLDivElement | null>(null);
@@ -194,7 +194,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bl
       dentroDeRolagemLateral: dentroDeRolagemLateral(alvo, e.currentTarget as Element),
       arrastando: arrastando(),
     };
-    estado.current = gestoPodeComecar(inicio, bloqueado)
+    estado.current = gestoPodeComecar(inicio)
       ? {
           inicio,
           eixo: null,
@@ -203,15 +203,10 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bl
           quadro: null,
         }
       : null;
-  }, [bloqueado]);
+  }, []);
 
   const aoSoltar = useCallback(() => terminar(false), [terminar]);
   const aoCancelar = useCallback(() => terminar(true), [terminar]);
-
-  // Se a edição começar no meio de um toque, cancela também a prévia lateral já iniciada.
-  useEffect(() => {
-    if (bloqueado) terminar(true);
-  }, [bloqueado, terminar]);
 
   /** Ref do contêiner do dia: o navegador mantém a rolagem vertical nativa. */
   const ref = useCallback(
