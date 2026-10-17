@@ -636,10 +636,28 @@ export function AgendaTimeline({
     const palco = envoltura.closest<HTMLElement>(".agenda-previa-vizinho")?.getBoundingClientRect();
     const esquerdaNoPalco = eu.left - (palco?.left ?? 0);
     if (!grade) return;
-    const topoDesejado = ehHoje
-      ? window.innerHeight / 2 - posicaoAgora
-      : 120 - abreEm * PX_POR_MINUTO;
-    area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - grade.top}px,0)`;
+    // A página vizinha precisa conservar o mesmo referencial vertical da página atual.
+    // Alinhar a marca das 09h (ou a abertura, se 09h não estiver visível na escala)
+    // evita que a grade "salte" quando o gesto termina e a prévia vira a agenda real.
+    const marcaDasNove = (raiz: ParentNode) =>
+      Array.from(raiz.querySelectorAll<HTMLElement>(".agenda-timeline-marca")).find(
+        (marca) => marca.querySelector("span")?.textContent?.trim() === "09",
+      );
+    const marcaReal = marcaDasNove(real);
+    const marcaVizinha = marcaDasNove(area);
+    const topoReferenciaReal = marcaReal?.getBoundingClientRect().top;
+    const topoReferenciaVizinha = marcaVizinha?.getBoundingClientRect().top;
+    const topoDesejado =
+      topoReferenciaReal !== undefined && topoReferenciaVizinha !== undefined
+        ? topoReferenciaReal
+        : ehHoje
+          ? window.innerHeight / 2 - posicaoAgora
+          : 120;
+    const topoAtual =
+      topoReferenciaReal !== undefined && topoReferenciaVizinha !== undefined
+        ? topoReferenciaVizinha
+        : grade.top + (ehHoje ? posicaoAgora : (abreEm - escala.inicio) * PX_POR_MINUTO);
+    area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - topoAtual}px,0)`;
   }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length]);
 
   return (
