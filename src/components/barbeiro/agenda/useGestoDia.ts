@@ -41,7 +41,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const previaProxima = useRef<HTMLDivElement | null>(null);
   const estado = useRef<Estado | null>(null);
   const animacao = useRef<{ stop: () => void } | null>(null);
-  /** Carrossel: timelines completas que deslizam juntas e a distância de um dia (coluna + vão). */
+  /** Páginas do dia: o que desliza junto e a distância de um dia (largura da página + vão). */
   const carrossel = useRef<{ trilhos: HTMLElement[]; largura: number } | null>(null);
   const [diaDoGesto, setDiaDoGesto] = useState<string | null>(null);
   const diaRef = useRef(dia);
@@ -52,8 +52,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const escrever = useCallback((dx: number) => {
     const c = carrossel.current;
     if (c) {
-      // Move a timeline inteira: horas, linhas, expediente e cartões acompanham o dedo.
-      // As camadas de expediente/cartões continuam separadas para preservar a ordem visual.
+      // A página inteira do dia acompanha o dedo; os vizinhos vão dentro dela, ao lado.
       for (const t of c.trilhos) t.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
       const raiz = document.documentElement.style;
       if (dx)
@@ -191,16 +190,18 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       if (!s.eixo) {
         s.eixo = "x";
         if (!prefereMenosMovimento() && palco.current) {
-          const camadas = Array.from(
-            palco.current.querySelectorAll<HTMLElement>(".agenda-timeline"),
-          ).filter((timeline) => timeline.querySelector("[data-trilho-dia]"));
-          const coluna = camadas[0]?.getBoundingClientRect().width ?? 0;
-          if (camadas.length && coluna > 0) {
-            const vao = parseFloat(
-              getComputedStyle(camadas[0]!).getPropertyValue("--trilho-vao"),
-            );
-            carrossel.current = { trilhos: camadas, largura: coluna + (Number.isFinite(vao) ? vao : 0) };
-            for (const t of camadas) t.style.willChange = "transform";
+          // Página do dia: a timeline inteira (com as horas) e os pontinhos deslizam juntos.
+          const trilhos = Array.from(
+            palco.current.querySelectorAll<HTMLElement>("[data-trilho-dia]"),
+          );
+          const grade = palco.current.querySelector<HTMLElement>(
+            ".agenda-timeline[data-trilho-dia]",
+          );
+          const pagina = grade?.parentElement?.getBoundingClientRect().width ?? 0;
+          if (grade && pagina > 0) {
+            const vao = parseFloat(getComputedStyle(grade).getPropertyValue("--trilho-vao"));
+            carrossel.current = { trilhos, largura: pagina + (Number.isFinite(vao) ? vao : 0) };
+            for (const t of trilhos) t.style.willChange = "transform";
           } else palco.current.style.willChange = "transform";
           document.documentElement.classList.add("agenda-gesto-ativo");
         }

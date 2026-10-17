@@ -1412,7 +1412,7 @@ export function AgendaOperacional() {
           ) : visualizacao !== "lista" ? (
             <>
               {celular ? (
-                <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} />
+                <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} naPagina />
               ) : null}
               <AgendaTimeline
                 dia={dia}
@@ -1437,21 +1437,18 @@ export function AgendaOperacional() {
                 discreto={modoDiscreto}
                 diaCompleto={celular}
                 vizinhos={
-                  celular
-                    ? (parte) => (
-                        <CamadasVizinhas
-                          diaAtual={dia}
-                          profissionalId={profFiltro}
-                          discreto={modoDiscreto}
-                          diaCompleto
-                          parte={parte}
-                        />
-                      )
-                    : undefined
+                  celular ? (
+                    <CamadasVizinhas
+                      diaAtual={dia}
+                      profissionalId={profFiltro}
+                      discreto={modoDiscreto}
+                      diaCompleto
+                    />
+                  ) : undefined
                 }
               />
               {celular ? (
-                <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} />
+                <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} naPagina />
               ) : null}
             </>
           ) : (

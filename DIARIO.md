@@ -92,7 +92,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-17 UTC | Agenda mobile igual aos vídeos de referência: troca de dia em páginas, faixa da semana e calendário do mês | `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css` (Agenda) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -133,6 +132,32 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — Claude — Agenda mobile igual aos vídeos de referência do dono
+- O que mudou e por quê: o dono pediu o comportamento "igual, não parecido" aos vídeos (17/10,
+  13:38 e 15:42), estudados quadro a quadro.
+  1. **Troca de dia em páginas:** a página inteira (horas, linhas, expediente, cartões e os cinco
+     pontinhos do topo) desliza com o dedo; o dia vizinho entra ao lado com as próprias horas e um
+     vão de 24 px, cortado só na borda da tela. Profissionais e "Agora · Livre" ficam parados.
+     Sem o dia carregado, a página vizinha entra mesmo assim, com horas e linhas.
+  2. **Faixa da semana:** três semanas lado a lado. Ao passar do sábado para o domingo (ou o
+     contrário), a bolinha sai pela borda e a faixa desliza a semana inteira, trazendo a bolinha
+     junto (antes era um esmaecer de 36%). Arrastar a faixa acompanha o dedo 1:1 e assenta na
+     semana mais próxima, sem trocar o dia.
+  3. **Calendário do mês:** a superfície cresce até o mês enquanto a semana dá lugar a ele, ao
+     mesmo tempo (antes: some a semana, depois aparece o mês). Abre só com o mês do dia; os outros
+     24 meses e as contagens entram logo após a animação (abrir fica leve).
+- Arquivos: `AgendaTimeline.tsx` (sem as camadas internas; a grade é a página, `vizinhos` volta a
+  ser `ReactNode`), `PreviaDiaVizinho.tsx`, `useGestoDia.ts` (largura = página + vão),
+  `SemanaDoTopo.tsx` (+ `naPagina` nos pontinhos), `AgendaOperacional.tsx`, `src/styles.css`;
+  testes em `SemanaDoTopo.test.tsx` e `timeline-rolagem-celular.test.ts`.
+- Testes: `tsc`, `vitest` (1514) e `build` passaram. Simulação no Chromium a 390 px: posições das
+  páginas medidas (vizinha a uma página + vão), troca de semana pela bolinha quadro a quadro,
+  arrasto da faixa e altura do calendário quadro a quadro.
+- Banco/infra: nada alterado; nada publicado no site principal.
+- Atenção para as outras IAs: o que deve deslizar com o dia leva `data-trilho-dia`; a página
+  vizinha é uma `AgendaTimeline` com `previa emCamada`. Ícone do calendário (`CabecalhoAgenda`) não
+  foi mexido.
 
 ### 2026-10-17 UTC — GPT — Remoção do halo difuso no botão + da Agenda
 - Commit: `b915cf7` (correção); `d71ede7` (teste).

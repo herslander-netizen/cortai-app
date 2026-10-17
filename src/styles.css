@@ -3029,39 +3029,43 @@ html.agenda-gesto-ativo body {
   pointer-events: none;
   will-change: transform;
 }
-/* Troca de dia em carrossel: horas e linhas da grade ficam paradas; só as camadas de expediente
-   e de cartões deslizam (useGestoDia), com os dias vizinhos ao lado, dentro da mesma coluna. */
-.agenda-dia-janela {
-  position: absolute;
-  inset: 0;
-  overflow-x: clip;
-  pointer-events: none;
+/* Troca de dia em páginas (celular, como no modelo): a página inteira do dia (horas, linhas,
+   expediente, cartões e os cinco pontinhos) desliza com o dedo (useGestoDia) e o dia vizinho
+   entra ao lado com as próprias horas. Distância de uma página = largura da grade + vão. */
+.agenda-timeline-paginas {
+  --trilho-vao: 24px;
+  /* Coluna das horas (margem da grade): 48px, 37px no celular — a mesma de .agenda-timeline. */
+  --calha-das-horas: 48px;
 }
-.agenda-dia-camada {
-  --trilho-vao: 16px;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+@media (max-width: 767px) {
+  .agenda-timeline-paginas {
+    --calha-das-horas: 37px;
+  }
 }
-.agenda-dia-camada > * {
-  pointer-events: auto;
-}
-.agenda-timeline-previa .agenda-dia-camada > * {
-  pointer-events: none;
+@media (max-width: 600px) {
+  /* As páginas saem até a borda da tela; quem corta é a Agenda (e a página durante o gesto). */
+  .agenda-timeline-paginas,
+  .agenda-timeline-paginas > .agenda-timeline-scroll {
+    overflow-x: visible;
+  }
+  html.agenda-gesto-ativo .agenda-operacional {
+    overflow-x: visible;
+  }
 }
 .agenda-dia-vizinha {
   position: absolute;
   top: 0;
-  width: 100%;
+  /* A página vizinha tem a largura da grade inteira, com a coluna das horas. */
+  width: calc(100% + var(--calha-das-horas));
+  height: 100%;
   pointer-events: none;
 }
 .agenda-dia-vizinha[data-lado="anterior"] {
-  left: calc(-100% - var(--trilho-vao));
+  left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));
 }
 .agenda-dia-vizinha[data-lado="proximo"] {
   left: calc(100% + var(--trilho-vao));
 }
-/* Dentro do carrossel o dia vizinho é só a coluna: sem horas, linhas nem a linha do agora. */
 .agenda-dia-vizinha .agenda-timeline-wrap,
 .agenda-dia-vizinha .agenda-timeline-scroll {
   max-height: none;
@@ -3071,19 +3075,11 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha .agenda-timeline-scroll {
   padding-block: 0;
 }
-.agenda-dia-vizinha .agenda-timeline {
-  width: 100%;
-  margin-left: 0;
-  border-left-color: transparent;
-}
-.agenda-dia-vizinha .agenda-timeline-marca,
-.agenda-dia-vizinha .agenda-linha-agora {
-  display: none;
-}
-
-/* A linha do agora não desliza com o dia: some aos poucos enquanto o dedo leva o dia embora. */
-html.agenda-gesto-ativo .agenda-timeline:has([data-trilho-dia]) > .agenda-linha-agora {
-  opacity: calc(1 - max(var(--dia-progresso, 0), calc(var(--dia-progresso, 0) * -1)) * 3);
+/* Os pontinhos do topo e do fim da página vizinha, na mesma altura dos do dia atual. */
+.agenda-dia-vizinha-pontos {
+  position: absolute;
+  inset-inline: 0;
+  top: -26px;
 }
 
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */

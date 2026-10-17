@@ -110,37 +110,46 @@ describe("bolinha da semana ao terminar o gesto", () => {
   });
 });
 
-describe("troca de dia em carrossel no celular", () => {
+describe("troca de dia em páginas no celular (como no vídeo de referência)", () => {
   const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
   const previa = readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8");
   const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+  const semana = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
 
-  it("só os cartões e o expediente deslizam; horas e linhas ficam paradas", () => {
+  it("a página inteira do dia (grade com as horas) é o que desliza", () => {
     expect(timeline).toContain('{ "data-trilho-dia": "" }');
-    expect(timeline.match(/className="agenda-dia-camada"/g)?.length).toBe(2);
-    expect(css).toMatch(/\.agenda-dia-janela \{[^}]*overflow-x: clip;/);
-  });
-
-  it("os dias vizinhos entram dentro da mesma grade", () => {
-    expect(operacional).toMatch(/vizinhos=\{\s*celular\s*\? \(parte\) => \(\s*<CamadasVizinhas/);
-    expect(previa).toContain("export function CamadasVizinhas");
-    expect(css).toContain('.agenda-dia-vizinha[data-lado="anterior"]');
-    expect(css).toContain('.agenda-dia-vizinha[data-lado="proximo"]');
-  });
-
-  it("o dia vizinho alinha hora a hora e o expediente fica abaixo das linhas", () => {
-    expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
-    expect(timeline).toContain('vizinhos?.("expediente")');
-    expect(timeline).toContain('vizinhos?.("cartoes")');
-  });
-
-  it("a linha do agora fica fora do trilho (rótulo na coluna das horas)", () => {
-    const fimDoTrilho = timeline.indexOf('vizinhos?.("cartoes")');
-    expect(timeline.indexOf('className="agenda-linha-agora"')).toBeGreaterThan(fimDoTrilho);
-  });
-
-  it("o gesto move os trilhos pela largura da grade", () => {
+    expect(timeline).not.toContain("agenda-dia-camada");
+    expect(gesto).toContain('".agenda-timeline[data-trilho-dia]"');
     expect(gesto).toContain('querySelectorAll<HTMLElement>("[data-trilho-dia]")');
+  });
+
+  it("a distância de um dia é a largura da página mais o vão", () => {
+    expect(gesto).toContain("grade?.parentElement?.getBoundingClientRect().width");
     expect(gesto).toContain("carrossel.current?.largura ?? window.innerWidth");
+  });
+
+  it("o dia vizinho entra ao lado com as próprias horas e pontinhos", () => {
+    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(\s*<CamadasVizinhas/);
+    expect(previa).toContain("<MarcaDoLimiteDoDia");
+    expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
+    expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
+    expect(css).toContain("width: calc(100% + var(--calha-das-horas));");
+    expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
+  });
+
+  it("os pontinhos do topo deslizam com a página", () => {
+    expect(semana).toContain('data-trilho-dia={naPagina ? "" : undefined}');
+    expect(operacional.match(/<MarcaDoLimiteDoDia[^>]*naPagina/g)?.length).toBe(2);
+  });
+
+  it("a faixa da semana tem três semanas e troca deslizando a semana inteira", () => {
+    expect(semana).toContain("const tresSemanas = [");
+    expect(semana).toContain("translate3d(calc(-100% / 3 + ${dx}px),0,0)");
+    expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
+  });
+
+  it("o calendário do mês cresce e troca de conteúdo ao mesmo tempo", () => {
+    expect(semana).not.toContain('mode="wait"');
+    expect(semana).toContain('animate={{ height: expandido ? ALTURA_DO_MES : "auto" }}');
   });
 });

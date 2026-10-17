@@ -2,10 +2,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import type { Ref } from "react";
 
-import { AgendaTimeline, type ParteDoDia } from "@/components/barbeiro/AgendaTimeline";
+import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 
 import { useVizinhoDoGesto } from "./gesto-dia";
+import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
 import { dataEditorial, hora, nomeDaAgenda, somarDias } from "./tempo";
 import { opcoesAgendaDia } from "./useAgendaDia";
 
@@ -136,13 +137,11 @@ export function CamadasVizinhas({
   profissionalId,
   discreto,
   diaCompleto = false,
-  parte,
 }: {
   diaAtual: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto?: boolean;
-  parte: ParteDoDia;
 }) {
   return (
     <>
@@ -152,7 +151,6 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
-        parte={parte}
       />
       <CamadaVizinha
         lado="proximo"
@@ -160,7 +158,6 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
-        parte={parte}
       />
     </>
   );
@@ -172,34 +169,33 @@ function CamadaVizinha({
   profissionalId,
   discreto,
   diaCompleto,
-  parte,
 }: {
   lado: "anterior" | "proximo";
   dia: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto: boolean;
-  parte: ParteDoDia;
 }) {
   const { data } = useQuery({
     ...opcoesAgendaDia(dia),
     refetchOnMount: false,
     staleTime: 15_000,
   });
-  if (!data) return null;
-  const itens = data.itens
+  // Sem o dia carregado a página entra mesmo assim, com horas e linhas (como no modelo).
+  const itens = (data?.itens ?? [])
     .filter((i) => !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
   return (
     <div className="agenda-dia-vizinha" data-lado={lado} aria-hidden="true">
+      <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos" />
       <AgendaTimeline
         previa
-        emCamada={parte}
+        emCamada
         dia={dia}
-        fuso={data.fuso}
+        fuso={data?.fuso}
         itens={itens}
-        horarios={data.horarios ?? []}
+        horarios={data?.horarios ?? []}
         selecionado={null}
         onSelecionar={nada}
         discreto={discreto}

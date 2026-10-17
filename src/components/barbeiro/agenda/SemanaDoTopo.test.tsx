@@ -26,6 +26,9 @@ afterEach(() => {
   while (limpar.length) limpar.pop()?.();
 });
 
+/** Só a semana visível: a faixa guarda a anterior e a seguinte, fora da tela e inertes. */
+const VISIVEIS = '[aria-label="Dias da semana"] > div > div:not([inert]) [aria-pressed]';
+
 async function montar(props: Partial<Parameters<typeof SemanaDoTopo>[0]> = {}) {
   const alvo = document.createElement("div");
   document.body.appendChild(alvo);
@@ -58,13 +61,13 @@ async function montar(props: Partial<Parameters<typeof SemanaDoTopo>[0]> = {}) {
 describe("faixa da semana no topo", () => {
   it("mostra domingo a sábado da semana do dia, com o dia escolhido marcado", async () => {
     const alvo = await montar();
-    const dias = Array.from(alvo.querySelectorAll<HTMLButtonElement>("[aria-pressed]"));
+    const dias = Array.from(alvo.querySelectorAll<HTMLButtonElement>(VISIVEIS));
     expect(dias.map((d) => d.textContent)).toEqual(["4", "5", "6", "7", "8", "9", "10"]);
     expect(dias.find((d) => d.getAttribute("aria-pressed") === "true")?.textContent).toBe("9");
   });
   it("marca os dias com atendimento", async () => {
     const alvo = await montar();
-    const comAtendimento = Array.from(alvo.querySelectorAll("[aria-pressed]")).filter((d) =>
+    const comAtendimento = Array.from(alvo.querySelectorAll(VISIVEIS)).filter((d) =>
       d.getAttribute("aria-label")?.includes("com atendimentos"),
     );
     expect(comAtendimento.map((d) => d.textContent)).toEqual(["8", "9"]);
@@ -94,16 +97,20 @@ describe("faixa da semana no topo", () => {
       toque("touchstart", 300);
       toque("touchend", 200);
     });
-    const dias = Array.from(alvo.querySelectorAll("[aria-pressed]")).map((d) => d.textContent);
+    const dias = Array.from(alvo.querySelectorAll(VISIVEIS)).map((d) => d.textContent);
     expect(dias).toEqual(["11", "12", "13", "14", "15", "16", "17"]);
     expect(onDia).not.toHaveBeenCalled();
   });
   it("aberto, mostra os meses com o dia escolhido marcado", async () => {
     Element.prototype.scrollIntoView = vi.fn();
     const alvo = await montar({ expandido: true });
+    // Abre com o mês do dia; os outros meses entram logo depois da animação.
     expect(alvo.textContent).toContain("Outubro");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 400));
+    });
     expect(alvo.textContent).toContain("Novembro");
-    const marcado = alvo.querySelectorAll('[aria-pressed="true"]');
+    const marcado = alvo.querySelectorAll('[aria-label="Calendário"] [aria-pressed="true"]');
     expect(marcado).toHaveLength(1);
     expect(marcado[0]?.textContent).toBe("9");
   });
