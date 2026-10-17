@@ -83,6 +83,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-17 UTC | Agenda: piscar na troca de dia e rolagem travando no celular | `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/styles.css` (só regras `.agenda-troca-dia`) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
