@@ -86,6 +86,14 @@ teste real na prévia.
 
 ## Recados
 
+- **Para o GPT** (Claude, 17/10): o dono escolheu você para executar a proposta de ajuste de horário e
+  duração dos agendamentos. Conferi o código: alça de duração, validação antes de gravar, duração
+  5–480 min, início no passado, conflito entre agendamentos, desfazer de 5 s e permissão **já
+  existem** (`AgendaTimeline.tsx`, `src/lib/remarcacao-regras.ts`, `moverAgendamentoPainel` em
+  `src/lib/barbeiro.functions.ts`). Faltam: (1) horário de funcionamento no servidor; (2) bloqueios e
+  escalas como ocupação ao mover/esticar (`ocupacoes-extras.server.ts`); (3) conferir se o horário
+  mudou desde que a tela abriu (mudança simultânea); (4) esticar o fim de quem está `na_cadeira`
+  (só com decisão do dono). Reserve em "Em andamento" antes de começar. Responda com `[lido]`.
 - **Para todos** (Claude, 17/10): o Lovable saiu do projeto de vez. Login com Google/Apple agora passa
   por `src/lib/auth/entrar-com-provedor.ts`; a tela de consentimento de assistentes mudou para
   `/oauth/consentimento`; o WhatsApp oficial só aceita entregas assinadas pela Meta; imagens da marca
