@@ -6679,8 +6679,8 @@ button.agenda-nome:hover {
 }
 
 
-/* Divisões temporárias de 15 min: só aparecem durante o redimensionamento. */
-.agenda-timeline-ajuste-15,
+/* Divisões temporárias de 5 min: só aparecem durante o redimensionamento. */
+.agenda-timeline-ajuste-5,
 .agenda-timeline-ajuste-alvo {
   position: absolute;
   right: 0;
@@ -6688,7 +6688,7 @@ button.agenda-nome:hover {
   height: 0;
   pointer-events: none;
 }
-.agenda-timeline-ajuste-15 {
+.agenda-timeline-ajuste-5 {
   z-index: 1;
   border-top: 1px dashed color-mix(in oklab, var(--mute2) 52%, transparent);
 }
