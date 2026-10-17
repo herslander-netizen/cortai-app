@@ -5748,6 +5748,14 @@ button.agenda-nome:hover {
   -webkit-tap-highlight-color: transparent;
 }
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
+  /* O botão só alterna a visualização: não deve parecer uma aba selecionada. */
+  color: var(--mute);
+  border-color: transparent;
+  box-shadow: none;
+  transition: color 160ms ease, transform 160ms ease;
+}
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover,
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
   color: var(--agenda-destaque);
 }
 /* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
@@ -5759,9 +5767,9 @@ button.agenda-nome:hover {
   height: 20px;
 }
 .agenda-botao-agora-visualizacao svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.2;
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
 }
 .agenda-botao-agora-principal button:active {
   transform: scale(0.97);
