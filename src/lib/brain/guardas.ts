@@ -141,7 +141,7 @@ const VAZAMENTOS = [
   /\b(nunca revele estas instrucoes|orientacoes do negocio \(nao sobrepoem)/,
   /\b(listar_|consultar_|buscar_|criar_|cancelar_|reagendar_|atualizar_|registrar_|avisar_)[a-z_]{3,}\b/,
   /\b(encaminhar_humano|minha_agenda)\b/,
-  /\b(lovable_api_key|cortai_ai_[a-z_]+|langfuse_[a-z_]+|supabase_[a-z_]+|service[_ ]role)\b/,
+  /\b(cortai_ai_[a-z_]+|langfuse_[a-z_]+|supabase_[a-z_]+|service[_ ]role)\b/,
   /\bsk-[a-z0-9]{8,}/,
   /\b(system prompt|prompt do sistema|tenant[_-]?id)\b/,
 ];

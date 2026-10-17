@@ -19,9 +19,11 @@ const base = {
 };
 
 describe("lerConfigDoProvedor", () => {
-  it("sem provedor ou com o legado Lovable, fica indisponível sem fallback", () => {
+  it("sem provedor ou com valor desconhecido, fica indisponível sem fallback", () => {
     expect(lerConfigDoProvedor({})).toMatchObject({ ok: false });
-    expect(lerConfigDoProvedor({ CORTAI_AI_PROVIDER: "lovable" })).toMatchObject({ ok: false });
+    expect(lerConfigDoProvedor({ CORTAI_AI_PROVIDER: "desconhecido" })).toMatchObject({
+      ok: false,
+    });
   });
 
   it("aceita o provedor compatível completo e normaliza a URL", () => {

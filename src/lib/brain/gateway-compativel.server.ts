@@ -26,7 +26,7 @@ export type ConfigCompativel = {
   canais: Canal[];
 };
 
-export type ConfigDoProvedor = { tipo: "lovable" } | { tipo: "regras" } | ConfigCompativel;
+export type ConfigDoProvedor = { tipo: "regras" } | ConfigCompativel;
 
 export type LeituraDaConfig =
   { ok: true; config: ConfigDoProvedor } | { ok: false; motivo: string };
@@ -40,12 +40,16 @@ function ehLocal(host: string) {
 }
 
 /**
- * Lê `CORTAI_AI_*`. Provedor ausente ou legado significa IA indisponível:
- * nenhum pedido deve cair silenciosamente no gateway do Lovable.
+ * Lê `CORTAI_AI_*`. Provedor ausente ou desconhecido significa IA indisponível:
+ * nenhum pedido cai silenciosamente em outro provedor.
  */
 export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   const bruto = (env["CORTAI_AI_PROVIDER"] ?? "").trim().toLowerCase();
-  if (!bruto || bruto === "lovable") return { ok: false, motivo: "Configure CORTAI_AI_PROVIDER e as credenciais de um provedor independente." };
+  if (!bruto)
+    return {
+      ok: false,
+      motivo: "Configure CORTAI_AI_PROVIDER e as credenciais do provedor de IA.",
+    };
   // Modo básico por regras: sem IA, sem chave, sem custo (só painel).
   if (bruto === "regras") return { ok: true, config: { tipo: "regras" } };
   if (bruto !== "openai_compatible")

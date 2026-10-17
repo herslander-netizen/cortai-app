@@ -631,7 +631,12 @@ export const testarGatewayDaCortai = createServerFn({ method: "POST" })
     const { criarSessaoDoGateway, ErroDoGateway, iaDisponivel, textoDaSaida } =
       await import("@/lib/brain/gateway.server");
     if (!iaDisponivel())
-      return { ok: false, status: 401, ms: 0, mensagem: "LOVABLE_API_KEY não está configurada." };
+      return {
+        ok: false,
+        status: 401,
+        ms: 0,
+        mensagem: "Provedor de IA não configurado (CORTAI_AI_PROVIDER e credenciais).",
+      };
     const inicio = Date.now();
     try {
       const saida = await criarSessaoDoGateway().responder({

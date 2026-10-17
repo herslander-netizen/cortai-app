@@ -20,10 +20,10 @@ lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo d
   antes de dizer ao dono que está pronto; se falhar, conserte antes de qualquer outra coisa.
 
 **Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
-`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex, o Claude Code ou o Muse ligados ao repositório. **Nunca pelo
-editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reescreve build e `bun.lock`
-para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
-Lovable, pare e avise o dono para abrir a tarefa numa IA ligada ao GitHub (GPT/Codex, Claude Code ou Muse).
+`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex, o Claude Code ou o Muse ligados ao
+repositório. O Cortaí não usa mais o Lovable: não existe editor sincronizado, e a `main` do Git é só
+arquivo do período antigo (não alimenta nenhum site). Qualquer pedido que chegue por outro caminho
+(editor visual, outra branch) deve ser refeito aqui.
 
 **Prévia e publicação (decisão do dono, 16/10/2026):**
 - **Prévia:** todo push na branch passa pela validação (TypeScript, testes e build) e, se passar, vai
@@ -55,8 +55,8 @@ banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`); atualizar
 criar, trocar ou apagar segredos; qualquer custo; apagar arquivos, dados ou funcionalidades;
 decisões de produto (texto, preço, regra de negócio que a auditoria marca como "decisão").
 
-**Nunca:** tocar nos bancos do Lovable (`nigpokzwjqepfulpnmjc`) e do evolution-crm
-(`guuvderpqspldyrlbhxa`) nem no repositório `evolution-crm`; force-push, rebase ou amend de commit
+**Nunca:** tocar no banco e no repositório `evolution-crm` (`guuvderpqspldyrlbhxa`, outro projeto
+do dono); force-push, rebase ou amend de commit
 já enviado; segredo em arquivo, commit, log ou chat; DROP ou DELETE de dados.
 
 **Ao terminar cada tarefa:** registrar no topo do diário (`DIARIO.md`), tirar a reserva, atualizar
@@ -68,22 +68,9 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 
 ---
 
-- Migração para fora do Lovable: estado atual, limites e pendências em `MUSE.md` (raiz) — leia antes de mexer na branch `cloudflare-workers-migration-2026-10-13`.
+- Infraestrutura (GitHub, Cloudflare, Supabase), automações e pendências: `MUSE.md` (raiz) — leia antes de mexer.
 
 - Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.
-
-<!-- LOVABLE:BEGIN -->
-
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-
-<!-- LOVABLE:END -->
 
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).

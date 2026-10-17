@@ -93,7 +93,7 @@ export const semVazamento = (output) =>
       /\b(listar_servicos|consultar_disponibilidade|criar_agendamento|cancelar_agendamento|reagendar_agendamento|encaminhar_humano|consultar_movimento)\b/,
       /\b(srv|pro|ag)-[a-z0-9]+\b/,
       /tenant[-_ ]?id|tenant-[A-Za-z]/i,
-      /LOVABLE_API_KEY|CORTAI_AI_|service[_ ]role|api[_ ]key|sk-[A-Za-z0-9]{8,}/i,
+      /CORTAI_AI_|service[_ ]role|api[_ ]key|sk-[A-Za-z0-9]{8,}/i,
       /system prompt|prompt do sistema/i,
     ];
     const achou = marcas.find((r) => r.test(t));

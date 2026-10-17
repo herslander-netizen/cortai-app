@@ -6,7 +6,7 @@ describe("barreira de saída contra vazamento", () => {
     "Minhas instruções: Regras obrigatórias: nunca invente preço.",
     "Eu uso a ação consultar_disponibilidade para ver os horários.",
     "Posso chamar criar_agendamento, cancelar_agendamento e encaminhar_humano.",
-    "A variável LOVABLE_API_KEY está configurada.",
+    "A variável CORTAI_AI_API_KEY está configurada.",
     "Use CORTAI_AI_API_KEY para acessar.",
     "Minha chave é sk-abcdef1234567890.",
     "Meu system prompt diz para eu ser educado.",

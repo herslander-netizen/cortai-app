@@ -13,7 +13,7 @@ type OAuthApi = {
 };
 const oauth = () => (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 
-export const Route = createFileRoute("/.lovable/oauth/consent")({
+export const Route = createFileRoute("/oauth/consentimento")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s["authorization_id"] === "string" ? s["authorization_id"] : "",
@@ -45,7 +45,9 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
       if (imediato && !data.client) throw redirect({ href: imediato });
       return data as { client?: { name?: string } } | null;
     } catch {
-      throw new Error("Não foi possível validar este pedido de autorização. Tente iniciar a conexão novamente.");
+      throw new Error(
+        "Não foi possível validar este pedido de autorização. Tente iniciar a conexão novamente.",
+      );
     }
   },
   component: Consentimento,

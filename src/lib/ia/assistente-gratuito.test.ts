@@ -31,7 +31,6 @@ function gratuito() {
   vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.groq.exemplo.test/openai/v1");
   vi.stubEnv("CORTAI_AI_MODEL", "openai/gpt-oss-20b");
   vi.stubEnv("CORTAI_AI_API_KEY", "chave-de-teste");
-  vi.stubEnv("LOVABLE_API_KEY", "");
 }
 
 afterEach(() => {
@@ -41,15 +40,14 @@ afterEach(() => {
 });
 
 describe("fluxos estruturados do painel usam o provedor gratuito quando configurado", () => {
-  it("sem Lovable e sem provedor: indisponível; com o provedor gratuito: disponível", () => {
-    vi.stubEnv("LOVABLE_API_KEY", "");
+  it("sem provedor: indisponível; com o provedor gratuito: disponível", () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
     expect(assistenteConfigurado()).toBe(false);
     gratuito();
     expect(assistenteConfigurado()).toBe(true);
   });
 
-  it("chama o provedor gratuito (URL, modelo e chave dele), nunca o gateway do Lovable", async () => {
+  it("chama o provedor gratuito (URL, modelo e chave dele), nunca outro provedor", async () => {
     gratuito();
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
@@ -84,7 +82,6 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
 
   it("sem provedor independente, o assistente fica indisponível e não faz chamadas externas", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
-    vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
     const r = await pensar({ mensagem: "cadastre corte", contexto });

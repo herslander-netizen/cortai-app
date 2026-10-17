@@ -596,7 +596,7 @@ async function pensarCortaiComTurno(
     const msg = erro instanceof Error ? erro.message : "IA indisponível.";
     obs.definirEstado("indisponivel");
     if (erro instanceof ErroDoGateway && erro.semCredito)
-      await pausarIa(ctx.tenantId, `gateway_${status}@${erro.provedor ?? "lovable"}`);
+      await pausarIa(ctx.tenantId, `gateway_${status}@${erro.provedor ?? "desconhecido"}`);
     await registrarTurno({
       tenantId: ctx.tenantId,
       canal: ctx.canal,

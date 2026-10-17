@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
@@ -145,8 +145,8 @@ function LoginPage() {
       const retorno = new URL("/entrar/retorno", window.location.origin);
       if (proximo && proximo.startsWith("/") && !proximo.startsWith("//"))
         retorno.searchParams.set("proximo", proximo);
-      const resultado = await lovable.auth.signInWithOAuth(provedor, {
-        redirect_uri: retorno.toString(),
+      const resultado = await entrarComProvedor(provedor, {
+        retorno: retorno.toString(),
       });
       if (resultado.error) {
         setEnviando(false);

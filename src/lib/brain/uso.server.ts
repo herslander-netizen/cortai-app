@@ -28,10 +28,10 @@ export const LIMITE_DIARIO_PADRAO: Record<Canal, number> = {
   site: 300,
 };
 
-/** Provedor registrado na pausa; pausas antigas, sem registro, eram do Lovable. */
+/** Provedor registrado na pausa; pausas antigas, sem registro, ficam como "legado". */
 export function pausaDoProvedor(motivo: string | null | undefined): string {
   const marca = (motivo ?? "").split("@")[1]?.trim();
-  return marca || "lovable";
+  return marca || "legado";
 }
 
 export type Bloqueio = "desligada" | "pausada" | "limite_diario" | "limite_pessoa" | null;
@@ -54,7 +54,7 @@ export async function bloqueioDeUso(
     const daConfig = bloqueioDaConfig(cfg);
     if (daConfig === "desligada") return daConfig;
     if (daConfig === "pausada") {
-      // A pausa por falta de crédito é do PROVEDOR que recusou ("gateway_402@lovable"). Se o
+      // A pausa por falta de crédito é do PROVEDOR que recusou ("gateway_402@<provedor>"). Se o
       // provedor do canal mudou (ex.: passou para um gratuito), a pausa antiga não vale.
       const { identidadeDoModelo } = await import("./gateway.server");
       const pausadoPor = pausaDoProvedor(cfg?.ia_pausa_motivo);
@@ -85,7 +85,8 @@ export async function bloqueioDeUso(
         .gte("criado_em", umaHora),
     ]);
     if ((dia ?? 0) >= limiteDia) return "limite_diario";
-    if ((hora ?? 0) >= (equipe ? LIMITE_EQUIPE.hora : LIMITE_POR_PESSOA_HORA[canal])) return "limite_pessoa";
+    if ((hora ?? 0) >= (equipe ? LIMITE_EQUIPE.hora : LIMITE_POR_PESSOA_HORA[canal]))
+      return "limite_pessoa";
     return null;
   } catch {
     // Falha de leitura nunca libera custo sem controle no canal automático.

@@ -55,7 +55,7 @@ export type ResultadoDaVoz =
 
 /**
  * Provedor de transcrição próprio (API compatível com OpenAI `/audio/transcriptions`, ex.: o
- * Whisper do Groq, que tem plano gratuito). Sem isto, usa o gateway do Lovable como antes.
+ * Whisper do Groq, que tem plano gratuito). Sem isto, usa o mesmo provedor da IA (`CORTAI_AI_*`).
  */
 export type ConfigDeVoz = { baseUrl: string; modelo: string; chave: string; tempoLimiteMs: number };
 

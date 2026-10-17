@@ -9,7 +9,7 @@ Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do
 - Banco: cerca de 87 tabelas e 69 funções públicas (ver `src/integrations/supabase/types.ts`).
 - Migrações:
   - `supabase/migrations/`: cerca de 150 arquivos, até 01/10/2026.
-  - `drizzle/migrations/`: 0000 a 0026, a partir de 01/10/2026, aplicadas com `CORTAI_DB_MIGRATION_URL` (compatibilidade temporária: `LOVABLE_DB_MIGRATION_URL`).
+  - `drizzle/migrations/`: 0000 a 0026, a partir de 01/10/2026, aplicadas no `cortai-prod` pelo workflow "Aplicar migrações novas" (registro em `cortai_controle.migracoes_aplicadas`).
 
 ## Stack
 
@@ -25,15 +25,15 @@ Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do
 ## Rodar localmente
 
 ```sh
-npm install --no-package-lock   # o bun.lock aponta para um cache privado do Lovable (403 fora dele)
+bun install --frozen-lockfile   # o bun.lock usa o registro público do npm
 npx tsc --noEmit                # tipos
 npx vitest run                  # testes
 npx eslint .                    # lint
 npx vite build                  # build
 ```
 
-Variáveis: `.env` só traz as chaves públicas do Supabase. Os segredos do servidor estão no Lovable Cloud:
-- `SUPABASE_SERVICE_ROLE_KEY`, `CORTAI_AI_*`, `CORTAI_CRON_SECRET` (compatibilidade temporária: `LOVABLE_API_KEY` e `LOVABLE_CRON_SECRET`)
+Variáveis: `.env` só traz as chaves públicas do Supabase. Os segredos do servidor ficam nos segredos do GitHub e são enviados à Cloudflare pelos workflows de prévia e de versão:
+- `SUPABASE_SERVICE_ROLE_KEY`, `CORTAI_AI_*`, `CORTAI_CRON_SECRET`
 - `META_APP_SECRET`, `META_VERIFY_TOKEN`, `WHATSAPP_API_KEY`, `EVOLUTION_*`
 - chave do Asaas e chaves internas, guardadas na tabela `chaves_internas`
 
@@ -177,4 +177,4 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 | `eslint .` | 5.042 problemas: 4.825 de formatação Prettier (corrigíveis com `--fix`), 184 `no-explicit-any`, 29 avisos |
 
 - **As 8 falhas** são todas de `src/lib/whatsapp/lembretes-numeros.test.ts`. O teste usa horários fixos (`2026-10-09T13:00Z` e `2026-10-10T17:00Z`) e passou a falhar quando esse horário ficou no passado. Com as mesmas datas deslocadas uma semana para frente, os 10 casos passam. **O código está correto; o teste vence com o tempo.** A correção é gerar as datas a partir de `Date.now()`, como o próprio teste já faz em `futuro`.
-- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria os 4.825 de formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme no Lovable.
+- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria os 4.825 de formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme, difícil de revisar.

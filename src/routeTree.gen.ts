@@ -87,10 +87,10 @@ import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as OauthConsentimentoRouteImport } from './routes/oauth.consentimento'
 import { Route as PainelIndexRouteImport } from './routes/painel.index'
 import { Route as PainelSplatRouteImport } from './routes/painel.$'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
-import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
@@ -500,6 +500,11 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthConsentimentoRoute = OauthConsentimentoRouteImport.update({
+  id: '/oauth/consentimento',
+  path: '/oauth/consentimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PainelIndexRoute = PainelIndexRouteImport.update({
   id: '/painel/',
   path: '/painel/',
@@ -513,11 +518,6 @@ const PainelSplatRoute = PainelSplatRouteImport.update({
 const VagaTokenRoute = VagaTokenRouteImport.update({
   id: '/vaga/$token',
   path: '/vaga/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
@@ -682,13 +682,13 @@ export interface FileRoutesByFullPath {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/oauth/consentimento': typeof OauthConsentimentoRoute
   '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/painel/': typeof PainelIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
@@ -778,13 +778,13 @@ export interface FileRoutesByTo {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/oauth/consentimento': typeof OauthConsentimentoRoute
   '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
   '/painel': typeof PainelIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
@@ -879,13 +879,13 @@ export interface FileRoutesById {
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/oauth/consentimento': typeof OauthConsentimentoRoute
   '/painel/$': typeof PainelSplatRoute
   '/vaga/$token': typeof VagaTokenRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/painel/': typeof PainelIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
@@ -981,13 +981,13 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/oauth/consentimento'
     | '/painel/$'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
     | '/painel/'
-    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
@@ -1077,13 +1077,13 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/oauth/consentimento'
     | '/painel/$'
     | '/vaga/$token'
     | '/admin'
     | '/app'
     | '/barbeiro'
     | '/painel'
-    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
@@ -1177,13 +1177,13 @@ export interface FileRouteTypes {
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
+    | '/oauth/consentimento'
     | '/painel/$'
     | '/vaga/$token'
     | '/admin/'
     | '/app/'
     | '/barbeiro/'
     | '/painel/'
-    | '/.lovable/oauth/consent'
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
@@ -1229,10 +1229,10 @@ export interface RootRouteChildren {
   EntrarRetornoRoute: typeof EntrarRetornoRoute
   FSlugRoute: typeof FSlugRoute
   LojaSlugRoute: typeof LojaSlugRoute
+  OauthConsentimentoRoute: typeof OauthConsentimentoRoute
   PainelSplatRoute: typeof PainelSplatRoute
   VagaTokenRoute: typeof VagaTokenRoute
   PainelIndexRoute: typeof PainelIndexRoute
-  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicFunilRoute: typeof ApiPublicFunilRoute
   ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
@@ -1797,6 +1797,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/consentimento': {
+      id: '/oauth/consentimento'
+      path: '/oauth/consentimento'
+      fullPath: '/oauth/consentimento'
+      preLoaderRoute: typeof OauthConsentimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/painel/': {
       id: '/painel/'
       path: '/painel'
@@ -1816,13 +1823,6 @@ declare module '@tanstack/react-router' {
       path: '/vaga/$token'
       fullPath: '/vaga/$token'
       preLoaderRoute: typeof VagaTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/alvo-ia': {
@@ -2111,10 +2111,10 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRetornoRoute: EntrarRetornoRoute,
   FSlugRoute: FSlugRoute,
   LojaSlugRoute: LojaSlugRoute,
+  OauthConsentimentoRoute: OauthConsentimentoRoute,
   PainelSplatRoute: PainelSplatRoute,
   VagaTokenRoute: VagaTokenRoute,
   PainelIndexRoute: PainelIndexRoute,
-  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicFunilRoute: ApiPublicFunilRoute,
   ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,

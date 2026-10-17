@@ -6,7 +6,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 
@@ -186,8 +186,8 @@ function VisitantePage() {
           setErro(null);
           setEnviando(true);
           try {
-            const resultado = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: new URL("/entrar/retorno", window.location.origin).toString(),
+            const resultado = await entrarComProvedor("google", {
+              retorno: new URL("/entrar/retorno", window.location.origin).toString(),
             });
             if (resultado.error) {
               setEnviando(false);

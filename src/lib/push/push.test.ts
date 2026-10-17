@@ -20,12 +20,10 @@ describe("registro do service worker", () => {
     expect(podeRegistrar({ host: "www.cortai.dev", emIframe: false, producao: true })).toBe(true);
     expect(podeRegistrar({ host: "cortai.dev", emIframe: true, producao: true })).toBe(false);
     expect(podeRegistrar({ host: "cortai.dev", emIframe: false, producao: false })).toBe(false);
-    for (const host of [
-      "cortai-app.lovable.app",
-      "id-preview--x.lovable.app",
-      "x.lovableproject.com",
-      "localhost",
-    ])
+    expect(podeRegistrar({ host: "cortaiapp.pages.dev", emIframe: false, producao: true })).toBe(
+      true,
+    );
+    for (const host of ["previa.cortaiapp.pages.dev", "outro-projeto.pages.dev", "localhost"])
       expect(podeRegistrar({ host, emIframe: false, producao: true })).toBe(false);
   });
 

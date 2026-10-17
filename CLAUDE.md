@@ -1,36 +1,44 @@
 # Cortaí — Contexto do projeto
 
-## Estado e limites da migração
-
-**Trabalho em dupla com o Codex:** as regras comuns estão no topo do `AGENTS.md`, importado aqui, e valem acima do resto deste arquivo quando houver conflito. Estado vivo em `DIARIO.md`.
+**Regras comuns às IAs (Claude, GPT e Muse):** topo do `AGENTS.md`, importado aqui. Valem acima do
+resto deste arquivo quando houver conflito. Estado vivo e recados em `DIARIO.md`; resumo da
+infraestrutura em `MUSE.md`.
 
 @AGENTS.md
 
-Este arquivo contém contexto histórico do projeto original, que foi desenvolvido/sincronizado com o Lovable. **A branch `cloudflare-workers-migration-2026-10-13` é uma trilha isolada de reconstrução e desacoplamento**: não presumir que ela esteja sincronizada com o editor, com a prévia ou com o site publicado.
+## Onde o Cortaí vive (desde 17/10/2026)
 
-- Projeto original/editor: Lovable (referência histórica; preservar sem alterações nesta migração).
-- Domínio publicado `cortai.dev`: produção; não usar para testes nem alterar durante esta fase.
-- Não mesclar esta branch em `main`, não publicar/deployar, não mudar DNS, nem aplicar migrações a bancos sem autorização específica para essa etapa.
-- Preservar o projeto original, suas credenciais e seus dados. Não copiar segredos para o repositório.
-- As instruções históricas abaixo descrevem o produto e a arquitetura existentes; não anulam estes limites de segurança da migração.
+- **Código:** GitHub `herslander-netizen/cortai-app`, branch de trabalho
+  `cloudflare-workers-migration-2026-10-13`. É dela que saem a prévia e o site principal.
+- **Prévia:** `https://previa.cortaiapp.pages.dev`, publicada a cada envio na branch.
+- **Site principal:** `https://cortaiapp.pages.dev` (Cloudflare Pages, projeto `cortaiapp`), só pelo
+  workflow "Lançar versão" quando o dono disser "mande pra main".
+- **Banco, login e arquivos:** Supabase `cortai-prod` (`ibsberidejlbczxrweqg`), o único banco do
+  projeto. Prévia e site principal usam o mesmo banco.
+- **Domínio `cortai.dev`:** reservado para o futuro; ainda não aponta para o site principal.
+- **O Cortaí não usa mais o Lovable** (nem editor, nem banco, nem IA, nem conector de WhatsApp,
+  nem login). Não existe sincronização com nenhum editor. A branch `main` do Git ficou como arquivo
+  do período antigo e não alimenta nenhum site.
 
-A memória oficial do projeto é o **Knowledge** do Lovable e os `AGENTS.md` (raiz, `src/lib`, `src/lib/brain`, `src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`). Este arquivo é um resumo deles (atualizado em 2026-10-09). Se houver conflito, valem eles.
+**A memória oficial do projeto** são os `AGENTS.md` (raiz, `src/lib`, `src/lib/brain`,
+`src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`), este arquivo, o
+`MUSE.md` e o `DIARIO.md`. Documentos do período antigo ficam em `docs/historico/` só como consulta.
 
 **Onde cada coisa mora:** `docs/mapa-do-codigo.md`. Ele traz as rotas, os domínios em `src/lib`, as tabelas, o código sem uso e as divergências conhecidas.
 
-**Comandos do projeto (`.claude/commands/`, em português):** `/verificar`, `/migracao`, `/auditar`, `/revisar-regras`, `/pedido-lovable`. Por padrão só leem e relatam; nada vai para a `main` nem para o banco sem autorização, e nenhum publica o site.
+**Comandos do projeto (`.claude/commands/`, em português):** `/verificar`, `/migracao`, `/auditar`, `/revisar-regras`. Por padrão só leem e relatam; nada vai para o banco nem para o site principal sem autorização.
 
-**Comandos de terminal (branch de migração):**
+**Comandos de terminal:**
 
 ```sh
-bun install
+bun install --frozen-lockfile
 bun run tsc --noEmit
 bun run vitest run
 bun run eslint .
 bun run build
 ```
 
-Não use `npm install` para reescrever o lockfile durante esta migração. O CI executa TypeScript, testes e build; use-o como validação reprodutível.
+O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como validação reprodutível.
 
 ## Produto
 
@@ -38,13 +46,13 @@ Não use `npm install` para reescrever o lockfile durante esta migração. O CI 
 - **Cortaí** = plataforma e experiência. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
 - O motor oficial de agenda, disponibilidade, mutações e RPCs é a única fonte de verdade.
 - Papéis neutros: NEGÓCIO (tenant), DONO, PROFISSIONAL, CLIENTE. Termos de segmento só aparecem na UI, via `termos(segmento)` (`src/lib/segmentos.ts`). Código, rotas, tabelas, tipos, modelos de WhatsApp e textos fixos ficam neutros.
-- Área do negócio: o Knowledge fala em `/painel/...`, mas no código as rotas são `/barbeiro/...` e `/painel` não existe (veja as divergências em `docs/mapa-do-codigo.md`).
+- Área do negócio: as rotas são `/barbeiro/...`; `/painel` não existe (veja `docs/mapa-do-codigo.md`).
 - Home pública oficial: `/apresentacao` (`ShowroomCortai`), editada em `/admin/home`. `/` despacha a autenticação e `/b/$slug` tem aliases.
 - Conta = um usuário por e-mail. Os contextos (cliente/negócio) são decididos em `src/lib/contextos.ts` e `perfis.contexto_ativo`. Nunca criar uma segunda conta para outro papel.
 
 ## Stack
 
-TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; não há fallback para o Lovable. Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
+TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. Hospedagem na Cloudflare (Pages + Worker). A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; sem configuração, fica indisponível (nunca cai em outro provedor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
 ## Identidade visual
 
@@ -79,7 +87,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 - Opcional, controlada no ADM por tenant: ativa/desativada, modo econômico, atendimento humano, consumo e limite.
 - Desligar a IA não desliga agenda, comandas nem notificações essenciais.
 - Cérebro único em `src/lib/brain/` (`pensarCortai`, `acoes.server.ts`, `guardas.ts`, `uso.server.ts`). Usa só os serviços oficiais. Exige isolamento por tenant, confirmação para mutações sensíveis, auditoria e idempotência.
-- Provedor/modelo, observabilidade (Langfuse) e avaliação (Promptfoo): `docs/ia-gpt-oss-langfuse-promptfoo.md`. Para usar sem créditos do Lovable (provedor gratuito + voz do navegador): `docs/cortai-de-graca.md`. Migração para GPT-OSS-20B é por canal e reversível; nada troca em produção sem as variáveis `CORTAI_AI_*`.
+- Provedor e modelo: variáveis `CORTAI_AI_*` (chat) e `CORTAI_STT_*` (transcrição de voz), descritas no `.env.example`; observabilidade opcional com Langfuse e avaliação local com Promptfoo (`promptfoo/README.md`). A voz do navegador é gratuita. Análise antiga em `docs/historico/ia-gpt-oss-langfuse-promptfoo.md`.
 - A ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado. O cérebro nunca a chama e o fluxo novo não depende de `ALVO_IA_*`.
 
 ## WhatsApp
@@ -109,7 +117,7 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 - **Sem DROP, sem alteração destrutiva, sem apagar dados.** Migrações só de acréscimo, mínimas e justificadas.
 - Idempotência, dedupe, retries limitados e auditoria em eventos e jobs.
 - **Não publicar sem autorização explícita.**
-- Não reescrever o histórico git publicado: o projeto é sincronizado com o Lovable.
+- Não reescrever o histórico git publicado (sem force-push, rebase ou amend de commit enviado).
 
 ## Como o dono trabalha
 
@@ -120,23 +128,28 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 - Se uma decisão nova contradizer uma regra existente, apontar o conflito antes de mexer em parte crítica.
 - Commits de referência: `45ef135c25b09419aba5b23441466aea70e01246` (antes da reestruturação da Agenda); `93cb72f05faec0c77b96e71747b22b5e44e44ff2` (estado analisado depois).
 
-## Auditoria
+## Auditoria e segurança (estado em 17/10/2026)
 
-Última auditoria: `docs/auditoria-2026-10-09.md`. Achados abertos mais graves (corrigidos: admin por curinga no e-mail e cupom em `022e748`; escrita da equipe no banco pela migração 0027):
-- Nenhum achado alto aberto no momento. Corrigidos no código, aguardando publicar: o chat da CortAI no painel agora respeita papel e permissões, e o negócio em uso é resolvido por uma regra única (`vinculo-ativo.ts`).
-- Corrigido no código, aguardando publicar: prazo de cancelamento do dono (`cancelamento_min_horas`) agora vale para o cliente (achado 17).
-- Corrigidos no código em 10/10, aguardando publicar: limites por IP na CortAI do site, na fila de chegada e no cadastro sem login (achados 8, 9 e 16) e avisos que levavam a `/painel` (10b).
-- Corrigido no código em 11/10, aguardando publicar e a migração 0032: agendamento com telefone de terceiros (achado 11). Ficha existente só com o código mandado pelo WhatsApp do cliente; sem WhatsApp conectado, o horário fica marcado "telefone não confirmado".
+Auditorias anteriores em `docs/historico/` (`auditoria-2026-10-09.md` e as de 16/10). A maior parte já
+foi corrigida e aplicada no `cortai-prod` (migrações 0027 a 0037): tokens das redes sociais fora do
+alcance da equipe, anônimo só com colunas públicas, "Pedir projeto" pelo servidor com limite, OAuth
+com nonce, quitação de fiado atômica, convite sem descoberta de conta, limites no rascunho e
+confirmação de telefone no agendamento público.
 
-Consulte o documento antes de mexer em IA, permissões, RLS, cobrança ou rotas públicas.
+Ainda abertos:
+- Escrita direta de qualquer membro (só `is_tenant_member`) em `clientes`, `escalas_de_profissional`,
+  `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos` e
+  `onboarding_do_tenant`.
+- Equipe no WhatsApp: a CortAI confere só o papel, não as permissões de cada pessoa.
+- Proteção contra senha vazada desligada no Auth do Supabase (ajuste do dono no painel).
+- As duas tarefas agendadas do banco (`cron.job`) ainda chamam o Worker antigo
+  `cortai-reconstruction-test-2026…workers.dev`, que não recebe mais versões: precisam apontar para o
+  site principal (escrita no banco, com autorização).
+- Menores: remarcação pela IA recria o agendamento; contagens do ADM presas ao teto de 1000 linhas;
+  contadores não atômicos (`cupons.usos`, `nao_lidas`).
 
-## Em andamento (2026-10-09)
+Use `/auditar` antes de mexer em IA, permissões, RLS, cobrança ou rotas públicas.
 
-Fases 1 a 5 da CortAI aprovadas e feitas na branch `ccr-3f34ed3f-07fy6o` e trazidas para `cloudflare-workers-migration-2026-10-13` (sem publicar):
-1. Teste do gateway: testes automáticos e botão "Testar agora" no ADM (aba CortAI do negócio).
-2. Ícone da CortAI no cabeçalho do painel, ao lado do sininho (fora da Agenda no celular).
-3. Interruptor geral `config_atendimento_ia.cortai_ativa`, conferido dentro do cérebro. **Migração 0031 (antes 0028) ensaiada, ainda não aplicada no banco.**
-4. Selos (desligada, pausada, limite) no cabeçalho e no chat; aba CortAI no ADM com consumo, limite e encerrar pausa.
-5. Legado ALVO IA desligado (410), sem DROP; "Secretária" fora dos comentários.
-6. Confirmação do telefone no agendamento público (achado 11). **Migração 0032 (antes 0029) ensaiada, ainda não aplicada no banco.**
-7. Porteiro do WhatsApp (análise de 11/10 aprovada): número do link/fila/app só recebe depois de confirmado; SAIR/"número errado" param tudo; ritmo de envio. **Migração 0033 (antes 0030) ensaiada, ainda não aplicada no banco.** Pendente: o que é "o do barbeiro por e-mail".
+## Próximos passos
+
+A fila viva fica em "Próximas tarefas" do `DIARIO.md`.

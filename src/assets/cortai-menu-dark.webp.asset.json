@@ -1,11 +1,5 @@
 {
-  "version": 1,
-  "asset_id": "ac2647ae-5363-43f1-a984-69ea1ca6b92b",
-  "project_id": "a3550de1-ec98-4622-8484-7dadb8b04ed0",
-  "url": "/marca-lovable/cortai-menu-dark.webp",
-  "r2_key": "a/v1/a3550de1-ec98-4622-8484-7dadb8b04ed0/ac2647ae-5363-43f1-a984-69ea1ca6b92b/cortai-menu-dark.webp",
-  "original_filename": "cortai-menu-dark.webp",
-  "size": 10232,
+  "url": "/marca/cortai-menu-dark.webp",
   "content_type": "image/webp",
-  "created_at": "2026-10-02T14:13:03Z"
+  "size": 10232
 }

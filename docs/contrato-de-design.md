@@ -13,5 +13,5 @@
 - CSS: não criar classe nova em styles.css para uma tela; usar Tailwind com tokens. Proibido !important, body:has(...) e redefinir tokens fora dos escopos que já existem (.chat-sistema, .agendamento-marca, .client-brand).
 - Tamanho: rota ou componente com mais de 300 linhas deve ser dividido (visual em componentes, lógica em hook use*).
 - Mudança visual não altera regra de negócio, e o contrário também. Validar sempre em 390px e 1280px.
-- Não criar arquivo em .lovable/plan para ajuste pequeno.
+- Não criar arquivo de plano em `docs/` para ajuste pequeno.
 - Se faltar um componente para o que a tela precisa, pare e me avise; não improvise na tela.

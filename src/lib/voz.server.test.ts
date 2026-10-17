@@ -243,7 +243,7 @@ describe("provedor de transcrição próprio (ex.: Whisper gratuito)", () => {
     ).toEqual({ texto: null });
   });
 
-  it("configurado, o comando usa o provedor próprio e NÃO o gateway do Lovable", async () => {
+  it("configurado, o comando usa o provedor próprio de transcrição", async () => {
     vi.stubEnv("CORTAI_STT_BASE_URL", env.CORTAI_STT_BASE_URL);
     vi.stubEnv("CORTAI_STT_MODEL", env.CORTAI_STT_MODEL);
     vi.stubEnv("CORTAI_STT_API_KEY", env.CORTAI_STT_API_KEY);
@@ -254,7 +254,7 @@ describe("provedor de transcrição próprio (ex.: Whisper gratuito)", () => {
           new Response(JSON.stringify({ text: "quais clientes chamam Leandro" }), { status: 200 }),
       ),
     );
-    estado.configurada = false; // sem LOVABLE_API_KEY: ainda assim funciona
+    estado.configurada = false; // sem a transcrição pelo provedor da IA: ainda assim funciona
     const r = await transcreverComandoDeVoz({
       tenantId: "t1",
       userId: "u1",

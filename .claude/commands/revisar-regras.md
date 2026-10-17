@@ -1,9 +1,9 @@
 ---
 description: Confere o que mudou no código contra as regras do projeto (contrato de design e AGENTS.md)
-argument-hint: "[intervalo de commits, ex.: abc123..def456; padrão: os commits novos da main]"
+argument-hint: "[intervalo de commits, ex.: abc123..def456; padrão: os commits novos da branch de trabalho]"
 ---
 
-Revise as mudanças recentes contra as regras do Cortaí. Intervalo: `$ARGUMENTS` (vazio = o que chegou à `main` desde a última revisão; se não souber qual foi, use `git log --oneline -15 origin/main` e pergunte). Somente leitura: não edite nada.
+Revise as mudanças recentes contra as regras do Cortaí. Intervalo: `$ARGUMENTS` (vazio = o que chegou à branch `cloudflare-workers-migration-2026-10-13` desde a última revisão; se não souber qual foi, use `git log --oneline -15 origin/cloudflare-workers-migration-2026-10-13` e pergunte). Somente leitura: não edite nada.
 
 Leia primeiro `docs/contrato-de-design.md`, `CLAUDE.md` e os `AGENTS.md` das pastas tocadas (`src/lib`, `src/lib/brain`, `src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`). Depois rode `git fetch origin` e `git diff <intervalo> --stat` para listar os arquivos.
 
@@ -34,8 +34,8 @@ Leia primeiro `docs/contrato-de-design.md`, `CLAUDE.md` e os `AGENTS.md` das pas
 **Produto**
 - Algo que desliga agenda, comanda ou notificações essenciais quando a IA é desligada.
 - Mudança de versão: `src/lib/novidades.ts` e `public/versao.json` devem andar juntos; o campo `minima` só sobe depois de publicar.
-- Arquivo criado em `.lovable/plan` para um ajuste pequeno.
+- Arquivo de plano criado em `docs/` para um ajuste pequeno.
 
 ## Resposta
 
-Lista por gravidade (**quebra regra**, **atenção**, **sugestão**), cada item com arquivo, linha, a regra violada (com o arquivo onde ela está escrita) e como corrigir. Se nada violar, diga isso em uma frase. Não corrija: para consertar, sugira usar `/pedido-lovable`.
+Lista por gravidade (**quebra regra**, **atenção**, **sugestão**), cada item com arquivo, linha, a regra violada (com o arquivo onde ela está escrita) e como corrigir. Se nada violar, diga isso em uma frase. Não corrija: para consertar, sugira o pedido exato para uma das IAs aplicar na branch de trabalho.

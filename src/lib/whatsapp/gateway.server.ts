@@ -22,11 +22,9 @@
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 
 type Provedor = "evolution" | "generico" | "meta";
-type Config = { baseUrl: string; apiKey: string; provedor: Provedor; direto?: boolean };
+type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
 
 import { codigoDePareamento, MINUTOS_DO_CODIGO } from "@/lib/whatsapp/pareamento-telefone";
-
-const URL_GATEWAY_META = "https://connector-gateway.lovable.dev/whatsapp";
 
 function configEvolution(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
@@ -46,7 +44,7 @@ const VERSAO_GRAPH_PADRAO = "v21.0";
  * WhatsApp Business oficial (Meta) direto na Cloud API, sem intermediário:
  * META_WHATSAPP_ACCESS_TOKEN (token permanente do usuário do sistema) e
  * META_WHATSAPP_PHONE_NUMBER_ID. A base aponta para o número, então os
- * caminhos são os mesmos do conector antigo ("/messages", "?fields=...").
+ * caminhos são relativos a ele ("/messages", "?fields=...").
  */
 function configMetaDireta(): Config | null {
   const token = process.env["META_WHATSAPP_ACCESS_TOKEN"]?.trim();
@@ -57,23 +55,15 @@ function configMetaDireta(): Config | null {
     baseUrl: `https://graph.facebook.com/${versao}/${encodeURIComponent(numeroId)}`,
     apiKey: token,
     provedor: "meta",
-    direto: true,
   };
 }
 
-// WhatsApp Business oficial pelo conector do Lovable (legado, usado só sem a
-// configuração direta). Não existe QR Code: a conexão é da conta.
+// WhatsApp Business oficial: só pela Cloud API direta. Não existe QR Code: a conexão é da conta.
 function configMeta(): Config | null {
-  const direta = configMetaDireta();
-  if (direta) return direta;
-  const chaveMeta = process.env["WHATSAPP_API_KEY"];
-  if (chaveMeta && process.env["LOVABLE_API_KEY"]) {
-    return { baseUrl: URL_GATEWAY_META, apiKey: chaveMeta, provedor: "meta" };
-  }
-  return null;
+  return configMetaDireta();
 }
 
-/** Com a conta oficial configurada (direta ou pelo conector legado). */
+/** Com a conta oficial da Meta configurada. */
 function metaConfigurada(): boolean {
   return configMeta() !== null;
 }
@@ -130,10 +120,7 @@ export async function chamar<T>(
   if (!config) throw new GatewayNaoConfiguradoError();
   const cabecalhos: Record<string, string> = { "content-type": "application/json" };
   if (config.provedor === "evolution") cabecalhos["apikey"] = config.apiKey;
-  else if (config.provedor === "meta" && !config.direto) {
-    cabecalhos["authorization"] = `Bearer ${process.env["LOVABLE_API_KEY"]}`;
-    cabecalhos["x-connection-api-key"] = config.apiKey;
-  } else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
+  else cabecalhos["authorization"] = `Bearer ${config.apiKey}`;
 
   const controle = new AbortController();
   const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
@@ -407,18 +394,18 @@ function criarGenerico(cfg: Config | null) {
 /* -------------------------------------------------------------------- Meta */
 
 /**
- * WhatsApp Business oficial (Meta), via conexão do workspace. A sessão é da
- * conta: não há QR para escanear nem logout pelo app. O estado consultado em
- * /phone_number é real — se a chamada falha, a tela mostra o erro.
+ * WhatsApp Business oficial (Meta), pela Cloud API. A sessão é da conta: não há
+ * QR para escanear nem logout pelo app. O estado consultado no número é real —
+ * se a chamada falha, a tela mostra o erro.
  */
 function criarMeta(cfg: Config | null) {
   const meta = {
     async consultarStatus(): Promise<EstadoDaSessao> {
       try {
-        // Direto na Cloud API a base já é o número; no conector legado é /phone_number.
+        // Na Cloud API a base já é o número.
         const r = await chamar<Record<string, unknown>>(
           cfg,
-          `${cfg?.direto ? "" : "/phone_number"}?fields=display_phone_number,quality_rating`,
+          "?fields=display_phone_number,quality_rating",
           "GET",
         );
         return {

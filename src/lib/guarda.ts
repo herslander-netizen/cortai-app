@@ -31,7 +31,7 @@ export function destinoSolicitadoPermitido(
   if (!proximo || !proximo.startsWith("/") || proximo.startsWith("//")) return null;
   const caminho = proximo.split("?")[0] ?? "";
   // Autorização de assistentes externos (MCP): volta à tela de consentimento.
-  if (caminho === "/.lovable/oauth/consent") return proximo;
+  if (caminho === "/oauth/consentimento") return proximo;
   if (caminho === destino || caminho.startsWith(`${destino}/`)) return proximo;
   return null;
 }
