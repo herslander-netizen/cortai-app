@@ -18,7 +18,7 @@ import {
 } from "./gesto-dia";
 import { somarDias } from "./tempo";
 
-const IGNORAR = ".agenda-chips, input, select, textarea, [role=dialog]";
+const IGNORAR = "[data-gesto-dia-ignore], [data-sem-gesto-dia], .agenda-chips, input, select, textarea, [role=dialog]";
 const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
 
 type Estado = {
@@ -103,8 +103,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
         cancelado,
         arrastandoNoFim: arrastando(),
       });
-      if (s.eixo === "x") {
-        // Arrastar por cima de um cartão não pode abri-lo.
+      if (s.eixo === "x" && Math.abs(s.dx) >= 10) {
+        // Só suprime o clique quando houve arrasto real; um toque curto continua clicável.
         const engolir = (e: Event) => {
           e.stopPropagation();
           e.preventDefault();
