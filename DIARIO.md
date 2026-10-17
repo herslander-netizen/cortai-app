@@ -86,7 +86,6 @@ teste real na prévia.
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
 
-| GPT | 2026-10-17 UTC | Remover halo/sombra difusa do botão + da Agenda sem alterar aparência base ou animação | `DIARIO.md`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx` |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Ajustar animação do calendário e carrossel de cinco pontos; remover texto de polling | `DIARIO.md`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/EstadosAgenda.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx` |
@@ -119,6 +118,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — GPT — Remoção do halo difuso no botão + da Agenda
+- Commit: `b915cf7` (correção); `d71ede7` (teste).
+- O que mudou e por quê: o botão flutuante agora define `box-shadow` e `filter` como `none` diretamente no controle, removendo o brilho/sombra difusa que aparecia ao redor do botão sem mexer na cor, formato, posição, ícone ou animação. Alteração isolada em `BotaoAgoraPrincipal.tsx`; não tocado em `styles.css`, reservado para outra tarefa.
+- Testes: adicionado teste para garantir ausência de sombra e filtro inline; validação completa ainda depende do GitHub Actions. Sem inspeção visual real após a alteração.
+- Banco/infra: nada alterado; sem migração.
+- Pendente / atenção para as outras IAs: confirmar no celular se o halo desapareceu; se ainda houver borrão, verificar estilos de `Button` e `box-shadow` computado sem alterar a geometria do FAB.
+
 
 ### 2026-10-17 UTC — GPT — Contrato de botão e proteção de saída do formulário
 - Commits: `82167a2` (gatilho de agendamento manual usa variantes oficiais do Button), `371a458` (teste de confirmação ao fechar formulário sujo).
