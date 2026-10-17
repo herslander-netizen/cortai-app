@@ -302,9 +302,7 @@ export function AgendaTimeline({
       if (grupo.length > 1 && (alinhado || grupo.some((evento) => evento.item.encaixe))) {
         const colunas = Math.min(grupo.length, 3);
         grupo.forEach((evento, i) => {
-          const altura = alinhado
-            ? Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4)
-            : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
           const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
           resultado.set(evento.item.id, {
             inicio: evento.inicio,
@@ -320,15 +318,12 @@ export function AgendaTimeline({
         grupo.forEach((evento) => {
           if (alinhado) {
             const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO;
-            const altura = Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+            const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
             resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura });
             cursor = topo + altura + ESPACO_ENTRE_BLOCOS;
             return;
           }
-          const altura = Math.max(
-            ALTURA_MINIMA_BLOCO,
-            (evento.fim - evento.inicio) * PX_POR_MINUTO - 4,
-          );
+          const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
           resultado.set(evento.item.id, {
             inicio: evento.inicio,
             fim: evento.fim,
@@ -825,10 +820,7 @@ export function AgendaTimeline({
               posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
             const blocoAltura =
               posicao?.altura ??
-              Math.max(
-                ALTURA_MINIMA_BLOCO,
-                (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4,
-              );
+              Math.max(1, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO);
             const reais = [
               horaReal(item.arrivedAt, fuso) ? `Chegou ${horaReal(item.arrivedAt, fuso)}` : null,
               horaReal(item.startedAt, fuso) ? `Começou ${horaReal(item.startedAt, fuso)}` : null,
@@ -842,10 +834,7 @@ export function AgendaTimeline({
               arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo : 0;
             const passoRedim =
               redim?.id === item.id ? Math.round(redim.dy / PX_POR_MINUTO / passo) * passo : 0;
-            const alturaDoBloco = Math.max(
-              ALTURA_MINIMA_BLOCO,
-              blocoAltura + passoRedim * PX_POR_MINUTO,
-            );
+            const alturaDoBloco = Math.max(1, blocoAltura + passoRedim * PX_POR_MINUTO);
             // Cartão curto (até 30 min): só a linha principal e o serviço, com altura fixa.
             const compacto = fim - inicio <= 30;
             const faixaDaColuna = posicao?.colunas
@@ -877,9 +866,7 @@ export function AgendaTimeline({
                   className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     top: `${topo}px`,
-                    ...(compacto
-                      ? { height: `${alturaDoBloco}px` }
-                      : { minHeight: `${alturaDoBloco}px` }),
+                    height: `${alturaDoBloco}px`,
                     ...(posicao?.colunas
                       ? {
                           left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
