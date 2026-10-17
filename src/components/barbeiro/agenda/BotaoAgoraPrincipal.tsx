@@ -12,6 +12,26 @@ import { solicitarAgora } from "./pilula-agora";
 import { alturaDoTopoDaAgenda } from "./tempo";
 import { useToqueLongo } from "./useToqueLongo";
 
+/** Ícone da visualização em cartões: duas linhas acima do cartão arredondado. */
+function IconeAcompanhamentoCard() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 28 28"
+      fill="none"
+      className="size-7"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 4.5h12" />
+      <path d="M5.5 8.5h17" />
+      <rect x="4" y="12" width="20" height="12" rx="2.5" />
+    </svg>
+  );
+}
+
 /** Controle principal do pé da Agenda no celular e o botão "+" preservado em todas as larguras. */
 export function BotaoAgoraPrincipal({
   visualizacao,
@@ -142,7 +162,7 @@ export function BotaoAgoraPrincipal({
                   transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
                 }}
               >
-                <IconeVisualizacao aria-hidden />
+                <IconeAcompanhamentoCard />
               </motion.span>
             </AnimatePresence>
           </Button>
