@@ -1655,6 +1655,32 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
           return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
         throw new Error("Esse horário já está ocupado para este profissional.");
       }
+      const fuso = await fusoDoTenant(tenant.id);
+      const diaAlvo = hojeNoFuso(fuso, inicio);
+      const desde = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
+      const ate = new Date(isoNoFusoDaBarbearia(
+        new Date(desde.getTime() + 36 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        "00:00",
+        fuso,
+      ));
+      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+      const extras = await ocupacoesExtras(db, {
+        tenantId: tenant.id,
+        fuso,
+        desde,
+        ate,
+        profissionalIds: [profissionalId],
+      });
+      const extraConflitante = extras.some((ocupacao) =>
+        ocupacao.profissional_id === profissionalId &&
+        new Date(ocupacao.inicio).getTime() < fim.getTime() &&
+        new Date(ocupacao.fim).getTime() > inicio.getTime()
+      );
+      if (extraConflitante) {
+        if (data.apenasVerificar)
+          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
+        throw new Error("Esse horário coincide com um bloqueio ou com a escala do profissional.");
+      }
     }
     if (data.apenasVerificar)
       return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
