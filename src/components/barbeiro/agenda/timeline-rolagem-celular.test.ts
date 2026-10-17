@@ -71,8 +71,9 @@ describe("troca de dia sem piscar nem puxar a página", () => {
     expect(operacional).toContain("agenda.isPlaceholderData ? [] :");
   });
 
-  it("os pontinhos só animam quando o dia ainda não chegou", () => {
-    expect(operacional).not.toContain("carregando={agenda.isFetching}");
+  it("os pontinhos indicam consultas em andamento, inclusive atualizações periódicas", () => {
+    expect(operacional.match(/carregando=\{agenda\.isFetching\}/g)?.length).toBe(2);
+    expect(operacional).not.toContain("carregando={agenda.isFetching && agenda.isPlaceholderData}");
   });
 
   it("a timeline só se posiciona sozinha na primeira abertura", () => {
