@@ -124,6 +124,13 @@ Modelo:
 - Pendente / atenção para as outras IAs:
 ```
 
+### 2026-10-17 UTC — GPT — Execução mobile-first da home (em validação)
+- Commits: `884c370` (CTA compacto no cabeçalho), `6527430` (demonstração mais compacta e controles via Button), `40565e2` (espaçamento da narrativa), `22ca052` (ritmo vertical mobile), `c6f084f` (alvo de toque mínimo de 48 px). Correção da prévia da agenda: `33fff39` (refs opcionais compatíveis com TypeScript).
+- O que mudou e por quê: priorizada a ergonomia mobile na home oficial `/apresentacao`: CTA do cabeçalho mais curto em telas pequenas, menos espaço vazio na demonstração, controles com componentes oficiais, menos espaçamento vertical entre seções e altura de toque em conformidade com o contrato de design. Tema escuro e conteúdo editorial permanecem preservados.
+- Testes: GitHub Actions para o commit mais recente `c6f084f` ainda em execução na última consulta; TypeScript/testes/build e prévia ainda não confirmados. Nenhum teste local nem inspeção visual real foi executado nesta sessão.
+- Banco/infra: nada alterado; sem publicação em produção.
+- Pendente / atenção para as outras IAs: aguardar Actions e corrigir falhas antes de encerrar. Inspecionar a prévia em 390px e 1280px; verificar contraste das demonstrações sob tema escuro. Vídeo do proprietário pode ajudar a substituir exemplos genéricos por telas fiéis do produto.
+
 ### 2026-10-16 UTC — GPT — Home de apresentação com direção premium escura
 - Commits: `76217bb` (tema escuro no showroom), `e57c78e` (acabamento visual e tokens).
 - O que mudou e por quê: aplicada à home oficial `/apresentacao` a direção visual enviada pelo dono: fundo escuro, contraste alto, composição premium, acento de marca e maior destaque para o hero. Mantidos a identidade oficial do Cortaí, o conteúdo editável em `/admin/home`, as demonstrações reais/ilustrativas já existentes, os links internos e a rota `/`.
