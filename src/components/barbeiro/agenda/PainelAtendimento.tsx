@@ -124,11 +124,12 @@ export function PainelAtendimento(props: Props) {
         <SheetContent
           side={props.lateral ? "right" : "bottom"}
           arrastarParaFechar
-          className={`agenda-painel mov-agenda-painel border-line bg-ink2 px-5 pt-5 ${props.lateral ? "w-[380px]" : "mx-auto max-h-[88dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl"}`}
+          className={`agenda-painel mov-agenda-painel border-line bg-ink2 px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[90dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
         >
           {item ? (
             <>
-              <SheetHeader className="pr-10 text-left">
+              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true"><span className="h-1.5 w-12 rounded-full bg-mute/50" /></div>
+              <SheetHeader className="shrink-0 pr-10 text-left">
                 <SheetTitle className="truncate text-lg text-paper">{item.cliente}</SheetTitle>
                 <SheetDescription className="text-sm text-mute">
                   {hora(item.inicio, props.fuso)} · {item.servico} · {item.profissional}
@@ -145,7 +146,7 @@ export function PainelAtendimento(props: Props) {
                   Sem conexão: as ações voltam quando a internet voltar.
                 </p>
               ) : null}
-              <div className="mt-5 grid gap-3">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 pt-4 [scrollbar-width:thin]"><div className="grid gap-3">
                 {item.status === "agendado" ? (
                   <Button
                     size="lg"
@@ -274,20 +275,20 @@ export function PainelAtendimento(props: Props) {
                       <UserX /> Faltou
                     </Button>
                   ) : null}
-                  {pendente ? (
-                    <Button
-                      variant="destructive"
-                      className="min-h-12"
-                      disabled={bloqueado}
-                      onClick={() => {
-                        if (item.confirmadoEm) setConfirmacao("cancelar");
-                        else executar(props.onCancelar)();
-                      }}
-                    >
-                      <Ban /> Cancelar
-                    </Button>
-                  ) : null}
                 </div>
+                {pendente ? (
+                  <Button
+                    variant="destructive"
+                    className="min-h-14 w-full rounded-xl text-base font-semibold"
+                    disabled={bloqueado}
+                    onClick={() => {
+                      if (item.confirmadoEm) setConfirmacao("cancelar");
+                      else executar(props.onCancelar)();
+                    }}
+                  >
+                    <Ban /> Cancelar agendamento
+                  </Button>
+                ) : null}
                   </>
                 ) : null}
                 {compacto ? (
@@ -301,7 +302,7 @@ export function PainelAtendimento(props: Props) {
                     {expandido ? "Mostrar menos" : "Mais ações"}
                   </Button>
                 ) : null}
-              </div>
+              </div></div>
               {remarcar ? (
                 <form
                   className="mt-2 grid gap-3 border-t border-line pt-4 pb-4"
