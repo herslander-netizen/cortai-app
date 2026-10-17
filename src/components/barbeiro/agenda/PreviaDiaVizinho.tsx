@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import type { Ref } from "react";
 
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
@@ -29,7 +30,20 @@ export function PreviaDiaVizinho({
   diaCompleto?: boolean;
   ref?: Ref<HTMLDivElement>;
 }) {
-  const consulta = useQuery({ ...opcoesAgendaDia(dia), refetchOnMount: false });
+  const queryClient = useQueryClient();
+  // A prévia do vizinho aquece os dados antes da conclusão do gesto.
+  // Mantém a consulta reutilizável para que a troca do dia não comece do zero.
+  useEffect(() => {
+    void queryClient.prefetchQuery({
+      ...opcoesAgendaDia(dia),
+      staleTime: 15_000,
+    });
+  }, [dia, queryClient]);
+  const consulta = useQuery({
+    ...opcoesAgendaDia(dia),
+    refetchOnMount: false,
+    staleTime: 15_000,
+  });
   const { data } = consulta;
   const itens = (data?.itens ?? [])
     .filter((i) => !ENCERRADOS.has(i.status))
