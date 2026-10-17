@@ -780,6 +780,42 @@ export function AgendaTimeline({
             </div>
           ))}
 
+          {redim ? (
+            <>
+              {Array.from(
+                { length: Math.floor((escala.fim - escala.inicio) / 15) + 1 },
+                (_, indice) => escala.inicio + indice * 15,
+              )
+                .filter((minuto) => minuto % 30 !== 0)
+                .map((minuto) => (
+                  <div
+                    key={`ajuste-15-${minuto}`}
+                    className="agenda-timeline-ajuste-15"
+                    style={{
+                      top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
+                    }}
+                    aria-hidden="true"
+                  />
+                ))}
+              {(() => {
+                const item = itens.find((evento) => evento.id === redim.id);
+                if (!item) return null;
+                const fimItem = minutosNoFuso(item.fim, fuso);
+                const delta = Math.round(redim.dy / PX_POR_MINUTO / passo) * passo;
+                const minutoAlvo = Math.max(escala.inicio, Math.min(escala.fim, fimItem + delta));
+                return (
+                  <div
+                    className="agenda-timeline-ajuste-alvo"
+                    style={{
+                      top: `${(minutoAlvo - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minutoAlvo)}px`,
+                    }}
+                    aria-hidden="true"
+                  />
+                );
+              })()}
+            </>
+          ) : null}
+
           {itens.map((item) => {
             const nome = nomeDaAgenda(item.cliente, discreto);
             const posicao = layout.posicoes.get(item.id);
