@@ -58,6 +58,8 @@ export function BotaoAgoraPrincipal({
   const toqueLongo = useToqueLongo(onAgendarPorVoz, { ativo: !menuAberto });
   const menosMovimento = useMenosMovimento();
   const levarAoAgoraQuandoForHoje = useRef(false);
+  // Evita que toques duplicados durante a animação usem o mesmo estado antigo.
+  const ultimaAlternanciaRef = useRef(0);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
 
   const rolarLista = useCallback(() => {
@@ -98,6 +100,10 @@ export function BotaoAgoraPrincipal({
   }
 
   function alternarVisualizacao() {
+    const agora = Date.now();
+    // Toques duplicados podem chegar antes de React atualizar visualizacao.
+    if (agora - ultimaAlternanciaRef.current < 300) return;
+    ultimaAlternanciaRef.current = agora;
     onVisualizacao(proxima);
   }
 
@@ -137,6 +143,7 @@ export function BotaoAgoraPrincipal({
             id={`agenda-aba-${visualizacao}`}
             variant="ghost"
             size="icon"
+            type="button"
             className="agenda-botao-agora-visualizacao"
             aria-label={`Mostrar ${proxima === "timeline" ? "Timeline" : "Lista"}`}
             onKeyDown={teclasDaVisualizacao}
