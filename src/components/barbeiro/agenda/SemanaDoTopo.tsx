@@ -217,7 +217,7 @@ export function SemanaDoTopo({
         {expandido ? (
           <div
             ref={listaRef}
-            className="h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
+            className="h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain animate-in fade-in-0 slide-in-from-top-2 zoom-in-[0.98] duration-[280ms] motion-reduce:animate-none"
             aria-label="Calendário"
           >
             {meses.map((mes) => {
