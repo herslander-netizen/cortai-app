@@ -658,7 +658,7 @@ export function AgendaTimeline({
         ? topoReferenciaVizinha
         : grade.top + (ehHoje ? posicaoAgora : (abreEm - escala.inicio) * PX_POR_MINUTO);
     area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - topoAtual}px,0)`;
-  }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length]);
+  }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length, escala.inicio]);
 
   return (
     <div
