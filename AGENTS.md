@@ -1,29 +1,29 @@
-# Regras da dupla — Claude e GPT (valem igual para os dois)
+# Regras da equipe de IAs — Claude, GPT e Muse (valem igual para todos)
 
-O dono usa Claude (Claude Code) e GPT (Codex ou ChatGPT ligado ao GitHub) ao mesmo tempo, às vezes
-só um deles. **Os dois têm o mesmo poder de acesso e as mesmas autorizações** (decisão do dono,
-16/10/2026): nenhum precisa do aval do outro para mudar o código, e o que um pode fazer sem
-perguntar o outro também pode. Os dois precisam agir como **um único engenheiro**: mesmas regras,
-mesma ordem de prioridade, mesmo critério para pedir autorização ao dono. Este bloco é carregado
-sozinho pelos dois (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo). O estado vivo
-fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
+O dono usa Claude (Claude Code), GPT (Codex ou ChatGPT ligado ao GitHub) e Muse (Muse Spark, da
+Meta), juntos ou só um deles. **Todos têm o mesmo poder de acesso e as mesmas autorizações**
+(decisão do dono, 16 e 17/10/2026): nenhum precisa do aval de outro para mudar o código, e o que um
+pode fazer sem perguntar os outros também podem. Todos precisam agir como **um único engenheiro**:
+mesmas regras, mesma ordem de prioridade, mesmo critério para pedir autorização ao dono. Quem não
+carrega este arquivo sozinho (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo) deve
+lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
 
-**Como os dois conversam:** não há chat direto entre eles; o canal é o `DIARIO.md` no GitHub.
+**Como conversam:** não há chat direto entre as IAs; o canal é o `DIARIO.md` no GitHub.
 - Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
 - Depois de cada mudança enviada: uma entrada no topo do diário (o que mudou, arquivos, testes,
-  o que o outro precisa saber) e, se o outro precisa agir ou conferir algo, um recado
-  "**Para o GPT**" ou "**Para o Claude**" em "Recados".
+  o que os outros precisam saber) e, se alguém precisa agir ou conferir algo, um recado
+  "**Para o GPT**", "**Para o Claude**", "**Para o Muse**" ou "**Para todos**" em "Recados".
 - Ao ler um recado endereçado a você: responder logo abaixo ou marcar `[lido]`, no mesmo dia.
-- Mudou algo que o outro está usando (arquivo reservado, migração, regra)? Avise por recado antes
-  de enviar; se a reserva for do outro, não mexa sem a resposta dele.
+- Mudou algo que outra IA está usando (arquivo reservado, migração, regra)? Avise por recado antes
+  de enviar; se a reserva for de outra, não mexa sem a resposta dela.
 - Sem terminal para rodar `tsc`, `vitest` e `build`? Envie e confira a validação no GitHub Actions
   antes de dizer ao dono que está pronto; se falhar, conserte antes de qualquer outra coisa.
 
 **Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
-`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex ou o Claude Code ligados ao repositório. **Nunca pelo
+`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex, o Claude Code ou o Muse ligados ao repositório. **Nunca pelo
 editor do Lovable** nem trocando o ramo de sincronização dele: o Lovable reescreve build e `bun.lock`
 para o cache privado dele e a prévia/site principal param de montar. Se você estiver rodando dentro do
-Lovable, pare e avise o dono para abrir a tarefa no GPT/Codex ou no Claude Code ligado ao GitHub.
+Lovable, pare e avise o dono para abrir a tarefa numa IA ligada ao GitHub (GPT/Codex, Claude Code ou Muse).
 
 **Prévia e publicação (decisão do dono, 16/10/2026):**
 - **Prévia:** todo push na branch passa pela validação (TypeScript, testes e build) e, se passar, vai
@@ -62,8 +62,8 @@ já enviado; segredo em arquivo, commit, log ou chat; DROP ou DELETE de dados.
 **Ao terminar cada tarefa:** registrar no topo do diário (`DIARIO.md`), tirar a reserva, atualizar
 "Próximas tarefas" e `MUSE.md` se o estado mudou.
 
-**Quando o dono disser uma preferência ou decisão** a qualquer um dos dois, registrar na hora em
-"Decisões do dono" do `DIARIO.md`, com a data. O outro passa a seguir sem o dono repetir. Se uma
+**Quando o dono disser uma preferência ou decisão** a qualquer uma das IAs, registrar na hora em
+"Decisões do dono" do `DIARIO.md`, com a data. As outras passam a seguir sem o dono repetir. Se uma
 decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agir.
 
 ---

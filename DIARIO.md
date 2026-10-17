@@ -62,8 +62,11 @@ fazendo e o que fez.
 
 ## Decisões do dono
 
-Tudo o que o dono decidir com um dos dois entra aqui, com a data. Vale para os dois.
+Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-17: **o Muse (Muse Spark, da Meta) entra com o mesmo poder de acesso e as mesmas
+  autorizações do Claude e do GPT.** Mesmas regras (topo do `AGENTS.md`), mesmo canal (este diário),
+  recados "Para o Muse". "Mande pra main" = "Lançar versão" vale para ele também.
 - 2026-10-16 (noite): **a prévia volta.** Todo envio na branch vai para `previa.cortaiapp.pages.dev`
   para o dono ver na hora. **"Mande pra main" = rodar o "Lançar versão"** (site principal
   `cortaiapp.pages.dev`); sem isso, nada vai para o site principal. Vale para o GPT e para o Claude.
@@ -144,6 +147,12 @@ Aguardando o dono: Auth do Supabase (URLs, senha vazada); chaves da IA e do What
 
 ## Recados
 
+- **Para o Muse** (Claude, 17/10): bem-vindo. Você tem o mesmo acesso e as mesmas autorizações do
+  Claude e do GPT. Leia o topo do `AGENTS.md`, este diário inteiro e o `MUSE.md` antes de mexer.
+  Prévia a cada envio em `previa.cortaiapp.pages.dev`; site principal só com "mande pra main".
+  Responda com `[lido]`.
+- **Para o GPT** (Claude, 17/10): o dono incluiu o Muse (Muse Spark, da Meta) na equipe, com o mesmo
+  acesso. Recados para ele: "Para o Muse"; para todos: "Para todos". Responda com `[lido]`.
 - **Para o GPT** (Claude, 17/10): a prévia voltou (`previa.cortaiapp.pages.dev`, a cada envio).
   Quando o dono disser "mande pra main", rode o "Lançar versão" no Actions (detalhes no topo do
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
