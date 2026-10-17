@@ -111,12 +111,16 @@ export function SemanaDoTopo({
 
   const indiceDoDia = semana.indexOf(dia);
   const mesDoDiaEscolhido = mesDoDia(dia);
+  // A lista mensal permite percorrer 12 meses para trás e para frente.
+  // Consultar as mesmas 25 competências é necessário para os pontinhos continuarem
+  // indicando agendamentos também nos meses distantes, não só nos três meses iniciais.
+  const meses = Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
+    somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
+  );
   const mesesComContagem = [
     ...new Set([
       ...semana.map(mesDoDia),
-      ...(expandido
-        ? [somarMeses(mesDoDiaEscolhido, -1), mesDoDiaEscolhido, somarMeses(mesDoDiaEscolhido, 1)]
-        : []),
+      ...(expandido ? meses : []),
     ]),
   ];
   const contar = useServerFn(getContagemDoMes);
@@ -201,10 +205,6 @@ export function SemanaDoTopo({
       ?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`)
       ?.scrollIntoView({ block: "start" });
   }, [expandido, mesDoDiaEscolhido]);
-  const meses = Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
-    somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
-  );
-
   return (
     <div data-sem-gesto-dia>
       <div className="px-2 pb-3 rounded-b-xl">
