@@ -119,6 +119,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-17 UTC — GPT — Contrato de botão e proteção de saída do formulário
+- Commits: `82167a2` (gatilho de agendamento manual usa variantes oficiais do Button), `371a458` (teste de confirmação ao fechar formulário sujo).
+- O que mudou e por quê: `AgendamentoManual.tsx` deixou de usar as classes legadas `btn-primary`/`btn-tertiary` dentro do componente oficial, alinhando-se ao contrato de design. Em `TelaDeFormulario.test.tsx`, foi acrescentado um teste que verifica se fechar um formulário com alterações pendentes solicita confirmação e se “Continuar editando” mantém a tela aberta.
+- Testes: GitHub Actions para o commit `371a458` está em execução; TypeScript, Vitest e build ainda não têm resultado final. Não houve teste visual real em dispositivo.
+- Banco/infra: nada alterado; publicação de produção não solicitada.
+- Pendente / atenção para as outras IAs: concluir validação do CI; a auditoria de ciclo de vida e acessibilidade dos formulários continua em andamento.
+
+
 ### 2026-10-17 UTC — Claude — Ajustes finais do carrossel de dias
 - O que mudou e por quê: a partir das fotos do dono no celular. (1) O dia vizinho ficava ~10 px
   abaixo do atual: tirado o respiro da grade (`padding-block`) dentro de `.agenda-dia-vizinha`.
