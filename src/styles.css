@@ -5066,6 +5066,8 @@ html.agenda-gesto-ativo body {
   }
 }
 @media (max-width: 560px) {
+  .showroom-secao,
+  .showroom-faixa { padding-block: 3.25rem; }
   .showroom-header-inner {
     min-height: 62px;
   }
