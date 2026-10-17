@@ -6642,3 +6642,38 @@ button.agenda-nome:hover {
       0 4px 14px color-mix(in oklab, #000 15%, transparent);
   }
 }
+
+
+/* Premium Glass refinado: acabamento interno, sem alterar a geometria da timeline. */
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco {
+  background-image:
+    linear-gradient(112deg, color-mix(in oklab, var(--paper) 4%, transparent), transparent 58%),
+    linear-gradient(160deg, color-mix(in oklab, var(--cor-estado, var(--primary)) 22%, var(--ink2)), color-mix(in oklab, var(--cor-estado, var(--primary)) 9%, var(--ink2)));
+}
+.agenda-operacional .agenda-timeline-bloco .agenda-timeline-bloco-topo strong {
+  letter-spacing: -0.015em;
+  text-shadow: 0 1px 0 color-mix(in oklab, #000 12%, transparent);
+}
+.agenda-operacional .agenda-timeline-bloco .agenda-timeline-servico {
+  color: color-mix(in oklab, var(--paper) 78%, var(--mute));
+}
+.agenda-operacional .agenda-timeline-bloco .agenda-timeline-prof {
+  color: color-mix(in oklab, var(--paper) 84%, var(--mute));
+  font-weight: 600;
+}
+.agenda-operacional .agenda-timeline-bloco .status-badge {
+  border-radius: 999px;
+  border-color: color-mix(in oklab, currentColor 42%, transparent);
+  background-color: color-mix(in oklab, var(--ink2) 58%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--paper) 10%, transparent);
+  letter-spacing: 0.005em;
+}
+.agenda-operacional .agenda-timeline-bloco .status-badge-chegou,
+.agenda-operacional .agenda-timeline-bloco .status-badge-finalizado,
+.agenda-operacional .agenda-timeline-bloco .status-badge-confirmado {
+  background-color: color-mix(in oklab, currentColor 10%, transparent);
+}
+.agenda-operacional .agenda-timeline-bloco:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--agenda-acao, var(--primary)) 72%, white);
+  outline-offset: 2px;
+}
