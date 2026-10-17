@@ -83,7 +83,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-17 UTC | Ajuste de horário/duração + lupa temporal mobile; expediente, ocupações extras e concorrência simultânea; atendimento `na_cadeira` aguardando decisão do dono | `DIARIO.md`, `src/lib/remarcacao-regras.ts`, `src/lib/remarcacao-regras.test.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/ocupacoes-extras.server.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/ZoomPrecisaoAgenda.tsx`, `src/components/barbeiro/agenda/zoom-precisao.ts`, `src/components/barbeiro/agenda/zoom-precisao.test.ts`, `src/components/barbeiro/agenda/useRascunhoDeHorario.ts`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, testes do servidor |
+| GPT | 2026-10-17 UTC | Réplica fiel do vídeo da edição de horário: bloquear troca por gesto durante rascunho e corrigir fluxo de mudança de dia | `DIARIO.md`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/gesto-dia.ts`, testes relacionados |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
 ## Recados
