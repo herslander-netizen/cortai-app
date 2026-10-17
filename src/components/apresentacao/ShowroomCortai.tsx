@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { DemoAgendamento } from "@/components/apresentacao/DemoAgendamento";
+import { NarrativaApresentacao } from "@/components/apresentacao/NarrativaApresentacao";
 
 import { Conversation, ConversationContent } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -458,6 +459,7 @@ export function ShowroomCortai({
       </section>
 
       <DemoAgendamento />
+      <NarrativaApresentacao />
 
       <section
         className="showroom-faixa showroom-segmentos"
@@ -478,7 +480,7 @@ export function ShowroomCortai({
         </div>
       </section>
 
-      <section id="como-funciona" className="showroom-secao showroom-prova">
+      <section id="lembretes" className="showroom-secao showroom-prova">
         <Cabecalho b={c.agenda} />
         <div className="showroom-prova-layout">
           <Lembrete segmento={segmento} />
