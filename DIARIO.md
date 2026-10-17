@@ -30,6 +30,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-17: **Agenda mobile com lupa temporal**: ao pressionar e segurar um compromisso, ampliar somente a região ativa; a grade normal fica compacta, as marcações de 5 minutos ficam mais espaçadas na lupa, o movimento usa passos exatos de 5 minutos e tudo continua em rascunho até Salvar. Durante a troca de dia, a página vizinha deve estar previamente pronta e manter o horário de referência (ex.: 09:00) alinhado durante o gesto.
 - 2026-10-17: **o Cortaí não usa mais o Lovable**, de forma definitiva. Nada de editor, banco, IA,
   conector de WhatsApp ou login pelo Lovable; referências e resíduos foram retirados do código e
   da memória do projeto. Documentos antigos ficam em `docs/historico/` só como consulta.
@@ -82,7 +83,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-17 UTC | Ajuste de horário/duração: expediente, ocupações extras e concorrência simultânea; atendimento `na_cadeira` aguardando decisão do dono | `DIARIO.md`, `src/lib/remarcacao-regras.ts`, `src/lib/remarcacao-regras.test.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/ocupacoes-extras.server.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/useRascunhoDeHorario.ts`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, testes do servidor |
+| GPT | 2026-10-17 UTC | Ajuste de horário/duração + lupa temporal mobile; expediente, ocupações extras e concorrência simultânea; atendimento `na_cadeira` aguardando decisão do dono | `DIARIO.md`, `src/lib/remarcacao-regras.ts`, `src/lib/remarcacao-regras.test.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/ocupacoes-extras.server.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/ZoomPrecisaoAgenda.tsx`, `src/components/barbeiro/agenda/zoom-precisao.ts`, `src/components/barbeiro/agenda/zoom-precisao.test.ts`, `src/components/barbeiro/agenda/useRascunhoDeHorario.ts`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, testes do servidor |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
 ## Recados
@@ -123,6 +124,14 @@ Modelo:
 - Banco/infra: <nada | migração criada (não aplicada) | aplicada com autorização>
 - Pendente / atenção para as outras IAs:
 ```
+
+### 2026-10-17 UTC — GPT — Lupa temporal para ajuste preciso da Agenda mobile (em validação)
+- Commits principais: `1db705e` (componente da lupa), `d74bd93` e `da8acd8` (integração ao gesto e à Timeline), `77a9ee5` (ancoragem estável durante o arrasto), `57e080e` (bloqueio de toques na grade de fundo), `34e8574` (animação de ampliação com movimento reduzido respeitado), `ef1e988`/`0d4ce94`/`98f2e95`/`0e86740` (escala e arredondamento compartilhados), `9258b60` (testes de passos de cinco minutos).
+- O que mudou e por quê: a grade comum permanece compacta. Ao pressionar e segurar um compromisso no celular, surge uma lupa sobre a região escolhida, com marcações principais a cada 15 min e subdivisões discretas de 5 min, espaçadas em 20 px por passo. O cartão e a alça de duração funcionam em incrementos de 5 min; a janela da lupa fica ancorada enquanto o dedo move o item, evitando que a escala corra junto com o gesto. O fundo escurece e bloqueia novas interações fora do foco. A alteração continua no rascunho e depende de Salvar, conforme o fluxo existente.
+- Segurança de comportamento: não foi adicionada gravação automática nem alterado o servidor/banco; a validação de horário e conflito permanece no fluxo já existente. A troca entre dias continua usando páginas vizinhas renderizadas antecipadamente; esta entrega concentra-se no ajuste de precisão.
+- Testes: GitHub Actions para o HEAD `0e86740`: TypeScript passou; testes ainda em execução na última consulta. Build e publicação da prévia ainda não confirmados. Nenhum teste local ou inspeção visual em dispositivo foi possível nesta sessão.
+- Banco/infra: nada alterado; sem publicação em produção.
+- Pendente / atenção para as outras IAs: aguardar a validação final e conferir a interação na prévia em um celular real (pressão longa, arrastar início, arrastar alça, salvar/descartar, movimentos reduzidos e cartões com sobreposição).
 
 ### 2026-10-17 UTC — GPT — Execução mobile-first da home (em validação)
 - Commits: `884c370` (CTA compacto no cabeçalho), `6527430` (demonstração mais compacta e controles via Button), `40565e2` (espaçamento da narrativa), `22ca052` (ritmo vertical mobile), `c6f084f` (alvo de toque mínimo de 48 px). Correção da prévia da agenda: `33fff39` (refs opcionais compatíveis com TypeScript).
