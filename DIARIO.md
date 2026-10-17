@@ -83,6 +83,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-17 UTC | Agenda: troca de dia como carrossel (horas, linhas e profissionais parados; só os cartões deslizam) | `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/styles.css` (regras da timeline e da prévia) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
