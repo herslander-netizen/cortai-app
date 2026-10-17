@@ -34,7 +34,7 @@ type Estado = {
  * (transform) dentro de requestAnimationFrame — nada de estado a cada quadro.
  * A decisão de completar ou voltar fica em `decidirFimDoGesto`.
  */
-export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
+export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bloqueado = false) {
   const palco = useRef<HTMLElement | null>(null);
   const previaAnterior = useRef<HTMLDivElement | null>(null);
   const previaProxima = useRef<HTMLDivElement | null>(null);
@@ -183,7 +183,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const aoComecar = useCallback((e: TouchEvent) => {
     const alvo = e.target as HTMLElement;
     const t = e.touches[0];
-    if (!t || e.touches.length !== 1 || animacao.current || alvo.closest(IGNORAR)) {
+    if (!t || e.touches.length !== 1 || animacao.current || bloqueado || alvo.closest(IGNORAR)) {
       estado.current = null;
       return;
     }
@@ -203,7 +203,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
           quadro: null,
         }
       : null;
-  }, []);
+  }, [bloqueado]);
 
   const aoSoltar = useCallback(() => terminar(false), [terminar]);
   const aoCancelar = useCallback(() => terminar(true), [terminar]);
