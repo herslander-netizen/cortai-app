@@ -1567,6 +1567,9 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     (data: {
       agendamentoId: string;
       novoInicio: string;
+      /** Valores vistos pela tela; evitam sobrescrever uma edição simultânea. */
+      inicioOriginal: string;
+      fimOriginal: string;
       profissionalId?: string | null;
       apenasVerificar?: boolean;
       /** Nova duração em minutos (alça da Agenda); sem ela, a duração atual é mantida. */
@@ -1595,6 +1598,12 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    if (
+      new Date(atual.inicio).getTime() !== new Date(data.inicioOriginal).getTime() ||
+      new Date(atual.fim).getTime() !== new Date(data.fimOriginal).getTime()
+    ) {
+      throw new Error("Este agendamento mudou enquanto você editava. Confira e tente de novo.");
+    }
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para remarcar quem ainda não começou.");
     const duracao =
