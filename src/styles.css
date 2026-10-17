@@ -2982,16 +2982,7 @@ body:has(.auth-screen--claro) {
     opacity: 0;
   }
 }
-.agenda-troca-dia {
-  animation: agenda-troca-proximo var(--mov-base) var(--ease-saida);
-}
-.agenda-troca-dia[data-direcao="anterior"] {
-  animation-name: agenda-troca-anterior;
-}
-/* Troca pelo gesto: o dia já entrou acompanhando o dedo. */
-.agenda-troca-dia[data-entrada="gesto"] {
-  animation: none;
-}
+/* Troca de dia: a Agenda não desmonta; o deslize curto é feito em AgendaOperacional (Web Animations). */
 .agenda-operacional {
   touch-action: pan-y pinch-zoom;
 }
@@ -3030,26 +3021,6 @@ html.agenda-gesto-ativo body {
   display: block;
   font-size: 0.8125rem;
   letter-spacing: 0.04em;
-}
-@keyframes agenda-troca-proximo {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes agenda-troca-anterior {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 .mov-item-cascata,
 .mov-conteudo-entrada,
@@ -3133,7 +3104,6 @@ html.agenda-gesto-ativo body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .agenda-troca-dia,
   .agenda-novo {
     animation: none;
   }

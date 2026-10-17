@@ -6,7 +6,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
-import { Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
@@ -27,6 +35,7 @@ import { FolhaDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
 import { comandoDeVozSuportado } from "@/components/ia/useGravadorDeVoz";
+import { prefereMenosMovimento } from "@/lib/motion";
 import { segmentoParaApresentacao } from "@/lib/segmentos";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
@@ -531,10 +540,11 @@ export function AgendaOperacional() {
 
   const itensBase = useMemo(
     () =>
-      (agenda.data?.itens ?? [])
+      // Dia ainda não baixado: nunca mostra os cartões do dia anterior debaixo da data nova.
+      (agenda.isPlaceholderData ? [] : (agenda.data?.itens ?? []))
         .map((item) => ({ ...item, status: estadosLocais[item.id] ?? item.status }))
         .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime()),
-    [agenda.data?.itens, estadosLocais],
+    [agenda.data?.itens, agenda.isPlaceholderData, estadosLocais],
   );
   // Editar horário: arrastar ou esticar só propõe; nada grava até Salvar.
   const relogioDaEdicao = useAgora();
@@ -550,6 +560,33 @@ export function AgendaOperacional() {
       }),
   });
   const gestoDia = useGestoDia(dia, mudarDia);
+  // A Agenda não é desmontada ao trocar de dia (nada pisca e a rolagem fica onde estava).
+  // Troca por seta, calendário ou "Hoje": um deslize curto, sem sumir; pelo gesto, nada.
+  const palcoDoDia = useRef<HTMLDivElement | null>(null);
+  const { ref: refDoGesto, entradaPeloGesto } = gestoDia;
+  const refDoPalco = useCallback(
+    (el: HTMLDivElement | null) => {
+      palcoDoDia.current = el;
+      refDoGesto(el);
+    },
+    [refDoGesto],
+  );
+  const diaAnterior = useRef(dia);
+  useEffect(() => {
+    if (diaAnterior.current === dia) return;
+    diaAnterior.current = dia;
+    const el = palcoDoDia.current;
+    if (!el || entradaPeloGesto || prefereMenosMovimento() || typeof el.animate !== "function")
+      return;
+    const lado = direcaoDia === "anterior" ? -1 : 1;
+    el.animate(
+      [
+        { transform: `translate3d(${lado * 16}px,0,0)`, opacity: 0.6 },
+        { transform: "none", opacity: 1 },
+      ],
+      { duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" },
+    );
+  }, [dia, direcaoDia, entradaPeloGesto]);
   const { aplicar: aplicarRascunho } = edicao;
   const todosItens = useMemo(() => aplicarRascunho(itensBase), [aplicarRascunho, itensBase]);
   const itens = useMemo(
@@ -1180,11 +1217,10 @@ export function AgendaOperacional() {
         />
       ) : null}
       <div
-        key={dia}
-        className="agenda-operacional agenda-troca-dia pb-32"
+        className="agenda-operacional pb-32"
         data-direcao={direcaoDia}
-        data-entrada={gestoDia.entradaPeloGesto ? "gesto" : undefined}
-        ref={gestoDia.ref}
+        data-entrada={entradaPeloGesto ? "gesto" : undefined}
+        ref={refDoPalco}
       >
         {celular ? (
           <>
@@ -1378,7 +1414,10 @@ export function AgendaOperacional() {
           ) : visualizacao !== "lista" ? (
             <>
               {celular ? (
-                <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} />
+                <MarcaDoLimiteDoDia
+                  className="mb-1"
+                  carregando={agenda.isFetching && agenda.isPlaceholderData}
+                />
               ) : null}
               <AgendaTimeline
                 dia={dia}
@@ -1404,7 +1443,10 @@ export function AgendaOperacional() {
                 diaCompleto={celular}
               />
               {celular ? (
-                <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} />
+                <MarcaDoLimiteDoDia
+                  className="mt-1"
+                  carregando={agenda.isFetching && agenda.isPlaceholderData}
+                />
               ) : null}
             </>
           ) : (

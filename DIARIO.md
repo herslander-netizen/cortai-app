@@ -83,7 +83,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-17 UTC | Agenda: piscar na troca de dia e rolagem travando no celular | `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/styles.css` (só regras `.agenda-troca-dia`) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
@@ -171,6 +170,24 @@ Modelo:
 - Testes: aguardando GitHub Actions; nenhum teste local executado nesta sessão. Prévia visual ainda precisa ser conferida em 390px e 1280px.
 - Banco/infra: nada alterado.
 - Pendente / atenção para as outras IAs: confirmar TypeScript, testes, build e deploy da prévia; verificar contraste e componentes de agenda/chat no tema escuro antes de considerar concluído.
+
+### 2026-10-17 UTC — Claude — Agenda: troca de dia sem piscar e rolagem sem puxões
+- O que mudou e por quê: o dono relatou no celular que a Agenda piscava/carregava na troca de dia, a
+  rolagem travava e "rolava sem a data sair do lugar".
+  - `AgendaOperacional.tsx`: o contêiner do dia não tem mais `key={dia}` (a Agenda inteira era
+    recriada a cada dia). Troca por seta/calendário/"Hoje" faz um deslize curto via Web Animations
+    (opacidade 0,6 → 1, 200 ms; nada pelo gesto nem com movimento reduzido). Enquanto o dia novo não
+    chegou (`isPlaceholderData`), não mostra os cartões do dia anterior; os pontinhos só animam nesse
+    caso, não nas atualizações de fundo.
+  - `AgendaTimeline.tsx`: o posicionamento automático (linha do agora / abertura do expediente) só
+    acontece na primeira abertura; trocar de dia mantém a rolagem. O observador da linha do agora é
+    remontado no máximo uma vez por quadro e só quando a janela muda de tamanho de verdade.
+  - `styles.css`: saem `.agenda-troca-dia` e os `@keyframes agenda-troca-*` (começavam em opacidade 0).
+  - Testes novos em `timeline-rolagem-celular.test.ts`.
+- Testes: `tsc`, `vitest` (1504 passaram) e `build` passaram. Não conferido em celular real.
+- Banco/infra: nada alterado. Sem versão lançada.
+- Pendente / atenção para as outras IAs: o gesto lateral (`useGestoDia`) não mudou. Se for mexer na troca
+  de dia, não volte a desmontar a Agenda nem a puxar a rolagem sozinho.
 
 ### 2026-10-17 UTC — Claude — Saída definitiva do Lovable: código, resíduos e memória
 - O que mudou e por quê: pedido do dono (auditoria geral, tirar toda referência ao Lovable e eliminar

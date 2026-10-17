@@ -51,8 +51,32 @@ describe("rolagem da Timeline no celular", () => {
 
   it("mantém horários passados visíveis, apenas com tratamento visual discreto", () => {
     expect(timeline).toContain('"agenda-timeline-passado"');
-    expect(css).toContain(
-      ".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)",
-    );
+    expect(css).toContain(".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)");
+  });
+});
+
+describe("troca de dia sem piscar nem puxar a página", () => {
+  const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+
+  it("a Agenda não é desmontada a cada dia", () => {
+    expect(operacional).not.toContain("key={dia}");
+  });
+
+  it("nenhuma animação de troca de dia começa invisível", () => {
+    expect(css).not.toMatch(/@keyframes agenda-troca/);
+    expect(operacional).not.toMatch(/opacity:\s*0[,\s}]/);
+  });
+
+  it("cartões do dia anterior nunca aparecem debaixo da data nova", () => {
+    expect(operacional).toContain("agenda.isPlaceholderData ? [] :");
+  });
+
+  it("os pontinhos só animam quando o dia ainda não chegou", () => {
+    expect(operacional).not.toContain("carregando={agenda.isFetching}");
+  });
+
+  it("a timeline só se posiciona sozinha na primeira abertura", () => {
+    expect(timeline).not.toContain("posicionouRef.current === dia");
+    expect(timeline.match(/posicionouRef\.current !== null/g)?.length).toBe(3);
   });
 });

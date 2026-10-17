@@ -380,8 +380,10 @@ export function AgendaTimeline({
     });
   }
 
+  // Posicionamento automático só na primeira abertura da Agenda. Depois, trocar de dia mantém a
+  // rolagem onde a pessoa deixou (puxar a página sozinho brigava com o dedo).
   useEffect(() => {
-    if (previa || !ehHoje || posicionouRef.current === dia) return;
+    if (previa || !ehHoje || posicionouRef.current !== null) return;
     const quadro = window.requestAnimationFrame(() => {
       voltarParaAgora("auto");
       posicionouRef.current = dia;
@@ -389,9 +391,16 @@ export function AgendaTimeline({
     return () => window.cancelAnimationFrame(quadro);
   }, [dia, ehHoje, altura, previa]);
 
+  // Abriu num dia sem posicionamento automático: conta como posicionado, para uma troca
+  // posterior (ex.: para hoje) não puxar a página.
+  useEffect(() => {
+    if (previa || ehHoje || diaCompleto || posicionouRef.current !== null) return;
+    posicionouRef.current = dia;
+  }, [dia, ehHoje, diaCompleto, previa]);
+
   // Dia completo fora de hoje: começa na abertura do expediente, não à meia-noite.
   useEffect(() => {
-    if (previa || ehHoje || !diaCompleto || posicionouRef.current === dia) return;
+    if (previa || ehHoje || !diaCompleto || posicionouRef.current !== null) return;
     const area = rolagemRef.current;
     const func = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
     if (!area) return;
@@ -456,9 +465,24 @@ export function AgendaTimeline({
       observador.observe(linha);
     };
     montar();
-    window.addEventListener("resize", montar);
+    // No celular o "resize" dispara muito durante a rolagem (barras do navegador): remonta no
+    // máximo uma vez por quadro e só quando o tamanho da janela mudou de verdade.
+    let quadro = 0;
+    let tamanho = `${window.innerWidth}x${window.innerHeight}`;
+    const aoRedimensionar = () => {
+      if (quadro) return;
+      quadro = window.requestAnimationFrame(() => {
+        quadro = 0;
+        const novo = `${window.innerWidth}x${window.innerHeight}`;
+        if (novo === tamanho) return;
+        tamanho = novo;
+        montar();
+      });
+    };
+    window.addEventListener("resize", aoRedimensionar);
     return () => {
-      window.removeEventListener("resize", montar);
+      window.removeEventListener("resize", aoRedimensionar);
+      if (quadro) window.cancelAnimationFrame(quadro);
       observador?.disconnect();
       publicarAgora({ lado: null, ir: null });
     };
@@ -809,22 +833,27 @@ export function AgendaTimeline({
                     aria-hidden="true"
                   />
                 ))}
-              {redim ? (() => {
-                const item = itens.find((evento) => evento.id === redim.id);
-                if (!item) return null;
-                const fimItem = minutosNoFuso(item.fim, fuso);
-                const delta = Math.round(redim.dy / PX_POR_MINUTO / passo) * passo;
-                const minutoAlvo = Math.max(escala.inicio, Math.min(escala.fim, fimItem + delta));
-                return (
-                  <div
-                    className="agenda-timeline-ajuste-alvo"
-                    style={{
-                      top: `${(minutoAlvo - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minutoAlvo)}px`,
-                    }}
-                    aria-hidden="true"
-                  />
-                );
-              })() : null}
+              {redim
+                ? (() => {
+                    const item = itens.find((evento) => evento.id === redim.id);
+                    if (!item) return null;
+                    const fimItem = minutosNoFuso(item.fim, fuso);
+                    const delta = Math.round(redim.dy / PX_POR_MINUTO / passo) * passo;
+                    const minutoAlvo = Math.max(
+                      escala.inicio,
+                      Math.min(escala.fim, fimItem + delta),
+                    );
+                    return (
+                      <div
+                        className="agenda-timeline-ajuste-alvo"
+                        style={{
+                          top: `${(minutoAlvo - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minutoAlvo)}px`,
+                        }}
+                        aria-hidden="true"
+                      />
+                    );
+                  })()
+                : null}
             </>
           ) : null}
 
@@ -836,8 +865,7 @@ export function AgendaTimeline({
             const topo =
               posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
             const blocoAltura =
-              posicao?.altura ??
-              Math.max(1, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO);
+              posicao?.altura ?? Math.max(1, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO);
             const reais = [
               horaReal(item.arrivedAt, fuso) ? `Chegou ${horaReal(item.arrivedAt, fuso)}` : null,
               horaReal(item.startedAt, fuso) ? `Começou ${horaReal(item.startedAt, fuso)}` : null,
