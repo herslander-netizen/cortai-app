@@ -221,6 +221,7 @@ export function ZoomPrecisaoAgenda({
           etiqueta={redimensionando ? `até ${rotuloHora(fimAtivo)}` : null}
           estilo={{
             top: `${CABECALHO_ZOOM_PX + (fimAtivo - janelaInicio) * PX_POR_MINUTO_PRECISAO - 32}px`,
+            pointerEvents: "auto",
             ...estiloDaColuna(posicoes.get(ativo.id)),
           }}
           pxPorMinuto={PX_POR_MINUTO_PRECISAO}
