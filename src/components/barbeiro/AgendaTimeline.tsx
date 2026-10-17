@@ -25,6 +25,12 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
+import {
+  CABECALHO_ZOOM_PX,
+  PX_POR_MINUTO_PRECISAO,
+  ZoomPrecisaoAgenda,
+  type PosicaoTimeline,
+} from "@/components/barbeiro/agenda/ZoomPrecisaoAgenda";
 import { passoDoGesto } from "@/lib/remarcacao-regras";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
@@ -270,17 +276,7 @@ export function AgendaTimeline({
   }, [escala.fim, escala.inicio, diaCompleto]);
 
   const layout = useMemo(() => {
-    const resultado = new Map<
-      string,
-      {
-        inicio: number;
-        fim: number;
-        topo: number;
-        altura: number;
-        coluna?: number;
-        colunas?: number;
-      }
-    >();
+    const resultado = new Map<string, PosicaoTimeline>();
     const acrescimos: Array<{ depoisDe: number; pixels: number }> = [];
     const ordenados = itens
       .map((item) => {
@@ -565,7 +561,10 @@ export function AgendaTimeline({
       return;
     }
     ignorarClique.current = true;
-    const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
+    const passoDoAjuste = g.longo && celularAgora() ? 5 : passo;
+    const escalaDoGesto =
+      g.longo && celularAgora() ? PX_POR_MINUTO_PRECISAO : PX_POR_MINUTO;
+    const delta = Math.round(dy / escalaDoGesto / passoDoAjuste) * passoDoAjuste;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
