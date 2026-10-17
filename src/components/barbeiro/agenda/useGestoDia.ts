@@ -272,12 +272,15 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
 
   useEffect(
     () => () => {
+      // Evita deixar RAF ou transforms inline presos se a Agenda desmontar durante o gesto.
+      const s = estado.current;
+      estado.current = null;
+      if (s?.quadro !== null && s?.quadro !== undefined) cancelAnimationFrame(s.quadro);
       animacao.current?.stop();
-      document.documentElement.style.removeProperty("--dia-progresso");
-      document.documentElement.classList.remove("agenda-gesto-ativo");
-      definirVizinhoDoGesto(0);
+      animacao.current = null;
+      limpar();
     },
-    [],
+    [limpar],
   );
 
   // Posiciona a prévia assim que ela monta (antes do próximo quadro do dedo).
