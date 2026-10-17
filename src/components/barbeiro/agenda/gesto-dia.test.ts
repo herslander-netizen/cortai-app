@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   decidirFimDoGesto,
+  gestoPodeComecar,
   definirVizinhoDoGesto,
   limitarDeslocamento,
   movimentoRecente,
@@ -17,6 +18,13 @@ const base: InicioDoGesto = {
   dentroDeRolagemLateral: false,
   arrastando: false,
 };
+
+describe("gestoPodeComecar", () => {
+  it("não permite trocar o dia enquanto a edição está bloqueando a navegação", () => {
+    expect(gestoPodeComecar(base)).toBe(true);
+    expect(gestoPodeComecar(base, true)).toBe(false);
+  });
+});
 
 describe("travarEixo", () => {
   it("só decide depois de ~10 px e mantém a decisão", () => {
