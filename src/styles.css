@@ -6601,3 +6601,44 @@ button.agenda-nome:hover {
       0 4px 14px color-mix(in oklab, #000 12%, transparent);
   }
 }
+
+
+/* Premium Glass v2: maior especificidade que as regras operacionais legadas.
+   Não altera geometria, layout, duração nem comportamento dos cartões. */
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco {
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--cor-estado, var(--primary)) 23%, var(--ink2)),
+    color-mix(in oklab, var(--cor-estado, var(--primary)) 10%, var(--ink2))
+  );
+  border-color: color-mix(in oklab, var(--cor-estado, var(--line2)) 48%, var(--line2));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--paper) 13%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--paper) 3%, transparent),
+    0 5px 18px color-mix(in oklab, #000 16%, transparent);
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-agendado,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-remarcado,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-chegou,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-na_cadeira,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-finalizado,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-cancelado,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-nao_compareceu,
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-encaixe {
+  border-left-color: var(--cor-estado, var(--line2));
+}
+.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco.agenda-timeline-selecionado {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--agenda-acao, var(--primary)) 30%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--paper) 15%, transparent),
+    0 7px 22px color-mix(in oklab, #000 19%, transparent);
+}
+@media (max-width: 767px) {
+  .agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--paper) 12%, transparent),
+      0 4px 14px color-mix(in oklab, #000 15%, transparent);
+  }
+}
