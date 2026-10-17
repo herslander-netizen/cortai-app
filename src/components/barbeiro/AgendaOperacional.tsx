@@ -1528,7 +1528,8 @@ export function AgendaOperacional() {
       </div>
 
       <PreviaDoGesto
-        ref={gestoDia.refPrevia}
+        refAnterior={gestoDia.refPreviaAnterior}
+        refProximo={gestoDia.refPreviaProxima}
         diaAtual={dia}
         visualizacao={visualizacao === "lista" ? "lista" : "timeline"}
         profissionalId={profFiltro}
