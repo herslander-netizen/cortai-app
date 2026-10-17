@@ -383,16 +383,18 @@ export function AgendaTimeline({
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
     if (window.matchMedia(CELULAR).matches) {
-      // No celular, alinhar a marca da HORA (ex.: 08:00) ao topo da área útil.
-      // A linha rosa representa o minuto atual (ex.: 08:04) e deve ficar alguns pixels
-      // abaixo dessa hora, não colada no topo como se fosse a própria referência horária.
-      const horaAtual = Array.from(
-        area.querySelectorAll<HTMLElement>(".agenda-timeline-marca.agenda-timeline-hora"),
-      )
-        .filter((marca) => marca.getBoundingClientRect().top <= linha.getBoundingClientRect().top + 1)
-        .at(-1);
-      const topoAlvo = horaAtual ?? linha;
-      const topo = topoAlvo.getBoundingClientRect().top + window.scrollY - alturaDoTopoDaAgenda() - 8;
+      // No celular, organizar a grade pela HORA cheia atual: ela fica no topo da área útil,
+      // enquanto a linha rosa permanece na posição real do minuto (ex.: 08:04 fica 4 min
+      // abaixo de 08:00). Assim sobra espaço para a linha "correr" dentro daquela hora.
+      // Calculamos a distância entre a hora cheia e o minuto atual no mesmo eixo da timeline,
+      // incluindo os acréscimos de espaço criados pelos cartões.
+      const minutoDaHora = Math.floor(escala.minutoAtual / 60) * 60;
+      const distanciaDaHoraAteAgora =
+        (escala.minutoAtual - minutoDaHora) * PX_POR_MINUTO +
+        deslocamentoAte(escala.minutoAtual) -
+        deslocamentoAte(minutoDaHora);
+      const topo = linha.getBoundingClientRect().top + window.scrollY -
+        distanciaDaHoraAteAgora - alturaDoTopoDaAgenda() - 8;
       window.scrollTo({
         top: Math.max(0, topo),
         behavior: comportamento === "smooth" && prefereMenosMovimento() ? "auto" : comportamento,
