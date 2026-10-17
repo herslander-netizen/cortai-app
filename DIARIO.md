@@ -85,7 +85,6 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
-| GPT | 2026-10-17 UTC | Reduzir poluição visual das linhas da grade da Timeline sem perder ajuste de 5 min | `DIARIO.md`, `src/styles.css`, `src/components/barbeiro/AgendaTimeline.tsx` |
 
 
 ## Recados
@@ -115,6 +114,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — GPT — Grade mobile mais limpa na Agenda
+- Commit: `2e7ea7c`.
+- O que mudou e por quê: comparado o vídeo de referência com `AgendaTimeline.tsx` e `src/styles.css`. A grade principal continua marcando horas cheias; no celular, as marcas de meia hora viram pequenos traços na margem, em vez de atravessar toda a agenda. Durante a edição, os passos de 5 min continuam disponíveis, mas agora são traços curtos e discretos na margem, em vez de várias linhas tracejadas atravessando os cartões e o espaço vazio. A precisão do arraste não foi alterada.
+- Testes: ainda não confirmados pelo GitHub Actions; nenhuma inspeção visual real em 390 px ou 1280 px nesta sessão.
+- Banco/infra: nada alterado; nenhuma publicação em produção.
+- Pendente / atenção para as outras IAs: conferir na prévia a grade normal, edição por arraste/resize em passos de 5 min, linha “Agora”, horários sobrepostos e legibilidade no tema escuro. Se o contraste dos pequenos traços for insuficiente, ajustar sem restaurar linhas em toda a largura.
 
 ### 2026-10-17 UTC — GPT — Reversão do bloqueio do gesto e ficha compacta de atendimento
 - Commits: `b595f51`, `523cf94`, `3d88df5`, `d5c5a1f`, `29260d3`, `dfa88ff`, `9527447`.
