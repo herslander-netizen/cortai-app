@@ -153,6 +153,13 @@ export function AgendaTimeline({
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
+  const [ancoraPrecisao, setAncoraPrecisao] = useState<{
+    id: string;
+    janelaInicio: number;
+    janelaFim: number;
+    topo: number;
+    modo: "inicio" | "fim";
+  } | null>(null);
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
@@ -712,6 +719,44 @@ export function AgendaTimeline({
       fimAtivoPrecisao >= inicioJanelaPrecisao &&
       fimAtivoPrecisao <= fimJanelaPrecisao,
   );
+  const modoPrecisao = focoNoFimPrecisao ? "fim" : "inicio";
+
+  // Congela a janela enquanto o dedo move o compromisso, para que o cartão
+  // deslize na escala ampliada em vez de a lupa correr junto com ele.
+  useLayoutEffect(() => {
+    if (!usaLentePrecisao || !itemPrecisao || !idPrecisao) {
+      if (ancoraPrecisao) setAncoraPrecisao(null);
+      return;
+    }
+    const redimensionamentoAtivo = redim?.id === idPrecisao;
+    if (
+      !ancoraPrecisao ||
+      ancoraPrecisao.id !== idPrecisao ||
+      (redimensionamentoAtivo && ancoraPrecisao.modo !== "fim")
+    ) {
+      setAncoraPrecisao({
+        id: idPrecisao,
+        janelaInicio: inicioJanelaPrecisao,
+        janelaFim: fimJanelaPrecisao,
+        topo: topoJanelaPrecisao,
+        modo: modoPrecisao,
+      });
+    }
+  }, [
+    ancoraPrecisao,
+    fimJanelaPrecisao,
+    idPrecisao,
+    inicioJanelaPrecisao,
+    itemPrecisao,
+    modoPrecisao,
+    redim?.id,
+    topoJanelaPrecisao,
+    usaLentePrecisao,
+  ]);
+  const ancoraAtiva = ancoraPrecisao?.id === idPrecisao ? ancoraPrecisao : null;
+  const janelaInicioLente = ancoraAtiva?.janelaInicio ?? inicioJanelaPrecisao;
+  const janelaFimLente = ancoraAtiva?.janelaFim ?? fimJanelaPrecisao;
+  const topoLente = ancoraAtiva?.topo ?? topoJanelaPrecisao;
 
   return (
     <div
@@ -1069,9 +1114,9 @@ export function AgendaTimeline({
                 itens={itens}
                 posicoes={layout.posicoes}
                 idAtivo={itemPrecisao.id}
-                janelaInicio={inicioJanelaPrecisao}
-                janelaFim={fimJanelaPrecisao}
-                topo={topoJanelaPrecisao}
+                janelaInicio={janelaInicioLente}
+                janelaFim={janelaFimLente}
+                topo={topoLente}
                 fuso={fuso}
                 discreto={discreto}
                 deltaInicioMin={deltaInicioPrecisao}
