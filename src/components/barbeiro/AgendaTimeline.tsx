@@ -780,13 +780,13 @@ export function AgendaTimeline({
             </div>
           ))}
 
-          {redim ? (
+          {redim || arrasto || edicaoDoCartao?.id ? (
             <>
               {Array.from(
                 { length: Math.floor((escala.fim - escala.inicio) / 15) + 1 },
                 (_, indice) => escala.inicio + indice * 15,
               )
-                .filter((minuto) => minuto % 30 !== 0)
+                .filter((minuto) => minuto % 60 !== 0)
                 .map((minuto) => (
                   <div
                     key={`ajuste-15-${minuto}`}
@@ -797,7 +797,7 @@ export function AgendaTimeline({
                     aria-hidden="true"
                   />
                 ))}
-              {(() => {
+              {redim ? (() => {
                 const item = itens.find((evento) => evento.id === redim.id);
                 if (!item) return null;
                 const fimItem = minutosNoFuso(item.fim, fuso);
@@ -812,7 +812,7 @@ export function AgendaTimeline({
                     aria-hidden="true"
                   />
                 );
-              })()}
+              })() : null}
             </>
           ) : null}
 
