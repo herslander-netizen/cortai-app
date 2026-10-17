@@ -208,6 +208,11 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bl
   const aoSoltar = useCallback(() => terminar(false), [terminar]);
   const aoCancelar = useCallback(() => terminar(true), [terminar]);
 
+  // Se a edição começar no meio de um toque, cancela também a prévia lateral já iniciada.
+  useEffect(() => {
+    if (bloqueado) terminar(true);
+  }, [bloqueado, terminar]);
+
   /** Ref do contêiner do dia: o navegador mantém a rolagem vertical nativa. */
   const ref = useCallback(
     (el: HTMLElement | null) => {
