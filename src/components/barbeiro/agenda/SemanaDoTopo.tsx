@@ -219,11 +219,11 @@ export function SemanaDoTopo({
           {expandido ? (
             <motion.div
               key="calendario-expandido"
-              initial={{ height: 0, opacity: 0, y: -10 }}
-              animate={{ height: 344, opacity: 1, y: 0 }}
-              exit={{ height: 0, opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: -12, scaleY: 0.96 }}
+              animate={{ opacity: 1, y: 0, scaleY: 1 }}
+              exit={{ opacity: 0, y: -8, scaleY: 0.98 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden"
+              className="origin-top"
               style={{ transformOrigin: "top" }}
             >
               <div
@@ -312,7 +312,7 @@ export function SemanaDoTopo({
                 ))}
               </div>
             </motion.div>
-          ) }
+          )}
         </AnimatePresence>
       </div>
     </div>
