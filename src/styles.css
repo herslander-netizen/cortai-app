@@ -6712,3 +6712,21 @@ button.agenda-nome:hover {
   content: "";
   transform: translateX(-50%);
 }
+
+
+/* Agenda mobile — grade silenciosa: horas cheias orientam; subdivisões viram pequenos ticks. */
+@media (max-width: 767px) {
+  .agenda-operacional .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    right: auto;
+    width: 8px;
+    border-top-color: color-mix(in oklab, var(--line) 72%, transparent);
+    opacity: 0.65;
+  }
+
+  /* A precisão de 5 min continua ativa ao editar, sem riscar a largura inteira da agenda. */
+  .agenda-operacional .agenda-timeline-ajuste-5 {
+    right: auto;
+    width: 14px;
+    border-top: 1px solid color-mix(in oklab, var(--mute2) 28%, transparent);
+  }
+}
