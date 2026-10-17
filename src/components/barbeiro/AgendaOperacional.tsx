@@ -821,6 +821,8 @@ export function AgendaOperacional() {
       data: {
         agendamentoId: item.id,
         novoInicio: isoNoFusoDaBarbearia(pedido.dia, pedido.hora, fuso),
+        inicioOriginal: item.inicio,
+        fimOriginal: item.fim,
         profissionalId: pedido.profissionalId,
         apenasVerificar: true,
       },
