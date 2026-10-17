@@ -87,7 +87,7 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
-| GPT | 2026-10-17 UTC | Diagnosticar e estabilizar o gesto lateral de troca de dia, sem alterar arquivos reservados | `DIARIO.md`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/gesto-dia.ts`, `src/components/barbeiro/agenda/gesto-dia.test.ts` |
+| GPT | 2026-10-17 UTC | Corrigir grade imóvel e linhas que surgem durante arraste lateral da Agenda | `DIARIO.md`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx` |
 | GPT | 2026-10-17 UTC | Ajustar animação do calendário e carrossel de cinco pontos; remover texto de polling | `DIARIO.md`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/EstadosAgenda.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx` |
 
