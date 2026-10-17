@@ -383,8 +383,18 @@ export function AgendaTimeline({
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
     if (window.matchMedia(CELULAR).matches) {
-      linha.scrollIntoView({
-        block: "center",
+      // No celular, alinhar a marca da HORA (ex.: 08:00) ao topo da área útil.
+      // A linha rosa representa o minuto atual (ex.: 08:04) e deve ficar alguns pixels
+      // abaixo dessa hora, não colada no topo como se fosse a própria referência horária.
+      const horaAtual = Array.from(
+        area.querySelectorAll<HTMLElement>(".agenda-timeline-marca.agenda-timeline-hora"),
+      )
+        .filter((marca) => marca.getBoundingClientRect().top <= linha.getBoundingClientRect().top + 1)
+        .at(-1);
+      const topoAlvo = horaAtual ?? linha;
+      const topo = topoAlvo.getBoundingClientRect().top + window.scrollY - alturaDoTopoDaAgenda() - 8;
+      window.scrollTo({
+        top: Math.max(0, topo),
         behavior: comportamento === "smooth" && prefereMenosMovimento() ? "auto" : comportamento,
       });
       return;
