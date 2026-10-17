@@ -27,6 +27,7 @@ import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-ro
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import {
   CABECALHO_ZOOM_PX,
+  deltaPrecisaoPorArrasto,
   PX_POR_MINUTO_PRECISAO,
   ZoomPrecisaoAgenda,
   type PosicaoTimeline,
@@ -568,10 +569,10 @@ export function AgendaTimeline({
       return;
     }
     ignorarClique.current = true;
-    const passoDoAjuste = g.longo && celularAgora() ? 5 : passo;
-    const escalaDoGesto =
-      g.longo && celularAgora() ? PX_POR_MINUTO_PRECISAO : PX_POR_MINUTO;
-    const delta = Math.round(dy / escalaDoGesto / passoDoAjuste) * passoDoAjuste;
+    const delta =
+      g.longo && celularAgora()
+        ? deltaPrecisaoPorArrasto(dy)
+        : Math.round(dy / PX_POR_MINUTO / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
@@ -676,11 +677,11 @@ export function AgendaTimeline({
   const usaLentePrecisao = Boolean(itemPrecisao && idPrecisao);
   const deltaInicioPrecisao =
     itemPrecisao && arrasto && arrasto.id === idPrecisao
-      ? Math.round(arrasto.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
+      ? deltaPrecisaoPorArrasto(arrasto.dy)
       : 0;
   const deltaDuracaoPrecisao =
     itemPrecisao && redim && redim.id === idPrecisao
-      ? Math.round(redim.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
+      ? deltaPrecisaoPorArrasto(redim.dy)
       : 0;
   const inicioBasePrecisao = itemPrecisao
     ? minutosNoFuso(itemPrecisao.inicio, fuso)
