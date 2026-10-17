@@ -6677,3 +6677,34 @@ button.agenda-nome:hover {
   outline: 2px solid color-mix(in oklab, var(--agenda-acao, var(--primary)) 72%, white);
   outline-offset: 2px;
 }
+
+
+/* Divisões temporárias de 15 min: só aparecem durante o redimensionamento. */
+.agenda-timeline-ajuste-15,
+.agenda-timeline-ajuste-alvo {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 0;
+  pointer-events: none;
+}
+.agenda-timeline-ajuste-15 {
+  z-index: 1;
+  border-top: 1px dashed color-mix(in oklab, var(--mute2) 52%, transparent);
+}
+.agenda-timeline-ajuste-alvo {
+  z-index: 4;
+  border-top: 2px solid color-mix(in oklab, var(--rosa) 82%, transparent);
+  filter: drop-shadow(0 0 2px color-mix(in oklab, var(--rosa) 22%, transparent));
+}
+.agenda-timeline-ajuste-alvo::after {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--rosa);
+  content: "";
+  transform: translateX(-50%);
+}
