@@ -82,7 +82,6 @@ type AgendaTimelineProps = {
 
 const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
-const ALTURA_MINIMA_BLOCO = 72;
 const ESPACO_ENTRE_BLOCOS = 6;
 
 function minutosDoHorario(valor: string) {
