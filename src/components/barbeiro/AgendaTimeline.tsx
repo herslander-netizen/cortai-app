@@ -845,7 +845,7 @@ export function AgendaTimeline({
             </div>
           ))}
 
-          {redim || arrasto || edicaoDoCartao?.id ? (
+          {!usaLentePrecisao && (redim || arrasto || edicaoDoCartao?.id) ? (
             <>
               {Array.from(
                 { length: Math.floor((escala.fim - escala.inicio) / 5) + 1 },
@@ -949,7 +949,8 @@ export function AgendaTimeline({
                       : {}),
                   }}
                   aria-pressed={selecionado === item.id}
-                  tabIndex={previa ? -1 : undefined}
+                  aria-hidden={usaLentePrecisao || previa || undefined}
+                  tabIndex={previa || usaLentePrecisao ? -1 : undefined}
                   {...(previa
                     ? {}
                     : {
@@ -1034,7 +1035,11 @@ export function AgendaTimeline({
                     <span className="agenda-timeline-reais">{reais}</span>
                   ) : null}
                 </Button>
-                {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (
+                {!previa &&
+                onRedimensionar &&
+                podeMover(item) &&
+                edicaoDoCartao?.id === item.id &&
+                !(usaLentePrecisao && alcaNoZoom) ? (
                   <AlcaDeDuracao
                     rotulo={`Esticar a duração de ${nome}`}
                     etiqueta={redim?.id === item.id ? `até ${horaMinuto(fim + passoRedim)}` : null}
@@ -1053,6 +1058,50 @@ export function AgendaTimeline({
               </Fragment>
             );
           })}
+
+          {usaLentePrecisao && itemPrecisao ? (
+            <>
+              <div
+                className="pointer-events-none absolute inset-0 z-[6] bg-ink/70"
+                aria-hidden="true"
+              />
+              <ZoomPrecisaoAgenda
+                itens={itens}
+                posicoes={layout.posicoes}
+                idAtivo={itemPrecisao.id}
+                janelaInicio={inicioJanelaPrecisao}
+                janelaFim={fimJanelaPrecisao}
+                topo={topoJanelaPrecisao}
+                fuso={fuso}
+                discreto={discreto}
+                deltaInicioMin={deltaInicioPrecisao}
+                deltaDuracaoMin={deltaDuracaoPrecisao}
+                redimensionando={redim?.id === itemPrecisao.id}
+                podeRedimensionar={Boolean(onRedimensionar && podeMover(itemPrecisao))}
+                lerRolagem={() =>
+                  celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
+                }
+                onTravar={travarRolagemDoToque}
+                onSoltar={soltarRolagemDoToque}
+                onArrastarDuracao={(dy) =>
+                  setRedim(dy === null ? null : { id: itemPrecisao.id, dy })
+                }
+                onConfirmarDuracao={(item, delta) => onRedimensionar?.(item, delta)}
+                onInicioGesto={inicioGesto}
+                onMoverGesto={moverGesto}
+                onFimGesto={fimGesto}
+                onCancelarGesto={() => {
+                  if (gesto.current) window.clearTimeout(gesto.current.timer);
+                  gesto.current = null;
+                  soltarRolagemDoToque();
+                  setArrasto(null);
+                }}
+                onClicarItem={() => {
+                  if (ignorarClique.current) ignorarClique.current = false;
+                }}
+              />
+            </>
+          ) : null}
 
           {ehHoje && posicaoAgora >= 0 && posicaoAgora <= altura ? (
             <div
