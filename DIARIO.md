@@ -85,6 +85,7 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
+| GPT | 2026-10-17 UTC | Agenda mobile: reverter bloqueio que prejudicou o gesto lateral e abrir ficha compacta expansível | `DIARIO.md`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/gesto-dia.ts`, `src/components/barbeiro/agenda/gesto-dia.test.ts`, `src/components/barbeiro/agenda/PainelAtendimento.tsx` |
 
 ## Recados
 
