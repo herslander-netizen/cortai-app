@@ -95,8 +95,11 @@ export function PreviaDiaVizinho({
 }
 
 /** Único ponto que redesenha durante o gesto: lê o vizinho do estado externo. */
+/** Mantém os dois vizinhos montados antes do gesto; o toque só revela a página pronta. */
 export function PreviaDoGesto({
   diaAtual,
+  refAnterior,
+  refProximo,
   ...props
 }: {
   diaAtual: string;
@@ -104,8 +107,21 @@ export function PreviaDoGesto({
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto?: boolean;
-  ref?: Ref<HTMLDivElement>;
+  refAnterior?: Ref<HTMLDivElement>;
+  refProximo?: Ref<HTMLDivElement>;
 }) {
-  const vizinho = useVizinhoDoGesto();
-  return vizinho ? <PreviaDiaVizinho dia={somarDias(diaAtual, vizinho)} {...props} /> : null;
+  return (
+    <>
+      <PreviaDiaVizinho
+        dia={somarDias(diaAtual, -1)}
+        ref={refAnterior}
+        {...props}
+      />
+      <PreviaDiaVizinho
+        dia={somarDias(diaAtual, 1)}
+        ref={refProximo}
+        {...props}
+      />
+    </>
+  );
 }
