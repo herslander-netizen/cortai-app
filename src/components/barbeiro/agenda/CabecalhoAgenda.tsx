@@ -242,8 +242,10 @@ export function CabecalhoAgenda({
         onClick={onCalendario}
       >
         <CalendarDays
-          className={`size-7 transition-transform duration-[200ms] motion-reduce:transition-none ${
-            calendarioAberto ? "scale-110 rotate-[-8deg]" : "scale-100 rotate-0"
+          className={`size-7 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
+            calendarioAberto
+              ? "scale-110 rotate-[-8deg] text-gold [&>rect]:fill-current [&>path]:stroke-ink"
+              : "scale-100 rotate-0 text-mute"
           }`}
           strokeWidth={calendarioAberto ? 2.2 : 1.8}
         />
