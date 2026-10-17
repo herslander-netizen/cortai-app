@@ -4,7 +4,6 @@ import {
   Check,
   HandCoins,
   MessageCircle,
-  PhoneCall,
   NotebookPen,
   Phone,
   Scissors,
@@ -69,7 +68,6 @@ export function PainelAtendimento(props: Props) {
   const [erroRemarcar, setErroRemarcar] = useState<string | null>(null);
   const [verificando, setVerificando] = useState(false);
   const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
-  const [escolhaWhatsApp, setEscolhaWhatsApp] = useState(false);
   const [expandido, setExpandido] = useState(false);
   const compacto = !props.lateral;
 
@@ -195,13 +193,18 @@ export function PainelAtendimento(props: Props) {
                     ) : null}
                     {whatsapp ? (
                       <Button
-                        type="button"
+                        asChild
                         variant="outline"
                         className="min-h-12"
-                        aria-label={`Escolher ligação ou mensagem no WhatsApp para ${item.cliente}`}
-                        onClick={() => setEscolhaWhatsApp(true)}
                       >
-                        <MessageCircle /> WhatsApp
+                        <a
+                          href={whatsapp ?? undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Abrir WhatsApp para ${item.cliente}`}
+                        >
+                          <MessageCircle /> WhatsApp
+                        </a>
                       </Button>
                     ) : null}
                   </div>
@@ -381,45 +384,6 @@ export function PainelAtendimento(props: Props) {
           ) : null}
         </SheetContent>
       </Sheet>
-
-      <AlertDialog open={escolhaWhatsApp} onOpenChange={setEscolhaWhatsApp}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Como deseja falar com {item?.cliente}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Escolha se quer abrir o WhatsApp para fazer uma chamada ou enviar uma mensagem.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid gap-2">
-            <Button
-              type="button"
-              className="min-h-12 w-full"
-              onClick={() => {
-                if (!whatsapp) return;
-                setEscolhaWhatsApp(false);
-                window.open(whatsapp, "_blank", "noopener,noreferrer");
-              }}
-            >
-              <PhoneCall /> Ligar pelo WhatsApp
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-12 w-full"
-              onClick={() => {
-                if (!whatsapp) return;
-                setEscolhaWhatsApp(false);
-                window.open(whatsapp, "_blank", "noopener,noreferrer");
-              }}
-            >
-              <MessageCircle /> Enviar mensagem
-            </Button>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Voltar</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <AlertDialog
         open={Boolean(confirmacao)}
