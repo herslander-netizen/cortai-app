@@ -161,7 +161,7 @@ export function CabecalhoAgenda({
         <Button
           variant="ghost"
           size="icon"
-          className="ml-auto"
+          className="ml-auto [&>svg]:size-6"
           aria-label="Desativar modo discreto"
           onClick={onDiscreto}
         >
