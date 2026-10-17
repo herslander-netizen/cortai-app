@@ -6353,6 +6353,12 @@ button.agenda-nome:hover {
   opacity: 0.85;
 }
 
+/* Durante o gesto lateral, as camadas dos dias vizinhos não repetem a textura de fora do expediente.
+   Isso evita as faixas diagonais duplicadas que parecem linhas atravessando a grade enquanto arrasta. */
+.agenda-gesto-ativo .agenda-dia-vizinha .agenda-timeline-fora-expediente {
+  background: transparent !important;
+}
+
 /* Celular: a prévia do dia vizinho ocupa a tela toda por baixo da barra do topo e já nasce
    alinhada à grade (ver AgendaTimeline); sem a data editorial, que não existe no dia real. */
 @media (max-width: 767px) {
