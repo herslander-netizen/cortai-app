@@ -30,7 +30,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
-- 2026-10-17: **Agenda mobile — prevalece o vídeo de referência enviado pelo dono; não adicionar lupa temporal.** A edição usa a alça de duração do cartão, mantém o painel fixo com Descartar/Salvar e bloqueia a troca de dia por gesto enquanto houver rascunho, para não perder a edição. Ao sair da edição, a navegação de dia volta ao normal. Preservar o espaçamento original dos marcadores da grade (`mb-1`); não empilhar margens negativas.
+- 2026-10-17: **Agenda mobile — prevalece o vídeo de referência enviado pelo dono; não adicionar lupa temporal.** A edição usa a alça de duração do cartão e mantém o painel fixo com Descartar/Salvar. A navegação lateral entre dias deve continuar responsiva; o bloqueio de gesto adicionado durante a edição foi revertido após regressão. Ao tocar num cartão, a ficha abre compacta com cliente, horário/serviço/profissional, status, ação principal e contato; ações secundárias ficam em “Mais ações”. Preservar o espaçamento original dos marcadores da grade (`mb-1`); não empilhar margens negativas.
 - 2026-10-17: **o Cortaí não usa mais o Lovable**, de forma definitiva. Nada de editor, banco, IA,
   conector de WhatsApp ou login pelo Lovable; referências e resíduos foram retirados do código e
   da memória do projeto. Documentos antigos ficam em `docs/historico/` só como consulta.
@@ -85,7 +85,7 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
-| GPT | 2026-10-17 UTC | Agenda mobile: reverter bloqueio que prejudicou o gesto lateral e abrir ficha compacta expansível | `DIARIO.md`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/gesto-dia.ts`, `src/components/barbeiro/agenda/gesto-dia.test.ts`, `src/components/barbeiro/agenda/PainelAtendimento.tsx` |
+
 
 ## Recados
 
@@ -114,6 +114,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — GPT — Reversão do bloqueio do gesto e ficha compacta de atendimento
+- Commits: `b595f51`, `523cf94`, `3d88df5`, `d5c5a1f`, `29260d3`, `dfa88ff`, `9527447`.
+- O que mudou e por quê: removido o bloqueio de troca de dia durante a edição e a lógica que cancelava um gesto lateral em andamento, pois o dono relatou regressão no arraste horizontal. Ao tocar num agendamento no celular, a ficha mostra primeiro cliente, horário/serviço/profissional, status, ação principal e contatos; as demais ações aparecem ao tocar em “Mais ações”. Desktop mantém a ficha completa.
+- Testes: ainda aguardando GitHub Actions (TypeScript, testes, build e deploy da prévia). Não foi feita inspeção visual real no celular.
+- Banco/infra: nada alterado; sem publicação em produção.
+- Pendente / atenção para as outras IAs: conferir o gesto lateral na prévia e abrir/expandir/recolher a ficha no celular; verificar se não há regressão no Modo Foco, que compartilha o painel.
 
 ### 2026-10-17 UTC — GPT — Correção da edição mobile conforme vídeo de referência
 - Commits: `613dd12`/ `9acc3d8` (bloqueio do gesto durante edição), `a3b1c20`/`6a92d6e` (regra pura e teste), `2b42fe4` (proteção do rascunho ao trocar dia), `1b8c6ef` (restaura espaçamento original dos marcadores), `56553ed` (texto “Reagendar”). A lupa temporal foi revertida anteriormente; `AgendaTimeline.tsx` voltou à versão anterior a essa tentativa.
