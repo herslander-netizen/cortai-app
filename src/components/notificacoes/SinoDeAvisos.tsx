@@ -392,7 +392,7 @@ export function SinoDeAvisos() {
           style={{ transformOrigin: "top center" }}
         >
           <Bell
-            size={20}
+            size={26}
             strokeWidth={1.8}
             className={forte ? "fill-current" : undefined}
             aria-hidden
