@@ -68,6 +68,8 @@ export function PainelAtendimento(props: Props) {
   const [erroRemarcar, setErroRemarcar] = useState<string | null>(null);
   const [verificando, setVerificando] = useState(false);
   const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
+  const [expandido, setExpandido] = useState(false);
+  const compacto = !props.lateral;
 
   useEffect(() => {
     setRemarcar(
@@ -81,6 +83,7 @@ export function PainelAtendimento(props: Props) {
     );
     setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
     setErroRemarcar(null);
+    setExpandido(Boolean(props.iniciarEm));
   }, [item, props.aberto, props.fuso, props.iniciarEm]);
 
   const pendente = item?.status === "agendado" || item?.status === "chegou";
@@ -202,6 +205,8 @@ export function PainelAtendimento(props: Props) {
                   </div>
                 ) : null}
 
+                {(!compacto || expandido) ? (
+                  <>
                 <div className="grid grid-cols-2 gap-2" aria-label="Registro do atendimento">
                   {item.clienteId ? (
                     <Button
@@ -282,6 +287,19 @@ export function PainelAtendimento(props: Props) {
                     </Button>
                   ) : null}
                 </div>
+                  </>
+                ) : null}
+                {compacto ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="min-h-11 w-full"
+                    aria-expanded={expandido}
+                    onClick={() => setExpandido((aberto) => !aberto)}
+                  >
+                    {expandido ? "Mostrar menos" : "Mais ações"}
+                  </Button>
+                ) : null}
               </div>
               {remarcar ? (
                 <form
