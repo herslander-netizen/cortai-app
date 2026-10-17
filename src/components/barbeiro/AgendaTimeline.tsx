@@ -659,6 +659,60 @@ export function AgendaTimeline({
     area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - topoAtual}px,0)`;
   }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length, escala.inicio]);
 
+  // No celular, a lupa abre apenas para o compromisso sob edição/gesto.
+  // A grade original continua sendo a fonte de verdade; a lupa só amplia sua leitura visual.
+  const idPrecisao = redim?.id ?? arrasto?.id ?? edicaoDoCartao?.id;
+  const itemPrecisao =
+    !previa && idPrecisao && celularAgora()
+      ? itens.find((item) => item.id === idPrecisao)
+      : undefined;
+  const usaLentePrecisao = Boolean(itemPrecisao && idPrecisao);
+  const deltaInicioPrecisao =
+    itemPrecisao && arrasto?.id === idPrecisao
+      ? Math.round(arrasto.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
+      : 0;
+  const deltaDuracaoPrecisao =
+    itemPrecisao && redim?.id === idPrecisao
+      ? Math.round(redim.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
+      : 0;
+  const inicioBasePrecisao = itemPrecisao
+    ? minutosNoFuso(itemPrecisao.inicio, fuso)
+    : escala.inicio;
+  const fimBasePrecisao = itemPrecisao
+    ? minutosNoFuso(itemPrecisao.fim, fuso)
+    : escala.inicio + 45;
+  const duracaoBasePrecisao = Math.max(5, fimBasePrecisao - inicioBasePrecisao);
+  const janelaMinutosPrecisao = Math.min(70, Math.max(40, duracaoBasePrecisao + 20));
+  const focoNoFimPrecisao =
+    Boolean(itemPrecisao) &&
+    (redim?.id === idPrecisao || duracaoBasePrecisao > janelaMinutosPrecisao - 20);
+  const focoPrecisao = focoNoFimPrecisao
+    ? fimBasePrecisao + deltaInicioPrecisao + deltaDuracaoPrecisao
+    : inicioBasePrecisao + deltaInicioPrecisao;
+  const antesDoFocoPrecisao = focoNoFimPrecisao ? janelaMinutosPrecisao - 10 : 10;
+  const inicioJanelaPrecisao = Math.max(
+    escala.inicio,
+    Math.min(
+      Math.max(escala.inicio, escala.fim - janelaMinutosPrecisao),
+      Math.floor((focoPrecisao - antesDoFocoPrecisao) / 5) * 5,
+    ),
+  );
+  const fimJanelaPrecisao = Math.min(escala.fim, inicioJanelaPrecisao + janelaMinutosPrecisao);
+  const deltaFocoPrecisao =
+    deltaInicioPrecisao + (focoNoFimPrecisao ? deltaDuracaoPrecisao : 0);
+  const topoJanelaPrecisao =
+    (focoPrecisao - escala.inicio) * PX_POR_MINUTO +
+    deslocamentoAte(focoPrecisao) +
+    deltaFocoPrecisao * (PX_POR_MINUTO_PRECISAO - PX_POR_MINUTO) -
+    CABECALHO_ZOOM_PX -
+    (focoPrecisao - inicioJanelaPrecisao) * PX_POR_MINUTO_PRECISAO;
+  const fimAtivoPrecisao = fimBasePrecisao + deltaInicioPrecisao + deltaDuracaoPrecisao;
+  const alcaNoZoom = Boolean(
+    usaLentePrecisao &&
+      fimAtivoPrecisao >= inicioJanelaPrecisao &&
+      fimAtivoPrecisao <= fimJanelaPrecisao,
+  );
+
   return (
     <div
       ref={envolturaRef}
