@@ -685,7 +685,7 @@ export function AgendaTimeline({
   const janelaMinutosPrecisao = Math.min(70, Math.max(40, duracaoBasePrecisao + 20));
   const focoNoFimPrecisao =
     Boolean(itemPrecisao) &&
-    (redim?.id === idPrecisao || duracaoBasePrecisao > janelaMinutosPrecisao - 20);
+    (redim?.id === idPrecisao || duracaoBasePrecisao > janelaMinutosPrecisao - 10);
   const focoPrecisao = focoNoFimPrecisao
     ? fimBasePrecisao + deltaInicioPrecisao + deltaDuracaoPrecisao
     : inicioBasePrecisao + deltaInicioPrecisao;
