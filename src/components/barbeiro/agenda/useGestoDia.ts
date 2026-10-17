@@ -183,7 +183,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bl
   const aoComecar = useCallback((e: TouchEvent) => {
     const alvo = e.target as HTMLElement;
     const t = e.touches[0];
-    if (!t || e.touches.length !== 1 || animacao.current || bloqueado || alvo.closest(IGNORAR)) {
+    if (!t || e.touches.length !== 1 || animacao.current || alvo.closest(IGNORAR)) {
       estado.current = null;
       return;
     }
@@ -194,7 +194,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void, bl
       dentroDeRolagemLateral: dentroDeRolagemLateral(alvo, e.currentTarget as Element),
       arrastando: arrastando(),
     };
-    estado.current = gestoPodeComecar(inicio)
+    estado.current = gestoPodeComecar(inicio, bloqueado)
       ? {
           inicio,
           eixo: null,
