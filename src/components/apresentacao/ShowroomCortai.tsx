@@ -418,7 +418,10 @@ export function ShowroomCortai({
               <Link to="/login">Entrar</Link>
             </Button>
             <Button asChild size="sm" variant="primary">
-              <Link to="/comecar">Cadastrar meu negócio</Link>
+              <Link to="/comecar">
+                <span className="hidden sm:inline">Cadastrar meu negócio</span>
+                <span className="sm:hidden">Começar grátis</span>
+              </Link>
             </Button>
           </div>
         </div>
