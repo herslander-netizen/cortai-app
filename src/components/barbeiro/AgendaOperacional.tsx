@@ -268,7 +268,6 @@ export function AgendaOperacional() {
     return c && c.dia === hojeNoFuso(c.fuso) ? c : null;
   });
   const [dia, setDia] = useState(() => restaurado?.dia ?? hojeNoFuso());
-  const edicaoAtivaRef = useRef(false);
   const [direcaoDia, setDirecaoDia] = useState<"anterior" | "proximo">("proximo");
   const [fuso, setFuso] = useState<string>("America/Sao_Paulo");
   const fusoAnterior = useRef(fuso);
@@ -363,8 +362,6 @@ export function AgendaOperacional() {
   }
 
   function mudarDia(proximo: string) {
-    // Durante a edição, o gesto lateral não deve trocar o dia nem descartar o rascunho.
-    if (edicaoAtivaRef.current) return;
     setDirecaoDia(proximo < dia ? "anterior" : "proximo");
     // Trocar de dia nunca abre (nem reabre) o novo agendamento.
     setManualAberto(false);
@@ -552,8 +549,7 @@ export function AgendaOperacional() {
         avisarCliente: avisar,
       }),
   });
-  edicaoAtivaRef.current = Boolean(edicao.rascunho);
-  const gestoDia = useGestoDia(dia, mudarDia, Boolean(edicao.rascunho));
+  const gestoDia = useGestoDia(dia, mudarDia);
   const { aplicar: aplicarRascunho } = edicao;
   const todosItens = useMemo(() => aplicarRascunho(itensBase), [aplicarRascunho, itensBase]);
   const itens = useMemo(
@@ -1188,7 +1184,6 @@ export function AgendaOperacional() {
         className="agenda-operacional agenda-troca-dia pb-32"
         data-direcao={direcaoDia}
         data-entrada={gestoDia.entradaPeloGesto ? "gesto" : undefined}
-        data-sem-gesto-dia={edicao.rascunho ? "" : undefined}
         ref={gestoDia.ref}
       >
         {celular ? (
