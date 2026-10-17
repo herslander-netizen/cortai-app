@@ -45,10 +45,10 @@ export function AgendamentoManual({
   return (
     <>
       <Button
-        variant="ghost"
+        variant={gatilho === "primario" ? "primary" : "ghost"}
         type="button"
         onClick={() => setAberto(true)}
-        className={gatilho === "primario" ? "btn-primary w-full text-sm" : "btn-tertiary text-xs"}
+        className={gatilho === "primario" ? "w-full text-sm" : "text-xs"}
       >
         {rotulo ?? (gatilho === "primario" ? "+ Novo agendamento" : "Marcar cliente aqui")}
       </Button>
