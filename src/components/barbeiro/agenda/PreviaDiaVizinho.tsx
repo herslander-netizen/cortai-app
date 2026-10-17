@@ -114,12 +114,12 @@ export function PreviaDoGesto({
     <>
       <PreviaDiaVizinho
         dia={somarDias(diaAtual, -1)}
-        ref={refAnterior}
+        {...(refAnterior ? { ref: refAnterior } : {})}
         {...props}
       />
       <PreviaDiaVizinho
         dia={somarDias(diaAtual, 1)}
-        ref={refProximo}
+        {...(refProximo ? { ref: refProximo } : {})}
         {...props}
       />
     </>
