@@ -63,6 +63,8 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
   `cortai-prod` (scripts em `supabase/demos/`), e admin da plataforma. O negócio `Teste01` é de outra
   conta.
 
+- 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
+
 ## Próximas tarefas (ordem combinada)
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
@@ -85,6 +87,7 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
+| GPT | 2026-10-17 UTC | Ajustar animação do calendário e carrossel de cinco pontos; remover texto de polling | `DIARIO.md`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/EstadosAgenda.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx` |
 
 
 ## Recados
