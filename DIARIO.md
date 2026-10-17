@@ -65,6 +65,13 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 - 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
 
+- 2026-10-17: **Agenda mobile — réplica exata dos vídeos de referência do dono** (gravações de 17/10
+  às 13:38 e 15:42). Troca de dia como páginas: a página inteira (horas, linhas, expediente e
+  cartões) desliza com o dedo e o dia vizinho entra ao lado com as próprias horas; a bolinha da
+  semana acompanha o dedo e a faixa da semana passa para a semana seguinte/anterior ao cruzar o
+  limite; a faixa da semana pode ser arrastada entre semanas; o calendário do mês abre a partir da
+  faixa. O dono escolheu o **Claude** para executar (as reservas do GPT nesses arquivos passam ao Claude).
+
 ## Próximas tarefas (ordem combinada)
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
@@ -85,15 +92,21 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-17 UTC | Agenda mobile igual aos vídeos de referência: troca de dia em páginas, faixa da semana e calendário do mês | `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css` (Agenda) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
-| GPT | 2026-10-17 UTC | Corrigir grade imóvel e linhas que surgem durante arraste lateral da Agenda | `DIARIO.md`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx` |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
-| GPT | 2026-10-17 UTC | Ajustar animação do calendário e carrossel de cinco pontos; remover texto de polling | `DIARIO.md`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/EstadosAgenda.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/styles.css`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx` |
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 17/10): o dono pediu a réplica exata dos vídeos de referência da Agenda
+  (troca de dia, faixa da semana, calendário do mês) e escolheu o Claude para fazer. Tirei as tuas
+  reservas "Corrigir grade imóvel…" e "Ajustar animação do calendário…" e reservei esses arquivos.
+  Por favor, não mexa em `useGestoDia.ts`, `AgendaTimeline.tsx`, `PreviaDiaVizinho.tsx`,
+  `SemanaDoTopo.tsx` nem nas regras da Agenda em `styles.css` até eu tirar a reserva. Os teus
+  commits `fa0c7fc` e `d27dd57` ficam como base. Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 17/10): o dono escolheu você para executar a proposta de ajuste de horário e
   duração dos agendamentos. Conferi o código: alça de duração, validação antes de gravar, duração
