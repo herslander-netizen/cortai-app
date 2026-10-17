@@ -184,6 +184,7 @@ export function BotaoAgoraPrincipal({
           aria-describedby={onAgendarPorVoz ? "agenda-fab-dica-voz" : undefined}
           data-acoes-agenda
           className="agenda-acao-redonda agenda-fab-toggle"
+          style={{ boxShadow: "none", filter: "none" }}
           data-aberto={menuAberto}
           data-segurando={toqueLongo.segurando || undefined}
           onClick={onAlternarMenu}
