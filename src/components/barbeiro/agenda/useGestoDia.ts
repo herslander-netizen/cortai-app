@@ -36,7 +36,8 @@ type Estado = {
  */
 export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const palco = useRef<HTMLElement | null>(null);
-  const previa = useRef<HTMLDivElement | null>(null);
+  const previaAnterior = useRef<HTMLDivElement | null>(null);
+  const previaProxima = useRef<HTMLDivElement | null>(null);
   const estado = useRef<Estado | null>(null);
   const animacao = useRef<{ stop: () => void } | null>(null);
   const [diaDoGesto, setDiaDoGesto] = useState<string | null>(null);
@@ -53,8 +54,10 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     const raiz = document.documentElement.style;
     if (dx) raiz.setProperty("--dia-progresso", String(Math.max(-1, Math.min(1, -dx / largura))));
     else raiz.removeProperty("--dia-progresso");
-    const p = previa.current;
-    if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
+    const anterior = previaAnterior.current;
+    const proxima = previaProxima.current;
+    if (anterior) anterior.style.transform = `translate3d(${dx - largura}px,0,0)`;
+    if (proxima) proxima.style.transform = `translate3d(${dx + largura}px,0,0)`;
   }, []);
 
   const limpar = useCallback(() => {
@@ -238,17 +241,25 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   );
 
   // Posiciona a prévia assim que ela monta (antes do próximo quadro do dedo).
-  const refPrevia = useCallback(
+  const refPreviaAnterior = useCallback(
     (el: HTMLDivElement | null) => {
-      previa.current = el;
-      if (el) escrever(estado.current?.dx ?? 0);
+      previaAnterior.current = el;
+      if (el) el.style.transform = `translate3d(${(estado.current?.dx ?? 0) - window.innerWidth}px,0,0)`;
     },
-    [escrever],
+    [],
+  );
+  const refPreviaProxima = useCallback(
+    (el: HTMLDivElement | null) => {
+      previaProxima.current = el;
+      if (el) el.style.transform = `translate3d(${(estado.current?.dx ?? 0) + window.innerWidth}px,0,0)`;
+    },
+    [],
   );
 
   return {
     ref,
-    refPrevia,
+    refPreviaAnterior,
+    refPreviaProxima,
     /** A agenda atual chegou pelo gesto: não repete a animação de entrada. */
     entradaPeloGesto: diaDoGesto === dia,
   };
