@@ -13,7 +13,7 @@ export function NarrativaApresentacao() {
       <section
         id="para-quem"
         aria-labelledby="para-quem-titulo"
-        className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:px-8"
+        className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-24 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:px-8"
       >
         <div className="max-w-xl">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-ink2">Uma experiência para os dois lados</p>
@@ -59,7 +59,7 @@ export function NarrativaApresentacao() {
         aria-labelledby="como-funciona-titulo"
         className="border-y border-line bg-background"
       >
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-24 lg:px-8">
           <div className="max-w-2xl">
             <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-ink2">Comece pelo essencial</p>
             <h2 id="como-funciona-titulo" className="text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
