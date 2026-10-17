@@ -25,13 +25,6 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
-import {
-  CABECALHO_ZOOM_PX,
-  deltaPrecisaoPorArrasto,
-  PX_POR_MINUTO_PRECISAO,
-  ZoomPrecisaoAgenda,
-  type PosicaoTimeline,
-} from "@/components/barbeiro/agenda/ZoomPrecisaoAgenda";
 import { passoDoGesto } from "@/lib/remarcacao-regras";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
@@ -154,13 +147,6 @@ export function AgendaTimeline({
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
-  const [ancoraPrecisao, setAncoraPrecisao] = useState<{
-    id: string;
-    janelaInicio: number;
-    janelaFim: number;
-    topo: number;
-    modo: "inicio" | "fim";
-  } | null>(null);
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
@@ -284,7 +270,17 @@ export function AgendaTimeline({
   }, [escala.fim, escala.inicio, diaCompleto]);
 
   const layout = useMemo(() => {
-    const resultado = new Map<string, PosicaoTimeline>();
+    const resultado = new Map<
+      string,
+      {
+        inicio: number;
+        fim: number;
+        topo: number;
+        altura: number;
+        coluna?: number;
+        colunas?: number;
+      }
+    >();
     const acrescimos: Array<{ depoisDe: number; pixels: number }> = [];
     const ordenados = itens
       .map((item) => {
@@ -569,10 +565,7 @@ export function AgendaTimeline({
       return;
     }
     ignorarClique.current = true;
-    const delta =
-      g.longo && celularAgora()
-        ? deltaPrecisaoPorArrasto(dy)
-        : Math.round(dy / PX_POR_MINUTO / passo) * passo;
+    const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
@@ -666,98 +659,6 @@ export function AgendaTimeline({
         : grade.top + (ehHoje ? posicaoAgora : (abreEm - escala.inicio) * PX_POR_MINUTO);
     area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - topoAtual}px,0)`;
   }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length, escala.inicio]);
-
-  // No celular, a lupa abre apenas para o compromisso sob edição/gesto.
-  // A grade original continua sendo a fonte de verdade; a lupa só amplia sua leitura visual.
-  const idPrecisao = redim?.id ?? arrasto?.id ?? edicaoDoCartao?.id;
-  const itemPrecisao =
-    !previa && idPrecisao && celularAgora()
-      ? itens.find((item) => item.id === idPrecisao)
-      : undefined;
-  const usaLentePrecisao = Boolean(itemPrecisao && idPrecisao);
-  const deltaInicioPrecisao =
-    itemPrecisao && arrasto && arrasto.id === idPrecisao
-      ? deltaPrecisaoPorArrasto(arrasto.dy)
-      : 0;
-  const deltaDuracaoPrecisao =
-    itemPrecisao && redim && redim.id === idPrecisao
-      ? deltaPrecisaoPorArrasto(redim.dy)
-      : 0;
-  const inicioBasePrecisao = itemPrecisao
-    ? minutosNoFuso(itemPrecisao.inicio, fuso)
-    : escala.inicio;
-  const fimBasePrecisao = itemPrecisao
-    ? minutosNoFuso(itemPrecisao.fim, fuso)
-    : escala.inicio + 45;
-  const duracaoBasePrecisao = Math.max(5, fimBasePrecisao - inicioBasePrecisao);
-  const janelaMinutosPrecisao = Math.min(70, Math.max(40, duracaoBasePrecisao + 20));
-  const focoNoFimPrecisao =
-    Boolean(itemPrecisao) &&
-    (redim?.id === idPrecisao || duracaoBasePrecisao > janelaMinutosPrecisao - 10);
-  const focoPrecisao = focoNoFimPrecisao
-    ? fimBasePrecisao + deltaInicioPrecisao + deltaDuracaoPrecisao
-    : inicioBasePrecisao + deltaInicioPrecisao;
-  const antesDoFocoPrecisao = focoNoFimPrecisao ? janelaMinutosPrecisao - 10 : 10;
-  const inicioJanelaPrecisao = Math.max(
-    escala.inicio,
-    Math.min(
-      Math.max(escala.inicio, escala.fim - janelaMinutosPrecisao),
-      Math.floor((focoPrecisao - antesDoFocoPrecisao) / 5) * 5,
-    ),
-  );
-  const fimJanelaPrecisao = Math.min(escala.fim, inicioJanelaPrecisao + janelaMinutosPrecisao);
-  const deltaFocoPrecisao =
-    deltaInicioPrecisao + (focoNoFimPrecisao ? deltaDuracaoPrecisao : 0);
-  const topoJanelaPrecisao =
-    (focoPrecisao - escala.inicio) * PX_POR_MINUTO +
-    deslocamentoAte(focoPrecisao) +
-    deltaFocoPrecisao * (PX_POR_MINUTO_PRECISAO - PX_POR_MINUTO) -
-    CABECALHO_ZOOM_PX -
-    (focoPrecisao - inicioJanelaPrecisao) * PX_POR_MINUTO_PRECISAO;
-  const fimAtivoPrecisao = fimBasePrecisao + deltaInicioPrecisao + deltaDuracaoPrecisao;
-  const alcaNoZoom = Boolean(
-    usaLentePrecisao &&
-      fimAtivoPrecisao >= inicioJanelaPrecisao &&
-      fimAtivoPrecisao <= fimJanelaPrecisao,
-  );
-  const modoPrecisao = focoNoFimPrecisao ? "fim" : "inicio";
-
-  // Congela a janela enquanto o dedo move o compromisso, para que o cartão
-  // deslize na escala ampliada em vez de a lupa correr junto com ele.
-  useLayoutEffect(() => {
-    if (!usaLentePrecisao || !itemPrecisao || !idPrecisao) {
-      if (ancoraPrecisao) setAncoraPrecisao(null);
-      return;
-    }
-    const redimensionamentoAtivo = redim?.id === idPrecisao;
-    if (
-      !ancoraPrecisao ||
-      ancoraPrecisao.id !== idPrecisao ||
-      (redimensionamentoAtivo && ancoraPrecisao.modo !== "fim")
-    ) {
-      setAncoraPrecisao({
-        id: idPrecisao,
-        janelaInicio: inicioJanelaPrecisao,
-        janelaFim: fimJanelaPrecisao,
-        topo: topoJanelaPrecisao,
-        modo: modoPrecisao,
-      });
-    }
-  }, [
-    ancoraPrecisao,
-    fimJanelaPrecisao,
-    idPrecisao,
-    inicioJanelaPrecisao,
-    itemPrecisao,
-    modoPrecisao,
-    redim?.id,
-    topoJanelaPrecisao,
-    usaLentePrecisao,
-  ]);
-  const ancoraAtiva = ancoraPrecisao?.id === idPrecisao ? ancoraPrecisao : null;
-  const janelaInicioLente = ancoraAtiva?.janelaInicio ?? inicioJanelaPrecisao;
-  const janelaFimLente = ancoraAtiva?.janelaFim ?? fimJanelaPrecisao;
-  const topoLente = ancoraAtiva?.topo ?? topoJanelaPrecisao;
 
   return (
     <div
@@ -891,7 +792,7 @@ export function AgendaTimeline({
             </div>
           ))}
 
-          {!usaLentePrecisao && (redim || arrasto || edicaoDoCartao?.id) ? (
+          {redim || arrasto || edicaoDoCartao?.id ? (
             <>
               {Array.from(
                 { length: Math.floor((escala.fim - escala.inicio) / 5) + 1 },
@@ -995,8 +896,7 @@ export function AgendaTimeline({
                       : {}),
                   }}
                   aria-pressed={selecionado === item.id}
-                  aria-hidden={usaLentePrecisao || previa || undefined}
-                  tabIndex={previa || usaLentePrecisao ? -1 : undefined}
+                  tabIndex={previa ? -1 : undefined}
                   {...(previa
                     ? {}
                     : {
@@ -1081,11 +981,7 @@ export function AgendaTimeline({
                     <span className="agenda-timeline-reais">{reais}</span>
                   ) : null}
                 </Button>
-                {!previa &&
-                onRedimensionar &&
-                podeMover(item) &&
-                edicaoDoCartao?.id === item.id &&
-                !(usaLentePrecisao && alcaNoZoom) ? (
+                {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (
                   <AlcaDeDuracao
                     rotulo={`Esticar a duração de ${nome}`}
                     etiqueta={redim?.id === item.id ? `até ${horaMinuto(fim + passoRedim)}` : null}
@@ -1104,50 +1000,6 @@ export function AgendaTimeline({
               </Fragment>
             );
           })}
-
-          {usaLentePrecisao && itemPrecisao ? (
-            <>
-              <div
-                className="pointer-events-auto absolute inset-0 z-[6] bg-ink/70"
-                aria-hidden="true"
-              />
-              <ZoomPrecisaoAgenda
-                itens={itens}
-                posicoes={layout.posicoes}
-                idAtivo={itemPrecisao.id}
-                janelaInicio={janelaInicioLente}
-                janelaFim={janelaFimLente}
-                topo={topoLente}
-                fuso={fuso}
-                discreto={discreto}
-                deltaInicioMin={deltaInicioPrecisao}
-                deltaDuracaoMin={deltaDuracaoPrecisao}
-                redimensionando={redim?.id === itemPrecisao.id}
-                podeRedimensionar={Boolean(onRedimensionar && podeMover(itemPrecisao))}
-                lerRolagem={() =>
-                  celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
-                }
-                onTravar={travarRolagemDoToque}
-                onSoltar={soltarRolagemDoToque}
-                onArrastarDuracao={(dy) =>
-                  setRedim(dy === null ? null : { id: itemPrecisao.id, dy })
-                }
-                onConfirmarDuracao={(item, delta) => onRedimensionar?.(item, delta)}
-                onInicioGesto={inicioGesto}
-                onMoverGesto={moverGesto}
-                onFimGesto={fimGesto}
-                onCancelarGesto={() => {
-                  if (gesto.current) window.clearTimeout(gesto.current.timer);
-                  gesto.current = null;
-                  soltarRolagemDoToque();
-                  setArrasto(null);
-                }}
-                onClicarItem={() => {
-                  if (ignorarClique.current) ignorarClique.current = false;
-                }}
-              />
-            </>
-          ) : null}
 
           {ehHoje && posicaoAgora >= 0 && posicaoAgora <= altura ? (
             <div
