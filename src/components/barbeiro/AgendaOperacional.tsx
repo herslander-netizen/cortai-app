@@ -766,6 +766,8 @@ export function AgendaOperacional() {
         data: {
           agendamentoId: item.id,
           novoInicio,
+          inicioOriginal: item.inicio,
+          fimOriginal: item.fim,
           profissionalId,
           ...(mudouDuracao ? { novaDuracaoMin } : {}),
           ...(opcoes.avisarCliente !== undefined ? { avisarCliente: opcoes.avisarCliente } : {}),
