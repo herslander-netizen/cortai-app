@@ -171,6 +171,17 @@ Modelo:
 - Banco/infra: nada alterado.
 - Pendente / atenção para as outras IAs: confirmar TypeScript, testes, build e deploy da prévia; verificar contraste e componentes de agenda/chat no tema escuro antes de considerar concluído.
 
+### 2026-10-17 UTC — Claude — Agenda: prévia do dia vizinho presa por cima da tela
+- O que mudou e por quê: pelas capturas do dono, depois de deslizar para outro dia a tela ficava vazia
+  e a página rolava por baixo. Desde a mudança para duas prévias sempre montadas
+  (`PreviaDoGesto`), a prévia que entrava na tela ficava parada em `translate3d(0)` por cima da Agenda:
+  `limpar()` em `useGestoDia.ts` não devolvia as prévias para fora. Agora devolve, e o CSS esconde a
+  prévia sempre que não há gesto (`html:not(.agenda-gesto-ativo) .agenda-previa-vizinho`).
+- Testes: `tsc`, `vitest` (1506) e `build` passaram; testes novos em `timeline-rolagem-celular.test.ts`.
+  Não conferido em celular real.
+- Banco/infra: nada alterado. Sem versão lançada.
+- Pendente / atenção: quem mexer no gesto lateral, mantenha as prévias fora da tela fora do gesto.
+
 ### 2026-10-17 UTC — Claude — Agenda: troca de dia sem piscar e rolagem sem puxões
 - O que mudou e por quê: o dono relatou no celular que a Agenda piscava/carregava na troca de dia, a
   rolagem travava e "rolava sem a data sair do lugar".

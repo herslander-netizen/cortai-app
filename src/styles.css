@@ -3017,6 +3017,10 @@ html.agenda-gesto-ativo body {
   pointer-events: none;
   will-change: transform;
 }
+/* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
+html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
+  visibility: hidden;
+}
 .agenda-previa-data {
   display: block;
   font-size: 0.8125rem;

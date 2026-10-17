@@ -18,7 +18,8 @@ import {
 } from "./gesto-dia";
 import { somarDias } from "./tempo";
 
-const IGNORAR = "[data-gesto-dia-ignore], [data-sem-gesto-dia], .agenda-chips, input, select, textarea, [role=dialog]";
+const IGNORAR =
+  "[data-gesto-dia-ignore], [data-sem-gesto-dia], .agenda-chips, input, select, textarea, [role=dialog]";
 const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
 
 type Estado = {
@@ -66,6 +67,13 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.transform = "";
       el.style.willChange = "";
     }
+    // As prévias ficam sempre montadas: depois do gesto voltam para fora da tela. Sem isso a que
+    // entrou ficava parada por cima da Agenda (tela vazia, a página rolando por baixo).
+    const largura = window.innerWidth;
+    if (previaAnterior.current)
+      previaAnterior.current.style.transform = `translate3d(${-largura}px,0,0)`;
+    if (previaProxima.current)
+      previaProxima.current.style.transform = `translate3d(${largura}px,0,0)`;
     document.documentElement.classList.remove("agenda-gesto-ativo");
     document.documentElement.style.removeProperty("--dia-progresso");
     definirVizinhoDoGesto(0);
@@ -241,20 +249,16 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   );
 
   // Posiciona a prévia assim que ela monta (antes do próximo quadro do dedo).
-  const refPreviaAnterior = useCallback(
-    (el: HTMLDivElement | null) => {
-      previaAnterior.current = el;
-      if (el) el.style.transform = `translate3d(${(estado.current?.dx ?? 0) - window.innerWidth}px,0,0)`;
-    },
-    [],
-  );
-  const refPreviaProxima = useCallback(
-    (el: HTMLDivElement | null) => {
-      previaProxima.current = el;
-      if (el) el.style.transform = `translate3d(${(estado.current?.dx ?? 0) + window.innerWidth}px,0,0)`;
-    },
-    [],
-  );
+  const refPreviaAnterior = useCallback((el: HTMLDivElement | null) => {
+    previaAnterior.current = el;
+    if (el)
+      el.style.transform = `translate3d(${(estado.current?.dx ?? 0) - window.innerWidth}px,0,0)`;
+  }, []);
+  const refPreviaProxima = useCallback((el: HTMLDivElement | null) => {
+    previaProxima.current = el;
+    if (el)
+      el.style.transform = `translate3d(${(estado.current?.dx ?? 0) + window.innerWidth}px,0,0)`;
+  }, []);
 
   return {
     ref,

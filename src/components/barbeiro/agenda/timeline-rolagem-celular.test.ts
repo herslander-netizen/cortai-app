@@ -80,3 +80,19 @@ describe("troca de dia sem piscar nem puxar a página", () => {
     expect(timeline.match(/posicionouRef\.current !== null/g)?.length).toBe(3);
   });
 });
+
+describe("prévia do dia vizinho não fica presa na tela", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+
+  it("fora do gesto a prévia fica escondida", () => {
+    expect(css).toMatch(
+      /html:not\(\.agenda-gesto-ativo\) \.agenda-previa-vizinho \{\s*visibility: hidden;/,
+    );
+  });
+
+  it("ao terminar o gesto as duas prévias voltam para fora da tela", () => {
+    const limpar = gesto.slice(gesto.indexOf("const limpar"), gesto.indexOf("const assentar"));
+    expect(limpar).toContain("previaAnterior.current.style.transform");
+    expect(limpar).toContain("previaProxima.current.style.transform");
+  });
+});
