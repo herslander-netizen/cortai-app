@@ -4,9 +4,9 @@ import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { nomeDaAgenda } from "@/components/barbeiro/agenda/tempo";
+import { CABECALHO_ZOOM_PX, PX_POR_MINUTO_PRECISAO } from "./zoom-precisao";
 
-export const PX_POR_MINUTO_PRECISAO = 4;
-export const CABECALHO_ZOOM_PX = 30;
+export { CABECALHO_ZOOM_PX, PX_POR_MINUTO_PRECISAO, deltaPrecisaoPorArrasto } from "./zoom-precisao";
 
 export type PosicaoTimeline = {
   inicio: number;
