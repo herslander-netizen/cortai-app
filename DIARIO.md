@@ -30,7 +30,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
-- 2026-10-17: **Agenda mobile com lupa temporal**: ao pressionar e segurar um compromisso, ampliar somente a região ativa; a grade normal fica compacta, as marcações de 5 minutos ficam mais espaçadas na lupa, o movimento usa passos exatos de 5 minutos e tudo continua em rascunho até Salvar. Durante a troca de dia, a página vizinha deve estar previamente pronta e manter o horário de referência (ex.: 09:00) alinhado durante o gesto.
+- 2026-10-17: **Agenda mobile — prevalece o vídeo de referência enviado pelo dono; não adicionar lupa temporal.** A edição usa a alça de duração do cartão, mantém o painel fixo com Descartar/Salvar e bloqueia a troca de dia por gesto enquanto houver rascunho, para não perder a edição. Ao sair da edição, a navegação de dia volta ao normal. Preservar o espaçamento original dos marcadores da grade (`mb-1`); não empilhar margens negativas.
 - 2026-10-17: **o Cortaí não usa mais o Lovable**, de forma definitiva. Nada de editor, banco, IA,
   conector de WhatsApp ou login pelo Lovable; referências e resíduos foram retirados do código e
   da memória do projeto. Documentos antigos ficam em `docs/historico/` só como consulta.
@@ -83,7 +83,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-17 UTC | Réplica fiel do vídeo da edição de horário: bloquear troca por gesto durante rascunho e corrigir fluxo de mudança de dia | `DIARIO.md`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useGestoDia.ts`, `src/components/barbeiro/agenda/gesto-dia.ts`, testes relacionados |
+
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 
 ## Recados
@@ -113,6 +113,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-17 UTC — GPT — Correção da edição mobile conforme vídeo de referência
+- Commits: `613dd12`/ `9acc3d8` (bloqueio do gesto durante edição), `a3b1c20`/`6a92d6e` (regra pura e teste), `2b42fe4` (proteção do rascunho ao trocar dia), `1b8c6ef` (restaura espaçamento original dos marcadores), `56553ed` (texto “Reagendar”). A lupa temporal foi revertida anteriormente; `AgendaTimeline.tsx` voltou à versão anterior a essa tentativa.
+- O que mudou e por quê: durante edição de horário, o gesto lateral não começa e a função de troca de dia recusa a mudança enquanto o rascunho está ativo. Assim a edição não desaparece por acidente. O texto do topo segue o vídeo (“Para mudar de dia, use Reagendar”). Também revertido o espaçamento que acumulava `-mt-4 mb-0 -mb-3`, restaurando `mb-1` no marcador superior.
+- Testes: teste unitário adicionado para garantir que a navegação esteja bloqueada durante edição; TypeScript/testes/build e deploy da prévia ainda aguardam GitHub Actions no commit mais recente. Nenhum teste visual manual no celular foi executado nesta sessão.
+- Banco/infra: nada alterado; não houve publicação em produção.
+- Pendente / atenção para as outras IAs: confirmar Actions e conferir na prévia: editar, esticar duração, tentar deslizar para outro dia (deve permanecer no mesmo dia com rascunho intacto), descartar/salvar e depois trocar de dia normalmente.
+
 
 Modelo:
 
