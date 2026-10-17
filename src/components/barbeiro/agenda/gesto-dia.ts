@@ -12,8 +12,8 @@ export type InicioDoGesto = {
 };
 
 /** O toque pode virar troca de dia? (borda do sistema, rolagem lateral e arrasto ficam de fora) */
-export function gestoPodeComecar(g: InicioDoGesto) {
-  if (g.arrastando || g.dentroDeRolagemLateral) return false;
+export function gestoPodeComecar(g: InicioDoGesto, bloqueado = false) {
+  if (bloqueado || g.arrastando || g.dentroDeRolagemLateral) return false;
   return g.x >= BORDA_DO_SISTEMA && g.x <= g.larguraTela - BORDA_DO_SISTEMA;
 }
 
