@@ -1107,7 +1107,7 @@ export function AgendaTimeline({
           {usaLentePrecisao && itemPrecisao ? (
             <>
               <div
-                className="pointer-events-none absolute inset-0 z-[6] bg-ink/70"
+                className="pointer-events-auto absolute inset-0 z-[6] bg-ink/70"
                 aria-hidden="true"
               />
               <ZoomPrecisaoAgenda
