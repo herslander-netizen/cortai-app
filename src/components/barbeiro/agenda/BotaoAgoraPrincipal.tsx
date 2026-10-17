@@ -1,4 +1,4 @@
-import { Crosshair, Plus } from "lucide-react";
+import { CalendarClock, Crosshair, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
 
@@ -161,7 +161,7 @@ export function BotaoAgoraPrincipal({
                   transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
                 }}
               >
-                <IconeAcompanhamentoCard />
+                {proxima === "timeline" ? <CalendarClock aria-hidden className="size-7" /> : <IconeAcompanhamentoCard />}
               </motion.span>
             </AnimatePresence>
           </Button>
