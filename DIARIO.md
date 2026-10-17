@@ -171,6 +171,15 @@ Modelo:
 - Banco/infra: nada alterado.
 - Pendente / atenção para as outras IAs: confirmar TypeScript, testes, build e deploy da prévia; verificar contraste e componentes de agenda/chat no tema escuro antes de considerar concluído.
 
+### 2026-10-17 UTC — Claude — Agenda: bolinha da semana não volta animando depois do gesto
+- O que mudou e por quê: o dono viu a bolinha do dia escolhido acompanhar o dedo e, ao chegar, fazer
+  uma segunda animação vindo do dia seguinte (ou do anterior). Em `useGestoDia.ts` o dia mudava com
+  `--dia-progresso` ainda aplicado, deixando a bolinha uma casa além por um instante; ao tirar a trava,
+  a transição de 200 ms a trazia de volta. Agora o deslocamento sai antes do `flushSync` da troca.
+- Testes: `tsc`, `vitest` (1507) e `build` passaram; teste novo em `timeline-rolagem-celular.test.ts`.
+  Não conferido em celular real.
+- Banco/infra: nada alterado. Sem versão lançada.
+
 ### 2026-10-17 UTC — Claude — Agenda: prévia do dia vizinho presa por cima da tela
 - O que mudou e por quê: pelas capturas do dono, depois de deslizar para outro dia a tela ficava vazia
   e a página rolava por baixo. Desde a mudança para duas prévias sempre montadas

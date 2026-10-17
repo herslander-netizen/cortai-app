@@ -134,12 +134,16 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       assentar(s.dx, alvo, velocidade, () => {
         animacao.current = null;
         // Troca o dia antes de limpar: nenhum quadro mostra o dia antigo de volta.
-        if (proximo)
+        if (proximo) {
+          // O deslocamento sai junto com a troca: senão a bolinha da semana ficava uma casa além
+          // do dia novo e, ao soltar a trava, voltava animando ("vindo do dia seguinte").
+          document.documentElement.style.removeProperty("--dia-progresso");
           flushSync(() => {
             setDiaDoGesto(proximo);
             trocarRef.current(proximo);
             definirVizinhoDoGesto(0);
           });
+        }
         limpar();
       });
     },

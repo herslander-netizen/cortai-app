@@ -96,3 +96,15 @@ describe("prévia do dia vizinho não fica presa na tela", () => {
     expect(limpar).toContain("previaProxima.current.style.transform");
   });
 });
+
+describe("bolinha da semana ao terminar o gesto", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+
+  it("o deslocamento do dedo sai antes da troca do dia (sem voltar animando)", () => {
+    const fim = gesto.slice(gesto.indexOf("assentar(s.dx, alvo"));
+    const tira = fim.indexOf('removeProperty("--dia-progresso")');
+    const troca = fim.indexOf("flushSync(");
+    expect(tira).toBeGreaterThan(-1);
+    expect(tira).toBeLessThan(troca);
+  });
+});
