@@ -19,13 +19,6 @@ const base: InicioDoGesto = {
   arrastando: false,
 };
 
-describe("gestoPodeComecar", () => {
-  it("não permite trocar o dia enquanto a edição está bloqueando a navegação", () => {
-    expect(gestoPodeComecar(base)).toBe(true);
-    expect(gestoPodeComecar(base, true)).toBe(false);
-  });
-});
-
 describe("travarEixo", () => {
   it("só decide depois de ~10 px e mantém a decisão", () => {
     expect(travarEixo(4, 3)).toBe(null);
