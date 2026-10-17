@@ -123,6 +123,14 @@ Modelo:
 - Pendente / atenção para as outras IAs:
 ```
 
+### 2026-10-16 UTC — GPT — Home de apresentação com direção premium escura
+- Commits: `76217bb` (tema escuro no showroom), `e57c78e` (acabamento visual e tokens).
+- O que mudou e por quê: aplicada à home oficial `/apresentacao` a direção visual enviada pelo dono: fundo escuro, contraste alto, composição premium, acento de marca e maior destaque para o hero. Mantidos a identidade oficial do Cortaí, o conteúdo editável em `/admin/home`, as demonstrações reais/ilustrativas já existentes, os links internos e a rota `/`.
+- Não copiado literalmente: métricas, percentuais, depoimentos, cases e promessas não comprovadas do HTML de referência. Também não foram adicionados Tailwind CDN, novas dependências ou imagens externas como requisito.
+- Testes: aguardando GitHub Actions; nenhum teste local executado nesta sessão. Prévia visual ainda precisa ser conferida em 390px e 1280px.
+- Banco/infra: nada alterado.
+- Pendente / atenção para as outras IAs: confirmar TypeScript, testes, build e deploy da prévia; verificar contraste e componentes de agenda/chat no tema escuro antes de considerar concluído.
+
 ### 2026-10-17 UTC — Claude — Saída definitiva do Lovable: código, resíduos e memória
 - O que mudou e por quê: pedido do dono (auditoria geral, tirar toda referência ao Lovable e eliminar
   resíduos).
