@@ -82,7 +82,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| — | — | — | — |
+| GPT | 2026-10-17 UTC | Ajuste de horário/duração: expediente, ocupações extras e concorrência simultânea; atendimento `na_cadeira` aguardando decisão do dono | `DIARIO.md`, `src/lib/remarcacao-regras.ts`, `src/lib/remarcacao-regras.test.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/ocupacoes-extras.server.ts`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/useRascunhoDeHorario.ts`, testes do servidor |
 
 ## Recados
 
