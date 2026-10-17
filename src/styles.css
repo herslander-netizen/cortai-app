@@ -4,6 +4,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Oculta indicadores de rolagem em toda a aplicação sem desativar o scroll. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /*
  * Cortaí design system — base semântica compartilhada.
  */
