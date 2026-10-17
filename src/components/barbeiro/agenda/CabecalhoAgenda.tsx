@@ -237,12 +237,21 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-11 min-w-11 shrink-0"
+        className={`h-12 w-11 min-w-11 shrink-0 rounded-xl transition-[background-color,color,box-shadow,transform] duration-[200ms] motion-reduce:transition-none ${
+          calendarioAberto
+            ? "bg-ink3 text-gold shadow-sm ring-1 ring-gold/40"
+            : "text-mute hover:bg-ink3 hover:text-paper"
+        }`}
         aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
       >
-        <CalendarDays className="size-5" strokeWidth={1.8} />
+        <CalendarDays
+          className={`size-5 transition-transform duration-[200ms] motion-reduce:transition-none ${
+            calendarioAberto ? "scale-110 rotate-[-8deg]" : "scale-100 rotate-0"
+          }`}
+          strokeWidth={calendarioAberto ? 2.2 : 1.8}
+        />
       </Button>
       {menu}
     </>
