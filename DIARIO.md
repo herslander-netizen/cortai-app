@@ -85,6 +85,7 @@ teste real na prévia.
 |---|---|---|---|
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
+| GPT | 2026-10-17 UTC | Reduzir poluição visual das linhas da grade da Timeline sem perder ajuste de 5 min | `DIARIO.md`, `src/styles.css`, `src/components/barbeiro/AgendaTimeline.tsx` |
 
 
 ## Recados
