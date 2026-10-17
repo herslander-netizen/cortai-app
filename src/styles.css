@@ -6470,3 +6470,134 @@ button.agenda-nome:hover {
   .showroom-page, .showroom-page *, .showroom-page *::before, .showroom-page *::after { scroll-behavior: auto; transition-duration: .01ms; animation-duration: .01ms; animation-iteration-count: 1; }
   .showroom-recursos article:hover { transform: none; }
 }
+
+
+/* Cortaí Premium Glass — refinamento exclusivamente visual dos cartões da timeline. */
+.agenda-timeline-bloco {
+  position: absolute;
+  border: 1px solid color-mix(in oklab, var(--line2) 72%, var(--paper) 12%);
+  border-left-width: 4px;
+  border-radius: max(var(--radius), 12px);
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--ink2) 76%, var(--paper) 5%),
+    color-mix(in oklab, var(--ink2) 94%, transparent)
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--paper) 11%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--paper) 2%, transparent),
+    0 5px 18px color-mix(in oklab, #000 13%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(115%);
+  backdrop-filter: blur(8px) saturate(115%);
+  transition:
+    border-color var(--mov-base) var(--ease-saida),
+    box-shadow var(--mov-base) var(--ease-saida),
+    filter var(--mov-rapido) var(--ease-saida),
+    opacity var(--mov-base) var(--ease-saida),
+    transform var(--mov-rapido) var(--ease-saida);
+}
+.agenda-timeline-agendado {
+  border-color: color-mix(in oklab, var(--status-scheduled) 44%, var(--line2));
+  border-left-color: var(--status-scheduled);
+  background-color: var(--status-scheduled-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-scheduled) 19%, var(--ink2)),
+    color-mix(in oklab, var(--status-scheduled-soft) 82%, var(--ink2))
+  );
+}
+.agenda-timeline-remarcado {
+  border-color: color-mix(in oklab, var(--status-rescheduled) 44%, var(--line2));
+  border-left-color: var(--status-rescheduled);
+  background-color: var(--status-rescheduled-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-rescheduled) 19%, var(--ink2)),
+    color-mix(in oklab, var(--status-rescheduled-soft) 82%, var(--ink2))
+  );
+}
+.agenda-timeline-chegou {
+  border-color: color-mix(in oklab, var(--status-arrived) 44%, var(--line2));
+  border-left-color: var(--status-arrived);
+  background-color: var(--status-arrived-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-arrived) 19%, var(--ink2)),
+    color-mix(in oklab, var(--status-arrived-soft) 82%, var(--ink2))
+  );
+}
+.agenda-timeline-na_cadeira {
+  border-color: color-mix(in oklab, var(--status-active) 48%, var(--line2));
+  border-left-color: var(--status-active);
+  background-color: var(--status-active-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-active) 20%, var(--ink2)),
+    color-mix(in oklab, var(--status-active-soft) 82%, var(--ink2))
+  );
+}
+.agenda-timeline-finalizado {
+  border-color: color-mix(in oklab, var(--status-completed) 42%, var(--line2));
+  border-left-color: var(--status-completed);
+  background-color: var(--status-completed-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-completed) 16%, var(--ink2)),
+    color-mix(in oklab, var(--status-completed-soft) 84%, var(--ink2))
+  );
+}
+.agenda-timeline-cancelado {
+  border-color: color-mix(in oklab, var(--status-cancelled) 42%, var(--line2));
+  border-left-color: var(--status-cancelled);
+  background-color: var(--status-cancelled-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-cancelled) 17%, var(--ink2)),
+    color-mix(in oklab, var(--status-cancelled-soft) 84%, var(--ink2))
+  );
+}
+.agenda-timeline-nao_compareceu {
+  border-color: color-mix(in oklab, var(--status-missed) 42%, var(--line2));
+  border-left-color: var(--status-missed);
+  background-color: var(--status-missed-soft);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-missed) 17%, var(--ink2)),
+    color-mix(in oklab, var(--status-missed-soft) 84%, var(--ink2))
+  );
+}
+.agenda-timeline-encaixe {
+  border-style: dashed;
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--status-walk-in) 18%, var(--ink2)),
+    color-mix(in oklab, var(--status-walk-in-soft) 84%, var(--ink2))
+  );
+}
+.agenda-timeline-bloco:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--primary) 78%, var(--paper));
+  outline-offset: 2px;
+}
+.agenda-timeline-bloco.agenda-timeline-selecionado {
+  box-shadow:
+    0 0 0 2px var(--gold-soft),
+    inset 0 1px 0 color-mix(in oklab, var(--paper) 14%, transparent),
+    0 7px 22px color-mix(in oklab, #000 17%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .agenda-timeline-bloco:not(.agenda-arrastando):hover {
+    filter: brightness(1.045) saturate(1.04);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--paper) 13%, transparent),
+      0 8px 22px color-mix(in oklab, #000 17%, transparent);
+  }
+}
+@media (max-width: 767px) {
+  .agenda-timeline-bloco {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--paper) 10%, transparent),
+      0 4px 14px color-mix(in oklab, #000 12%, transparent);
+  }
+}
