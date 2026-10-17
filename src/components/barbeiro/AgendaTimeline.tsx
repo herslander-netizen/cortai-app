@@ -668,11 +668,11 @@ export function AgendaTimeline({
       : undefined;
   const usaLentePrecisao = Boolean(itemPrecisao && idPrecisao);
   const deltaInicioPrecisao =
-    itemPrecisao && arrasto?.id === idPrecisao
+    itemPrecisao && arrasto && arrasto.id === idPrecisao
       ? Math.round(arrasto.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
       : 0;
   const deltaDuracaoPrecisao =
-    itemPrecisao && redim?.id === idPrecisao
+    itemPrecisao && redim && redim.id === idPrecisao
       ? Math.round(redim.dy / PX_POR_MINUTO_PRECISAO / 5) * 5
       : 0;
   const inicioBasePrecisao = itemPrecisao
