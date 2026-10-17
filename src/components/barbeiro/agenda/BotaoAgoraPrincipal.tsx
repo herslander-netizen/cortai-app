@@ -1,4 +1,4 @@
-import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
+import { Crosshair, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
 
@@ -59,7 +59,6 @@ export function BotaoAgoraPrincipal({
   const menosMovimento = useMenosMovimento();
   const levarAoAgoraQuandoForHoje = useRef(false);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
-  const IconeVisualizacao = proxima === "timeline" ? CalendarClock : List;
 
   const rolarLista = useCallback(() => {
     const primeiro = document.querySelector<HTMLElement>(
