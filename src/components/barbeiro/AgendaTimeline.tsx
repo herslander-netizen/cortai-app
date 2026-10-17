@@ -777,14 +777,14 @@ export function AgendaTimeline({
           {redim || arrasto || edicaoDoCartao?.id ? (
             <>
               {Array.from(
-                { length: Math.floor((escala.fim - escala.inicio) / 15) + 1 },
-                (_, indice) => escala.inicio + indice * 15,
+                { length: Math.floor((escala.fim - escala.inicio) / 5) + 1 },
+                (_, indice) => escala.inicio + indice * 5,
               )
                 .filter((minuto) => minuto % 60 !== 0)
                 .map((minuto) => (
                   <div
-                    key={`ajuste-15-${minuto}`}
-                    className="agenda-timeline-ajuste-15"
+                    key={`ajuste-5-${minuto}`}
+                    className="agenda-timeline-ajuste-5"
                     style={{
                       top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
                     }}
