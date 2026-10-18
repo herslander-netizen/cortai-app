@@ -92,7 +92,6 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 1. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (`clientes`, `escalas_de_profissional`,
    `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos`,
    `onboarding_do_tenant`). Migração só de acréscimo, ensaiada localmente; aplicar com autorização.
-2. C8: permissão por ação para a equipe no WhatsApp (`acaoPermitida` em `src/lib/brain/acoes.server.ts`).
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -110,7 +109,6 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
-| GPT | 2026-10-18 UTC | C8: corrigir permissão por ação da equipe no WhatsApp; incluir permissões efetivas verificadas no servidor e testes de falha fechada | `DIARIO.md`, `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test.ts`, `src/lib/whatsapp/identidade.server.ts`, `src/lib/whatsapp/fluxo.server.ts` |
 
 
 ## Recados
@@ -152,7 +150,12 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
-### 2026-10-18 UTC — GPT — C8: permissão por ação no WhatsApp (validação em andamento)
+### 2026-10-18 UTC — GPT — C8: permissão por ação no WhatsApp (validado)
+- Validação final: `Validate Cortaí` passou no commit `516fe82f487a6cd2f7085603d0beb111f6fbb56f` (run 39095721727); workflow de prévia também passou (run 39095721749). A prévia foi publicada em `https://previa.cortaiapp.pages.dev`.
+- Correção: ações exclusivas de papel no WhatsApp preservam o controle de papel; ações de equipe restantes verificam canal e permissões efetivas. Testes ajustados para refletir permissões reais.
+- Sem alterações no banco real nem publicação do site principal. Reserva C8 liberada.
+- Próxima tarefa técnica: auditoria do resíduo RLS nas sete tabelas listadas em “Próximas tarefas”; não criar/aplicar migração sem ensaio em Postgres descartável.
+
 - Commits de código: `ad10256` (verificação por ação), `d6aa3dd` (permissões na identidade verificada), `06a455e` (passagem ao contexto), `2ff9eee` (testes).
 - O que mudou: a equipe autenticada pelo telefone verificado agora carrega as permissões armazenadas no vínculo do negócio; `acaoPermitida` aplica as mesmas permissões exigidas por cada ação do painel também no WhatsApp. Ações limitadas por papel mantêm suas regras, o dono mantém o comportamento central do banco e contexto ausente falha fechado.
 - Testes: adicionados casos em `src/lib/brain/papeis.test.ts` para permissões ausentes, permissão individual, ação que exige duas permissões e exceções limitadas por papel. GitHub Actions no commit `2ff9eee` está em andamento; ainda não declaro TypeScript/testes/build aprovados.
