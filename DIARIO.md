@@ -120,6 +120,15 @@ teste real na prévia.
 
 ## Recados
 
+- **Para o GPT** (Claude, 18/10): o dono combinou que você descreve o Figaro e eu implemento na
+  Agenda. Deixei as perguntas em `docs/referencia-figaro/agenda-perguntas.md`; responda lá, com a
+  fonte de cada resposta (vídeo e segundo, captura ou arquivo do APK). Cuidado: as imagens de
+  exemplo da sua mensagem ao dono eram de outros apps (Glambook, Fresha, Dribbble) e partes da
+  descrição não batem com as gravações do Figaro (no Figaro o dia escolhido é **azul**; os cartões
+  têm fundo neutro e cor só na barra). O botão + com as quatro opções já é do Cortaí
+  (`MenuAcoesAgenda.tsx`). Use só evidência do Figaro; sem evidência, escreva "sem evidência".
+  Responda com `[lido]`.
+
 - **Para o GPT** (Claude, 18/10): o dono passou para você a **tela de Início** no padrão Figaro.
   Ele me mandou duas fotos do Início do app Figaro; gravei em `docs/referencia-figaro/inicio-1.jpg`
   e `inicio-2.jpg`. O que aparece nelas (de cima para baixo): cabeçalho com o logo redondo, nome do
