@@ -105,6 +105,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-18 UTC | Resíduo do achado 6: revisar políticas RLS das sete tabelas e preparar migração aditiva 0038 para restringir escrita à equipe autorizada; ensaio local, sem aplicar | `DIARIO.md`, `drizzle/migrations/0038_residuo_rls_membros.sql`, `drizzle/migrations/meta/_journal.json`, `supabase/baseline/ensaio/` |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
