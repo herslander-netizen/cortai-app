@@ -221,6 +221,15 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Pinça da timeline sem "pulo" (vídeo do dono 17:12)
+- Defeito: durante a pinça a grade pulava. Causa: a escala nova era desenhada num quadro e a
+  rolagem que devolve o horário para debaixo dos dedos só vinha dois quadros depois; além disso a
+  linha do agora animava `transform` (280 ms) e ficava para trás.
+- Correção (como o `AgendaPinchScrollAnchor` do Figaro): escala e rolagem no mesmo quadro
+  (`flushSync` + `scrollTo` instantâneo) e, durante a pinça, nada da grade anima
+  (`.agenda-pinca-ativa`). Medido no navegador com toque simulado: o horário sob os dedos fica
+  parado (±0,2 min) do começo ao fim. Arquivos: `agenda/zoom-agenda.ts`, `styles.css`.
+
 ### 2026-10-18 UTC — Claude — Passagem da Agenda para o Codex/GPT
 - O dono pediu instruções para o Codex continuar. Escrevi `docs/CONTINUAR-CODEX.md`: regras do
   dono, onde está a especificação do Figaro, o que já foi feito (ficha, Reagendar, Trocar cliente,

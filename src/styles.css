@@ -7114,3 +7114,10 @@ button.agenda-nome:hover {
 :root[data-filtro-agenda] .agenda-acao-fixa {
   visibility: hidden;
 }
+
+/* Pinça na timeline: a grade segue os dedos sem animação (senão a linha do agora e os cartões
+   ficam para trás e a grade parece pular). */
+.agenda-pinca-ativa .agenda-timeline,
+.agenda-pinca-ativa .agenda-timeline * {
+  transition: none !important;
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
+import { flushSync } from "react-dom";
 
 /**
  * Zoom da timeline (como no Figaro: pinça com dois dedos aproxima ou afasta as horas).
@@ -94,6 +95,8 @@ export function usePincaDaTimeline({
 
     const comecar = (e: TouchEvent) => {
       if (e.touches.length !== 2) return;
+      // Durante a pinça nada da grade anima (a linha do agora e os cartões acompanham na hora).
+      document.documentElement.classList.add("agenda-pinca-ativa");
       const y = meioY(e.touches);
       const px = ler();
       pinca = {
@@ -113,12 +116,14 @@ export function usePincaDaTimeline({
       if (p.quadro !== null) return;
       p.quadro = requestAnimationFrame(() => {
         p.quadro = null;
-        definirPxPorMinuto(px, false);
-        // Depois que a grade se redesenha na escala nova, o horário dos dedos volta para eles.
-        requestAnimationFrame(() => {
-          window.scrollTo({
-            top: Math.max(0, topoDaGrade() + (p.minuto - inicio.current) * ler() - p.y),
-          });
+        // Como no Figaro (`AgendaPinchScrollAnchor`): a escala nova e a rolagem que devolve o
+        // horário para debaixo dos dedos entram no MESMO quadro. A grade é redesenhada na hora
+        // (flushSync) e a rolagem é corrigida antes da pintura — sem quadro intermediário, a
+        // grade não "pula".
+        flushSync(() => definirPxPorMinuto(px, false));
+        window.scrollTo({
+          top: Math.max(0, topoDaGrade() + (p.minuto - inicio.current) * ler() - p.y),
+          behavior: "instant",
         });
       });
     };
@@ -126,6 +131,7 @@ export function usePincaDaTimeline({
       if (!pinca || e.touches.length >= 2) return;
       if (pinca.quadro !== null) cancelAnimationFrame(pinca.quadro);
       pinca = null;
+      document.documentElement.classList.remove("agenda-pinca-ativa");
       definirPxPorMinuto(ler(), true);
     };
     el.addEventListener("touchstart", comecar, { passive: true });
@@ -133,6 +139,7 @@ export function usePincaDaTimeline({
     el.addEventListener("touchend", terminar, { passive: true });
     el.addEventListener("touchcancel", terminar, { passive: true });
     return () => {
+      document.documentElement.classList.remove("agenda-pinca-ativa");
       el.removeEventListener("touchstart", comecar);
       el.removeEventListener("touchmove", mover);
       el.removeEventListener("touchend", terminar);
