@@ -147,6 +147,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Fluxo de agendamento manual em etapas, alinhado ao Figaro
+- Commit de código: `1c0b4f9`; refinamento do resumo/título: `e557eed`.
+- O que mudou e por quê: `AgendamentoManual.tsx` saiu do formulário único com todas as seções empilhadas e voltou a um fluxo sequencial: **Serviço → Horário → Cliente → Resumo**. Inclui progresso de quatro etapas, voltar sem perder escolhas, resumo de serviço/preço/duração, profissional, data/hora, cliente e forma de pagamento. O rodapé mantém uma ação principal: “Continuar” nas etapas e “Confirmar agendamento” no resumo.
+- Regras preservadas: reaproveita `useAgendamentoManual`, `SecaoServico`, `SecaoHorario`, `SecaoCliente`, `SecaoPagamento`, `AvisosAgendamento` e o mesmo salvamento/validação do servidor; sem nova regra de disponibilidade, sem alteração de banco e sem gravação antecipada.
+- Cards: `src/components/ui/card.tsx` passou a usar `--mov-base` e incluir `transform` nas propriedades animadas, eliminando a transição isolada de 120 ms.
+- Validação: GitHub Actions no commit `e557eed`: TypeScript, Vitest e build passaram. A prévia foi publicada com sucesso em `https://previa.cortaiapp.pages.dev` pelo workflow `39087117969`. Não houve publicação em produção nem inspeção visual autenticada do fluxo em dispositivo real.
+- Pendente / atenção: conferir o fluxo no celular (voltar entre etapas, novo cliente, cliente existente, horário ocupado/encaixe, resumo e comanda). Continuar a recuperação das outras áreas sem tocar nos arquivos de Agenda reservados ao Claude.
+
 ### 2026-10-18 UTC — GPT — APK Figaro reencontrado: regra de paridade e transição de cards
 - O que mudou e por quê: o dono confirmou que o APK é a versão antiga a recuperar, não uma inspiração. Atualizados o contrato de design e o documento de referência para exigir preservação de layout, cartões, fluxos, agenda e movimento verificáveis, substituindo a marca antiga pela marca Cortaí e encaixando as funções novas sem refazer o produto.
 - Inspeção estática: o APK é Android nativo/Compose e contém módulos de Agenda, agendamento/reservas, serviços/combos, equipe, locais, clientes, página pública, checkout, vendas, pacotes/fidelidade, marketing, indicadores, avaliações, notificações e configurações. Os vídeos promocionais internos mostram cartões neutros arredondados, formulários em etapas, seleção de horários em linhas e estados de confirmação. O inventário não prova todas as animações internas; usar vídeos/capturas fornecidos para validação.
