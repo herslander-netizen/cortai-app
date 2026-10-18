@@ -366,7 +366,7 @@ function Caixa({ segmento }: { segmento: Segmento }) {
         ))}
       </div>
       {pagamento ? (
-        <p className="text-xs text-mute" role="status">
+        <p className="text-xs text-mute" role="status" aria-live="polite">
           {pagamento} selecionado para a demonstração. Nenhum pagamento foi processado.
         </p>
       ) : null}
