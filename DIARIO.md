@@ -65,6 +65,9 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 - 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
 
+- 2026-10-18: **Cartões da Agenda padronizados**: mesmo fundo para todos (claro no tema claro,
+  escuro no escuro); o status muda só a cor da barra lateral, como nos modelos enviados pelo dono.
+
 - 2026-10-17: **Agenda mobile — réplica exata dos vídeos de referência do dono** (gravações de 17/10
   às 13:38 e 15:42). Troca de dia como páginas: a página inteira (horas, linhas, expediente e
   cartões) desliza com o dedo e o dia vizinho entra ao lado com as próprias horas; a bolinha da
@@ -92,6 +95,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-18 UTC | Cartões da Agenda: um padrão só, cor só na barra lateral por status; revisão de erros | `src/components/barbeiro/AgendaTimeline.tsx`, `src/styles.css` (regras dos cartões da timeline), testes dos cartões |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
