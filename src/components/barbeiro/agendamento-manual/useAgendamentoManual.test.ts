@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { temAlteracoesAgendamentoManual } from "./useAgendamentoManual";
+import { temAlteracoesAgendamentoManual } from "./regrasAgendamentoManual";
 
 const inicial = {
   clienteId: null,
