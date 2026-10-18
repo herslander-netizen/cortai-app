@@ -65,6 +65,11 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 - 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
 
+- 2026-10-18: **Modo lista da Agenda (celular)**: mostra os atendimentos **de hoje em diante**
+  (60 dias, carrega mais ao rolar), separados por dia e em ordem, com busca por cliente, telefone
+  ou serviço; cancelados e faltas ficam escondidos atrás de "Mostrar cancelados". Entrada e saída
+  com a animação do vídeo do dono (a faixa da semana recolhe, a lista sobe no lugar da timeline).
+
 - 2026-10-18: **Cartões da Agenda padronizados**: mesmo fundo para todos (claro no tema claro,
   escuro no escuro); o status muda só a cor da barra lateral, como nos modelos enviados pelo dono.
 
@@ -95,6 +100,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-18 UTC | Agenda celular: modo lista de vários dias (de hoje em diante, busca, cancelados sob botão) e animação de entrada/saída do vídeo | `src/lib/barbeiro.functions.ts` (nova leitura `getAgendaPeriodo`), `src/components/barbeiro/agenda/ListaPeriodo.tsx` (novo), `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useAgendaDia.ts`, `src/styles.css` (Agenda) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
