@@ -1,14 +1,14 @@
 # Referência de UX: Figaroo → Cortaí
 
-**Status:** diagnóstico inicial baseado na gravação recebida em 12/10/2026 e na leitura da documentação/código do repositório.  
-**Escopo:** referência de experiência e organização visual; não é uma cópia de marca ou de implementação.  
+**Status:** referência oficial de recuperação, atualizada em 18/10/2026 após o dono reencontrar e enviar `Figaroo.apk`.  
+**Escopo:** recuperar a experiência Figaro dentro do Cortaí: layout, cards, fluxos, agenda, transições e animações verificáveis; substituir a marca antiga pela marca Cortaí e integrar as funções novas.  
 **Segurança da mudança:** esta documentação foi criada em uma branch separada. Nenhum código de produção ou banco foi alterado.
 
 ## Resumo executivo
 
-O Figaroo oferece uma experiência que combina onboarding, painel do negócio, agenda, catálogo de serviços e combos, personalização visual do site público e criação de agendamentos em etapas. O Cortaí já contém módulos equivalentes e uma arquitetura de agenda mais específica, então o caminho recomendado é **aprimorar componentes existentes**, não reconstruir o produto ou criar um motor paralelo.
+O Figaroo é a base visual e comportamental de referência, não apenas inspiração. O APK confirma uma aplicação Android nativa em Compose com módulos completos de agenda, clientes, serviços, combos, equipe, locais, fidelidade/pacotes, checkout/comandas, vendas, histórico, indicadores, marketing, avaliações, notificações, configurações e editor da página pública. O Cortaí mantém sua arquitetura web, backend, permissões e regras atuais; a recuperação é feita adaptando componentes e fluxos existentes, área por área, sem substituir o produto por uma réplica isolada.
 
-A gravação apresenta uma interface clara, com superfícies verde-claras/neutras, cartões arredondados, botões de ação bem destacados e um tema público com opções visuais distintas. Esses padrões podem orientar espaçamento, hierarquia e fluxo; cores, marca, ícones e componentes devem continuar obedecendo ao contrato visual do Cortaí.
+A experiência observável usa superfícies claras e neutras, títulos pesados, cartões e folhas arredondadas, ações principais evidentes, formulários em etapas e áreas de ação persistentes quando necessário. A marca/logomarca deve ser a atual do Cortaí. Não introduzir uma nova direção visual nem misturar camadas visuais posteriores sem evidência de que pertencem ao Figaro.
 
 ## O que foi observado na gravação
 
@@ -72,10 +72,10 @@ A existência de um módulo não prova, por si só, que todo fluxo está perfeit
 
 ## Direção visual
 
-- Usar o Figaroo como referência de **clareza, organização e fluxo**, sem copiar identidade, assets ou desenho pixel a pixel.
-- Manter a identidade e os tokens definidos no contrato visual atual do Cortaí; não introduzir hexes, classes de cor ou estilos locais fora das exceções previstas.
-- Priorizar mobile-first e validar também em desktop.
-- Movimentos devem respeitar as regras atuais do projeto e a preferência por movimento reduzido.
+- Usar o APK e as capturas/vídeos disponíveis como referência de paridade visual e comportamental, não como sugestão genérica.
+- Preservar a geometria, espaçamentos, hierarquia, cards, fluxos, gestos e transições originais que possam ser verificados. Trocar a logomarca/nome antigos pela marca atual do Cortaí e encaixar as funções novas sem alterar a estrutura antiga desnecessariamente.
+- Continuar usando tokens de cor, componentes de segurança, acessibilidade e regras de negócio do Cortaí; a marca nova não autoriza hexes avulsos nem mudanças de backend.
+- Priorizar mobile-first e validar também em desktop. Respeitar a preferência por movimento reduzido sem remover a animação normal.
 
 ## Critérios de aceite antes de aprovar alterações
 
@@ -120,3 +120,31 @@ Outras confirmações da estrutura:
 ### Implicação para implementação
 
 Antes de mudar a Agenda, mapear responsabilidades e testes de `AgendaOperacional` e `AgendaTimeline`. Caso seja necessário tocar nesses arquivos extensos, limitar o diff e extrair apenas uma responsabilidade que já esteja claramente delimitada. No editor público, começar por `SecaoTema`, `PreviaDaExperiencia` e pelos componentes chamados em `barbeiro.marca.tsx`. No catálogo, reutilizar `EditorDeServicos` e catalogar as diferenças antes de alterar seu fluxo.
+
+
+## Inventário confirmado no APK reencontrado (18/10/2026)
+
+A inspeção estática do APK identifica estes domínios de telas e fluxos. A lista é um mapa de escopo, não uma afirmação de que cada comportamento interno foi executado:
+
+- **Agenda:** timeline diária `FigarooDayTimeline`, visualização em lista, cards de eventos/serviços/reservas, indicador do minuto atual, filtro de equipe/local, zoom por pinça, arraste de cards, estados de agendamento, bloqueios, painel detalhado, ações de reserva, criação de agendamento, criação de reserva, edição de horário e seletor de horários.
+- **Fluxos de agendamento/reserva:** seleção de serviços, datas/horários, cliente, motivo e resumo; editar horário sem perder o contexto; ações fixas de descartar/salvar quando em edição.
+- **Serviços e combos:** lista, categoria, detalhes, preço/tarifas, regras de agendamento e concorrência, equipe habilitada, combos e descontos.
+- **Equipe e locais:** lista, dashboard, dados, serviços, disponibilidade semanal/personalizada, endereço, comodidades e horários de funcionamento.
+- **Clientes e relacionamento:** visão geral, ficha/dashboard, criação/edição, notas e notificações.
+- **Página pública:** editor de tema/layout, prévia, hero, serviços, equipe, galeria, avaliações, redes sociais, localização, formulário de contato, QR code e publicação.
+- **Operação/comercial:** checkout, seleção de pagamento, resumo, desconto, edição de serviço na comanda, vendas, histórico de vendas/agendamentos, pacotes/fidelidade, indicadores, campanhas de marketing, avaliações, notificações, configurações e conta.
+
+### Ordem de recuperação
+
+1. **Agenda e cartões** — prioridade máxima, porque são o núcleo de operação e há referência adicional em vídeos/capturas do dono. Preservar a versão aprovada pelo dono e corrigir apenas regressões/bugs.
+2. **Novo agendamento, reagendamento e reservas** — recuperar a sequência e o comportamento das etapas, mantendo a fonte de disponibilidade e as validações atuais do Cortaí.
+3. **Cards, folhas, menus e navegação geral** — estabelecer um padrão fiel à referência antes de aplicar ajustes de acabamento às telas dependentes.
+4. **Serviços, combos, equipe, locais e clientes** — recuperar layout e fluxo de cada domínio usando os componentes atuais.
+5. **Página pública, checkout, vendas, fidelidade, marketing, avaliações, indicadores e configurações** — mapear paridade e integrar as funções novas em etapas.
+
+### Evidência e limites
+
+- O APK é um artefato compilado de Android/Compose, não o código-fonte React do Cortaí. Ele permite inventariar telas, fontes e recursos, mas não deve ser copiado como se fosse um projeto web.
+- Recursos de animação genéricos do Android não provam por si só a animação de cada tela. Usar os vídeos/capturas fornecidos para validar o movimento; sem evidência, registrar a lacuna.
+- O APK contém fontes Plus Jakarta Sans, Poppins (pesos Medium/Semibold/Bold) e JetBrains Mono. Antes de alterar tipografia global, verificar se os arquivos podem ser incorporados de forma íntegra e licenciada e se a troca não interfere em legibilidade/identidade da marca atual.
+- Não marcar a recuperação como concluída até a validação visual/funcional das áreas principais em 390 px e 1280 px e a execução de TypeScript, testes e build.
