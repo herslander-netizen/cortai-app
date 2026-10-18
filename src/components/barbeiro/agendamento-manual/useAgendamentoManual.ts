@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
-import { temAlteracoesAgendamentoManual } from "./regrasAgendamentoManual";
+import { temAlteracoesAgendamentoManual, type Forma } from "./regrasAgendamentoManual";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -12,7 +12,6 @@ import {
   getProximoHorarioLivre,
 } from "@/lib/barbeiro.functions";
 
-export type Forma = "balcao" | "pix" | "fiado" | "credito";
 export type Conflito = {
   mensagem: string;
   sugestoes: { iso: string; label: string }[];
