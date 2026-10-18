@@ -664,7 +664,7 @@ function AgendamentoPublico() {
 
       {servicoId ? (
         <Bloco titulo="Data">
-          <div <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-sm font-bold capitalize text-paper">{rotuloMes}</p>
             <div className="flex gap-1">
               <Button type="button" variant="ghost" size="icon" aria-label="Dias anteriores" onClick={() => moverFaixaDias(-1)}>
@@ -675,7 +675,7 @@ function AgendamentoPublico() {
               </Button>
             </div>
           </div>
-          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {dias.map((d) => {
               const info = porDia.get(d);
               const fechado = Boolean(info?.fechado);
