@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { temAlteracoesAgendamentoManual } from "./regrasAgendamentoManual";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -17,49 +18,6 @@ export type Conflito = {
   sugestoes: { iso: string; label: string }[];
   podeEncaixar?: boolean;
 };
-
-/** Detecta alterações relevantes sem marcar os valores padrão carregados como rascunho. */
-export function temAlteracoesAgendamentoManual({
-  clienteId,
-  novoNome,
-  novoTelefone,
-  termo,
-  servicoId,
-  servicoInicial,
-  profissionalId,
-  profissionalInicialId,
-  data,
-  diaInicial,
-  horaMin,
-  horaInicial,
-  forma,
-}: {
-  clienteId: string | null;
-  novoNome: string;
-  novoTelefone: string;
-  termo: string;
-  servicoId: string;
-  servicoInicial: string;
-  profissionalId: string;
-  profissionalInicialId: string;
-  data: string;
-  diaInicial: string;
-  horaMin: string;
-  horaInicial: string;
-  forma: Forma;
-}) {
-  return Boolean(
-    clienteId ||
-      novoNome ||
-      novoTelefone ||
-      termo ||
-      (servicoId && servicoId !== servicoInicial) ||
-      (profissionalId && profissionalId !== profissionalInicialId) ||
-      data !== diaInicial ||
-      horaMin !== horaInicial ||
-      forma !== "balcao",
-  );
-}
 
 /** Estado e regras do novo agendamento (mesmas regras de disponibilidade do app). */
 export function useAgendamentoManual({
