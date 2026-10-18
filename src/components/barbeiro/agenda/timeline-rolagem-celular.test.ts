@@ -164,3 +164,20 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(operacional).toContain('${ehHoje && ativos.length === 0 ? "" : "invisible"}');
   });
 });
+
+describe("cartões da timeline num padrão só (decisão do dono, 18/10)", () => {
+  it("o fundo é o mesmo para todos; o estado muda só a barra", () => {
+    expect(css).not.toContain("Premium Glass");
+    expect(css).not.toContain("--fundo-estado");
+    expect(css).toContain("background: var(--agenda-cartao);");
+    expect(css.match(/\.agenda-timeline-bloco::before \{/g)?.length).toBe(1);
+    expect(css).not.toMatch(
+      /\.agenda-timeline-(agendado|chegou|na_cadeira|finalizado|cancelado|nao_compareceu) \{\s*border-left-color/,
+    );
+  });
+
+  it("o cartão mostra nome, serviço e horário com relógio, como nos modelos", () => {
+    expect(timeline).toContain('className="agenda-timeline-horario"');
+    expect(timeline).toContain("<Clock3 aria-hidden");
+  });
+});

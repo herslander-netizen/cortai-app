@@ -977,15 +977,29 @@ export function AgendaTimeline({
                         },
                       })}
                 >
+                  {/* Como nos modelos: nome, serviço e horário com relógio; a cor do estado fica
+                      só na barra lateral e o nome do estado vai escrito, neutro. */}
                   <span className="agenda-timeline-bloco-topo">
-                    <strong className="col-span-2">
-                      {horaMinuto(
-                        arrasto?.id === item.id
-                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo
-                          : inicio,
-                      )}{" "}
-                      · {nome}
-                    </strong>
+                    <strong>{nome}</strong>
+                    {edicaoDoCartao?.id === item.id ? null : (
+                      <span className="flex shrink-0 gap-1">
+                        {item.confirmadoEm && item.status === "agendado" ? (
+                          <StatusBadge status="confirmado" label="Confirmou" />
+                        ) : (
+                          <StatusBadge
+                            status={
+                              item.encaixe && item.status === "agendado" ? "encaixe" : item.status
+                            }
+                          />
+                        )}
+                        {ehHoje && estaAtrasado(item, agora) ? (
+                          <StatusBadge status="atrasado" />
+                        ) : null}
+                        {item.encaixe && (item.status !== "agendado" || item.confirmadoEm) ? (
+                          <StatusBadge status="encaixe" />
+                        ) : null}
+                      </span>
+                    )}
                   </span>
                   {edicaoDoCartao?.id === item.id ? (
                     <span
@@ -995,30 +1009,22 @@ export function AgendaTimeline({
                       {horaMinuto(inicio)} – {horaMinuto(fim)}
                     </span>
                   ) : null}
-                  <span className="flex min-w-0 items-center gap-1">
-                    <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
-                    {mostrarProfissional ? (
-                      <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
-                        {item.profissional}
-                      </span>
-                    ) : null}
-                    <span className="flex shrink-0 gap-1">
-                      {/* Etiqueta com o nome do estado em todo cartão: a cor ajuda, mas não é a única pista. */}
-                      {item.confirmadoEm && item.status === "agendado" ? (
-                        <StatusBadge status="confirmado" label="Confirmou" />
-                      ) : (
-                        <StatusBadge
-                          status={
-                            item.encaixe && item.status === "agendado" ? "encaixe" : item.status
-                          }
-                        />
-                      )}
-                      {ehHoje && estaAtrasado(item, agora) ? (
-                        <StatusBadge status="atrasado" />
+                  {compacto ? null : (
+                    <span className="flex min-w-0 items-center gap-1">
+                      <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
+                      {mostrarProfissional ? (
+                        <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
+                          {item.profissional}
+                        </span>
                       ) : null}
-                      {item.encaixe && (item.status !== "agendado" || item.confirmadoEm) ? (
-                        <StatusBadge status="encaixe" />
-                      ) : null}
+                    </span>
+                  )}
+                  <span className="agenda-timeline-horario">
+                    <Clock3 aria-hidden className="size-3.5 shrink-0" />
+                    <span className="min-w-0 truncate">
+                      {horaMinuto(inicio + passoArrasto)} –{" "}
+                      {horaMinuto(fim + passoArrasto + passoRedim)}
+                      {compacto ? ` · ${item.servico}` : ""}
                     </span>
                   </span>
                   {compacto ? null : (

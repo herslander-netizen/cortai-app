@@ -95,7 +95,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-18 UTC | Cartões da Agenda: um padrão só, cor só na barra lateral por status; revisão de erros | `src/components/barbeiro/AgendaTimeline.tsx`, `src/styles.css` (regras dos cartões da timeline), testes dos cartões |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -136,6 +135,25 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Cartões da Agenda num padrão só
+- O que mudou e por quê: pedido do dono com dois modelos (claro e escuro). O CSS dos cartões tinha
+  seis camadas sobrepostas (base, "Timeline limpa", paleta de hierarquia, "cartões coloridos pelo
+  estado", "Premium Glass" e "Premium Glass v2/refinado"): duas barras coloridas ao mesmo tempo
+  (borda esquerda + `::before`), fundo tingido por estado, gradientes, desfoque (`backdrop-filter`,
+  pesado no celular), bordas tracejadas e transparências diferentes por estado. Tudo isso saiu e
+  ficou um bloco único no fim do arquivo: fundo `--agenda-cartao` (branco no claro, grafite um
+  pouco abaixo do fundo no escuro), sem borda, raio 12 px, barra arredondada por dentro com
+  `--cor-estado`. A etiqueta do estado continua escrita, mas neutra. Conteúdo como nos modelos:
+  nome em negrito, serviço (e profissional), horário com relógio; cartão curto junta horário e
+  serviço numa linha. Mantidos: risco no nome do cancelado e passado um pouco mais discreto
+  (regra de tempo, já testada).
+- Arquivos: `AgendaTimeline.tsx`, `src/styles.css` (tokens `--agenda-cartao*` nos temas), teste em
+  `timeline-rolagem-celular.test.ts`.
+- Testes: `tsc`, `vitest` e `build` passaram; todos os estados conferidos lado a lado nos dois temas
+  a 390 px.
+- **Para o GPT:** a `/apresentacao` usa o mesmo cartão; acrescentei só
+  `.showroom-agenda .agenda-timeline-bloco { padding-left: 18px }` para a barra caber.
 
 ### 2026-10-18 UTC — Claude — Correções do vídeo do dono (calendário, listras, "Agora · Livre")
 - O que mudou e por quê (vídeo de 17/10 às 21:33):
