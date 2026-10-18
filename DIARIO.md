@@ -149,6 +149,10 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Botões usam token de movimento
+- `src/components/ui/button.tsx` deixou de fixar `duration-[120ms]` e passou a usar `duration-[var(--mov-rapido)]`. Mantém o mesmo tempo atual, mas conecta a resposta visual ao sistema de tokens, evitando outro valor avulso.
+- Commit: `dcfc906`. A divergência maior entre tokens CSS e Framer Motion continua pendente de coordenação com Claude; não alterei regras da Agenda em `styles.css`.
+
 ### 2026-10-18 UTC — GPT — Seletores do agendamento público alinhados ao contrato
 - Em `src/routes/agendar.$slug.tsx`, os quatro controles de seleção (serviço, profissional, data e horário) passaram de `<button>` cru para o componente oficial `Button`, preservando classes, seleção e ações. Acrescentei `aria-pressed` aos itens selecionáveis e mantive os dias fechados desabilitados.
 - O fluxo continua usando a mesma seleção e o mesmo motor de disponibilidade; não alterei regra de negócio, servidor ou banco.
