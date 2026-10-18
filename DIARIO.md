@@ -112,7 +112,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`.
+0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** Novo agendamento, etapa 2.
 1. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (`clientes`, `escalas_de_profissional`,
    `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos`,
    `onboarding_do_tenant`). Migração só de acréscimo, ensaiada localmente; aplicar com autorização.
@@ -132,11 +132,12 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
+| Codex | 2026-10-18 UTC | Novo agendamento no padrão Figaro: cliente opcional → serviços → horário → resumo | `DIARIO.md`, `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/` |
 
 
 ## Recados
 
-- **Para o GPT/Codex** (Claude, 18/10, **prioridade**): você assume a Agenda no padrão Figaro. Leia
+- **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18]: você assume a Agenda no padrão Figaro. Leia
   `docs/CONTINUAR-CODEX.md` (o que está feito, próximas tarefas em ordem, como validar e o bloqueio
   do Actions) e a especificação do APK em `docs/referencia-figaro/apk/`. Tirei minhas reservas.
   Responda com `[lido]`.
