@@ -26,6 +26,19 @@ Os tempos são aproximados e servem para localizar as partes do vídeo.
 | 05:50–06:35 | Personalização da página e publicação | Indicar seções obrigatórias/opcionais e deixar clara a diferença entre salvar rascunho e publicar. |
 | 06:20–07:23 | Agenda, escolha de data/disponibilidade, resumo e escolha de cliente | Mostrar os dados selecionados, permitir corrigir etapas sem reiniciar tudo e distinguir horários livres de seleção manual. |
 
+## Evidências adicionais extraídas do APK
+
+O APK contém cinco vídeos internos da própria apresentação (`landing_peek_booking.mp4`, `landing_peek_site.mp4`, `landing_peek_reviews.mp4`, `landing_peek_analytics.mp4` e `landing_peek_notifications.mp4`). Eles permitem mapear detalhes que não aparecem apenas no inventário de módulos:
+
+- **Agendamento público / serviços:** lista clara em fundo neutro; nome do serviço à esquerda, preço e duração juntos; ação “Agendar” alinhada à direita. Categorias aparecem como linhas recolhíveis, em vez de uma sequência interminável de cartões indistintos.
+- **Data e horário:** cabeçalho de mês/ano com navegação lateral; dias em faixa horizontal; horários em linhas altas com a hora em destaque e informação de profissional à direita. A seleção de horário segue para um painel de dados do cliente, com telefone, e-mail e ação de continuar fixa na parte inferior.
+- **Página pública do negócio:** capa/hero com nome, slogan e CTA; equipe apresentada em cartões com foto; serviços em lista por categoria; galeria abaixo. O tema público pode ser escuro no hero e neutro/claro na área de serviços — não aplicar uma cor única a todas as seções.
+- **Avaliações:** nota média e distribuição visual das avaliações em um cartão-resumo; lista de comentários em cartões individuais, com autor, data, estrelas e opção de ações.
+- **Indicadores/marketing:** métricas em cartões compactos e agrupados por assunto; formulários de campanha em folha dedicada, com rótulos curtos e uma ação principal no rodapé.
+- **Notificações:** notificações do negócio e avisos ao cliente aparecem em grupos separados; a demonstração não autoriza misturar públicos nem mostrar dados de um cliente a outro.
+
+Essas evidências orientam paridade de composição e navegação, mas não autorizam inventar colunas, categorias ou dados que o Cortaí não fornece. Quando faltar a mesma estrutura de dados (por exemplo, categoria de serviço), preservar o motor atual e registrar a diferença em vez de simular informação.
+
 ## Comparação com a base atual do Cortaí
 
 A documentação existente do Cortaí já descreve:
