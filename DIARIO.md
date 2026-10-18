@@ -147,6 +147,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Estado da prévia conferido
+- Consulta somente de leitura à Cloudflare Pages: o alias `https://previa.cortaiapp.pages.dev` ainda aponta para um deployment cujo commit informado é `fccb341` (`docs: registrar validação verde da recuperação Figaro`), criado às 01:49:28 UTC. Os commits posteriores desta sessão ainda não aparecem no histórico de deployments consultado.
+- Isso **não prova falha do build**: o workflow `preview-migration.yml` pode ter validado e pulado a publicação se as credenciais dedicadas não estiverem configuradas. Os status de CI dos commits recentes não ficaram acessíveis pelas consultas disponíveis.
+- Não forcei deployment nem alterei produção/banco. Antes de afirmar que a prévia contém as mudanças novas, precisamos confirmar o resultado do workflow e o gate de publicação.
+
 ### 2026-10-18 UTC — GPT — Demonstrações da apresentação agora respondem aos toques
 - A seção de conversa permite selecionar serviço e expandir/recolher opções; a demonstração de lembrete simula confirmar ou pedir remarcação; a comanda permite adicionar/remover um serviço sugerido e selecionar a forma de pagamento.
 - Todas as ações são locais e informam que não enviam mensagens, não alteram agendamentos e não processam pagamentos. Isso evita controles aparentando funcionar sem resposta nem falsas confirmações.
