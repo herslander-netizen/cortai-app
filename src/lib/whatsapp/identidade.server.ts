@@ -15,6 +15,8 @@ export type IdentidadeDaEquipe = {
   userId: string;
   profissionalId: string | null;
   nome: string | null;
+  /** Permissões efetivas armazenadas para o membro; o dono é tratado pela regra central. */
+  permissoes: string[];
 };
 
 const VALIDADE_CODIGO_MS = 15 * 60_000;
