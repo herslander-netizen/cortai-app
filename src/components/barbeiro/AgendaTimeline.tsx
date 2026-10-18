@@ -969,6 +969,7 @@ export function AgendaTimeline({
                   variant="ghost"
                   aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${ROTULO_DO_GLIFO[glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))]}`}
                   data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}
+                  data-agendamento={previa ? undefined : item.id}
                   className={`agenda-timeline-bloco agenda-faixa-${faixa} agenda-timeline-${item.status} ${edicaoDoCartao?.id && edicaoDoCartao.id !== item.id ? "agenda-timeline-esmaecido" : ""} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { limitarPx, PX_MAX, PX_MIN, PX_PADRAO, pxDaPinca } from "./zoom-agenda";
+import { limitarPx, PX_MAX, PX_MIN, PX_PADRAO, pxDaEdicao, pxDaPinca } from "./zoom-agenda";
 
 describe("zoom da timeline com dois dedos", () => {
   it("afastar os dedos aproxima as horas e juntar afasta, dentro dos limites", () => {
@@ -24,5 +24,12 @@ describe("zoom da timeline com dois dedos", () => {
     expect(timeline).toContain("const PX_POR_MINUTO = usePxPorMinuto();");
     expect(timeline).toContain("usePincaDaTimeline({");
     expect(gesto).toContain("if (e.touches.length > 1) {");
+  });
+
+  it("na edição as horas aproximam para 4 px/min (sem diminuir um zoom maior)", () => {
+    expect(pxDaEdicao(2)).toBe(4);
+    expect(pxDaEdicao(PX_MAX)).toBe(PX_MAX);
+    const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+    expect(operacional).toContain("useZoomDaEdicao(edicao.rascunho?.id ?? null);");
   });
 });

@@ -140,3 +140,43 @@ export function usePincaDaTimeline({
     };
   }, [grade, ativo]);
 }
+
+/** Zoom do modo de edição (Figaro `AgendaZoom.armed`): no mínimo 4 px/min enquanto edita. */
+export function pxDaEdicao(pxAtual: number) {
+  return Math.max(pxAtual, PX_MAX);
+}
+
+/**
+ * Ao entrar na edição de um cartão, a escala sobe para 4 px/min (sem guardar) e volta à de antes
+ * ao sair, como no Figaro; o cartão editado fica no mesmo lugar da tela nas duas trocas.
+ */
+export function useZoomDaEdicao(idEmEdicao: string | null) {
+  const anterior = useRef<number | null>(null);
+  const ultimo = useRef<string | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const cartao = (id: string | null) =>
+      id ? document.querySelector<HTMLElement>(`[data-agendamento="${CSS.escape(id)}"]`) : null;
+    const trocar = (px: number, ancora: HTMLElement | null) => {
+      const antes = ancora?.getBoundingClientRect().top ?? null;
+      definirPxPorMinuto(px, false);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const depois = ancora?.isConnected ? ancora.getBoundingClientRect().top : null;
+          if (antes !== null && depois !== null) window.scrollBy({ top: depois - antes });
+        }),
+      );
+    };
+    if (idEmEdicao) {
+      ultimo.current = idEmEdicao;
+      anterior.current ??= ler();
+      trocar(pxDaEdicao(anterior.current), cartao(idEmEdicao));
+      return;
+    }
+    if (anterior.current !== null) {
+      const voltar = anterior.current;
+      anterior.current = null;
+      trocar(voltar, cartao(ultimo.current));
+    }
+  }, [idEmEdicao]);
+}

@@ -45,6 +45,7 @@ import {
 import { ResumoDia } from "@/components/barbeiro/agenda/ResumoDia";
 import { SeletorProfissionais } from "@/components/barbeiro/agenda/SeletorProfissionais";
 import { FiltroDaAgenda } from "@/components/barbeiro/agenda/FiltroDaAgenda";
+import { useZoomDaEdicao } from "@/components/barbeiro/agenda/zoom-agenda";
 import {
   ROTULO_ESTADO,
   hora,
@@ -568,6 +569,8 @@ export function AgendaOperacional() {
         avisarCliente: avisar,
       }),
   });
+  // Figaro: editar um cartão aproxima as horas (4 px/min) e sair volta ao zoom de antes.
+  useZoomDaEdicao(edicao.rascunho?.id ?? null);
   const gestoDia = useGestoDia(dia, mudarDia);
   // A Agenda não é desmontada ao trocar de dia (nada pisca e a rolagem fica onde estava).
   // Troca por seta, calendário ou "Hoje": um deslize curto, sem sumir; pelo gesto, nada.

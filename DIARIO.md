@@ -210,6 +210,12 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Edição de horário com zoom de 4 px/min (Figaro)
+- Ao segurar um cartão e entrar na edição, as horas aproximam para 4 px/min (sem guardar no
+  aparelho) e voltam ao zoom de antes ao salvar ou descartar; o cartão fica no mesmo lugar da tela
+  (`useZoomDaEdicao` em `agenda/zoom-agenda.ts`; cartões com `data-agendamento`). Com isso as linhas
+  de 5 min e os outros cartões a 40% ficam como no Figaro. Testes, tsc e build passando.
+
 ### 2026-10-18 UTC — Claude — Barra de baixo da Agenda como no Figaro (trocar agenda pela foto)
 - No celular, a troca de profissional saiu do cabeçalho e foi para a barra flutuante de baixo,
   como no Figaro: "Hoje" (antes "Agora"; volta para hoje e rola até agora) · visualização · foto do
