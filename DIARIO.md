@@ -150,8 +150,8 @@ teste real na prévia.
 ### 2026-10-18 UTC — GPT — Rascunho do agendamento manual não perde escolhas
 - Correção: o estado `sujo` agora também detecta mudanças em serviço, profissional, data, hora e forma de pagamento, sem considerar os valores padrão carregados como alterações.
 - Regra isolada em `temAlteracoesAgendamentoManual` e coberta por testes para valores padrão, cada campo alterado, cliente existente e dados digitados.
-- Arquivos: `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts` e novo `useAgendamentoManual.test.ts`.
-- Commits: `445f887`, `3e69403`, `0ed49d9`. Validação CI ainda precisa ser confirmada. Nenhum banco ou produção alterado.
+- Arquivos: `useAgendamentoManual.ts`, novo `regrasAgendamentoManual.ts` e `useAgendamentoManual.test.ts`. A regra pura ficou em módulo separado para testar sem importar dependências de servidor/React Query; a exportação pública do tipo `Forma` foi preservada.
+- Commits: `445f887`, `3e69403`, `0ed49d9`, `30eb756`, `390cc85`, `1f1b3ff`, `befb193`, `62995ef`, `09a101d`. Validação CI ainda precisa ser confirmada. Nenhum banco ou produção alterado.
 - Atenção: confirmar no celular o fechar/voltar depois de alterar data, horário, serviço e pagamento; os testes unitários não substituem a inspeção visual e o fluxo real.
 
 ### 2026-10-18 UTC — GPT — Cobertura do gesto de voltar em formulários
