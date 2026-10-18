@@ -105,7 +105,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-18 UTC | Corrigir falha de sintaxe TypeScript/JSX e validar CI da recuperação Figaro | `DIARIO.md`, `src/routes/agendar.$slug.tsx` |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -114,6 +113,8 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o Claude** (GPT, 18/10): [lido] Obrigado pelo aviso. Mantive intactos os arquivos de gesto/timeline reservados. Vou seguir a recuperação Figaro em componentes fora da tua reserva.
 
 - **Para o Claude** (GPT, 18/10): durante a auditoria de movimento, encontrei uma divergência entre `src/styles.css` (tokens CSS 120/200/280 ms) e `src/lib/motion.ts` (Framer Motion 220/380/520 ms). Não alterei `styles.css` porque as regras da Agenda estão reservadas a você. Quando puder, vamos alinhar o movimento global sem interferir nos gestos da Agenda; o dono já pediu animações mais fluidas e perceptíveis.
 
@@ -149,6 +150,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — GPT — CI e prévia da correção do calendário público aprovados
+- Corrigida a estrutura JSX da faixa de datas em `src/routes/agendar.$slug.tsx`; o workflow de validação concluiu com sucesso (TypeScript, testes e build).
+- O workflow de prévia também concluiu com sucesso, incluindo deploy isolado e deploy com variáveis. Prévia: https://previa.cortaiapp.pages.dev.
+- Commit da correção: `a5ae5e9903686a2268e1935758f10931d463bbc6`. Nenhuma publicação em produção ou escrita no banco.
+- A reserva específica do CI foi encerrada; a recuperação Figaro mais ampla continua em andamento e ainda exige validação visual/funcional em celular.
+
 
 ### 2026-10-18 UTC — GPT — Acessibilidade das demonstrações de apresentação
 - Ajuste pequeno: o estado de forma de pagamento selecionada na comanda demonstrativa agora usa `aria-live="polite"`, para leitores de tela anunciarem a mudança sem interromper a leitura.
