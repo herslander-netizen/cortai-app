@@ -695,26 +695,35 @@ function AgendamentoPublico() {
               O negócio está fechado neste dia. Escolha outra data.
             </p>
           ) : agenda.opcoes.length ? (
-            <div className="grid grid-cols-4 gap-2">
-              {agenda.opcoes.map((o) => (
-                <Button
-                  key={o.iso}
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={horario === o.iso}
-                  onClick={() => {
-                    setHorario(o.iso);
-                    setConflito(null);
-                  }}
-                  className={`h-12 rounded-lg border text-sm font-semibold ${
-                    horario === o.iso
-                      ? "border-gold bg-gold/15 text-paper"
-                      : "border-line text-mute"
-                  }`}
-                >
-                  {o.label}
-                </Button>
-              ))}
+            <div className="grid gap-2" role="group" aria-label="Horários disponíveis">
+              {agenda.opcoes.map((o) => {
+                const profissional = data.profissionais.find((p) => p.id === o.profId)?.nome ?? "Equipe";
+                const ativo = horario === o.iso;
+                return (
+                  <Button
+                    key={o.iso}
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={ativo}
+                    aria-label={`${o.label}, profissional sugerido: ${profissional}`}
+                    onClick={() => {
+                      setHorario(o.iso);
+                      setConflito(null);
+                    }}
+                    className={`h-auto min-h-14 w-full justify-between rounded-xl border px-4 py-3 text-left ${
+                      ativo
+                        ? "border-gold bg-gold/15 text-paper"
+                        : "border-line bg-ink2/60 text-mute"
+                    }`}
+                  >
+                    <span className="text-base font-bold tabular-nums">{o.label}</span>
+                    <span className="flex items-center gap-2 text-xs font-medium">
+                      <UserRound size={14} aria-hidden />
+                      {profissional}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           ) : null}
           {servicoId && dia && !agenda.fechado ? (
