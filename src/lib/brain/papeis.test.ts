@@ -9,7 +9,13 @@ import { papelDoPainel } from "./papel-do-painel";
 
 const base = { tenantId: "t1", ator: "5511999999999" };
 const cliente: ContextoDoCerebro = { ...base, canal: "whatsapp", telefoneCliente: base.ator };
-const prof: ContextoDoCerebro = { ...base, canal: "whatsapp", papel: "profissional", profissionalId: "p1" };
+const prof: ContextoDoCerebro = {
+  ...base,
+  canal: "whatsapp",
+  papel: "profissional",
+  profissionalId: "p1",
+  permissoes: ["agendamento_manual", "cancelar_agendamento", "editar_clientes"],
+};
 const dono: ContextoDoCerebro = { ...base, canal: "whatsapp", papel: "dono" };
 const painel: ContextoDoCerebro = { ...base, canal: "painel" };
 const site: ContextoDoCerebro = { ...base, canal: "site" };
