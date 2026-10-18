@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { CircleCheck, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { brl } from "@/lib/format";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
 
+import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
+import { IconeDoEstado } from "./IconeDoEstado";
 import { AcoesDoItem, acaoDoItem, ProgressoDoAtendimento, type AcaoCard } from "./ListaAgenda";
 import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
 import { diaNoFuso, estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
@@ -213,17 +215,16 @@ export function ListaPeriodo({
                           aria-label={`${titulo.curto} ${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
                           aria-pressed={selecionado === item.id}
                           className={`agenda-lista-cartao agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-lista-cartao-selecionado" : ""}`}
+                          style={{
+                            ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
+                          }}
                           onClick={() => onAbrir(item)}
                         >
                           <span className="agenda-lista-cartao-topo">
                             <strong className={item.status === "cancelado" ? "line-through" : ""}>
                               {nome}
                             </strong>
-                            {item.confirmadoEm && item.status === "agendado" ? (
-                              <CircleCheck aria-label="Confirmou" className="size-4 shrink-0" />
-                            ) : item.status !== "agendado" ? (
-                              <span className="agenda-lista-estado">{estado}</span>
-                            ) : null}
+                            <IconeDoEstado glifo={glifoDoEstado(item, atrasado)} />
                           </span>
                           <span className="agenda-lista-servico">{item.servico}</span>
                           <span className="agenda-lista-detalhe">

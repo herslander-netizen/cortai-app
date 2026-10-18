@@ -5,9 +5,10 @@ import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
  * A escala é em pixels por minuto, compartilhada entre o dia atual e as páginas vizinhas, e
  * fica guardada só neste aparelho (conveniência de quem usa; nada vai para o servidor).
  */
-export const PX_PADRAO = 2.25;
-export const PX_MIN = 1.2;
-export const PX_MAX = 5;
+// Figaro (`AgendaZoom`): 2 px/min em repouso (120 por hora), de 1 a 4.
+export const PX_PADRAO = 2;
+export const PX_MIN = 1;
+export const PX_MAX = 4;
 const CHAVE = "cortai:agenda:px-por-minuto";
 
 export function limitarPx(valor: number) {

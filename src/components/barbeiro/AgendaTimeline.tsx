@@ -1,5 +1,6 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
-import { Check, Clock3 } from "lucide-react";
+import { Clock3 } from "lucide-react";
+import { IconeDoEstado } from "@/components/barbeiro/agenda/IconeDoEstado";
 import {
   Fragment,
   useEffect,
@@ -11,7 +12,6 @@ import {
 } from "react";
 import type React from "react";
 
-import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
@@ -28,6 +28,16 @@ import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
 import { usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
+import {
+  corDaCategoria,
+  faixaDoCartao,
+  glifoDoEstado,
+  mostraCliente,
+  mostraDetalhes,
+  mostraHorario,
+  opacidadeDasLinhasDe5,
+  ROTULO_DO_GLIFO,
+} from "@/components/barbeiro/agenda/cartao-figaro";
 import { prefereMenosMovimento } from "@/lib/motion";
 
 const CELULAR = "(max-width: 600px)";
@@ -90,6 +100,8 @@ type AgendaTimelineProps = {
 
 const MARGEM_AGORA_MIN = 90;
 const ESPACO_ENTRE_BLOCOS = 6;
+/** Altura mínima do cartão (Figaro `MinCardHeight`). */
+const ALTURA_MINIMA_DO_CARTAO = 28;
 
 function minutosDoHorario(valor: string) {
   const [hora = 0, minuto = 0] = valor.split(":").map(Number);
@@ -297,7 +309,10 @@ export function AgendaTimeline({
     const ordenados = itens
       .map((item) => {
         const inicio = minutosNoFuso(item.inicio, fuso);
-        return { item, inicio, fim: Math.max(inicio + 30, minutosNoFuso(item.fim, fuso)) };
+        // No horário real (alinhado, como no Figaro) o cartão tem a duração exata; empilhado, no
+        // mínimo 30 min para caber o texto.
+        const minimo = alinhado ? 1 : 30;
+        return { item, inicio, fim: Math.max(inicio + minimo, minutosNoFuso(item.fim, fuso)) };
       })
       .sort((a, b) => a.inicio - b.inicio);
     let grupo: typeof ordenados = [];
@@ -853,7 +868,8 @@ export function AgendaTimeline({
             </div>
           ))}
 
-          {redim || arrasto || edicaoDoCartao?.id ? (
+          {opacidadeDasLinhasDe5(PX_POR_MINUTO, Boolean(redim || arrasto || edicaoDoCartao?.id)) >
+          0 ? (
             <>
               {Array.from(
                 { length: Math.floor((escala.fim - escala.inicio) / PASSO_DO_AJUSTE_MIN) + 1 },
@@ -866,6 +882,10 @@ export function AgendaTimeline({
                     className="agenda-timeline-ajuste-5"
                     style={{
                       top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
+                      opacity: opacidadeDasLinhasDe5(
+                        PX_POR_MINUTO,
+                        Boolean(redim || arrasto || edicaoDoCartao?.id),
+                      ),
                     }}
                     aria-hidden="true"
                   />
@@ -916,9 +936,13 @@ export function AgendaTimeline({
               arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo : 0;
             const passoRedim =
               redim?.id === item.id ? Math.round(redim.dy / PX_POR_MINUTO / passo) * passo : 0;
-            const alturaDoBloco = Math.max(1, blocoAltura + passoRedim * PX_POR_MINUTO);
-            // Cartão curto (até 30 min): só a linha principal e o serviço, com altura fixa.
-            const compacto = fim - inicio <= 30;
+            // Altura mínima do cartão no Figaro: 28 px.
+            const alturaDoBloco = Math.max(
+              ALTURA_MINIMA_DO_CARTAO,
+              blocoAltura + passoRedim * PX_POR_MINUTO,
+            );
+            // Figaro (`CardTier`): o que aparece depende da altura do cartão.
+            const faixa = faixaDoCartao(alturaDoBloco, PX_POR_MINUTO);
             const faixaDaColuna = posicao?.colunas
               ? {
                   left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -943,10 +967,11 @@ export function AgendaTimeline({
                 <Button
                   type="button"
                   variant="ghost"
-                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${ROTULO_DO_GLIFO[glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))]}`}
                   data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}
-                  className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                  className={`agenda-timeline-bloco agenda-faixa-${faixa} agenda-timeline-${item.status} ${edicaoDoCartao?.id && edicaoDoCartao.id !== item.id ? "agenda-timeline-esmaecido" : ""} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
+                    ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
                     top: `${topo}px`,
                     height: `${alturaDoBloco}px`,
                     ...(posicao?.colunas
@@ -986,28 +1011,14 @@ export function AgendaTimeline({
                         },
                       })}
                 >
-                  {/* Como nos modelos: nome, serviço e horário com relógio; a cor do estado fica
-                      só na barra lateral e o nome do estado vai escrito, neutro. */}
+                  {/* Como no Figaro: o serviço no título, o ícone do estado no canto e, conforme a
+                      altura, o cliente, o horário e os detalhes (a cor da barra é a categoria). */}
                   <span className="agenda-timeline-bloco-topo">
-                    <strong>{nome}</strong>
+                    <strong className="agenda-timeline-titulo">{item.servico}</strong>
                     {edicaoDoCartao?.id === item.id ? null : (
-                      <span className="flex shrink-0 gap-1">
-                        {item.confirmadoEm && item.status === "agendado" ? (
-                          <StatusBadge status="confirmado" label="Confirmou" />
-                        ) : (
-                          <StatusBadge
-                            status={
-                              item.encaixe && item.status === "agendado" ? "encaixe" : item.status
-                            }
-                          />
-                        )}
-                        {ehHoje && estaAtrasado(item, agora) ? (
-                          <StatusBadge status="atrasado" />
-                        ) : null}
-                        {item.encaixe && (item.status !== "agendado" || item.confirmadoEm) ? (
-                          <StatusBadge status="encaixe" />
-                        ) : null}
-                      </span>
+                      <IconeDoEstado
+                        glifo={glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))}
+                      />
                     )}
                   </span>
                   {edicaoDoCartao?.id === item.id ? (
@@ -1018,38 +1029,36 @@ export function AgendaTimeline({
                       {horaMinuto(inicio)} – {horaMinuto(fim)}
                     </span>
                   ) : null}
-                  {compacto ? null : (
-                    <span className="flex min-w-0 items-center gap-1">
-                      <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
-                      {mostrarProfissional ? (
-                        <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
-                          {item.profissional}
-                        </span>
-                      ) : null}
-                    </span>
-                  )}
-                  <span className="agenda-timeline-horario">
-                    <Clock3 aria-hidden className="size-3.5 shrink-0" />
-                    <span className="min-w-0 truncate">
-                      {horaMinuto(inicio + passoArrasto)} –{" "}
-                      {horaMinuto(fim + passoArrasto + passoRedim)}
-                      {compacto ? ` · ${item.servico}` : ""}
-                    </span>
-                  </span>
-                  {compacto ? null : (
-                    <OrigemDoAgendamento
-                      origem={item.origem}
-                      assistido={item.assistidoPorCortai}
-                      telefoneNaoConfirmado={item.telefoneNaoConfirmado}
-                    />
-                  )}
-                  {item.daListaDeEspera && !compacto ? (
-                    <span className="agenda-timeline-fila">
-                      Vaga preenchida pela lista de espera
+                  {mostraCliente(faixa) ? (
+                    <span className="agenda-timeline-cliente">
+                      {nome}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
                     </span>
                   ) : null}
-                  {reais && !compacto ? (
-                    <span className="agenda-timeline-reais">{reais}</span>
+                  {mostraHorario(faixa) ? (
+                    <span className="agenda-timeline-horario">
+                      <Clock3 aria-hidden className="size-3.5 shrink-0" />
+                      <span className="min-w-0 truncate">
+                        {horaMinuto(inicio + passoArrasto)} -{" "}
+                        {horaMinuto(fim + passoArrasto + passoRedim)}
+                      </span>
+                    </span>
+                  ) : null}
+                  {mostraDetalhes(faixa) ? (
+                    <>
+                      <OrigemDoAgendamento
+                        origem={item.origem}
+                        assistido={item.assistidoPorCortai}
+                        telefoneNaoConfirmado={item.telefoneNaoConfirmado}
+                      />
+                      {item.encaixe ? <span className="agenda-timeline-fila">Encaixe</span> : null}
+                      {item.daListaDeEspera ? (
+                        <span className="agenda-timeline-fila">
+                          Vaga preenchida pela lista de espera
+                        </span>
+                      ) : null}
+                      {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
+                    </>
                   ) : null}
                 </Button>
                 {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (

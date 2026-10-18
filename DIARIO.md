@@ -30,6 +30,11 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-18 (noite): **Agenda segue o Figaro (APK) também nos cartões:** a barra lateral tem a
+  **cor da categoria do serviço** (não do estado); o estado vira **ícone no canto**; o **título do
+  cartão é o serviço** e o cliente aparece só nos cartões altos (faixas por altura do Figaro);
+  "Avisar cliente" ao arrastar começa **desligado**. Substitui a decisão anterior de cor por estado.
+
 - 2026-10-18 (tarde): **layout, estilo e identidade são os do Figaro**, também nas funções novas: o
   que o Figaro tem e o Cortaí não tem, a IA cria no padrão Figaro (ex.: "Trocar Cliente", expediente
   do profissional na escolha). **Arredondamento fica como está por enquanto**; o dono ajusta depois.
@@ -204,6 +209,24 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Cartões e grade da Agenda pelo código do Figaro
+- O que mudou e por quê: decisão do dono ("siga como no Figaro"), com os valores de
+  `docs/referencia-figaro/apk/2-agenda.md`.
+- Cartão da timeline (`AgendaTimeline.tsx`, regras em `agenda/cartao-figaro.ts`): título = serviço;
+  ícone de estado no canto (`agenda/IconeDoEstado.tsx`: confirmado, pendente pelo link/pela equipe,
+  chegou, em atendimento, atrasado, concluído, cancelado riscado, falta); faixas por altura (só o
+  serviço → + horário → + cliente → + origem, encaixe, lista de espera, horários reais); altura
+  mínima 28 px e duração exata no horário real; barra de 3,5 px na cor da categoria.
+- Cor da categoria: a categoria do Cortaí é texto livre, então as categorias do negócio, em ordem
+  alfabética, recebem as 10 cores da paleta do Figaro (`categoriaIndice`, calculado em
+  `lerItensDaAgenda`). Sem categoria = cinza. A lista do período usa a mesma barra e o mesmo ícone.
+- Escala do zoom como no Figaro: 2 px/min em repouso, de 1 a 4. Linhas de 5 min aparecem com zoom a
+  partir de 2,5 px/min (inteiras a 3) e sempre na edição; na edição os outros cartões ficam a 40%.
+  Linha do agora com 1,5 px. "Avisar cliente" ao arrastar já começava desligado.
+- Testes: `cartao-figaro.test.ts` e ajustes; tsc, vitest (1551) e build.
+- Falta da Agenda Figaro: barra flutuante de baixo (Hoje, lista/linha do tempo, foto do
+  profissional), zoom 4 px/min ao entrar na edição e a barra superior da edição com a data completa.
 
 ### 2026-10-18 UTC — Claude — APK do Figaro lido; ficha e Reagendar refeitos pelo código
 - O que mudou e por quê: o dono mandou o APK completo (5 partes). Juntei, descompilei com o jadx e

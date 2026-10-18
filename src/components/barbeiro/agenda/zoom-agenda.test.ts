@@ -5,8 +5,8 @@ import { limitarPx, PX_MAX, PX_MIN, PX_PADRAO, pxDaPinca } from "./zoom-agenda";
 
 describe("zoom da timeline com dois dedos", () => {
   it("afastar os dedos aproxima as horas e juntar afasta, dentro dos limites", () => {
-    expect(pxDaPinca(PX_PADRAO, 100, 200)).toBe(4.5);
-    expect(pxDaPinca(PX_PADRAO, 200, 100)).toBe(1.2);
+    expect(pxDaPinca(PX_PADRAO, 100, 200)).toBe(4);
+    expect(pxDaPinca(PX_PADRAO, 200, 100)).toBe(1);
     expect(pxDaPinca(PX_PADRAO, 100, 1000)).toBe(PX_MAX);
     expect(pxDaPinca(PX_PADRAO, 1000, 100)).toBe(PX_MIN);
     expect(pxDaPinca(PX_PADRAO, 0, 100)).toBe(PX_PADRAO);

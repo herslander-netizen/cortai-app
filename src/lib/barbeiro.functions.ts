@@ -99,6 +99,10 @@ export type AgendaItem = {
   ficha: string | null;
   preferencias?: PreferenciasCliente;
   servico: string;
+  /** Categoria do serviço (texto livre). */
+  categoria?: string | null;
+  /** Posição da categoria entre as do negócio (cor da barra do cartão, como no Figaro). */
+  categoriaIndice?: number | null;
   duracaoMin: number;
   profissional: string;
   arrivedAt: string | null;
@@ -150,15 +154,18 @@ async function lerItensDaAgenda(
   de: Date,
   ate: Date,
 ): Promise<AgendaItem[]> {
+  const categoriasRes = db.from("servicos").select("categoria").eq("tenant_id", tenantId);
   const agRes = await db
     .from("agendamentos")
     .select(
-      "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
+      "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min, categoria), profissionais(nome)",
     )
     .eq("tenant_id", tenantId)
     .gte("inicio", de.toISOString())
     .lt("inicio", ate.toISOString())
     .order("inicio");
+  const { indiceDaCategoria } = await import("@/components/barbeiro/agenda/cartao-figaro");
+  const categoriasDoNegocio = ((await categoriasRes).data ?? []).map((c) => c.categoria);
   const itens: AgendaItem[] = (agRes.data ?? []).map((a) => ({
     id: a.id,
     inicio: a.inicio,
@@ -172,6 +179,11 @@ async function lerItensDaAgenda(
     ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
     preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
     servico: a.servicos?.nome ?? "Serviço",
+    categoria: (a.servicos as { categoria?: string | null } | null)?.categoria ?? null,
+    categoriaIndice: indiceDaCategoria(
+      categoriasDoNegocio,
+      (a.servicos as { categoria?: string | null } | null)?.categoria,
+    ),
     duracaoMin:
       a.servicos?.duracao_min ??
       Math.max(1, Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000)),

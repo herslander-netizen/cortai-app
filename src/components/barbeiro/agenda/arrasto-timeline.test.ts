@@ -202,6 +202,6 @@ describe("arrastar na Timeline (mouse)", () => {
     expect(onMover).toHaveBeenCalledTimes(1);
     const delta = onMover.mock.calls[0]?.[1] as number;
     expect(delta).toBeGreaterThan(0);
-    expect(delta % 15).toBe(0);
+    expect(delta % 5).toBe(0);
   });
 });

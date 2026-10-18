@@ -165,7 +165,7 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   });
 });
 
-describe("cartões da timeline num padrão só (decisão do dono, 18/10)", () => {
+describe("cartões da timeline num padrão só, barra na cor da categoria (decisões do dono, 18/10)", () => {
   it("o fundo é o mesmo para todos; o estado muda só a barra", () => {
     expect(css).not.toContain("Premium Glass");
     expect(css).not.toContain("--fundo-estado");
