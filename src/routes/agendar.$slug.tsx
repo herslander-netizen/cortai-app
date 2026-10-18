@@ -10,7 +10,7 @@ import { termos } from "@/lib/segmentos";
 import { detectarExperiencia, origemDaVisita, registrarEtapa, type EtapaFunil } from "@/lib/funil";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -159,6 +159,7 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
+  const faixaDiasRef = useRef<HTMLDivElement>(null);
   // Telefone com ficha existente: código pelo WhatsApp antes de concluir (achado 11).
   const [pedidoDeConfirmacao, setPedidoDeConfirmacao] = useState<PedidoDeConfirmacao | null>(null);
   const verificacaoRef = useRef<string | null>(null);
@@ -412,6 +413,24 @@ function AgendamentoPublico() {
     );
   }
 
+  const dataReferencia = dia ?? dias[0];
+  const rotuloMes = dataReferencia
+    ? new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(
+        new Date(`${dataReferencia}T12:00:00Z`),
+      )
+    : "Próximas datas";
+  function moverFaixaDias(direcao: -1 | 1) {
+    const faixa = faixaDiasRef.current;
+    if (!faixa) return;
+    const comportamento = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth";
+    faixa.scrollBy({
+      left: direcao * Math.max(180, faixa.clientWidth * 0.8),
+      behavior: comportamento,
+    });
+  }
+
   const limiteAtingido = data.agendaOnline === "limite_atingido" && !confirmado;
   if (
     limiteAtingido ||
@@ -645,7 +664,18 @@ function AgendamentoPublico() {
 
       {servicoId ? (
         <Bloco titulo="Data">
-          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+          <div <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-sm font-bold capitalize text-paper">{rotuloMes}</p>
+            <div className="flex gap-1">
+              <Button type="button" variant="ghost" size="icon" aria-label="Dias anteriores" onClick={() => moverFaixaDias(-1)}>
+                <ArrowLeft />
+              </Button>
+              <Button type="button" variant="ghost" size="icon" aria-label="Próximos dias" onClick={() => moverFaixaDias(1)}>
+                <ArrowRight />
+              </Button>
+            </div>
+          </div>
+          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {dias.map((d) => {
               const info = porDia.get(d);
               const fechado = Boolean(info?.fechado);
