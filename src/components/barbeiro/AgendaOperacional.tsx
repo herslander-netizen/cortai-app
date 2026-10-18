@@ -44,6 +44,7 @@ import {
 } from "@/components/barbeiro/agenda/PainelAtendimento";
 import { ResumoDia } from "@/components/barbeiro/agenda/ResumoDia";
 import { SeletorProfissionais } from "@/components/barbeiro/agenda/SeletorProfissionais";
+import { FiltroDaAgenda } from "@/components/barbeiro/agenda/FiltroDaAgenda";
 import {
   ROTULO_ESTADO,
   hora,
@@ -1293,7 +1294,8 @@ export function AgendaOperacional() {
             )
           }
         >
-          {profissionais.length > 1 ? (
+          {/* Celular: como no Figaro, a troca de agenda fica na foto da barra de baixo. */}
+          {profissionais.length > 1 && !celular ? (
             <SeletorProfissionais
               profissionais={profissionais}
               itens={todosItens}
@@ -1644,6 +1646,20 @@ export function AgendaOperacional() {
         menuAberto={menuAberto}
         visivel={acoesFlutuantesVisiveis && !edicao.rascunho}
         {...(vozSuportada ? { onAgendarPorVoz: abrirAgendamentoPorVoz } : {})}
+        filtro={
+          celular && profissionais.length > 1 ? (
+            <FiltroDaAgenda
+              profissionais={profissionais}
+              selecionado={profFiltro}
+              meuId={meuId}
+              hoje={hojeNoFuso(fuso)}
+              onSelecionar={(id) => {
+                setProfFiltro(id);
+                setCalAberto(false);
+              }}
+            />
+          ) : undefined
+        }
         onAlternarMenu={() => {
           setPainelAberto(false);
           setSelecionado(null);

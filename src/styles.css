@@ -7088,3 +7088,29 @@ button.agenda-nome:hover {
 .agenda-linha-agora {
   border-top-width: 1.5px;
 }
+
+/* Barra de baixo do Figaro: foto do profissional para trocar a agenda (38 px). */
+.agenda-botao-agora-principal:has(.agenda-filtro-gatilho) .agenda-botao-agora-visualizacao {
+  border-radius: 0;
+}
+.agenda-filtro-gatilho.agenda-filtro-gatilho {
+  width: 52px;
+  height: 50px;
+  border-radius: 0 999px 999px 0;
+}
+.agenda-filtro-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--agenda-cartao);
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 700;
+}
+:root[data-filtro-agenda] .agenda-acao-fixa {
+  visibility: hidden;
+}

@@ -1887,27 +1887,50 @@ export const getEquipeParaRemarcar = createServerFn({ method: "GET" })
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     const fazem = ((atual as { servicos?: { profissional_ids?: string[] | null } | null }).servicos
       ?.profissional_ids ?? []) as string[];
-    const [regras, { data: profs }, { data: escalas }] = await Promise.all([
-      regrasDaBarbearia(db, tenant.id),
-      db
-        .from("profissionais")
-        .select("id, nome, avatar_url")
-        .eq("tenant_id", tenant.id)
-        .eq("ativo", true)
-        .order("nome"),
-      db
-        .from("escalas_de_profissional")
-        .select("profissional_id, dia_semana, trabalha, abre, fecha")
-        .eq("tenant_id", tenant.id),
-    ]);
-    return (profs ?? [])
-      .filter((p) => !fazem.length || fazem.includes(p.id))
-      .map((p) => ({
-        id: p.id,
-        nome: p.nome,
-        avatarUrl: p.avatar_url ?? null,
-        expediente: expedienteDoProfissional(data.dia, p.id, regras.horarios, escalas ?? []),
-      }));
+    const equipe = await equipeComExpediente(db, tenant.id, data.dia);
+    return equipe.filter((p) => !fazem.length || fazem.includes(p.id));
+  });
+
+/** Profissionais ativos com foto e expediente do dia (horário do negócio + escala). */
+async function equipeComExpediente(
+  db: Awaited<ReturnType<typeof tenantPadrao>>["db"],
+  tenantId: string,
+  dia: string,
+): Promise<ProfissionalParaRemarcar[]> {
+  const [regras, { data: profs }, { data: escalas }] = await Promise.all([
+    regrasDaBarbearia(db, tenantId),
+    db
+      .from("profissionais")
+      .select("id, nome, avatar_url")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true)
+      .order("nome"),
+    db
+      .from("escalas_de_profissional")
+      .select("profissional_id, dia_semana, trabalha, abre, fecha")
+      .eq("tenant_id", tenantId),
+  ]);
+  return (profs ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome,
+    avatarUrl: p.avatar_url ?? null,
+    expediente: expedienteDoProfissional(dia, p.id, regras.horarios, escalas ?? []),
+  }));
+}
+
+/**
+ * Equipe do dia para trocar a agenda que está na tela (Figaro `AgendaTeamMemberFilterSheet`:
+ * cada pessoa com "Hoje · 09:00 - 18:00."). Só leitura; mesmo acesso da Agenda.
+ */
+export const getEquipeDoDia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { dia: string }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data?.dia ?? "")) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<ProfissionalParaRemarcar[]> => {
+    const { db, tenant } = await tenantPadrao(context);
+    return equipeComExpediente(db, tenant.id, data.dia);
   });
 
 /**

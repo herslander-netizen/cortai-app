@@ -210,6 +210,17 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Barra de baixo da Agenda como no Figaro (trocar agenda pela foto)
+- No celular, a troca de profissional saiu do cabeçalho e foi para a barra flutuante de baixo,
+  como no Figaro: "Hoje" (antes "Agora"; volta para hoje e rola até agora) · visualização · foto do
+  profissional. A foto abre a folha "Agenda — Escolha qual agenda você deseja visualizar.", com
+  "Toda a equipe" (do Cortaí), cada pessoa com "Hoje · 09:00 - 18:00." ou "Não disponível hoje." e
+  "Ver minha agenda". Computador continua com o seletor no cabeçalho.
+- Servidor: `getEquipeDoDia` (só leitura), com o mesmo cálculo de expediente do Reagendar
+  (`equipeComExpediente`).
+- Arquivos: `agenda/FiltroDaAgenda.tsx` (novo), `BotaoAgoraPrincipal.tsx`, `AgendaOperacional.tsx`,
+  `barbeiro.functions.ts`, `styles.css`. tsc, vitest e build passando.
+
 ### 2026-10-18 UTC — Claude — Cartões e grade da Agenda pelo código do Figaro
 - O que mudou e por quê: decisão do dono ("siga como no Figaro"), com os valores de
   `docs/referencia-figaro/apk/2-agenda.md`.

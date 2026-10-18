@@ -1,6 +1,13 @@
 import { Clock, Crosshair, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
@@ -42,6 +49,7 @@ export function BotaoAgoraPrincipal({
   onAlternarMenu,
   onAgendarPorVoz,
   visivel = true,
+  filtro,
 }: {
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
@@ -52,6 +60,8 @@ export function BotaoAgoraPrincipal({
   /** Segurar o "+" abre o agendamento por voz já ouvindo. Sem isto, o "+" só abre o menu. */
   onAgendarPorVoz?: () => void;
   visivel?: boolean;
+  /** Figaro: a foto do profissional no fim da barra, para trocar a agenda na tela. */
+  filtro?: ReactNode;
 }) {
   const celular = useMediaQuery("(max-width: 600px)");
   // Só com o menu fechado: com o menu aberto o "+" é o "X" e segurar não faz nada de especial.
@@ -136,7 +146,8 @@ export function BotaoAgoraPrincipal({
             onPointerUp={soltarFocoDoToque}
           >
             <Crosshair aria-hidden />
-            <span>Agora</span>
+            {/* Figaro: "Today" (volta para hoje e rola até agora). */}
+            <span>Hoje</span>
           </Button>
           <span className="agenda-botao-agora-separador" aria-hidden />
           <Button
@@ -168,10 +179,20 @@ export function BotaoAgoraPrincipal({
                   transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
                 }}
               >
-                {proxima === "timeline" ? <Clock aria-hidden className="size-7" /> : <IconeAcompanhamentoCard />}
+                {proxima === "timeline" ? (
+                  <Clock aria-hidden className="size-7" />
+                ) : (
+                  <IconeAcompanhamentoCard />
+                )}
               </motion.span>
             </AnimatePresence>
           </Button>
+          {filtro ? (
+            <>
+              <span className="agenda-botao-agora-separador" aria-hidden />
+              {filtro}
+            </>
+          ) : null}
         </div>
       ) : null}
       <div className="agenda-acao-fixa">
