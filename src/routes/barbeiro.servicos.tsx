@@ -225,7 +225,7 @@ function ServicosPage() {
 
   return (
     <Screen
-      voltarPara="/barbeiro/mais"
+      voltarPara={modoEditor ? undefined : "/barbeiro/mais"}
       title="Serviços"
       subtitle={modoEditor ? "Edite um serviço por vez, sem perder o restante do catálogo." : "Seus serviços, duração e preços."}
     >
@@ -265,7 +265,7 @@ function ServicosPage() {
         </>
       ) : (
         <>
-          {servicos.length ? (
+          {!isLoading && servicos.length ? (
             <ul className="space-y-3">
               {servicos.map((servico, indice) => (
                 <li key={servico.id ?? "servico-" + indice}>
@@ -303,15 +303,17 @@ function ServicosPage() {
             </Card>
           ) : null}
 
-          <Button
-            variant="primary"
-            type="button"
-            className="mt-5 min-h-12 w-full"
-            onClick={novoServico}
-          >
-            <Plus size={18} aria-hidden />
-            Novo serviço
-          </Button>
+          {!isLoading ? (
+            <Button
+              variant="primary"
+              type="button"
+              className="mt-5 min-h-12 w-full"
+              onClick={novoServico}
+            >
+              <Plus size={18} aria-hidden />
+              Novo serviço
+            </Button>
+          ) : null}
           {estado === "salvo" ? (
             <p className="mt-3 text-center text-sm text-mute" role="status">
               Alterações salvas.
