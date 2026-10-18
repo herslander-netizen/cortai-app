@@ -149,6 +149,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Evidências visuais internas do APK documentadas
+- Extraí e examinei os cinco vídeos de demonstração já embutidos no `Figaroo.apk`: agenda/booking, página pública, avaliações, indicadores e notificações.
+- Acrescentei à referência oficial os padrões concretos observados: lista de serviços por categoria, horários em linhas com profissional sugerido, cabeçalho mês/ano, painel de dados do cliente, avaliações em cartões e métricas agrupadas. Registrei também o limite: não inventar categorias/dados que o Cortaí não fornece.
+- Arquivo: `docs/referencia-ux-figaroo-cortai.md`. Commit: `58690fe`. Nenhuma mudança de banco.
+
 ### 2026-10-18 UTC — GPT — Botões usam token de movimento
 - `src/components/ui/button.tsx` deixou de fixar `duration-[120ms]` e passou a usar `duration-[var(--mov-rapido)]`. Mantém o mesmo tempo atual, mas conecta a resposta visual ao sistema de tokens, evitando outro valor avulso.
 - Commit: `dcfc906`. A divergência maior entre tokens CSS e Framer Motion continua pendente de coordenação com Claude; não alterei regras da Agenda em `styles.css`.
