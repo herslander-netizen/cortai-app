@@ -105,7 +105,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-18 UTC | Resíduo do achado 6: revisar políticas RLS das sete tabelas e preparar migração aditiva 0038 para restringir escrita à equipe autorizada; ensaio local, sem aplicar | `DIARIO.md`, `drizzle/migrations/0038_residuo_rls_membros.sql`, `drizzle/migrations/meta/_journal.json`, `supabase/baseline/ensaio/` |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -151,6 +150,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — GPT — Revisão de RLS e validação do calendário público
+- Revistos os scripts de segurança: a migração `drizzle/migrations/0027_equipe_escreve_com_permissao.sql` já cobre as sete áreas (movimentos, agendamentos, serviços, profissionais, horários, produtos e avaliações), retirando escrita genérica ou exigindo permissão específica. Não foi criada uma migração 0038 duplicada sem evidência de uma lacuna residual.
+- A correção JSX do agendamento público foi validada pelo workflow `39088751194`: TypeScript, testes e build passaram.
+- O workflow de prévia `39088751189` concluiu os testes e publicou a prévia isolada com variáveis. Nenhuma publicação em produção e nenhuma alteração no banco.
+- A recuperação completa do Figaro continua aberta; ainda falta conferir paridade visual e funcional real em 390 px e 1280 px.
+
 
 ### 2026-10-18 UTC — GPT — CI e prévia da correção do calendário público aprovados
 - Corrigida a estrutura JSX da faixa de datas em `src/routes/agendar.$slug.tsx`; o workflow de validação concluiu com sucesso (TypeScript, testes e build).
