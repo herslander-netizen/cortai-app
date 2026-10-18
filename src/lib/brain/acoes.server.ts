@@ -950,10 +950,16 @@ export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
   if (!a) return false;
   if (ehEquipeNoWhatsapp(ctx)) {
     const papel = ctx.papel as Papel;
-    if (a.papeis) return a.papeis.includes(papel);
+    if (a.papeis && !a.papeis.includes(papel)) return false;
     if (nome === "encaminhar_humano") return false;
     if (papel === "profissional" && SO_DONO.has(nome)) return false;
-    return a.canais.includes("painel");
+    if (!a.canais.includes("painel")) return false;
+    // Ações operacionais da equipe no WhatsApp usam a mesma matriz efetiva do painel.
+    // Dono tem todas as permissões pela regra central do banco; demais papéis falham fechado.
+    if (papel !== "dono" && a.permissoes?.length) {
+      return a.permissoes.every((p) => ctx.permissoes?.includes(p));
+    }
+    return true;
   }
   if (a.papeis && !a.canais.length) return false;
   return a.canais.includes(ctx.canal) && permitidoNoPainel(nome, a, ctx);
