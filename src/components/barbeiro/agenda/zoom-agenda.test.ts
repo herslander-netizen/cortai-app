@@ -21,7 +21,7 @@ describe("zoom da timeline com dois dedos", () => {
     const timeline = readFileSync("src/components/barbeiro/AgendaTimeline.tsx", "utf8");
     const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
     expect(timeline).not.toContain("const PX_POR_MINUTO = 2.25");
-    expect(timeline).toContain("const PX_POR_MINUTO = usePxPorMinuto();");
+    expect(timeline).toContain("const PX_POR_MINUTO = usePxPorMinuto(!previa);");
     expect(timeline).toContain("usePincaDaTimeline({");
     expect(gesto).toContain("if (e.touches.length > 1) {");
   });

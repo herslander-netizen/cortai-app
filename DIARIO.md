@@ -221,6 +221,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Pinça mais leve
+- Durante a pinça só a página da tela é redesenhada a cada quadro; as páginas vizinhas (escondidas)
+  e as prévias usam a escala confirmada e só mudam quando a pinça termina
+  (`usePxPorMinuto(aoVivo)` em `agenda/zoom-agenda.ts`). Antes eram três timelines por quadro.
+- Lembrete ao dono: a prévia está parada desde 11:42 (GitHub Actions sem máquina); o que ele testa no
+  aparelho ainda é a versão antiga, sem as correções da pinça.
+
 ### 2026-10-18 UTC — Claude — Fora do expediente discreto como no Figaro (vídeo 17:21)
 - O dono comparou o Cortaí com o Figaro (zoom e rolagem). O trecho do Cortaí era da versão antiga
   (prévia parada): a pinça puxava a página para outras horas e a fileira "Todos/Bruno" aparecia no

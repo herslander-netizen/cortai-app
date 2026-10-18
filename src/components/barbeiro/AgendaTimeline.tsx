@@ -169,7 +169,7 @@ export function AgendaTimeline({
   const [toqueVazio, setToqueVazio] = useState<number | null>(null);
   const rolagemRef = useRef<HTMLDivElement>(null);
   // Escala da grade (pixels por minuto): muda com a pinça de dois dedos (zoom-agenda.ts).
-  const PX_POR_MINUTO = usePxPorMinuto();
+  const PX_POR_MINUTO = usePxPorMinuto(!previa);
   const gradeRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);

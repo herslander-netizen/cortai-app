@@ -33,8 +33,12 @@ function lerGuardado() {
 }
 
 let atual: number | null = null;
+/** Escala confirmada (fim da pinça): as páginas vizinhas, escondidas durante a pinça, usam esta. */
+let confirmado: number | null = null;
 const ouvintes = new Set<() => void>();
+const ouvintesConfirmado = new Set<() => void>();
 const ler = () => (atual ??= typeof window === "undefined" ? PX_PADRAO : lerGuardado());
+const lerConfirmado = () => (confirmado ??= ler());
 
 export function definirPxPorMinuto(valor: number, guardar = true) {
   const novo = limitarPx(valor);
@@ -43,6 +47,10 @@ export function definirPxPorMinuto(valor: number, guardar = true) {
     for (const ouvinte of ouvintes) ouvinte();
   }
   if (!guardar) return;
+  if (novo !== lerConfirmado()) {
+    confirmado = novo;
+    for (const ouvinte of ouvintesConfirmado) ouvinte();
+  }
   try {
     window.localStorage.setItem(CHAVE, String(novo));
   } catch {
@@ -50,13 +58,18 @@ export function definirPxPorMinuto(valor: number, guardar = true) {
   }
 }
 
-export function usePxPorMinuto() {
+/**
+ * Escala da timeline. `aoVivo = false` (páginas vizinhas e prévias) só muda quando a pinça termina:
+ * durante a pinça só a página da tela é redesenhada a cada quadro.
+ */
+export function usePxPorMinuto(aoVivo = true) {
+  const lista = aoVivo ? ouvintes : ouvintesConfirmado;
   return useSyncExternalStore(
     (ouvinte) => {
-      ouvintes.add(ouvinte);
-      return () => ouvintes.delete(ouvinte);
+      lista.add(ouvinte);
+      return () => lista.delete(ouvinte);
     },
-    ler,
+    aoVivo ? ler : lerConfirmado,
     () => PX_PADRAO,
   );
 }
