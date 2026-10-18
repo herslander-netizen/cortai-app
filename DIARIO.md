@@ -198,6 +198,21 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Trocar Cliente avisa o novo cliente pelo WhatsApp
+- O que mudou e por quê: o dono pediu para colocar o aviso. Na folha "Trocar Cliente" há o
+  interruptor "Avisar o novo cliente por WhatsApp" (ligado por padrão). O servidor manda a
+  `confirmacao_agendamento` pelo motor único (`notificarAgendamento`: plano, porteiro, regras do
+  negócio e da conexão continuam valendo) e diz à tela se saiu.
+- Segurança: na troca, os avisos que o cliente anterior recebeu deste horário vencem na hora
+  (`aguarda_resposta=false`, `valido_ate=agora`) — os botões dele não confirmam nem cancelam mais o
+  horário do novo cliente.
+- **Para quem mexe no WhatsApp:** em `notificacoes.server.ts`, a trava de repetição de
+  `envios_de_whatsapp` passou a ser **por cliente**. Mesmo cliente: igual a antes. Se o envio
+  anterior do mesmo agendamento e tipo foi para outro cliente, o novo envio grava
+  `versao = "cliente:<id>"` (o índice único já é `agendamento_id, tipo, versao`, migração 0020).
+  Sem migração.
+- Testes: `TelaReagendar.test.ts`; tsc, vitest (1541) e build.
+
 ### 2026-10-18 UTC — Claude — Ficha Figaro: Trocar Cliente, foto e expediente do profissional
 - O que mudou e por quê: o dono decidiu que o padrão é o Figaro também no que for novo. Entraram
   as duas diferenças que tinham ficado:
@@ -206,7 +221,7 @@ teste real na prévia.
     Servidor novo `trocarClienteDoAgendamento`: permissão `agendamento_manual`, mesmo negócio,
     cliente não arquivado, só `agendado`/`chegou`, sem pagamento confirmado e sem comanda, sem
     choque de horário do novo cliente; zera a confirmação do anterior e grava em
-    `auditoria_da_barbearia`. **Não manda WhatsApp** (os lembretes seguintes já vão para o novo).
+    `auditoria_da_barbearia`. (o aviso ao novo cliente entrou depois, ver a entrada acima).
   - **Escolha do profissional no Reagendar** com foto e "✓ Hoje · 09:00 - 18:00" (ou "Não
     trabalha"): leitura `getEquipeParaRemarcar` (só quem faz o serviço) e regra pura
     `src/lib/expediente.ts` (horário do negócio; a escala do profissional manda no dia dela).

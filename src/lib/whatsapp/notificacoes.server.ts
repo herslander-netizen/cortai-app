@@ -616,13 +616,20 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     }
   }
 
-  // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.
-  const { data: existente } = await db
+  // Idempotência: o índice único (agendamento_id, tipo, versao) impede duplicar. A trava é por
+  // cliente: se o atendimento passou para outro cliente ("Trocar Cliente"), o envio já feito ao
+  // anterior não impede o do novo, que ganha a própria versão.
+  const { data: envios } = await db
     .from("envios_de_whatsapp")
-    .select("id, status, tentativas, proxima_tentativa_em")
+    .select("id, status, tentativas, proxima_tentativa_em, cliente_id")
     .eq("agendamento_id", agendamentoId)
-    .eq("tipo", tipo)
-    .maybeSingle();
+    .eq("tipo", tipo);
+  const doMesmoCliente = (envios ?? []).filter(
+    (e) => !e.cliente_id || e.cliente_id === ag.cliente_id,
+  );
+  const existente = doMesmoCliente[0] ?? null;
+  const versaoDoEnvio =
+    doMesmoCliente.length < (envios ?? []).length ? `cliente:${ag.cliente_id}` : null;
   // Só "erro" (temporário) e "pendente" podem tentar de novo.
   if (existente && existente.status !== "erro" && existente.status !== "pendente") {
     return { enviado: false, motivo: "Mensagem já processada." };
@@ -649,6 +656,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         cliente_id: ag.cliente_id,
         telefone,
         tipo,
+        ...(versaoDoEnvio ? { versao: versaoDoEnvio } : {}),
         status: "enviando",
         tentativas: 1,
       })

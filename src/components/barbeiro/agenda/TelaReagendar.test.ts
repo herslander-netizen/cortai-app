@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const tela = readFileSync("src/components/barbeiro/agenda/TelaReagendar.tsx", "utf8");
 const ficha = readFileSync("src/components/barbeiro/agenda/PainelAtendimento.tsx", "utf8");
 const servidor = readFileSync("src/lib/barbeiro.functions.ts", "utf8");
+const motorWhatsapp = readFileSync("src/lib/whatsapp/notificacoes.server.ts", "utf8");
 
 describe("ficha e Reagendar como no Figaro", () => {
   it("a ficha tem o rodapé Reagendar com a seta das outras ações", () => {
@@ -57,8 +58,18 @@ describe("ficha e Reagendar como no Figaro", () => {
     expect(corpo).toContain('.eq("cliente_id", cliente.id)');
     expect(corpo).toContain("auditoria_da_barbearia");
     expect(corpo).not.toMatch(/\.delete\(/);
-    expect(corpo).not.toContain("notificarAgendamento");
+    expect(corpo).toContain('notificarAgendamento(atual.id, "confirmacao_agendamento")');
+    expect(corpo).toContain("data.avisarCliente !== false");
+    // Os botões do cliente anterior deixam de valer para este horário.
+    expect(corpo).toContain('.from("envios_de_whatsapp")');
+    expect(corpo).toContain('.eq("cliente_id", atual.cliente_id)');
     expect(ficha).toContain("Trocar Cliente");
     expect(ficha).toContain("<TrocarCliente");
+  });
+
+  it("a trava de repetição do WhatsApp é por cliente (o novo cliente recebe a própria versão)", () => {
+    expect(motorWhatsapp).toContain("e.cliente_id === ag.cliente_id");
+    expect(motorWhatsapp).toContain("`cliente:${ag.cliente_id}`");
+    expect(motorWhatsapp).toContain("...(versaoDoEnvio ? { versao: versaoDoEnvio } : {})");
   });
 });

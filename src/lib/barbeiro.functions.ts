@@ -1897,11 +1897,13 @@ export const getEquipeParaRemarcar = createServerFn({ method: "GET" })
 /**
  * "Trocar Cliente" da ficha (como no Figaro): passa o atendimento para outro cliente do mesmo
  * negócio. Só antes de começar e sem pagamento nem comanda; a confirmação do cliente anterior
- * deixa de valer. Fica registrado na auditoria do negócio. Não envia WhatsApp.
+ * deixa de valer e os botões que ele recebeu no WhatsApp param de agir sobre este horário. O
+ * novo cliente recebe a confirmação do horário (pelo motor único, com o porteiro e as regras do
+ * negócio), a menos que a equipe desmarque. Fica registrado na auditoria do negócio.
  */
 export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { agendamentoId: string; clienteId: string }) => {
+  .validator((data: { agendamentoId: string; clienteId: string; avisarCliente?: boolean }) => {
     if (!data?.agendamentoId || !data?.clienteId) throw new Error("Escolha o cliente.");
     return data;
   })
@@ -1915,7 +1917,8 @@ export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
-    if (atual.cliente_id === data.clienteId) return { ok: true, clienteAnterior: atual.cliente_id };
+    if (atual.cliente_id === data.clienteId)
+      return { ok: true, clienteAnterior: atual.cliente_id as string, avisado: false };
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para trocar o cliente antes de começar o atendimento.");
     if (atual.pagamento_confirmado_em)
@@ -1958,6 +1961,27 @@ export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .eq("cliente_id", atual.cliente_id);
     if (error) throw new Error(error.message);
+    // Os avisos que o cliente anterior recebeu não podem mais confirmar nem cancelar este horário.
+    await db
+      .from("envios_de_whatsapp")
+      .update({ aguarda_resposta: false, valido_ate: new Date().toISOString() })
+      .eq("tenant_id", tenant.id)
+      .eq("agendamento_id", atual.id)
+      .eq("cliente_id", atual.cliente_id)
+      .then(
+        () => null,
+        () => null,
+      );
+    let avisado = false;
+    if (data.avisarCliente !== false) {
+      try {
+        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+        const resultado = await notificarAgendamento(atual.id, "confirmacao_agendamento");
+        avisado = resultado.enviado;
+      } catch {
+        /* a troca já está salva; a falha fica registrada no envio */
+      }
+    }
     await db
       .from("auditoria_da_barbearia")
       .insert({
@@ -1965,13 +1989,13 @@ export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
         ator_user_id: context.userId,
         acao: "agendamento.cliente_trocado",
         alvo: atual.id,
-        detalhes: { de: atual.cliente_id, para: cliente.id },
+        detalhes: { de: atual.cliente_id, para: cliente.id, avisado },
       })
       .then(
         () => null,
         () => null,
       );
-    return { ok: true, clienteAnterior: atual.cliente_id as string };
+    return { ok: true, clienteAnterior: atual.cliente_id as string, avisado };
   });
 
 /** Quantidade de atendimentos ativos por dia do mês (uma consulta), para os pontinhos da Agenda. */

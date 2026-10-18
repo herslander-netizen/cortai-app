@@ -2,9 +2,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Search, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import {
   buscarClientesDaBarbearia,
@@ -16,7 +18,8 @@ export type ClienteEscolhido = { id: string; nome: string; telefone: string | nu
 
 /**
  * "Trocar Cliente" da ficha, como no Figaro: folha de baixo com a busca de clientes do negócio
- * (os atendidos por último aparecem primeiro). O servidor confere se ainda pode trocar.
+ * (os atendidos por último aparecem primeiro). O servidor confere se ainda pode trocar e, se a
+ * equipe deixar ligado, manda a confirmação do horário ao novo cliente pelo WhatsApp.
  */
 export function TrocarCliente({
   item,
@@ -38,6 +41,7 @@ export function TrocarCliente({
   const [termoBusca, setTermoBusca] = useState("");
   const [salvando, setSalvando] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [avisar, setAvisar] = useState(true);
 
   useEffect(() => {
     const espera = window.setTimeout(() => setTermoBusca(termo.trim()), 250);
@@ -48,6 +52,7 @@ export function TrocarCliente({
     setTermo("");
     setTermoBusca("");
     setErro(null);
+    setAvisar(true);
   }, [aberto]);
 
   const clientes = useQuery({
@@ -65,8 +70,18 @@ export function TrocarCliente({
     setErro(null);
     setSalvando(cliente.id);
     try {
-      await trocar({ data: { agendamentoId: item.id, clienteId: cliente.id } });
+      const resultado = await trocar({
+        data: { agendamentoId: item.id, clienteId: cliente.id, avisarCliente: avisar },
+      });
       onTrocado(cliente);
+      if (avisar && !resultado.avisado)
+        toast(`Cliente trocado para ${cliente.nome}. A confirmação pelo WhatsApp não saiu.`);
+      else
+        toast(
+          resultado.avisado
+            ? `Cliente trocado para ${cliente.nome}. Confirmação enviada pelo WhatsApp.`
+            : `Cliente trocado para ${cliente.nome}.`,
+        );
       onAberto(false);
       void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
       void queryClient.invalidateQueries({ queryKey: ["agenda-periodo"] });
@@ -98,6 +113,12 @@ export function TrocarCliente({
             className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
           />
         </label>
+        <div className="mb-3 flex min-h-12 items-center justify-between gap-4">
+          <label htmlFor="avisar-novo-cliente" className="text-sm font-semibold text-paper">
+            Avisar o novo cliente por WhatsApp
+          </label>
+          <Switch id="avisar-novo-cliente" checked={avisar} onCheckedChange={setAvisar} />
+        </div>
         {erro ? (
           <p className="mb-3 text-sm font-semibold text-brick" role="alert">
             {erro}
