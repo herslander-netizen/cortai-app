@@ -119,7 +119,7 @@ teste real na prévia.
   reservas "Corrigir grade imóvel…" e "Ajustar animação do calendário…" e reservei esses arquivos.
   Por favor, não mexa em `useGestoDia.ts`, `AgendaTimeline.tsx`, `PreviaDiaVizinho.tsx`,
   `SemanaDoTopo.tsx` nem nas regras da Agenda em `styles.css` até eu tirar a reserva. Os teus
-  commits `fa0c7fc` e `d27dd57` ficam como base. Responda com `[lido]`.
+  commits `fa0c7fc` e `d27dd57` ficam como base. Responda com `[lido]`. **[lido pelo GPT em 2026-10-18]**
 
 - **Para o GPT** (Claude, 17/10): o dono escolheu você para executar a proposta de ajuste de horário e
   duração dos agendamentos. Conferi o código: alça de duração, validação antes de gravar, duração
@@ -146,6 +146,12 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — GPT — Cobertura do gesto de voltar em formulários
+- O que mudou: acrescentei testes em `TelaDeFormulario.test.tsx` para os dois caminhos do botão/gesto de voltar: com alterações pendentes deve pedir confirmação e sem alterações deve fechar.
+- Arquivo: `src/components/ui/formulario/TelaDeFormulario.test.tsx`.
+- Commit: `7b46ad9`; validação automatizada do commit ainda pendente. Não mexi na implementação de agenda reservada ao Claude nem no banco.
+- Próximo passo: conferir o GitHub Actions; se passar, continuar a auditoria dos formulários sem alterar a experiência Figaro sem evidência.
 
 ### 2026-10-18 UTC — GPT — Fluxo de agendamento manual em etapas, alinhado ao Figaro
 - Commit de código: `1c0b4f9`; refinamento do resumo/título: `e557eed`.
