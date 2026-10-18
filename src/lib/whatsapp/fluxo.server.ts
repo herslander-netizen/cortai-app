@@ -922,6 +922,7 @@ async function responderComCerebro(input: {
       telefoneCliente: equipe ? null : input.telefone,
       papel: equipe?.papel ?? "cliente",
       profissionalId: equipe?.profissionalId ?? null,
+      permissoes: equipe?.permissoes ?? [],
     },
     persona: {
       nome: equipe
