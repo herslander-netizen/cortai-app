@@ -591,14 +591,16 @@ function AgendamentoPublico() {
       <Bloco titulo="Serviço">
         <div className="grid gap-2">
           {data.servicos.map((s) => (
-            <button
+            <Button
               key={s.id}
               type="button"
+              variant="ghost"
+              aria-pressed={servicoId === s.id}
               onClick={() => {
                 setServicoId(s.id);
                 setHorario(null);
               }}
-              className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 text-left ${
+              className={`grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-3 whitespace-normal rounded-xl border px-4 py-3 text-left ${
                 servicoId === s.id ? "border-gold bg-ink2" : "border-line bg-ink2/60"
               }`}
             >
@@ -611,7 +613,7 @@ function AgendamentoPublico() {
                 </span>
               </span>
               <span className="text-sm font-semibold text-paper">{brl(s.preco_centavos)}</span>
-            </button>
+            </Button>
           ))}
         </div>
       </Bloco>
@@ -620,20 +622,22 @@ function AgendamentoPublico() {
         <Bloco titulo="Profissional">
           <div className="flex flex-wrap gap-2">
             {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
-              <button
+              <Button
                 key={p.id}
                 type="button"
+                variant="ghost"
+                aria-pressed={profId === p.id}
                 onClick={() => {
                   setProfId(p.id);
                   setHorario(null);
                 }}
-                className={`flex min-h-12 items-center gap-2 rounded-full border px-4 py-2 text-sm ${
+                className={`h-auto min-h-12 whitespace-normal rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "border-gold text-paper" : "border-line text-mute"
                 }`}
               >
                 <UserRound size={14} aria-hidden />
                 {p.nome}
-              </button>
+              </Button>
             ))}
           </div>
         </Bloco>
@@ -648,10 +652,12 @@ function AgendamentoPublico() {
               const lotado = !fechado && (info?.opcoes.length ?? 0) === 0;
               const { rotulo, numero } = rotuloDoDia(d);
               return (
-                <button
+                <Button
                   key={d}
                   type="button"
+                  variant="ghost"
                   disabled={fechado}
+                  aria-pressed={dia === d}
                   aria-label={
                     fechado
                       ? `${rotulo} ${numero}, fechado`
@@ -663,7 +669,7 @@ function AgendamentoPublico() {
                     setDia(d);
                     setHorario(null);
                   }}
-                  className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl border ${
+                  className={`h-16 w-14 shrink-0 flex-col rounded-xl border px-0 ${
                     fechado
                       ? "cursor-not-allowed border-line text-mute2 opacity-50"
                       : dia === d
@@ -675,7 +681,7 @@ function AgendamentoPublico() {
                   <span className="text-lg font-semibold">{numero}</span>
                   {fechado ? <span className="text-xs leading-none">Fechado</span> : null}
                   {lotado ? <span className="text-xs leading-none">Lotado</span> : null}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -691,9 +697,11 @@ function AgendamentoPublico() {
           ) : agenda.opcoes.length ? (
             <div className="grid grid-cols-4 gap-2">
               {agenda.opcoes.map((o) => (
-                <button
+                <Button
                   key={o.iso}
                   type="button"
+                  variant="ghost"
+                  aria-pressed={horario === o.iso}
                   onClick={() => {
                     setHorario(o.iso);
                     setConflito(null);
@@ -705,7 +713,7 @@ function AgendamentoPublico() {
                   }`}
                 >
                   {o.label}
-                </button>
+                </Button>
               ))}
             </div>
           ) : null}
