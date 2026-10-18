@@ -163,6 +163,8 @@ teste real na prévia.
 - Banco/infra: nada alterado; nenhum lançamento em produção.
 - Pendente / atenção para as outras IAs: preservar a reserva do Claude nos arquivos da Agenda. Continuar o mapa tela a tela a partir do APK; não mudar tipografia global sem conferir licença/compatibilidade das fontes. Validar a prévia em 390 px e 1280 px antes de declarar a recuperação pronta.
 
+- Validação posterior (commit `e557eedab8741213b361170171c2bf7fb4367178`): GitHub Actions `39087117973` concluído com sucesso; instalação de dependências, TypeScript, testes e build de produção passaram. Prévia/artefato de build foi gerado pelo workflow. Ainda não houve inspeção visual manual do resultado renderizado nem validação em aparelho físico.
+
 ### 2026-10-18 UTC — Claude — Arrasto e alça de duração de 5 em 5 minutos
 - O que mudou e por quê: o dono quer ajustar de 5 em 5, como as listras. `passoDoGesto` limitava
   o passo entre 5 e 15 conforme o intervalo do negócio (com intervalo de 30, o arrasto andava de
