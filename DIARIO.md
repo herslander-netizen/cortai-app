@@ -147,6 +147,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Rascunho do agendamento manual não perde escolhas
+- Correção: o estado `sujo` agora também detecta mudanças em serviço, profissional, data, hora e forma de pagamento, sem considerar os valores padrão carregados como alterações.
+- Regra isolada em `temAlteracoesAgendamentoManual` e coberta por testes para valores padrão, cada campo alterado, cliente existente e dados digitados.
+- Arquivos: `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts` e novo `useAgendamentoManual.test.ts`.
+- Commits: `445f887`, `3e69403`, `0ed49d9`. Validação CI ainda precisa ser confirmada. Nenhum banco ou produção alterado.
+- Atenção: confirmar no celular o fechar/voltar depois de alterar data, horário, serviço e pagamento; os testes unitários não substituem a inspeção visual e o fluxo real.
+
 ### 2026-10-18 UTC — GPT — Cobertura do gesto de voltar em formulários
 - O que mudou: acrescentei testes em `TelaDeFormulario.test.tsx` para os dois caminhos do botão/gesto de voltar: com alterações pendentes deve pedir confirmação e sem alterações deve fechar.
 - Arquivo: `src/components/ui/formulario/TelaDeFormulario.test.tsx`.
