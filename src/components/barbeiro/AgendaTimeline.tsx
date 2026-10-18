@@ -25,7 +25,7 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
-import { passoDoGesto } from "@/lib/remarcacao-regras";
+import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
 
@@ -64,7 +64,7 @@ type AgendaTimelineProps = {
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
   onEditar?: (item: AgendaItem) => void;
-  /** Passo do negócio, em minutos: define o passo fino do arrasto (veja `passoDoGesto`). */
+  /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
   edicaoDoCartao?: { id: string } | undefined;
@@ -847,8 +847,8 @@ export function AgendaTimeline({
           {redim || arrasto || edicaoDoCartao?.id ? (
             <>
               {Array.from(
-                { length: Math.floor((escala.fim - escala.inicio) / 5) + 1 },
-                (_, indice) => escala.inicio + indice * 5,
+                { length: Math.floor((escala.fim - escala.inicio) / PASSO_DO_AJUSTE_MIN) + 1 },
+                (_, indice) => escala.inicio + indice * PASSO_DO_AJUSTE_MIN,
               )
                 .filter((minuto) => minuto % 60 !== 0)
                 .map((minuto) => (

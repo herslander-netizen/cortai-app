@@ -65,6 +65,10 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 - 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
 
+- 2026-10-18: **Ajuste por gesto sempre de 5 em 5 minutos**: segurar e arrastar o cartão (mover) ou
+  a alça (duração) anda de 5 em 5, como as listras marcam, qualquer que seja o intervalo de
+  horários do negócio (`passoDoGesto` = `PASSO_DO_AJUSTE_MIN`).
+
 - 2026-10-18: **Modo lista da Agenda (celular)**: mostra os atendimentos **de hoje em diante**
   (60 dias, carrega mais ao rolar), separados por dia e em ordem, com busca por cliente, telefone
   ou serviço; cancelados e faltas ficam escondidos atrás de "Mostrar cancelados". Entrada e saída
@@ -140,6 +144,16 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Arrasto e alça de duração de 5 em 5 minutos
+- O que mudou e por quê: o dono quer ajustar de 5 em 5, como as listras. `passoDoGesto` limitava
+  o passo entre 5 e 15 conforme o intervalo do negócio (com intervalo de 30, o arrasto andava de
+  15 em 15, fora das listras). Agora devolve sempre `PASSO_DO_AJUSTE_MIN` (5); as listras usam a
+  mesma constante. O servidor (`moverAgendamentoPainel`) não exige alinhamento, então nada muda
+  lá. O intervalo do negócio continua valendo para os horários oferecidos ao cliente.
+- Arquivos: `src/lib/remarcacao-regras.ts` (+ teste), `AgendaTimeline.tsx`,
+  `arrasto-timeline.test.ts` (as setas da alça agora mudam 5 min).
+- Testes: `tsc`, `vitest` (1522) e `build` passaram.
 
 ### 2026-10-18 UTC — Claude — Modo lista de vários dias no celular (vídeo do dono)
 - O que mudou e por quê: o dono pediu o modo lista do vídeo (17/10, 21:46), com "todos os
