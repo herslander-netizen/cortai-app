@@ -149,6 +149,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Acessibilidade das demonstrações de apresentação
+- Ajuste pequeno: o estado de forma de pagamento selecionada na comanda demonstrativa agora usa `aria-live="polite"`, para leitores de tela anunciarem a mudança sem interromper a leitura.
+- Arquivo: `src/components/apresentacao/ShowroomCortai.tsx`. Commit: `4380362`.
+- Continua sendo apenas uma simulação local: nenhum pagamento ou atendimento real é alterado. Validação CI e inspeção em celular continuam pendentes.
+
 ### 2026-10-18 UTC — GPT — Evidências visuais internas do APK documentadas
 - Extraí e examinei os cinco vídeos de demonstração já embutidos no `Figaroo.apk`: agenda/booking, página pública, avaliações, indicadores e notificações.
 - Acrescentei à referência oficial os padrões concretos observados: lista de serviços por categoria, horários em linhas com profissional sugerido, cabeçalho mês/ano, painel de dados do cliente, avaliações em cartões e métricas agrupadas. Registrei também o limite: não inventar categorias/dados que o Cortaí não fornece.
