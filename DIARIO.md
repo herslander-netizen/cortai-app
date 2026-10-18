@@ -162,6 +162,20 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Agenda Figaro: zoom das horas com dois dedos
+- O que mudou e por quê: o dono pediu para seguir o Figaro também na Agenda ("tudo"). Do
+  inventário do APK, o que o Cortaí não tinha era o **zoom por pinça** da timeline. Agora a escala
+  (px por minuto) vem de `zoom-agenda.ts` (`usePxPorMinuto`, de 1,2 a 5; padrão 2,25), guardada só
+  no aparelho e compartilhada com as páginas vizinhas. A pinça muda a escala ao vivo e mantém,
+  debaixo dos dedos, o horário que estava ali (a página rola junto); um dedo continua rolando e
+  arrastando. `useGestoDia` cancela a troca de dia quando entra o segundo dedo.
+- Os outros itens da Agenda do Figaro (ficha, novo agendamento, editar horário, bloqueio, filtro
+  da equipe) já existem no Cortaí; ficam para ajuste fino quando o dono mandar as gravações do
+  Figaro. O novo agendamento (`AgendamentoManual.tsx`) está reservado pelo GPT.
+- Arquivos: `zoom-agenda.ts` (+ teste), `AgendaTimeline.tsx`, `useGestoDia.ts`.
+- Testes: `tsc`, `vitest` (1531) e `build` passaram; pinça simulada no Chromium a 390 px (o
+  horário do meio ficou parado, 13:59 antes e depois).
+
 ### 2026-10-18 UTC — GPT — C8: permissão por ação no WhatsApp (validado)
 - Validação final: `Validate Cortaí` passou no commit `516fe82f487a6cd2f7085603d0beb111f6fbb56f` (run 39095721727); workflow de prévia também passou (run 39095721749). A prévia foi publicada em `https://previa.cortaiapp.pages.dev`.
 - Correção: ações exclusivas de papel no WhatsApp preservam o controle de papel; ações de equipe restantes verificam canal e permissões efetivas. Testes ajustados para refletir permissões reais.

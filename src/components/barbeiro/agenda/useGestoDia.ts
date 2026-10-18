@@ -172,6 +172,13 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       const s = estado.current;
       const t = e.touches[0];
       if (!s || !t) return;
+      // Segundo dedo: é pinça (zoom das horas), não troca de dia.
+      if (e.touches.length > 1) {
+        estado.current = null;
+        if (s.quadro !== null) cancelAnimationFrame(s.quadro);
+        escrever(0);
+        return limpar();
+      }
       if (arrastando()) {
         estado.current = null;
         escrever(0);

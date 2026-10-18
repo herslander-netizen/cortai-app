@@ -26,6 +26,7 @@ import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
+import { usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import { prefereMenosMovimento } from "@/lib/motion";
 
@@ -87,7 +88,6 @@ type AgendaTimelineProps = {
   emCamada?: boolean;
 };
 
-const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
 const ESPACO_ENTRE_BLOCOS = 6;
 
@@ -151,6 +151,9 @@ export function AgendaTimeline({
   const agora = agoraProp ?? relogio;
   const [toqueVazio, setToqueVazio] = useState<number | null>(null);
   const rolagemRef = useRef<HTMLDivElement>(null);
+  // Escala da grade (pixels por minuto): muda com a pinça de dois dedos (zoom-agenda.ts).
+  const PX_POR_MINUTO = usePxPorMinuto();
+  const gradeRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
@@ -361,7 +364,7 @@ export function AgendaTimeline({
     });
     if (grupo.length > 0) distribuir();
     return { posicoes: resultado, acrescimos, pixelsAcrescidos };
-  }, [alinhado, escala.inicio, fuso, itens]);
+  }, [alinhado, escala.inicio, fuso, itens, PX_POR_MINUTO]);
 
   const deslocamentoAte = (minuto: number) =>
     layout.acrescimos.reduce(
@@ -657,6 +660,11 @@ export function AgendaTimeline({
             : 0,
         );
   const interativo = !previa;
+  usePincaDaTimeline({
+    grade: gradeRef,
+    ativo: interativo && diaCompleto,
+    inicioDaEscala: escala.inicio,
+  });
   const alinharNoCelular = previa && diaCompleto && !emCamada;
   const trilho = vizinhos ? { "data-trilho-dia": "" } : {};
   const abreEm = funcionamentoDoDia ? minutosDoHorario(funcionamentoDoDia.abre) : 8 * 60;
@@ -753,6 +761,7 @@ export function AgendaTimeline({
         }
       >
         <div
+          ref={gradeRef}
           className="agenda-timeline"
           id={previa ? undefined : "agenda-timeline-grade"}
           tabIndex={previa ? undefined : -1}
