@@ -147,6 +147,12 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Demonstrações da apresentação agora respondem aos toques
+- A seção de conversa permite selecionar serviço e expandir/recolher opções; a demonstração de lembrete simula confirmar ou pedir remarcação; a comanda permite adicionar/remover um serviço sugerido e selecionar a forma de pagamento.
+- Todas as ações são locais e informam que não enviam mensagens, não alteram agendamentos e não processam pagamentos. Isso evita controles aparentando funcionar sem resposta nem falsas confirmações.
+- Arquivo: `src/components/apresentacao/ShowroomCortai.tsx`. Commits: `86b223d`, `5c35990`, `6e53531`.
+- Validação automatizada ainda precisa ser conferida; não foi feita inspeção visual no celular. Não alterei arquivos reservados da Agenda nem o banco.
+
 ### 2026-10-18 UTC — GPT — Rascunho do agendamento manual não perde escolhas
 - Correção: o estado `sujo` agora também detecta mudanças em serviço, profissional, data, hora e forma de pagamento, sem considerar os valores padrão carregados como alterações.
 - Regra isolada em `temAlteracoesAgendamentoManual` e coberta por testes para valores padrão, cada campo alterado, cliente existente e dados digitados.
