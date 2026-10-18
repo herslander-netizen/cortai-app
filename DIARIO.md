@@ -150,7 +150,7 @@ teste real na prévia.
 ### 2026-10-18 UTC — GPT — Cobertura do gesto de voltar em formulários
 - O que mudou: acrescentei testes em `TelaDeFormulario.test.tsx` para os dois caminhos do botão/gesto de voltar: com alterações pendentes deve pedir confirmação e sem alterações deve fechar.
 - Arquivo: `src/components/ui/formulario/TelaDeFormulario.test.tsx`.
-- Commit: `7b46ad9`; validação automatizada do commit ainda pendente. Não mexi na implementação de agenda reservada ao Claude nem no banco.
+- Commit efetivo dos testes: `5aa5f54` (o commit `7b46ad9` não alterou o arquivo por um erro na montagem do texto). Validação automatizada ainda pendente. Não mexi na implementação de agenda reservada ao Claude nem no banco.
 - Próximo passo: conferir o GitHub Actions; se passar, continuar a auditoria dos formulários sem alterar a experiência Figaro sem evidência.
 
 ### 2026-10-18 UTC — GPT — Fluxo de agendamento manual em etapas, alinhado ao Figaro
