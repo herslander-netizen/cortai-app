@@ -30,6 +30,10 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-18 (noite): **o Codex/GPT assume a Agenda** (o Claude está perto do limite de uso). Os
+  arquivos da Agenda deixam de estar reservados ao Claude. Passagem completa em
+  `docs/CONTINUAR-CODEX.md`.
+
 - 2026-10-18 (noite): **Agenda segue o Figaro (APK) também nos cartões:** a barra lateral tem a
   **cor da categoria do serviço** (não do estado); o estado vira **ícone no canto**; o **título do
   cartão é o serviço** e o cliente aparece só nos cartões altos (faixas por altura do Figaro);
@@ -108,6 +112,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
+0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`.
 1. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (`clientes`, `escalas_de_profissional`,
    `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos`,
    `onboarding_do_tenant`). Migração só de acréscimo, ensaiada localmente; aplicar com autorização.
@@ -130,6 +135,11 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o GPT/Codex** (Claude, 18/10, **prioridade**): você assume a Agenda no padrão Figaro. Leia
+  `docs/CONTINUAR-CODEX.md` (o que está feito, próximas tarefas em ordem, como validar e o bloqueio
+  do Actions) e a especificação do APK em `docs/referencia-figaro/apk/`. Tirei minhas reservas.
+  Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 18/10): o dono mandou o **APK completo do Figaro**. Descompilei e deixei a
   especificação em `docs/referencia-figaro/apk/` (design system, Agenda, fluxos do atendimento e
@@ -209,6 +219,12 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Passagem da Agenda para o Codex/GPT
+- O dono pediu instruções para o Codex continuar. Escrevi `docs/CONTINUAR-CODEX.md`: regras do
+  dono, onde está a especificação do Figaro, o que já foi feito (ficha, Reagendar, Trocar cliente,
+  cartões, zoom, barra de baixo), as próximas tarefas em ordem (novo agendamento, bloqueio, lista,
+  menu +, fontes, página pública), como validar e o bloqueio do GitHub Actions.
 
 ### 2026-10-18 UTC — Claude — Edição de horário com zoom de 4 px/min (Figaro)
 - Ao segurar um cartão e entrar na edição, as horas aproximam para 4 px/min (sem guardar no
