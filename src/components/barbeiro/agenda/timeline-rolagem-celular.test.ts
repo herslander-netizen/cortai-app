@@ -148,8 +148,19 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
   });
 
-  it("o calendário do mês cresce e troca de conteúdo ao mesmo tempo", () => {
+  it("o calendário do mês cresce por cima da Agenda, sem empurrar a página", () => {
     expect(semana).not.toContain('mode="wait"');
-    expect(semana).toContain('animate={{ height: expandido ? ALTURA_DO_MES : "auto" }}');
+    expect(semana).toContain("animate={{ height: ALTURA_DO_MES + 12 }}");
+    expect(semana).not.toContain('height: expandido ? ALTURA_DO_MES : "auto"');
+  });
+
+  it("o dia vizinho mostra o fora do expediente durante o gesto", () => {
+    expect(css).not.toMatch(
+      /\.agenda-dia-vizinha \.agenda-timeline-fora-expediente \{\s*background: transparent/,
+    );
+  });
+
+  it('o espaço do "Agora · Livre" fica reservado em todo dia (a grade não pula)', () => {
+    expect(operacional).toContain('${ehHoje && ativos.length === 0 ? "" : "invisible"}');
   });
 });

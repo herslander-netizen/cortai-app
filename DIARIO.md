@@ -133,6 +133,24 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Correções do vídeo do dono (calendário, listras, "Agora · Livre")
+- O que mudou e por quê (vídeo de 17/10 às 21:33):
+  1. **Fotos da equipe piscando ao abrir/fechar o calendário:** o `scrollIntoView` que posiciona o
+     mês rolava também a página, e o mês crescendo empurrava a Agenda (o navegador corrigia a
+     rolagem um quadro depois). Agora a lista rola só por dentro e o mês cresce **por cima** da
+     Agenda (mesma cor e base arredondada da barra), sem mexer na página.
+  2. **Listras de fora do expediente "do nada" e só linhas no dia vizinho:** a regra
+     `.agenda-gesto-ativo .agenda-dia-vizinha .agenda-timeline-fora-expediente { background:
+     transparent }` (de `c1519ce`, feita para o desenho antigo em camadas) foi retirada; o dia
+     vizinho entra com as listras.
+  3. **"Agora · Livre" fazia a grade pular** ao trocar entre hoje e outro dia: o espaço da linha
+     fica reservado em todo dia (invisível fora de hoje).
+- Arquivos: `SemanaDoTopo.tsx`, `AgendaOperacional.tsx`, `src/styles.css`, testes em
+  `SemanaDoTopo.test.tsx` e `timeline-rolagem-celular.test.ts`.
+- Testes: `tsc`, `vitest` (1516) e `build` passaram; simulação a 390 px: abrir o mês com a página
+  rolada não muda a rolagem nem a posição da equipe; dia vizinho com listras no meio do gesto.
+- Banco/infra: nada alterado; nada publicado no site principal.
+
 ### 2026-10-17 UTC — Claude — Agenda mobile igual aos vídeos de referência do dono
 - O que mudou e por quê: o dono pediu o comportamento "igual, não parecido" aos vídeos (17/10,
   13:38 e 15:42), estudados quadro a quadro.

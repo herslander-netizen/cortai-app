@@ -1296,8 +1296,14 @@ export function AgendaOperacional() {
 
         {faixa}
 
-        {ehHoje && visualizacao === "timeline" && ativos.length === 0 ? (
-          <p className="mb-2 text-xs font-semibold text-mute" role="status">
+        {/* O espaço do "Agora · Livre" fica reservado em todo dia: sem ele a grade pulava ao
+            trocar entre hoje e outro dia. */}
+        {visualizacao === "timeline" ? (
+          <p
+            className={`mb-2 text-xs font-semibold text-mute ${ehHoje && ativos.length === 0 ? "" : "invisible"}`}
+            role={ehHoje && ativos.length === 0 ? "status" : undefined}
+            aria-hidden={ehHoje && ativos.length === 0 ? undefined : true}
+          >
             Agora · Livre
           </p>
         ) : null}

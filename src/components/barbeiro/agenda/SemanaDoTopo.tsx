@@ -241,11 +241,19 @@ export function SemanaDoTopo({
   }
 
   const listaRef = useRef<HTMLDivElement>(null);
+  // Altura da semana: o mês nasce dela e volta para ela ao fechar.
+  const camadaSemana = useRef<HTMLDivElement>(null);
+  const [alturaSemana, setAlturaSemana] = useState(60);
+  useLayoutEffect(() => {
+    const altura = camadaSemana.current?.offsetHeight;
+    if (altura) setAlturaSemana(altura);
+  }, []);
   useLayoutEffect(() => {
     if (!expandido) return;
-    listaRef.current
-      ?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`)
-      ?.scrollIntoView({ block: "start" });
+    // Rola só a lista: scrollIntoView rolava também a página e a Agenda pulava embaixo.
+    const lista = listaRef.current;
+    const mes = lista?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`);
+    if (lista && mes) lista.scrollTop = mes.offsetTop;
   }, [expandido, mesDoDiaEscolhido, mesesProntos]);
   return (
     <div data-sem-gesto-dia>
@@ -257,14 +265,12 @@ export function SemanaDoTopo({
             </span>
           ))}
         </div>
-        {/* Como no modelo: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo. */}
-        <motion.div
-          className="relative overflow-hidden"
-          initial={false}
-          animate={{ height: expandido ? ALTURA_DO_MES : "auto" }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        >
+        {/* Como no modelo: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo.
+            O mês cresce por cima da Agenda, sem empurrar a página: empurrar fazia o navegador
+            corrigir a rolagem um quadro depois e a linha da equipe piscava embaixo. */}
+        <div className="relative">
           <motion.div
+            ref={camadaSemana}
             initial={false}
             animate={{ opacity: expandido ? 0 : 1 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -330,49 +336,57 @@ export function SemanaDoTopo({
             {expandido ? (
               <motion.div
                 key="calendario-expandido"
-                className="absolute inset-x-0 top-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
+                style={{ background: "var(--ink2)", boxShadow: "var(--shadow-md)" }}
+                initial={{ height: alturaSemana + 12 }}
+                animate={{ height: ALTURA_DO_MES + 12 }}
+                exit={{ height: alturaSemana + 12 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div
-                  ref={listaRef}
-                  className="h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
-                  aria-label="Calendário"
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  {(mesesProntos ? meses : [mesDoDiaEscolhido]).map((mes) => {
-                    const primeiro = `${mes}-01`;
-                    return (
-                      <section key={mes} data-mes={mes} className="min-h-full snap-start pb-2">
-                        <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
-                          {tituloDoMes(mes).split(" ")[0]}
-                        </h2>
-                        <div className="grid grid-cols-7">
-                          {gradeDoMes(mes).map((d, i) =>
-                            mesDoDia(d) === mes ? (
-                              <DiaDoCalendario
-                                key={d}
-                                dia={d}
-                                escolhido={d === dia}
-                                hoje={d === hoje}
-                                comAtendimento={temAtendimento(d)}
-                                compacto
-                                onDia={onDia}
-                              />
-                            ) : (
-                              <span key={`${primeiro}-${i}`} aria-hidden />
-                            ),
-                          )}
-                        </div>
-                      </section>
-                    );
-                  })}
-                </div>
+                  <div
+                    ref={listaRef}
+                    className="relative h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
+                    aria-label="Calendário"
+                  >
+                    {(mesesProntos ? meses : [mesDoDiaEscolhido]).map((mes) => {
+                      const primeiro = `${mes}-01`;
+                      return (
+                        <section key={mes} data-mes={mes} className="min-h-full snap-start pb-2">
+                          <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
+                            {tituloDoMes(mes).split(" ")[0]}
+                          </h2>
+                          <div className="grid grid-cols-7">
+                            {gradeDoMes(mes).map((d, i) =>
+                              mesDoDia(d) === mes ? (
+                                <DiaDoCalendario
+                                  key={d}
+                                  dia={d}
+                                  escolhido={d === dia}
+                                  hoje={d === hoje}
+                                  comAtendimento={temAtendimento(d)}
+                                  compacto
+                                  onDia={onDia}
+                                />
+                              ) : (
+                                <span key={`${primeiro}-${i}`} aria-hidden />
+                              ),
+                            )}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                </motion.div>
               </motion.div>
             ) : null}
           </AnimatePresence>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

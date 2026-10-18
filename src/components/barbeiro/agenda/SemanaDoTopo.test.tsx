@@ -102,7 +102,6 @@ describe("faixa da semana no topo", () => {
     expect(onDia).not.toHaveBeenCalled();
   });
   it("aberto, mostra os meses com o dia escolhido marcado", async () => {
-    Element.prototype.scrollIntoView = vi.fn();
     const alvo = await montar({ expandido: true });
     // Abre com o mês do dia; os outros meses entram logo depois da animação.
     expect(alvo.textContent).toContain("Outubro");
