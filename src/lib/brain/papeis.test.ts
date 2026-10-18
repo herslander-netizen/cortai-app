@@ -14,7 +14,12 @@ const prof: ContextoDoCerebro = {
   canal: "whatsapp",
   papel: "profissional",
   profissionalId: "p1",
-  permissoes: ["agendamento_manual", "cancelar_agendamento", "editar_clientes"],
+  permissoes: [
+    "agendamento_manual",
+    "cancelar_agendamento",
+    "editar_clientes",
+    "visualizar_clientes",
+  ],
 };
 const dono: ContextoDoCerebro = { ...base, canal: "whatsapp", papel: "dono" };
 const painel: ContextoDoCerebro = { ...base, canal: "painel" };
