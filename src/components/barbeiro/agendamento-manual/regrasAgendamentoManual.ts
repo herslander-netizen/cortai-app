@@ -1,4 +1,4 @@
-import type { Forma } from "./useAgendamentoManual";
+export type Forma = "balcao" | "pix" | "fiado" | "credito";
 
 /** Detecta alterações relevantes sem marcar os valores padrão carregados como rascunho. */
 export function temAlteracoesAgendamentoManual({
