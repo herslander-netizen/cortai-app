@@ -6,6 +6,7 @@ import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
+import { brl } from "@/lib/format";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 
 import { SecaoCliente } from "./agendamento-manual/SecaoCliente";
@@ -132,12 +133,8 @@ function Formulario({
 
   return (
     <TelaDeFormulario
-      titulo={iniciarNovoCliente && s.novo ? "Novo cliente" : "Novo agendamento"}
-      subtitulo={
-        iniciarNovoCliente && s.novo
-          ? "Para facilitar o contato e agilizar os próximos agendamentos."
-          : etapas[etapa]?.detalhe ?? "Agendamento em etapas."
-      }
+      titulo="Novo agendamento"
+      subtitulo={etapas[etapa]?.detalhe ?? "Agendamento em etapas."}
       sujo={s.sujo && !s.confirmado}
       onFechar={onFechar}
       {...(s.confirmado
@@ -182,7 +179,7 @@ function Formulario({
         </>
       ) : (
         <>
-          <div aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length} className="space-y-3">
+          <div role="group" aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length} className="space-y-3">
             <div className="grid grid-cols-4 gap-2" aria-hidden="true">
               {etapas.map((item, indice) => (
                 <span
@@ -223,7 +220,7 @@ function Formulario({
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-paper">{servico?.nome ?? "Serviço"}</p>
                       <p className="mt-1 text-sm text-mute">
-                        {servico?.duracao_min ?? "—"} min · {servico ? "R$ " + (servico.preco_centavos / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "Preço a confirmar"}
+                        {servico?.duracao_min ?? "—"} min · {servico ? brl(servico.preco_centavos) : "Preço a confirmar"}
                       </p>
                     </div>
                   </div>
